@@ -1,3 +1,4 @@
+using System.ComponentModel;
 using System.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
 using MonitoringAndEvaluationPlatform.Models;
@@ -31,6 +32,20 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         public IActionResult Home()
         {
             return View();
+        }
+
+        [HttpGet]
+        public IActionResult LoadRecentPosts(int count = 2)
+        {
+            ViewData["count"] = count;
+            return PartialView("_RecentPostsPartial");
+        }
+
+        [HttpGet]
+        public IActionResult LoadRecentPosts2(int count = 2)
+        {
+            ViewData["count"] = count;
+            return PartialView("_RecentPostsPartial2");
         }
 
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]

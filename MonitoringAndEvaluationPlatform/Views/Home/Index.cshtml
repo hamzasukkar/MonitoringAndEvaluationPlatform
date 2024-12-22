@@ -107,6 +107,25 @@
             document.getElementById("contentFrame").src = pageUrl;
         }
     </script>
+    <script>
+               function loadContent(endpoint) {
+            fetch(endpoint)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error("Network response was not ok");
+                    }
+                    return response.text();
+                })
+                .then(html => {
+                    document.querySelector('.content').innerHTML = html;
+                })
+                .catch(error => {
+                    console.error('There was a problem with the fetch operation:', error);
+                });
+        }
+
+    </script>
+
 </head>
 <body>
     <!-- Top Navigation Bar -->
@@ -185,12 +204,12 @@
         <!-- Sidebar -->
         <div class="sidebar">
             <ul class="list-unstyled">
-                <li class="d-flex align-items-center" onclick="loadContent('page1.html')">
-                    <img src="~/img/results.png"
-                         alt="Results Icon" class="me-2" width="24" height="24">
+                <li class="d-flex align-items-center" onclick="loadContent('/Home/LoadRecentPosts?count=10')">
+                    <img src="~/img/results.png" alt="Results Icon" class="me-2" width="24" height="24">
                     Results Framework
                 </li>
-                <li class="d-flex align-items-center" onclick="loadContent('page2.html')">
+
+                <li class="d-flex align-items-center" onclick="loadContent('/Home/LoadRecentPosts2?count=10')">
                     <img src="~/img/setup.png"
                          alt="Setup Icon" class="me-2" width="24" height="24">
                     Set Up
@@ -237,8 +256,6 @@
         <!-- Content Area with Iframe -->
         <div class="content">
             <iframe id="contentFrame" src="page1.html"></iframe>
-            <h1>Recent Blog Posts</h1>
-            @await Component.InvokeAsync("RecentPosts", new { count = 2 })
         </div>
     </div>
     <!-- Bootstrap 5 JS and Popper.js (use the CDN for simplicity) -->
