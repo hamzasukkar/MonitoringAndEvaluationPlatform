@@ -14,6 +14,8 @@ builder.Services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.Requ
     .AddEntityFrameworkStores<ApplicationDbContext>();
 builder.Services.AddControllersWithViews();
 
+builder.Services.AddScoped<IPostService, PostService>();
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -39,5 +41,12 @@ app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}");
 app.MapRazorPages();
+
+
+
+// Register IPostService with its implementation
+
+
+app.MapDefaultControllerRoute();
 
 app.Run();

@@ -237,6 +237,8 @@
         <!-- Content Area with Iframe -->
         <div class="content">
             <iframe id="contentFrame" src="page1.html"></iframe>
+            <h1>Recent Blog Posts</h1>
+            @await Component.InvokeAsync("RecentPosts", new { count = 2 })
         </div>
     </div>
     <!-- Bootstrap 5 JS and Popper.js (use the CDN for simplicity) -->
