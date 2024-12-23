@@ -1,8 +1,246 @@
 ﻿@{
-    ViewData["Title"] = "Home Page";
+    Layout = null;
 }
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Monitoring & Evaluation System</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+        }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
-</div>
+        .topbar {
+            width: 100%;
+            background-color: #b70000;
+            color: white;
+            padding: 10px 20px;
+            box-sizing: border-box;
+            display: flex;
+            align-items: center;
+        }
+
+            .topbar .title {
+                font-size: 20px;
+                font-weight: bold;
+            }
+
+            .topbar .nav-links {
+                display: flex;
+                gap: 15px;
+            }
+
+        .nav-link:focus, .nav-link:hover {
+            color: black;
+        }
+
+        .nav-item a {
+            color: white;
+            text-decoration: none;
+            font-size: 16px;
+        }
+
+        .dropdown-menu a {
+            color: black;
+            text-decoration: none;
+            font-size: 16px;
+        }
+
+        .topbar .nav-links a:hover {
+            text-decoration: underline;
+        }
+
+        .main {
+            display: flex;
+            flex: 1;
+        }
+
+        .sidebar {
+            width: 250px;
+            background-color: #f4f4f4;
+            border-right: 1px solid #ddd;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+            .sidebar ul {
+                list-style: none;
+                padding: 0;
+                margin: 0;
+            }
+
+                .sidebar ul li {
+                    padding: 15px;
+                    cursor: pointer;
+                    border-bottom: 1px solid #ddd;
+                }
+
+                    .sidebar ul li:hover {
+                        background-color: #ddd;
+                    }
+
+        .content {
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        .title {
+            font-size: 20px;
+        }
+    </style>
+    <script>
+        function loadContent(pageUrl) {
+            document.getElementById("contentFrame").src = pageUrl;
+        }
+    </script>
+</head>
+<body>
+    <!-- Top Navigation Bar -->
+    <div class="topbar">
+        <div class="title">Monitoring & Evaluation System</div>
+        <div class="nav-links">
+            <ul class="nav">
+                <!-- Dropdown for Results Framework -->
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" id="resultsDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        Results Framework
+                    </a>
+                    <ul class="dropdown-menu" aria-labelledby="resultsDropdown">
+                        <li><a class="dropdown-item" href="#" onclick="alert('Sub-item 1 clicked!');">Outcomes</a></li>
+                        <li><a class="dropdown-item" href="#" onclick="alert('Sub-item 2 clicked!');">Outputs</a></li>
+                        <li><a class="dropdown-item" href="#" onclick="alert('Sub-item 3 clicked!');">Sub-Outputs</a></li>
+                        <li><a class="dropdown-item" href="#" onclick="alert('Sub-item 3 clicked!');">Indicators</a></li>
+                    </ul>
+                </li>
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" id="resultsDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        Syria's National Vision
+                    </a>
+                    <ul class="dropdown-menu" aria-labelledby="resultsDropdown">
+                        <li><a class="dropdown-item" href="#" onclick="alert('Sub-item 1 clicked!');">Outcomes</a></li>
+                        <li><a class="dropdown-item" href="#" onclick="alert('Sub-item 2 clicked!');">Outputs</a></li>
+                        <li><a class="dropdown-item" href="#" onclick="alert('Sub-item 3 clicked!');">Sub-Outputs</a></li>
+                        <li><a class="dropdown-item" href="#" onclick="alert('Sub-item 3 clicked!');">Indicators</a></li>
+                    </ul>
+                </li>
+                <!-- Other links -->
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" id="resultsDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        Programs Framework
+                    </a>
+                    <ul class="dropdown-menu" aria-labelledby="resultsDropdown">
+                        <li><a class="dropdown-item" href="#" onclick="alert('Sub-item 1 clicked!');">Outcomes</a></li>
+                        <li><a class="dropdown-item" href="#" onclick="alert('Sub-item 2 clicked!');">Outputs</a></li>
+                        <li><a class="dropdown-item" href="#" onclick="alert('Sub-item 3 clicked!');">Sub-Outputs</a></li>
+                        <li><a class="dropdown-item" href="#" onclick="alert('Sub-item 3 clicked!');">Indicators</a></li>
+                    </ul>
+                </li>
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" id="resultsDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        SDG'S
+                    </a>
+                    <ul class="dropdown-menu" aria-labelledby="resultsDropdown">
+                        <li><a class="dropdown-item" href="#" onclick="alert('Sub-item 1 clicked!');">Goals</a></li>
+                        <li><a class="dropdown-item" href="#" onclick="alert('Sub-item 2 clicked!');">Targets</a></li>
+                        <li><a class="dropdown-item" href="#" onclick="alert('Sub-item 3 clicked!');">Indicators</a></li>
+                    </ul>
+                </li>
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" id="resultsDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        Common
+                    </a>
+                    <ul class="dropdown-menu" aria-labelledby="resultsDropdown">
+                        <li><a class="dropdown-item" href="#" onclick="alert('Sub-item 1 clicked!');">Indicators</a></li>
+                    </ul>
+                </li>
+                <li>
+                    <a class="nav-link dropdown-toggle" href="#" id="resultsDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        <img class="rounded-circle oe_topbar_avatar" width="23" height="23" src="~/img/profile.jpeg" />
+                    </a>
+                    <ul class="dropdown-menu" aria-labelledby="resultsDropdown">
+                        <li><a class="dropdown-item" href="#" onclick="alert('Sub-item 1 clicked!');">Setting</a></li>
+                        <li><a class="dropdown-item" href="#" onclick="alert('Sub-item 1 clicked!');">Log out</a></li>
+                    </ul>
+                </li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- Main Content Area -->
+    <div class="main">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <ul class="list-unstyled">
+                <li class="d-flex align-items-center" onclick="loadContent('page1.html')">
+                    <img src="~/img/results.png"
+                         alt="Results Icon" class="me-2" width="24" height="24">
+                    Results Framework
+                </li>
+                <li class="d-flex align-items-center" onclick="loadContent('page2.html')">
+                    <img src="~/img/setup.png"
+                         alt="Setup Icon" class="me-2" width="24" height="24">
+                    Set Up
+                </li>
+                <li class="d-flex align-items-center" onclick="loadContent('page3.html')">
+                    <img src="~/img/programs.png"
+                         alt="Programs Icon" class="me-2" width="24" height="24">
+                    Programs
+                </li>
+                <li class="d-flex align-items-center" onclick="loadContent('page3.html')">
+                    <img src="~/img/monitor.png"
+                         alt="Monitoring Icon" class="me-2" width="24" height="24">
+                    Monitoring
+                </li>
+                <li class="d-flex align-items-center" onclick="loadContent('page3.html')">
+                    <img src="~/img/dashboard.png"
+                         alt="Dashboard Icon" class="me-2" width="24" height="24">
+                    Dashboard
+                </li>
+                <li class="d-flex align-items-center" onclick="loadContent('page3.html')">
+                    <img src="~/img/document.png"
+                         alt="Assessment Icon" class="me-2" width="24" height="24">
+                    Assessment
+                </li>
+                <li class="d-flex align-items-center" onclick="loadContent('page3.html')">
+                    <img src="~/img/discuss.png"
+                         alt="Discuss Icon" class="me-2" width="24" height="24">
+                    Discuss
+                </li>
+                <li class="d-flex align-items-center" onclick="loadContent('page3.html')">
+                    <img src="~/img/apps.png"
+                         alt="Apps Icon" class="me-2" width="24" height="24">
+                    Apps
+                </li>
+                <li class="d-flex align-items-center" onclick="loadContent('page3.html')">
+                    <img src="~/img/settings.png"
+                         alt="Settings Icon" class="me-2" width="24" height="24">
+                    Settings
+                </li>
+            </ul>
+        </div>
+
+
+        <!-- Content Area with Iframe -->
+        <div class="content">
+            <iframe id="contentFrame" src="page1.html"></iframe>
+        </div>
+    </div>
+    <!-- Bootstrap 5 JS and Popper.js (use the CDN for simplicity) -->
+    <script src="https://cdn.jsdelivr.net/npm/@@popperjs/core@2.9.3/dist/umd/popper.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
