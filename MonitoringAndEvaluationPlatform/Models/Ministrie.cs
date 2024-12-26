@@ -1,9 +1,11 @@
-﻿namespace MonitoringAndEvaluationPlatform.Models
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace MonitoringAndEvaluationPlatform.Models
 {
     public class Ministrie
     {
+        [Key]
         public int Code { get; set; }
-
         public string Partner { get; set; }
         public int DisbursementPerformance { get; set; }
         public int FieldMonitoring { get; set; }

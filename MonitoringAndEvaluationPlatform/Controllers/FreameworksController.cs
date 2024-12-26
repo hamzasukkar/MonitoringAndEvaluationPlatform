@@ -10,22 +10,32 @@ using MonitoringAndEvaluationPlatform.Models;
 
 namespace MonitoringAndEvaluationPlatform.Controllers
 {
-    public class FreameworksController : Controller
+    public class FrameworksController : Controller
     {
         private readonly ApplicationDbContext _context;
 
-        public FreameworksController(ApplicationDbContext context)
+        public FrameworksController(ApplicationDbContext context)
         {
             _context = context;
         }
 
-        // GET: Freameworks
+        // GET: Frameworks
         public async Task<IActionResult> Index()
         {
             return View(await _context.Freamework.ToListAsync());
         }
+        // GET: Monitoring
+        public async Task<IActionResult> Monitoring()
+        {
+            return View(await _context.Freamework.ToListAsync());
+        }
 
-        // GET: Freameworks/Details/5
+        public async Task<IActionResult> Dashboard()
+        {
+            return View(await _context.Freamework.ToListAsync());
+        }
+
+        // GET: Frameworks/Details/5
         public async Task<IActionResult> Details(int? id)
         {
             if (id == null)
@@ -43,18 +53,18 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             return View(freamework);
         }
 
-        // GET: Freameworks/Create
+        // GET: Frameworks/Create
         public IActionResult Create()
         {
             return View();
         }
 
-        // POST: Freameworks/Create
+        // POST: Frameworks/Create
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Code,Framework,Trend,IndicatorsPerformance,DisbursementPerformance,FieldMonitoring,ImpactAssessment")] Freamework freamework)
+        public async Task<IActionResult> Create([Bind("Code,Framework,Trend,IndicatorsPerformance,DisbursementPerformance,FieldMonitoring,ImpactAssessment")] Framework freamework)
         {
             if (ModelState.IsValid)
             {
@@ -65,7 +75,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             return View(freamework);
         }
 
-        // GET: Freameworks/Edit/5
+        // GET: Frameworks/Edit/5
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null)
@@ -81,12 +91,12 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             return View(freamework);
         }
 
-        // POST: Freameworks/Edit/5
+        // POST: Frameworks/Edit/5
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Code,Framework,Trend,IndicatorsPerformance,DisbursementPerformance,FieldMonitoring,ImpactAssessment")] Freamework freamework)
+        public async Task<IActionResult> Edit(int id, [Bind("Code,Framework,Trend,IndicatorsPerformance,DisbursementPerformance,FieldMonitoring,ImpactAssessment")] Framework freamework)
         {
             if (id != freamework.Code)
             {
@@ -116,7 +126,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             return View(freamework);
         }
 
-        // GET: Freameworks/Delete/5
+        // GET: Frameworks/Delete/5
         public async Task<IActionResult> Delete(int? id)
         {
             if (id == null)
@@ -134,7 +144,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             return View(freamework);
         }
 
-        // POST: Freameworks/Delete/5
+        // POST: Frameworks/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)

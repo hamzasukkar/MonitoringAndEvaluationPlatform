@@ -10,10 +10,17 @@ namespace MonitoringAndEvaluationPlatform.Data
             : base(options)
         {
         }
-        public DbSet<MonitoringAndEvaluationPlatform.Models.Freamework> Freamework { get; set; } = default!;
+        public DbSet<MonitoringAndEvaluationPlatform.Models.Framework> Freamework { get; set; } = default!;
         public DbSet<MonitoringAndEvaluationPlatform.Models.Outcome> Outcomes { get; set; } = default!;
         public DbSet<MonitoringAndEvaluationPlatform.Models.Output> Outputs { get; set; } = default!;
         public DbSet<MonitoringAndEvaluationPlatform.Models.Indicator> Indicators { get; set; } = default!;
         public DbSet<MonitoringAndEvaluationPlatform.Models.SubOutput> SubOutputs { get; set; } = default!;
+        public DbSet<MonitoringAndEvaluationPlatform.Models.Ministrie> Ministrie { get; set; } = default!;
+        public DbSet<MonitoringAndEvaluationPlatform.Models.Program> Program { get; set; } = default!;
+        public DbSet<MonitoringAndEvaluationPlatform.Models.Target> Target { get; set; } = default!;
+        public DbSet<MonitoringAndEvaluationPlatform.Models.Goal> Goal { get; set; } = default!;
+        public DbSet<MonitoringAndEvaluationPlatform.Models.Region> Region { get; set; } = default!;
+        public DbSet<MonitoringAndEvaluationPlatform.Models.Sector> Sector { get; set; } = default!;
+        public DbSet<MonitoringAndEvaluationPlatform.Models.Donor> Donor { get; set; } = default!;
     }
 }

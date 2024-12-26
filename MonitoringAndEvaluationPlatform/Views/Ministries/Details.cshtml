@@ -1,0 +1,43 @@
+﻿@model MonitoringAndEvaluationPlatform.Models.Ministrie
+
+@{
+    ViewData["Title"] = "Details";
+    Layout = "~/Views/Shared/_Layout4.cshtml";
+}
+
+<h1>Details</h1>
+
+<div>
+    <h4>Ministrie</h4>
+    <hr />
+    <dl class="row">
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.Partner)
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.Partner)
+        </dd>
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.DisbursementPerformance)
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.DisbursementPerformance)
+        </dd>
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.FieldMonitoring)
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.FieldMonitoring)
+        </dd>
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.ImpactAssessment)
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.ImpactAssessment)
+        </dd>
+    </dl>
+</div>
+<div>
+    <a asp-action="Edit" asp-route-id="@Model?.Code">Edit</a> |
+    <a asp-action="Index">Back to List</a>
+</div>

@@ -1,8 +1,8 @@
-﻿@model MonitoringAndEvaluationPlatform.Models.Freamework
+﻿@model MonitoringAndEvaluationPlatform.Models.Framework
 
 @{
     ViewData["Title"] = "Details";
-    Layout = "~/Views/Shared/_Layout.cshtml";
+    Layout = "~/Views/Shared/_ResultsFrameworkLayout.cshtml";
 }
 
 <div>
@@ -10,10 +10,10 @@
     <hr />
     <dl class="row">
         <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Framework)
+            @Html.DisplayNameFor(model => model.Name)
         </dt>
         <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Framework)
+            @Html.DisplayFor(model => model.Name)
         </dd>
         <dt class = "col-sm-2">
             @Html.DisplayNameFor(model => model.Trend)
