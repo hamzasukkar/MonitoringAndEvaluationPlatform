@@ -54,7 +54,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Code,Outcome,Trend,IndicatorsPerformance,DisbursementPerformance,FieldMonitoring,ImpactAssessment")] Outcome outcomes)
+        public async Task<IActionResult> Create([Bind("Code,Name,Trend,IndicatorsPerformance,DisbursementPerformance,FieldMonitoring,ImpactAssessment")] Outcome outcomes)
         {
             if (ModelState.IsValid)
             {

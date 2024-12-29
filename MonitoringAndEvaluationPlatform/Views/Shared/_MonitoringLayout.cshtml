@@ -115,6 +115,7 @@
                 text-decoration: none; /* Remove underline on hover, focus, and active */
                 color: black !important; /* Prevent color changes */
             }
+
     </style>
 </head>
 <body>
@@ -125,37 +126,25 @@
                 <ul class="nav">
                     <!-- Dropdown for Results Ministries -->
                     <li class="nav-item dropdown">
-                        <a class="nav-link" href="/Ministries/Index" role="button" aria-expanded="false">
-                            Ministries
+                        <a class="nav-link" href="#" role="button" aria-expanded="false">
+                            Partners
                         </a>
                     </li>
                     <li class="nav-item dropdown">
-                        <a class="nav-link" href="/Sectors/Index" role="button" aria-expanded="false">
-                            Sectors
+                        <a class="nav-link" href="#" role="button" aria-expanded="false">
+                            Regional
                         </a>
                     </li>
                     <!-- Other links -->
                     <li class="nav-item dropdown">
-                        <a class="nav-link" href="/Regions/index" role="button" aria-expanded="false">
-                            Regions
+                        <a class="nav-link" href="#" role="button" aria-expanded="false">
+                            Map
                         </a>
                     </li>
                     <li class="nav-item dropdown">
-                        <a class="nav-link" href="/Donors/index" role="button" aria-expanded="false">
-                            Donors
+                        <a class="nav-link" href="#" role="button" aria-expanded="false">
+                            Filter
                         </a>
-                    </li>
-                    <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" href="#" id="resultsDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                            Others
-                        </a>
-                        <ul class="dropdown-menu" aria-labelledby="resultsDropdown">
-                            <li><a class="dropdown-item" href="#" onclick="alert('Sub-item 1 clicked!');">Unit</a></li>
-                            <li><a class="dropdown-item" href="#" onclick="alert('Sub-item 1 clicked!');">Categories</a></li>
-                            <li><a class="dropdown-item" href="#" onclick="alert('Sub-item 1 clicked!');">Types</a></li>
-                            <li><a class="dropdown-item" href="#" onclick="alert('Sub-item 1 clicked!');">Status 1</a></li>
-                            <li><a class="dropdown-item" href="#" onclick="alert('Sub-item 1 clicked!');">Status 2</a></li>
-                        </ul>
                     </li>
                     <li>
                         <a class="nav-link dropdown-toggle" href="#" id="resultsDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
@@ -190,7 +179,7 @@
                     <img src="~/img/monitor.png"
                          alt="Monitoring Icon" class="me-2" width="24" height="24">
                     <a class="unstyled-link" href="/Frameworks/Monitoring">Monitoring</a>
-
+                    
                 </li>
                 <li class="d-flex align-items-center" onclick="loadContent('page3.html')">
                     <img src="~/img/dashboard.png"
@@ -218,16 +207,6 @@
             </main>
         </div>
     </div>
-
-
-
-   
-
-    <footer class="border-top footer text-muted">
-        <div class="container">
-            &copy; 2024 - MonitoringAndEvaluationPlatform - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
-        </div>
-    </footer>
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
