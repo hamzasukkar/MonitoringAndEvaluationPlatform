@@ -127,63 +127,10 @@
                     <!-- Dropdown for Results Framework -->
                     <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle" href="#" id="resultsDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                            Results Framework
+                            Settings
                         </a>
                         <ul class="dropdown-menu" aria-labelledby="resultsDropdown">
-                            <li><a class="dropdown-item" href="/Outcomes/Index">Outcomes</a></li>
-                            <li><a class="dropdown-item" href="/Outputs/Index">Outputs</a></li>
-                            <li><a class="dropdown-item" href="/SubOutputs/Index">Sub-Outputs</a></li>
-                            <li><a class="dropdown-item" href="/Indicators/Index">Indicators</a></li>
-                        </ul>
-                    </li>
-                    <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" href="#" id="resultsDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                            Syria's National Vision
-                        </a>
-                        <ul class="dropdown-menu" aria-labelledby="resultsDropdown">
-                            <li><a class="dropdown-item" href="/Outcomes/Index">Outcomes</a></li>
-                            <li><a class="dropdown-item" href="/Outputs/Index">Outputs</a></li>
-                            <li><a class="dropdown-item" href="/SubOutputs/Index">Sub-Outputs</a></li>
-                            <li><a class="dropdown-item" href="/Indicators/Index">Indicators</a></li>
-                        </ul>
-                    </li>
-                    <!-- Other links -->
-                    <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" href="#" id="resultsDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                            Programs Framework
-                        </a>
-                        <ul class="dropdown-menu" aria-labelledby="resultsDropdown">
-                            <li><a class="dropdown-item" href="/Outcomes/Index">Outcomes</a></li>
-                            <li><a class="dropdown-item" href="/Outputs/Index">Outputs</a></li>
-                            <li><a class="dropdown-item" href="/SubOutputs/Index">Sub-Outputs</a></li>
-                            <li><a class="dropdown-item" href="/Indicators/Index">Indicators</a></li>
-                        </ul>
-                    </li>
-                    <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" href="#" id="resultsDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                            SDG'S
-                        </a>
-                        <ul class="dropdown-menu" aria-labelledby="resultsDropdown">
-                            <li><a class="dropdown-item" href="/Goals/Index">Goals</a></li>
-                            <li><a class="dropdown-item" href="/Targets/Index">Targets</a></li>
-                            <li><a class="dropdown-item" href="/Indicators/Index">Indicators</a></li>
-                        </ul>
-                    </li>
-                    <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" href="#" id="resultsDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                            Common
-                        </a>
-                        <ul class="dropdown-menu" aria-labelledby="resultsDropdown">
-                            <li><a class="dropdown-item" href="/Indicators/Index">Indicators</a></li>
-                        </ul>
-                    </li>
-                    <li>
-                        <a class="nav-link dropdown-toggle" href="#" id="resultsDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                            <img class="rounded-circle oe_topbar_avatar" width="23" height="23" src="~/img/profile.jpeg" />
-                        </a>
-                        <ul class="dropdown-menu" aria-labelledby="resultsDropdown">
-                            <li><a class="dropdown-item" href="#" onclick="alert('Sub-item 1 clicked!');">Setting</a></li>
-                            <li><a class="dropdown-item" href="#" onclick="alert('Sub-item 1 clicked!');">Log out</a></li>
+                            <li><a class="dropdown-item" href="/Categorys/Index">Category</a></li>
                         </ul>
                     </li>
                 </ul>
@@ -210,12 +157,11 @@
                          alt="Programs Icon" class="me-2" width="24" height="24">
                     <a class="unstyled-link" href="/Programs/Index">Programs</a>
                 </li>
-                <li class="d-flex align-items-center" onclick="location.href='/Frameworks/Monitoring';">
-                    <img src="~/img/monitor.png"
-                         alt="Monitoring Icon" class="me-2" width="24" height="24">
-                    <a class="unstyled-link" href="/Frameworks/Monitoring">Monitoring</a>
-                    
+                <li class="d-flex align-items-center" onclick="location.href='/Frameworks/Monitoring';" style="cursor: pointer;">
+                    <img src="~/img/monitor.png" alt="Monitoring Icon" class="me-2" width="24" height="24">
+                    <a class="unstyled-link" href="/Frameworks/Monitoring" onclick="event.stopPropagation();">Monitoring</a>
                 </li>
+
                 <li class="d-flex align-items-center" onclick="loadContent('page3.html')">
                     <img src="~/img/dashboard.png"
                          alt="Dashboard Icon" class="me-2" width="24" height="24">

@@ -12,5 +12,8 @@ namespace MonitoringAndEvaluationPlatform.Models
         public int DisbursementPerformance { get; set; }
         public int FieldMonitoring { get; set; }
         public int ImpactAssessment { get; set; }
+
+        // Navigation property for related Outcomes
+        public ICollection<Outcome> Outcomes { get; set; } = new List<Outcome>();
     }
 }

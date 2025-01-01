@@ -5,7 +5,7 @@
     Layout = "~/Views/Shared/_ResultsFrameworkLayout.cshtml";
 }
 
-<h1>Frameworks</h1>
+<h1>Index</h1>
 
 <p>
     <a asp-action="Create">Create New</a>
@@ -35,49 +35,32 @@
         </tr>
     </thead>
     <tbody>
-        @foreach (var item in Model)
-        {
-            <tr>
-                <td>
-                    @Html.DisplayFor(modelItem => item.Name)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.Trend)
-                </td>
-                <td>
-                    <div class="progress">
-                        <div class="progress-bar progress-bar-success progress-bar-striped" role="progressbar" aria-valuenow="@item.IndicatorsPerformance" aria-valuemin="0" aria-valuemax="100" style="width:@item.IndicatorsPerformance%">
-                            @item.IndicatorsPerformance%
-                        </div>
-                    </div>
-                </td>
-                <td>
-                    <div class="progress">
-                        <div class="progress-bar progress-bar-success progress-bar-striped" role="progressbar" aria-valuenow="@item.DisbursementPerformance" aria-valuemin="0" aria-valuemax="100" style="width:@item.DisbursementPerformance%">
-                                @item.DisbursementPerformance%
-                        </div>
-                    </div>
-                </td>
-                <td>
-                    <div class="progress">
-                        <div class="progress-bar progress-bar-success progress-bar-striped" role="progressbar" aria-valuenow="@item.FieldMonitoring" aria-valuemin="0" aria-valuemax="100" style="width:@item.FieldMonitoring%">
-                                @item.FieldMonitoring%
-                        </div>
-                    </div>
-                </td>
-                <td>
-                    <div class="progress">
-                        <div class="progress-bar progress-bar-success progress-bar-striped" role="progressbar" aria-valuenow="@item.ImpactAssessment" aria-valuemin="0" aria-valuemax="100" style="width:@item.ImpactAssessment%">
-                                @item.ImpactAssessment%
-                        </div>
-                    </div>
-                </td>
-                <td>
-                    <a asp-action="Edit" asp-route-id="@item.Code">Edit</a> |
-                    <a asp-action="Details" asp-route-id="@item.Code">Details</a> |
-                    <a asp-action="Delete" asp-route-id="@item.Code">Delete</a>
-                </td>
-            </tr>
-        }
+@foreach (var item in Model) {
+        <tr>
+            <td>
+                    <a href="/Outcomes/FramworkOutcomes/@item.Code">@item.Name</a>
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Trend)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.IndicatorsPerformance)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.DisbursementPerformance)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.FieldMonitoring)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.ImpactAssessment)
+            </td>
+            <td>
+                <a asp-action="Edit" asp-route-id="@item.Code">Edit</a> |
+                <a asp-action="Details" asp-route-id="@item.Code">Details</a> |
+                <a asp-action="Delete" asp-route-id="@item.Code">Delete</a>
+            </td>
+        </tr>
+}
     </tbody>
 </table>

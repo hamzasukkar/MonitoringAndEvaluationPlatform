@@ -9,6 +9,8 @@ namespace MonitoringAndEvaluationPlatform.Models
         public string Name { get; set; }
         public double Trend { get; set; }
         public int IndicatorsPerformance { get; set; }
+        public int SubOutputCode { get; set; }
+        virtual public SubOutput SubOutput { get; set; }
 
     }
 }

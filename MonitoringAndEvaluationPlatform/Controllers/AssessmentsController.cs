@@ -10,23 +10,22 @@ using MonitoringAndEvaluationPlatform.Models;
 
 namespace MonitoringAndEvaluationPlatform.Controllers
 {
-    public class OutcomesController : Controller
+    public class AssessmentsController : Controller
     {
         private readonly ApplicationDbContext _context;
 
-        public OutcomesController(ApplicationDbContext context)
+        public AssessmentsController(ApplicationDbContext context)
         {
             _context = context;
         }
 
-        // GET: Outcomes
+        // GET: Assessments
         public async Task<IActionResult> Index()
         {
-            var applicationDbContext = _context.Outcomes.Include(o => o.Framework);
-            return View(await applicationDbContext.ToListAsync());
+            return View(await _context.Assessment.ToListAsync());
         }
 
-        // GET: Outcomes/Details/5
+        // GET: Assessments/Details/5
         public async Task<IActionResult> Details(int? id)
         {
             if (id == null)
@@ -34,43 +33,39 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 return NotFound();
             }
 
-            var outcome = await _context.Outcomes
-                .Include(o => o.Framework).Include(x => x.Outputs)
+            var assessment = await _context.Assessment
                 .FirstOrDefaultAsync(m => m.Code == id);
-            if (outcome == null)
+            if (assessment == null)
             {
                 return NotFound();
             }
 
-            return View(outcome);
+            return View(assessment);
         }
 
-        // GET: Outcomes/Create
+        // GET: Assessments/Create
         public IActionResult Create()
         {
-            ViewData["FrameworkCode"] = new SelectList(_context.Freamework, "Code", "Name");
             return View();
         }
 
-        // POST: Outcomes/Create
+        // POST: Assessments/Create
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create(Outcome outcome)
+        public async Task<IActionResult> Create([Bind("Code,Category,StartDate,EndDate")] Assessment assessment)
         {
-            //if (ModelState.IsValid)
-            //{
-                _context.Add(outcome);
+            if (ModelState.IsValid)
+            {
+                _context.Add(assessment);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
-            //}
-            ViewData["FrameworkCode"] = new SelectList(_context.Freamework, "Code", "Name", outcome.FrameworkCode);
-
-            return View(outcome);
+            }
+            return View(assessment);
         }
 
-        // GET: Outcomes/Edit/5
+        // GET: Assessments/Edit/5
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null)
@@ -78,23 +73,22 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 return NotFound();
             }
 
-            var outcome = await _context.Outcomes.FindAsync(id);
-            if (outcome == null)
+            var assessment = await _context.Assessment.FindAsync(id);
+            if (assessment == null)
             {
                 return NotFound();
             }
-            ViewData["FrameworkCode"] = new SelectList(_context.Freamework, "Code", "Code", outcome.FrameworkCode);
-            return View(outcome);
+            return View(assessment);
         }
 
-        // POST: Outcomes/Edit/5
+        // POST: Assessments/Edit/5
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Code,Name,Trend,IndicatorsPerformance,DisbursementPerformance,FieldMonitoring,ImpactAssessment,FrameworkCode")] Outcome outcome)
+        public async Task<IActionResult> Edit(int id, [Bind("Code,Category,StartDate,EndDate")] Assessment assessment)
         {
-            if (id != outcome.Code)
+            if (id != assessment.Code)
             {
                 return NotFound();
             }
@@ -103,12 +97,12 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             {
                 try
                 {
-                    _context.Update(outcome);
+                    _context.Update(assessment);
                     await _context.SaveChangesAsync();
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!OutcomeExists(outcome.Code))
+                    if (!AssessmentExists(assessment.Code))
                     {
                         return NotFound();
                     }
@@ -119,11 +113,10 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["FrameworkCode"] = new SelectList(_context.Freamework, "Code", "Code", outcome.FrameworkCode);
-            return View(outcome);
+            return View(assessment);
         }
 
-        // GET: Outcomes/Delete/5
+        // GET: Assessments/Delete/5
         public async Task<IActionResult> Delete(int? id)
         {
             if (id == null)
@@ -131,42 +124,34 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 return NotFound();
             }
 
-            var outcome = await _context.Outcomes
-                .Include(o => o.Framework)
+            var assessment = await _context.Assessment
                 .FirstOrDefaultAsync(m => m.Code == id);
-            if (outcome == null)
+            if (assessment == null)
             {
                 return NotFound();
             }
 
-            return View(outcome);
+            return View(assessment);
         }
 
-        // POST: Outcomes/Delete/5
+        // POST: Assessments/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var outcome = await _context.Outcomes.FindAsync(id);
-            if (outcome != null)
+            var assessment = await _context.Assessment.FindAsync(id);
+            if (assessment != null)
             {
-                _context.Outcomes.Remove(outcome);
+                _context.Assessment.Remove(assessment);
             }
 
             await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }
 
-        private bool OutcomeExists(int id)
+        private bool AssessmentExists(int id)
         {
-            return _context.Outcomes.Any(e => e.Code == id);
-        }
-
-        // GET: FramworkOutcomes
-        public async Task<IActionResult> FramworkOutcomes(int? id)
-        {
-            var applicationDbContext = _context.Outcomes.Where(m => m.Code == id);
-            return View(await applicationDbContext.ToListAsync());
+            return _context.Assessment.Any(e => e.Code == id);
         }
     }
 }

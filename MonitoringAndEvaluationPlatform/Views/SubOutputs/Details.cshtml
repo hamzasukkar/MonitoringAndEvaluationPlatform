@@ -8,7 +8,7 @@
 <h1>Details</h1>
 
 <div>
-    <h4>SubOutputs</h4>
+    <h4>SubOutput</h4>
     <hr />
     <dl class="row">
         <dt class = "col-sm-2">
@@ -17,39 +17,51 @@
         <dd class = "col-sm-10">
             @Html.DisplayFor(model => model.Name)
         </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Trend)
-        </dt>
         <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Trend)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.IndicatorsPerformance)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.IndicatorsPerformance)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.DisbursementPerformance)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.DisbursementPerformance)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.FieldMonitoring)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.FieldMonitoring)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.ImpactAssessment)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.ImpactAssessment)
+            @Html.DisplayFor(model => model.Output.Code)
         </dd>
     </dl>
 </div>
 <div>
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                <th scope="col">#</th>
+                <th scope="col">Code</th>
+                <th scope="col">Name</th>
+                <th scope="col">Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model.Indicators)
+            {
+                <tr>
+                    <th scope="row">1</th>
+                    <td>1</td>
+                    <td>@item.Name</td>
+                    <td>
+                        <div class="d-inline">
+                            <form asp-controller="Indicators" asp-action="Details" asp-route-id="@item.Code" method="get" style="display: inline;">
+                                <button class="btn btn-sm btn-primary" title="View">
+                                    <i class="bi bi-eye"></i>
+                                </button>
+                            </form>
+                            <form asp-controller="Indicators" asp-action="Edit" asp-route-id="@item.Code" method="get" style="display: inline;">
+                                <button class="btn btn-sm btn-warning" title="Edit">
+                                    <i class="bi bi-pencil"></i>
+                                </button>
+                            </form>
+                            <form asp-controller="Indicators" asp-action="Delete" asp-route-id="@item.Code" method="post" style="display: inline;">
+                                <button class="btn btn-sm btn-danger" title="Delete">
+                                    <i class="bi bi-trash"></i>
+                                </button>
+                            </form>
+                        </div>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
     <a asp-action="Edit" asp-route-id="@Model?.Code">Edit</a> |
     <a asp-action="Index">Back to List</a>
 </div>

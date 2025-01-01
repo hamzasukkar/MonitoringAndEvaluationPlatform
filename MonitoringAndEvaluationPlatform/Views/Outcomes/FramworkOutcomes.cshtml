@@ -1,11 +1,11 @@
-﻿@model IEnumerable<MonitoringAndEvaluationPlatform.Models.SubOutput>
+﻿@model IEnumerable<MonitoringAndEvaluationPlatform.Models.Outcome>
 
 @{
-    ViewData["Title"] = "Index";
+    ViewData["Title"] = "FramworkOutcomes";
     Layout = "~/Views/Shared/_ResultsFrameworkLayout.cshtml";
 }
 
-<h1>Index</h1>
+<h1>FramwworkOutcomes</h1>
 
 <p>
     <a asp-action="Create">Create New</a>
@@ -32,7 +32,7 @@
                 @Html.DisplayNameFor(model => model.ImpactAssessment)
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.Output)
+                @Html.DisplayNameFor(model => model.Framework)
             </th>
             <th></th>
         </tr>
@@ -59,7 +59,7 @@
                 @Html.DisplayFor(modelItem => item.ImpactAssessment)
             </td>
             <td>
-                @Html.DisplayFor(modelItem => item.Output.Code)
+                @Html.DisplayFor(modelItem => item.Framework.Code)
             </td>
             <td>
                 <a asp-action="Edit" asp-route-id="@item.Code">Edit</a> |

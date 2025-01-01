@@ -22,7 +22,8 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         // GET: Indicators
         public async Task<IActionResult> Index()
         {
-            return View(await _context.Indicators.ToListAsync());
+            var applicationDbContext = _context.Indicators.Include(i => i.SubOutput);
+            return View(await applicationDbContext.ToListAsync());
         }
 
         // GET: Indicators/Details/5
@@ -33,19 +34,21 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 return NotFound();
             }
 
-            var indicators = await _context.Indicators
+            var indicator = await _context.Indicators
+                .Include(i => i.SubOutput)
                 .FirstOrDefaultAsync(m => m.Code == id);
-            if (indicators == null)
+            if (indicator == null)
             {
                 return NotFound();
             }
 
-            return View(indicators);
+            return View(indicator);
         }
 
         // GET: Indicators/Create
         public IActionResult Create()
         {
+            ViewData["SubOutputCode"] = new SelectList(_context.SubOutputs, "Code", "Code");
             return View();
         }
 
@@ -54,15 +57,16 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Code,Indicator,Trend,IndicatorsPerformance")] Indicator indicators)
+        public async Task<IActionResult> Create([Bind("Code,Name,Trend,IndicatorsPerformance,SubOutputCode")] Indicator indicator)
         {
-            if (ModelState.IsValid)
+            if (ModelState.IsValid || true)
             {
-                _context.Add(indicators);
+                _context.Add(indicator);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
-            return View(indicators);
+            ViewData["SubOutputCode"] = new SelectList(_context.SubOutputs, "Code", "Code", indicator.SubOutputCode);
+            return View(indicator);
         }
 
         // GET: Indicators/Edit/5
@@ -73,12 +77,13 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 return NotFound();
             }
 
-            var indicators = await _context.Indicators.FindAsync(id);
-            if (indicators == null)
+            var indicator = await _context.Indicators.FindAsync(id);
+            if (indicator == null)
             {
                 return NotFound();
             }
-            return View(indicators);
+            ViewData["SubOutputCode"] = new SelectList(_context.SubOutputs, "Code", "Code", indicator.SubOutputCode);
+            return View(indicator);
         }
 
         // POST: Indicators/Edit/5
@@ -86,9 +91,9 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Code,Indicator,Trend,IndicatorsPerformance")] Indicator indicators)
+        public async Task<IActionResult> Edit(int id, [Bind("Code,Name,Trend,IndicatorsPerformance,SubOutputCode")] Indicator indicator)
         {
-            if (id != indicators.Code)
+            if (id != indicator.Code)
             {
                 return NotFound();
             }
@@ -97,12 +102,12 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             {
                 try
                 {
-                    _context.Update(indicators);
+                    _context.Update(indicator);
                     await _context.SaveChangesAsync();
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!IndicatorsExists(indicators.Code))
+                    if (!IndicatorExists(indicator.Code))
                     {
                         return NotFound();
                     }
@@ -113,7 +118,8 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
-            return View(indicators);
+            ViewData["SubOutputCode"] = new SelectList(_context.SubOutputs, "Code", "Code", indicator.SubOutputCode);
+            return View(indicator);
         }
 
         // GET: Indicators/Delete/5
@@ -124,14 +130,15 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 return NotFound();
             }
 
-            var indicators = await _context.Indicators
+            var indicator = await _context.Indicators
+                .Include(i => i.SubOutput)
                 .FirstOrDefaultAsync(m => m.Code == id);
-            if (indicators == null)
+            if (indicator == null)
             {
                 return NotFound();
             }
 
-            return View(indicators);
+            return View(indicator);
         }
 
         // POST: Indicators/Delete/5
@@ -139,17 +146,17 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var indicators = await _context.Indicators.FindAsync(id);
-            if (indicators != null)
+            var indicator = await _context.Indicators.FindAsync(id);
+            if (indicator != null)
             {
-                _context.Indicators.Remove(indicators);
+                _context.Indicators.Remove(indicator);
             }
 
             await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }
 
-        private bool IndicatorsExists(int id)
+        private bool IndicatorExists(int id)
         {
             return _context.Indicators.Any(e => e.Code == id);
         }

@@ -51,6 +51,21 @@ namespace MonitoringAndEvaluationPlatform.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "Assessment",
+                columns: table => new
+                {
+                    Code = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Category = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    StartDate = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    EndDate = table.Column<DateTime>(type: "datetime2", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Assessment", x => x.Code);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "Donor",
                 columns: table => new
                 {
@@ -103,21 +118,6 @@ namespace MonitoringAndEvaluationPlatform.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Indicators",
-                columns: table => new
-                {
-                    Code = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Trend = table.Column<double>(type: "float", nullable: false),
-                    IndicatorsPerformance = table.Column<int>(type: "int", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Indicators", x => x.Code);
-                });
-
-            migrationBuilder.CreateTable(
                 name: "Ministrie",
                 columns: table => new
                 {
@@ -131,42 +131,6 @@ namespace MonitoringAndEvaluationPlatform.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Ministrie", x => x.Code);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "Outcomes",
-                columns: table => new
-                {
-                    Code = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Trend = table.Column<double>(type: "float", nullable: false),
-                    IndicatorsPerformance = table.Column<int>(type: "int", nullable: false),
-                    DisbursementPerformance = table.Column<int>(type: "int", nullable: false),
-                    FieldMonitoring = table.Column<int>(type: "int", nullable: false),
-                    ImpactAssessment = table.Column<int>(type: "int", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Outcomes", x => x.Code);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "Outputs",
-                columns: table => new
-                {
-                    Code = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Trend = table.Column<double>(type: "float", nullable: false),
-                    IndicatorsPerformance = table.Column<int>(type: "int", nullable: false),
-                    DisbursementPerformance = table.Column<int>(type: "int", nullable: false),
-                    FieldMonitoring = table.Column<int>(type: "int", nullable: false),
-                    ImpactAssessment = table.Column<int>(type: "int", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Outputs", x => x.Code);
                 });
 
             migrationBuilder.CreateTable(
@@ -217,24 +181,6 @@ namespace MonitoringAndEvaluationPlatform.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Sector", x => x.Code);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "SubOutputs",
-                columns: table => new
-                {
-                    Code = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Trend = table.Column<double>(type: "float", nullable: false),
-                    IndicatorsPerformance = table.Column<int>(type: "int", nullable: false),
-                    DisbursementPerformance = table.Column<int>(type: "int", nullable: false),
-                    FieldMonitoring = table.Column<int>(type: "int", nullable: false),
-                    ImpactAssessment = table.Column<int>(type: "int", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_SubOutputs", x => x.Code);
                 });
 
             migrationBuilder.CreateTable(
@@ -361,6 +307,103 @@ namespace MonitoringAndEvaluationPlatform.Migrations
                         onDelete: ReferentialAction.Cascade);
                 });
 
+            migrationBuilder.CreateTable(
+                name: "Outcomes",
+                columns: table => new
+                {
+                    Code = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Trend = table.Column<double>(type: "float", nullable: false),
+                    IndicatorsPerformance = table.Column<int>(type: "int", nullable: false),
+                    DisbursementPerformance = table.Column<int>(type: "int", nullable: false),
+                    FieldMonitoring = table.Column<int>(type: "int", nullable: false),
+                    ImpactAssessment = table.Column<int>(type: "int", nullable: false),
+                    FrameworkCode = table.Column<int>(type: "int", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Outcomes", x => x.Code);
+                    table.ForeignKey(
+                        name: "FK_Outcomes_Freamework_FrameworkCode",
+                        column: x => x.FrameworkCode,
+                        principalTable: "Freamework",
+                        principalColumn: "Code",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Outputs",
+                columns: table => new
+                {
+                    Code = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Trend = table.Column<double>(type: "float", nullable: false),
+                    IndicatorsPerformance = table.Column<int>(type: "int", nullable: false),
+                    DisbursementPerformance = table.Column<int>(type: "int", nullable: false),
+                    FieldMonitoring = table.Column<int>(type: "int", nullable: false),
+                    ImpactAssessment = table.Column<int>(type: "int", nullable: false),
+                    OutcomeCode = table.Column<int>(type: "int", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Outputs", x => x.Code);
+                    table.ForeignKey(
+                        name: "FK_Outputs_Outcomes_OutcomeCode",
+                        column: x => x.OutcomeCode,
+                        principalTable: "Outcomes",
+                        principalColumn: "Code",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "SubOutputs",
+                columns: table => new
+                {
+                    Code = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Trend = table.Column<double>(type: "float", nullable: false),
+                    IndicatorsPerformance = table.Column<int>(type: "int", nullable: false),
+                    DisbursementPerformance = table.Column<int>(type: "int", nullable: false),
+                    FieldMonitoring = table.Column<int>(type: "int", nullable: false),
+                    ImpactAssessment = table.Column<int>(type: "int", nullable: false),
+                    OutputCode = table.Column<int>(type: "int", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_SubOutputs", x => x.Code);
+                    table.ForeignKey(
+                        name: "FK_SubOutputs_Outputs_OutputCode",
+                        column: x => x.OutputCode,
+                        principalTable: "Outputs",
+                        principalColumn: "Code",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Indicators",
+                columns: table => new
+                {
+                    Code = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Trend = table.Column<double>(type: "float", nullable: false),
+                    IndicatorsPerformance = table.Column<int>(type: "int", nullable: false),
+                    SubOutputCode = table.Column<int>(type: "int", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Indicators", x => x.Code);
+                    table.ForeignKey(
+                        name: "FK_Indicators_SubOutputs_SubOutputCode",
+                        column: x => x.SubOutputCode,
+                        principalTable: "SubOutputs",
+                        principalColumn: "Code",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
             migrationBuilder.CreateIndex(
                 name: "IX_AspNetRoleClaims_RoleId",
                 table: "AspNetRoleClaims",
@@ -399,6 +442,26 @@ namespace MonitoringAndEvaluationPlatform.Migrations
                 column: "NormalizedUserName",
                 unique: true,
                 filter: "[NormalizedUserName] IS NOT NULL");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Indicators_SubOutputCode",
+                table: "Indicators",
+                column: "SubOutputCode");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Outcomes_FrameworkCode",
+                table: "Outcomes",
+                column: "FrameworkCode");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Outputs_OutcomeCode",
+                table: "Outputs",
+                column: "OutcomeCode");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_SubOutputs_OutputCode",
+                table: "SubOutputs",
+                column: "OutputCode");
         }
 
         /// <inheritdoc />
@@ -420,10 +483,10 @@ namespace MonitoringAndEvaluationPlatform.Migrations
                 name: "AspNetUserTokens");
 
             migrationBuilder.DropTable(
-                name: "Donor");
+                name: "Assessment");
 
             migrationBuilder.DropTable(
-                name: "Freamework");
+                name: "Donor");
 
             migrationBuilder.DropTable(
                 name: "Goal");
@@ -435,12 +498,6 @@ namespace MonitoringAndEvaluationPlatform.Migrations
                 name: "Ministrie");
 
             migrationBuilder.DropTable(
-                name: "Outcomes");
-
-            migrationBuilder.DropTable(
-                name: "Outputs");
-
-            migrationBuilder.DropTable(
                 name: "Program");
 
             migrationBuilder.DropTable(
@@ -450,9 +507,6 @@ namespace MonitoringAndEvaluationPlatform.Migrations
                 name: "Sector");
 
             migrationBuilder.DropTable(
-                name: "SubOutputs");
-
-            migrationBuilder.DropTable(
                 name: "Target");
 
             migrationBuilder.DropTable(
@@ -460,6 +514,18 @@ namespace MonitoringAndEvaluationPlatform.Migrations
 
             migrationBuilder.DropTable(
                 name: "AspNetUsers");
+
+            migrationBuilder.DropTable(
+                name: "SubOutputs");
+
+            migrationBuilder.DropTable(
+                name: "Outputs");
+
+            migrationBuilder.DropTable(
+                name: "Outcomes");
+
+            migrationBuilder.DropTable(
+                name: "Freamework");
         }
     }
 }

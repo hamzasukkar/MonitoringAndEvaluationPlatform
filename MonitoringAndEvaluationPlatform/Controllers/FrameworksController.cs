@@ -24,16 +24,6 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         {
             return View(await _context.Freamework.ToListAsync());
         }
-        // GET: Monitoring
-        public async Task<IActionResult> Monitoring()
-        {
-            return View(await _context.Freamework.ToListAsync());
-        }
-
-        public async Task<IActionResult> Dashboard()
-        {
-            return View(await _context.Freamework.ToListAsync());
-        }
 
         // GET: Frameworks/Details/5
         public async Task<IActionResult> Details(int? id)
@@ -43,14 +33,14 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 return NotFound();
             }
 
-            var freamework = await _context.Freamework
+            var framework = await _context.Freamework
                 .FirstOrDefaultAsync(m => m.Code == id);
-            if (freamework == null)
+            if (framework == null)
             {
                 return NotFound();
             }
 
-            return View(freamework);
+            return View(framework);
         }
 
         // GET: Frameworks/Create
@@ -64,15 +54,15 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Code,Framework,Trend,IndicatorsPerformance,DisbursementPerformance,FieldMonitoring,ImpactAssessment")] Framework freamework)
+        public async Task<IActionResult> Create([Bind("Code,Name,Trend,IndicatorsPerformance,DisbursementPerformance,FieldMonitoring,ImpactAssessment")] Framework framework)
         {
             if (ModelState.IsValid)
             {
-                _context.Add(freamework);
+                _context.Add(framework);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
-            return View(freamework);
+            return View(framework);
         }
 
         // GET: Frameworks/Edit/5
@@ -83,12 +73,12 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 return NotFound();
             }
 
-            var freamework = await _context.Freamework.FindAsync(id);
-            if (freamework == null)
+            var framework = await _context.Freamework.FindAsync(id);
+            if (framework == null)
             {
                 return NotFound();
             }
-            return View(freamework);
+            return View(framework);
         }
 
         // POST: Frameworks/Edit/5
@@ -96,9 +86,9 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Code,Framework,Trend,IndicatorsPerformance,DisbursementPerformance,FieldMonitoring,ImpactAssessment")] Framework freamework)
+        public async Task<IActionResult> Edit(int id, [Bind("Code,Name,Trend,IndicatorsPerformance,DisbursementPerformance,FieldMonitoring,ImpactAssessment")] Framework framework)
         {
-            if (id != freamework.Code)
+            if (id != framework.Code)
             {
                 return NotFound();
             }
@@ -107,12 +97,12 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             {
                 try
                 {
-                    _context.Update(freamework);
+                    _context.Update(framework);
                     await _context.SaveChangesAsync();
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!FreameworkExists(freamework.Code))
+                    if (!FrameworkExists(framework.Code))
                     {
                         return NotFound();
                     }
@@ -123,7 +113,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
-            return View(freamework);
+            return View(framework);
         }
 
         // GET: Frameworks/Delete/5
@@ -134,14 +124,14 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 return NotFound();
             }
 
-            var freamework = await _context.Freamework
+            var framework = await _context.Freamework
                 .FirstOrDefaultAsync(m => m.Code == id);
-            if (freamework == null)
+            if (framework == null)
             {
                 return NotFound();
             }
 
-            return View(freamework);
+            return View(framework);
         }
 
         // POST: Frameworks/Delete/5
@@ -149,17 +139,17 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var freamework = await _context.Freamework.FindAsync(id);
-            if (freamework != null)
+            var framework = await _context.Freamework.FindAsync(id);
+            if (framework != null)
             {
-                _context.Freamework.Remove(freamework);
+                _context.Freamework.Remove(framework);
             }
 
             await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }
 
-        private bool FreameworkExists(int id)
+        private bool FrameworkExists(int id)
         {
             return _context.Freamework.Any(e => e.Code == id);
         }

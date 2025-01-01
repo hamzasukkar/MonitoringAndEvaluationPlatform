@@ -7,7 +7,7 @@
 
 <h1>Edit</h1>
 
-<h4>Outputs</h4>
+<h4>Output</h4>
 <hr />
 <div class="row">
     <div class="col-md-4">
@@ -43,6 +43,11 @@
                 <label asp-for="ImpactAssessment" class="control-label"></label>
                 <input asp-for="ImpactAssessment" class="form-control" />
                 <span asp-validation-for="ImpactAssessment" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="OutcomeCode" class="control-label"></label>
+                <select asp-for="OutcomeCode" class="form-control" asp-items="ViewBag.OutcomeCode"></select>
+                <span asp-validation-for="OutcomeCode" class="text-danger"></span>
             </div>
             <div class="form-group">
                 <input type="submit" value="Save" class="btn btn-primary" />

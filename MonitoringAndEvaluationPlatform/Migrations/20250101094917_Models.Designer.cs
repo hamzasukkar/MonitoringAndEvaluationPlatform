@@ -12,7 +12,7 @@ using MonitoringAndEvaluationPlatform.Data;
 namespace MonitoringAndEvaluationPlatform.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20241226112157_Models")]
+    [Migration("20250101094917_Models")]
     partial class Models
     {
         /// <inheritdoc />
@@ -227,6 +227,29 @@ namespace MonitoringAndEvaluationPlatform.Migrations
                     b.ToTable("AspNetUserTokens", (string)null);
                 });
 
+            modelBuilder.Entity("MonitoringAndEvaluationPlatform.Models.Assessment", b =>
+                {
+                    b.Property<int>("Code")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Code"));
+
+                    b.Property<string>("Category")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("EndDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime>("StartDate")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Code");
+
+                    b.ToTable("Assessment");
+                });
+
             modelBuilder.Entity("MonitoringAndEvaluationPlatform.Models.Donor", b =>
                 {
                     b.Property<int>("Code")
@@ -332,10 +355,15 @@ namespace MonitoringAndEvaluationPlatform.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<int>("SubOutputCode")
+                        .HasColumnType("int");
+
                     b.Property<double>("Trend")
                         .HasColumnType("float");
 
                     b.HasKey("Code");
+
+                    b.HasIndex("SubOutputCode");
 
                     b.ToTable("Indicators");
                 });
@@ -380,6 +408,9 @@ namespace MonitoringAndEvaluationPlatform.Migrations
                     b.Property<int>("FieldMonitoring")
                         .HasColumnType("int");
 
+                    b.Property<int>("FrameworkCode")
+                        .HasColumnType("int");
+
                     b.Property<int>("ImpactAssessment")
                         .HasColumnType("int");
 
@@ -394,6 +425,8 @@ namespace MonitoringAndEvaluationPlatform.Migrations
                         .HasColumnType("float");
 
                     b.HasKey("Code");
+
+                    b.HasIndex("FrameworkCode");
 
                     b.ToTable("Outcomes");
                 });
@@ -422,10 +455,15 @@ namespace MonitoringAndEvaluationPlatform.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<int>("OutcomeCode")
+                        .HasColumnType("int");
+
                     b.Property<double>("Trend")
                         .HasColumnType("float");
 
                     b.HasKey("Code");
+
+                    b.HasIndex("OutcomeCode");
 
                     b.ToTable("Outputs");
                 });
@@ -540,10 +578,15 @@ namespace MonitoringAndEvaluationPlatform.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<int>("OutputCode")
+                        .HasColumnType("int");
+
                     b.Property<double>("Trend")
                         .HasColumnType("float");
 
                     b.HasKey("Code");
+
+                    b.HasIndex("OutputCode");
 
                     b.ToTable("SubOutputs");
                 });
@@ -629,6 +672,70 @@ namespace MonitoringAndEvaluationPlatform.Migrations
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+                });
+
+            modelBuilder.Entity("MonitoringAndEvaluationPlatform.Models.Indicator", b =>
+                {
+                    b.HasOne("MonitoringAndEvaluationPlatform.Models.SubOutput", "SubOutput")
+                        .WithMany("Indicators")
+                        .HasForeignKey("SubOutputCode")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("SubOutput");
+                });
+
+            modelBuilder.Entity("MonitoringAndEvaluationPlatform.Models.Outcome", b =>
+                {
+                    b.HasOne("MonitoringAndEvaluationPlatform.Models.Framework", "Framework")
+                        .WithMany("Outcomes")
+                        .HasForeignKey("FrameworkCode")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Framework");
+                });
+
+            modelBuilder.Entity("MonitoringAndEvaluationPlatform.Models.Output", b =>
+                {
+                    b.HasOne("MonitoringAndEvaluationPlatform.Models.Outcome", "Outcome")
+                        .WithMany("Outputs")
+                        .HasForeignKey("OutcomeCode")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Outcome");
+                });
+
+            modelBuilder.Entity("MonitoringAndEvaluationPlatform.Models.SubOutput", b =>
+                {
+                    b.HasOne("MonitoringAndEvaluationPlatform.Models.Output", "Output")
+                        .WithMany("SubOutputs")
+                        .HasForeignKey("OutputCode")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Output");
+                });
+
+            modelBuilder.Entity("MonitoringAndEvaluationPlatform.Models.Framework", b =>
+                {
+                    b.Navigation("Outcomes");
+                });
+
+            modelBuilder.Entity("MonitoringAndEvaluationPlatform.Models.Outcome", b =>
+                {
+                    b.Navigation("Outputs");
+                });
+
+            modelBuilder.Entity("MonitoringAndEvaluationPlatform.Models.Output", b =>
+                {
+                    b.Navigation("SubOutputs");
+                });
+
+            modelBuilder.Entity("MonitoringAndEvaluationPlatform.Models.SubOutput", b =>
+                {
+                    b.Navigation("Indicators");
                 });
 #pragma warning restore 612, 618
         }

@@ -5,8 +5,10 @@
     Layout = "~/Views/Shared/_ResultsFrameworkLayout.cshtml";
 }
 
+<h1>Details</h1>
+
 <div>
-    <h4>Freamework</h4>
+    <h4>Framework</h4>
     <hr />
     <dl class="row">
         <dt class = "col-sm-2">
@@ -21,51 +23,33 @@
         <dd class = "col-sm-10">
             @Html.DisplayFor(model => model.Trend)
         </dd>
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.IndicatorsPerformance)
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.IndicatorsPerformance)
+        </dd>
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.DisbursementPerformance)
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.DisbursementPerformance)
+        </dd>
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.FieldMonitoring)
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.FieldMonitoring)
+        </dd>
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.ImpactAssessment)
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.ImpactAssessment)
+        </dd>
     </dl>
 </div>
 <div>
-    <table class="table table-bordered">
-        <thead>
-            <tr>
-                <th scope="col">#</th>
-                <th scope="col">Code</th>
-                <th scope="col">Name</th>
-                <th scope="col">Actions</th>
-            </tr>
-        </thead>
-        <tbody>
-            <tr>
-                <th scope="row">1</th>
-                <td>1</td>
-                <td>First</td>
-                <td>
-                    <button class="btn btn-sm btn-primary" title="View"><i class="bi bi-eye"></i></button>
-                    <button class="btn btn-sm btn-warning" title="Edit"><i class="bi bi-pencil"></i></button>
-                    <button class="btn btn-sm btn-danger" title="Delete"><i class="bi bi-trash"></i></button>
-                </td>
-            </tr>
-            <tr>
-                <th scope="row">2</th>
-                <td>2</td>
-                <td>Second</td>
-                <td>
-                    <button class="btn btn-sm btn-primary" title="View"><i class="bi bi-eye"></i></button>
-                    <button class="btn btn-sm btn-warning" title="Edit"><i class="bi bi-pencil"></i></button>
-                    <button class="btn btn-sm btn-danger" title="Delete"><i class="bi bi-trash"></i></button>
-                </td>
-            </tr>
-            <tr>
-                <th scope="row">3</th>
-                <td>3</td>
-                <td>Third</td>
-                <td>
-                    <button class="btn btn-sm btn-primary" title="View"><i class="bi bi-eye"></i></button>
-                    <button class="btn btn-sm btn-warning" title="Edit"><i class="bi bi-pencil"></i></button>
-                    <button class="btn btn-sm btn-danger" title="Delete"><i class="bi bi-trash"></i></button>
-                </td>
-            </tr>
-        </tbody>
-    </table>
     <a asp-action="Edit" asp-route-id="@Model?.Code">Edit</a> |
     <a asp-action="Index">Back to List</a>
 </div>
