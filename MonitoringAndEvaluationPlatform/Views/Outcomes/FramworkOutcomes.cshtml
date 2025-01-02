@@ -34,7 +34,7 @@
             <th>
                 @Html.DisplayNameFor(model => model.Framework)
             </th>
-            <th></th>
+            <th>null</th>
         </tr>
     </thead>
     <tbody>
@@ -79,9 +79,23 @@
                     @Html.DisplayFor(modelItem => item.Framework.Code)
                 </td>
                 <td>
-                    <a asp-action="Edit" asp-route-id="@item.Code">Edit</a> |
-                    <a asp-action="Details" asp-route-id="@item.Code">Details</a> |
-                    <a asp-action="Delete" asp-route-id="@item.Code">Delete</a>
+                    <div class="d-inline">
+                        <form asp-controller="Outputs" asp-action="Details" asp-route-id="@item.Code" method="get" style="display: inline;">
+                            <button class="btn btn-sm btn-primary" title="View">
+                                <i class="bi bi-eye"></i>
+                            </button>
+                        </form>
+                        <form asp-controller="Outputs" asp-action="Edit" asp-route-id="@item.Code" method="get" style="display: inline;">
+                            <button class="btn btn-sm btn-warning" title="Edit">
+                                <i class="bi bi-pencil"></i>
+                            </button>
+                        </form>
+                        <form asp-controller="Outputs" asp-action="Delete" asp-route-id="@item.Code" method="post" style="display: inline;">
+                            <button class="btn btn-sm btn-danger" title="Delete">
+                                <i class="bi bi-trash"></i>
+                            </button>
+                        </form>
+                    </div>
                 </td>
             </tr>
         }
