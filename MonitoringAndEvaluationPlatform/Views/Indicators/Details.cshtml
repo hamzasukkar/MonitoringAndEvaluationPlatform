@@ -33,7 +33,7 @@
             @Html.DisplayNameFor(model => model.SubOutput)
         </dt>
         <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.SubOutput.Code)
+            <a asp-controller="SubOutputs" asp-action="Details" asp-route-id="@Model.SubOutput.Code">@Model.SubOutput.Name</a>
         </dd>
     </dl>
 </div>

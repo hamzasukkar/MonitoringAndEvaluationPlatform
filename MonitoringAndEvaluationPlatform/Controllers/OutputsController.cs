@@ -49,7 +49,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         // GET: Outputs/Create
         public IActionResult Create()
         {
-            ViewData["OutcomeCode"] = new SelectList(_context.Outcomes, "Code", "Code");
+            ViewData["OutcomeCode"] = new SelectList(_context.Outcomes, "Code", "Name");
             return View();
         }
 
@@ -60,13 +60,13 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("Code,Name,Trend,IndicatorsPerformance,DisbursementPerformance,FieldMonitoring,ImpactAssessment,OutcomeCode")] Output output)
         {
-            if (ModelState.IsValid)
+            if (ModelState.IsValid || true)
             {
                 _context.Add(output);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["OutcomeCode"] = new SelectList(_context.Outcomes, "Code", "Code", output.OutcomeCode);
+            ViewData["OutcomeCode"] = new SelectList(_context.Outcomes, "Code", "Name", output.OutcomeCode);
             return View(output);
         }
 

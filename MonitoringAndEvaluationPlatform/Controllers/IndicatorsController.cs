@@ -48,7 +48,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         // GET: Indicators/Create
         public IActionResult Create()
         {
-            ViewData["SubOutputCode"] = new SelectList(_context.SubOutputs, "Code", "Code");
+            ViewData["SubOutputCode"] = new SelectList(_context.SubOutputs, "Code", "Name");
             return View();
         }
 
@@ -65,7 +65,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["SubOutputCode"] = new SelectList(_context.SubOutputs, "Code", "Code", indicator.SubOutputCode);
+            ViewData["SubOutputCode"] = new SelectList(_context.SubOutputs, "Code", "Name", indicator.SubOutputCode);
             return View(indicator);
         }
 
@@ -82,7 +82,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             {
                 return NotFound();
             }
-            ViewData["SubOutputCode"] = new SelectList(_context.SubOutputs, "Code", "Code", indicator.SubOutputCode);
+            ViewData["SubOutputCode"] = new SelectList(_context.SubOutputs, "Code", "Name", indicator.SubOutputCode);
             return View(indicator);
         }
 
@@ -118,7 +118,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["SubOutputCode"] = new SelectList(_context.SubOutputs, "Code", "Code", indicator.SubOutputCode);
+            ViewData["SubOutputCode"] = new SelectList(_context.SubOutputs, "Code", "Name", indicator.SubOutputCode);
             return View(indicator);
         }
 

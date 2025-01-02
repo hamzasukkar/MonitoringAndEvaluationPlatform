@@ -7,8 +7,8 @@ namespace MonitoringAndEvaluationPlatform.Models
         [Key]
         public int Code { get; set; }
         public string Name { get; set; }
-        public double Trend { get; set; }
-        public int IndicatorsPerformance { get; set; }
+        public double Trend { get; set; } = 0;
+        public int IndicatorsPerformance { get; set; } = 0;
         public int SubOutputCode { get; set; }
         virtual public SubOutput SubOutput { get; set; }
 
