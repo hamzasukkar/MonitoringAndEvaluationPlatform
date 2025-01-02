@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using MonitoringAndEvaluationPlatform.Data;
 using MonitoringAndEvaluationPlatform.Models;
+using MonitoringAndEvaluationPlatform.ViewModel;
 
 namespace MonitoringAndEvaluationPlatform.Controllers
 {
@@ -27,23 +28,23 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         }
 
         // GET: Indicators/Details/5
-        public async Task<IActionResult> Details(int? id)
-        {
-            if (id == null)
-            {
-                return NotFound();
-            }
+        //public async Task<IActionResult> Details(int? id)
+        //{
+        //    if (id == null)
+        //    {
+        //        return NotFound();
+        //    }
 
-            var indicator = await _context.Indicators
-                .Include(i => i.SubOutput)
-                .FirstOrDefaultAsync(m => m.Code == id);
-            if (indicator == null)
-            {
-                return NotFound();
-            }
+        //    var indicator = await _context.Indicators
+        //        .Include(i => i.SubOutput)
+        //        .FirstOrDefaultAsync(m => m.Code == id);
+        //    if (indicator == null)
+        //    {
+        //        return NotFound();
+        //    }
 
-            return View(indicator);
-        }
+        //    return View(indicator);
+        //}
 
         // GET: Indicators/Create
         public IActionResult Create()
@@ -140,6 +141,39 @@ namespace MonitoringAndEvaluationPlatform.Controllers
 
             return View(indicator);
         }
+        public async Task<IActionResult> Details(int id)
+        {
+            var indicator = await _context.Indicators
+                .Include(i => i.SubOutput)
+                .ThenInclude(so => so.Output)
+                .ThenInclude(o => o.Outcome)
+                .ThenInclude(oc => oc.Framework)
+                .FirstOrDefaultAsync(i => i.Code == id);
+
+            if (indicator == null)
+                return NotFound();
+
+            // Build the hierarchy model
+            var hierarchy = new List<(string Name, string Type, int Code)>
+    {
+        (indicator.SubOutput.Output.Outcome.Framework.Name, "Framework", indicator.SubOutput.Output.Outcome.Framework.Code),
+        (indicator.SubOutput.Output.Outcome.Name, "Outcome", indicator.SubOutput.Output.Outcome.Code),
+        (indicator.SubOutput.Output.Name, "Output", indicator.SubOutput.Output.Code),
+        (indicator.SubOutput.Name, "SubOutput", indicator.SubOutput.Code),
+        (indicator.Name, "Indicator", indicator.Code)
+    };
+
+            var model = new IndicatorDetailsViewModel
+            {
+                Indicator = indicator,
+                Hierarchy = hierarchy
+            };
+
+            return View(model);
+        }
+
+
+
 
         // POST: Indicators/Delete/5
         [HttpPost, ActionName("Delete")]

@@ -1,43 +1,95 @@
-﻿@model MonitoringAndEvaluationPlatform.Models.Indicator
+﻿@* @model MonitoringAndEvaluationPlatform.Models.Indicator *@
 
+@model MonitoringAndEvaluationPlatform.ViewModel.IndicatorDetailsViewModel
 @{
     ViewData["Title"] = "Details";
     Layout = "~/Views/Shared/_ResultsFrameworkLayout.cshtml";
+    //Layout = null;
 }
+<!-- Include jQuery -->
+@* <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
 
-<h1>Details</h1>
+<!-- Include jsTree -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jstree/3.3.12/themes/default/style.min.css" />
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jstree/3.3.12/jstree.min.js"></script> *@
 
+
+@* <ul>
+    @foreach (var node in Model.Hierarchy)
+    {
+        <li>
+            <a href="@Url.Action("Details", node.Type + "s", new { id = node.Code })">
+                @node.Name (@node.Type)
+            </a>
+        </li>
+    }
+</ul> *@
+
+<div id="hierarchyTree">
+    <ul>
+        @foreach (var node in Model.Hierarchy)
+        {
+            <li>
+                <a href="@Url.Action("Details", node.Type + "s", new { id = node.Code })">
+                    @node.Name (@node.Type)
+                </a>
+            </li>
+        }
+    </ul>
+</div>
 <div>
     <h4>Indicator</h4>
     <hr />
     <dl class="row">
         <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Name)
+            Name
         </dt>
         <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Name)
+            @Model.Indicator.Name
         </dd>
         <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Trend)
+           Trend
         </dt>
         <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Trend)
+            @Model.Indicator.Trend
         </dd>
         <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.IndicatorsPerformance)
+            Indicators Performance
         </dt>
         <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.IndicatorsPerformance)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.SubOutput)
-        </dt>
-        <dd class = "col-sm-10">
-            <a asp-controller="SubOutputs" asp-action="Details" asp-route-id="@Model.SubOutput.Code">@Model.SubOutput.Name</a>
+            @Model.Indicator.IndicatorsPerformance
         </dd>
     </dl>
 </div>
 <div>
-    <a asp-action="Edit" asp-route-id="@Model?.Code">Edit</a> |
+    <a asp-action="Edit" asp-route-id="@Model?.Indicator.Code">Edit</a> |
     <a asp-action="Index">Back to List</a>
 </div>
+
+
+@* <div id="hierarchyTree">
+    <ul>
+        @foreach (var node in Model.Hierarchy)
+        {
+            <li data-jstree='{ "opened": true }'>
+                <a href="@Url.Action("Details", node.Type + "s", new { id = node.Code })">
+                    @node.Name (@node.Type)
+                </a>
+            </li>
+        }
+    </ul>
+</div>
+
+
+<script>
+    $(document).ready(function () {
+        $('#hierarchyTree').jstree({
+            "core": {
+                "themes": {
+                    "responsive": true
+                }
+            },
+            "plugins": ["wholerow", "themes"]
+        });
+    });
+</script> *@
