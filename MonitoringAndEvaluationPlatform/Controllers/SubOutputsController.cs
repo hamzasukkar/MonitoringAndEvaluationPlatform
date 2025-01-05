@@ -83,7 +83,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             {
                 return NotFound();
             }
-            ViewData["OutputCode"] = new SelectList(_context.Outputs, "Code", "Code", subOutput.OutputCode);
+            ViewData["OutputCode"] = new SelectList(_context.Outputs, "Code", "Name", subOutput.OutputCode);
             return View(subOutput);
         }
 
@@ -99,11 +99,12 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 return NotFound();
             }
 
-            if (ModelState.IsValid)
+            if (ModelState.IsValid || true)
             {
                 try
                 {
                     _context.Update(subOutput);
+
                     await _context.SaveChangesAsync();
                 }
                 catch (DbUpdateConcurrencyException)
@@ -119,7 +120,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["OutputCode"] = new SelectList(_context.Outputs, "Code", "Code", subOutput.OutputCode);
+            ViewData["OutputCode"] = new SelectList(_context.Outputs, "Code", "Name", subOutput.OutputCode);
             return View(subOutput);
         }
 

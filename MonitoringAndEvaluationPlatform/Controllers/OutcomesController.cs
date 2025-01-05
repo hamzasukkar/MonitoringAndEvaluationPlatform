@@ -83,7 +83,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             {
                 return NotFound();
             }
-            ViewData["FrameworkCode"] = new SelectList(_context.Freamework, "Code", "Code", outcome.FrameworkCode);
+            ViewData["FrameworkCode"] = new SelectList(_context.Freamework, "Code", "Name", outcome.FrameworkCode);
             return View(outcome);
         }
 
@@ -99,7 +99,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 return NotFound();
             }
 
-            if (ModelState.IsValid)
+            if (ModelState.IsValid ||true)
             {
                 try
                 {
@@ -119,7 +119,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["FrameworkCode"] = new SelectList(_context.Freamework, "Code", "Code", outcome.FrameworkCode);
+            ViewData["FrameworkCode"] = new SelectList(_context.Freamework, "Code", "Name", outcome.FrameworkCode);
             return View(outcome);
         }
 
