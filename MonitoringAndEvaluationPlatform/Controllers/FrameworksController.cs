@@ -153,5 +153,10 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         {
             return _context.Freamework.Any(e => e.Code == id);
         }
+
+        public async Task<IActionResult>Monitoring()
+        {
+            return View(await _context.Freamework.ToListAsync());
+        }
     }
 }

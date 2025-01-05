@@ -46,18 +46,34 @@
             <td>
                 @Html.DisplayFor(modelItem => item.Trend)
             </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.IndicatorsPerformance)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.DisbursementPerformance)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.FieldMonitoring)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.ImpactAssessment)
-            </td>
+                <td>
+                    <div class="progress">
+                        <div class="progress-bar progress-bar-success progress-bar-striped" role="progressbar" aria-valuenow="@item.IndicatorsPerformance" aria-valuemin="0" aria-valuemax="100" style="width:@item.IndicatorsPerformance%">
+                            @item.IndicatorsPerformance%
+                        </div>
+                    </div>
+                </td>
+                <td>
+                    <div class="progress">
+                        <div class="progress-bar progress-bar-success progress-bar-striped" role="progressbar" aria-valuenow="@item.DisbursementPerformance" aria-valuemin="0" aria-valuemax="100" style="width:@item.DisbursementPerformance%">
+                            @item.DisbursementPerformance%
+                        </div>
+                    </div>
+                </td>
+                <td>
+                    <div class="progress">
+                        <div class="progress-bar progress-bar-success progress-bar-striped" role="progressbar" aria-valuenow="@item.FieldMonitoring" aria-valuemin="0" aria-valuemax="100" style="width:@item.FieldMonitoring%">
+                            @item.FieldMonitoring%
+                        </div>
+                    </div>
+                </td>
+                <td>
+                    <div class="progress">
+                        <div class="progress-bar progress-bar-success progress-bar-striped" role="progressbar" aria-valuenow="@item.ImpactAssessment" aria-valuemin="0" aria-valuemax="100" style="width:@item.ImpactAssessment%">
+                            @item.ImpactAssessment%
+                        </div>
+                    </div>
+                </td>
             <td>
                 @Html.DisplayFor(modelItem => item.Outcome.Code)
             </td>

@@ -17,6 +17,9 @@
                 @Html.DisplayNameFor(model => model.Name)
             </th>
             <th>
+                null
+            </th>
+            <th>
                 @Html.DisplayNameFor(model => model.Trend)
             </th>
             <th>
@@ -40,6 +43,9 @@
             <tr>
                 <td>
                     <a href="/Outcomes/FramworkOutcomes/@item.Code">@item.Name</a>
+                </td>
+                <td>
+                        <img src="~/img/external-link-squared.png" />
                 </td>
                 <td>
                     @Html.DisplayFor(modelItem => item.Trend)
