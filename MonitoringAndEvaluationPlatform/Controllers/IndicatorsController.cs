@@ -21,11 +21,22 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         }
 
         // GET: Indicators
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(string searchString)
         {
-            var applicationDbContext = _context.Indicators.Include(i => i.SubOutput);
-            return View(await applicationDbContext.ToListAsync());
+            // Include the SubOutput navigation property
+            var indicators = _context.Indicators.Include(i => i.SubOutput).AsQueryable();
+
+            // Filter results if searchString is provided
+            if (!string.IsNullOrEmpty(searchString))
+            {
+                indicators = indicators.Where(i => i.Name.Contains(searchString) ||
+                                                   (i.SubOutput != null && i.SubOutput.Name.Contains(searchString)));
+            }
+
+            return View(await indicators.ToListAsync());
         }
+
+
 
         // GET: Indicators/Details/5
         //public async Task<IActionResult> Details(int? id)
