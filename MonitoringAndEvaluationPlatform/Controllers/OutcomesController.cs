@@ -20,10 +20,23 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         }
 
         // GET: Outcomes
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(int? id)
         {
-            var applicationDbContext = _context.Outcomes.Include(o => o.Framework);
-            return View(await applicationDbContext.ToListAsync());
+            if (id == null)
+            {
+                var applicationDbContext = _context.Outcomes.Include(o => o.Framework);
+                return View(await applicationDbContext.ToListAsync());
+            }
+            var outcomes = await _context.Outcomes
+              .Include(o => o.Framework).Include(x => x.Outputs)
+              .Where(m => m.FrameworkCode==id).ToListAsync();
+
+            if (outcomes == null)
+            {
+                return NotFound();
+            }
+
+            return View(outcomes);
         }
 
         // GET: Outcomes/Details/5

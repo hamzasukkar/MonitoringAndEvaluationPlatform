@@ -21,20 +21,34 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         }
 
         // GET: Indicators
-        public async Task<IActionResult> Index(string searchString)
+        public async Task<IActionResult> Index(int? id, string searchString)
         {
-            // Include the SubOutput navigation property
-            var indicators = _context.Indicators.Include(i => i.SubOutput).AsQueryable();
+            if (id == null)
+            {
+                // Include the SubOutput navigation property
+                var indicators = _context.Indicators.Include(i => i.SubOutput).AsQueryable();
 
-            // Filter results if searchString is provided
+                // Filter results if searchString is provided
+                if (!string.IsNullOrEmpty(searchString))
+                {
+                    indicators = indicators.Where(i => i.Name.Contains(searchString) ||
+                                                       (i.SubOutput != null && i.SubOutput.Name.Contains(searchString)));
+                }
+
+                return View(await indicators.ToListAsync());
+            }
+
+            var frameworkIndicators = _context.Indicators.Where(i => i.SubOutput.Output.Outcome.FrameworkCode == id).Include(i => i.SubOutput).AsQueryable();
             if (!string.IsNullOrEmpty(searchString))
             {
-                indicators = indicators.Where(i => i.Name.Contains(searchString) ||
+                frameworkIndicators = frameworkIndicators.Where(i => i.Name.Contains(searchString) ||
                                                    (i.SubOutput != null && i.SubOutput.Name.Contains(searchString)));
             }
 
-            return View(await indicators.ToListAsync());
+            return View(await frameworkIndicators.ToListAsync());
         }
+
+
 
 
 
@@ -96,8 +110,8 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 }
                 output.IndicatorsPerformance = outputIndicatorPerformance / subOutputs.Count;
 
-                var outcome= _context.Outcomes.Where(i=>i.Code==output.OutcomeCode).FirstOrDefault();
-                var outcomeOutputs = _context.Outputs.Where(i=>i.OutcomeCode==outcome.Code).ToList();
+                var outcome = _context.Outcomes.Where(i => i.Code == output.OutcomeCode).FirstOrDefault();
+                var outcomeOutputs = _context.Outputs.Where(i => i.OutcomeCode == outcome.Code).ToList();
                 int outcomeIndicatorPerformance = 0;
 
                 foreach (var item in outcomeOutputs)
@@ -105,7 +119,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                     outcomeIndicatorPerformance += item.IndicatorsPerformance;
                 }
 
-                outcome.IndicatorsPerformance= outcomeIndicatorPerformance / outcomeOutputs.Count;
+                outcome.IndicatorsPerformance = outcomeIndicatorPerformance / outcomeOutputs.Count;
 
                 var framework = _context.Freamework.Where(i => i.Code == outcome.Code).FirstOrDefault();
                 var frameworkOucomes = _context.Outcomes.Where(i => i.FrameworkCode == framework.Code).ToList();
@@ -118,7 +132,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
 
                 framework.IndicatorsPerformance = frameworkIndicatorPerformance / frameworkOucomes.Count;
 
-                
+
 
                 _context.Update(outcome);
                 _context.Update(output);
@@ -168,7 +182,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                     _context.Update(indicator);
                     var subOutput = _context.SubOutputs.Where(i => i.Code == indicator.SubOutputCode).FirstOrDefault();
                     int subOutputIndicatorPerformance = 0;
-                    var subOutputIndicators = _context.Indicators.Where(i=>i.SubOutputCode== subOutput.Code).ToList();
+                    var subOutputIndicators = _context.Indicators.Where(i => i.SubOutputCode == subOutput.Code).ToList();
 
                     foreach (var item in subOutputIndicators)
                     {
