@@ -1,4 +1,4 @@
-﻿@model IEnumerable<MonitoringAndEvaluationPlatform.Models.Framework>
+﻿@model IEnumerable<MonitoringAndEvaluationPlatform.Models.Output>
 @{
     ViewData["Title"] = "Monitoring";
     Layout = "~/Views/Shared/_ResultsFrameworkLayout.cshtml";
@@ -48,9 +48,7 @@
 <body>
     @foreach (var item in Model)
     {
-        var outcomes = item.Outcomes;
-        var outputs = outcomes.SelectMany(o => o.Outputs);
-        var subOutputs = outputs.SelectMany(output => output.SubOutputs);
+        var subOutputs = item.SubOutputs;
         var indicators = subOutputs.SelectMany(subOutput => subOutput.Indicators);
 
         <div class="container my-4">
@@ -64,7 +62,7 @@
                             <div class="d-flex flex-wrap gap-3">
                                 <div class="text-center">
                                     <div class="circle">@item.IndicatorsPerformance%</div>
-                                    <a href="/Monitoring/Outcome/@item.Code"><span class="icon-text">Performance</span></a>
+                                    <a href="/Monitoring/SubOutput/@item.Code"><span class="icon-text">Performance</span></a>
                                 </div>
                                 <div class="text-center">
                                     <div class="circle">0%</div>
@@ -84,10 +82,8 @@
                     <!-- Right Section -->
                     <div class="col-md-6">
                         <ul class="list-unstyled stats">
-                            <li><strong><a href="/Monitoring/Outcome/@item.Code">Outcome:</a></strong> @item.Outcomes.Count</li>
-                            <li><strong><a href="/Monitoring/FrameworkOutputs/@item.Code">Outputs:</a></strong> @outputs.Count()</li>
-                            <li><strong><a href="/Monitoring/FrameworkSubOutputs/@item.Code">Sub-outputs:</a></strong> @subOutputs.Count()</li>
-                            <li><strong><a href="/Monitoring/FrameworkIndicators/@item.Code">Indicators:</a></strong> @indicators.Count()</li>
+                            <li><strong><a href="/Monitoring/OutputSubOutputs/@item.Code">Sub-outputs:</a></strong> @subOutputs.Count()</li>
+                            <li><strong><a href="/Monitoring/OutputIndicators/@item.Code">Indicators:</a></strong> @indicators.Count()</li>
                             <li><strong>Programs:</strong> 3</li>
                         </ul>
                     </div>

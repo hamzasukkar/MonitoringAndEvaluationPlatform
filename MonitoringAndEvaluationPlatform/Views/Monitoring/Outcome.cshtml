@@ -63,7 +63,7 @@
                             <div class="d-flex flex-wrap gap-3">
                                 <div class="text-center">
                                     <div class="circle">@item.IndicatorsPerformance%</div>
-                                    <span class="icon-text">Performance</span>
+                                    <a href="/Monitoring/Output/@item.Code"><span class="icon-text">Performance</span></a>
                                 </div>
                                 <div class="text-center">
                                     <div class="circle">0%</div>
@@ -83,9 +83,9 @@
                     <!-- Right Section -->
                     <div class="col-md-6">
                         <ul class="list-unstyled stats">
-                            <li><strong>Outputs:</strong> @item.Outputs.Count</li>
-                            <li><strong>Sub-outputs:</strong> @subOutputs.Count()</li>
-                            <li><strong>Indicators:</strong> @indicators.Count()</li>
+                            <li><strong><a href="/Monitoring/Output/@item.Code">Outputs:</a></strong> @item.Outputs.Count</li>
+                            <li><strong><a href="/Monitoring/OutcomeSubOutputs/@item.Code">Sub-outputs:</a></strong> @subOutputs.Count()</li>
+                            <li><strong><a href="/Monitoring/OutcomeIndicators/@item.Code">Indicators:</a></strong> @indicators.Count()</li>
                             <li><strong>Programs:</strong> 3</li>
                         </ul>
                     </div>

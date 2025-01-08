@@ -99,7 +99,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             {
                 return NotFound();
             }
-            ViewData["OutcomeCode"] = new SelectList(_context.Outcomes, "Code", "Code", output.OutcomeCode);
+            ViewData["OutcomeCode"] = new SelectList(_context.Outcomes, "Code", "Name", output.OutcomeCode);
             return View(output);
         }
 
@@ -135,7 +135,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["OutcomeCode"] = new SelectList(_context.Outcomes, "Code", "Code", output.OutcomeCode);
+            ViewData["OutcomeCode"] = new SelectList(_context.Outcomes, "Code", "Name", output.OutcomeCode);
             return View(output);
         }
 

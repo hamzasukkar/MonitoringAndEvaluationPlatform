@@ -178,7 +178,8 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         // GET: FramworkOutcomes
         public async Task<IActionResult> FramworkOutcomes(int? id)
         {
-            var applicationDbContext = _context.Outcomes.Where(m => m.Code == id);
+            var applicationDbContext = _context.Outcomes.Where(m => m.FrameworkCode == id);
+            ViewData["FrameworkName"] = _context.Freamework.Where(i => i.Code == id).FirstOrDefault().Name;
             return View(await applicationDbContext.ToListAsync());
         }
     }
