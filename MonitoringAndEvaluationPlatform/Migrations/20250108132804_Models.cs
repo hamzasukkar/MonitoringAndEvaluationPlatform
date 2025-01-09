@@ -92,7 +92,8 @@ namespace MonitoringAndEvaluationPlatform.Migrations
                     IndicatorsPerformance = table.Column<int>(type: "int", nullable: false),
                     DisbursementPerformance = table.Column<int>(type: "int", nullable: false),
                     FieldMonitoring = table.Column<int>(type: "int", nullable: false),
-                    ImpactAssessment = table.Column<int>(type: "int", nullable: false)
+                    ImpactAssessment = table.Column<int>(type: "int", nullable: false),
+                    Weight = table.Column<double>(type: "float", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -319,6 +320,7 @@ namespace MonitoringAndEvaluationPlatform.Migrations
                     DisbursementPerformance = table.Column<int>(type: "int", nullable: false),
                     FieldMonitoring = table.Column<int>(type: "int", nullable: false),
                     ImpactAssessment = table.Column<int>(type: "int", nullable: false),
+                    Weight = table.Column<double>(type: "float", nullable: false),
                     FrameworkCode = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
@@ -344,6 +346,7 @@ namespace MonitoringAndEvaluationPlatform.Migrations
                     DisbursementPerformance = table.Column<int>(type: "int", nullable: false),
                     FieldMonitoring = table.Column<int>(type: "int", nullable: false),
                     ImpactAssessment = table.Column<int>(type: "int", nullable: false),
+                    Weight = table.Column<double>(type: "float", nullable: false),
                     OutcomeCode = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
@@ -369,6 +372,7 @@ namespace MonitoringAndEvaluationPlatform.Migrations
                     DisbursementPerformance = table.Column<int>(type: "int", nullable: false),
                     FieldMonitoring = table.Column<int>(type: "int", nullable: false),
                     ImpactAssessment = table.Column<int>(type: "int", nullable: false),
+                    Weight = table.Column<double>(type: "float", nullable: false),
                     OutputCode = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
@@ -391,6 +395,7 @@ namespace MonitoringAndEvaluationPlatform.Migrations
                     Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Trend = table.Column<double>(type: "float", nullable: false),
                     IndicatorsPerformance = table.Column<int>(type: "int", nullable: false),
+                    Weight = table.Column<double>(type: "float", nullable: false),
                     SubOutputCode = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>

@@ -83,68 +83,85 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Code,Name,Trend,IndicatorsPerformance,SubOutputCode")] Indicator indicator)
+        public async Task<IActionResult> Create([Bind("Code,Name,Trend,IndicatorsPerformance,SubOutputCode,Weight")] Indicator indicator)
         {
-            if (ModelState.IsValid || true)
+            ModelState.Remove(nameof(indicator.SubOutput));
+
+            if (ModelState.IsValid)
             {
+                // Add the new indicator
                 _context.Add(indicator);
                 await _context.SaveChangesAsync();
-                var subOutput = _context.SubOutputs.Where(i => i.Code == indicator.SubOutputCode).FirstOrDefault();
-                int IndicatorPerformance = 0;
-                var subOutputIndicators = _context.Indicators.Where(i => i.SubOutputCode == subOutput.Code).ToList();
 
-                foreach (var item in subOutputIndicators)
-                {
-                    IndicatorPerformance += item.IndicatorsPerformance;
-                }
+                // Update related entities
+                await UpdateSubOutputPerformance(indicator.SubOutputCode);
 
-                IndicatorPerformance = IndicatorPerformance / subOutputIndicators.Count;
-                subOutput.IndicatorsPerformance = IndicatorPerformance;
-
-                var output = _context.Outputs.Where(i => i.Code == subOutput.OutputCode).FirstOrDefault();
-                var subOutputs = _context.SubOutputs.Where(i => i.OutputCode == output.Code).ToList();
-                int outputIndicatorPerformance = 0;
-                foreach (var item in subOutputs)
-                {
-                    outputIndicatorPerformance += item.IndicatorsPerformance;
-                }
-                output.IndicatorsPerformance = outputIndicatorPerformance / subOutputs.Count;
-
-                var outcome = _context.Outcomes.Where(i => i.Code == output.OutcomeCode).FirstOrDefault();
-                var outcomeOutputs = _context.Outputs.Where(i => i.OutcomeCode == outcome.Code).ToList();
-                int outcomeIndicatorPerformance = 0;
-
-                foreach (var item in outcomeOutputs)
-                {
-                    outcomeIndicatorPerformance += item.IndicatorsPerformance;
-                }
-
-                outcome.IndicatorsPerformance = outcomeIndicatorPerformance / outcomeOutputs.Count;
-
-                var framework = _context.Freamework.Where(i => i.Code == outcome.Code).FirstOrDefault();
-                var frameworkOucomes = _context.Outcomes.Where(i => i.FrameworkCode == framework.Code).ToList();
-                int frameworkIndicatorPerformance = 0;
-
-                foreach (var item in frameworkOucomes)
-                {
-                    frameworkIndicatorPerformance += item.IndicatorsPerformance;
-                }
-
-                framework.IndicatorsPerformance = frameworkIndicatorPerformance / frameworkOucomes.Count;
-
-
-
-                _context.Update(outcome);
-                _context.Update(output);
-                _context.Update(subOutput);
-                _context.Update(framework);
-
-                await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
+
             ViewData["SubOutputCode"] = new SelectList(_context.SubOutputs, "Code", "Name", indicator.SubOutputCode);
             return View(indicator);
         }
+
+        private async Task UpdateSubOutputPerformance(int subOutputCode)
+        {
+            var subOutput = await _context.SubOutputs.FirstOrDefaultAsync(i => i.Code == subOutputCode);
+
+            if (subOutput == null) return;
+
+            var indicators = await _context.Indicators.Where(i => i.SubOutputCode == subOutput.Code).ToListAsync();
+            subOutput.IndicatorsPerformance = CalculateAveragePerformance(indicators.Select(i => i.IndicatorsPerformance).ToList());
+
+            await _context.SaveChangesAsync();
+
+            await UpdateOutputPerformance(subOutput.OutputCode);
+        }
+
+        private async Task UpdateOutputPerformance(int outputCode)
+        {
+            var output = await _context.Outputs.FirstOrDefaultAsync(i => i.Code == outputCode);
+
+            if (output == null) return;
+
+            var subOutputs = await _context.SubOutputs.Where(i => i.OutputCode == output.Code).ToListAsync();
+            output.IndicatorsPerformance = CalculateAveragePerformance(subOutputs.Select(s => s.IndicatorsPerformance).ToList());
+
+            await _context.SaveChangesAsync();
+
+            await UpdateOutcomePerformance(output.OutcomeCode);
+        }
+
+        private async Task UpdateOutcomePerformance(int outcomeCode)
+        {
+            var outcome = await _context.Outcomes.FirstOrDefaultAsync(i => i.Code == outcomeCode);
+
+            if (outcome == null) return;
+
+            var outputs = await _context.Outputs.Where(i => i.OutcomeCode == outcome.Code).ToListAsync();
+            outcome.IndicatorsPerformance = CalculateAveragePerformance(outputs.Select(o => o.IndicatorsPerformance).ToList());
+
+            await _context.SaveChangesAsync();
+
+            await UpdateFrameworkPerformance(outcome.FrameworkCode);
+        }
+
+        private async Task UpdateFrameworkPerformance(int frameworkCode)
+        {
+            var framework = await _context.Freamework.FirstOrDefaultAsync(i => i.Code == frameworkCode);
+
+            if (framework == null) return;
+
+            var outcomes = await _context.Outcomes.Where(i => i.FrameworkCode == framework.Code).ToListAsync();
+            framework.IndicatorsPerformance = CalculateAveragePerformance(outcomes.Select(o => o.IndicatorsPerformance).ToList());
+
+            await _context.SaveChangesAsync();
+        }
+
+        private int CalculateAveragePerformance(List<int> performances)
+        {
+            return performances.Any() ? performances.Sum() / performances.Count : 0;
+        }
+
 
         // GET: Indicators/Edit/5
         public async Task<IActionResult> Edit(int? id)
@@ -163,9 +180,6 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             return View(indicator);
         }
 
-        // POST: Indicators/Edit/5
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, [Bind("Code,Name,Trend,IndicatorsPerformance,SubOutputCode")] Indicator indicator)
@@ -175,60 +189,18 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 return NotFound();
             }
 
-            if (ModelState.IsValid || true)
+            ModelState.Remove(nameof(indicator.SubOutput));
+
+            if (ModelState.IsValid)
             {
                 try
                 {
+                    // Update the indicator
                     _context.Update(indicator);
-                    var subOutput = _context.SubOutputs.Where(i => i.Code == indicator.SubOutputCode).FirstOrDefault();
-                    int subOutputIndicatorPerformance = 0;
-                    var subOutputIndicators = _context.Indicators.Where(i => i.SubOutputCode == subOutput.Code).ToList();
-
-                    foreach (var item in subOutputIndicators)
-                    {
-                        subOutputIndicatorPerformance += item.IndicatorsPerformance;
-                    }
-
-                    subOutputIndicatorPerformance = subOutputIndicatorPerformance / subOutputIndicators.Count;
-                    subOutput.IndicatorsPerformance = subOutputIndicatorPerformance;
-
-                    _context.Update(subOutput);
-
-                    var output = _context.Outputs.Where(i => i.Code == subOutput.OutputCode).FirstOrDefault();
-                    var subOutputs = _context.SubOutputs.Where(i => i.OutputCode == output.Code).ToList();
-                    int outputIndicatorPerformance = 0;
-                    foreach (var item in subOutputs)
-                    {
-                        outputIndicatorPerformance += item.IndicatorsPerformance;
-                    }
-                    output.IndicatorsPerformance = outputIndicatorPerformance / subOutputs.Count;
-                    _context.Update(output);
-
-                    var outcome = _context.Outcomes.Where(i => i.Code == output.OutcomeCode).FirstOrDefault();
-                    var outcomeOutputs = _context.Outputs.Where(i => i.OutcomeCode == outcome.Code).ToList();
-                    int outcomeIndicatorPerformance = 0;
-
-                    foreach (var item in outcomeOutputs)
-                    {
-                        outcomeIndicatorPerformance += item.IndicatorsPerformance;
-                    }
-
-                    outcome.IndicatorsPerformance = outcomeIndicatorPerformance / outcomeOutputs.Count;
-
-                    var framework = _context.Freamework.Where(i => i.Code == outcome.Code).FirstOrDefault();
-                    var frameworkOucomes = _context.Outcomes.Where(i => i.FrameworkCode == framework.Code).ToList();
-                    int frameworkIndicatorPerformance = 0;
-
-                    foreach (var item in frameworkOucomes)
-                    {
-                        frameworkIndicatorPerformance += item.IndicatorsPerformance;
-                    }
-
-                    framework.IndicatorsPerformance = frameworkIndicatorPerformance / frameworkOucomes.Count;
-
-                    _context.Update(framework);
-
                     await _context.SaveChangesAsync();
+
+                    // Update related entities
+                    await UpdateSubOutputPerformance(indicator.SubOutputCode);
                 }
                 catch (DbUpdateConcurrencyException)
                 {
@@ -241,8 +213,10 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                         throw;
                     }
                 }
+
                 return RedirectToAction(nameof(Index));
             }
+
             ViewData["SubOutputCode"] = new SelectList(_context.SubOutputs, "Code", "Name", indicator.SubOutputCode);
             return View(indicator);
         }

@@ -72,12 +72,14 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(Outcome outcome)
         {
-            //if (ModelState.IsValid)
-            //{
+            ModelState.Remove(nameof(outcome.Framework));
+
+            if (ModelState.IsValid)
+            {
                 _context.Add(outcome);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
-            //}
+            }
             ViewData["FrameworkCode"] = new SelectList(_context.Freamework, "Code", "Name", outcome.FrameworkCode);
 
             return View(outcome);

@@ -12,7 +12,7 @@ using MonitoringAndEvaluationPlatform.Data;
 namespace MonitoringAndEvaluationPlatform.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20250101094917_Models")]
+    [Migration("20250108132804_Models")]
     partial class Models
     {
         /// <inheritdoc />
@@ -303,6 +303,9 @@ namespace MonitoringAndEvaluationPlatform.Migrations
                     b.Property<double>("Trend")
                         .HasColumnType("float");
 
+                    b.Property<double>("Weight")
+                        .HasColumnType("float");
+
                     b.HasKey("Code");
 
                     b.ToTable("Freamework");
@@ -359,6 +362,9 @@ namespace MonitoringAndEvaluationPlatform.Migrations
                         .HasColumnType("int");
 
                     b.Property<double>("Trend")
+                        .HasColumnType("float");
+
+                    b.Property<double>("Weight")
                         .HasColumnType("float");
 
                     b.HasKey("Code");
@@ -424,6 +430,9 @@ namespace MonitoringAndEvaluationPlatform.Migrations
                     b.Property<double>("Trend")
                         .HasColumnType("float");
 
+                    b.Property<double>("Weight")
+                        .HasColumnType("float");
+
                     b.HasKey("Code");
 
                     b.HasIndex("FrameworkCode");
@@ -459,6 +468,9 @@ namespace MonitoringAndEvaluationPlatform.Migrations
                         .HasColumnType("int");
 
                     b.Property<double>("Trend")
+                        .HasColumnType("float");
+
+                    b.Property<double>("Weight")
                         .HasColumnType("float");
 
                     b.HasKey("Code");
@@ -582,6 +594,9 @@ namespace MonitoringAndEvaluationPlatform.Migrations
                         .HasColumnType("int");
 
                     b.Property<double>("Trend")
+                        .HasColumnType("float");
+
+                    b.Property<double>("Weight")
                         .HasColumnType("float");
 
                     b.HasKey("Code");

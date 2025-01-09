@@ -14,25 +14,26 @@
     <thead>
         <tr>
             <th>
-                @Html.DisplayNameFor(model => model.Name)
+                Name
             </th>
             <th>
-                null
+                
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.Trend)
+                Trend
+            </th>
+
+            <th>
+                Indicators Performance
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.IndicatorsPerformance)
+                Disbursement Performance
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.DisbursementPerformance)
+                Field Monitoring
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.FieldMonitoring)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.ImpactAssessment)
+                Impact Assessment
             </th>
             <th></th>
         </tr>
@@ -45,7 +46,7 @@
                     <a href="/Outcomes/FramworkOutcomes/@item.Code">@item.Name</a>
                 </td>
                 <td>
-                        <img src="~/img/external-link-squared.png" />
+                    <img src="~/img/external-link-squared.png" />
                 </td>
                 <td>
                     @Html.DisplayFor(modelItem => item.Trend)
@@ -80,14 +81,25 @@
                 </td>
                 <td>
                     <form asp-action="Delete" asp-route-id="@item.Code" method="post" style="display: inline;">
-                        <button class="btn btn-sm btn-danger" title="Delete">
+                        <button class="btn btn-sm btn-success" title="Delete">
                             <i class="bi bi-diagram-3"></i>
                         </button>
                     </form>
-
-                    <a asp-action="Edit" asp-route-id="@item.Code">Edit</a> |
-                    <a asp-action="Details" asp-route-id="@item.Code">Details</a> |
-                    <a asp-action="Delete" asp-route-id="@item.Code">Delete</a>
+                    <form asp-action="Details" asp-route-id="@item.Code" method="get" style="display: inline;">
+                        <button class="btn btn-sm btn-primary" title="View">
+                            <i class="bi bi-eye"></i>
+                        </button>
+                    </form>
+                    <form asp-action="Edit" asp-route-id="@item.Code" method="get" style="display: inline;">
+                        <button class="btn btn-sm btn-warning" title="Edit">
+                            <i class="bi bi-pencil"></i>
+                        </button>
+                    </form>
+                    <form asp-action="Delete" asp-route-id="@item.Code" method="post" style="display: inline;">
+                        <button class="btn btn-sm btn-danger" title="Delete">
+                            <i class="bi bi-trash"></i>
+                        </button>
+                    </form>
                 </td>
             </tr>
         }

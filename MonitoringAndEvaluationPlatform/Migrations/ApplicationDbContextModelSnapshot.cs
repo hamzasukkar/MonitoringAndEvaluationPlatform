@@ -300,6 +300,9 @@ namespace MonitoringAndEvaluationPlatform.Migrations
                     b.Property<double>("Trend")
                         .HasColumnType("float");
 
+                    b.Property<double>("Weight")
+                        .HasColumnType("float");
+
                     b.HasKey("Code");
 
                     b.ToTable("Freamework");
@@ -356,6 +359,9 @@ namespace MonitoringAndEvaluationPlatform.Migrations
                         .HasColumnType("int");
 
                     b.Property<double>("Trend")
+                        .HasColumnType("float");
+
+                    b.Property<double>("Weight")
                         .HasColumnType("float");
 
                     b.HasKey("Code");
@@ -421,6 +427,9 @@ namespace MonitoringAndEvaluationPlatform.Migrations
                     b.Property<double>("Trend")
                         .HasColumnType("float");
 
+                    b.Property<double>("Weight")
+                        .HasColumnType("float");
+
                     b.HasKey("Code");
 
                     b.HasIndex("FrameworkCode");
@@ -456,6 +465,9 @@ namespace MonitoringAndEvaluationPlatform.Migrations
                         .HasColumnType("int");
 
                     b.Property<double>("Trend")
+                        .HasColumnType("float");
+
+                    b.Property<double>("Weight")
                         .HasColumnType("float");
 
                     b.HasKey("Code");
@@ -579,6 +591,9 @@ namespace MonitoringAndEvaluationPlatform.Migrations
                         .HasColumnType("int");
 
                     b.Property<double>("Trend")
+                        .HasColumnType("float");
+
+                    b.Property<double>("Weight")
                         .HasColumnType("float");
 
                     b.HasKey("Code");
