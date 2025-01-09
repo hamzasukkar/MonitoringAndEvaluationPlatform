@@ -1,71 +1,65 @@
 ﻿@model MonitoringAndEvaluationPlatform.Models.Outcome
 
 @{
-    ViewData["Title"] = "Details";
-    Layout = "~/Views/Shared/_Layout.cshtml";
+	ViewData["Title"] = "Details";
+	Layout = "~/Views/Shared/_ResultsFrameworkLayout.cshtml";
 }
-<div>
-    <h4>Outcomes</h4>
-    <hr />
-    <dl class="row">
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Name)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Name)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Trend)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Trend)
-        </dd>
 
-    </dl>
+<div>
+	<a asp-controller="Outputs" asp-action="Create">Create Output</a>
 </div>
 <div>
-    <table class="table table-bordered">
-        <thead>
-            <tr>
-                <th scope="col">#</th>
-                <th scope="col">Code</th>
-                <th scope="col">Name</th>
-                <th scope="col">Actions</th>
-            </tr>
-        </thead>
-        <tbody>
-            <tr>
-                <th scope="row">1</th>
-                <td>1</td>
-                <td>First</td>
-                <td>
-                    <button class="btn btn-sm btn-primary" title="View"><i class="bi bi-eye"></i></button>
-                    <button class="btn btn-sm btn-warning" title="Edit"><i class="bi bi-pencil"></i></button>
-                    <button class="btn btn-sm btn-danger" title="Delete"><i class="bi bi-trash"></i></button>
-                </td>
-            </tr>
-            <tr>
-                <th scope="row">2</th>
-                <td>2</td>
-                <td>Second</td>
-                <td>
-                    <button class="btn btn-sm btn-primary" title="View"><i class="bi bi-eye"></i></button>
-                    <button class="btn btn-sm btn-warning" title="Edit"><i class="bi bi-pencil"></i></button>
-                    <button class="btn btn-sm btn-danger" title="Delete"><i class="bi bi-trash"></i></button>
-                </td>
-            </tr>
-            <tr>
-                <th scope="row">3</th>
-                <td>3</td>
-                <td>Third</td>
-                <td>
-                    <button class="btn btn-sm btn-primary" title="View"><i class="bi bi-eye"></i></button>
-                    <button class="btn btn-sm btn-warning" title="Edit"><i class="bi bi-pencil"></i></button>
-                    <button class="btn btn-sm btn-danger" title="Delete"><i class="bi bi-trash"></i></button>
-                </td>
-            </tr>
-        </tbody>
-    </table>
-    <a asp-action="Edit" asp-route-id="@Model?.Code">Edit</a> |
-    <a asp-action="Index">Back to List</a>
+	<h4>Outcome</h4>
+	<hr />
+	<dl class="row">
+		<dt class="col-sm-2">
+			@Html.DisplayNameFor(model => model.Name)
+		</dt>
+		<dd class="col-sm-10">
+			@Html.DisplayFor(model => model.Name)
+		</dd>
+	</dl>
+</div>
+<div>
+	<table class="table table-bordered">
+		<thead>
+			<tr>
+				<th scope="col">#</th>
+				<th scope="col">Code</th>
+				<th scope="col">Name</th>
+				<th scope="col">Actions</th>
+			</tr>
+		</thead>
+		<tbody>
+			@foreach (var item in Model.Outputs)
+			{
+				<tr>
+					<th scope="row">1</th>
+					<td>1</td>
+					<td>@item.Name</td>
+					<td>
+						<div class="d-inline">
+							<form asp-controller="Outputs" asp-action="Details" asp-route-id="@item.Code" method="get" style="display: inline;">
+								<button class="btn btn-sm btn-primary" title="View">
+									<i class="bi bi-eye"></i>
+								</button>
+							</form>
+							<form asp-controller="Outputs" asp-action="Edit" asp-route-id="@item.Code" method="get" style="display: inline;">
+								<button class="btn btn-sm btn-warning" title="Edit">
+									<i class="bi bi-pencil"></i>
+								</button>
+							</form>
+							<form asp-controller="Outputs" asp-action="Delete" asp-route-id="@item.Code" method="post" style="display: inline;">
+								<button class="btn btn-sm btn-danger" title="Delete">
+									<i class="bi bi-trash"></i>
+								</button>
+							</form>
+						</div>
+					</td>
+				</tr>
+			}
+		</tbody>
+	</table>
+	<a asp-action="Edit" asp-route-id="@Model?.Code">Edit</a> |
+	<a asp-action="Index">Back to List</a>
 </div>

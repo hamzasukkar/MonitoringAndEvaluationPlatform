@@ -2,10 +2,11 @@
 
 @{
     ViewData["Title"] = "Index";
-    Layout = "~/Views/Shared/_Layout.cshtml";
+    Layout = "~/Views/Shared/_ResultsFrameworkLayout.cshtml";
+    string progressBarClass = "progress-bar progress-bar-success progress-bar-striped";
 }
 
-<h1>Outcomes</h1>
+<h1>Index</h1>
 
 <p>
     <a asp-action="Create">Create New</a>
@@ -20,63 +21,90 @@
                 @Html.DisplayNameFor(model => model.Trend)
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.IndicatorsPerformance)
+                @Html.DisplayNameFor(model => model.Weight)
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.DisbursementPerformance)
+                Indicators Performance
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.FieldMonitoring)
+                Disbursement Performance
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.ImpactAssessment)
+                Field Monitoring
+            </th>
+            <th>
+                Impact Assessment
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Framework)
             </th>
             <th></th>
         </tr>
     </thead>
     <tbody>
-@foreach (var item in Model) {
-        <tr>
-            <td>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>
                     @Html.DisplayFor(modelItem => item.Name)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Trend)
-            </td>
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Trend)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Weight)
+                </td>
                 <td>
                     <div class="progress">
-                        <div class="progress-bar progress-bar-success progress-bar-striped" role="progressbar" aria-valuenow="@item.IndicatorsPerformance" aria-valuemin="0" aria-valuemax="100" style="width:@item.IndicatorsPerformance%">
+                        <div class="progressBarClass" role="progressbar" aria-valuenow="@item.IndicatorsPerformance" aria-valuemin="0" aria-valuemax="100" style="width:@item.IndicatorsPerformance%">
                             @item.IndicatorsPerformance%
                         </div>
                     </div>
                 </td>
                 <td>
                     <div class="progress">
-                        <div class="progress-bar progress-bar-success progress-bar-striped" role="progressbar" aria-valuenow="@item.DisbursementPerformance" aria-valuemin="0" aria-valuemax="100" style="width:@item.DisbursementPerformance%">
+                        <div class="progressBarClass" role="progressbar" aria-valuenow="@item.DisbursementPerformance" aria-valuemin="0" aria-valuemax="100" style="width:@item.DisbursementPerformance%">
                             @item.DisbursementPerformance%
                         </div>
                     </div>
                 </td>
                 <td>
                     <div class="progress">
-                        <div class="progress-bar progress-bar-success progress-bar-striped" role="progressbar" aria-valuenow="@item.FieldMonitoring" aria-valuemin="0" aria-valuemax="100" style="width:@item.FieldMonitoring%">
+                        <div class="progressBarClass" role="progressbar" aria-valuenow="@item.FieldMonitoring" aria-valuemin="0" aria-valuemax="100" style="width:@item.FieldMonitoring%">
                             @item.FieldMonitoring%
                         </div>
                     </div>
                 </td>
                 <td>
                     <div class="progress">
-                        <div class="progress-bar progress-bar-success progress-bar-striped" role="progressbar" aria-valuenow="@item.ImpactAssessment" aria-valuemin="0" aria-valuemax="100" style="width:@item.ImpactAssessment%">
+                        <div class="progressBarClass" role="progressbar" aria-valuenow="@item.ImpactAssessment" aria-valuemin="0" aria-valuemax="100" style="width:@item.ImpactAssessment%">
                             @item.ImpactAssessment%
                         </div>
                     </div>
                 </td>
-            <td>
-                <a asp-action="Edit" asp-route-id="@item.Code">Edit</a> |
-                <a asp-action="Details" asp-route-id="@item.Code">Details</a> |
-                <a asp-action="Delete" asp-route-id="@item.Code">Delete</a>
-            </td>
-        </tr>
-}
+                <td>
+                    @Html.DisplayFor(modelItem => item.Framework.Name)
+                </td>
+                <td>
+                    <div class="d-inline">
+                        <form asp-action="Delete" asp-route-id="@item.Code" method="post" style="display: inline;">
+                            <button class="btn btn-sm btn-success" title="Delete">
+                                <i class="bi bi-diagram-3"></i>
+                            </button>
+                        </form>
+                        <form asp-action="Details" asp-route-id="@item.Code" method="get" style="display: inline;">
+                            <button class="btn btn-sm btn-primary" title="View">
+                                <i class="bi bi-eye"></i>
+                            </button>
+                        </form>
+                        <form asp-action="Edit" asp-route-id="@item.Code" method="get" style="display: inline;">
+                            <button class="btn btn-sm btn-warning" title="Edit">
+                                <i class="bi bi-pencil"></i>
+                            </button>
+                        </form>
+                    </div>
+                </td>
+            </tr>
+        }
     </tbody>
 </table>

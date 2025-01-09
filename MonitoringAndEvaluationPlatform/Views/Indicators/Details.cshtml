@@ -1,73 +1,95 @@
-﻿@model MonitoringAndEvaluationPlatform.Models.Indicator
+﻿@* @model MonitoringAndEvaluationPlatform.Models.Indicator *@
 
+@model MonitoringAndEvaluationPlatform.ViewModel.IndicatorDetailsViewModel
 @{
     ViewData["Title"] = "Details";
-    Layout = "~/Views/Shared/_Layout.cshtml";
+    Layout = "~/Views/Shared/_ResultsFrameworkLayout.cshtml";
+    //Layout = null;
 }
+<!-- Include jQuery -->
+@* <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
 
-<h1>Details</h1>
+<!-- Include jsTree -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jstree/3.3.12/themes/default/style.min.css" />
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jstree/3.3.12/jstree.min.js"></script> *@
 
+
+@* <ul>
+    @foreach (var node in Model.Hierarchy)
+    {
+        <li>
+            <a href="@Url.Action("Details", node.Type + "s", new { id = node.Code })">
+                @node.Name (@node.Type)
+            </a>
+        </li>
+    }
+</ul> *@
+
+<div id="hierarchyTree">
+    <ul>
+        @foreach (var node in Model.Hierarchy)
+        {
+            <li>
+                <a href="@Url.Action("Details", node.Type + "s", new { id = node.Code })">
+                    @node.Name (@node.Type)
+                </a>
+            </li>
+        }
+    </ul>
+</div>
 <div>
-    <h4>Indicators</h4>
+    <h4>Indicator</h4>
     <hr />
     <dl class="row">
         <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Name)
+            Name
         </dt>
         <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Name)
+            @Model.Indicator.Name
         </dd>
         <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Trend)
+           Trend
         </dt>
         <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Trend)
+            @Model.Indicator.Trend
+        </dd>
+        <dt class = "col-sm-2">
+            Indicators Performance
+        </dt>
+        <dd class = "col-sm-10">
+            @Model.Indicator.IndicatorsPerformance
         </dd>
     </dl>
 </div>
 <div>
-    <table class="table table-bordered">
-        <thead>
-            <tr>
-                <th scope="col">#</th>
-                <th scope="col">Code</th>
-                <th scope="col">Name</th>
-                <th scope="col">Actions</th>
-            </tr>
-        </thead>
-        <tbody>
-            <tr>
-                <th scope="row">1</th>
-                <td>1</td>
-                <td>First</td>
-                <td>
-                    <button class="btn btn-sm btn-primary" title="View"><i class="bi bi-eye"></i></button>
-                    <button class="btn btn-sm btn-warning" title="Edit"><i class="bi bi-pencil"></i></button>
-                    <button class="btn btn-sm btn-danger" title="Delete"><i class="bi bi-trash"></i></button>
-                </td>
-            </tr>
-            <tr>
-                <th scope="row">2</th>
-                <td>2</td>
-                <td>Second</td>
-                <td>
-                    <button class="btn btn-sm btn-primary" title="View"><i class="bi bi-eye"></i></button>
-                    <button class="btn btn-sm btn-warning" title="Edit"><i class="bi bi-pencil"></i></button>
-                    <button class="btn btn-sm btn-danger" title="Delete"><i class="bi bi-trash"></i></button>
-                </td>
-            </tr>
-            <tr>
-                <th scope="row">3</th>
-                <td>3</td>
-                <td>Third</td>
-                <td>
-                    <button class="btn btn-sm btn-primary" title="View"><i class="bi bi-eye"></i></button>
-                    <button class="btn btn-sm btn-warning" title="Edit"><i class="bi bi-pencil"></i></button>
-                    <button class="btn btn-sm btn-danger" title="Delete"><i class="bi bi-trash"></i></button>
-                </td>
-            </tr>
-        </tbody>
-    </table>
-    <a asp-action="Edit" asp-route-id="@Model?.Code">Edit</a> |
+    <a asp-action="Edit" asp-route-id="@Model?.Indicator.Code">Edit</a> |
     <a asp-action="Index">Back to List</a>
 </div>
+
+
+@* <div id="hierarchyTree">
+    <ul>
+        @foreach (var node in Model.Hierarchy)
+        {
+            <li data-jstree='{ "opened": true }'>
+                <a href="@Url.Action("Details", node.Type + "s", new { id = node.Code })">
+                    @node.Name (@node.Type)
+                </a>
+            </li>
+        }
+    </ul>
+</div>
+
+
+<script>
+    $(document).ready(function () {
+        $('#hierarchyTree').jstree({
+            "core": {
+                "themes": {
+                    "responsive": true
+                }
+            },
+            "plugins": ["wholerow", "themes"]
+        });
+    });
+</script> *@

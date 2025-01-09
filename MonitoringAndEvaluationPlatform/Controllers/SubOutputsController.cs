@@ -20,9 +20,23 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         }
 
         // GET: SubOutputs
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(int? id)
         {
-            return View(await _context.SubOutputs.ToListAsync());
+            if (id == null)
+            {
+                var applicationDbContext = _context.SubOutputs.Include(s => s.Output);
+                return View(await applicationDbContext.ToListAsync());
+            }
+            var subOutputs = await _context.SubOutputs
+                 .Include(s => s.Output)
+                 .Include(s => s.Indicators)
+                 .Where(m => m.Output.Outcome.FrameworkCode == id).ToListAsync();
+            if (subOutputs == null)
+            {
+                return NotFound();
+            }
+
+            return View(subOutputs);
         }
 
         // GET: SubOutputs/Details/5
@@ -33,19 +47,22 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 return NotFound();
             }
 
-            var subOutputs = await _context.SubOutputs
+            var subOutput = await _context.SubOutputs
+                .Include(s => s.Output)
+                .Include(s => s.Indicators)
                 .FirstOrDefaultAsync(m => m.Code == id);
-            if (subOutputs == null)
+            if (subOutput == null)
             {
                 return NotFound();
             }
 
-            return View(subOutputs);
+            return View(subOutput);
         }
 
         // GET: SubOutputs/Create
         public IActionResult Create()
         {
+            ViewData["OutputCode"] = new SelectList(_context.Outputs, "Code", "Name");
             return View();
         }
 
@@ -54,15 +71,18 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Code,SubOutput,Trend,IndicatorsPerformance,DisbursementPerformance,FieldMonitoring,ImpactAssessment")] SubOutput subOutputs)
+        public async Task<IActionResult> Create([Bind("Code,Name,Trend,OutputCode,Weight")] SubOutput subOutput)
         {
+            ModelState.Remove(nameof(subOutput.Output));
+
             if (ModelState.IsValid)
             {
-                _context.Add(subOutputs);
+                _context.Add(subOutput);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
-            return View(subOutputs);
+            ViewData["OutputCode"] = new SelectList(_context.Outputs, "Code", "Name", subOutput.OutputCode);
+            return View(subOutput);
         }
 
         // GET: SubOutputs/Edit/5
@@ -73,12 +93,13 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 return NotFound();
             }
 
-            var subOutputs = await _context.SubOutputs.FindAsync(id);
-            if (subOutputs == null)
+            var subOutput = await _context.SubOutputs.FindAsync(id);
+            if (subOutput == null)
             {
                 return NotFound();
             }
-            return View(subOutputs);
+            ViewData["OutputCode"] = new SelectList(_context.Outputs, "Code", "Name", subOutput.OutputCode);
+            return View(subOutput);
         }
 
         // POST: SubOutputs/Edit/5
@@ -86,23 +107,26 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Code,SubOutput,Trend,IndicatorsPerformance,DisbursementPerformance,FieldMonitoring,ImpactAssessment")] SubOutput subOutputs)
+        public async Task<IActionResult> Edit(int id, [Bind("Code,Name,Trend,IndicatorsPerformance,DisbursementPerformance,FieldMonitoring,ImpactAssessment,OutputCode")] SubOutput subOutput)
         {
-            if (id != subOutputs.Code)
+            if (id != subOutput.Code)
             {
                 return NotFound();
             }
+
+            ModelState.Remove(nameof(subOutput.Output));
 
             if (ModelState.IsValid)
             {
                 try
                 {
-                    _context.Update(subOutputs);
+                    _context.Update(subOutput);
+
                     await _context.SaveChangesAsync();
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!SubOutputsExists(subOutputs.Code))
+                    if (!SubOutputExists(subOutput.Code))
                     {
                         return NotFound();
                     }
@@ -113,7 +137,8 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
-            return View(subOutputs);
+            ViewData["OutputCode"] = new SelectList(_context.Outputs, "Code", "Name", subOutput.OutputCode);
+            return View(subOutput);
         }
 
         // GET: SubOutputs/Delete/5
@@ -124,14 +149,15 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 return NotFound();
             }
 
-            var subOutputs = await _context.SubOutputs
+            var subOutput = await _context.SubOutputs
+                .Include(s => s.Output)
                 .FirstOrDefaultAsync(m => m.Code == id);
-            if (subOutputs == null)
+            if (subOutput == null)
             {
                 return NotFound();
             }
 
-            return View(subOutputs);
+            return View(subOutput);
         }
 
         // POST: SubOutputs/Delete/5
@@ -139,17 +165,17 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var subOutputs = await _context.SubOutputs.FindAsync(id);
-            if (subOutputs != null)
+            var subOutput = await _context.SubOutputs.FindAsync(id);
+            if (subOutput != null)
             {
-                _context.SubOutputs.Remove(subOutputs);
+                _context.SubOutputs.Remove(subOutput);
             }
 
             await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }
 
-        private bool SubOutputsExists(int id)
+        private bool SubOutputExists(int id)
         {
             return _context.SubOutputs.Any(e => e.Code == id);
         }

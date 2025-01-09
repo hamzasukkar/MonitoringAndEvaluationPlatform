@@ -1,7 +1,10 @@
-﻿namespace MonitoringAndEvaluationPlatform.Models
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace MonitoringAndEvaluationPlatform.Models
 {
     public class Program
     {
+        [Key]
         public int ProjectID { get; set; }
         public string ProjectName { get; set; }
         public double EstimatedBudget { get; set; }

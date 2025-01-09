@@ -20,9 +20,23 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         }
 
         // GET: Outcomes
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(int? id)
         {
-            return View(await _context.Outcomes.ToListAsync());
+            if (id == null)
+            {
+                var applicationDbContext = _context.Outcomes.Include(o => o.Framework);
+                return View(await applicationDbContext.ToListAsync());
+            }
+            var outcomes = await _context.Outcomes
+              .Include(o => o.Framework).Include(x => x.Outputs)
+              .Where(m => m.FrameworkCode==id).ToListAsync();
+
+            if (outcomes == null)
+            {
+                return NotFound();
+            }
+
+            return View(outcomes);
         }
 
         // GET: Outcomes/Details/5
@@ -33,19 +47,21 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 return NotFound();
             }
 
-            var outcomes = await _context.Outcomes
+            var outcome = await _context.Outcomes
+                .Include(o => o.Framework).Include(x => x.Outputs)
                 .FirstOrDefaultAsync(m => m.Code == id);
-            if (outcomes == null)
+            if (outcome == null)
             {
                 return NotFound();
             }
 
-            return View(outcomes);
+            return View(outcome);
         }
 
         // GET: Outcomes/Create
         public IActionResult Create()
         {
+            ViewData["FrameworkCode"] = new SelectList(_context.Freamework, "Code", "Name");
             return View();
         }
 
@@ -54,15 +70,19 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Code,Outcome,Trend,IndicatorsPerformance,DisbursementPerformance,FieldMonitoring,ImpactAssessment")] Outcome outcomes)
+        public async Task<IActionResult> Create(Outcome outcome)
         {
+            ModelState.Remove(nameof(outcome.Framework));
+
             if (ModelState.IsValid)
             {
-                _context.Add(outcomes);
+                _context.Add(outcome);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
-            return View(outcomes);
+            ViewData["FrameworkCode"] = new SelectList(_context.Freamework, "Code", "Name", outcome.FrameworkCode);
+
+            return View(outcome);
         }
 
         // GET: Outcomes/Edit/5
@@ -73,12 +93,13 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 return NotFound();
             }
 
-            var outcomes = await _context.Outcomes.FindAsync(id);
-            if (outcomes == null)
+            var outcome = await _context.Outcomes.FindAsync(id);
+            if (outcome == null)
             {
                 return NotFound();
             }
-            return View(outcomes);
+            ViewData["FrameworkCode"] = new SelectList(_context.Freamework, "Code", "Name", outcome.FrameworkCode);
+            return View(outcome);
         }
 
         // POST: Outcomes/Edit/5
@@ -86,23 +107,23 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Code,Outcome,Trend,IndicatorsPerformance,DisbursementPerformance,FieldMonitoring,ImpactAssessment")] Outcome outcomes)
+        public async Task<IActionResult> Edit(int id, [Bind("Code,Name,Trend,IndicatorsPerformance,DisbursementPerformance,FieldMonitoring,ImpactAssessment,FrameworkCode")] Outcome outcome)
         {
-            if (id != outcomes.Code)
+            if (id != outcome.Code)
             {
                 return NotFound();
             }
 
-            if (ModelState.IsValid)
+            if (ModelState.IsValid ||true)
             {
                 try
                 {
-                    _context.Update(outcomes);
+                    _context.Update(outcome);
                     await _context.SaveChangesAsync();
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!OutcomesExists(outcomes.Code))
+                    if (!OutcomeExists(outcome.Code))
                     {
                         return NotFound();
                     }
@@ -113,7 +134,8 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
-            return View(outcomes);
+            ViewData["FrameworkCode"] = new SelectList(_context.Freamework, "Code", "Name", outcome.FrameworkCode);
+            return View(outcome);
         }
 
         // GET: Outcomes/Delete/5
@@ -124,14 +146,15 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 return NotFound();
             }
 
-            var outcomes = await _context.Outcomes
+            var outcome = await _context.Outcomes
+                .Include(o => o.Framework)
                 .FirstOrDefaultAsync(m => m.Code == id);
-            if (outcomes == null)
+            if (outcome == null)
             {
                 return NotFound();
             }
 
-            return View(outcomes);
+            return View(outcome);
         }
 
         // POST: Outcomes/Delete/5
@@ -139,19 +162,27 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var outcomes = await _context.Outcomes.FindAsync(id);
-            if (outcomes != null)
+            var outcome = await _context.Outcomes.FindAsync(id);
+            if (outcome != null)
             {
-                _context.Outcomes.Remove(outcomes);
+                _context.Outcomes.Remove(outcome);
             }
 
             await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }
 
-        private bool OutcomesExists(int id)
+        private bool OutcomeExists(int id)
         {
             return _context.Outcomes.Any(e => e.Code == id);
+        }
+
+        // GET: FramworkOutcomes
+        public async Task<IActionResult> FramworkOutcomes(int? id)
+        {
+            var applicationDbContext = _context.Outcomes.Where(m => m.FrameworkCode == id);
+            ViewData["FrameworkName"] = _context.Freamework.Where(i => i.Code == id).FirstOrDefault().Name;
+            return View(await applicationDbContext.ToListAsync());
         }
     }
 }

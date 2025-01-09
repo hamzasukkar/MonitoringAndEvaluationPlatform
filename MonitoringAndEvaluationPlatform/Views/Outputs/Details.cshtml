@@ -2,13 +2,16 @@
 
 @{
     ViewData["Title"] = "Details";
-    Layout = "~/Views/Shared/_Layout.cshtml";
+    Layout = "~/Views/Shared/_ResultsFrameworkLayout.cshtml";
 }
+<div>
+    <a asp-controller="SubOutputs" asp-action="Create">Create Sub-Output</a>
+</div>
 
 <h1>Details</h1>
 
 <div>
-    <h4>Outputs</h4>
+    <h4>Output</h4>
     <hr />
     <dl class="row">
         <dt class = "col-sm-2">
@@ -17,11 +20,8 @@
         <dd class = "col-sm-10">
             @Html.DisplayFor(model => model.Name)
         </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Trend)
-        </dt>
         <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Trend)
+            @Html.DisplayFor(model => model.Outcome.Code)
         </dd>
     </dl>
 </div>
@@ -36,38 +36,36 @@
             </tr>
         </thead>
         <tbody>
-            <tr>
-                <th scope="row">1</th>
-                <td>1</td>
-                <td>First</td>
-                <td>
-                    <button class="btn btn-sm btn-primary" title="View"><i class="bi bi-eye"></i></button>
-                    <button class="btn btn-sm btn-warning" title="Edit"><i class="bi bi-pencil"></i></button>
-                    <button class="btn btn-sm btn-danger" title="Delete"><i class="bi bi-trash"></i></button>
-                </td>
-            </tr>
-            <tr>
-                <th scope="row">2</th>
-                <td>2</td>
-                <td>Second</td>
-                <td>
-                    <button class="btn btn-sm btn-primary" title="View"><i class="bi bi-eye"></i></button>
-                    <button class="btn btn-sm btn-warning" title="Edit"><i class="bi bi-pencil"></i></button>
-                    <button class="btn btn-sm btn-danger" title="Delete"><i class="bi bi-trash"></i></button>
-                </td>
-            </tr>
-            <tr>
-                <th scope="row">3</th>
-                <td>3</td>
-                <td>Third</td>
-                <td>
-                    <button class="btn btn-sm btn-primary" title="View"><i class="bi bi-eye"></i></button>
-                    <button class="btn btn-sm btn-warning" title="Edit"><i class="bi bi-pencil"></i></button>
-                    <button class="btn btn-sm btn-danger" title="Delete"><i class="bi bi-trash"></i></button>
-                </td>
-            </tr>
+            @foreach (var item in Model.SubOutputs)
+            {
+                <tr>
+                    <th scope="row">1</th>
+                    <td>1</td>
+                    <td>@item.Name</td>
+                    <td>
+                        <div class="d-inline">
+                            <form asp-controller="SubOutputs" asp-action="Details" asp-route-id="@item.Code" method="get" style="display: inline;">
+                                <button class="btn btn-sm btn-primary" title="View">
+                                    <i class="bi bi-eye"></i>
+                                </button>
+                            </form>
+                            <form asp-controller="SubOutputs" asp-action="Edit" asp-route-id="@item.Code" method="get" style="display: inline;">
+                                <button class="btn btn-sm btn-warning" title="Edit">
+                                    <i class="bi bi-pencil"></i>
+                                </button>
+                            </form>
+                            <form asp-controller="SubOutputs" asp-action="Delete" asp-route-id="@item.Code" method="post" style="display: inline;">
+                                <button class="btn btn-sm btn-danger" title="Delete">
+                                    <i class="bi bi-trash"></i>
+                                </button>
+                            </form>
+                        </div>
+                    </td>
+                </tr>
+            }
         </tbody>
     </table>
     <a asp-action="Edit" asp-route-id="@Model?.Code">Edit</a> |
     <a asp-action="Index">Back to List</a>
 </div>
+

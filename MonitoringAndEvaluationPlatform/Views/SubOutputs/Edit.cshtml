@@ -2,12 +2,12 @@
 
 @{
     ViewData["Title"] = "Edit";
-    Layout = "~/Views/Shared/_Layout.cshtml";
+    Layout = "~/Views/Shared/_ResultsFrameworkLayout.cshtml";
 }
 
 <h1>Edit</h1>
 
-<h4>SubOutputs</h4>
+<h4>SubOutput</h4>
 <hr />
 <div class="row">
     <div class="col-md-4">
@@ -25,24 +25,14 @@
                 <span asp-validation-for="Trend" class="text-danger"></span>
             </div>
             <div class="form-group">
-                <label asp-for="IndicatorsPerformance" class="control-label"></label>
-                <input asp-for="IndicatorsPerformance" class="form-control" />
-                <span asp-validation-for="IndicatorsPerformance" class="text-danger"></span>
+                <label asp-for="Weight" class="control-label"></label>
+                <input asp-for="Weight" class="form-control" />
+                <span asp-validation-for="Weight" class="text-danger"></span>
             </div>
             <div class="form-group">
-                <label asp-for="DisbursementPerformance" class="control-label"></label>
-                <input asp-for="DisbursementPerformance" class="form-control" />
-                <span asp-validation-for="DisbursementPerformance" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="FieldMonitoring" class="control-label"></label>
-                <input asp-for="FieldMonitoring" class="form-control" />
-                <span asp-validation-for="FieldMonitoring" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="ImpactAssessment" class="control-label"></label>
-                <input asp-for="ImpactAssessment" class="form-control" />
-                <span asp-validation-for="ImpactAssessment" class="text-danger"></span>
+                <label asp-for="OutputCode" class="control-label"></label>
+                <select asp-for="OutputCode" class="form-control" asp-items="ViewBag.OutputCode"></select>
+                <span asp-validation-for="OutputCode" class="text-danger"></span>
             </div>
             <div class="form-group">
                 <input type="submit" value="Save" class="btn btn-primary" />

@@ -1,0 +1,107 @@
+﻿@model IEnumerable<MonitoringAndEvaluationPlatform.Models.Framework>
+
+@{
+    ViewData["Title"] = "Index";
+    Layout = "~/Views/Shared/_ResultsFrameworkLayout.cshtml";
+}
+
+<h1>Index</h1>
+
+<p>
+    <a asp-action="Create">Create New</a>
+</p>
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                Name
+            </th>
+            <th>
+                
+            </th>
+            <th>
+                Trend
+            </th>
+
+            <th>
+                Indicators Performance
+            </th>
+            <th>
+                Disbursement Performance
+            </th>
+            <th>
+                Field Monitoring
+            </th>
+            <th>
+                Impact Assessment
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>
+                    <a href="/Outcomes/FramworkOutcomes/@item.Code">@item.Name</a>
+                </td>
+                <td>
+                    <img src="~/img/external-link-squared.png" />
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Trend)
+                </td>
+                <td>
+                    <div class="progress">
+                        <div class="progress-bar progress-bar-success progress-bar-striped" role="progressbar" aria-valuenow="@item.IndicatorsPerformance" aria-valuemin="0" aria-valuemax="100" style="width:@item.IndicatorsPerformance%">
+                            @item.IndicatorsPerformance%
+                        </div>
+                    </div>
+                </td>
+                <td>
+                    <div class="progress">
+                        <div class="progress-bar progress-bar-success progress-bar-striped" role="progressbar" aria-valuenow="@item.DisbursementPerformance" aria-valuemin="0" aria-valuemax="100" style="width:@item.DisbursementPerformance%">
+                            @item.DisbursementPerformance%
+                        </div>
+                    </div>
+                </td>
+                <td>
+                    <div class="progress">
+                        <div class="progress-bar progress-bar-success progress-bar-striped" role="progressbar" aria-valuenow="@item.FieldMonitoring" aria-valuemin="0" aria-valuemax="100" style="width:@item.FieldMonitoring%">
+                            @item.FieldMonitoring%
+                        </div>
+                    </div>
+                </td>
+                <td>
+                    <div class="progress">
+                        <div class="progress-bar progress-bar-success progress-bar-striped" role="progressbar" aria-valuenow="@item.ImpactAssessment" aria-valuemin="0" aria-valuemax="100" style="width:@item.ImpactAssessment%">
+                            @item.ImpactAssessment%
+                        </div>
+                    </div>
+                </td>
+                <td>
+                    <form asp-action="Delete" asp-route-id="@item.Code" method="post" style="display: inline;">
+                        <button class="btn btn-sm btn-success" title="Delete">
+                            <i class="bi bi-diagram-3"></i>
+                        </button>
+                    </form>
+                    <form asp-action="Details" asp-route-id="@item.Code" method="get" style="display: inline;">
+                        <button class="btn btn-sm btn-primary" title="View">
+                            <i class="bi bi-eye"></i>
+                        </button>
+                    </form>
+                    <form asp-action="Edit" asp-route-id="@item.Code" method="get" style="display: inline;">
+                        <button class="btn btn-sm btn-warning" title="Edit">
+                            <i class="bi bi-pencil"></i>
+                        </button>
+                    </form>
+                    <form asp-action="Delete" asp-route-id="@item.Code" method="post" style="display: inline;">
+                        <button class="btn btn-sm btn-danger" title="Delete">
+                            <i class="bi bi-trash"></i>
+                        </button>
+                    </form>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
