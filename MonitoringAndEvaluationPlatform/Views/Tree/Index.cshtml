@@ -1,0 +1,62 @@
+﻿@{
+    ViewData["Title"] = "Index";
+    Layout = null;
+}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Framework Hierarchy Chart</title>
+    <script src="~/js/orgchart.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+
+        h1 {
+            text-align: center;
+            margin: 20px 0;
+        }
+
+        #tree {
+            width: 100%;
+            height: 80vh;
+        }
+    </style>
+</head>
+<body>
+    <h1>Framework Hierarchy</h1>
+    <div id="tree"></div>
+
+    <script>
+        // Fetch data from the backend API
+        fetch('/Tree/GetFrameworkHierarchy')
+            .then(response => response.json())
+            .then(data => {
+                // Initialize OrgChart
+                const chart = new OrgChart(document.getElementById("tree"), {
+                    nodes: data,
+                    nodeBinding: {
+                        field_0: "name",
+                        field_1: "title"
+                    },
+                    template: "olivia",
+                    layout: OrgChart.tree, // Tree layout
+                    enableSearch: false,
+                    nodeMouseClick: OrgChart.action.none,
+                    nodeMenu: {
+                        details: { text: "Details" }
+                    },
+                    menu: {
+                        pdf: { text: "Export PDF" },
+                        png: { text: "Export PNG" }
+                    }
+                });
+            })
+            .catch(error => console.error("Error fetching hierarchy data:", error));
+    </script>
+</body>
+</html>
