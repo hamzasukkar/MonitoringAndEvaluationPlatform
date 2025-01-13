@@ -20,19 +20,20 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         }
 
         // GET: Frameworks1
-        public async Task<IActionResult> Index()
-        
+        public async Task<IActionResult> Index(int id)
         {
-            return View(await _context.Freamework.ToListAsync());
+            ViewData["FrameworkCode"] = id;
+            return View();
         }
 
-        public IActionResult GetFrameworkHierarchy()
+        public IActionResult GetFrameworkHierarchy(int id)
         {
-            var data = _context.Freamework
+            var data = _context.Framework
                 .Include(f => f.Outcomes)
                 .ThenInclude(o => o.Outputs)
                 .ThenInclude(op => op.SubOutputs)
                 .ThenInclude(so => so.Indicators)
+                .Where(i=>i.Code== id)
                 .ToList()
                 .SelectMany(f => new[]
                 {

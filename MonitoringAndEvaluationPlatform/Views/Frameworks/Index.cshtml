@@ -80,8 +80,8 @@
                     </div>
                 </td>
                 <td>
-                    <form asp-controller="Tree" asp-action="Index"  method="post" style="display: inline;">
-                        <button class="btn btn-sm btn-success" title="Delete">
+                    <form asp-controller="Tree" asp-action="Index" asp-route-id="@item.Code" method="post" style="display: inline;">
+                        <button class="btn btn-sm btn-success" title="Tree">
                             <i class="bi bi-diagram-3"></i>
                         </button>
                     </form>

@@ -147,7 +147,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
 
         private async Task UpdateFrameworkPerformance(int frameworkCode)
         {
-            var framework = await _context.Freamework.FirstOrDefaultAsync(i => i.Code == frameworkCode);
+            var framework = await _context.Framework.FirstOrDefaultAsync(i => i.Code == frameworkCode);
 
             if (framework == null) return;
 

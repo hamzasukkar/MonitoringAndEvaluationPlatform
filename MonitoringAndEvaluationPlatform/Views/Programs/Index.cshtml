@@ -2,7 +2,7 @@
 
 @{
     ViewData["Title"] = "Index";
-    Layout = "~/Views/Shared/_ProgramsLayout.cshtml";
+    Layout = "~/Views/Shared/_ProgramsLayout.cshtml"; 
 }
 
 <h1>Index</h1>
@@ -14,82 +14,65 @@
     <thead>
         <tr>
             <th>
-                Project Name
+                @Html.DisplayNameFor(model => model.ProjectName)
             </th>
             <th>
-                Estimated Budget
+                @Html.DisplayNameFor(model => model.EstimatedBudget)
             </th>
             <th>
-                Real Budget
+                @Html.DisplayNameFor(model => model.RealBudget)
             </th>
             <th>
-                Trend
+                @Html.DisplayNameFor(model => model.Trend)
             </th>
             <th>
-                performance
+                @Html.DisplayNameFor(model => model.performance)
             </th>
             <th>
-                Disbursement Performance
+                @Html.DisplayNameFor(model => model.DisbursementPerformance)
             </th>
             <th>
-                Field Monitoring
+                @Html.DisplayNameFor(model => model.FieldMonitoring)
             </th>
             <th>
-                Impact Assessment
+                @Html.DisplayNameFor(model => model.ImpactAssessment)
             </th>
             <th></th>
         </tr>
     </thead>
     <tbody>
-        @foreach (var item in Model)
-        {
-            <tr>
-                <td>
-                    @Html.DisplayFor(modelItem => item.ProjectName)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.EstimatedBudget)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.RealBudget)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.Trend)
-                </td>
-                <td>
-                    <div class="progress">
-                        <div class="progress-bar progress-bar-success progress-bar-striped" role="progressbar" aria-valuenow="@item.performance" aria-valuemin="0" aria-valuemax="100" style="width:@item.performance%">
-                            @item.performance%
-                        </div>
-                    </div>
-                </td>
-                <td>
-                    <div class="progress">
-                        <div class="progress-bar progress-bar-success progress-bar-striped" role="progressbar" aria-valuenow="@item.DisbursementPerformance" aria-valuemin="0" aria-valuemax="100" style="width:@item.DisbursementPerformance%">
-                            @item.DisbursementPerformance%
-                        </div>
-                    </div>
-                </td>
-                <td>
-                    <div class="progress">
-                        <div class="progress-bar progress-bar-success progress-bar-striped" role="progressbar" aria-valuenow="@item.FieldMonitoring" aria-valuemin="0" aria-valuemax="100" style="width:@item.FieldMonitoring%">
-                            @item.FieldMonitoring%
-                        </div>
-                    </div>
-                </td>
-                <td>
-                    <div class="progress">
-                        <div class="progress-bar progress-bar-success progress-bar-striped" role="progressbar" aria-valuenow="@item.ImpactAssessment" aria-valuemin="0" aria-valuemax="100" style="width:@item.ImpactAssessment%">
-                            @item.ImpactAssessment%
-                        </div>
-                    </div>
-                </td>
-                <td>
-                    <a asp-action="Edit" asp-route-id="@item.ProjectID">Edit</a> |
-                    <a asp-action="Details" asp-route-id="@item.ProjectID">Details</a> |
-                    <a asp-action="Delete" asp-route-id="@item.ProjectID">Delete</a>
-                </td>
-            </tr>
-        }
+@foreach (var item in Model) {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.ProjectName)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.EstimatedBudget)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.RealBudget)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Trend)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.performance)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.DisbursementPerformance)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.FieldMonitoring)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.ImpactAssessment)
+            </td>
+            <td>
+                <a asp-action="Edit" asp-route-id="@item.ProjectID">Edit</a> |
+                <a asp-action="Details" asp-route-id="@item.ProjectID">Details</a> |
+                <a asp-action="Delete" asp-route-id="@item.ProjectID">Delete</a>
+            </td>
+        </tr>
+}
     </tbody>
 </table>

@@ -7,6 +7,8 @@ namespace MonitoringAndEvaluationPlatform.Models
         [Key]
         public int ProjectID { get; set; }
         public string ProjectName { get; set; }
+        public int RegionCode { get; set; }
+        public virtual Region Region { get; set; }
         public double EstimatedBudget { get; set; }
         public double RealBudget { get; set; }
         public string Trend { get; set; }
@@ -19,7 +21,6 @@ namespace MonitoringAndEvaluationPlatform.Models
         public string Donor { get; set; }
         public DateTime StartDate { get; set; }
         public DateTime EndDate { get; set; }
-        public string Region { get; set; }
         public int performance { get; set; }
         public int DisbursementPerformance { get; set; }
         public int FieldMonitoring { get; set; }
