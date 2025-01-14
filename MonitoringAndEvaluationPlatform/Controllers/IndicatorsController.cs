@@ -292,5 +292,24 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         {
             return _context.Indicators.Any(e => e.Code == id);
         }
+
+        public IActionResult Chart()
+        {
+                var viewModel = new ChartDataViewModel
+                {
+                    Labels = new List<string>
+            {
+                "2019-01-01", "2022-01-01", "2030-02-01", "2030-03-01",
+                "2030-04-01", "2030-05-01", "2030-06-01"
+            },
+                    RealData = new List<double> { 80, 85, 90, 95, 98, 99, 100 },
+                    HistoricalData = new List<double> { 80, 82, 83, 85, 87, 89, 91 },
+                    RequiredData = new List<double> { 80, 83, 86, 89, 92, 95, 100 }
+                };
+
+                return View(viewModel);
+        }
+
+
     }
 }
