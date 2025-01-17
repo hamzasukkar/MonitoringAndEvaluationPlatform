@@ -237,7 +237,7 @@
 
 
         <!-- Content Area with Iframe -->
-        <div class="container">
+        <div class="container-fluid">
             <main role="main" class="pb-3">
                 @RenderBody()
             </main>
@@ -247,6 +247,7 @@
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jstree/3.3.12/jstree.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>

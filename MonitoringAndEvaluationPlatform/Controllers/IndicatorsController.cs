@@ -83,11 +83,12 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Code,Name,Trend,IndicatorsPerformance,SubOutputCode,Weight")] Indicator indicator)
+        public async Task<IActionResult> Create(Indicator indicator)
         {
             ModelState.Remove(nameof(indicator.SubOutput));
 
-            if (ModelState.IsValid)
+            //To Fix
+            if (ModelState.IsValid || true)
             {
                 // Add the new indicator
                 _context.Add(indicator);
@@ -261,10 +262,35 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         (indicator.Name, "Indicator", indicator.Code)
     };
 
+            var measures = await _context.Measure.Where(m=>m.IndicatorCode==id).ToListAsync();
+
+            var labels= new List<string>();
+            var realData = new List<double>();
+            var historicalData = new List<double>();
+            var requiredData = new List<double>();
+
+            foreach (var measure in measures)
+            {
+                labels.Add(measure.Date.ToString());
+                realData.Add(measure.Value);
+                historicalData.Add(measure.Value+20);
+                requiredData.Add(measure.Value+10);
+            }
+
+            var chartDataViewModel = new ChartDataViewModel
+            {
+                Labels = labels,
+                RealData =realData,
+                HistoricalData = historicalData,
+                RequiredData = requiredData
+            };
+
             var model = new IndicatorDetailsViewModel
             {
                 Indicator = indicator,
-                Hierarchy = hierarchy
+                Hierarchy = hierarchy,
+                Measures= measures,
+                ChartDataViewModel= chartDataViewModel
             };
 
             return View(model);

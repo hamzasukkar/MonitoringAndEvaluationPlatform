@@ -23,6 +23,7 @@ namespace MonitoringAndEvaluationPlatform.Data
         public DbSet<MonitoringAndEvaluationPlatform.Models.Sector> Sector { get; set; } = default!;
         public DbSet<MonitoringAndEvaluationPlatform.Models.Donor> Donor { get; set; } = default!;
         public DbSet<MonitoringAndEvaluationPlatform.Models.Assessment> Assessment { get; set; } = default!;
+        public DbSet<MonitoringAndEvaluationPlatform.Models.Measure> Measure { get; set; } = default!;
 
     }
 }
