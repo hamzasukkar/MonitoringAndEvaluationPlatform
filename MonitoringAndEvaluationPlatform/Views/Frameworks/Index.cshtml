@@ -17,7 +17,7 @@
                 Name
             </th>
             <th>
-                
+
             </th>
             <th>
                 Trend
@@ -41,6 +41,27 @@
     <tbody>
         @foreach (var item in Model)
         {
+            string ProgressBarClass = "";
+
+            switch(item.IndicatorsPerformance)
+            {
+                case >= 80:
+                    ProgressBarClass = "progress-bar-success";
+                    break;
+
+                case >= 50:
+                    ProgressBarClass = "progress-bar-info";
+                    break;
+
+                case >= 30:
+                    ProgressBarClass = "progress-bar-warning";
+                    break;
+
+                case < 30:
+                    ProgressBarClass = "progress-bar-danger";
+                    break;
+            }
+
             <tr>
                 <td>
                     <a href="/Outcomes/FramworkOutcomes/@item.Code">@item.Name</a>
@@ -53,7 +74,7 @@
                 </td>
                 <td>
                     <div class="progress">
-                        <div class="progress-bar progress-bar-success progress-bar-striped" role="progressbar" aria-valuenow="@item.IndicatorsPerformance" aria-valuemin="0" aria-valuemax="100" style="width:@item.IndicatorsPerformance%">
+                        <div class="progress-bar  @ProgressBarClass  progress-bar-striped" role="progressbar" aria-valuenow="@item.IndicatorsPerformance" aria-valuemin="0" aria-valuemax="100" style="width:@item.IndicatorsPerformance%">
                             @item.IndicatorsPerformance%
                         </div>
                     </div>

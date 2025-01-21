@@ -22,6 +22,9 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         // GET: Frameworks
         public async Task<IActionResult> Index()
         {
+            ViewData["ProgressBarClass"] = "progress-bar-danger";
+
+
             return View(await _context.Framework.ToListAsync());
         }
 
