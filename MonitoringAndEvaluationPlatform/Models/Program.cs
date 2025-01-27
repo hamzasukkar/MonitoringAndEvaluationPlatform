@@ -11,7 +11,7 @@ namespace MonitoringAndEvaluationPlatform.Models
         public virtual Region Region { get; set; }
         public double EstimatedBudget { get; set; }
         public double RealBudget { get; set; }
-        public string Trend { get; set; }
+        public int Trend { get; set; }
         public string ProjectManager { get; set; }
         public string SuperVisor { get; set; }
         public string Type { get; set; }
@@ -25,5 +25,6 @@ namespace MonitoringAndEvaluationPlatform.Models
         public int DisbursementPerformance { get; set; }
         public int FieldMonitoring { get; set; }
         public int ImpactAssessment { get; set; }
+        public ICollection<LogicalFramework> logicalFramework{ get; set; } = new List<LogicalFramework>();
     }
 }

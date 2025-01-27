@@ -1,0 +1,98 @@
+﻿@model IEnumerable<MonitoringAndEvaluationPlatform.Models.LogicalFramework>
+
+@{
+    ViewData["Title"] = "Index";
+    Layout = "~/Views/Shared/_ProgramsLayout.cshtml";
+}
+<nav class="navbar navbar-expand-lg navbar-light bg-light">
+    <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav">
+            <li class="nav-item active">
+                <a asp-action="Details" asp-controller="Programs" asp-route-id="2" class="nav-link">Project <span class="sr-only">(current)</span></a>
+            </li>
+            <li class="nav-item">
+                <a asp-action="Index" asp-controller="LogicalFrameworks"  class="nav-link">Alignement</a>
+            </li>
+            <li class="nav-item">
+                <a asp-action="Index" asp-controller="LogicalFrameworks"  class="nav-link">Logical Framework</a>
+            </li>
+            <li class="nav-item">
+                <a asp-action="Edit" class="nav-link">Action Plans</a>
+            </li>
+        </ul>
+    </div>
+</nav>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.Name)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Type)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Trend)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.IndicatorsPerformance)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.ProjectID)
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+@foreach (var item in Model) {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.Name)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Type)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Trend)
+            </td>
+                <td>
+                    <div class="progress">
+                        <div class="progress-bar progress-bar-success progress-bar-striped" role="progressbar"
+                             aria-valuenow="@item.IndicatorsPerformance"
+                             aria-valuemin="0" aria-valuemax="100"
+                             style="width:@item.IndicatorsPerformance%">
+                            @item.IndicatorsPerformance%
+                        </div>
+                    </div>
+                </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.ProjectID)
+            </td>
+                <td>
+                    <div class="d-inline">
+                        <form  asp-action="Details" asp-route-id="@item.Code" method="get" style="display: inline;">
+                            <button class="btn btn-sm btn-primary" title="View">
+                                <i class="bi bi-eye"></i>
+                            </button>
+                        </form>
+                        <form  asp-action="Edit" asp-route-id="@item.Code" method="get" style="display: inline;">
+                            <button class="btn btn-sm btn-warning" title="Edit">
+                                <i class="bi bi-pencil"></i>
+                            </button>
+                        </form>
+                        <form  asp-action="Delete" asp-route-id="@item.Code" method="post" style="display: inline;">
+                            <button class="btn btn-sm btn-danger" title="Delete">
+                                <i class="bi bi-trash"></i>
+                            </button>
+                        </form>
+                    </div>
+                </td>
+        </tr>
+}
+    </tbody>
+</table>
+
+<p>
+    <a asp-action="Create">Create New</a>
+</p>
