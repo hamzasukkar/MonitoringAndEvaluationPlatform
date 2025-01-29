@@ -1,9 +1,13 @@
-﻿
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using MonitoringAndEvaluationPlatform.Data;
 using MonitoringAndEvaluationPlatform.Models;
-
+using MonitoringAndEvaluationPlatform.ViewModel;
 
 namespace MonitoringAndEvaluationPlatform.Controllers
 {
@@ -14,6 +18,11 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         public ProgramsController(ApplicationDbContext context)
         {
             _context = context;
+        }
+
+        public async Task<IActionResult> ActionPlan()
+        {
+            return View();
         }
 
         // GET: Programs
@@ -43,7 +52,19 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         // GET: Programs/Create
         public IActionResult Create()
         {
-            return View();
+            var regions = _context.Region.Select(r => new SelectListItem
+            {
+                Value = r.Code.ToString(),
+                Text = r.Name
+            }).ToList();
+
+            var viewModel = new ProgramViewModel
+            {
+                Program = new Models.Program(),
+                Regions = regions
+            };
+
+            return View(viewModel);
         }
 
         // POST: Programs/Create
@@ -51,15 +72,23 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("ProjectID,ProjectName,EstimatedBudget,RealBudget,Trend,performance,DisbursementPerformance,FieldMonitoring,ImpactAssessment")] Models.Program program)
+        public IActionResult Create(ProgramViewModel viewModel)
         {
-            if (ModelState.IsValid)
+            if (ModelState.IsValid || true)
             {
-                _context.Add(program);
-                await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
+                _context.Program.Add(viewModel.Program);
+                _context.SaveChanges();
+                return RedirectToAction("Index"); // Or your desired action
             }
-            return View(program);
+
+            // Repopulate the regions if model validation fails
+            viewModel.Regions = _context.Region.Select(r => new SelectListItem
+            {
+                Value = r.Code.ToString(),
+                Text = r.Name
+            }).ToList();
+
+            return View(viewModel);
         }
 
         // GET: Programs/Edit/5
@@ -83,7 +112,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("ProjectID,ProjectName,EstimatedBudget,RealBudget,Trend,performance,DisbursementPerformance,FieldMonitoring,ImpactAssessment")] Models.Program program)
+        public async Task<IActionResult> Edit(int id, [Bind("ProjectID,ProjectName,EstimatedBudget,RealBudget,Trend,ProjectManager,SuperVisor,Type,Status1,Status2,Category,Donor,StartDate,EndDate,Region,performance,DisbursementPerformance,FieldMonitoring,ImpactAssessment")] Models.Program program)
         {
             if (id != program.ProjectID)
             {

@@ -54,7 +54,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Code,Nom,Type")] Region region)
+        public async Task<IActionResult> Create([Bind("Code,Name,Type")] Region region)
         {
             if (ModelState.IsValid)
             {
@@ -86,7 +86,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Code,Nom,Type")] Region region)
+        public async Task<IActionResult> Edit(int id, [Bind("Code,Name,Type")] Region region)
         {
             if (id != region.Code)
             {

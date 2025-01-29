@@ -17,7 +17,7 @@
                 Name
             </th>
             <th>
-                
+
             </th>
             <th>
                 Trend
@@ -41,47 +41,149 @@
     <tbody>
         @foreach (var item in Model)
         {
+            string IndicatorsPerformanceProgressBarClass = "";
+            string DisbursementPerformanceProgressBarClass = "";
+            string FieldMonitoringProgressBarClass = "";
+            string ImpactAssessmentProgressBarClass = "";
+            string TrendImage = "";
+
+            switch(item.IndicatorsPerformance)
+            {
+                case >= 80:
+                    IndicatorsPerformanceProgressBarClass = "progress-bar-success";
+                    break;
+
+                case >= 50:
+                    IndicatorsPerformanceProgressBarClass = "progress-bar-info";
+                    break;
+
+                case >= 30:
+                    IndicatorsPerformanceProgressBarClass = "progress-bar-warning";
+                    break;
+
+                case < 30:
+                    IndicatorsPerformanceProgressBarClass = "progress-bar-danger";
+                    break;
+            }
+
+            switch (item.DisbursementPerformance)
+            {
+                case >= 80:
+                    DisbursementPerformanceProgressBarClass = "progress-bar-success";
+                    break;
+
+                case >= 50:
+                    DisbursementPerformanceProgressBarClass = "progress-bar-info";
+                    break;
+
+                case >= 30:
+                    DisbursementPerformanceProgressBarClass = "progress-bar-warning";
+                    break;
+
+                case < 30:
+                    DisbursementPerformanceProgressBarClass = "progress-bar-danger";
+                    break;
+            }
+
+            switch (item.FieldMonitoring)
+            {
+                case >= 80:
+                    FieldMonitoringProgressBarClass = "progress-bar-success";
+                    break;
+
+                case >= 50:
+                    FieldMonitoringProgressBarClass = "progress-bar-info";
+                    break;
+
+                case >= 30:
+                    FieldMonitoringProgressBarClass = "progress-bar-warning";
+                    break;
+
+                case < 30:
+                    FieldMonitoringProgressBarClass = "progress-bar-danger";
+                    break;
+            }
+
+
+            switch (item.ImpactAssessment)
+            {
+                case >= 80:
+                    ImpactAssessmentProgressBarClass = "progress-bar-success";
+                    break;
+
+                case >= 50:
+                    ImpactAssessmentProgressBarClass = "progress-bar-info";
+                    break;
+
+                case >= 30:
+                    ImpactAssessmentProgressBarClass = "progress-bar-warning";
+                    break;
+
+                case < 30:
+                    ImpactAssessmentProgressBarClass = "progress-bar-danger";
+                    break;
+            }
+
+            switch (item.Trend)
+            {
+                case >= 80:
+                    TrendImage = "external-link-success.png";
+                    break;
+
+                case >= 50:
+                    TrendImage = "external-link-info.png";
+                    break;
+
+                case >= 30:
+                    TrendImage = "external-link-squared.png";
+                    break;
+
+                case < 30:
+                    TrendImage = "external-link-danger.png";
+                    break;
+            }
+
             <tr>
                 <td>
                     <a href="/Outcomes/FramworkOutcomes/@item.Code">@item.Name</a>
                 </td>
                 <td>
-                    <img src="~/img/external-link-squared.png" />
+                    <img src="~/img/@TrendImage" />
                 </td>
                 <td>
                     @Html.DisplayFor(modelItem => item.Trend)
                 </td>
                 <td>
                     <div class="progress">
-                        <div class="progress-bar progress-bar-success progress-bar-striped" role="progressbar" aria-valuenow="@item.IndicatorsPerformance" aria-valuemin="0" aria-valuemax="100" style="width:@item.IndicatorsPerformance%">
+                        <div class="progress-bar  @IndicatorsPerformanceProgressBarClass  progress-bar-striped" role="progressbar" aria-valuenow="@item.IndicatorsPerformance" aria-valuemin="0" aria-valuemax="100" style="width:@item.IndicatorsPerformance%">
                             @item.IndicatorsPerformance%
                         </div>
                     </div>
                 </td>
                 <td>
                     <div class="progress">
-                        <div class="progress-bar progress-bar-success progress-bar-striped" role="progressbar" aria-valuenow="@item.DisbursementPerformance" aria-valuemin="0" aria-valuemax="100" style="width:@item.DisbursementPerformance%">
+                        <div class="progress-bar @DisbursementPerformanceProgressBarClass progress-bar-striped" role="progressbar" aria-valuenow="@item.DisbursementPerformance" aria-valuemin="0" aria-valuemax="100" style="width:@item.DisbursementPerformance%">
                             @item.DisbursementPerformance%
                         </div>
                     </div>
                 </td>
                 <td>
                     <div class="progress">
-                        <div class="progress-bar progress-bar-success progress-bar-striped" role="progressbar" aria-valuenow="@item.FieldMonitoring" aria-valuemin="0" aria-valuemax="100" style="width:@item.FieldMonitoring%">
+                        <div class="progress-bar @FieldMonitoringProgressBarClass progress-bar-striped" role="progressbar" aria-valuenow="@item.FieldMonitoring" aria-valuemin="0" aria-valuemax="100" style="width:@item.FieldMonitoring%">
                             @item.FieldMonitoring%
                         </div>
                     </div>
                 </td>
                 <td>
                     <div class="progress">
-                        <div class="progress-bar progress-bar-success progress-bar-striped" role="progressbar" aria-valuenow="@item.ImpactAssessment" aria-valuemin="0" aria-valuemax="100" style="width:@item.ImpactAssessment%">
+                        <div class="progress-bar @ImpactAssessmentProgressBarClass progress-bar-striped" role="progressbar" aria-valuenow="@item.ImpactAssessment" aria-valuemin="0" aria-valuemax="100" style="width:@item.ImpactAssessment%">
                             @item.ImpactAssessment%
                         </div>
                     </div>
                 </td>
                 <td>
-                    <form asp-controller="Tree" asp-action="Index"  method="post" style="display: inline;">
-                        <button class="btn btn-sm btn-success" title="Delete">
+                    <form asp-controller="Tree" asp-action="Index" asp-route-id="@item.Code" method="post" style="display: inline;">
+                        <button class="btn btn-sm btn-success" title="Tree">
                             <i class="bi bi-diagram-3"></i>
                         </button>
                     </form>

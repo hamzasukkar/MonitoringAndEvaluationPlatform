@@ -12,7 +12,7 @@
 <!-- Include jsTree -->
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jstree/3.3.12/themes/default/style.min.css" />
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jstree/3.3.12/jstree.min.js"></script> *@
-
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 @* <ul>
     @foreach (var node in Model.Hierarchy)
@@ -41,26 +41,59 @@
     <h4>Indicator</h4>
     <hr />
     <dl class="row">
-        <dt class = "col-sm-2">
-            Name
-        </dt>
-        <dd class = "col-sm-10">
-            @Model.Indicator.Name
-        </dd>
-        <dt class = "col-sm-2">
-           Trend
-        </dt>
-        <dd class = "col-sm-10">
-            @Model.Indicator.Trend
-        </dd>
-        <dt class = "col-sm-2">
-            Indicators Performance
-        </dt>
-        <dd class = "col-sm-10">
-            @Model.Indicator.IndicatorsPerformance
-        </dd>
+        <dt class="col-sm-2">Name</dt>
+        <dd class="col-sm-4">@Model.Indicator.Name</dd>
+
+        <dt class="col-sm-2">Source</dt>
+        <dd class="col-sm-4">@Model.Indicator.Source</dd>
+
+        <dt class="col-sm-1">Target</dt>
+        <dd class="col-sm-1">@Model.Indicator.Target</dd>
+
+        <dt class="col-sm-1">Target Year</dt>
+        <dd class="col-sm-1">@Model.Indicator.TargetYear.ToString("yyyy-MM-dd")</dd>
+
+        <dt class="col-sm-1">GAGRA</dt>
+        <dd class="col-sm-1">@Model.Indicator.GAGRA</dd>
+
+        <dt class="col-sm-1">GAGRR</dt>
+        <dd class="col-sm-1">@Model.Indicator.GAGRR</dd>
+
+        <dt class="col-sm-1">Trend</dt>
+        <dd class="col-sm-1">@Model.Indicator.Trend</dd>
     </dl>
 </div>
+<p>
+    <a asp-controller="Measures" asp-action="Create">Create New Measure</a>
+</p>
+<table class="table">
+    <thead>
+        <tr>
+            <th>Date</th>
+            <th>Value</th>
+            <th>Value Type</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model.Measures)
+        {
+           <tr>
+               <td>
+                    @item.Date.ToString("yyyy-MM-dd")
+               </td>
+
+                <td>
+                    @item.Value
+                </td>
+                <td>
+                    @item.ValueType
+                </td>
+           </tr>
+        }
+    </tbody>
+</table>
+<canvas id="performanceChart" width="800" height="400"></canvas>
+
 <div>
     <a asp-action="Edit" asp-route-id="@Model?.Indicator.Code">Edit</a> |
     <a asp-action="Index">Back to List</a>
@@ -93,3 +126,52 @@
         });
     });
 </script> *@
+<script>
+    const ctx = document.getElementById('performanceChart').getContext('2d');
+    const performanceChart = new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: @Html.Raw(Json.Serialize(Model.ChartDataViewModel.Labels)),
+            datasets: [
+                {
+                    label: 'Real',
+                    data: @Html.Raw(Json.Serialize(Model.ChartDataViewModel.RealData)),
+                    borderColor: 'blue',
+                    backgroundColor: 'rgba(0, 0, 255, 0.1)',
+                    fill: true
+                },
+                {
+                    label: 'Historical',
+                    data: @Html.Raw(Json.Serialize(Model.ChartDataViewModel.HistoricalData)),
+                    borderColor: 'lightblue',
+                    backgroundColor: 'rgba(173, 216, 230, 0.1)',
+                    fill: true
+                },
+                {
+                    label: 'Required',
+                    data: @Html.Raw(Json.Serialize(Model.ChartDataViewModel.RequiredData)),
+                    borderColor: 'red',
+                    backgroundColor: 'rgba(255, 0, 0, 0.1)',
+                    fill: true
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: {
+                    position: 'top'
+                },
+            },
+            scales: {
+                x: {
+                    beginAtZero: true
+                },
+                y: {
+                    min: 80,
+                    max: 100
+                }
+            }
+        }
+    });
+</script>

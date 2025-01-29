@@ -1,6 +1,7 @@
-﻿@{
+﻿
+@{
     ViewData["Title"] = "Index";
-    Layout = null;
+    Layout = "~/Views/Shared/_ResultsFrameworkLayout.cshtml";
 }
 <!DOCTYPE html>
 <html lang="en">
@@ -33,7 +34,9 @@
 
     <script>
         // Fetch data from the backend API
-        fetch('/Tree/GetFrameworkHierarchy')
+        const frameworkCode = @ViewData["FrameworkCode"];
+        
+        fetch(`/Tree/GetFrameworkHierarchy/${frameworkCode}`)
             .then(response => response.json())
             .then(data => {
                 // Initialize OrgChart
@@ -41,7 +44,7 @@
                     nodes: data,
                     nodeBinding: {
                         field_0: "name",
-                        field_1: "title"
+                        field_1: "indicatorsPerformance"
                     },
                     template: "olivia",
                     layout: OrgChart.tree, // Tree layout

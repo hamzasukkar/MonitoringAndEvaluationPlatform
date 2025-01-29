@@ -22,13 +22,13 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         // GET: Monitoring
         public async Task<IActionResult> Index(int? id)
         {
-            var freameworks = await _context.Freamework
+            var frameworks = await _context.Framework
                 .Include(i => i.Outcomes)
                 .ThenInclude(i => i.Outputs)
                 .ThenInclude(i => i.SubOutputs)
                 .ThenInclude(i => i.Indicators)
                 .ToListAsync();
-            return View(freameworks);
+            return View(frameworks);
         }
 
         public async Task<IActionResult> Outcome(int? id)

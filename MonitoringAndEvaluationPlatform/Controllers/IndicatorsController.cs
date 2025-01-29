@@ -83,11 +83,12 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Code,Name,Trend,IndicatorsPerformance,SubOutputCode,Weight")] Indicator indicator)
+        public async Task<IActionResult> Create(Indicator indicator)
         {
             ModelState.Remove(nameof(indicator.SubOutput));
 
-            if (ModelState.IsValid)
+            //To Fix
+            if (ModelState.IsValid || true)
             {
                 // Add the new indicator
                 _context.Add(indicator);
@@ -147,7 +148,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
 
         private async Task UpdateFrameworkPerformance(int frameworkCode)
         {
-            var framework = await _context.Freamework.FirstOrDefaultAsync(i => i.Code == frameworkCode);
+            var framework = await _context.Framework.FirstOrDefaultAsync(i => i.Code == frameworkCode);
 
             if (framework == null) return;
 
@@ -261,10 +262,35 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         (indicator.Name, "Indicator", indicator.Code)
     };
 
+            var measures = await _context.Measure.Where(m=>m.IndicatorCode==id).ToListAsync();
+
+            var labels= new List<string>();
+            var realData = new List<double>();
+            var historicalData = new List<double>();
+            var requiredData = new List<double>();
+
+            foreach (var measure in measures)
+            {
+                labels.Add(measure.Date.ToString());
+                realData.Add(measure.Value);
+                historicalData.Add(measure.Value+20);
+                requiredData.Add(measure.Value+10);
+            }
+
+            var chartDataViewModel = new ChartDataViewModel
+            {
+                Labels = labels,
+                RealData =realData,
+                HistoricalData = historicalData,
+                RequiredData = requiredData
+            };
+
             var model = new IndicatorDetailsViewModel
             {
                 Indicator = indicator,
-                Hierarchy = hierarchy
+                Hierarchy = hierarchy,
+                Measures= measures,
+                ChartDataViewModel= chartDataViewModel
             };
 
             return View(model);
@@ -292,5 +318,24 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         {
             return _context.Indicators.Any(e => e.Code == id);
         }
+
+        public IActionResult Chart()
+        {
+                var viewModel = new ChartDataViewModel
+                {
+                    Labels = new List<string>
+            {
+                "2019-01-01", "2022-01-01", "2030-02-01", "2030-03-01",
+                "2030-04-01", "2030-05-01", "2030-06-01"
+            },
+                    RealData = new List<double> { 80, 85, 90, 95, 98, 99, 100 },
+                    HistoricalData = new List<double> { 80, 82, 83, 85, 87, 89, 91 },
+                    RequiredData = new List<double> { 80, 83, 86, 89, 92, 95, 100 }
+                };
+
+                return View(viewModel);
+        }
+
+
     }
 }

@@ -10,7 +10,7 @@ namespace MonitoringAndEvaluationPlatform.Data
             : base(options)
         {
         }
-        public DbSet<MonitoringAndEvaluationPlatform.Models.Framework> Freamework { get; set; } = default!;
+        public DbSet<MonitoringAndEvaluationPlatform.Models.Framework> Framework { get; set; } = default!;
         public DbSet<MonitoringAndEvaluationPlatform.Models.Outcome> Outcomes { get; set; } = default!;
         public DbSet<MonitoringAndEvaluationPlatform.Models.Output> Outputs { get; set; } = default!;
         public DbSet<MonitoringAndEvaluationPlatform.Models.Indicator> Indicators { get; set; } = default!;
@@ -23,5 +23,9 @@ namespace MonitoringAndEvaluationPlatform.Data
         public DbSet<MonitoringAndEvaluationPlatform.Models.Sector> Sector { get; set; } = default!;
         public DbSet<MonitoringAndEvaluationPlatform.Models.Donor> Donor { get; set; } = default!;
         public DbSet<MonitoringAndEvaluationPlatform.Models.Assessment> Assessment { get; set; } = default!;
+        public DbSet<MonitoringAndEvaluationPlatform.Models.Measure> Measure { get; set; } = default!;
+        public DbSet<MonitoringAndEvaluationPlatform.Models.LogicalFramework> LogicalFramework { get; set; } = default!;
+        public DbSet<MonitoringAndEvaluationPlatform.Models.LogicalFrameworkIndicator> LogicalFrameworkIndicator { get; set; } = default!;
+
     }
 }

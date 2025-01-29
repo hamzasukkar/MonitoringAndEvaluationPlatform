@@ -2,40 +2,39 @@
 
 @{
     ViewData["Title"] = "Index";
-    Layout = "~/Views/Shared/_ProgramsLayout.cshtml";
+    Layout = "~/Views/Shared/_ProjectLayout.cshtml";
 }
-
-<h1>Index</h1>
 
 <p>
     <a asp-action="Create">Create New</a>
 </p>
+
 <table class="table">
     <thead>
         <tr>
             <th>
-                Project Name
+                @Html.DisplayNameFor(model => model.ProjectName)
             </th>
             <th>
-                Estimated Budget
+                @Html.DisplayNameFor(model => model.EstimatedBudget)
             </th>
             <th>
-                Real Budget
+                @Html.DisplayNameFor(model => model.RealBudget)
             </th>
             <th>
-                Trend
+                @Html.DisplayNameFor(model => model.Trend)
             </th>
             <th>
-                performance
+                @Html.DisplayNameFor(model => model.performance)
             </th>
             <th>
-                Disbursement Performance
+                @Html.DisplayNameFor(model => model.DisbursementPerformance)
             </th>
             <th>
-                Field Monitoring
+                @Html.DisplayNameFor(model => model.FieldMonitoring)
             </th>
             <th>
-                Impact Assessment
+                @Html.DisplayNameFor(model => model.ImpactAssessment)
             </th>
             <th></th>
         </tr>
@@ -43,9 +42,111 @@
     <tbody>
         @foreach (var item in Model)
         {
+            string IndicatorsPerformanceProgressBarClass = "";
+            string DisbursementPerformanceProgressBarClass = "";
+            string FieldMonitoringProgressBarClass = "";
+            string ImpactAssessmentProgressBarClass = "";
+            string TrendImage = "";
+
+            switch (item.performance)
+            {
+                case >= 80:
+                    IndicatorsPerformanceProgressBarClass = "progress-bar-success";
+                    break;
+
+                case >= 50:
+                    IndicatorsPerformanceProgressBarClass = "progress-bar-info";
+                    break;
+
+                case >= 30:
+                    IndicatorsPerformanceProgressBarClass = "progress-bar-warning";
+                    break;
+
+                case < 30:
+                    IndicatorsPerformanceProgressBarClass = "progress-bar-danger";
+                    break;
+            }
+
+            switch (item.DisbursementPerformance)
+            {
+                case >= 80:
+                    DisbursementPerformanceProgressBarClass = "progress-bar-success";
+                    break;
+
+                case >= 50:
+                    DisbursementPerformanceProgressBarClass = "progress-bar-info";
+                    break;
+
+                case >= 30:
+                    DisbursementPerformanceProgressBarClass = "progress-bar-warning";
+                    break;
+
+                case < 30:
+                    DisbursementPerformanceProgressBarClass = "progress-bar-danger";
+                    break;
+            }
+
+            switch (item.FieldMonitoring)
+            {
+                case >= 80:
+                    FieldMonitoringProgressBarClass = "progress-bar-success";
+                    break;
+
+                case >= 50:
+                    FieldMonitoringProgressBarClass = "progress-bar-info";
+                    break;
+
+                case >= 30:
+                    FieldMonitoringProgressBarClass = "progress-bar-warning";
+                    break;
+
+                case < 30:
+                    FieldMonitoringProgressBarClass = "progress-bar-danger";
+                    break;
+            }
+
+
+            switch (item.ImpactAssessment)
+            {
+                case >= 80:
+                    ImpactAssessmentProgressBarClass = "progress-bar-success";
+                    break;
+
+                case >= 50:
+                    ImpactAssessmentProgressBarClass = "progress-bar-info";
+                    break;
+
+                case >= 30:
+                    ImpactAssessmentProgressBarClass = "progress-bar-warning";
+                    break;
+
+                case < 30:
+                    ImpactAssessmentProgressBarClass = "progress-bar-danger";
+                    break;
+            }
+
+            switch (item.Trend)
+            {
+                case >= 80:
+                    TrendImage = "external-link-success.png";
+                    break;
+
+                case >= 50:
+                    TrendImage = "external-link-info.png";
+                    break;
+
+                case >= 30:
+                    TrendImage = "external-link-squared.png";
+                    break;
+
+                case < 30:
+                    TrendImage = "external-link-danger.png";
+                    break;
+            }
+
             <tr>
                 <td>
-                    @Html.DisplayFor(modelItem => item.ProjectName)
+                    <a asp-action="Details" asp-route-id="@item.ProjectID">@item.ProjectName</a>
                 </td>
                 <td>
                     @Html.DisplayFor(modelItem => item.EstimatedBudget)
@@ -58,36 +159,48 @@
                 </td>
                 <td>
                     <div class="progress">
-                        <div class="progress-bar progress-bar-success progress-bar-striped" role="progressbar" aria-valuenow="@item.performance" aria-valuemin="0" aria-valuemax="100" style="width:@item.performance%">
+                        <div class="progress-bar  @IndicatorsPerformanceProgressBarClass  progress-bar-striped" role="progressbar" aria-valuenow="@item.performance" aria-valuemin="0" aria-valuemax="100" style="width:@item.performance%">
                             @item.performance%
                         </div>
                     </div>
                 </td>
                 <td>
                     <div class="progress">
-                        <div class="progress-bar progress-bar-success progress-bar-striped" role="progressbar" aria-valuenow="@item.DisbursementPerformance" aria-valuemin="0" aria-valuemax="100" style="width:@item.DisbursementPerformance%">
+                        <div class="progress-bar @DisbursementPerformanceProgressBarClass progress-bar-striped" role="progressbar" aria-valuenow="@item.DisbursementPerformance" aria-valuemin="0" aria-valuemax="100" style="width:@item.DisbursementPerformance%">
                             @item.DisbursementPerformance%
                         </div>
                     </div>
                 </td>
                 <td>
                     <div class="progress">
-                        <div class="progress-bar progress-bar-success progress-bar-striped" role="progressbar" aria-valuenow="@item.FieldMonitoring" aria-valuemin="0" aria-valuemax="100" style="width:@item.FieldMonitoring%">
+                        <div class="progress-bar @FieldMonitoringProgressBarClass progress-bar-striped" role="progressbar" aria-valuenow="@item.FieldMonitoring" aria-valuemin="0" aria-valuemax="100" style="width:@item.FieldMonitoring%">
                             @item.FieldMonitoring%
                         </div>
                     </div>
                 </td>
                 <td>
                     <div class="progress">
-                        <div class="progress-bar progress-bar-success progress-bar-striped" role="progressbar" aria-valuenow="@item.ImpactAssessment" aria-valuemin="0" aria-valuemax="100" style="width:@item.ImpactAssessment%">
+                        <div class="progress-bar @ImpactAssessmentProgressBarClass progress-bar-striped" role="progressbar" aria-valuenow="@item.ImpactAssessment" aria-valuemin="0" aria-valuemax="100" style="width:@item.ImpactAssessment%">
                             @item.ImpactAssessment%
                         </div>
                     </div>
                 </td>
                 <td>
-                    <a asp-action="Edit" asp-route-id="@item.ProjectID">Edit</a> |
-                    <a asp-action="Details" asp-route-id="@item.ProjectID">Details</a> |
-                    <a asp-action="Delete" asp-route-id="@item.ProjectID">Delete</a>
+                    <form asp-action="Details" asp-route-id="@item.ProjectID" method="get" style="display: inline;">
+                        <button class="btn btn-sm btn-primary" title="View">
+                            <i class="bi bi-eye"></i>
+                        </button>
+                    </form>
+                    <form asp-action="Edit" asp-route-id="@item.ProjectID" method="get" style="display: inline;">
+                        <button class="btn btn-sm btn-warning" title="Edit">
+                            <i class="bi bi-pencil"></i>
+                        </button>
+                    </form>
+                    <form asp-action="Delete" asp-route-id="@item.ProjectID" method="post" style="display: inline;">
+                        <button class="btn btn-sm btn-danger" title="Delete">
+                            <i class="bi bi-trash"></i>
+                        </button>
+                    </form>
                 </td>
             </tr>
         }

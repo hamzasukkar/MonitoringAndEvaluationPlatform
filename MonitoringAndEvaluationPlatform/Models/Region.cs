@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using MonitoringAndEvaluationPlatform.Enums;
+using System.ComponentModel.DataAnnotations;
 
 namespace MonitoringAndEvaluationPlatform.Models
 {
@@ -6,7 +7,8 @@ namespace MonitoringAndEvaluationPlatform.Models
     {
         [Key]
         public int Code { get; set; }
-        public string Nom { get; set; }
-        public string Type { get; set; }
+        public string Name { get; set; }
+        // Use the RegionType enum
+        public RegionType Type { get; set; }
     }
 }

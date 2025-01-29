@@ -1,0 +1,59 @@
+﻿@model MonitoringAndEvaluationPlatform.ViewModel.ChartDataViewModel
+@{
+    Layout = null;
+}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<h1>Performance Chart</h1>
+
+<canvas id="performanceChart" width="800" height="400"></canvas>
+
+<script>
+    const ctx = document.getElementById('performanceChart').getContext('2d');
+    const performanceChart = new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: @Html.Raw(Json.Serialize(Model.Labels)),
+            datasets: [
+                {
+                    label: 'Real',
+                    data: @Html.Raw(Json.Serialize(Model.RealData)),
+                    borderColor: 'blue',
+                    backgroundColor: 'rgba(0, 0, 255, 0.1)',
+                    fill: true
+                },
+                {
+                    label: 'Historical',
+                    data: @Html.Raw(Json.Serialize(Model.HistoricalData)),
+                    borderColor: 'lightblue',
+                    backgroundColor: 'rgba(173, 216, 230, 0.1)',
+                    fill: true
+                },
+                {
+                    label: 'Required',
+                    data: @Html.Raw(Json.Serialize(Model.RequiredData)),
+                    borderColor: 'red',
+                    backgroundColor: 'rgba(255, 0, 0, 0.1)',
+                    fill: true
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: {
+                    position: 'top'
+                },
+            },
+            scales: {
+                x: {
+                    beginAtZero: true
+                },
+                y: {
+                    min: 80,
+                    max: 100
+                }
+            }
+        }
+    });
+</script>
