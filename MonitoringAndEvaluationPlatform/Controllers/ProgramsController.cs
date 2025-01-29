@@ -20,6 +20,11 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             _context = context;
         }
 
+        public async Task<IActionResult> ActionPlan()
+        {
+            return View();
+        }
+
         // GET: Programs
         public async Task<IActionResult> Index()
         {
