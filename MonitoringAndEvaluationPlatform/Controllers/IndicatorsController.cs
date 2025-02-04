@@ -23,6 +23,8 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         // GET: Indicators
         public async Task<IActionResult> Index(int? id, string searchString)
         {
+            @ViewData["CurrentFilter"] = searchString;
+
             if (id == null)
             {
                 // Include the SubOutput navigation property

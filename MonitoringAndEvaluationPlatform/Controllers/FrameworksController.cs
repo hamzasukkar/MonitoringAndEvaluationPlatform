@@ -20,12 +20,21 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         }
 
         // GET: Frameworks
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(string searchString)
         {
             ViewData["ProgressBarClass"] = "progress-bar-danger";
+            @ViewData["CurrentFilter"] = searchString;
 
+            var framework = await _context.Framework.ToListAsync();
 
-            return View(await _context.Framework.ToListAsync());
+            if (!string.IsNullOrEmpty(searchString))
+            {
+                framework = framework.Where(f => f.Name.Contains(searchString)).ToList();
+            }
+
+            
+
+                return View(framework);
         }
 
         // GET: Frameworks/Details/5
