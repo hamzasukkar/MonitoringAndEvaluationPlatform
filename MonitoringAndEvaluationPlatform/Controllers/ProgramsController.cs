@@ -52,19 +52,12 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         // GET: Programs/Create
         public IActionResult Create()
         {
-            var regions = _context.Region.Select(r => new SelectListItem
-            {
-                Value = r.Code.ToString(),
-                Text = r.Name
-            }).ToList();
 
-            var viewModel = new ProgramViewModel
-            {
-                Program = new Models.Program(),
-                Regions = regions
-            };
+            ViewData["Donor"] = new SelectList(_context.Donor, "Code", "Partner");
+            ViewData["Region"] = new SelectList(_context.Region, "Code", "Name");
+            ViewData["Ministrie"] = new SelectList(_context.Ministrie, "Code", "Partner");
 
-            return View(viewModel);
+            return View();
         }
 
         // POST: Programs/Create
@@ -72,23 +65,12 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult Create(ProgramViewModel viewModel)
+        public IActionResult Create(Models.Program program)
         {
-            if (ModelState.IsValid || true)
-            {
-                _context.Program.Add(viewModel.Program);
+            
+                _context.Program.Add(program);
                 _context.SaveChanges();
                 return RedirectToAction("Index"); // Or your desired action
-            }
-
-            // Repopulate the regions if model validation fails
-            viewModel.Regions = _context.Region.Select(r => new SelectListItem
-            {
-                Value = r.Code.ToString(),
-                Text = r.Name
-            }).ToList();
-
-            return View(viewModel);
         }
 
         // GET: Programs/Edit/5
