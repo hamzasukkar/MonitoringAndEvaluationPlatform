@@ -26,6 +26,8 @@ namespace MonitoringAndEvaluationPlatform.Data
         public DbSet<MonitoringAndEvaluationPlatform.Models.Measure> Measure { get; set; } = default!;
         public DbSet<MonitoringAndEvaluationPlatform.Models.LogicalFramework> LogicalFramework { get; set; } = default!;
         public DbSet<MonitoringAndEvaluationPlatform.Models.LogicalFrameworkIndicator> LogicalFrameworkIndicator { get; set; } = default!;
+        public DbSet<MonitoringAndEvaluationPlatform.Models.SuperVisor> SuperVisor { get; set; } = default!;
+        public DbSet<MonitoringAndEvaluationPlatform.Models.ProjectManager> ProjectManager { get; set; } = default!;
 
     }
 }

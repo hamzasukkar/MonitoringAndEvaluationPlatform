@@ -83,6 +83,8 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             ViewData["Donor"] = new SelectList(_context.Donor, "Code", "Partner");
             ViewData["Region"] = new SelectList(_context.Region, "Code", "Name");
             ViewData["Ministrie"] = new SelectList(_context.Ministrie, "Code", "Partner");
+            ViewData["SuperVisor"] = new SelectList(_context.Ministrie, "Code", "Name");
+            ViewData["ProjectManager"] = new SelectList(_context.Ministrie, "Code", "Name");
 
             return View();
         }

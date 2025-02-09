@@ -12,8 +12,10 @@ namespace MonitoringAndEvaluationPlatform.Models
         public double EstimatedBudget { get; set; }
         public double RealBudget { get; set; }
         public int Trend { get; set; }
-        public string ProjectManager { get; set; }
-        public string SuperVisor { get; set; }
+        public int ProjectManagerCode { get; set; }
+        public virtual ProjectManager ProjectManager { get; set; }
+        public int SuperVisorCode { get; set; }
+        public virtual SuperVisor SuperVisor { get; set; }
         public string Type { get; set; }
         public string? Status1 { get; set; }
         public string? Status2 { get; set; }
