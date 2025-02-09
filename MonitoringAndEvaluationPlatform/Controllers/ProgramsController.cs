@@ -26,10 +26,37 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         }
 
         // GET: Programs
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(ProgramFilterViewModel filter)
         {
-            return View(await _context.Program.ToListAsync());
+            filter.Ministries = await _context.Ministrie.ToListAsync();
+            filter.Regions = await _context.Region.ToListAsync();
+            filter.Donors = await _context.Donor.ToListAsync();
+
+
+            var programs = _context.Program.ToList();
+
+            if (filter.SelectedMinistries.Any())
+            {
+                programs = programs.Where(p => filter.SelectedMinistries.Contains(p.MinistrieCode)).ToList();
+            }
+
+            if (filter.SelectedRegions.Any())
+            {
+                programs = programs.Where(p => filter.SelectedRegions.Contains(p.RegionCode)).ToList();
+            }
+
+            if (filter.SelectedDonors.Any())
+            {
+                programs = programs.Where(p => filter.SelectedDonors.Contains(p.DonorCode)).ToList();
+            }
+
+             filter.Programs =  programs.ToList();
+
+
+            return View(filter);
         }
+
+
 
         // GET: Programs/Details/5
         public async Task<IActionResult> Details(int? id)
