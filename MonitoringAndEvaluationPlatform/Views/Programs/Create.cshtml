@@ -1,10 +1,4 @@
-﻿@model MonitoringAndEvaluationPlatform.ViewModel.ProgramViewModel
-@{
-    ViewData["Title"] = "Create";
-    Layout = "~/Views/Shared/_ProgramsLayout.cshtml";
-}
-
-<h1>Create</h1>
+﻿@model MonitoringAndEvaluationPlatform.Models.Program
 
 <h4>Program</h4>
 <hr />
@@ -13,96 +7,96 @@
         <form asp-action="Create">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
             <div class="form-group">
-                <label asp-for="Program.ProjectName" class="control-label"></label>
-                <input asp-for="Program.ProjectName" class="form-control" />
-                <span asp-validation-for="Program.ProjectName" class="text-danger"></span>
+                <label asp-for="ProjectName" class="control-label"></label>
+                <input asp-for="ProjectName" class="form-control" />
+                <span asp-validation-for="ProjectName" class="text-danger"></span>
             </div>
             <div class="form-group">
-                <label asp-for="Program.EstimatedBudget" class="control-label"></label>
-                <input asp-for="Program.EstimatedBudget" class="form-control" />
-                <span asp-validation-for="Program.EstimatedBudget" class="text-danger"></span>
+                <label asp-for="RegionCode" class="control-label"></label>
+                <select asp-for="RegionCode" class="form-control" asp-items="ViewBag.Region"></select>
             </div>
             <div class="form-group">
-                <label asp-for="Program.RealBudget" class="control-label"></label>
-                <input asp-for="Program.RealBudget" class="form-control" />
-                <span asp-validation-for="Program.RealBudget" class="text-danger"></span>
+                <label asp-for="EstimatedBudget" class="control-label"></label>
+                <input asp-for="EstimatedBudget" class="form-control" />
+                <span asp-validation-for="EstimatedBudget" class="text-danger"></span>
             </div>
             <div class="form-group">
-                <label asp-for="Program.Trend" class="control-label"></label>
-                <input asp-for="Program.Trend" class="form-control" />
-                <span asp-validation-for="Program.Trend" class="text-danger"></span>
+                <label asp-for="RealBudget" class="control-label"></label>
+                <input asp-for="RealBudget" class="form-control" />
+                <span asp-validation-for="RealBudget" class="text-danger"></span>
             </div>
             <div class="form-group">
-                <label asp-for="Program.ProjectManager" class="control-label"></label>
-                <input asp-for="Program.ProjectManager" class="form-control" />
-                <span asp-validation-for="Program.ProjectManager" class="text-danger"></span>
+                <label asp-for="Trend" class="control-label"></label>
+                <input asp-for="Trend" class="form-control" />
+                <span asp-validation-for="Trend" class="text-danger"></span>
             </div>
             <div class="form-group">
-                <label asp-for="Program.SuperVisor" class="control-label"></label>
-                <input asp-for="Program.SuperVisor" class="form-control" />
-                <span asp-validation-for="Program.SuperVisor" class="text-danger"></span>
+                <label asp-for="ProjectManagerCode" class="control-label"></label>
+                <select asp-for="ProjectManagerCode" class="form-control" asp-items="ViewBag.ProjectManager"></select>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="SuperVisorCode" class="control-label"></label>
+                <select asp-for="SuperVisorCode" class="form-control" asp-items="ViewBag.SuperVisor"></select>
             </div>
             <div class="form-group">
-                <label asp-for="Program.Type" class="control-label"></label>
-                <input asp-for="Program.Type" class="form-control" />
-                <span asp-validation-for="Program.Type" class="text-danger"></span>
+                <label asp-for="Type" class="control-label"></label>
+                <input asp-for="Type" class="form-control" />
+                <span asp-validation-for="Type" class="text-danger"></span>
             </div>
             <div class="form-group">
-                <label asp-for="Program.Status1" class="control-label"></label>
-                <input asp-for="Program.Status1" class="form-control" />
-                <span asp-validation-for="Program.Status1" class="text-danger"></span>
+                <label asp-for="Status1" class="control-label"></label>
+                <input asp-for="Status1" class="form-control" />
+                <span asp-validation-for="Status1" class="text-danger"></span>
             </div>
             <div class="form-group">
-                <label asp-for="Program.Status2" class="control-label"></label>
-                <input asp-for="Program.Status2" class="form-control" />
-                <span asp-validation-for="Program.Status2" class="text-danger"></span>
+                <label asp-for="Status2" class="control-label"></label>
+                <input asp-for="Status2" class="form-control" />
+                <span asp-validation-for="Status2" class="text-danger"></span>
             </div>
             <div class="form-group">
-                <label asp-for="Program.Category" class="control-label"></label>
-                <input asp-for="Program.Category" class="form-control" />
-                <span asp-validation-for="Program.Category" class="text-danger"></span>
+                <label asp-for="Category" class="control-label"></label>
+                <input asp-for="Category" class="form-control" />
+                <span asp-validation-for="Category" class="text-danger"></span>
             </div>
             <div class="form-group">
-                <label asp-for="Program.Donor" class="control-label"></label>
-                <input asp-for="Program.Donor" class="form-control" />
-                <span asp-validation-for="Program.Donor" class="text-danger"></span>
+                <label asp-for="MinistrieCode" class="control-label"></label>
+                <select asp-for="MinistrieCode" class="form-control" asp-items="ViewBag.Ministrie"></select>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="DonorCode" class="control-label"></label>
+                <select asp-for="DonorCode" class="form-control" asp-items="ViewBag.Donor"></select>
             </div>
             <div class="form-group">
-                <label asp-for="Program.StartDate" class="control-label"></label>
-                <input asp-for="Program.StartDate" class="form-control" />
-                <span asp-validation-for="Program.StartDate" class="text-danger"></span>
+                <label asp-for="StartDate" class="control-label"></label>
+                <input asp-for="StartDate" class="form-control" />
+                <span asp-validation-for="StartDate" class="text-danger"></span>
             </div>
             <div class="form-group">
-                <label asp-for="Program.EndDate" class="control-label"></label>
-                <input asp-for="Program.EndDate" class="form-control" />
-                <span asp-validation-for="Program.EndDate" class="text-danger"></span>
-            </div>
-            <!-- Region Dropdown -->
-            <div>
-                <label asp-for="Program.RegionCode">Region</label>
-                <select asp-for="Program.RegionCode" class="form-control" asp-items="Model.Regions">
-                    <option value="">Select a region</option>
-                </select>
+                <label asp-for="EndDate" class="control-label"></label>
+                <input asp-for="EndDate" class="form-control" />
+                <span asp-validation-for="EndDate" class="text-danger"></span>
             </div>
             <div class="form-group">
-                <label asp-for="Program.performance" class="control-label"></label>
-                <input asp-for="Program.performance" class="form-control" />
-                <span asp-validation-for="Program.performance" class="text-danger"></span>
+                <label asp-for="performance" class="control-label"></label>
+                <input asp-for="performance" class="form-control" />
+                <span asp-validation-for="performance" class="text-danger"></span>
             </div>
             <div class="form-group">
-                <label asp-for="Program.DisbursementPerformance" class="control-label"></label>
-                <input asp-for="Program.DisbursementPerformance" class="form-control" />
-                <span asp-validation-for="Program.DisbursementPerformance" class="text-danger"></span>
+                <label asp-for="DisbursementPerformance" class="control-label"></label>
+                <input asp-for="DisbursementPerformance" class="form-control" />
+                <span asp-validation-for="DisbursementPerformance" class="text-danger"></span>
             </div>
             <div class="form-group">
-                <label asp-for="Program.FieldMonitoring" class="control-label"></label>
-                <input asp-for="Program.FieldMonitoring" class="form-control" />
-                <span asp-validation-for="Program.FieldMonitoring" class="text-danger"></span>
+                <label asp-for="FieldMonitoring" class="control-label"></label>
+                <input asp-for="FieldMonitoring" class="form-control" />
+                <span asp-validation-for="FieldMonitoring" class="text-danger"></span>
             </div>
             <div class="form-group">
-                <label asp-for="Program.ImpactAssessment" class="control-label"></label>
-                <input asp-for="Program.ImpactAssessment" class="form-control" />
-                <span asp-validation-for="Program.ImpactAssessment" class="text-danger"></span>
+                <label asp-for="ImpactAssessment" class="control-label"></label>
+                <input asp-for="ImpactAssessment" class="form-control" />
+                <span asp-validation-for="ImpactAssessment" class="text-danger"></span>
             </div>
             <div class="form-group">
                 <input type="submit" value="Create" class="btn btn-primary" />
@@ -115,3 +109,8 @@
     <a asp-action="Index">Back to List</a>
 </div>
 
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

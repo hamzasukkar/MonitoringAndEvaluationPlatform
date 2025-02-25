@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using MonitoringAndEvaluationPlatform.Data;
 
@@ -11,9 +12,11 @@ using MonitoringAndEvaluationPlatform.Data;
 namespace MonitoringAndEvaluationPlatform.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250204222033_Edit_Program")]
+    partial class Edit_Program
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -682,8 +685,9 @@ namespace MonitoringAndEvaluationPlatform.Migrations
                     b.Property<int>("MinistrieCode")
                         .HasColumnType("int");
 
-                    b.Property<int>("ProjectManagerCode")
-                        .HasColumnType("int");
+                    b.Property<string>("ProjectManager")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("ProjectName")
                         .IsRequired()
@@ -704,8 +708,9 @@ namespace MonitoringAndEvaluationPlatform.Migrations
                     b.Property<string>("Status2")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("SuperVisorCode")
-                        .HasColumnType("int");
+                    b.Property<string>("SuperVisor")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<int>("Trend")
                         .HasColumnType("int");
@@ -723,30 +728,9 @@ namespace MonitoringAndEvaluationPlatform.Migrations
 
                     b.HasIndex("MinistrieCode");
 
-                    b.HasIndex("ProjectManagerCode");
-
                     b.HasIndex("RegionCode");
 
-                    b.HasIndex("SuperVisorCode");
-
                     b.ToTable("Program");
-                });
-
-            modelBuilder.Entity("MonitoringAndEvaluationPlatform.Models.ProjectManager", b =>
-                {
-                    b.Property<int>("Code")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Code"));
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("Code");
-
-                    b.ToTable("ProjectManager");
                 });
 
             modelBuilder.Entity("MonitoringAndEvaluationPlatform.Models.Region", b =>
@@ -833,23 +817,6 @@ namespace MonitoringAndEvaluationPlatform.Migrations
                     b.HasIndex("OutputCode");
 
                     b.ToTable("SubOutputs");
-                });
-
-            modelBuilder.Entity("MonitoringAndEvaluationPlatform.Models.SuperVisor", b =>
-                {
-                    b.Property<int>("Code")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Code"));
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("Code");
-
-                    b.ToTable("SuperVisor");
                 });
 
             modelBuilder.Entity("MonitoringAndEvaluationPlatform.Models.Target", b =>
@@ -1015,21 +982,9 @@ namespace MonitoringAndEvaluationPlatform.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("MonitoringAndEvaluationPlatform.Models.ProjectManager", "ProjectManager")
-                        .WithMany()
-                        .HasForeignKey("ProjectManagerCode")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
                     b.HasOne("MonitoringAndEvaluationPlatform.Models.Region", "Region")
                         .WithMany()
                         .HasForeignKey("RegionCode")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("MonitoringAndEvaluationPlatform.Models.SuperVisor", "SuperVisor")
-                        .WithMany()
-                        .HasForeignKey("SuperVisorCode")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -1037,11 +992,7 @@ namespace MonitoringAndEvaluationPlatform.Migrations
 
                     b.Navigation("Ministrie");
 
-                    b.Navigation("ProjectManager");
-
                     b.Navigation("Region");
-
-                    b.Navigation("SuperVisor");
                 });
 
             modelBuilder.Entity("MonitoringAndEvaluationPlatform.Models.SubOutput", b =>

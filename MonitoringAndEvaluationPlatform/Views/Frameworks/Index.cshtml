@@ -1,15 +1,22 @@
 ﻿@model IEnumerable<MonitoringAndEvaluationPlatform.Models.Framework>
+@using MonitoringAndEvaluationPlatform.Helpers
 
 @{
     ViewData["Title"] = "Index";
     Layout = "~/Views/Shared/_ResultsFrameworkLayout.cshtml";
 }
 
-<h1>Index</h1>
-
 <p>
     <a asp-action="Create">Create New</a>
 </p>
+
+<form asp-action="Index" method="get" class="mb-3">
+    <div class="input-group">
+        <input style="width:20%" type="text" name="searchString" class="form-control" placeholder="Search by Framework" value="@ViewData["CurrentFilter"]" />
+        <button type="submit" class="btn btn-primary">Search</button>
+    </div>
+</form>
+
 <table class="table">
     <thead>
         <tr>
@@ -39,147 +46,36 @@
         </tr>
     </thead>
     <tbody>
+
         @foreach (var item in Model)
         {
-            string IndicatorsPerformanceProgressBarClass = "";
-            string DisbursementPerformanceProgressBarClass = "";
-            string FieldMonitoringProgressBarClass = "";
-            string ImpactAssessmentProgressBarClass = "";
-            string TrendImage = "";
-
-            switch(item.IndicatorsPerformance)
-            {
-                case >= 80:
-                    IndicatorsPerformanceProgressBarClass = "progress-bar-success";
-                    break;
-
-                case >= 50:
-                    IndicatorsPerformanceProgressBarClass = "progress-bar-info";
-                    break;
-
-                case >= 30:
-                    IndicatorsPerformanceProgressBarClass = "progress-bar-warning";
-                    break;
-
-                case < 30:
-                    IndicatorsPerformanceProgressBarClass = "progress-bar-danger";
-                    break;
-            }
-
-            switch (item.DisbursementPerformance)
-            {
-                case >= 80:
-                    DisbursementPerformanceProgressBarClass = "progress-bar-success";
-                    break;
-
-                case >= 50:
-                    DisbursementPerformanceProgressBarClass = "progress-bar-info";
-                    break;
-
-                case >= 30:
-                    DisbursementPerformanceProgressBarClass = "progress-bar-warning";
-                    break;
-
-                case < 30:
-                    DisbursementPerformanceProgressBarClass = "progress-bar-danger";
-                    break;
-            }
-
-            switch (item.FieldMonitoring)
-            {
-                case >= 80:
-                    FieldMonitoringProgressBarClass = "progress-bar-success";
-                    break;
-
-                case >= 50:
-                    FieldMonitoringProgressBarClass = "progress-bar-info";
-                    break;
-
-                case >= 30:
-                    FieldMonitoringProgressBarClass = "progress-bar-warning";
-                    break;
-
-                case < 30:
-                    FieldMonitoringProgressBarClass = "progress-bar-danger";
-                    break;
-            }
-
-
-            switch (item.ImpactAssessment)
-            {
-                case >= 80:
-                    ImpactAssessmentProgressBarClass = "progress-bar-success";
-                    break;
-
-                case >= 50:
-                    ImpactAssessmentProgressBarClass = "progress-bar-info";
-                    break;
-
-                case >= 30:
-                    ImpactAssessmentProgressBarClass = "progress-bar-warning";
-                    break;
-
-                case < 30:
-                    ImpactAssessmentProgressBarClass = "progress-bar-danger";
-                    break;
-            }
-
-            switch (item.Trend)
-            {
-                case >= 80:
-                    TrendImage = "external-link-success.png";
-                    break;
-
-                case >= 50:
-                    TrendImage = "external-link-info.png";
-                    break;
-
-                case >= 30:
-                    TrendImage = "external-link-squared.png";
-                    break;
-
-                case < 30:
-                    TrendImage = "external-link-danger.png";
-                    break;
-            }
+            string indicatorsClass = ProgressBarHelper.GetProgressBarClass(item.IndicatorsPerformance);
+            string disbursementClass = ProgressBarHelper.GetProgressBarClass(item.DisbursementPerformance);
+            string fieldMonitoringClass = ProgressBarHelper.GetProgressBarClass(item.FieldMonitoring);
+            string impactAssessmentClass = ProgressBarHelper.GetProgressBarClass(item.ImpactAssessment);
+            string trendImage = ProgressBarHelper.GetTrendImage(item.Trend);
 
             <tr>
                 <td>
                     <a href="/Outcomes/FramworkOutcomes/@item.Code">@item.Name</a>
                 </td>
                 <td>
-                    <img src="~/img/@TrendImage" />
+                    <img src="~/img/@trendImage" />
                 </td>
                 <td>
-                    @Html.DisplayFor(modelItem => item.Trend)
+                    @item.Trend
                 </td>
                 <td>
-                    <div class="progress">
-                        <div class="progress-bar  @IndicatorsPerformanceProgressBarClass  progress-bar-striped" role="progressbar" aria-valuenow="@item.IndicatorsPerformance" aria-valuemin="0" aria-valuemax="100" style="width:@item.IndicatorsPerformance%">
-                            @item.IndicatorsPerformance%
-                        </div>
-                    </div>
+                    @await Html.PartialAsync("_ProgressBar", Tuple.Create(item.IndicatorsPerformance, indicatorsClass))
                 </td>
                 <td>
-                    <div class="progress">
-                        <div class="progress-bar @DisbursementPerformanceProgressBarClass progress-bar-striped" role="progressbar" aria-valuenow="@item.DisbursementPerformance" aria-valuemin="0" aria-valuemax="100" style="width:@item.DisbursementPerformance%">
-                            @item.DisbursementPerformance%
-                        </div>
-                    </div>
+                    @await Html.PartialAsync("_ProgressBar", Tuple.Create(item.DisbursementPerformance, disbursementClass))
                 </td>
                 <td>
-                    <div class="progress">
-                        <div class="progress-bar @FieldMonitoringProgressBarClass progress-bar-striped" role="progressbar" aria-valuenow="@item.FieldMonitoring" aria-valuemin="0" aria-valuemax="100" style="width:@item.FieldMonitoring%">
-                            @item.FieldMonitoring%
-                        </div>
-                    </div>
+                    @await Html.PartialAsync("_ProgressBar", Tuple.Create(item.FieldMonitoring, fieldMonitoringClass))
                 </td>
                 <td>
-                    <div class="progress">
-                        <div class="progress-bar @ImpactAssessmentProgressBarClass progress-bar-striped" role="progressbar" aria-valuenow="@item.ImpactAssessment" aria-valuemin="0" aria-valuemax="100" style="width:@item.ImpactAssessment%">
-                            @item.ImpactAssessment%
-                        </div>
-                    </div>
+                    @await Html.PartialAsync("_ProgressBar", Tuple.Create(item.ImpactAssessment, impactAssessmentClass))
                 </td>
                 <td>
                     <form asp-controller="Tree" asp-action="Index" asp-route-id="@item.Code" method="post" style="display: inline;">

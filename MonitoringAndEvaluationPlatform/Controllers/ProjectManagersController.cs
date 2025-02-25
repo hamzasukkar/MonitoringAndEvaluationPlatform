@@ -10,34 +10,22 @@ using MonitoringAndEvaluationPlatform.Models;
 
 namespace MonitoringAndEvaluationPlatform.Controllers
 {
-    public class FrameworksController : Controller
+    public class ProjectManagersController : Controller
     {
         private readonly ApplicationDbContext _context;
 
-        public FrameworksController(ApplicationDbContext context)
+        public ProjectManagersController(ApplicationDbContext context)
         {
             _context = context;
         }
 
-        // GET: Frameworks
-        public async Task<IActionResult> Index(string searchString)
+        // GET: ProjectManagers
+        public async Task<IActionResult> Index()
         {
-            ViewData["ProgressBarClass"] = "progress-bar-danger";
-            @ViewData["CurrentFilter"] = searchString;
-
-            var framework = await _context.Framework.ToListAsync();
-
-            if (!string.IsNullOrEmpty(searchString))
-            {
-                framework = framework.Where(f => f.Name.Contains(searchString)).ToList();
-            }
-
-            
-
-                return View(framework);
+            return View(await _context.ProjectManager.ToListAsync());
         }
 
-        // GET: Frameworks/Details/5
+        // GET: ProjectManagers/Details/5
         public async Task<IActionResult> Details(int? id)
         {
             if (id == null)
@@ -45,39 +33,39 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 return NotFound();
             }
 
-            var framework = await _context.Framework
+            var projectManager = await _context.ProjectManager
                 .FirstOrDefaultAsync(m => m.Code == id);
-            if (framework == null)
+            if (projectManager == null)
             {
                 return NotFound();
             }
 
-            return View(framework);
+            return View(projectManager);
         }
 
-        // GET: Frameworks/Create
+        // GET: ProjectManagers/Create
         public IActionResult Create()
         {
             return View();
         }
 
-        // POST: Frameworks/Create
+        // POST: ProjectManagers/Create
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Code,Name,Trend,Weight")] Framework framework)
+        public async Task<IActionResult> Create([Bind("Code,Name")] ProjectManager projectManager)
         {
             if (ModelState.IsValid)
             {
-                _context.Add(framework);
+                _context.Add(projectManager);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
-            return View(framework);
+            return View(projectManager);
         }
 
-        // GET: Frameworks/Edit/5
+        // GET: ProjectManagers/Edit/5
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null)
@@ -85,22 +73,22 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 return NotFound();
             }
 
-            var framework = await _context.Framework.FindAsync(id);
-            if (framework == null)
+            var projectManager = await _context.ProjectManager.FindAsync(id);
+            if (projectManager == null)
             {
                 return NotFound();
             }
-            return View(framework);
+            return View(projectManager);
         }
 
-        // POST: Frameworks/Edit/5
+        // POST: ProjectManagers/Edit/5
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Code,Name,Trend,IndicatorsPerformance,DisbursementPerformance,FieldMonitoring,ImpactAssessment")] Framework framework)
+        public async Task<IActionResult> Edit(int id, [Bind("Code,Name")] ProjectManager projectManager)
         {
-            if (id != framework.Code)
+            if (id != projectManager.Code)
             {
                 return NotFound();
             }
@@ -109,12 +97,12 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             {
                 try
                 {
-                    _context.Update(framework);
+                    _context.Update(projectManager);
                     await _context.SaveChangesAsync();
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!FrameworkExists(framework.Code))
+                    if (!ProjectManagerExists(projectManager.Code))
                     {
                         return NotFound();
                     }
@@ -125,10 +113,10 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
-            return View(framework);
+            return View(projectManager);
         }
 
-        // GET: Frameworks/Delete/5
+        // GET: ProjectManagers/Delete/5
         public async Task<IActionResult> Delete(int? id)
         {
             if (id == null)
@@ -136,39 +124,34 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 return NotFound();
             }
 
-            var framework = await _context.Framework
+            var projectManager = await _context.ProjectManager
                 .FirstOrDefaultAsync(m => m.Code == id);
-            if (framework == null)
+            if (projectManager == null)
             {
                 return NotFound();
             }
 
-            return View(framework);
+            return View(projectManager);
         }
 
-        // POST: Frameworks/Delete/5
+        // POST: ProjectManagers/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var framework = await _context.Framework.FindAsync(id);
-            if (framework != null)
+            var projectManager = await _context.ProjectManager.FindAsync(id);
+            if (projectManager != null)
             {
-                _context.Framework.Remove(framework);
+                _context.ProjectManager.Remove(projectManager);
             }
 
             await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }
 
-        private bool FrameworkExists(int id)
+        private bool ProjectManagerExists(int id)
         {
-            return _context.Framework.Any(e => e.Code == id);
-        }
-
-        public async Task<IActionResult>Monitoring()
-        {
-            return View(await _context.Framework.ToListAsync());
+            return _context.ProjectManager.Any(e => e.Code == id);
         }
     }
 }

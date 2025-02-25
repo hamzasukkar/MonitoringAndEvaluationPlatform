@@ -26,10 +26,37 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         }
 
         // GET: Programs
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(ProgramFilterViewModel filter)
         {
-            return View(await _context.Program.ToListAsync());
+            filter.Ministries = await _context.Ministrie.ToListAsync();
+            filter.Regions = await _context.Region.ToListAsync();
+            filter.Donors = await _context.Donor.ToListAsync();
+
+
+            var programs = _context.Program.ToList();
+
+            if (filter.SelectedMinistries.Any())
+            {
+                programs = programs.Where(p => filter.SelectedMinistries.Contains(p.MinistrieCode)).ToList();
+            }
+
+            if (filter.SelectedRegions.Any())
+            {
+                programs = programs.Where(p => filter.SelectedRegions.Contains(p.RegionCode)).ToList();
+            }
+
+            if (filter.SelectedDonors.Any())
+            {
+                programs = programs.Where(p => filter.SelectedDonors.Contains(p.DonorCode)).ToList();
+            }
+
+             filter.Programs =  programs.ToList();
+
+
+            return View(filter);
         }
+
+
 
         // GET: Programs/Details/5
         public async Task<IActionResult> Details(int? id)
@@ -52,19 +79,14 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         // GET: Programs/Create
         public IActionResult Create()
         {
-            var regions = _context.Region.Select(r => new SelectListItem
-            {
-                Value = r.Code.ToString(),
-                Text = r.Name
-            }).ToList();
 
-            var viewModel = new ProgramViewModel
-            {
-                Program = new Models.Program(),
-                Regions = regions
-            };
+            ViewData["Donor"] = new SelectList(_context.Donor, "Code", "Partner");
+            ViewData["Region"] = new SelectList(_context.Region, "Code", "Name");
+            ViewData["Ministrie"] = new SelectList(_context.Ministrie, "Code", "Partner");
+            ViewData["SuperVisor"] = new SelectList(_context.SuperVisor, "Code", "Name");
+            ViewData["ProjectManager"] = new SelectList(_context.ProjectManager, "Code", "Name");
 
-            return View(viewModel);
+            return View();
         }
 
         // POST: Programs/Create
@@ -72,23 +94,12 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult Create(ProgramViewModel viewModel)
+        public IActionResult Create(Models.Program program)
         {
-            if (ModelState.IsValid || true)
-            {
-                _context.Program.Add(viewModel.Program);
+            
+                _context.Program.Add(program);
                 _context.SaveChanges();
                 return RedirectToAction("Index"); // Or your desired action
-            }
-
-            // Repopulate the regions if model validation fails
-            viewModel.Regions = _context.Region.Select(r => new SelectListItem
-            {
-                Value = r.Code.ToString(),
-                Text = r.Name
-            }).ToList();
-
-            return View(viewModel);
         }
 
         // GET: Programs/Edit/5
