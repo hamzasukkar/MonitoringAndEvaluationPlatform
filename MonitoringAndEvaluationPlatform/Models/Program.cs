@@ -20,8 +20,8 @@ namespace MonitoringAndEvaluationPlatform.Models
         public string? Status1 { get; set; }
         public string? Status2 { get; set; }
         public string? Category { get; set; }
-        public int MinistrieCode { get; set; }
-        public Ministrie Ministrie { get; set; }
+        public int MinistryCode { get; set; }
+        public Ministry Ministry { get; set; }
         public int DonorCode { get; set; }
         public virtual Donor Donor { get; set; }
         public DateTime StartDate { get; set; }

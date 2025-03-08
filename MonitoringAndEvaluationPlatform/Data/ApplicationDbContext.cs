@@ -15,7 +15,7 @@ namespace MonitoringAndEvaluationPlatform.Data
         public DbSet<MonitoringAndEvaluationPlatform.Models.Output> Outputs { get; set; } = default!;
         public DbSet<MonitoringAndEvaluationPlatform.Models.Indicator> Indicators { get; set; } = default!;
         public DbSet<MonitoringAndEvaluationPlatform.Models.SubOutput> SubOutputs { get; set; } = default!;
-        public DbSet<MonitoringAndEvaluationPlatform.Models.Ministrie> Ministrie { get; set; } = default!;
+        public DbSet<MonitoringAndEvaluationPlatform.Models.Ministry> Ministry { get; set; } = default!;
         public DbSet<MonitoringAndEvaluationPlatform.Models.Program> Program { get; set; } = default!;
         public DbSet<MonitoringAndEvaluationPlatform.Models.Target> Target { get; set; } = default!;
         public DbSet<MonitoringAndEvaluationPlatform.Models.Goal> Goal { get; set; } = default!;

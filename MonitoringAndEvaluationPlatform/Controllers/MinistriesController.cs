@@ -10,22 +10,22 @@ using MonitoringAndEvaluationPlatform.Models;
 
 namespace MonitoringAndEvaluationPlatform.Controllers
 {
-    public class MinistriesController : Controller
+    public class MinistrysController : Controller
     {
         private readonly ApplicationDbContext _context;
 
-        public MinistriesController(ApplicationDbContext context)
+        public MinistrysController(ApplicationDbContext context)
         {
             _context = context;
         }
 
-        // GET: Ministries
+        // GET: Ministrys
         public async Task<IActionResult> Index()
         {
-            return View(await _context.Ministrie.ToListAsync());
+            return View(await _context.Ministry.ToListAsync());
         }
 
-        // GET: Ministries/Details/5
+        // GET: Ministrys/Details/5
         public async Task<IActionResult> Details(int? id)
         {
             if (id == null)
@@ -33,39 +33,39 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 return NotFound();
             }
 
-            var ministrie = await _context.Ministrie
+            var Ministry = await _context.Ministry
                 .FirstOrDefaultAsync(m => m.Code == id);
-            if (ministrie == null)
+            if (Ministry == null)
             {
                 return NotFound();
             }
 
-            return View(ministrie);
+            return View(Ministry);
         }
 
-        // GET: Ministries/Create
+        // GET: Ministrys/Create
         public IActionResult Create()
         {
             return View();
         }
 
-        // POST: Ministries/Create
+        // POST: Ministrys/Create
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Code,Partner,DisbursementPerformance,FieldMonitoring,ImpactAssessment")] Ministrie ministrie)
+        public async Task<IActionResult> Create([Bind("Code,Partner,DisbursementPerformance,FieldMonitoring,ImpactAssessment")] Ministry Ministry)
         {
             if (ModelState.IsValid)
             {
-                _context.Add(ministrie);
+                _context.Add(Ministry);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
-            return View(ministrie);
+            return View(Ministry);
         }
 
-        // GET: Ministries/Edit/5
+        // GET: Ministrys/Edit/5
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null)
@@ -73,22 +73,22 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 return NotFound();
             }
 
-            var ministrie = await _context.Ministrie.FindAsync(id);
-            if (ministrie == null)
+            var Ministry = await _context.Ministry.FindAsync(id);
+            if (Ministry == null)
             {
                 return NotFound();
             }
-            return View(ministrie);
+            return View(Ministry);
         }
 
-        // POST: Ministries/Edit/5
+        // POST: Ministrys/Edit/5
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Code,Partner,DisbursementPerformance,FieldMonitoring,ImpactAssessment")] Ministrie ministrie)
+        public async Task<IActionResult> Edit(int id, [Bind("Code,Partner,DisbursementPerformance,FieldMonitoring,ImpactAssessment")] Ministry Ministry)
         {
-            if (id != ministrie.Code)
+            if (id != Ministry.Code)
             {
                 return NotFound();
             }
@@ -97,12 +97,12 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             {
                 try
                 {
-                    _context.Update(ministrie);
+                    _context.Update(Ministry);
                     await _context.SaveChangesAsync();
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!MinistrieExists(ministrie.Code))
+                    if (!MinistryExists(Ministry.Code))
                     {
                         return NotFound();
                     }
@@ -113,10 +113,10 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
-            return View(ministrie);
+            return View(Ministry);
         }
 
-        // GET: Ministries/Delete/5
+        // GET: Ministrys/Delete/5
         public async Task<IActionResult> Delete(int? id)
         {
             if (id == null)
@@ -124,34 +124,34 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 return NotFound();
             }
 
-            var ministrie = await _context.Ministrie
+            var Ministry = await _context.Ministry
                 .FirstOrDefaultAsync(m => m.Code == id);
-            if (ministrie == null)
+            if (Ministry == null)
             {
                 return NotFound();
             }
 
-            return View(ministrie);
+            return View(Ministry);
         }
 
-        // POST: Ministries/Delete/5
+        // POST: Ministrys/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var ministrie = await _context.Ministrie.FindAsync(id);
-            if (ministrie != null)
+            var Ministry = await _context.Ministry.FindAsync(id);
+            if (Ministry != null)
             {
-                _context.Ministrie.Remove(ministrie);
+                _context.Ministry.Remove(Ministry);
             }
 
             await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }
 
-        private bool MinistrieExists(int id)
+        private bool MinistryExists(int id)
         {
-            return _context.Ministrie.Any(e => e.Code == id);
+            return _context.Ministry.Any(e => e.Code == id);
         }
     }
 }

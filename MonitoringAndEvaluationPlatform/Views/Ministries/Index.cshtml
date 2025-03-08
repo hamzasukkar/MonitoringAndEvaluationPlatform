@@ -1,4 +1,4 @@
-﻿@model IEnumerable<MonitoringAndEvaluationPlatform.Models.Ministrie>
+﻿@model IEnumerable<MonitoringAndEvaluationPlatform.Models.Ministry>
 
 @{
     ViewData["Title"] = "Index";
@@ -14,7 +14,7 @@
     <thead>
         <tr>
             <th>
-                @Html.DisplayNameFor(model => model.Partner)
+                @Html.DisplayNameFor(model => model.MinistryName)
             </th>
             <th>
                 @Html.DisplayNameFor(model => model.DisbursementPerformance)
@@ -32,7 +32,7 @@
 @foreach (var item in Model) {
         <tr>
             <td>
-                @Html.DisplayFor(modelItem => item.Partner)
+                @Html.DisplayFor(modelItem => item.MinistryName)
             </td>
                 <td>
                     <div class="progress">

@@ -12,14 +12,18 @@
 @if (SignInManager.IsSignedIn(User))
 {
     var user = await UserManager.GetUserAsync(User);
-    var roles = await UserManager.GetRolesAsync(user);
-
-    if (roles.Contains("Admin"))
+    if (user!=null)
     {
-        <p>
-            <a asp-action="Create">Create New</a>
-        </p>
+        var roles = await UserManager.GetRolesAsync(user);
+
+        if (roles.Contains("Admin"))
+        {
+            <p>
+                <a asp-action="Create">Create New</a>
+            </p>
+        }
     }
+    
 }
 
 

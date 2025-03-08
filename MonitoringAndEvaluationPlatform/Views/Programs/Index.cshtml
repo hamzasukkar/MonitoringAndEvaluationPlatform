@@ -8,12 +8,12 @@
     <div class="col-md-2">
         <form asp-action="Index" method="get">
             <h4>Filter by Ministry</h4>
-            @foreach (var ministry in Model.Ministries)
+            @foreach (var ministry in Model.Ministrys)
             {
                 <div>
-                    <input type="checkbox" name="SelectedMinistries" value="@ministry.Code"
-                    @(Model.SelectedMinistries.Contains(ministry.Code) ? "checked" : "") />
-                    <label>@ministry.Partner</label>
+                    <input type="checkbox" name="SelectedMinistrys" value="@ministry.Code"
+                    @(Model.SelectedMinistrys.Contains(ministry.Code) ? "checked" : "") />
+                    <label>@ministry.MinistryName</label>
                 </div>
             }
 
