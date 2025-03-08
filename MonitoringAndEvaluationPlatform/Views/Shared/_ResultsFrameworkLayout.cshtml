@@ -205,7 +205,11 @@
                         </a>
                         <ul class="dropdown-menu" aria-labelledby="resultsDropdown">
                             <li><a class="dropdown-item" href="#" onclick="alert('Sub-item 1 clicked!');">Setting</a></li>
-                            <li><a class="dropdown-item" href="#" onclick="alert('Sub-item 1 clicked!');">Log out</a></li>
+                            <li>
+                                <form class="form-inline" asp-area="Identity" asp-page="/Account/Logout" asp-route-returnUrl="@Url.Action("Index", "Home", new { area = "" })">
+                                    <button type="submit" class="nav-link btn btn-link text-dark">Logout</button>
+                                </form>
+                            </li>
                         </ul>
                     </li>
                 </ul>

@@ -1,14 +1,28 @@
 ﻿@model IEnumerable<MonitoringAndEvaluationPlatform.Models.Framework>
 @using MonitoringAndEvaluationPlatform.Helpers
+@using Microsoft.AspNetCore.Identity
+@inject UserManager<ApplicationUser> UserManager
+@inject SignInManager<ApplicationUser> SignInManager
 
 @{
     ViewData["Title"] = "Index";
     Layout = "~/Views/Shared/_ResultsFrameworkLayout.cshtml";
 }
 
-<p>
-    <a asp-action="Create">Create New</a>
-</p>
+@if (SignInManager.IsSignedIn(User))
+{
+    var user = await UserManager.GetUserAsync(User);
+    var roles = await UserManager.GetRolesAsync(user);
+
+    if (roles.Contains("Admin"))
+    {
+        <p>
+            <a asp-action="Create">Create New</a>
+        </p>
+    }
+}
+
+
 
 <form asp-action="Index" method="get" class="mb-3">
     <div class="input-group">
