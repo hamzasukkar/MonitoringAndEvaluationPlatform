@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
@@ -10,22 +11,26 @@ using MonitoringAndEvaluationPlatform.Models;
 
 namespace MonitoringAndEvaluationPlatform.Controllers
 {
-    public class MinistrysController : Controller
+    public class MinistriesController : Controller
     {
         private readonly ApplicationDbContext _context;
+        private readonly UserManager<ApplicationUser> _userManager;
+        private readonly RoleManager<IdentityRole> _roleManager;
 
-        public MinistrysController(ApplicationDbContext context)
+        public MinistriesController(ApplicationDbContext context, UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager)
         {
             _context = context;
+            _userManager = userManager;
+            _roleManager = roleManager;
         }
 
-        // GET: Ministrys
+        // GET: Ministries
         public async Task<IActionResult> Index()
         {
             return View(await _context.Ministry.ToListAsync());
         }
 
-        // GET: Ministrys/Details/5
+        // GET: Ministries/Details/5
         public async Task<IActionResult> Details(int? id)
         {
             if (id == null)
@@ -43,29 +48,73 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             return View(Ministry);
         }
 
-        // GET: Ministrys/Create
+        // GET: Ministries/Create
         public IActionResult Create()
         {
             return View();
         }
 
-        // POST: Ministrys/Create
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
+        // 🔹 Create Ministry (Automatically Creates User & Role)
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Code,Partner,DisbursementPerformance,FieldMonitoring,ImpactAssessment")] Ministry Ministry)
+        public async Task<IActionResult> Create([Bind("MinistryName,DisbursementPerformance,FieldMonitoring,ImpactAssessment")] Ministry ministry)
         {
             if (ModelState.IsValid)
             {
-                _context.Add(Ministry);
+                // 🔹 Add Ministry to Database
+                _context.Ministry.Add(ministry);
                 await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
+
+                // 🔹 Create Role (if it doesn’t exist)
+                if (!await _roleManager.RoleExistsAsync(ministry.MinistryName))
+                {
+                    await _roleManager.CreateAsync(new IdentityRole(ministry.MinistryName));
+                }
+
+                // 🔹 Create User for the Ministry
+                string defaultPassword = "Ministry@123";  // ⚠️ Change in production
+                var user = new ApplicationUser
+                {
+                    UserName = ministry.MinistryName,
+                    Email = $"{ministry.MinistryName.ToLower()}@example.com", // Example email
+                    EmailConfirmed = true
+                };
+
+                var result = await _userManager.CreateAsync(user, defaultPassword);
+                if (result.Succeeded)
+                {
+                    // 🔹 Assign User to Role
+                    await _userManager.AddToRoleAsync(user, ministry.MinistryName);
+                }
+                else
+                {
+                    // Log errors (in production, use a logging framework)
+                    Console.WriteLine($"⚠️ User creation failed: {string.Join(", ", result.Errors.Select(e => e.Description))}");
+                }
+
+                return RedirectToAction(nameof(Index)); // Redirect to list of ministries
             }
-            return View(Ministry);
+
+            return View(ministry);
         }
 
-        // GET: Ministrys/Edit/5
+        //// POST: Ministries/Create
+        //// To protect from overposting attacks, enable the specific properties you want to bind to.
+        //// For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
+        //[HttpPost]
+        //[ValidateAntiForgeryToken]
+        //public async Task<IActionResult> Create([Bind("Code,MinistryName,DisbursementPerformance,FieldMonitoring,ImpactAssessment")] Ministry Ministry)
+        //{
+        //    if (ModelState.IsValid)
+        //    {
+        //        _context.Add(Ministry);
+        //        await _context.SaveChangesAsync();
+        //        return RedirectToAction(nameof(Index));
+        //    }
+        //    return View(Ministry);
+        //}
+
+        // GET: Ministries/Edit/5
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null)
@@ -81,7 +130,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             return View(Ministry);
         }
 
-        // POST: Ministrys/Edit/5
+        // POST: Ministries/Edit/5
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
@@ -116,7 +165,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             return View(Ministry);
         }
 
-        // GET: Ministrys/Delete/5
+        // GET: Ministries/Delete/5
         public async Task<IActionResult> Delete(int? id)
         {
             if (id == null)
@@ -134,7 +183,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             return View(Ministry);
         }
 
-        // POST: Ministrys/Delete/5
+        // POST: Ministries/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)

@@ -28,16 +28,16 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         // GET: Programs
         public async Task<IActionResult> Index(ProgramFilterViewModel filter)
         {
-            filter.Ministrys = await _context.Ministry.ToListAsync();
+            filter.Ministries = await _context.Ministry.ToListAsync();
             filter.Regions = await _context.Region.ToListAsync();
             filter.Donors = await _context.Donor.ToListAsync();
 
 
             var programs = _context.Program.ToList();
 
-            if (filter.SelectedMinistrys.Any())
+            if (filter.SelectedMinistries.Any())
             {
-                programs = programs.Where(p => filter.SelectedMinistrys.Contains(p.MinistryCode)).ToList();
+                programs = programs.Where(p => filter.SelectedMinistries.Contains(p.MinistryCode)).ToList();
             }
 
             if (filter.SelectedRegions.Any())
