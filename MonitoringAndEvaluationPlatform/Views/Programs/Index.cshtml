@@ -13,7 +13,7 @@
                 <div>
                     <input type="checkbox" name="SelectedMinistries" value="@ministry.Code"
                     @(Model.SelectedMinistries.Contains(ministry.Code) ? "checked" : "") />
-                    <label>@ministry.Partner</label>
+                    <label>@ministry.MinistryName</label>
                 </div>
             }
 

@@ -1,4 +1,4 @@
-﻿@model MonitoringAndEvaluationPlatform.Models.Ministrie
+﻿@model MonitoringAndEvaluationPlatform.Models.Ministry
 
 @{
     ViewData["Title"] = "Details";
@@ -8,14 +8,14 @@
 <h1>Details</h1>
 
 <div>
-    <h4>Ministrie</h4>
+    <h4>Ministry</h4>
     <hr />
     <dl class="row">
         <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Partner)
+            @Html.DisplayNameFor(model => model.MinistryName)
         </dt>
         <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Partner)
+            @Html.DisplayFor(model => model.MinistryName)
         </dd>
         <dt class = "col-sm-2">
             @Html.DisplayNameFor(model => model.DisbursementPerformance)
