@@ -72,7 +72,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 return NotFound();
             }
 
-            var program = await _context.Program
+            var program = await _context.Program.Include(p=>p.Indicators)
                 .FirstOrDefaultAsync(m => m.ProjectID == id);
             if (program == null)
             {
@@ -91,6 +91,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             ViewData["Ministry"] = new SelectList(_context.Ministry, "Code", "MinistryName");
             ViewData["SuperVisor"] = new SelectList(_context.SuperVisor, "Code", "Name");
             ViewData["ProjectManager"] = new SelectList(_context.ProjectManager, "Code", "Name");
+            ViewBag.Indicators = _context.Indicators.ToList();
 
             return View();
         }
@@ -100,9 +101,21 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult Create(Models.Program program)
+        public IActionResult Create(Models.Program program, int[] selectedIndicators)
         {
-            
+
+            foreach (var item in selectedIndicators)
+            {
+                var SelectedIndicator = _context.Indicators.FirstOrDefault(i => i.Code == item);
+
+                if (SelectedIndicator != null)
+                {
+                    program.Indicators.Add(SelectedIndicator);
+                }
+            }
+
+           
+               
                 _context.Program.Add(program);
                 _context.SaveChanges();
                 return RedirectToAction("Index"); // Or your desired action
@@ -121,6 +134,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             {
                 return NotFound();
             }
+            ViewBag.Indicators = _context.Indicators.ToList();
             return View(program);
         }
 

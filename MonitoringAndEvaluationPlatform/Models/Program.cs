@@ -31,5 +31,7 @@ namespace MonitoringAndEvaluationPlatform.Models
         public int FieldMonitoring { get; set; }
         public int ImpactAssessment { get; set; }
         public ICollection<LogicalFramework> logicalFramework{ get; set; } = new List<LogicalFramework>();
+
+        public ICollection<Indicator> Indicators { get; set; } = new List<Indicator>();
     }
 }

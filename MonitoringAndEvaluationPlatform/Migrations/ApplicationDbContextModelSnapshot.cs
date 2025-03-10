@@ -386,6 +386,9 @@ namespace MonitoringAndEvaluationPlatform.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<int?>("ProgramProjectID")
+                        .HasColumnType("int");
+
                     b.Property<string>("Source")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -406,6 +409,8 @@ namespace MonitoringAndEvaluationPlatform.Migrations
                         .HasColumnType("float");
 
                     b.HasKey("Code");
+
+                    b.HasIndex("ProgramProjectID");
 
                     b.HasIndex("SubOutputCode");
 
@@ -940,6 +945,10 @@ namespace MonitoringAndEvaluationPlatform.Migrations
 
             modelBuilder.Entity("MonitoringAndEvaluationPlatform.Models.Indicator", b =>
                 {
+                    b.HasOne("MonitoringAndEvaluationPlatform.Models.Program", null)
+                        .WithMany("Indicators")
+                        .HasForeignKey("ProgramProjectID");
+
                     b.HasOne("MonitoringAndEvaluationPlatform.Models.SubOutput", "SubOutput")
                         .WithMany("Indicators")
                         .HasForeignKey("SubOutputCode")
@@ -1090,6 +1099,8 @@ namespace MonitoringAndEvaluationPlatform.Migrations
 
             modelBuilder.Entity("MonitoringAndEvaluationPlatform.Models.Program", b =>
                 {
+                    b.Navigation("Indicators");
+
                     b.Navigation("logicalFramework");
                 });
 

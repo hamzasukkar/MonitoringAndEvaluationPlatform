@@ -138,6 +138,14 @@
         </dd>
     </dl>
 </div>
+Indicators
+<ul>
+    @foreach (var indicator in Model.Indicators)
+    {
+        <li>@indicator.Name</li>
+    }
+</ul>
+
 <div>
     <a asp-action="Edit" asp-route-id="@Model?.ProjectID">Edit</a> |
     <a asp-action="Index">Back to List</a>

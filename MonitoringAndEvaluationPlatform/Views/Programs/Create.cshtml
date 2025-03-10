@@ -99,6 +99,15 @@
                 <span asp-validation-for="ImpactAssessment" class="text-danger"></span>
             </div>
             <div class="form-group">
+                <label>Select Indicators</label>
+                <select name="selectedIndicators" class="form-control" multiple>
+                    @foreach (var indicator in ViewBag.Indicators)
+                    {
+                        <option value="@indicator.Code">@indicator.Name</option>
+                    }
+                </select>
+            </div>
+            <div class="form-group">
                 <input type="submit" value="Create" class="btn btn-primary" />
             </div>
         </form>

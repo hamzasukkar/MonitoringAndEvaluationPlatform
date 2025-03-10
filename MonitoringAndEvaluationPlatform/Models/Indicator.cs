@@ -30,5 +30,7 @@ namespace MonitoringAndEvaluationPlatform.Models
         public string Comment { get; set; } = string.Empty;
         public ICollection<Measure> Measures { get; set; } = new List<Measure>();
 
+        //virtual public Program Program { get; set; }
+
     }
 }
