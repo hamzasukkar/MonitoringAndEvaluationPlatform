@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
@@ -14,11 +15,16 @@ namespace MonitoringAndEvaluationPlatform.Controllers
     public class ProgramsController : Controller
     {
         private readonly ApplicationDbContext _context;
+        private readonly UserManager<ApplicationUser> _userManager;
+        private readonly RoleManager<IdentityRole> _roleManager;
 
-        public ProgramsController(ApplicationDbContext context)
+        public ProgramsController(ApplicationDbContext context, UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager)
         {
             _context = context;
+            _userManager = userManager;
+            _roleManager = roleManager;
         }
+
 
         public async Task<IActionResult> ActionPlan()
         {
@@ -82,7 +88,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
 
             ViewData["Donor"] = new SelectList(_context.Donor, "Code", "Partner");
             ViewData["Region"] = new SelectList(_context.Region, "Code", "Name");
-            ViewData["Ministry"] = new SelectList(_context.Ministry, "Code", "Partner");
+            ViewData["Ministry"] = new SelectList(_context.Ministry, "Code", "MinistryName");
             ViewData["SuperVisor"] = new SelectList(_context.SuperVisor, "Code", "Name");
             ViewData["ProjectManager"] = new SelectList(_context.ProjectManager, "Code", "Name");
 
