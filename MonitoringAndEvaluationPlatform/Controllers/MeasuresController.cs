@@ -48,7 +48,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         // GET: Measures/Create
         public IActionResult Create()
         {
-            ViewData["IndicatorCode"] = new SelectList(_context.Indicators, "Code", "Code");
+            ViewData["IndicatorCode"] = new SelectList(_context.Indicators, "Code", "Name");
             return View();
         }
 

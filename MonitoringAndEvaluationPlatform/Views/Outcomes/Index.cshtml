@@ -87,11 +87,6 @@
                 </td>
                 <td>
                     <div class="d-inline">
-                        <form asp-action="Delete" asp-route-id="@item.Code" method="post" style="display: inline;">
-                            <button class="btn btn-sm btn-success" title="Delete">
-                                <i class="bi bi-trash"></i>
-                            </button>
-                        </form>
                         <form asp-action="Details" asp-route-id="@item.Code" method="get" style="display: inline;">
                             <button class="btn btn-sm btn-primary" title="View">
                                 <i class="bi bi-eye"></i>
@@ -100,6 +95,11 @@
                         <form asp-action="Edit" asp-route-id="@item.Code" method="get" style="display: inline;">
                             <button class="btn btn-sm btn-warning" title="Edit">
                                 <i class="bi bi-pencil"></i>
+                            </button>
+                        </form>
+                        <form asp-action="Delete" asp-route-id="@item.Code" method="post" style="display: inline;">
+                            <button class="btn btn-sm btn-danger" title="Delete">
+                                <i class="bi bi-trash"></i>
                             </button>
                         </form>
                     </div>

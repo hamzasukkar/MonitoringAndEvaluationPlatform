@@ -706,21 +706,11 @@ namespace MonitoringAndEvaluationPlatform.Migrations
                     b.Property<DateTime>("StartDate")
                         .HasColumnType("datetime2");
 
-                    b.Property<string>("Status1")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Status2")
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<int>("SuperVisorCode")
                         .HasColumnType("int");
 
                     b.Property<int>("Trend")
                         .HasColumnType("int");
-
-                    b.Property<string>("Type")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
 
                     b.Property<int>("performance")
                         .HasColumnType("int");
