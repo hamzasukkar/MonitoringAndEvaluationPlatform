@@ -10,7 +10,7 @@ namespace MonitoringAndEvaluationPlatform.ViewModel
         public List<Ministry> Ministries { get; set; } = new List<Ministry>();
         public List<Region> Regions { get; set; } = new List<Region>();
         public List<Donor> Donors { get; set; } = new List<Donor>();
-        public List<Models.Program> Programs { get; set; } = new List<Models.Program>();
+        public List<Project> Projects { get; set; } = new List<Models.Project>();
     }
 
 }

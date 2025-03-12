@@ -49,19 +49,19 @@
         <table class="table">
             <thead>
                 <tr>
-                    <th>@Html.DisplayNameFor(model => model.Programs.FirstOrDefault().ProjectName)</th>
-                    <th>@Html.DisplayNameFor(model => model.Programs.FirstOrDefault().EstimatedBudget)</th>
-                    <th>@Html.DisplayNameFor(model => model.Programs.FirstOrDefault().RealBudget)</th>
-                    <th>@Html.DisplayNameFor(model => model.Programs.FirstOrDefault().Trend)</th>
-                    <th>@Html.DisplayNameFor(model => model.Programs.FirstOrDefault().performance)</th>
-                    <th>@Html.DisplayNameFor(model => model.Programs.FirstOrDefault().DisbursementPerformance)</th>
-                    <th>@Html.DisplayNameFor(model => model.Programs.FirstOrDefault().FieldMonitoring)</th>
-                    <th>@Html.DisplayNameFor(model => model.Programs.FirstOrDefault().ImpactAssessment)</th>
+                    <th>@Html.DisplayNameFor(model => model.Projects.FirstOrDefault().ProjectName)</th>
+                    <th>@Html.DisplayNameFor(model => model.Projects.FirstOrDefault().EstimatedBudget)</th>
+                    <th>@Html.DisplayNameFor(model => model.Projects.FirstOrDefault().RealBudget)</th>
+                    <th>@Html.DisplayNameFor(model => model.Projects.FirstOrDefault().Trend)</th>
+                    <th>@Html.DisplayNameFor(model => model.Projects.FirstOrDefault().performance)</th>
+                    <th>@Html.DisplayNameFor(model => model.Projects.FirstOrDefault().DisbursementPerformance)</th>
+                    <th>@Html.DisplayNameFor(model => model.Projects.FirstOrDefault().FieldMonitoring)</th>
+                    <th>@Html.DisplayNameFor(model => model.Projects.FirstOrDefault().ImpactAssessment)</th>
                     <th></th>
                 </tr>
             </thead>
             <tbody>
-                @foreach (var item in Model.Programs)
+                @foreach (var item in Model.Projects)
                 {
                     string IndicatorsPerformanceProgressBarClass = "";
                     string DisbursementPerformanceProgressBarClass = "";

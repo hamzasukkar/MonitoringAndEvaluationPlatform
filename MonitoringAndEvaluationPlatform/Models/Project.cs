@@ -2,7 +2,7 @@
 
 namespace MonitoringAndEvaluationPlatform.Models
 {
-    public class Program
+    public class Project
     {
         [Key]
         public int ProjectID { get; set; }

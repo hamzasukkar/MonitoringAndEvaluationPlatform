@@ -46,7 +46,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         // GET: LogicalFrameworks/Create
         public IActionResult Create()
         {
-            ViewData["ProjectName"] = new SelectList(_context.Program, "ProjectID", "ProjectName");
+            ViewData["ProjectName"] = new SelectList(_context.Project, "ProjectID", "ProjectName");
             return View();
         }
 

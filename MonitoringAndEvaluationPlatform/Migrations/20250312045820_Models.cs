@@ -342,7 +342,7 @@ namespace MonitoringAndEvaluationPlatform.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Program",
+                name: "Project",
                 columns: table => new
                 {
                     ProjectID = table.Column<int>(type: "int", nullable: false)
@@ -366,33 +366,33 @@ namespace MonitoringAndEvaluationPlatform.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Program", x => x.ProjectID);
+                    table.PrimaryKey("PK_Project", x => x.ProjectID);
                     table.ForeignKey(
-                        name: "FK_Program_Donor_DonorCode",
+                        name: "FK_Project_Donor_DonorCode",
                         column: x => x.DonorCode,
                         principalTable: "Donor",
                         principalColumn: "Code",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_Program_Ministry_MinistryCode",
+                        name: "FK_Project_Ministry_MinistryCode",
                         column: x => x.MinistryCode,
                         principalTable: "Ministry",
                         principalColumn: "Code",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_Program_ProjectManager_ProjectManagerCode",
+                        name: "FK_Project_ProjectManager_ProjectManagerCode",
                         column: x => x.ProjectManagerCode,
                         principalTable: "ProjectManager",
                         principalColumn: "Code",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_Program_Region_RegionCode",
+                        name: "FK_Project_Region_RegionCode",
                         column: x => x.RegionCode,
                         principalTable: "Region",
                         principalColumn: "Code",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_Program_SuperVisor_SuperVisorCode",
+                        name: "FK_Project_SuperVisor_SuperVisorCode",
                         column: x => x.SuperVisorCode,
                         principalTable: "SuperVisor",
                         principalColumn: "Code",
@@ -435,17 +435,17 @@ namespace MonitoringAndEvaluationPlatform.Migrations
                     Type = table.Column<int>(type: "int", nullable: false),
                     Trend = table.Column<double>(type: "float", nullable: false),
                     IndicatorsPerformance = table.Column<int>(type: "int", nullable: false),
-                    ProjectID = table.Column<int>(type: "int", nullable: false),
-                    ProgramProjectID = table.Column<int>(type: "int", nullable: true)
+                    ProjectID = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_LogicalFramework", x => x.Code);
                     table.ForeignKey(
-                        name: "FK_LogicalFramework_Program_ProgramProjectID",
-                        column: x => x.ProgramProjectID,
-                        principalTable: "Program",
-                        principalColumn: "ProjectID");
+                        name: "FK_LogicalFramework_Project_ProjectID",
+                        column: x => x.ProjectID,
+                        principalTable: "Project",
+                        principalColumn: "ProjectID",
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
@@ -530,15 +530,15 @@ namespace MonitoringAndEvaluationPlatform.Migrations
                     Description = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     MethodOfComputation = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Comment = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    ProgramProjectID = table.Column<int>(type: "int", nullable: true)
+                    ProjectID = table.Column<int>(type: "int", nullable: true)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Indicators", x => x.Code);
                     table.ForeignKey(
-                        name: "FK_Indicators_Program_ProgramProjectID",
-                        column: x => x.ProgramProjectID,
-                        principalTable: "Program",
+                        name: "FK_Indicators_Project_ProjectID",
+                        column: x => x.ProjectID,
+                        principalTable: "Project",
                         principalColumn: "ProjectID");
                     table.ForeignKey(
                         name: "FK_Indicators_SubOutputs_SubOutputCode",
@@ -616,9 +616,9 @@ namespace MonitoringAndEvaluationPlatform.Migrations
                 filter: "[NormalizedUserName] IS NOT NULL");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Indicators_ProgramProjectID",
+                name: "IX_Indicators_ProjectID",
                 table: "Indicators",
-                column: "ProgramProjectID");
+                column: "ProjectID");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Indicators_SubOutputCode",
@@ -626,9 +626,9 @@ namespace MonitoringAndEvaluationPlatform.Migrations
                 column: "SubOutputCode");
 
             migrationBuilder.CreateIndex(
-                name: "IX_LogicalFramework_ProgramProjectID",
+                name: "IX_LogicalFramework_ProjectID",
                 table: "LogicalFramework",
-                column: "ProgramProjectID");
+                column: "ProjectID");
 
             migrationBuilder.CreateIndex(
                 name: "IX_LogicalFrameworkIndicator_LogicalFrameworkCode",
@@ -656,28 +656,28 @@ namespace MonitoringAndEvaluationPlatform.Migrations
                 column: "OutcomeCode");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Program_DonorCode",
-                table: "Program",
+                name: "IX_Project_DonorCode",
+                table: "Project",
                 column: "DonorCode");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Program_MinistryCode",
-                table: "Program",
+                name: "IX_Project_MinistryCode",
+                table: "Project",
                 column: "MinistryCode");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Program_ProjectManagerCode",
-                table: "Program",
+                name: "IX_Project_ProjectManagerCode",
+                table: "Project",
                 column: "ProjectManagerCode");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Program_RegionCode",
-                table: "Program",
+                name: "IX_Project_RegionCode",
+                table: "Project",
                 column: "RegionCode");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Program_SuperVisorCode",
-                table: "Program",
+                name: "IX_Project_SuperVisorCode",
+                table: "Project",
                 column: "SuperVisorCode");
 
             migrationBuilder.CreateIndex(
@@ -741,7 +741,7 @@ namespace MonitoringAndEvaluationPlatform.Migrations
                 name: "Outputs");
 
             migrationBuilder.DropTable(
-                name: "Program");
+                name: "Project");
 
             migrationBuilder.DropTable(
                 name: "Outcomes");

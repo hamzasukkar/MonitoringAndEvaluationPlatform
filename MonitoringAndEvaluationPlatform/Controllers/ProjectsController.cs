@@ -12,13 +12,13 @@ using MonitoringAndEvaluationPlatform.ViewModel;
 
 namespace MonitoringAndEvaluationPlatform.Controllers
 {
-    public class ProgramsController : Controller
+    public class ProjectsController : Controller
     {
         private readonly ApplicationDbContext _context;
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly RoleManager<IdentityRole> _roleManager;
 
-        public ProgramsController(ApplicationDbContext context, UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager)
+        public ProjectsController(ApplicationDbContext context, UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager)
         {
             _context = context;
             _userManager = userManager;
@@ -39,24 +39,24 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             filter.Donors = await _context.Donor.ToListAsync();
 
 
-            var programs = _context.Program.ToList();
+            var projects = _context.Project.ToList();
 
             if (filter.SelectedMinistries.Any())
             {
-                programs = programs.Where(p => filter.SelectedMinistries.Contains(p.MinistryCode)).ToList();
+                projects = projects.Where(p => filter.SelectedMinistries.Contains(p.MinistryCode)).ToList();
             }
 
             if (filter.SelectedRegions.Any())
             {
-                programs = programs.Where(p => filter.SelectedRegions.Contains(p.RegionCode)).ToList();
+                projects = projects.Where(p => filter.SelectedRegions.Contains(p.RegionCode)).ToList();
             }
 
             if (filter.SelectedDonors.Any())
             {
-                programs = programs.Where(p => filter.SelectedDonors.Contains(p.DonorCode)).ToList();
+                projects = projects.Where(p => filter.SelectedDonors.Contains(p.DonorCode)).ToList();
             }
 
-             filter.Programs =  programs.ToList();
+             filter.Projects =  projects.ToList();
 
 
             return View(filter);
@@ -72,14 +72,14 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 return NotFound();
             }
 
-            var program = await _context.Program.Include(p=>p.Indicators)
+            var project = await _context.Project.Include(p=>p.Indicators)
                 .FirstOrDefaultAsync(m => m.ProjectID == id);
-            if (program == null)
+            if (project == null)
             {
                 return NotFound();
             }
 
-            return View(program);
+            return View(project);
         }
 
         // GET: Programs/Create
@@ -101,7 +101,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult Create(Models.Program program, int[] selectedIndicators)
+        public IActionResult Create(Project project, int[] selectedIndicators)
         {
 
             foreach (var item in selectedIndicators)
@@ -110,13 +110,13 @@ namespace MonitoringAndEvaluationPlatform.Controllers
 
                 if (SelectedIndicator != null)
                 {
-                    program.Indicators.Add(SelectedIndicator);
+                    project.Indicators.Add(SelectedIndicator);
                 }
             }
 
            
                
-                _context.Program.Add(program);
+                _context.Project.Add(project);
                 _context.SaveChanges();
                 return RedirectToAction("Index"); // Or your desired action
         }
@@ -129,7 +129,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 return NotFound();
             }
 
-            var program = await _context.Program.FindAsync(id);
+            var program = await _context.Project.FindAsync(id);
             if (program == null)
             {
                 return NotFound();
@@ -143,7 +143,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("ProjectID,ProjectName,EstimatedBudget,RealBudget,Trend,ProjectManager,SuperVisor,Type,Status1,Status2,Category,Donor,StartDate,EndDate,Region,performance,DisbursementPerformance,FieldMonitoring,ImpactAssessment")] Models.Program program)
+        public async Task<IActionResult> Edit(int id, [Bind("ProjectID,ProjectName,EstimatedBudget,RealBudget,Trend,ProjectManager,SuperVisor,Type,Status1,Status2,Category,Donor,StartDate,EndDate,Region,performance,DisbursementPerformance,FieldMonitoring,ImpactAssessment")] Models.Project program)
         {
             if (id != program.ProjectID)
             {
@@ -181,7 +181,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 return NotFound();
             }
 
-            var program = await _context.Program
+            var program = await _context.Project
                 .FirstOrDefaultAsync(m => m.ProjectID == id);
             if (program == null)
             {
@@ -196,10 +196,10 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var program = await _context.Program.FindAsync(id);
+            var program = await _context.Project.FindAsync(id);
             if (program != null)
             {
-                _context.Program.Remove(program);
+                _context.Project.Remove(program);
             }
 
             await _context.SaveChangesAsync();
@@ -208,7 +208,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
 
         private bool ProgramExists(int id)
         {
-            return _context.Program.Any(e => e.ProjectID == id);
+            return _context.Project.Any(e => e.ProjectID == id);
         }
     }
 }
