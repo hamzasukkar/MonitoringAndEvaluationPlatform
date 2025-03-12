@@ -10,24 +10,24 @@ namespace MonitoringAndEvaluationPlatform.Data
             : base(options)
         {
         }
-        public DbSet<MonitoringAndEvaluationPlatform.Models.Framework> Framework { get; set; } = default!;
-        public DbSet<MonitoringAndEvaluationPlatform.Models.Outcome> Outcomes { get; set; } = default!;
-        public DbSet<MonitoringAndEvaluationPlatform.Models.Output> Outputs { get; set; } = default!;
-        public DbSet<MonitoringAndEvaluationPlatform.Models.Indicator> Indicators { get; set; } = default!;
-        public DbSet<MonitoringAndEvaluationPlatform.Models.SubOutput> SubOutputs { get; set; } = default!;
-        public DbSet<MonitoringAndEvaluationPlatform.Models.Ministry> Ministry { get; set; } = default!;
-        public DbSet<MonitoringAndEvaluationPlatform.Models.Program> Program { get; set; } = default!;
-        public DbSet<MonitoringAndEvaluationPlatform.Models.Target> Target { get; set; } = default!;
-        public DbSet<MonitoringAndEvaluationPlatform.Models.Goal> Goal { get; set; } = default!;
-        public DbSet<MonitoringAndEvaluationPlatform.Models.Region> Region { get; set; } = default!;
-        public DbSet<MonitoringAndEvaluationPlatform.Models.Sector> Sector { get; set; } = default!;
-        public DbSet<MonitoringAndEvaluationPlatform.Models.Donor> Donor { get; set; } = default!;
-        public DbSet<MonitoringAndEvaluationPlatform.Models.Assessment> Assessment { get; set; } = default!;
-        public DbSet<MonitoringAndEvaluationPlatform.Models.Measure> Measure { get; set; } = default!;
-        public DbSet<MonitoringAndEvaluationPlatform.Models.LogicalFramework> LogicalFramework { get; set; } = default!;
-        public DbSet<MonitoringAndEvaluationPlatform.Models.LogicalFrameworkIndicator> LogicalFrameworkIndicator { get; set; } = default!;
-        public DbSet<MonitoringAndEvaluationPlatform.Models.SuperVisor> SuperVisor { get; set; } = default!;
-        public DbSet<MonitoringAndEvaluationPlatform.Models.ProjectManager> ProjectManager { get; set; } = default!;
+        public DbSet<Framework> Framework { get; set; } = default!;
+        public DbSet<Outcome> Outcomes { get; set; } = default!;
+        public DbSet<Output> Outputs { get; set; } = default!;
+        public DbSet<Indicator> Indicators { get; set; } = default!;
+        public DbSet<SubOutput> SubOutputs { get; set; } = default!;
+        public DbSet<Ministry> Ministry { get; set; } = default!;
+        public DbSet<Models.Program> Program { get; set; } = default!;
+        public DbSet<Target> Target { get; set; } = default!;
+        public DbSet<Goal> Goal { get; set; } = default!;
+        public DbSet<Region> Region { get; set; } = default!;
+        public DbSet<Sector> Sector { get; set; } = default!;
+        public DbSet<Donor> Donor { get; set; } = default!;
+        public DbSet<Assessment> Assessment { get; set; } = default!;
+        public DbSet<Measure> Measure { get; set; } = default!;
+        public DbSet<LogicalFramework> LogicalFramework { get; set; } = default!;
+        public DbSet<LogicalFrameworkIndicator> LogicalFrameworkIndicator { get; set; } = default!;
+        public DbSet<SuperVisor> SuperVisor { get; set; } = default!;
+        public DbSet<ProjectManager> ProjectManager { get; set; } = default!;
 
     }
 }
