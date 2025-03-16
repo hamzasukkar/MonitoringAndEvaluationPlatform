@@ -30,6 +30,7 @@ builder.Services.ConfigureApplicationCookie(options =>
     options.AccessDeniedPath = "/Identity/Account/AccessDenied"; // If unauthorized
 });
 
+builder.Services.AddScoped<MonitoringService>();
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.

@@ -23,11 +23,30 @@ namespace MonitoringAndEvaluationPlatform.Data
         public DbSet<Sector> Sector { get; set; } = default!;
         public DbSet<Donor> Donor { get; set; } = default!;
         public DbSet<Assessment> Assessment { get; set; } = default!;
-        public DbSet<Measure> Measure { get; set; } = default!;
+        public DbSet<Measure> Measures { get; set; } = default!;
         public DbSet<LogicalFramework> LogicalFramework { get; set; } = default!;
         public DbSet<LogicalFrameworkIndicator> LogicalFrameworkIndicator { get; set; } = default!;
         public DbSet<SuperVisor> SuperVisor { get; set; } = default!;
         public DbSet<ProjectManager> ProjectManager { get; set; } = default!;
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+           
+            base.OnModelCreating(modelBuilder);
+
+            modelBuilder.Entity<Measure>()
+                .HasKey(pi => new { pi.ProjectID, pi.IndicatorCode });
+
+            modelBuilder.Entity<Measure>()
+                .HasOne(pi => pi.Project)
+                .WithMany(p => p.Measures)
+                .HasForeignKey(pi => pi.ProjectID);
+
+            modelBuilder.Entity<Measure>()
+                .HasOne(pi => pi.Indicator)
+                .WithMany(i => i.Measures)
+                .HasForeignKey(pi => pi.IndicatorCode);
+        }
 
     }
 }

@@ -284,17 +284,17 @@ namespace MonitoringAndEvaluationPlatform.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Code"));
 
-                    b.Property<int>("DisbursementPerformance")
-                        .HasColumnType("int");
+                    b.Property<double>("DisbursementPerformance")
+                        .HasColumnType("float");
 
-                    b.Property<int>("FieldMonitoring")
-                        .HasColumnType("int");
+                    b.Property<double>("FieldMonitoring")
+                        .HasColumnType("float");
 
-                    b.Property<int>("ImpactAssessment")
-                        .HasColumnType("int");
+                    b.Property<double>("ImpactAssessment")
+                        .HasColumnType("float");
 
-                    b.Property<int>("IndicatorsPerformance")
-                        .HasColumnType("int");
+                    b.Property<double>("IndicatorsPerformance")
+                        .HasColumnType("float");
 
                     b.Property<string>("Name")
                         .IsRequired()
@@ -345,11 +345,11 @@ namespace MonitoringAndEvaluationPlatform.Migrations
 
             modelBuilder.Entity("MonitoringAndEvaluationPlatform.Models.Indicator", b =>
                 {
-                    b.Property<int>("Code")
+                    b.Property<int>("IndicatorCode")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Code"));
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("IndicatorCode"));
 
                     b.Property<bool>("Active")
                         .HasColumnType("bit");
@@ -372,8 +372,8 @@ namespace MonitoringAndEvaluationPlatform.Migrations
                     b.Property<double>("GAGRR")
                         .HasColumnType("float");
 
-                    b.Property<int>("IndicatorsPerformance")
-                        .HasColumnType("int");
+                    b.Property<double>("IndicatorsPerformance")
+                        .HasColumnType("float");
 
                     b.Property<bool>("IsCommon")
                         .HasColumnType("bit");
@@ -385,9 +385,6 @@ namespace MonitoringAndEvaluationPlatform.Migrations
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
-
-                    b.Property<int?>("ProjectID")
-                        .HasColumnType("int");
 
                     b.Property<string>("Source")
                         .IsRequired()
@@ -408,9 +405,7 @@ namespace MonitoringAndEvaluationPlatform.Migrations
                     b.Property<double>("Weight")
                         .HasColumnType("float");
 
-                    b.HasKey("Code");
-
-                    b.HasIndex("ProjectID");
+                    b.HasKey("IndicatorCode");
 
                     b.HasIndex("SubOutputCode");
 
@@ -519,17 +514,17 @@ namespace MonitoringAndEvaluationPlatform.Migrations
 
             modelBuilder.Entity("MonitoringAndEvaluationPlatform.Models.Measure", b =>
                 {
-                    b.Property<int>("Code")
-                        .ValueGeneratedOnAdd()
+                    b.Property<int>("ProjectID")
                         .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Code"));
-
-                    b.Property<DateTime>("Date")
-                        .HasColumnType("datetime2");
 
                     b.Property<int>("IndicatorCode")
                         .HasColumnType("int");
+
+                    b.Property<int>("Code")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("Date")
+                        .HasColumnType("datetime2");
 
                     b.Property<int?>("LogicalFrameworkIndicatorCode")
                         .HasColumnType("int");
@@ -540,13 +535,13 @@ namespace MonitoringAndEvaluationPlatform.Migrations
                     b.Property<int>("ValueType")
                         .HasColumnType("int");
 
-                    b.HasKey("Code");
+                    b.HasKey("ProjectID", "IndicatorCode");
 
                     b.HasIndex("IndicatorCode");
 
                     b.HasIndex("LogicalFrameworkIndicatorCode");
 
-                    b.ToTable("Measure");
+                    b.ToTable("Measures");
                 });
 
             modelBuilder.Entity("MonitoringAndEvaluationPlatform.Models.Ministry", b =>
@@ -583,20 +578,20 @@ namespace MonitoringAndEvaluationPlatform.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Code"));
 
-                    b.Property<int>("DisbursementPerformance")
-                        .HasColumnType("int");
+                    b.Property<double>("DisbursementPerformance")
+                        .HasColumnType("float");
 
-                    b.Property<int>("FieldMonitoring")
-                        .HasColumnType("int");
+                    b.Property<double>("FieldMonitoring")
+                        .HasColumnType("float");
 
                     b.Property<int>("FrameworkCode")
                         .HasColumnType("int");
 
-                    b.Property<int>("ImpactAssessment")
-                        .HasColumnType("int");
+                    b.Property<double>("ImpactAssessment")
+                        .HasColumnType("float");
 
-                    b.Property<int>("IndicatorsPerformance")
-                        .HasColumnType("int");
+                    b.Property<double>("IndicatorsPerformance")
+                        .HasColumnType("float");
 
                     b.Property<string>("Name")
                         .IsRequired()
@@ -623,17 +618,17 @@ namespace MonitoringAndEvaluationPlatform.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Code"));
 
-                    b.Property<int>("DisbursementPerformance")
-                        .HasColumnType("int");
+                    b.Property<double>("DisbursementPerformance")
+                        .HasColumnType("float");
 
-                    b.Property<int>("FieldMonitoring")
-                        .HasColumnType("int");
+                    b.Property<double>("FieldMonitoring")
+                        .HasColumnType("float");
 
-                    b.Property<int>("ImpactAssessment")
-                        .HasColumnType("int");
+                    b.Property<double>("ImpactAssessment")
+                        .HasColumnType("float");
 
-                    b.Property<int>("IndicatorsPerformance")
-                        .HasColumnType("int");
+                    b.Property<double>("IndicatorsPerformance")
+                        .HasColumnType("float");
 
                     b.Property<string>("Name")
                         .IsRequired()
@@ -798,17 +793,17 @@ namespace MonitoringAndEvaluationPlatform.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Code"));
 
-                    b.Property<int>("DisbursementPerformance")
-                        .HasColumnType("int");
+                    b.Property<double>("DisbursementPerformance")
+                        .HasColumnType("float");
 
-                    b.Property<int>("FieldMonitoring")
-                        .HasColumnType("int");
+                    b.Property<double>("FieldMonitoring")
+                        .HasColumnType("float");
 
-                    b.Property<int>("ImpactAssessment")
-                        .HasColumnType("int");
+                    b.Property<double>("ImpactAssessment")
+                        .HasColumnType("float");
 
-                    b.Property<int>("IndicatorsPerformance")
-                        .HasColumnType("int");
+                    b.Property<double>("IndicatorsPerformance")
+                        .HasColumnType("float");
 
                     b.Property<string>("Name")
                         .IsRequired()
@@ -932,10 +927,6 @@ namespace MonitoringAndEvaluationPlatform.Migrations
 
             modelBuilder.Entity("MonitoringAndEvaluationPlatform.Models.Indicator", b =>
                 {
-                    b.HasOne("MonitoringAndEvaluationPlatform.Models.Project", null)
-                        .WithMany("Indicators")
-                        .HasForeignKey("ProjectID");
-
                     b.HasOne("MonitoringAndEvaluationPlatform.Models.SubOutput", "SubOutput")
                         .WithMany("Indicators")
                         .HasForeignKey("SubOutputCode")
@@ -977,7 +968,15 @@ namespace MonitoringAndEvaluationPlatform.Migrations
                         .WithMany("Measures")
                         .HasForeignKey("LogicalFrameworkIndicatorCode");
 
+                    b.HasOne("MonitoringAndEvaluationPlatform.Models.Project", "Project")
+                        .WithMany("Measures")
+                        .HasForeignKey("ProjectID")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.Navigation("Indicator");
+
+                    b.Navigation("Project");
                 });
 
             modelBuilder.Entity("MonitoringAndEvaluationPlatform.Models.Outcome", b =>
@@ -1088,7 +1087,7 @@ namespace MonitoringAndEvaluationPlatform.Migrations
 
             modelBuilder.Entity("MonitoringAndEvaluationPlatform.Models.Project", b =>
                 {
-                    b.Navigation("Indicators");
+                    b.Navigation("Measures");
 
                     b.Navigation("logicalFramework");
                 });

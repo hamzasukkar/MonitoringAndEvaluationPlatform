@@ -1,7 +1,7 @@
 ﻿@model MonitoringAndEvaluationPlatform.Models.Project
 @{
     ViewData["Title"] = "Index";
-    Layout = "~/Views/Shared/_ProjectLayout.cshtml";
+    Layout = "~/Views/Shared/_ProjectsLayout.cshtml";
 }
 <h4>Program</h4>
 <hr />
@@ -106,7 +106,7 @@
             </div>
         
        
-            <div class="form-group">
+      @*       <div class="form-group">
                 <label>Select Indicators</label>
                 <select name="selectedIndicators" class="form-control" multiple>
                     @foreach (var indicator in ViewBag.Indicators)
@@ -114,7 +114,7 @@
                         <option value="@indicator.Code">@indicator.Name</option>
                     }
                 </select>
-            </div>
+            </div> *@
             <div class="form-group">
                 <input type="submit" value="Create" class="btn btn-primary" />
             </div>

@@ -29,6 +29,9 @@ namespace MonitoringAndEvaluationPlatform.Models
         public int ImpactAssessment { get; set; }
         public ICollection<LogicalFramework> logicalFramework{ get; set; } = new List<LogicalFramework>();
 
-        public ICollection<Indicator> Indicators { get; set; } = new List<Indicator>();
+        // Navigation property for many-to-many relationship
+        public ICollection<Measure> Measures { get; set; } = new List<Measure>();
+
+
     }
 }

@@ -2,7 +2,7 @@
 {
     public static class ProgressBarHelper
     {
-        public static string GetProgressBarClass(int value)
+        public static string GetProgressBarClass(double value)
         {
             return value switch
             {

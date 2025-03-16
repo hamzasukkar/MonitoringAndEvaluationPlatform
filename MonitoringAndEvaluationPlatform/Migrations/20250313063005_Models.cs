@@ -90,10 +90,10 @@ namespace MonitoringAndEvaluationPlatform.Migrations
                         .Annotation("SqlServer:Identity", "1, 1"),
                     Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Trend = table.Column<double>(type: "float", nullable: false),
-                    IndicatorsPerformance = table.Column<int>(type: "int", nullable: false),
-                    DisbursementPerformance = table.Column<int>(type: "int", nullable: false),
-                    FieldMonitoring = table.Column<int>(type: "int", nullable: false),
-                    ImpactAssessment = table.Column<int>(type: "int", nullable: false),
+                    IndicatorsPerformance = table.Column<double>(type: "float", nullable: false),
+                    DisbursementPerformance = table.Column<double>(type: "float", nullable: false),
+                    FieldMonitoring = table.Column<double>(type: "float", nullable: false),
+                    ImpactAssessment = table.Column<double>(type: "float", nullable: false),
                     Weight = table.Column<double>(type: "float", nullable: false)
                 },
                 constraints: table =>
@@ -323,10 +323,10 @@ namespace MonitoringAndEvaluationPlatform.Migrations
                         .Annotation("SqlServer:Identity", "1, 1"),
                     Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Trend = table.Column<double>(type: "float", nullable: false),
-                    IndicatorsPerformance = table.Column<int>(type: "int", nullable: false),
-                    DisbursementPerformance = table.Column<int>(type: "int", nullable: false),
-                    FieldMonitoring = table.Column<int>(type: "int", nullable: false),
-                    ImpactAssessment = table.Column<int>(type: "int", nullable: false),
+                    IndicatorsPerformance = table.Column<double>(type: "float", nullable: false),
+                    DisbursementPerformance = table.Column<double>(type: "float", nullable: false),
+                    FieldMonitoring = table.Column<double>(type: "float", nullable: false),
+                    ImpactAssessment = table.Column<double>(type: "float", nullable: false),
                     Weight = table.Column<double>(type: "float", nullable: false),
                     FrameworkCode = table.Column<int>(type: "int", nullable: false)
                 },
@@ -407,10 +407,10 @@ namespace MonitoringAndEvaluationPlatform.Migrations
                         .Annotation("SqlServer:Identity", "1, 1"),
                     Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Trend = table.Column<double>(type: "float", nullable: false),
-                    IndicatorsPerformance = table.Column<int>(type: "int", nullable: false),
-                    DisbursementPerformance = table.Column<int>(type: "int", nullable: false),
-                    FieldMonitoring = table.Column<int>(type: "int", nullable: false),
-                    ImpactAssessment = table.Column<int>(type: "int", nullable: false),
+                    IndicatorsPerformance = table.Column<double>(type: "float", nullable: false),
+                    DisbursementPerformance = table.Column<double>(type: "float", nullable: false),
+                    FieldMonitoring = table.Column<double>(type: "float", nullable: false),
+                    ImpactAssessment = table.Column<double>(type: "float", nullable: false),
                     Weight = table.Column<double>(type: "float", nullable: false),
                     OutcomeCode = table.Column<int>(type: "int", nullable: false)
                 },
@@ -456,10 +456,10 @@ namespace MonitoringAndEvaluationPlatform.Migrations
                         .Annotation("SqlServer:Identity", "1, 1"),
                     Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Trend = table.Column<double>(type: "float", nullable: false),
-                    IndicatorsPerformance = table.Column<int>(type: "int", nullable: false),
-                    DisbursementPerformance = table.Column<int>(type: "int", nullable: false),
-                    FieldMonitoring = table.Column<int>(type: "int", nullable: false),
-                    ImpactAssessment = table.Column<int>(type: "int", nullable: false),
+                    IndicatorsPerformance = table.Column<double>(type: "float", nullable: false),
+                    DisbursementPerformance = table.Column<double>(type: "float", nullable: false),
+                    FieldMonitoring = table.Column<double>(type: "float", nullable: false),
+                    ImpactAssessment = table.Column<double>(type: "float", nullable: false),
                     Weight = table.Column<double>(type: "float", nullable: false),
                     OutputCode = table.Column<int>(type: "int", nullable: false)
                 },
@@ -512,12 +512,12 @@ namespace MonitoringAndEvaluationPlatform.Migrations
                 name: "Indicators",
                 columns: table => new
                 {
-                    Code = table.Column<int>(type: "int", nullable: false)
+                    IndicatorCode = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Source = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Trend = table.Column<double>(type: "float", nullable: false),
-                    IndicatorsPerformance = table.Column<int>(type: "int", nullable: false),
+                    IndicatorsPerformance = table.Column<double>(type: "float", nullable: false),
                     Weight = table.Column<double>(type: "float", nullable: false),
                     SubOutputCode = table.Column<int>(type: "int", nullable: false),
                     IsCommon = table.Column<bool>(type: "bit", nullable: false),
@@ -529,17 +529,11 @@ namespace MonitoringAndEvaluationPlatform.Migrations
                     Concept = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Description = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     MethodOfComputation = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Comment = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    ProjectID = table.Column<int>(type: "int", nullable: true)
+                    Comment = table.Column<string>(type: "nvarchar(max)", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Indicators", x => x.Code);
-                    table.ForeignKey(
-                        name: "FK_Indicators_Project_ProjectID",
-                        column: x => x.ProjectID,
-                        principalTable: "Project",
-                        principalColumn: "ProjectID");
+                    table.PrimaryKey("PK_Indicators", x => x.IndicatorCode);
                     table.ForeignKey(
                         name: "FK_Indicators_SubOutputs_SubOutputCode",
                         column: x => x.SubOutputCode,
@@ -549,31 +543,37 @@ namespace MonitoringAndEvaluationPlatform.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Measure",
+                name: "Measures",
                 columns: table => new
                 {
-                    Code = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
+                    IndicatorCode = table.Column<int>(type: "int", nullable: false),
+                    ProjectID = table.Column<int>(type: "int", nullable: false),
+                    Code = table.Column<int>(type: "int", nullable: false),
                     Date = table.Column<DateTime>(type: "datetime2", nullable: false),
                     Value = table.Column<double>(type: "float", nullable: false),
                     ValueType = table.Column<int>(type: "int", nullable: false),
-                    IndicatorCode = table.Column<int>(type: "int", nullable: false),
                     LogicalFrameworkIndicatorCode = table.Column<int>(type: "int", nullable: true)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Measure", x => x.Code);
+                    table.PrimaryKey("PK_Measures", x => new { x.ProjectID, x.IndicatorCode });
                     table.ForeignKey(
-                        name: "FK_Measure_Indicators_IndicatorCode",
+                        name: "FK_Measures_Indicators_IndicatorCode",
                         column: x => x.IndicatorCode,
                         principalTable: "Indicators",
-                        principalColumn: "Code",
+                        principalColumn: "IndicatorCode",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_Measure_LogicalFrameworkIndicator_LogicalFrameworkIndicatorCode",
+                        name: "FK_Measures_LogicalFrameworkIndicator_LogicalFrameworkIndicatorCode",
                         column: x => x.LogicalFrameworkIndicatorCode,
                         principalTable: "LogicalFrameworkIndicator",
                         principalColumn: "Code");
+                    table.ForeignKey(
+                        name: "FK_Measures_Project_ProjectID",
+                        column: x => x.ProjectID,
+                        principalTable: "Project",
+                        principalColumn: "ProjectID",
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateIndex(
@@ -616,11 +616,6 @@ namespace MonitoringAndEvaluationPlatform.Migrations
                 filter: "[NormalizedUserName] IS NOT NULL");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Indicators_ProjectID",
-                table: "Indicators",
-                column: "ProjectID");
-
-            migrationBuilder.CreateIndex(
                 name: "IX_Indicators_SubOutputCode",
                 table: "Indicators",
                 column: "SubOutputCode");
@@ -636,13 +631,13 @@ namespace MonitoringAndEvaluationPlatform.Migrations
                 column: "LogicalFrameworkCode");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Measure_IndicatorCode",
-                table: "Measure",
+                name: "IX_Measures_IndicatorCode",
+                table: "Measures",
                 column: "IndicatorCode");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Measure_LogicalFrameworkIndicatorCode",
-                table: "Measure",
+                name: "IX_Measures_LogicalFrameworkIndicatorCode",
+                table: "Measures",
                 column: "LogicalFrameworkIndicatorCode");
 
             migrationBuilder.CreateIndex(
@@ -711,7 +706,7 @@ namespace MonitoringAndEvaluationPlatform.Migrations
                 name: "Goal");
 
             migrationBuilder.DropTable(
-                name: "Measure");
+                name: "Measures");
 
             migrationBuilder.DropTable(
                 name: "Sector");

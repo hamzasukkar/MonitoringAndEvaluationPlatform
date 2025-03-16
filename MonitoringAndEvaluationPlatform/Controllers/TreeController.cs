@@ -81,7 +81,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 }
                 .Concat(so.Indicators.Select(i => new
                 {
-                    id = $"I{i.Code}",
+                    id = $"I{i.IndicatorCode}",
                     pid = $"S{so.Code}",
                     name = i.Name,
                     type = "Indicator",

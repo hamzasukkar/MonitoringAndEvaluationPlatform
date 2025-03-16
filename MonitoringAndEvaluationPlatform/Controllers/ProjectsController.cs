@@ -72,7 +72,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 return NotFound();
             }
 
-            var project = await _context.Project.Include(p=>p.Indicators)
+            var project = await _context.Project
                 .FirstOrDefaultAsync(m => m.ProjectID == id);
             if (project == null)
             {
@@ -104,15 +104,15 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         public IActionResult Create(Project project, int[] selectedIndicators)
         {
 
-            foreach (var item in selectedIndicators)
-            {
-                var SelectedIndicator = _context.Indicators.FirstOrDefault(i => i.Code == item);
+            //foreach (var item in selectedIndicators)
+            //{
+            //    var SelectedIndicator = _context.Indicators.FirstOrDefault(i => i.Code == item);
 
-                if (SelectedIndicator != null)
-                {
-                    project.Indicators.Add(SelectedIndicator);
-                }
-            }
+            //    if (SelectedIndicator != null)
+            //    {
+            //        project.Indicators.Add(SelectedIndicator);
+            //    }
+            //}
 
            
                
