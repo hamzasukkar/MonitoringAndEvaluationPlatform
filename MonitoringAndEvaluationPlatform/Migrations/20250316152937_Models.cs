@@ -546,17 +546,18 @@ namespace MonitoringAndEvaluationPlatform.Migrations
                 name: "Measures",
                 columns: table => new
                 {
-                    IndicatorCode = table.Column<int>(type: "int", nullable: false),
-                    ProjectID = table.Column<int>(type: "int", nullable: false),
-                    Code = table.Column<int>(type: "int", nullable: false),
+                    Code = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
                     Date = table.Column<DateTime>(type: "datetime2", nullable: false),
                     Value = table.Column<double>(type: "float", nullable: false),
                     ValueType = table.Column<int>(type: "int", nullable: false),
+                    IndicatorCode = table.Column<int>(type: "int", nullable: false),
+                    ProjectID = table.Column<int>(type: "int", nullable: false),
                     LogicalFrameworkIndicatorCode = table.Column<int>(type: "int", nullable: true)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Measures", x => new { x.ProjectID, x.IndicatorCode });
+                    table.PrimaryKey("PK_Measures", x => x.Code);
                     table.ForeignKey(
                         name: "FK_Measures_Indicators_IndicatorCode",
                         column: x => x.IndicatorCode,
@@ -639,6 +640,11 @@ namespace MonitoringAndEvaluationPlatform.Migrations
                 name: "IX_Measures_LogicalFrameworkIndicatorCode",
                 table: "Measures",
                 column: "LogicalFrameworkIndicatorCode");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Measures_ProjectID",
+                table: "Measures",
+                column: "ProjectID");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Outcomes_FrameworkCode",

@@ -31,22 +31,23 @@ namespace MonitoringAndEvaluationPlatform.Data
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-           
             base.OnModelCreating(modelBuilder);
 
+            // Ensure Code is used as the primary key
             modelBuilder.Entity<Measure>()
-                .HasKey(pi => new { pi.ProjectID, pi.IndicatorCode });
+                .HasKey(m => m.Code);
 
             modelBuilder.Entity<Measure>()
-                .HasOne(pi => pi.Project)
+                .HasOne(m => m.Project)
                 .WithMany(p => p.Measures)
-                .HasForeignKey(pi => pi.ProjectID);
+                .HasForeignKey(m => m.ProjectID);
 
             modelBuilder.Entity<Measure>()
-                .HasOne(pi => pi.Indicator)
+                .HasOne(m => m.Indicator)
                 .WithMany(i => i.Measures)
-                .HasForeignKey(pi => pi.IndicatorCode);
+                .HasForeignKey(m => m.IndicatorCode);
         }
+
 
     }
 }

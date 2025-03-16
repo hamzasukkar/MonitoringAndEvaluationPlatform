@@ -85,7 +85,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
 
             if (ModelState.IsValid)
             {
-                _context.Add(measure);
+                _context.Measures.Add(measure); 
                 await _context.SaveChangesAsync();
 
                 // Update IndicatorPerformance only if it's a "Real" measure

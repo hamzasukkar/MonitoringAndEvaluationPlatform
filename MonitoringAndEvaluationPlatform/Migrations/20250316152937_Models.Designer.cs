@@ -12,7 +12,7 @@ using MonitoringAndEvaluationPlatform.Data;
 namespace MonitoringAndEvaluationPlatform.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20250313063005_Models")]
+    [Migration("20250316152937_Models")]
     partial class Models
     {
         /// <inheritdoc />
@@ -517,19 +517,22 @@ namespace MonitoringAndEvaluationPlatform.Migrations
 
             modelBuilder.Entity("MonitoringAndEvaluationPlatform.Models.Measure", b =>
                 {
-                    b.Property<int>("ProjectID")
-                        .HasColumnType("int");
-
-                    b.Property<int>("IndicatorCode")
-                        .HasColumnType("int");
-
                     b.Property<int>("Code")
+                        .ValueGeneratedOnAdd()
                         .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Code"));
 
                     b.Property<DateTime>("Date")
                         .HasColumnType("datetime2");
 
+                    b.Property<int>("IndicatorCode")
+                        .HasColumnType("int");
+
                     b.Property<int?>("LogicalFrameworkIndicatorCode")
+                        .HasColumnType("int");
+
+                    b.Property<int>("ProjectID")
                         .HasColumnType("int");
 
                     b.Property<double>("Value")
@@ -538,11 +541,13 @@ namespace MonitoringAndEvaluationPlatform.Migrations
                     b.Property<int>("ValueType")
                         .HasColumnType("int");
 
-                    b.HasKey("ProjectID", "IndicatorCode");
+                    b.HasKey("Code");
 
                     b.HasIndex("IndicatorCode");
 
                     b.HasIndex("LogicalFrameworkIndicatorCode");
+
+                    b.HasIndex("ProjectID");
 
                     b.ToTable("Measures");
                 });
