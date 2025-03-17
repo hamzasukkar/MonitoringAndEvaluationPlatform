@@ -52,6 +52,7 @@
         var outputs = outcomes.SelectMany(o => o.Outputs);
         var subOutputs = outputs.SelectMany(output => output.SubOutputs);
         var indicators = subOutputs.SelectMany(subOutput => subOutput.Indicators);
+        decimal IndicatorsPerformance = (decimal)Math.Round(item.IndicatorsPerformance, 2); // Rounds to 2 decimal places
 
         <div class="container my-4">
             <div class="card p-3 shadow-sm">
@@ -63,7 +64,7 @@
                             <h6 class="mb-2">@item.Name</h6>
                             <div class="d-flex flex-wrap gap-3">
                                 <div class="text-center">
-                                    <div class="circle">@item.IndicatorsPerformance%</div>
+                                    <div class="circle">@IndicatorsPerformance%</div>
                                     <a href="/Monitoring/Outcome/@item.Code"><span class="icon-text">Performance</span></a>
                                 </div>
                                 <div class="text-center">
