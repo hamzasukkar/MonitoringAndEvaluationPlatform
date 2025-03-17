@@ -109,6 +109,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 {
                     var monitoringService = new MonitoringService(_context);
                     await monitoringService.UpdateIndicatorPerformance(measure.IndicatorCode);
+                    await monitoringService.UpdateMinistryPerformance(measure.ProjectID);
                 }
 
                 return RedirectToAction(nameof(Index));

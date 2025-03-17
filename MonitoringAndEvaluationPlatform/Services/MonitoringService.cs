@@ -31,6 +31,39 @@ public class MonitoringService
 
         _context.Indicators.Update(indicator);
         await UpdateSubOutputPerformance(indicator.SubOutputCode);
+       
+        await _context.SaveChangesAsync();
+    }
+
+    public async Task UpdateMinistryPerformance(int projectId)
+    {
+        var project = _context.Project.Find(projectId);
+        var ministry = _context.Ministry.Find(project.MinistryCode);
+
+        double totalMinistryTarget = 0;
+        double totalMinistryReal = 0;
+
+        var ministryProjects = _context.Project.Where(p => p.MinistryCode == project.MinistryCode);
+
+        foreach (var ministryProject in ministryProjects)
+        {
+            foreach (var measure in ministryProject.Measures)
+            {
+                if (measure.ValueType==MeasureValueType.Real)
+                {
+                    totalMinistryReal += measure.Value;
+                }
+                else if(measure.ValueType == MeasureValueType.Target)
+                {
+                    totalMinistryTarget += measure.Value;
+                }
+            }
+        }
+
+        ministry.IndicatorsPerformance = (totalMinistryTarget > 0) ? (totalMinistryReal / totalMinistryTarget) * 100 : 0;
+
+
+        _context.Update(ministry);
         await _context.SaveChangesAsync();
     }
 

@@ -17,6 +17,9 @@
                 @Html.DisplayNameFor(model => model.MinistryName)
             </th>
             <th>
+                @Html.DisplayNameFor(model => model.IndicatorsPerformance)
+            </th>
+            <th>
                 @Html.DisplayNameFor(model => model.DisbursementPerformance)
             </th>
             <th>
@@ -29,11 +32,20 @@
         </tr>
     </thead>
     <tbody>
-@foreach (var item in Model) {
-        <tr>
-            <td>
-                @Html.DisplayFor(modelItem => item.MinistryName)
-            </td>
+        @foreach (var item in Model)
+        {
+            decimal IndicatorsPerformance = (decimal)Math.Round(item.IndicatorsPerformance, 2); // Rounds to 2 decimal places
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.MinistryName)
+                </td>
+                <td>
+                    <div class="progress">
+                        <div class="progress-bar progress-bar-success progress-bar-striped" role="progressbar" aria-valuenow="@IndicatorsPerformance" aria-valuemin="0" aria-valuemax="100" style="width:@IndicatorsPerformance%">
+                            @IndicatorsPerformance%
+                        </div>
+                    </div>
+                </td>
                 <td>
                     <div class="progress">
                         <div class="progress-bar progress-bar-success progress-bar-striped" role="progressbar" aria-valuenow="@item.DisbursementPerformance" aria-valuemin="0" aria-valuemax="100" style="width:@item.DisbursementPerformance%">
@@ -55,12 +67,12 @@
                         </div>
                     </div>
                 </td>
-            <td>
-                <a asp-action="Edit" asp-route-id="@item.Code">Edit</a> |
-                <a asp-action="Details" asp-route-id="@item.Code">Details</a> |
-                <a asp-action="Delete" asp-route-id="@item.Code">Delete</a>
-            </td>
-        </tr>
-}
+                <td>
+                    <a asp-action="Edit" asp-route-id="@item.Code">Edit</a> |
+                    <a asp-action="Details" asp-route-id="@item.Code">Details</a> |
+                    <a asp-action="Delete" asp-route-id="@item.Code">Delete</a>
+                </td>
+            </tr>
+        }
     </tbody>
 </table>
