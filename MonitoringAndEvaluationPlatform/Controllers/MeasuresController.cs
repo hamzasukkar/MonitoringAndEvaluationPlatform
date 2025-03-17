@@ -40,7 +40,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         }
 
         // GET: Measures
-        public async Task<IActionResult> Index()      
+        public async Task<IActionResult> Index()
         {
             var applicationDbContext = _context.Measures.Include(m => m.Indicator);
             return View(await applicationDbContext.ToListAsync());
@@ -83,9 +83,25 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             ModelState.Remove(nameof(measure.Indicator));
             ModelState.Remove(nameof(measure.Project));
 
+            // Validate Target uniqueness
+            if (measure.ValueType == MeasureValueType.Target)
+            {
+                bool targetExists = await _context.Measures
+                    .AnyAsync(m => m.ProjectID == measure.ProjectID
+                        && m.IndicatorCode == measure.IndicatorCode
+                        && m.ValueType == MeasureValueType.Target);
+
+                if (targetExists)
+                {
+                    ModelState.AddModelError(
+                        nameof(measure.ValueType),
+                        "Only one Target measure is allowed per Project and Indicator.");
+                }
+            }
+
             if (ModelState.IsValid)
             {
-                _context.Measures.Add(measure); 
+                _context.Measures.Add(measure);
                 await _context.SaveChangesAsync();
 
                 // Update IndicatorPerformance only if it's a "Real" measure
@@ -98,8 +114,8 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 return RedirectToAction(nameof(Index));
             }
 
-            ViewData["Indicator"] = new SelectList(_context.Indicators, "IndicatorCode", "Name", measure.IndicatorCode);
-            ViewData["Project"] = new SelectList(_context.Project, "ProjectID", "ProjectName", measure.ProjectID);
+            ViewData["Indicators"] = new SelectList(_context.Indicators, "IndicatorCode", "Name", measure.IndicatorCode);
+            ViewData["Projectsx"] = new SelectList(_context.Project, "ProjectID", "ProjectName", measure.ProjectID);
 
             return View(measure);
         }
