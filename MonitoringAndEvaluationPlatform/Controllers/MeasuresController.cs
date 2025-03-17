@@ -115,7 +115,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             }
 
             ViewData["Indicators"] = new SelectList(_context.Indicators, "IndicatorCode", "Name", measure.IndicatorCode);
-            ViewData["Projectsx"] = new SelectList(_context.Project, "ProjectID", "ProjectName", measure.ProjectID);
+            ViewData["Projects"] = new SelectList(_context.Project, "ProjectID", "ProjectName", measure.ProjectID);
 
             return View(measure);
         }
