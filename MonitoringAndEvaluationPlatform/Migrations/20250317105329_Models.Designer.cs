@@ -12,7 +12,7 @@ using MonitoringAndEvaluationPlatform.Data;
 namespace MonitoringAndEvaluationPlatform.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20250316152937_Models")]
+    [Migration("20250317105329_Models")]
     partial class Models
     {
         /// <inheritdoc />
