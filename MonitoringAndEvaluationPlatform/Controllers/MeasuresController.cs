@@ -83,19 +83,29 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             ModelState.Remove(nameof(measure.Indicator));
             ModelState.Remove(nameof(measure.Project));
 
-            // Validate Target uniqueness
-            if (measure.ValueType == MeasureValueType.Target)
-            {
-                bool targetExists = await _context.Measures
+            bool targetExists = await _context.Measures
                     .AnyAsync(m => m.ProjectID == measure.ProjectID
                         && m.IndicatorCode == measure.IndicatorCode
                         && m.ValueType == MeasureValueType.Target);
 
+            // Validate Target uniqueness
+            if (measure.ValueType == MeasureValueType.Target)
+            {
+                
                 if (targetExists)
                 {
                     ModelState.AddModelError(
                         nameof(measure.ValueType),
                         "Only one Target measure is allowed per Project and Indicator.");
+                }
+            }
+            else if(measure.ValueType == MeasureValueType.Real)
+            {
+                if (!targetExists)
+                {
+                    ModelState.AddModelError(
+                        nameof(measure.ValueType),
+                        "Add Target before Value");
                 }
             }
 
