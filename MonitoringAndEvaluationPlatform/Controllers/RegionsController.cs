@@ -24,7 +24,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         // GET: Regions
         public async Task<IActionResult> Index()
         {
-            return View(await _context.Region.ToListAsync());
+            return View(await _context.Regions.ToListAsync());
         }
 
         // GET: Regions/Details/5
@@ -35,7 +35,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 return NotFound();
             }
 
-            var region = await _context.Region
+            var region = await _context.Regions
                 .FirstOrDefaultAsync(m => m.Code == id);
             if (region == null)
             {
@@ -75,7 +75,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 return NotFound();
             }
 
-            var region = await _context.Region.FindAsync(id);
+            var region = await _context.Regions.FindAsync(id);
             if (region == null)
             {
                 return NotFound();
@@ -126,7 +126,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 return NotFound();
             }
 
-            var region = await _context.Region
+            var region = await _context.Regions
                 .FirstOrDefaultAsync(m => m.Code == id);
             if (region == null)
             {
@@ -141,10 +141,10 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var region = await _context.Region.FindAsync(id);
+            var region = await _context.Regions.FindAsync(id);
             if (region != null)
             {
-                _context.Region.Remove(region);
+                _context.Regions.Remove(region);
             }
 
             await _context.SaveChangesAsync();
@@ -153,7 +153,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
 
         private bool RegionExists(int id)
         {
-            return _context.Region.Any(e => e.Code == id);
+            return _context.Regions.Any(e => e.Code == id);
         }
     }
 }

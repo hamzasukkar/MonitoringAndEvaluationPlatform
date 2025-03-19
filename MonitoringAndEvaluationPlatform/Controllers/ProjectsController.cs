@@ -35,8 +35,8 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         public async Task<IActionResult> Index(ProgramFilterViewModel filter)
         {
             filter.Ministries = await _context.Ministry.ToListAsync();
-            filter.Regions = await _context.Region.ToListAsync();
-            filter.Donors = await _context.Donor.ToListAsync();
+            filter.Regions = await _context.Regions.ToListAsync();
+            filter.Donors = await _context.Donors.ToListAsync();
 
 
             var projects = _context.Project.ToList();
@@ -86,11 +86,11 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         public IActionResult Create()
         {
 
-            ViewData["Donor"] = new SelectList(_context.Donor, "Code", "Partner");
-            ViewData["Region"] = new SelectList(_context.Region, "Code", "Name");
+            ViewData["Donor"] = new SelectList(_context.Donors, "Code", "Partner");
+            ViewData["Region"] = new SelectList(_context.Regions, "Code", "Name");
             ViewData["Ministry"] = new SelectList(_context.Ministry, "Code", "MinistryName");
-            ViewData["SuperVisor"] = new SelectList(_context.SuperVisor, "Code", "Name");
-            ViewData["ProjectManager"] = new SelectList(_context.ProjectManager, "Code", "Name");
+            ViewData["SuperVisor"] = new SelectList(_context.SuperVisors, "Code", "Name");
+            ViewData["ProjectManager"] = new SelectList(_context.ProjectManagers, "Code", "Name");
             ViewBag.Indicators = _context.Indicators.ToList();
 
             return View();

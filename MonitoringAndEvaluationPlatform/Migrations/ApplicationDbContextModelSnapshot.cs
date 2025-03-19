@@ -273,7 +273,7 @@ namespace MonitoringAndEvaluationPlatform.Migrations
 
                     b.HasKey("Code");
 
-                    b.ToTable("Donor");
+                    b.ToTable("Donors");
                 });
 
             modelBuilder.Entity("MonitoringAndEvaluationPlatform.Models.Framework", b =>
@@ -744,7 +744,7 @@ namespace MonitoringAndEvaluationPlatform.Migrations
 
                     b.HasKey("Code");
 
-                    b.ToTable("ProjectManager");
+                    b.ToTable("ProjectManagers");
                 });
 
             modelBuilder.Entity("MonitoringAndEvaluationPlatform.Models.Region", b =>
@@ -764,7 +764,7 @@ namespace MonitoringAndEvaluationPlatform.Migrations
 
                     b.HasKey("Code");
 
-                    b.ToTable("Region");
+                    b.ToTable("Regions");
                 });
 
             modelBuilder.Entity("MonitoringAndEvaluationPlatform.Models.Sector", b =>
@@ -790,7 +790,7 @@ namespace MonitoringAndEvaluationPlatform.Migrations
 
                     b.HasKey("Code");
 
-                    b.ToTable("Sector");
+                    b.ToTable("Sectors");
                 });
 
             modelBuilder.Entity("MonitoringAndEvaluationPlatform.Models.SubOutput", b =>
@@ -847,7 +847,7 @@ namespace MonitoringAndEvaluationPlatform.Migrations
 
                     b.HasKey("Code");
 
-                    b.ToTable("SuperVisor");
+                    b.ToTable("SuperVisors");
                 });
 
             modelBuilder.Entity("MonitoringAndEvaluationPlatform.Models.Target", b =>

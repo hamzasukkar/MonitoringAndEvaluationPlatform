@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using MonitoringAndEvaluationPlatform.Data;
+using MonitoringAndEvaluationPlatform.Infrastructure;
 using MonitoringAndEvaluationPlatform.Models;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -75,8 +76,7 @@ using (var scope = app.Services.CreateScope())
     var services = scope.ServiceProvider;
     var roleManager = services.GetRequiredService<RoleManager<IdentityRole>>();
     var userManager = services.GetRequiredService<UserManager<ApplicationUser>>();
-
-
+    DbInitializer.Seed(services);
 
     // Create Admin role if it doesn’t exist
     string adminRole = "Admin";

@@ -24,7 +24,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         // GET: ProjectManagers
         public async Task<IActionResult> Index()
         {
-            return View(await _context.ProjectManager.ToListAsync());
+            return View(await _context.ProjectManagers.ToListAsync());
         }
 
         // GET: ProjectManagers/Details/5
@@ -35,7 +35,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 return NotFound();
             }
 
-            var projectManager = await _context.ProjectManager
+            var projectManager = await _context.ProjectManagers
                 .FirstOrDefaultAsync(m => m.Code == id);
             if (projectManager == null)
             {
@@ -75,7 +75,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 return NotFound();
             }
 
-            var projectManager = await _context.ProjectManager.FindAsync(id);
+            var projectManager = await _context.ProjectManagers.FindAsync(id);
             if (projectManager == null)
             {
                 return NotFound();
@@ -126,7 +126,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 return NotFound();
             }
 
-            var projectManager = await _context.ProjectManager
+            var projectManager = await _context.ProjectManagers
                 .FirstOrDefaultAsync(m => m.Code == id);
             if (projectManager == null)
             {
@@ -141,10 +141,10 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var projectManager = await _context.ProjectManager.FindAsync(id);
+            var projectManager = await _context.ProjectManagers.FindAsync(id);
             if (projectManager != null)
             {
-                _context.ProjectManager.Remove(projectManager);
+                _context.ProjectManagers.Remove(projectManager);
             }
 
             await _context.SaveChangesAsync();
@@ -153,7 +153,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
 
         private bool ProjectManagerExists(int id)
         {
-            return _context.ProjectManager.Any(e => e.Code == id);
+            return _context.ProjectManagers.Any(e => e.Code == id);
         }
     }
 }

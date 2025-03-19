@@ -22,7 +22,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         // GET: Sectors
         public async Task<IActionResult> Index()
         {
-            return View(await _context.Sector.ToListAsync());
+            return View(await _context.Sectors.ToListAsync());
         }
 
         // GET: Sectors/Details/5
@@ -33,7 +33,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 return NotFound();
             }
 
-            var sector = await _context.Sector
+            var sector = await _context.Sectors
                 .FirstOrDefaultAsync(m => m.Code == id);
             if (sector == null)
             {
@@ -73,7 +73,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 return NotFound();
             }
 
-            var sector = await _context.Sector.FindAsync(id);
+            var sector = await _context.Sectors.FindAsync(id);
             if (sector == null)
             {
                 return NotFound();
@@ -124,7 +124,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 return NotFound();
             }
 
-            var sector = await _context.Sector
+            var sector = await _context.Sectors
                 .FirstOrDefaultAsync(m => m.Code == id);
             if (sector == null)
             {
@@ -139,10 +139,10 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var sector = await _context.Sector.FindAsync(id);
+            var sector = await _context.Sectors.FindAsync(id);
             if (sector != null)
             {
-                _context.Sector.Remove(sector);
+                _context.Sectors.Remove(sector);
             }
 
             await _context.SaveChangesAsync();
@@ -151,7 +151,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
 
         private bool SectorExists(int id)
         {
-            return _context.Sector.Any(e => e.Code == id);
+            return _context.Sectors.Any(e => e.Code == id);
         }
     }
 }

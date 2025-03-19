@@ -19,15 +19,15 @@ namespace MonitoringAndEvaluationPlatform.Data
         public DbSet<Models.Project> Project { get; set; } = default!;
         public DbSet<Target> Target { get; set; } = default!;
         public DbSet<Goal> Goal { get; set; } = default!;
-        public DbSet<Region> Region { get; set; } = default!;
-        public DbSet<Sector> Sector { get; set; } = default!;
-        public DbSet<Donor> Donor { get; set; } = default!;
+        public DbSet<Region> Regions { get; set; } = default!;
+        public DbSet<Sector> Sectors { get; set; } = default!;
+        public DbSet<Donor> Donors { get; set; } = default!;
         public DbSet<Assessment> Assessment { get; set; } = default!;
         public DbSet<Measure> Measures { get; set; } = default!;
         public DbSet<LogicalFramework> LogicalFramework { get; set; } = default!;
         public DbSet<LogicalFrameworkIndicator> LogicalFrameworkIndicator { get; set; } = default!;
-        public DbSet<SuperVisor> SuperVisor { get; set; } = default!;
-        public DbSet<ProjectManager> ProjectManager { get; set; } = default!;
+        public DbSet<SuperVisor> SuperVisors { get; set; } = default!;
+        public DbSet<ProjectManager> ProjectManagers { get; set; } = default!;
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -47,7 +47,5 @@ namespace MonitoringAndEvaluationPlatform.Data
                 .WithMany(i => i.Measures)
                 .HasForeignKey(m => m.IndicatorCode);
         }
-
-
     }
 }

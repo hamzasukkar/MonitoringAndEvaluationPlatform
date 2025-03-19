@@ -12,8 +12,8 @@ using MonitoringAndEvaluationPlatform.Data;
 namespace MonitoringAndEvaluationPlatform.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20250317140435_AddPerformanceToMinistry")]
-    partial class AddPerformanceToMinistry
+    [Migration("20250319140528_Models")]
+    partial class Models
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -276,7 +276,7 @@ namespace MonitoringAndEvaluationPlatform.Migrations
 
                     b.HasKey("Code");
 
-                    b.ToTable("Donor");
+                    b.ToTable("Donors");
                 });
 
             modelBuilder.Entity("MonitoringAndEvaluationPlatform.Models.Framework", b =>
@@ -747,7 +747,7 @@ namespace MonitoringAndEvaluationPlatform.Migrations
 
                     b.HasKey("Code");
 
-                    b.ToTable("ProjectManager");
+                    b.ToTable("ProjectManagers");
                 });
 
             modelBuilder.Entity("MonitoringAndEvaluationPlatform.Models.Region", b =>
@@ -767,7 +767,7 @@ namespace MonitoringAndEvaluationPlatform.Migrations
 
                     b.HasKey("Code");
 
-                    b.ToTable("Region");
+                    b.ToTable("Regions");
                 });
 
             modelBuilder.Entity("MonitoringAndEvaluationPlatform.Models.Sector", b =>
@@ -793,7 +793,7 @@ namespace MonitoringAndEvaluationPlatform.Migrations
 
                     b.HasKey("Code");
 
-                    b.ToTable("Sector");
+                    b.ToTable("Sectors");
                 });
 
             modelBuilder.Entity("MonitoringAndEvaluationPlatform.Models.SubOutput", b =>
@@ -850,7 +850,7 @@ namespace MonitoringAndEvaluationPlatform.Migrations
 
                     b.HasKey("Code");
 
-                    b.ToTable("SuperVisor");
+                    b.ToTable("SuperVisors");
                 });
 
             modelBuilder.Entity("MonitoringAndEvaluationPlatform.Models.Target", b =>

@@ -67,7 +67,7 @@ namespace MonitoringAndEvaluationPlatform.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Donor",
+                name: "Donors",
                 columns: table => new
                 {
                     Code = table.Column<int>(type: "int", nullable: false)
@@ -79,7 +79,7 @@ namespace MonitoringAndEvaluationPlatform.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Donor", x => x.Code);
+                    table.PrimaryKey("PK_Donors", x => x.Code);
                 });
 
             migrationBuilder.CreateTable(
@@ -126,9 +126,10 @@ namespace MonitoringAndEvaluationPlatform.Migrations
                     Code = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     MinistryName = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    DisbursementPerformance = table.Column<int>(type: "int", nullable: false),
-                    FieldMonitoring = table.Column<int>(type: "int", nullable: false),
-                    ImpactAssessment = table.Column<int>(type: "int", nullable: false)
+                    IndicatorsPerformance = table.Column<double>(type: "float", nullable: false),
+                    DisbursementPerformance = table.Column<double>(type: "float", nullable: false),
+                    FieldMonitoring = table.Column<double>(type: "float", nullable: false),
+                    ImpactAssessment = table.Column<double>(type: "float", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -136,7 +137,7 @@ namespace MonitoringAndEvaluationPlatform.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "ProjectManager",
+                name: "ProjectManagers",
                 columns: table => new
                 {
                     Code = table.Column<int>(type: "int", nullable: false)
@@ -145,11 +146,11 @@ namespace MonitoringAndEvaluationPlatform.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_ProjectManager", x => x.Code);
+                    table.PrimaryKey("PK_ProjectManagers", x => x.Code);
                 });
 
             migrationBuilder.CreateTable(
-                name: "Region",
+                name: "Regions",
                 columns: table => new
                 {
                     Code = table.Column<int>(type: "int", nullable: false)
@@ -159,11 +160,11 @@ namespace MonitoringAndEvaluationPlatform.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Region", x => x.Code);
+                    table.PrimaryKey("PK_Regions", x => x.Code);
                 });
 
             migrationBuilder.CreateTable(
-                name: "Sector",
+                name: "Sectors",
                 columns: table => new
                 {
                     Code = table.Column<int>(type: "int", nullable: false)
@@ -175,11 +176,11 @@ namespace MonitoringAndEvaluationPlatform.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Sector", x => x.Code);
+                    table.PrimaryKey("PK_Sectors", x => x.Code);
                 });
 
             migrationBuilder.CreateTable(
-                name: "SuperVisor",
+                name: "SuperVisors",
                 columns: table => new
                 {
                     Code = table.Column<int>(type: "int", nullable: false)
@@ -188,7 +189,7 @@ namespace MonitoringAndEvaluationPlatform.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_SuperVisor", x => x.Code);
+                    table.PrimaryKey("PK_SuperVisors", x => x.Code);
                 });
 
             migrationBuilder.CreateTable(
@@ -368,9 +369,9 @@ namespace MonitoringAndEvaluationPlatform.Migrations
                 {
                     table.PrimaryKey("PK_Project", x => x.ProjectID);
                     table.ForeignKey(
-                        name: "FK_Project_Donor_DonorCode",
+                        name: "FK_Project_Donors_DonorCode",
                         column: x => x.DonorCode,
-                        principalTable: "Donor",
+                        principalTable: "Donors",
                         principalColumn: "Code",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
@@ -380,21 +381,21 @@ namespace MonitoringAndEvaluationPlatform.Migrations
                         principalColumn: "Code",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_Project_ProjectManager_ProjectManagerCode",
+                        name: "FK_Project_ProjectManagers_ProjectManagerCode",
                         column: x => x.ProjectManagerCode,
-                        principalTable: "ProjectManager",
+                        principalTable: "ProjectManagers",
                         principalColumn: "Code",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_Project_Region_RegionCode",
+                        name: "FK_Project_Regions_RegionCode",
                         column: x => x.RegionCode,
-                        principalTable: "Region",
+                        principalTable: "Regions",
                         principalColumn: "Code",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_Project_SuperVisor_SuperVisorCode",
+                        name: "FK_Project_SuperVisors_SuperVisorCode",
                         column: x => x.SuperVisorCode,
-                        principalTable: "SuperVisor",
+                        principalTable: "SuperVisors",
                         principalColumn: "Code",
                         onDelete: ReferentialAction.Cascade);
                 });
@@ -715,7 +716,7 @@ namespace MonitoringAndEvaluationPlatform.Migrations
                 name: "Measures");
 
             migrationBuilder.DropTable(
-                name: "Sector");
+                name: "Sectors");
 
             migrationBuilder.DropTable(
                 name: "Target");
@@ -748,19 +749,19 @@ namespace MonitoringAndEvaluationPlatform.Migrations
                 name: "Outcomes");
 
             migrationBuilder.DropTable(
-                name: "Donor");
+                name: "Donors");
 
             migrationBuilder.DropTable(
                 name: "Ministry");
 
             migrationBuilder.DropTable(
-                name: "ProjectManager");
+                name: "ProjectManagers");
 
             migrationBuilder.DropTable(
-                name: "Region");
+                name: "Regions");
 
             migrationBuilder.DropTable(
-                name: "SuperVisor");
+                name: "SuperVisors");
 
             migrationBuilder.DropTable(
                 name: "Framework");
