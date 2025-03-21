@@ -12,7 +12,7 @@ using MonitoringAndEvaluationPlatform.Data;
 namespace MonitoringAndEvaluationPlatform.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20250319140528_Models")]
+    [Migration("20250320124802_Models")]
     partial class Models
     {
         /// <inheritdoc />
@@ -160,6 +160,53 @@ namespace MonitoringAndEvaluationPlatform.Migrations
                     b.HasKey("UserId", "LoginProvider", "Name");
 
                     b.ToTable("AspNetUserTokens", (string)null);
+                });
+
+            modelBuilder.Entity("MonitoringAndEvaluationPlatform.Models.ActionPlan", b =>
+                {
+                    b.Property<int>("Code")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Code"));
+
+                    b.Property<int>("PlansCount")
+                        .HasColumnType("int");
+
+                    b.Property<int>("ProjectID")
+                        .HasColumnType("int");
+
+                    b.HasKey("Code");
+
+                    b.HasIndex("ProjectID")
+                        .IsUnique();
+
+                    b.ToTable("ActionPlan");
+                });
+
+            modelBuilder.Entity("MonitoringAndEvaluationPlatform.Models.Activity", b =>
+                {
+                    b.Property<int>("Code")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Code"));
+
+                    b.Property<int>("ActionPlanCode")
+                        .HasColumnType("int");
+
+                    b.Property<int>("ActivityType")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Code");
+
+                    b.HasIndex("ActionPlanCode");
+
+                    b.ToTable("Activity");
                 });
 
             modelBuilder.Entity("MonitoringAndEvaluationPlatform.Models.ApplicationUser", b =>
@@ -661,6 +708,37 @@ namespace MonitoringAndEvaluationPlatform.Migrations
                     b.ToTable("Outputs");
                 });
 
+            modelBuilder.Entity("MonitoringAndEvaluationPlatform.Models.Plan", b =>
+                {
+                    b.Property<int>("Code")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Code"));
+
+                    b.Property<int>("ActivityCode")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("Date")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("Planned")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Realised")
+                        .HasColumnType("int");
+
+                    b.HasKey("Code");
+
+                    b.HasIndex("ActivityCode");
+
+                    b.ToTable("Plan");
+                });
+
             modelBuilder.Entity("MonitoringAndEvaluationPlatform.Models.Project", b =>
                 {
                     b.Property<int>("ProjectID")
@@ -936,6 +1014,28 @@ namespace MonitoringAndEvaluationPlatform.Migrations
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("MonitoringAndEvaluationPlatform.Models.ActionPlan", b =>
+                {
+                    b.HasOne("MonitoringAndEvaluationPlatform.Models.Project", "Project")
+                        .WithOne("ActionPlan")
+                        .HasForeignKey("MonitoringAndEvaluationPlatform.Models.ActionPlan", "ProjectID")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Project");
+                });
+
+            modelBuilder.Entity("MonitoringAndEvaluationPlatform.Models.Activity", b =>
+                {
+                    b.HasOne("MonitoringAndEvaluationPlatform.Models.ActionPlan", "ActionPlan")
+                        .WithMany("Activities")
+                        .HasForeignKey("ActionPlanCode")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("ActionPlan");
+                });
+
             modelBuilder.Entity("MonitoringAndEvaluationPlatform.Models.Indicator", b =>
                 {
                     b.HasOne("MonitoringAndEvaluationPlatform.Models.SubOutput", "SubOutput")
@@ -1012,6 +1112,17 @@ namespace MonitoringAndEvaluationPlatform.Migrations
                     b.Navigation("Outcome");
                 });
 
+            modelBuilder.Entity("MonitoringAndEvaluationPlatform.Models.Plan", b =>
+                {
+                    b.HasOne("MonitoringAndEvaluationPlatform.Models.Activity", "Activity")
+                        .WithMany("Plans")
+                        .HasForeignKey("ActivityCode")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Activity");
+                });
+
             modelBuilder.Entity("MonitoringAndEvaluationPlatform.Models.Project", b =>
                 {
                     b.HasOne("MonitoringAndEvaluationPlatform.Models.Donor", "Donor")
@@ -1066,6 +1177,16 @@ namespace MonitoringAndEvaluationPlatform.Migrations
                     b.Navigation("Output");
                 });
 
+            modelBuilder.Entity("MonitoringAndEvaluationPlatform.Models.ActionPlan", b =>
+                {
+                    b.Navigation("Activities");
+                });
+
+            modelBuilder.Entity("MonitoringAndEvaluationPlatform.Models.Activity", b =>
+                {
+                    b.Navigation("Plans");
+                });
+
             modelBuilder.Entity("MonitoringAndEvaluationPlatform.Models.Framework", b =>
                 {
                     b.Navigation("Outcomes");
@@ -1098,6 +1219,9 @@ namespace MonitoringAndEvaluationPlatform.Migrations
 
             modelBuilder.Entity("MonitoringAndEvaluationPlatform.Models.Project", b =>
                 {
+                    b.Navigation("ActionPlan")
+                        .IsRequired();
+
                     b.Navigation("Measures");
 
                     b.Navigation("logicalFramework");

@@ -15,5 +15,9 @@ namespace MonitoringAndEvaluationPlatform.Models
         public int Planned { get; set; }
 
         public int Realised { get; set; }
+
+        public int ActivityCode { get; set; }
+
+        virtual public Activity Activity { get; set; }
     }
 }

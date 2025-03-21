@@ -1,0 +1,130 @@
+﻿@model List<@MonitoringAndEvaluationPlatform.ViewModel.ActivityPlanViewModel>
+@{
+    ViewData["Title"] = "ActionPlan";
+    Layout = "~/Views/Shared/_ProjectsLayout.cshtml";
+}
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Financial Cost Table</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+
+        th, td {
+            border: 1px solid #000;
+            padding: 8px;
+            text-align: center;
+        }
+
+        th {
+            background-color: #003366;
+            color: #fff;
+        }
+
+        .section-header {
+            background-color: #add8e6;
+            font-weight: bold;
+            text-align: left;
+        }
+
+        .subtotal, .total {
+            font-weight: bold;
+        }
+
+        .total {
+            background-color: #003366;
+            color: #fff;
+        }
+    </style>
+</head>
+
+<table border="1" width="100%">
+    <thead>
+        <tr style="background-color: #004080; color: white;">
+            <th>Activity Name</th>
+            <th>Framework</th>
+            @for (int i = 1; i <= Model.Max(m => m.PlansCount); i++)
+            {
+                <th>P @i</th>
+            }
+            <th>Total Estimated Cost ($)</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var activityGroup in Model)
+        {
+            <!-- Activity Type Header -->
+            <tr style="background-color: #cccccc;">
+                <td colspan="9"><strong>@activityGroup.ActivityType</strong></td>
+            </tr>
+
+            @foreach (var activity in activityGroup.Activities)
+            {
+                <tr>
+                    <td rowspan="3">@activity.ActivityName</td>
+                    <td >Date</td> <!-- Framework Column (if needed) -->
+                    @foreach (var date in activity.Dates)
+                    {
+                        <td>@date.ToString("yyyy-MM-dd")</td>
+                    }
+                    <td>-</td>
+                </tr>
+
+                <tr>
+                    <td>planned</td> <!-- Framework Column (if needed) -->
+                    @foreach (var planned in activity.PlannedValues)
+                    {
+                        <td>@planned</td>
+                    }
+                    <td>@activity.TotalEstimatedCost</td>
+                </tr>
+
+                <tr>
+                    <td>realised</td> <!-- Framework Column (if needed) -->
+                    @foreach (var realised in activity.RealisedValues)
+                    {
+                        <td>@realised</td>
+                    }
+                    <td>@activity.TotalRealisedCost</td>
+                </tr>
+            }
+
+            <tr style="font-weight: bold;">
+                <td colspan="2">Subtotal Planned</td>
+                @for (int i = 0; i < activityGroup.Activities.First().PlannedValues.Count; i++)
+                {
+                    <td>@activityGroup.Activities.Sum(a => a.PlannedValues[i])</td>
+                }
+                <td>@activityGroup.Activities.Sum(a => a.TotalEstimatedCost)</td>
+            </tr>
+
+            <tr style="font-weight: bold;">
+                <td colspan="2">Subtotal Realised</td>
+                @for (int i = 0; i < activityGroup.Activities.First().RealisedValues.Count; i++)
+                {
+                    <td>@activityGroup.Activities.Sum(a => a.RealisedValues[i])</td>
+                }
+                <td>@activityGroup.Activities.Sum(a => a.TotalRealisedCost)</td>
+            </tr>
+
+        }
+
+        <!-- Final Total Row -->
+        <tr style="background-color: #004080; color: white; font-weight: bold;">
+            <td colspan="2">PROJECT TOTAL FINANCIAL COST</td>
+            @for (int i = 1; i <= 6; i++)
+            {
+                <td>200</td> <!-- Replace with actual sum logic -->
+            }
+            <td>1200</td>
+        </tr>
+    </tbody>
+</table>

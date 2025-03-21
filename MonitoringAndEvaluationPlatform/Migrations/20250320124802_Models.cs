@@ -427,6 +427,26 @@ namespace MonitoringAndEvaluationPlatform.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "ActionPlan",
+                columns: table => new
+                {
+                    Code = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    PlansCount = table.Column<int>(type: "int", nullable: false),
+                    ProjectID = table.Column<int>(type: "int", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_ActionPlan", x => x.Code);
+                    table.ForeignKey(
+                        name: "FK_ActionPlan_Project_ProjectID",
+                        column: x => x.ProjectID,
+                        principalTable: "Project",
+                        principalColumn: "ProjectID",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "LogicalFramework",
                 columns: table => new
                 {
@@ -471,6 +491,27 @@ namespace MonitoringAndEvaluationPlatform.Migrations
                         name: "FK_SubOutputs_Outputs_OutputCode",
                         column: x => x.OutputCode,
                         principalTable: "Outputs",
+                        principalColumn: "Code",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Activity",
+                columns: table => new
+                {
+                    Code = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    ActivityType = table.Column<int>(type: "int", nullable: false),
+                    ActionPlanCode = table.Column<int>(type: "int", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Activity", x => x.Code);
+                    table.ForeignKey(
+                        name: "FK_Activity_ActionPlan_ActionPlanCode",
+                        column: x => x.ActionPlanCode,
+                        principalTable: "ActionPlan",
                         principalColumn: "Code",
                         onDelete: ReferentialAction.Cascade);
                 });
@@ -544,6 +585,29 @@ namespace MonitoringAndEvaluationPlatform.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "Plan",
+                columns: table => new
+                {
+                    Code = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Date = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    Planned = table.Column<int>(type: "int", nullable: false),
+                    Realised = table.Column<int>(type: "int", nullable: false),
+                    ActivityCode = table.Column<int>(type: "int", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Plan", x => x.Code);
+                    table.ForeignKey(
+                        name: "FK_Plan_Activity_ActivityCode",
+                        column: x => x.ActivityCode,
+                        principalTable: "Activity",
+                        principalColumn: "Code",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "Measures",
                 columns: table => new
                 {
@@ -577,6 +641,17 @@ namespace MonitoringAndEvaluationPlatform.Migrations
                         principalColumn: "ProjectID",
                         onDelete: ReferentialAction.Cascade);
                 });
+
+            migrationBuilder.CreateIndex(
+                name: "IX_ActionPlan_ProjectID",
+                table: "ActionPlan",
+                column: "ProjectID",
+                unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Activity_ActionPlanCode",
+                table: "Activity",
+                column: "ActionPlanCode");
 
             migrationBuilder.CreateIndex(
                 name: "IX_AspNetRoleClaims_RoleId",
@@ -658,6 +733,11 @@ namespace MonitoringAndEvaluationPlatform.Migrations
                 column: "OutcomeCode");
 
             migrationBuilder.CreateIndex(
+                name: "IX_Plan_ActivityCode",
+                table: "Plan",
+                column: "ActivityCode");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Project_DonorCode",
                 table: "Project",
                 column: "DonorCode");
@@ -716,6 +796,9 @@ namespace MonitoringAndEvaluationPlatform.Migrations
                 name: "Measures");
 
             migrationBuilder.DropTable(
+                name: "Plan");
+
+            migrationBuilder.DropTable(
                 name: "Sectors");
 
             migrationBuilder.DropTable(
@@ -734,10 +817,16 @@ namespace MonitoringAndEvaluationPlatform.Migrations
                 name: "LogicalFrameworkIndicator");
 
             migrationBuilder.DropTable(
+                name: "Activity");
+
+            migrationBuilder.DropTable(
                 name: "SubOutputs");
 
             migrationBuilder.DropTable(
                 name: "LogicalFramework");
+
+            migrationBuilder.DropTable(
+                name: "ActionPlan");
 
             migrationBuilder.DropTable(
                 name: "Outputs");

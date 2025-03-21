@@ -46,6 +46,16 @@ namespace MonitoringAndEvaluationPlatform.Data
                 .HasOne(m => m.Indicator)
                 .WithMany(i => i.Measures)
                 .HasForeignKey(m => m.IndicatorCode);
+
+            modelBuilder.Entity<Project>()
+               .HasOne(p => p.ActionPlan)
+               .WithOne(ap => ap.Project)
+               .HasForeignKey<ActionPlan>(ap => ap.ProjectID)
+               .OnDelete(DeleteBehavior.Cascade); // Ensures deletion propagates
+
         }
+        public DbSet<MonitoringAndEvaluationPlatform.Models.Activity> Activity { get; set; } = default!;
+        public DbSet<MonitoringAndEvaluationPlatform.Models.Plan> Plan { get; set; } = default!;
+        public DbSet<MonitoringAndEvaluationPlatform.Models.ActionPlan> ActionPlan { get; set; } = default!;
     }
 }
