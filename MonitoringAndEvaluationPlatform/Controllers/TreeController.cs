@@ -28,7 +28,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
 
         public IActionResult GetFrameworkHierarchy(int id)
         {
-            var data = _context.Framework
+            var data = _context.Frameworks
                 .Include(f => f.Outcomes)
                 .ThenInclude(o => o.Outputs)
                 .ThenInclude(op => op.SubOutputs)

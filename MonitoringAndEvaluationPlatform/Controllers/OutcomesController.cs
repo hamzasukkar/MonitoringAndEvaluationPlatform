@@ -63,7 +63,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         // GET: Outcomes/Create
         public IActionResult Create()
         {
-            ViewData["FrameworkCode"] = new SelectList(_context.Framework, "Code", "Name");
+            ViewData["FrameworkCode"] = new SelectList(_context.Frameworks, "Code", "Name");
             return View();
         }
 
@@ -82,7 +82,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["FrameworkCode"] = new SelectList(_context.Framework, "Code", "Name", outcome.FrameworkCode);
+            ViewData["FrameworkCode"] = new SelectList(_context.Frameworks, "Code", "Name", outcome.FrameworkCode);
 
             return View(outcome);
         }
@@ -100,7 +100,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             {
                 return NotFound();
             }
-            ViewData["FrameworkCode"] = new SelectList(_context.Framework, "Code", "Name", outcome.FrameworkCode);
+            ViewData["FrameworkCode"] = new SelectList(_context.Frameworks, "Code", "Name", outcome.FrameworkCode);
             return View(outcome);
         }
 
@@ -136,7 +136,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["FrameworkCode"] = new SelectList(_context.Framework, "Code", "Name", outcome.FrameworkCode);
+            ViewData["FrameworkCode"] = new SelectList(_context.Frameworks, "Code", "Name", outcome.FrameworkCode);
             return View(outcome);
         }
 
@@ -183,7 +183,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         public async Task<IActionResult> FramworkOutcomes(int? id)
         {
             var applicationDbContext = _context.Outcomes.Where(m => m.FrameworkCode == id);
-            ViewData["FrameworkName"] = _context.Framework.Where(i => i.Code == id).FirstOrDefault().Name;
+            ViewData["FrameworkName"] = _context.Frameworks.Where(i => i.Code == id).FirstOrDefault().Name;
             return View(await applicationDbContext.ToListAsync());
         }
     }

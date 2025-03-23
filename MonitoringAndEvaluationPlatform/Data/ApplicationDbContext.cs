@@ -10,13 +10,13 @@ namespace MonitoringAndEvaluationPlatform.Data
             : base(options)
         {
         }
-        public DbSet<Framework> Framework { get; set; } = default!;
+        public DbSet<Framework> Frameworks { get; set; } = default!;
         public DbSet<Outcome> Outcomes { get; set; } = default!;
         public DbSet<Output> Outputs { get; set; } = default!;
         public DbSet<Indicator> Indicators { get; set; } = default!;
         public DbSet<SubOutput> SubOutputs { get; set; } = default!;
-        public DbSet<Ministry> Ministry { get; set; } = default!;
-        public DbSet<Models.Project> Project { get; set; } = default!;
+        public DbSet<Ministry> Ministries { get; set; } = default!;
+        public DbSet<Models.Project> Projects { get; set; } = default!;
         public DbSet<Target> Target { get; set; } = default!;
         public DbSet<Goal> Goal { get; set; } = default!;
         public DbSet<Region> Regions { get; set; } = default!;
@@ -28,6 +28,9 @@ namespace MonitoringAndEvaluationPlatform.Data
         public DbSet<LogicalFrameworkIndicator> LogicalFrameworkIndicator { get; set; } = default!;
         public DbSet<SuperVisor> SuperVisors { get; set; } = default!;
         public DbSet<ProjectManager> ProjectManagers { get; set; } = default!;
+        public DbSet<Activity> Activities { get; set; } = default!;
+        public DbSet<Plan> Plans { get; set; } = default!;
+        public DbSet<ActionPlan> ActionPlans { get; set; } = default!;
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -54,8 +57,6 @@ namespace MonitoringAndEvaluationPlatform.Data
                .OnDelete(DeleteBehavior.Cascade); // Ensures deletion propagates
 
         }
-        public DbSet<MonitoringAndEvaluationPlatform.Models.Activity> Activity { get; set; } = default!;
-        public DbSet<MonitoringAndEvaluationPlatform.Models.Plan> Plan { get; set; } = default!;
-        public DbSet<MonitoringAndEvaluationPlatform.Models.ActionPlan> ActionPlan { get; set; } = default!;
+     
     }
 }

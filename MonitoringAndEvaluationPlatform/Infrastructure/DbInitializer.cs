@@ -70,7 +70,7 @@ namespace MonitoringAndEvaluationPlatform.Infrastructure
                     context.ProjectManagers.AddRange(projectManagers);
                 }
 
-                if (!context.Ministry.Any())
+                if (!context.Ministries.Any())
                 {
                     var ministries = new List<Ministry>
                     {
@@ -79,12 +79,12 @@ namespace MonitoringAndEvaluationPlatform.Infrastructure
                         new Ministry { MinistryName = "Ministry 3" }
                     };
 
-                    context.Ministry.AddRange(ministries);
+                    context.Ministries.AddRange(ministries);
                 }
 
 
                 // ✅ Check if Frameworks already exist
-                if (!context.Framework.Include(f => f.Outcomes).Any())
+                if (!context.Frameworks.Include(f => f.Outcomes).Any())
                 {
                     var frameworks = new List<Framework>
                 {
@@ -155,7 +155,7 @@ namespace MonitoringAndEvaluationPlatform.Infrastructure
                     }
                 };
 
-                    context.Framework.AddRange(frameworks);
+                    context.Frameworks.AddRange(frameworks);
                     context.SaveChanges();
                 }
 

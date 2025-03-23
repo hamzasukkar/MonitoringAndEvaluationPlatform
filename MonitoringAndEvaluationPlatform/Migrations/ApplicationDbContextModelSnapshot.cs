@@ -178,7 +178,7 @@ namespace MonitoringAndEvaluationPlatform.Migrations
                     b.HasIndex("ProjectID")
                         .IsUnique();
 
-                    b.ToTable("ActionPlan");
+                    b.ToTable("ActionPlans");
                 });
 
             modelBuilder.Entity("MonitoringAndEvaluationPlatform.Models.Activity", b =>
@@ -203,7 +203,7 @@ namespace MonitoringAndEvaluationPlatform.Migrations
 
                     b.HasIndex("ActionPlanCode");
 
-                    b.ToTable("Activity");
+                    b.ToTable("Activities");
                 });
 
             modelBuilder.Entity("MonitoringAndEvaluationPlatform.Models.ApplicationUser", b =>
@@ -355,7 +355,7 @@ namespace MonitoringAndEvaluationPlatform.Migrations
 
                     b.HasKey("Code");
 
-                    b.ToTable("Framework");
+                    b.ToTable("Frameworks");
                 });
 
             modelBuilder.Entity("MonitoringAndEvaluationPlatform.Models.Goal", b =>
@@ -622,7 +622,7 @@ namespace MonitoringAndEvaluationPlatform.Migrations
 
                     b.HasKey("Code");
 
-                    b.ToTable("Ministry");
+                    b.ToTable("Ministries");
                 });
 
             modelBuilder.Entity("MonitoringAndEvaluationPlatform.Models.Outcome", b =>
@@ -733,7 +733,7 @@ namespace MonitoringAndEvaluationPlatform.Migrations
 
                     b.HasIndex("ActivityCode");
 
-                    b.ToTable("Plan");
+                    b.ToTable("Plans");
                 });
 
             modelBuilder.Entity("MonitoringAndEvaluationPlatform.Models.Project", b =>
@@ -805,7 +805,7 @@ namespace MonitoringAndEvaluationPlatform.Migrations
 
                     b.HasIndex("SuperVisorCode");
 
-                    b.ToTable("Project");
+                    b.ToTable("Projects");
                 });
 
             modelBuilder.Entity("MonitoringAndEvaluationPlatform.Models.ProjectManager", b =>

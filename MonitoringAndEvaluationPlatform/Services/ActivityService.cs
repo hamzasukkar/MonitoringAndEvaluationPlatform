@@ -15,7 +15,7 @@ namespace MonitoringAndEvaluationPlatform.Services
 
         public async Task<bool> CreateActivityAsync(Activity activity)
         {
-            var actionPlan = await _context.ActionPlan
+            var actionPlan = await _context.ActionPlans
                 .FirstOrDefaultAsync(ap => ap.Code == activity.ActionPlanCode);
 
             if (actionPlan == null)
@@ -37,7 +37,7 @@ namespace MonitoringAndEvaluationPlatform.Services
                 activity.Plans.Add(plan);
             }
 
-            _context.Activity.Add(activity);
+            _context.Activities.Add(activity);
             await _context.SaveChangesAsync();
 
             return true;

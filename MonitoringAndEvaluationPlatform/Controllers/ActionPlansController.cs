@@ -23,13 +23,13 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         // GET: ActionPlans
         public async Task<IActionResult> Index()
         {
-            var applicationDbContext = _context.ActionPlan.Include(a => a.Project);
+            var applicationDbContext = _context.ActionPlans.Include(a => a.Project);
             return View(await applicationDbContext.ToListAsync());
         }
 
         public async Task<IActionResult> Index1()
         {
-            var activities = await _context.Activity
+            var activities = await _context.Activities
                 .Include(a => a.Plans)
                 .ToListAsync();
 
@@ -61,7 +61,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 return NotFound();
             }
 
-            var actionPlan = await _context.ActionPlan
+            var actionPlan = await _context.ActionPlans
                 .Include(a => a.Project)
                 .FirstOrDefaultAsync(m => m.Code == id);
             if (actionPlan == null)
@@ -75,7 +75,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         // GET: ActionPlans/Create
         public IActionResult Create()
         {
-            ViewData["ProjectID"] = new SelectList(_context.Project, "ProjectID", "ProjectName");
+            ViewData["ProjectID"] = new SelectList(_context.Projects, "ProjectID", "ProjectName");
             return View();
         }
 
@@ -92,7 +92,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["ProjectID"] = new SelectList(_context.Project, "ProjectID", "ProjectName", actionPlan.ProjectID);
+            ViewData["ProjectID"] = new SelectList(_context.Projects, "ProjectID", "ProjectName", actionPlan.ProjectID);
             return View(actionPlan);
         }
 
@@ -104,12 +104,12 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 return NotFound();
             }
 
-            var actionPlan = await _context.ActionPlan.FindAsync(id);
+            var actionPlan = await _context.ActionPlans.FindAsync(id);
             if (actionPlan == null)
             {
                 return NotFound();
             }
-            ViewData["ProjectID"] = new SelectList(_context.Project, "ProjectID", "ProjectName", actionPlan.ProjectID);
+            ViewData["ProjectID"] = new SelectList(_context.Projects, "ProjectID", "ProjectName", actionPlan.ProjectID);
             return View(actionPlan);
         }
 
@@ -145,7 +145,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["ProjectID"] = new SelectList(_context.Project, "ProjectID", "ProjectID", actionPlan.ProjectID);
+            ViewData["ProjectID"] = new SelectList(_context.Projects, "ProjectID", "ProjectID", actionPlan.ProjectID);
             return View(actionPlan);
         }
 
@@ -157,7 +157,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 return NotFound();
             }
 
-            var actionPlan = await _context.ActionPlan
+            var actionPlan = await _context.ActionPlans
                 .Include(a => a.Project)
                 .FirstOrDefaultAsync(m => m.Code == id);
             if (actionPlan == null)
@@ -173,10 +173,10 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var actionPlan = await _context.ActionPlan.FindAsync(id);
+            var actionPlan = await _context.ActionPlans.FindAsync(id);
             if (actionPlan != null)
             {
-                _context.ActionPlan.Remove(actionPlan);
+                _context.ActionPlans.Remove(actionPlan);
             }
 
             await _context.SaveChangesAsync();
@@ -185,7 +185,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
 
         private bool ActionPlanExists(int id)
         {
-            return _context.ActionPlan.Any(e => e.Code == id);
+            return _context.ActionPlans.Any(e => e.Code == id);
         }
     }
 }

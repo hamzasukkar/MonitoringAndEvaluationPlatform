@@ -25,7 +25,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         // GET: Plans
         public async Task<IActionResult> Index()
         {
-            var applicationDbContext = _context.Plan.Include(p => p.Activity);
+            var applicationDbContext = _context.Plans.Include(p => p.Activity);
             return View(await applicationDbContext.ToListAsync());
         }
 
@@ -37,7 +37,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 return NotFound();
             }
 
-            var plan = await _context.Plan
+            var plan = await _context.Plans
                 .Include(p => p.Activity)
                 .FirstOrDefaultAsync(m => m.Code == id);
             if (plan == null)
@@ -51,7 +51,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         // GET: Plans/Create
         public IActionResult Create()
         {
-            ViewData["ActivityCode"] = new SelectList(_context.Activity, "Code", "Code");
+            ViewData["ActivityCode"] = new SelectList(_context.Activities, "Code", "Code");
             return View();
         }
 
@@ -70,7 +70,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["ActivityCode"] = new SelectList(_context.Activity, "Code", "Code", plan.ActivityCode);
+            ViewData["ActivityCode"] = new SelectList(_context.Activities, "Code", "Code", plan.ActivityCode);
             return View(plan);
         }
 
@@ -82,12 +82,12 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 return NotFound();
             }
 
-            var plan = await _context.Plan.FindAsync(id);
+            var plan = await _context.Plans.FindAsync(id);
             if (plan == null)
             {
                 return NotFound();
             }
-            ViewData["ActivityCode"] = new SelectList(_context.Activity, "Code", "Code", plan.ActivityCode);
+            ViewData["ActivityCode"] = new SelectList(_context.Activities, "Code", "Code", plan.ActivityCode);
             return View(plan);
         }
 
@@ -127,7 +127,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 }
             }
 
-            ViewData["ActivityCode"] = new SelectList(_context.Activity, "Code", "Code", plan.ActivityCode);
+            ViewData["ActivityCode"] = new SelectList(_context.Activities, "Code", "Code", plan.ActivityCode);
             return View(plan);
         }
 
@@ -140,7 +140,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 return NotFound();
             }
 
-            var plan = await _context.Plan
+            var plan = await _context.Plans
                 .Include(p => p.Activity)
                 .FirstOrDefaultAsync(m => m.Code == id);
             if (plan == null)
@@ -156,10 +156,10 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var plan = await _context.Plan.FindAsync(id);
+            var plan = await _context.Plans.FindAsync(id);
             if (plan != null)
             {
-                _context.Plan.Remove(plan);
+                _context.Plans.Remove(plan);
             }
 
             await _context.SaveChangesAsync();
@@ -168,7 +168,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
 
         private bool PlanExists(int id)
         {
-            return _context.Plan.Any(e => e.Code == id);
+            return _context.Plans.Any(e => e.Code == id);
         }
     }
 }

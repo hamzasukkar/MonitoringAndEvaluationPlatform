@@ -27,7 +27,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         // GET: Ministries
         public async Task<IActionResult> Index()
         {
-            return View(await _context.Ministry.ToListAsync());
+            return View(await _context.Ministries.ToListAsync());
         }
 
         // GET: Ministries/Details/5
@@ -38,7 +38,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 return NotFound();
             }
 
-            var Ministry = await _context.Ministry
+            var Ministry = await _context.Ministries
                 .FirstOrDefaultAsync(m => m.Code == id);
             if (Ministry == null)
             {
@@ -62,7 +62,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             if (ModelState.IsValid)
             {
                 // 🔹 Add Ministry to Database
-                _context.Ministry.Add(ministry);
+                _context.Ministries.Add(ministry);
                 await _context.SaveChangesAsync();
 
                 // 🔹 Create Role (if it doesn’t exist)
@@ -122,7 +122,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 return NotFound();
             }
 
-            var Ministry = await _context.Ministry.FindAsync(id);
+            var Ministry = await _context.Ministries.FindAsync(id);
             if (Ministry == null)
             {
                 return NotFound();
@@ -173,7 +173,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 return NotFound();
             }
 
-            var Ministry = await _context.Ministry
+            var Ministry = await _context.Ministries
                 .FirstOrDefaultAsync(m => m.Code == id);
             if (Ministry == null)
             {
@@ -188,10 +188,10 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var Ministry = await _context.Ministry.FindAsync(id);
+            var Ministry = await _context.Ministries.FindAsync(id);
             if (Ministry != null)
             {
-                _context.Ministry.Remove(Ministry);
+                _context.Ministries.Remove(Ministry);
             }
 
             await _context.SaveChangesAsync();
@@ -200,7 +200,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
 
         private bool MinistryExists(int id)
         {
-            return _context.Ministry.Any(e => e.Code == id);
+            return _context.Ministries.Any(e => e.Code == id);
         }
     }
 }

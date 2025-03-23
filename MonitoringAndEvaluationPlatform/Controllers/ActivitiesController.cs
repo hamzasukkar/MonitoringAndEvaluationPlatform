@@ -25,7 +25,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         // GET: Activities
         public async Task<IActionResult> Index()
         {
-            var applicationDbContext = _context.Activity.Include(a => a.ActionPlan);
+            var applicationDbContext = _context.Activities.Include(a => a.ActionPlan);
             return View(await applicationDbContext.ToListAsync());
         }
 
@@ -37,7 +37,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 return NotFound();
             }
 
-            var activity = await _context.Activity
+            var activity = await _context.Activities
                 .Include(a => a.ActionPlan)
                 .FirstOrDefaultAsync(m => m.Code == id);
             if (activity == null)
@@ -51,7 +51,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         // GET: Activities/Create
         public IActionResult Create()
         {
-            ViewData["ActionPlanCode"] = new SelectList(_context.ActionPlan, "Code", "Code");
+            ViewData["ActionPlanCode"] = new SelectList(_context.ActionPlans, "Code", "Code");
             return View();
         }
 
@@ -69,14 +69,14 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 if (!success)
                 {
                     ModelState.AddModelError("", "Invalid Action Plan.");
-                    ViewData["ActionPlanCode"] = new SelectList(_context.ActionPlan, "Code", "Code", activity.ActionPlanCode);
+                    ViewData["ActionPlanCode"] = new SelectList(_context.ActionPlans, "Code", "Code", activity.ActionPlanCode);
                     return View(activity);
                 }
 
                 return RedirectToAction(nameof(Index));
             }
 
-            ViewData["ActionPlanCode"] = new SelectList(_context.ActionPlan, "Code", "Code", activity.ActionPlanCode);
+            ViewData["ActionPlanCode"] = new SelectList(_context.ActionPlans, "Code", "Code", activity.ActionPlanCode);
             return View(activity);
         }
 
@@ -88,12 +88,12 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 return NotFound();
             }
 
-            var activity = await _context.Activity.FindAsync(id);
+            var activity = await _context.Activities.FindAsync(id);
             if (activity == null)
             {
                 return NotFound();
             }
-            ViewData["ActionPlanCode"] = new SelectList(_context.ActionPlan, "Code", "Code", activity.ActionPlanCode);
+            ViewData["ActionPlanCode"] = new SelectList(_context.ActionPlans, "Code", "Code", activity.ActionPlanCode);
             return View(activity);
         }
 
@@ -129,7 +129,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["ActionPlanCode"] = new SelectList(_context.ActionPlan, "Code", "Code", activity.ActionPlanCode);
+            ViewData["ActionPlanCode"] = new SelectList(_context.ActionPlans, "Code", "Code", activity.ActionPlanCode);
             return View(activity);
         }
 
@@ -141,7 +141,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 return NotFound();
             }
 
-            var activity = await _context.Activity
+            var activity = await _context.Activities
                 .Include(a => a.ActionPlan)
                 .FirstOrDefaultAsync(m => m.Code == id);
             if (activity == null)
@@ -157,10 +157,10 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var activity = await _context.Activity.FindAsync(id);
+            var activity = await _context.Activities.FindAsync(id);
             if (activity != null)
             {
-                _context.Activity.Remove(activity);
+                _context.Activities.Remove(activity);
             }
 
             await _context.SaveChangesAsync();
@@ -169,7 +169,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
 
         private bool ActivityExists(int id)
         {
-            return _context.Activity.Any(e => e.Code == id);
+            return _context.Activities.Any(e => e.Code == id);
         }
     }
 }

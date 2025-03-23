@@ -34,12 +34,12 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         // GET: Programs
         public async Task<IActionResult> Index(ProgramFilterViewModel filter)
         {
-            filter.Ministries = await _context.Ministry.ToListAsync();
+            filter.Ministries = await _context.Ministries.ToListAsync();
             filter.Regions = await _context.Regions.ToListAsync();
             filter.Donors = await _context.Donors.ToListAsync();
 
 
-            var projects = _context.Project.ToList();
+            var projects = _context.Projects.ToList();
 
             if (filter.SelectedMinistries.Any())
             {
@@ -72,7 +72,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 return NotFound();
             }
 
-            var project = await _context.Project
+            var project = await _context.Projects
                 .FirstOrDefaultAsync(m => m.ProjectID == id);
             if (project == null)
             {
@@ -88,7 +88,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
 
             ViewData["Donor"] = new SelectList(_context.Donors, "Code", "Partner");
             ViewData["Region"] = new SelectList(_context.Regions, "Code", "Name");
-            ViewData["Ministry"] = new SelectList(_context.Ministry, "Code", "MinistryName");
+            ViewData["Ministry"] = new SelectList(_context.Ministries, "Code", "MinistryName");
             ViewData["SuperVisor"] = new SelectList(_context.SuperVisors, "Code", "Name");
             ViewData["ProjectManager"] = new SelectList(_context.ProjectManagers, "Code", "Name");
             ViewBag.Indicators = _context.Indicators.ToList();
@@ -116,7 +116,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
 
            
                
-                _context.Project.Add(project);
+                _context.Projects.Add(project);
                 _context.SaveChanges();
                 return RedirectToAction("Index"); // Or your desired action
         }
@@ -129,7 +129,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 return NotFound();
             }
 
-            var program = await _context.Project.FindAsync(id);
+            var program = await _context.Projects.FindAsync(id);
             if (program == null)
             {
                 return NotFound();
@@ -181,7 +181,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 return NotFound();
             }
 
-            var program = await _context.Project
+            var program = await _context.Projects
                 .FirstOrDefaultAsync(m => m.ProjectID == id);
             if (program == null)
             {
@@ -196,10 +196,10 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var program = await _context.Project.FindAsync(id);
+            var program = await _context.Projects.FindAsync(id);
             if (program != null)
             {
-                _context.Project.Remove(program);
+                _context.Projects.Remove(program);
             }
 
             await _context.SaveChangesAsync();
@@ -208,7 +208,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
 
         private bool ProgramExists(int id)
         {
-            return _context.Project.Any(e => e.ProjectID == id);
+            return _context.Projects.Any(e => e.ProjectID == id);
         }
     }
 }

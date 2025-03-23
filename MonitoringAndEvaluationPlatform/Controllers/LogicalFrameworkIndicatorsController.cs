@@ -85,7 +85,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 }
 
 
-                var program = _context.Project.FirstOrDefault(p => p.ProjectID == logicalFramework.ProjectID);
+                var program = _context.Projects.FirstOrDefault(p => p.ProjectID == logicalFramework.ProjectID);
 
                 if (program!=null)
                 {
@@ -147,7 +147,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                     _context.Update(logicalFrameworkIndicator);
 
                     var logicalFramework = _context.LogicalFramework.FirstOrDefault(l=>l.Code== logicalFrameworkIndicator.LogicalFrameworkCode);
-                    var program = _context.Project.FirstOrDefault(p => p.ProjectID == logicalFramework.ProjectID);
+                    var program = _context.Projects.FirstOrDefault(p => p.ProjectID == logicalFramework.ProjectID);
 
                     if (program != null)
                     {

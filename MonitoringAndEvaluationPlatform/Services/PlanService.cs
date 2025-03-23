@@ -14,7 +14,7 @@ public class PlanService
     public async Task UpdatePlanAsync(Plan updatedPlan)
     {
         // Get the existing Plan with relationships loaded
-        var existingPlan = await _context.Plan
+        var existingPlan = await _context.Plans
             .Include(p => p.Activity)
                 .ThenInclude(a => a.ActionPlan)
                     .ThenInclude(ap => ap.Project)
@@ -43,6 +43,6 @@ public class PlanService
 
     public async Task<bool> PlanExistsAsync(int id)
     {
-        return await _context.Plan.AnyAsync(p => p.Code == id);
+        return await _context.Plans.AnyAsync(p => p.Code == id);
     }
 }

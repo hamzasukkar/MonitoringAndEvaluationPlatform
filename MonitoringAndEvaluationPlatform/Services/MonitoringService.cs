@@ -37,13 +37,13 @@ public class MonitoringService
 
     public async Task UpdateMinistryPerformance(int projectId)
     {
-        var project = _context.Project.Find(projectId);
-        var ministry = _context.Ministry.Find(project.MinistryCode);
+        var project = _context.Projects.Find(projectId);
+        var ministry = _context.Ministries.Find(project.MinistryCode);
 
         double totalMinistryTarget = 0;
         double totalMinistryReal = 0;
 
-        var ministryProjects = _context.Project.Where(p => p.MinistryCode == project.MinistryCode);
+        var ministryProjects = _context.Projects.Where(p => p.MinistryCode == project.MinistryCode);
 
         foreach (var ministryProject in ministryProjects)
         {
@@ -97,7 +97,7 @@ public class MonitoringService
 
     private async Task UpdateFrameworkPerformance(int frameworkCode)
     {
-        var framework = await _context.Framework.FirstOrDefaultAsync(i => i.Code == frameworkCode);
+        var framework = await _context.Frameworks.FirstOrDefaultAsync(i => i.Code == frameworkCode);
 
         if (framework == null) return;
 

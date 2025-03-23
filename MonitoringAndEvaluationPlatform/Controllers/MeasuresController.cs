@@ -69,7 +69,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         public IActionResult Create()
         {
             ViewData["Indicators"] = new SelectList(_context.Indicators, "IndicatorCode", "Name");
-            ViewData["Projects"] = new SelectList(_context.Project, "ProjectID", "ProjectName");
+            ViewData["Projects"] = new SelectList(_context.Projects, "ProjectID", "ProjectName");
             return View();
         }
 
@@ -126,7 +126,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             }
 
             ViewData["Indicators"] = new SelectList(_context.Indicators, "IndicatorCode", "Name", measure.IndicatorCode);
-            ViewData["Projects"] = new SelectList(_context.Project, "ProjectID", "ProjectName", measure.ProjectID);
+            ViewData["Projects"] = new SelectList(_context.Projects, "ProjectID", "ProjectName", measure.ProjectID);
 
             return View(measure);
         }
