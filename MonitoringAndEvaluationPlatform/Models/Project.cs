@@ -35,6 +35,20 @@ namespace MonitoringAndEvaluationPlatform.Models
         // Navigation property for one-to-one relationship
         public ActionPlan ActionPlan { get; set; }
 
-
+        public void UpdatePerformance(double totalPlanned, double totalRealised)
+        {
+            if (totalPlanned > 0)
+            {
+                this.DisbursementPerformance = (int)((totalRealised / totalPlanned) * 100);
+                this.FieldMonitoring = (int)((totalRealised / totalPlanned) * 100);
+                this.ImpactAssessment = (int)((totalRealised / totalPlanned) * 100);
+            }
+            else
+            {
+                this.DisbursementPerformance = 0;
+                this.FieldMonitoring = 0;
+                this.ImpactAssessment = 0;
+            }
+        }
     }
 }

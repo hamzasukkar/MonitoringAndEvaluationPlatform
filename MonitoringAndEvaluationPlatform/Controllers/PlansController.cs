@@ -7,16 +7,19 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using MonitoringAndEvaluationPlatform.Data;
 using MonitoringAndEvaluationPlatform.Models;
+using MonitoringAndEvaluationPlatform.Services;
 
 namespace MonitoringAndEvaluationPlatform.Controllers
 {
     public class PlansController : Controller
     {
         private readonly ApplicationDbContext _context;
+        private readonly PlanService _planService;
 
-        public PlansController(ApplicationDbContext context)
+        public PlansController(ApplicationDbContext context, PlanService planService)
         {
             _context = context;
+            _planService = planService;
         }
 
         // GET: Plans
@@ -99,17 +102,21 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             {
                 return NotFound();
             }
+
             ModelState.Remove(nameof(plan.Activity));
+
             if (ModelState.IsValid)
             {
                 try
                 {
-                    _context.Update(plan);
-                    await _context.SaveChangesAsync();
+                    // Call the PlanService to handle update logic
+                    await _planService.UpdatePlanAsync(plan);
+
+                    return RedirectToAction(nameof(Index));
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!PlanExists(plan.Code))
+                    if (!await _planService.PlanExistsAsync(plan.Code))
                     {
                         return NotFound();
                     }
@@ -118,11 +125,12 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                         throw;
                     }
                 }
-                return RedirectToAction(nameof(Index));
             }
+
             ViewData["ActivityCode"] = new SelectList(_context.Activity, "Code", "Code", plan.ActivityCode);
             return View(plan);
         }
+
 
         // GET: Plans/Delete/5
         public async Task<IActionResult> Delete(int? id)

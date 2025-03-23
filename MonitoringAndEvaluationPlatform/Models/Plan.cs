@@ -19,5 +19,13 @@ namespace MonitoringAndEvaluationPlatform.Models
         public int ActivityCode { get; set; }
 
         virtual public Activity Activity { get; set; }
+
+        public void UpdatePerformance()
+        {
+            if (Activity?.ActionPlan != null) // Ensure ActionPlan exists
+            {
+                Activity.ActionPlan.UpdatePerformance();
+            }
+        }
     }
 }
