@@ -22,7 +22,7 @@
             </li>
 
             <li class="nav-item">
-                <a asp-controller="ActionPlans" asp-action="ActionPlan" class="nav-link">Action Plans</a>
+                <a asp-controller="ActionPlans" asp-action="ActionPlan" asp-route-id="@Model.ProjectID" class="nav-link">Action Plans</a>
             </li>
             <li class="nav-item">
                 <a asp-action="Index" asp-controller="Activities" class="nav-link">Activity</a>

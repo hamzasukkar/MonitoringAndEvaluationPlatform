@@ -27,11 +27,24 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             return View(await applicationDbContext.ToListAsync());
         }
 
-        public async Task<IActionResult> ActionPlan()
+        public async Task<IActionResult> ActionPlan(int? id)
         {
+            var actionPlan = await _context.ActionPlans.FirstOrDefaultAsync(ac => ac.ProjectID == id);
+
+            if (actionPlan == null)
+            {
+                return RedirectToAction("Create"); // Redirect to Create action if no ActionPlan exists
+            }
+
             var activities = await _context.Activities
+                .Where(ac=>ac.ActionPlanCode== actionPlan.Code)
                 .Include(a => a.Plans)
                 .ToListAsync();
+
+            if (activities.Count == 0)
+            {
+                return RedirectToAction("Create", "Activities"); // Redirect to Activities Create page
+            }
 
             var groupedActivities = activities
                 .GroupBy(a => a.ActivityType)
