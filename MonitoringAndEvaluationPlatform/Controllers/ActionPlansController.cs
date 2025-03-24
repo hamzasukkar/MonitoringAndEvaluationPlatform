@@ -27,7 +27,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             return View(await applicationDbContext.ToListAsync());
         }
 
-        public async Task<IActionResult> Index1()
+        public async Task<IActionResult> ActionPlan()
         {
             var activities = await _context.Activities
                 .Include(a => a.Plans)

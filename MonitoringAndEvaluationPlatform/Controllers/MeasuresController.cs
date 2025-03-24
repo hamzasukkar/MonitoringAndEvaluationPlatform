@@ -40,10 +40,30 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         }
 
         // GET: Measures
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(int? id)
         {
-            var applicationDbContext = _context.Measures.Include(m => m.Indicator);
-            return View(await applicationDbContext.ToListAsync());
+            if (id == null)
+            {
+                var applicationDbContext = _context.Measures.Include(m => m.Indicator);
+                return View(await applicationDbContext.ToListAsync());
+            }
+            var measures = _context.Measures.Where(m => m.ProjectID == id).Include(m => m.Indicator).ToListAsync();
+
+            return View(await measures);
+        }
+
+        public async Task<IActionResult> ProjectMeasures(int? id)
+        {
+            if (id == null)
+            {
+                var applicationDbContext = _context.Measures.Include(m => m.Indicator);
+                return View(await applicationDbContext.ToListAsync());
+            }
+
+            ViewBag.ProjectId = id;
+            var measures = _context.Measures.Where(m => m.ProjectID == id).Include(m => m.Indicator).ToListAsync();
+
+            return View(await measures);
         }
 
         // GET: Measures/Details/5
@@ -91,7 +111,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             // Validate Target uniqueness
             if (measure.ValueType == MeasureValueType.Target)
             {
-                
+
                 if (targetExists)
                 {
                     ModelState.AddModelError(
@@ -99,7 +119,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                         "Only one Target measure is allowed per Project and Indicator.");
                 }
             }
-            else if(measure.ValueType == MeasureValueType.Real)
+            else if (measure.ValueType == MeasureValueType.Real)
             {
                 if (!targetExists)
                 {
@@ -120,6 +140,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                     var monitoringService = new MonitoringService(_context);
                     await monitoringService.UpdateIndicatorPerformance(measure.IndicatorCode);
                     await monitoringService.UpdateMinistryPerformance(measure.ProjectID);
+                    await monitoringService.UpdateProjectPerformance(measure.ProjectID);
                 }
 
                 return RedirectToAction(nameof(Index));
@@ -145,7 +166,8 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             {
                 return NotFound();
             }
-            ViewData["IndicatorCode"] = new SelectList(_context.Indicators, "Code", "Code", measure.IndicatorCode);
+           // ViewData["IndicatorCode"] = new SelectList(_context.Indicators, "Code", "Code", measure.IndicatorCode);
+            ViewData["IndicatorCode"] = new SelectList(_context.Indicators, "Code", "Code");
             return View(measure);
         }
 

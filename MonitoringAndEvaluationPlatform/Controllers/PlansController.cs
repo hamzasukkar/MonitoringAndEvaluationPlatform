@@ -29,6 +29,14 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             return View(await applicationDbContext.ToListAsync());
         }
 
+        public async Task<IActionResult> ProjectPlans(int? id)
+        {
+            ViewBag.ProjectId =id;
+
+            var applicationDbContext = _context.Plans.Include(p => p.Activity);
+            return View(await applicationDbContext.ToListAsync());
+        }
+
         // GET: Plans/Details/5
         public async Task<IActionResult> Details(int? id)
         {
@@ -96,6 +104,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
+
         public async Task<IActionResult> Edit(int id, [Bind("Code,Name,Date,Planned,Realised,ActivityCode")] Plan plan)
         {
             if (id != plan.Code)
@@ -104,19 +113,15 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             }
 
             ModelState.Remove(nameof(plan.Activity));
-
             if (ModelState.IsValid)
             {
                 try
                 {
-                    // Call the PlanService to handle update logic
                     await _planService.UpdatePlanAsync(plan);
-
-                    return RedirectToAction(nameof(Index));
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!await _planService.PlanExistsAsync(plan.Code))
+                    if (!PlanExists(plan.Code))
                     {
                         return NotFound();
                     }
@@ -125,9 +130,8 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                         throw;
                     }
                 }
+                return RedirectToAction(nameof(Index));
             }
-
-            ViewData["ActivityCode"] = new SelectList(_context.Activities, "Code", "Code", plan.ActivityCode);
             return View(plan);
         }
 

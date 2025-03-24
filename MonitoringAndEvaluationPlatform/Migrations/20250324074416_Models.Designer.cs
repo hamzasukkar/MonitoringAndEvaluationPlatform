@@ -12,7 +12,7 @@ using MonitoringAndEvaluationPlatform.Data;
 namespace MonitoringAndEvaluationPlatform.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20250323130233_Models")]
+    [Migration("20250324074416_Models")]
     partial class Models
     {
         /// <inheritdoc />
@@ -416,10 +416,19 @@ namespace MonitoringAndEvaluationPlatform.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<double>("DisbursementPerformance")
+                        .HasColumnType("float");
+
+                    b.Property<double>("FieldMonitoring")
+                        .HasColumnType("float");
+
                     b.Property<double>("GAGRA")
                         .HasColumnType("float");
 
                     b.Property<double>("GAGRR")
+                        .HasColumnType("float");
+
+                    b.Property<double>("ImpactAssessment")
                         .HasColumnType("float");
 
                     b.Property<double>("IndicatorsPerformance")
@@ -793,8 +802,8 @@ namespace MonitoringAndEvaluationPlatform.Migrations
                     b.Property<int>("Trend")
                         .HasColumnType("int");
 
-                    b.Property<int>("performance")
-                        .HasColumnType("int");
+                    b.Property<double>("performance")
+                        .HasColumnType("float");
 
                     b.HasKey("ProjectID");
 

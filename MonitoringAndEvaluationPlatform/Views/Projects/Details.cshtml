@@ -12,13 +12,17 @@
                 <a class="nav-link">Project <span class="sr-only">(current)</span></a>
             </li>
             <li class="nav-item">
-                <a asp-action="Index" asp-controller="Measures" asp-route-id="@Model.ProjectID" class="nav-link">Measures</a>
+                <a asp-action="ProjectMeasures" asp-controller="Measures" asp-route-id="@Model.ProjectID" class="nav-link">Measures</a>
             </li>
-            <li class="nav-item">
+          @*   <li class="nav-item">
                 <a asp-action="Index" asp-controller="LogicalFrameworks" asp-route-id="@Model.ProjectID" class="nav-link">Logical Framework</a>
-            </li>
+            </li> *@
             <li class="nav-item">
-                <a asp-action="ActionPlan" class="nav-link">Action Plans</a>
+                <a asp-controller="Plans" asp-action="ProjectPlans" asp-route-id="@Model.ProjectID" class="nav-link">Plans</a>
+            </li>
+
+            <li class="nav-item">
+                <a asp-controller="ActionPlans" asp-action="ActionPlan" class="nav-link">Action Plans</a>
             </li>
             <li class="nav-item">
                 <a asp-action="Index" asp-controller="Activities" class="nav-link">Activity</a>

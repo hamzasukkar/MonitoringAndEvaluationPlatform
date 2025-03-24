@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.CodeAnalysis.CSharp;
+using Microsoft.EntityFrameworkCore;
 using MonitoringAndEvaluationPlatform.Data;
 using MonitoringAndEvaluationPlatform.Enums;
 using MonitoringAndEvaluationPlatform.Models;
@@ -10,6 +11,28 @@ public class MonitoringService
     public MonitoringService(ApplicationDbContext context)
     {
         _context = context;
+    }
+
+    public async Task UpdateProjectPerformance(int ProjectId)
+    {
+        var project = await _context.Projects
+            .Include(i => i.Measures)
+            .FirstOrDefaultAsync(p => p.ProjectID == ProjectId);
+
+        double totalAchieved = project.Measures
+            .Where(m => m.ValueType == MeasureValueType.Real)
+            .Sum(m => m.Value); // Sum of all real measure values
+
+        double target = project.Measures.Where(m => m.ValueType == MeasureValueType.Target).Sum(m => m.Value); // Sum of all target measure values;
+
+        project.performance = (target > 0) ? (totalAchieved / target) * 100 : 0;
+
+        _context.Projects.Update(project);
+
+        await _context.SaveChangesAsync();
+
+
+
     }
 
     public async Task UpdateIndicatorPerformance(int indicatorId)

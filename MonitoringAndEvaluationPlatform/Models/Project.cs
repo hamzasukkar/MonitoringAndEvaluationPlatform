@@ -23,7 +23,7 @@ namespace MonitoringAndEvaluationPlatform.Models
         public virtual Donor Donor { get; set; }
         public DateTime StartDate { get; set; }
         public DateTime EndDate { get; set; }
-        public int performance { get; set; }
+        public double performance { get; set; }
         public int DisbursementPerformance { get; set; }
         public int FieldMonitoring { get; set; }
         public int ImpactAssessment { get; set; }

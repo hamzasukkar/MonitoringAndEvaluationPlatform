@@ -360,7 +360,7 @@ namespace MonitoringAndEvaluationPlatform.Migrations
                     DonorCode = table.Column<int>(type: "int", nullable: false),
                     StartDate = table.Column<DateTime>(type: "datetime2", nullable: false),
                     EndDate = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    performance = table.Column<int>(type: "int", nullable: false),
+                    performance = table.Column<double>(type: "float", nullable: false),
                     DisbursementPerformance = table.Column<int>(type: "int", nullable: false),
                     FieldMonitoring = table.Column<int>(type: "int", nullable: false),
                     ImpactAssessment = table.Column<int>(type: "int", nullable: false)
@@ -560,6 +560,9 @@ namespace MonitoringAndEvaluationPlatform.Migrations
                     Source = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Trend = table.Column<double>(type: "float", nullable: false),
                     IndicatorsPerformance = table.Column<double>(type: "float", nullable: false),
+                    DisbursementPerformance = table.Column<double>(type: "float", nullable: false),
+                    FieldMonitoring = table.Column<double>(type: "float", nullable: false),
+                    ImpactAssessment = table.Column<double>(type: "float", nullable: false),
                     Weight = table.Column<double>(type: "float", nullable: false),
                     SubOutputCode = table.Column<int>(type: "int", nullable: false),
                     IsCommon = table.Column<bool>(type: "bit", nullable: false),
