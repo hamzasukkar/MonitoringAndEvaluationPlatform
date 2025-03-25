@@ -72,6 +72,7 @@
             string fieldMonitoringClass = ProgressBarHelper.GetProgressBarClass(item.FieldMonitoring);
             string impactAssessmentClass = ProgressBarHelper.GetProgressBarClass(item.ImpactAssessment);
             string trendImage = ProgressBarHelper.GetTrendImage(item.Trend);
+            double IndicatorsPerformance = Math.Round(item.IndicatorsPerformance, 2);
 
             <tr>
                 <td>
@@ -84,7 +85,7 @@
                     @item.Trend
                 </td>
                 <td>
-                    @await Html.PartialAsync("_ProgressBar", Tuple.Create(item.IndicatorsPerformance, indicatorsClass))
+                    @await Html.PartialAsync("_ProgressBar", Tuple.Create(IndicatorsPerformance, indicatorsClass))
                 </td>
                 <td>
                     @await Html.PartialAsync("_ProgressBar", Tuple.Create(item.DisbursementPerformance, disbursementClass))

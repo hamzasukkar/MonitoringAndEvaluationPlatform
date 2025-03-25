@@ -1,4 +1,5 @@
 ﻿@model IEnumerable<MonitoringAndEvaluationPlatform.Models.Indicator>
+@using MonitoringAndEvaluationPlatform.Helpers
 
 @{
     ViewData["Title"] = "Index";
@@ -24,29 +25,53 @@
             <th>@Html.DisplayNameFor(model => model.Name)</th>
             <th>@Html.DisplayNameFor(model => model.Trend)</th>
             <th>@Html.DisplayNameFor(model => model.Weight)</th>
-            <th>Indicators Performance</th>
+            <th>
+                Indicators Performance
+            </th>
+            <th>
+                Disbursement Performance
+            </th>
+            <th>
+                Field Monitoring
+            </th>
+            <th>
+                Impact Assessment
+            </th>
             <th>@Html.DisplayNameFor(model => model.SubOutput)</th>
             <th></th>
         </tr>
     </thead>
     <tbody>
-@foreach (var item in Model) {
-        <tr>
-            <td>@Html.DisplayFor(modelItem => item.Name)</td>
-            <td>@Html.DisplayFor(modelItem => item.Trend)</td>
-            <td>@Html.DisplayFor(modelItem => item.Weight)</td>
-            <td>
-                <div class="progress">
-                    <div class="progress-bar progress-bar-success progress-bar-striped" role="progressbar" 
-                         aria-valuenow="@item.IndicatorsPerformance" 
-                         aria-valuemin="0" aria-valuemax="100" 
-                         style="width:@item.IndicatorsPerformance%">
-                        @item.IndicatorsPerformance%
-                    </div>
-                </div>
-            </td>
-            <td>@Html.DisplayFor(modelItem => item.SubOutput.Name)</td>
-            <td>
+        @foreach (var item in Model)
+        {
+            string indicatorsClass = ProgressBarHelper.GetProgressBarClass(item.IndicatorsPerformance);
+            string disbursementClass = ProgressBarHelper.GetProgressBarClass(item.DisbursementPerformance);
+            string fieldMonitoringClass = ProgressBarHelper.GetProgressBarClass(item.FieldMonitoring);
+            string impactAssessmentClass = ProgressBarHelper.GetProgressBarClass(item.ImpactAssessment);
+            string trendImage = ProgressBarHelper.GetTrendImage(item.Trend);
+            double IndicatorsPerformance = Math.Round(item.IndicatorsPerformance, 2);
+            <tr>
+                <td>
+                    <a href="/Indicators/Details/@item.IndicatorCode">@item.Name</a>
+                </td>
+                <td>@Html.DisplayFor(modelItem => item.Trend)</td>
+                <td>@Html.DisplayFor(modelItem => item.Weight)</td>
+                <td>
+                    @await Html.PartialAsync("_ProgressBar", Tuple.Create(IndicatorsPerformance, indicatorsClass))
+                </td>
+                <td>
+                    @await Html.PartialAsync("_ProgressBar", Tuple.Create(item.DisbursementPerformance, disbursementClass))
+                </td>
+                <td>
+                    @await Html.PartialAsync("_ProgressBar", Tuple.Create(item.FieldMonitoring, fieldMonitoringClass))
+                </td>
+                <td>
+                    @await Html.PartialAsync("_ProgressBar", Tuple.Create(item.ImpactAssessment, impactAssessmentClass))
+                </td>
+                <td>
+                    <a href="/SubOutputs/Index/@item.SubOutputCode">@item.SubOutput.Name</a>
+                </td>
+                <td>
                     <div class="d-inline">
                         <form method="post" style="display: inline;">
                             <button class="btn btn-sm btn-success" title="Tree">
@@ -69,8 +94,8 @@
                             </button>
                         </form>
                     </div>
-            </td>
-        </tr>
-}
+                </td>
+            </tr>
+        }
     </tbody>
 </table>
