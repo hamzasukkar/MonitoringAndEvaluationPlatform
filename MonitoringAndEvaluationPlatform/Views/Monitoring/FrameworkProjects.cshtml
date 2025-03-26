@@ -1,4 +1,4 @@
-﻿@model IEnumerable<MonitoringAndEvaluationPlatform.Models.Framework>
+﻿@model IEnumerable<MonitoringAndEvaluationPlatform.Models.Project>
 @{
     ViewData["Title"] = "Monitoring";
     Layout = "~/Views/Shared/_ResultsFrameworkLayout.cshtml";
@@ -48,18 +48,7 @@
 <body>
     @foreach (var item in Model)
     {
-        var outcomes = item.Outcomes;
-        var outputs = outcomes.SelectMany(o => o.Outputs);
-        var subOutputs = outputs.SelectMany(output => output.SubOutputs);
-        var indicators = subOutputs.SelectMany(subOutput => subOutput.Indicators);
 
-        var projectCount = indicators
-        .SelectMany(indicator => indicator.Measures)
-        .Select(measure => measure.Project)
-        .Distinct()
-        .Count();
-
-        decimal IndicatorsPerformance = (decimal)Math.Round(item.IndicatorsPerformance, 2); // Rounds to 2 decimal places
 
         <div class="container my-4">
             <div class="card p-3 shadow-sm">
@@ -68,11 +57,11 @@
                     <div class="col-md-6 align-center">
                         <img src="~/img/sdgs.png" alt="SDG Icon" class="icon">
                         <div>
-                            <h6 class="mb-2">@item.Name</h6>
+                            <h6 class="mb-2">@item.ProjectName</h6>
                             <div class="d-flex flex-wrap gap-3">
                                 <div class="text-center">
-                                    <div class="circle">@IndicatorsPerformance%</div>
-                                    <a href="/Monitoring/Outcome/@item.Code"><span class="icon-text">Performance</span></a>
+                                    <div class="circle">@item.performance%</div>
+                                    <span class="icon-text">Performance</span>
                                 </div>
                                 <div class="text-center">
                                     <div class="circle">@item.DisbursementPerformance%</div>
@@ -88,16 +77,6 @@
                                 </div>
                             </div>
                         </div>
-                    </div>
-                    <!-- Right Section -->
-                    <div class="col-md-6">
-                        <ul class="list-unstyled stats">
-                            <li><strong><a href="/Monitoring/Outcome/@item.Code">Outcome:</a></strong> @item.Outcomes.Count</li>
-                            <li><strong><a href="/Monitoring/FrameworkOutputs/@item.Code">Outputs:</a></strong> @outputs.Count()</li>
-                            <li><strong><a href="/Monitoring/FrameworkSubOutputs/@item.Code">Sub-outputs:</a></strong> @subOutputs.Count()</li>
-                            <li><strong><a href="/Monitoring/FrameworkIndicators/@item.Code">Indicators:</a></strong> @indicators.Count()</li>
-                            <li><strong><a href="/Monitoring/FrameworkProjects/@item.Code">Projects</a></strong> @projectCount</li>
-                        </ul>
                     </div>
                 </div>
             </div>

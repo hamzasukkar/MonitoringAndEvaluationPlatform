@@ -27,6 +27,8 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 .ThenInclude(i => i.Outputs)
                 .ThenInclude(i => i.SubOutputs)
                 .ThenInclude(i => i.Indicators)
+                .ThenInclude(i => i.Measures)
+                .ThenInclude(i => i.Project)
                 .ToListAsync();
             return View(frameworks);
         }
@@ -72,7 +74,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         {
             var subOutputs = await _context.SubOutputs
                 .Include(i => i.Indicators)
-                .Where(x=>x.Output.Outcome.FrameworkCode==id).ToListAsync();
+                .Where(x => x.Output.Outcome.FrameworkCode == id).ToListAsync();
             return View(subOutputs);
         }
 
@@ -100,6 +102,21 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             return View(indicators);
         }
 
+        // Get Projects linked to a specific Framework
+        public async Task<IActionResult> FrameworkProjects(int? id)
+        {
+            var projects = await _context.Projects
+                .Where(p => p.Measures.Any(m =>
+                    _context.Indicators.Any(i =>
+                        i.IndicatorCode == m.IndicatorCode &&
+                        i.SubOutput.Output.Outcome.FrameworkCode == id
+                    )
+                ))
+                .Distinct()
+                .ToListAsync();
+
+            return View(projects);
+        }
         public async Task<IActionResult> OutcomeIndicators(int? id)
         {
             var indicators = await _context.Indicators
@@ -124,7 +141,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         public async Task<IActionResult> Indicator(int? id)
         {
             var indicators = await _context.Indicators
-                .Where(x=>x.SubOutputCode==id).ToListAsync();
+                .Where(x => x.SubOutputCode == id).ToListAsync();
             return View(indicators);
         }
     }
