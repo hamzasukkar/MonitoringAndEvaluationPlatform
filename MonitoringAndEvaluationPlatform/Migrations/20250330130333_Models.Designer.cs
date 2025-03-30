@@ -12,7 +12,7 @@ using MonitoringAndEvaluationPlatform.Data;
 namespace MonitoringAndEvaluationPlatform.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20250324074416_Models")]
+    [Migration("20250330130333_Models")]
     partial class Models
     {
         /// <inheritdoc />
@@ -361,38 +361,6 @@ namespace MonitoringAndEvaluationPlatform.Migrations
                     b.ToTable("Frameworks");
                 });
 
-            modelBuilder.Entity("MonitoringAndEvaluationPlatform.Models.Goal", b =>
-                {
-                    b.Property<int>("Code")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Code"));
-
-                    b.Property<int>("DisbursementPerformance")
-                        .HasColumnType("int");
-
-                    b.Property<int>("FieldMonitoring")
-                        .HasColumnType("int");
-
-                    b.Property<int>("ImpactAssessment")
-                        .HasColumnType("int");
-
-                    b.Property<int>("IndicatorsPerformance")
-                        .HasColumnType("int");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<double>("Trend")
-                        .HasColumnType("float");
-
-                    b.HasKey("Code");
-
-                    b.ToTable("Goal");
-                });
-
             modelBuilder.Entity("MonitoringAndEvaluationPlatform.Models.Indicator", b =>
                 {
                     b.Property<int>("IndicatorCode")
@@ -471,106 +439,6 @@ namespace MonitoringAndEvaluationPlatform.Migrations
                     b.ToTable("Indicators");
                 });
 
-            modelBuilder.Entity("MonitoringAndEvaluationPlatform.Models.LogicalFramework", b =>
-                {
-                    b.Property<int>("Code")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Code"));
-
-                    b.Property<int>("IndicatorsPerformance")
-                        .HasColumnType("int");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("ProjectID")
-                        .HasColumnType("int");
-
-                    b.Property<double>("Trend")
-                        .HasColumnType("float");
-
-                    b.Property<int>("Type")
-                        .HasColumnType("int");
-
-                    b.HasKey("Code");
-
-                    b.HasIndex("ProjectID");
-
-                    b.ToTable("LogicalFramework");
-                });
-
-            modelBuilder.Entity("MonitoringAndEvaluationPlatform.Models.LogicalFrameworkIndicator", b =>
-                {
-                    b.Property<int>("Code")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Code"));
-
-                    b.Property<bool>("Active")
-                        .HasColumnType("bit");
-
-                    b.Property<string>("Comment")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Concept")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Description")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<double>("GAGRA")
-                        .HasColumnType("float");
-
-                    b.Property<double>("GAGRR")
-                        .HasColumnType("float");
-
-                    b.Property<int>("IndicatorsPerformance")
-                        .HasColumnType("int");
-
-                    b.Property<bool>("IsCommon")
-                        .HasColumnType("bit");
-
-                    b.Property<int>("LogicalFrameworkCode")
-                        .HasColumnType("int");
-
-                    b.Property<string>("MethodOfComputation")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Source")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("Target")
-                        .HasColumnType("int");
-
-                    b.Property<DateTime>("TargetYear")
-                        .HasColumnType("datetime2");
-
-                    b.Property<double>("Trend")
-                        .HasColumnType("float");
-
-                    b.Property<double>("Weight")
-                        .HasColumnType("float");
-
-                    b.HasKey("Code");
-
-                    b.HasIndex("LogicalFrameworkCode");
-
-                    b.ToTable("LogicalFrameworkIndicator");
-                });
-
             modelBuilder.Entity("MonitoringAndEvaluationPlatform.Models.Measure", b =>
                 {
                     b.Property<int>("Code")
@@ -585,9 +453,6 @@ namespace MonitoringAndEvaluationPlatform.Migrations
                     b.Property<int>("IndicatorCode")
                         .HasColumnType("int");
 
-                    b.Property<int?>("LogicalFrameworkIndicatorCode")
-                        .HasColumnType("int");
-
                     b.Property<int>("ProjectID")
                         .HasColumnType("int");
 
@@ -600,8 +465,6 @@ namespace MonitoringAndEvaluationPlatform.Migrations
                     b.HasKey("Code");
 
                     b.HasIndex("IndicatorCode");
-
-                    b.HasIndex("LogicalFrameworkIndicatorCode");
 
                     b.HasIndex("ProjectID");
 
@@ -940,38 +803,6 @@ namespace MonitoringAndEvaluationPlatform.Migrations
                     b.ToTable("SuperVisors");
                 });
 
-            modelBuilder.Entity("MonitoringAndEvaluationPlatform.Models.Target", b =>
-                {
-                    b.Property<int>("Code")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Code"));
-
-                    b.Property<int>("DisbursementPerformance")
-                        .HasColumnType("int");
-
-                    b.Property<int>("FieldMonitoring")
-                        .HasColumnType("int");
-
-                    b.Property<int>("ImpactAssessment")
-                        .HasColumnType("int");
-
-                    b.Property<int>("IndicatorsPerformance")
-                        .HasColumnType("int");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<double>("Trend")
-                        .HasColumnType("float");
-
-                    b.HasKey("Code");
-
-                    b.ToTable("Target");
-                });
-
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
                 {
                     b.HasOne("Microsoft.AspNetCore.Identity.IdentityRole", null)
@@ -1056,26 +887,6 @@ namespace MonitoringAndEvaluationPlatform.Migrations
                     b.Navigation("SubOutput");
                 });
 
-            modelBuilder.Entity("MonitoringAndEvaluationPlatform.Models.LogicalFramework", b =>
-                {
-                    b.HasOne("MonitoringAndEvaluationPlatform.Models.Project", null)
-                        .WithMany("logicalFramework")
-                        .HasForeignKey("ProjectID")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
-
-            modelBuilder.Entity("MonitoringAndEvaluationPlatform.Models.LogicalFrameworkIndicator", b =>
-                {
-                    b.HasOne("MonitoringAndEvaluationPlatform.Models.LogicalFramework", "LogicalFramework")
-                        .WithMany("logicalFrameworkIndicators")
-                        .HasForeignKey("LogicalFrameworkCode")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("LogicalFramework");
-                });
-
             modelBuilder.Entity("MonitoringAndEvaluationPlatform.Models.Measure", b =>
                 {
                     b.HasOne("MonitoringAndEvaluationPlatform.Models.Indicator", "Indicator")
@@ -1083,10 +894,6 @@ namespace MonitoringAndEvaluationPlatform.Migrations
                         .HasForeignKey("IndicatorCode")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-
-                    b.HasOne("MonitoringAndEvaluationPlatform.Models.LogicalFrameworkIndicator", null)
-                        .WithMany("Measures")
-                        .HasForeignKey("LogicalFrameworkIndicatorCode");
 
                     b.HasOne("MonitoringAndEvaluationPlatform.Models.Project", "Project")
                         .WithMany("Measures")
@@ -1206,16 +1013,6 @@ namespace MonitoringAndEvaluationPlatform.Migrations
                     b.Navigation("Measures");
                 });
 
-            modelBuilder.Entity("MonitoringAndEvaluationPlatform.Models.LogicalFramework", b =>
-                {
-                    b.Navigation("logicalFrameworkIndicators");
-                });
-
-            modelBuilder.Entity("MonitoringAndEvaluationPlatform.Models.LogicalFrameworkIndicator", b =>
-                {
-                    b.Navigation("Measures");
-                });
-
             modelBuilder.Entity("MonitoringAndEvaluationPlatform.Models.Outcome", b =>
                 {
                     b.Navigation("Outputs");
@@ -1232,8 +1029,6 @@ namespace MonitoringAndEvaluationPlatform.Migrations
                         .IsRequired();
 
                     b.Navigation("Measures");
-
-                    b.Navigation("logicalFramework");
                 });
 
             modelBuilder.Entity("MonitoringAndEvaluationPlatform.Models.SubOutput", b =>

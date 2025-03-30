@@ -16,7 +16,7 @@ namespace MonitoringAndEvaluationPlatform.Data
         public DbSet<Indicator> Indicators { get; set; } = default!;
         public DbSet<SubOutput> SubOutputs { get; set; } = default!;
         public DbSet<Ministry> Ministries { get; set; } = default!;
-        public DbSet<Models.Project> Projects { get; set; } = default!;
+        public DbSet<Project> Projects { get; set; } = default!;
         public DbSet<Region> Regions { get; set; } = default!;
         public DbSet<Sector> Sectors { get; set; } = default!;
         public DbSet<Donor> Donors { get; set; } = default!;

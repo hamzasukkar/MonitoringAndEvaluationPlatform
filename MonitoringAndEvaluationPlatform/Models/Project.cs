@@ -27,7 +27,6 @@ namespace MonitoringAndEvaluationPlatform.Models
         public int DisbursementPerformance { get; set; }
         public int FieldMonitoring { get; set; }
         public int ImpactAssessment { get; set; }
-        public ICollection<LogicalFramework> logicalFramework{ get; set; } = new List<LogicalFramework>();
 
         // Navigation property for many-to-many relationship
         public ICollection<Measure> Measures { get; set; } = new List<Measure>();
