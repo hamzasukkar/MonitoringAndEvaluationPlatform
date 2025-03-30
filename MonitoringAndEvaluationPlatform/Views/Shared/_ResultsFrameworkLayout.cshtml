@@ -32,7 +32,7 @@
                                 @framework.Name
                             </a>
                             <ul class="dropdown-menu" aria-labelledby="resultsDropdown">
-                                <li><a class="dropdown-item" href="/Outcomes/Index/@framework.Code">Outcomes</a></li>
+                                <li><a asp-controller="Outcomes" asp-action="Index" asp-route-frameworkCode="@framework.Code">Outcomes</a></li>
                                 <li><a class="dropdown-item" href="/Outputs/Index/@framework.Code">Outputs</a></li>
                                 <li><a class="dropdown-item" href="/SubOutputs/Index/@framework.Code">SubOutputs</a></li>
                                 <li><a class="dropdown-item" href="/Indicators/Index/@framework.Code">Indicators</a></li>

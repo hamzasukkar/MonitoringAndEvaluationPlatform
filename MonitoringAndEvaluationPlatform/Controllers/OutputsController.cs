@@ -30,6 +30,8 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 return View(await applicationDbContext.ToListAsync());
             }
 
+            ViewBag.SelectedOutputCode = id; // Store it for use in the view
+
             var outputs = await _context.Outputs
                 .Include(o => o.Outcome)
                 .Include(o => o.SubOutputs)
@@ -65,9 +67,20 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         }
 
         // GET: Outputs/Create
-        public IActionResult Create()
+        public IActionResult Create(int? id)
         {
             ViewData["OutcomeCode"] = new SelectList(_context.Outcomes, "Code", "Name");
+
+            var outcomes = _context.Outputs.ToList();
+
+            // Populate dropdown only if no framework is preselected
+            ViewData["OutcomeCode"] = id == null
+                ? new SelectList(outcomes, "Code", "Name")
+                : new SelectList(outcomes, "Code", "Name", id);
+
+            // Pass the selected framework code to the view
+            ViewBag.SelectedOutcomeCode = id;
+
             return View();
         }
 
@@ -84,7 +97,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             {
                 _context.Add(output);
                 await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
+                return RedirectToAction("Index", new { id = output.OutcomeCode });
             }
             ViewData["OutcomeCode"] = new SelectList(_context.Outcomes, "Code", "Name", output.OutcomeCode);
             return View(output);
