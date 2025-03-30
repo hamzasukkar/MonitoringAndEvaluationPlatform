@@ -24,8 +24,6 @@ namespace MonitoringAndEvaluationPlatform.Data
         public DbSet<Donor> Donors { get; set; } = default!;
         public DbSet<Assessment> Assessment { get; set; } = default!;
         public DbSet<Measure> Measures { get; set; } = default!;
-        public DbSet<LogicalFramework> LogicalFramework { get; set; } = default!;
-        public DbSet<LogicalFrameworkIndicator> LogicalFrameworkIndicator { get; set; } = default!;
         public DbSet<SuperVisor> SuperVisors { get; set; } = default!;
         public DbSet<ProjectManager> ProjectManagers { get; set; } = default!;
         public DbSet<Activity> Activities { get; set; } = default!;
