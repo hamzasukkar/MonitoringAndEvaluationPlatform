@@ -23,7 +23,7 @@
     <thead>
         <tr>
             <th>@Html.DisplayNameFor(model => model.Name)</th>
-            <th>@Html.DisplayNameFor(model => model.Trend)</th>
+            @* <th>@Html.DisplayNameFor(model => model.Trend)</th> *@
             <th>@Html.DisplayNameFor(model => model.Weight)</th>
             <th>
                 Indicators Performance
@@ -54,7 +54,7 @@
                 <td>
                     <a href="/Indicators/Details/@item.IndicatorCode">@item.Name</a>
                 </td>
-                <td>@Html.DisplayFor(modelItem => item.Trend)</td>
+               @*  <td>@Html.DisplayFor(modelItem => item.Trend)</td> *@
                 <td>@Html.DisplayFor(modelItem => item.Weight)</td>
                 <td>
                     @await Html.PartialAsync("_ProgressBar", Tuple.Create(IndicatorsPerformance, indicatorsClass))

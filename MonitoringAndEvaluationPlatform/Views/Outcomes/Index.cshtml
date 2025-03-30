@@ -19,9 +19,9 @@
             <th>
                 @Html.DisplayNameFor(model => model.Name)
             </th>
-            <th>
+          @*   <th>
                 @Html.DisplayNameFor(model => model.Trend)
-            </th>
+            </th> *@
             <th>
                 @Html.DisplayNameFor(model => model.Weight)
             </th>
@@ -56,9 +56,9 @@
                 <td>
                     <a href="/Outputs/Index/@item.Code">@item.Name</a>
                 </td>
-                <td>
+            @*     <td>
                     @Html.DisplayFor(modelItem => item.Trend)
-                </td>
+                </td> *@
                 <td>
                     @Html.DisplayFor(modelItem => item.Weight)
                 </td>

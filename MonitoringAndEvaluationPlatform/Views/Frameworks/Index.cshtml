@@ -41,13 +41,14 @@
             <th>
                 Name
             </th>
+            @* 
             <th>
 
             </th>
             <th>
                 Trend
             </th>
-
+ *@
             <th>
                 Indicators Performance
             </th>
@@ -78,12 +79,12 @@
                 <td>
                     <a asp-controller="Outcomes" asp-action="Index" asp-route-frameworkCode="@item.Code">@item.Name</a>
                 </td>
-                <td>
+        @*         <td>
                     <img src="~/img/@trendImage" />
                 </td>
                 <td>
                     @item.Trend
-                </td>
+                </td> *@
                 <td>
                     @await Html.PartialAsync("_ProgressBar", Tuple.Create(IndicatorsPerformance, indicatorsClass))
                 </td>
