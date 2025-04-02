@@ -30,7 +30,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 return View(await applicationDbContext.ToListAsync());
             }
 
-            ViewBag.SelectedOutputCode = id; // Store it for use in the view
+            ViewBag.SelectedOutcomeCode = id; // Store it for use in the view
 
             var outputs = await _context.Outputs
                 .Include(o => o.Outcome)
@@ -71,7 +71,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         {
             ViewData["OutcomeCode"] = new SelectList(_context.Outcomes, "Code", "Name");
 
-            var outcomes = _context.Outputs.ToList();
+            var outcomes = _context.Outcomes.ToList();
 
             // Populate dropdown only if no framework is preselected
             ViewData["OutcomeCode"] = id == null

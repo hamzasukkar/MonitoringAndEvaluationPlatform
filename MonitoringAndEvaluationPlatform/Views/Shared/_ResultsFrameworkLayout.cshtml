@@ -41,6 +41,25 @@
                     }
 
                     <!-- Other dropdowns remain unchanged -->
+                    <li>
+                        <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" id="resultsDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            <img class="rounded-circle oe_topbar_avatar me-2" width="23" height="23" src="~/img/profile.jpeg" />
+
+                            @if (SignInManager.IsSignedIn(User))
+                            {
+                                var user = await UserManager.GetUserAsync(User);
+                                <span class="text-white">Welcome, @user?.UserName</span>
+                            }
+                        </a>
+                        <ul class="dropdown-menu" aria-labelledby="resultsDropdown">
+                            <li><a class="dropdown-item" href="#" onclick="alert('Sub-item 1 clicked!');">Setting</a></li>
+                            <li>
+                                <form class="form-inline" asp-area="Identity" asp-page="/Account/Logout" asp-route-returnUrl="@Url.Action("Index", "Home", new { area = "" })">
+                                    <button type="submit" class="nav-link btn btn-link text-dark">Logout</button>
+                                </form>
+                            </li>
+                        </ul>
+                    </li>
                 </ul>
             </div>
         </div>

@@ -8,9 +8,11 @@
 
 <h1>Index</h1>
 
+
 <p>
-    <a asp-action="Create">Create New</a>
+    <a asp-action="Create" asp-route-id="@ViewBag.SelectedOutputCode">Create New Sub Output</a>
 </p>
+
 <table class="table">
     <thead>
         <tr>
@@ -52,7 +54,7 @@
             double IndicatorsPerformance = Math.Round(item.IndicatorsPerformance, 2);
             <tr>
                 <td>
-                    <a href="/Indicators/Index/@item.Code">@item.Name</a>
+                    <a href="/Indicators/Index/@item.Output.Outcome.FrameworkCode">@item.Name</a>
                 </td>
                 <td>
                     @Html.DisplayFor(modelItem => item.Weight)

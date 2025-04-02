@@ -29,10 +29,21 @@
                 <input asp-for="Weight" class="form-control" />
                 <span asp-validation-for="Weight" class="text-danger"></span>
             </div>
-            <div class="form-group">
-                <label asp-for="OutputCode" class="control-label"></label>
-                <select asp-for="OutputCode" class ="form-control" asp-items="ViewBag.OutputCode"></select>
-            </div>
+            @{
+                var isOutcomeLocked = ViewBag.SelectedOutputCode != null;
+            }
+            <!-- Hidden input when FrameworkCode is provided -->
+            @if (isOutcomeLocked)
+            {
+                <input type="hidden" asp-for="OutputCode" value="@ViewBag.SelectedOutputCode" />
+            }
+            else
+            {
+                <div class="form-group">
+                    <label asp-for="OutputCode" class="control-label"></label>
+                    <select asp-for="OutputCode" class="form-control" asp-items="ViewBag.OutputCode"></select>
+                </div>
+            }
             <div class="form-group">
                 <input type="submit" value="Create" class="btn btn-primary" />
             </div>
