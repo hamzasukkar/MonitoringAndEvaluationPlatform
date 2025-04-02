@@ -6,11 +6,11 @@
         {
             return value switch
             {
-                > 80 => "progress-bar-success",
-                > 60 => "progress-bar-yellow",
+                > 80 => "progress-bar bg-success",
+                > 60 => "rogress-bar bg-info",
                 > 40 => "progress-bar-goldenYellow",
                 > 20 => "progress-bar-orange",
-                _ => "progress-bar-danger"
+                _ => "progress-bar bg-danger"
             };
         }
 
