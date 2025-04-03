@@ -143,7 +143,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                     await monitoringService.UpdateProjectPerformance(measure.ProjectID);
                 }
 
-                return RedirectToAction(nameof(Index));
+                return RedirectToAction("ProjectMeasures", new { id = measure.ProjectID });
             }
 
             ViewData["Indicators"] = new SelectList(_context.Indicators, "IndicatorCode", "Name", measure.IndicatorCode);

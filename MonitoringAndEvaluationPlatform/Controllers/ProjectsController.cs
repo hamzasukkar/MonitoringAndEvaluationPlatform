@@ -78,6 +78,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 .Include(p=>p.Donor)
                 .Include(p=>p.Region)
                 .FirstOrDefaultAsync(m => m.ProjectID == id);
+
             if (project == null)
             {
                 return NotFound();
