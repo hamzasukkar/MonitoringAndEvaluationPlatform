@@ -73,6 +73,10 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             }
 
             var project = await _context.Projects
+                .Include(p=>p.ProjectManager)
+                .Include(p=>p.SuperVisor)
+                .Include(p=>p.Donor)
+                .Include(p=>p.Region)
                 .FirstOrDefaultAsync(m => m.ProjectID == id);
             if (project == null)
             {

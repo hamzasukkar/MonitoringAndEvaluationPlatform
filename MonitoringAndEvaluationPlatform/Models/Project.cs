@@ -16,7 +16,6 @@ namespace MonitoringAndEvaluationPlatform.Models
         public virtual ProjectManager ProjectManager { get; set; }
         public int SuperVisorCode { get; set; }
         public virtual SuperVisor SuperVisor { get; set; }
-        public string? Category { get; set; }
         public int MinistryCode { get; set; }
         public Ministry Ministry { get; set; }
         public int DonorCode { get; set; }

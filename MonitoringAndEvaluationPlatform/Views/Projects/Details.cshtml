@@ -53,53 +53,48 @@
         <dd class = "col-sm-10">
             @Html.DisplayFor(model => model.RealBudget)
         </dd>
-        <dt class = "col-sm-2">
+@*         <dt class = "col-sm-2">
             @Html.DisplayNameFor(model => model.Trend)
         </dt>
         <dd class = "col-sm-10">
             @Html.DisplayFor(model => model.Trend)
-        </dd>
+        </dd> *@
         <dt class = "col-sm-2">
             @Html.DisplayNameFor(model => model.ProjectManager)
         </dt>
         <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.ProjectManager)
+            @Html.DisplayFor(model => model.ProjectManager.Name)
         </dd>
         <dt class = "col-sm-2">
             @Html.DisplayNameFor(model => model.SuperVisor)
         </dt>
         <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.SuperVisor)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Category)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Category)
+            @Html.DisplayFor(model => model.SuperVisor.Name)
         </dd>
         <dt class = "col-sm-2">
             @Html.DisplayNameFor(model => model.Donor)
         </dt>
         <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Donor)
+            @Html.DisplayFor(model => model.Donor.Partner)
         </dd>
-        <dt class = "col-sm-2">
+@*         <dt class = "col-sm-2">
             @Html.DisplayNameFor(model => model.StartDate)
         </dt>
         <dd class = "col-sm-10">
             @Html.DisplayFor(model => model.StartDate)
-        </dd>
+        </dd> 
         <dt class = "col-sm-2">
             @Html.DisplayNameFor(model => model.EndDate)
         </dt>
         <dd class = "col-sm-10">
             @Html.DisplayFor(model => model.EndDate)
         </dd>
+        *@
         <dt class = "col-sm-2">
             @Html.DisplayNameFor(model => model.Region)
         </dt>
         <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Region)
+            @Html.DisplayFor(model => model.Region.Name)
         </dd>
         <dt class = "col-sm-2">
             @Html.DisplayNameFor(model => model.performance)
