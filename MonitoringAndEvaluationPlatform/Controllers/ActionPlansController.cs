@@ -27,6 +27,11 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             return View(await applicationDbContext.ToListAsync());
         }
 
+        public async Task<IActionResult> Test()
+        {
+            return View();
+        }
+
         public async Task<IActionResult> ActionPlan(int? id)
         {
             var actionPlan = await _context.ActionPlans.FirstOrDefaultAsync(ac => ac.ProjectID == id);
