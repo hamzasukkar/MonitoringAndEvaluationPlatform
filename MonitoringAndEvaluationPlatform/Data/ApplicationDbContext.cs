@@ -20,7 +20,6 @@ namespace MonitoringAndEvaluationPlatform.Data
         public DbSet<Region> Regions { get; set; } = default!;
         public DbSet<Sector> Sectors { get; set; } = default!;
         public DbSet<Donor> Donors { get; set; } = default!;
-        public DbSet<Assessment> Assessment { get; set; } = default!;
         public DbSet<Measure> Measures { get; set; } = default!;
         public DbSet<SuperVisor> SuperVisors { get; set; } = default!;
         public DbSet<ProjectManager> ProjectManagers { get; set; } = default!;
