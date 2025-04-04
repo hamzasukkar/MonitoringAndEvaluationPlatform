@@ -1,0 +1,136 @@
+﻿@model MonitoringAndEvaluationPlatform.Models.Project
+
+@{
+    ViewData["Title"] = "Details";
+    Layout = "~/Views/Shared/_ProjectsLayout.cshtml";
+}
+
+<nav class="navbar navbar-expand-lg navbar-light bg-light">
+    <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav">
+            <li class="nav-item active">
+                <a class="nav-link">Project <span class="sr-only">(current)</span></a>
+            </li>
+            <li class="nav-item">
+                <a asp-action="ProjectMeasures" asp-controller="Measures" asp-route-id="@Model.ProjectID" class="nav-link">Measures</a>
+            </li>
+          @*   <li class="nav-item">
+                <a asp-action="Index" asp-controller="LogicalFrameworks" asp-route-id="@Model.ProjectID" class="nav-link">Logical Framework</a>
+            </li> *@
+            <li class="nav-item">
+                <a asp-controller="Plans" asp-action="ProjectPlans" asp-route-id="@Model.ProjectID" class="nav-link">Plans</a>
+            </li>
+
+            <li class="nav-item">
+                <a asp-controller="ActionPlans" asp-action="ActionPlan" asp-route-id="@Model.ProjectID" class="nav-link">Action Plans</a>
+            </li>
+            <li class="nav-item">
+                <a asp-action="Index" asp-controller="Activities" class="nav-link">Activity</a>
+            </li>
+        </ul>
+    </div>
+</nav>
+
+<div>
+    <h4>Program</h4>
+    <hr />
+    <dl class="row">
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.ProjectName)
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.ProjectName)
+        </dd>
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.EstimatedBudget)
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.EstimatedBudget)
+        </dd>
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.RealBudget)
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.RealBudget)
+        </dd>
+@*         <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.Trend)
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.Trend)
+        </dd> *@
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.ProjectManager)
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.ProjectManager.Name)
+        </dd>
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.SuperVisor)
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.SuperVisor.Name)
+        </dd>
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.Donor)
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.Donor.Partner)
+        </dd>
+@*         <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.StartDate)
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.StartDate)
+        </dd> 
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.EndDate)
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.EndDate)
+        </dd>
+        *@
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.Region)
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.Region.Name)
+        </dd>
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.performance)
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.performance)%
+        </dd>
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.DisbursementPerformance)
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.DisbursementPerformance)%
+        </dd>
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.FieldMonitoring)
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.FieldMonitoring)%
+        </dd>
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.ImpactAssessment)
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.ImpactAssessment)%
+        </dd>
+    </dl>
+</div>
+@* Indicators
+<ul>
+    @foreach (var indicator in Model.Indicators)
+    {
+        <li>@indicator.Name</li>
+    }
+</ul>
+ *@
+<div>
+    <a asp-action="Edit" asp-route-id="@Model?.ProjectID">Edit</a> |
+    <a asp-action="Index">Back to List</a>
+</div>

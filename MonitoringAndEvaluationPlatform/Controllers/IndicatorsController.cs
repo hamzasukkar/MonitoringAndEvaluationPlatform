@@ -150,7 +150,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
 
         private async Task UpdateFrameworkPerformance(int frameworkCode)
         {
-            var framework = await _context.Framework.FirstOrDefaultAsync(i => i.Code == frameworkCode);
+            var framework = await _context.Frameworks.FirstOrDefaultAsync(i => i.Code == frameworkCode);
 
             if (framework == null) return;
 
@@ -160,7 +160,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             await _context.SaveChangesAsync();
         }
 
-        private int CalculateAveragePerformance(List<int> performances)
+        private double CalculateAveragePerformance(List<double> performances)
         {
             return performances.Any() ? performances.Sum() / performances.Count : 0;
         }
@@ -187,7 +187,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, [Bind("Code,Name,Trend,IndicatorsPerformance,SubOutputCode")] Indicator indicator)
         {
-            if (id != indicator.Code)
+            if (id != indicator.IndicatorCode)
             {
                 return NotFound();
             }
@@ -207,7 +207,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!IndicatorExists(indicator.Code))
+                    if (!IndicatorExists(indicator.IndicatorCode))
                     {
                         return NotFound();
                     }
@@ -234,7 +234,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
 
             var indicator = await _context.Indicators
                 .Include(i => i.SubOutput)
-                .FirstOrDefaultAsync(m => m.Code == id);
+                .FirstOrDefaultAsync(m => m.IndicatorCode == id);
             if (indicator == null)
             {
                 return NotFound();
@@ -249,7 +249,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 .ThenInclude(so => so.Output)
                 .ThenInclude(o => o.Outcome)
                 .ThenInclude(oc => oc.Framework)
-                .FirstOrDefaultAsync(i => i.Code == id);
+                .FirstOrDefaultAsync(i => i.IndicatorCode == id);
 
             if (indicator == null)
                 return NotFound();
@@ -261,10 +261,10 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         (indicator.SubOutput.Output.Outcome.Name, "Outcome", indicator.SubOutput.Output.Outcome.Code),
         (indicator.SubOutput.Output.Name, "Output", indicator.SubOutput.Output.Code),
         (indicator.SubOutput.Name, "SubOutput", indicator.SubOutput.Code),
-        (indicator.Name, "Indicator", indicator.Code)
+        (indicator.Name, "Indicator", indicator.IndicatorCode)
     };
 
-            var measures = await _context.Measure.Where(m=>m.IndicatorCode==id).ToListAsync();
+            var measures = await _context.Measures.Where(m=>m.IndicatorCode==id).ToListAsync();
 
             var labels= new List<string>();
             var realData = new List<double>();
@@ -318,7 +318,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
 
         private bool IndicatorExists(int id)
         {
-            return _context.Indicators.Any(e => e.Code == id);
+            return _context.Indicators.Any(e => e.IndicatorCode == id);
         }
 
         public IActionResult Chart()

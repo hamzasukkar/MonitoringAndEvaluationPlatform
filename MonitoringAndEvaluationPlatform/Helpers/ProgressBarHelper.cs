@@ -2,15 +2,15 @@
 {
     public static class ProgressBarHelper
     {
-        public static string GetProgressBarClass(int value)
+        public static string GetProgressBarClass(double value)
         {
             return value switch
             {
-                > 80 => "progress-bar-success",
-                > 60 => "progress-bar-yellow",
-                > 40 => "progress-bar-goldenYellow",
+                > 80 => "bg-success",
+                > 60 => "bg-info",
+                > 40 => "bg-warning",
                 > 20 => "progress-bar-orange",
-                _ => "progress-bar-danger"
+                _ => "bg-danger"
             };
         }
 

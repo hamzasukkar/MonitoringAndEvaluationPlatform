@@ -18,11 +18,6 @@
                 <input asp-for="Name" class="form-control" />
                 <span asp-validation-for="Name" class="text-danger"></span>
             </div>
-            <div class="form-group">
-                <label asp-for="IndicatorsPerformance" class="control-label"></label>
-                <input asp-for="IndicatorsPerformance" class="form-control" />
-                <span asp-validation-for="IndicatorsPerformance" class="text-danger"></span>
-            </div>
             <!-- Weight Field -->
             <div class="form-group">
                 <label asp-for="Weight" class="control-label"></label>
@@ -34,10 +29,16 @@
                 <select asp-for="SubOutputCode" class="form-control" asp-items="ViewBag.SubOutputCode"></select>
             </div>
 
-            <div class="form-group">
+     @*        <div class="form-group">
                 <label asp-for="TargetYear" class="control-label"></label>
                 <input asp-for="TargetYear" class="form-control" type="date" />
                 <span asp-validation-for="TargetYear" class="text-danger"></span>
+            </div> *@
+
+                  <div class="form-group">
+                <label asp-for="Target" class="control-label"></label>
+                <input asp-for="Target" class="form-control"  />
+                <span asp-validation-for="Target" class="text-danger"></span>
             </div>
 
             <div class="form-group">

@@ -41,13 +41,14 @@
             <th>
                 Name
             </th>
+            @* 
             <th>
 
             </th>
             <th>
                 Trend
             </th>
-
+ *@
             <th>
                 Indicators Performance
             </th>
@@ -72,19 +73,20 @@
             string fieldMonitoringClass = ProgressBarHelper.GetProgressBarClass(item.FieldMonitoring);
             string impactAssessmentClass = ProgressBarHelper.GetProgressBarClass(item.ImpactAssessment);
             string trendImage = ProgressBarHelper.GetTrendImage(item.Trend);
+            double IndicatorsPerformance = Math.Round(item.IndicatorsPerformance, 2);
 
             <tr>
                 <td>
-                    <a href="/Outcomes/FramworkOutcomes/@item.Code">@item.Name</a>
+                    <a asp-controller="Outcomes" asp-action="Index" asp-route-frameworkCode="@item.Code">@item.Name</a>
                 </td>
-                <td>
+        @*         <td>
                     <img src="~/img/@trendImage" />
                 </td>
                 <td>
                     @item.Trend
-                </td>
+                </td> *@
                 <td>
-                    @await Html.PartialAsync("_ProgressBar", Tuple.Create(item.IndicatorsPerformance, indicatorsClass))
+                    @await Html.PartialAsync("_ProgressBar", Tuple.Create(IndicatorsPerformance, indicatorsClass))
                 </td>
                 <td>
                     @await Html.PartialAsync("_ProgressBar", Tuple.Create(item.DisbursementPerformance, disbursementClass))

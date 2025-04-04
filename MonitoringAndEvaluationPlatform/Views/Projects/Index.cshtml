@@ -1,0 +1,238 @@
+﻿@model MonitoringAndEvaluationPlatform.ViewModel.ProgramFilterViewModel
+@{
+    ViewData["Title"] = "Index";
+    Layout = "~/Views/Shared/_ProjectsLayout.cshtml";
+}
+
+<div class="row">
+    <div class="col-md-2">
+        <form asp-action="Index" method="get">
+            <h4>Filter by Ministry</h4>
+            @foreach (var ministry in Model.Ministries)
+            {
+                <div>
+                    <input type="checkbox" name="SelectedMinistries" value="@ministry.Code"
+                    @(Model.SelectedMinistries.Contains(ministry.Code) ? "checked" : "") />
+                    <label>@ministry.MinistryName</label>
+                </div>
+            }
+
+            <h4>Filter by Region</h4>
+            @foreach (var region in Model.Regions)
+            {
+                <div>
+                    <input type="checkbox" name="SelectedRegions" value="@region.Code"
+                    @(Model.SelectedRegions.Contains(region.Code) ? "checked" : "") />
+                    <label>@region.Name</label>
+                </div>
+            }
+
+            <h4>Filter by Donor</h4>
+            @foreach (var donor in Model.Donors)
+            {
+                <div>
+                    <input type="checkbox" name="SelectedDonors" value="@donor.Code"
+                    @(Model.SelectedDonors.Contains(donor.Code) ? "checked" : "") />
+                    <label>@donor.Partner</label>
+                </div>
+            }
+
+            <button type="submit" class="btn btn-primary">Filter</button>
+            <a asp-action="Index" class="btn btn-secondary">Reset</a>
+        </form>
+    </div>
+
+    <div class="col-md-9">
+        <p>
+            <a asp-action="Create">Create New</a>
+        </p>
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>@Html.DisplayNameFor(model => model.Projects.FirstOrDefault().ProjectName)</th>
+                    <th>@Html.DisplayNameFor(model => model.Projects.FirstOrDefault().EstimatedBudget)</th>
+                    <th>@Html.DisplayNameFor(model => model.Projects.FirstOrDefault().RealBudget)</th>
+                    <th>@Html.DisplayNameFor(model => model.Projects.FirstOrDefault().Trend)</th>
+                    <th>@Html.DisplayNameFor(model => model.Projects.FirstOrDefault().performance)</th>
+                    <th>@Html.DisplayNameFor(model => model.Projects.FirstOrDefault().DisbursementPerformance)</th>
+                    <th>@Html.DisplayNameFor(model => model.Projects.FirstOrDefault().FieldMonitoring)</th>
+                    <th>@Html.DisplayNameFor(model => model.Projects.FirstOrDefault().ImpactAssessment)</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model.Projects)
+                {
+                    string IndicatorsPerformanceProgressBarClass = "";
+                    string DisbursementPerformanceProgressBarClass = "";
+                    string FieldMonitoringProgressBarClass = "";
+                    string ImpactAssessmentProgressBarClass = "";
+                    string TrendImage = "";
+
+                    switch (item.performance)
+                    {
+                        case >= 80:
+                            IndicatorsPerformanceProgressBarClass = "progress-bar-success";
+                            break;
+
+                        case >= 50:
+                            IndicatorsPerformanceProgressBarClass = "progress-bar-info";
+                            break;
+
+                        case >= 30:
+                            IndicatorsPerformanceProgressBarClass = "progress-bar-warning";
+                            break;
+
+                        case < 30:
+                            IndicatorsPerformanceProgressBarClass = "progress-bar-danger";
+                            break;
+                    }
+
+                    switch (item.DisbursementPerformance)
+                    {
+                        case >= 80:
+                            DisbursementPerformanceProgressBarClass = "progress-bar-success";
+                            break;
+
+                        case >= 50:
+                            DisbursementPerformanceProgressBarClass = "progress-bar-info";
+                            break;
+
+                        case >= 30:
+                            DisbursementPerformanceProgressBarClass = "progress-bar-warning";
+                            break;
+
+                        case < 30:
+                            DisbursementPerformanceProgressBarClass = "progress-bar-danger";
+                            break;
+                    }
+
+                    switch (item.FieldMonitoring)
+                    {
+                        case >= 80:
+                            FieldMonitoringProgressBarClass = "progress-bar-success";
+                            break;
+
+                        case >= 50:
+                            FieldMonitoringProgressBarClass = "progress-bar-info";
+                            break;
+
+                        case >= 30:
+                            FieldMonitoringProgressBarClass = "progress-bar-warning";
+                            break;
+
+                        case < 30:
+                            FieldMonitoringProgressBarClass = "progress-bar-danger";
+                            break;
+                    }
+
+                    switch (item.ImpactAssessment)
+                    {
+                        case >= 80:
+                            ImpactAssessmentProgressBarClass = "progress-bar-success";
+                            break;
+
+                        case >= 50:
+                            ImpactAssessmentProgressBarClass = "progress-bar-info";
+                            break;
+
+                        case >= 30:
+                            ImpactAssessmentProgressBarClass = "progress-bar-warning";
+                            break;
+
+                        case < 30:
+                            ImpactAssessmentProgressBarClass = "progress-bar-danger";
+                            break;
+                    }
+
+                    switch (item.Trend)
+                    {
+                        case >= 80:
+                            TrendImage = "external-link-success.png";
+                            break;
+
+                        case >= 50:
+                            TrendImage = "external-link-info.png";
+                            break;
+
+                        case >= 30:
+                            TrendImage = "external-link-squared.png";
+                            break;
+
+                        case < 30:
+                            TrendImage = "external-link-danger.png";
+                            break;
+                    }
+
+                    <tr>
+                        <td>
+                            <a asp-action="Details" asp-route-id="@item.ProjectID">@item.ProjectName</a>
+                        </td>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.EstimatedBudget)
+                        </td>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.RealBudget)
+                        </td>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.Trend)
+                        </td>
+                        <td>
+                            <div class="progress">
+                                <div class="progress-bar @IndicatorsPerformanceProgressBarClass progress-bar-striped"
+                                     role="progressbar" aria-valuenow="@item.performance" aria-valuemin="0" aria-valuemax="100"
+                                     style="width:@item.performance%">
+                                    @item.performance%
+                                </div>
+                            </div>
+                        </td>
+                        <td>
+                            <div class="progress">
+                                <div class="progress-bar @DisbursementPerformanceProgressBarClass progress-bar-striped"
+                                     role="progressbar" aria-valuenow="@item.DisbursementPerformance" aria-valuemin="0"
+                                     aria-valuemax="100" style="width:@item.DisbursementPerformance%">
+                                    @item.DisbursementPerformance%
+                                </div>
+                            </div>
+                        </td>
+                        <td>
+                            <div class="progress">
+                                <div class="progress-bar @FieldMonitoringProgressBarClass progress-bar-striped"
+                                     role="progressbar" aria-valuenow="@item.FieldMonitoring" aria-valuemin="0" aria-valuemax="100"
+                                     style="width:@item.FieldMonitoring%">
+                                    @item.FieldMonitoring%
+                                </div>
+                            </div>
+                        </td>
+                        <td>
+                            <div class="progress">
+                                <div class="progress-bar @ImpactAssessmentProgressBarClass progress-bar-striped"
+                                     role="progressbar" aria-valuenow="@item.ImpactAssessment" aria-valuemin="0" aria-valuemax="100"
+                                     style="width:@item.ImpactAssessment%">
+                                    @item.ImpactAssessment%
+                                </div>
+                            </div>
+                        </td>
+                        <td>
+                            <form asp-action="Details" asp-route-id="@item.ProjectID" method="get" style="display: inline;">
+                                <button class="btn btn-sm btn-primary" title="View">
+                                    <i class="bi bi-eye"></i>
+                                </button>
+                            </form>
+                            <form asp-action="Edit" asp-route-id="@item.ProjectID" method="get" style="display: inline;">
+                                <button class="btn btn-sm btn-warning" title="Edit">
+                                    <i class="bi bi-pencil"></i>
+                                </button>
+                            </form>
+                            <form asp-action="Delete" asp-route-id="@item.ProjectID" method="post" style="display: inline;">
+                                <button class="btn btn-sm btn-danger" title="Delete">
+                                    <i class="bi bi-trash"></i>
+                                </button>
+                            </form>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

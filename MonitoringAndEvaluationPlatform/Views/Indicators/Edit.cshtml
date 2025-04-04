@@ -13,17 +13,17 @@
     <div class="col-md-4">
         <form asp-action="Edit">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-            <input type="hidden" asp-for="Code" />
+            <input type="hidden" asp-for="IndicatorCode" />
             <div class="form-group">
                 <label asp-for="Name" class="control-label"></label>
                 <input asp-for="Name" class="form-control" />
                 <span asp-validation-for="Name" class="text-danger"></span>
             </div>
-            <div class="form-group">
+@*             <div class="form-group">
                 <label asp-for="Trend" class="control-label"></label>
                 <input asp-for="Trend" class="form-control" />
                 <span asp-validation-for="Trend" class="text-danger"></span>
-            </div>
+            </div> *@
             <div class="form-group">
                 <label asp-for="IndicatorsPerformance" class="control-label"></label>
                 <input asp-for="IndicatorsPerformance" class="form-control" />

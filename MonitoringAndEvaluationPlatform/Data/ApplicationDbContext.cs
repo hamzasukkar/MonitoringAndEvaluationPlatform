@@ -10,24 +10,48 @@ namespace MonitoringAndEvaluationPlatform.Data
             : base(options)
         {
         }
-        public DbSet<MonitoringAndEvaluationPlatform.Models.Framework> Framework { get; set; } = default!;
-        public DbSet<MonitoringAndEvaluationPlatform.Models.Outcome> Outcomes { get; set; } = default!;
-        public DbSet<MonitoringAndEvaluationPlatform.Models.Output> Outputs { get; set; } = default!;
-        public DbSet<MonitoringAndEvaluationPlatform.Models.Indicator> Indicators { get; set; } = default!;
-        public DbSet<MonitoringAndEvaluationPlatform.Models.SubOutput> SubOutputs { get; set; } = default!;
-        public DbSet<MonitoringAndEvaluationPlatform.Models.Ministry> Ministry { get; set; } = default!;
-        public DbSet<MonitoringAndEvaluationPlatform.Models.Program> Program { get; set; } = default!;
-        public DbSet<MonitoringAndEvaluationPlatform.Models.Target> Target { get; set; } = default!;
-        public DbSet<MonitoringAndEvaluationPlatform.Models.Goal> Goal { get; set; } = default!;
-        public DbSet<MonitoringAndEvaluationPlatform.Models.Region> Region { get; set; } = default!;
-        public DbSet<MonitoringAndEvaluationPlatform.Models.Sector> Sector { get; set; } = default!;
-        public DbSet<MonitoringAndEvaluationPlatform.Models.Donor> Donor { get; set; } = default!;
-        public DbSet<MonitoringAndEvaluationPlatform.Models.Assessment> Assessment { get; set; } = default!;
-        public DbSet<MonitoringAndEvaluationPlatform.Models.Measure> Measure { get; set; } = default!;
-        public DbSet<MonitoringAndEvaluationPlatform.Models.LogicalFramework> LogicalFramework { get; set; } = default!;
-        public DbSet<MonitoringAndEvaluationPlatform.Models.LogicalFrameworkIndicator> LogicalFrameworkIndicator { get; set; } = default!;
-        public DbSet<MonitoringAndEvaluationPlatform.Models.SuperVisor> SuperVisor { get; set; } = default!;
-        public DbSet<MonitoringAndEvaluationPlatform.Models.ProjectManager> ProjectManager { get; set; } = default!;
+        public DbSet<Framework> Frameworks { get; set; } = default!;
+        public DbSet<Outcome> Outcomes { get; set; } = default!;
+        public DbSet<Output> Outputs { get; set; } = default!;
+        public DbSet<Indicator> Indicators { get; set; } = default!;
+        public DbSet<SubOutput> SubOutputs { get; set; } = default!;
+        public DbSet<Ministry> Ministries { get; set; } = default!;
+        public DbSet<Project> Projects { get; set; } = default!;
+        public DbSet<Region> Regions { get; set; } = default!;
+        public DbSet<Sector> Sectors { get; set; } = default!;
+        public DbSet<Donor> Donors { get; set; } = default!;
+        public DbSet<Measure> Measures { get; set; } = default!;
+        public DbSet<SuperVisor> SuperVisors { get; set; } = default!;
+        public DbSet<ProjectManager> ProjectManagers { get; set; } = default!;
+        public DbSet<Activity> Activities { get; set; } = default!;
+        public DbSet<Plan> Plans { get; set; } = default!;
+        public DbSet<ActionPlan> ActionPlans { get; set; } = default!;
 
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            base.OnModelCreating(modelBuilder);
+
+            // Ensure Code is used as the primary key
+            modelBuilder.Entity<Measure>()
+                .HasKey(m => m.Code);
+
+            modelBuilder.Entity<Measure>()
+                .HasOne(m => m.Project)
+                .WithMany(p => p.Measures)
+                .HasForeignKey(m => m.ProjectID);
+
+            modelBuilder.Entity<Measure>()
+                .HasOne(m => m.Indicator)
+                .WithMany(i => i.Measures)
+                .HasForeignKey(m => m.IndicatorCode);
+
+            modelBuilder.Entity<Project>()
+               .HasOne(p => p.ActionPlan)
+               .WithOne(ap => ap.Project)
+               .HasForeignKey<ActionPlan>(ap => ap.ProjectID)
+               .OnDelete(DeleteBehavior.Cascade); // Ensures deletion propagates
+
+        }
+     
     }
 }

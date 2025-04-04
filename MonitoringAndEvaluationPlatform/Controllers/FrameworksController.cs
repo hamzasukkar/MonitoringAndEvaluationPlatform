@@ -27,7 +27,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             ViewData["ProgressBarClass"] = "progress-bar-danger";
             @ViewData["CurrentFilter"] = searchString;
 
-            var framework = await _context.Framework.ToListAsync();
+            var framework = await _context.Frameworks.ToListAsync();
 
             if (!string.IsNullOrEmpty(searchString))
             {
@@ -47,7 +47,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 return NotFound();
             }
 
-            var framework = await _context.Framework
+            var framework = await _context.Frameworks
                 .FirstOrDefaultAsync(m => m.Code == id);
             if (framework == null)
             {
@@ -87,7 +87,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 return NotFound();
             }
 
-            var framework = await _context.Framework.FindAsync(id);
+            var framework = await _context.Frameworks.FindAsync(id);
             if (framework == null)
             {
                 return NotFound();
@@ -138,7 +138,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 return NotFound();
             }
 
-            var framework = await _context.Framework
+            var framework = await _context.Frameworks
                 .FirstOrDefaultAsync(m => m.Code == id);
             if (framework == null)
             {
@@ -153,10 +153,10 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var framework = await _context.Framework.FindAsync(id);
+            var framework = await _context.Frameworks.FindAsync(id);
             if (framework != null)
             {
-                _context.Framework.Remove(framework);
+                _context.Frameworks.Remove(framework);
             }
 
             await _context.SaveChangesAsync();
@@ -165,12 +165,12 @@ namespace MonitoringAndEvaluationPlatform.Controllers
 
         private bool FrameworkExists(int id)
         {
-            return _context.Framework.Any(e => e.Code == id);
+            return _context.Frameworks.Any(e => e.Code == id);
         }
 
         public async Task<IActionResult>Monitoring()
         {
-            return View(await _context.Framework.ToListAsync());
+            return View(await _context.Frameworks.ToListAsync());
         }
     }
 }

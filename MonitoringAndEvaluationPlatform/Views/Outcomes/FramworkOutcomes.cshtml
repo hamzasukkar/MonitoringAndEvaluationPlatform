@@ -1,4 +1,5 @@
 ﻿@model IEnumerable<MonitoringAndEvaluationPlatform.Models.Outcome>
+@using MonitoringAndEvaluationPlatform.Helpers
 
 @{
     ViewData["Title"] = "FramworkOutcomes";
@@ -40,43 +41,34 @@
     <tbody>
         @foreach (var item in Model)
         {
+            string indicatorsClass = ProgressBarHelper.GetProgressBarClass(item.IndicatorsPerformance);
+            string disbursementClass = ProgressBarHelper.GetProgressBarClass(item.DisbursementPerformance);
+            string fieldMonitoringClass = ProgressBarHelper.GetProgressBarClass(item.FieldMonitoring);
+            string impactAssessmentClass = ProgressBarHelper.GetProgressBarClass(item.ImpactAssessment);
+            string trendImage = ProgressBarHelper.GetTrendImage(item.Trend);
+            double IndicatorsPerformance = Math.Round(item.IndicatorsPerformance, 2);
+
             <tr>
                 <td>
-                    @Html.DisplayFor(modelItem => item.Name)
+                    <a href="/Outputs/Index/@item.Code">@item.Name</a>
                 </td>
                 <td>
                     @Html.DisplayFor(modelItem => item.Trend)
                 </td>
                 <td>
-                    <div class="progress">
-                        <div class="progress-bar progress-bar-success progress-bar-striped" role="progressbar" aria-valuenow="@item.IndicatorsPerformance" aria-valuemin="0" aria-valuemax="100" style="width:@item.IndicatorsPerformance%">
-                            @item.IndicatorsPerformance%
-                        </div>
-                    </div>
+                    @await Html.PartialAsync("_ProgressBar", Tuple.Create(IndicatorsPerformance, indicatorsClass))
                 </td>
                 <td>
-                    <div class="progress">
-                        <div class="progress-bar progress-bar-success progress-bar-striped" role="progressbar" aria-valuenow="@item.DisbursementPerformance" aria-valuemin="0" aria-valuemax="100" style="width:@item.DisbursementPerformance%">
-                            @item.DisbursementPerformance%
-                        </div>
-                    </div>
+                    @await Html.PartialAsync("_ProgressBar", Tuple.Create(item.DisbursementPerformance, disbursementClass))
                 </td>
                 <td>
-                    <div class="progress">
-                        <div class="progress-bar progress-bar-success progress-bar-striped" role="progressbar" aria-valuenow="@item.FieldMonitoring" aria-valuemin="0" aria-valuemax="100" style="width:@item.FieldMonitoring%">
-                            @item.FieldMonitoring%
-                        </div>
-                    </div>
+                    @await Html.PartialAsync("_ProgressBar", Tuple.Create(item.FieldMonitoring, fieldMonitoringClass))
                 </td>
                 <td>
-                    <div class="progress">
-                        <div class="progress-bar progress-bar-success progress-bar-striped" role="progressbar" aria-valuenow="@item.ImpactAssessment" aria-valuemin="0" aria-valuemax="100" style="width:@item.ImpactAssessment%">
-                            @item.ImpactAssessment%
-                        </div>
-                    </div>
+                    @await Html.PartialAsync("_ProgressBar", Tuple.Create(item.ImpactAssessment, impactAssessmentClass))
                 </td>
                 <td>
-                    @Html.DisplayFor(modelItem => item.Framework.Code)
+                    <a href="/Frameworks/Index/@item.FrameworkCode">@item.Framework.Name</a>
                 </td>
                 <td>
                     <div class="d-inline">

@@ -24,7 +24,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         // GET: SuperVisors
         public async Task<IActionResult> Index()
         {
-            return View(await _context.SuperVisor.ToListAsync());
+            return View(await _context.SuperVisors.ToListAsync());
         }
 
         // GET: SuperVisors/Details/5
@@ -35,7 +35,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 return NotFound();
             }
 
-            var superVisor = await _context.SuperVisor
+            var superVisor = await _context.SuperVisors
                 .FirstOrDefaultAsync(m => m.Code == id);
             if (superVisor == null)
             {
@@ -75,7 +75,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 return NotFound();
             }
 
-            var superVisor = await _context.SuperVisor.FindAsync(id);
+            var superVisor = await _context.SuperVisors.FindAsync(id);
             if (superVisor == null)
             {
                 return NotFound();
@@ -126,7 +126,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 return NotFound();
             }
 
-            var superVisor = await _context.SuperVisor
+            var superVisor = await _context.SuperVisors
                 .FirstOrDefaultAsync(m => m.Code == id);
             if (superVisor == null)
             {
@@ -141,10 +141,10 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var superVisor = await _context.SuperVisor.FindAsync(id);
+            var superVisor = await _context.SuperVisors.FindAsync(id);
             if (superVisor != null)
             {
-                _context.SuperVisor.Remove(superVisor);
+                _context.SuperVisors.Remove(superVisor);
             }
 
             await _context.SaveChangesAsync();
@@ -153,7 +153,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
 
         private bool SuperVisorExists(int id)
         {
-            return _context.SuperVisor.Any(e => e.Code == id);
+            return _context.SuperVisors.Any(e => e.Code == id);
         }
     }
 }

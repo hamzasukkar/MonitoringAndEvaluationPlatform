@@ -1,138 +1,21 @@
 ﻿@using Microsoft.AspNetCore.Identity
 @inject SignInManager<ApplicationUser> SignInManager
 @inject UserManager<ApplicationUser> UserManager
-   
+@using MonitoringAndEvaluationPlatform.Data
+@inject ApplicationDbContext _context
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>@ViewData["Title"] - MonitoringAndEvaluationPlatform</title>
-    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
-    <link rel="stylesheet" href="~/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/bootstrap.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/MonitoringAndEvaluationPlatform.styles.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/layout-styles.css" asp-append-version="true" />
     <link href="~/css/bootstrap-icons.css" rel="stylesheet">
     <link rel="stylesheet" href="~/css/style.min.css" />
-    <style>
-        body {
-            margin: 0;
-            font-family: Arial, sans-serif;
-            display: flex;
-            flex-direction: column;
-            height: 100vh;
-        }
-
-        .topbar {
-            width: 100%;
-            background-color: #b70000;
-            color: white;
-            padding: 10px 20px;
-            box-sizing: border-box;
-            display: flex;
-            align-items: center;
-        }
-
-            .topbar .title {
-                font-size: 20px;
-                font-weight: bold;
-            }
-
-            .topbar .nav-links {
-                display: flex;
-                gap: 15px;
-            }
-
-        .nav-link:focus, .nav-link:hover {
-            color: black;
-        }
-
-        .nav-item a {
-            color: white;
-            text-decoration: none;
-            font-size: 16px;
-        }
-
-        .dropdown-menu a {
-            color: black;
-            text-decoration: none;
-            font-size: 16px;
-        }
-
-        .topbar .nav-links a:hover {
-            text-decoration: underline;
-        }
-
-        .main {
-            display: flex;
-            flex: 1;
-        }
-
-        .sidebar {
-            width: 250px;
-            background-color: #f4f4f4;
-            border-right: 1px solid #ddd;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-            .sidebar ul {
-                list-style: none;
-                padding: 0;
-                margin: 0;
-            }
-
-                .sidebar ul li {
-                    padding: 15px;
-                    cursor: pointer;
-                    border-bottom: 1px solid #ddd;
-                }
-
-                    .sidebar ul li:hover {
-                        background-color: #ddd;
-                    }
-
-        .content {
-            flex-grow: 1;
-            display: flex;
-            flex-direction: column;
-        }
-
-        iframe {
-            width: 100%;
-            height: 100%;
-            border: none;
-        }
-
-        .title {
-            font-size: 20px;
-        }
-
-        .unstyled-link {
-            text-decoration: none; /* Remove underline */
-            color: black !important; /* Inherit color from parent (e.g., `li`) */
-        }
-
-            .unstyled-link:focus,
-            .unstyled-link:hover,
-            .unstyled-link:active {
-                text-decoration: none; /* Remove underline on hover, focus, and active */
-                color: black !important; /* Prevent color changes */
-            }
-
-        .progress-bar-yellow {
-            background-color: #f1c40f; /* Close  to  target */
-        }
-
-        .progress-bar-orange {
-            background-color: #FFA500; /* Far  from  target (orange) */
-        }
-
-        .progress-bar-goldenYellow {
-            background-color: #ffc000; /* Moderate  distance  to  target */
-        }
-
-    </style>
 </head>
 <body>
     <header>
@@ -141,58 +24,22 @@
             <div class="nav-links">
                 <ul class="nav">
                     <!-- Dropdown for Results Framework -->
-                    <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" href="#" id="resultsDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                            Results Framework
-                        </a>
-                        <ul class="dropdown-menu" aria-labelledby="resultsDropdown">
-                            <li><a class="dropdown-item" href="/Outcomes/Index/1">Outcomes</a></li>
-                            <li><a class="dropdown-item" href="/Outputs/Index/1">Outputs</a></li>
-                            <li><a class="dropdown-item" href="/SubOutputs/Index/1">Sub-Outputs</a></li>
-                            <li><a class="dropdown-item" href="/Indicators/Index/1">Indicators</a></li>
-                        </ul>
-                    </li>
-                    <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" href="#" id="resultsDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                            Syria's National Vision
-                        </a>
-                        <ul class="dropdown-menu" aria-labelledby="resultsDropdown">
-                            <li><a class="dropdown-item" href="/Outcomes/Index">Outcomes</a></li>
-                            <li><a class="dropdown-item" href="/Outputs/Index">Outputs</a></li>
-                            <li><a class="dropdown-item" href="/SubOutputs/Index">Sub-Outputs</a></li>
-                            <li><a class="dropdown-item" href="/Indicators/Index">Indicators</a></li>
-                        </ul>
-                    </li>
-                    <!-- Other links -->
-                    <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" href="#" id="resultsDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                            Programs Framework
-                        </a>
-                        <ul class="dropdown-menu" aria-labelledby="resultsDropdown">
-                            <li><a class="dropdown-item" href="/Outcomes/Index">Outcomes</a></li>
-                            <li><a class="dropdown-item" href="/Outputs/Index">Outputs</a></li>
-                            <li><a class="dropdown-item" href="/SubOutputs/Index">Sub-Outputs</a></li>
-                            <li><a class="dropdown-item" href="/Indicators/Index">Indicators</a></li>
-                        </ul>
-                    </li>
-                    <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" href="#" id="resultsDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                            SDG'S
-                        </a>
-                        <ul class="dropdown-menu" aria-labelledby="resultsDropdown">
-                            <li><a class="dropdown-item" href="/Goals/Index">Goals</a></li>
-                            <li><a class="dropdown-item" href="/Targets/Index">Targets</a></li>
-                            <li><a class="dropdown-item" href="/Indicators/Index">Indicators</a></li>
-                        </ul>
-                    </li>
-                    <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" href="#" id="resultsDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                            Common
-                        </a>
-                        <ul class="dropdown-menu" aria-labelledby="resultsDropdown">
-                            <li><a class="dropdown-item" href="/Indicators/Index">Indicators</a></li>
-                        </ul>
-                    </li>
+                    @foreach (var framework in _context.Frameworks.Take(3).ToList())
+                    {
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" id="resultsDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                @framework.Name
+                            </a>
+                            <ul class="dropdown-menu" aria-labelledby="resultsDropdown">
+                                <li><a asp-controller="Outcomes" asp-action="Index" asp-route-frameworkCode="@framework.Code">Outcomes</a></li>
+                                <li><a class="dropdown-item" href="/Outputs/Index/@framework.Code">Outputs</a></li>
+                                <li><a class="dropdown-item" href="/SubOutputs/Index/@framework.Code">SubOutputs</a></li>
+                                <li><a class="dropdown-item" href="/Indicators/Index/@framework.Code">Indicators</a></li>
+                            </ul>
+                        </li>
+                    }
+
+                    <!-- Other dropdowns remain unchanged -->
                     <li>
                         <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" id="resultsDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                             <img class="rounded-circle oe_topbar_avatar me-2" width="23" height="23" src="~/img/profile.jpeg" />
@@ -234,7 +81,7 @@
                 <li class="d-flex align-items-center">
                     <img src="~/img/programs.png"
                          alt="Programs Icon" class="me-2" width="24" height="24">
-                    <a class="unstyled-link" href="/Programs/Index">Programs</a>
+                    <a class="unstyled-link" href="/Projects/Index">Projects</a>
                 </li>
                 <li class="d-flex align-items-center">
                     <img src="~/img/monitor.png"
@@ -246,11 +93,6 @@
                     <img src="~/img/dashboard.png"
                          alt="Dashboard Icon" class="me-2" width="24" height="24">
                     <a class="unstyled-link" href="/Frameworks/Dashboard">Dashboard</a>
-                </li>
-                <li class="d-flex align-items-center">
-                    <img src="~/img/document.png"
-                         alt="Assessment Icon" class="me-2" width="24" height="24">
-                    <a class="unstyled-link" href="/Assessments/Index">Assessment</a>
                 </li>
                 <li class="d-flex align-items-center">
                     <img src="~/img/settings.png"

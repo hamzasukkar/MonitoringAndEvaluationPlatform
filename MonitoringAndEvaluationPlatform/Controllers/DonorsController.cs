@@ -22,7 +22,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         // GET: Donors
         public async Task<IActionResult> Index()
         {
-            return View(await _context.Donor.ToListAsync());
+            return View(await _context.Donors.ToListAsync());
         }
 
         // GET: Donors/Details/5
@@ -33,7 +33,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 return NotFound();
             }
 
-            var donor = await _context.Donor
+            var donor = await _context.Donors
                 .FirstOrDefaultAsync(m => m.Code == id);
             if (donor == null)
             {
@@ -73,7 +73,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 return NotFound();
             }
 
-            var donor = await _context.Donor.FindAsync(id);
+            var donor = await _context.Donors.FindAsync(id);
             if (donor == null)
             {
                 return NotFound();
@@ -124,7 +124,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 return NotFound();
             }
 
-            var donor = await _context.Donor
+            var donor = await _context.Donors
                 .FirstOrDefaultAsync(m => m.Code == id);
             if (donor == null)
             {
@@ -139,10 +139,10 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var donor = await _context.Donor.FindAsync(id);
+            var donor = await _context.Donors.FindAsync(id);
             if (donor != null)
             {
-                _context.Donor.Remove(donor);
+                _context.Donors.Remove(donor);
             }
 
             await _context.SaveChangesAsync();
@@ -151,7 +151,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
 
         private bool DonorExists(int id)
         {
-            return _context.Donor.Any(e => e.Code == id);
+            return _context.Donors.Any(e => e.Code == id);
         }
     }
 }

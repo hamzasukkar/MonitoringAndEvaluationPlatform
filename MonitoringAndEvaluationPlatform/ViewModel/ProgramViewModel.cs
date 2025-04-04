@@ -5,7 +5,7 @@ namespace MonitoringAndEvaluationPlatform.ViewModel
 {
     public class ProgramViewModel
     {
-        public Models.Program Program { get; set; }
+        public Models.Project Program { get; set; }
 
         // Dropdown or selection for regions
         public List<SelectListItem> Regions { get; set; } = new List<SelectListItem>();
