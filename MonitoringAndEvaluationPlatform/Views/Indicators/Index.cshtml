@@ -16,9 +16,8 @@
 </form>
 
 <p>
-    <a asp-action="Create" class="btn btn-success">Create New</a>
+    <a asp-action="Create" asp-route-id="@ViewData["subOutputCode"]" class="btn btn-success">Create New Indicator</a>
     <a asp-action="AdjustWeights" asp-route-subOutputCode="@ViewData["subOutputCode"]" class="btn btn-warning">Adjust Weights</a>
-
 </p>
 
 <table class="table">

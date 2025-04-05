@@ -52,21 +52,6 @@ namespace MonitoringAndEvaluationPlatform.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Assessment",
-                columns: table => new
-                {
-                    Code = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    Category = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    StartDate = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    EndDate = table.Column<DateTime>(type: "datetime2", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Assessment", x => x.Code);
-                });
-
-            migrationBuilder.CreateTable(
                 name: "Donors",
                 columns: table => new
                 {
@@ -319,7 +304,6 @@ namespace MonitoringAndEvaluationPlatform.Migrations
                     Trend = table.Column<int>(type: "int", nullable: false),
                     ProjectManagerCode = table.Column<int>(type: "int", nullable: false),
                     SuperVisorCode = table.Column<int>(type: "int", nullable: false),
-                    Category = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     MinistryCode = table.Column<int>(type: "int", nullable: false),
                     DonorCode = table.Column<int>(type: "int", nullable: false),
                     StartDate = table.Column<DateTime>(type: "datetime2", nullable: false),
@@ -674,9 +658,6 @@ namespace MonitoringAndEvaluationPlatform.Migrations
 
             migrationBuilder.DropTable(
                 name: "AspNetUserTokens");
-
-            migrationBuilder.DropTable(
-                name: "Assessment");
 
             migrationBuilder.DropTable(
                 name: "Measures");

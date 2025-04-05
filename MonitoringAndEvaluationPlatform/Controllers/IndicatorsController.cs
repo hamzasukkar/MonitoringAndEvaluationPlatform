@@ -85,9 +85,16 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         //}
 
         // GET: Indicators/Create
-        public IActionResult Create()
+        public IActionResult Create(int? id)
         {
-            ViewData["SubOutputCode"] = new SelectList(_context.SubOutputs, "Code", "Name");
+            // Populate dropdown only if no SubOutput is preselected
+            ViewData["SubOutputCode"] = id == null
+                ? new SelectList(_context.SubOutputs, "Code", "Name")
+                : new SelectList(_context.SubOutputs, "Code", "Name", id);
+
+            // Pass the selected framework code to the view
+            ViewBag.SelectedSubOutputCode = id;
+
             return View();
         }
 
