@@ -54,7 +54,7 @@
             double IndicatorsPerformance = Math.Round(item.IndicatorsPerformance, 2);
             <tr>
                 <td>
-                    <a href="/Indicators/Index/@item.Output.Outcome.FrameworkCode">@item.Name</a>
+                    <a asp-controller="Indicators" asp-route-frameworkCode="@item.Output.Outcome.FrameworkCode" asp-route-subOutputCode="@item.Code" asp-action="Index">@item.Name</a>
                 </td>
                 <td>
                     @Html.DisplayFor(modelItem => item.Weight)

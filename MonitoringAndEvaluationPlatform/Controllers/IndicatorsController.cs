@@ -21,11 +21,12 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         }
 
         // GET: Indicators
-        public async Task<IActionResult> Index(int? id, string searchString)
+        public async Task<IActionResult> Index(int? frameworkCode, int? subOutputCode, string searchString)
         {
             @ViewData["CurrentFilter"] = searchString;
+            @ViewData["subOutputCode"] = subOutputCode;
 
-            if (id == null)
+            if (frameworkCode == null)
             {
                 // Include the SubOutput navigation property
                 var indicators = _context.Indicators.Include(i => i.SubOutput).AsQueryable();
@@ -34,13 +35,23 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 if (!string.IsNullOrEmpty(searchString))
                 {
                     indicators = indicators.Where(i => i.Name.Contains(searchString) ||
-                                                       (i.SubOutput != null && i.SubOutput.Name.Contains(searchString)));
+                                                     (i.SubOutput != null && i.SubOutput.Name.Contains(searchString)));
                 }
 
                 return View(await indicators.ToListAsync());
             }
 
-            var frameworkIndicators = _context.Indicators.Where(i => i.SubOutput.Output.Outcome.FrameworkCode == id).Include(i => i.SubOutput).AsQueryable();
+            var frameworkIndicators = _context.Indicators
+                .Where(i => i.SubOutput.Output.Outcome.FrameworkCode == frameworkCode)
+                .Include(i => i.SubOutput)
+                .AsQueryable();
+
+            // Add subOutputCode filter if it's provided
+            if (subOutputCode != null)
+            {
+                frameworkIndicators = frameworkIndicators.Where(i => i.SubOutputCode== subOutputCode);
+            }
+
             if (!string.IsNullOrEmpty(searchString))
             {
                 frameworkIndicators = frameworkIndicators.Where(i => i.Name.Contains(searchString) ||
@@ -98,8 +109,10 @@ namespace MonitoringAndEvaluationPlatform.Controllers
 
                 // Update related entities
                 await UpdateSubOutputPerformance(indicator.SubOutputCode);
+                // Recalculate weights
+                await RedistributeWeights(indicator.SubOutputCode);
 
-                return RedirectToAction(nameof(Index));
+                return RedirectToAction(nameof(Index), new { frameworkCode = indicator.SubOutput.Output.Outcome.FrameworkCode, subOutputCode = indicator.SubOutputCode });
             }
 
             ViewData["SubOutputCode"] = new SelectList(_context.SubOutputs, "Code", "Name", indicator.SubOutputCode);
@@ -264,9 +277,9 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         (indicator.Name, "Indicator", indicator.IndicatorCode)
     };
 
-            var measures = await _context.Measures.Where(m=>m.IndicatorCode==id).ToListAsync();
+            var measures = await _context.Measures.Where(m => m.IndicatorCode == id).ToListAsync();
 
-            var labels= new List<string>();
+            var labels = new List<string>();
             var realData = new List<double>();
             var historicalData = new List<double>();
             var requiredData = new List<double>();
@@ -275,14 +288,14 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             {
                 labels.Add(measure.Date.ToString());
                 realData.Add(measure.Value);
-                historicalData.Add(measure.Value+20);
-                requiredData.Add(measure.Value+10);
+                historicalData.Add(measure.Value + 20);
+                requiredData.Add(measure.Value + 10);
             }
 
             var chartDataViewModel = new ChartDataViewModel
             {
                 Labels = labels,
-                RealData =realData,
+                RealData = realData,
                 HistoricalData = historicalData,
                 RequiredData = requiredData
             };
@@ -291,8 +304,8 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             {
                 Indicator = indicator,
                 Hierarchy = hierarchy,
-                Measures= measures,
-                ChartDataViewModel= chartDataViewModel
+                Measures = measures,
+                ChartDataViewModel = chartDataViewModel
             };
 
             return View(model);
@@ -323,21 +336,94 @@ namespace MonitoringAndEvaluationPlatform.Controllers
 
         public IActionResult Chart()
         {
-                var viewModel = new ChartDataViewModel
-                {
-                    Labels = new List<string>
+            var viewModel = new ChartDataViewModel
+            {
+                Labels = new List<string>
             {
                 "2019-01-01", "2022-01-01", "2030-02-01", "2030-03-01",
                 "2030-04-01", "2030-05-01", "2030-06-01"
             },
-                    RealData = new List<double> { 80, 85, 90, 95, 98, 99, 100 },
-                    HistoricalData = new List<double> { 80, 82, 83, 85, 87, 89, 91 },
-                    RequiredData = new List<double> { 80, 83, 86, 89, 92, 95, 100 }
-                };
+                RealData = new List<double> { 80, 85, 90, 95, 98, 99, 100 },
+                HistoricalData = new List<double> { 80, 82, 83, 85, 87, 89, 91 },
+                RequiredData = new List<double> { 80, 83, 86, 89, 92, 95, 100 }
+            };
 
-                return View(viewModel);
+            return View(viewModel);
+        }
+        private async Task RedistributeWeights(int subOutputCode)
+        {
+            var indicators = await _context.Indicators
+                .Where(i => i.SubOutputCode == subOutputCode)
+                .ToListAsync();
+
+            if (indicators.Count == 0)
+                return;
+
+            double equalWeight = 100.0 / indicators.Count;
+
+            foreach (var i in indicators)
+            {
+                i.Weight = Math.Round(equalWeight, 2);
+                _context.Entry(i).State = EntityState.Modified;
+            }
+
+            // Adjust the last one so the sum is exactly 100
+            double total = indicators.Sum(i => i.Weight);
+            if (Math.Abs(total - 100.0) > 0.01)
+            {
+                double correction = 100.0 - total;
+                indicators.Last().Weight += correction;
+            }
+
+            await _context.SaveChangesAsync();
         }
 
+        // GET: Indicators/AdjustWeights/5
+        public async Task<IActionResult> AdjustWeights(int subOutputCode)
+        {
+            var indicators = await _context.Indicators
+                .Where(i => i.SubOutputCode == subOutputCode)
+                .ToListAsync();
 
+            var model = indicators.Select(i => new IndicatorViewModel
+            {
+                Code = i.IndicatorCode,
+                Name = i.Name,
+                Weight = i.Weight
+            }).ToList();
+
+            ViewBag.SubOutputCode = subOutputCode;
+            return View(model);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> AdjustWeights(List<IndicatorViewModel> model, int subOutputCode)
+        {
+            double totalWeight = model.Sum(i => i.Weight);
+
+            if (Math.Abs(totalWeight - 100.0) > 0.01)
+            {
+                ModelState.AddModelError("", "Total weight must equal 100%.");
+                ViewBag.SubOutputCode = subOutputCode;
+                return View(model);
+            }
+
+            foreach (var vm in model)
+            {
+                var indicator = await _context.Indicators.FindAsync(vm.Code);
+                if (indicator != null)
+                {
+                    indicator.Weight = vm.Weight;
+                    _context.Update(indicator);
+                }
+            }
+
+            await _context.SaveChangesAsync();
+            return RedirectToAction("Index");
+        }
     }
+
+
 }
+
