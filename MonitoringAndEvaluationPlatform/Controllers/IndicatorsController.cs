@@ -25,6 +25,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         {
             @ViewData["CurrentFilter"] = searchString;
             @ViewData["subOutputCode"] = subOutputCode;
+            @ViewData["frameworkCode"] = subOutputCode;
 
             if (frameworkCode == null)
             {
@@ -405,7 +406,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> AdjustWeights(List<IndicatorViewModel> model, int subOutputCode)
+        public async Task<IActionResult> AdjustWeights(List<IndicatorViewModel> model, int subOutputCode,int frameworkCode)
         {
             double totalWeight = model.Sum(i => i.Weight);
 
@@ -427,7 +428,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             }
 
             await _context.SaveChangesAsync();
-            return RedirectToAction("Index");
+            return RedirectToAction(nameof(Index), new { frameworkCode = frameworkCode, subOutputCode = subOutputCode });
         }
     }
 
