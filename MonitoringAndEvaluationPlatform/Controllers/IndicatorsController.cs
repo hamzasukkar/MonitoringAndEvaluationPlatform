@@ -25,7 +25,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         {
             @ViewData["CurrentFilter"] = searchString;
             @ViewData["subOutputCode"] = subOutputCode;
-            @ViewData["frameworkCode"] = subOutputCode;
+            @ViewData["frameworkCode"] = frameworkCode;
 
             if (frameworkCode == null)
             {
@@ -386,8 +386,8 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             await _context.SaveChangesAsync();
         }
 
-        // GET: Indicators/AdjustWeights/5
-        public async Task<IActionResult> AdjustWeights(int subOutputCode)
+       // GET: Indicators/AdjustWeights/5
+        public async Task<IActionResult> AdjustWeights(int frameworkCode, int subOutputCode)
         {
             var indicators = await _context.Indicators
                 .Where(i => i.SubOutputCode == subOutputCode)
@@ -401,12 +401,13 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             }).ToList();
 
             ViewBag.SubOutputCode = subOutputCode;
+            ViewBag.FrameworkCode = frameworkCode;
             return View(model);
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> AdjustWeights(List<IndicatorViewModel> model, int subOutputCode,int frameworkCode)
+        public async Task<IActionResult> AdjustWeights(List<IndicatorViewModel> model, int frameworkCode, int subOutputCode)
         {
             double totalWeight = model.Sum(i => i.Weight);
 
