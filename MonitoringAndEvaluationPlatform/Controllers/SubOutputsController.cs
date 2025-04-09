@@ -200,29 +200,30 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             return _context.SubOutputs.Any(e => e.Code == id);
         }
 
-        private async Task RedistributeWeights(int subOutputCode)
+      
+        private async Task RedistributeWeights(int outputCode)
         {
-            var indicators = await _context.Indicators
-                .Where(i => i.SubOutputCode == subOutputCode)
+            var subOutputs = await _context.SubOutputs
+                .Where(i => i.OutputCode == outputCode)
                 .ToListAsync();
 
-            if (indicators.Count == 0)
+            if (subOutputs.Count == 0)
                 return;
 
-            double equalWeight = 100.0 / indicators.Count;
+            double equalWeight = 100.0 / subOutputs.Count;
 
-            foreach (var i in indicators)
+            foreach (var i in subOutputs)
             {
                 i.Weight = Math.Round(equalWeight, 2);
                 _context.Entry(i).State = EntityState.Modified;
             }
 
             // Adjust the last one so the sum is exactly 100
-            double total = indicators.Sum(i => i.Weight);
+            double total = subOutputs.Sum(i => i.Weight);
             if (Math.Abs(total - 100.0) > 0.01)
             {
                 double correction = 100.0 - total;
-                indicators.Last().Weight += correction;
+                subOutputs.Last().Weight += correction;
             }
 
             await _context.SaveChangesAsync();

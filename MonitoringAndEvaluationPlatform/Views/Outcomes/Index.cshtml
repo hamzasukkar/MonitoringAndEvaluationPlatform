@@ -9,9 +9,15 @@
 
 <h1>Index</h1>
 
+
 <p>
-    <a asp-action="Create" asp-route-frameworkCode="@ViewBag.SelectedFrameworkCode">Create New Outcome</a>
+    <a asp-action="Create" asp-route-frameworkCode="@ViewBag.SelectedFrameworkCode" class="btn btn-success">Create New Outcome</a>
+    @if (@ViewBag.SelectedFrameworkCode != null)
+    {
+        <a asp-action="AdjustWeights" asp-route-frameworkCode="@ViewBag.SelectedFrameworkCode" class="btn btn-warning">Adjust Weights</a>
+    }
 </p>
+
 
 <table class="table">
     <thead>
