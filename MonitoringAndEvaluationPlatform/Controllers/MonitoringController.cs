@@ -98,6 +98,8 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         public async Task<IActionResult> FrameworkIndicators(int? id)
         {
             var indicators = await _context.Indicators
+                .Include(i => i.Measures)
+                .ThenInclude(i => i.Project)
                 .Where(x => x.SubOutput.Output.Outcome.FrameworkCode == id).ToListAsync();
             return View(indicators);
         }
