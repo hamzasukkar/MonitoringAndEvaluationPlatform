@@ -1,0 +1,57 @@
+﻿@model MonitoringAndEvaluationPlatform.ViewModel.FrameworkOutcomeDashboardViewModel
+@{
+    ViewData["Title"] = "Framework + Outcome Dashboard";
+    var selectedCode = Context.Request.Query["frameworkCode"];
+    Layout = "~/Views/Shared/_DashboardLayout.cshtml";
+}
+
+<h2>📊 Framework & Outcome Progress</h2>
+
+<form method="get" class="mb-4">
+    <label class="form-label">Filter by Framework:</label>
+    <select name="frameworkCode" class="form-select w-25 d-inline" onchange="this.form.submit()">
+        <option value="">-- All Frameworks --</option>
+        @foreach (var fw in Model.FrameworkOptions)
+        {
+            <option value="@fw.Value" selected="@(fw.Value == selectedCode)">@fw.Text</option>
+        }
+    </select>
+    @if (!String.IsNullOrEmpty(selectedCode))
+    {
+        <a href="@Url.Action("FrameworkOutcomeDashboard")" class="btn btn-secondary ms-2">Reset</a>
+    }
+</form>
+
+<div class="row">
+    <div class="col-md-6">
+        <h5 class="mb-2">Frameworks Progress</h5>
+        @foreach (var fw in Model.Frameworks.Take(5))
+        {
+            <div class="mb-2" title="Indicators: @fw.TotalIndicators | Target: @fw.TotalTarget | Achieved: @fw.TotalAchieved">
+                <strong>@fw.FrameworkName</strong>
+                <div class="progress" style="height: 25px;">
+                    <div class="progress-bar bg-success" style="width:@fw.AchievementRate%" role="progressbar">
+                        @fw.AchievementRate.ToString("0.#")%
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+
+    <div class="col-md-6">
+        <h5 class="mb-2">Outcomes Progress</h5>
+        @foreach (var o in Model.Outcomes.Take(5))
+        {
+            <div class="mb-2" title="Indicators: @o.TotalIndicators | Target: @o.TotalTarget | Achieved: @o.TotalAchieved">
+                <strong>@o.OutcomeName</strong>
+                <div class="progress" style="height: 25px;">
+                    <div class="progress-bar bg-info" style="width:@o.AchievementRate%" role="progressbar">
+                        @o.AchievementRate.ToString("0.#")%
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+</div>
+
+

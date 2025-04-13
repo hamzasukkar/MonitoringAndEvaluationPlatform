@@ -16,14 +16,28 @@ public class DashboardController : Controller
     }
 
     [HttpGet]
-    public IActionResult OutcomeProgress()
+    [HttpGet]
+    public IActionResult OutcomeProgress(int? frameworkCode)
     {
-        var outcomes = _context.Outcomes
+        // For the dropdown
+        ViewBag.Frameworks = _context.Frameworks
+            .Select(f => new SelectListItem
+            {
+                Value = f.Code.ToString(),
+                Text = f.Name
+            }).ToList();
+
+        var outcomesQuery = _context.Outcomes
             .Include(o => o.Outputs)
                 .ThenInclude(op => op.SubOutputs)
                     .ThenInclude(so => so.Indicators)
                         .ThenInclude(i => i.Measures)
-            .ToList();
+            .AsQueryable();
+
+        if (frameworkCode.HasValue)
+            outcomesQuery = outcomesQuery.Where(o => o.FrameworkCode == frameworkCode.Value);
+
+        var outcomes = outcomesQuery.ToList();
 
         var items = outcomes.Select(o =>
         {
@@ -48,8 +62,85 @@ public class DashboardController : Controller
         .OrderByDescending(x => x.AchievementRate)
         .ToList();
 
-        return View(new OutcomeProgressViewModel { Outcomes = items });
+        return View(new OutcomeProgressViewModel
+        {
+            Outcomes = items
+        });
     }
+    public IActionResult FrameworkOutcomeDashboard(int? frameworkCode)
+    {
+        var allFrameworks = _context.Frameworks
+            .Include(f => f.Outcomes)
+                .ThenInclude(o => o.Outputs)
+                    .ThenInclude(op => op.SubOutputs)
+                        .ThenInclude(so => so.Indicators)
+                            .ThenInclude(i => i.Measures)
+            .ToList();
+
+        var frameworkItems = allFrameworks.Select(f =>
+        {
+            var indicators = f.Outcomes
+                .SelectMany(o => o.Outputs)
+                .SelectMany(op => op.SubOutputs)
+                .SelectMany(so => so.Indicators)
+                .ToList();
+
+            var totalTarget = indicators.Sum(i => i.Target);
+            var totalAchieved = indicators.SelectMany(i => i.Measures).Sum(m => m.Value);
+            var rate = totalTarget > 0 ? (totalAchieved / totalTarget) * 100 : 0;
+
+            return new FrameworkProgressItem
+            {
+                FrameworkName = f.Name,
+                AchievementRate = rate,
+                TotalIndicators = indicators.Count,
+                TotalTarget = totalTarget,
+                TotalAchieved = totalAchieved
+            };
+        }).OrderByDescending(f => f.AchievementRate).ToList();
+
+        var filteredOutcomes = allFrameworks
+            .Where(f => !frameworkCode.HasValue || f.Code == frameworkCode.Value)
+            .SelectMany(f => f.Outcomes)
+            .ToList();
+
+        var outcomeItems = filteredOutcomes.Select(o =>
+        {
+            var indicators = o.Outputs
+                .SelectMany(op => op.SubOutputs)
+                .SelectMany(so => so.Indicators)
+                .ToList();
+
+            var totalTarget = indicators.Sum(i => i.Target);
+            var totalAchieved = indicators.SelectMany(i => i.Measures).Sum(m => m.Value);
+            var rate = totalTarget > 0 ? (totalAchieved / totalTarget) * 100 : 0;
+
+            return new OutcomeProgressItem
+            {
+                OutcomeName = o.Name,
+                AchievementRate = rate,
+                TotalIndicators = indicators.Count,
+                TotalTarget = totalTarget,
+                TotalAchieved = totalAchieved
+            };
+        }).OrderByDescending(o => o.AchievementRate).ToList();
+
+        var model = new FrameworkOutcomeDashboardViewModel
+        {
+            Frameworks = frameworkItems,
+            Outcomes = outcomeItems,
+            SelectedFrameworkCode = frameworkCode,
+            FrameworkOptions = _context.Frameworks
+                .Select(f => new SelectListItem
+                {
+                    Value = f.Code.ToString(),
+                    Text = f.Name
+                }).ToList()
+        };
+
+        return View(model);
+    }
+
 
 
     [HttpGet]

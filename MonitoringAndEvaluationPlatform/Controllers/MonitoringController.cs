@@ -43,7 +43,6 @@ namespace MonitoringAndEvaluationPlatform.Controllers
 
             return View(outcomes);
         }
-
         public async Task<IActionResult> Output(int? id)
         {
             var outputs = await _context.Outputs

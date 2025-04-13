@@ -2,6 +2,7 @@
 @{
     ViewData["Title"] = "OutcomeProgress";
     Layout = "~/Views/Shared/_DashboardLayout.cshtml";
+    var selectedFramework = Context.Request.Query["frameworkCode"];
 }
 
 
@@ -47,6 +48,24 @@
         background-color: #80cbc4;
     }
 </style>
+
+<form method="get" class="row g-3 mb-4">
+    <div class="col-md-4">
+        <label class="form-label">Filter by Framework</label>
+        <select name="frameworkCode" class="form-select" onchange="this.form.submit()">
+            <option value="">-- All Frameworks --</option>
+            @foreach (var fw in (List<SelectListItem>)ViewBag.Frameworks)
+            {
+                <option value="@fw.Value" selected="@(fw.Value == selectedFramework)">@fw.Text</option>
+            }
+        </select>
+    </div>
+</form>
+
+@if (!String.IsNullOrEmpty(selectedFramework))
+{
+    <a href="@Url.Action("OutcomeProgress")" class="btn btn-secondary mt-2">Reset Filter</a>
+}
 
 <div class="container">
     <h5 class="mb-3">Top Outcomes by Achievement Rate</h5>
