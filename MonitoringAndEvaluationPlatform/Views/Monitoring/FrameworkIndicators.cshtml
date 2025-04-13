@@ -48,7 +48,10 @@
 <body>
     @foreach (var item in Model)
     {
-
+        var projectCount = @item.Measures
+        .Select(measure => measure.Project)
+        .Distinct()
+        .Count();
 
         <div class="container my-4">
             <div class="card p-3 shadow-sm">
@@ -81,7 +84,7 @@
                     <!-- Right Section -->
                     <div class="col-md-6">
                         <ul class="list-unstyled stats">
-                            <li><strong>Projects:</strong> 3</li>
+                            <li><strong>Projects:</strong> @projectCount</li>
                         </ul>
                     </div>
                 </div>

@@ -274,29 +274,6 @@ namespace MonitoringAndEvaluationPlatform.Migrations
                     b.ToTable("AspNetUsers", (string)null);
                 });
 
-            modelBuilder.Entity("MonitoringAndEvaluationPlatform.Models.Assessment", b =>
-                {
-                    b.Property<int>("Code")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Code"));
-
-                    b.Property<string>("Category")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime>("EndDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<DateTime>("StartDate")
-                        .HasColumnType("datetime2");
-
-                    b.HasKey("Code");
-
-                    b.ToTable("Assessment");
-                });
-
             modelBuilder.Entity("MonitoringAndEvaluationPlatform.Models.Donor", b =>
                 {
                     b.Property<int>("Code")
@@ -615,9 +592,6 @@ namespace MonitoringAndEvaluationPlatform.Migrations
                         .HasColumnType("int");
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ProjectID"));
-
-                    b.Property<string>("Category")
-                        .HasColumnType("nvarchar(max)");
 
                     b.Property<int>("DisbursementPerformance")
                         .HasColumnType("int");

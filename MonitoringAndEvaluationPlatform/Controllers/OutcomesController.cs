@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using MonitoringAndEvaluationPlatform.Data;
 using MonitoringAndEvaluationPlatform.Models;
+using MonitoringAndEvaluationPlatform.ViewModel;
 
 namespace MonitoringAndEvaluationPlatform.Controllers
 {
@@ -95,6 +96,9 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             {
                 _context.Add(outcome);
                 await _context.SaveChangesAsync();
+
+                // Recalculate weights
+                await RedistributeWeights(outcome.FrameworkCode);
 
                 // Redirect to Index with FrameworkCode after creating the Outcome
                 return RedirectToAction("Index", new { frameworkCode = outcome.FrameworkCode });
@@ -205,5 +209,78 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             ViewData["FrameworkName"] = _context.Frameworks.Where(i => i.Code == id).FirstOrDefault().Name;
             return View(await applicationDbContext.ToListAsync());
         }
+
+        private async Task RedistributeWeights(int frameworkCode)
+        {
+            var outcomes = await _context.Outcomes
+                .Where(i => i.FrameworkCode == frameworkCode)
+                .ToListAsync();
+
+            if (outcomes.Count == 0)
+                return;
+
+            double equalWeight = 100.0 / outcomes.Count;
+
+            foreach (var i in outcomes)
+            {
+                i.Weight = Math.Round(equalWeight, 2);
+                _context.Entry(i).State = EntityState.Modified;
+            }
+
+            // Adjust the last one so the sum is exactly 100
+            double total = outcomes.Sum(i => i.Weight);
+            if (Math.Abs(total - 100.0) > 0.01)
+            {
+                double correction = 100.0 - total;
+                outcomes.Last().Weight += correction;
+            }
+
+            await _context.SaveChangesAsync();
+        }
+
+        public async Task<IActionResult> AdjustWeights(int frameworkCode)
+        {
+            var outcomes = await _context.Outcomes
+                .Where(i => i.FrameworkCode == frameworkCode)
+                .ToListAsync();
+
+            var model = outcomes.Select(i => new OutcomesViewModel
+            {
+                Code = i.Code,
+                Name = i.Name,
+                Weight = i.Weight
+            }).ToList();
+
+            ViewBag.FrameworkCode = frameworkCode;
+            return View(model);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> AdjustWeights(List<OutcomesViewModel> model,int frameworkCode)
+        {
+            double totalWeight = model.Sum(i => i.Weight);
+
+            if (Math.Abs(totalWeight - 100.0) > 0.01)
+            {
+                ModelState.AddModelError("", "Total weight must equal 100%.");
+                ViewBag.FrameworkCode = frameworkCode;
+                return View(model);
+            }
+
+            foreach (var vm in model)
+            {
+                var outcome = await _context.Outcomes.FindAsync(vm.Code);
+                if (outcome != null)
+                {
+                    outcome.Weight = vm.Weight;
+                    _context.Update(outcome);
+                }
+            }
+
+            await _context.SaveChangesAsync();
+            return RedirectToAction(nameof(Index), new { frameworkCode = frameworkCode });
+        }
     }
 }
+

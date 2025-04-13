@@ -43,7 +43,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 pid = "",
                 name = f.Name,
                 type = "Framework",
-                IndicatorsPerformance = f.IndicatorsPerformance.ToString()+"%"
+                IndicatorsPerformance =Math.Round(f.IndicatorsPerformance,0).ToString()+"%"
             }
                 }
                 .Concat(f.Outcomes.SelectMany(o => new[]
@@ -54,7 +54,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 pid = $"F{f.Code}",
                 name = o.Name,
                 type = "Outcome",
-                IndicatorsPerformance = o.IndicatorsPerformance.ToString()+"%"
+                IndicatorsPerformance = Math.Round(o.IndicatorsPerformance,0).ToString()+"%"
             }
                 }
                 .Concat(o.Outputs.SelectMany(op => new[]
@@ -65,7 +65,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 pid = $"O{o.Code}",
                 name = op.Name,
                 type = "Output",
-                IndicatorsPerformance = op.IndicatorsPerformance.ToString()+"%"
+                IndicatorsPerformance = Math.Round(op.IndicatorsPerformance, 0).ToString()+"%"
             }
                 }
                 .Concat(op.SubOutputs.SelectMany(so => new[]
@@ -76,7 +76,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 pid = $"Op{op.Code}",
                 name = so.Name,
                 type = "SubOutput",
-                IndicatorsPerformance = so.IndicatorsPerformance.ToString()+"%"
+                IndicatorsPerformance = Math.Round(so.IndicatorsPerformance, 0).ToString()+"%"
             }
                 }
                 .Concat(so.Indicators.Select(i => new
@@ -85,7 +85,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                     pid = $"S{so.Code}",
                     name = i.Name,
                     type = "Indicator",
-                    IndicatorsPerformance = i.IndicatorsPerformance.ToString() + "%"
+                    IndicatorsPerformance = Math.Round(i.IndicatorsPerformance, 0).ToString() + "%"
                 })))))))));
 
             return Json(data);

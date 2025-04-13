@@ -8,9 +8,12 @@
 
 <h1>Index</h1>
 
-
 <p>
-    <a asp-action="Create" asp-route-id="@ViewBag.SelectedOutputCode">Create New Sub Output</a>
+    <a asp-action="Create" asp-route-id="@ViewBag.SelectedOutputCode" class="btn btn-success">Create New Sub Output</a>
+    @if (@ViewBag.SelectedOutputCode != null)
+    {
+        <a asp-action="AdjustWeights" asp-route-frameworkCode="@ViewData["frameworkCode"]" asp-route-outputCode="@ViewBag.SelectedOutputCode" class="btn btn-warning">Adjust Weights</a>
+    }
 </p>
 
 <table class="table">
@@ -54,7 +57,7 @@
             double IndicatorsPerformance = Math.Round(item.IndicatorsPerformance, 2);
             <tr>
                 <td>
-                    <a href="/Indicators/Index/@item.Output.Outcome.FrameworkCode">@item.Name</a>
+                    <a asp-controller="Indicators" asp-route-frameworkCode="@item.Output.Outcome.FrameworkCode" asp-route-subOutputCode="@item.Code" asp-action="Index">@item.Name</a>
                 </td>
                 <td>
                     @Html.DisplayFor(modelItem => item.Weight)

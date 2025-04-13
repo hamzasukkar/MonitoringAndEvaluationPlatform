@@ -12,10 +12,7 @@ namespace MonitoringAndEvaluationPlatform.Models
         public double DisbursementPerformance { get; set; } = 0;
         public double FieldMonitoring { get; set; } = 0;
         public double ImpactAssessment { get; set; } = 0;
-
-        [Range(0, 1, ErrorMessage = "The Weight must be between 0 and 1.")]
         public double Weight { get; set; } = 1;
-
         public int OutputCode { get; set; }
         virtual public Output Output { get; set; }
         public ICollection<Indicator> Indicators { get; set; } = new List<Indicator>();
