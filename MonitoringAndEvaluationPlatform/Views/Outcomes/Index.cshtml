@@ -60,7 +60,7 @@
             double IndicatorsPerformance = Math.Round(item.IndicatorsPerformance, 2);
             <tr>
                 <td>
-                    <a href="/Outputs/Index/@item.Code">@item.Name</a>
+                    <a asp-controller="Outputs" asp-action="Index" asp-route-outcomeCode="@item.Code">@item.Name</a>
                 </td>
             @*     <td>
                     @Html.DisplayFor(modelItem => item.Trend)

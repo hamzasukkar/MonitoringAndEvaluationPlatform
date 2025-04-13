@@ -1,6 +1,6 @@
 ﻿namespace MonitoringAndEvaluationPlatform.ViewModel
 {
-    public class OutputViewModel
+    public class SubOutputViewModel
     {
         public int Code { get; set; }
         public string Name { get; set; }

@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using MonitoringAndEvaluationPlatform.Data;
 using MonitoringAndEvaluationPlatform.Models;
+using MonitoringAndEvaluationPlatform.ViewModel;
 
 namespace MonitoringAndEvaluationPlatform.Controllers
 {
@@ -22,28 +23,38 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         }
 
         // GET: Outputs
-        public async Task<IActionResult> Index(int? id)
+        public async Task<IActionResult> Index(int? frameworkCode, int? outcomeCode)
         {
-            if (id == null)
-            {
-                var applicationDbContext = _context.Outputs.Include(o => o.Outcome);
-                return View(await applicationDbContext.ToListAsync());
-            }
-
-            ViewBag.SelectedOutcomeCode = id; // Store it for use in the view
-
-            var outputs = await _context.Outputs
+            // Start with base query including all related entities
+            var query = _context.Outputs
                 .Include(o => o.Outcome)
                 .Include(o => o.SubOutputs)
-                .Where(m => m.Outcome.FrameworkCode == id).ToListAsync();
+                .AsQueryable();
 
-            if (outputs == null)
+            // Apply framework filter if frameworkCode is provided
+            if (frameworkCode.HasValue)
+            {
+                query = query.Where(o => o.Outcome.FrameworkCode == frameworkCode.Value);
+                ViewBag.SelectedFrameworkCode = frameworkCode.Value;
+            }
+
+            // Apply outcome filter if outcomeCode is provided
+            if (outcomeCode.HasValue)
+            {
+                query = query.Where(o => o.OutcomeCode == outcomeCode.Value);
+                ViewBag.SelectedOutcomeCode = outcomeCode.Value;
+            }
+
+            // Execute the query
+            var outputs = await query.ToListAsync();
+
+            // Return not found only if we specifically filtered by outcome and got no results
+            if (outcomeCode.HasValue && !outputs.Any())
             {
                 return NotFound();
             }
 
             return View(outputs);
-
         }
 
         // GET: Outputs/Details/5
@@ -67,19 +78,20 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         }
 
         // GET: Outputs/Create
-        public IActionResult Create(int? id)
+        public IActionResult Create(int? outcomeCode,int? frameworkCode)
         {
             ViewData["OutcomeCode"] = new SelectList(_context.Outcomes, "Code", "Name");
 
             var outcomes = _context.Outcomes.ToList();
 
             // Populate dropdown only if no framework is preselected
-            ViewData["OutcomeCode"] = id == null
+            ViewData["OutcomeCode"] = outcomeCode == null
                 ? new SelectList(outcomes, "Code", "Name")
-                : new SelectList(outcomes, "Code", "Name", id);
+                : new SelectList(outcomes, "Code", "Name", outcomeCode);
 
             // Pass the selected framework code to the view
-            ViewBag.SelectedOutcomeCode = id;
+            ViewBag.SelectedOutcomeCode = outcomeCode;
+            ViewBag.SelectedFrameworkCode = frameworkCode;
 
             return View();
         }
@@ -97,7 +109,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             {
                 _context.Add(output);
                 await _context.SaveChangesAsync();
-                return RedirectToAction("Index", new { id = output.OutcomeCode });
+                return RedirectToAction("Index", new { outcomeCode = output.OutcomeCode });
             }
             ViewData["OutcomeCode"] = new SelectList(_context.Outcomes, "Code", "Name", output.OutcomeCode);
             return View(output);
@@ -196,5 +208,79 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         {
             return _context.Outputs.Any(e => e.Code == id);
         }
+
+        private async Task RedistributeWeights(int outcomeCode)
+        {
+            var outputs = await _context.Outputs
+                .Where(i => i.OutcomeCode == outcomeCode)
+                .ToListAsync();
+
+            if (outputs.Count == 0)
+                return;
+
+            double equalWeight = 100.0 / outputs.Count;
+
+            foreach (var i in outputs)
+            {
+                i.Weight = Math.Round(equalWeight, 2);
+                _context.Entry(i).State = EntityState.Modified;
+            }
+
+            // Adjust the last one so the sum is exactly 100
+            double total = outputs.Sum(i => i.Weight);
+            if (Math.Abs(total - 100.0) > 0.01)
+            {
+                double correction = 100.0 - total;
+                outputs.Last().Weight += correction;
+            }
+
+            await _context.SaveChangesAsync();
+        }
+
+        // GET: Indicators/AdjustWeights/5
+        public async Task<IActionResult> AdjustWeights(int outcomeCode)
+        {
+            var outputs = await _context.Outputs
+                .Where(i => i.OutcomeCode == outcomeCode)
+                .ToListAsync();
+
+            var model = outputs.Select(i => new OutputViewModel
+            {
+                Code = i.Code,
+                Name = i.Name,
+                Weight = i.Weight
+            }).ToList();
+
+            ViewBag.OutcomeCode = outcomeCode;
+            return View(model);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> AdjustWeights(List<OutputViewModel> model, int outcomeCode)
+        {
+            double totalWeight = model.Sum(i => i.Weight);
+
+            if (Math.Abs(totalWeight - 100.0) > 0.01)
+            {
+                ModelState.AddModelError("", "Total weight must equal 100%.");
+                ViewBag.OutcomeCode = outcomeCode;
+                return View(model);
+            }
+
+            foreach (var vm in model)
+            {
+                var output = await _context.Outputs.FindAsync(vm.Code);
+                if (output != null)
+                {
+                    output.Weight = vm.Weight;
+                    _context.Update(output);
+                }
+            }
+
+            await _context.SaveChangesAsync();
+            return RedirectToAction(nameof(Index), new { outcomeCode = outcomeCode });
+        }
     }
 }
+

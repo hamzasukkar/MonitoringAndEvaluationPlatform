@@ -1,0 +1,49 @@
+﻿@using MonitoringAndEvaluationPlatform.ViewModel
+@model List<OutputViewModel>
+@{
+    ViewData["Title"] = "Adjust Weights";
+    var outcomeCode = (int)ViewBag.OutcomeCode;
+}
+
+<h2>Adjust Weights</h2>
+
+<form asp-action="AdjustWeights" method="post">
+    <input type="hidden" name="outcomeCode" value="@outcomeCode" />
+
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                <th>Output</th>
+                <th>Weight (%)</th>
+            </tr>
+        </thead>
+        <tbody>
+            @for (int i = 0; i < Model.Count; i++)
+            {
+                <tr>
+                    <td>
+                        @Html.DisplayFor(m => m[i].Name)
+                        <input type="hidden" asp-for="@Model[i].Code" />
+                        <input type="hidden" asp-for="@Model[i].Name" />
+                    </td>
+                    <td>
+                        <input asp-for="@Model[i].Weight" class="form-control" />
+                        <span asp-validation-for="@Model[i].Weight" class="text-danger"></span>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+
+    <div class="text-danger">
+        @Html.ValidationSummary()
+    </div>
+
+    <button type="submit" class="btn btn-success">Save Weights</button>
+</form>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}
