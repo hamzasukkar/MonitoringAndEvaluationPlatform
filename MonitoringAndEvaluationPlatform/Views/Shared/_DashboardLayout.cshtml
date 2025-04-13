@@ -1,6 +1,6 @@
 ﻿@using Microsoft.AspNetCore.Identity
 @inject SignInManager<ApplicationUser> SignInManager
-@inject UserManager<ApplicationUser> UserManager 
+@inject UserManager<ApplicationUser> UserManager
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -21,24 +21,38 @@
                 <ul class="nav">
                     <!-- Dropdown for Results Ministries -->
                     <li class="nav-item dropdown">
-                        <a class="nav-link" href="#" role="button" aria-expanded="false">
-                            Partners
+                        <a class="nav-link" href="/Dashboard/Index" role="button" aria-expanded="false">
+                            Index
                         </a>
                     </li>
                     <li class="nav-item dropdown">
-                        <a class="nav-link" href="#" role="button" aria-expanded="false">
-                            Regional
-                        </a>
-                    </li>
-                    <!-- Other links -->
-                    <li class="nav-item dropdown">
-                        <a class="nav-link" href="#" role="button" aria-expanded="false">
-                            Map
+                        <a class="nav-link" href="/Dashboard/Gauge" role="button" aria-expanded="false">
+                            Gauge
                         </a>
                     </li>
                     <li class="nav-item dropdown">
-                        <a class="nav-link" href="#" role="button" aria-expanded="false">
-                            Filter
+                        <a class="nav-link" href="/Dashboard/ProjectProgress" role="button" aria-expanded="false">
+                            Project Progress
+                        </a>
+                    </li>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link" href="/Dashboard/ProjectProgress2" role="button" aria-expanded="false">
+                            Project Progress Horizontal Bars
+                        </a>
+                    </li>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link" href="/Dashboard/FrameworkProgress" role="button" aria-expanded="false">
+                            Framework Achievement Rates Horizontal Bars
+                        </a>
+                    </li>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link" href="/Dashboard/Test" role="button" aria-expanded="false">
+                            Test
+                        </a>
+                    </li>                   
+                    <li class="nav-item dropdown">
+                        <a class="nav-link" href="/Dashboard/Test4" role="button" aria-expanded="false">
+                            Test4
                         </a>
                     </li>
                     <li>
@@ -88,7 +102,7 @@
                     <img src="~/img/monitor.png"
                          alt="Monitoring Icon" class="me-2" width="24" height="24">
                     <a class="unstyled-link" href="/Monitoring/Index">Monitoring</a>
-                    
+
                 </li>
                 <li class="d-flex align-items-center" >
                     <img src="~/img/dashboard.png"
@@ -105,12 +119,13 @@
 
 
         <!-- Content Area with Iframe -->
-        <div class="container">
+        <div class="container-full">
             <main role="main" class="pb-3">
                 @RenderBody()
             </main>
         </div>
     </div>
+
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>

@@ -1,0 +1,356 @@
+﻿@model MonitoringAndEvaluationPlatform.ViewModels.DataSuggestionViewModel
+@{
+	Layout = "~/Views/Shared/_DashboardLayout.cshtml";
+}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Stylish Dropdown Group - Side by Side</title>
+	<!-- Bootstrap 5 CSS -->
+	<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+	<!-- Font Awesome for icons -->
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+	<style>
+		.dropdown-group-container {
+			max-width: 1200px;
+			margin: 2rem auto;
+		}
+
+		.dropdown-card {
+			border: none;
+			border-radius: 12px;
+			box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+			overflow: hidden;
+		}
+
+		.dropdown-card-header {
+			background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+			color: white;
+			padding: 1.5rem;
+		}
+
+		.dropdown-toggle-custom {
+			width: 100%;
+			text-align: left;
+			padding: 0.75rem 1.25rem;
+			display: flex;
+			justify-content: space-between;
+			align-items: center;
+			transition: all 0.3s ease;
+			border: 1px solid #dee2e6;
+			border-radius: 8px !important;
+		}
+
+			.dropdown-toggle-custom:hover {
+				border-color: #0d6efd;
+				background-color: #f8f9fa;
+			}
+
+			.dropdown-toggle-custom:focus {
+				box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+			}
+
+			.dropdown-toggle-custom::after {
+				display: none;
+			}
+
+		.dropdown-menu-custom {
+			width: 100%;
+			border: 1px solid rgba(0, 0, 0, 0.1);
+			border-top: none;
+			margin-top: 0;
+			border-radius: 0 0 8px 8px;
+			box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+		}
+
+		.dropdown-item-custom {
+			padding: 0.5rem 1.25rem;
+			transition: all 0.2s ease;
+		}
+
+			.dropdown-item-custom:hover {
+				background-color: #f8f9fa;
+				color: #0d6efd;
+				padding-left: 1.5rem;
+			}
+
+		.dropdown-divider-custom {
+			margin: 0.5rem 0;
+		}
+
+		.dropdown-label {
+			font-weight: 500;
+			color: #495057;
+			margin-bottom: 0.5rem;
+			display: block;
+		}
+
+		.dropdown-col {
+			margin-bottom: 1.5rem;
+		}
+
+		.action-buttons {
+			margin-top: 2rem;
+		}
+	</style>
+</head>
+<body>
+	<div class="container dropdown-group-container">
+		<div class="card dropdown-card">
+			<div class="card-header dropdown-card-header">
+				<h3 class="mb-0"><i class="fas fa-sliders-h me-2"></i> Premium Settings Panel</h3>
+			</div>
+			<div class="card-body">
+				<form>
+					<div class="row">
+						<!-- First Row - 5 dropdowns -->
+						<div class="col-md-6 col-lg-4 col-xl-2 dropdown-col">
+							<span class="dropdown-label"><i class="fas fa-palette me-2"></i>Frameworks</span>
+							<div class="dropdown">
+								<button class="btn btn-light dropdown-toggle dropdown-toggle-custom" type="button" id="dropdownMenu1" data-bs-toggle="dropdown" aria-expanded="false">
+									<span>Select Framework</span>
+									<i class="fas fa-chevron-down"></i>
+								</button>
+								<ul class="dropdown-menu dropdown-menu-custom" aria-labelledby="dropdownMenu1">
+									@{
+										foreach (var item in Model.Frameworks)
+										{
+											<li><a class="dropdown-item dropdown-item-custom" href="#">@item.Text</a></li>
+										}
+									}
+								</ul>
+							</div>
+						</div>
+
+						<div class="col-md-6 col-lg-4 col-xl-2 dropdown-col">
+							<span class="dropdown-label"><i class="fas fa-font me-2"></i>Outcomes</span>
+							<div class="dropdown">
+								<button class="btn btn-light dropdown-toggle dropdown-toggle-custom" type="button" id="dropdownMenu2" data-bs-toggle="dropdown" aria-expanded="false">
+									<span>Outcomes</span>
+									<i class="fas fa-chevron-down"></i>
+								</button>
+								<ul class="dropdown-menu dropdown-menu-custom" aria-labelledby="dropdownMenu2">
+									@{
+										foreach (var item in Model.Outcomes)
+										{
+											<li><a class="dropdown-item dropdown-item-custom" href="#">@item.Text</a></li>
+										}
+									}
+								</ul>
+							</div>
+						</div>
+
+						<div class="col-md-6 col-lg-4 col-xl-2 dropdown-col">
+							<span class="dropdown-label"><i class="fas fa-language me-2"></i>Outputs</span>
+							<div class="dropdown">
+								<button class="btn btn-light dropdown-toggle dropdown-toggle-custom" type="button" id="dropdownMenu3" data-bs-toggle="dropdown" aria-expanded="false">
+									<span>Outputs</span>
+									<i class="fas fa-chevron-down"></i>
+								</button>
+								<ul class="dropdown-menu dropdown-menu-custom" aria-labelledby="dropdownMenu3">
+									@{
+										foreach (var item in Model.Outputs)
+										{
+											<li><a class="dropdown-item dropdown-item-custom" href="#">@item.Text</a></li>
+										}
+									}
+								</ul>
+							</div>
+						</div>
+
+						<div class="col-md-6 col-lg-4 col-xl-2 dropdown-col">
+							<span class="dropdown-label"><i class="fas fa-bell me-2"></i>SubOutputs</span>
+							<div class="dropdown">
+								<button class="btn btn-light dropdown-toggle dropdown-toggle-custom" type="button" id="dropdownMenu4" data-bs-toggle="dropdown" aria-expanded="false">
+									<span>SubOutputs</span>
+									<i class="fas fa-chevron-down"></i>
+								</button>
+								<ul class="dropdown-menu dropdown-menu-custom" aria-labelledby="dropdownMenu4">
+									@{
+										foreach (var item in Model.SubOutputs)
+										{
+											<li><a class="dropdown-item dropdown-item-custom" href="#">@item.Text</a></li>
+										}
+									}
+								</ul>
+							</div>
+						</div>
+
+						<div class="col-md-6 col-lg-4 col-xl-2 dropdown-col">
+							<span class="dropdown-label"><i class="fas fa-lock me-2"></i>Indicators</span>
+							<div class="dropdown">
+								<button class="btn btn-light dropdown-toggle dropdown-toggle-custom" type="button" id="dropdownMenu5" data-bs-toggle="dropdown" aria-expanded="false">
+									<span>Indicators</span>
+									<i class="fas fa-chevron-down"></i>
+								</button>
+								<ul class="dropdown-menu dropdown-menu-custom" aria-labelledby="dropdownMenu5">
+									@{
+										foreach (var item in Model.Indicators)
+										{
+											<li><a class="dropdown-item dropdown-item-custom" href="#">@item.Text</a></li>
+										}
+									}
+								</ul>
+							</div>
+						</div>
+					</div>
+
+					<div class="row">
+						<!-- Second Row - 5 dropdowns -->
+						<div class="col-md-6 col-lg-4 col-xl-2 dropdown-col">
+							<span class="dropdown-label"><i class="fas fa-chart-line me-2"></i>Projects</span>
+							<div class="dropdown">
+								<button class="btn btn-light dropdown-toggle dropdown-toggle-custom" type="button" id="dropdownMenu6" data-bs-toggle="dropdown" aria-expanded="false">
+									<span>Projects</span>
+									<i class="fas fa-chevron-down"></i>
+								</button>
+								<ul class="dropdown-menu dropdown-menu-custom" aria-labelledby="dropdownMenu6">
+									@{
+										foreach (var item in Model.Projects)
+										{
+											<li><a class="dropdown-item dropdown-item-custom" href="#">@item.Text</a></li>
+										}
+									}
+								</ul>
+							</div>
+						</div>
+
+						<div class="col-md-6 col-lg-4 col-xl-2 dropdown-col">
+							<span class="dropdown-label"><i class="fas fa-envelope me-2"></i>Ministries</span>
+							<div class="dropdown">
+								<button class="btn btn-light dropdown-toggle dropdown-toggle-custom" type="button" id="dropdownMenu7" data-bs-toggle="dropdown" aria-expanded="false">
+									<span>Ministries</span>
+									<i class="fas fa-chevron-down"></i>
+								</button>
+								<ul class="dropdown-menu dropdown-menu-custom" aria-labelledby="dropdownMenu7">
+									@{
+										foreach (var item in Model.Ministries)
+										{
+											<li><a class="dropdown-item dropdown-item-custom" href="#">@item.Text</a></li>
+										}
+									}
+								</ul>
+							</div>
+						</div>
+
+						<div class="col-md-6 col-lg-4 col-xl-2 dropdown-col">
+							<span class="dropdown-label"><i class="fas fa-mobile-alt me-2"></i>Donors</span>
+							<div class="dropdown">
+								<button class="btn btn-light dropdown-toggle dropdown-toggle-custom" type="button" id="dropdownMenu8" data-bs-toggle="dropdown" aria-expanded="false">
+									<span>Donors</span>
+									<i class="fas fa-chevron-down"></i>
+								</button>
+								<ul class="dropdown-menu dropdown-menu-custom" aria-labelledby="dropdownMenu8">
+									@{
+										foreach (var item in Model.Donors)
+										{
+											<li><a class="dropdown-item dropdown-item-custom" href="#">@item.Text</a></li>
+										}
+									}
+								</ul>
+							</div>
+						</div>
+
+						<div class="col-md-6 col-lg-4 col-xl-2 dropdown-col">
+							<span class="dropdown-label"><i class="fas fa-database me-2"></i>Regions</span>
+							<div class="dropdown">
+								<button class="btn btn-light dropdown-toggle dropdown-toggle-custom" type="button" id="dropdownMenu9" data-bs-toggle="dropdown" aria-expanded="false">
+									<span>Select storage option</span>
+									<i class="fas fa-chevron-down"></i>
+								</button>
+								<ul class="dropdown-menu dropdown-menu-custom" aria-labelledby="dropdownMenu9">
+									@{
+										foreach (var item in Model.Regions)
+										{
+											<li><a class="dropdown-item dropdown-item-custom" href="#">@item.Text</a></li>
+										}
+									}
+								</ul>
+							</div>
+						</div>
+
+						<div class="col-md-6 col-lg-4 col-xl-2 dropdown-col">
+							<span class="dropdown-label"><i class="fas fa-shield-alt me-2"></i>Security Level</span>
+							<div class="dropdown">
+								<button class="btn btn-light dropdown-toggle dropdown-toggle-custom" type="button" id="dropdownMenu10" data-bs-toggle="dropdown" aria-expanded="false">
+									<span>Select security preset</span>
+									<i class="fas fa-chevron-down"></i>
+								</button>
+								<ul class="dropdown-menu dropdown-menu-custom" aria-labelledby="dropdownMenu10">
+									<li><a class="dropdown-item dropdown-item-custom" href="#">Basic</a></li>
+									<li><a class="dropdown-item dropdown-item-custom" href="#">Enhanced</a></li>
+									<li><a class="dropdown-item dropdown-item-custom" href="#">Maximum</a></li>
+									<li><hr class="dropdown-divider dropdown-divider-custom"></li>
+									<li><a class="dropdown-item dropdown-item-custom" href="#">Custom security</a></li>
+								</ul>
+							</div>
+						</div>
+					</div>
+
+					<div class="action-buttons d-flex justify-content-end gap-3">
+						<button type="button" class="btn btn-outline-secondary px-4">
+							<i class="fas fa-times me-2"></i> Cancel
+						</button>
+						<button type="button" class="btn btn-primary px-4">
+							<i class="fas fa-save me-2"></i> Save Settings
+						</button>
+					</div>
+				</form>
+			</div>
+		</div>
+	</div>
+
+	<!-- Bootstrap 5 JS Bundle with Popper -->
+	<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+	<script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+	<script>
+		// JavaScript to update dropdown button text when an item is selected
+		document.querySelectorAll('.dropdown-item-custom').forEach(item => {
+			item.addEventListener('click', function(e) {
+				e.preventDefault();
+				const dropdownButton = this.closest('.dropdown').querySelector('.dropdown-toggle');
+				const span = dropdownButton.querySelector('span');
+				span.textContent = this.textContent;
+
+				// Add visual feedback
+				dropdownButton.classList.add('btn-outline-primary');
+				dropdownButton.classList.remove('btn-light');
+				setTimeout(() => {
+					dropdownButton.classList.add('btn-light');
+					dropdownButton.classList.remove('btn-outline-primary');
+				}, 500);
+			});
+		});
+	</script>
+	<div id="gaugeChart"></div>
+
+	<script>
+		var options = {
+			chart: {
+				type: 'radialBar'
+			},
+			series: [20],
+			labels: ['Achievement %'],
+			plotOptions: {
+				radialBar: {
+					hollow: {
+						size: '70%',
+					},
+					dataLabels: {
+						value: {
+							formatter: function (val) {
+								return val.toFixed(1) + '%';
+							}
+						}
+					}
+				}
+			}
+		};
+
+		var chart = new ApexCharts(document.querySelector("#gaugeChart"), options);
+		chart.render();
+	</script>
+</body>
+</html>

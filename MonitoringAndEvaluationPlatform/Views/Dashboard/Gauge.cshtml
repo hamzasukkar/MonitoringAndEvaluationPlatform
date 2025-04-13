@@ -1,0 +1,69 @@
+﻿
+@{
+    ViewData["Title"] = "Gauge";
+    Layout = "~/Views/Shared/_DashboardLayout.cshtml";
+}
+@model List<Framework>
+
+<h3>Select a Framework:</h3>
+<select style="width:50%;height:50%" id="frameworkDropdown" class="form-control">
+    <option value="">-- Select Framework --</option>
+    @foreach (var framework in Model)
+    {
+        <option value="@framework.Code">@framework.Name</option>
+    }
+</select>
+
+<hr />
+<h4 id="frameworkTitle"></h4>
+<div style="width:50%;height:50%" id="gaugeChart"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+<script>
+    var chart;
+
+    function renderGauge(value) {
+        var options = {
+            chart: {
+                type: 'radialBar'
+            },
+            series: [value],
+            labels: ['Achievement %'],
+            plotOptions: {
+                radialBar: {
+                    hollow: {
+                        size: '70%',
+                    },
+                    dataLabels: {
+                        value: {
+                            formatter: function (val) {
+                                return val.toFixed(1) + '%';
+                            }
+                        }
+                    }
+                }
+            }
+        };
+
+        if (chart) {
+            chart.updateSeries([value]);
+        } else {
+            chart = new ApexCharts(document.querySelector("#gaugeChart"), options);
+            chart.render();
+        }
+    }
+
+    document.getElementById("frameworkDropdown").addEventListener("change", function () {
+        var id = this.value;
+        if (!id) return;
+
+        fetch(`/Dashboard/GetFrameworkAchievement?id=${id}`)
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById("frameworkTitle").innerText = data.name + " Achievement";
+                renderGauge(data.achievement);
+            });
+    });
+</script>
+
+

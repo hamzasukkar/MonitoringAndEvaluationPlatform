@@ -1,0 +1,96 @@
+﻿@model MonitoringAndEvaluationPlatform.ViewModel.ProjectProgress2ViewModel
+@{
+    ViewData["Title"] = "Project Progress";
+}
+@{
+    ViewData["Title"] = "ProjectProgress2";
+    Layout = "~/Views/Shared/_DashboardLayout.cshtml";
+}
+
+<h2 class="mb-4">📈 Project Progress</h2>
+
+<!-- Filter Form -->
+<form method="get" class="row g-3 mb-4">
+    <div class="col-md-3">
+        <label class="form-label">Region</label>
+        @Html.DropDownListFor(m => m.RegionId, new SelectList(Model.Regions, "Value", "Text", Model.RegionId), "All", new { @class = "form-select" })
+    </div>
+    <div class="col-md-3">
+        <label class="form-label">Sector</label>
+        @Html.DropDownListFor(m => m.SectorId, new SelectList(Model.Sectors, "Value", "Text", Model.SectorId), "All", new { @class = "form-select" })
+    </div>
+    <div class="col-md-3">
+        <label class="form-label">Donor</label>
+        @Html.DropDownListFor(m => m.DonorId, new SelectList(Model.Donors, "Value", "Text", Model.DonorId), "All", new { @class = "form-select" })
+    </div>
+    <div class="col-md-3 align-self-end d-flex gap-2">
+        <button type="submit" class="btn btn-primary w-50">Apply</button>
+        <a href="@Url.Action("ProjectProgress", "Dashboard")" class="btn btn-outline-secondary w-50">Reset</a>
+    </div>
+</form>
+
+<!-- Custom Styles -->
+<style>
+    .progress-bar-custom {
+        height: 30px;
+        display: flex;
+        align-items: center;
+        justify-content: flex-end;
+        color: #fff;
+        font-weight: bold;
+        padding-right: 12px;
+        border-radius: 6px;
+        transition: width 0.4s ease;
+    }
+
+    .progress-container {
+        background-color: #f1f1f1;
+        height: 30px;
+        border-radius: 6px;
+        margin-bottom: 15px;
+    }
+
+    .bar-1 {
+        background-color: #8B0000;
+    }
+    /* dark red */
+    .bar-2 {
+        background-color: #A52A2A;
+    }
+
+    .bar-3 {
+        background-color: #CD5C5C;
+    }
+
+    .bar-4 {
+        background-color: #F08080;
+    }
+
+    .bar-5 {
+        background-color: #FA8072;
+    }
+</style>
+
+<!-- Progress Bars -->
+<div class="container">
+    <h5 class="mb-3">Top Projects by Completion</h5>
+    @{
+        int index = 1;
+        foreach (var project in Model.Projects.OrderByDescending(p => p.CompletionRate).Take(5))
+        {
+            var barClass = $"bar-{index}";
+            var tooltip = $"Indicators: {project.TotalIndicators}, Target: {project.TotalTarget}, Achieved: {project.TotalAchieved}";
+            <div class="mb-3" title="@tooltip">
+                <label class="fw-bold">@project.ProjectName</label>
+                <div class="progress-container">
+                    <div class="progress-bar-custom @barClass" style="width:@project.CompletionRate%">
+                        @project.CompletionRate.ToString("0.#")%
+                    </div>
+                </div>
+            </div>
+            index++;
+        }
+        
+    }
+</div>
+
