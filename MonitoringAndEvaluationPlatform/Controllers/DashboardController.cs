@@ -433,39 +433,41 @@ public class DashboardController : Controller
     }
 
     [HttpGet]
-    public async Task<IActionResult> FrameworksGauge()
+  public async Task<IActionResult> FrameworksGauge()
+{
+    var frameworks = await _context.Frameworks
+        .Include(f => f.Outcomes)
+            .ThenInclude(o => o.Outputs)
+                .ThenInclude(op => op.SubOutputs)
+                    .ThenInclude(so => so.Indicators)
+        .ToListAsync();
+
+    var result = frameworks.Select(fw =>
     {
-        var frameworks = await _context.Frameworks
-            .Include(f => f.Outcomes)
-                .ThenInclude(o => o.Outputs)
-                    .ThenInclude(op => op.SubOutputs)
-                        .ThenInclude(so => so.Indicators)
-            .ToListAsync();
+        var indicators = fw.Outcomes
+            .SelectMany(o => o.Outputs)
+            .SelectMany(op => op.SubOutputs)
+            .SelectMany(so => so.Indicators)
+            .ToList();
 
-        var result = frameworks.Select(f =>
-        {
-            var indicators = f.Outcomes
-                .SelectMany(o => o.Outputs)
-                .SelectMany(op => op.SubOutputs)
-                .SelectMany(so => so.Indicators)
-                .ToList();
+        double totalTarget = indicators.Sum(i => i.Target);
+        double totalAchieved = indicators.Sum(i => i.IndicatorsPerformance);
+        double rate = totalTarget == 0 ? 0 : (totalAchieved / totalTarget) * 100;
+        rate = Math.Round(Math.Min(rate, 100), 2);
 
-            double totalTarget = indicators.Sum(i => i.Target);
-            double totalAchieved = indicators.Sum(i => i.IndicatorsPerformance);
+        return new {
+            code = fw.Code,
+            name = fw.Name,
+            rate,
+            totalTarget = Math.Round(totalTarget, 2),
+            totalAchieved = Math.Round(totalAchieved, 2),
+            indicatorCount = indicators.Count
+        };
+    });
 
-            double achievementRate = totalTarget == 0 ? 0 : (totalAchieved / totalTarget) * 100;
-            achievementRate = Math.Round(Math.Min(achievementRate, 100), 2);
+    return Json(result);
+}
 
-            return new
-            {
-                code = f.Code,
-                name = f.Name,
-                rate = achievementRate
-            };
-        });
-
-        return Json(result);
-    }
 
 
 }

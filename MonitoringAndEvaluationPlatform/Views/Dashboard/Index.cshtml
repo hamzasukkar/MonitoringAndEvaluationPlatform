@@ -52,7 +52,7 @@
 <div id="gaugesContainer" class="row"></div>
 
 <script>
-        async function loadGauges() {
+           async function loadGauges() {
         const response = await fetch('/Dashboard/FrameworksGauge');
         const frameworks = await response.json();
 
@@ -60,9 +60,9 @@
         container.innerHTML = '';
 
         frameworks.forEach(framework => {
-            // Create card element
             const card = document.createElement('div');
             card.className = 'col-md-4 mb-4';
+
             card.innerHTML = `
                 <div class="card shadow-sm p-4 text-center">
                     <h5 class="mb-3">${framework.name}</h5>
@@ -70,12 +70,16 @@
                     <div class="mt-3 fw-bold" style="font-size: 1.2rem; color: #00c853;">
                         ${framework.rate}% Achieved
                     </div>
+                    <div class="text-muted mt-2" style="font-size: 0.9rem;">
+                        Indicators: ${framework.indicatorCount}<br/>
+                        Total Target: ${framework.totalTarget}<br/>
+                        Total Achieved: ${framework.totalAchieved}
+                    </div>
                 </div>
             `;
 
             container.appendChild(card);
 
-            // Initialize Chart
             const ctx = document.getElementById(`gaugeChart_${framework.code}`).getContext('2d');
             new Chart(ctx, {
                 type: 'doughnut',
@@ -116,6 +120,7 @@
             });
         });
     }
+
 
 	// Call the function on page load
 	loadGauges();
