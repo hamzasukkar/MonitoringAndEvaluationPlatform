@@ -11,7 +11,6 @@ namespace MonitoringAndEvaluationPlatform.Models
         public virtual Region Region { get; set; }
         public double EstimatedBudget { get; set; }
         public double RealBudget { get; set; }
-        public int Trend { get; set; }
         public int ProjectManagerCode { get; set; }
         public virtual ProjectManager ProjectManager { get; set; }
         public int SuperVisorCode { get; set; }

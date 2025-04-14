@@ -134,7 +134,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             if (subOutput == null) return;
 
             var indicators = await _context.Indicators.Where(i => i.SubOutputCode == subOutput.Code).ToListAsync();
-            subOutput.IndicatorsPerformance = CalculateAveragePerformance(indicators.Select(i => i.IndicatorsPerformance).ToList());
+            subOutput.IndicatorsPerformance = CalculateAveragePerformance(indicators.Select(i => i.IndicatorsPerformance).ToList())* subOutput.Weight;
 
             await _context.SaveChangesAsync();
 
@@ -148,7 +148,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             if (output == null) return;
 
             var subOutputs = await _context.SubOutputs.Where(i => i.OutputCode == output.Code).ToListAsync();
-            output.IndicatorsPerformance = CalculateAveragePerformance(subOutputs.Select(s => s.IndicatorsPerformance).ToList());
+            output.IndicatorsPerformance = CalculateAveragePerformance(subOutputs.Select(s => s.IndicatorsPerformance).ToList())* output.Weight;
 
             await _context.SaveChangesAsync();
 
@@ -162,7 +162,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             if (outcome == null) return;
 
             var outputs = await _context.Outputs.Where(i => i.OutcomeCode == outcome.Code).ToListAsync();
-            outcome.IndicatorsPerformance = CalculateAveragePerformance(outputs.Select(o => o.IndicatorsPerformance).ToList());
+            outcome.IndicatorsPerformance = CalculateAveragePerformance(outputs.Select(o => o.IndicatorsPerformance).ToList())*outcome.Weight;
 
             await _context.SaveChangesAsync();
 

@@ -18,9 +18,6 @@
                 @Html.DisplayNameFor(model => model.Name)
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.Trend)
-            </th>
-            <th>
                 @Html.DisplayNameFor(model => model.IndicatorsPerformance)
             </th>
             <th>
@@ -45,15 +42,11 @@
             string disbursementClass = ProgressBarHelper.GetProgressBarClass(item.DisbursementPerformance);
             string fieldMonitoringClass = ProgressBarHelper.GetProgressBarClass(item.FieldMonitoring);
             string impactAssessmentClass = ProgressBarHelper.GetProgressBarClass(item.ImpactAssessment);
-            string trendImage = ProgressBarHelper.GetTrendImage(item.Trend);
             double IndicatorsPerformance = Math.Round(item.IndicatorsPerformance, 2);
 
             <tr>
                 <td>
                     <a href="/Outputs/Index/@item.Code">@item.Name</a>
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.Trend)
                 </td>
                 <td>
                     @await Html.PartialAsync("_ProgressBar", Tuple.Create(IndicatorsPerformance, indicatorsClass))

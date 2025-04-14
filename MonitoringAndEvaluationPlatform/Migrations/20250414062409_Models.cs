@@ -74,12 +74,10 @@ namespace MonitoringAndEvaluationPlatform.Migrations
                     Code = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Trend = table.Column<double>(type: "float", nullable: false),
                     IndicatorsPerformance = table.Column<double>(type: "float", nullable: false),
                     DisbursementPerformance = table.Column<double>(type: "float", nullable: false),
                     FieldMonitoring = table.Column<double>(type: "float", nullable: false),
-                    ImpactAssessment = table.Column<double>(type: "float", nullable: false),
-                    Weight = table.Column<double>(type: "float", nullable: false)
+                    ImpactAssessment = table.Column<double>(type: "float", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -272,7 +270,6 @@ namespace MonitoringAndEvaluationPlatform.Migrations
                     Code = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Trend = table.Column<double>(type: "float", nullable: false),
                     IndicatorsPerformance = table.Column<double>(type: "float", nullable: false),
                     DisbursementPerformance = table.Column<double>(type: "float", nullable: false),
                     FieldMonitoring = table.Column<double>(type: "float", nullable: false),
@@ -301,7 +298,6 @@ namespace MonitoringAndEvaluationPlatform.Migrations
                     RegionCode = table.Column<int>(type: "int", nullable: false),
                     EstimatedBudget = table.Column<double>(type: "float", nullable: false),
                     RealBudget = table.Column<double>(type: "float", nullable: false),
-                    Trend = table.Column<int>(type: "int", nullable: false),
                     ProjectManagerCode = table.Column<int>(type: "int", nullable: false),
                     SuperVisorCode = table.Column<int>(type: "int", nullable: false),
                     MinistryCode = table.Column<int>(type: "int", nullable: false),
@@ -355,7 +351,6 @@ namespace MonitoringAndEvaluationPlatform.Migrations
                     Code = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Trend = table.Column<double>(type: "float", nullable: false),
                     IndicatorsPerformance = table.Column<double>(type: "float", nullable: false),
                     DisbursementPerformance = table.Column<double>(type: "float", nullable: false),
                     FieldMonitoring = table.Column<double>(type: "float", nullable: false),
@@ -401,7 +396,6 @@ namespace MonitoringAndEvaluationPlatform.Migrations
                     Code = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Trend = table.Column<double>(type: "float", nullable: false),
                     IndicatorsPerformance = table.Column<double>(type: "float", nullable: false),
                     DisbursementPerformance = table.Column<double>(type: "float", nullable: false),
                     FieldMonitoring = table.Column<double>(type: "float", nullable: false),
@@ -449,7 +443,6 @@ namespace MonitoringAndEvaluationPlatform.Migrations
                         .Annotation("SqlServer:Identity", "1, 1"),
                     Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Source = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Trend = table.Column<double>(type: "float", nullable: false),
                     IndicatorsPerformance = table.Column<double>(type: "float", nullable: false),
                     DisbursementPerformance = table.Column<double>(type: "float", nullable: false),
                     FieldMonitoring = table.Column<double>(type: "float", nullable: false),
