@@ -48,12 +48,6 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             // Execute the query
             var outputs = await query.ToListAsync();
 
-            // Return not found only if we specifically filtered by outcome and got no results
-            if (outcomeCode.HasValue && !outputs.Any())
-            {
-                return NotFound();
-            }
-
             return View(outputs);
         }
 
@@ -101,7 +95,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Code,Name,Trend,OutcomeCode,Weight")] Output output)
+        public async Task<IActionResult> Create([Bind("Code,Name,OutcomeCode")] Output output)
         {
             ModelState.Remove(nameof(output.Outcome));
 
@@ -109,6 +103,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             {
                 _context.Add(output);
                 await _context.SaveChangesAsync();
+                await RedistributeWeights(output.OutcomeCode);
                 return RedirectToAction("Index", new { outcomeCode = output.OutcomeCode });
             }
             ViewData["OutcomeCode"] = new SelectList(_context.Outcomes, "Code", "Name", output.OutcomeCode);

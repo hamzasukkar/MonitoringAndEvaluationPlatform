@@ -12,7 +12,7 @@
     <a asp-action="Create" asp-route-id="@ViewBag.SelectedOutputCode" class="btn btn-success">Create New Sub Output</a>
     @if (@ViewBag.SelectedOutputCode != null)
     {
-        <a asp-action="AdjustWeights" asp-route-frameworkCode="@ViewData["frameworkCode"]" asp-route-outputCode="@ViewBag.SelectedOutputCode" class="btn btn-warning">Adjust Weights</a>
+        <a asp-action="AdjustWeights"  asp-route-outputCode="@ViewBag.SelectedOutputCode" class="btn btn-warning">Adjust Weights</a>
     }
 </p>
 

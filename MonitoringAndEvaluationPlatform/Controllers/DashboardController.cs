@@ -432,5 +432,40 @@ public class DashboardController : Controller
         return Json(new { rate = achievementRate });
     }
 
+    [HttpGet]
+    public async Task<IActionResult> FrameworksGauge()
+    {
+        var frameworks = await _context.Frameworks
+            .Include(f => f.Outcomes)
+                .ThenInclude(o => o.Outputs)
+                    .ThenInclude(op => op.SubOutputs)
+                        .ThenInclude(so => so.Indicators)
+            .ToListAsync();
+
+        var result = frameworks.Select(f =>
+        {
+            var indicators = f.Outcomes
+                .SelectMany(o => o.Outputs)
+                .SelectMany(op => op.SubOutputs)
+                .SelectMany(so => so.Indicators)
+                .ToList();
+
+            double totalTarget = indicators.Sum(i => i.Target);
+            double totalAchieved = indicators.Sum(i => i.IndicatorsPerformance);
+
+            double achievementRate = totalTarget == 0 ? 0 : (totalAchieved / totalTarget) * 100;
+            achievementRate = Math.Round(Math.Min(achievementRate, 100), 2);
+
+            return new
+            {
+                code = f.Code,
+                name = f.Name,
+                rate = achievementRate
+            };
+        });
+
+        return Json(result);
+    }
+
 
 }
