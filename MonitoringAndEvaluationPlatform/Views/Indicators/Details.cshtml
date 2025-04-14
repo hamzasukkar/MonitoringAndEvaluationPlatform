@@ -84,86 +84,63 @@
         }
     </tbody>
 </table>
-<canvas id="performanceChart" width="800" height="400"></canvas>
+
+<div class="card shadow-sm p-4 mb-4">
+    <h5 class="mb-3">Indicator Performance Over Time</h5>
+    <canvas id="lineChart" width="800" height="400"></canvas>
+</div>
 
 <div>
     <a asp-action="Edit" asp-route-id="@Model?.Indicator.IndicatorCode">Edit</a> |
     <a asp-action="Index">Back to List</a>
 </div>
 
-
-@* <div id="hierarchyTree">
-    <ul>
-        @foreach (var node in Model.Hierarchy)
-        {
-            <li data-jstree='{ "opened": true }'>
-                <a href="@Url.Action("Details", node.Type + "s", new { id = node.Code })">
-                    @node.Name (@node.Type)
-                </a>
-            </li>
-        }
-    </ul>
-</div>
-
-
 <script>
-    $(document).ready(function () {
-        $('#hierarchyTree').jstree({
-            "core": {
-                "themes": {
-                    "responsive": true
-                }
+    async function loadLineChart(indicatorCode) {
+        const response = await fetch(`/Dashboard/IndicatorTrend?indicatorCode=${indicatorCode}`);
+        const data = await response.json();
+
+        const labels = data.map(d => d.date);
+        const values = data.map(d => d.value);
+
+        const ctx = document.getElementById('lineChart').getContext('2d');
+        new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: 'Performance',
+                    data: values,
+                    borderColor: '#42a5f5',
+                    backgroundColor: 'rgba(66, 165, 245, 0.2)',
+                    fill: true,
+                    tension: 0.3,
+                    pointRadius: 4,
+                    pointHoverRadius: 6
+                }]
             },
-            "plugins": ["wholerow", "themes"]
-        });
-    });
-</script> *@
-<script>
-    const ctx = document.getElementById('performanceChart').getContext('2d');
-    const performanceChart = new Chart(ctx, {
-        type: 'line',
-        data: {
-            labels: @Html.Raw(Json.Serialize(Model.ChartDataViewModel.Labels)),
-            datasets: [
-                {
-                    label: 'Real',
-                    data: @Html.Raw(Json.Serialize(Model.ChartDataViewModel.RealData)),
-                    borderColor: 'blue',
-                    backgroundColor: 'rgba(0, 0, 255, 0.1)',
-                    fill: true
-                },
-                {
-                    label: 'Historical',
-                    data: @Html.Raw(Json.Serialize(Model.ChartDataViewModel.HistoricalData)),
-                    borderColor: 'lightblue',
-                    backgroundColor: 'rgba(173, 216, 230, 0.1)',
-                    fill: true
-                },
-                {
-                    label: 'Required',
-                    data: @Html.Raw(Json.Serialize(Model.ChartDataViewModel.RequiredData)),
-                    borderColor: 'red',
-                    backgroundColor: 'rgba(255, 0, 0, 0.1)',
-                    fill: true
-                }
-            ]
-        },
-        options: {
-            responsive: true,
-            plugins: {
-                legend: {
-                    position: 'top'
-                },
-            },
-            scales: {
-                x: {
-                    beginAtZero: true
-                },
-                y: {
-                    min: 80,
-                    max: 100
+            options: {
+                responsive: true,
+                scales: {
+                    x: {
+                        title: {
+                            display: true,
+                            text: 'Date'
+                        }
+                    },
+                    y: {
+                        title: {
+                            display: true,
+                            text: 'Value'
+                        },
+                        beginAtZero: true
+                    }
                 }
             }
-        }
-    });
+        });
+    }
+
+    // Call this with a valid indicator code
+    loadLineChart(@Model.Indicator.IndicatorCode); // Change to your actual IndicatorCode
 </script>
+

@@ -1,0 +1,67 @@
+﻿
+@{
+    ViewData["Title"] = "IndicatorTrend";
+    Layout = "~/Views/Shared/_MonitoringLayout.cshtml";
+}
+
+<h1>IndicatorTrend</h1>
+
+<div class="card shadow-sm p-4 mb-4">
+    <h5 class="mb-3">Indicator Performance Over Time</h5>
+    <canvas id="lineChart" height="100"></canvas>
+</div>
+
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+    async function loadLineChart(indicatorCode) {
+        const response = await fetch(`/Dashboard/IndicatorTrend?indicatorCode=${indicatorCode}`);
+        const data = await response.json();
+
+        const labels = data.map(d => d.date);
+        const values = data.map(d => d.value);
+
+        const ctx = document.getElementById('lineChart').getContext('2d');
+        new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: 'Performance',
+                    data: values,
+                    borderColor: '#42a5f5',
+                    backgroundColor: 'rgba(66, 165, 245, 0.2)',
+                    fill: true,
+                    tension: 0.3,
+                    pointRadius: 4,
+                    pointHoverRadius: 6
+                }]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    x: {
+                        title: {
+                            display: true,
+                            text: 'Date'
+                        }
+                    },
+                    y: {
+                        title: {
+                            display: true,
+                            text: 'Value'
+                        },
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+    }
+
+    // Call this with a valid indicator code
+    loadLineChart(101); // Change to your actual IndicatorCode
+</script>
+

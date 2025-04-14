@@ -14,8 +14,23 @@ public class DashboardController : Controller
     {
         _context = context;
     }
-
     [HttpGet]
+    public async Task<IActionResult> IndicatorTrend(int indicatorCode)
+    {
+        var measures = await _context.Measures
+            .Where(m => m.IndicatorCode == indicatorCode)
+            .OrderBy(m => m.Date)
+            .Select(m => new
+            {
+                date = m.Date.ToString("yyyy-MM-dd"),
+                value = m.Value
+            })
+            .ToListAsync();
+
+        return Json(measures);
+    }
+
+
     [HttpGet]
     public IActionResult OutcomeProgress(int? frameworkCode)
     {

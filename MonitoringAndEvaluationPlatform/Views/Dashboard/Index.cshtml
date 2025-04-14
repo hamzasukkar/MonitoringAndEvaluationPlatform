@@ -20,7 +20,7 @@
 		<div class="card shadow-lg border-0 bg-success text-white">
 			<div class="card-body">
 				<i class="bi bi-bar-chart-fill display-5 mb-2"></i>
-				<h5 class="card-title">Indicators</h5>
+				<h5 class="card-title">Totla Indicators</h5>
 				<h2 class="fw-bold">@Model.TotalIndicators</h2>
 			</div>
 		</div>
@@ -29,7 +29,7 @@
 		<div class="card shadow-lg border-0 bg-warning text-dark">
 			<div class="card-body">
 				<i class="bi bi-building display-5 mb-2"></i>
-				<h5 class="card-title">Projects</h5>
+				<h5 class="card-title">Total Projects</h5>
 				<h2 class="fw-bold">@Model.TotalProjects</h2>
 			</div>
 		</div>
@@ -38,7 +38,7 @@
 		<div class="card shadow-lg border-0 bg-danger text-white">
 			<div class="card-body">
 				<i class="bi bi-geo-alt-fill display-5 mb-2"></i>
-				<h5 class="card-title">Regions</h5>
+				<h5 class="card-title">Total Regions</h5>
 				<h2 class="fw-bold">@Model.TotalRegions</h2>
 			</div>
 		</div>
@@ -61,42 +61,41 @@
 
         frameworks.forEach(framework => {
             const card = document.createElement('div');
-            card.className = 'col-md-6 mb-4';
+    card.className = 'col-md-6 mb-4';
 
-            const chartId = `gaugeChart_${framework.code}`;
+    const chartId = `gaugeChart_${framework.code}`;
+    const barColor = framework.rate >= 80 ? 'bg-success'
+                    : framework.rate >= 50 ? 'bg-warning'
+                    : 'bg-danger';
 
-            card.innerHTML = `
-                <div class="card shadow-sm p-4">
-                    <h5 class="mb-3">${framework.name}</h5>
-
-                    <div class="row align-items-center">
-                        <!-- Gauge Chart -->
-                        <div class="col-md-6 text-center">
-                            <canvas id="${chartId}" height="160"></canvas>
-                            <div class="fw-bold mt-2" style="color:#00c853; font-size: 1.1rem;">
-                                ${framework.rate}% Achieved
-                            </div>
-                        </div>
-
-                        <!-- Progress Info -->
-                        <div class="col-md-6">
-                            <div class="mb-2 fw-bold text-muted">Progress</div>
-                            <div class="progress mb-3" style="height: 25px;">
-                                <div class="progress-bar bg-success" role="progressbar"
-                                    style="width: ${framework.rate}%"
-                                    aria-valuenow="${framework.rate}" aria-valuemin="0" aria-valuemax="100">
-                                    ${framework.rate}%
-                                </div>
-                            </div>
-                            <div class="text-muted" style="font-size: 0.9rem;">
-                                Indicators: ${framework.indicatorCount}<br/>
-                                Total Target: ${framework.totalTarget}<br/>
-                                Total Achieved: ${framework.totalAchieved}
-                            </div>
-                        </div>
+    card.innerHTML = `
+        <div class="card shadow-sm p-4">
+            <h5 class="mb-3">${framework.name}</h5>
+            <div class="row align-items-center">
+                <div class="col-md-6 text-center">
+                    <canvas id="${chartId}" height="160"></canvas>
+                    <div class="fw-bold mt-2" style="font-size: 1.1rem; color:#00c853;">
+                        ${framework.rate}% Achieved
                     </div>
                 </div>
-            `;
+                <div class="col-md-6">
+                    <div class="mb-2 fw-bold text-muted">Progress</div>
+                    <div class="progress mb-3" style="height: 25px;">
+                        <div class="progress-bar ${barColor}" role="progressbar"
+                            style="width: ${framework.rate}%"
+                            aria-valuenow="${framework.rate}" aria-valuemin="0" aria-valuemax="100">
+                            ${framework.rate}%
+                        </div>
+                    </div>
+                    <div class="text-muted" style="font-size: 0.9rem;">
+                        Indicators: ${framework.indicatorCount}<br/>
+                        Total Target: ${framework.totalTarget}<br/>
+                        Total Achieved: ${framework.totalAchieved}
+                    </div>
+                </div>
+            </div>
+        </div>
+    `;
 
             container.appendChild(card);
 
