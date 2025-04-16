@@ -15,19 +15,24 @@ public class DashboardController : Controller
         _context = context;
     }
     [HttpGet]
-    public async Task<IActionResult> IndicatorTrend(int indicatorCode)
+    public IActionResult IndicatorTrend(int indicatorCode)
     {
-        var measures = await _context.Measures
+        var measures = _context.Measures
             .Where(m => m.IndicatorCode == indicatorCode)
             .OrderBy(m => m.Date)
-            .Select(m => new
-            {
-                date = m.Date.ToString("yyyy-MM-dd"),
-                value = m.Value
-            })
-            .ToListAsync();
+            .ToList();
 
-        return Json(measures);
+        var real = measures
+            .Where(m => m.ValueType == MeasureValueType.Real)
+            .Select(m => new { date = m.Date.ToString("yyyy-MM-dd"), value = m.Value })
+            .ToList();
+
+        var target = measures
+            .Where(m => m.ValueType == MeasureValueType.Target)
+            .Select(m => new { date = m.Date.ToString("yyyy-MM-dd"), value = m.Value })
+            .ToList();
+
+        return Json(new { real, target });
     }
 
 

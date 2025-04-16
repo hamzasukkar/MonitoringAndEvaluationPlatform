@@ -13,6 +13,7 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jstree/3.3.12/themes/default/style.min.css" />
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jstree/3.3.12/jstree.min.js"></script> *@
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns"></script>
 
 @* <ul>
     @foreach (var node in Model.Hierarchy)
@@ -100,27 +101,51 @@
         const response = await fetch(`/Dashboard/IndicatorTrend?indicatorCode=${indicatorCode}`);
         const data = await response.json();
 
-        const labels = data.map(d => d.date);
-        const values = data.map(d => d.value);
+        const realData = data.real;
+        const targetData = data.target;
+
+        const allDates = [...new Set([...realData.map(d => d.date), ...targetData.map(d => d.date)])].sort();
+
+        const realMap = Object.fromEntries(realData.map(d => [d.date, d.value]));
+        const targetMap = Object.fromEntries(targetData.map(d => [d.date, d.value]));
+
+        const realValues = allDates.map(date => realMap[date] ?? null);
+        const targetValues = allDates.map(date => targetMap[date] ?? null);
 
         const ctx = document.getElementById('lineChart').getContext('2d');
         new Chart(ctx, {
             type: 'line',
             data: {
-                labels: labels,
-                datasets: [{
-                    label: 'Performance',
-                    data: values,
-                    borderColor: '#42a5f5',
-                    backgroundColor: 'rgba(66, 165, 245, 0.2)',
-                    fill: true,
-                    tension: 0.3,
-                    pointRadius: 4,
-                    pointHoverRadius: 6
-                }]
+                labels: allDates,
+                datasets: [
+                    {
+                        label: 'Real',
+                        data: realValues,
+                        borderColor: '#4caf50',
+                        backgroundColor: 'rgba(76, 175, 80, 0.2)',
+                        tension: 0.3,
+                        pointRadius: 4,
+                        pointHoverRadius: 6
+                    },
+                    {
+                        label: 'Target',
+                        data: targetValues,
+                        borderColor: '#f44336',
+                        backgroundColor: 'rgba(244, 67, 54, 0.2)',
+                        tension: 0.3,
+                        pointRadius: 4,
+                        pointHoverRadius: 6
+                    }
+                ]
             },
             options: {
                 responsive: true,
+                plugins: {
+                    tooltip: {
+                        mode: 'index',
+                        intersect: false
+                    }
+                },
                 scales: {
                     x: {
                         title: {
@@ -129,11 +154,11 @@
                         }
                     },
                     y: {
+                        beginAtZero: true,
                         title: {
                             display: true,
                             text: 'Value'
-                        },
-                        beginAtZero: true
+                        }
                     }
                 }
             }
