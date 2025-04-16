@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using MonitoringAndEvaluationPlatform.Data;
 using MonitoringAndEvaluationPlatform.Models;
+using MonitoringAndEvaluationPlatform.ViewModel;
 
 namespace MonitoringAndEvaluationPlatform.Controllers
 {
@@ -17,6 +18,56 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         public MonitoringController(ApplicationDbContext context)
         {
             _context = context;
+        }
+
+        public IActionResult FrameworkDashboard(List<int> selectedMinistryIds)
+        {
+            var allMinistries = _context.Ministries.ToList();
+
+            var frameworks = _context.Frameworks
+                .Include(f => f.Outcomes)
+                    .ThenInclude(o => o.Outputs)
+                        .ThenInclude(out2 => out2.SubOutputs)
+                            .ThenInclude(so => so.Indicators)
+                                .ThenInclude(i => i.Measures)
+                                    .ThenInclude(m => m.Project)
+                .AsQueryable();
+
+            if (selectedMinistryIds != null && selectedMinistryIds.Any())
+            {
+                frameworks = frameworks
+                    .Where(f => f.Outcomes
+                        .SelectMany(o => o.Outputs)
+                        .SelectMany(outp => outp.SubOutputs)
+                        .SelectMany(so => so.Indicators)
+                        .SelectMany(i => i.Measures)
+                        .Any(m => selectedMinistryIds.Contains(m.Project.MinistryCode)));
+            }
+
+            var viewModel = new FrameworkDashboardViewModel
+            {
+                Frameworks = frameworks.ToList(),
+                Ministries = allMinistries,
+                SelectedMinistryIds = selectedMinistryIds
+            };
+
+            return View(viewModel);
+        }
+
+
+        public async Task<IActionResult> Ministry(int? id)
+        {
+            ViewBag.MinistryList = _context.Ministries.Distinct().ToList();
+
+            var frameworks = await _context.Frameworks
+                .Include(i => i.Outcomes)
+                .ThenInclude(i => i.Outputs)
+                .ThenInclude(i => i.SubOutputs)
+                .ThenInclude(i => i.Indicators)
+                .ThenInclude(i => i.Measures)
+                .ThenInclude(i => i.Project)
+                .ToListAsync();
+            return View(frameworks);
         }
 
         // GET: Monitoring
