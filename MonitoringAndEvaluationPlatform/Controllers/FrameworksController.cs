@@ -68,8 +68,10 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Code,Name,Trend,Weight")] Framework framework)
+        public async Task<IActionResult> Create([Bind("Code,Name")] Framework framework)
         {
+            ModelState.Remove(nameof(framework.Outcomes));
+
             if (ModelState.IsValid)
             {
                 _context.Add(framework);

@@ -131,6 +131,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
 
             if (ModelState.IsValid)
             {
+                measure.Date= DateTime.Now;
                 _context.Measures.Add(measure);
                 await _context.SaveChangesAsync();
 

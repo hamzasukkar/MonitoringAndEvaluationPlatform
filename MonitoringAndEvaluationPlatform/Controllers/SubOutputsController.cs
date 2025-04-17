@@ -23,24 +23,28 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         }
 
         // GET: SubOutputs
-        public async Task<IActionResult> Index(int? outputCode)
+        public async Task<IActionResult> Index(int? frameworkCode, int? outputCode)
         {
-            if (outputCode == null)
+            IQueryable<SubOutput> query = _context.SubOutputs
+                .Include(s => s.Output)
+                .Include(s => s.Indicators)
+                .Include(s => s.Output.Outcome.Framework);
+
+            if (frameworkCode != null)
             {
-                var applicationDbContext = _context.SubOutputs.Include(s => s.Output);
-                return View(await applicationDbContext.ToListAsync());
+                // Filter by frameworkCode
+                query = query.Where(s => s.Output.Outcome.FrameworkCode == frameworkCode);
+                ViewBag.SelectedFrameworkCode = frameworkCode; // Store for view
             }
+            else if (outputCode != null)
+            {
+                // Filter by outputCode
+                query = query.Where(s => s.OutputCode == outputCode);
+                ViewBag.SelectedOutputCode = outputCode; // Store for view
+            }
+            // If both are null, we'll return all records
 
-            ViewBag.SelectedOutputCode = outputCode; // Store it for use in the view
-
-            //var subOutputs = await _context.SubOutputs
-            //    .Where(m => m.OutputCode == id).ToListAsync();
-
-            var subOutputs = await _context.SubOutputs
-              .Include(s => s.Output)
-              .Include(s => s.Indicators)
-              .Include(s => s.Output.Outcome.Framework)
-             .Where(m => m.OutputCode == outputCode).ToListAsync();
+            var subOutputs = await query.ToListAsync();
 
             if (subOutputs == null)
             {
@@ -91,15 +95,16 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Code,Name,Trend,OutputCode,Weight")] SubOutput subOutput)
+        public async Task<IActionResult> Create([Bind("Code,Name,Trend,OutputCode")] SubOutput subOutput)
         {
             ModelState.Remove(nameof(subOutput.Output));
 
             if (ModelState.IsValid)
             {
                 _context.Add(subOutput);
-                await _context.SaveChangesAsync();
-                return RedirectToAction("Index", new { id = subOutput.OutputCode });
+               await _context.SaveChangesAsync();
+               await RedistributeWeights(subOutput.OutputCode);
+                return RedirectToAction("Index", new { outputCode = subOutput.OutputCode });
             }
             ViewData["OutputCode"] = new SelectList(_context.Outputs, "Code", "Name", subOutput.OutputCode);
             return View(subOutput);
@@ -200,7 +205,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             return _context.SubOutputs.Any(e => e.Code == id);
         }
 
-      
+
         private async Task RedistributeWeights(int outputCode)
         {
             var subOutputs = await _context.SubOutputs

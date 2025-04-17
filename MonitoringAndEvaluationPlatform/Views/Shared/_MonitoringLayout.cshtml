@@ -22,23 +22,18 @@
                     <!-- Dropdown for Results Ministries -->
                     <li class="nav-item dropdown">
                         <a class="nav-link" href="#" role="button" aria-expanded="false">
-                            Partners
+                            Framework
                         </a>
                     </li>
                     <li class="nav-item dropdown">
-                        <a class="nav-link" href="#" role="button" aria-expanded="false">
-                            Regional
+                        <a asp-controller="Monitoring" asp-action="Ministry" class="nav-link"  role="button" aria-expanded="false">
+                            Ministry
                         </a>
                     </li>
                     <!-- Other links -->
                     <li class="nav-item dropdown">
                         <a class="nav-link" href="#" role="button" aria-expanded="false">
-                            Map
-                        </a>
-                    </li>
-                    <li class="nav-item dropdown">
-                        <a class="nav-link" href="#" role="button" aria-expanded="false">
-                            Filter
+                            Region
                         </a>
                     </li>
                     <li>
@@ -93,7 +88,7 @@
                 <li class="d-flex align-items-center" >
                     <img src="~/img/dashboard.png"
                          alt="Dashboard Icon" class="me-2" width="24" height="24">
-                    <a class="unstyled-link" href="/Frameworks/Dashboard">Dashboard</a>
+                    <a class="unstyled-link" href="/Dashboard/Index">Dashboard</a>
                 </li>
                 <li class="d-flex align-items-center" >
                     <img src="~/img/settings.png"

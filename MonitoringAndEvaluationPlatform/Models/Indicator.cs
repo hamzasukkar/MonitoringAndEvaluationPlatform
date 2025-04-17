@@ -9,7 +9,6 @@ namespace MonitoringAndEvaluationPlatform.Models
         public int IndicatorCode { get; set; }
         public string Name { get; set; }
         public string Source { get; set; } = string.Empty;
-        public double Trend { get; set; } = 0;
         public double IndicatorsPerformance { get; set; } = 0;
         public double DisbursementPerformance { get; set; } = 0;
         public double FieldMonitoring { get; set; } = 0;

@@ -91,7 +91,6 @@ namespace MonitoringAndEvaluationPlatform.Infrastructure
                     new Framework
                     {
                         Name = "Health Framework",
-                        Trend = 1.2,
                         IndicatorsPerformance = 80,
                         DisbursementPerformance = 90,
                         FieldMonitoring = 85,
@@ -101,7 +100,6 @@ namespace MonitoringAndEvaluationPlatform.Infrastructure
                             new Outcome
                             {
                                 Name = "Reduced Child Mortality",
-                                Trend = 1.1,
                                 IndicatorsPerformance = 78,
                                 DisbursementPerformance = 88,
                                 FieldMonitoring = 82,
@@ -112,7 +110,6 @@ namespace MonitoringAndEvaluationPlatform.Infrastructure
                                     new Output
                                     {
                                         Name = "Improved Vaccination Coverage",
-                                        Trend = 1.0,
                                         IndicatorsPerformance = 75,
                                         DisbursementPerformance = 85,
                                         FieldMonitoring = 80,
@@ -123,7 +120,6 @@ namespace MonitoringAndEvaluationPlatform.Infrastructure
                                             new SubOutput
                                             {
                                                 Name = "Increase in Immunization Rates",
-                                                Trend = 1.1,
                                                 IndicatorsPerformance = 77,
                                                 DisbursementPerformance = 87,
                                                 FieldMonitoring = 81,
@@ -134,7 +130,6 @@ namespace MonitoringAndEvaluationPlatform.Infrastructure
                                                     new Indicator
                                                     {
                                                         Name = "Percentage of Fully Immunized Children",
-                                                        Trend = 1.2,
                                                         IndicatorsPerformance = 80,
                                                         Weight = 0.5,
                                                         Target = 95,

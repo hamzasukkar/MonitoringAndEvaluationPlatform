@@ -50,9 +50,9 @@
             <thead>
                 <tr>
                     <th>@Html.DisplayNameFor(model => model.Projects.FirstOrDefault().ProjectName)</th>
-                    <th>@Html.DisplayNameFor(model => model.Projects.FirstOrDefault().EstimatedBudget)</th>
+@*                     <th>@Html.DisplayNameFor(model => model.Projects.FirstOrDefault().EstimatedBudget)</th>
                     <th>@Html.DisplayNameFor(model => model.Projects.FirstOrDefault().RealBudget)</th>
-                    <th>@Html.DisplayNameFor(model => model.Projects.FirstOrDefault().Trend)</th>
+                    <th>@Html.DisplayNameFor(model => model.Projects.FirstOrDefault().Trend)</th> *@
                     <th>@Html.DisplayNameFor(model => model.Projects.FirstOrDefault().performance)</th>
                     <th>@Html.DisplayNameFor(model => model.Projects.FirstOrDefault().DisbursementPerformance)</th>
                     <th>@Html.DisplayNameFor(model => model.Projects.FirstOrDefault().FieldMonitoring)</th>
@@ -144,31 +144,11 @@
                             ImpactAssessmentProgressBarClass = "progress-bar-danger";
                             break;
                     }
-
-                    switch (item.Trend)
-                    {
-                        case >= 80:
-                            TrendImage = "external-link-success.png";
-                            break;
-
-                        case >= 50:
-                            TrendImage = "external-link-info.png";
-                            break;
-
-                        case >= 30:
-                            TrendImage = "external-link-squared.png";
-                            break;
-
-                        case < 30:
-                            TrendImage = "external-link-danger.png";
-                            break;
-                    }
-
                     <tr>
                         <td>
                             <a asp-action="Details" asp-route-id="@item.ProjectID">@item.ProjectName</a>
                         </td>
-                        <td>
+       @*                  <td>
                             @Html.DisplayFor(modelItem => item.EstimatedBudget)
                         </td>
                         <td>
@@ -176,7 +156,7 @@
                         </td>
                         <td>
                             @Html.DisplayFor(modelItem => item.Trend)
-                        </td>
+                        </td> *@
                         <td>
                             <div class="progress">
                                 <div class="progress-bar @IndicatorsPerformanceProgressBarClass progress-bar-striped"

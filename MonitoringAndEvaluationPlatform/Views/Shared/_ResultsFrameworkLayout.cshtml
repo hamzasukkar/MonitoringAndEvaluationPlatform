@@ -31,10 +31,10 @@
                                 @framework.Name
                             </a>
                             <ul class="dropdown-menu" aria-labelledby="resultsDropdown">
-                                <li><a asp-controller="Outcomes" asp-action="Index" asp-route-frameworkCode="@framework.Code">Outcomes</a></li>
-                                <li><a class="dropdown-item" href="/Outputs/Index/@framework.Code">Outputs</a></li>
-                                <li><a class="dropdown-item" href="/SubOutputs/Index/@framework.Code">SubOutputs</a></li>
-                                <li><a class="dropdown-item" href="/Indicators/Index/@framework.Code">Indicators</a></li>
+                                <li><a class="dropdown-item"  asp-controller="Outcomes" asp-action="Index" asp-route-frameworkCode="@framework.Code">Outcomes</a></li>
+                                <li><a class="dropdown-item"  asp-controller="Outputs" asp-action="Index" asp-route-frameworkCode="@framework.Code">Outputs</a></li>
+                                <li><a class="dropdown-item" asp-controller="SubOutputs" asp-action="Index"  asp-route-frameworkCode="@framework.Code">SubOutputs</a></li>
+                                <li><a class="dropdown-item" asp-controller="Indicators" asp-action="Index" asp-route-frameworkCode="@framework.Code">Indicators</a></li>
                             </ul>
                         </li>
                     }
@@ -92,7 +92,7 @@
                 <li class="d-flex align-items-center">
                     <img src="~/img/dashboard.png"
                          alt="Dashboard Icon" class="me-2" width="24" height="24">
-                    <a class="unstyled-link" href="/Frameworks/Dashboard">Dashboard</a>
+                    <a class="unstyled-link" href="/Dashboard/Index">Dashboard</a>
                 </li>
                 <li class="d-flex align-items-center">
                     <img src="~/img/settings.png"

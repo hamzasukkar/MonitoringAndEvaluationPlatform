@@ -12,7 +12,7 @@ using MonitoringAndEvaluationPlatform.Data;
 namespace MonitoringAndEvaluationPlatform.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20250405145729_Models")]
+    [Migration("20250414062409_Models")]
     partial class Models
     {
         /// <inheritdoc />
@@ -327,12 +327,6 @@ namespace MonitoringAndEvaluationPlatform.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<double>("Trend")
-                        .HasColumnType("float");
-
-                    b.Property<double>("Weight")
-                        .HasColumnType("float");
-
                     b.HasKey("Code");
 
                     b.ToTable("Frameworks");
@@ -402,9 +396,6 @@ namespace MonitoringAndEvaluationPlatform.Migrations
 
                     b.Property<DateTime>("TargetYear")
                         .HasColumnType("datetime2");
-
-                    b.Property<double>("Trend")
-                        .HasColumnType("float");
 
                     b.Property<double>("Weight")
                         .HasColumnType("float");
@@ -504,9 +495,6 @@ namespace MonitoringAndEvaluationPlatform.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<double>("Trend")
-                        .HasColumnType("float");
-
                     b.Property<double>("Weight")
                         .HasColumnType("float");
 
@@ -543,9 +531,6 @@ namespace MonitoringAndEvaluationPlatform.Migrations
 
                     b.Property<int>("OutcomeCode")
                         .HasColumnType("int");
-
-                    b.Property<double>("Trend")
-                        .HasColumnType("float");
 
                     b.Property<double>("Weight")
                         .HasColumnType("float");
@@ -634,9 +619,6 @@ namespace MonitoringAndEvaluationPlatform.Migrations
                         .HasColumnType("datetime2");
 
                     b.Property<int>("SuperVisorCode")
-                        .HasColumnType("int");
-
-                    b.Property<int>("Trend")
                         .HasColumnType("int");
 
                     b.Property<double>("performance")
@@ -746,9 +728,6 @@ namespace MonitoringAndEvaluationPlatform.Migrations
 
                     b.Property<int>("OutputCode")
                         .HasColumnType("int");
-
-                    b.Property<double>("Trend")
-                        .HasColumnType("float");
 
                     b.Property<double>("Weight")
                         .HasColumnType("float");

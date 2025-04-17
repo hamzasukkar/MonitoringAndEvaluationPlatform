@@ -25,9 +25,6 @@
             <th>
                 @Html.DisplayNameFor(model => model.Name)
             </th>
-          @*   <th>
-                @Html.DisplayNameFor(model => model.Trend)
-            </th> *@
             <th>
                 @Html.DisplayNameFor(model => model.Weight)
             </th>
@@ -56,15 +53,11 @@
             string disbursementClass = ProgressBarHelper.GetProgressBarClass(item.DisbursementPerformance);
             string fieldMonitoringClass = ProgressBarHelper.GetProgressBarClass(item.FieldMonitoring);
             string impactAssessmentClass = ProgressBarHelper.GetProgressBarClass(item.ImpactAssessment);
-            string trendImage = ProgressBarHelper.GetTrendImage(item.Trend);
             double IndicatorsPerformance = Math.Round(item.IndicatorsPerformance, 2);
             <tr>
                 <td>
-                    <a href="/Outputs/Index/@item.Code">@item.Name</a>
+                    <a asp-controller="Outputs" asp-action="Index" asp-route-outcomeCode="@item.Code">@item.Name</a>
                 </td>
-            @*     <td>
-                    @Html.DisplayFor(modelItem => item.Trend)
-                </td> *@
                 <td>
                     @Html.DisplayFor(modelItem => item.Weight)
                 </td>

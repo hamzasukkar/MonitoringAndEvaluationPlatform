@@ -1,0 +1,92 @@
+﻿@model MonitoringAndEvaluationPlatform.ViewModel.OutcomeProgressViewModel
+@{
+    ViewData["Title"] = "OutcomeProgress";
+    Layout = "~/Views/Shared/_DashboardLayout.cshtml";
+    var selectedFramework = Context.Request.Query["frameworkCode"];
+}
+
+
+<h2 class="mb-4">🎯 Outcome Achievement Rates</h2>
+
+<style>
+    .progress-bar-custom {
+        height: 30px;
+        display: flex;
+        align-items: center;
+        justify-content: flex-end;
+        color: #fff;
+        font-weight: bold;
+        padding-right: 12px;
+        border-radius: 6px;
+        transition: width 0.4s ease;
+    }
+
+    .progress-container {
+        background-color: #f1f1f1;
+        height: 30px;
+        border-radius: 6px;
+        margin-bottom: 15px;
+    }
+
+    .bar-1 {
+        background-color: #00695c;
+    }
+
+    .bar-2 {
+        background-color: #00897b;
+    }
+
+    .bar-3 {
+        background-color: #26a69a;
+    }
+
+    .bar-4 {
+        background-color: #4db6ac;
+    }
+
+    .bar-5 {
+        background-color: #80cbc4;
+    }
+</style>
+
+<form method="get" class="row g-3 mb-4">
+    <div class="col-md-4">
+        <label class="form-label">Filter by Framework</label>
+        <select name="frameworkCode" class="form-select" onchange="this.form.submit()">
+            <option value="">-- All Frameworks --</option>
+            @foreach (var fw in (List<SelectListItem>)ViewBag.Frameworks)
+            {
+                <option value="@fw.Value" selected="@(fw.Value == selectedFramework)">@fw.Text</option>
+            }
+        </select>
+    </div>
+</form>
+
+@if (!String.IsNullOrEmpty(selectedFramework))
+{
+    <a href="@Url.Action("OutcomeProgress")" class="btn btn-secondary mt-2">Reset Filter</a>
+}
+
+<div class="container">
+    <h5 class="mb-3">Top Outcomes by Achievement Rate</h5>
+    @{
+        int index = 1;
+        foreach (var item in Model.Outcomes.Take(5))
+        {
+            var barClass = $"bar-{index}";
+            var tooltip = $"Indicators: {item.TotalIndicators}, Target: {item.TotalTarget}, Achieved: {item.TotalAchieved}";
+            <div class="mb-3" title="@tooltip">
+                <label class="fw-bold">@item.OutcomeName</label>
+                <div class="progress-container">
+                    <div class="progress-bar-custom @barClass" style="width:@item.AchievementRate%">
+                        @item.AchievementRate.ToString("0.#")%
+                    </div>
+                </div>
+            </div>
+            index++;
+        }
+       
+    }
+</div>
+
+

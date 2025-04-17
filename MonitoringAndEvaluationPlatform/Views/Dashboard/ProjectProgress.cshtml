@@ -1,0 +1,64 @@
+﻿@model MonitoringAndEvaluationPlatform.ViewModel.ProjectProgressFilterViewModel
+@{
+    ViewData["Title"] = "ProjectProgress";
+    Layout = "~/Views/Shared/_DashboardLayout.cshtml";
+}
+
+
+<h4 class="mb-4">📈 Project Progress</h4>
+
+<form method="get" class="row g-3 mb-4">
+    <div class="col-md-3">
+        <label class="form-label">Region</label>
+        @Html.DropDownListFor(m => m.RegionId, new SelectList(Model.Regions, "Value", "Text", Model.RegionId), "All", new { @class = "form-select" })
+    </div>
+    <div class="col-md-3">
+        <label class="form-label">Sector</label>
+        @Html.DropDownListFor(m => m.SectorId, new SelectList(Model.Sectors, "Value", "Text", Model.SectorId), "All", new { @class = "form-select" })
+    </div>
+    <div class="col-md-3">
+        <label class="form-label">Donor</label>
+        @Html.DropDownListFor(m => m.DonorId, new SelectList(Model.Donors, "Value", "Text", Model.DonorId), "All", new { @class = "form-select" })
+    </div>
+    <div class="col-md-3 align-self-end d-flex gap-2">
+        <button type="submit" class="btn btn-primary w-50">Apply</button>
+        <a href="@Url.Action("ProjectProgress", "Dashboard")" class="btn btn-outline-secondary w-50">Reset</a>
+    </div>
+</form>
+
+<div class="row g-4">
+    @foreach (var project in Model.Projects)
+    {
+        var tooltip = $"Project: {project.ProjectName}\n" +
+                      $"Indicators: {project.TotalIndicators}\n" +
+                      $"Target: {project.TotalTarget}\n" +
+                      $"Achieved: {project.TotalAchieved}";
+
+        <div class="col-md-6 col-lg-4">
+            <div class="card shadow-sm border-0 p-3" title="@tooltip">
+                <h6 class="fw-bold">@project.ProjectName</h6>
+                <div class="progress" style="height: 20px;">
+                    <div class="progress-bar 
+                        @(project.CompletionRate >= 85 ? "bg-success" :
+                          project.CompletionRate >= 60 ? "bg-warning" : "bg-danger")"
+                         role="progressbar"
+                         style="width: @project.CompletionRate%" 
+                         aria-valuenow="@project.CompletionRate" 
+                         aria-valuemin="0" aria-valuemax="100">
+                        @project.CompletionRate.ToString("0.0")%
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+        tooltipTriggerList.map(function (tooltipTriggerEl) {
+            return new bootstrap.Tooltip(tooltipTriggerEl)
+        })
+    });
+</script>

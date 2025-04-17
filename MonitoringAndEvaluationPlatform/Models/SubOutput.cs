@@ -7,7 +7,6 @@ namespace MonitoringAndEvaluationPlatform.Models
         [Key]
         public int Code { get; set; }
         public string Name { get; set; }
-        public double Trend { get; set; } = 0;
         public double IndicatorsPerformance { get; set; } = 0;
         public double DisbursementPerformance { get; set; } = 0;
         public double FieldMonitoring { get; set; } = 0;

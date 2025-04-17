@@ -2,102 +2,105 @@
 @using MonitoringAndEvaluationPlatform.Helpers
 
 @{
-    ViewData["Title"] = "Index";
-    Layout = "~/Views/Shared/_ResultsFrameworkLayout.cshtml";
+	ViewData["Title"] = "Index";
+	Layout = "~/Views/Shared/_ResultsFrameworkLayout.cshtml";
 }
 
 <h1>Index</h1>
-
 <p>
-    <a asp-action="Create" asp-route-id="@ViewBag.SelectedOutcomeCode">Create New Output</a>
+	<a asp-action="Create" asp-route-outcomeCode="@ViewBag.SelectedOutcomeCode" class="btn btn-success">Create New Output</a>
+
+	@if (@ViewBag.SelectedOutcomeCode != null)
+	{
+		<a asp-action="AdjustWeights" asp-route-outcomeCode="@ViewBag.SelectedOutcomeCode" class="btn btn-warning">Adjust Weights</a>
+	}
 </p>
 <table class="table">
-    <thead>
-        <tr>
-            <th>
-                @Html.DisplayNameFor(model => model.Name)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Weight)
-            </th>
-         @*    <th>
+	<thead>
+		<tr>
+			<th>
+				@Html.DisplayNameFor(model => model.Name)
+			</th>
+			<th>
+				@Html.DisplayNameFor(model => model.Weight)
+			</th>
+			@*    <th>
                 @Html.DisplayNameFor(model => model.Trend)
             </th> *@
-            <th>
-                Indicators Performance
-            </th>
-            <th>
-                Disbursement Performance
-            </th>
-            <th>
-                Field Monitoring
-            </th>
-            <th>
-                Impact Assessment
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Outcome)
-            </th>
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var item in Model)
-        {
-            string indicatorsClass = ProgressBarHelper.GetProgressBarClass(item.IndicatorsPerformance);
-            string disbursementClass = ProgressBarHelper.GetProgressBarClass(item.DisbursementPerformance);
-            string fieldMonitoringClass = ProgressBarHelper.GetProgressBarClass(item.FieldMonitoring);
-            string impactAssessmentClass = ProgressBarHelper.GetProgressBarClass(item.ImpactAssessment);
-            string trendImage = ProgressBarHelper.GetTrendImage(item.Trend);
-            double IndicatorsPerformance = Math.Round(item.IndicatorsPerformance, 2);
-            <tr>
-                <td>
-                    <a asp-action="Index" asp-controller="SubOutputs" asp-route-outputCode="@item.Code">@item.Name</a>
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.Weight)
-                </td>
-          @*       <td>
+			<th>
+				Indicators Performance
+			</th>
+			<th>
+				Disbursement Performance
+			</th>
+			<th>
+				Field Monitoring
+			</th>
+			<th>
+				Impact Assessment
+			</th>
+			<th>
+				@Html.DisplayNameFor(model => model.Outcome)
+			</th>
+			<th></th>
+		</tr>
+	</thead>
+	<tbody>
+		@foreach (var item in Model)
+		{
+			string indicatorsClass = ProgressBarHelper.GetProgressBarClass(item.IndicatorsPerformance);
+			string disbursementClass = ProgressBarHelper.GetProgressBarClass(item.DisbursementPerformance);
+			string fieldMonitoringClass = ProgressBarHelper.GetProgressBarClass(item.FieldMonitoring);
+			string impactAssessmentClass = ProgressBarHelper.GetProgressBarClass(item.ImpactAssessment);
+			double IndicatorsPerformance = Math.Round(item.IndicatorsPerformance, 2);
+			<tr>
+				<td>
+					<a asp-action="Index" asp-controller="SubOutputs" asp-route-outputCode="@item.Code">@item.Name</a>
+				</td>
+				<td>
+					@Html.DisplayFor(modelItem => item.Weight)
+				</td>
+				@*       <td>
                     @Html.DisplayFor(modelItem => item.Trend)
                 </td> *@
-                <td>
-                    @await Html.PartialAsync("_ProgressBar", Tuple.Create(IndicatorsPerformance, indicatorsClass))
-                </td>
-                <td>
-                    @await Html.PartialAsync("_ProgressBar", Tuple.Create(item.DisbursementPerformance, disbursementClass))
-                </td>
-                <td>
-                    @await Html.PartialAsync("_ProgressBar", Tuple.Create(item.FieldMonitoring, fieldMonitoringClass))
-                </td>
-                <td>
-                    @await Html.PartialAsync("_ProgressBar", Tuple.Create(item.ImpactAssessment, impactAssessmentClass))
-                </td>
-                <td>
-                    <a href="/Outcomes/Index/@item.OutcomeCode">@item.Outcome.Name</a>
-                </td>
-                <td>
-                    <form  method="post" style="display: inline;">
-                        <button class="btn btn-sm btn-success" title="Tree">
-                            <i class="bi bi-diagram-3"></i>
-                        </button>
-                    </form>
-                    <form asp-action="Details" asp-route-id="@item.Code" method="get" style="display: inline;">
-                        <button class="btn btn-sm btn-primary" title="View">
-                            <i class="bi bi-eye"></i>
-                        </button>
-                    </form>
-                    <form asp-action="Edit" asp-route-id="@item.Code" method="get" style="display: inline;">
-                        <button class="btn btn-sm btn-warning" title="Edit">
-                            <i class="bi bi-pencil"></i>
-                        </button>
-                    </form>
-                    <form asp-action="Delete" asp-route-id="@item.Code" method="post" style="display: inline;">
-                        <button class="btn btn-sm btn-danger" title="Delete">
-                            <i class="bi bi-trash"></i>
-                        </button>
-                    </form>
-                </td>
-            </tr>
-        }
-    </tbody>
+				<td>
+					@await Html.PartialAsync("_ProgressBar", Tuple.Create(IndicatorsPerformance, indicatorsClass))
+				</td>
+				<td>
+					@await Html.PartialAsync("_ProgressBar", Tuple.Create(item.DisbursementPerformance, disbursementClass))
+				</td>
+				<td>
+					@await Html.PartialAsync("_ProgressBar", Tuple.Create(item.FieldMonitoring, fieldMonitoringClass))
+				</td>
+				<td>
+					@await Html.PartialAsync("_ProgressBar", Tuple.Create(item.ImpactAssessment, impactAssessmentClass))
+				</td>
+				<td>
+					<a href="/Outcomes/Index/@item.OutcomeCode">@item.Outcome.Name</a>
+				</td>
+				<td>
+					<form method="post" style="display: inline;">
+						<button class="btn btn-sm btn-success" title="Tree">
+							<i class="bi bi-diagram-3"></i>
+						</button>
+					</form>
+					<form asp-action="Details" asp-route-id="@item.Code" method="get" style="display: inline;">
+						<button class="btn btn-sm btn-primary" title="View">
+							<i class="bi bi-eye"></i>
+						</button>
+					</form>
+					<form asp-action="Edit" asp-route-id="@item.Code" method="get" style="display: inline;">
+						<button class="btn btn-sm btn-warning" title="Edit">
+							<i class="bi bi-pencil"></i>
+						</button>
+					</form>
+					<form asp-action="Delete" asp-route-id="@item.Code" method="post" style="display: inline;">
+						<button class="btn btn-sm btn-danger" title="Delete">
+							<i class="bi bi-trash"></i>
+						</button>
+					</form>
+				</td>
+			</tr>
+		}
+	</tbody>
 </table>
