@@ -77,6 +77,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 .Include(p=>p.SuperVisor)
                 .Include(p=>p.Donor)
                 .Include(p=>p.Region)
+                .Include(p => p.Frameworks) // Include Frameworks here
                 .FirstOrDefaultAsync(m => m.ProjectID == id);
 
             if (project == null)
