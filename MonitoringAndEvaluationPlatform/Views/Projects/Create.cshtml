@@ -1,4 +1,4 @@
-﻿@model MonitoringAndEvaluationPlatform.Models.Project
+﻿@model MonitoringAndEvaluationPlatform.ViewModel.CreateProjectViewModel
 @{
     ViewData["Title"] = "Index";
     Layout = "~/Views/Shared/_ProjectsLayout.cshtml";
@@ -18,6 +18,24 @@
                 <label asp-for="RegionCode" class="control-label"></label>
                 <select asp-for="RegionCode" class="form-control" asp-items="ViewBag.Region"></select>
             </div>
+            <div class="form-group">
+                <label asp-for="ProjectManagerCode" class="control-label"></label>
+                <select asp-for="ProjectManagerCode" class="form-control" asp-items="ViewBag.ProjectManager"></select>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="SuperVisorCode" class="control-label"></label>
+                <select asp-for="SuperVisorCode" class="form-control" asp-items="ViewBag.SuperVisor"></select>
+            </div>
+            <div class="form-group">
+                <label asp-for="MinistryCode" class="control-label"></label>
+                <select asp-for="MinistryCode" class="form-control" asp-items="ViewBag.Ministry"></select>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="DonorCode" class="control-label"></label>
+                <select asp-for="DonorCode" class="form-control" asp-items="ViewBag.Donor"></select>
+            </div>
 @*             <div class="form-group">
                 <label asp-for="EstimatedBudget" class="control-label"></label>
                 <input asp-for="EstimatedBudget" class="form-control" />
@@ -28,41 +46,12 @@
                 <input asp-for="RealBudget" class="form-control" />
                 <span asp-validation-for="RealBudget" class="text-danger"></span>
             </div> *@
-       
-            <div class="form-group">
-                <label asp-for="ProjectManagerCode" class="control-label"></label>
-                <select asp-for="ProjectManagerCode" class="form-control" asp-items="ViewBag.ProjectManager"></select>
-            </div>
 
-            <div class="form-group">
-                <label asp-for="SuperVisorCode" class="control-label"></label>
-                <select asp-for="SuperVisorCode" class="form-control" asp-items="ViewBag.SuperVisor"></select>
-            </div>
             @*       
                      <div class="form-group">
                 <label asp-for="Trend" class="control-label"></label>
                 <input asp-for="Trend" class="form-control" />
                 <span asp-validation-for="Trend" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="Type" class="control-label"></label>
-                <input asp-for="Type" class="form-control" />
-                <span asp-validation-for="Type" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="Status1" class="control-label"></label>
-                <input asp-for="Status1" class="form-control" />
-                <span asp-validation-for="Status1" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="Status2" class="control-label"></label>
-                <input asp-for="Status2" class="form-control" />
-                <span asp-validation-for="Status2" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="Category" class="control-label"></label>
-                <input asp-for="Category" class="form-control" />
-                <span asp-validation-for="Category" class="text-danger"></span>
             </div>
                 <div class="form-group">
                 <label asp-for="StartDate" class="control-label"></label>
@@ -73,37 +62,8 @@
                 <label asp-for="EndDate" class="control-label"></label>
                 <input asp-for="EndDate" class="form-control" />
                 <span asp-validation-for="EndDate" class="text-danger"></span>
-            </div>
-                 <div class="form-group">
-                <label asp-for="performance" class="control-label"></label>
-                <input asp-for="performance" class="form-control" />
-                <span asp-validation-for="performance" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="DisbursementPerformance" class="control-label"></label>
-                <input asp-for="DisbursementPerformance" class="form-control" />
-                <span asp-validation-for="DisbursementPerformance" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="FieldMonitoring" class="control-label"></label>
-                <input asp-for="FieldMonitoring" class="form-control" />
-                <span asp-validation-for="FieldMonitoring" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="ImpactAssessment" class="control-label"></label>
-                <input asp-for="ImpactAssessment" class="form-control" />
-                <span asp-validation-for="ImpactAssessment" class="text-danger"></span>
-            </div>
             *@
-            <div class="form-group">
-                <label asp-for="MinistryCode" class="control-label"></label>
-                <select asp-for="MinistryCode" class="form-control" asp-items="ViewBag.Ministry"></select>
-            </div>
-
-            <div class="form-group">
-                <label asp-for="DonorCode" class="control-label"></label>
-                <select asp-for="DonorCode" class="form-control" asp-items="ViewBag.Donor"></select>
-            </div>
+      
         
        
       @*       <div class="form-group">
@@ -115,6 +75,21 @@
                     }
                 </select>
             </div> *@
+            <div class="form-group">
+                <label>Select Frameworks</label>
+                @foreach (var fw in Model.AvailableFrameworks)
+                {
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox"
+                               name="SelectedFrameworkIds"
+                               value="@fw.Code"
+                               id="fw_@fw.Code" />
+                        <label class="form-check-label" for="fw_@fw.Code">
+                            @fw.Name
+                        </label>
+                    </div>
+                }
+            </div>
             <div class="form-group">
                 <input type="submit" value="Create" class="btn btn-primary" />
             </div>

@@ -51,6 +51,12 @@ namespace MonitoringAndEvaluationPlatform.Data
                .HasForeignKey<ActionPlan>(ap => ap.ProjectID)
                .OnDelete(DeleteBehavior.Cascade); // Ensures deletion propagates
 
+
+            modelBuilder.Entity<Project>()
+                .HasMany(p => p.Frameworks)
+                .WithMany(f => f.Projects)
+                .UsingEntity(j => j.ToTable("ProjectFrameworks"));
+
         }
      
     }

@@ -390,6 +390,30 @@ namespace MonitoringAndEvaluationPlatform.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "ProjectFrameworks",
+                columns: table => new
+                {
+                    FrameworksCode = table.Column<int>(type: "int", nullable: false),
+                    ProjectsProjectID = table.Column<int>(type: "int", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_ProjectFrameworks", x => new { x.FrameworksCode, x.ProjectsProjectID });
+                    table.ForeignKey(
+                        name: "FK_ProjectFrameworks_Frameworks_FrameworksCode",
+                        column: x => x.FrameworksCode,
+                        principalTable: "Frameworks",
+                        principalColumn: "Code",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_ProjectFrameworks_Projects_ProjectsProjectID",
+                        column: x => x.ProjectsProjectID,
+                        principalTable: "Projects",
+                        principalColumn: "ProjectID",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "SubOutputs",
                 columns: table => new
                 {
@@ -604,6 +628,11 @@ namespace MonitoringAndEvaluationPlatform.Migrations
                 column: "ActivityCode");
 
             migrationBuilder.CreateIndex(
+                name: "IX_ProjectFrameworks_ProjectsProjectID",
+                table: "ProjectFrameworks",
+                column: "ProjectsProjectID");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Projects_DonorCode",
                 table: "Projects",
                 column: "DonorCode");
@@ -657,6 +686,9 @@ namespace MonitoringAndEvaluationPlatform.Migrations
 
             migrationBuilder.DropTable(
                 name: "Plans");
+
+            migrationBuilder.DropTable(
+                name: "ProjectFrameworks");
 
             migrationBuilder.DropTable(
                 name: "Sectors");

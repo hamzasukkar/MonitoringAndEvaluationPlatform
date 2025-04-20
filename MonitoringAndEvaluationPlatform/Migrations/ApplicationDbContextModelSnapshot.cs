@@ -22,6 +22,21 @@ namespace MonitoringAndEvaluationPlatform.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
+            modelBuilder.Entity("FrameworkProject", b =>
+                {
+                    b.Property<int>("FrameworksCode")
+                        .HasColumnType("int");
+
+                    b.Property<int>("ProjectsProjectID")
+                        .HasColumnType("int");
+
+                    b.HasKey("FrameworksCode", "ProjectsProjectID");
+
+                    b.HasIndex("ProjectsProjectID");
+
+                    b.ToTable("ProjectFrameworks", (string)null);
+                });
+
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>
                 {
                     b.Property<string>("Id")
@@ -751,6 +766,21 @@ namespace MonitoringAndEvaluationPlatform.Migrations
                     b.HasKey("Code");
 
                     b.ToTable("SuperVisors");
+                });
+
+            modelBuilder.Entity("FrameworkProject", b =>
+                {
+                    b.HasOne("MonitoringAndEvaluationPlatform.Models.Framework", null)
+                        .WithMany()
+                        .HasForeignKey("FrameworksCode")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("MonitoringAndEvaluationPlatform.Models.Project", null)
+                        .WithMany()
+                        .HasForeignKey("ProjectsProjectID")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>

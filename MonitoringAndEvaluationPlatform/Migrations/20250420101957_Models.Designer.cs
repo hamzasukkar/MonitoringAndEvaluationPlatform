@@ -12,7 +12,7 @@ using MonitoringAndEvaluationPlatform.Data;
 namespace MonitoringAndEvaluationPlatform.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20250414062409_Models")]
+    [Migration("20250420101957_Models")]
     partial class Models
     {
         /// <inheritdoc />
@@ -24,6 +24,21 @@ namespace MonitoringAndEvaluationPlatform.Migrations
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
+
+            modelBuilder.Entity("FrameworkProject", b =>
+                {
+                    b.Property<int>("FrameworksCode")
+                        .HasColumnType("int");
+
+                    b.Property<int>("ProjectsProjectID")
+                        .HasColumnType("int");
+
+                    b.HasKey("FrameworksCode", "ProjectsProjectID");
+
+                    b.HasIndex("ProjectsProjectID");
+
+                    b.ToTable("ProjectFrameworks", (string)null);
+                });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>
                 {
@@ -754,6 +769,21 @@ namespace MonitoringAndEvaluationPlatform.Migrations
                     b.HasKey("Code");
 
                     b.ToTable("SuperVisors");
+                });
+
+            modelBuilder.Entity("FrameworkProject", b =>
+                {
+                    b.HasOne("MonitoringAndEvaluationPlatform.Models.Framework", null)
+                        .WithMany()
+                        .HasForeignKey("FrameworksCode")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("MonitoringAndEvaluationPlatform.Models.Project", null)
+                        .WithMany()
+                        .HasForeignKey("ProjectsProjectID")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>

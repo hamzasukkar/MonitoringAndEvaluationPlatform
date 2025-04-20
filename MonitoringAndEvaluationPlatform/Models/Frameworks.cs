@@ -16,5 +16,8 @@ namespace MonitoringAndEvaluationPlatform.Models
 
         // Navigation property for related Outcomes
         public ICollection<Outcome> Outcomes { get; set; } = new List<Outcome>();
+
+        // Navigation property for many-to-many
+        public ICollection<Project> Projects { get; set; } = new List<Project>();
     }
 }

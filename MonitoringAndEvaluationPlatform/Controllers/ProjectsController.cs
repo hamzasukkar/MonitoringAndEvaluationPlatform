@@ -98,7 +98,12 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             ViewData["ProjectManager"] = new SelectList(_context.ProjectManagers, "Code", "Name");
             ViewBag.Indicators = _context.Indicators.ToList();
 
-            return View();
+            var viewModel = new CreateProjectViewModel
+            {
+                AvailableFrameworks = _context.Frameworks.ToList()
+            };
+
+            return View(viewModel);
         }
 
         // POST: Programs/Create
@@ -106,24 +111,33 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult Create(Project project, int[] selectedIndicators)
+        public IActionResult Create( CreateProjectViewModel viewModel)
         {
 
-            //foreach (var item in selectedIndicators)
-            //{
-            //    var SelectedIndicator = _context.Indicators.FirstOrDefault(i => i.Code == item);
+            if (ModelState.IsValid)
+            {
+                var project = new Project
+                {
+                    ProjectName = viewModel.ProjectName,
+                    RegionCode = viewModel.RegionCode,
+                    ProjectManagerCode = viewModel.ProjectManagerCode,
+                    SuperVisorCode = viewModel.SuperVisorCode,
+                    MinistryCode = viewModel.MinistryCode,
+                    DonorCode = viewModel.DonorCode,
+                    Frameworks = _context.Frameworks
+                        .Where(f => viewModel.SelectedFrameworkIds.Contains(f.Code))
+                        .ToList()
+                };
 
-            //    if (SelectedIndicator != null)
-            //    {
-            //        project.Indicators.Add(SelectedIndicator);
-            //    }
-            //}
-
-           
-               
                 _context.Projects.Add(project);
                 _context.SaveChanges();
-                return RedirectToAction("Index"); // Or your desired action
+
+                return RedirectToAction("Index");
+            }
+            // Repopulate frameworks if ModelState fails
+            viewModel.AvailableFrameworks = _context.Frameworks.ToList();
+            return View(viewModel);
+
         }
 
         // GET: Programs/Edit/5
