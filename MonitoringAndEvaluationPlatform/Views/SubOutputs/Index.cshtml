@@ -2,107 +2,132 @@
 @using MonitoringAndEvaluationPlatform.Helpers
 
 @{
-    ViewData["Title"] = "Index";
+    ViewData["Title"] = "SubOutputs";
     Layout = "~/Views/Shared/_ResultsFrameworkLayout.cshtml";
 }
 
-<h1>Index</h1>
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h4 class="mb-0">SubOutputs Management</h4>
+            <p class="text-muted mb-0">View and manage all suboutput performance metrics</p>
+        </div>
+        <div>
+            <a asp-action="Create" asp-route-id="@ViewBag.SelectedOutputCode" class="btn btn-success me-2">
+                <i class="fas fa-plus me-2"></i>Create New SubOutput
+            </a>
+            @if (@ViewBag.SelectedOutputCode != null)
+            {
+                <a asp-action="AdjustWeights" asp-route-outputCode="@ViewBag.SelectedOutputCode" class="btn btn-warning">
+                    <i class="fas fa-balance-scale me-2"></i>Adjust Weights
+                </a>
+            }
+        </div>
+    </div>
 
-<p>
-    <a asp-action="Create" asp-route-id="@ViewBag.SelectedOutputCode" class="btn btn-success">Create New Sub Output</a>
-    @if (@ViewBag.SelectedOutputCode != null)
-    {
-        <a asp-action="AdjustWeights"  asp-route-outputCode="@ViewBag.SelectedOutputCode" class="btn btn-warning">Adjust Weights</a>
-    }
-</p>
+    <div class="card shadow-sm">
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead class="table-light">
+                        <tr>
+                            <th>SubOutput Name</th>
+                            <th>Weight</th>
+                            <th>Indicators Performance</th>
+                            <th>Disbursement Performance</th>
+                            <th>Field Monitoring</th>
+                            <th>Impact Assessment</th>
+                            <th>Output</th>
+                            <th class="text-end">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model)
+                        {
+                            string indicatorsClass = ProgressBarHelper.GetProgressBarClass(item.IndicatorsPerformance);
+                            string disbursementClass = ProgressBarHelper.GetProgressBarClass(item.DisbursementPerformance);
+                            string fieldMonitoringClass = ProgressBarHelper.GetProgressBarClass(item.FieldMonitoring);
+                            string impactAssessmentClass = ProgressBarHelper.GetProgressBarClass(item.ImpactAssessment);
+                            double IndicatorsPerformance = Math.Round(item.IndicatorsPerformance, 2);
 
-<table class="table">
-    <thead>
-        <tr>
-            <th>
-                Name
-            </th>
-            <th>
-                Weight
-            </th>
-   @*          <th>
-                Trend
-            </th> *@
-            <th>
-                Indicators Performance
-            </th>
-            <th>
-                Disbursement Performance
-            </th>
-            <th>
-                Field Monitoring
-            </th>
-            <th>
-                Impact Assessment
-            </th>
-            <th>
-                Output
-            </th>
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var item in Model)
-        {
-            string indicatorsClass = ProgressBarHelper.GetProgressBarClass(item.IndicatorsPerformance);
-            string disbursementClass = ProgressBarHelper.GetProgressBarClass(item.DisbursementPerformance);
-            string fieldMonitoringClass = ProgressBarHelper.GetProgressBarClass(item.FieldMonitoring);
-            string impactAssessmentClass = ProgressBarHelper.GetProgressBarClass(item.ImpactAssessment);
-            double IndicatorsPerformance = Math.Round(item.IndicatorsPerformance, 2);
-            <tr>
-                <td>
-                    <a asp-controller="Indicators" asp-route-frameworkCode="@item.Output.Outcome.FrameworkCode" asp-route-subOutputCode="@item.Code" asp-action="Index">@item.Name</a>
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.Weight)
-                </td>
-           @*      <td>
-                    @Html.DisplayFor(modelItem => item.Trend)
-                </td> *@
-                <td>
-                    @await Html.PartialAsync("_ProgressBar", Tuple.Create(IndicatorsPerformance, indicatorsClass))
-                </td>
-                <td>
-                    @await Html.PartialAsync("_ProgressBar", Tuple.Create(item.DisbursementPerformance, disbursementClass))
-                </td>
-                <td>
-                    @await Html.PartialAsync("_ProgressBar", Tuple.Create(item.FieldMonitoring, fieldMonitoringClass))
-                </td>
-                <td>
-                    @await Html.PartialAsync("_ProgressBar", Tuple.Create(item.ImpactAssessment, impactAssessmentClass))
-                </td>
+                            <tr>
+                                <td>
+                                    <a asp-controller="Indicators" asp-route-frameworkCode="@item.Output.Outcome.FrameworkCode"
+                                       asp-route-subOutputCode="@item.Code" asp-action="Index" class="text-decoration-none">
+                                        <strong>@item.Name</strong>
+                                    </a>
+                                </td>
+                                <td>
+                                    @Html.DisplayFor(modelItem => item.Weight)
+                                </td>
+                                <td>
+                                    @await Html.PartialAsync("_ProgressBar", Tuple.Create(IndicatorsPerformance, indicatorsClass))
+                                </td>
+                                <td>
+                                    @await Html.PartialAsync("_ProgressBar", Tuple.Create(item.DisbursementPerformance, disbursementClass))
+                                </td>
+                                <td>
+                                    @await Html.PartialAsync("_ProgressBar", Tuple.Create(item.FieldMonitoring, fieldMonitoringClass))
+                                </td>
+                                <td>
+                                    @await Html.PartialAsync("_ProgressBar", Tuple.Create(item.ImpactAssessment, impactAssessmentClass))
+                                </td>
+                                <td>
+                                    <a href="/Outputs/Index/@item.OutputCode" class="text-decoration-none">@item.Output.Name</a>
+                                </td>
+                                <td class="text-end">
+                                    <div class="btn-group" role="group">
+                                        <a asp-action="Details" asp-route-id="@item.Code" class="btn btn-sm btn-outline-primary" title="View">
+                                            <i class="fas fa-eye"></i>
+                                        </a>
+                                        <a asp-action="Edit" asp-route-id="@item.Code" class="btn btn-sm btn-outline-warning" title="Edit">
+                                            <i class="fas fa-edit"></i>
+                                        </a>
+                                        <a asp-action="Delete" asp-route-id="@item.Code" class="btn btn-sm btn-outline-danger" title="Delete">
+                                            <i class="fas fa-trash-alt"></i>
+                                        </a>
+                                        <a href="#" class="btn btn-sm btn-outline-success" title="Tree View">
+                                            <i class="fas fa-project-diagram"></i>
+                                        </a>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
 
-                <td>
-                    <a href="/Outputs/Index/@item.OutputCode">@item.Output.Name</a>
-                </td>
-                <td>
-                    <form method="post" style="display: inline;">
-                        <button class="btn btn-sm btn-success" title="Tree">
-                            <i class="bi bi-diagram-3"></i>
-                        </button>
-                    </form>
-                    <form asp-action="Details" asp-route-id="@item.Code" method="get" style="display: inline;">
-                        <button class="btn btn-sm btn-primary" title="View">
-                            <i class="bi bi-eye"></i>
-                        </button>
-                    </form>
-                    <form asp-action="Edit" asp-route-id="@item.Code" method="get" style="display: inline;">
-                        <button class="btn btn-sm btn-warning" title="Edit">
-                            <i class="bi bi-pencil"></i>
-                        </button>
-                    </form>
-                    <form asp-action="Delete" asp-route-id="@item.Code" method="post" style="display: inline;">
-                        <button class="btn btn-sm btn-danger" title="Delete">
-                            <i class="bi bi-trash"></i>
-                        </button>
-                    </form>
-                </td>
-            </tr>
+
+    <style>
+        .table-hover tbody tr:hover {
+            background-color: rgba(13, 110, 253, 0.05);
         }
-    </tbody>
-</table>
+
+        .progress {
+            height: 24px;
+            border-radius: 4px;
+        }
+
+        .progress-bar {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+
+        .btn-group .btn {
+            padding: 0.25rem 0.5rem;
+        }
+
+        .card-header {
+            font-weight: 600;
+        }
+
+    .table-responsive {
+        overflow-x: hidden;
+    }
+    </style>

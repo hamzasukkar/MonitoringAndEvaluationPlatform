@@ -9,13 +9,12 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@ViewData["Title"] - MonitoringAndEvaluationPlatform</title>
-    <link rel="stylesheet" href="~/css/bootstrap.css" />
+    <title>@ViewData["Title"] - Monitoring & Evaluation System</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
-    <link rel="stylesheet" href="~/MonitoringAndEvaluationPlatform.styles.css" asp-append-version="true" />
-    <link rel="stylesheet" href="~/css/layout-styles.css" asp-append-version="true" />
-    <link href="~/css/bootstrap-icons.css" rel="stylesheet">
-    <link rel="stylesheet" href="~/css/style.min.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
+    <link rel="stylesheet" href="~/css/ResultsFrameworkLayout.css" />
+ 
 </head>
 <body>
     <header>
@@ -23,38 +22,54 @@
             <div class="title">Monitoring & Evaluation System</div>
             <div class="nav-links">
                 <ul class="nav">
-                    <!-- Dropdown for Results Framework -->
+                    <!-- Framework Dropdowns -->
                     @foreach (var framework in _context.Frameworks.Take(3).ToList())
                     {
-                        <li class="nav-item dropdown">
-                            <a class="nav-link dropdown-toggle" href="#" id="resultsDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                @framework.Name
+                        <li class="nav-item dropdown framework-dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" id="framework-@framework.Code" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                <i class="fas fa-sitemap me-1"></i> @framework.Name
                             </a>
-                            <ul class="dropdown-menu" aria-labelledby="resultsDropdown">
-                                <li><a class="dropdown-item"  asp-controller="Outcomes" asp-action="Index" asp-route-frameworkCode="@framework.Code">Outcomes</a></li>
-                                <li><a class="dropdown-item"  asp-controller="Outputs" asp-action="Index" asp-route-frameworkCode="@framework.Code">Outputs</a></li>
-                                <li><a class="dropdown-item" asp-controller="SubOutputs" asp-action="Index"  asp-route-frameworkCode="@framework.Code">SubOutputs</a></li>
-                                <li><a class="dropdown-item" asp-controller="Indicators" asp-action="Index" asp-route-frameworkCode="@framework.Code">Indicators</a></li>
+                            <ul class="dropdown-menu" aria-labelledby="framework-@framework.Code">
+                                <li>
+                                    <a class="dropdown-item" asp-controller="Outcomes" asp-action="Index" asp-route-frameworkCode="@framework.Code">
+                                        <i class="fas fa-bullseye"></i> Outcomes
+                                    </a>
+                                </li>
+                                <li>
+                                    <a class="dropdown-item" asp-controller="Outputs" asp-action="Index" asp-route-frameworkCode="@framework.Code">
+                                        <i class="fas fa-project-diagram"></i> Outputs
+                                    </a>
+                                </li>
+                                <li>
+                                    <a class="dropdown-item" asp-controller="SubOutputs" asp-action="Index" asp-route-frameworkCode="@framework.Code">
+                                        <i class="fas fa-code-branch"></i> SubOutputs
+                                    </a>
+                                </li>
+                                <li>
+                                    <a class="dropdown-item" asp-controller="Indicators" asp-action="Index" asp-route-frameworkCode="@framework.Code">
+                                        <i class="fas fa-chart-line"></i> Indicators
+                                    </a>
+                                </li>
                             </ul>
                         </li>
                     }
 
-                    <!-- Other dropdowns remain unchanged -->
-                    <li>
-                        <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" id="resultsDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                            <img class="rounded-circle oe_topbar_avatar me-2" width="23" height="23" src="~/img/profile.jpeg" />
-
+                    <!-- User Dropdown -->
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            <img class="rounded-circle me-2" width="28" height="28" src="~/img/profile.jpeg" />
                             @if (SignInManager.IsSignedIn(User))
                             {
                                 var user = await UserManager.GetUserAsync(User);
-                                <span class="text-white">Welcome, @user?.UserName</span>
+                                <span>@user?.UserName</span>
                             }
                         </a>
-                        <ul class="dropdown-menu" aria-labelledby="resultsDropdown">
-                            <li><a class="dropdown-item" href="#" onclick="alert('Sub-item 1 clicked!');">Setting</a></li>
+                        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
+                            <li><a class="dropdown-item" href="#"><i class="fas fa-cog me-2"></i>Settings</a></li>
+                            <li><hr class="dropdown-divider"></li>
                             <li>
                                 <form class="form-inline" asp-area="Identity" asp-page="/Account/Logout" asp-route-returnUrl="@Url.Action("Index", "Home", new { area = "" })">
-                                    <button type="submit" class="nav-link btn btn-link text-dark">Logout</button>
+                                    <button type="submit" class="dropdown-item"><i class="fas fa-sign-out-alt me-2"></i>Logout</button>
                                 </form>
                             </li>
                         </ul>
@@ -68,55 +83,58 @@
         <!-- Sidebar -->
         <div class="sidebar">
             <ul class="list-unstyled">
-                <li class="d-flex align-items-center">
-                    <img src="~/img/results.png"
-                         alt="Results Icon" class="me-2" width="24" height="24">
-                    <a class="unstyled-link" href="/Frameworks/Index"> Results Framework</a>
+                <li>
+                    <a class="d-flex align-items-center" href="/Frameworks/Index">
+                        <i class="fas fa-sitemap"></i>
+                        <span>Results Framework</span>
+                    </a>
                 </li>
-                <li class="d-flex align-items-center">
-                    <img src="~/img/setup.png"
-                         alt="Setup Icon" class="me-2" width="24" height="24">
-                    <a class="unstyled-link" href="/Ministries/Index">Set Up</a>
+                <li>
+                    <a class="d-flex align-items-center" href="/Ministries/Index">
+                        <i class="fas fa-cogs"></i>
+                        <span>Set Up</span>
+                    </a>
                 </li>
-                <li class="d-flex align-items-center">
-                    <img src="~/img/programs.png"
-                         alt="Programs Icon" class="me-2" width="24" height="24">
-                    <a class="unstyled-link" href="/Projects/Index">Projects</a>
+                <li>
+                    <a class="d-flex align-items-center" href="/Projects/Index">
+                        <i class="fas fa-project-diagram"></i>
+                        <span>Projects</span>
+                    </a>
                 </li>
-                <li class="d-flex align-items-center">
-                    <img src="~/img/monitor.png"
-                         alt="Monitoring Icon" class="me-2" width="24" height="24">
-                    <a class="unstyled-link" href="/Monitoring/Index">Monitoring</a>
-
+                <li>
+                    <a class="d-flex align-items-center" href="/Monitoring/Index">
+                        <i class="fas fa-chart-line"></i>
+                        <span>Monitoring</span>
+                    </a>
                 </li>
-                <li class="d-flex align-items-center">
-                    <img src="~/img/dashboard.png"
-                         alt="Dashboard Icon" class="me-2" width="24" height="24">
-                    <a class="unstyled-link" href="/Dashboard/Index">Dashboard</a>
+                <li>
+                    <a class="d-flex align-items-center" href="/Dashboard/Index">
+                        <i class="fas fa-tachometer-alt"></i>
+                        <span>Dashboard</span>
+                    </a>
                 </li>
-                <li class="d-flex align-items-center">
-                    <img src="~/img/settings.png"
-                         alt="Settings Icon" class="me-2" width="24" height="24">
-                    Settings
+                <li>
+                    <a class="d-flex align-items-center" href="#">
+                        <i class="fas fa-sliders-h"></i>
+                        <span>Settings</span>
+                    </a>
                 </li>
             </ul>
         </div>
 
-
-        <!-- Content Area with Iframe -->
-        <div class="container-fluid">
+        <!-- Content Area -->
+        <div class="container-fluid" style="width:74%">
             <main role="main" class="pb-3">
                 @RenderBody()
             </main>
         </div>
     </div>
+
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
-    @*     <script src="~/lib/bootstrap/dist/js/bootstrap.min.js"></script>
- *@    <script src="~/js/site.js" asp-append-version="true"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
     <script src="~/js/jstree.min.js"></script>
     <script src="~/js/chart.js"></script>
-
 
     @await RenderSectionAsync("Scripts", required: false)
 </body>

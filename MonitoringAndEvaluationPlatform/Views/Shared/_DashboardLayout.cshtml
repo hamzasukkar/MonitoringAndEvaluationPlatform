@@ -1,17 +1,17 @@
 ﻿@using Microsoft.AspNetCore.Identity
 @inject SignInManager<ApplicationUser> SignInManager
 @inject UserManager<ApplicationUser> UserManager
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@ViewData["Title"] - MonitoringAndEvaluationPlatform</title>
-    <link rel="stylesheet" href="~/css/bootstrap.css" />
+    <title>@ViewData["Title"] - Monitoring & Evaluation System</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
-    <link rel="stylesheet" href="~/MonitoringAndEvaluationPlatform.styles.css" asp-append-version="true" />
-    <link href="~/css/bootstrap-icons.css" rel="stylesheet">
-    <link rel="stylesheet" href="~/css/layout-styles.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/DashboardLayout.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
 </head>
 <body>
     <header>
@@ -19,57 +19,46 @@
             <div class="title">Monitoring & Evaluation System</div>
             <div class="nav-links">
                 <ul class="nav">
-                    <!-- Dropdown for Results Ministries -->
-                    <li class="nav-item dropdown">
-                        <a class="nav-link" href="/Dashboard/Index" role="button" aria-expanded="false">
-                            Index
+                    <li class="nav-item">
+                        <a class="nav-link @(Context.Request.Path.Value.Contains("Index") ? "active" : "")" href="/Dashboard/Index">
+                            <i class="fas fa-chart-pie me-1"></i> Index
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link @(Context.Request.Path.Value.Contains("Gauge") ? "active" : "")" href="/Dashboard/Gauge">
+                            <i class="fas fa-tachometer-alt me-1"></i> Gauge
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link @(Context.Request.Path.Value.Contains("ProjectProgress") && !Context.Request.Path.Value.Contains("ProjectProgress2") ? "active" : "")" href="/Dashboard/ProjectProgress">
+                            <i class="fas fa-chart-bar me-1"></i> Project Progress
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link @(Context.Request.Path.Value.Contains("ProjectProgress2") ? "active" : "")" href="/Dashboard/ProjectProgress2">
+                            <i class="fas fa-chart-line me-1"></i> Horizontal Bars
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link @(Context.Request.Path.Value.Contains("FrameworkProgress") ? "active" : "")" href="/Dashboard/FrameworkProgress">
+                            <i class="fas fa-chart-bar me-1"></i> Framework Rates
                         </a>
                     </li>
                     <li class="nav-item dropdown">
-                        <a class="nav-link" href="/Dashboard/Gauge" role="button" aria-expanded="false">
-                            Gauge
-                        </a>
-                    </li>
-                    <li class="nav-item dropdown">
-                        <a class="nav-link" href="/Dashboard/ProjectProgress" role="button" aria-expanded="false">
-                            Project Progress
-                        </a>
-                    </li>
-                    <li class="nav-item dropdown">
-                        <a class="nav-link" href="/Dashboard/ProjectProgress2" role="button" aria-expanded="false">
-                            Project Progress Horizontal Bars
-                        </a>
-                    </li>
-                    <li class="nav-item dropdown">
-                        <a class="nav-link" href="/Dashboard/FrameworkProgress" role="button" aria-expanded="false">
-                            Framework Achievement Rates Horizontal Bars
-                        </a>
-                    </li>
-                    <li class="nav-item dropdown">
-                        <a class="nav-link" href="/Dashboard/Test" role="button" aria-expanded="false">
-                            Test
-                        </a>
-                    </li>                   
-                    <li class="nav-item dropdown">
-                        <a class="nav-link" href="/Dashboard/Test4" role="button" aria-expanded="false">
-                            Test4
-                        </a>
-                    </li>
-                    <li>
-                        <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" id="resultsDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                            <img class="rounded-circle oe_topbar_avatar me-2" width="23" height="23" src="~/img/profile.jpeg" />
-
+                        <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            <img class="rounded-circle me-2" width="28" height="28" src="~/img/profile.jpeg" />
                             @if (SignInManager.IsSignedIn(User))
                             {
                                 var user = await UserManager.GetUserAsync(User);
-                                <span class="text-white">Welcome, @user?.UserName</span>
+                                <span>@user?.UserName</span>
                             }
                         </a>
-                        <ul class="dropdown-menu" aria-labelledby="resultsDropdown">
-                            <li><a class="dropdown-item" href="#" onclick="alert('Sub-item 1 clicked!');">Setting</a></li>
+                        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
+                            <li><a class="dropdown-item" href="#"><i class="fas fa-cog me-2"></i>Settings</a></li>
+                            <li><hr class="dropdown-divider"></li>
                             <li>
                                 <form class="form-inline" asp-area="Identity" asp-page="/Account/Logout" asp-route-returnUrl="@Url.Action("Index", "Home", new { area = "" })">
-                                    <button type="submit" class="nav-link btn btn-link text-dark">Logout</button>
+                                    <button type="submit" class="dropdown-item"><i class="fas fa-sign-out-alt me-2"></i>Logout</button>
                                 </form>
                             </li>
                         </ul>
@@ -83,42 +72,46 @@
         <!-- Sidebar -->
         <div class="sidebar">
             <ul class="list-unstyled">
-                <li class="d-flex align-items-center">
-                    <img src="~/img/results.png"
-                         alt="Results Icon" class="me-2" width="24" height="24">
-                    <a class="unstyled-link" href="/Frameworks/Index"> Results Framework</a>
+                <li>
+                    <a class="d-flex align-items-center" href="/Frameworks/Index">
+                        <img src="~/img/results.png" alt="Results Icon" class="me-2" width="24" height="24">
+                        <span>Results Framework</span>
+                    </a>
                 </li>
-                <li class="d-flex align-items-center" >
-                    <img src="~/img/setup.png"
-                         alt="Setup Icon" class="me-2" width="24" height="24">
-                    <a class="unstyled-link" href="/Ministries/Index">Set Up</a>
+                <li>
+                    <a class="d-flex align-items-center" href="/Ministries/Index">
+                        <img src="~/img/setup.png" alt="Setup Icon" class="me-2" width="24" height="24">
+                        <span>Set Up</span>
+                    </a>
                 </li>
-                <li class="d-flex align-items-center" >
-                    <img src="~/img/programs.png"
-                         alt="Programs Icon" class="me-2" width="24" height="24">
-                    <a class="unstyled-link" href="/Projects/Index">Projects</a>
+                <li>
+                    <a class="d-flex align-items-center" href="/Projects/Index">
+                        <img src="~/img/programs.png" alt="Programs Icon" class="me-2" width="24" height="24">
+                        <span>Projects</span>
+                    </a>
                 </li>
-                <li class="d-flex align-items-center" >
-                    <img src="~/img/monitor.png"
-                         alt="Monitoring Icon" class="me-2" width="24" height="24">
-                    <a class="unstyled-link" href="/Monitoring/Index">Monitoring</a>
-
+                <li>
+                    <a class="d-flex align-items-center" href="/Monitoring/Index">
+                        <img src="~/img/monitor.png" alt="Monitoring Icon" class="me-2" width="24" height="24">
+                        <span>Monitoring</span>
+                    </a>
                 </li>
-                <li class="d-flex align-items-center" >
-                    <img src="~/img/dashboard.png"
-                         alt="Dashboard Icon" class="me-2" width="24" height="24">
-                    <a class="unstyled-link" href="/Dashboard/Index">Dashboard</a>
+                <li>
+                    <a class="d-flex align-items-center active" href="/Dashboard/Index">
+                        <img src="~/img/dashboard.png" alt="Dashboard Icon" class="me-2" width="24" height="24">
+                        <span>Dashboard</span>
+                    </a>
                 </li>
-                <li class="d-flex align-items-center" >
-                    <img src="~/img/settings.png"
-                         alt="Settings Icon" class="me-2" width="24" height="24">
-                    Settings
+                <li>
+                    <a class="d-flex align-items-center" href="#">
+                        <img src="~/img/settings.png" alt="Settings Icon" class="me-2" width="24" height="24">
+                        <span>Settings</span>
+                    </a>
                 </li>
             </ul>
         </div>
 
-
-        <!-- Content Area with Iframe -->
+        <!-- Content Area -->
         <div class="container-full">
             <main role="main" class="pb-3">
                 @RenderBody()
