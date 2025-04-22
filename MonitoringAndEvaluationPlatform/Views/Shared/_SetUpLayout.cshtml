@@ -11,7 +11,7 @@
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/css/SetUpLayout.css" />
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
+    <link rel="stylesheet" href="~/css/all.min.css" />
     <style>
       
     </style>
@@ -19,7 +19,7 @@
 <body>
     <header>
         <div class="topbar">
-            <div class="title">Monitoring & Evaluation System</div>
+            <!-- Left nav -->
             <div class="nav-links">
                 <ul class="nav">
                     <li class="nav-item">
@@ -52,6 +52,15 @@
                             <i class="fas fa-user-cog me-1"></i> ProjectManagers
                         </a>
                     </li>
+                </ul>
+            </div>
+
+            <!-- Center title -->
+            <div class="title">Monitoring & Evaluation System</div>
+
+            <!-- Far right user dropdown -->
+            <div class="user-dropdown">
+                <ul class="nav">
                     <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                             <img class="rounded-circle me-2" width="28" height="28" src="~/img/profile.jpeg" />
@@ -75,6 +84,7 @@
             </div>
         </div>
     </header>
+
 
     <div class="main">
         <!-- Sidebar -->
