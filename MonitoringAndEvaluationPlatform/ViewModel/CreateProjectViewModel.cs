@@ -10,6 +10,10 @@ namespace MonitoringAndEvaluationPlatform.ViewModel
         public int SuperVisorCode { get; set; }
         public int MinistryCode { get; set; }
         public int DonorCode { get; set; }
+        public double EstimatedBudget { get; set; }
+        public double RealBudget { get; set; }
+        public DateTime StartDate { get; set; }
+        public DateTime EndDate { get; set; }
 
         public List<int> SelectedFrameworkIds { get; set; } = new List<int>();
 
