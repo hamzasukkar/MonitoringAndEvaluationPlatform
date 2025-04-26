@@ -1,5 +1,4 @@
-﻿@model MonitoringAndEvaluationPlatform.Models.LogicalFramework
-@using MonitoringAndEvaluationPlatform.Enums
+﻿@model MonitoringAndEvaluationPlatform.Models.LogicalFrameworkIndicator
 
 @{
     ViewData["Title"] = "Create";
@@ -8,26 +7,31 @@
 
 <h1>Create</h1>
 
-<h4>Creating Logical Framework for Project: <strong>@ViewBag.ProjectName</strong></h4>
+<h4>Creating Logical Framework Indicator for: <strong>@ViewBag.LogicalFrameworkName</strong></h4>
+<input type="hidden" asp-for="LogicalFrameworkCode" />
 <hr />
 <div class="row">
     <div class="col-md-4">
         <form asp-action="Create">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-            <input type="hidden" asp-for="ProjectID" />
             <div class="form-group">
                 <label asp-for="Name" class="control-label"></label>
                 <input asp-for="Name" class="form-control" />
                 <span asp-validation-for="Name" class="text-danger"></span>
             </div>
             <div class="form-group">
-                <label asp-for="Type" class="control-label"></label>
-                <select asp-for="Type" class="form-control">
-                    @foreach (var type in Enum.GetValues(typeof(LogicalFrameworkType)))
-                    {
-                        <option value="@((int)type)">@type</option>
-                    }
-                </select>
+                <label asp-for="LogicalFrameworkCode" class="control-label"></label>
+                <select asp-for="LogicalFrameworkCode" class ="form-control" asp-items="ViewBag.LogicalFrameworkCode"></select>
+            </div>
+            <div class="form-group">
+                <label asp-for="Target" class="control-label"></label>
+                <input asp-for="Target" class="form-control" />
+                <span asp-validation-for="Target" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="TargetYear" class="control-label"></label>
+                <input asp-for="TargetYear" class="form-control" />
+                <span asp-validation-for="TargetYear" class="text-danger"></span>
             </div>
             <div class="form-group">
                 <input type="submit" value="Create" class="btn btn-primary" />
@@ -35,25 +39,28 @@
         </form>
     </div>
 </div>
-
-@if (ViewBag.RelatedFrameworks is List<LogicalFramework> frameworks && frameworks.Any())
+@if (ViewBag.RelatedIndicators is List<LogicalFrameworkIndicator> indicators && indicators.Any())
 {
-    <h5>Existing Logical Frameworks</h5>
-    <table class="table table-bordered">
+    <h5>Existing Indicators</h5>
+    <table class="table table-striped table-bordered">
         <thead>
             <tr>
                 <th>Name</th>
-                <th>Type</th>
+                <th>Target</th>
+                <th>Target Year</th>
+                <th>Weight</th>
                 <th>Performance</th>
-                <th>Actions</th> <!-- New column -->
+                <th>Actions</th>
             </tr>
         </thead>
         <tbody>
-            @foreach (var item in frameworks)
+            @foreach (var item in indicators)
             {
                 <tr>
                     <td>@item.Name</td>
-                    <td>@item.Type.ToString()</td>
+                    <td>@item.Target</td>
+                    <td>@item.TargetYear.Year</td>
+                    <td>@item.Weight</td>
                     <td>@item.Performance%</td>
                     <td>
                         <a asp-action="Edit" asp-route-id="@item.Code" title="Edit">
@@ -63,12 +70,7 @@
                         <a asp-action="Delete" asp-route-id="@item.Code" title="Delete">
                             <i class="bi bi-trash text-danger" style="font-size: 1.2rem;"></i>
                         </a>
-                        &nbsp;
-                        <a asp-controller="LogicalFrameworkIndicators" asp-action="Create" asp-route-logicalFrameworkCode="@item.Code" title="Add Indicator">
-                            <i class="bi bi-plus-circle text-success" style="font-size: 1.2rem;"></i>
-                        </a>
                     </td>
-
                 </tr>
             }
         </tbody>
@@ -76,7 +78,7 @@
 }
 else
 {
-    <p>No Logical Frameworks have been added yet for this project.</p>
+    <p>No Indicators have been added yet for this Logical Framework.</p>
 }
 
 <div>

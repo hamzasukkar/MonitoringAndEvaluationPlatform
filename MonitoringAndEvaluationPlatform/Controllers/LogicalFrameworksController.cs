@@ -46,6 +46,19 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         // GET: LogicalFrameworks/Create
         public IActionResult Create(int projectId)
         {
+            var project = _context.Projects.FirstOrDefault(p => p.ProjectID == projectId);
+            if (project == null)
+                return NotFound();
+
+            ViewBag.ProjectName = project.ProjectName;
+            ViewBag.ProjectID = projectId;
+
+            var relatedFrameworks = _context.LogicalFramework
+                .Where(lf => lf.ProjectID == projectId)
+                .ToList();
+
+            ViewBag.RelatedFrameworks = relatedFrameworks;
+
             var model = new LogicalFramework
             {
                 ProjectID = projectId
@@ -53,6 +66,8 @@ namespace MonitoringAndEvaluationPlatform.Controllers
 
             return View(model);
         }
+
+
 
         // POST: LogicalFrameworks/Create
         // To protect from overposting attacks, enable the specific properties you want to bind to.
@@ -65,7 +80,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             {
                 _context.LogicalFramework.Add(model);
                 await _context.SaveChangesAsync();
-                return RedirectToAction("Details", "Projects", new { id = model.ProjectID });
+                return RedirectToAction("Create", "LogicalFrameworks", new { projectId = model.ProjectID });
             }
 
             return View(model);
