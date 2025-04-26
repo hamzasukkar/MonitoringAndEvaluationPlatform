@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using MonitoringAndEvaluationPlatform.Data;
+using MonitoringAndEvaluationPlatform.Enums;
 using MonitoringAndEvaluationPlatform.Models;
 
 namespace MonitoringAndEvaluationPlatform.Infrastructure
@@ -39,9 +40,9 @@ namespace MonitoringAndEvaluationPlatform.Infrastructure
                 {
                     var regions = new List<Region>
                     {
-                        new Region { Name = "Region 1" }, // Remove explicit Code if using auto-increment
-                        new Region { Name = "Region 2" },
-                        new Region { Name = "Region 3" }
+                        new Region { Name = "Region 1", Type = RegionType.Region },
+                        new Region { Name = "Region 2", Type = RegionType.Province },
+                        new Region { Name = "Region 3", Type = RegionType.District }
                     };
 
                     context.Regions.AddRange(regions);
