@@ -461,7 +461,7 @@ namespace MonitoringAndEvaluationPlatform.Migrations
                 name: "logicalFrameworkIndicators",
                 columns: table => new
                 {
-                    Code = table.Column<int>(type: "int", nullable: false)
+                    IndicatorCode = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Source = table.Column<string>(type: "nvarchar(max)", nullable: false),
@@ -481,7 +481,7 @@ namespace MonitoringAndEvaluationPlatform.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_logicalFrameworkIndicators", x => x.Code);
+                    table.PrimaryKey("PK_logicalFrameworkIndicators", x => x.IndicatorCode);
                     table.ForeignKey(
                         name: "FK_logicalFrameworkIndicators_LogicalFramework_LogicalFrameworkCode",
                         column: x => x.LogicalFrameworkCode,
@@ -560,7 +560,7 @@ namespace MonitoringAndEvaluationPlatform.Migrations
                     ValueType = table.Column<int>(type: "int", nullable: false),
                     IndicatorCode = table.Column<int>(type: "int", nullable: false),
                     ProjectID = table.Column<int>(type: "int", nullable: false),
-                    LogicalFrameworkIndicatorCode = table.Column<int>(type: "int", nullable: true)
+                    LogicalFrameworkIndicatorIndicatorCode = table.Column<int>(type: "int", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -578,10 +578,10 @@ namespace MonitoringAndEvaluationPlatform.Migrations
                         principalColumn: "ProjectID",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_Measures_logicalFrameworkIndicators_LogicalFrameworkIndicatorCode",
-                        column: x => x.LogicalFrameworkIndicatorCode,
+                        name: "FK_Measures_logicalFrameworkIndicators_LogicalFrameworkIndicatorIndicatorCode",
+                        column: x => x.LogicalFrameworkIndicatorIndicatorCode,
                         principalTable: "logicalFrameworkIndicators",
-                        principalColumn: "Code");
+                        principalColumn: "IndicatorCode");
                 });
 
             migrationBuilder.CreateTable(
@@ -681,9 +681,9 @@ namespace MonitoringAndEvaluationPlatform.Migrations
                 column: "IndicatorCode");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Measures_LogicalFrameworkIndicatorCode",
+                name: "IX_Measures_LogicalFrameworkIndicatorIndicatorCode",
                 table: "Measures",
-                column: "LogicalFrameworkIndicatorCode");
+                column: "LogicalFrameworkIndicatorIndicatorCode");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Measures_ProjectID",

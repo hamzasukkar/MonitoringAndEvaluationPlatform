@@ -434,11 +434,11 @@ namespace MonitoringAndEvaluationPlatform.Migrations
 
             modelBuilder.Entity("MonitoringAndEvaluationPlatform.Models.LogicalFrameworkIndicator", b =>
                 {
-                    b.Property<int>("Code")
+                    b.Property<int>("IndicatorCode")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Code"));
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("IndicatorCode"));
 
                     b.Property<bool>("Active")
                         .HasColumnType("bit");
@@ -491,7 +491,7 @@ namespace MonitoringAndEvaluationPlatform.Migrations
                     b.Property<double>("Weight")
                         .HasColumnType("float");
 
-                    b.HasKey("Code");
+                    b.HasKey("IndicatorCode");
 
                     b.HasIndex("LogicalFrameworkCode");
 
@@ -512,7 +512,7 @@ namespace MonitoringAndEvaluationPlatform.Migrations
                     b.Property<int>("IndicatorCode")
                         .HasColumnType("int");
 
-                    b.Property<int?>("LogicalFrameworkIndicatorCode")
+                    b.Property<int?>("LogicalFrameworkIndicatorIndicatorCode")
                         .HasColumnType("int");
 
                     b.Property<int>("ProjectID")
@@ -528,7 +528,7 @@ namespace MonitoringAndEvaluationPlatform.Migrations
 
                     b.HasIndex("IndicatorCode");
 
-                    b.HasIndex("LogicalFrameworkIndicatorCode");
+                    b.HasIndex("LogicalFrameworkIndicatorIndicatorCode");
 
                     b.HasIndex("ProjectID");
 
@@ -989,7 +989,7 @@ namespace MonitoringAndEvaluationPlatform.Migrations
 
                     b.HasOne("MonitoringAndEvaluationPlatform.Models.LogicalFrameworkIndicator", null)
                         .WithMany("Measures")
-                        .HasForeignKey("LogicalFrameworkIndicatorCode");
+                        .HasForeignKey("LogicalFrameworkIndicatorIndicatorCode");
 
                     b.HasOne("MonitoringAndEvaluationPlatform.Models.Project", "Project")
                         .WithMany("Measures")

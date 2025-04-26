@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using MonitoringAndEvaluationPlatform.Data;
 using MonitoringAndEvaluationPlatform.Models;
+using MonitoringAndEvaluationPlatform.ViewModel;
 
 namespace MonitoringAndEvaluationPlatform.Controllers
 {
@@ -36,7 +37,41 @@ namespace MonitoringAndEvaluationPlatform.Controllers
 
             var logicalFrameworkIndicator = await _context.logicalFrameworkIndicators
                 .Include(l => l.LogicalFramework)
-                .FirstOrDefaultAsync(m => m.Code == id);
+                .FirstOrDefaultAsync(m => m.IndicatorCode == id);
+
+            var measures = await _context.Measures.Where(m => m.IndicatorCode == id).ToListAsync();
+
+            var labels = new List<string>();
+            var realData = new List<double>();
+            var historicalData = new List<double>();
+            var requiredData = new List<double>();
+
+            foreach (var measure in measures)
+            {
+                labels.Add(measure.Date.ToString());
+                realData.Add(measure.Value);
+                historicalData.Add(measure.Value + 20);
+                requiredData.Add(measure.Value + 10);
+            }
+
+            var chartDataViewModel = new ChartDataViewModel
+            {
+                Labels = labels,
+                RealData = realData,
+                HistoricalData = historicalData,
+                RequiredData = requiredData
+            };
+
+            var model = new LogicalFrameworkIndicatorDetailsViewModel
+            {
+                LogicalFrameworkIndicator = logicalFrameworkIndicator,
+                Measures = measures,
+                ChartDataViewModel = chartDataViewModel
+            };
+
+            return View(model);
+
+
             if (logicalFrameworkIndicator == null)
             {
                 return NotFound();
@@ -95,7 +130,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             ViewBag.LogicalFrameworkName = logicalFramework?.Name ?? "";
             ViewBag.LogicalFrameworkCode = indicator.LogicalFrameworkCode;
             ViewBag.RelatedIndicators = _context.logicalFrameworkIndicators
-                .Where(ind => ind.Code == indicator.LogicalFrameworkCode)
+                .Where(ind => ind.IndicatorCode == indicator.LogicalFrameworkCode)
                 .ToList();
 
             return View(indicator);
@@ -126,7 +161,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, [Bind("Code,Name,Source,Performance,Weight,LogicalFrameworkCode,IsCommon,Active,Target,TargetYear,GAGRA,GAGRR,Concept,Description,MethodOfComputation,Comment")] LogicalFrameworkIndicator logicalFrameworkIndicator)
         {
-            if (id != logicalFrameworkIndicator.Code)
+            if (id != logicalFrameworkIndicator.IndicatorCode)
             {
                 return NotFound();
             }
@@ -140,7 +175,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!LogicalFrameworkIndicatorExists(logicalFrameworkIndicator.Code))
+                    if (!LogicalFrameworkIndicatorExists(logicalFrameworkIndicator.IndicatorCode))
                     {
                         return NotFound();
                     }
@@ -165,7 +200,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
 
             var logicalFrameworkIndicator = await _context.logicalFrameworkIndicators
                 .Include(l => l.LogicalFramework)
-                .FirstOrDefaultAsync(m => m.Code == id);
+                .FirstOrDefaultAsync(m => m.IndicatorCode == id);
             if (logicalFrameworkIndicator == null)
             {
                 return NotFound();
@@ -191,7 +226,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
 
         private bool LogicalFrameworkIndicatorExists(int id)
         {
-            return _context.logicalFrameworkIndicators.Any(e => e.Code == id);
+            return _context.logicalFrameworkIndicators.Any(e => e.IndicatorCode == id);
         }
     }
 }

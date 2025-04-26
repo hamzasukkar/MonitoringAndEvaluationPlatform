@@ -5,7 +5,7 @@ namespace MonitoringAndEvaluationPlatform.Models
     public class LogicalFrameworkIndicator
     {
         [Key]
-        public int Code { get; set; }
+        public int IndicatorCode { get; set; }
         public string Name { get; set; }
         public string Source { get; set; } = string.Empty;
         public double Performance { get; set; } = 0;
