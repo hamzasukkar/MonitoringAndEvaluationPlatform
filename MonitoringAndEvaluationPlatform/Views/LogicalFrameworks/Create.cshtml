@@ -1,6 +1,12 @@
 ﻿@model MonitoringAndEvaluationPlatform.Models.LogicalFramework
 @using MonitoringAndEvaluationPlatform.Enums
-
+@if (TempData["Success"] != null)
+{
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        @TempData["Success"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
 @{
     ViewData["Title"] = "Create";
     Layout = "~/Views/Shared/_ProjectsLayout.cshtml";

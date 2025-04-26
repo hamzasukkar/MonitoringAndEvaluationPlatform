@@ -80,6 +80,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             {
                 _context.LogicalFramework.Add(model);
                 await _context.SaveChangesAsync();
+                TempData["Success"] = "Logical Framework created successfully!";
                 return RedirectToAction("Create", "LogicalFrameworks", new { projectId = model.ProjectID });
             }
 
