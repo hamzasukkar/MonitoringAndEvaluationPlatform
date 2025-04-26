@@ -8,20 +8,19 @@
 <h1>Create</h1>
 
 <h4>Creating Logical Framework Indicator for: <strong>@ViewBag.LogicalFrameworkName</strong></h4>
-<input type="hidden" asp-for="LogicalFrameworkCode" />
+@* @Html.AntiForgeryToken()
+ *@
+
 <hr />
 <div class="row">
     <div class="col-md-4">
         <form asp-action="Create">
+            <input type="hidden" asp-for="LogicalFrameworkCode" />
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
             <div class="form-group">
                 <label asp-for="Name" class="control-label"></label>
                 <input asp-for="Name" class="form-control" />
                 <span asp-validation-for="Name" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="LogicalFrameworkCode" class="control-label"></label>
-                <select asp-for="LogicalFrameworkCode" class ="form-control" asp-items="ViewBag.LogicalFrameworkCode"></select>
             </div>
             <div class="form-group">
                 <label asp-for="Target" class="control-label"></label>

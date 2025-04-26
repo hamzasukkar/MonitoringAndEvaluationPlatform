@@ -12,7 +12,7 @@ using MonitoringAndEvaluationPlatform.Data;
 namespace MonitoringAndEvaluationPlatform.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20250426053005_Models")]
+    [Migration("20250426073447_Models")]
     partial class Models
     {
         /// <inheritdoc />
@@ -498,7 +498,7 @@ namespace MonitoringAndEvaluationPlatform.Migrations
 
                     b.HasIndex("LogicalFrameworkCode");
 
-                    b.ToTable("LogicalFrameworkIndicator");
+                    b.ToTable("logicalFrameworkIndicators");
                 });
 
             modelBuilder.Entity("MonitoringAndEvaluationPlatform.Models.Measure", b =>

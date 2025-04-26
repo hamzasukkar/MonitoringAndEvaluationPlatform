@@ -495,7 +495,7 @@ namespace MonitoringAndEvaluationPlatform.Migrations
 
                     b.HasIndex("LogicalFrameworkCode");
 
-                    b.ToTable("LogicalFrameworkIndicator");
+                    b.ToTable("logicalFrameworkIndicators");
                 });
 
             modelBuilder.Entity("MonitoringAndEvaluationPlatform.Models.Measure", b =>

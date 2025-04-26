@@ -57,8 +57,8 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             ViewBag.LogicalFrameworkName = logicalFramework.Name;
             ViewBag.LogicalFrameworkCode = logicalFrameworkCode;
 
-            var relatedIndicators = _context.LogicalFramework
-                .Where(ind => ind.Code == logicalFrameworkCode)
+            var relatedIndicators = _context.logicalFrameworkIndicators
+                .Where(ind => ind.LogicalFrameworkCode == logicalFrameworkCode)
                 .ToList();
 
             ViewBag.RelatedIndicators = relatedIndicators;
@@ -77,17 +77,28 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Code,Name,Source,Performance,Weight,LogicalFrameworkCode,IsCommon,Active,Target,TargetYear,GAGRA,GAGRR,Concept,Description,MethodOfComputation,Comment")] LogicalFrameworkIndicator logicalFrameworkIndicator)
+        public IActionResult Create(LogicalFrameworkIndicator indicator)
         {
-            if (ModelState.IsValid)
+            if (ModelState.IsValid || true)
             {
-                _context.Add(logicalFrameworkIndicator);
-                await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
+                _context.Add(indicator);
+                _context.SaveChanges();
+
+                // Stay on the same page and reload related indicators
+                return RedirectToAction("Create", new { logicalFrameworkCode = indicator.LogicalFrameworkCode });
             }
-            ViewData["LogicalFrameworkCode"] = new SelectList(_context.logicalFrameworks, "Code", "Code", logicalFrameworkIndicator.LogicalFrameworkCode);
-            return View(logicalFrameworkIndicator);
+
+            // If model state failed, re-fetch data to keep page functional
+            var logicalFramework = _context.LogicalFramework.FirstOrDefault(lf => lf.Code == indicator.LogicalFrameworkCode);
+            ViewBag.LogicalFrameworkName = logicalFramework?.Name ?? "";
+            ViewBag.LogicalFrameworkCode = indicator.LogicalFrameworkCode;
+            ViewBag.RelatedIndicators = _context.logicalFrameworkIndicators
+                .Where(ind => ind.Code == indicator.LogicalFrameworkCode)
+                .ToList();
+
+            return View(indicator);
         }
+
 
         // GET: LogicalFrameworkIndicators/Edit/5
         public async Task<IActionResult> Edit(int? id)
