@@ -26,6 +26,11 @@
                             </a>
                         </li>
                         <li class="nav-item">
+                            <a asp-action="Create" asp-controller="LogicalFrameworks" asp-route-projectId="@Model.ProjectID" class="nav-link">
+                                <i class="fas fa-project-diagram me-2"></i>LogicalFramework
+                            </a>
+                        </li>
+                        <li class="nav-item">
                             <a asp-action="ProjectMeasures" asp-controller="Measures" asp-route-id="@Model.ProjectID" class="nav-link">
                                 <i class="fas fa-ruler-combined me-2"></i>Measures
                             </a>

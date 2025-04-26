@@ -34,6 +34,7 @@ namespace MonitoringAndEvaluationPlatform.Models
 
         // Navigation property for one-to-one relationship
         public ActionPlan ActionPlan { get; set; }
+        public ICollection<LogicalFramework> logicalFramework { get; set; } = new List<LogicalFramework>();
 
         public void UpdatePerformance(double totalPlanned, double totalRealised)
         {

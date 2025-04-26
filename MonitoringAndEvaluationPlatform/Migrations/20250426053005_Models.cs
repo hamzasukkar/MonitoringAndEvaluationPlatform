@@ -390,6 +390,28 @@ namespace MonitoringAndEvaluationPlatform.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "LogicalFramework",
+                columns: table => new
+                {
+                    Code = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Type = table.Column<int>(type: "int", nullable: false),
+                    Performance = table.Column<double>(type: "float", nullable: false),
+                    ProjectID = table.Column<int>(type: "int", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_LogicalFramework", x => x.Code);
+                    table.ForeignKey(
+                        name: "FK_LogicalFramework_Projects_ProjectID",
+                        column: x => x.ProjectID,
+                        principalTable: "Projects",
+                        principalColumn: "ProjectID",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "SubOutputs",
                 columns: table => new
                 {
@@ -431,6 +453,39 @@ namespace MonitoringAndEvaluationPlatform.Migrations
                         name: "FK_Activities_ActionPlans_ActionPlanCode",
                         column: x => x.ActionPlanCode,
                         principalTable: "ActionPlans",
+                        principalColumn: "Code",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "LogicalFrameworkIndicator",
+                columns: table => new
+                {
+                    Code = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Source = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Performance = table.Column<double>(type: "float", nullable: false),
+                    Weight = table.Column<double>(type: "float", nullable: false),
+                    LogicalFrameworkCode = table.Column<int>(type: "int", nullable: false),
+                    IsCommon = table.Column<bool>(type: "bit", nullable: false),
+                    Active = table.Column<bool>(type: "bit", nullable: false),
+                    Target = table.Column<int>(type: "int", nullable: false),
+                    TargetYear = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    GAGRA = table.Column<double>(type: "float", nullable: false),
+                    GAGRR = table.Column<double>(type: "float", nullable: false),
+                    Concept = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Description = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    MethodOfComputation = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Comment = table.Column<string>(type: "nvarchar(max)", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_LogicalFrameworkIndicator", x => x.Code);
+                    table.ForeignKey(
+                        name: "FK_LogicalFrameworkIndicator_LogicalFramework_LogicalFrameworkCode",
+                        column: x => x.LogicalFrameworkCode,
+                        principalTable: "LogicalFramework",
                         principalColumn: "Code",
                         onDelete: ReferentialAction.Cascade);
                 });
@@ -504,7 +559,8 @@ namespace MonitoringAndEvaluationPlatform.Migrations
                     Value = table.Column<double>(type: "float", nullable: false),
                     ValueType = table.Column<int>(type: "int", nullable: false),
                     IndicatorCode = table.Column<int>(type: "int", nullable: false),
-                    ProjectID = table.Column<int>(type: "int", nullable: false)
+                    ProjectID = table.Column<int>(type: "int", nullable: false),
+                    LogicalFrameworkIndicatorCode = table.Column<int>(type: "int", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -515,6 +571,11 @@ namespace MonitoringAndEvaluationPlatform.Migrations
                         principalTable: "Indicators",
                         principalColumn: "IndicatorCode",
                         onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_Measures_LogicalFrameworkIndicator_LogicalFrameworkIndicatorCode",
+                        column: x => x.LogicalFrameworkIndicatorCode,
+                        principalTable: "LogicalFrameworkIndicator",
+                        principalColumn: "Code");
                     table.ForeignKey(
                         name: "FK_Measures_Projects_ProjectID",
                         column: x => x.ProjectID,
@@ -605,9 +666,24 @@ namespace MonitoringAndEvaluationPlatform.Migrations
                 column: "SubOutputCode");
 
             migrationBuilder.CreateIndex(
+                name: "IX_LogicalFramework_ProjectID",
+                table: "LogicalFramework",
+                column: "ProjectID");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_LogicalFrameworkIndicator_LogicalFrameworkCode",
+                table: "LogicalFrameworkIndicator",
+                column: "LogicalFrameworkCode");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Measures_IndicatorCode",
                 table: "Measures",
                 column: "IndicatorCode");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Measures_LogicalFrameworkIndicatorCode",
+                table: "Measures",
+                column: "LogicalFrameworkIndicatorCode");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Measures_ProjectID",
@@ -707,10 +783,16 @@ namespace MonitoringAndEvaluationPlatform.Migrations
                 name: "AspNetUsers");
 
             migrationBuilder.DropTable(
+                name: "LogicalFrameworkIndicator");
+
+            migrationBuilder.DropTable(
                 name: "Activities");
 
             migrationBuilder.DropTable(
                 name: "Indicators");
+
+            migrationBuilder.DropTable(
+                name: "LogicalFramework");
 
             migrationBuilder.DropTable(
                 name: "ActionPlans");

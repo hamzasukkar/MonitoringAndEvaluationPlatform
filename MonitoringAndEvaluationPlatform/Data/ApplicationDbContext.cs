@@ -27,6 +27,8 @@ namespace MonitoringAndEvaluationPlatform.Data
         public DbSet<Plan> Plans { get; set; } = default!;
         public DbSet<ActionPlan> ActionPlans { get; set; } = default!;
         public DbSet<ProjectIndicator> ProjectIndicators { get; set; } = default!;
+        public DbSet<LogicalFramework> logicalFrameworks { get; set; } = default!;
+        public DbSet<LogicalFrameworkIndicator> logicalFrameworkIndicators { get; set; } = default!;
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -57,6 +59,7 @@ namespace MonitoringAndEvaluationPlatform.Data
                 .HasForeignKey(pi => pi.IndicatorCode);
 
         }
+        public DbSet<MonitoringAndEvaluationPlatform.Models.LogicalFramework> LogicalFramework { get; set; } = default!;
 
     }
 }
