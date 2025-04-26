@@ -32,6 +32,9 @@ namespace MonitoringAndEvaluationPlatform.Models
         public string Comment { get; set; } = string.Empty;
         public ICollection<Measure> Measures { get; set; } = new List<Measure>();
 
+        // New: Many-to-many with Project
+        public ICollection<ProjectIndicator> ProjectIndicators { get; set; } = new List<ProjectIndicator>();
+
         //virtual public Program Program { get; set; }
 
     }

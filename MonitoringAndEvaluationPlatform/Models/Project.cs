@@ -29,7 +29,8 @@ namespace MonitoringAndEvaluationPlatform.Models
         // Navigation property for many-to-many relationship
         public ICollection<Measure> Measures { get; set; } = new List<Measure>();
 
-        public ICollection<Framework> Frameworks { get; set; } = new List<Framework>();
+        // New: Many-to-many with Indicator
+        public ICollection<ProjectIndicator> ProjectIndicators { get; set; } = new List<ProjectIndicator>();
 
         // Navigation property for one-to-one relationship
         public ActionPlan ActionPlan { get; set; }

@@ -1,0 +1,172 @@
+﻿@model MonitoringAndEvaluationPlatform.ViewModel.LinkProjectIndicatorViewModel
+@{
+    ViewData["Title"] = "Link Project to Indicators";
+    Layout = "~/Views/Shared/_SetUpLayout.cshtml";
+}
+<h2>Link Project to Indicators</h2>
+
+<div class="project-nav mb-4">
+    <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm rounded">
+        <div class="container-fluid">
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#projectNavbar">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="projectNavbar">
+                <ul class="navbar-nav nav-fill w-100">
+                    <li class="nav-item">
+                        <a class="nav-link" asp-action="Details" asp-route-id="@Model.SelectedProjectId">
+                            <i class="fas fa-project-diagram me-2"></i>Project
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a  class="nav-link active" aria-current="page">
+                            <i class="fas fa-project-diagram me-2"></i>Alignement
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a asp-action="ProjectMeasures" asp-controller="Measures" asp-route-id="1" class="nav-link">
+                            <i class="fas fa-ruler-combined me-2"></i>Measures
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a asp-controller="Plans" asp-action="ProjectPlans" asp-route-id="1" class="nav-link">
+                            <i class="fas fa-calendar-alt me-2"></i>Plans
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a asp-controller="ActionPlans" asp-action="ActionPlan" asp-route-id="1" class="nav-link">
+                            <i class="fas fa-tasks me-2"></i>Action Plans
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a asp-action="Index" asp-controller="Activities" class="nav-link">
+                            <i class="fas fa-running me-2"></i>Activities
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+</div>
+
+<form asp-action="LinkProjectToIndicators" method="post" class="p-4 border rounded shadow-sm">
+
+    <input type="hidden" asp-for="SelectedProjectId" />
+
+    <div class="mb-3">
+        <label class="form-label">Framework</label>
+        <select asp-for="SelectedFrameworkCode" asp-items="Model.Frameworks" class="form-select" id="framework" required>
+            <option value="">-- Select Framework --</option>
+        </select>
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label">Outcome</label>
+        <select asp-for="SelectedOutcomeCode" class="form-select" id="outcome" required>
+            <option value="">-- Select Outcome --</option>
+        </select>
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label">Output</label>
+        <select asp-for="SelectedOutputCode" class="form-select" id="output" required>
+            <option value="">-- Select Output --</option>
+        </select>
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label">SubOutput</label>
+        <select asp-for="SelectedSubOutputCode" class="form-select" id="suboutput" required>
+            <option value="">-- Select SubOutput --</option>
+        </select>
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label">Indicators</label>
+        <select asp-for="SelectedIndicatorCodes" class="form-select" id="indicator" multiple size="5" required>
+            <!-- Options loaded via JS -->
+        </select>
+    </div>
+
+    <button type="submit" class="btn btn-primary">Link Indicators to Project</button>
+</form>
+
+@if (Model.LinkedIndicators.Any())
+{
+    <h4 class="mt-4">Indicators Already Linked to This Project</h4>
+    <table class="table table-bordered table-striped">
+        <thead>
+            <tr>
+                <th>Indicator Name</th>
+                <th>Target</th>
+                <th>Year</th>
+                <th>Description</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var indicator in Model.LinkedIndicators)
+            {
+                <tr>
+                    <td>@indicator.Name</td>
+                    <td>@indicator.Target</td>
+                    <td>@indicator.TargetYear</td>
+                    <td>@indicator.Description</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+else
+{
+    <p class="text-muted mt-4">No indicators are currently linked to this project.</p>
+}
+
+
+@section Scripts {
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        $('#framework').change(function () {
+            const frameworkId = $(this).val();
+            $('#outcome').empty().append('<option>Loading...</option>');
+            $.getJSON('/Projects/GetOutcomes', { frameworkCode: frameworkId }, function (data) {
+                $('#outcome').empty().append('<option value="">-- Select Outcome --</option>');
+                $.each(data, function (i, item) {
+                    $('#outcome').append(`<option value="${item.code}">${item.name}</option>`);
+                });
+            });
+        });
+
+        $('#outcome').change(function () {
+            const outcomeId = $(this).val();
+            $('#output').empty().append('<option>Loading...</option>');
+            $.getJSON('/Projects/GetOutputs', { outcomeCode: outcomeId }, function (data) {
+                $('#output').empty().append('<option value="">-- Select Output --</option>');
+                $.each(data, function (i, item) {
+                    $('#output').append(`<option value="${item.code}">${item.name}</option>`);
+                });
+            });
+        });
+
+        $('#output').change(function () {
+            const outputId = $(this).val();
+            $('#suboutput').empty().append('<option>Loading...</option>');
+            $.getJSON('/Projects/GetSubOutputs', { outputCode: outputId }, function (data) {
+                $('#suboutput').empty().append('<option value="">-- Select SubOutput --</option>');
+                $.each(data, function (i, item) {
+                    $('#suboutput').append(`<option value="${item.code}">${item.name}</option>`);
+                });
+            });
+        });
+
+        $('#suboutput').change(function () {
+            const suboutputId = $(this).val();
+            $('#indicator').empty().append('<option>Loading...</option>');
+            $.getJSON('/Projects/GetIndicators', { subOutputCode: suboutputId }, function (data) {
+                $('#indicator').empty();
+                $.each(data, function (i, item) {
+                    $('#indicator').append(`<option value="${item.indicatorCode}">${item.name}</option>`);
+                });
+            });
+        });
+    </script>
+}

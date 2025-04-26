@@ -26,6 +26,7 @@ namespace MonitoringAndEvaluationPlatform.Data
         public DbSet<Activity> Activities { get; set; } = default!;
         public DbSet<Plan> Plans { get; set; } = default!;
         public DbSet<ActionPlan> ActionPlans { get; set; } = default!;
+        public DbSet<ProjectIndicator> ProjectIndicators { get; set; } = default!;
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -45,19 +46,17 @@ namespace MonitoringAndEvaluationPlatform.Data
                 .WithMany(i => i.Measures)
                 .HasForeignKey(m => m.IndicatorCode);
 
-            modelBuilder.Entity<Project>()
-               .HasOne(p => p.ActionPlan)
-               .WithOne(ap => ap.Project)
-               .HasForeignKey<ActionPlan>(ap => ap.ProjectID)
-               .OnDelete(DeleteBehavior.Cascade); // Ensures deletion propagates
+            modelBuilder.Entity<ProjectIndicator>()
+                .HasOne(pi => pi.Project)
+                .WithMany(p => p.ProjectIndicators)
+                .HasForeignKey(pi => pi.ProjectId);
 
-
-            modelBuilder.Entity<Project>()
-                .HasMany(p => p.Frameworks)
-                .WithMany(f => f.Projects)
-                .UsingEntity(j => j.ToTable("ProjectFrameworks"));
+            modelBuilder.Entity<ProjectIndicator>()
+                .HasOne(pi => pi.Indicator)
+                .WithMany(i => i.ProjectIndicators)
+                .HasForeignKey(pi => pi.IndicatorCode);
 
         }
-     
+
     }
 }

@@ -9,6 +9,8 @@ namespace MonitoringAndEvaluationPlatform.Models
         public int Code { get; set; }
         public string Name { get; set; }
         // Use the RegionType enum
+        [Display(Name = "Region Type")]
         public RegionType Type { get; set; }
+
     }
 }

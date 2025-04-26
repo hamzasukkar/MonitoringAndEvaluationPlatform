@@ -77,7 +77,6 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 .Include(p=>p.SuperVisor)
                 .Include(p=>p.Donor)
                 .Include(p=>p.Region)
-                .Include(p => p.Frameworks) // Include Frameworks here
                 .FirstOrDefaultAsync(m => m.ProjectID == id);
 
             if (project == null)
@@ -99,12 +98,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             ViewData["ProjectManager"] = new SelectList(_context.ProjectManagers, "Code", "Name");
             ViewBag.Indicators = _context.Indicators.ToList();
 
-            var viewModel = new CreateProjectViewModel
-            {
-                AvailableFrameworks = _context.Frameworks.ToList()
-            };
-
-            return View(viewModel);
+            return View();
         }
 
         // POST: Programs/Create
@@ -112,32 +106,25 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult Create( CreateProjectViewModel viewModel)
+        public IActionResult Create(Project project)
         {
+
+            ModelState.Remove(nameof(Project.ProjectManager));
+            ModelState.Remove(nameof(Project.Region));
+            ModelState.Remove(nameof(Project.Donor));
+            ModelState.Remove(nameof(Project.Ministry));
+            ModelState.Remove(nameof(Project.SuperVisor));
+            ModelState.Remove(nameof(Project.ActionPlan));
 
             if (ModelState.IsValid)
             {
-                var project = new Project
-                {
-                    ProjectName = viewModel.ProjectName,
-                    RegionCode = viewModel.RegionCode,
-                    ProjectManagerCode = viewModel.ProjectManagerCode,
-                    SuperVisorCode = viewModel.SuperVisorCode,
-                    MinistryCode = viewModel.MinistryCode,
-                    DonorCode = viewModel.DonorCode,
-                    Frameworks = _context.Frameworks
-                        .Where(f => viewModel.SelectedFrameworkIds.Contains(f.Code))
-                        .ToList()
-                };
-
                 _context.Projects.Add(project);
                 _context.SaveChanges();
 
                 return RedirectToAction("Index");
             }
-            // Repopulate frameworks if ModelState fails
-            viewModel.AvailableFrameworks = _context.Frameworks.ToList();
-            return View(viewModel);
+ 
+            return View();
 
         }
 
@@ -229,6 +216,91 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         private bool ProgramExists(int id)
         {
             return _context.Projects.Any(e => e.ProjectID == id);
+        }
+
+        public IActionResult LinkProjectToIndicators(int projectId)
+        {
+            var model = new LinkProjectIndicatorViewModel
+            {
+                SelectedProjectId = projectId,
+                Frameworks = _context.Frameworks
+                    .Select(f => new SelectListItem { Value = f.Code.ToString(), Text = f.Name })
+                    .ToList(),
+
+                // Get already linked indicators
+                            LinkedIndicators = _context.ProjectIndicators
+                .Where(pi => pi.ProjectId == projectId)
+                .Include(pi => pi.Indicator)
+                .Select(pi => pi.Indicator)
+                .ToList()
+            };
+
+            return View(model);
+        }
+
+
+        [HttpPost]
+        public async Task<IActionResult> LinkProjectToIndicators(LinkProjectIndicatorViewModel model)
+        {
+            if (!ModelState.IsValid)
+            {
+                // Re-load dropdowns
+                return View(model);
+            }
+
+            // Logic to link indicators to the selected project
+            foreach (var indicatorCode in model.SelectedIndicatorCodes)
+            {
+                _context.ProjectIndicators.Add(new ProjectIndicator
+                {
+                    ProjectId = model.SelectedProjectId,
+                    IndicatorCode = indicatorCode
+                });
+            }
+
+            await _context.SaveChangesAsync();
+
+            return RedirectToAction("Index");
+        }
+
+        public JsonResult GetOutcomes(int frameworkCode)
+        {
+            var outcomes = _context.Outcomes
+                .Where(o => o.FrameworkCode == frameworkCode)
+                .Select(o => new { o.Code, o.Name })
+                .ToList();
+
+            return Json(outcomes);
+        }
+
+        public JsonResult GetOutputs(int outcomeCode)
+        {
+            var outputs = _context.Outputs
+                .Where(o => o.OutcomeCode == outcomeCode)
+                .Select(o => new { o.Code, o.Name })
+                .ToList();
+
+            return Json(outputs);
+        }
+
+        public JsonResult GetSubOutputs(int outputCode)
+        {
+            var subOutputs = _context.SubOutputs
+                .Where(s => s.OutputCode == outputCode)
+                .Select(s => new { s.Code, s.Name })
+                .ToList();
+
+            return Json(subOutputs);
+        }
+
+        public JsonResult GetIndicators(int subOutputCode)
+        {
+            var indicators = _context.Indicators
+                .Where(i => i.SubOutputCode == subOutputCode)
+                .Select(i => new { i.IndicatorCode, i.Name })
+                .ToList();
+
+            return Json(indicators);
         }
     }
 }

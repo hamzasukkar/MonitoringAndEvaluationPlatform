@@ -1,10 +1,14 @@
-﻿@model MonitoringAndEvaluationPlatform.ViewModel.CreateProjectViewModel
+﻿@model MonitoringAndEvaluationPlatform.Models.Project
 @{
     ViewData["Title"] = "Index";
     Layout = "~/Views/Shared/_ProjectsLayout.cshtml";
 }
 <h4>Program</h4>
 <hr />
+@{
+    var startDate = DateTime.Today.ToString("yyyy-MM-dd");
+    var endDate = DateTime.Today.ToString("yyyy-MM-dd");
+}
 <div class="row">
     <div class="col-md-12">
         <form asp-action="Create">
@@ -38,22 +42,22 @@
             </div>
             <div class="form-group">
                 <label asp-for="EstimatedBudget" class="control-label">Estimated Budget</label>
-                <input asp-for="EstimatedBudget" class="form-control" />
+                <input asp-for="EstimatedBudget" value="0" class="form-control" />
                 <span asp-validation-for="EstimatedBudget" class="text-danger"></span>
             </div>
             <div class="form-group">
                 <label asp-for="RealBudget" class="control-label">Real Budget</label>
-                <input asp-for="RealBudget" class="form-control" />
+                <input asp-for="RealBudget" value="0" class="form-control" />
                 <span asp-validation-for="RealBudget" class="text-danger"></span>
             </div>
             <div class="form-group">
                 <label asp-for="StartDate" class="control-label">Start Date</label>
-                <input asp-for="StartDate" class="form-control" />
+                <input type="date" asp-for="StartDate" value="@startDate" class="form-control" />
                 <span asp-validation-for="StartDate" class="text-danger"></span>
             </div>
             <div class="form-group">
                 <label asp-for="EndDate" class="control-label">End Date</label>
-                <input asp-for="EndDate" class="form-control" />
+                <input type="date" asp-for="EndDate" value="@endDate" class="form-control" />
                 <span asp-validation-for="EndDate" class="text-danger"></span>
             </div>
 
@@ -76,21 +80,6 @@
                     }
                 </select>
             </div> *@
-            <div class="form-group">
-                <label>Select Frameworks</label>
-                @foreach (var fw in Model.AvailableFrameworks)
-                {
-                    <div class="form-check">
-                        <input class="form-check-input" type="checkbox"
-                               name="SelectedFrameworkIds"
-                               value="@fw.Code"
-                               id="fw_@fw.Code" />
-                        <label class="form-check-label" for="fw_@fw.Code">
-                            @fw.Name
-                        </label>
-                    </div>
-                }
-            </div>
             <div class="form-group">
                 <input type="submit" value="Create" class="btn btn-primary" />
             </div>

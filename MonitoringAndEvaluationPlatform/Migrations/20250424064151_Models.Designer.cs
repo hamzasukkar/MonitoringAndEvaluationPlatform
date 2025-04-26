@@ -12,7 +12,7 @@ using MonitoringAndEvaluationPlatform.Data;
 namespace MonitoringAndEvaluationPlatform.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20250420101957_Models")]
+    [Migration("20250424064151_Models")]
     partial class Models
     {
         /// <inheritdoc />
@@ -24,21 +24,6 @@ namespace MonitoringAndEvaluationPlatform.Migrations
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
-
-            modelBuilder.Entity("FrameworkProject", b =>
-                {
-                    b.Property<int>("FrameworksCode")
-                        .HasColumnType("int");
-
-                    b.Property<int>("ProjectsProjectID")
-                        .HasColumnType("int");
-
-                    b.HasKey("FrameworksCode", "ProjectsProjectID");
-
-                    b.HasIndex("ProjectsProjectID");
-
-                    b.ToTable("ProjectFrameworks", (string)null);
-                });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>
                 {
@@ -654,6 +639,29 @@ namespace MonitoringAndEvaluationPlatform.Migrations
                     b.ToTable("Projects");
                 });
 
+            modelBuilder.Entity("MonitoringAndEvaluationPlatform.Models.ProjectIndicator", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("IndicatorCode")
+                        .HasColumnType("int");
+
+                    b.Property<int>("ProjectId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("IndicatorCode");
+
+                    b.HasIndex("ProjectId");
+
+                    b.ToTable("ProjectIndicators");
+                });
+
             modelBuilder.Entity("MonitoringAndEvaluationPlatform.Models.ProjectManager", b =>
                 {
                     b.Property<int>("Code")
@@ -769,21 +777,6 @@ namespace MonitoringAndEvaluationPlatform.Migrations
                     b.HasKey("Code");
 
                     b.ToTable("SuperVisors");
-                });
-
-            modelBuilder.Entity("FrameworkProject", b =>
-                {
-                    b.HasOne("MonitoringAndEvaluationPlatform.Models.Framework", null)
-                        .WithMany()
-                        .HasForeignKey("FrameworksCode")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("MonitoringAndEvaluationPlatform.Models.Project", null)
-                        .WithMany()
-                        .HasForeignKey("ProjectsProjectID")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
@@ -965,6 +958,25 @@ namespace MonitoringAndEvaluationPlatform.Migrations
                     b.Navigation("SuperVisor");
                 });
 
+            modelBuilder.Entity("MonitoringAndEvaluationPlatform.Models.ProjectIndicator", b =>
+                {
+                    b.HasOne("MonitoringAndEvaluationPlatform.Models.Indicator", "Indicator")
+                        .WithMany("ProjectIndicators")
+                        .HasForeignKey("IndicatorCode")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("MonitoringAndEvaluationPlatform.Models.Project", "Project")
+                        .WithMany("ProjectIndicators")
+                        .HasForeignKey("ProjectId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Indicator");
+
+                    b.Navigation("Project");
+                });
+
             modelBuilder.Entity("MonitoringAndEvaluationPlatform.Models.SubOutput", b =>
                 {
                     b.HasOne("MonitoringAndEvaluationPlatform.Models.Output", "Output")
@@ -994,6 +1006,8 @@ namespace MonitoringAndEvaluationPlatform.Migrations
             modelBuilder.Entity("MonitoringAndEvaluationPlatform.Models.Indicator", b =>
                 {
                     b.Navigation("Measures");
+
+                    b.Navigation("ProjectIndicators");
                 });
 
             modelBuilder.Entity("MonitoringAndEvaluationPlatform.Models.Outcome", b =>
@@ -1012,6 +1026,8 @@ namespace MonitoringAndEvaluationPlatform.Migrations
                         .IsRequired();
 
                     b.Navigation("Measures");
+
+                    b.Navigation("ProjectIndicators");
                 });
 
             modelBuilder.Entity("MonitoringAndEvaluationPlatform.Models.SubOutput", b =>
