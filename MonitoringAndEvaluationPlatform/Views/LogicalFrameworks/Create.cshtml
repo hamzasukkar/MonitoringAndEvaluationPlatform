@@ -1,5 +1,23 @@
 ﻿@model MonitoringAndEvaluationPlatform.Models.LogicalFramework
 @using MonitoringAndEvaluationPlatform.Enums
+<style>
+    .project-nav .nav-link {
+        color: #495057;
+        font-weight: 500;
+        padding: 0.75rem 1rem;
+        transition: all 0.3s;
+    }
+
+        .project-nav .nav-link:hover {
+            color: #0d6efd;
+            background-color: rgba(13, 110, 253, 0.1);
+        }
+
+        .project-nav .nav-link.active {
+            color: #0d6efd;
+            border-bottom: 3px solid #0d6efd;
+        }
+</style>
 @if (TempData["Success"] != null)
 {
     <div class="alert alert-success alert-dismissible fade show" role="alert">
@@ -12,10 +30,55 @@
     Layout = "~/Views/Shared/_ProjectsLayout.cshtml";
 }
 
-<h1>Create</h1>
+<div class="project-nav mb-4">
+    <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm rounded">
+        <div class="container-fluid">
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#projectNavbar">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="projectNavbar">
+                <ul class="navbar-nav nav-fill w-100">
+                    <li class="nav-item">
+                        <a asp-controller="Projects" asp-action="Details" asp-route-id="@Model.ProjectID" class="nav-link">
+                            <i class="fas fa-project-diagram me-2"></i>Project
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a asp-controller="Projects" asp-action="LinkProjectToIndicators" asp-route-projectId="@Model.ProjectID" class="nav-link">
+                            <i class="fas fa-link me-2"></i>Alignement  <!-- "fa-link" for connections/alignment -->
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active" aria-current="page" asp-action="Create" asp-controller="LogicalFrameworks" asp-route-projectId="@Model.ProjectID">
+                            <i class="fas fa-sitemap me-2"></i>LogicalFramework  <!-- "fa-sitemap" for hierarchical structures -->
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a asp-action="ProjectMeasures" asp-controller="Measures" asp-route-id="@Model.ProjectID" class="nav-link">
+                            <i class="fas fa-ruler-combined me-2"></i>Measures
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a asp-controller="Plans" asp-action="ProjectPlans" asp-route-id="@Model.ProjectID" class="nav-link">
+                            <i class="fas fa-calendar-alt me-2"></i>Plans
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a asp-controller="ActionPlans" asp-action="ActionPlan" asp-route-id="@Model.ProjectID" class="nav-link">
+                            <i class="fas fa-tasks me-2"></i>Action Plans
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a asp-action="Index" asp-controller="Activities" class="nav-link">
+                            <i class="fas fa-running me-2"></i>Activities
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+</div>
 
-<h4>Creating Logical Framework for Project: <strong>@ViewBag.ProjectName</strong></h4>
-<hr />
 <div class="row">
     <div class="col-md-4">
         <form asp-action="Create">

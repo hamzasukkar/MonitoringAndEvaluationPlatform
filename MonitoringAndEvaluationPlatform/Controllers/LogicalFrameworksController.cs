@@ -50,7 +50,6 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             if (project == null)
                 return NotFound();
 
-            ViewBag.ProjectName = project.ProjectName;
             ViewBag.ProjectID = projectId;
 
             var relatedFrameworks = _context.LogicalFramework

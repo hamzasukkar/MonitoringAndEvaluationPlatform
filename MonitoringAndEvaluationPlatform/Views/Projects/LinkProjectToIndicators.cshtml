@@ -1,53 +1,78 @@
 ﻿@model MonitoringAndEvaluationPlatform.ViewModel.LinkProjectIndicatorViewModel
+<style>
+    .project-nav .nav-link {
+        color: #495057;
+        font-weight: 500;
+        padding: 0.75rem 1rem;
+        transition: all 0.3s;
+    }
+
+        .project-nav .nav-link:hover {
+            color: #0d6efd;
+            background-color: rgba(13, 110, 253, 0.1);
+        }
+
+        .project-nav .nav-link.active {
+            color: #0d6efd;
+            border-bottom: 3px solid #0d6efd;
+        }
+</style>
 @{
     ViewData["Title"] = "Link Project to Indicators";
     Layout = "~/Views/Shared/_SetUpLayout.cshtml";
 }
-<h2>Link Project to Indicators</h2>
 
-<div class="project-nav mb-4">
-    <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm rounded">
-        <div class="container-fluid">
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#projectNavbar">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse" id="projectNavbar">
-                <ul class="navbar-nav nav-fill w-100">
-                    <li class="nav-item">
-                        <a class="nav-link" asp-action="Details" asp-route-id="@Model.SelectedProjectId">
-                            <i class="fas fa-project-diagram me-2"></i>Project
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a  class="nav-link active" aria-current="page">
-                            <i class="fas fa-project-diagram me-2"></i>Alignement
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a asp-action="ProjectMeasures" asp-controller="Measures" asp-route-id="1" class="nav-link">
-                            <i class="fas fa-ruler-combined me-2"></i>Measures
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a asp-controller="Plans" asp-action="ProjectPlans" asp-route-id="1" class="nav-link">
-                            <i class="fas fa-calendar-alt me-2"></i>Plans
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a asp-controller="ActionPlans" asp-action="ActionPlan" asp-route-id="1" class="nav-link">
-                            <i class="fas fa-tasks me-2"></i>Action Plans
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a asp-action="Index" asp-controller="Activities" class="nav-link">
-                            <i class="fas fa-running me-2"></i>Activities
-                        </a>
-                    </li>
-                </ul>
+<div class="container-fluid px-4">
+    <!-- Project Navigation -->
+    <div class="project-nav mb-4">
+        <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm rounded">
+            <div class="container-fluid">
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#projectNavbar">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse" id="projectNavbar">
+                    <ul class="navbar-nav nav-fill w-100">
+                        <li class="nav-item">
+                            <a class="nav-link" asp-action="Details" asp-route-id="@Model.SelectedProjectId">
+                                <i class="fas fa-project-diagram me-2"></i>Project
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link active" aria-current="page">
+                                <i class="fas fa-link me-2"></i>Alignement
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a asp-action="Create" asp-controller="LogicalFrameworks" asp-route-projectId="@Model.SelectedProjectId" class="nav-link">
+                                <i class="fas fa-sitemap me-2"></i>LogicalFramework
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a asp-action="ProjectMeasures" asp-controller="Measures" asp-route-id="@Model.SelectedProjectId" class="nav-link">
+                                <i class="fas fa-ruler-combined me-2"></i>Measures
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a asp-controller="Plans" asp-action="ProjectPlans" asp-route-id="@Model.SelectedProjectId" class="nav-link">
+                                <i class="fas fa-calendar-alt me-2"></i>Plans
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a asp-controller="ActionPlans" asp-action="ActionPlan" asp-route-id="@Model.SelectedProjectId" class="nav-link">
+                                <i class="fas fa-tasks me-2"></i>Action Plans
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a asp-action="Index" asp-controller="Activities" class="nav-link">
+                                <i class="fas fa-running me-2"></i>Activities
+                            </a>
+                        </li>
+                    </ul>
+                </div>
             </div>
-        </div>
-    </nav>
-</div>
+        </nav>
+    </div>
+
 
 <form asp-action="LinkProjectToIndicators" method="post" class="p-4 border rounded shadow-sm">
 
