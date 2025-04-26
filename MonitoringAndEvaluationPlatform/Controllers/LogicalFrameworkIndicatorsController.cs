@@ -84,6 +84,8 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 _context.Add(indicator);
                 _context.SaveChanges();
 
+                TempData["Success"] = "Indicator created successfully!";
+
                 // Stay on the same page and reload related indicators
                 return RedirectToAction("Create", new { logicalFrameworkCode = indicator.LogicalFrameworkCode });
             }
