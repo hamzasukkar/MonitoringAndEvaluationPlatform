@@ -25,9 +25,18 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         // GET: Activities
         public async Task<IActionResult> Index()
         {
-            var applicationDbContext = _context.Activities.Include(a => a.ActionPlan);
-            return View(await applicationDbContext.ToListAsync());
+            var activities = await _context.Activities
+                .Include(a => a.ActionPlan)
+                .Include(a => a.Plans)
+                .ToListAsync();
+
+            var groupedActivities = activities
+                .GroupBy(a => a.ActionPlan) // Group by ActionPlan
+                .ToList();
+
+            return View(groupedActivities);
         }
+
 
         // GET: Activities/Details/5
         public async Task<IActionResult> Details(int? id)
