@@ -64,7 +64,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         {
             if (ModelState.IsValid || true)
             {
-                bool success = await _activityService.CreateActivityAsync(activity);
+                bool success = await _activityService.CreateActivitiesForAllTypesAsync(activity);
 
                 if (!success)
                 {
@@ -79,6 +79,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             ViewData["ActionPlanCode"] = new SelectList(_context.ActionPlans, "Code", "Code", activity.ActionPlanCode);
             return View(activity);
         }
+
 
         // GET: Activities/Edit/5
         public async Task<IActionResult> Edit(int? id)
