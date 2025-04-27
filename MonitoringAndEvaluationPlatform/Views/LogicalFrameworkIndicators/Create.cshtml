@@ -116,12 +116,13 @@
                     <tbody>
                         @foreach (var item in indicators)
                         {
+                            double performance = Math.Round(@item.Performance, 0);
                             <tr>
                                 <td>@item.Name</td>
                                 <td>@item.Target</td>
                                 <td>@item.TargetYear.Year</td>
                                 <td>@item.Weight</td>
-                                <td>@item.Performance%</td>
+                                <td>@performance%</td>
                                 <td class="action-icons">
                                     <a asp-action="Details" asp-route-id="@item.IndicatorCode" title="Details">
                                         <i class="bi bi-eye text-info" style="font-size: 1.2rem;"></i>

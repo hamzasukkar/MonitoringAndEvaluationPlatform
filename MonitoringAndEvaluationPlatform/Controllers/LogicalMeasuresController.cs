@@ -71,21 +71,43 @@ namespace MonitoringAndEvaluationPlatform.Controllers
 
             if (ModelState.IsValid)
             {
+
                 _context.Add(logicalMeasure);
                 await _context.SaveChangesAsync();
 
-                //After saving the new LogicalMeasure
-                await UpdateLogicalFrameworkIndicatorPerformance(logicalMeasure.LogicalFrameworkIndicatorIndicatorCode);
-                await UpdateProjectPerformanceAsync(logicalMeasure.LogicalFrameworkIndicator.LogicalFramework.ProjectID);
+                // === AUTOMATED PERFORMANCE UPDATE ===
 
-                return RedirectToAction(nameof(LogicalFrameworkIndicatorsController.Details), "LogicalFrameworkIndicators", new { id = logicalMeasure.LogicalFrameworkIndicatorIndicatorCode });
+                // 1. Update the LogicalFrameworkIndicator Performance
+                await UpdateLogicalFrameworkIndicatorPerformanceAsync(logicalMeasure.LogicalFrameworkIndicatorIndicatorCode);
+
+                // 2. Get LogicalFramework ID
+                var logicalFrameworkIndicator = await _context.logicalFrameworkIndicators
+                    .FirstOrDefaultAsync(x => x.IndicatorCode == logicalMeasure.LogicalFrameworkIndicatorIndicatorCode);
+
+                if (logicalFrameworkIndicator != null)
+                {
+                    // 3. Update LogicalFramework Performance
+                    await UpdateLogicalFrameworkPerformanceAsync(logicalFrameworkIndicator.LogicalFrameworkCode);
+
+                    // 4. Get Project ID
+                    var logicalFramework = await _context.logicalFrameworks
+                        .FirstOrDefaultAsync(x => x.Code == logicalFrameworkIndicator.LogicalFrameworkCode);
+
+                    if (logicalFramework != null)
+                    {
+                        // 5. Update Project Performance
+                        await UpdateProjectPerformanceAsync(logicalFramework.ProjectID);
+                    }
+
+                    return RedirectToAction(nameof(LogicalFrameworkIndicatorsController.Details), "LogicalFrameworkIndicators", new { id = logicalMeasure.LogicalFrameworkIndicatorIndicatorCode });
+                }
             }
 
-            return View(logicalMeasure);
+                return View(logicalMeasure);
 
-        }
+            }
 
-        private async Task UpdateLogicalFrameworkIndicatorPerformance(int logicalIndicatorId)
+        private async Task UpdateLogicalFrameworkIndicatorPerformanceAsync(int logicalIndicatorId)
         {
             var logicalIndicator = await _context.logicalFrameworkIndicators
                 .Include(lfi => lfi.logicalMeasures)
@@ -177,7 +199,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id,LogicalMeasure logicalMeasure)
+        public async Task<IActionResult> Edit(int id, LogicalMeasure logicalMeasure)
         {
             if (id != logicalMeasure.Code)
             {

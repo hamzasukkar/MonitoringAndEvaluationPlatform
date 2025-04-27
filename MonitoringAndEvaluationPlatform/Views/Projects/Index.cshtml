@@ -110,6 +110,7 @@
                             <tbody>
                                 @foreach (var item in Model.Projects)
                                 {
+                                    double performance = Math.Round(@item.performance, 0);
                                     <tr>
                                         <td>
                                             <a asp-action="Details" asp-route-id="@item.ProjectID" class="text-decoration-none">
@@ -118,10 +119,10 @@
                                         </td>
                                         <td>
                                             @await Html.PartialAsync("_ProgressBar", new Tuple<double, string>(
-                                                     item.performance,
-                                                     item.performance >= 80 ? "success" :
-                                                     item.performance >= 50 ? "info" :
-                                                     item.performance >= 30 ? "warning" : "danger"
+                                                     performance,
+                                                     performance >= 80 ? "success" :
+                                                     performance >= 50 ? "info" :
+                                                     performance >= 30 ? "warning" : "danger"
                                                      ))
                                         </td>
                                         <td>
@@ -223,4 +224,8 @@
         .btn-group .btn {
             padding: 0.25rem 0.5rem;
         }
+
+    .table-responsive {
+        overflow-x: hidden;
+    }
     </style>

@@ -117,15 +117,17 @@
             </div>
         </div>
     </div>
-
+    @{
+        double performance = Math.Round(@Model.performance, 0);
+    }
     <!-- Performance Metrics -->
     <div class="row mb-4">
         <div class="col-md-3">
             <div class="card shadow-sm h-100">
                 <div class="card-body text-center">
                     <h6 class="card-title text-muted">Performance</h6>
-                    <div class="progress-circle progress-@((int)Model.performance)" data-value="@Model.performance">
-                        <span class="progress-circle-value">@Model.performance%</span>
+                    <div class="progress-circle progress-@((int)performance)" data-value="@performance">
+                        <span class="progress-circle-value">@performance%</span>
                     </div>
                     <p class="text-muted mt-2 mb-0">Overall project performance</p>
                 </div>
