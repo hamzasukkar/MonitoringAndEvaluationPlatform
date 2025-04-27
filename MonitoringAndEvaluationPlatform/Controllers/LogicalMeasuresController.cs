@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.Build.Evaluation;
 using Microsoft.CodeAnalysis;
 using Microsoft.EntityFrameworkCore;
 using MonitoringAndEvaluationPlatform.Data;
@@ -75,6 +76,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
 
                 //After saving the new LogicalMeasure
                 await UpdateLogicalFrameworkIndicatorPerformance(logicalMeasure.LogicalFrameworkIndicatorIndicatorCode);
+                await UpdateProjectPerformanceAsync(logicalMeasure.LogicalFrameworkIndicator.LogicalFramework.ProjectID);
 
                 return RedirectToAction(nameof(LogicalFrameworkIndicatorsController.Details), "LogicalFrameworkIndicators", new { id = logicalMeasure.LogicalFrameworkIndicatorIndicatorCode });
             }
@@ -105,6 +107,50 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 }
 
                 _context.Update(logicalIndicator);
+                await _context.SaveChangesAsync();
+                await UpdateLogicalFrameworkPerformanceAsync(logicalIndicator.LogicalFrameworkCode);
+            }
+        }
+
+        public async Task UpdateLogicalFrameworkPerformanceAsync(int frameworkId)
+        {
+            // 1. Compute average Performance of active indicators (returns null if none)
+            double averagePerformance = await _context.logicalFrameworkIndicators
+                .Where(i => i.LogicalFrameworkCode == frameworkId && i.Active)
+                .Select(i => (double?)i.Performance)
+                .AverageAsync() ?? 0.0;
+
+            // 2. Load the parent LogicalFramework and update its Performance
+            var framework = await _context.logicalFrameworks.FindAsync(frameworkId);
+            if (framework != null)
+            {
+                framework.Performance = averagePerformance;
+                // 3. Save the updated Performance
+                await _context.SaveChangesAsync();
+            }
+        }
+
+        public async Task UpdateProjectPerformanceAsync(int projectId)
+        {
+            // 1. Get all LogicalFrameworks for this project
+            var logicalFrameworks = await _context.logicalFrameworks
+                .Where(lf => lf.ProjectID == projectId)
+                .ToListAsync();
+
+            if (logicalFrameworks == null || logicalFrameworks.Count == 0)
+                return; // No frameworks, no update needed
+
+            // 2. Calculate average Performance (safely)
+            double averagePerformance = logicalFrameworks
+                .Where(lf => lf.Performance > 0) // Optional: ignore frameworks with 0 if you want
+                .Select(lf => (double?)lf.Performance)
+                .Average() ?? 0.0;
+
+            // 3. Find the project and update
+            var project = await _context.Projects.FindAsync(projectId);
+            if (project != null)
+            {
+                project.performance = averagePerformance;
                 await _context.SaveChangesAsync();
             }
         }

@@ -14,7 +14,7 @@ namespace MonitoringAndEvaluationPlatform.Models
         public int LogicalFrameworkCode { get; set; }
         virtual public LogicalFramework LogicalFramework { get; set; }
         public bool IsCommon { get; set; }
-        public bool Active { get; set; }
+        public bool Active { get; set; } = true;
         public int Target { get; set; } = 0;
 
         [DataType(DataType.Date)]
