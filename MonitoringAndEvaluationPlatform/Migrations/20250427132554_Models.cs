@@ -307,7 +307,9 @@ namespace MonitoringAndEvaluationPlatform.Migrations
                     performance = table.Column<double>(type: "float", nullable: false),
                     DisbursementPerformance = table.Column<int>(type: "int", nullable: false),
                     FieldMonitoring = table.Column<int>(type: "int", nullable: false),
-                    ImpactAssessment = table.Column<int>(type: "int", nullable: false)
+                    ImpactAssessment = table.Column<int>(type: "int", nullable: false),
+                    Financial = table.Column<int>(type: "int", nullable: false),
+                    Physical = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {

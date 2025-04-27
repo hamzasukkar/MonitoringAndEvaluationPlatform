@@ -108,7 +108,12 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             {
                 _context.Add(actionPlan);
                 await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
+                return RedirectToRoute(new
+                {
+                    controller = "Activities",
+                    action = "Create",
+                    id = 5
+                });
             }
             ViewData["ProjectID"] = new SelectList(_context.Projects, "ProjectID", "ProjectName", actionPlan.ProjectID);
             return View(actionPlan);

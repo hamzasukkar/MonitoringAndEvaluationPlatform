@@ -25,6 +25,8 @@ namespace MonitoringAndEvaluationPlatform.Models
         public int DisbursementPerformance { get; set; }
         public int FieldMonitoring { get; set; }
         public int ImpactAssessment { get; set; }
+        public int Financial { get; set; }
+        public int Physical { get; set; }
 
         // Navigation property for many-to-many relationship
         public ICollection<Measure> Measures { get; set; } = new List<Measure>();
@@ -43,12 +45,16 @@ namespace MonitoringAndEvaluationPlatform.Models
                 this.DisbursementPerformance = (int)((totalRealised / totalPlanned) * 100);
                 this.FieldMonitoring = (int)((totalRealised / totalPlanned) * 100);
                 this.ImpactAssessment = (int)((totalRealised / totalPlanned) * 100);
+                this.Financial = (int)((totalRealised / totalPlanned) * 100);
+                this.Physical = (int)((totalRealised / totalPlanned) * 100);
             }
             else
             {
                 this.DisbursementPerformance = 0;
                 this.FieldMonitoring = 0;
                 this.ImpactAssessment = 0;
+                this.Financial = 0;
+                this.Physical = 0;
             }
         }
     }

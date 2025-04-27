@@ -101,9 +101,11 @@
                                 <tr>
                                     <th>Project Name</th>
                                     <th>Performance</th>
-                                    <th>Disbursement</th>
+                                    <th>Financial</th>
+                                    <th>Physical</th>
+         @*                            <th>Disbursement</th>
                                     <th>Monitoring</th>
-                                    <th>Impact</th>
+                                    <th>Impact</th> *@
                                     <th class="text-end">Actions</th>
                                 </tr>
                             </thead>
@@ -124,8 +126,24 @@
                                                      performance >= 50 ? "info" :
                                                      performance >= 30 ? "warning" : "danger"
                                                      ))
-                                        </td>
+                                        </td>  
                                         <td>
+                                            @await Html.PartialAsync("_ProgressBar", new Tuple<double, string>(
+                                                     item.Financial,
+                                                     item.Financial >= 80 ? "success" :
+                                                     item.Financial >= 50 ? "info" :
+                                                     item.Financial >= 30 ? "warning" : "danger"
+                                                     ))
+                                        </td>  
+                                        <td>
+                                            @await Html.PartialAsync("_ProgressBar", new Tuple<double, string>(
+                                                     item.Financial,
+                                                     item.Financial >= 80 ? "success" :
+                                                     item.Financial >= 50 ? "info" :
+                                                     item.Financial >= 30 ? "warning" : "danger"
+                                                     ))
+                                        </td>
+                                    @*     <td>
                                             @await Html.PartialAsync("_ProgressBar", new Tuple<double, string>(
                                                      item.DisbursementPerformance,
                                                      item.DisbursementPerformance >= 80 ? "success" :
@@ -148,7 +166,7 @@
                                                      item.ImpactAssessment >= 50 ? "info" :
                                                      item.ImpactAssessment >= 30 ? "warning" : "danger"
                                                      ))
-                                        </td>
+                                        </td> *@
                                         <td class="text-end">
                                             <div class="btn-group" role="group">
                                                 <a asp-action="Details" asp-route-id="@item.ProjectID" class="btn btn-sm btn-outline-primary" title="View">

@@ -12,7 +12,7 @@ using MonitoringAndEvaluationPlatform.Data;
 namespace MonitoringAndEvaluationPlatform.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20250427043301_Models")]
+    [Migration("20250427132554_Models")]
     partial class Models
     {
         /// <inheritdoc />
@@ -705,10 +705,16 @@ namespace MonitoringAndEvaluationPlatform.Migrations
                     b.Property<int>("FieldMonitoring")
                         .HasColumnType("int");
 
+                    b.Property<int>("Financial")
+                        .HasColumnType("int");
+
                     b.Property<int>("ImpactAssessment")
                         .HasColumnType("int");
 
                     b.Property<int>("MinistryCode")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Physical")
                         .HasColumnType("int");
 
                     b.Property<int>("ProjectManagerCode")
