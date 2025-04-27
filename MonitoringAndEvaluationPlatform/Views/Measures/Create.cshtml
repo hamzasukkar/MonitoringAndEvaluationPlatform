@@ -4,6 +4,7 @@
 @{
     ViewData["Title"] = "Create";
     Layout = "~/Views/Shared/_ProjectsLayout.cshtml";
+    var TargetDate = DateTime.Today.ToString("yyyy-MM-dd");
 }
 
 <h1>Create</h1>
@@ -14,11 +15,11 @@
     <div class="col-md-12">
         <form asp-action="Create">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-@*             <div class="form-group">
+            <div class="form-group">
                 <label asp-for="Date" class="control-label"></label>
-                <input asp-for="Date" class="form-control" />
+                <input asp-for="Date" type="date" value="@TargetDate" class="form-control" />
                 <span asp-validation-for="Date" class="text-danger"></span>
-            </div> *@
+            </div>
             <div class="form-group">
                 <label asp-for="Value" class="control-label"></label>
                 <input asp-for="Value" class="form-control" />

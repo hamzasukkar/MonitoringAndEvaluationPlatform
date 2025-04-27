@@ -131,7 +131,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
 
             if (ModelState.IsValid)
             {
-                measure.Date= DateTime.Now;
+               
                 _context.Measures.Add(measure);
                 await _context.SaveChangesAsync();
 
@@ -167,8 +167,8 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             {
                 return NotFound();
             }
-           // ViewData["IndicatorCode"] = new SelectList(_context.Indicators, "Code", "Code", measure.IndicatorCode);
-            ViewData["IndicatorCode"] = new SelectList(_context.Indicators, "Code", "Code");
+            ViewData["Indicators"] = new SelectList(_context.Indicators, "IndicatorCode", "Name");
+            ViewData["Projects"] = new SelectList(_context.Projects, "ProjectID", "ProjectName");
             return View(measure);
         }
 
@@ -177,13 +177,14 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Code,Date,Value,ValueType,IndicatorCode")] Measure measure)
+        public async Task<IActionResult> Edit(int id,Measure measure)
         {
             if (id != measure.Code)
             {
                 return NotFound();
             }
-
+            ModelState.Remove(nameof(measure.Indicator));
+            ModelState.Remove(nameof(measure.Project));
             if (ModelState.IsValid)
             {
                 try
