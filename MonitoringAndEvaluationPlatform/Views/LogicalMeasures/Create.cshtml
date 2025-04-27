@@ -1,0 +1,52 @@
+﻿@model MonitoringAndEvaluationPlatform.Models.LogicalMeasure
+
+@{
+    ViewData["Title"] = "Create";
+    Layout = "~/Views/Shared/_ProjectsLayout.cshtml";
+}
+
+<h1>Create</h1>
+
+<h4>LogicalMeasure</h4>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <form asp-action="Create">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <div class="form-group">
+                <label asp-for="Date" class="control-label"></label>
+                <input asp-for="Date" class="form-control" />
+                <span asp-validation-for="Date" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Value" class="control-label"></label>
+                <input asp-for="Value" class="form-control" />
+                <span asp-validation-for="Value" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="ValueType" class="control-label"></label>
+                <select asp-for="ValueType" class="form-control" asp-items="Html.GetEnumSelectList<MonitoringAndEvaluationPlatform.Enums.MeasureValueType>()"></select>
+                <span asp-validation-for="ValueType" class="text-danger"></span>
+            </div>
+            @if (ViewBag.IndicatorCode != null)
+            {
+                <input type="hidden" asp-for="LogicalFrameworkIndicatorIndicatorCode" value="@ViewBag.IndicatorCode" />
+            }
+            else
+            {
+                <div class="form-group">
+                    <label asp-for="LogicalFrameworkIndicatorIndicatorCode" class="control-label"></label>
+                    <select asp-for="LogicalFrameworkIndicatorIndicatorCode" class="form-control" asp-items="ViewBag.LogicaIndicator"></select>
+                </div>
+            }
+            <div class="form-group">
+                <input type="submit" value="Create" class="btn btn-primary" />
+            </div>
+        </form>
+    </div>
+</div>
+
+<div>
+    <a asp-action="Index">Back to List</a>
+</div>
+

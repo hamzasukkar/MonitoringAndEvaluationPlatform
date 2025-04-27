@@ -5,7 +5,7 @@ namespace MonitoringAndEvaluationPlatform.ViewModel
     public class LogicalFrameworkIndicatorDetailsViewModel
     {
         public LogicalFrameworkIndicator LogicalFrameworkIndicator { get; set; }
-        public List<Measure> Measures { get; set; }
+        public List<LogicalMeasure> logicalMeasures { get; set; }
         public ChartDataViewModel ChartDataViewModel { get; set; }
     }
 }

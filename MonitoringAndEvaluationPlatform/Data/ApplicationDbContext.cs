@@ -21,6 +21,7 @@ namespace MonitoringAndEvaluationPlatform.Data
         public DbSet<Sector> Sectors { get; set; } = default!;
         public DbSet<Donor> Donors { get; set; } = default!;
         public DbSet<Measure> Measures { get; set; } = default!;
+        public DbSet<LogicalMeasure> logicalMeasures { get; set; } = default!;
         public DbSet<SuperVisor> SuperVisors { get; set; } = default!;
         public DbSet<ProjectManager> ProjectManagers { get; set; } = default!;
         public DbSet<Activity> Activities { get; set; } = default!;
@@ -59,7 +60,5 @@ namespace MonitoringAndEvaluationPlatform.Data
                 .HasForeignKey(pi => pi.IndicatorCode);
 
         }
-        public DbSet<MonitoringAndEvaluationPlatform.Models.LogicalFramework> LogicalFramework { get; set; } = default!;
-
     }
 }

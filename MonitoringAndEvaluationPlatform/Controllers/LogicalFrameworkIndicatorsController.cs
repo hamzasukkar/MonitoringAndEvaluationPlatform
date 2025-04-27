@@ -39,14 +39,14 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 .Include(l => l.LogicalFramework)
                 .FirstOrDefaultAsync(m => m.IndicatorCode == id);
 
-            var measures = await _context.Measures.Where(m => m.IndicatorCode == id).ToListAsync();
+            var logicalMeasures = await _context.logicalMeasures.Where(m => m.LogicalFrameworkIndicatorIndicatorCode == id).ToListAsync();
 
             var labels = new List<string>();
             var realData = new List<double>();
             var historicalData = new List<double>();
             var requiredData = new List<double>();
 
-            foreach (var measure in measures)
+            foreach (var measure in logicalMeasures)
             {
                 labels.Add(measure.Date.ToString());
                 realData.Add(measure.Value);
@@ -65,7 +65,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             var model = new LogicalFrameworkIndicatorDetailsViewModel
             {
                 LogicalFrameworkIndicator = logicalFrameworkIndicator,
-                Measures = measures,
+                logicalMeasures = logicalMeasures,
                 ChartDataViewModel = chartDataViewModel
             };
 
@@ -83,7 +83,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         // GET: LogicalFrameworkIndicators/Create
         public IActionResult Create(int logicalFrameworkCode)
         {
-            var logicalFramework = _context.LogicalFramework.FirstOrDefault(lf => lf.Code == logicalFrameworkCode);
+            var logicalFramework = _context.logicalFrameworks.FirstOrDefault(lf => lf.Code == logicalFrameworkCode);
             if (logicalFramework == null)
             {
                 return NotFound();
@@ -126,7 +126,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             }
 
             // If model state failed, re-fetch data to keep page functional
-            var logicalFramework = _context.LogicalFramework.FirstOrDefault(lf => lf.Code == indicator.LogicalFrameworkCode);
+            var logicalFramework = _context.logicalFrameworks.FirstOrDefault(lf => lf.Code == indicator.LogicalFrameworkCode);
             ViewBag.LogicalFrameworkName = logicalFramework?.Name ?? "";
             ViewBag.LogicalFrameworkCode = indicator.LogicalFrameworkCode;
             ViewBag.RelatedIndicators = _context.logicalFrameworkIndicators

@@ -22,7 +22,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         // GET: LogicalFrameworks
         public async Task<IActionResult> Index()
         {
-            return View(await _context.LogicalFramework.ToListAsync());
+            return View(await _context.logicalFrameworks.ToListAsync());
         }
 
         // GET: LogicalFrameworks/Details/5
@@ -33,7 +33,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 return NotFound();
             }
 
-            var logicalFramework = await _context.LogicalFramework
+            var logicalFramework = await _context.logicalFrameworks
                 .FirstOrDefaultAsync(m => m.Code == id);
             if (logicalFramework == null)
             {
@@ -52,7 +52,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
 
             ViewBag.ProjectID = projectId;
 
-            var relatedFrameworks = _context.LogicalFramework
+            var relatedFrameworks = _context.logicalFrameworks
                 .Where(lf => lf.ProjectID == projectId)
                 .ToList();
 
@@ -77,7 +77,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         {
             if (ModelState.IsValid)
             {
-                _context.LogicalFramework.Add(model);
+                _context.logicalFrameworks.Add(model);
                 await _context.SaveChangesAsync();
                 TempData["Success"] = "Logical Framework created successfully!";
                 return RedirectToAction("Create", "LogicalFrameworks", new { projectId = model.ProjectID });
@@ -94,7 +94,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 return NotFound();
             }
 
-            var logicalFramework = await _context.LogicalFramework.FindAsync(id);
+            var logicalFramework = await _context.logicalFrameworks.FindAsync(id);
             if (logicalFramework == null)
             {
                 return NotFound();
@@ -145,7 +145,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 return NotFound();
             }
 
-            var logicalFramework = await _context.LogicalFramework
+            var logicalFramework = await _context.logicalFrameworks
                 .FirstOrDefaultAsync(m => m.Code == id);
             if (logicalFramework == null)
             {
@@ -160,10 +160,10 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var logicalFramework = await _context.LogicalFramework.FindAsync(id);
+            var logicalFramework = await _context.logicalFrameworks.FindAsync(id);
             if (logicalFramework != null)
             {
-                _context.LogicalFramework.Remove(logicalFramework);
+                _context.logicalFrameworks.Remove(logicalFramework);
             }
 
             await _context.SaveChangesAsync();
@@ -172,7 +172,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
 
         private bool LogicalFrameworkExists(int id)
         {
-            return _context.LogicalFramework.Any(e => e.Code == id);
+            return _context.logicalFrameworks.Any(e => e.Code == id);
         }
     }
 }

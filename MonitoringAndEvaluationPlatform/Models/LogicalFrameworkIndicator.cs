@@ -7,7 +7,6 @@ namespace MonitoringAndEvaluationPlatform.Models
         [Key]
         public int IndicatorCode { get; set; }
         public string Name { get; set; }
-        public string Source { get; set; } = string.Empty;
         public double Performance { get; set; } = 0;
 
         [Range(0, 1, ErrorMessage = "The Weight must be between 0 and 1.")]
@@ -24,8 +23,6 @@ namespace MonitoringAndEvaluationPlatform.Models
         public double GAGRR { get; set; } = 0;
         public string Concept { get; set; } = string.Empty;
         public string Description { get; set; } = string.Empty;
-        public string MethodOfComputation { get; set; } = string.Empty;
-        public string Comment { get; set; } = string.Empty;
-        public ICollection<Measure> Measures { get; set; } = new List<Measure>();
+        public ICollection<LogicalMeasure> logicalMeasures { get; set; } = new List<LogicalMeasure>();
     }
 }
