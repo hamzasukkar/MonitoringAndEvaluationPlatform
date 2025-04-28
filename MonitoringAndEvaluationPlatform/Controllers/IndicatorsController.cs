@@ -206,7 +206,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Code,Name,Trend,IndicatorsPerformance,SubOutputCode")] Indicator indicator)
+        public async Task<IActionResult> Edit(int id,Indicator indicator)
         {
             if (id != indicator.IndicatorCode)
             {

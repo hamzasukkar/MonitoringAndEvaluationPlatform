@@ -1,51 +1,130 @@
 ﻿@model MonitoringAndEvaluationPlatform.Models.SubOutput
 
 @{
-    ViewData["Title"] = "Create";
+    ViewData["Title"] = "Create New SubOutput";
     Layout = "~/Views/Shared/_ResultsFrameworkLayout.cshtml";
+    var isOutputLocked = ViewBag.SelectedOutputCode != null;
 }
 
-<h1>Create</h1>
+<div class="container-fluid">
+    <div class="row mb-4">
+        <div class="col-12">
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a asp-action="Index">SubOutputs</a></li>
+                    @if (isOutputLocked)
+                    {
+                        <li class="breadcrumb-item"><a asp-controller="Outputs" asp-action="Details" asp-route-id="@ViewBag.SelectedOutputCode">Output</a></li>
+                    }
+                    <li class="breadcrumb-item active" aria-current="page">Create New</li>
+                </ol>
+            </nav>
 
-<h4>SubOutput</h4>
-<hr />
-<div class="row">
-    <div class="col-md-4">
-        <form asp-action="Create">
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-            <div class="form-group">
-                <label asp-for="Name" class="control-label"></label>
-                <input asp-for="Name" class="form-control" />
-                <span asp-validation-for="Name" class="text-danger"></span>
+            <div class="d-flex justify-content-between align-items-center">
+                <h2 class="mb-0">Create New SubOutput</h2>
+                <a asp-action="Index" class="btn btn-outline-secondary">
+                    <i class="fas fa-arrow-left"></i> Back to List
+                </a>
             </div>
-      @*       <div class="form-group">
-                <label asp-for="Trend" class="control-label"></label>
-                <input asp-for="Trend" class="form-control" />
-                <span asp-validation-for="Trend" class="text-danger"></span>
-            </div> *@
-            @{
-                var isOutcomeLocked = ViewBag.SelectedOutputCode != null;
-            }
-            <!-- Hidden input when FrameworkCode is provided -->
-            @if (isOutcomeLocked)
-            {
-                <input type="hidden" asp-for="OutputCode" value="@ViewBag.SelectedOutputCode" />
-            }
-            else
-            {
-                <div class="form-group">
-                    <label asp-for="OutputCode" class="control-label"></label>
-                    <select asp-for="OutputCode" class="form-control" asp-items="ViewBag.OutputCode"></select>
+        </div>
+    </div>
+
+    <div class="row justify-content-center">
+        <div class="col-md-8 col-lg-6">
+            <div class="card shadow-sm">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">SubOutput Details</h5>
                 </div>
-            }
-            <div class="form-group">
-                <input type="submit" value="Create" class="btn btn-primary" />
+
+                <div class="card-body">
+                    <form asp-action="Create" class="needs-validation" novalidate>
+                        <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+
+                        <div class="form-group mb-4">
+                            <label asp-for="Name" class="form-label fw-bold"></label>
+                            <input asp-for="Name" class="form-control form-control-lg" placeholder="Enter suboutput name" required />
+                            <span asp-validation-for="Name" class="text-danger small"></span>
+                            <div class="form-text">Describe the specific, measurable suboutput component.</div>
+                        </div>
+
+                        @if (isOutputLocked)
+                        {
+                            <div class="alert alert-info mb-4">
+                                <i class="fas fa-link me-2"></i>
+                                This suboutput will be linked to output: <strong>@ViewBag.SelectedOutputName</strong>
+                                <input type="hidden" asp-for="OutputCode" value="@ViewBag.SelectedOutputCode" />
+                            </div>
+                        }
+                        else
+                        {
+                            <div class="form-group mb-4">
+                                <label asp-for="OutputCode" class="form-label fw-bold"></label>
+                                <select asp-for="OutputCode" class="form-select form-select-lg" asp-items="ViewBag.OutputCode" required>
+                                    <option value="">-- Select Output --</option>
+                                </select>
+                                <span asp-validation-for="OutputCode" class="text-danger small"></span>
+                                <div class="form-text">Select which output this suboutput belongs to.</div>
+                            </div>
+                        }
+
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-end mt-4">
+                            <button type="submit" class="btn btn-primary px-4">
+                                <i class="fas fa-save me-2"></i>Create SubOutput
+                            </button>
+                            <a asp-action="Index" class="btn btn-outline-secondary px-4">Cancel</a>
+                        </div>
+                    </form>
+                </div>
             </div>
-        </form>
+        </div>
     </div>
 </div>
 
-<div>
-    <a asp-action="Index">Back to List</a>
-</div>
 
+    <style>
+        .card {
+            border-radius: 0.5rem;
+            border: none;
+        }
+
+        .form-control-lg, .form-select-lg {
+            padding: 0.75rem 1rem;
+            font-size: 1.05rem;
+        }
+
+        .breadcrumb {
+            background-color: transparent;
+            padding: 0;
+        }
+
+        .alert-info {
+            background-color: #e7f6fe;
+            border-color: #b8e2fb;
+        }
+
+        .form-text {
+            font-size: 0.85rem;
+            color: #6c757d;
+        }
+    </style>
+
+
+
+    <script>
+        // Client-side validation enhancement
+        (function() {
+            'use strict';
+            const forms = document.querySelectorAll('.needs-validation');
+
+            Array.from(forms).forEach(form => {
+                form.addEventListener('submit', event => {
+                    if (!form.checkValidity()) {
+                        event.preventDefault();
+                        event.stopPropagation();
+                    }
+                    form.classList.add('was-validated');
+                }, false);
+            });
+        })();
+    </script>
+}

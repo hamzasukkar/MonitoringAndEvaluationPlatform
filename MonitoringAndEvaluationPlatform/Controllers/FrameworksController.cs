@@ -104,6 +104,8 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, [Bind("Code,Name,Trend,IndicatorsPerformance,DisbursementPerformance,FieldMonitoring,ImpactAssessment")] Framework framework)
         {
+            ModelState.Remove(nameof(framework.Outcomes));
+
             if (id != framework.Code)
             {
                 return NotFound();
