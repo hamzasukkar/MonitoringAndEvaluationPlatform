@@ -16,24 +16,50 @@ public class MonitoringService
     public async Task UpdateProjectPerformance(int ProjectId)
     {
         var project = await _context.Projects
-            .Include(i => i.Measures)
+            .Include(p => p.Measures)
+            .Include(p => p.logicalFramework)
             .FirstOrDefaultAsync(p => p.ProjectID == ProjectId);
 
+        if (project == null)
+            return;
+
+        // Calculate Measures Performance
         double totalAchieved = project.Measures
             .Where(m => m.ValueType == MeasureValueType.Real)
-            .Sum(m => m.Value); // Sum of all real measure values
+            .Sum(m => m.Value);
 
-        double target = project.Measures.Where(m => m.ValueType == MeasureValueType.Target).Sum(m => m.Value); // Sum of all target measure values;
+        double target = project.Measures
+            .Where(m => m.ValueType == MeasureValueType.Target)
+            .Sum(m => m.Value);
 
-        project.performance = (target > 0) ? (totalAchieved / target) * 100 : 0;
+        double measuresPerformance = (target > 0) ? (totalAchieved / target) * 100 : 0;
+
+        // Calculate LogicalFrameworks Average Performance
+        double logicalFrameworksPerformance = 0;
+        if (project.logicalFramework != null && project.logicalFramework.Any())
+        {
+            logicalFrameworksPerformance = project.logicalFramework
+                .Average(lf => lf.Performance); // Assuming LogicalFramework has a 'Performance' property (0-100 %)
+        }
+
+        // Combine the two performances
+        if (logicalFrameworksPerformance > 0 && measuresPerformance > 0)
+        {
+            project.performance = (measuresPerformance + logicalFrameworksPerformance) / 2;
+        }
+        else if (logicalFrameworksPerformance > 0)
+        {
+            project.performance = logicalFrameworksPerformance;
+        }
+        else
+        {
+            project.performance = measuresPerformance;
+        }
 
         _context.Projects.Update(project);
-
         await _context.SaveChangesAsync();
-
-
-
     }
+
 
     public async Task UpdateIndicatorPerformance(int indicatorId)
     {
