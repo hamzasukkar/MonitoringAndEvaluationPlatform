@@ -154,28 +154,73 @@ namespace MonitoringAndEvaluationPlatform.Controllers
 
         public async Task UpdateProjectPerformanceAsync(int projectId)
         {
-            // 1. Get all LogicalFrameworks for this project
+            // 1. Get LogicalFrameworks for this project
             var logicalFrameworks = await _context.logicalFrameworks
                 .Where(lf => lf.ProjectID == projectId)
                 .ToListAsync();
 
-            if (logicalFrameworks == null || logicalFrameworks.Count == 0)
-                return; // No frameworks, no update needed
+            // 2. Get the Project (with Measures)
+            var project = await _context.Projects
+                .Include(p => p.Measures)
+                .FirstOrDefaultAsync(p => p.ProjectID == projectId);
 
-            // 2. Calculate average Performance (safely)
-            double averagePerformance = logicalFrameworks
-                .Where(lf => lf.Performance > 0) // Optional: ignore frameworks with 0 if you want
-                .Select(lf => (double?)lf.Performance)
-                .Average() ?? 0.0;
+            if (project == null)
+                return;
 
-            // 3. Find the project and update
-            var project = await _context.Projects.FindAsync(projectId);
-            if (project != null)
+            // 3. Calculate LogicalFrameworks Average Performance
+            double logicalFrameworksPerformance = 0;
+            if (logicalFrameworks != null && logicalFrameworks.Any())
             {
-                project.performance = averagePerformance;
-                await _context.SaveChangesAsync();
+                logicalFrameworksPerformance = logicalFrameworks
+                    .Where(lf => lf.Performance > 0)
+                    .Select(lf => (double?)lf.Performance)
+                    .Average() ?? 0.0;
             }
+
+            // 4. Calculate Measures Performance
+            double totalAchieved = project.Measures
+                .Where(m => m.ValueType == MeasureValueType.Real)
+                .Sum(m => m.Value);
+
+            double target = project.Measures
+                .Where(m => m.ValueType == MeasureValueType.Target)
+                .Sum(m => m.Value);
+
+            double measuresPerformance = (target > 0) ? (totalAchieved / target) * 100 : 0;
+
+            // 5. Define weights
+            const double measuresWeight = 0.7; // 70% Measures
+            const double logicalFrameworksWeight = 0.3; // 30% LogicalFrameworks
+
+            // 6. Combine them
+            double finalPerformance = 0;
+
+            bool hasMeasures = measuresPerformance > 0;
+            bool hasLogicalFrameworks = logicalFrameworksPerformance > 0;
+
+            if (hasMeasures && hasLogicalFrameworks)
+            {
+                finalPerformance = (measuresPerformance * measuresWeight) + (logicalFrameworksPerformance * logicalFrameworksWeight);
+            }
+            else if (hasMeasures)
+            {
+                finalPerformance = measuresPerformance;
+            }
+            else if (hasLogicalFrameworks)
+            {
+                finalPerformance = logicalFrameworksPerformance;
+            }
+            else
+            {
+                finalPerformance = 0;
+            }
+
+            // 7. Save
+            project.performance = finalPerformance;
+            _context.Projects.Update(project);
+            await _context.SaveChangesAsync();
         }
+
 
 
         // GET: LogicalMeasures/Edit/5
