@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace MonitoringAndEvaluationPlatform.Models
 {
@@ -37,6 +38,11 @@ namespace MonitoringAndEvaluationPlatform.Models
         // Navigation property for one-to-one relationship
         public ActionPlan ActionPlan { get; set; }
         public ICollection<LogicalFramework> logicalFramework { get; set; } = new List<LogicalFramework>();
+
+        [NotMapped]
+        public List<IFormFile> UploadedFiles { get; set; } = new List<IFormFile>();
+        public ICollection<ProjectFile> ProjectFiles { get; set; } = new List<ProjectFile>();
+
 
         public void UpdatePerformance(double totalPlanned, double totalRealised)
         {

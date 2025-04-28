@@ -168,6 +168,46 @@
         </div>
     </div>
 </div>
+<h4>Uploaded Files</h4>
+
+@if (Model.ProjectFiles != null && Model.ProjectFiles.Any())
+{
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                <th>#</th>
+                <th>File Name</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            @for (int i = 0; i < Model.ProjectFiles.Count; i++)
+            {
+                var file = Model.ProjectFiles.ElementAt(i);
+                <tr>
+                    <td>@(i + 1)</td>
+                    <td>@file.FileName</td>
+                    <td>
+                        <a asp-action="DownloadFile" asp-route-id="@file.Id" class="btn btn-success btn-sm">
+                            Download
+                        </a>
+
+                        <form asp-action="DeleteFile" asp-route-id="@file.Id" method="post" style="display:inline;" onsubmit="return confirm('Are you sure you want to delete this file?');">
+                            <button type="submit" class="btn btn-danger btn-sm">
+                                Delete
+                            </button>
+                        </form>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+else
+{
+    <p>No files uploaded for this project.</p>
+}
+
 
 
     <style>

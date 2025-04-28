@@ -751,6 +751,32 @@ namespace MonitoringAndEvaluationPlatform.Migrations
                     b.ToTable("Projects");
                 });
 
+            modelBuilder.Entity("MonitoringAndEvaluationPlatform.Models.ProjectFile", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("FileName")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("FilePath")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("ProjectId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ProjectId");
+
+                    b.ToTable("ProjectFiles");
+                });
+
             modelBuilder.Entity("MonitoringAndEvaluationPlatform.Models.ProjectIndicator", b =>
                 {
                     b.Property<int>("Id")
@@ -1101,6 +1127,17 @@ namespace MonitoringAndEvaluationPlatform.Migrations
                     b.Navigation("SuperVisor");
                 });
 
+            modelBuilder.Entity("MonitoringAndEvaluationPlatform.Models.ProjectFile", b =>
+                {
+                    b.HasOne("MonitoringAndEvaluationPlatform.Models.Project", "Project")
+                        .WithMany("ProjectFiles")
+                        .HasForeignKey("ProjectId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Project");
+                });
+
             modelBuilder.Entity("MonitoringAndEvaluationPlatform.Models.ProjectIndicator", b =>
                 {
                     b.HasOne("MonitoringAndEvaluationPlatform.Models.Indicator", "Indicator")
@@ -1179,6 +1216,8 @@ namespace MonitoringAndEvaluationPlatform.Migrations
                         .IsRequired();
 
                     b.Navigation("Measures");
+
+                    b.Navigation("ProjectFiles");
 
                     b.Navigation("ProjectIndicators");
 

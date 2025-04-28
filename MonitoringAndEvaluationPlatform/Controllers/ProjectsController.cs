@@ -56,7 +56,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 projects = projects.Where(p => filter.SelectedDonors.Contains(p.DonorCode)).ToList();
             }
 
-             filter.Projects =  projects.ToList();
+            filter.Projects = projects.ToList();
 
 
             return View(filter);
@@ -73,10 +73,11 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             }
 
             var project = await _context.Projects
-                .Include(p=>p.ProjectManager)
-                .Include(p=>p.SuperVisor)
-                .Include(p=>p.Donor)
-                .Include(p=>p.Region)
+                .Include(p => p.ProjectManager)
+                .Include(p => p.SuperVisor)
+                .Include(p => p.Donor)
+                .Include(p => p.Region)
+                .Include(p => p.ProjectFiles)
                 .FirstOrDefaultAsync(m => m.ProjectID == id);
 
             if (project == null)
@@ -106,7 +107,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult Create(Project project)
+        public async Task<IActionResult> Create(Project project)
         {
 
             ModelState.Remove(nameof(Project.ProjectManager));
@@ -118,12 +119,48 @@ namespace MonitoringAndEvaluationPlatform.Controllers
 
             if (ModelState.IsValid)
             {
-                _context.Projects.Add(project);
-                _context.SaveChanges();
+                _context.Add(project);
+                await _context.SaveChangesAsync(); // Save first to get Project ID
 
-                return RedirectToAction("Index");
+                // Handle file uploads
+                if (project.UploadedFiles != null && project.UploadedFiles.Count > 0)
+                {
+                    foreach (var file in project.UploadedFiles)
+                    {
+                        if (file.Length > 0)
+                        {
+                            var uploadsFolder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/uploads");
+                            if (!Directory.Exists(uploadsFolder))
+                            {
+                                Directory.CreateDirectory(uploadsFolder);
+                            }
+
+                            // Optional: create unique filename to avoid collision
+                            var uniqueFileName = $"{Guid.NewGuid()}_{Path.GetFileName(file.FileName)}";
+                            var filePath = Path.Combine(uploadsFolder, uniqueFileName);
+
+                            using (var stream = new FileStream(filePath, FileMode.Create))
+                            {
+                                await file.CopyToAsync(stream);
+                            }
+
+                            // Save file path to database
+                            var projectFile = new ProjectFile
+                            {
+                                ProjectId = project.ProjectID, // Assuming your Project PK is ProjectID
+                                FileName = file.FileName,       // original filename
+                                FilePath = "/uploads/" + uniqueFileName // web-accessible path
+                            };
+                            _context.ProjectFiles.Add(projectFile);
+                        }
+                    }
+
+                    await _context.SaveChangesAsync(); // Save ProjectFiles
+                }
+
+                return RedirectToAction(nameof(Index));
             }
- 
+
             return View();
 
         }
@@ -228,7 +265,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                     .ToList(),
 
                 // Get already linked indicators
-                            LinkedIndicators = _context.ProjectIndicators
+                LinkedIndicators = _context.ProjectIndicators
                 .Where(pi => pi.ProjectId == projectId)
                 .Include(pi => pi.Indicator)
                 .Select(pi => pi.Indicator)
@@ -236,6 +273,74 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             };
 
             return View(model);
+        }
+        [HttpPost]
+        public async Task<IActionResult> DeleteFile(int id)
+        {
+            var file = await _context.ProjectFiles.FindAsync(id);
+            if (file == null)
+            {
+                return NotFound();
+            }
+
+            // Delete the physical file
+            var fullPath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", file.FilePath.TrimStart('/'));
+            if (System.IO.File.Exists(fullPath))
+            {
+                System.IO.File.Delete(fullPath);
+            }
+
+            // Delete the database record
+            _context.ProjectFiles.Remove(file);
+            await _context.SaveChangesAsync();
+
+            // Redirect back or return success
+            return RedirectToAction("Details", new { id = file.ProjectId });
+        }
+
+
+        public async Task<IActionResult> DownloadFile(int id)
+        {
+            var file = await _context.ProjectFiles.FindAsync(id);
+            if (file == null)
+            {
+                return NotFound();
+            }
+
+            var filePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", file.FilePath.TrimStart('/'));
+            if (!System.IO.File.Exists(filePath))
+            {
+                return NotFound();
+            }
+
+            var memory = new MemoryStream();
+            using (var stream = new FileStream(filePath, FileMode.Open))
+            {
+                await stream.CopyToAsync(memory);
+            }
+            memory.Position = 0;
+
+            return File(memory, GetContentType(filePath), file.FileName);
+        }
+
+        private string GetContentType(string path)
+                {
+                    var types = new Dictionary<string, string>
+            {
+                {".txt", "text/plain"},
+                {".pdf", "application/pdf"},
+                {".doc", "application/vnd.ms-word"},
+                {".docx", "application/vnd.ms-word"},
+                {".xls", "application/vnd.ms-excel"},
+                {".xlsx", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"},
+                {".png", "image/png"},
+                {".jpg", "image/jpeg"},
+                {".jpeg", "image/jpeg"},
+                {".gif", "image/gif"},
+                {".csv", "text/csv"}
+            };
+                    var ext = Path.GetExtension(path).ToLowerInvariant();
+                    return types.ContainsKey(ext) ? types[ext] : "application/octet-stream";
         }
 
 

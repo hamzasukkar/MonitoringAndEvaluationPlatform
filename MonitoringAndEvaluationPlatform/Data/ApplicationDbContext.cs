@@ -30,6 +30,7 @@ namespace MonitoringAndEvaluationPlatform.Data
         public DbSet<ProjectIndicator> ProjectIndicators { get; set; } = default!;
         public DbSet<LogicalFramework> logicalFrameworks { get; set; } = default!;
         public DbSet<LogicalFrameworkIndicator> logicalFrameworkIndicators { get; set; } = default!;
+        public DbSet<ProjectFile> ProjectFiles { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
