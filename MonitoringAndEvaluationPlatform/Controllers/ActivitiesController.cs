@@ -82,12 +82,28 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                     return View(activity);
                 }
 
-                return RedirectToAction(nameof(Index));
+                // 🛠 Fetch the ProjectID from the ActionPlan
+                var actionPlan = await _context.ActionPlans
+                    .FirstOrDefaultAsync(ap => ap.Code == activity.ActionPlanCode);
+
+                if (actionPlan == null)
+                {
+                    // Handle unexpected missing ActionPlan
+                    return NotFound();
+                }
+
+                return RedirectToRoute(new
+                {
+                    controller = "ActionPlans",
+                    action = "ActionPlan",
+                    id = actionPlan.ProjectID // ✅ Use correct ProjectID
+                });
             }
 
             ViewData["ActionPlanCode"] = new SelectList(_context.ActionPlans, "Code", "Code", activity.ActionPlanCode);
             return View(activity);
         }
+
 
 
         // GET: Activities/Edit/5
