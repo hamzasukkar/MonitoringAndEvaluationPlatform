@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using MonitoringAndEvaluationPlatform.Data;
+using MonitoringAndEvaluationPlatform.Enums;
 using MonitoringAndEvaluationPlatform.Models;
 using MonitoringAndEvaluationPlatform.ViewModel;
 
@@ -79,6 +80,49 @@ namespace MonitoringAndEvaluationPlatform.Controllers
 
             return View(logicalFrameworkIndicator);
         }
+
+        [HttpGet]
+        public async Task<IActionResult> GetLogicalMeasureChartData(int indicatorCode)
+        {
+            var data = await _context.logicalMeasures
+                .Where(m => m.LogicalFrameworkIndicatorIndicatorCode == indicatorCode)
+                .OrderBy(m => m.Date)
+                .ToListAsync();
+
+            var real = data
+                .Where(m => m.ValueType == MeasureValueType.Real)
+                .Select(m => new { date = m.Date.ToString("yyyy-MM-dd"), value = m.Value })
+                .ToList();
+
+            var target = data
+                .Where(m => m.ValueType == MeasureValueType.Target)
+                .Select(m => new { date = m.Date.ToString("yyyy-MM-dd"), value = m.Value })
+                .ToList();
+
+            var historical = CalculateHistorical(data.Where(m => m.ValueType == MeasureValueType.Real).ToList());
+
+            var result = new { Real = real, Target = target, Historical = historical };
+
+            return Json(result);
+        }
+
+
+        private List<object> CalculateHistorical(List<LogicalMeasure> realMeasures)
+        {
+            const int windowSize = 2;
+            var historical = new List<object>();
+
+            for (int i = 0; i <= realMeasures.Count - windowSize; i++)
+            {
+                var window = realMeasures.Skip(i).Take(windowSize).ToList();
+                var avg = window.Average(m => m.Value);
+                historical.Add(new { date = window.Last().Date.ToString("yyyy-MM-dd"), value = avg });
+            }
+
+            return historical;
+        }
+
+
 
         // GET: LogicalFrameworkIndicators/Create
         public IActionResult Create(int logicalFrameworkCode)

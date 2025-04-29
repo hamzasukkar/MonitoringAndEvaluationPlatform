@@ -73,84 +73,81 @@
 
 <div class="card shadow-sm p-4 mb-4">
     <h5 class="mb-3">Indicator Performance Over Time</h5>
-    <canvas id="lineChart" width="800" height="400"></canvas>
+    <canvas id="logicalMeasureChart" height="500"></canvas>
 </div>
 
 <div>
     <a asp-action="Edit" asp-route-id="@Model?.LogicalFrameworkIndicator.IndicatorCode">Edit</a> |
     <a asp-action="Index">Back to List</a>
 </div>
+    <script>
+        async function loadChart(indicatorCode) {
+        const response = await fetch(`/LogicalFrameworkIndicators/GetLogicalMeasureChartData?indicatorCode=${indicatorCode}`);
+            debugger;
+            const data = await response.json();
+            const real = Array.isArray(data.Real) ? data.Real : [];
+            const target = Array.isArray(data.Target) ? data.Target : [];
+            const historical = Array.isArray(data.Historical) ? data.Historical : [];
 
-<script>
-    async function loadLineChart(indicatorCode) {
-        const response = await fetch(`/Dashboard/IndicatorTrend?indicatorCode=${indicatorCode}`);
-        const data = await response.json();
-
-        const realData = data.real;
-        const targetData = data.target;
-
-        const allDates = [...new Set([...realData.map(d => d.date), ...targetData.map(d => d.date)])].sort();
-
-        const realMap = Object.fromEntries(realData.map(d => [d.date, d.value]));
-        const targetMap = Object.fromEntries(targetData.map(d => [d.date, d.value]));
-
-        const realValues = allDates.map(date => realMap[date] ?? null);
-        const targetValues = allDates.map(date => targetMap[date] ?? null);
-
-        const ctx = document.getElementById('lineChart').getContext('2d');
-        new Chart(ctx, {
-            type: 'line',
-            data: {
-                labels: allDates,
-                datasets: [
-                    {
-                        label: 'Real',
-                        data: realValues,
-                        borderColor: '#4caf50',
-                        backgroundColor: 'rgba(76, 175, 80, 0.2)',
-                        tension: 0.3,
-                        pointRadius: 4,
-                        pointHoverRadius: 6
-                    },
-                    {
-                        label: 'Target',
-                        data: targetValues,
-                        borderColor: '#f44336',
-                        backgroundColor: 'rgba(244, 67, 54, 0.2)',
-                        tension: 0.3,
-                        pointRadius: 4,
-                        pointHoverRadius: 6
-                    }
-                ]
-            },
-            options: {
-                responsive: true,
-                plugins: {
-                    tooltip: {
-                        mode: 'index',
-                        intersect: false
-                    }
-                },
-                scales: {
-                    x: {
-                        title: {
-                            display: true,
-                            text: 'Date'
+            const ctx = document.getElementById('logicalMeasureChart').getContext('2d');
+            new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: [...new Set([...data.real, ...data.target].map(p => p.date))],
+                    datasets: [
+                        {
+                            label: 'Real',
+                            data: data.real.map(p => ({ x: p.date, y: p.value })),
+                            borderColor: 'blue',
+                            backgroundColor: 'rgba(0, 0, 255, 0.1)',
+                            tension: 0.4,
+                            fill: true
+                        },
+                        {
+                            label: 'Historical',
+                            data: data.historical.map(p => ({ x: p.date, y: p.value })),
+                            borderColor: 'skyblue',
+                            backgroundColor: 'rgba(135,206,235,0.1)',
+                            tension: 0.4,
+                            fill: true
+                        },
+                        {
+                            label: 'Target',
+                            data: data.target.map(p => ({ x: p.date, y: p.value })),
+                            borderColor: 'deeppink',
+                            backgroundColor: 'rgba(255,20,147,0.1)',
+                            tension: 0.4,
+                            fill: true
                         }
+                    ]
+                },
+                options: {
+                  scales: {
+                    x: {
+                      type: 'time',
+                      time: {
+                        unit: 'month',
+                        tooltipFormat: 'MMM dd, yyyy'
+                      },
+                      title: {
+                        display: true,
+                        text: 'Date'
+                      }
                     },
                     y: {
-                        beginAtZero: true,
-                        title: {
-                            display: true,
-                            text: 'Value'
-                        }
+                      title: {
+                        display: true,
+                        text: 'Value'
+                      }
                     }
+                  }
                 }
-            }
-        });
-    }
+                    });
+        }
 
-    // Call this with a valid indicator code
-    loadLineChart(@Model.LogicalFrameworkIndicator.IndicatorCode); // Change to your actual IndicatorCode
-</script>
+        // Call this with the indicator code you want to chart
+        loadChart(@Model.LogicalFrameworkIndicator.IndicatorCode); // Replace 1 with your desired indicator code dynamically if needed
+    </script>
+
+
 
