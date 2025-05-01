@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using MonitoringAndEvaluationPlatform.Data;
 using MonitoringAndEvaluationPlatform.Enums;
 using MonitoringAndEvaluationPlatform.Models;
@@ -253,6 +254,33 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         private bool LogicalFrameworkIndicatorExists(int id)
         {
             return _context.logicalFrameworkIndicators.Any(e => e.IndicatorCode == id);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> AddLogicalMeasure(LogicalMeasure measure)
+        {
+
+            ModelState.Remove(nameof(measure.LogicalFrameworkIndicator));
+
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            _context.logicalMeasures.Add(measure);
+            await _context.SaveChangesAsync();
+
+            return Json(new { success = true });
+        }
+
+        public IActionResult GetLogicalMeasureTable(int indicatorCode)
+        {
+            var measures = _context.logicalMeasures
+                .Where(m => m.LogicalFrameworkIndicatorIndicatorCode == indicatorCode)
+                .OrderBy(m => m.Date)
+                .ToList();
+
+            return PartialView("_LogicalMeasureTableBody", measures);
         }
     }
 }
