@@ -46,6 +46,21 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             return View(logicalMeasure);
         }
 
+        [HttpPost]
+        public async Task<IActionResult> CreateFromDetails(LogicalMeasure measure)
+        {
+            ModelState.Remove(nameof(measure.LogicalFrameworkIndicator));
+            if (ModelState.IsValid)
+            {
+                _context.Add(measure);
+                await _context.SaveChangesAsync();
+                return Ok(); // for AJAX
+            }
+
+            return BadRequest("Invalid input");
+        }
+
+
         // GET: LogicalMeasures/Create
         public IActionResult Create(int? indicatorCode)
         {

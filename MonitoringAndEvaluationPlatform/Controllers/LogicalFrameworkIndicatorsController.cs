@@ -286,5 +286,15 @@ namespace MonitoringAndEvaluationPlatform.Controllers
 
             return PartialView("_LogicalMeasureTableBody", measures);
         }
+        public async Task<IActionResult> LogicalMeasureTablePartial(int indicatorCode)
+        {
+            var measures = await _context.logicalMeasures
+                .Where(m => m.LogicalFrameworkIndicatorIndicatorCode == indicatorCode)
+                .OrderBy(m => m.Date)
+                .ToListAsync();
+
+            return PartialView("_LogicalMeasureTablePartial", measures);
+        }
+
     }
 }

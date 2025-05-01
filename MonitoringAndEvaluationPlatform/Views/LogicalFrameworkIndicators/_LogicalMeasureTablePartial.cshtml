@@ -1,0 +1,21 @@
+﻿@model List<MonitoringAndEvaluationPlatform.Models.LogicalMeasure>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>Date</th>
+            <th>Value</th>
+            <th>Value Type</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>@item.Date.ToString("yyyy-MM-dd")</td>
+                <td>@item.Value</td>
+                <td>@item.ValueType</td>
+            </tr>
+        }
+    </tbody>
+</table>

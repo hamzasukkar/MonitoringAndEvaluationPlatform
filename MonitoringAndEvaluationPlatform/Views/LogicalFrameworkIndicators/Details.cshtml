@@ -18,24 +18,18 @@
     </dl>
 </div>
 
-<div class="mb-4">
-    <h5>Add New Measure</h5>
-    @await Html.PartialAsync("_AddLogicalMeasurePartial", Model.NewLogicalMeasure)
+<!-- ✅ Save status -->
+<div id="saveStatus" class="mb-3 text-success fw-bold"></div>
+
+<!-- ✅ Add LogicalMeasure Form -->
+<partial name="_AddLogicalMeasurePartial" model="new MonitoringAndEvaluationPlatform.Models.LogicalMeasure { LogicalFrameworkIndicatorIndicatorCode = Model.LogicalFrameworkIndicator.IndicatorCode }" />
+
+<!-- ✅ Logical Measures Table (wrapper for AJAX refresh) -->
+<div id="logicalMeasuresTableContainer">
+    <partial name="_LogicalMeasureTablePartial" model="Model.logicalMeasures" />
 </div>
 
-<table class="table">
-    <thead>
-        <tr>
-            <th>Date</th>
-            <th>Value</th>
-            <th>Value Type</th>
-        </tr>
-    </thead>
-    <tbody id="logicalMeasureTableBody">
-        @await Html.PartialAsync("_LogicalMeasureTableBody", Model.logicalMeasures)
-    </tbody>
-</table>
-
+<!-- ✅ Chart -->
 <div class="card shadow-sm p-4 mb-4">
     <h5 class="mb-3">Indicator Performance Over Time</h5>
     <canvas id="logicalMeasureChart" height="500"></canvas>
@@ -46,132 +40,130 @@
     <a asp-action="Index">Back to List</a>
 </div>
 
-@section Scripts {
-    <partial name="_ValidationScriptsPartial" />
+<script>
+    async function submitForm(event) {
+        event.preventDefault();
+        const form = document.getElementById("addMeasureForm");
+        const formData = new FormData(form);
+        const statusDiv = document.getElementById("saveStatus");
 
-    <script>
-        $("#addLogicalMeasureForm").on("submit", async function (e) {
-            e.preventDefault();
-
-            const formData = new FormData(this);
-
-            const response = await fetch('/LogicalFrameworkIndicators/AddLogicalMeasure', {
-                method: 'POST',
+        try {
+            const response = await fetch(form.action, {
+                method: "POST",
                 body: formData
             });
 
-            const result = await response.json();
+            if (response.ok) {
+                statusDiv.textContent = "Saved successfully.";
+                statusDiv.className = "text-success mb-2 fw-bold";
+                form.reset();
 
-            if (result.success) {
-                await loadChart(@Model.LogicalFrameworkIndicator.IndicatorCode);
-                await refreshMeasureTable();
-                this.reset();
+                const indicatorCode = formData.get("LogicalFrameworkIndicatorIndicatorCode");
+                refreshTableAndChart(indicatorCode);
             } else {
-                alert("Failed to save. Check inputs.");
+                const errorText = await response.text();
+                statusDiv.textContent = "Save failed: " + errorText;
+                statusDiv.className = "text-danger mb-2 fw-bold";
             }
+        } catch (error) {
+            statusDiv.textContent = "Error: " + error.message;
+            statusDiv.className = "text-danger mb-2 fw-bold";
+        }
+    }
+
+    async function refreshTableAndChart(indicatorCode) {
+        const tableResponse = await fetch(`/LogicalFrameworkIndicators/LogicalMeasureTablePartial?indicatorCode=${indicatorCode}`);
+        const tableHtml = await tableResponse.text();
+        document.getElementById("logicalMeasuresTableContainer").innerHTML = tableHtml;
+
+        loadChart(indicatorCode);
+    }
+
+    async function loadChart(indicatorCode) {
+        const response = await fetch(`/LogicalFrameworkIndicators/GetLogicalMeasureChartData?indicatorCode=${indicatorCode}`);
+        const data = await response.json();
+        const ctx = document.getElementById('logicalMeasureChart').getContext('2d');
+
+        const sortedReal = data.real.sort((a, b) => new Date(a.date) - new Date(b.date));
+        const realData = sortedReal.map(p => ({ x: p.date, y: p.value }));
+
+        let cumulative = 0;
+        const cumulativeRealData = sortedReal.map(p => {
+            cumulative += p.value;
+            return { x: p.date, y: +(cumulative.toFixed(2)) };
         });
 
-        async function refreshMeasureTable() {
-            const tbody = document.getElementById("logicalMeasureTableBody");
-            const response = await fetch(`/LogicalFrameworkIndicators/GetLogicalMeasureTable?indicatorCode=@Model.LogicalFrameworkIndicator.IndicatorCode`);
-            tbody.innerHTML = await response.text();
+        const targetPoint = data.target.length > 0 ? data.target[0] : null;
+
+        let logicalTargetData = [];
+        if (realData.length > 0 && targetPoint) {
+            const startDate = new Date(Math.min(...realData.map(p => new Date(p.x))));
+            const endDate = new Date(targetPoint.date);
+            const targetValue = targetPoint.value;
+            let months = (endDate.getFullYear() - startDate.getFullYear()) * 12 + (endDate.getMonth() - startDate.getMonth());
+            if (months < 1) months = 1;
+
+            const minRealValue = Math.min(...realData.map(p => p.y));
+            const increment = (targetValue - minRealValue) / months;
+
+            for (let i = 0; i <= months; i++) {
+                const date = new Date(startDate);
+                date.setMonth(date.getMonth() + i);
+                logicalTargetData.push({
+                    x: date.toISOString().split('T')[0],
+                    y: +(minRealValue + increment * i).toFixed(2)
+                });
+            }
         }
 
-        async function loadChart(indicatorCode) {
-            const response = await fetch(`/LogicalFrameworkIndicators/GetLogicalMeasureChartData?indicatorCode=${indicatorCode}`);
-            const data = await response.json();
-            const ctx = document.getElementById('logicalMeasureChart').getContext('2d');
-
-            const sortedReal = data.real.sort((a, b) => new Date(a.date) - new Date(b.date));
-            const realData = sortedReal.map(p => ({ x: p.date, y: p.value }));
-            let cumulative = 0;
-            const cumulativeRealData = sortedReal.map(p => {
-                cumulative += p.value;
-                return { x: p.date, y: +(cumulative.toFixed(2)) };
-            });
-
-            const targetPoint = data.target.length > 0 ? data.target[0] : null;
-            let logicalTargetData = [];
-
-            if (realData.length > 0 && targetPoint) {
-                const startDate = new Date(Math.min(...realData.map(p => new Date(p.x))));
-                const endDate = new Date(targetPoint.date);
-                const targetValue = targetPoint.value;
-
-                let months = (endDate.getFullYear() - startDate.getFullYear()) * 12 + (endDate.getMonth() - startDate.getMonth());
-                if (months < 1) months = 1;
-
-                const minRealValue = Math.min(...realData.map(p => p.y));
-                const increment = (targetValue - minRealValue) / months;
-
-                for (let i = 0; i <= months; i++) {
-                    const date = new Date(startDate);
-                    date.setMonth(date.getMonth() + i);
-                    logicalTargetData.push({
-                        x: date.toISOString().split('T')[0],
-                        y: +(minRealValue + increment * i).toFixed(2)
-                    });
-                }
-            }
-
-            new Chart(ctx, {
-                type: 'line',
-                data: {
-                    datasets: [
-                        {
-                            label: 'Real',
-                            data: realData,
-                            borderColor: 'blue',
-                            backgroundColor: 'rgba(0, 0, 255, 0.1)',
-                            tension: 0.4,
-                            fill: true
-                        },
-                        {
-                            label: 'Cumulative Real',
-                            data: cumulativeRealData,
-                            borderColor: 'green',
-                            backgroundColor: 'rgba(0, 128, 0, 0.1)',
-                            tension: 0.4,
-                            fill: false,
-                            borderDash: [4, 2]
-                        },
-                        {
-                            label: 'Target',
-                            data: logicalTargetData,
-                            borderColor: 'deeppink',
-                            backgroundColor: 'rgba(255,20,147,0.1)',
-                            borderDash: [6, 0],
-                            pointRadius: 0,
-                            tension: 0.4,
-                            fill: false
-                        }
-                    ]
-                },
-                options: {
-                    responsive: true,
-                    scales: {
-                        x: {
-                            type: 'time',
-                            time: {
-                                unit: 'month',
-                                tooltipFormat: 'MMM dd, yyyy'
-                            },
-                            title: {
-                                display: true,
-                                text: 'Date'
-                            }
-                        },
-                        y: {
-                            title: {
-                                display: true,
-                                text: 'Value'
-                            }
-                        }
+        new Chart(ctx, {
+            type: 'line',
+            data: {
+                datasets: [
+                    {
+                        label: 'Real',
+                        data: realData,
+                        borderColor: 'blue',
+                        backgroundColor: 'rgba(0, 0, 255, 0.1)',
+                        tension: 0.4,
+                        fill: true
+                    },
+                    {
+                        label: 'Cumulative Real',
+                        data: cumulativeRealData,
+                        borderColor: 'green',
+                        backgroundColor: 'rgba(0, 128, 0, 0.1)',
+                        tension: 0.4,
+                        fill: false,
+                        borderDash: [4, 2]
+                    },
+                    {
+                        label: 'Target',
+                        data: logicalTargetData,
+                        borderColor: 'deeppink',
+                        backgroundColor: 'rgba(255,20,147,0.1)',
+                        borderDash: [6, 0],
+                        pointRadius: 0,
+                        tension: 0.4,
+                        fill: false
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    x: {
+                        type: 'time',
+                        time: { unit: 'month', tooltipFormat: 'MMM dd, yyyy' },
+                        title: { display: true, text: 'Date' }
+                    },
+                    y: {
+                        title: { display: true, text: 'Value' }
                     }
                 }
-            });
-        }
+            }
+        });
+    }
 
-        loadChart(@Model.LogicalFrameworkIndicator.IndicatorCode);
-    </script>
-}
+    loadChart(@Model.LogicalFrameworkIndicator.IndicatorCode);
+</script>
