@@ -86,7 +86,19 @@
         const data = await response.json();
         const ctx = document.getElementById('logicalMeasureChart').getContext('2d');
 
-        const realData = data.real.map(p => ({ x: p.date, y: p.value }));
+            // Sort and prepare regular real data
+         const sortedReal = data.real.sort((a, b) => new Date(a.date) - new Date(b.date));
+
+        // Regular real line
+        const realData = sortedReal.map(p => ({ x: p.date, y: p.value }));
+
+        // Cumulative real line
+        let cumulative = 0;
+        const cumulativeRealData = sortedReal.map(p => {
+            cumulative += p.value;
+            return { x: p.date, y: +(cumulative.toFixed(2)) };
+        });
+
         const targetPoint = data.target.length > 0 ? data.target[0] : null;
 
         // 🟣 Generate logical target line if only one target exists
@@ -102,7 +114,7 @@
             if (months < 1) months = 1;
 
                 const minRealValue = Math.min(...realData.map(p => p.y));
-    const increment = (targetValue - minRealValue) / months;
+                const increment = (targetValue - minRealValue) / months;
 
             for (let i = 0; i <= months; i++) {
                 const date = new Date(startDate);
@@ -119,35 +131,44 @@
         new Chart(ctx, {
             type: 'line',
             data: {
-                datasets: [
-                    {
-                        label: 'Real',
-                        data: realData,
-                        borderColor: 'blue',
-                        backgroundColor: 'rgba(0, 0, 255, 0.1)',
-                        tension: 0.4,
-                        fill: true
-                    },
-                    {
-                        label: 'Historical',
-                        data: data.historical.map(p => ({ x: p.date, y: p.value })),
-                        borderColor: 'skyblue',
-                        backgroundColor: 'rgba(135,206,235,0.1)',
-                        tension: 0.4,
-                        fill: true
-                    },
-                    {
-                        label: 'Target',
-                        data: logicalTargetData,
-                        borderColor: 'deeppink',
-                        backgroundColor: 'rgba(255,20,147,0.1)',
-                        borderDash: [6, 0],
-                        pointRadius: 0,
-                        tension: 0.4,
-                        fill: false
-                    }
-                ]
-            },
+    datasets: [
+        {
+            label: 'Real',
+            data: realData,
+            borderColor: 'blue',
+            backgroundColor: 'rgba(0, 0, 255, 0.1)',
+            tension: 0.4,
+            fill: true
+        },
+        {
+            label: 'Cumulative Real',
+            data: cumulativeRealData,
+            borderColor: 'green',
+            backgroundColor: 'rgba(0, 128, 0, 0.1)',
+            tension: 0.4,
+            fill: false,
+            borderDash: [4, 2]
+        },
+        {
+            label: 'Historical',
+            data: data.historical.map(p => ({ x: p.date, y: p.value })),
+            borderColor: 'skyblue',
+            backgroundColor: 'rgba(135,206,235,0.1)',
+            tension: 0.4,
+            fill: true
+        },
+        {
+            label: 'Target',
+            data: logicalTargetData,
+            borderColor: 'deeppink',
+            backgroundColor: 'rgba(255,20,147,0.1)',
+            borderDash: [6, 0],
+            pointRadius: 0,
+            tension: 0.4,
+            fill: false
+        }
+    ]
+                },
             options: {
                 responsive: true,
                 scales: {
