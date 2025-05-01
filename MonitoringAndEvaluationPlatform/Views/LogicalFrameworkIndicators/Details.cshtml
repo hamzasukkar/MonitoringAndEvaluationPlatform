@@ -101,7 +101,8 @@
                 (endDate.getMonth() - startDate.getMonth());
             if (months < 1) months = 1;
 
-            const increment = targetValue / months;
+                const minRealValue = Math.min(...realData.map(p => p.y));
+    const increment = (targetValue - minRealValue) / months;
 
             for (let i = 0; i <= months; i++) {
                 const date = new Date(startDate);
@@ -109,9 +110,10 @@
 
                 logicalTargetData.push({
                     x: date.toISOString().split('T')[0],
-                    y: +(increment * i).toFixed(2)
+                    y: +(minRealValue + increment * i).toFixed(2)
                 });
             }
+
         }
 
         new Chart(ctx, {
@@ -139,7 +141,7 @@
                         data: logicalTargetData,
                         borderColor: 'deeppink',
                         backgroundColor: 'rgba(255,20,147,0.1)',
-                        borderDash: [6, 4],
+                        borderDash: [6, 0],
                         pointRadius: 0,
                         tension: 0.4,
                         fill: false
