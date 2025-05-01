@@ -99,30 +99,12 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 .Select(m => new { date = m.Date.ToString("yyyy-MM-dd"), value = m.Value })
                 .ToList();
 
-            var historical = CalculateHistorical(data.Where(m => m.ValueType == MeasureValueType.Real).ToList());
 
-            var result = new { Real = real, Target = target, Historical = historical };
+
+            var result = new { Real = real, Target = target };
 
             return Json(result);
         }
-
-
-        private List<object> CalculateHistorical(List<LogicalMeasure> realMeasures)
-        {
-            const int windowSize = 2;
-            var historical = new List<object>();
-
-            for (int i = 0; i <= realMeasures.Count - windowSize; i++)
-            {
-                var window = realMeasures.Skip(i).Take(windowSize).ToList();
-                var avg = window.Average(m => m.Value);
-                historical.Add(new { date = window.Last().Date.ToString("yyyy-MM-dd"), value = avg });
-            }
-
-            return historical;
-        }
-
-
 
         // GET: LogicalFrameworkIndicators/Create
         public IActionResult Create(int logicalFrameworkCode)
