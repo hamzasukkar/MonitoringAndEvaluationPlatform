@@ -64,14 +64,18 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 RequiredData = requiredData
             };
 
-            var model = new LogicalFrameworkIndicatorDetailsViewModel
+            var viewModel = new LogicalFrameworkIndicatorDetailsViewModel
             {
                 LogicalFrameworkIndicator = logicalFrameworkIndicator,
-                logicalMeasures = logicalMeasures,
-                ChartDataViewModel = chartDataViewModel
+                logicalMeasures = logicalFrameworkIndicator.logicalMeasures.OrderBy(m => m.Date).ToList(),
+                ChartDataViewModel = chartDataViewModel, // your existing chart logic
+                NewLogicalMeasure = new LogicalMeasure
+                {
+                    LogicalFrameworkIndicatorIndicatorCode = logicalFrameworkIndicator.IndicatorCode // ✅ critical!
+                }
             };
 
-            return View(model);
+            return View(viewModel);
 
 
             if (logicalFrameworkIndicator == null)
