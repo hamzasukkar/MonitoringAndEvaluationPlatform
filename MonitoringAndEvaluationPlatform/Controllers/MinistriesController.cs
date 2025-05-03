@@ -77,7 +77,8 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 {
                     UserName = ministry.MinistryName,
                     Email = $"{ministry.MinistryName.ToLower()}@example.com", // Example email
-                    EmailConfirmed = true
+                    EmailConfirmed = true,
+                    MinistryName = ministry.MinistryName
                 };
 
                 var result = await _userManager.CreateAsync(user, defaultPassword);

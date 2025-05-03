@@ -34,33 +34,45 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         // GET: Programs
         public async Task<IActionResult> Index(ProgramFilterViewModel filter)
         {
+            // Load dropdown/filter data
             filter.Ministries = await _context.Ministries.ToListAsync();
             filter.Regions = await _context.Regions.ToListAsync();
             filter.Donors = await _context.Donors.ToListAsync();
 
+            // Get the logged-in user
+            var user = await _userManager.GetUserAsync(User);
 
-            var projects = _context.Projects.ToList();
+            // Start with base project query
+            var projectQuery = _context.Projects.AsQueryable();
 
+            // If the user is associated with a Ministry, filter projects to only that Ministry
+            if (user?.MinistryName != null)
+            {
+                projectQuery = projectQuery.Where(p => p.Ministry.MinistryName == user.MinistryName);
+            }
+
+            // Apply additional filters
             if (filter.SelectedMinistries.Any())
             {
-                projects = projects.Where(p => filter.SelectedMinistries.Contains(p.MinistryCode)).ToList();
+                projectQuery = projectQuery.Where(p => filter.SelectedMinistries.Contains(p.MinistryCode));
             }
 
             if (filter.SelectedRegions.Any())
             {
-                projects = projects.Where(p => filter.SelectedRegions.Contains(p.RegionCode)).ToList();
+                projectQuery = projectQuery.Where(p => filter.SelectedRegions.Contains(p.RegionCode));
             }
 
             if (filter.SelectedDonors.Any())
             {
-                projects = projects.Where(p => filter.SelectedDonors.Contains(p.DonorCode)).ToList();
+                projectQuery = projectQuery.Where(p => filter.SelectedDonors.Contains(p.DonorCode));
             }
 
-            filter.Projects = projects.ToList();
-
+            // Finalize and assign filtered results
+            filter.Projects = await projectQuery.ToListAsync();
 
             return View(filter);
         }
+
 
 
 
