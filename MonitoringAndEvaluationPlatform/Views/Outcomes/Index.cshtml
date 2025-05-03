@@ -1,6 +1,5 @@
 ﻿@model IEnumerable<MonitoringAndEvaluationPlatform.Models.Outcome>
 @using MonitoringAndEvaluationPlatform.Helpers
-
 @{
     ViewData["Title"] = "Outcomes";
     Layout = "~/Views/Shared/_ResultsFrameworkLayout.cshtml";
@@ -13,10 +12,10 @@
             <p class="text-muted mb-0">View and manage all outcome performance metrics</p>
         </div>
         <div>
-            <a asp-action="Create" asp-route-frameworkCode="@ViewBag.SelectedFrameworkCode" class="btn btn-success me-2">
+            <button class="btn btn-success me-2" type="button" id="toggleCreateForm">
                 <i class="fas fa-plus me-2"></i>Create New Outcome
-            </a>
-            @if (@ViewBag.SelectedFrameworkCode != null)
+            </button>
+            @if (ViewBag.SelectedFrameworkCode != null)
             {
                 <a asp-action="AdjustWeights" asp-route-frameworkCode="@ViewBag.SelectedFrameworkCode" class="btn btn-warning">
                     <i class="fas fa-balance-scale me-2"></i>Adjust Weights
@@ -25,6 +24,25 @@
         </div>
     </div>
 
+    <!-- Collapsible Outcome Creation Form -->
+    <div id="createOutcomeForm" class="card shadow-sm mb-4" style="display:none;">
+        <div class="card-body">
+            <form asp-action="Create" method="post">
+                <input type="hidden" name="FrameworkCode" value="@ViewBag.SelectedFrameworkCode" />
+                <div class="mb-3">
+                    <label for="Name" class="form-label">Outcome Name</label>
+                    <input type="text" class="form-control" id="Name" name="Name" required />
+                </div>
+                <!-- Add other fields as needed -->
+
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-save me-2"></i>Save Outcome
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Outcome List Table -->
     <div class="card shadow-sm">
         <div class="card-body">
             <div class="table-responsive">
@@ -56,21 +74,11 @@
                                         <strong>@item.Name</strong>
                                     </a>
                                 </td>
-                                <td>
-                                    @Html.DisplayFor(modelItem => item.Weight)
-                                </td>
-                                <td>
-                                    @await Html.PartialAsync("_ProgressBar", Tuple.Create(IndicatorsPerformance, indicatorsClass))
-                                </td>
-                                <td>
-                                    @await Html.PartialAsync("_ProgressBar", Tuple.Create(item.DisbursementPerformance, disbursementClass))
-                                </td>
-                                <td>
-                                    @await Html.PartialAsync("_ProgressBar", Tuple.Create(item.FieldMonitoring, fieldMonitoringClass))
-                                </td>
-                                <td>
-                                    @await Html.PartialAsync("_ProgressBar", Tuple.Create(item.ImpactAssessment, impactAssessmentClass))
-                                </td>
+                                <td>@item.Weight</td>
+                                <td>@await Html.PartialAsync("_ProgressBar", Tuple.Create(IndicatorsPerformance, indicatorsClass))</td>
+                                <td>@await Html.PartialAsync("_ProgressBar", Tuple.Create(item.DisbursementPerformance, disbursementClass))</td>
+                                <td>@await Html.PartialAsync("_ProgressBar", Tuple.Create(item.FieldMonitoring, fieldMonitoringClass))</td>
+                                <td>@await Html.PartialAsync("_ProgressBar", Tuple.Create(item.ImpactAssessment, impactAssessmentClass))</td>
                                 <td>
                                     <a href="/Frameworks/Index/@item.FrameworkCode" class="text-decoration-none">@item.Framework.Name</a>
                                 </td>
@@ -96,34 +104,44 @@
     </div>
 </div>
 
+<!-- Toggle Script -->
 
-    <style>
-        .table-hover tbody tr:hover {
-            background-color: rgba(13, 110, 253, 0.05);
-        }
+    <script>
+        document.getElementById('toggleCreateForm').addEventListener('click', function () {
+            const form = document.getElementById('createOutcomeForm');
+            form.style.display = form.style.display === 'none' ? 'block' : 'none';
+        });
+    </script>
 
-        .progress {
-            height: 24px;
-            border-radius: 4px;
-        }
 
-        .progress-bar {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 0.75rem;
-            font-weight: 500;
-        }
+<!-- Optional Styling -->
+<style>
+    .table-hover tbody tr:hover {
+        background-color: rgba(13, 110, 253, 0.05);
+    }
 
-        .btn-group .btn {
-            padding: 0.25rem 0.5rem;
-        }
+    .progress {
+        height: 24px;
+        border-radius: 4px;
+    }
 
-        .card-header {
-            font-weight: 600;
-        }
+    .progress-bar {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.75rem;
+        font-weight: 500;
+    }
+
+    .btn-group .btn {
+        padding: 0.25rem 0.5rem;
+    }
+
+    .card-header {
+        font-weight: 600;
+    }
 
     .table-responsive {
         overflow-x: hidden;
     }
-    </style>
+</style>
