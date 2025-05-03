@@ -127,6 +127,36 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             return View(indicator);
         }
 
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> CreateInline(string Name, int Target, int SubOutputCode)
+        {
+            if (string.IsNullOrWhiteSpace(Name) || Target <= 0)
+            {
+                TempData["Error"] = "Name and Target are required and must be valid.";
+                return RedirectToAction("Index", new { subOutputCode = SubOutputCode });
+            }
+
+            var indicator = new Indicator
+            {
+                Name = Name,
+                Target = Target,
+                SubOutputCode = SubOutputCode
+            };
+
+            _context.Indicators.Add(indicator);
+            await _context.SaveChangesAsync();
+
+
+            // Update related entities
+            await UpdateSubOutputPerformance(indicator.SubOutputCode);
+            // Recalculate weights
+            await RedistributeWeights(indicator.SubOutputCode);
+
+            return RedirectToAction("Index", new { subOutputCode = SubOutputCode });
+        }
+
+
         private async Task UpdateSubOutputPerformance(int subOutputCode)
         {
             var subOutput = await _context.SubOutputs.FirstOrDefaultAsync(i => i.Code == subOutputCode);
