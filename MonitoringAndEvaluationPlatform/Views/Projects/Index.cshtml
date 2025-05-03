@@ -25,22 +25,26 @@
                 <div class="card-body">
                     <form asp-action="Index" method="get">
                         <!-- Ministry Filter -->
-                        <div class="mb-4">
-                            <h6 class="fw-bold border-bottom pb-2">Ministry</h6>
-                            <div class="filter-options" style="max-height: 200px; overflow-y: auto;">
-                                @foreach (var ministry in Model.Ministries)
-                                {
-                                    <div class="form-check">
-                                        <input class="form-check-input" type="checkbox" name="SelectedMinistries"
-                                               value="@ministry.Code" id="ministry-@ministry.Code"
-                                        @(Model.SelectedMinistries.Contains(ministry.Code) ? "checked" : "")>
-                                        <label class="form-check-label" for="ministry-@ministry.Code">
-                                            @ministry.MinistryName
-                                        </label>
-                                    </div>
-                                }
+                        @if (!Model.IsMinistryUser)
+                        {
+                            <div class="mb-4">
+                                <h6 class="fw-bold border-bottom pb-2">Ministry</h6>
+                                <div class="filter-options" style="max-height: 200px; overflow-y: auto;">
+                                    @foreach (var ministry in Model.Ministries)
+                                    {
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" name="SelectedMinistries"
+                                                   value="@ministry.Code" id="ministry-@ministry.Code"
+                                            @(Model.SelectedMinistries.Contains(ministry.Code) ? "checked" : "")>
+                                            <label class="form-check-label" for="ministry-@ministry.Code">
+                                                @ministry.MinistryName
+                                            </label>
+                                        </div>
+                                    }
+                                </div>
                             </div>
-                        </div>
+
+                        }
 
                         <!-- Region Filter -->
                         <div class="mb-4">

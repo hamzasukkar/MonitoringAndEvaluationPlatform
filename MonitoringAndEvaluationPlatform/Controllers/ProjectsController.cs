@@ -49,6 +49,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             if (user?.MinistryName != null)
             {
                 projectQuery = projectQuery.Where(p => p.Ministry.MinistryName == user.MinistryName);
+                filter.IsMinistryUser = true;
             }
 
             // Apply additional filters

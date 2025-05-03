@@ -153,7 +153,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             // Recalculate weights
             await RedistributeWeights(indicator.SubOutputCode);
 
-            return RedirectToAction("Index", new { subOutputCode = SubOutputCode });
+            return RedirectToAction(nameof(Index), new { frameworkCode = indicator.SubOutput.Output.Outcome.FrameworkCode, subOutputCode = indicator.SubOutputCode });
         }
 
 

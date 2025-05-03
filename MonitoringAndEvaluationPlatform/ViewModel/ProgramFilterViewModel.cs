@@ -11,6 +11,8 @@ namespace MonitoringAndEvaluationPlatform.ViewModel
         public List<Region> Regions { get; set; } = new List<Region>();
         public List<Donor> Donors { get; set; } = new List<Donor>();
         public List<Project> Projects { get; set; } = new List<Models.Project>();
+
+        public bool IsMinistryUser { get; set; } = false;
     }
 
 }
