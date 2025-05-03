@@ -1,12 +1,16 @@
 ﻿@using MonitoringAndEvaluationPlatform.Enums
 @model MonitoringAndEvaluationPlatform.Models.LogicalMeasure
+@{
+    var Date = DateTime.Today.ToString("yyyy-MM-dd");
+}
+
 <form id="addMeasureForm" asp-controller="LogicalMeasures" asp-action="CreateFromDetails" method="post" onsubmit="submitForm(event)">
     <input type="hidden" asp-for="LogicalFrameworkIndicatorIndicatorCode" />
 
     <div class="row mb-3">
         <div class="col">
             <label asp-for="Date" class="form-label">Date</label>
-            <input asp-for="Date" class="form-control" type="date" required />
+            <input asp-for="Date" value="@Date" class="form-control" type="date" required />
             <span asp-validation-for="Date" class="text-danger"></span>
         </div>
         <div class="col">
@@ -26,3 +30,4 @@
         </div>
     </div>
 </form>
+
