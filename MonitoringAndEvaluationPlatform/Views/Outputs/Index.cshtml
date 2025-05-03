@@ -13,26 +13,34 @@
 
     @if (selectedOutcomeCode != null)
     {
-        <div class="card shadow-sm mb-4">
-            <div class="card-header">
-                <strong>Create New Output</strong>
-            </div>
-            <div class="card-body">
-                <form asp-action="Create" method="post" class="row g-3">
-                    <input type="hidden" name="OutcomeCode" value="@selectedOutcomeCode" />
-
-                    <div class="col-md-6">
-                        <label class="form-label">Name</label>
-                        <input name="Name" class="form-control" />
-                    </div>
-                    <div class="col-md-3 d-flex align-items-end">
-                        <button type="submit" class="btn btn-success w-100">
-                            <i class="fas fa-plus me-2"></i>Save Output
-                        </button>
-                    </div>
-                </form>
-            </div>
+        <div class="mb-3">
+            <button class="btn btn-primary" type="button" data-bs-toggle="collapse" data-bs-target="#createOutputForm" aria-expanded="false" aria-controls="createOutputForm">
+                <i class="fas fa-plus me-2"></i>New Output
+            </button>
         </div>
+
+        <div class="collapse" id="createOutputForm">
+            <div class="card shadow-sm mb-4">
+                <div class="card-header">
+                    <strong>Create New Output</strong>
+                </div>
+                <div class="card-body">
+                    <form asp-action="Create" method="post" class="row g-3">
+                        <input type="hidden" name="OutcomeCode" value="@selectedOutcomeCode" />
+
+                        <div class="col-md-6">
+                            <label class="form-label">Name</label>
+                            <input name="Name" class="form-control" required />
+                        </div>
+                        <div class="col-md-3 d-flex align-items-end">
+                            <button type="submit" class="btn btn-success w-100">
+                                <i class="fas fa-save me-2"></i>Save Output
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>  
     }
 
     <!-- Outputs Table -->
@@ -75,3 +83,12 @@
         </div>
     </div>
 </div>
+<script>
+    const outputToggleBtn = document.querySelector('[data-bs-target="#createOutputForm"]');
+    const outputForm = document.getElementById('createOutputForm');
+
+    outputForm.addEventListener('shown.bs.collapse', () => {
+        const nameInput = outputForm.querySelector('input[name="Name"]');
+        if (nameInput) nameInput.focus();
+    });
+</script>
