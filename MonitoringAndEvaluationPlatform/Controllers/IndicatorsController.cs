@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using MonitoringAndEvaluationPlatform.Data;
+using MonitoringAndEvaluationPlatform.Enums;
 using MonitoringAndEvaluationPlatform.Models;
 using MonitoringAndEvaluationPlatform.ViewModel;
 
@@ -350,7 +351,40 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         }
 
 
+        [HttpGet]
+        public async Task<IActionResult> GetMeasureChartData(int indicatorCode)
+        {
+            var data = await _context.Measures
+                .Where(m => m.IndicatorCode == indicatorCode)
+                .OrderBy(m => m.Date)
+                .ToListAsync();
 
+            var real = data
+                .Where(m => m.ValueType == MeasureValueType.Real)
+                .Select(m => new { date = m.Date.ToString("yyyy-MM-dd"), value = m.Value })
+                .ToList();
+
+            var target = data
+                .Where(m => m.ValueType == MeasureValueType.Target)
+                .Select(m => new { date = m.Date.ToString("yyyy-MM-dd"), value = m.Value })
+                .ToList();
+
+
+
+            var result = new { Real = real, Target = target };
+
+            return Json(result);
+        }
+
+        public async Task<IActionResult> MeasureTablePartial(int indicatorCode)
+        {
+            var measures = await _context.Measures
+                .Where(m => m.IndicatorCode == indicatorCode)
+                .OrderBy(m => m.Date)
+                .ToListAsync();
+
+            return PartialView("_MeasureTablePartial", measures);
+        }
 
         // POST: Indicators/Delete/5
         [HttpPost, ActionName("Delete")]

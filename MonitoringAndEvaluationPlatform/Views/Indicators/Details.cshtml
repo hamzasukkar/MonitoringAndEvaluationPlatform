@@ -4,40 +4,10 @@
 @{
     ViewData["Title"] = "Details";
     Layout = "~/Views/Shared/_ResultsFrameworkLayout.cshtml";
-    //Layout = null;
 }
-<!-- Include jQuery -->
-@* <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
-
-<!-- Include jsTree -->
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jstree/3.3.12/themes/default/style.min.css" />
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jstree/3.3.12/jstree.min.js"></script> *@
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns"></script>
 
-@* <ul>
-    @foreach (var node in Model.Hierarchy)
-    {
-        <li>
-            <a href="@Url.Action("Details", node.Type + "s", new { id = node.Code })">
-                @node.Name (@node.Type)
-            </a>
-        </li>
-    }
-</ul> *@
-
-<div id="hierarchyTree">
-    <ul>
-        @foreach (var node in Model.Hierarchy)
-        {
-            <li>
-                <a href="@Url.Action("Details", node.Type + "s", new { id = node.Code })">
-                    @node.Name (@node.Type)
-                </a>
-            </li>
-        }
-    </ul>
-</div>
 <div>
     <h4>Indicator</h4>
     <hr />
@@ -45,20 +15,10 @@
         <dt class="col-sm-2">Name</dt>
         <dd class="col-sm-4">@Model.Indicator.Name</dd>
 
-        <dt class="col-sm-2">Source</dt>
-        <dd class="col-sm-4">@Model.Indicator.Source</dd>
-
         <dt class="col-sm-1">Target</dt>
         <dd class="col-sm-1">@Model.Indicator.Target</dd>
-
-@* 
-        <dt class="col-sm-1">Trend</dt>
-        <dd class="col-sm-1">@Model.Indicator.Trend</dd> *@
     </dl>
 </div>
-<p>
-    <a asp-controller="Measures" asp-action="Create">Create New Measure</a>
-</p>
 <table class="table">
     <thead>
         <tr>
@@ -70,10 +30,10 @@
     <tbody>
         @foreach (var item in Model.Measures)
         {
-           <tr>
-               <td>
+            <tr>
+                <td>
                     @item.Date.ToString("yyyy-MM-dd")
-               </td>
+                </td>
 
                 <td>
                     @item.Value
@@ -81,14 +41,14 @@
                 <td>
                     @item.ValueType
                 </td>
-           </tr>
+            </tr>
         }
     </tbody>
 </table>
 
 <div class="card shadow-sm p-4 mb-4">
     <h5 class="mb-3">Indicator Performance Over Time</h5>
-    <canvas id="lineChart" width="800" height="400"></canvas>
+    <canvas id="MeasureChart" height="500"></canvas>
 </div>
 
 <div>
@@ -97,75 +57,91 @@
 </div>
 
 <script>
-    async function loadLineChart(indicatorCode) {
-        const response = await fetch(`/Dashboard/IndicatorTrend?indicatorCode=${indicatorCode}`);
+    async function loadChart(indicatorCode) {
+        const response = await fetch(`/Indicators/GetMeasureChartData?indicatorCode=${indicatorCode}`);
         const data = await response.json();
+        const ctx = document.getElementById('MeasureChart').getContext('2d');
 
-        const realData = data.real;
-        const targetData = data.target;
+        const sortedReal = data.real.sort((a, b) => new Date(a.date) - new Date(b.date));
+        const realData = sortedReal.map(p => ({ x: p.date, y: p.value }));
 
-        const allDates = [...new Set([...realData.map(d => d.date), ...targetData.map(d => d.date)])].sort();
+        let cumulative = 0;
+        const cumulativeRealData = sortedReal.map(p => {
+            cumulative += p.value;
+            return { x: p.date, y: +(cumulative.toFixed(2)) };
+        });
 
-        const realMap = Object.fromEntries(realData.map(d => [d.date, d.value]));
-        const targetMap = Object.fromEntries(targetData.map(d => [d.date, d.value]));
+        const targetPoint = data.target.length > 0 ? data.target[0] : null;
 
-        const realValues = allDates.map(date => realMap[date] ?? null);
-        const targetValues = allDates.map(date => targetMap[date] ?? null);
+        let logicalTargetData = [];
+        if (realData.length > 0 && targetPoint) {
+            const startDate = new Date(Math.min(...realData.map(p => new Date(p.x))));
+            const endDate = new Date(targetPoint.date);
+            const targetValue = targetPoint.value;
+            let months = (endDate.getFullYear() - startDate.getFullYear()) * 12 + (endDate.getMonth() - startDate.getMonth());
+            if (months < 1) months = 1;
 
-        const ctx = document.getElementById('lineChart').getContext('2d');
+            const minRealValue = Math.min(...realData.map(p => p.y));
+            const increment = (targetValue - minRealValue) / months;
+
+            for (let i = 0; i <= months; i++) {
+                const date = new Date(startDate);
+                date.setMonth(date.getMonth() + i);
+                logicalTargetData.push({
+                    x: date.toISOString().split('T')[0],
+                    y: +(minRealValue + increment * i).toFixed(2)
+                });
+            }
+        }
+
         new Chart(ctx, {
             type: 'line',
             data: {
-                labels: allDates,
                 datasets: [
                     {
                         label: 'Real',
-                        data: realValues,
-                        borderColor: '#4caf50',
-                        backgroundColor: 'rgba(76, 175, 80, 0.2)',
-                        tension: 0.3,
-                        pointRadius: 4,
-                        pointHoverRadius: 6
+                        data: realData,
+                        borderColor: 'blue',
+                        backgroundColor: 'rgba(0, 0, 255, 0.1)',
+                        tension: 0.4,
+                        fill: true
+                    },
+                    {
+                        label: 'Cumulative Real',
+                        data: cumulativeRealData,
+                        borderColor: 'green',
+                        backgroundColor: 'rgba(0, 128, 0, 0.1)',
+                        tension: 0.4,
+                        fill: false,
+                        borderDash: [4, 2]
                     },
                     {
                         label: 'Target',
-                        data: targetValues,
-                        borderColor: '#f44336',
-                        backgroundColor: 'rgba(244, 67, 54, 0.2)',
-                        tension: 0.3,
-                        pointRadius: 4,
-                        pointHoverRadius: 6
+                        data: logicalTargetData,
+                        borderColor: 'deeppink',
+                        backgroundColor: 'rgba(255,20,147,0.1)',
+                        borderDash: [6, 0],
+                        pointRadius: 0,
+                        tension: 0.4,
+                        fill: false
                     }
                 ]
             },
             options: {
                 responsive: true,
-                plugins: {
-                    tooltip: {
-                        mode: 'index',
-                        intersect: false
-                    }
-                },
                 scales: {
                     x: {
-                        title: {
-                            display: true,
-                            text: 'Date'
-                        }
+                        type: 'time',
+                        time: { unit: 'month', tooltipFormat: 'MMM dd, yyyy' },
+                        title: { display: true, text: 'Date' }
                     },
                     y: {
-                        beginAtZero: true,
-                        title: {
-                            display: true,
-                            text: 'Value'
-                        }
+                        title: { display: true, text: 'Value' }
                     }
                 }
             }
         });
     }
 
-    // Call this with a valid indicator code
-    loadLineChart(@Model.Indicator.IndicatorCode); // Change to your actual IndicatorCode
+    loadChart(@Model.Indicator.IndicatorCode);
 </script>
-

@@ -88,6 +88,20 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             return View(measure);
         }
 
+        [HttpPost]
+        public async Task<IActionResult> CreateFromDetails(Measure measure)
+        {
+            ModelState.Remove(nameof(measure.Indicator));
+            if (ModelState.IsValid)
+            {
+                _context.Add(measure);
+                await _context.SaveChangesAsync();
+                return Ok(); // for AJAX
+            }
+
+            return BadRequest("Invalid input");
+        }
+
         // GET: Measures/Create
         public IActionResult Create()
         {
