@@ -61,6 +61,9 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             }
 
             ViewBag.ProjectId = id;
+            ViewBag.Indicators = await _context.Indicators
+            .Where(i => /* Filter to project-related indicators, if needed */ true)
+            .ToListAsync();
             var measures = _context.Measures.Where(m => m.ProjectID == id).Include(m => m.Indicator).ToListAsync();
 
             return View(await measures);
