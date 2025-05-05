@@ -90,6 +90,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 .Include(p => p.SuperVisor)
                 .Include(p => p.Donor)
                 .Include(p => p.Region)
+                .Include(p => p.Sector)
                 .Include(p => p.ProjectFiles)
                 .FirstOrDefaultAsync(m => m.ProjectID == id);
 
@@ -107,6 +108,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
 
             ViewData["Donor"] = new SelectList(_context.Donors, "Code", "Partner");
             ViewData["Region"] = new SelectList(_context.Regions, "Code", "Name");
+            ViewData["Sector"] = new SelectList(_context.Sectors, "Code", "Name");
             ViewData["Ministry"] = new SelectList(_context.Ministries, "Code", "MinistryName");
             ViewData["SuperVisor"] = new SelectList(_context.SuperVisors, "Code", "Name");
             ViewData["ProjectManager"] = new SelectList(_context.ProjectManagers, "Code", "Name");
@@ -125,6 +127,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
 
             ModelState.Remove(nameof(Project.ProjectManager));
             ModelState.Remove(nameof(Project.Region));
+            ModelState.Remove(nameof(Project.Sector));
             ModelState.Remove(nameof(Project.Donor));
             ModelState.Remove(nameof(Project.Ministry));
             ModelState.Remove(nameof(Project.SuperVisor));

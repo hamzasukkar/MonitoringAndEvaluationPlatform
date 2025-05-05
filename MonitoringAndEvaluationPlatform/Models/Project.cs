@@ -20,6 +20,8 @@ namespace MonitoringAndEvaluationPlatform.Models
         public Ministry Ministry { get; set; }
         public int DonorCode { get; set; }
         public virtual Donor Donor { get; set; }
+        public int SectorCode { get; set; }
+        public virtual Sector Sector { get; set; }
         public DateTime StartDate { get; set; }
         public DateTime EndDate { get; set; }
         public double performance { get; set; }

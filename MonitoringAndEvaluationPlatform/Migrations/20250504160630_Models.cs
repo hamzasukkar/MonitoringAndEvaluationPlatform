@@ -134,10 +134,7 @@ namespace MonitoringAndEvaluationPlatform.Migrations
                 {
                     Code = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    Partner = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    DisbursementPerformance = table.Column<int>(type: "int", nullable: false),
-                    FieldMonitoring = table.Column<int>(type: "int", nullable: false),
-                    ImpactAssessment = table.Column<int>(type: "int", nullable: false)
+                    Name = table.Column<string>(type: "nvarchar(max)", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -302,6 +299,7 @@ namespace MonitoringAndEvaluationPlatform.Migrations
                     SuperVisorCode = table.Column<int>(type: "int", nullable: false),
                     MinistryCode = table.Column<int>(type: "int", nullable: false),
                     DonorCode = table.Column<int>(type: "int", nullable: false),
+                    SectorCode = table.Column<int>(type: "int", nullable: false),
                     StartDate = table.Column<DateTime>(type: "datetime2", nullable: false),
                     EndDate = table.Column<DateTime>(type: "datetime2", nullable: false),
                     performance = table.Column<double>(type: "float", nullable: false),
@@ -336,6 +334,12 @@ namespace MonitoringAndEvaluationPlatform.Migrations
                         name: "FK_Projects_Regions_RegionCode",
                         column: x => x.RegionCode,
                         principalTable: "Regions",
+                        principalColumn: "Code",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_Projects_Sectors_SectorCode",
+                        column: x => x.SectorCode,
+                        principalTable: "Sectors",
                         principalColumn: "Code",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
@@ -777,6 +781,11 @@ namespace MonitoringAndEvaluationPlatform.Migrations
                 column: "RegionCode");
 
             migrationBuilder.CreateIndex(
+                name: "IX_Projects_SectorCode",
+                table: "Projects",
+                column: "SectorCode");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Projects_SuperVisorCode",
                 table: "Projects",
                 column: "SuperVisorCode");
@@ -821,9 +830,6 @@ namespace MonitoringAndEvaluationPlatform.Migrations
                 name: "ProjectIndicators");
 
             migrationBuilder.DropTable(
-                name: "Sectors");
-
-            migrationBuilder.DropTable(
                 name: "AspNetRoles");
 
             migrationBuilder.DropTable(
@@ -864,6 +870,9 @@ namespace MonitoringAndEvaluationPlatform.Migrations
 
             migrationBuilder.DropTable(
                 name: "Regions");
+
+            migrationBuilder.DropTable(
+                name: "Sectors");
 
             migrationBuilder.DropTable(
                 name: "SuperVisors");

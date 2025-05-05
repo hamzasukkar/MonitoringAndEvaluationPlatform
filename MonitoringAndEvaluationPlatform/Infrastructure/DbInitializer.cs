@@ -18,9 +18,9 @@ namespace MonitoringAndEvaluationPlatform.Infrastructure
                 {
                     var sectors = new List<Sector>
                     {
-                        new Sector { Partner = "Sector 1" }, // Remove explicit Code if using auto-increment
-                        new Sector { Partner = "Sector 2" },
-                        new Sector { Partner = "Sector 3" }
+                        new Sector { Name = "Sector 1" }, // Remove explicit Code if using auto-increment
+                        new Sector { Name = "Sector 2" },
+                        new Sector { Name = "Sector 3" }
                     };
                     context.Sectors.AddRange(sectors);
                 }

@@ -727,6 +727,9 @@ namespace MonitoringAndEvaluationPlatform.Migrations
                     b.Property<int>("RegionCode")
                         .HasColumnType("int");
 
+                    b.Property<int>("SectorCode")
+                        .HasColumnType("int");
+
                     b.Property<DateTime>("StartDate")
                         .HasColumnType("datetime2");
 
@@ -745,6 +748,8 @@ namespace MonitoringAndEvaluationPlatform.Migrations
                     b.HasIndex("ProjectManagerCode");
 
                     b.HasIndex("RegionCode");
+
+                    b.HasIndex("SectorCode");
 
                     b.HasIndex("SuperVisorCode");
 
@@ -845,16 +850,7 @@ namespace MonitoringAndEvaluationPlatform.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Code"));
 
-                    b.Property<int>("DisbursementPerformance")
-                        .HasColumnType("int");
-
-                    b.Property<int>("FieldMonitoring")
-                        .HasColumnType("int");
-
-                    b.Property<int>("ImpactAssessment")
-                        .HasColumnType("int");
-
-                    b.Property<string>("Partner")
+                    b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
@@ -1110,6 +1106,12 @@ namespace MonitoringAndEvaluationPlatform.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("MonitoringAndEvaluationPlatform.Models.Sector", "Sector")
+                        .WithMany()
+                        .HasForeignKey("SectorCode")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.HasOne("MonitoringAndEvaluationPlatform.Models.SuperVisor", "SuperVisor")
                         .WithMany()
                         .HasForeignKey("SuperVisorCode")
@@ -1123,6 +1125,8 @@ namespace MonitoringAndEvaluationPlatform.Migrations
                     b.Navigation("ProjectManager");
 
                     b.Navigation("Region");
+
+                    b.Navigation("Sector");
 
                     b.Navigation("SuperVisor");
                 });
