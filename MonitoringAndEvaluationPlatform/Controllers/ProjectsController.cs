@@ -104,19 +104,41 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         }
 
         // GET: Programs/Create
-        public IActionResult Create()
+         public IActionResult Create()
         {
+            // Get all lists first
+            var donors = _context.Donors.ToList();
+            var regions = _context.Regions.ToList();
+            var sectors = _context.Sectors.ToList();
+            var ministries = _context.Ministries.ToList();
+            var supervisors = _context.SuperVisors.ToList();
+            var projectManagers = _context.ProjectManagers.ToList();
 
-            ViewData["Donor"] = new SelectList(_context.Donors, "Code", "Partner");
-            ViewBag.RegionList = new MultiSelectList(_context.Regions.ToList(), "Code", "Name");
-            ViewData["Sector"] = new SelectList(_context.Sectors, "Code", "Name");
-            ViewData["Ministry"] = new SelectList(_context.Ministries, "Code", "MinistryName");
-            ViewData["SuperVisor"] = new SelectList(_context.SuperVisors, "Code", "Name");
-            ViewData["ProjectManager"] = new SelectList(_context.ProjectManagers, "Code", "Name");
-            ViewBag.Indicators = _context.Indicators.ToList();
+            // Create model with default values
+            var model = new Project
+            {
+                EstimatedBudget = 0,
+                RealBudget = 0,
+                StartDate = DateTime.Today,
+                EndDate = DateTime.Today.AddYears(1),
+                // Set first item as default if available
+                DonorCode = donors.FirstOrDefault().Code,
+                SectorCode = sectors.FirstOrDefault().Code,
+                MinistryCode = ministries.FirstOrDefault().Code,
+                SuperVisorCode = supervisors.FirstOrDefault().Code,
+                ProjectManagerCode = projectManagers.FirstOrDefault().Code
+            };
 
-            return View();
-        }
+            // Set ViewBag/ViewData with SelectLists
+            ViewData["Donor"] = new SelectList(donors, "Code", "Partner", model.DonorCode);
+            ViewBag.RegionList = new MultiSelectList(regions, "Code", "Name");
+            ViewData["Sector"] = new SelectList(sectors, "Code", "Name", model.SectorCode);
+            ViewData["Ministry"] = new SelectList(ministries, "Code", "MinistryName", model.MinistryCode);
+            ViewData["SuperVisor"] = new SelectList(supervisors, "Code", "Name", model.SuperVisorCode);
+            ViewData["ProjectManager"] = new SelectList(projectManagers, "Code", "Name", model.ProjectManagerCode);
+
+            return View(model);
+        }    
 
         // POST: Programs/Create
         // To protect from overposting attacks, enable the specific properties you want to bind to.

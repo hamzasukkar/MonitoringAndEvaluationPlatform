@@ -1,81 +1,162 @@
 ﻿@model MonitoringAndEvaluationPlatform.Models.Project
 
 @{
-    ViewData["Title"] = "Edit";
+    ViewData["Title"] = "Edit Project";
     Layout = "~/Views/Shared/_ProjectsLayout.cshtml";
 }
 
-<h1>Edit</h1>
+<div class="container-fluid py-4">
+    <div class="card shadow-lg">
+        <div class="card-header bg-primary text-white">
+            <div class="d-flex justify-content-between align-items-center">
+                <h4 class="mb-0">Edit Project</h4>
+                <a asp-action="Index" class="btn btn-light btn-sm">
+                    <i class="fas fa-arrow-left me-1"></i> Back to List
+                </a>
+            </div>
+        </div>
 
-<h4>Program</h4>
-<hr />
-<div class="row">
-    <div class="col-md-4">
-        <form asp-action="Edit">
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-            <input type="hidden" asp-for="ProjectID" />
-            <div class="form-group">
-                <label asp-for="ProjectName" class="control-label"></label>
-                <input asp-for="ProjectName" class="form-control" />
-                <span asp-validation-for="ProjectName" class="text-danger"></span>
-            </div>
+        <div class="card-body">
+            <form asp-action="Edit" class="needs-validation" novalidate>
+                <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+                <input type="hidden" asp-for="ProjectID" />
 
-            <div class="form-group">
-                <label asp-for="EstimatedBudget" class="control-label"></label>
-                <input asp-for="EstimatedBudget" class="form-control" />
-                <span asp-validation-for="EstimatedBudget" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="RealBudget" class="control-label"></label>
-                <input asp-for="RealBudget" class="form-control" />
-                <span asp-validation-for="RealBudget" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label class="control-label">Regions</label>
-                <select asp-for="Regions" class="form-control" asp-items="ViewBag.RegionList" multiple></select>
-            </div>
+                <div class="row g-3">
+                    <!-- Basic Information Section -->
+                    <div class="col-md-6">
+                        <div class="card mb-4">
+                            <div class="card-header bg-light">
+                                <h5 class="mb-0">Basic Information</h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="mb-3">
+                                    <label asp-for="ProjectName" class="form-label"></label>
+                                    <input asp-for="ProjectName" class="form-control" placeholder="Enter project name" required />
+                                    <span asp-validation-for="ProjectName" class="text-danger small"></span>
+                                </div>
 
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label asp-for="StartDate" class="form-label"></label>
+                                        <input asp-for="StartDate" type="date" class="form-control" required />
+                                        <span asp-validation-for="StartDate" class="text-danger small"></span>
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label asp-for="EndDate" class="form-label"></label>
+                                        <input asp-for="EndDate" type="date" class="form-control" required />
+                                        <span asp-validation-for="EndDate" class="text-danger small"></span>
+                                    </div>
+                                </div>
 
-            <div class="form-group">
-                <label asp-for="SectorCode" class="control-label">Sector</label>
-                <select asp-for="SectorCode" class="form-control" asp-items="ViewBag.Sector"></select>
-            </div>
-            <div class="form-group">
-                <label asp-for="ProjectManagerCode" class="control-label">Project Manager</label>
-                <select asp-for="ProjectManagerCode" class="form-control" asp-items="ViewBag.ProjectManager"></select>
-            </div>
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label asp-for="EstimatedBudget" class="form-label"></label>
+                                        <div class="input-group">
+                                            <span class="input-group-text">$</span>
+                                            <input asp-for="EstimatedBudget" class="form-control" placeholder="0.00" />
+                                        </div>
+                                        <span asp-validation-for="EstimatedBudget" class="text-danger small"></span>
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label asp-for="RealBudget" class="form-label"></label>
+                                        <div class="input-group">
+                                            <span class="input-group-text">$</span>
+                                            <input asp-for="RealBudget" class="form-control" placeholder="0.00" />
+                                        </div>
+                                        <span asp-validation-for="RealBudget" class="text-danger small"></span>
+                                    </div>
+                                </div>
 
-            <div class="form-group">
-                <label asp-for="SuperVisorCode" class="control-label">SuperVisor</label>
-                <select asp-for="SuperVisorCode" class="form-control" asp-items="ViewBag.SuperVisor"></select>
-            </div>
-            <div class="form-group">
-                <label asp-for="MinistryCode" class="control-label">Ministry</label>
-                <select asp-for="MinistryCode" class="form-control" asp-items="ViewBag.Ministry"></select>
-            </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Regions</label>
+                                    <select asp-for="Regions" class="form-select" asp-items="ViewBag.RegionList" multiple>
+                                        <option disabled>Select one or more regions</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
 
-            <div class="form-group">
-                <label asp-for="DonorCode" class="control-label">Donor</label>
-                <select asp-for="DonorCode" class="form-control" asp-items="ViewBag.Donor"></select>
-            </div>
-            <div class="form-group">
-                <label asp-for="StartDate" class="control-label"></label>
-                <input asp-for="StartDate" class="form-control" />
-                <span asp-validation-for="StartDate" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="EndDate" class="control-label"></label>
-                <input asp-for="EndDate" class="form-control" />
-                <span asp-validation-for="EndDate" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <input type="submit" value="Save" class="btn btn-primary" />
-            </div>
-        </form>
+                    <!-- Stakeholders Section -->
+                    <div class="col-md-6">
+                        <div class="card mb-4">
+                            <div class="card-header bg-light">
+                                <h5 class="mb-0">Stakeholders</h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="mb-3">
+                                    <label asp-for="SectorCode" class="form-label">Sector</label>
+                                    <select asp-for="SectorCode" class="form-select" asp-items="ViewBag.Sector">
+                                        <option value="">Select Sector</option>
+                                    </select>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label asp-for="ProjectManagerCode" class="form-label">Project Manager</label>
+                                    <select asp-for="ProjectManagerCode" class="form-select" asp-items="ViewBag.ProjectManager">
+                                        <option value="">Select Project Manager</option>
+                                    </select>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label asp-for="SuperVisorCode" class="form-label">Supervisor</label>
+                                    <select asp-for="SuperVisorCode" class="form-select" asp-items="ViewBag.SuperVisor">
+                                        <option value="">Select Supervisor</option>
+                                    </select>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label asp-for="MinistryCode" class="form-label">Ministry</label>
+                                    <select asp-for="MinistryCode" class="form-select" asp-items="ViewBag.Ministry">
+                                        <option value="">Select Ministry</option>
+                                    </select>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label asp-for="DonorCode" class="form-label">Donor</label>
+                                    <select asp-for="DonorCode" class="form-select" asp-items="ViewBag.Donor">
+                                        <option value="">Select Donor</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                    <button type="submit" class="btn btn-primary px-4">
+                        <i class="fas fa-save me-2"></i>Save Changes
+                    </button>
+                    <a asp-action="Index" class="btn btn-outline-secondary px-4">Cancel</a>
+                </div>
+            </form>
+        </div>
     </div>
 </div>
 
-<div>
-    <a asp-action="Index">Back to List</a>
-</div>
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
 
+    <script>
+        // Enable Bootstrap 5 validation
+        (function () {
+            'use strict'
+
+            var forms = document.querySelectorAll('.needs-validation')
+
+            Array.prototype.slice.call(forms)
+                .forEach(function (form) {
+                    form.addEventListener('submit', function (event) {
+                        if (!form.checkValidity()) {
+                            event.preventDefault()
+                            event.stopPropagation()
+                        }
+
+                        form.classList.add('was-validated')
+                    }, false)
+                })
+        })()
+    </script>
+}
