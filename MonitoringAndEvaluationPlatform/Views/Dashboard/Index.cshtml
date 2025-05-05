@@ -1,50 +1,90 @@
 ﻿@model MonitoringAndEvaluationPlatform.ViewModel.DashboardSummaryViewModel
 @{
-	ViewData["Title"] = "Summary";
-	Layout = "~/Views/Shared/_DashboardLayout.cshtml";
+    ViewData["Title"] = "Summary";
+    Layout = "~/Views/Shared/_DashboardLayout.cshtml";
 }
-<head>
-	<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
-</head>
-<divp style="padding-top: 10px;" class="row text-center g-4 mb-4">
-	<div class="col-md-3">
-		<div class="card shadow-lg border-0 bg-primary text-white">
-			<div class="card-body">
-				<i class="bi bi-diagram-3-fill display-5 mb-2"></i>
-				<h5 class="card-title">Total Frameworks</h5>
-				<h2 class="fw-bold">@Model.TotalFrameworks</h2>
-			</div>
-		</div>
-	</div>
-	<div class="col-md-3">
-		<div class="card shadow-lg border-0 bg-success text-white">
-			<div class="card-body">
-				<i class="bi bi-bar-chart-fill display-5 mb-2"></i>
-				<h5 class="card-title">Totla Indicators</h5>
-				<h2 class="fw-bold">@Model.TotalIndicators</h2>
-			</div>
-		</div>
-	</div>
-	<div class="col-md-3">
-		<div class="card shadow-lg border-0 bg-warning text-dark">
-			<div class="card-body">
-				<i class="bi bi-building display-5 mb-2"></i>
-				<h5 class="card-title">Total Projects</h5>
-				<h2 class="fw-bold">@Model.TotalProjects</h2>
-			</div>
-		</div>
-	</div>
-	<div class="col-md-3">
-		<div class="card shadow-lg border-0 bg-danger text-white">
-			<div class="card-body">
-				<i class="bi bi-geo-alt-fill display-5 mb-2"></i>
-				<h5 class="card-title">Total Regions</h5>
-				<h2 class="fw-bold">@Model.TotalRegions</h2>
-			</div>
-		</div>
-	</div>
-</divp>
 
+<head>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
+</head>
+
+<div style="padding-top: 10px;" class="row text-center g-4 mb-4">
+    <!-- Frameworks -->
+    <div class="col-md-3">
+        <div class="card shadow-lg border-0 bg-primary text-white">
+            <div class="card-body">
+                <i class="bi bi-diagram-3-fill display-5 mb-2"></i>
+                <h5 class="card-title">Total Frameworks</h5>
+                <h2 class="fw-bold">@Model.TotalFrameworks</h2>
+
+                <select class="form-select mt-3 text-dark">
+                    <option disabled selected>-- Select Framework --</option>
+                    @foreach (var fw in Model.Frameworks)
+                    {
+                        <option>@fw.Name</option>
+                    }
+                </select>
+            </div>
+        </div>
+    </div>
+
+    <!-- Ministries -->
+    <div class="col-md-3">
+        <div class="card shadow-lg border-0 bg-success text-white">
+            <div class="card-body">
+                <i class="bi bi-bar-chart-fill display-5 mb-2"></i>
+                <h5 class="card-title">Total Ministries</h5>
+                <h2 class="fw-bold">@Model.TotlalMinistries</h2>
+
+                <select class="form-select mt-3 text-dark">
+                    <option disabled selected>-- Select Indicator --</option>
+                    @foreach (var ind in Model.Ministries)
+                    {
+                        <option>@ind.MinistryName</option>
+                    }
+                </select>
+            </div>
+        </div>
+    </div>
+
+    <!-- Projects -->
+    <div class="col-md-3">
+        <div class="card shadow-lg border-0 bg-warning text-dark">
+            <div class="card-body">
+                <i class="bi bi-building display-5 mb-2"></i>
+                <h5 class="card-title">Total Projects</h5>
+                <h2 class="fw-bold">@Model.TotalProjects</h2>
+
+                <select class="form-select mt-3">
+                    <option disabled selected>-- Select Project --</option>
+                    @foreach (var proj in Model.Projects)
+                    {
+                        <option>@proj.ProjectName</option>
+                    }
+                </select>
+            </div>
+        </div>
+    </div>
+
+    <!-- Regions -->
+    <div class="col-md-3">
+        <div class="card shadow-lg border-0 bg-danger text-white">
+            <div class="card-body">
+                <i class="bi bi-geo-alt-fill display-5 mb-2"></i>
+                <h5 class="card-title">Total Regions</h5>
+                <h2 class="fw-bold">@Model.TotalRegions</h2>
+
+                <select class="form-select mt-3 text-dark">
+                    <option disabled selected>-- Select Region --</option>
+                    @foreach (var region in Model.Regions)
+                    {
+                        <option>@region.Name</option>
+                    }
+                </select>
+            </div>
+        </div>
+    </div>
+</div>
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-doughnutlabel@1.0.3"></script>
@@ -52,7 +92,7 @@
 <div id="gaugesContainer" class="row"></div>
 
 <script>
-              async function loadGauges() {
+    async function loadGauges() {
         const response = await fetch('/Dashboard/FrameworksGauge');
         const frameworks = await response.json();
 
@@ -61,41 +101,41 @@
 
         frameworks.forEach(framework => {
             const card = document.createElement('div');
-    card.className = 'col-md-6 mb-4';
+            card.className = 'col-md-6 mb-4';
 
-    const chartId = `gaugeChart_${framework.code}`;
-    const barColor = framework.rate >= 80 ? 'bg-success'
-                    : framework.rate >= 50 ? 'bg-warning'
-                    : 'bg-danger';
+            const chartId = `gaugeChart_${framework.code}`;
+            const barColor = framework.rate >= 80 ? 'bg-success'
+                            : framework.rate >= 50 ? 'bg-warning'
+                            : 'bg-danger';
 
-    card.innerHTML = `
-        <div class="card shadow-sm p-4">
-            <h5 class="mb-3">${framework.name}</h5>
-            <div class="row align-items-center">
-                <div class="col-md-6 text-center">
-                    <canvas id="${chartId}" height="160"></canvas>
-                    <div class="fw-bold mt-2" style="font-size: 1.1rem; color:#00c853;">
-                        ${framework.rate}% Achieved
-                    </div>
-                </div>
-                <div class="col-md-6">
-                    <div class="mb-2 fw-bold text-muted">Progress</div>
-                    <div class="progress mb-3" style="height: 25px;">
-                        <div class="progress-bar ${barColor}" role="progressbar"
-                            style="width: ${framework.rate}%"
-                            aria-valuenow="${framework.rate}" aria-valuemin="0" aria-valuemax="100">
-                            ${framework.rate}%
+            card.innerHTML = `
+                <div class="card shadow-sm p-4">
+                    <h5 class="mb-3">${framework.name}</h5>
+                    <div class="row align-items-center">
+                        <div class="col-md-6 text-center">
+                            <canvas id="${chartId}" height="160"></canvas>
+                            <div class="fw-bold mt-2" style="font-size: 1.1rem; color:#00c853;">
+                                ${framework.rate}% Achieved
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-2 fw-bold text-muted">Progress</div>
+                            <div class="progress mb-3" style="height: 25px;">
+                                <div class="progress-bar ${barColor}" role="progressbar"
+                                    style="width: ${framework.rate}%"
+                                    aria-valuenow="${framework.rate}" aria-valuemin="0" aria-valuemax="100">
+                                    ${framework.rate}%
+                                </div>
+                            </div>
+                            <div class="text-muted" style="font-size: 0.9rem;">
+                                Indicators: ${framework.indicatorCount}<br/>
+                                Total Target: ${framework.totalTarget}<br/>
+                                Total Achieved: ${framework.totalAchieved}
+                            </div>
                         </div>
                     </div>
-                    <div class="text-muted" style="font-size: 0.9rem;">
-                        Indicators: ${framework.indicatorCount}<br/>
-                        Total Target: ${framework.totalTarget}<br/>
-                        Total Achieved: ${framework.totalAchieved}
-                    </div>
                 </div>
-            </div>
-        </div>
-    `;
+            `;
 
             container.appendChild(card);
 
@@ -135,6 +175,6 @@
             });
         });
     }
-	loadGauges();
-</script>
 
+    loadGauges();
+</script>

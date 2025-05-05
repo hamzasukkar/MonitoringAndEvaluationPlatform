@@ -294,13 +294,21 @@ public class DashboardController : Controller
         var model = new DashboardSummaryViewModel
         {
             TotalFrameworks = await _context.Frameworks.CountAsync(),
-            TotalIndicators = await _context.Indicators.CountAsync(),
+            Frameworks = await _context.Frameworks.ToListAsync(),
+
+            TotlalMinistries = await _context.Indicators.CountAsync(),
+            Ministries = await _context.Ministries.ToListAsync(),
+
             TotalProjects = await _context.Projects.CountAsync(),
-            TotalRegions = await _context.Regions.CountAsync()
+            Projects = await _context.Projects.ToListAsync(),
+
+            TotalRegions = await _context.Regions.CountAsync(),
+            Regions = await _context.Regions.ToListAsync()
         };
 
         return View(model);
     }
+
 
     [HttpGet]
     //public IActionResult ProjectProgress2(int? regionId, int? sectorId, int? donorId)
