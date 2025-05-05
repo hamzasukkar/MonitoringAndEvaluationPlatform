@@ -8,8 +8,7 @@ namespace MonitoringAndEvaluationPlatform.Models
         [Key]
         public int ProjectID { get; set; }
         public string ProjectName { get; set; }
-        public int RegionCode { get; set; }
-        public virtual Region Region { get; set; }
+        public ICollection<Region> Regions { get; set; } = new List<Region>();
         public double EstimatedBudget { get; set; }
         public double RealBudget { get; set; }
         public int ProjectManagerCode { get; set; }

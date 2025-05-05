@@ -60,6 +60,12 @@ namespace MonitoringAndEvaluationPlatform.Data
                 .WithMany(i => i.ProjectIndicators)
                 .HasForeignKey(pi => pi.IndicatorCode);
 
+            modelBuilder.Entity<Project>()
+                .HasMany(p => p.Regions)
+                .WithMany(r => r.Projects)
+                .UsingEntity(j => j.ToTable("ProjectRegions")); // optional table name
+
+
         }
     }
 }

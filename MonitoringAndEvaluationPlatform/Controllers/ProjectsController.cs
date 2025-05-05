@@ -60,8 +60,9 @@ namespace MonitoringAndEvaluationPlatform.Controllers
 
             if (filter.SelectedRegions.Any())
             {
-                projectQuery = projectQuery.Where(p => filter.SelectedRegions.Contains(p.RegionCode));
+                projectQuery = projectQuery.Where(p => p.Regions.Any(r => filter.SelectedRegions.Contains(r.Code)));
             }
+
 
             if (filter.SelectedDonors.Any())
             {
@@ -89,7 +90,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 .Include(p => p.ProjectManager)
                 .Include(p => p.SuperVisor)
                 .Include(p => p.Donor)
-                .Include(p => p.Region)
+                .Include(p => p.Regions)
                 .Include(p => p.Sector)
                 .Include(p => p.ProjectFiles)
                 .FirstOrDefaultAsync(m => m.ProjectID == id);
@@ -107,7 +108,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         {
 
             ViewData["Donor"] = new SelectList(_context.Donors, "Code", "Partner");
-            ViewData["Region"] = new SelectList(_context.Regions, "Code", "Name");
+            ViewBag.RegionList = new MultiSelectList(_context.Regions.ToList(), "Code", "Name");
             ViewData["Sector"] = new SelectList(_context.Sectors, "Code", "Name");
             ViewData["Ministry"] = new SelectList(_context.Ministries, "Code", "MinistryName");
             ViewData["SuperVisor"] = new SelectList(_context.SuperVisors, "Code", "Name");
@@ -126,12 +127,19 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         {
 
             ModelState.Remove(nameof(Project.ProjectManager));
-            ModelState.Remove(nameof(Project.Region));
+            //ModelState.Remove(nameof(Project.Region));
             ModelState.Remove(nameof(Project.Sector));
             ModelState.Remove(nameof(Project.Donor));
             ModelState.Remove(nameof(Project.Ministry));
             ModelState.Remove(nameof(Project.SuperVisor));
             ModelState.Remove(nameof(Project.ActionPlan));
+
+            var selectedRegionCodes = Request.Form["Regions"].ToList();
+            var selectedRegions = _context.Regions
+                                          .Where(r => selectedRegionCodes.Contains(r.Code.ToString()))
+                                          .ToList();
+
+            project.Regions = selectedRegions;
 
             if (ModelState.IsValid)
             {
@@ -190,11 +198,18 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             }
 
             var program = await _context.Projects.FindAsync(id);
+
             if (program == null)
             {
                 return NotFound();
             }
             ViewBag.Indicators = _context.Indicators.ToList();
+            ViewData["Donor"] = new SelectList(_context.Donors, "Code", "Partner");
+            ViewBag.RegionList = new MultiSelectList(_context.Regions.ToList(), "Code", "Name");
+            ViewData["Sector"] = new SelectList(_context.Sectors, "Code", "Name");
+            ViewData["Ministry"] = new SelectList(_context.Ministries, "Code", "MinistryName");
+            ViewData["SuperVisor"] = new SelectList(_context.SuperVisors, "Code", "Name");
+            ViewData["ProjectManager"] = new SelectList(_context.ProjectManagers, "Code", "Name");
             return View(program);
         }
 
@@ -203,11 +218,26 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("ProjectID,ProjectName,EstimatedBudget,RealBudget,Trend,ProjectManager,SuperVisor,Type,Status1,Status2,Category,Donor,StartDate,EndDate,Region,performance,DisbursementPerformance,FieldMonitoring,ImpactAssessment")] Models.Project program)
+        public async Task<IActionResult> Edit(int id,Project program)
         {
             if (id != program.ProjectID)
             {
                 return NotFound();
+            }
+
+            // Try updating scalar properties (optional: use TryUpdateModelAsync or manual binding)
+
+            var selectedRegionCodes = Request.Form["Regions"].ToList();
+
+            // Update regions
+            var selectedRegions = _context.Regions
+                .Where(r => selectedRegionCodes.Contains(r.Code.ToString()))
+                .ToList();
+
+            program.Regions.Clear();
+            foreach (var region in selectedRegions)
+            {
+                program.Regions.Add(region);
             }
 
             if (ModelState.IsValid)
@@ -230,6 +260,9 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
+            ViewBag.RegionList = new MultiSelectList(
+                    _context.Regions.ToList(), "Code", "Name", selectedRegionCodes
+                      );
             return View(program);
         }
 
@@ -241,8 +274,10 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 return NotFound();
             }
 
+
             var program = await _context.Projects
                 .FirstOrDefaultAsync(m => m.ProjectID == id);
+
             if (program == null)
             {
                 return NotFound();

@@ -19,9 +19,11 @@
                 <span asp-validation-for="ProjectName" class="text-danger"></span>
             </div>
             <div class="form-group">
-                <label asp-for="RegionCode" class="control-label">Region</label>
-                <select asp-for="RegionCode" class="form-control" asp-items="ViewBag.Region"></select>
+                <label class="control-label">Regions</label>
+                <select asp-for="Regions" class="form-control" asp-items="ViewBag.RegionList" multiple></select>
             </div>
+
+
             <div class="form-group">
                 <label asp-for="SectorCode" class="control-label">Sector</label>
                 <select asp-for="SectorCode" class="form-control" asp-items="ViewBag.Sector"></select>

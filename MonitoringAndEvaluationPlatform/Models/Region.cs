@@ -11,6 +11,7 @@ namespace MonitoringAndEvaluationPlatform.Models
         // Use the RegionType enum
         [Display(Name = "Region Type")]
         public RegionType Type { get; set; }
+        public ICollection<Project> Projects { get; set; } = new List<Project>();
 
     }
 }

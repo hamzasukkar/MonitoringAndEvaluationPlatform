@@ -19,6 +19,7 @@
                 <input asp-for="ProjectName" class="form-control" />
                 <span asp-validation-for="ProjectName" class="text-danger"></span>
             </div>
+
             <div class="form-group">
                 <label asp-for="EstimatedBudget" class="control-label"></label>
                 <input asp-for="EstimatedBudget" class="form-control" />
@@ -30,19 +31,32 @@
                 <span asp-validation-for="RealBudget" class="text-danger"></span>
             </div>
             <div class="form-group">
-                <label asp-for="ProjectManager" class="control-label"></label>
-                <input asp-for="ProjectManager" class="form-control" />
-                <span asp-validation-for="ProjectManager" class="text-danger"></span>
+                <label class="control-label">Regions</label>
+                <select asp-for="Regions" class="form-control" asp-items="ViewBag.RegionList" multiple></select>
+            </div>
+
+
+            <div class="form-group">
+                <label asp-for="SectorCode" class="control-label">Sector</label>
+                <select asp-for="SectorCode" class="form-control" asp-items="ViewBag.Sector"></select>
             </div>
             <div class="form-group">
-                <label asp-for="SuperVisor" class="control-label"></label>
-                <input asp-for="SuperVisor" class="form-control" />
-                <span asp-validation-for="SuperVisor" class="text-danger"></span>
+                <label asp-for="ProjectManagerCode" class="control-label">Project Manager</label>
+                <select asp-for="ProjectManagerCode" class="form-control" asp-items="ViewBag.ProjectManager"></select>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="SuperVisorCode" class="control-label">SuperVisor</label>
+                <select asp-for="SuperVisorCode" class="form-control" asp-items="ViewBag.SuperVisor"></select>
             </div>
             <div class="form-group">
-                <label asp-for="Donor" class="control-label"></label>
-                <input asp-for="Donor" class="form-control" />
-                <span asp-validation-for="Donor" class="text-danger"></span>
+                <label asp-for="MinistryCode" class="control-label">Ministry</label>
+                <select asp-for="MinistryCode" class="form-control" asp-items="ViewBag.Ministry"></select>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="DonorCode" class="control-label">Donor</label>
+                <select asp-for="DonorCode" class="form-control" asp-items="ViewBag.Donor"></select>
             </div>
             <div class="form-group">
                 <label asp-for="StartDate" class="control-label"></label>
@@ -54,42 +68,6 @@
                 <input asp-for="EndDate" class="form-control" />
                 <span asp-validation-for="EndDate" class="text-danger"></span>
             </div>
-            <div class="form-group">
-                <label asp-for="Region" class="control-label"></label>
-                <input asp-for="Region" class="form-control" />
-                <span asp-validation-for="Region" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="performance" class="control-label"></label>
-                <input asp-for="performance" class="form-control" />
-                <span asp-validation-for="performance" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="DisbursementPerformance" class="control-label"></label>
-                <input asp-for="DisbursementPerformance" class="form-control" />
-                <span asp-validation-for="DisbursementPerformance" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="FieldMonitoring" class="control-label"></label>
-                <input asp-for="FieldMonitoring" class="form-control" />
-                <span asp-validation-for="FieldMonitoring" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="ImpactAssessment" class="control-label"></label>
-                <input asp-for="ImpactAssessment" class="form-control" />
-                <span asp-validation-for="ImpactAssessment" class="text-danger"></span>
-            </div>
-      @*       <div class="form-group">
-                <label>Select Indicators</label>
-                <select name="selectedIndicators" class="form-control" multiple>
-                    @foreach (var indicator in ViewBag.Indicators)
-                    {
-                        <option value="@indicator.Code" selected="@(Model.Indicators.Any(i => i.Code == indicator.Code) ? "selected" : null)">
-                            @indicator.Name
-                        </option>
-                    }
-                </select>
-            </div> *@
             <div class="form-group">
                 <input type="submit" value="Save" class="btn btn-primary" />
             </div>

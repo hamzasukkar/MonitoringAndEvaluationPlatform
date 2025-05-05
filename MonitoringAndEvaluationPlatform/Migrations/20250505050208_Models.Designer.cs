@@ -12,7 +12,7 @@ using MonitoringAndEvaluationPlatform.Data;
 namespace MonitoringAndEvaluationPlatform.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20250504160630_Models")]
+    [Migration("20250505050208_Models")]
     partial class Models
     {
         /// <inheritdoc />
@@ -727,9 +727,6 @@ namespace MonitoringAndEvaluationPlatform.Migrations
                     b.Property<double>("RealBudget")
                         .HasColumnType("float");
 
-                    b.Property<int>("RegionCode")
-                        .HasColumnType("int");
-
                     b.Property<int>("SectorCode")
                         .HasColumnType("int");
 
@@ -749,8 +746,6 @@ namespace MonitoringAndEvaluationPlatform.Migrations
                     b.HasIndex("MinistryCode");
 
                     b.HasIndex("ProjectManagerCode");
-
-                    b.HasIndex("RegionCode");
 
                     b.HasIndex("SectorCode");
 
@@ -914,6 +909,21 @@ namespace MonitoringAndEvaluationPlatform.Migrations
                     b.HasKey("Code");
 
                     b.ToTable("SuperVisors");
+                });
+
+            modelBuilder.Entity("ProjectRegion", b =>
+                {
+                    b.Property<int>("ProjectsProjectID")
+                        .HasColumnType("int");
+
+                    b.Property<int>("RegionsCode")
+                        .HasColumnType("int");
+
+                    b.HasKey("ProjectsProjectID", "RegionsCode");
+
+                    b.HasIndex("RegionsCode");
+
+                    b.ToTable("ProjectRegions", (string)null);
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
@@ -1103,12 +1113,6 @@ namespace MonitoringAndEvaluationPlatform.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("MonitoringAndEvaluationPlatform.Models.Region", "Region")
-                        .WithMany()
-                        .HasForeignKey("RegionCode")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
                     b.HasOne("MonitoringAndEvaluationPlatform.Models.Sector", "Sector")
                         .WithMany()
                         .HasForeignKey("SectorCode")
@@ -1126,8 +1130,6 @@ namespace MonitoringAndEvaluationPlatform.Migrations
                     b.Navigation("Ministry");
 
                     b.Navigation("ProjectManager");
-
-                    b.Navigation("Region");
 
                     b.Navigation("Sector");
 
@@ -1173,6 +1175,21 @@ namespace MonitoringAndEvaluationPlatform.Migrations
                         .IsRequired();
 
                     b.Navigation("Output");
+                });
+
+            modelBuilder.Entity("ProjectRegion", b =>
+                {
+                    b.HasOne("MonitoringAndEvaluationPlatform.Models.Project", null)
+                        .WithMany()
+                        .HasForeignKey("ProjectsProjectID")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("MonitoringAndEvaluationPlatform.Models.Region", null)
+                        .WithMany()
+                        .HasForeignKey("RegionsCode")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("MonitoringAndEvaluationPlatform.Models.ActionPlan", b =>
