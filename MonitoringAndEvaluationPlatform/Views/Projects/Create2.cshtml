@@ -1,0 +1,190 @@
+﻿@model MonitoringAndEvaluationPlatform.ViewModel.ProjectViewModel
+
+@{
+	ViewData["Title"] = "Create Project";
+}
+
+<h2>Create Project</h2>
+
+<form asp-action="Create2" method="post">
+	<div class="form-group">
+		<label>Governorate</label>
+		<select asp-for="GovernorateCode" class="form-control" asp-items="Model.Governorates">
+			<option value="">-- Select Governorate --</option>
+		</select>
+		<span asp-valCodeation-for="GovernorateCode" class="text-danger"></span>
+	</div>
+
+	<div class="form-group">
+		<label>District</label>
+		<select id="DistrictCode" Code="DistrictCode" name="DistrictCode" class="form-control">
+			<option value="">-- Select District --</option>
+		</select>
+		<span asp-valCodeation-for="DistrictCode" class="text-danger"></span>
+	</div>
+
+	<div class="form-group">
+		<label>Sub-District</label>
+		<select id="SubDistrictCode" Code="SubDistrictCode" name="SubDistrictCode" class="form-control">
+			<option value="">-- Select Sub-District --</option>
+		</select>
+		<span asp-valCodeation-for="SubDistrictCode" class="text-danger"></span>
+	</div>
+
+	<div class="form-group">
+		<label>Community</label>
+		<select id="CommunityCode" Code="CommunityCode" name="CommunityCode" class="form-control">
+			<option value="">-- Select Community --</option>
+		</select>
+		<span asp-valCodeation-for="CommunityCode" class="text-danger"></span>
+	</div>
+
+	<div class="mb-3">
+		<label class="form-label">Regions</label>
+		<select asp-for="Regions" class="form-select" asp-items="ViewBag.RegionList" multiple>
+			<option disabled>Select one or more regions</option>
+		</select>
+	</div>
+
+	<div class="row">
+		<div class="col-md-6 mb-3">
+			<label asp-for="StartDate" class="form-label">Start Date</label>
+			<input type="date" asp-for="StartDate"  class="form-control" required />
+			<span asp-validation-for="StartDate" class="text-danger small"></span>
+		</div>
+		<div class="col-md-6 mb-3">
+			<label asp-for="EndDate" class="form-label">End Date</label>
+			<input type="date" asp-for="EndDate" class="form-control" required />
+			<span asp-validation-for="EndDate" class="text-danger small"></span>
+		</div>
+	</div>
+
+	<div class="mb-3">
+		<label class="form-label">Upload Files</label>
+		<input type="file" name="UploadedFiles" multiple class="form-control" />
+		<small class="text-muted">You can upload multiple files</small>
+	</div>
+	<!-- Budget & Stakeholders Section -->
+	<div class="col-md-6">
+		<div class="card mb-4">
+			<div class="card-header bg-light">
+				<h5 class="mb-0">Budget & Stakeholders</h5>
+			</div>
+			<div class="card-body">
+				<div class="row">
+					<div class="col-md-6 mb-3">
+						<label asp-for="EstimatedBudget" class="form-label">Estimated Budget</label>
+						<div class="input-group">
+							<span class="input-group-text">$</span>
+							<input asp-for="EstimatedBudget" value="0" class="form-control" placeholder="0.00" />
+						</div>
+						<span asp-validation-for="EstimatedBudget" class="text-danger small"></span>
+					</div>
+					<div class="col-md-6 mb-3">
+						<label asp-for="RealBudget" class="form-label">Real Budget</label>
+						<div class="input-group">
+							<span class="input-group-text">$</span>
+							<input asp-for="RealBudget" value="0" class="form-control" placeholder="0.00" />
+						</div>
+						<span asp-validation-for="RealBudget" class="text-danger small"></span>
+					</div>
+				</div>
+
+				<div class="mb-3">
+					<label asp-for="SectorCode" class="form-label">Sector</label>
+					<select asp-for="SectorCode" class="form-select" asp-items="ViewBag.Sector">
+						<option value="">Select Sector</option>
+					</select>
+				</div>
+
+				<div class="mb-3">
+					<label asp-for="ProjectManagerCode" class="form-label">Project Manager</label>
+					<select asp-for="ProjectManagerCode" class="form-select" asp-items="ViewBag.ProjectManager">
+						<option value="">Select Project Manager</option>
+					</select>
+				</div>
+
+				<div class="mb-3">
+					<label asp-for="SuperVisorCode" class="form-label">Supervisor</label>
+					<select asp-for="SuperVisorCode" class="form-select" asp-items="ViewBag.SuperVisor">
+						<option value="">Select Supervisor</option>
+					</select>
+				</div>
+
+				<div class="mb-3">
+					<label asp-for="MinistryCode" class="form-label">Ministry</label>
+					<select asp-for="MinistryCode" class="form-select" asp-items="ViewBag.Ministry">
+						<option value="">Select Ministry</option>
+					</select>
+				</div>
+
+				<div class="mb-3">
+					<label asp-for="DonorCode" class="form-label">Donor</label>
+					<select asp-for="DonorCode" class="form-select" asp-items="ViewBag.Donor">
+						<option value="">Select Donor</option>
+					</select>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<button type="submit" class="btn btn-primary">Create</button>
+</form>
+
+@*  <partial name="_ValCodeationScriptsPartial" /> *@
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+<script>
+	$('#GovernorateCode').change(function () {
+		debugger;
+		var governorateCode = $(this).val();
+		$('#DistrictCode').html('<option value="">Loading...</option>');
+		$('#SubDistrictCode').html('<option value="">-- Select Sub-District --</option>');
+		$('#CommunityCode').html('<option value="">-- Select Community --</option>');
+		if (governorateCode) {
+			$.getJSON('/Location/GetDistricts', { governorateCode: governorateCode }, function (data) {
+				$('#DistrictCode').html('<option value="">-- Select District --</option>');
+				$.each(data, function (i, item) {
+					$('#DistrictCode').append($('<option>', {
+						value: item.code,
+						text: item.name
+					}));
+				});
+			});
+		}
+	});
+
+	$('#DistrictCode').change(function () {
+		var districtCode = $(this).val();
+		$('#SubDistrictCode').html('<option value="">Loading...</option>');
+		$('#CommunityCode').html('<option value="">-- Select Community --</option>');
+		if (districtCode) {
+			$.getJSON('/Location/GetSubDistricts', { districtCode: districtCode }, function (data) {
+				$('#SubDistrictCode').html('<option value="">-- Select Sub-District --</option>');
+				$.each(data, function (i, item) {
+					$('#SubDistrictCode').append($('<option>', {
+						value: item.code,
+						text: item.name
+					}));
+				});
+			});
+		}
+	});
+
+	$('#SubDistrictCode').change(function () {
+		var subDistrictCode = $(this).val();
+		$('#CommunityCode').html('<option value="">Loading...</option>');
+		if (subDistrictCode) {
+			$.getJSON('/Location/GetCommunities', { subDistrictCode: subDistrictCode }, function (data) {
+				$('#CommunityCode').html('<option value="">-- Select Community --</option>');
+				$.each(data, function (i, item) {
+					$('#CommunityCode').append($('<option>', {
+						value: item.code,
+						text: item.name
+					}));
+				});
+			});
+		}
+	});
+</script>
+

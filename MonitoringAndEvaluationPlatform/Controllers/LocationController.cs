@@ -18,8 +18,39 @@ namespace MonitoringAndEvaluationPlatform.Controllers
 
         public IActionResult Index()
         {
-            return View();
+            var locations = _context.Communities
+                .Include(c => c.SubDistrict)
+                    .ThenInclude(sd => sd.District)
+                        .ThenInclude(d => d.Governorate)
+                .Select(c => new LocationViewModel
+                {
+                    Community = c.Name,
+                    SubDistrict = c.SubDistrict.Name,
+                    District = c.SubDistrict.District.Name,
+                    Governorate = c.SubDistrict.District.Governorate.Name
+                }).ToList();
+
+            return View(locations);
         }
+        public IActionResult ProjectsWithLocations()
+        {
+            var projects = _context.Projects
+                .Include(p => p.Community)
+                    .ThenInclude(c => c.SubDistrict)
+                        .ThenInclude(sd => sd.District)
+                            .ThenInclude(d => d.Governorate)
+                .Select(p => new ProjectLocationViewModel
+                {
+                    ProjectName = p.ProjectName,
+                    Community = p.Community.Name,
+                    SubDistrict = p.Community.SubDistrict.Name,
+                    District = p.Community.SubDistrict.District.Name,
+                    Governorate = p.Community.SubDistrict.District.Governorate.Name
+                }).ToList();
+
+            return View(projects);
+        }
+
 
         [HttpGet]
         public IActionResult CreateLocation()
@@ -196,30 +227,30 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         }
 
         [HttpGet]
-        public JsonResult GetDistricts(int governorateId)
+        public JsonResult GetDistricts(int governorateCode)
         {
             var districts = _context.Districts
-                .Where(d => d.GovernorateCode == governorateId)
+                .Where(d => d.GovernorateCode == governorateCode)
                 .Select(d => new { d.Code, d.Name })
                 .ToList();
             return Json(districts);
         }
 
         [HttpGet]
-        public JsonResult GetSubDistricts(int districtId)
+        public JsonResult GetSubDistricts(int districtCode)
         {
             var subDistricts = _context.SubDistricts
-                .Where(sd => sd.DistrictCode == districtId)
+                .Where(sd => sd.DistrictCode == districtCode)
                 .Select(sd => new { sd.Code, sd.Name })
                 .ToList();
             return Json(subDistricts);
         }
 
         [HttpGet]
-        public JsonResult GetCommunities(int subDistrictId)
+        public JsonResult GetCommunities(int subDistrictCode)
         {
             var communities = _context.Communities
-                .Where(c => c.SubDistrictCode == subDistrictId)
+                .Where(c => c.SubDistrictCode == subDistrictCode)
                 .Select(c => new { c.Code, c.Name })
                 .ToList();
             return Json(communities);

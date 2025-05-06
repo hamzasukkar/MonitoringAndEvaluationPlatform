@@ -75,6 +75,78 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             return View(filter);
         }
 
+        public IActionResult Create2()
+        {
+            var model = new ProjectViewModel
+            {
+                Governorates = _context.Governorates
+                    .Select(g => new SelectListItem { Value = g.Code.ToString(), Text = g.Name })
+                    .ToList(),
+                Districts = _context.Districts
+                    .Select(g => new SelectListItem { Value = g.Code.ToString(), Text = g.Name })
+                    .ToList(),
+                SubDistricts = _context.SubDistricts
+                    .Select(g => new SelectListItem { Value = g.Code.ToString(), Text = g.Name })
+                    .ToList(),
+                Communities = _context.Communities
+                    .Select(g => new SelectListItem { Value = g.Code.ToString(), Text = g.Name })
+                    .ToList()
+            };
+            // Get all lists first
+            var donors = _context.Donors.ToList();
+            var regions = _context.Regions.ToList();
+            var sectors = _context.Sectors.ToList();
+            var ministries = _context.Ministries.ToList();
+            var supervisors = _context.SuperVisors.ToList();
+            var projectManagers = _context.ProjectManagers.ToList();
+
+
+            // Set ViewBag/ViewData with SelectLists
+            // Set ViewBag/ViewData with SelectLists
+            ViewData["Donor"] = new SelectList(donors, "Code", "Partner");
+            ViewBag.RegionList = new MultiSelectList(regions, "Code", "Name");
+            ViewData["Sector"] = new SelectList(sectors, "Code", "Name");
+            ViewData["Ministry"] = new SelectList(ministries, "Code", "MinistryName");  
+            ViewData["SuperVisor"] = new SelectList(supervisors, "Code", "Name");
+            ViewData["ProjectManager"] = new SelectList(projectManagers, "Code", "Name");
+
+            return View(model);
+        }
+
+        [HttpPost]
+        public IActionResult Create2(ProjectViewModel model)
+        {
+            //if (!ModelState.IsValid)
+            //{
+            //    model.Governorates = _context.Governorates
+            //        .Select(g => new SelectListItem { Value = g.Code.ToString(), Text = g.Name })
+            //        .ToList();
+            //    return View(model);
+            //}
+
+            var project = new Project
+            {
+                ProjectName = model.ProjectName,
+                GovernorateCode = model.GovernorateCode,
+                DistrictCode = model.DistrictCode,
+                SubDistrictCode= model.SubDistrictCode,
+                CommunityCode = model.CommunityCode,
+                MinistryCode=model.MinistryCode,
+                StartDate=model.StartDate,
+                EndDate=model.EndDate,
+                EstimatedBudget=model.EstimatedBudget,
+                RealBudget=model.RealBudget,
+                SectorCode=model.SectorCode,
+                ProjectManagerCode=model.ProjectManagerCode,
+                SuperVisorCode=model.SuperVisorCode,
+                DonorCode=model.DonorCode
+            };
+
+            _context.Projects.Add(project);
+            _context.SaveChanges();
+            return RedirectToAction("Index");
+        }
+
 
 
 

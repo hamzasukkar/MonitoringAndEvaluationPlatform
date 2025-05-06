@@ -1,0 +1,26 @@
+﻿@using MonitoringAndEvaluationPlatform.ViewModel
+@model List<LocationViewModel>
+
+<h2>Location Hierarchy</h2>
+
+<table class="table table-bordered">
+    <thead>
+        <tr>
+            <th>Governorate</th>
+            <th>District</th>
+            <th>SubDistrict</th>
+            <th>Community</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>@item.Governorate</td>
+                <td>@item.District</td>
+                <td>@item.SubDistrict</td>
+                <td>@item.Community</td>
+            </tr>
+        }
+    </tbody>
+</table>
