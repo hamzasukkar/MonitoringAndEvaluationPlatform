@@ -1,0 +1,22 @@
+﻿@model Community
+
+@{
+    ViewData["Title"] = "Create Community";
+}
+
+<h2>Create Community</h2>
+
+<form asp-action="CreateCommunity" method="post">
+    <div class="form-group">
+        <label asp-for="SubDistrictCode">SubDistrict</label>
+        <select asp-for="SubDistrictCode" class="form-control" asp-items="ViewBag.SubDistricts"></select>
+        <span asp-validation-for="SubDistrictCode" class="text-danger"></span>
+    </div>
+    <div class="form-group">
+        <label asp-for="Name"></label>
+        <input asp-for="Name" class="form-control" />
+        <span asp-validation-for="Name" class="text-danger"></span>
+    </div>
+    <button type="submit" class="btn btn-success">Create</button>
+    <a asp-action="Communities" class="btn btn-secondary">Cancel</a>
+</form>

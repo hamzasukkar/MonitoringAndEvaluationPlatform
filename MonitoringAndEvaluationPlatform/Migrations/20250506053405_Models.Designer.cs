@@ -12,7 +12,7 @@ using MonitoringAndEvaluationPlatform.Data;
 namespace MonitoringAndEvaluationPlatform.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20250505050208_Models")]
+    [Migration("20250506053405_Models")]
     partial class Models
     {
         /// <inheritdoc />
@@ -277,6 +277,50 @@ namespace MonitoringAndEvaluationPlatform.Migrations
                     b.ToTable("AspNetUsers", (string)null);
                 });
 
+            modelBuilder.Entity("MonitoringAndEvaluationPlatform.Models.Community", b =>
+                {
+                    b.Property<int>("Code")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Code"));
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("SubDistrictCode")
+                        .HasColumnType("int");
+
+                    b.HasKey("Code");
+
+                    b.HasIndex("SubDistrictCode");
+
+                    b.ToTable("Communities");
+                });
+
+            modelBuilder.Entity("MonitoringAndEvaluationPlatform.Models.District", b =>
+                {
+                    b.Property<int>("Code")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Code"));
+
+                    b.Property<int>("GovernorateCode")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Code");
+
+                    b.HasIndex("GovernorateCode");
+
+                    b.ToTable("Districts");
+                });
+
             modelBuilder.Entity("MonitoringAndEvaluationPlatform.Models.Donor", b =>
                 {
                     b.Property<int>("Code")
@@ -330,6 +374,23 @@ namespace MonitoringAndEvaluationPlatform.Migrations
                     b.HasKey("Code");
 
                     b.ToTable("Frameworks");
+                });
+
+            modelBuilder.Entity("MonitoringAndEvaluationPlatform.Models.Governorate", b =>
+                {
+                    b.Property<int>("Code")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Code"));
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Code");
+
+                    b.ToTable("Governorates");
                 });
 
             modelBuilder.Entity("MonitoringAndEvaluationPlatform.Models.Indicator", b =>
@@ -857,6 +918,28 @@ namespace MonitoringAndEvaluationPlatform.Migrations
                     b.ToTable("Sectors");
                 });
 
+            modelBuilder.Entity("MonitoringAndEvaluationPlatform.Models.SubDistrict", b =>
+                {
+                    b.Property<int>("Code")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Code"));
+
+                    b.Property<int>("DistrictCode")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Code");
+
+                    b.HasIndex("DistrictCode");
+
+                    b.ToTable("SubDistricts");
+                });
+
             modelBuilder.Entity("MonitoringAndEvaluationPlatform.Models.SubOutput", b =>
                 {
                     b.Property<int>("Code")
@@ -997,6 +1080,28 @@ namespace MonitoringAndEvaluationPlatform.Migrations
                         .IsRequired();
 
                     b.Navigation("ActionPlan");
+                });
+
+            modelBuilder.Entity("MonitoringAndEvaluationPlatform.Models.Community", b =>
+                {
+                    b.HasOne("MonitoringAndEvaluationPlatform.Models.SubDistrict", "SubDistrict")
+                        .WithMany("Communities")
+                        .HasForeignKey("SubDistrictCode")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("SubDistrict");
+                });
+
+            modelBuilder.Entity("MonitoringAndEvaluationPlatform.Models.District", b =>
+                {
+                    b.HasOne("MonitoringAndEvaluationPlatform.Models.Governorate", "Governorate")
+                        .WithMany("Districts")
+                        .HasForeignKey("GovernorateCode")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Governorate");
                 });
 
             modelBuilder.Entity("MonitoringAndEvaluationPlatform.Models.Indicator", b =>
@@ -1166,6 +1271,17 @@ namespace MonitoringAndEvaluationPlatform.Migrations
                     b.Navigation("Project");
                 });
 
+            modelBuilder.Entity("MonitoringAndEvaluationPlatform.Models.SubDistrict", b =>
+                {
+                    b.HasOne("MonitoringAndEvaluationPlatform.Models.District", "District")
+                        .WithMany("SubDistricts")
+                        .HasForeignKey("DistrictCode")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("District");
+                });
+
             modelBuilder.Entity("MonitoringAndEvaluationPlatform.Models.SubOutput", b =>
                 {
                     b.HasOne("MonitoringAndEvaluationPlatform.Models.Output", "Output")
@@ -1202,9 +1318,19 @@ namespace MonitoringAndEvaluationPlatform.Migrations
                     b.Navigation("Plans");
                 });
 
+            modelBuilder.Entity("MonitoringAndEvaluationPlatform.Models.District", b =>
+                {
+                    b.Navigation("SubDistricts");
+                });
+
             modelBuilder.Entity("MonitoringAndEvaluationPlatform.Models.Framework", b =>
                 {
                     b.Navigation("Outcomes");
+                });
+
+            modelBuilder.Entity("MonitoringAndEvaluationPlatform.Models.Governorate", b =>
+                {
+                    b.Navigation("Districts");
                 });
 
             modelBuilder.Entity("MonitoringAndEvaluationPlatform.Models.Indicator", b =>
@@ -1246,6 +1372,11 @@ namespace MonitoringAndEvaluationPlatform.Migrations
                     b.Navigation("ProjectIndicators");
 
                     b.Navigation("logicalFramework");
+                });
+
+            modelBuilder.Entity("MonitoringAndEvaluationPlatform.Models.SubDistrict", b =>
+                {
+                    b.Navigation("Communities");
                 });
 
             modelBuilder.Entity("MonitoringAndEvaluationPlatform.Models.SubOutput", b =>

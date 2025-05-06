@@ -85,6 +85,19 @@ namespace MonitoringAndEvaluationPlatform.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "Governorates",
+                columns: table => new
+                {
+                    Code = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Name = table.Column<string>(type: "nvarchar(max)", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Governorates", x => x.Code);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "Ministries",
                 columns: table => new
                 {
@@ -286,6 +299,26 @@ namespace MonitoringAndEvaluationPlatform.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "Districts",
+                columns: table => new
+                {
+                    Code = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    GovernorateCode = table.Column<int>(type: "int", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Districts", x => x.Code);
+                    table.ForeignKey(
+                        name: "FK_Districts_Governorates_GovernorateCode",
+                        column: x => x.GovernorateCode,
+                        principalTable: "Governorates",
+                        principalColumn: "Code",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "Projects",
                 columns: table => new
                 {
@@ -364,6 +397,26 @@ namespace MonitoringAndEvaluationPlatform.Migrations
                         name: "FK_Outputs_Outcomes_OutcomeCode",
                         column: x => x.OutcomeCode,
                         principalTable: "Outcomes",
+                        principalColumn: "Code",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "SubDistricts",
+                columns: table => new
+                {
+                    Code = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    DistrictCode = table.Column<int>(type: "int", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_SubDistricts", x => x.Code);
+                    table.ForeignKey(
+                        name: "FK_SubDistricts_Districts_DistrictCode",
+                        column: x => x.DistrictCode,
+                        principalTable: "Districts",
                         principalColumn: "Code",
                         onDelete: ReferentialAction.Cascade);
                 });
@@ -476,6 +529,26 @@ namespace MonitoringAndEvaluationPlatform.Migrations
                         name: "FK_SubOutputs_Outputs_OutputCode",
                         column: x => x.OutputCode,
                         principalTable: "Outputs",
+                        principalColumn: "Code",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Communities",
+                columns: table => new
+                {
+                    Code = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    SubDistrictCode = table.Column<int>(type: "int", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Communities", x => x.Code);
+                    table.ForeignKey(
+                        name: "FK_Communities_SubDistricts_SubDistrictCode",
+                        column: x => x.SubDistrictCode,
+                        principalTable: "SubDistricts",
                         principalColumn: "Code",
                         onDelete: ReferentialAction.Cascade);
                 });
@@ -718,6 +791,16 @@ namespace MonitoringAndEvaluationPlatform.Migrations
                 filter: "[NormalizedUserName] IS NOT NULL");
 
             migrationBuilder.CreateIndex(
+                name: "IX_Communities_SubDistrictCode",
+                table: "Communities",
+                column: "SubDistrictCode");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Districts_GovernorateCode",
+                table: "Districts",
+                column: "GovernorateCode");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Indicators_SubOutputCode",
                 table: "Indicators",
                 column: "SubOutputCode");
@@ -808,6 +891,11 @@ namespace MonitoringAndEvaluationPlatform.Migrations
                 column: "SuperVisorCode");
 
             migrationBuilder.CreateIndex(
+                name: "IX_SubDistricts_DistrictCode",
+                table: "SubDistricts",
+                column: "DistrictCode");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_SubOutputs_OutputCode",
                 table: "SubOutputs",
                 column: "OutputCode");
@@ -830,6 +918,9 @@ namespace MonitoringAndEvaluationPlatform.Migrations
 
             migrationBuilder.DropTable(
                 name: "AspNetUserTokens");
+
+            migrationBuilder.DropTable(
+                name: "Communities");
 
             migrationBuilder.DropTable(
                 name: "logicalMeasures");
@@ -856,6 +947,9 @@ namespace MonitoringAndEvaluationPlatform.Migrations
                 name: "AspNetUsers");
 
             migrationBuilder.DropTable(
+                name: "SubDistricts");
+
+            migrationBuilder.DropTable(
                 name: "logicalFrameworkIndicators");
 
             migrationBuilder.DropTable(
@@ -868,6 +962,9 @@ namespace MonitoringAndEvaluationPlatform.Migrations
                 name: "Regions");
 
             migrationBuilder.DropTable(
+                name: "Districts");
+
+            migrationBuilder.DropTable(
                 name: "logicalFrameworks");
 
             migrationBuilder.DropTable(
@@ -875,6 +972,9 @@ namespace MonitoringAndEvaluationPlatform.Migrations
 
             migrationBuilder.DropTable(
                 name: "SubOutputs");
+
+            migrationBuilder.DropTable(
+                name: "Governorates");
 
             migrationBuilder.DropTable(
                 name: "Projects");

@@ -1,0 +1,22 @@
+﻿@model SubDistrict
+
+@{
+    ViewData["Title"] = "Create SubDistrict";
+}
+
+<h2>Create SubDistrict</h2>
+
+<form asp-action="CreateSubDistrict" method="post">
+    <div class="form-group">
+        <label asp-for="DistrictCode">District</label>
+        <select asp-for="DistrictCode" class="form-control" asp-items="ViewBag.Districts"></select>
+        <span asp-validation-for="DistrictCode" class="text-danger"></span>
+    </div>
+    <div class="form-group">
+        <label asp-for="Name"></label>
+        <input asp-for="Name" class="form-control" />
+        <span asp-validation-for="Name" class="text-danger"></span>
+    </div>
+    <button type="submit" class="btn btn-success">Create</button>
+    <a asp-action="SubDistricts" class="btn btn-secondary">Cancel</a>
+</form>

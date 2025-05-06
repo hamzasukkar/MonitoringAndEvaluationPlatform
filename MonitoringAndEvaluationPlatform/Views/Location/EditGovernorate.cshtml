@@ -1,0 +1,14 @@
+﻿@model Governorate
+
+<h2>Edit Governorate</h2>
+
+<form asp-action="EditGovernorate" method="post">
+    <input type="hidden" asp-for="Code" />
+    <div class="form-group">
+        <label asp-for="Name"></label>
+        <input asp-for="Name" class="form-control" />
+        <span asp-validation-for="Name" class="text-danger"></span>
+    </div>
+    <button type="submit" class="btn btn-success">Save</button>
+    <a asp-action="Governorates" class="btn btn-secondary">Cancel</a>
+</form>

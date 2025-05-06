@@ -31,6 +31,11 @@ namespace MonitoringAndEvaluationPlatform.Data
         public DbSet<LogicalFramework> logicalFrameworks { get; set; } = default!;
         public DbSet<LogicalFrameworkIndicator> logicalFrameworkIndicators { get; set; } = default!;
         public DbSet<ProjectFile> ProjectFiles { get; set; }
+        public DbSet<Governorate> Governorates { get; set; }
+        public DbSet<District> Districts { get; set; }
+        public DbSet<SubDistrict> SubDistricts { get; set; }
+        public DbSet<Community> Communities { get; set; }
+
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
