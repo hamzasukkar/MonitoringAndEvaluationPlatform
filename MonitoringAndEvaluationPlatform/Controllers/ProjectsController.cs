@@ -81,15 +81,6 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             {
                 Governorates = _context.Governorates
                     .Select(g => new SelectListItem { Value = g.Code.ToString(), Text = g.Name })
-                    .ToList(),
-                Districts = _context.Districts
-                    .Select(g => new SelectListItem { Value = g.Code.ToString(), Text = g.Name })
-                    .ToList(),
-                SubDistricts = _context.SubDistricts
-                    .Select(g => new SelectListItem { Value = g.Code.ToString(), Text = g.Name })
-                    .ToList(),
-                Communities = _context.Communities
-                    .Select(g => new SelectListItem { Value = g.Code.ToString(), Text = g.Name })
                     .ToList()
             };
             // Get all lists first
