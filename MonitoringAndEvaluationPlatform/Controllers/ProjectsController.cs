@@ -75,14 +75,9 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             return View(filter);
         }
 
-        public IActionResult Create2()
+        // GET: Programs/Create
+        public IActionResult Create()
         {
-            var model = new ProjectViewModel
-            {
-                Governorates = _context.Governorates
-                    .Select(g => new SelectListItem { Value = g.Code.ToString(), Text = g.Name })
-                    .ToList()
-            };
             // Get all lists first
             var donors = _context.Donors.ToList();
             var regions = _context.Regions.ToList();
@@ -91,50 +86,149 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             var supervisors = _context.SuperVisors.ToList();
             var projectManagers = _context.ProjectManagers.ToList();
 
+            Project project = new Project();
+            project.EstimatedBudget = 0;
+            project.RealBudget = 0;
+            project.StartDate = DateTime.Today;
+            project.EndDate = DateTime.Today.AddYears(1);
+            // Set first item as default if available
+            project.DonorCode = donors.FirstOrDefault().Code;
+            project.SectorCode = sectors.FirstOrDefault().Code;
+            project.MinistryCode = ministries.FirstOrDefault().Code;
+            project.SuperVisorCode = supervisors.FirstOrDefault().Code;
+            project.ProjectManagerCode = projectManagers.FirstOrDefault().Code;
 
-            // Set ViewBag/ViewData with SelectLists
+
+            var model = new ProjectViewModel
+            {
+                Governorates = _context.Governorates
+                    .Select(g => new SelectListItem { Value = g.Code.ToString(), Text = g.Name })
+                    .ToList(),
+                project = project
+            };
+
             // Set ViewBag/ViewData with SelectLists
             ViewData["Donor"] = new SelectList(donors, "Code", "Partner");
             ViewBag.RegionList = new MultiSelectList(regions, "Code", "Name");
             ViewData["Sector"] = new SelectList(sectors, "Code", "Name");
-            ViewData["Ministry"] = new SelectList(ministries, "Code", "MinistryName");  
+            ViewData["Ministry"] = new SelectList(ministries, "Code", "MinistryName");
             ViewData["SuperVisor"] = new SelectList(supervisors, "Code", "Name");
             ViewData["ProjectManager"] = new SelectList(projectManagers, "Code", "Name");
 
             return View(model);
         }
 
+        // POST: Programs/Create
+        // To protect from overposting attacks, enable the specific properties you want to bind to.
+        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
-        public IActionResult Create2(ProjectViewModel model)
+        [ValidateAntiForgeryToken]
+
+        [HttpPost]
+        public async Task<IActionResult> Create(ProjectViewModel model, List<IFormFile> UploadedFiles)
         {
+            ModelState.Remove(nameof(Project.ProjectManager));
+            ModelState.Remove(nameof(Project.Sector));
+            ModelState.Remove(nameof(Project.Donor));
+            ModelState.Remove(nameof(Project.Ministry));
+            ModelState.Remove(nameof(Project.SuperVisor));
+            ModelState.Remove(nameof(Project.ActionPlan));
+            ModelState.Remove(nameof(Project.Community));
+            ModelState.Remove(nameof(Project.District));
+            ModelState.Remove(nameof(Project.SubDistrict));
+            ModelState.Remove(nameof(Project.Governorate));
+
             //if (!ModelState.IsValid)
             //{
+            //    // Get all lists first
+            //    var donors = _context.Donors.ToList();
+            //    var regions = _context.Regions.ToList();
+            //    var sectors = _context.Sectors.ToList();
+            //    var ministries = _context.Ministries.ToList();
+            //    var supervisors = _context.SuperVisors.ToList();
+            //    var projectManagers = _context.ProjectManagers.ToList();
+
             //    model.Governorates = _context.Governorates
             //        .Select(g => new SelectListItem { Value = g.Code.ToString(), Text = g.Name })
             //        .ToList();
+            //    model.project.EstimatedBudget = 0;
+            //    model.project.RealBudget = 0;
+            //    model.project.StartDate = DateTime.Today;
+            //    model.project.EndDate = DateTime.Today.AddYears(1);
+            //    // Set first item as default if available
+            //    model.project.DonorCode = donors.FirstOrDefault().Code;
+            //    model.project.SectorCode = sectors.FirstOrDefault().Code;
+            //    model.project.MinistryCode = ministries.FirstOrDefault().Code;
+            //    model.project.SuperVisorCode = supervisors.FirstOrDefault().Code;
+            //    model.project.ProjectManagerCode = projectManagers.FirstOrDefault().Code;
             //    return View(model);
             //}
 
+            var selectedRegionCodes = Request.Form["Regions"].ToList();
+            var selectedRegions = _context.Regions
+                                          .Where(r => selectedRegionCodes.Contains(r.Code.ToString()))
+                                          .ToList();
+
             var project = new Project
             {
-                ProjectName = model.ProjectName,
+                ProjectID = model.project.ProjectID,
+                ProjectName = model.project.ProjectName,
                 GovernorateCode = model.GovernorateCode,
                 DistrictCode = model.DistrictCode,
                 SubDistrictCode= model.SubDistrictCode,
                 CommunityCode = model.CommunityCode,
-                MinistryCode=model.MinistryCode,
-                StartDate=model.StartDate,
-                EndDate=model.EndDate,
-                EstimatedBudget=model.EstimatedBudget,
-                RealBudget=model.RealBudget,
-                SectorCode=model.SectorCode,
-                ProjectManagerCode=model.ProjectManagerCode,
-                SuperVisorCode=model.SuperVisorCode,
-                DonorCode=model.DonorCode
+                MinistryCode=model.project.MinistryCode,
+                StartDate=model.project.StartDate,
+                EndDate=model.project.EndDate,
+                EstimatedBudget=model.project.EstimatedBudget,
+                RealBudget=model.project.RealBudget,
+                SectorCode=model.project.SectorCode,
+                ProjectManagerCode=model.project.ProjectManagerCode,
+                SuperVisorCode=model.project.SuperVisorCode,
+                DonorCode=model.project.DonorCode,
+                Regions = selectedRegions
             };
+
 
             _context.Projects.Add(project);
             _context.SaveChanges();
+
+            // Handle file uploads
+            if (UploadedFiles != null && UploadedFiles.Count > 0)
+            {
+                foreach (var file in UploadedFiles)
+                {
+                    if (file.Length > 0)
+                    {
+                        var uploadsFolder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/uploads");
+                        if (!Directory.Exists(uploadsFolder))
+                        {
+                            Directory.CreateDirectory(uploadsFolder);
+                        }
+
+                        // Optional: create unique filename to avoid collision
+                        var uniqueFileName = $"{Guid.NewGuid()}_{Path.GetFileName(file.FileName)}";
+                        var filePath = Path.Combine(uploadsFolder, uniqueFileName);
+
+                        using (var stream = new FileStream(filePath, FileMode.Create))
+                        {
+                            await file.CopyToAsync(stream);
+                        }
+
+                        // Save file path to database
+                        var projectFile = new ProjectFile
+                        {
+                            ProjectId = project.ProjectID, // Assuming your Project PK is ProjectID
+                            FileName = file.FileName,       // original filename
+                            FilePath = "/uploads/" + uniqueFileName // web-accessible path
+                        };
+                        _context.ProjectFiles.Add(projectFile);
+                    }
+                }
+
+                await _context.SaveChangesAsync(); // Save ProjectFiles
+            }
+
             return RedirectToAction("Index");
         }
 
@@ -166,113 +260,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             return View(project);
         }
 
-        // GET: Programs/Create
-         public IActionResult Create()
-        {
-            // Get all lists first
-            var donors = _context.Donors.ToList();
-            var regions = _context.Regions.ToList();
-            var sectors = _context.Sectors.ToList();
-            var ministries = _context.Ministries.ToList();
-            var supervisors = _context.SuperVisors.ToList();
-            var projectManagers = _context.ProjectManagers.ToList();
-
-            // Create model with default values
-            var model = new Project
-            {
-                EstimatedBudget = 0,
-                RealBudget = 0,
-                StartDate = DateTime.Today,
-                EndDate = DateTime.Today.AddYears(1),
-                // Set first item as default if available
-                DonorCode = donors.FirstOrDefault().Code,
-                SectorCode = sectors.FirstOrDefault().Code,
-                MinistryCode = ministries.FirstOrDefault().Code,
-                SuperVisorCode = supervisors.FirstOrDefault().Code,
-                ProjectManagerCode = projectManagers.FirstOrDefault().Code
-            };
-
-            // Set ViewBag/ViewData with SelectLists
-            ViewData["Donor"] = new SelectList(donors, "Code", "Partner", model.DonorCode);
-            ViewBag.RegionList = new MultiSelectList(regions, "Code", "Name");
-            ViewData["Sector"] = new SelectList(sectors, "Code", "Name", model.SectorCode);
-            ViewData["Ministry"] = new SelectList(ministries, "Code", "MinistryName", model.MinistryCode);
-            ViewData["SuperVisor"] = new SelectList(supervisors, "Code", "Name", model.SuperVisorCode);
-            ViewData["ProjectManager"] = new SelectList(projectManagers, "Code", "Name", model.ProjectManagerCode);
-
-            return View(model);
-        }    
-
-        // POST: Programs/Create
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create(Project project)
-        {
-
-            ModelState.Remove(nameof(Project.ProjectManager));
-            //ModelState.Remove(nameof(Project.Region));
-            ModelState.Remove(nameof(Project.Sector));
-            ModelState.Remove(nameof(Project.Donor));
-            ModelState.Remove(nameof(Project.Ministry));
-            ModelState.Remove(nameof(Project.SuperVisor));
-            ModelState.Remove(nameof(Project.ActionPlan));
-
-            var selectedRegionCodes = Request.Form["Regions"].ToList();
-            var selectedRegions = _context.Regions
-                                          .Where(r => selectedRegionCodes.Contains(r.Code.ToString()))
-                                          .ToList();
-
-            project.Regions = selectedRegions;
-
-            if (ModelState.IsValid)
-            {
-                _context.Add(project);
-                await _context.SaveChangesAsync(); // Save first to get Project ID
-
-                // Handle file uploads
-                if (project.UploadedFiles != null && project.UploadedFiles.Count > 0)
-                {
-                    foreach (var file in project.UploadedFiles)
-                    {
-                        if (file.Length > 0)
-                        {
-                            var uploadsFolder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/uploads");
-                            if (!Directory.Exists(uploadsFolder))
-                            {
-                                Directory.CreateDirectory(uploadsFolder);
-                            }
-
-                            // Optional: create unique filename to avoid collision
-                            var uniqueFileName = $"{Guid.NewGuid()}_{Path.GetFileName(file.FileName)}";
-                            var filePath = Path.Combine(uploadsFolder, uniqueFileName);
-
-                            using (var stream = new FileStream(filePath, FileMode.Create))
-                            {
-                                await file.CopyToAsync(stream);
-                            }
-
-                            // Save file path to database
-                            var projectFile = new ProjectFile
-                            {
-                                ProjectId = project.ProjectID, // Assuming your Project PK is ProjectID
-                                FileName = file.FileName,       // original filename
-                                FilePath = "/uploads/" + uniqueFileName // web-accessible path
-                            };
-                            _context.ProjectFiles.Add(projectFile);
-                        }
-                    }
-
-                    await _context.SaveChangesAsync(); // Save ProjectFiles
-                }
-
-                return RedirectToAction(nameof(Index));
-            }
-
-            return View();
-
-        }
+        
 
         // GET: Programs/Edit/5
         public async Task<IActionResult> Edit(int? id)
