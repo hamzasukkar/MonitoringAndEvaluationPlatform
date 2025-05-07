@@ -74,59 +74,52 @@ namespace MonitoringAndEvaluationPlatform.Controllers
 
             return View(filter);
         }
-
         // GET: Programs/Create
         public IActionResult Create()
         {
-            // Get all lists first
+            // Retrieve related data
             var donors = _context.Donors.ToList();
             var regions = _context.Regions.ToList();
             var sectors = _context.Sectors.ToList();
             var ministries = _context.Ministries.ToList();
             var supervisors = _context.SuperVisors.ToList();
             var projectManagers = _context.ProjectManagers.ToList();
+            var governorates = _context.Governorates
+             .Select(g => new { g.Code, g.Name })
+             .ToList();
 
-            Project project = new Project();
-            project.EstimatedBudget = 0;
-            project.RealBudget = 0;
-            project.StartDate = DateTime.Today;
-            project.EndDate = DateTime.Today.AddYears(1);
-            // Set first item as default if available
-            project.DonorCode = donors.FirstOrDefault().Code;
-            project.SectorCode = sectors.FirstOrDefault().Code;
-            project.MinistryCode = ministries.FirstOrDefault().Code;
-            project.SuperVisorCode = supervisors.FirstOrDefault().Code;
-            project.ProjectManagerCode = projectManagers.FirstOrDefault().Code;
-
-
-            var model = new ProjectViewModel
+            // Initialize project with defaults
+            var project = new Project
             {
-                Governorates = _context.Governorates
-                    .Select(g => new SelectListItem { Value = g.Code.ToString(), Text = g.Name })
-                    .ToList(),
-                project = project
+                EstimatedBudget = 0,
+                RealBudget = 0,
+                StartDate = DateTime.Today,
+                EndDate = DateTime.Today.AddYears(1),
+                DonorCode = donors.FirstOrDefault().Code,
+                SectorCode = sectors.FirstOrDefault().Code,
+                MinistryCode = ministries.FirstOrDefault().Code,
+                SuperVisorCode = supervisors.FirstOrDefault().Code,
+                ProjectManagerCode = projectManagers.FirstOrDefault().Code
             };
 
-            // Set ViewBag/ViewData with SelectLists
-            ViewData["Donor"] = new SelectList(donors, "Code", "Partner");
+            // Prepare dropdown and multiselect data
+            ViewBag.Donor = new SelectList(donors, "Code", "Partner");
             ViewBag.RegionList = new MultiSelectList(regions, "Code", "Name");
-            ViewData["Sector"] = new SelectList(sectors, "Code", "Name");
-            ViewData["Ministry"] = new SelectList(ministries, "Code", "MinistryName");
-            ViewData["SuperVisor"] = new SelectList(supervisors, "Code", "Name");
-            ViewData["ProjectManager"] = new SelectList(projectManagers, "Code", "Name");
+            ViewBag.Sector = new SelectList(sectors, "Code", "Name");
+            ViewBag.Ministry = new SelectList(ministries, "Code", "MinistryName");
+            ViewBag.SuperVisor = new SelectList(supervisors, "Code", "Name");
+            ViewBag.ProjectManager = new SelectList(projectManagers, "Code", "Name");
+            ViewBag.Governorates = new SelectList(governorates, "Code", "Name");
 
-            return View(model);
+            return View(project);
         }
 
-        // POST: Programs/Create
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
-        [HttpPost]
-        [ValidateAntiForgeryToken]
 
         [HttpPost]
-        public async Task<IActionResult> Create(ProjectViewModel model, List<IFormFile> UploadedFiles)
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Create(Project project, List<IFormFile> UploadedFiles)
         {
+            // Remove navigation property validation to avoid unnecessary errors
             ModelState.Remove(nameof(Project.ProjectManager));
             ModelState.Remove(nameof(Project.Sector));
             ModelState.Remove(nameof(Project.Donor));
@@ -138,75 +131,44 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             ModelState.Remove(nameof(Project.SubDistrict));
             ModelState.Remove(nameof(Project.Governorate));
 
-            //if (!ModelState.IsValid)
-            //{
-            //    // Get all lists first
-            //    var donors = _context.Donors.ToList();
-            //    var regions = _context.Regions.ToList();
-            //    var sectors = _context.Sectors.ToList();
-            //    var ministries = _context.Ministries.ToList();
-            //    var supervisors = _context.SuperVisors.ToList();
-            //    var projectManagers = _context.ProjectManagers.ToList();
+            if (!ModelState.IsValid)
+            {
+                // Re-populate ViewBag dropdowns in case of validation failure
+                ViewBag.Governorates = new SelectList(_context.Governorates, "Code", "Name");
+                ViewBag.RegionList = new MultiSelectList(_context.Regions, "Code", "Name");
+                ViewBag.Sector = new SelectList(_context.Sectors, "Code", "Name");
+                ViewBag.ProjectManager = new SelectList(_context.ProjectManagers, "Code", "FullName");
+                ViewBag.SuperVisor = new SelectList(_context.SuperVisors, "Code", "FullName");
+                ViewBag.Ministry = new SelectList(_context.Ministries, "Code", "Name");
+                ViewBag.Donor = new SelectList(_context.Donors, "Code", "Name");
 
-            //    model.Governorates = _context.Governorates
-            //        .Select(g => new SelectListItem { Value = g.Code.ToString(), Text = g.Name })
-            //        .ToList();
-            //    model.project.EstimatedBudget = 0;
-            //    model.project.RealBudget = 0;
-            //    model.project.StartDate = DateTime.Today;
-            //    model.project.EndDate = DateTime.Today.AddYears(1);
-            //    // Set first item as default if available
-            //    model.project.DonorCode = donors.FirstOrDefault().Code;
-            //    model.project.SectorCode = sectors.FirstOrDefault().Code;
-            //    model.project.MinistryCode = ministries.FirstOrDefault().Code;
-            //    model.project.SuperVisorCode = supervisors.FirstOrDefault().Code;
-            //    model.project.ProjectManagerCode = projectManagers.FirstOrDefault().Code;
-            //    return View(model);
-            //}
+                return View(project);
+            }
 
+            // Handle region selection from form
             var selectedRegionCodes = Request.Form["Regions"].ToList();
             var selectedRegions = _context.Regions
                                           .Where(r => selectedRegionCodes.Contains(r.Code.ToString()))
                                           .ToList();
 
-            var project = new Project
-            {
-                ProjectID = model.project.ProjectID,
-                ProjectName = model.project.ProjectName,
-                GovernorateCode = model.GovernorateCode,
-                DistrictCode = model.DistrictCode,
-                SubDistrictCode= model.SubDistrictCode,
-                CommunityCode = model.CommunityCode,
-                MinistryCode=model.project.MinistryCode,
-                StartDate=model.project.StartDate,
-                EndDate=model.project.EndDate,
-                EstimatedBudget=model.project.EstimatedBudget,
-                RealBudget=model.project.RealBudget,
-                SectorCode=model.project.SectorCode,
-                ProjectManagerCode=model.project.ProjectManagerCode,
-                SuperVisorCode=model.project.SuperVisorCode,
-                DonorCode=model.project.DonorCode,
-                Regions = selectedRegions
-            };
-
+            project.Regions = selectedRegions;
 
             _context.Projects.Add(project);
-            _context.SaveChanges();
+            await _context.SaveChangesAsync();
 
             // Handle file uploads
             if (UploadedFiles != null && UploadedFiles.Count > 0)
             {
+                var uploadsFolder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/uploads");
+                if (!Directory.Exists(uploadsFolder))
+                {
+                    Directory.CreateDirectory(uploadsFolder);
+                }
+
                 foreach (var file in UploadedFiles)
                 {
                     if (file.Length > 0)
                     {
-                        var uploadsFolder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/uploads");
-                        if (!Directory.Exists(uploadsFolder))
-                        {
-                            Directory.CreateDirectory(uploadsFolder);
-                        }
-
-                        // Optional: create unique filename to avoid collision
                         var uniqueFileName = $"{Guid.NewGuid()}_{Path.GetFileName(file.FileName)}";
                         var filePath = Path.Combine(uploadsFolder, uniqueFileName);
 
@@ -215,18 +177,18 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                             await file.CopyToAsync(stream);
                         }
 
-                        // Save file path to database
                         var projectFile = new ProjectFile
                         {
-                            ProjectId = project.ProjectID, // Assuming your Project PK is ProjectID
-                            FileName = file.FileName,       // original filename
-                            FilePath = "/uploads/" + uniqueFileName // web-accessible path
+                            ProjectId = project.ProjectID,
+                            FileName = file.FileName,
+                            FilePath = "/uploads/" + uniqueFileName
                         };
+
                         _context.ProjectFiles.Add(projectFile);
                     }
                 }
 
-                await _context.SaveChangesAsync(); // Save ProjectFiles
+                await _context.SaveChangesAsync();
             }
 
             return RedirectToAction("Index");
@@ -260,84 +222,194 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             return View(project);
         }
 
-        
+
 
         // GET: Programs/Edit/5
+        // GET: Projects/Edit/5
         public async Task<IActionResult> Edit(int? id)
         {
-            if (id == null)
-            {
-                return NotFound();
-            }
+            if (id == null) return NotFound();
 
-            var program = await _context.Projects.FindAsync(id);
+            // Load project + its Regions
+            var project = await _context.Projects
+                .Include(p => p.Regions)
+                .FirstOrDefaultAsync(p => p.ProjectID == id.Value);
 
-            if (program == null)
-            {
-                return NotFound();
-            }
-            ViewBag.Indicators = _context.Indicators.ToList();
-            ViewData["Donor"] = new SelectList(_context.Donors, "Code", "Partner");
-            ViewBag.RegionList = new MultiSelectList(_context.Regions.ToList(), "Code", "Name");
-            ViewData["Sector"] = new SelectList(_context.Sectors, "Code", "Name");
-            ViewData["Ministry"] = new SelectList(_context.Ministries, "Code", "MinistryName");
-            ViewData["SuperVisor"] = new SelectList(_context.SuperVisors, "Code", "Name");
-            ViewData["ProjectManager"] = new SelectList(_context.ProjectManagers, "Code", "Name");
-            return View(program);
+            if (project == null) return NotFound();
+
+            // --- Populate dropdown data ---
+
+            // Governorates
+            var allGovs = await _context.Governorates.ToListAsync();
+            ViewBag.Governorates = new SelectList(allGovs, "Code", "Name", project.GovernorateCode);
+
+            // Districts under the selected governorate
+            var districts = await _context.Districts
+                .Where(d => d.GovernorateCode == project.GovernorateCode)
+                .ToListAsync();
+            ViewBag.Districts = new SelectList(districts, "Code", "Name", project.DistrictCode);
+
+            // SubDistricts under the selected district
+            var subs = await _context.SubDistricts
+                .Where(s => s.DistrictCode == project.DistrictCode)
+                .ToListAsync();
+            ViewBag.SubDistricts = new SelectList(subs, "Code", "Name", project.SubDistrictCode);
+
+            // Communities under the selected sub-district
+            var comms = await _context.Communities
+                .Where(c => c.SubDistrictCode == project.SubDistrictCode)
+                .ToListAsync();
+            ViewBag.Communities = new SelectList(comms, "Code", "Name", project.CommunityCode);
+
+            // Regions multi‑select (pre‑select the ones already on the project)
+            var allRegions = await _context.Regions.ToListAsync();
+            var selectedRegionCodes = project.Regions.Select(r => r.Code.ToString()).ToArray();
+            ViewBag.RegionList = new MultiSelectList(allRegions, "Code", "Name", selectedRegionCodes);
+
+            // Stakeholders
+            ViewBag.Sector = new SelectList(await _context.Sectors.ToListAsync(), "Code", "Name", project.SectorCode);
+            ViewBag.ProjectManager = new SelectList(await _context.ProjectManagers.ToListAsync(), "Code", "Name", project.ProjectManagerCode);
+            ViewBag.SuperVisor = new SelectList(await _context.SuperVisors.ToListAsync(), "Code", "Name", project.SuperVisorCode);
+            ViewBag.Ministry = new SelectList(await _context.Ministries.ToListAsync(), "Code", "MinistryName", project.MinistryCode);
+            ViewBag.Donor = new SelectList(await _context.Donors.ToListAsync(), "Code", "Partner", project.DonorCode);
+
+            return View(project);
         }
 
-        // POST: Programs/Edit/5
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
+        // POST: Projects/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id,Project program)
+        public async Task<IActionResult> Edit(int id, Project project, List<IFormFile> UploadedFiles)
         {
-            if (id != program.ProjectID)
+            if (id != project.ProjectID)
+                return NotFound();
+
+            // Remove nav‑props so EF Core won't demand them
+            ModelState.Remove(nameof(Project.Regions));
+            ModelState.Remove(nameof(Project.ProjectManager));
+            ModelState.Remove(nameof(Project.Sector));
+            ModelState.Remove(nameof(Project.SuperVisor));
+            ModelState.Remove(nameof(Project.Ministry));
+            ModelState.Remove(nameof(Project.Donor));
+            ModelState.Remove(nameof(Project.Governorate));
+            ModelState.Remove(nameof(Project.District));
+            ModelState.Remove(nameof(Project.SubDistrict));
+            ModelState.Remove(nameof(Project.Community));
+            ModelState.Remove(nameof(Project.ActionPlan));
+
+            if (!ModelState.IsValid)
+            {
+                // If we fail, re‑populate all ViewBag lists exactly as in GET:
+                await PopulateEditDropdowns(project);
+                return View(project);
+            }
+
+            // Fetch the existing entity (to update its nav‑props safely)
+            var dbProject = await _context.Projects
+                .Include(p => p.Regions)
+                .FirstOrDefaultAsync(p => p.ProjectID == id);
+
+            if (dbProject == null) return NotFound();
+
+            // --- Update scalar properties ---
+            dbProject.ProjectName = project.ProjectName;
+            dbProject.StartDate = project.StartDate;
+            dbProject.EndDate = project.EndDate;
+            dbProject.EstimatedBudget = project.EstimatedBudget;
+            dbProject.RealBudget = project.RealBudget;
+
+            dbProject.GovernorateCode = project.GovernorateCode;
+            dbProject.DistrictCode = project.DistrictCode;
+            dbProject.SubDistrictCode = project.SubDistrictCode;
+            dbProject.CommunityCode = project.CommunityCode;
+
+            dbProject.SectorCode = project.SectorCode;
+            dbProject.ProjectManagerCode = project.ProjectManagerCode;
+            dbProject.SuperVisorCode = project.SuperVisorCode;
+            dbProject.MinistryCode = project.MinistryCode;
+            dbProject.DonorCode = project.DonorCode;
+
+            // --- Update Regions many‑to‑many ---
+            var selectedRegionCodes = Request.Form["Regions"].ToList();
+            var selectedRegions = await _context.Regions
+                .Where(r => selectedRegionCodes.Contains(r.Code.ToString()))
+                .ToListAsync();
+
+            dbProject.Regions.Clear();
+            foreach (var r in selectedRegions)
+                dbProject.Regions.Add(r);
+
+            // --- Handle any new file uploads ---
+            if (UploadedFiles != null && UploadedFiles.Count > 0)
+            {
+                var uploadsFolder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/uploads");
+                if (!Directory.Exists(uploadsFolder))
+                    Directory.CreateDirectory(uploadsFolder);
+
+                foreach (var file in UploadedFiles)
+                {
+                    if (file.Length > 0)
+                    {
+                        var uniqueName = $"{Guid.NewGuid()}_{Path.GetFileName(file.FileName)}";
+                        var filePath = Path.Combine(uploadsFolder, uniqueName);
+
+                        using var fs = new FileStream(filePath, FileMode.Create);
+                        await file.CopyToAsync(fs);
+
+                        _context.ProjectFiles.Add(new ProjectFile
+                        {
+                            ProjectId = dbProject.ProjectID,
+                            FileName = file.FileName,
+                            FilePath = "/uploads/" + uniqueName
+                        });
+                    }
+                }
+            }
+
+            // Persist everything
+            try
+            {
+                await _context.SaveChangesAsync();
+            }
+            catch (DbUpdateConcurrencyException) when (!_context.Projects.Any(e => e.ProjectID == id))
             {
                 return NotFound();
             }
 
-            // Try updating scalar properties (optional: use TryUpdateModelAsync or manual binding)
-
-            var selectedRegionCodes = Request.Form["Regions"].ToList();
-
-            // Update regions
-            var selectedRegions = _context.Regions
-                .Where(r => selectedRegionCodes.Contains(r.Code.ToString()))
-                .ToList();
-
-            program.Regions.Clear();
-            foreach (var region in selectedRegions)
-            {
-                program.Regions.Add(region);
-            }
-
-            if (ModelState.IsValid)
-            {
-                try
-                {
-                    _context.Update(program);
-                    await _context.SaveChangesAsync();
-                }
-                catch (DbUpdateConcurrencyException)
-                {
-                    if (!ProgramExists(program.ProjectID))
-                    {
-                        return NotFound();
-                    }
-                    else
-                    {
-                        throw;
-                    }
-                }
-                return RedirectToAction(nameof(Index));
-            }
-            ViewBag.RegionList = new MultiSelectList(
-                    _context.Regions.ToList(), "Code", "Name", selectedRegionCodes
-                      );
-            return View(program);
+            return RedirectToAction(nameof(Index));
         }
+
+        // Helper to DRY‑up re‑populating dropdowns on POST failure
+        private async Task PopulateEditDropdowns(Project project)
+        {
+            ViewBag.Governorates = new SelectList(
+                await _context.Governorates.ToListAsync(),
+                "Code", "Name", project.GovernorateCode);
+
+            ViewBag.Districts = new SelectList(
+                await _context.Districts.Where(d => d.GovernorateCode == project.GovernorateCode).ToListAsync(),
+                "Code", "Name", project.DistrictCode);
+
+            ViewBag.SubDistricts = new SelectList(
+                await _context.SubDistricts.Where(s => s.DistrictCode == project.DistrictCode).ToListAsync(),
+                "Code", "Name", project.SubDistrictCode);
+
+            ViewBag.Communities = new SelectList(
+                await _context.Communities.Where(c => c.SubDistrictCode == project.SubDistrictCode).ToListAsync(),
+                "Code", "Name", project.CommunityCode);
+
+            ViewBag.RegionList = new MultiSelectList(
+                await _context.Regions.ToListAsync(),
+                "Code", "Name",
+                project.Regions.Select(r => r.Code.ToString()));
+
+            ViewBag.Sector = new SelectList(await _context.Sectors.ToListAsync(), "Code", "Name", project.SectorCode);
+            ViewBag.ProjectManager = new SelectList(await _context.ProjectManagers.ToListAsync(), "Code", "Name", project.ProjectManagerCode);
+            ViewBag.SuperVisor = new SelectList(await _context.SuperVisors.ToListAsync(), "Code", "Name", project.SuperVisorCode);
+            ViewBag.Ministry = new SelectList(await _context.Ministries.ToListAsync(), "Code", "MinistryName", project.MinistryCode);
+            ViewBag.Donor = new SelectList(await _context.Donors.ToListAsync(), "Code", "Partner", project.DonorCode);
+        }
+
 
         // GET: Programs/Delete/5
         public async Task<IActionResult> Delete(int? id)

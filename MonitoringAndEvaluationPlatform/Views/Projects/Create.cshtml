@@ -1,4 +1,4 @@
-﻿@model MonitoringAndEvaluationPlatform.ViewModel.ProjectViewModel
+﻿@model MonitoringAndEvaluationPlatform.Models.Project
 
 @{
     ViewData["Title"] = "Create New Project";
@@ -16,37 +16,36 @@
                     <h4 class="mb-0">Create New Project</h4>
                     <p class="mb-0 opacity-75">Fill in the project details below</p>
                 </div>
-                
+
                 <form asp-action="Create" method="post" enctype="multipart/form-data" class="needs-validation" novalidate>
                     <div class="card-body">
                         <div class="row">
                             <!-- Left Column -->
                             <div class="col-md-6">
                                 <h5 class="mb-3 text-primary">Basic Information</h5>
-                                
+
                                 <!-- Project Name -->
                                 <div class="mb-4">
-                                    <label asp-for="project.ProjectName" class="form-label">Project Name</label>
-                                    <input asp-for="project.ProjectName" class="form-control" placeholder="Enter project name" required />
-                                    <span asp-validation-for="project.ProjectName" class="text-danger small"></span>
+                                    <label asp-for="ProjectName" class="form-label">Project Name</label>
+                                    <input asp-for="ProjectName" class="form-control" placeholder="Enter project name" required />
+                                    <span asp-validation-for="ProjectName" class="text-danger small"></span>
                                 </div>
-                                
+
                                 <!-- Location Hierarchy -->
                                 <div class="mb-4">
                                     <h6 class="mb-3 text-muted">Project Location</h6>
-                                    
                                     <div class="mb-3">
-                                        <label class="form-label">Governorate</label>
-                                        <select asp-for="GovernorateCode" class="form-select" required>
+                                        <label asp-for="GovernorateCode" class="form-label">Governorate</label>
+                                        <select asp-for="GovernorateCode"
+                                                class="form-select"
+                                                asp-items="ViewBag.Governorates"
+                                                required>
                                             <option value="">-- Select Governorate --</option>
-                                            @foreach (var item in Model.Governorates)
-                                            {
-                                                <option value="@item.Value">@item.Text</option>
-                                            }
                                         </select>
                                         <span asp-validation-for="GovernorateCode" class="text-danger small"></span>
                                     </div>
-                                    
+
+
                                     <div class="mb-3">
                                         <label class="form-label">District</label>
                                         <select id="DistrictCode" name="DistrictCode" class="form-select" required disabled>
@@ -54,7 +53,7 @@
                                         </select>
                                         <span asp-validation-for="DistrictCode" class="text-danger small"></span>
                                     </div>
-                                    
+
                                     <div class="mb-3">
                                         <label class="form-label">Sub-District</label>
                                         <select id="SubDistrictCode" name="SubDistrictCode" class="form-select" required disabled>
@@ -62,7 +61,7 @@
                                         </select>
                                         <span asp-validation-for="SubDistrictCode" class="text-danger small"></span>
                                     </div>
-                                    
+
                                     <div class="mb-3">
                                         <label class="form-label">Community</label>
                                         <select id="CommunityCode" name="CommunityCode" class="form-select" required disabled>
@@ -71,34 +70,34 @@
                                         <span asp-validation-for="CommunityCode" class="text-danger small"></span>
                                     </div>
                                 </div>
-                                
+
                                 <!-- Regions -->
                                 <div class="mb-4">
                                     <label class="form-label">Regions</label>
-                                    <select asp-for="project.Regions" class="form-select" asp-items="ViewBag.RegionList" multiple size="4">
+                                    <select asp-for="Regions" class="form-select" asp-items="ViewBag.RegionList" multiple size="4">
                                         <option disabled>Select one or more regions</option>
                                     </select>
                                     <small class="text-muted">Hold Ctrl/Cmd to select multiple regions</small>
                                 </div>
-                                
+
                                 <!-- Dates -->
                                 <div class="mb-4">
                                     <h6 class="mb-3 text-muted">Project Timeline</h6>
                                     <div class="row">
                                         <div class="col-md-6 mb-3">
-                                            <label asp-for="project.StartDate" class="form-label">Start Date</label>
-                                            <input type="date" asp-for="project.StartDate" value="@startDate" class="form-control" required />
-                                            <span asp-validation-for="project.StartDate" class="text-danger small"></span>
+                                            <label asp-for="StartDate" class="form-label">Start Date</label>
+                                            <input type="date" asp-for="StartDate" value="@startDate" class="form-control" required />
+                                            <span asp-validation-for="StartDate" class="text-danger small"></span>
                                         </div>
                                         <div class="col-md-6 mb-3">
-                                            <label asp-for="project.EndDate" class="form-label">End Date</label>
-                                            <input type="date" asp-for="project.EndDate" value="@endDate" class="form-control" required />
-                                            <span asp-validation-for="project.EndDate" class="text-danger small"></span>
+                                            <label asp-for="EndDate" class="form-label">End Date</label>
+                                            <input type="date" asp-for="EndDate" value="@endDate" class="form-control" required />
+                                            <span asp-validation-for="EndDate" class="text-danger small"></span>
                                         </div>
                                     </div>
                                 </div>
                             </div>
-                            
+
                             <!-- Right Column -->
                             <div class="col-md-6">
                                 <!-- Budget Card -->
@@ -109,25 +108,25 @@
                                     <div class="card-body">
                                         <div class="row">
                                             <div class="col-md-6 mb-3">
-                                                <label asp-for="project.EstimatedBudget" class="form-label">Estimated Budget</label>
+                                                <label asp-for="EstimatedBudget" class="form-label">Estimated Budget</label>
                                                 <div class="input-group">
                                                     <span class="input-group-text">$</span>
-                                                    <input asp-for="project.EstimatedBudget" value="0" class="form-control" placeholder="0.00" />
+                                                    <input asp-for="EstimatedBudget" value="0" class="form-control" />
                                                 </div>
-                                                <span asp-validation-for="project.EstimatedBudget" class="text-danger small"></span>
+                                                <span asp-validation-for="EstimatedBudget" class="text-danger small"></span>
                                             </div>
                                             <div class="col-md-6 mb-3">
-                                                <label asp-for="project.RealBudget" class="form-label">Real Budget</label>
+                                                <label asp-for="RealBudget" class="form-label">Real Budget</label>
                                                 <div class="input-group">
                                                     <span class="input-group-text">$</span>
-                                                    <input asp-for="project.RealBudget" value="0" class="form-control" placeholder="0.00" />
+                                                    <input asp-for="RealBudget" value="0" class="form-control" />
                                                 </div>
-                                                <span asp-validation-for="project.RealBudget" class="text-danger small"></span>
+                                                <span asp-validation-for="RealBudget" class="text-danger small"></span>
                                             </div>
                                         </div>
                                     </div>
                                 </div>
-                                
+
                                 <!-- Stakeholders Card -->
                                 <div class="card mb-4 border-0 shadow-sm">
                                     <div class="card-header bg-light">
@@ -135,42 +134,42 @@
                                     </div>
                                     <div class="card-body">
                                         <div class="mb-3">
-                                            <label asp-for="project.SectorCode" class="form-label">Sector</label>
-                                            <select asp-for="project.SectorCode" class="form-select" asp-items="ViewBag.Sector">
+                                            <label asp-for="SectorCode" class="form-label">Sector</label>
+                                            <select asp-for="SectorCode" class="form-select" asp-items="ViewBag.Sector">
                                                 <option value="">Select Sector</option>
                                             </select>
                                         </div>
-                                        
+
                                         <div class="mb-3">
-                                            <label asp-for="project.ProjectManagerCode" class="form-label">Project Manager</label>
-                                            <select asp-for="project.ProjectManagerCode" class="form-select" asp-items="ViewBag.ProjectManager">
+                                            <label asp-for="ProjectManagerCode" class="form-label">Project Manager</label>
+                                            <select asp-for="ProjectManagerCode" class="form-select" asp-items="ViewBag.ProjectManager">
                                                 <option value="">Select Project Manager</option>
                                             </select>
                                         </div>
-                                        
+
                                         <div class="mb-3">
-                                            <label asp-for="project.SuperVisorCode" class="form-label">Supervisor</label>
-                                            <select asp-for="project.SuperVisorCode" class="form-select" asp-items="ViewBag.SuperVisor">
+                                            <label asp-for="SuperVisorCode" class="form-label">Supervisor</label>
+                                            <select asp-for="SuperVisorCode" class="form-select" asp-items="ViewBag.SuperVisor">
                                                 <option value="">Select Supervisor</option>
                                             </select>
                                         </div>
-                                        
+
                                         <div class="mb-3">
-                                            <label asp-for="project.MinistryCode" class="form-label">Ministry</label>
-                                            <select asp-for="project.MinistryCode" class="form-select" asp-items="ViewBag.Ministry">
+                                            <label asp-for="MinistryCode" class="form-label">Ministry</label>
+                                            <select asp-for="MinistryCode" class="form-select" asp-items="ViewBag.Ministry">
                                                 <option value="">Select Ministry</option>
                                             </select>
                                         </div>
-                                        
+
                                         <div class="mb-3">
-                                            <label asp-for="project.DonorCode" class="form-label">Donor</label>
-                                            <select asp-for="project.DonorCode" class="form-select" asp-items="ViewBag.Donor">
+                                            <label asp-for="DonorCode" class="form-label">Donor</label>
+                                            <select asp-for="DonorCode" class="form-select" asp-items="ViewBag.Donor">
                                                 <option value="">Select Donor</option>
                                             </select>
                                         </div>
                                     </div>
                                 </div>
-                                
+
                                 <!-- Files Upload -->
                                 <div class="card border-0 shadow-sm">
                                     <div class="card-header bg-light">
@@ -187,7 +186,7 @@
                             </div>
                         </div>
                     </div>
-                    
+
                     <div class="card-footer bg-light d-flex justify-content-between">
                         <a href="@Url.Action("Index")" class="btn btn-outline-secondary">
                             <i class="fas fa-arrow-left me-2"></i>Cancel
@@ -202,90 +201,90 @@
     </div>
 </div>
 
+<partial name="_ValidationScriptsPartial" />
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+    $(document).ready(function() {
+        // Enable district dropdown when governorate is selected
+        $('#GovernorateCode').change(function() {
+            var governorateCode = $(this).val();
+            var $districtDropdown = $('#DistrictCode');
 
-    <partial name="_ValidationScriptsPartial" />
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script>
-        $(document).ready(function() {
-            // Enable district dropdown when governorate is selected
-            $('#GovernorateCode').change(function() {
-                var governorateCode = $(this).val();
-                var $districtDropdown = $('#DistrictCode');
-                
-                $districtDropdown.html('<option value="">Loading...</option>').prop('disabled', true);
-                $('#SubDistrictCode').html('<option value="">-- Select Sub-District --</option>').prop('disabled', true);
-                $('#CommunityCode').html('<option value="">-- Select Community --</option>').prop('disabled', true);
-                
-                if (governorateCode) {
-                    $.getJSON('/Location/GetDistricts', { governorateCode: governorateCode }, function(data) {
-                        $districtDropdown.html('<option value="">-- Select District --</option>');
-                        $.each(data, function(i, item) {
-                            $districtDropdown.append($('<option>', {
-                                value: item.code,
-                                text: item.name
-                            }));
-                        });
-                        $districtDropdown.prop('disabled', false);
-                    }).fail(function() {
-                        $districtDropdown.html('<option value="">Error loading districts</option>');
-                    });
-                }
-            });
+            $districtDropdown.html('<option value="">Loading...</option>').prop('disabled', true);
+            $('#SubDistrictCode').html('<option value="">-- Select Sub-District --</option>').prop('disabled', true);
+            $('#CommunityCode').html('<option value="">-- Select Community --</option>').prop('disabled', true);
 
-            // Enable sub-district dropdown when district is selected
-            $('#DistrictCode').change(function() {
-                var districtCode = $(this).val();
-                var $subDistrictDropdown = $('#SubDistrictCode');
-                
-                $subDistrictDropdown.html('<option value="">Loading...</option>').prop('disabled', true);
-                $('#CommunityCode').html('<option value="">-- Select Community --</option>').prop('disabled', true);
-                
-                if (districtCode) {
-                    $.getJSON('/Location/GetSubDistricts', { districtCode: districtCode }, function(data) {
-                        $subDistrictDropdown.html('<option value="">-- Select Sub-District --</option>');
-                        $.each(data, function(i, item) {
-                            $subDistrictDropdown.append($('<option>', {
-                                value: item.code,
-                                text: item.name
-                            }));
-                        });
-                        $subDistrictDropdown.prop('disabled', false);
-                    }).fail(function() {
-                        $subDistrictDropdown.html('<option value="">Error loading sub-districts</option>');
+            if (governorateCode) {
+                $.getJSON('/Location/GetDistricts', { governorateCode: governorateCode }, function(data) {
+                    $districtDropdown.html('<option value="">-- Select District --</option>');
+                    $.each(data, function(i, item) {
+                        $districtDropdown.append($('<option>', {
+                            value: item.code,
+                            text: item.name
+                        }));
                     });
-                }
-            });
-
-            // Enable community dropdown when sub-district is selected
-            $('#SubDistrictCode').change(function() {
-                var subDistrictCode = $(this).val();
-                var $communityDropdown = $('#CommunityCode');
-                
-                $communityDropdown.html('<option value="">Loading...</option>').prop('disabled', true);
-                
-                if (subDistrictCode) {
-                    $.getJSON('/Location/GetCommunities', { subDistrictCode: subDistrictCode }, function(data) {
-                        $communityDropdown.html('<option value="">-- Select Community --</option>');
-                        $.each(data, function(i, item) {
-                            $communityDropdown.append($('<option>', {
-                                value: item.code,
-                                text: item.name
-                            }));
-                        });
-                        $communityDropdown.prop('disabled', false);
-                    }).fail(function() {
-                        $communityDropdown.html('<option value="">Error loading communities</option>');
-                    });
-                }
-            });
-            
-            // Form validation
-            $('form').on('submit', function(e) {
-                if (!this.checkValidity()) {
-                    e.preventDefault();
-                    e.stopPropagation();
-                }
-                $(this).addClass('was-validated');
-            });
+                    $districtDropdown.prop('disabled', false);
+                }).fail(function() {
+                    $districtDropdown.html('<option value="">Error loading districts</option>');
+                });
+            }
         });
-    </script>
+
+        // Enable sub-district dropdown when district is selected
+        $('#DistrictCode').change(function() {
+            var districtCode = $(this).val();
+            var $subDistrictDropdown = $('#SubDistrictCode');
+
+            $subDistrictDropdown.html('<option value="">Loading...</option>').prop('disabled', true);
+            $('#CommunityCode').html('<option value="">-- Select Community --</option>').prop('disabled', true);
+
+            if (districtCode) {
+                $.getJSON('/Location/GetSubDistricts', { districtCode: districtCode }, function(data) {
+                    $subDistrictDropdown.html('<option value="">-- Select Sub-District --</option>');
+                    $.each(data, function(i, item) {
+                        $subDistrictDropdown.append($('<option>', {
+                            value: item.code,
+                            text: item.name
+                        }));
+                    });
+                    $subDistrictDropdown.prop('disabled', false);
+                }).fail(function() {
+                    $subDistrictDropdown.html('<option value="">Error loading sub-districts</option>');
+                });
+            }
+        });
+
+        // Enable community dropdown when sub-district is selected
+        $('#SubDistrictCode').change(function() {
+            var subDistrictCode = $(this).val();
+            var $communityDropdown = $('#CommunityCode');
+
+            $communityDropdown.html('<option value="">Loading...</option>').prop('disabled', true);
+
+            if (subDistrictCode) {
+                $.getJSON('/Location/GetCommunities', { subDistrictCode: subDistrictCode }, function(data) {
+                    $communityDropdown.html('<option value="">-- Select Community --</option>');
+                    $.each(data, function(i, item) {
+                        $communityDropdown.append($('<option>', {
+                            value: item.code,
+                            text: item.name
+                        }));
+                    });
+                    $communityDropdown.prop('disabled', false);
+                }).fail(function() {
+                    $communityDropdown.html('<option value="">Error loading communities</option>');
+                });
+            }
+        });
+
+        // Form validation
+        $('form').on('submit', function(e) {
+            if (!this.checkValidity()) {
+                e.preventDefault();
+                e.stopPropagation();
+            }
+            $(this).addClass('was-validated');
+        });
+    });
+</script>
+
