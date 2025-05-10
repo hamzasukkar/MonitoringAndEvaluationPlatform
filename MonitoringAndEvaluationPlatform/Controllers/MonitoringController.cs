@@ -185,10 +185,30 @@ namespace MonitoringAndEvaluationPlatform.Controllers
 
         public async Task<IActionResult> SubOutputIndicators(int? id)
         {
+            if (id == null)
+            {
+                return NotFound();
+            }
+
             var indicators = await _context.Indicators
-                .Where(x => x.SubOutputCode == id).ToListAsync();
+                .Where(x => x.SubOutputCode == id)
+                .Include(i => i.ProjectIndicators)
+                .ToListAsync();
+
+            // Create a dictionary of IndicatorCode -> ProjectCount
+            var projectCounts = indicators.ToDictionary(
+                i => i.IndicatorCode,
+                i => i.ProjectIndicators
+                      .Select(pi => pi.ProjectId)
+                      .Distinct()
+                      .Count()
+            );
+
+            ViewBag.ProjectCounts = projectCounts;
+
             return View(indicators);
         }
+
 
         public async Task<IActionResult> Indicator(int? id)
         {

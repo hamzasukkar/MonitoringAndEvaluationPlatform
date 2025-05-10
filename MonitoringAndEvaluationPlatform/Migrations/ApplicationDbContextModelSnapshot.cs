@@ -808,8 +808,8 @@ namespace MonitoringAndEvaluationPlatform.Migrations
                     b.Property<int>("CommunityCode")
                         .HasColumnType("int");
 
-                    b.Property<int>("DisbursementPerformance")
-                        .HasColumnType("int");
+                    b.Property<double>("DisbursementPerformance")
+                        .HasColumnType("float");
 
                     b.Property<int>("DistrictCode")
                         .HasColumnType("int");
@@ -823,8 +823,8 @@ namespace MonitoringAndEvaluationPlatform.Migrations
                     b.Property<double>("EstimatedBudget")
                         .HasColumnType("float");
 
-                    b.Property<int>("FieldMonitoring")
-                        .HasColumnType("int");
+                    b.Property<double>("FieldMonitoring")
+                        .HasColumnType("float");
 
                     b.Property<int>("Financial")
                         .HasColumnType("int");
@@ -832,8 +832,8 @@ namespace MonitoringAndEvaluationPlatform.Migrations
                     b.Property<int>("GovernorateCode")
                         .HasColumnType("int");
 
-                    b.Property<int>("ImpactAssessment")
-                        .HasColumnType("int");
+                    b.Property<double>("ImpactAssessment")
+                        .HasColumnType("float");
 
                     b.Property<int>("MinistryCode")
                         .HasColumnType("int");

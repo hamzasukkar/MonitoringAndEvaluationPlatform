@@ -24,9 +24,9 @@ namespace MonitoringAndEvaluationPlatform.Models
         public DateTime StartDate { get; set; }
         public DateTime EndDate { get; set; }
         public double performance { get; set; }
-        public int DisbursementPerformance { get; set; }
-        public int FieldMonitoring { get; set; }
-        public int ImpactAssessment { get; set; }
+        public double DisbursementPerformance { get; set; }
+        public double FieldMonitoring { get; set; }
+        public double ImpactAssessment { get; set; }
         public int Financial { get; set; }
         public int Physical { get; set; }
 
