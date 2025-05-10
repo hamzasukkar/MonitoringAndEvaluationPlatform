@@ -77,13 +77,13 @@
                             </a>
                         </div>
                         <div class="stat-item">
-                            <a asp-controller="Monitoring" asp-action="FrameworkIndicators" asp-route-id="@item.Code">
+                            <a asp-controller="Monitoring" asp-action="Indicators" asp-route-frameworkCode="@item.Code">
                                 <div class="stat-value">@indicators.Count()</div>
                                 <div class="stat-label">Indicators</div>
                             </a>
                         </div>
                         <div class="stat-item">
-                            <a asp-controller="Monitoring" asp-action="FrameworkProjects" asp-route-id="@item.Code">
+                            <a asp-controller="Monitoring" asp-action="Projects" asp-route-frameworkCode="@item.Code">
                                 <div class="stat-value">@projectCount</div>
                                 <div class="stat-label">Projects</div>
                             </a>

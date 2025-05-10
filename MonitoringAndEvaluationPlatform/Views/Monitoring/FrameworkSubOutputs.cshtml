@@ -59,7 +59,7 @@
 				<div class="outcome-stats">
 					<div class="stat-grid">
 						<div class="stat-item">
-							<a asp-controller="Monitoring" asp-action="SubOutputIndicators" asp-route-id="@item.Code">
+							<a asp-controller="Monitoring" asp-action="Indicators" asp-route-subOutputCode="@item.Code">
 								<div class="stat-value">@item.Indicators.Count()</div>
 								<div class="stat-label">Indicators</div>
 							</a>

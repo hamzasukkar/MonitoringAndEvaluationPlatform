@@ -169,6 +169,62 @@ namespace MonitoringAndEvaluationPlatform.Controllers
 
             return View(projects);
         }
+
+        public async Task<IActionResult> Projects(
+             int? frameworkCode,
+             int? outcomeCode,
+             int? outputCode,
+             int? subOutputCode,
+             int? indicatorCode)
+        {
+            List<Project> projects = new();
+
+            if (indicatorCode.HasValue)
+            {
+                projects = await _context.ProjectIndicators
+                    .Where(pi => pi.IndicatorCode == indicatorCode.Value)
+                    .Select(pi => pi.Project)
+                    .Distinct()
+                    .ToListAsync();
+            }
+            else if (subOutputCode.HasValue)
+            {
+                projects = await _context.ProjectIndicators
+                    .Where(pi => pi.Indicator.SubOutputCode == subOutputCode.Value)
+                    .Select(pi => pi.Project)
+                    .Distinct()
+                    .ToListAsync();
+            }
+            else if (outputCode.HasValue)
+            {
+                projects = await _context.ProjectIndicators
+                    .Where(pi => pi.Indicator.SubOutput.OutputCode == outputCode.Value)
+                    .Select(pi => pi.Project)
+                    .Distinct()
+                    .ToListAsync();
+            }
+            else if (outcomeCode.HasValue)
+            {
+                projects = await _context.ProjectIndicators
+                    .Where(pi => pi.Indicator.SubOutput.Output.OutcomeCode == outcomeCode.Value)
+                    .Select(pi => pi.Project)
+                    .Distinct()
+                    .ToListAsync();
+            }
+            else if (frameworkCode.HasValue)
+            {
+                projects = await _context.ProjectIndicators
+                    .Where(pi => pi.Indicator.SubOutput.Output.Outcome.FrameworkCode == frameworkCode.Value)
+                    .Select(pi => pi.Project)
+                    .Distinct()
+                    .ToListAsync();
+            }
+
+            return View(projects);
+        }
+
+
+
         public async Task<IActionResult> OutcomeIndicators(int? id)
         {
             var indicators = await _context.Indicators
@@ -210,11 +266,46 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         }
 
 
-        public async Task<IActionResult> Indicator(int? id)
+        public async Task<IActionResult> Indicators(
+             int? frameworkCode,
+             int? outcomeCode,
+             int? outputCode,
+             int? subOutputCode)
         {
-            var indicators = await _context.Indicators
-                .Where(x => x.SubOutputCode == id).ToListAsync();
+            var indicatorsQuery = _context.Indicators.AsQueryable();
+
+            if (subOutputCode.HasValue)
+            {
+                indicatorsQuery = indicatorsQuery.Where(i => i.SubOutputCode == subOutputCode.Value);
+            }
+            else if (outputCode.HasValue)
+            {
+                indicatorsQuery = indicatorsQuery.Where(i => i.SubOutput.OutputCode == outputCode.Value);
+            }
+            else if (outcomeCode.HasValue)
+            {
+                indicatorsQuery = indicatorsQuery.Where(i => i.SubOutput.Output.OutcomeCode == outcomeCode.Value);
+            }
+            else if (frameworkCode.HasValue)
+            {
+                indicatorsQuery = indicatorsQuery.Where(i => i.SubOutput.Output.Outcome.FrameworkCode == frameworkCode.Value);
+            }
+
+            var indicators = await indicatorsQuery.Include(i => i.ProjectIndicators).ToListAsync();
+
+            // Create a dictionary of IndicatorCode -> ProjectCount
+            var projectCounts = indicators.ToDictionary(
+                i => i.IndicatorCode,
+                i => i.ProjectIndicators
+                      .Select(pi => pi.ProjectId)
+                      .Distinct()
+                      .Count()
+            );
+
+            ViewBag.ProjectCounts = projectCounts;
+
             return View(indicators);
         }
+
     }
 }

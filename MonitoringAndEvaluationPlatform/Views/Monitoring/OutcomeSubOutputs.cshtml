@@ -81,7 +81,10 @@
                     <!-- Right Section -->
                     <div class="col-md-6">
                         <ul class="list-unstyled stats">
-                            <li><a href="/Monitoring/SubOutputIndicators/@item.Code"><strong>Indicators:</strong></a> @item.Indicators.Count()</li>
+                            <li>
+                                <a href="/Monitoring/Indicators/@item.Code"><strong>Indicators:</strong></a> @item.Indicators.Count()
+                                <a asp-controller="Monitoring" asp-action="Indicators" asp-route-subOutputCode="@item.Code">@item.Indicators.Count()</a>
+                            </li>
                             <li><strong>Projects:</strong> 3</li>
                         </ul>
                     </div>

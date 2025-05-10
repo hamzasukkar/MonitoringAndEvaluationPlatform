@@ -5,6 +5,7 @@
 	ViewData["Title"] = "Monitoring";
 	Layout = "~/Views/Shared/_ResultsFrameworkLayout.cshtml";
 }
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -17,30 +18,42 @@
 	<div class="framework-container">
 		@foreach (var item in Model)
 		{
+			var count = (ViewBag.ProjectCounts as Dictionary<int, int>)?[item.IndicatorCode] ?? 0;
+			// Create metrics array for cleaner iteration
 			var metrics = new[]
 			{
-		new { Value = Math.Round(item.IndicatorsPerformance), Label = "Performance Assessment" },
-		new { Value = Math.Round(item.DisbursementPerformance), Label = "Disbursement" },
-		new { Value = Math.Round(item.FieldMonitoring), Label = "Monitoring" },
-		new { Value = Math.Round(item.ImpactAssessment), Label = "Assessment" }
+		new {
+		Value = Math.Round(item.IndicatorsPerformance),
+		Label = "Performance Assessment"
+		},
+		new {
+		Value = Math.Round(item.DisbursementPerformance),
+		Label = "Disbursement"
+		},
+		new {
+		Value = Math.Round(item.FieldMonitoring),
+		Label = "Monitoring"
+		},
+		new {
+		Value = Math.Round(item.ImpactAssessment),
+		Label = "Assessment"
+		}
 		};
 
 			<div class="framework-card">
 				<div class="framework-header">
 					<h2>@item.Name</h2>
-					<div class="outcome-badge">Projects: 3</div>
+					<div class="outcome-badge">Projects: @count</div>
 				</div>
 
 				@foreach (var metric in metrics)
 				{
 					var progressClass = ProgressHelper.GetProgressClass(metric.Value);
-					var classes = progressClass.Split(' ');
-
 					<div class="metric">
-						<div class="metric-value @classes[1]">@metric.Value%</div>
+						<div class="metric-value @progressClass.Split(' ')[1]">@metric.Value%</div>
 						<div class="metric-label">@metric.Label</div>
 						<div class="progress-container">
-							<div class="progress-bar @classes[0]" style="width: @metric.Value%"></div>
+							<div class="progress-bar @progressClass.Split(' ')[0]" style="width: @metric.Value%"></div>
 						</div>
 					</div>
 				}
@@ -48,8 +61,8 @@
 				<div class="outcome-stats">
 					<div class="stat-grid">
 						<div class="stat-item">
-							<a asp-controller="Monitoring" asp-action="" asp-route-id="">
-								<div class="stat-value">2</div>
+							<a asp-controller="Monitoring" asp-action="Projects" asp-route-indicatorCode="@item.IndicatorCode">
+								<div class="stat-value">@count</div>
 								<div class="stat-label">Projects</div>
 							</a>
 						</div>
