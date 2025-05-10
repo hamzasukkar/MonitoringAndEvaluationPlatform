@@ -311,124 +311,124 @@ public class DashboardController : Controller
 
 
     [HttpGet]
-    //public IActionResult ProjectProgress2(int? regionId, int? sectorId, int? donorId)
-    //{
-    //    // Base query for projects
-    //    var query = _context.Projects
-    //        .Include(p => p.Measures)
-    //        .Include(p => p.Region)
-    //        .Include(p => p.Donor)
-    //        .AsQueryable();
+    public IActionResult ProjectProgress2(int? regionId, int? sectorId, int? donorId)
+    {
+        // Base query for projects
+        var query = _context.Projects
+            .Include(p => p.Measures)
+            .Include(p => p.Regions)
+            .Include(p => p.Donor)
+            .AsQueryable();
 
-    //    // Apply filters
-    //    if (regionId.HasValue)
-    //        query = query.Where(p => p.RegionCode == regionId);
+        //// Apply filters
+        //if (regionId.HasValue)
+        //    query = query.Where(p => p.RegionCode == regionId);
 
-    //    if (sectorId.HasValue)
-    //        query = query.Where(p => p.RegionCode == sectorId);
+        if (sectorId.HasValue)
+            query = query.Where(p => p.SectorCode == sectorId);
 
-    //    if (donorId.HasValue)
-    //        query = query.Where(p => p.DonorCode == donorId);
+        if (donorId.HasValue)
+            query = query.Where(p => p.DonorCode == donorId);
 
-    //    // Project progress list
-    //    var projectList = query.Select(p => new ProjectProgressItem
-    //    {
-    //        ProjectName = p.ProjectName,
-    //        TotalIndicators = p.Measures.Select(m => m.IndicatorCode).Distinct().Count(),
-    //        TotalTarget = p.Measures.Sum(m => m.Indicator.Target),
-    //        TotalAchieved = p.Measures.Sum(m => m.Value),
-    //        CompletionRate = p.Measures.Sum(m => m.Indicator.Target) > 0
-    //            ? (p.Measures.Sum(m => m.Value) / p.Measures.Sum(m => m.Indicator.Target)) * 100
-    //            : 0
-    //    })
-    //    .ToList();
+        // Project progress list
+        var projectList = query.Select(p => new ProjectProgressItem
+        {
+            ProjectName = p.ProjectName,
+            TotalIndicators = p.Measures.Select(m => m.IndicatorCode).Distinct().Count(),
+            TotalTarget = p.Measures.Sum(m => m.Indicator.Target),
+            TotalAchieved = p.Measures.Sum(m => m.Value),
+            CompletionRate = p.Measures.Sum(m => m.Indicator.Target) > 0
+                ? (p.Measures.Sum(m => m.Value) / p.Measures.Sum(m => m.Indicator.Target)) * 100
+                : 0
+        })
+        .ToList();
 
-    //    // ViewModel
-    //    var viewModel = new ProjectProgress2ViewModel
-    //    {
-    //        RegionId = regionId,
-    //        SectorId = sectorId,
-    //        DonorId = donorId,
-    //        Projects = projectList,
-    //        Regions = _context.Regions
-    //            .Select(r => new SelectListItem { Value = r.Code.ToString(), Text = r.Name })
-    //            .ToList(),
-    //        Sectors = _context.Sectors
-    //            .Select(s => new SelectListItem { Value = s.Code.ToString(), Text = s.Name })
-    //            .ToList(),
-    //        Donors = _context.Donors
-    //            .Select(d => new SelectListItem { Value = d.Code.ToString(), Text = d.Partner })
-    //            .ToList()
-    //    };
+        // ViewModel
+        var viewModel = new ProjectProgress2ViewModel
+        {
+            RegionId = regionId,
+            SectorId = sectorId,
+            DonorId = donorId,
+            Projects = projectList,
+            Regions = _context.Regions
+                .Select(r => new SelectListItem { Value = r.Code.ToString(), Text = r.Name })
+                .ToList(),
+            Sectors = _context.Sectors
+                .Select(s => new SelectListItem { Value = s.Code.ToString(), Text = s.Name })
+                .ToList(),
+            Donors = _context.Donors
+                .Select(d => new SelectListItem { Value = d.Code.ToString(), Text = d.Partner })
+                .ToList()
+        };
 
-    //    return View(viewModel);
-    //}
+        return View(viewModel);
+    }
 
 
-    //public async Task<IActionResult> ProjectProgress(int? regionId, int? sectorId, int? donorId)
-    //{
-    //    var projectsQuery = _context.Projects
-    //        .Include(p => p.Measures)
-    //        .ThenInclude(m => m.Indicator)
-    //        .AsQueryable();
+    public async Task<IActionResult> ProjectProgress(int? regionId, int? sectorId, int? donorId)
+    {
+        var projectsQuery = _context.Projects
+            .Include(p => p.Measures)
+            .ThenInclude(m => m.Indicator)
+            .AsQueryable();
 
-    //    if (regionId.HasValue)
-    //        projectsQuery = projectsQuery.Where(p => p.RegionCode == regionId);
+        //if (regionId.HasValue)
+        //    projectsQuery = projectsQuery.Where(p => p.RegionCode == regionId);
 
-    //    if (sectorId.HasValue)
-    //        projectsQuery = projectsQuery.Where(p => p.RegionCode == sectorId);
+        if (sectorId.HasValue)
+            projectsQuery = projectsQuery.Where(p => p.SectorCode == sectorId);
 
-    //    if (donorId.HasValue)
-    //        projectsQuery = projectsQuery.Where(p => p.DonorCode == donorId);
+        if (donorId.HasValue)
+            projectsQuery = projectsQuery.Where(p => p.DonorCode == donorId);
 
-    //    var projects = await projectsQuery.ToListAsync();
+        var projects = await projectsQuery.ToListAsync();
 
-    //    var projectProgress = projects.Select(p =>
-    //    {
-    //        var measures = p.Measures;
-    //        var indicators = measures.Select(m => m.Indicator).Distinct().ToList();
+        var projectProgress = projects.Select(p =>
+        {
+            var measures = p.Measures;
+            var indicators = measures.Select(m => m.Indicator).Distinct().ToList();
 
-    //        double totalTarget = indicators.Sum(i => i?.Target ?? 0);
-    //        double totalAchieved = measures.Where(m=>m.ValueType==MeasureValueType.Real).Sum(m => m.Value);
-    //        double rate = totalTarget == 0 ? 0 : (totalAchieved / totalTarget) * 100;
-    //        rate = Math.Min(rate, 100);
+            double totalTarget = indicators.Sum(i => i?.Target ?? 0);
+            double totalAchieved = measures.Where(m => m.ValueType == MeasureValueType.Real).Sum(m => m.Value);
+            double rate = totalTarget == 0 ? 0 : (totalAchieved / totalTarget) * 100;
+            rate = Math.Min(rate, 100);
 
-    //        return new ProjectProgressViewModel
-    //        {
-    //            ProjectId = p.ProjectID,
-    //            ProjectName = p.ProjectName,
-    //            CompletionRate = Math.Round(rate, 2),
-    //            TotalIndicators = indicators.Count,
-    //            TotalTarget = Math.Round(totalTarget, 2),
-    //            TotalAchieved = Math.Round(totalAchieved, 2)
-    //        };
-    //    }).OrderByDescending(p => p.CompletionRate).ToList();
+            return new ProjectProgressViewModel
+            {
+                ProjectId = p.ProjectID,
+                ProjectName = p.ProjectName,
+                CompletionRate = Math.Round(rate, 2),
+                TotalIndicators = indicators.Count,
+                TotalTarget = Math.Round(totalTarget, 2),
+                TotalAchieved = Math.Round(totalAchieved, 2)
+            };
+        }).OrderByDescending(p => p.CompletionRate).ToList();
 
-    //    var model = new ProjectProgressFilterViewModel
-    //    {
-    //        RegionId = regionId,
-    //        SectorId = sectorId,
-    //        DonorId = donorId,
-    //        Regions = await _context.Regions.Select(r => new SelectListItem
-    //        {
-    //            Value = r.Code.ToString(),
-    //            Text = r.Name
-    //        }).ToListAsync(),
-    //        Sectors = await _context.Sectors.Select(s => new SelectListItem
-    //        {
-    //            Value = s.Code.ToString(),
-    //            Text = s.Name
-    //        }).ToListAsync(),
-    //        Donors = await _context.Donors.Select(d => new SelectListItem
-    //        {
-    //            Value = d.Code.ToString(),
-    //            Text = d.Partner
-    //        }).ToListAsync(),
-    //        Projects = projectProgress
-    //    };
+        var model = new ProjectProgressFilterViewModel
+        {
+            RegionId = regionId,
+            SectorId = sectorId,
+            DonorId = donorId,
+            Regions = await _context.Regions.Select(r => new SelectListItem
+            {
+                Value = r.Code.ToString(),
+                Text = r.Name
+            }).ToListAsync(),
+            Sectors = await _context.Sectors.Select(s => new SelectListItem
+            {
+                Value = s.Code.ToString(),
+                Text = s.Name
+            }).ToListAsync(),
+            Donors = await _context.Donors.Select(d => new SelectListItem
+            {
+                Value = d.Code.ToString(),
+                Text = d.Partner
+            }).ToListAsync(),
+            Projects = projectProgress
+        };
 
-    //    return View(model);
-    //}
+        return View(model);
+    }
 
 
     public async Task<IActionResult> FrameworkGauge(int frameworkCode)
@@ -461,41 +461,55 @@ public class DashboardController : Controller
     }
 
     [HttpGet]
-  public async Task<IActionResult> FrameworksGauge()
-{
-    var frameworks = await _context.Frameworks
-        .Include(f => f.Outcomes)
-            .ThenInclude(o => o.Outputs)
-                .ThenInclude(op => op.SubOutputs)
-                    .ThenInclude(so => so.Indicators)
-        .ToListAsync();
-
-    var result = frameworks.Select(fw =>
+    public async Task<IActionResult> FrameworksGauge()
     {
-        var indicators = fw.Outcomes
-            .SelectMany(o => o.Outputs)
-            .SelectMany(op => op.SubOutputs)
-            .SelectMany(so => so.Indicators)
-            .ToList();
+        var frameworks = await _context.Frameworks
+            .Include(f => f.Outcomes)
+                .ThenInclude(o => o.Outputs)
+                    .ThenInclude(op => op.SubOutputs)
+                        .ThenInclude(so => so.Indicators)
+                            .ThenInclude(i => i.Measures)
+                                .ThenInclude(m => m.Project)
+            .ToListAsync();
 
-        double totalTarget = indicators.Sum(i => i.Target);
-        double totalAchieved = indicators.Sum(i => i.IndicatorsPerformance);
-        double rate = totalTarget == 0 ? 0 : (totalAchieved / totalTarget) * 100;
-        rate = Math.Round(Math.Min(rate, 100), 2);
+        var result = frameworks.Select(fw =>
+        {
+            var indicators = fw.Outcomes
+                .SelectMany(o => o.Outputs)
+                .SelectMany(op => op.SubOutputs)
+                .SelectMany(so => so.Indicators)
+                .ToList();
 
-        return new {
-            code = fw.Code,
-            name = fw.Name,
-            rate,
-            totalTarget = Math.Round(totalTarget, 2),
-            totalAchieved = Math.Round(totalAchieved, 2),
-            indicatorCount = indicators.Count
-        };
-    });
+            var totalTarget = indicators.Sum(i => i.Target);
+            var totalAchieved = indicators.Sum(i => i.IndicatorsPerformance);
+            var rate = totalTarget == 0 ? 0 : (totalAchieved / totalTarget) * 100;
+            rate = Math.Round(Math.Min(rate, 100), 2);
 
-    return Json(result);
+            // Get distinct linked projects from all measures
+            var projects = indicators
+                .SelectMany(i => i.Measures)
+                .Where(m => m.Project != null)
+                .Select(m => m.Project)
+                .Distinct()
+                .ToList();
+
+            return new
+            {
+                code = fw.Code,
+                name = fw.Name,
+                rate,
+                totalTarget =totalTarget,
+                totalAchieved = Math.Round(totalAchieved, 2),
+                indicatorCount = indicators.Count,
+                projects = projects.Select(p => new {
+                    p.ProjectID,
+                    p.ProjectName,
+                    p.performance
+                }).ToList()
+            };
+        });
+
+        return Json(result);
+    }
 }
-
-
-
-}
+//totalTarget = Math.Round(totalTarget, 2),

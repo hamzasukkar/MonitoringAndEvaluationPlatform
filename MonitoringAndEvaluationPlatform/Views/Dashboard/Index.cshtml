@@ -132,6 +132,10 @@
                                 Total Target: ${framework.totalTarget}<br/>
                                 Total Achieved: ${framework.totalAchieved}
                             </div>
+                                <div class="text-muted mt-2" style="font-size: 0.9rem;">
+                                <strong>Projects:</strong><br/>
+                                ${framework.projects.map(p => `• ${p.projectName} ${p.performance}%`).join('<br/>')}
+                            </div>
                         </div>
                     </div>
                 </div>
