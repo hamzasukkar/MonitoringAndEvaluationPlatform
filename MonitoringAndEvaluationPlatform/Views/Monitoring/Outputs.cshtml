@@ -2,8 +2,7 @@
 @using Microsoft.AspNetCore.Razor.TagHelpers;
 @model IEnumerable<MonitoringAndEvaluationPlatform.Models.Output>
 @{
-    ViewData["Title"] = "Monitoring";
-    Layout = "~/Views/Shared/_ResultsFrameworkLayout.cshtml";
+	Layout = "~/Views/Shared/_ResultsFrameworkLayout.cshtml";
 }
 
 <!DOCTYPE html>
@@ -20,19 +19,14 @@
 		{
 			var subOutputs = item.SubOutputs;
 			var indicators = subOutputs.SelectMany(subOutput => subOutput.Indicators);
-			var projectCount = indicators
-			.SelectMany(indicator => indicator.Measures)
-			.Select(measure => measure.Project)
-			.Distinct()
-			.Count();
 
-			// Create metrics array for cleaner iteration
+
 			var metrics = new[]
 			{
-		new { Value = Math.Round(item.IndicatorsPerformance, 2), Label = "Performance Assessment", Action = "" },
-		new { Value = Math.Round(item.DisbursementPerformance, 2), Label = "Disbursement", Action = "" },
-		new { Value = Math.Round(item.FieldMonitoring, 2), Label = "Monitoring", Action = "" },
-		new { Value = Math.Round(item.ImpactAssessment, 2), Label = "Assessment", Action = "" }
+		new { Value = Math.Round(item.IndicatorsPerformance, 2), Label = "Performance Assessment" },
+		new { Value = Math.Round(item.DisbursementPerformance, 2), Label = "Disbursement" },
+		new { Value = Math.Round(item.FieldMonitoring, 2), Label = "Monitoring" },
+		new { Value = Math.Round(item.ImpactAssessment, 2), Label = "Assessment" }
 		};
 
 			<div class="framework-card">
@@ -44,11 +38,13 @@
 				@foreach (var metric in metrics)
 				{
 					var progressClass = ProgressHelper.GetProgressClass(metric.Value);
+					var classes = progressClass.Split(' ');
+
 					<div class="metric">
-						<div class="metric-value @progressClass.Split(' ')[1]">@metric.Value%</div>
+						<div class="metric-value @classes[1]">@metric.Value%</div>
 						<div class="metric-label">@metric.Label</div>
 						<div class="progress-container">
-							<div class="progress-bar @progressClass.Split(' ')[0]" style="width: @metric.Value%"></div>
+							<div class="progress-bar @classes[0]" style="width: @metric.Value%"></div>
 						</div>
 					</div>
 				}
@@ -56,7 +52,7 @@
 				<div class="outcome-stats">
 					<div class="stat-grid">
 						<div class="stat-item">
-							<a asp-controller="Monitoring" asp-action="OutputSubOutputs" asp-route-id="@item.Code">
+							<a asp-controller="Monitoring" asp-action="SubOutputs" asp-route-outputCode="@item.Code">
 								<div class="stat-value">@subOutputs.Count()</div>
 								<div class="stat-label">Sub-outputs</div>
 							</a>
@@ -68,8 +64,8 @@
 							</a>
 						</div>
 						<div class="stat-item">
-							<a asp-controller="Monitoring" asp-action="FrameworkProjects" asp-route-id="@item.Code">
-								<div class="stat-value">@projectCount</div>
+							<a asp-controller="Monitoring" asp-action="Projects" asp-route-outputCode="@item.Code">
+								<div class="stat-value">@ViewBag.ProjectCounts[item.Code]</div>
 								<div class="stat-label">Projects</div>
 							</a>
 						</div>
@@ -80,3 +76,4 @@
 	</div>
 </body>
 </html>
+

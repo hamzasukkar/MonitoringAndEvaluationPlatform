@@ -59,19 +59,19 @@
                 <div class="outcome-stats">
                     <div class="stat-grid">
                         <div class="stat-item">
-                            <a asp-controller="Monitoring" asp-action="Outcome" asp-route-id="@item.Code">
+                            <a asp-controller="Monitoring" asp-action="Outcome" asp-route-frameworkCode="@item.Code">
                                 <div class="stat-value">@item.Outcomes.Count</div>
                                 <div class="stat-label">Outcome</div>
                             </a>
                         </div>
                         <div class="stat-item">
-                            <a asp-controller="Monitoring" asp-action="FrameworkOutputs" asp-route-id="@item.Code">
+                            <a asp-controller="Monitoring" asp-action="Outputs" asp-route-frameworkCode="@item.Code">
                                 <div class="stat-value">@outputs.Count()</div>
                                 <div class="stat-label">Outputs</div>
                             </a>
                         </div>
                         <div class="stat-item">
-                            <a asp-controller="Monitoring" asp-action="FrameworkSubOutputs" asp-route-id="@item.Code">
+                            <a asp-controller="Monitoring" asp-action="SubOutputs" asp-route-frameworkCode="@item.Code">
                                 <div class="stat-value">@subOutputs.Count()</div>
                                 <div class="stat-label">Sub-outputs</div>
                             </a>

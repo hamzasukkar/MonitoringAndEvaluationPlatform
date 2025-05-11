@@ -20,11 +20,8 @@
             var outputs = item.Outputs;
             var subOutputs = outputs.SelectMany(output => output.SubOutputs);
             var indicators = subOutputs.SelectMany(subOutput => subOutput.Indicators);
-            var projectCount = indicators
-            .SelectMany(indicator => indicator.Measures)
-            .Select(measure => measure.Project)
-            .Distinct()
-            .Count();
+            var projectCount = (ViewBag.ProjectCounts as Dictionary<int, int>)?[item.Code] ?? 0;
+
 
             var metrics = new[]
             {
@@ -57,25 +54,25 @@
                 <div class="outcome-stats">
                     <div class="stat-grid">
                         <div class="stat-item">
-                            <a asp-controller="Monitoring" asp-action="FrameworkOutputs" asp-route-id="@item.Code">
+                            <a asp-controller="Monitoring" asp-action="Outputs" asp-route-outcomeCode="@item.Code">
                                 <div class="stat-value">@outputs.Count()</div>
                                 <div class="stat-label">Outputs</div>
                             </a>
                         </div>
                         <div class="stat-item">
-                            <a asp-controller="Monitoring" asp-action="FrameworkSubOutputs" asp-route-id="@item.Code">
+                            <a asp-controller="Monitoring" asp-action="SubOutputs" asp-route-outcomeCode="@item.Code">
                                 <div class="stat-value">@subOutputs.Count()</div>
                                 <div class="stat-label">Sub-outputs</div>
                             </a>
                         </div>
                         <div class="stat-item">
-                            <a asp-controller="Monitoring" asp-action="Indicators" asp-route-frameworkCode="@item.Code">
+                            <a asp-controller="Monitoring" asp-action="Indicators" asp-route-outcomeCode="@item.Code">
                                 <div class="stat-value">@indicators.Count()</div>
                                 <div class="stat-label">Indicators</div>
                             </a>
                         </div>
                         <div class="stat-item">
-                            <a asp-controller="Monitoring" asp-action="FrameworkProjects" asp-route-id="@item.Code">
+                            <a asp-controller="Monitoring" asp-action="Projects" asp-route-outcomeCode="@item.Code">
                                 <div class="stat-value">@projectCount</div>
                                 <div class="stat-label">Projects</div>
                             </a>

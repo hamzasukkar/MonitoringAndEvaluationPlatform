@@ -20,23 +20,23 @@
 			// Create metrics array for cleaner iteration
 			var metrics = new[]
 			{
-				new {
-				Value = Math.Round(item.IndicatorsPerformance, 2),
-				Label = "Performance Assessment"
-				},
-				new {
-				Value = Math.Round(item.DisbursementPerformance, 2),
-				Label = "Disbursement"
-				},
-				new {
-				Value = Math.Round(item.FieldMonitoring, 2),
-				Label = "Monitoring"
-				},
-				new {
-				Value = Math.Round(item.ImpactAssessment, 2),
-				Label = "Assessment"
-				}
-			};
+		new {
+		Value = Math.Round(item.IndicatorsPerformance, 2),
+		Label = "Performance Assessment"
+		},
+		new {
+		Value = Math.Round(item.DisbursementPerformance, 2),
+		Label = "Disbursement"
+		},
+		new {
+		Value = Math.Round(item.FieldMonitoring, 2),
+		Label = "Monitoring"
+		},
+		new {
+		Value = Math.Round(item.ImpactAssessment, 2),
+		Label = "Assessment"
+		}
+		};
 
 			<div class="framework-card">
 				<div class="framework-header">
@@ -62,6 +62,12 @@
 							<a asp-controller="Monitoring" asp-action="Indicators" asp-route-subOutputCode="@item.Code">
 								<div class="stat-value">@item.Indicators.Count()</div>
 								<div class="stat-label">Indicators</div>
+							</a>
+						</div>
+						<div class="stat-item">
+							<a asp-controller="Monitoring" asp-action="Projects" asp-route-subOutputCode="@item.Code">
+								<div class="stat-value">@ViewBag.ProjectCounts[item.Code]</div>
+								<div class="stat-label">Projects</div>
 							</a>
 						</div>
 					</div>

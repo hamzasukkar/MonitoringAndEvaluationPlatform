@@ -71,7 +71,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         }
 
         // GET: Monitoring
-        public async Task<IActionResult> Index(int? id)
+        public async Task<IActionResult> Index(int? frameworkCode)
         {
             var frameworks = await _context.Frameworks
                 .Include(i => i.Outcomes)
@@ -84,91 +84,120 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             return View(frameworks);
         }
 
-        public async Task<IActionResult> Outcome(int? id)
+        public async Task<IActionResult> Outcome(int? frameworkCode)
         {
-            var outcomes = await _context.Outcomes
-                .Include(i => i.Outputs)
-                .ThenInclude(i => i.SubOutputs)
-                .ThenInclude(i => i.Indicators)
-                .Where(x => x.FrameworkCode == id).ToListAsync();
+            var outcomesQuery = _context.Outcomes
+                .Include(o => o.Outputs)
+                    .ThenInclude(ou => ou.SubOutputs)
+                        .ThenInclude(so => so.Indicators)
+                            .ThenInclude(i => i.ProjectIndicators)
+                .AsQueryable();
+
+            if (frameworkCode.HasValue)
+            {
+                outcomesQuery = outcomesQuery.Where(o => o.FrameworkCode == frameworkCode.Value);
+            }
+
+            var outcomes = await outcomesQuery.ToListAsync();
+
+            // Dictionary: OutcomeCode -> Distinct Project Count
+            var projectCounts = outcomes.ToDictionary(
+                o => o.Code,
+                o => o.Outputs
+                        .SelectMany(ou => ou.SubOutputs)
+                        .SelectMany(so => so.Indicators)
+                        .SelectMany(i => i.ProjectIndicators)
+                        .Select(pi => pi.ProjectId)
+                        .Distinct()
+                        .Count()
+            );
+
+            ViewBag.ProjectCounts = projectCounts;
 
             return View(outcomes);
         }
-        public async Task<IActionResult> Output(int? id)
+
+
+        public async Task<IActionResult> Outputs(int? frameworkCode, int? outcomeCode)
         {
-            var outputs = await _context.Outputs
-                .Include(i => i.SubOutputs)
-                .ThenInclude(i => i.Indicators)
-                .Where(x => x.OutcomeCode == id).ToListAsync();
+            var outputsQuery = _context.Outputs
+                .Include(o => o.SubOutputs)
+                    .ThenInclude(so => so.Indicators)
+                        .ThenInclude(i => i.ProjectIndicators)
+                .Include(o => o.Outcome)
+                .AsQueryable();
+
+            if (frameworkCode.HasValue)
+            {
+                outputsQuery = outputsQuery.Where(o => o.Outcome.FrameworkCode == frameworkCode.Value);
+            }
+
+            if (outcomeCode.HasValue)
+            {
+                outputsQuery = outputsQuery.Where(o => o.OutcomeCode == outcomeCode.Value);
+            }
+
+            var outputs = await outputsQuery.ToListAsync();
+
+            // Dictionary: OutputCode -> Distinct Project Count
+            var projectCounts = outputs.ToDictionary(
+                o => o.Code,
+                o => o.SubOutputs
+                        .SelectMany(so => so.Indicators)
+                        .SelectMany(i => i.ProjectIndicators)
+                        .Select(pi => pi.ProjectId)
+                        .Distinct()
+                        .Count()
+            );
+
+            ViewBag.ProjectCounts = projectCounts;
+
             return View(outputs);
         }
 
-        public async Task<IActionResult> FrameworkOutputs(int? id)
-        {
-            var outputs = await _context.Outputs
-                .Include(i => i.SubOutputs)
-                .ThenInclude(i => i.Indicators)
-                .Where(x => x.Outcome.FrameworkCode == id).ToListAsync();
-            return View(outputs);
-        }
 
-        public async Task<IActionResult> SubOutput(int? id)
+        public async Task<IActionResult> SubOutputs(int? frameworkCode, int? outcomeCode, int? outputCode)
         {
-            var subOutputs = await _context.SubOutputs
-                .Include(i => i.Indicators)
-                .Where(x => x.OutputCode == id).ToListAsync();
+            var subOutputsQuery = _context.SubOutputs
+                .Include(so => so.Indicators)
+                    .ThenInclude(i => i.ProjectIndicators)
+                .Include(so => so.Output)
+                    .ThenInclude(o => o.Outcome)
+                .AsQueryable();
+
+            if (frameworkCode.HasValue)
+            {
+                subOutputsQuery = subOutputsQuery.Where(so => so.Output.Outcome.FrameworkCode == frameworkCode.Value);
+            }
+
+            if (outcomeCode.HasValue)
+            {
+                subOutputsQuery = subOutputsQuery.Where(so => so.Output.OutcomeCode == outcomeCode.Value);
+            }
+
+            if (outputCode.HasValue)
+            {
+                subOutputsQuery = subOutputsQuery.Where(so => so.OutputCode == outputCode.Value);
+            }
+
+            var subOutputs = await subOutputsQuery.ToListAsync();
+
+            // Dictionary: SubOutputCode -> Distinct Project Count
+            var projectCounts = subOutputs.ToDictionary(
+                so => so.Code,
+                so => so.Indicators
+                        .SelectMany(i => i.ProjectIndicators)
+                        .Select(pi => pi.ProjectId)
+                        .Distinct()
+                        .Count()
+            );
+
+            ViewBag.ProjectCounts = projectCounts;
+
             return View(subOutputs);
         }
 
-        public async Task<IActionResult> FrameworkSubOutputs(int? id)
-        {
-            var subOutputs = await _context.SubOutputs
-                .Include(i => i.Indicators)
-                .Where(x => x.Output.Outcome.FrameworkCode == id).ToListAsync();
-            return View(subOutputs);
-        }
 
-        public async Task<IActionResult> OutcomeSubOutputs(int? id)
-        {
-            var subOutputs = await _context.SubOutputs
-                .Include(i => i.Indicators)
-                .Where(x => x.Output.OutcomeCode == id).ToListAsync();
-            return View(subOutputs);
-        }
-
-
-        public async Task<IActionResult> OutputSubOutputs(int? id)
-        {
-            var subOutputs = await _context.SubOutputs
-                .Include(i => i.Indicators)
-                .Where(x => x.OutputCode == id).ToListAsync();
-            return View(subOutputs);
-        }
-
-        public async Task<IActionResult> FrameworkIndicators(int? id)
-        {
-            var indicators = await _context.Indicators
-                .Include(i => i.Measures)
-                .ThenInclude(i => i.Project)
-                .Where(x => x.SubOutput.Output.Outcome.FrameworkCode == id).ToListAsync();
-            return View(indicators);
-        }
-
-        // Get Projects linked to a specific Framework
-        public async Task<IActionResult> FrameworkProjects(int? id)
-        {
-            var projects = await _context.Projects
-                .Where(p => p.Measures.Any(m =>
-                    _context.Indicators.Any(i =>
-                        i.IndicatorCode == m.IndicatorCode &&
-                        i.SubOutput.Output.Outcome.FrameworkCode == id
-                    )
-                ))
-                .Distinct()
-                .ToListAsync();
-
-            return View(projects);
-        }
 
         public async Task<IActionResult> Projects(
              int? frameworkCode,
@@ -223,49 +252,6 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             return View(projects);
         }
 
-
-
-        public async Task<IActionResult> OutcomeIndicators(int? id)
-        {
-            var indicators = await _context.Indicators
-                .Where(x => x.SubOutput.Output.OutcomeCode == id).ToListAsync();
-            return View(indicators);
-        }
-
-        public async Task<IActionResult> OutputIndicators(int? id)
-        {
-            var indicators = await _context.Indicators
-                .Where(x => x.SubOutput.OutputCode == id).ToListAsync();
-            return View(indicators);
-        }
-
-        public async Task<IActionResult> SubOutputIndicators(int? id)
-        {
-            if (id == null)
-            {
-                return NotFound();
-            }
-
-            var indicators = await _context.Indicators
-                .Where(x => x.SubOutputCode == id)
-                .Include(i => i.ProjectIndicators)
-                .ToListAsync();
-
-            // Create a dictionary of IndicatorCode -> ProjectCount
-            var projectCounts = indicators.ToDictionary(
-                i => i.IndicatorCode,
-                i => i.ProjectIndicators
-                      .Select(pi => pi.ProjectId)
-                      .Distinct()
-                      .Count()
-            );
-
-            ViewBag.ProjectCounts = projectCounts;
-
-            return View(indicators);
-        }
-
-
         public async Task<IActionResult> Indicators(
              int? frameworkCode,
              int? outcomeCode,
@@ -306,6 +292,5 @@ namespace MonitoringAndEvaluationPlatform.Controllers
 
             return View(indicators);
         }
-
     }
 }
