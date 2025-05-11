@@ -8,6 +8,7 @@ using Microsoft.EntityFrameworkCore;
 using MonitoringAndEvaluationPlatform.Data;
 using MonitoringAndEvaluationPlatform.Enums;
 using MonitoringAndEvaluationPlatform.Models;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 namespace MonitoringAndEvaluationPlatform.Controllers
 {
@@ -208,6 +209,10 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 {
                     _context.Update(measure);
                     await _context.SaveChangesAsync();
+                    var monitoringService = new MonitoringService(_context);
+                    await monitoringService.UpdateIndicatorPerformance(measure.IndicatorCode);
+                    await monitoringService.UpdateMinistryPerformance(measure.ProjectID);
+                    await monitoringService.UpdateProjectPerformance(measure.ProjectID);
                 }
                 catch (DbUpdateConcurrencyException)
                 {
@@ -225,6 +230,49 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             ViewData["IndicatorCode"] = new SelectList(_context.Indicators, "Code", "Code", measure.IndicatorCode);
             return View(measure);
         }
+
+        [HttpPost]
+        public async Task<IActionResult> EditInline([FromBody] Measure updated)
+        {
+            var existing = await _context.Measures.FindAsync(updated.Code);
+            if (existing == null)
+                return NotFound();
+
+            existing.Date = updated.Date;
+            existing.Value = updated.Value;
+
+            await _context.SaveChangesAsync();
+            var monitoringService = new MonitoringService(_context);
+            await monitoringService.UpdateIndicatorPerformance(updated.IndicatorCode);
+            await monitoringService.UpdateMinistryPerformance(updated.ProjectID);
+            await monitoringService.UpdateProjectPerformance(updated.ProjectID);
+
+            return Ok();
+        }
+
+        [HttpDelete]
+        public async Task<IActionResult> DeleteInline(int id, int projectId, int indicatorCode)
+        {
+            var measure = await _context.Measures
+                .FirstOrDefaultAsync(m => m.Code == id && m.ProjectID == projectId && m.IndicatorCode == indicatorCode);
+
+            if (measure == null)
+                return NotFound();
+
+            _context.Measures.Remove(measure);
+            await _context.SaveChangesAsync();
+            var monitoringService = new MonitoringService(_context);
+            await monitoringService.UpdateIndicatorPerformance(indicatorCode);
+            await monitoringService.UpdateMinistryPerformance(projectId);
+            await monitoringService.UpdateProjectPerformance(projectId);
+
+            return Ok();
+        }
+
+
+
+
+
 
         // GET: Measures/Delete/5
         public async Task<IActionResult> Delete(int? id)

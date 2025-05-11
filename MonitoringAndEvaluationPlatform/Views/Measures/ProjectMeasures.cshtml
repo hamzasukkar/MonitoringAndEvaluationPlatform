@@ -122,42 +122,42 @@
 		</div>
 	</div>
 
-	<!-- Measures Table -->
+
+
 	<div class="card shadow-sm">
 		<div class="card-body">
 			<div class="table-responsive">
-				<table class="table table-hover">
+				<table class="table table-hover align-middle">
 					<thead class="table-light">
 						<tr>
-							<th>@Html.DisplayNameFor(model => model.Date)</th>
-							<th>@Html.DisplayNameFor(model => model.Value)</th>
-							<th>@Html.DisplayNameFor(model => model.ValueType)</th>
-							<th>@Html.DisplayNameFor(model => model.Indicator)</th>
+							<th>Date</th>
+							<th>Value</th>
+							<th>Value Type</th>
+							<th>Indicator</th>
 							<th class="text-end">Actions</th>
 						</tr>
 					</thead>
 					<tbody>
 						@foreach (var item in Model)
 						{
-							<tr>
-								<td>@Html.DisplayFor(modelItem => item.Date)</td>
-								<td>@Html.DisplayFor(modelItem => item.Value)</td>
+							<tr id="row-@item.Code" data-project-id="@item.ProjectID" data-indicator-code="@item.IndicatorCode">
 								<td>
-									<span class="badge bg-secondary">@Html.DisplayFor(modelItem => item.ValueType)</span>
+									<input type="date" class="form-control" value="@item.Date.ToString("yyyy-MM-dd")" data-field="Date" data-id="@item.Code" />
 								</td>
-								<td>@Html.DisplayFor(modelItem => item.Indicator.Name)</td>
+								<td>
+									<span class="badge bg-secondary">@item.ValueType</span>
+								</td>
+								<td>
+									<input type="number" class="form-control" value="@item.Value" data-field="Value" data-id="@item.Code" />
+								</td>
+								<td>@item.Indicator?.Name</td>
 								<td class="text-end">
-									<div class="btn-group" role="group">
-										<a asp-action="Edit" asp-route-id="@item.Code" class="btn btn-sm btn-outline-primary">
-											<i class="fas fa-edit"></i>
-										</a>
-										<a asp-action="Details" asp-route-id="@item.Code" class="btn btn-sm btn-outline-info">
-											<i class="fas fa-info-circle"></i>
-										</a>
-										<a asp-action="Delete" asp-route-id="@item.Code" class="btn btn-sm btn-outline-danger">
-											<i class="fas fa-trash-alt"></i>
-										</a>
-									</div>
+									<button class="btn btn-sm btn-success" onclick="saveRow(@item.Code)">
+										<i class="fas fa-save"></i>
+									</button>
+									<button class="btn btn-sm btn-outline-danger" onclick="deleteRow(@item.Code)">
+										<i class="fas fa-trash-alt"></i>
+									</button>
 								</td>
 							</tr>
 						}
@@ -166,40 +166,128 @@
 			</div>
 		</div>
 	</div>
-</div>
 
-<style>
-	.project-nav .nav-link {
-		color: #495057;
-		font-weight: 500;
-		padding: 0.75rem 1rem;
-		transition: all 0.3s;
-	}
 
-		.project-nav .nav-link:hover {
-			color: #0d6efd;
-			background-color: rgba(13, 110, 253, 0.1);
+	<script>
+				 async function saveRow(id) {
+			const row = document.getElementById(`row-${id}`);
+			const projectId = row.dataset.projectId;
+			const indicatorCode = row.dataset.indicatorCode;
+
+			const date = document.querySelector(`input[data-field="Date"][data-id="${id}"]`).value;
+			const value = document.querySelector(`input[data-field="Value"][data-id="${id}"]`).value;
+
+			const response = await fetch('/Measures/EditInline', {
+				method: 'POST',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify({
+					Code: id,
+					Date: date,
+					Value: parseFloat(value),
+					ProjectID: parseInt(projectId),
+					IndicatorCode: parseInt(indicatorCode)
+				})
+			});
+
+					if (response.ok) {
+						Swal.fire({
+							icon: 'success',
+							title: 'Saved',
+							text: 'The measure was updated successfully!',
+							timer: 1500,
+							showConfirmButton: false
+						});
+					} else {
+						Swal.fire({
+							icon: 'error',
+							title: 'Error',
+							text: 'Failed to save the measure!'
+						});
+					}
 		}
 
-		.project-nav .nav-link.active {
-			color: #0d6efd;
-			border-bottom: 3px solid #0d6efd;
+
+				async function deleteRow(id) {
+				const row = document.getElementById(`row-${id}`);
+				const projectId = row.dataset.projectId;
+				const indicatorCode = row.dataset.indicatorCode;
+
+				const result = await Swal.fire({
+					title: 'Are you sure?',
+					text: "This measure will be deleted.",
+					icon: 'warning',
+					showCancelButton: true,
+					confirmButtonColor: '#d33',
+					cancelButtonColor: '#3085d6',
+					confirmButtonText: 'Yes, delete it!'
+				});
+
+				if (result.isConfirmed) {
+					const response = await fetch(`/Measures/DeleteInline/${id}?projectId=${projectId}&indicatorCode=${indicatorCode}`, {
+						method: 'DELETE'
+					});
+
+					if (response.ok) {
+						row.remove();
+						Swal.fire({
+							icon: 'success',
+							title: 'Deleted!',
+							text: 'The measure has been deleted.',
+							timer: 1500,
+							showConfirmButton: false
+						});
+					} else {
+						Swal.fire({
+							icon: 'error',
+							title: 'Failed',
+							text: 'Could not delete the measure.'
+						});
+					}
+				}
 		}
 
-	.table-hover tbody tr:hover {
-		background-color: rgba(13, 110, 253, 0.05);
-	}
 
-	.badge {
-		font-weight: 500;
-		padding: 0.35em 0.65em;
-	}
 
-	.btn-group .btn {
-		padding: 0.25rem 0.5rem;
-	}
-</style>
+	</script>
 
-@section Scripts {
-	<partial name="_ValidationScriptsPartial" />
-}
+
+
+	<style>
+		.project-nav .nav-link {
+			color: #495057;
+			font-weight: 500;
+			padding: 0.75rem 1rem;
+			transition: all 0.3s;
+		}
+
+			.project-nav .nav-link:hover {
+				color: #0d6efd;
+				background-color: rgba(13, 110, 253, 0.1);
+			}
+
+			.project-nav .nav-link.active {
+				color: #0d6efd;
+				border-bottom: 3px solid #0d6efd;
+			}
+
+		.table-hover tbody tr:hover {
+			background-color: rgba(13, 110, 253, 0.05);
+		}
+
+		.badge {
+			font-weight: 500;
+			padding: 0.35em 0.65em;
+		}
+
+		.btn-group .btn {
+			padding: 0.25rem 0.5rem;
+		}
+
+		.table-responsive {
+			overflow-x: hidden;
+		}
+	</style>
+
+	@section Scripts {
+		<partial name="_ValidationScriptsPartial" />
+	}
