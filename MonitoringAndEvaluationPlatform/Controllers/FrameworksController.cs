@@ -134,6 +134,32 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             return View(framework);
         }
 
+        [HttpPost]
+        public async Task<IActionResult> UpdateName(int id, string name)
+        {
+            var framework = await _context.Frameworks.FindAsync(id);
+            if (framework == null) return NotFound();
+
+            framework.Name = name;
+            _context.Update(framework);
+            await _context.SaveChangesAsync();
+
+            return Ok();
+        }
+        [HttpPost]
+        public async Task<IActionResult> DeleteConfirmed(int id)
+        {
+            var framework = await _context.Frameworks.FindAsync(id);
+            if (framework == null) return NotFound();
+
+            _context.Frameworks.Remove(framework);
+            await _context.SaveChangesAsync();
+
+            return Ok();
+        }
+
+
+
         // GET: Frameworks/Delete/5
         public async Task<IActionResult> Delete(int? id)
         {
@@ -152,21 +178,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             return View(framework);
         }
 
-        // POST: Frameworks/Delete/5
-        [HttpPost, ActionName("Delete")]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DeleteConfirmed(int id)
-        {
-            var framework = await _context.Frameworks.FindAsync(id);
-            if (framework != null)
-            {
-                _context.Frameworks.Remove(framework);
-            }
-
-            await _context.SaveChangesAsync();
-            return RedirectToAction(nameof(Index));
-        }
-
+      
         private bool FrameworkExists(int id)
         {
             return _context.Frameworks.Any(e => e.Code == id);
