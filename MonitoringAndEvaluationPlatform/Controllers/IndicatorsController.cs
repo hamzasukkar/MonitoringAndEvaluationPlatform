@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.Json;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
@@ -216,6 +217,32 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         {
             return performances.Any() ? performances.Sum() / performances.Count : 0;
         }
+        [HttpPost]
+        public async Task<IActionResult> InlineEditName(int id, [FromBody] JsonElement data)
+        {
+            var indicator = await _context.Indicators.FindAsync(id);
+            if (indicator == null) return NotFound();
+
+            var newName = data.GetProperty("name").GetString();
+            indicator.Name = newName;
+            await _context.SaveChangesAsync();
+
+            return Ok();
+        }
+        [HttpPost]
+        public async Task<IActionResult> DeleteConfirmed(int id)
+        {
+            var indicator = await _context.Indicators.FindAsync(id);
+            if (indicator == null)
+            {
+                return NotFound();
+            }
+
+            _context.Indicators.Remove(indicator);
+            await _context.SaveChangesAsync();
+            return Ok();
+        }
+
 
 
         // GET: Indicators/Edit/5
@@ -386,21 +413,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             return PartialView("_MeasureTablePartial", measures);
         }
 
-        // POST: Indicators/Delete/5
-        [HttpPost, ActionName("Delete")]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DeleteConfirmed(int id)
-        {
-            var indicator = await _context.Indicators.FindAsync(id);
-            if (indicator != null)
-            {
-                _context.Indicators.Remove(indicator);
-            }
-
-            await _context.SaveChangesAsync();
-            return RedirectToAction(nameof(Index));
-        }
-
+   
         private bool IndicatorExists(int id)
         {
             return _context.Indicators.Any(e => e.IndicatorCode == id);

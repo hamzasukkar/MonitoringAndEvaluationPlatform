@@ -105,12 +105,13 @@
                             string impactAssessmentClass = ProgressBarHelper.GetProgressBarClass(item.ImpactAssessment);
                             double IndicatorsPerformance = Math.Round(item.IndicatorsPerformance, 0);
 
-                            <tr>
+                            <tr id="indicator-row-@item.IndicatorCode">
                                 <td>
-                                    <a href="/Indicators/Details/@item.IndicatorCode" class="text-decoration-none">
-                                        <strong>@item.Name</strong>
-                                    </a>
+                                    <span id="name-display-@item.IndicatorCode">@item.Name</span>
+                                    <input type="text" class="form-control d-none" id="name-input-@item.IndicatorCode" value="@item.Name" />
                                 </td>
+
+
                                 <td>@item.Weight</td>
                                 <td>@await Html.PartialAsync("_ProgressBar", Tuple.Create(IndicatorsPerformance, indicatorsClass))</td>
                                 <td>@await Html.PartialAsync("_ProgressBar", Tuple.Create(item.DisbursementPerformance, disbursementClass))</td>
@@ -127,10 +128,15 @@
                                         <a asp-action="Details" asp-route-id="@item.IndicatorCode" class="btn btn-sm btn-outline-primary" title="View">
                                             <i class="fas fa-eye"></i>
                                         </a>
-                                        <a asp-action="Edit" asp-route-id="@item.IndicatorCode" class="btn btn-sm btn-outline-warning" title="Edit">
+                                        <button type="button" class="btn btn-sm btn-outline-warning" title="Edit"
+                                                onclick="toggleEdit('@item.IndicatorCode')"
+                                                id="edit-btn-@item.IndicatorCode">
                                             <i class="fas fa-edit"></i>
-                                        </a>
-                                        <a asp-action="Delete" asp-route-id="@item.IndicatorCode" class="btn btn-sm btn-outline-danger" title="Delete">
+                                        </button>
+                                        <a href="javascript:void(0);"
+                                           class="btn btn-sm btn-outline-danger"
+                                           title="Delete"
+                                           onclick="confirmDelete(@item.IndicatorCode)">
                                             <i class="fas fa-trash-alt"></i>
                                         </a>
                                     </div>
@@ -179,3 +185,77 @@
         overflow-x: hidden;
     }
 </style>
+
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <script>
+        function toggleEdit(id) {
+            const nameDisplay = document.getElementById(`name-display-${id}`);
+            const nameInput = document.getElementById(`name-input-${id}`);
+            const editBtn = document.getElementById(`edit-btn-${id}`);
+
+            if (editBtn.innerHTML.includes("fa-save")) {
+                // Save action
+                const newName = nameInput.value;
+
+                fetch(`/Indicators/InlineEditName/${id}`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'RequestVerificationToken': $('input[name="__RequestVerificationToken"]').val() // if using AntiForgery
+                    },
+                    body: JSON.stringify({ name: newName })
+                })
+                .then(response => {
+                    if (response.ok) {
+                        nameDisplay.textContent = newName;
+                        nameDisplay.classList.remove("d-none");
+                        nameInput.classList.add("d-none");
+                        editBtn.innerHTML = `<i class="fas fa-edit"></i>`;
+
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Updated!',
+                            text: 'Indicator name updated successfully',
+                            timer: 1200,
+                            showConfirmButton: false
+                        });
+                    } else {
+                        Swal.fire('Error', 'Could not save changes', 'error');
+                    }
+                });
+            } else {
+                // Edit mode
+                nameDisplay.classList.add("d-none");
+                nameInput.classList.remove("d-none");
+                editBtn.innerHTML = `<i class="fas fa-save"></i>`;
+            }
+        }
+        function confirmDelete(indicatorCode) {
+        Swal.fire({
+            title: 'Are you sure?',
+            text: "You won't be able to revert this!",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#d33',
+            cancelButtonColor: '#3085d6',
+            confirmButtonText: 'Yes, delete it!'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                $.ajax({
+                    url: `/Indicators/DeleteConfirmed/${indicatorCode}`,
+                    type: 'POST',
+                    success: function () {
+                        $(`#indicator-row-${indicatorCode}`).fadeOut();
+                        Swal.fire('Deleted!', 'Indicator has been deleted.', 'success');
+                    },
+                    error: function () {
+                        Swal.fire('Error', 'Failed to delete the indicator.', 'error');
+                    }
+                });
+            }
+        });
+    }
+    </script>
+
+
