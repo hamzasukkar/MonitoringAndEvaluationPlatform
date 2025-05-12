@@ -16,12 +16,11 @@
                 <i class="bi bi-diagram-3-fill display-5 mb-2"></i>
                 <h5 class="card-title">Total Frameworks</h5>
                 <h2 class="fw-bold">@Model.TotalFrameworks</h2>
-
-                <select class="form-select mt-3 text-dark">
-                    <option disabled selected>-- Select Framework --</option>
+                <select id="frameworkFilter" class="form-select mt-3 text-dark">
+                    <option disabled selected value="">-- Select Framework --</option>
                     @foreach (var fw in Model.Frameworks)
                     {
-                        <option>@fw.Name</option>
+                        <option value="@fw.Code">@fw.Name</option>
                     }
                 </select>
             </div>
@@ -180,5 +179,102 @@
         });
     }
 
-    loadGauges();
+    document.getElementById('frameworkFilter').addEventListener('change', function () {
+            const frameworkCode = this.value;
+            loadGauges(frameworkCode);
+        });
+
+        async function loadGauges(frameworkCode = '') {
+            const url = frameworkCode
+                ? `/Dashboard/FrameworksGauge?frameworkCode=${frameworkCode}`
+                : '/Dashboard/FrameworksGauge';
+
+            const response = await fetch(url);
+            const frameworks = await response.json();
+
+            const container = document.getElementById('gaugesContainer');
+            container.innerHTML = '';
+
+            frameworks.forEach(framework => {
+                const card = document.createElement('div');
+                card.className = 'col-md-6 mb-4';
+
+                const chartId = `gaugeChart_${framework.code}`;
+                const barColor = framework.rate >= 80 ? 'bg-success'
+                                : framework.rate >= 50 ? 'bg-warning'
+                                : 'bg-danger';
+
+                card.innerHTML = `
+                    <div class="card shadow-sm p-4">
+                        <h5 class="mb-3">${framework.name}</h5>
+                        <div class="row align-items-center">
+                            <div class="col-md-6 text-center">
+                                <canvas id="${chartId}" height="160"></canvas>
+                                <div class="fw-bold mt-2" style="font-size: 1.1rem; color:#00c853;">
+                                    ${framework.rate}% Achieved
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-2 fw-bold text-muted">Progress</div>
+                                <div class="progress mb-3" style="height: 25px;">
+                                    <div class="progress-bar ${barColor}" role="progressbar"
+                                        style="width: ${framework.rate}%"
+                                        aria-valuenow="${framework.rate}" aria-valuemin="0" aria-valuemax="100">
+                                        ${framework.rate}%
+                                    </div>
+                                </div>
+                                <div class="text-muted" style="font-size: 0.9rem;">
+                                    Indicators: ${framework.indicatorCount}<br/>
+                                    Total Target: ${framework.totalTarget}<br/>
+                                    Total Achieved: ${framework.totalAchieved}
+                                </div>
+                                <div class="text-muted mt-2" style="font-size: 0.9rem;">
+                                    <strong>Projects:</strong><br/>
+                                    ${framework.projects.map(p => `• ${p.projectName} ${p.performance}%`).join('<br/>')}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+
+                container.appendChild(card);
+
+                const ctx = document.getElementById(chartId).getContext('2d');
+                new Chart(ctx, {
+                    type: 'doughnut',
+                    data: {
+                        datasets: [{
+                            data: [framework.rate, 100 - framework.rate],
+                            backgroundColor: ['#00c853', '#e0e0e0'],
+                            borderWidth: 0,
+                            cutout: '80%'
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        plugins: {
+                            legend: { display: false },
+                            tooltip: { enabled: false },
+                            doughnutlabel: {
+                                labels: [
+                                    {
+                                        text: `${framework.rate}%`,
+                                        font: { size: 24, weight: 'bold' },
+                                        color: '#00c853'
+                                    },
+                                    {
+                                        text: 'Achieved',
+                                        font: { size: 14 },
+                                        color: '#666'
+                                    }
+                                ]
+                            }
+                        }
+                    }
+                });
+            });
+        }
+
+        // Load all by default
+        loadGauges();
 </script>

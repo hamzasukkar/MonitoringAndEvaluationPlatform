@@ -461,16 +461,23 @@ public class DashboardController : Controller
     }
 
     [HttpGet]
-    public async Task<IActionResult> FrameworksGauge()
+    public async Task<IActionResult> FrameworksGauge(int? frameworkCode)
     {
-        var frameworks = await _context.Frameworks
+        var frameworksQuery = _context.Frameworks
             .Include(f => f.Outcomes)
                 .ThenInclude(o => o.Outputs)
                     .ThenInclude(op => op.SubOutputs)
                         .ThenInclude(so => so.Indicators)
                             .ThenInclude(i => i.Measures)
                                 .ThenInclude(m => m.Project)
-            .ToListAsync();
+            .AsQueryable();
+
+        if (frameworkCode.HasValue)
+        {
+            frameworksQuery = frameworksQuery.Where(f => f.Code == frameworkCode.Value);
+        }
+
+        var frameworks = await frameworksQuery.ToListAsync();
 
         var result = frameworks.Select(fw =>
         {
@@ -485,7 +492,6 @@ public class DashboardController : Controller
             var rate = totalTarget == 0 ? 0 : (totalAchieved / totalTarget) * 100;
             rate = Math.Round(Math.Min(rate, 100), 2);
 
-            // Get distinct linked projects from all measures
             var projects = indicators
                 .SelectMany(i => i.Measures)
                 .Where(m => m.Project != null)
@@ -498,10 +504,11 @@ public class DashboardController : Controller
                 code = fw.Code,
                 name = fw.Name,
                 rate,
-                totalTarget =totalTarget,
+                totalTarget,
                 totalAchieved = Math.Round(totalAchieved, 2),
                 indicatorCount = indicators.Count,
-                projects = projects.Select(p => new {
+                projects = projects.Select(p => new
+                {
                     p.ProjectID,
                     p.ProjectName,
                     p.performance
