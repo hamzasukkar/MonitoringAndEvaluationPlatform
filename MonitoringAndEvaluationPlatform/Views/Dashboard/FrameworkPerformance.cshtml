@@ -1,0 +1,104 @@
+﻿@{
+    ViewData["Title"] = "Framework Performance";
+    Layout = "~/Views/Shared/_DashboardLayout.cshtml";
+}
+<div class="row mb-4">
+    <div class="col-md-4">
+        <select id="frameworkSelect" class="form-select">
+            <option value="">-- All Frameworks --</option>
+            @foreach (var fw in ViewBag.Frameworks as List<Framework>)
+            {
+                <option value="@fw.Code">@fw.Name</option>
+            }
+        </select>
+    </div>
+</div>
+
+<div id="gaugesContainer" class="row"></div>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-doughnutlabel@1.0.3"></script>
+    <script>
+        async function loadGauge(frameworkCode = null) {
+            const url = frameworkCode
+                ? `/Dashboard/FrameworksPerformanceGauge?frameworkCode=${frameworkCode}`
+                : `/Dashboard/FrameworksPerformanceGauge`;
+
+            const response = await fetch(url);
+            const data = await response.json();
+
+            const container = document.getElementById("gaugesContainer");
+            container.innerHTML = "";
+
+            data.forEach(fw => {
+                const chartId = `gauge_${fw.code}`;
+                const card = document.createElement("div");
+                card.className = "col-md-6 mb-4";
+
+                card.innerHTML = `
+                    <div class="card shadow-sm p-4">
+                        <h5 class="mb-3">${fw.name}</h5>
+                        <div class="row align-items-center">
+                            <div class="col-md-6 text-center">
+                                <canvas id="${chartId}" height="160"></canvas>
+                                <div class="fw-bold mt-2 text-primary" style="font-size: 1.1rem;">
+                                    ${fw.indicatorsPerformance}% Performance
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="text-muted">Indicators Count: ${fw.indicatorCount}</div>
+                                <div class="mt-2">
+                                    <strong>Projects:</strong><br/>
+                                    ${fw.projects.map(p => `• ${p.projectName} (${p.performance}%)`).join("<br/>")}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+
+                container.appendChild(card);
+
+                const ctx = document.getElementById(chartId).getContext("2d");
+                new Chart(ctx, {
+                    type: "doughnut",
+                    data: {
+                        datasets: [{
+                            data: [fw.indicatorsPerformance, 100 - fw.indicatorsPerformance],
+                            backgroundColor: ['#007bff', '#e0e0e0'],
+                            borderWidth: 0,
+                            cutout: "80%"
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        plugins: {
+                            legend: { display: false },
+                            tooltip: { enabled: false },
+                            doughnutlabel: {
+                                labels: [
+                                    {
+                                        text: `${fw.indicatorsPerformance}%`,
+                                        font: { size: 24, weight: "bold" },
+                                        color: "#007bff"
+                                    },
+                                    {
+                                        text: "Performance",
+                                        font: { size: 14 },
+                                        color: "#666"
+                                    }
+                                ]
+                            }
+                        }
+                    }
+                });
+            });
+        }
+
+        document.getElementById("frameworkSelect").addEventListener("change", function () {
+            loadGauge(this.value);
+        });
+
+        loadGauge();
+    </script>
+}

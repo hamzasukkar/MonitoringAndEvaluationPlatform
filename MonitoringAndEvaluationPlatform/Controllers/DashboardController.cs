@@ -14,6 +14,65 @@ public class DashboardController : Controller
     {
         _context = context;
     }
+
+    public async Task<IActionResult> FrameworkPerformance()
+    {
+        var frameworks = await _context.Frameworks.ToListAsync();
+        ViewBag.Frameworks = frameworks;
+        return View();
+    }
+
+
+    [HttpGet]
+    public async Task<IActionResult> FrameworksPerformanceGauge(int? frameworkCode = null)
+    {
+        var frameworksQuery = _context.Frameworks
+            .Include(f => f.Outcomes)
+                .ThenInclude(o => o.Outputs)
+                    .ThenInclude(op => op.SubOutputs)
+                        .ThenInclude(so => so.Indicators)
+                            .ThenInclude(i => i.Measures)
+                                .ThenInclude(m => m.Project);
+
+        var frameworks = await frameworksQuery.ToListAsync();
+
+        var result = frameworks
+            .Where(fw => frameworkCode == null || fw.Code == frameworkCode)
+            .Select(fw =>
+            {
+                var projects = fw.Outcomes
+                    .SelectMany(o => o.Outputs)
+                    .SelectMany(op => op.SubOutputs)
+                    .SelectMany(so => so.Indicators)
+                    .SelectMany(i => i.Measures)
+                    .Where(m => m.Project != null)
+                    .Select(m => m.Project)
+                    .Distinct()
+                    .ToList();
+
+                return new
+                {
+                    code = fw.Code,
+                    name = fw.Name,
+                    indicatorsPerformance = fw.IndicatorsPerformance,
+                    indicatorCount = fw.Outcomes
+                        .SelectMany(o => o.Outputs)
+                        .SelectMany(op => op.SubOutputs)
+                        .SelectMany(so => so.Indicators)
+                        .Count(),
+                    projects = projects.Select(p => new
+                    {
+                        p.ProjectID,
+                        p.ProjectName,
+                        p.performance
+                    }).ToList()
+                };
+            });
+
+        return Json(result);
+    }
+
+
     [HttpGet]
     public IActionResult IndicatorTrend(int indicatorCode)
     {
