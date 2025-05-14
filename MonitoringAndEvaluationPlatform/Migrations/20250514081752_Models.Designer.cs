@@ -12,7 +12,7 @@ using MonitoringAndEvaluationPlatform.Data;
 namespace MonitoringAndEvaluationPlatform.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20250510085621_Models")]
+    [Migration("20250514081752_Models")]
     partial class Models
     {
         /// <inheritdoc />
@@ -279,56 +279,32 @@ namespace MonitoringAndEvaluationPlatform.Migrations
 
             modelBuilder.Entity("MonitoringAndEvaluationPlatform.Models.Community", b =>
                 {
-                    b.Property<int>("Code")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Code"));
+                    b.Property<string>("Code")
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("SubDistrictCode")
-                        .HasColumnType("int");
+                    b.Property<string>("SubDistrictCode")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
 
                     b.HasKey("Code");
 
                     b.HasIndex("SubDistrictCode");
 
                     b.ToTable("Communities");
-
-                    b.HasData(
-                        new
-                        {
-                            Code = 1,
-                            Name = "Alefaif",
-                            SubDistrictCode = 1
-                        },
-                        new
-                        {
-                            Code = 2,
-                            Name = "Battara",
-                            SubDistrictCode = 2
-                        },
-                        new
-                        {
-                            Code = 3,
-                            Name = "Alamiyeh",
-                            SubDistrictCode = 3
-                        });
                 });
 
             modelBuilder.Entity("MonitoringAndEvaluationPlatform.Models.District", b =>
                 {
-                    b.Property<int>("Code")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
+                    b.Property<string>("Code")
+                        .HasColumnType("nvarchar(450)");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Code"));
-
-                    b.Property<int>("GovernorateCode")
-                        .HasColumnType("int");
+                    b.Property<string>("GovernorateCode")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<string>("Name")
                         .IsRequired()
@@ -339,26 +315,6 @@ namespace MonitoringAndEvaluationPlatform.Migrations
                     b.HasIndex("GovernorateCode");
 
                     b.ToTable("Districts");
-
-                    b.HasData(
-                        new
-                        {
-                            Code = 1,
-                            GovernorateCode = 1,
-                            Name = "Saalihia"
-                        },
-                        new
-                        {
-                            Code = 2,
-                            GovernorateCode = 2,
-                            Name = "Jablah"
-                        },
-                        new
-                        {
-                            Code = 3,
-                            GovernorateCode = 3,
-                            Name = "Masyaf"
-                        });
                 });
 
             modelBuilder.Entity("MonitoringAndEvaluationPlatform.Models.Donor", b =>
@@ -418,11 +374,8 @@ namespace MonitoringAndEvaluationPlatform.Migrations
 
             modelBuilder.Entity("MonitoringAndEvaluationPlatform.Models.Governorate", b =>
                 {
-                    b.Property<int>("Code")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Code"));
+                    b.Property<string>("Code")
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<string>("Name")
                         .IsRequired()
@@ -431,23 +384,6 @@ namespace MonitoringAndEvaluationPlatform.Migrations
                     b.HasKey("Code");
 
                     b.ToTable("Governorates");
-
-                    b.HasData(
-                        new
-                        {
-                            Code = 1,
-                            Name = "Damascus"
-                        },
-                        new
-                        {
-                            Code = 2,
-                            Name = "Lattakia"
-                        },
-                        new
-                        {
-                            Code = 3,
-                            Name = "Hama"
-                        });
                 });
 
             modelBuilder.Entity("MonitoringAndEvaluationPlatform.Models.Indicator", b =>
@@ -808,14 +744,16 @@ namespace MonitoringAndEvaluationPlatform.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ProjectID"));
 
-                    b.Property<int>("CommunityCode")
-                        .HasColumnType("int");
+                    b.Property<string>("CommunityCode")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<double>("DisbursementPerformance")
                         .HasColumnType("float");
 
-                    b.Property<int>("DistrictCode")
-                        .HasColumnType("int");
+                    b.Property<string>("DistrictCode")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<int>("DonorCode")
                         .HasColumnType("int");
@@ -832,8 +770,9 @@ namespace MonitoringAndEvaluationPlatform.Migrations
                     b.Property<int>("Financial")
                         .HasColumnType("int");
 
-                    b.Property<int>("GovernorateCode")
-                        .HasColumnType("int");
+                    b.Property<string>("GovernorateCode")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<double>("ImpactAssessment")
                         .HasColumnType("float");
@@ -860,8 +799,9 @@ namespace MonitoringAndEvaluationPlatform.Migrations
                     b.Property<DateTime>("StartDate")
                         .HasColumnType("datetime2");
 
-                    b.Property<int>("SubDistrictCode")
-                        .HasColumnType("int");
+                    b.Property<string>("SubDistrictCode")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<int>("SuperVisorCode")
                         .HasColumnType("int");
@@ -997,14 +937,12 @@ namespace MonitoringAndEvaluationPlatform.Migrations
 
             modelBuilder.Entity("MonitoringAndEvaluationPlatform.Models.SubDistrict", b =>
                 {
-                    b.Property<int>("Code")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
+                    b.Property<string>("Code")
+                        .HasColumnType("nvarchar(450)");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Code"));
-
-                    b.Property<int>("DistrictCode")
-                        .HasColumnType("int");
+                    b.Property<string>("DistrictCode")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<string>("Name")
                         .IsRequired()
@@ -1015,26 +953,6 @@ namespace MonitoringAndEvaluationPlatform.Migrations
                     b.HasIndex("DistrictCode");
 
                     b.ToTable("SubDistricts");
-
-                    b.HasData(
-                        new
-                        {
-                            Code = 1,
-                            DistrictCode = 1,
-                            Name = "Muhairen"
-                        },
-                        new
-                        {
-                            Code = 2,
-                            DistrictCode = 2,
-                            Name = "Ein Elsharqiyeh"
-                        },
-                        new
-                        {
-                            Code = 3,
-                            DistrictCode = 3,
-                            Name = "Jeb Ramleh"
-                        });
                 });
 
             modelBuilder.Entity("MonitoringAndEvaluationPlatform.Models.SubOutput", b =>

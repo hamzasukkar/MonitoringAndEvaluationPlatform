@@ -44,16 +44,16 @@ namespace MonitoringAndEvaluationPlatform.Models
         public List<IFormFile> UploadedFiles { get; set; } = new List<IFormFile>();
         public ICollection<ProjectFile> ProjectFiles { get; set; } = new List<ProjectFile>();
 
-        public int GovernorateCode { get; set; }
+        public string GovernorateCode { get; set; }
         public Governorate Governorate { get; set; }
 
-        public int DistrictCode { get; set; }
+        public string DistrictCode { get; set; }
         public District District { get; set; }
 
-        public int SubDistrictCode { get; set; }
+        public string SubDistrictCode { get; set; }
         public SubDistrict SubDistrict { get; set; }
 
-        public int CommunityCode { get; set; }
+        public string CommunityCode { get; set; }
         public Community Community { get; set; }
 
 

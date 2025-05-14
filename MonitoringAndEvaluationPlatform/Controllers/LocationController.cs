@@ -227,7 +227,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         }
 
         [HttpGet]
-        public JsonResult GetDistricts(int governorateCode)
+        public JsonResult GetDistricts(string governorateCode)
         {
             var districts = _context.Districts
                 .Where(d => d.GovernorateCode == governorateCode)
@@ -237,7 +237,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         }
 
         [HttpGet]
-        public JsonResult GetSubDistricts(int districtCode)
+        public JsonResult GetSubDistricts(string districtCode)
         {
             var subDistricts = _context.SubDistricts
                 .Where(sd => sd.DistrictCode == districtCode)
@@ -247,7 +247,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         }
 
         [HttpGet]
-        public JsonResult GetCommunities(int subDistrictCode)
+        public JsonResult GetCommunities(string subDistrictCode)
         {
             var communities = _context.Communities
                 .Where(c => c.SubDistrictCode == subDistrictCode)

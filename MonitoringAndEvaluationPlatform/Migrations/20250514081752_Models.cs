@@ -3,8 +3,6 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
-#pragma warning disable CA1814 // Prefer jagged arrays over multidimensional
-
 namespace MonitoringAndEvaluationPlatform.Migrations
 {
     /// <inheritdoc />
@@ -90,8 +88,7 @@ namespace MonitoringAndEvaluationPlatform.Migrations
                 name: "Governorates",
                 columns: table => new
                 {
-                    Code = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Code = table.Column<string>(type: "nvarchar(450)", nullable: false),
                     Name = table.Column<string>(type: "nvarchar(max)", nullable: false)
                 },
                 constraints: table =>
@@ -304,10 +301,9 @@ namespace MonitoringAndEvaluationPlatform.Migrations
                 name: "Districts",
                 columns: table => new
                 {
-                    Code = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Code = table.Column<string>(type: "nvarchar(450)", nullable: false),
                     Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    GovernorateCode = table.Column<int>(type: "int", nullable: false)
+                    GovernorateCode = table.Column<string>(type: "nvarchar(450)", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -349,10 +345,9 @@ namespace MonitoringAndEvaluationPlatform.Migrations
                 name: "SubDistricts",
                 columns: table => new
                 {
-                    Code = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Code = table.Column<string>(type: "nvarchar(450)", nullable: false),
                     Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    DistrictCode = table.Column<int>(type: "int", nullable: false)
+                    DistrictCode = table.Column<string>(type: "nvarchar(450)", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -394,10 +389,9 @@ namespace MonitoringAndEvaluationPlatform.Migrations
                 name: "Communities",
                 columns: table => new
                 {
-                    Code = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Code = table.Column<string>(type: "nvarchar(450)", nullable: false),
                     Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    SubDistrictCode = table.Column<int>(type: "int", nullable: false)
+                    SubDistrictCode = table.Column<string>(type: "nvarchar(450)", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -468,10 +462,10 @@ namespace MonitoringAndEvaluationPlatform.Migrations
                     ImpactAssessment = table.Column<double>(type: "float", nullable: false),
                     Financial = table.Column<int>(type: "int", nullable: false),
                     Physical = table.Column<int>(type: "int", nullable: false),
-                    GovernorateCode = table.Column<int>(type: "int", nullable: false),
-                    DistrictCode = table.Column<int>(type: "int", nullable: false),
-                    SubDistrictCode = table.Column<int>(type: "int", nullable: false),
-                    CommunityCode = table.Column<int>(type: "int", nullable: false)
+                    GovernorateCode = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    DistrictCode = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    SubDistrictCode = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    CommunityCode = table.Column<string>(type: "nvarchar(450)", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -768,46 +762,6 @@ namespace MonitoringAndEvaluationPlatform.Migrations
                         principalTable: "logicalFrameworkIndicators",
                         principalColumn: "IndicatorCode",
                         onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.InsertData(
-                table: "Governorates",
-                columns: new[] { "Code", "Name" },
-                values: new object[,]
-                {
-                    { 1, "Damascus" },
-                    { 2, "Lattakia" },
-                    { 3, "Hama" }
-                });
-
-            migrationBuilder.InsertData(
-                table: "Districts",
-                columns: new[] { "Code", "GovernorateCode", "Name" },
-                values: new object[,]
-                {
-                    { 1, 1, "Saalihia" },
-                    { 2, 2, "Jablah" },
-                    { 3, 3, "Masyaf" }
-                });
-
-            migrationBuilder.InsertData(
-                table: "SubDistricts",
-                columns: new[] { "Code", "DistrictCode", "Name" },
-                values: new object[,]
-                {
-                    { 1, 1, "Muhairen" },
-                    { 2, 2, "Ein Elsharqiyeh" },
-                    { 3, 3, "Jeb Ramleh" }
-                });
-
-            migrationBuilder.InsertData(
-                table: "Communities",
-                columns: new[] { "Code", "Name", "SubDistrictCode" },
-                values: new object[,]
-                {
-                    { 1, "Alefaif", 1 },
-                    { 2, "Battara", 2 },
-                    { 3, "Alamiyeh", 3 }
                 });
 
             migrationBuilder.CreateIndex(

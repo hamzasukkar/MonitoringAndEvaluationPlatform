@@ -97,33 +97,26 @@ namespace MonitoringAndEvaluationPlatform.Data
 
             // Repeat for District, SubDistrict, and Community
 
-            // Seed Governorates
-            modelBuilder.Entity<Governorate>().HasData(
-                new Governorate { Code = 1, Name = "Damascus" },
-                new Governorate { Code = 2, Name = "Lattakia" },
-                new Governorate { Code = 3, Name = "Hama" }
-            );
+            //// Seed Districts
+            //modelBuilder.Entity<District>().HasData(
+            //    new District { Code = 1, Name = "Saalihia", GovernorateCode = 1 },
+            //    new District { Code = 2, Name = "Jablah", GovernorateCode = 2 },
+            //    new District { Code = 3, Name = "Masyaf", GovernorateCode = 3 }
+            //);
 
-            // Seed Districts
-            modelBuilder.Entity<District>().HasData(
-                new District { Code = 1, Name = "Saalihia", GovernorateCode = 1 },
-                new District { Code = 2, Name = "Jablah", GovernorateCode = 2 },
-                new District { Code = 3, Name = "Masyaf", GovernorateCode = 3 }
-            );
+            //// Seed SubDistricts
+            //modelBuilder.Entity<SubDistrict>().HasData(
+            //    new SubDistrict { Code = 1, Name = "Muhairen", DistrictCode = 1 },
+            //    new SubDistrict { Code = 2, Name = "Ein Elsharqiyeh", DistrictCode = 2 },
+            //    new SubDistrict { Code = 3, Name = "Jeb Ramleh", DistrictCode = 3 }
+            //);
 
-            // Seed SubDistricts
-            modelBuilder.Entity<SubDistrict>().HasData(
-                new SubDistrict { Code = 1, Name = "Muhairen", DistrictCode = 1 },
-                new SubDistrict { Code = 2, Name = "Ein Elsharqiyeh", DistrictCode = 2 },
-                new SubDistrict { Code = 3, Name = "Jeb Ramleh", DistrictCode = 3 }
-            );
-
-            // Seed Communities
-            modelBuilder.Entity<Community>().HasData(
-                new Community { Code = 1, Name = "Alefaif", SubDistrictCode = 1 },
-                new Community { Code = 2, Name = "Battara", SubDistrictCode = 2 },
-                new Community { Code = 3, Name = "Alamiyeh", SubDistrictCode = 3 }
-            );
+            //// Seed Communities
+            //modelBuilder.Entity<Community>().HasData(
+            //    new Community { Code = 1, Name = "Alefaif", SubDistrictCode = 1 },
+            //    new Community { Code = 2, Name = "Battara", SubDistrictCode = 2 },  
+            //    new Community { Code = 3, Name = "Alamiyeh", SubDistrictCode = 3 }
+            //);
 
         }
     }

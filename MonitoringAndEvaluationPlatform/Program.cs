@@ -6,6 +6,7 @@ using MonitoringAndEvaluationPlatform.Models;
 using MonitoringAndEvaluationPlatform.Services;
 
 var builder = WebApplication.CreateBuilder(args);
+ ApplicationDbContext applicationDbContext;
 
 // Add services to the container.
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection") ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
@@ -78,7 +79,12 @@ using (var scope = app.Services.CreateScope())
     var services = scope.ServiceProvider;
     var roleManager = services.GetRequiredService<RoleManager<IdentityRole>>();
     var userManager = services.GetRequiredService<UserManager<ApplicationUser>>();
+    var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
     DbInitializer.Seed(services);
+    ApplicationDbInitializer.SeedGovernoratesFromJson(dbContext);
+    ApplicationDbInitializer.SeedDistrictsFromJson(dbContext);
+    ApplicationDbInitializer.SeedSubDistrictsFromJson(dbContext);
+    ApplicationDbInitializer.SeedCommunitiesFromJson(dbContext);
 
     // Create Admin role if it doesn’t exist
     string adminRole = "Admin";

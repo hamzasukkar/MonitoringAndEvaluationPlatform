@@ -5,10 +5,10 @@ namespace MonitoringAndEvaluationPlatform.Models
     public class Community
     {
         [Key]
-        public int Code { get; set; }
+        public string Code { get; set; }
         public string Name { get; set; }
 
-        public int SubDistrictCode { get; set; }
+        public string SubDistrictCode { get; set; }
         public SubDistrict SubDistrict { get; set; }
     }
 }
