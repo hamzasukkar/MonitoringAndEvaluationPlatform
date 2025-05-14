@@ -66,9 +66,13 @@
                     <tbody>
                         @foreach (var item in Model)
                         {
-                            <tr>
+                            <tr id="output-row-@item.Code">
                                 <td>
-                                    <a asp-action="Index" asp-controller="SubOutputs" asp-route-outputCode="@item.Code">@item.Name</a>
+                                    <span id="fw-name-@item.Code" class="fw-name-view">
+                                        <a href="/SubOutputs/Index/@item.Code" class="text-decoration-none"><strong>@item.Name</strong></a>
+                                    </span>
+                                    <input type="text" id="fw-name-input-@item.Code" class="form-control form-control-sm fw-name-edit d-none"
+                                           value="@item.Name" />
                                 </td>
                                 <td>@item.Weight</td>
                                 <td>@item.IndicatorsPerformance</td>
@@ -76,8 +80,15 @@
                                 <td>@item.FieldMonitoring</td>
                                 <td>@item.ImpactAssessment</td>
                                 <td class="text-end">
-                                    <a asp-action="Edit" asp-route-id="@item.Code" class="btn btn-sm btn-outline-warning"><i class="fas fa-edit"></i></a>
-                                    <a asp-action="Delete" asp-route-id="@item.Code" class="btn btn-sm btn-outline-danger"><i class="fas fa-trash-alt"></i></a>
+                                    <button class="btn btn-sm btn-outline-warning"
+                                            id="edit-btn-@item.Code"
+                                            onclick="toggleOutputEdit(@item.Code)">
+                                        <i class="fas fa-edit"></i>
+                                    </button>
+                                    <button class="btn btn-sm btn-outline-danger"
+                                            onclick="confirmOutputDelete(@item.Code)">
+                                        <i class="fas fa-trash-alt"></i>
+                                    </button>
                                 </td>
                             </tr>
                         }
@@ -95,6 +106,68 @@
         const nameInput = outputForm.querySelector('input[name="Name"]');
         if (nameInput) nameInput.focus();
     });
+
+    function toggleOutputEdit(code) {
+        const viewSpan = $(`#fw-name-${code}`);
+        const input = $(`#fw-name-input-${code}`);
+        const button = $(`#edit-btn-${code}`);
+
+        const isEditing = input.hasClass('d-none') === false;
+
+        if (isEditing) {
+            // Save via AJAX
+            const newName = input.val();
+
+            $.ajax({
+                url: `/Outputs/UpdateName`,
+                type: 'POST',
+                data: { id: code, name: newName },
+                success: function () {
+                    viewSpan.html(`<a href="/SubOutputs/Index/${code}" class="text-decoration-none"><strong>${newName}</strong></a>`);
+                    input.addClass('d-none');
+                    viewSpan.removeClass('d-none');
+                    button.html('<i class="fas fa-edit"></i>');
+                    button.removeClass('btn-success').addClass('btn-outline-warning');
+                    Swal.fire('Saved!', 'Output name updated.', 'success');
+                },
+                error: function () {
+                    Swal.fire('Error', 'Could not update name.', 'error');
+                }
+            });
+        } else {
+            // Enter edit mode
+            input.removeClass('d-none');
+            viewSpan.addClass('d-none');
+            button.html('<i class="fas fa-save"></i>');
+            button.removeClass('btn-outline-warning').addClass('btn-success');
+        }
+    }
+            function confirmOutputDelete(code) {
+            Swal.fire({
+                title: 'Are you sure?',
+                text: 'This will delete the outputs!',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                cancelButtonColor: '#3085d6',
+                confirmButtonText: 'Yes, delete it!'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    $.ajax({
+                        url: `/Outputs/DeleteConfirmed/${code}`,
+                        type: 'POST',
+                        success: function () {
+                            $(`#output-row-${code}`).fadeOut();
+                            Swal.fire('Deleted!', 'Output has been deleted.', 'success');
+                        },
+                        error: function () {
+                            Swal.fire('Error', 'Could not delete output.', 'error');
+                        }
+                    });
+                }
+            });
+        }
+    
 </script>
 <style>
     .table-responsive {

@@ -108,7 +108,18 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             ViewData["FrameworkCode"] = new SelectList(_context.Frameworks, "Code", "Name", outcome.FrameworkCode);
             return View(outcome);
         }
+        [HttpPost]
+        public async Task<IActionResult> UpdateName(int id, string name)
+        {
+            var outcome = await _context.Outcomes.FindAsync(id);
+            if (outcome == null) return NotFound();
 
+            outcome.Name = name;
+            _context.Update(outcome);
+            await _context.SaveChangesAsync();
+
+            return Ok();
+        }
 
         // GET: Outcomes/Edit/5
         public async Task<IActionResult> Edit(int? id)
@@ -183,18 +194,15 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         }
 
         // POST: Outcomes/Delete/5
-        [HttpPost, ActionName("Delete")]
-        [ValidateAntiForgeryToken]
+        [HttpPost]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
             var outcome = await _context.Outcomes.FindAsync(id);
-            if (outcome != null)
-            {
-                _context.Outcomes.Remove(outcome);
-            }
+            if (outcome == null) return NotFound();
 
+            _context.Outcomes.Remove(outcome);
             await _context.SaveChangesAsync();
-            return RedirectToAction(nameof(Index));
+            return Ok();
         }
 
         private bool OutcomeExists(int id)
