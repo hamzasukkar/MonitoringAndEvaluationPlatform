@@ -70,9 +70,9 @@
 
 							<tr id="outcome-row-@item.Code">
 								<td>
-									<span id="fw-name-@item.Code" class="fw-name-view">
-										<a href="/Outputs/Index/@item.Code" class="text-decoration-none"><strong>@item.Name</strong></a>
-									</span>
+									<a asp-controller="Outputs" asp-action="Index" asp-route-outcomeCode="@item.Code" class="text-decoration-none">
+										<strong>@item.Name</strong>
+									</a>
 									<input type="text" id="fw-name-input-@item.Code" class="form-control form-control-sm fw-name-edit d-none"
 										   value="@item.Name" />
 								</td>
