@@ -1,55 +1,64 @@
 ﻿@model MonitoringAndEvaluationPlatform.Models.LogicalFrameworkIndicator
-<style>
-    /* Prevent horizontal overflow at root level */
-    html, body {
-        overflow-x: hidden;
-        max-width: 100%;
-    }
-
-    /* Table responsive container */
-    .table-container {
-        width: 100%;
-        overflow-x: auto;
-        -webkit-overflow-scrolling: touch;
-        margin-bottom: 1rem;
-    }
-
-    /* Table styling */
-    .table {
-        min-width: 600px; /* Minimum width before scrolling */
-        width: 100%;
-        margin-bottom: 0;
-    }
-
-    /* Form container */
-    .form-container {
-        max-width: 100%;
-        padding: 0 15px;
-    }
-
-    /* Navigation and layout fixes */
-    .container-fluid {
-        padding-right: 0;
-        padding-left: 0;
-    }
-
-    /* Action icons */
-    .action-icons a {
-        display: inline-block;
-        margin: 0 5px;
-    }
-
-    /* Responsive adjustments */
-    @@media (min-width: 768px) {
-        .form-container {
-            padding: 0;
+@{
+    ViewData["Title"] = "Create";
+    Layout = "~/Views/Shared/_ProjectsLayout.cshtml";
+    var Date = DateTime.Today.ToString("yyyy-MM-dd");
+}
+<head>
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <style>
+        /* Prevent horizontal overflow at root level */
+        html, body {
+            overflow-x: hidden;
+            max-width: 100%;
         }
 
+        /* Table responsive container */
         .table-container {
+            width: 100%;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            margin-bottom: 1rem;
+        }
+
+        /* Table styling */
+        .table {
+            min-width: 600px; /* Minimum width before scrolling */
+            width: 100%;
+            margin-bottom: 0;
+        }
+
+        /* Form container */
+        .form-container {
+            max-width: 100%;
             padding: 0 15px;
         }
-    }
-</style>
+
+        /* Navigation and layout fixes */
+        .container-fluid {
+            padding-right: 0;
+            padding-left: 0;
+        }
+
+        /* Action icons */
+        .action-icons a {
+            display: inline-block;
+            margin: 0 5px;
+        }
+
+        /* Responsive adjustments */
+        @@media (min-width: 768px) {
+            .form-container {
+                padding: 0;
+            }
+
+            .table-container {
+                padding: 0 15px;
+            }
+        }
+    </style>
+
+</head>
 
 @if (TempData["Success"] != null)
 {
@@ -59,11 +68,6 @@
     </div>
 }
 
-@{
-    ViewData["Title"] = "Create";
-    Layout = "~/Views/Shared/_ProjectsLayout.cshtml";
-    var Date = DateTime.Today.ToString("yyyy-MM-dd");
-}
 
 <div class="container-fluid">
     <h1>Create</h1>
@@ -85,11 +89,11 @@
                     <input asp-for="Target" class="form-control" />
                     <span asp-validation-for="Target" class="text-danger"></span>
                 </div>
-                <div class="form-group mb-3">
+      @*           <div class="form-group mb-3">
                     <label asp-for="TargetYear" class="control-label"></label>
                     <input asp-for="TargetYear" value="@Date" class="form-control" />
                     <span asp-validation-for="TargetYear" class="text-danger"></span>
-                </div>
+                </div> *@
                 <div class="form-group">
                     <input type="submit" value="Create" class="btn btn-primary" />
                 </div>
@@ -106,9 +110,8 @@
                     <thead>
                         <tr>
                             <th>Name</th>
-                            <th>Target</th>
-                            <th>Target Year</th>
-                            <th>Weight</th>
+                    @*         <th>Target</th>
+                            <th>Target Year</th> *@
                             <th>Performance</th>
                             <th>Actions</th>
                         </tr>
@@ -116,26 +119,29 @@
                     <tbody>
                         @foreach (var item in indicators)
                         {
-                            double performance = Math.Round(@item.Performance, 0);
-                            <tr>
-                                <td>@item.Name</td>
-                                <td>@item.Target</td>
-                                <td>@item.TargetYear.Year</td>
-                                <td>@item.Weight</td>
+                            double performance = Math.Round(item.Performance, 0);
+                            <tr id="row-@item.IndicatorCode">
+                                <td>
+                                    <span class="view-mode">@item.Name</span>
+                                    <input type="text" class="form-control edit-mode d-none" name="Name" value="@item.Name" />
+                                </td>
+                                <td>
+                                    <span class="view-mode">@item.Target</span>
+                                    <input type="number" class="form-control edit-mode d-none" name="Target" value="@item.Target" />
+                                </td>
+                      @*           <td>@item.TargetYear.Year</td> *@
                                 <td>@performance%</td>
                                 <td class="action-icons">
-                                    <a asp-action="Details" asp-route-id="@item.IndicatorCode" title="Details">
-                                        <i class="bi bi-eye text-info" style="font-size: 1.2rem;"></i>
+                                    <a href="#" class="edit-btn text-primary" data-id="@item.IndicatorCode" title="Edit">
+                                        <i class="bi bi-pencil-square" style="font-size: 1.2rem;"></i>
                                     </a>
-                                    <a asp-action="Edit" asp-route-id="@item.IndicatorCode" title="Edit">
-                                        <i class="bi bi-pencil-square text-warning" style="font-size: 1.2rem;"></i>
-                                    </a>
-                                    <a asp-action="Delete" asp-route-id="@item.IndicatorCode" title="Delete">
-                                        <i class="bi bi-trash text-danger" style="font-size: 1.2rem;"></i>
+                                    <a href="#" class="delete-btn text-danger" data-id="@item.IndicatorCode" title="Delete">
+                                        <i class="bi bi-trash" style="font-size: 1.2rem;"></i>
                                     </a>
                                 </td>
                             </tr>
                         }
+
                     </tbody>
                 </table>
             </div>
@@ -150,3 +156,88 @@
         <a asp-action="Index" class="btn btn-outline-secondary">Back to List</a>
     </div>
 </div>
+<script>
+    $(document).ready(function () {
+        // Edit & Save button
+        $('.edit-btn').on('click', function (e) {
+            e.preventDefault();
+            const id = $(this).data('id');
+            const row = $('#row-' + id);
+            const isEditing = row.hasClass('editing');
+
+            if (!isEditing) {
+                row.addClass('editing');
+                row.find('.view-mode').addClass('d-none');
+                row.find('.edit-mode').removeClass('d-none');
+                $(this).html('<i class="bi bi-save" style="font-size: 1.2rem;"></i>');
+            } else {
+                const name = row.find('input[name="Name"]').val();
+                const target = row.find('input[name="Target"]').val();
+
+                $.ajax({
+                    url: '/LogicalFrameworkIndicators/EditInline',
+                    method: 'POST',
+                    data: { id: id, name: name, target: target },
+                    success: function (res) {
+                        if (res.success) {
+                            row.removeClass('editing');
+                            row.find('.view-mode').removeClass('d-none');
+                            row.find('.edit-mode').addClass('d-none');
+                            row.find('.view-mode').eq(0).text(name);   // Name
+                            row.find('.view-mode').eq(1).text(target); // Target
+                            $('.edit-btn[data-id="' + id + '"]').html('<i class="bi bi-pencil-square" style="font-size: 1.2rem;"></i>');
+
+                            Swal.fire({
+                                icon: 'success',
+                                title: 'Saved!',
+                                text: 'Indicator updated successfully.',
+                                timer: 1500,
+                                showConfirmButton: false
+                            });
+                        } else {
+                            Swal.fire('Error', res.message, 'error');
+                        }
+                    },
+                    error: function () {
+                        Swal.fire('Error', 'An error occurred while saving.', 'error');
+                    }
+                });
+            }
+        });
+
+        // Delete button
+        $('.delete-btn').on('click', function (e) {
+            e.preventDefault();
+            const id = $(this).data('id');
+
+            Swal.fire({
+                title: 'Are you sure?',
+                text: "This will permanently delete the indicator.",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                cancelButtonColor: '#6c757d',
+                confirmButtonText: 'Yes, delete it!'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    $.ajax({
+                        url: '/LogicalFrameworkIndicators/DeleteConfirmed',
+                        method: 'POST',
+                        data: { id: id },
+                        success: function (res) {
+                            if (res.success) {
+                                $('#row-' + id).remove();
+                                Swal.fire('Deleted!', 'The indicator was removed.', 'success');
+                            } else {
+                                Swal.fire('Error', res.message, 'error');
+                            }
+                        },
+                        error: function () {
+                            Swal.fire('Error', 'Deletion failed.', 'error');
+                        }
+                    });
+                }
+            });
+        });
+    });
+</script>

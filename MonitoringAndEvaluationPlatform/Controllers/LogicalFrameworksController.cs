@@ -101,6 +101,25 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             }
             return View(logicalFramework);
         }
+        [HttpPost]
+        public async Task<IActionResult> EditNameInline(int code, string name)
+        {
+            var item = await _context.logicalFrameworks.FindAsync(code);
+            if (item == null)
+                return Json(new { success = false, message = "Logical Framework not found." });
+
+            item.Name = name;
+
+            try
+            {
+                await _context.SaveChangesAsync();
+                return Json(new { success = true });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = ex.Message });
+            }
+        }
 
         // POST: LogicalFrameworks/Edit/5
         // To protect from overposting attacks, enable the specific properties you want to bind to.
@@ -137,7 +156,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             return View(logicalFramework);
         }
 
-        // GET: LogicalFrameworks/Delete/5
+       // GET: LogicalFrameworks/Delete/5
         public async Task<IActionResult> Delete(int? id)
         {
             if (id == null)
@@ -155,20 +174,22 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             return View(logicalFramework);
         }
 
-        // POST: LogicalFrameworks/Delete/5
-        [HttpPost, ActionName("Delete")]
-        [ValidateAntiForgeryToken]
+        [HttpGet]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var logicalFramework = await _context.logicalFrameworks.FindAsync(id);
-            if (logicalFramework != null)
+            var framework = await _context.logicalFrameworks.FindAsync(id);
+            if (framework == null)
             {
-                _context.logicalFrameworks.Remove(logicalFramework);
+                return NotFound();
             }
 
+            _context.logicalFrameworks.Remove(framework);
             await _context.SaveChangesAsync();
-            return RedirectToAction(nameof(Index));
+
+            // ✅ Redirect to the correct page (adjust "Index" if your view is different)
+            return RedirectToAction("Create");
         }
+
 
         private bool LogicalFrameworkExists(int id)
         {

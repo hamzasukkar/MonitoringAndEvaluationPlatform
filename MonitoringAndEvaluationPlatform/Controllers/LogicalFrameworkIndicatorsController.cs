@@ -185,6 +185,20 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             return View(logicalFrameworkIndicator);
         }
 
+        [HttpPost]
+        public async Task<IActionResult> EditInline(int id, string name, int target)
+        {
+            var indicator = await _context.logicalFrameworkIndicators.FindAsync(id);
+            if (indicator == null)
+                return Json(new { success = false, message = "Indicator not found." });
+
+            indicator.Name = name;
+            indicator.Target = target;
+            await _context.SaveChangesAsync();
+
+            return Json(new { success = true });
+        }
+
         // POST: LogicalFrameworkIndicators/Edit/5
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
@@ -240,20 +254,19 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             return View(logicalFrameworkIndicator);
         }
 
-        // POST: LogicalFrameworkIndicators/Delete/5
-        [HttpPost, ActionName("Delete")]
-        [ValidateAntiForgeryToken]
+        [HttpPost]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var logicalFrameworkIndicator = await _context.logicalFrameworkIndicators.FindAsync(id);
-            if (logicalFrameworkIndicator != null)
-            {
-                _context.logicalFrameworkIndicators.Remove(logicalFrameworkIndicator);
-            }
+            var indicator = await _context.logicalFrameworkIndicators.FindAsync(id);
+            if (indicator == null)
+                return Json(new { success = false, message = "Indicator not found." });
 
+            _context.logicalFrameworkIndicators.Remove(indicator);
             await _context.SaveChangesAsync();
-            return RedirectToAction(nameof(Index));
+
+            return Json(new { success = true });
         }
+
 
         private bool LogicalFrameworkIndicatorExists(int id)
         {
