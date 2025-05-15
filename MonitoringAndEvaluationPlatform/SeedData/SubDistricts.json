@@ -1,5 +1,955 @@
 [
     {
+        "Code": "SY010000",
+        "DistrictCode": "SY0100",
+        "Name": "Damascus"
+    },
+    {
+        "Code": "SY020000",
+        "DistrictCode": "SY0200",
+        "Name": "Jebel Saman"
+    },
+    {
+        "Code": "SY020001",
+        "DistrictCode": "SY0200",
+        "Name": "Atareb"
+    },
+    {
+        "Code": "SY020002",
+        "DistrictCode": "SY0200",
+        "Name": "Tall Ed-daman"
+    },
+    {
+        "Code": "SY020003",
+        "DistrictCode": "SY0200",
+        "Name": "Haritan"
+    },
+    {
+        "Code": "SY020004",
+        "DistrictCode": "SY0200",
+        "Name": "Daret Azza"
+    },
+    {
+        "Code": "SY020005",
+        "DistrictCode": "SY0200",
+        "Name": "Zarbah"
+    },
+    {
+        "Code": "SY020006",
+        "DistrictCode": "SY0200",
+        "Name": "Hadher"
+    },
+    {
+        "Code": "SY020200",
+        "DistrictCode": "SY0202",
+        "Name": "Al Bab"
+    },
+    {
+        "Code": "SY020201",
+        "DistrictCode": "SY0202",
+        "Name": "Tadaf"
+    },
+    {
+        "Code": "SY020202",
+        "DistrictCode": "SY0202",
+        "Name": "Dayr Hafir"
+    },
+    {
+        "Code": "SY020203",
+        "DistrictCode": "SY0202",
+        "Name": "Ar-Ra'ee"
+    },
+    {
+        "Code": "SY020204",
+        "DistrictCode": "SY0202",
+        "Name": "Eastern Kwaires"
+    },
+    {
+        "Code": "SY020205",
+        "DistrictCode": "SY0202",
+        "Name": "Rasm Haram El-Imam"
+    },
+    {
+        "Code": "SY020206",
+        "DistrictCode": "SY0202",
+        "Name": "A'rima"
+    },
+    {
+        "Code": "SY020300",
+        "DistrictCode": "SY0203",
+        "Name": "Afrin"
+    },
+    {
+        "Code": "SY020301",
+        "DistrictCode": "SY0203",
+        "Name": "Bulbul"
+    },
+    {
+        "Code": "SY020302",
+        "DistrictCode": "SY0203",
+        "Name": "Jandairis"
+    },
+    {
+        "Code": "SY020303",
+        "DistrictCode": "SY0203",
+        "Name": "Raju"
+    },
+    {
+        "Code": "SY020304",
+        "DistrictCode": "SY0203",
+        "Name": "Sharan"
+    },
+    {
+        "Code": "SY020305",
+        "DistrictCode": "SY0203",
+        "Name": "Sheikh El-Hadid"
+    },
+    {
+        "Code": "SY020306",
+        "DistrictCode": "SY0203",
+        "Name": "Ma'btali"
+    },
+    {
+        "Code": "SY020400",
+        "DistrictCode": "SY0204",
+        "Name": "A'zaz"
+    },
+    {
+        "Code": "SY020401",
+        "DistrictCode": "SY0204",
+        "Name": "Aghtrin"
+    },
+    {
+        "Code": "SY020402",
+        "DistrictCode": "SY0204",
+        "Name": "Tall Refaat"
+    },
+    {
+        "Code": "SY020403",
+        "DistrictCode": "SY0204",
+        "Name": "Mare'"
+    },
+    {
+        "Code": "SY020404",
+        "DistrictCode": "SY0204",
+        "Name": "Nabul"
+    },
+    {
+        "Code": "SY020405",
+        "DistrictCode": "SY0204",
+        "Name": "Suran"
+    },
+    {
+        "Code": "SY020500",
+        "DistrictCode": "SY0205",
+        "Name": "Menbij"
+    },
+    {
+        "Code": "SY020501",
+        "DistrictCode": "SY0205",
+        "Name": "Abu Qalqal"
+    },
+    {
+        "Code": "SY020502",
+        "DistrictCode": "SY0205",
+        "Name": "Al-Khafsa"
+    },
+    {
+        "Code": "SY020503",
+        "DistrictCode": "SY0205",
+        "Name": "Maskana"
+    },
+    {
+        "Code": "SY020600",
+        "DistrictCode": "SY0206",
+        "Name": "Ain al Arab"
+    },
+    {
+        "Code": "SY020601",
+        "DistrictCode": "SY0206",
+        "Name": "Lower Shyookh"
+    },
+    {
+        "Code": "SY020602",
+        "DistrictCode": "SY0206",
+        "Name": "Sarin"
+    },
+    {
+        "Code": "SY020700",
+        "DistrictCode": "SY0207",
+        "Name": "As-Safira"
+    },
+    {
+        "Code": "SY020701",
+        "DistrictCode": "SY0207",
+        "Name": "Khanaser"
+    },
+    {
+        "Code": "SY020702",
+        "DistrictCode": "SY0207",
+        "Name": "Banan"
+    },
+    {
+        "Code": "SY020703",
+        "DistrictCode": "SY0207",
+        "Name": "Hajeb"
+    },
+    {
+        "Code": "SY020800",
+        "DistrictCode": "SY0208",
+        "Name": "Jarablus"
+    },
+    {
+        "Code": "SY020801",
+        "DistrictCode": "SY0208",
+        "Name": "Ghandorah"
+    },
+    {
+        "Code": "SY030101",
+        "DistrictCode": "SY0301",
+        "Name": "Kisweh"
+    },
+    {
+        "Code": "SY030102",
+        "DistrictCode": "SY0301",
+        "Name": "Babella"
+    },
+    {
+        "Code": "SY030103",
+        "DistrictCode": "SY0301",
+        "Name": "Jaramana"
+    },
+    {
+        "Code": "SY030104",
+        "DistrictCode": "SY0301",
+        "Name": "Maliha"
+    },
+    {
+        "Code": "SY030105",
+        "DistrictCode": "SY0301",
+        "Name": "Kafr Batna"
+    },
+    {
+        "Code": "SY030106",
+        "DistrictCode": "SY0301",
+        "Name": "Arbin"
+    },
+    {
+        "Code": "SY030107",
+        "DistrictCode": "SY0301",
+        "Name": "Qudsiya"
+    },
+    {
+        "Code": "SY030200",
+        "DistrictCode": "SY0302",
+        "Name": "Duma"
+    },
+    {
+        "Code": "SY030201",
+        "DistrictCode": "SY0302",
+        "Name": "Harasta"
+    },
+    {
+        "Code": "SY030202",
+        "DistrictCode": "SY0302",
+        "Name": "Sabe Byar"
+    },
+    {
+        "Code": "SY030203",
+        "DistrictCode": "SY0302",
+        "Name": "Dhameer"
+    },
+    {
+        "Code": "SY030204",
+        "DistrictCode": "SY0302",
+        "Name": "Nashabiyeh"
+    },
+    {
+        "Code": "SY030205",
+        "DistrictCode": "SY0302",
+        "Name": "Ghizlaniyyeh"
+    },
+    {
+        "Code": "SY030206",
+        "DistrictCode": "SY0302",
+        "Name": "Haran Al'awameed"
+    },
+    {
+        "Code": "SY030300",
+        "DistrictCode": "SY0303",
+        "Name": "Al Qutayfah"
+    },
+    {
+        "Code": "SY030301",
+        "DistrictCode": "SY0303",
+        "Name": "Jirud"
+    },
+    {
+        "Code": "SY030302",
+        "DistrictCode": "SY0303",
+        "Name": "Ma'loula"
+    },
+    {
+        "Code": "SY030303",
+        "DistrictCode": "SY0303",
+        "Name": "Raheiba"
+    },
+    {
+        "Code": "SY030400",
+        "DistrictCode": "SY0304",
+        "Name": "At Tall"
+    },
+    {
+        "Code": "SY030401",
+        "DistrictCode": "SY0304",
+        "Name": "Sidnaya"
+    },
+    {
+        "Code": "SY030402",
+        "DistrictCode": "SY0304",
+        "Name": "Rankus"
+    },
+    {
+        "Code": "SY030500",
+        "DistrictCode": "SY0305",
+        "Name": "Yabroud"
+    },
+    {
+        "Code": "SY030501",
+        "DistrictCode": "SY0305",
+        "Name": "Esal El-Ward"
+    },
+    {
+        "Code": "SY030600",
+        "DistrictCode": "SY0306",
+        "Name": "An Nabk"
+    },
+    {
+        "Code": "SY030601",
+        "DistrictCode": "SY0306",
+        "Name": "Deir Attiyeh"
+    },
+    {
+        "Code": "SY030700",
+        "DistrictCode": "SY0307",
+        "Name": "Az-Zabdani"
+    },
+    {
+        "Code": "SY030701",
+        "DistrictCode": "SY0307",
+        "Name": "Dimas"
+    },
+    {
+        "Code": "SY030702",
+        "DistrictCode": "SY0307",
+        "Name": "Ein Elfijeh"
+    },
+    {
+        "Code": "SY030703",
+        "DistrictCode": "SY0307",
+        "Name": "Madaya"
+    },
+    {
+        "Code": "SY030704",
+        "DistrictCode": "SY0307",
+        "Name": "Sarghaya"
+    },
+    {
+        "Code": "SY030800",
+        "DistrictCode": "SY0308",
+        "Name": "Qatana"
+    },
+    {
+        "Code": "SY030801",
+        "DistrictCode": "SY0308",
+        "Name": "Bait Jan"
+    },
+    {
+        "Code": "SY030802",
+        "DistrictCode": "SY0308",
+        "Name": "Sa'sa'"
+    },
+    {
+        "Code": "SY030900",
+        "DistrictCode": "SY0309",
+        "Name": "Markaz Darayya"
+    },
+    {
+        "Code": "SY030901",
+        "DistrictCode": "SY0309",
+        "Name": "Sahnaya"
+    },
+    {
+        "Code": "SY030902",
+        "DistrictCode": "SY0309",
+        "Name": "Hajar Aswad"
+    },
+    {
+        "Code": "SY040100",
+        "DistrictCode": "SY0401",
+        "Name": "Homs"
+    },
+    {
+        "Code": "SY040101",
+        "DistrictCode": "SY0401",
+        "Name": "Taldu"
+    },
+    {
+        "Code": "SY040102",
+        "DistrictCode": "SY0401",
+        "Name": "Kherbet Tin Noor"
+    },
+    {
+        "Code": "SY040103",
+        "DistrictCode": "SY0401",
+        "Name": "Ein Elniser"
+    },
+    {
+        "Code": "SY040104",
+        "DistrictCode": "SY0401",
+        "Name": "Farqalas"
+    },
+    {
+        "Code": "SY040105",
+        "DistrictCode": "SY0401",
+        "Name": "Raqama"
+    },
+    {
+        "Code": "SY040106",
+        "DistrictCode": "SY0401",
+        "Name": "Qaryatein"
+    },
+    {
+        "Code": "SY040107",
+        "DistrictCode": "SY0401",
+        "Name": "Mahin"
+    },
+    {
+        "Code": "SY040108",
+        "DistrictCode": "SY0401",
+        "Name": "Hasyaa"
+    },
+    {
+        "Code": "SY040109",
+        "DistrictCode": "SY0401",
+        "Name": "Sadad"
+    },
+    {
+        "Code": "SY040110",
+        "DistrictCode": "SY0401",
+        "Name": "Qabu"
+    },
+    {
+        "Code": "SY040111",
+        "DistrictCode": "SY0401",
+        "Name": "Shin"
+    },
+    {
+        "Code": "SY040200",
+        "DistrictCode": "SY0402",
+        "Name": "Al-Qusayr"
+    },
+    {
+        "Code": "SY040300",
+        "DistrictCode": "SY0403",
+        "Name": "Tall Kalakh"
+    },
+    {
+        "Code": "SY040301",
+        "DistrictCode": "SY0403",
+        "Name": "Hadideh"
+    },
+    {
+        "Code": "SY040303",
+        "DistrictCode": "SY0403",
+        "Name": "Nasra"
+    },
+    {
+        "Code": "SY040304",
+        "DistrictCode": "SY0403",
+        "Name": "Hawash"
+    },
+    {
+        "Code": "SY040400",
+        "DistrictCode": "SY0404",
+        "Name": "Ar-Rastan"
+    },
+    {
+        "Code": "SY040401",
+        "DistrictCode": "SY0404",
+        "Name": "Talbiseh"
+    },
+    {
+        "Code": "SY040500",
+        "DistrictCode": "SY0405",
+        "Name": "Tadmor"
+    },
+    {
+        "Code": "SY040501",
+        "DistrictCode": "SY0405",
+        "Name": "Sokhneh"
+    },
+    {
+        "Code": "SY040600",
+        "DistrictCode": "SY0406",
+        "Name": "Al Makhrim"
+    },
+    {
+        "Code": "SY040601",
+        "DistrictCode": "SY0406",
+        "Name": "Jeb Ej-Jarrah"
+    },
+    {
+        "Code": "SY050100",
+        "DistrictCode": "SY0501",
+        "Name": "Hama"
+    },
+    {
+        "Code": "SY050101",
+        "DistrictCode": "SY0501",
+        "Name": "Suran"
+    },
+    {
+        "Code": "SY050102",
+        "DistrictCode": "SY0501",
+        "Name": "Harbanifse"
+    },
+    {
+        "Code": "SY050103",
+        "DistrictCode": "SY0501",
+        "Name": "Hamra"
+    },
+    {
+        "Code": "SY050200",
+        "DistrictCode": "SY0502",
+        "Name": "As-Suqaylabiyah"
+    },
+    {
+        "Code": "SY050201",
+        "DistrictCode": "SY0502",
+        "Name": "Tell Salhib"
+    },
+    {
+        "Code": "SY050202",
+        "DistrictCode": "SY0502",
+        "Name": "Ziyara"
+    },
+    {
+        "Code": "SY050203",
+        "DistrictCode": "SY0502",
+        "Name": "Shat-ha"
+    },
+    {
+        "Code": "SY050204",
+        "DistrictCode": "SY0502",
+        "Name": "Madiq Castle"
+    },
+    {
+        "Code": "SY050300",
+        "DistrictCode": "SY0503",
+        "Name": "As-Salamiyeh"
+    },
+    {
+        "Code": "SY050301",
+        "DistrictCode": "SY0503",
+        "Name": "Eastern Bari"
+    },
+    {
+        "Code": "SY050302",
+        "DistrictCode": "SY0503",
+        "Name": "As-Saan"
+    },
+    {
+        "Code": "SY050303",
+        "DistrictCode": "SY0503",
+        "Name": "Saboura"
+    },
+    {
+        "Code": "SY050304",
+        "DistrictCode": "SY0503",
+        "Name": "Oqeirbat"
+    },
+    {
+        "Code": "SY050400",
+        "DistrictCode": "SY0504",
+        "Name": "Masyaf"
+    },
+    {
+        "Code": "SY050401",
+        "DistrictCode": "SY0504",
+        "Name": "Jeb Ramleh"
+    },
+    {
+        "Code": "SY050402",
+        "DistrictCode": "SY0504",
+        "Name": "Oj"
+    },
+    {
+        "Code": "SY050403",
+        "DistrictCode": "SY0504",
+        "Name": "Ein Halaqim"
+    },
+    {
+        "Code": "SY050404",
+        "DistrictCode": "SY0504",
+        "Name": "Wadi El-oyoun"
+    },
+    {
+        "Code": "SY050500",
+        "DistrictCode": "SY0505",
+        "Name": "Muhradah"
+    },
+    {
+        "Code": "SY050501",
+        "DistrictCode": "SY0505",
+        "Name": "Kafr Zeita"
+    },
+    {
+        "Code": "SY050502",
+        "DistrictCode": "SY0505",
+        "Name": "Karnaz"
+    },
+    {
+        "Code": "SY060000",
+        "DistrictCode": "SY0600",
+        "Name": "Lattakia"
+    },
+    {
+        "Code": "SY060001",
+        "DistrictCode": "SY0600",
+        "Name": "Bahlolieh"
+    },
+    {
+        "Code": "SY060002",
+        "DistrictCode": "SY0600",
+        "Name": "Rabee'a"
+    },
+    {
+        "Code": "SY060003",
+        "DistrictCode": "SY0600",
+        "Name": "Ein El-Bayda"
+    },
+    {
+        "Code": "SY060004",
+        "DistrictCode": "SY0600",
+        "Name": "Qastal Maaf"
+    },
+    {
+        "Code": "SY060005",
+        "DistrictCode": "SY0600",
+        "Name": "Kasab"
+    },
+    {
+        "Code": "SY060006",
+        "DistrictCode": "SY0600",
+        "Name": "Hanadi"
+    },
+    {
+        "Code": "SY060200",
+        "DistrictCode": "SY0602",
+        "Name": "Jablah"
+    },
+    {
+        "Code": "SY060201",
+        "DistrictCode": "SY0602",
+        "Name": "Ein Elsharqiyeh"
+    },
+    {
+        "Code": "SY060202",
+        "DistrictCode": "SY0602",
+        "Name": "Qteilbiyyeh"
+    },
+    {
+        "Code": "SY060203",
+        "DistrictCode": "SY0602",
+        "Name": "Ein Shaqaq"
+    },
+    {
+        "Code": "SY060204",
+        "DistrictCode": "SY0602",
+        "Name": "Dalyeh"
+    },
+    {
+        "Code": "SY060205",
+        "DistrictCode": "SY0602",
+        "Name": "Beit Yashout"
+    },
+    {
+        "Code": "SY060300",
+        "DistrictCode": "SY0603",
+        "Name": "Al-Haffa"
+    },
+    {
+        "Code": "SY060301",
+        "DistrictCode": "SY0603",
+        "Name": "Salanfa"
+    },
+    {
+        "Code": "SY060302",
+        "DistrictCode": "SY0603",
+        "Name": "Ein Et-teeneh"
+    },
+    {
+        "Code": "SY060303",
+        "DistrictCode": "SY0603",
+        "Name": "Kansaba"
+    },
+    {
+        "Code": "SY060304",
+        "DistrictCode": "SY0603",
+        "Name": "Mzair'a"
+    },
+    {
+        "Code": "SY060400",
+        "DistrictCode": "SY0604",
+        "Name": "Al-Qardaha"
+    },
+    {
+        "Code": "SY060401",
+        "DistrictCode": "SY0604",
+        "Name": "Harf Elmseitra"
+    },
+    {
+        "Code": "SY060402",
+        "DistrictCode": "SY0604",
+        "Name": "Fakhura"
+    },
+    {
+        "Code": "SY060403",
+        "DistrictCode": "SY0604",
+        "Name": "Jobet Berghal"
+    },
+    {
+        "Code": "SY070000",
+        "DistrictCode": "SY0700",
+        "Name": "Idleb"
+    },
+    {
+        "Code": "SY070001",
+        "DistrictCode": "SY0700",
+        "Name": "Abul Thohur"
+    },
+    {
+        "Code": "SY070002",
+        "DistrictCode": "SY0700",
+        "Name": "Bennsh"
+    },
+    {
+        "Code": "SY070003",
+        "DistrictCode": "SY0700",
+        "Name": "Saraqab"
+    },
+    {
+        "Code": "SY070004",
+        "DistrictCode": "SY0700",
+        "Name": "Teftnaz"
+    },
+    {
+        "Code": "SY070005",
+        "DistrictCode": "SY0700",
+        "Name": "Maaret Tamsrin"
+    },
+    {
+        "Code": "SY070006",
+        "DistrictCode": "SY0700",
+        "Name": "Sarmin"
+    },
+    {
+        "Code": "SY070200",
+        "DistrictCode": "SY0702",
+        "Name": "Ma'arrat An Nu'man"
+    },
+    {
+        "Code": "SY070201",
+        "DistrictCode": "SY0702",
+        "Name": "Khan Shaykun"
+    },
+    {
+        "Code": "SY070202",
+        "DistrictCode": "SY0702",
+        "Name": "Sanjar"
+    },
+    {
+        "Code": "SY070203",
+        "DistrictCode": "SY0702",
+        "Name": "Kafr Nobol"
+    },
+    {
+        "Code": "SY070204",
+        "DistrictCode": "SY0702",
+        "Name": "Tamanaah"
+    },
+    {
+        "Code": "SY070205",
+        "DistrictCode": "SY0702",
+        "Name": "Heish"
+    },
+    {
+        "Code": "SY070300",
+        "DistrictCode": "SY0703",
+        "Name": "Harim"
+    },
+    {
+        "Code": "SY070301",
+        "DistrictCode": "SY0703",
+        "Name": "Dana"
+    },
+    {
+        "Code": "SY070302",
+        "DistrictCode": "SY0703",
+        "Name": "Salqin"
+    },
+    {
+        "Code": "SY070303",
+        "DistrictCode": "SY0703",
+        "Name": "Kafr Takharim"
+    },
+    {
+        "Code": "SY070304",
+        "DistrictCode": "SY0703",
+        "Name": "Qourqeena"
+    },
+    {
+        "Code": "SY070305",
+        "DistrictCode": "SY0703",
+        "Name": "Armanaz"
+    },
+    {
+        "Code": "SY070400",
+        "DistrictCode": "SY0704",
+        "Name": "Jisr-Ash-Shugur"
+    },
+    {
+        "Code": "SY070401",
+        "DistrictCode": "SY0704",
+        "Name": "Badama"
+    },
+    {
+        "Code": "SY070402",
+        "DistrictCode": "SY0704",
+        "Name": "Darkosh"
+    },
+    {
+        "Code": "SY070403",
+        "DistrictCode": "SY0704",
+        "Name": "Janudiyeh"
+    },
+    {
+        "Code": "SY070500",
+        "DistrictCode": "SY0705",
+        "Name": "Ariha"
+    },
+    {
+        "Code": "SY070501",
+        "DistrictCode": "SY0705",
+        "Name": "Ehsem"
+    },
+    {
+        "Code": "SY070502",
+        "DistrictCode": "SY0705",
+        "Name": "Mhambal"
+    },
+    {
+        "Code": "SY080000",
+        "DistrictCode": "SY0800",
+        "Name": "Al-Hasakeh"
+    },
+    {
+        "Code": "SY080001",
+        "DistrictCode": "SY0800",
+        "Name": "Tal Tamer"
+    },
+    {
+        "Code": "SY080002",
+        "DistrictCode": "SY0800",
+        "Name": "Shadadah"
+    },
+    {
+        "Code": "SY080003",
+        "DistrictCode": "SY0800",
+        "Name": "Markada"
+    },
+    {
+        "Code": "SY080004",
+        "DistrictCode": "SY0800",
+        "Name": "Be'r Al-Hulo Al-Wardeyyeh"
+    },
+    {
+        "Code": "SY080005",
+        "DistrictCode": "SY0800",
+        "Name": "Areesheh"
+    },
+    {
+        "Code": "SY080006",
+        "DistrictCode": "SY0800",
+        "Name": "Hole"
+    },
+    {
+        "Code": "SY080200",
+        "DistrictCode": "SY0802",
+        "Name": "Quamishli"
+    },
+    {
+        "Code": "SY080201",
+        "DistrictCode": "SY0802",
+        "Name": "Tal Hmis"
+    },
+    {
+        "Code": "SY080202",
+        "DistrictCode": "SY0802",
+        "Name": "Amuda"
+    },
+    {
+        "Code": "SY080203",
+        "DistrictCode": "SY0802",
+        "Name": "Qahtaniyyeh"
+    },
+    {
+        "Code": "SY080300",
+        "DistrictCode": "SY0803",
+        "Name": "Al-Malikeyyeh"
+    },
+    {
+        "Code": "SY080301",
+        "DistrictCode": "SY0803",
+        "Name": "Jawadiyah"
+    },
+    {
+        "Code": "SY080302",
+        "DistrictCode": "SY0803",
+        "Name": "Ya'robiyah"
+    },
+    {
+        "Code": "SY080400",
+        "DistrictCode": "SY0804",
+        "Name": "Ras Al Ain"
+    },
+    {
+        "Code": "SY080401",
+        "DistrictCode": "SY0804",
+        "Name": "Darbasiyah"
+    },
+    {
+        "Code": "SY090100",
+        "DistrictCode": "SY0901",
+        "Name": "Deir-ez-Zor"
+    },
+    {
+        "Code": "SY090101",
+        "DistrictCode": "SY0901",
+        "Name": "Kisreh"
+    },
+    {
+        "Code": "SY090102",
+        "DistrictCode": "SY0901",
+        "Name": "Basira"
+    },
+    {
+        "Code": "SY090103",
+        "DistrictCode": "SY0901",
+        "Name": "Muhasan"
+    },
+    {
         "Code": "SY090104",
         "DistrictCode": "SY0901",
         "Name": "Tabni"
@@ -399,4 +1349,5 @@
         "DistrictCode": "SY1402",
         "Name": "Fiq"
     }
+
 ]
