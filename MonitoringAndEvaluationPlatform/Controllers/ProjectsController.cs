@@ -274,7 +274,23 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             ViewBag.Donor = new SelectList(await _context.Donors.ToListAsync(), "Code", "Partner", project.DonorCode);
 
             return View(project);
+        
         }
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public IActionResult UpdateProjectName(int projectId, string projectName)
+        {
+            var project = _context.Projects.Find(projectId);
+            if (project == null) return NotFound();
+
+            project.ProjectName = projectName;
+            _context.SaveChanges();
+            return Ok();
+        }
+
+
+
+
 
         // POST: Projects/Edit/5
         [HttpPost]
@@ -431,20 +447,19 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             return View(program);
         }
 
-        // POST: Programs/Delete/5
-        [HttpPost, ActionName("Delete")]
+        [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DeleteConfirmed(int id)
+        public IActionResult DeleteConfirmed(int id)
         {
-            var program = await _context.Projects.FindAsync(id);
-            if (program != null)
-            {
-                _context.Projects.Remove(program);
-            }
+            var project = _context.Projects.Find(id);
+            if (project == null) return NotFound();
 
-            await _context.SaveChangesAsync();
-            return RedirectToAction(nameof(Index));
+            _context.Projects.Remove(project);
+            _context.SaveChanges();
+            return Ok();
         }
+
+
 
         private bool ProgramExists(int id)
         {

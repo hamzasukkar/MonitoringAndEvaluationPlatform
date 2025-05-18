@@ -3,7 +3,9 @@
     ViewData["Title"] = "Projects Dashboard";
     Layout = "~/Views/Shared/_ProjectsLayout.cshtml";
 }
-
+<head>
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+</head>
 <div class="container-fluid px-4">
     <div class="d-flex justify-content-between align-items-center mb-4">
         <div>
@@ -117,12 +119,9 @@
                                 @foreach (var item in Model.Projects)
                                 {
                                     double performance = Math.Round(@item.performance, 0);
-                                    <tr>
-                                        <td>
-                                            <a asp-action="Details" asp-route-id="@item.ProjectID" class="text-decoration-none">
-                                                <strong>@item.ProjectName</strong>
-                                            </a>
-                                        </td>
+                                    var rowId = "row_" + item.ProjectID;
+                                    <tr id="row_@item.ProjectID">
+                                        <td class="project-name">@item.ProjectName</td>
                                         <td>
                                             @await Html.PartialAsync("_ProgressBar", new Tuple<double, string>(
                                                      performance,
@@ -176,16 +175,19 @@
                                                 <a asp-action="Details" asp-route-id="@item.ProjectID" class="btn btn-sm btn-outline-primary" title="View">
                                                     <i class="fas fa-eye"></i>
                                                 </a>
-                                                <a asp-action="Edit" asp-route-id="@item.ProjectID" class="btn btn-sm btn-outline-warning" title="Edit">
+                                                <button type="button" class="btn btn-sm btn-outline-warning"
+                                                        onclick="editProjectName(@item.ProjectID, '@item.ProjectName.Replace("'", "\\'")')">
                                                     <i class="fas fa-edit"></i>
-                                                </a>
-                                                <a asp-action="Delete" asp-route-id="@item.ProjectID" class="btn btn-sm btn-outline-danger" title="Delete">
+                                                </button>
+                                                <button type="button" class="btn btn-sm btn-outline-danger"
+                                                        onclick="deleteProject(@item.ProjectID)">
                                                     <i class="fas fa-trash-alt"></i>
-                                                </a>
+                                                </button>
                                             </div>
                                         </td>
                                     </tr>
                                 }
+                                @Html.AntiForgeryToken() <!-- Required for AJAX security -->
                             </tbody>
                         </table>
                     </div>
@@ -251,3 +253,81 @@
         overflow-x: hidden;
     }
     </style>
+<script>
+    const token = $('input[name="__RequestVerificationToken"]').val();
+
+    function editProjectName(projectId, currentName) {
+       debugger
+        Swal.fire({
+            title: 'Edit Project Name',
+            input: 'text',
+            inputLabel: 'Project Name',
+            inputValue: currentName,
+            showCancelButton: true,
+            confirmButtonText: 'Save',
+            preConfirm: (newName) => {
+                if (!newName.trim()) {
+                    Swal.showValidationMessage('Project name cannot be empty');
+                }
+                return newName.trim();
+            }
+        }).then((result) => {
+            if (result.isConfirmed) {
+                $.ajax({
+                    url: '/Projects/UpdateProjectName',
+                    type: 'POST',
+                    data: {
+                        projectId: projectId,
+                        projectName: result.value,
+                        __RequestVerificationToken: token
+                    },
+                    success: function () {
+                        $(`#row_${projectId} .project-name`).text(result.value);
+                        Swal.fire('Updated!', 'Project name has been updated.', 'success');
+                            $(`#row_${projectId}`).addClass('table-success');
+
+    setTimeout(() => {
+        $(`#row_${projectId}`).removeClass('table-success');
+    }, 2000);
+                    },
+                    error: function () {
+                        Swal.fire('Error', 'Failed to update project name.', 'error');
+                    }
+                });
+            }
+        });
+    }
+
+    function deleteProject(projectId) {
+        Swal.fire({
+            title: 'Are you sure?',
+            text: 'This will permanently delete the project.',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonText: 'Yes, delete it!',
+            reverseButtons: true
+        }).then((result) => {
+            if (result.isConfirmed) {
+                $.ajax({
+                    url: '/Projects/DeleteConfirmed',
+                    type: 'POST',
+                    data: {
+                        id: projectId,
+                        __RequestVerificationToken: token
+                    },
+                      success: function () {
+                        $(`#row_${projectId}`).find('.project-name').text(result.value);
+                        Swal.fire('Updated!', 'Project name has been updated.', 'success');
+                    },
+                    error: function () {
+                        Swal.fire('Error', 'Failed to delete project.', 'error');
+                    }
+                });
+            }
+        });
+    }
+</script>
+
+
+
+
