@@ -36,7 +36,7 @@
                 <h2 class="fw-bold">@Model.TotlalMinistries</h2>
 
                 <select class="form-select mt-3 text-dark">
-                    <option disabled selected>-- Select Indicator --</option>
+                    <option disabled selected>-- Select Ministry --</option>
                     @foreach (var ind in Model.Ministries)
                     {
                         <option>@ind.MinistryName</option>
@@ -103,8 +103,8 @@
             card.className = 'col-md-6 mb-4';
 
             const chartId = `gaugeChart_${framework.code}`;
-            const barColor = framework.rate >= 80 ? 'bg-success'
-                            : framework.rate >= 50 ? 'bg-warning'
+            const barColor = framework.indicatorsPerformance >= 80 ? 'bg-success'
+                            : framework.indicatorsPerformance >= 50 ? 'bg-warning'
                             : 'bg-danger';
 
             card.innerHTML = `
@@ -114,22 +114,17 @@
                         <div class="col-md-6 text-center">
                             <canvas id="${chartId}" height="160"></canvas>
                             <div class="fw-bold mt-2" style="font-size: 1.1rem; color:#00c853;">
-                                ${framework.rate}% Achieved
+                                ${framework.indicatorsPerformance}% Achieved
                             </div>
                         </div>
                         <div class="col-md-6">
                             <div class="mb-2 fw-bold text-muted">Progress</div>
                             <div class="progress mb-3" style="height: 25px;">
                                 <div class="progress-bar ${barColor}" role="progressbar"
-                                    style="width: ${framework.rate}%"
-                                    aria-valuenow="${framework.rate}" aria-valuemin="0" aria-valuemax="100">
-                                    ${framework.rate}%
+                                    style="width: ${framework.indicatorsPerformance}%"
+                                    aria-valuenow="${framework.indicatorsPerformance}" aria-valuemin="0" aria-valuemax="100">
+                                    ${framework.indicatorsPerformance}%
                                 </div>
-                            </div>
-                            <div class="text-muted" style="font-size: 0.9rem;">
-                                Indicators: ${framework.indicatorCount}<br/>
-                                Total Target: ${framework.totalTarget}<br/>
-                                Total Achieved: ${framework.totalAchieved}
                             </div>
                                 <div class="text-muted mt-2" style="font-size: 0.9rem;">
                                 <strong>Projects:</strong><br/>
@@ -148,7 +143,7 @@
                 type: 'doughnut',
                 data: {
                     datasets: [{
-                        data: [framework.rate, 100 - framework.rate],
+                        data: [framework.indicatorsPerformance, 100 - framework.indicatorsPerformance],
                         backgroundColor: ['#00c853', '#e0e0e0'],
                         borderWidth: 0,
                         cutout: '80%'
@@ -162,7 +157,7 @@
                         doughnutlabel: {
                             labels: [
                                 {
-                                    text: `${framework.rate}%`,
+                                    text: `${framework.indicatorsPerformance}%`,
                                     font: { size: 24, weight: 'bold' },
                                     color: '#00c853'
                                 },
@@ -200,8 +195,8 @@
                 card.className = 'col-md-6 mb-4';
 
                 const chartId = `gaugeChart_${framework.code}`;
-                const barColor = framework.rate >= 80 ? 'bg-success'
-                                : framework.rate >= 50 ? 'bg-warning'
+                const barColor = framework.indicatorsPerformance >= 80 ? 'bg-success'
+                                : framework.indicatorsPerformance >= 50 ? 'bg-warning'
                                 : 'bg-danger';
 
                 card.innerHTML = `
@@ -211,22 +206,20 @@
                             <div class="col-md-6 text-center">
                                 <canvas id="${chartId}" height="160"></canvas>
                                 <div class="fw-bold mt-2" style="font-size: 1.1rem; color:#00c853;">
-                                    ${framework.rate}% Achieved
+                                    ${framework.indicatorsPerformance}% Achieved
                                 </div>
                             </div>
                             <div class="col-md-6">
                                 <div class="mb-2 fw-bold text-muted">Progress</div>
                                 <div class="progress mb-3" style="height: 25px;">
                                     <div class="progress-bar ${barColor}" role="progressbar"
-                                        style="width: ${framework.rate}%"
-                                        aria-valuenow="${framework.rate}" aria-valuemin="0" aria-valuemax="100">
-                                        ${framework.rate}%
+                                        style="width: ${framework.indicatorsPerformance}%"
+                                        aria-valuenow="${framework.indicatorsPerformance}" aria-valuemin="0" aria-valuemax="100">
+                                        ${framework.indicatorsPerformance}%
                                     </div>
                                 </div>
                                 <div class="text-muted" style="font-size: 0.9rem;">
                                     Indicators: ${framework.indicatorCount}<br/>
-                                    Total Target: ${framework.totalTarget}<br/>
-                                    Total Achieved: ${framework.totalAchieved}
                                 </div>
                                 <div class="text-muted mt-2" style="font-size: 0.9rem;">
                                     <strong>Projects:</strong><br/>
@@ -244,7 +237,7 @@
                     type: 'doughnut',
                     data: {
                         datasets: [{
-                            data: [framework.rate, 100 - framework.rate],
+                            data: [framework.indicatorsPerformance, 100 - framework.indicatorsPerformance],
                             backgroundColor: ['#00c853', '#e0e0e0'],
                             borderWidth: 0,
                             cutout: '80%'
@@ -258,7 +251,7 @@
                             doughnutlabel: {
                                 labels: [
                                     {
-                                        text: `${framework.rate}%`,
+                                        text: `${framework.indicatorsPerformance}%`,
                                         font: { size: 24, weight: 'bold' },
                                         color: '#00c853'
                                     },

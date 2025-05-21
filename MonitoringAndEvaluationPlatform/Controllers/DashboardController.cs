@@ -523,57 +523,47 @@ public class DashboardController : Controller
     public async Task<IActionResult> FrameworksGauge(int? frameworkCode)
     {
         var frameworksQuery = _context.Frameworks
-            .Include(f => f.Outcomes)
-                .ThenInclude(o => o.Outputs)
-                    .ThenInclude(op => op.SubOutputs)
-                        .ThenInclude(so => so.Indicators)
-                            .ThenInclude(i => i.Measures)
-                                .ThenInclude(m => m.Project)
-            .AsQueryable();
-
-        if (frameworkCode.HasValue)
-        {
-            frameworksQuery = frameworksQuery.Where(f => f.Code == frameworkCode.Value);
-        }
+    .Include(f => f.Outcomes)
+        .ThenInclude(o => o.Outputs)
+            .ThenInclude(op => op.SubOutputs)
+                .ThenInclude(so => so.Indicators)
+                    .ThenInclude(i => i.Measures)
+                        .ThenInclude(m => m.Project);
 
         var frameworks = await frameworksQuery.ToListAsync();
 
-        var result = frameworks.Select(fw =>
-        {
-            var indicators = fw.Outcomes
-                .SelectMany(o => o.Outputs)
-                .SelectMany(op => op.SubOutputs)
-                .SelectMany(so => so.Indicators)
-                .ToList();
-
-            var totalTarget = indicators.Sum(i => i.Target);
-            var totalAchieved = indicators.Sum(i => i.IndicatorsPerformance);
-            var rate = totalTarget == 0 ? 0 : (totalAchieved / totalTarget) * 100;
-            rate = Math.Round(Math.Min(rate, 100), 2);
-
-            var projects = indicators
-                .SelectMany(i => i.Measures)
-                .Where(m => m.Project != null)
-                .Select(m => m.Project)
-                .Distinct()
-                .ToList();
-
-            return new
+        var result = frameworks
+            .Where(fw => frameworkCode == null || fw.Code == frameworkCode)
+            .Select(fw =>
             {
-                code = fw.Code,
-                name = fw.Name,
-                rate,
-                totalTarget,
-                totalAchieved = Math.Round(totalAchieved, 2),
-                indicatorCount = indicators.Count,
-                projects = projects.Select(p => new
+                var projects = fw.Outcomes
+                    .SelectMany(o => o.Outputs)
+                    .SelectMany(op => op.SubOutputs)
+                    .SelectMany(so => so.Indicators)
+                    .SelectMany(i => i.Measures)
+                    .Where(m => m.Project != null)
+                    .Select(m => m.Project)
+                    .Distinct()
+                    .ToList();
+
+                return new
                 {
-                    p.ProjectID,
-                    p.ProjectName,
-                    p.performance
-                }).ToList()
-            };
-        });
+                    code = fw.Code,
+                    name = fw.Name,
+                    indicatorsPerformance = Math.Round(fw.IndicatorsPerformance,2),
+                    indicatorCount = fw.Outcomes
+                        .SelectMany(o => o.Outputs)
+                        .SelectMany(op => op.SubOutputs)
+                        .SelectMany(so => so.Indicators)
+                        .Count(),
+                    projects = projects.Select(p => new
+                    {
+                        p.ProjectID,
+                        p.ProjectName,
+                        p.performance
+                    }).ToList()
+                };
+            });
 
         return Json(result);
     }
