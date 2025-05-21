@@ -35,13 +35,15 @@
                 <h5 class="card-title">Total Ministries</h5>
                 <h2 class="fw-bold">@Model.TotlalMinistries</h2>
 
-                <select class="form-select mt-3 text-dark">
-                    <option disabled selected>-- Select Ministry --</option>
+                <select id="ministryFilter" class="form-select mt-3 text-dark">
+                    <option disabled selected value="">-- Select Ministry --</option>
                     @foreach (var ind in Model.Ministries)
                     {
-                        <option>@ind.MinistryName</option>
+                        <option value="@ind.Code">@ind.MinistryName</option>
                     }
                 </select>
+
+
             </div>
         </div>
     </div>
@@ -173,16 +175,21 @@
             });
         });
     }
+        document.getElementById('ministryFilter').addEventListener('change', function () {
+        const ministryCode = this.value;
+        const frameworkCode = document.getElementById('frameworkFilter').value;
+        loadGauges(frameworkCode, ministryCode);
+    });
 
-    document.getElementById('frameworkFilter').addEventListener('change', function () {
-            const frameworkCode = this.value;
-            loadGauges(frameworkCode);
-        });
+      document.getElementById('frameworkFilter').addEventListener('change', function () {
+        const frameworkCode = this.value;
+        const ministryCode = document.getElementById('ministryFilter').value;
+        loadGauges(frameworkCode, ministryCode);
+    });
 
-        async function loadGauges(frameworkCode = '') {
-            const url = frameworkCode
-                ? `/Dashboard/FrameworksGauge?frameworkCode=${frameworkCode}`
-                : '/Dashboard/FrameworksGauge';
+        async function loadGauges(frameworkCode = '', ministryCode = '') {
+          const url = `/Dashboard/FrameworksGauge?${frameworkCode ? `frameworkCode=${frameworkCode}&` : ''}${ministryCode ? `ministryCode=${ministryCode}` : ''}`;
+
 
             const response = await fetch(url);
             const frameworks = await response.json();

@@ -24,7 +24,7 @@ public class DashboardController : Controller
 
 
     [HttpGet]
-    public async Task<IActionResult> FrameworksPerformanceGauge(int? frameworkCode = null)
+    public async Task<IActionResult> FrameworksPerformanceGauge(int? frameworkCode = null, int? ministryCode = null)
     {
         var frameworksQuery = _context.Frameworks
             .Include(f => f.Outcomes)
@@ -32,7 +32,8 @@ public class DashboardController : Controller
                     .ThenInclude(op => op.SubOutputs)
                         .ThenInclude(so => so.Indicators)
                             .ThenInclude(i => i.Measures)
-                                .ThenInclude(m => m.Project);
+                                .ThenInclude(m => m.Project)
+                                    .ThenInclude(p => p.Ministry); // include Ministry for filtering
 
         var frameworks = await frameworksQuery.ToListAsync();
 
@@ -45,7 +46,8 @@ public class DashboardController : Controller
                     .SelectMany(op => op.SubOutputs)
                     .SelectMany(so => so.Indicators)
                     .SelectMany(i => i.Measures)
-                    .Where(m => m.Project != null)
+                    .Where(m => m.Project != null &&
+                                (ministryCode == null || m.Project.MinistryCode == ministryCode)) // filtering by ministry
                     .Select(m => m.Project)
                     .Distinct()
                     .ToList();
@@ -520,15 +522,16 @@ public class DashboardController : Controller
     }
 
     [HttpGet]
-    public async Task<IActionResult> FrameworksGauge(int? frameworkCode)
+    public async Task<IActionResult> FrameworksGauge(int? frameworkCode, int? ministryCode = null)
     {
         var frameworksQuery = _context.Frameworks
-    .Include(f => f.Outcomes)
-        .ThenInclude(o => o.Outputs)
-            .ThenInclude(op => op.SubOutputs)
-                .ThenInclude(so => so.Indicators)
-                    .ThenInclude(i => i.Measures)
-                        .ThenInclude(m => m.Project);
+      .Include(f => f.Outcomes)
+          .ThenInclude(o => o.Outputs)
+              .ThenInclude(op => op.SubOutputs)
+                  .ThenInclude(so => so.Indicators)
+                      .ThenInclude(i => i.Measures)
+                          .ThenInclude(m => m.Project)
+                              .ThenInclude(p => p.Ministry); // include Ministry for filtering
 
         var frameworks = await frameworksQuery.ToListAsync();
 
@@ -541,7 +544,8 @@ public class DashboardController : Controller
                     .SelectMany(op => op.SubOutputs)
                     .SelectMany(so => so.Indicators)
                     .SelectMany(i => i.Measures)
-                    .Where(m => m.Project != null)
+                    .Where(m => m.Project != null &&
+                                (ministryCode == null || m.Project.MinistryCode == ministryCode)) // filtering by ministry
                     .Select(m => m.Project)
                     .Distinct()
                     .ToList();
@@ -550,7 +554,7 @@ public class DashboardController : Controller
                 {
                     code = fw.Code,
                     name = fw.Name,
-                    indicatorsPerformance = Math.Round(fw.IndicatorsPerformance,2),
+                    indicatorsPerformance =Math.Round (fw.IndicatorsPerformance,2),
                     indicatorCount = fw.Outcomes
                         .SelectMany(o => o.Outputs)
                         .SelectMany(op => op.SubOutputs)
