@@ -56,11 +56,11 @@
                 <h5 class="card-title">Total Projects</h5>
                 <h2 class="fw-bold">@Model.TotalProjects</h2>
 
-                <select class="form-select mt-3">
+                <select id="projectFilter" class="form-select mt-3">
                     <option disabled selected>-- Select Project --</option>
                     @foreach (var proj in Model.Projects)
                     {
-                        <option>@proj.ProjectName</option>
+                        <option value="@proj.ProjectID">@proj.ProjectName</option>
                     }
                 </select>
             </div>
@@ -175,7 +175,16 @@
             });
         });
     }
-        document.getElementById('ministryFilter').addEventListener('change', function () {
+    
+    document.getElementById('projectFilter').addEventListener('change', function () {
+       debugger
+        const projectCode = this.value;
+        const ministryCode = document.getElementById('ministryFilter').value;
+        const frameworkCode = document.getElementById('frameworkFilter').value;
+        loadGauges(frameworkCode, ministryCode,projectCode);
+    });
+    
+    document.getElementById('ministryFilter').addEventListener('change', function () {
         const ministryCode = this.value;
         const frameworkCode = document.getElementById('frameworkFilter').value;
         loadGauges(frameworkCode, ministryCode);
@@ -187,8 +196,9 @@
         loadGauges(frameworkCode, ministryCode);
     });
 
-        async function loadGauges(frameworkCode = '', ministryCode = '') {
-          const url = `/Dashboard/FrameworksGauge?${frameworkCode ? `frameworkCode=${frameworkCode}&` : ''}${ministryCode ? `ministryCode=${ministryCode}` : ''}`;
+        async function loadGauges(frameworkCode = '', ministryCode = '',projectCode = '') {
+         debugger
+            const url = `/Dashboard/FrameworksGauge?${frameworkCode ? `frameworkCode=${frameworkCode}&` : ''}${ministryCode ? `ministryCode=${ministryCode}` : ''}${projectCode ? `projectCode=${projectCode}` : ''}`;
 
 
             const response = await fetch(url);
