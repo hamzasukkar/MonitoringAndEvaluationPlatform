@@ -574,5 +574,44 @@ public class DashboardController : Controller
 
         return Json(result);
     }
+    [HttpGet]
+    public async Task<IActionResult> GetProjectsByFramework(int frameworkCode)
+    {
+        var frameworksQuery = _context.Frameworks
+            .Include(f => f.Outcomes)
+                .ThenInclude(o => o.Outputs)
+                    .ThenInclude(op => op.SubOutputs)
+                        .ThenInclude(so => so.Indicators)
+                            .ThenInclude(i => i.Measures)
+                                .ThenInclude(m => m.Project);
+
+        var framework = await frameworksQuery
+            .FirstOrDefaultAsync(f => f.Code == frameworkCode);
+
+        if (framework == null)
+        {
+            return Json(new List<object>());
+        }
+
+        var projects = framework.Outcomes
+            .SelectMany(o => o.Outputs)
+            .SelectMany(op => op.SubOutputs)
+            .SelectMany(so => so.Indicators)
+            .SelectMany(i => i.Measures)
+            .Where(m => m.Project != null)
+            .Select(m => m.Project)
+            .Distinct()
+            .Select(p => new
+            {
+                id = p.ProjectID,
+                name = p.ProjectName
+            })
+            .ToList();
+
+        return Json(projects);
+    }
+
+
+
 }
 //totalTarget = Math.Round(totalTarget, 2),

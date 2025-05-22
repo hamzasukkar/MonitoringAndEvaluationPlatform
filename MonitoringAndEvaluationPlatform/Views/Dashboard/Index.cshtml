@@ -199,6 +199,34 @@
         loadGauges(frameworkCode, ministryCode, projectCode);
     });
 
+        document.getElementById('frameworkFilter').addEventListener('change', function () {
+        const frameworkCode = this.value;
+
+        // Clear existing project options
+        const projectDropdown = document.getElementById('projectFilter');
+        projectDropdown.innerHTML = '<option value="">Select Project</option>';
+
+        if (frameworkCode) {
+            fetch(`/Dashboard/GetProjectsByFramework?frameworkCode=${frameworkCode}`)
+                .then(response => {
+                    if (!response.ok) throw new Error("Network response was not ok");
+                    return response.json();
+                })
+                .then(projects => {
+                    projects.forEach(project => {
+                        const option = document.createElement('option');
+                        option.value = project.id; // Adjust based on your model
+                        option.textContent = project.name;
+                        projectDropdown.appendChild(option);
+                    });
+                })
+                .catch(error => {
+                    console.error('Error fetching projects:', error);
+                });
+        }
+    });
+
+
     document.getElementById('ministryFilter').addEventListener('change', function () {
         const frameworkCode = document.getElementById('frameworkFilter').value;
         const ministryCode = this.value;
