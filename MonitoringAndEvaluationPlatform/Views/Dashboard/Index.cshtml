@@ -1,92 +1,132 @@
 ﻿@model MonitoringAndEvaluationPlatform.ViewModel.DashboardSummaryViewModel
 @{
-    ViewData["Title"] = "Summary";
-    Layout = "~/Views/Shared/_DashboardLayout.cshtml";
+	ViewData["Title"] = "Summary";
+	Layout = "~/Views/Shared/_DashboardLayout.cshtml";
 }
 
 <head>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
+	<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
 </head>
 
 <div class="row text-center g-4 mb-4" style="padding-top: 10px;">
-    <!-- Frameworks -->
-    <div class="col-md-3">
-        <div class="card shadow-lg border-0 bg-primary text-white">
-            <div class="card-body">
-                <i class="bi bi-diagram-3-fill display-5 mb-2"></i>
-                <h5 class="card-title">Total Frameworks</h5>
-                <h2 class="fw-bold">@Model.TotalFrameworks</h2>
-                <select id="frameworkFilter" class="form-select mt-3 text-dark">
-                    <option disabled selected value="">-- Select Framework --</option>
-                    @foreach (var fw in Model.Frameworks)
-                    {
-                        <option value="@fw.Code">@fw.Name</option>
-                    }
-                </select>
-            </div>
-        </div>
-    </div>
+	<!-- Frameworks -->
+	<div class="col-md-3">
+		<div class="card shadow-lg border-0 bg-primary text-white">
+			<div class="card-body">
+				<i class="bi bi-diagram-3-fill display-5 mb-2"></i>
+				<h5 class="card-title">Total Frameworks</h5>
+				<h2 class="fw-bold">@Model.TotalFrameworks</h2>
+				<select id="frameworkFilter" class="form-select mt-3 text-dark">
+					<option disabled selected value="">-- Select Framework --</option>
+					@foreach (var fw in Model.Frameworks)
+					{
+						<option value="@fw.Code">@fw.Name</option>
+					}
+				</select>
+			</div>
+		</div>
+	</div>
 
-    <!-- Ministries -->
-    <div class="col-md-3">
-        <div class="card shadow-lg border-0 bg-success text-white">
-            <div class="card-body">
-                <i class="bi bi-bar-chart-fill display-5 mb-2"></i>
-                <h5 class="card-title">Total Ministries</h5>
-                <h2 class="fw-bold">@Model.TotlalMinistries</h2>
-                <select id="ministryFilter" class="form-select mt-3 text-dark">
-                    <option disabled selected value="">-- Select Ministry --</option>
-                    @foreach (var min in Model.Ministries)
-                    {
-                        <option value="@min.Code">@min.MinistryName</option>
-                    }
-                </select>
-            </div>
-        </div>
-    </div>
+	<!-- Projects -->
+	<div class="col-md-3">
+		<div class="card shadow-lg border-0 bg-warning text-dark">
+			<div class="card-body">
+				<i class="bi bi-building display-5 mb-2"></i>
+				<h5 class="card-title">Total Projects</h5>
+				<h2 class="fw-bold">@Model.TotalProjects</h2>
+				<select id="projectFilter" class="form-select mt-3">
+					<option disabled selected>-- Select Project --</option>
+					@foreach (var proj in Model.Projects)
+					{
+						<option value="@proj.ProjectID">@proj.ProjectName</option>
+					}
+				</select>
+			</div>
+		</div>
+	</div>
 
-    <!-- Projects -->
-    <div class="col-md-3">
-        <div class="card shadow-lg border-0 bg-warning text-dark">
-            <div class="card-body">
-                <i class="bi bi-building display-5 mb-2"></i>
-                <h5 class="card-title">Total Projects</h5>
-                <h2 class="fw-bold">@Model.TotalProjects</h2>
-                <select id="projectFilter" class="form-select mt-3">
-                    <option disabled selected>-- Select Project --</option>
-                    @foreach (var proj in Model.Projects)
-                    {
-                        <option value="@proj.ProjectID">@proj.ProjectName</option>
-                    }
-                </select>
-            </div>
-        </div>
-    </div>
+	<!-- Ministries -->
+	<div class="col-md-3">
+		<div class="card shadow-lg border-0 bg-success text-white">
+			<div class="card-body">
+				<i class="bi bi-bar-chart-fill display-5 mb-2"></i>
+				<h5 class="card-title">Total Ministries</h5>
+				<h2 class="fw-bold">@Model.TotlalMinistries</h2>
+				<select id="ministryFilter" class="form-select mt-3 text-dark">
+					<option disabled selected value="">-- Select Ministry --</option>
+					@foreach (var min in Model.Ministries)
+					{
+						<option value="@min.Code">@min.MinistryName</option>
+					}
+				</select>
+			</div>
+		</div>
+	</div>
 
-    <!-- Regions -->
-    <div class="col-md-3">
-        <div class="card shadow-lg border-0 bg-danger text-white">
-            <div class="card-body">
-                <i class="bi bi-geo-alt-fill display-5 mb-2"></i>
-                <h5 class="card-title">Total Regions</h5>
-                <h2 class="fw-bold">@Model.TotalRegions</h2>
-                <select class="form-select mt-3 text-dark">
-                    <option disabled selected>-- Select Region --</option>
-                    @foreach (var region in Model.Regions)
-                    {
-                        <option>@region.Name</option>
-                    }
-                </select>
-            </div>
-        </div>
-    </div>
+
+	<!-- Governorates -->
+	<div class="col-md-3">
+		<div class="card shadow-lg border-0 bg-danger text-white">
+			<div class="card-body">
+				<i class="bi bi-geo-alt-fill display-5 mb-2"></i>
+				<h5 class="card-title">Total Governorates</h5>
+				<h2 class="fw-bold">@Model.TotalGovernorate</h2>
+				<select id="governorateFilter" class="form-select mt-3 text-dark">
+					<option disabled selected value="">-- Select Governorate --</option>
+					@foreach (var gov in Model.Governorates)
+					{
+						<option value="@gov.Code">@gov.Name</option>
+					}
+				</select>
+			</div>
+		</div>
+	</div>
+	<!-- District -->
+	<div class="col-md-3">
+		<div class="card shadow-lg border-0 bg-info text-white">
+			<div class="card-body">
+				<h5 class="card-title">District</h5>
+				<select id="districtFilter" class="form-select mt-3 text-dark" disabled>
+					<option disabled selected value="">-- Select District --</option>
+				</select>
+			</div>
+		</div>
+	</div>
+
+	<!-- Sub-District -->
+	<div class="col-md-3">
+		<div class="card shadow-lg border-0 bg-secondary text-white">
+			<div class="card-body">
+				<h5 class="card-title">Sub-District</h5>
+				<select id="subDistrictFilter" class="form-select mt-3 text-dark" disabled>
+					<option disabled selected value="">-- Select Sub-District --</option>
+				</select>
+			</div>
+		</div>
+	</div>
+
+	<!-- Community -->
+	<div class="col-md-3">
+		<div class="card shadow-lg border-0 bg-dark text-white">
+			<div class="card-body">
+				<h5 class="card-title">Community</h5>
+				<select id="communityFilter" class="form-select mt-3 text-dark" disabled>
+					<option disabled selected value="">-- Select Community --</option>
+				</select>
+			</div>
+		</div>
+	</div>
+
 </div>
 
 
+
+
+
 <div class="text-end mb-3">
-    <button id="clearFiltersBtn" class="btn btn-outline-secondary">
-        <i class="bi bi-x-circle"></i> Clear Filters
-    </button>
+	<button id="clearFiltersBtn" class="btn btn-outline-secondary">
+		<i class="bi bi-x-circle"></i> Clear Filters
+	</button>
 </div>
 
 
@@ -98,155 +138,229 @@
 <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-doughnutlabel@1.0.3"></script>
 
 <script>
-    async function loadGauges(frameworkCode = '', ministryCode = '', projectCode = '') {
-        const urlParams = new URLSearchParams();
-        if (frameworkCode) urlParams.append('frameworkCode', frameworkCode);
-        if (ministryCode) urlParams.append('ministryCode', ministryCode);
-        if (projectCode) urlParams.append('projectCode', projectCode);
+	async function loadGauges(frameworkCode = '', ministryCode = '', projectCode = '') {
+		const urlParams = new URLSearchParams();
+		if (frameworkCode) urlParams.append('frameworkCode', frameworkCode);
+		if (ministryCode) urlParams.append('ministryCode', ministryCode);
+		if (projectCode) urlParams.append('projectCode', projectCode);
 
-        const response = await fetch(`/Dashboard/FrameworksGauge?${urlParams.toString()}`);
-        const frameworks = await response.json();
+		const response = await fetch(`/Dashboard/FrameworksGauge?${urlParams.toString()}`);
+		const frameworks = await response.json();
 
-        const container = document.getElementById('gaugesContainer');
-        container.innerHTML = '';
+		const container = document.getElementById('gaugesContainer');
+		container.innerHTML = '';
 
-        frameworks.forEach(framework => {
-            const chartId = `gaugeChart_${framework.code}`;
-            const barColor = framework.indicatorsPerformance >= 80 ? 'bg-success'
-                            : framework.indicatorsPerformance >= 50 ? 'bg-warning'
-                            : 'bg-danger';
+		frameworks.forEach(framework => {
+			const chartId = `gaugeChart_${framework.code}`;
+			const barColor = framework.indicatorsPerformance >= 80 ? 'bg-success'
+							: framework.indicatorsPerformance >= 50 ? 'bg-warning'
+							: 'bg-danger';
 
-            const card = document.createElement('div');
-            card.className = 'col-md-6 mb-4';
-            card.innerHTML = `
-                <div class="card shadow-sm p-4">
-                    <h5 class="mb-3">${framework.name}</h5>
-                    <div class="row align-items-center">
-                        <div class="col-md-6 text-center">
-                            <canvas id="${chartId}" height="160"></canvas>
-                            <div class="fw-bold mt-2" style="font-size: 1.1rem; color:#00c853;">
-                                ${framework.indicatorsPerformance}% Achieved
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="mb-2 fw-bold text-muted">Progress</div>
-                            <div class="progress mb-3" style="height: 25px;">
-                                <div class="progress-bar ${barColor}" role="progressbar"
-                                     style="width: ${framework.indicatorsPerformance}%"
-                                     aria-valuenow="${framework.indicatorsPerformance}" aria-valuemin="0" aria-valuemax="100">
-                                    ${framework.indicatorsPerformance}%
-                                </div>
-                            </div>
-                            <div class="text-muted" style="font-size: 0.9rem;">
-                                Indicators: ${framework.indicatorCount}<br/>
-                            </div>
-                            <div class="text-muted mt-2" style="font-size: 0.9rem;">
-                                <strong>Projects:</strong><br/>
-                                ${framework.projects.map(p => `• ${p.projectName} ${p.performance}%`).join('<br/>')}
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            `;
-            container.appendChild(card);
+			const card = document.createElement('div');
+			card.className = 'col-md-6 mb-4';
+			card.innerHTML = `
+				<div class="card shadow-sm p-4">
+					<h5 class="mb-3">${framework.name}</h5>
+					<div class="row align-items-center">
+						<div class="col-md-6 text-center">
+							<canvas id="${chartId}" height="160"></canvas>
+							<div class="fw-bold mt-2" style="font-size: 1.1rem; color:#00c853;">
+								${framework.indicatorsPerformance}% Achieved
+							</div>
+						</div>
+						<div class="col-md-6">
+							<div class="mb-2 fw-bold text-muted">Progress</div>
+							<div class="progress mb-3" style="height: 25px;">
+								<div class="progress-bar ${barColor}" role="progressbar"
+									 style="width: ${framework.indicatorsPerformance}%"
+									 aria-valuenow="${framework.indicatorsPerformance}" aria-valuemin="0" aria-valuemax="100">
+									${framework.indicatorsPerformance}%
+								</div>
+							</div>
+							<div class="text-muted" style="font-size: 0.9rem;">
+								Indicators: ${framework.indicatorCount}<br/>
+							</div>
+							<div class="text-muted mt-2" style="font-size: 0.9rem;">
+								<strong>Projects:</strong><br/>
+								${framework.projects.map(p => `• ${p.projectName} ${p.performance}%`).join('<br/>')}
+							</div>
+						</div>
+					</div>
+				</div>
+			`;
+			container.appendChild(card);
 
-            const ctx = document.getElementById(chartId).getContext('2d');
-            new Chart(ctx, {
-                type: 'doughnut',
-                data: {
-                    datasets: [{
-                        data: [framework.indicatorsPerformance, 100 - framework.indicatorsPerformance],
-                        backgroundColor: ['#00c853', '#e0e0e0'],
-                        borderWidth: 0,
-                        cutout: '80%'
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    plugins: {
-                        legend: { display: false },
-                        tooltip: { enabled: false },
-                        doughnutlabel: {
-                            labels: [
-                                {
-                                    text: `${framework.indicatorsPerformance}%`,
-                                    font: { size: 24, weight: 'bold' },
-                                    color: '#00c853'
-                                },
-                                {
-                                    text: 'Achieved',
-                                    font: { size: 14 },
-                                    color: '#666'
-                                }
-                            ]
-                        }
-                    }
-                }
-            });
-        });
-    }
+			const ctx = document.getElementById(chartId).getContext('2d');
+			new Chart(ctx, {
+				type: 'doughnut',
+				data: {
+					datasets: [{
+						data: [framework.indicatorsPerformance, 100 - framework.indicatorsPerformance],
+						backgroundColor: ['#00c853', '#e0e0e0'],
+						borderWidth: 0,
+						cutout: '80%'
+					}]
+				},
+				options: {
+					responsive: true,
+					plugins: {
+						legend: { display: false },
+						tooltip: { enabled: false },
+						doughnutlabel: {
+							labels: [
+								{
+									text: `${framework.indicatorsPerformance}%`,
+									font: { size: 24, weight: 'bold' },
+									color: '#00c853'
+								},
+								{
+									text: 'Achieved',
+									font: { size: 14 },
+									color: '#666'
+								}
+							]
+						}
+					}
+				}
+			});
+		});
+	}
 
-    // Load default gauges on page load
-    document.addEventListener('DOMContentLoaded', function () {
-        loadGauges();
-    });
+	// Load default gauges on page load
+	document.addEventListener('DOMContentLoaded', function () {
+		loadGauges();
+	});
 
-    // Event listeners for filters
-    document.getElementById('frameworkFilter').addEventListener('change', function () {
-        const frameworkCode = this.value;
-        const ministryCode = document.getElementById('ministryFilter').value;
-        const projectCode = document.getElementById('projectFilter').value;
-        loadGauges(frameworkCode, ministryCode, projectCode);
-    });
+	// Event listeners for filters
+	document.getElementById('frameworkFilter').addEventListener('change', function () {
+		const frameworkCode = this.value;
+		const ministryCode = document.getElementById('ministryFilter').value;
+		const projectCode = document.getElementById('projectFilter').value;
+		loadGauges(frameworkCode, ministryCode, projectCode);
+	});
 
-        document.getElementById('frameworkFilter').addEventListener('change', function () {
-        const frameworkCode = this.value;
+		document.getElementById('frameworkFilter').addEventListener('change', function () {
+		const frameworkCode = this.value;
 
-        // Clear existing project options
-        const projectDropdown = document.getElementById('projectFilter');
-        projectDropdown.innerHTML = '<option value="">Select Project</option>';
+		// Clear existing project options
+		const projectDropdown = document.getElementById('projectFilter');
+		projectDropdown.innerHTML = '<option value="">Select Project</option>';
 
-        if (frameworkCode) {
-            fetch(`/Dashboard/GetProjectsByFramework?frameworkCode=${frameworkCode}`)
-                .then(response => {
-                    if (!response.ok) throw new Error("Network response was not ok");
-                    return response.json();
-                })
-                .then(projects => {
-                    projects.forEach(project => {
-                        const option = document.createElement('option');
-                        option.value = project.id; // Adjust based on your model
-                        option.textContent = project.name;
-                        projectDropdown.appendChild(option);
-                    });
-                })
-                .catch(error => {
-                    console.error('Error fetching projects:', error);
-                });
-        }
-    });
+		if (frameworkCode) {
+			fetch(`/Dashboard/GetProjectsByFramework?frameworkCode=${frameworkCode}`)
+				.then(response => {
+					if (!response.ok) throw new Error("Network response was not ok");
+					return response.json();
+				})
+				.then(projects => {
+					projects.forEach(project => {
+						const option = document.createElement('option');
+						option.value = project.id; // Adjust based on your model
+						option.textContent = project.name;
+						projectDropdown.appendChild(option);
+					});
+				})
+				.catch(error => {
+					console.error('Error fetching projects:', error);
+				});
+		}
+	});
 
 
-    document.getElementById('ministryFilter').addEventListener('change', function () {
-        const frameworkCode = document.getElementById('frameworkFilter').value;
-        const ministryCode = this.value;
-        const projectCode = document.getElementById('projectFilter').value;
-        loadGauges(frameworkCode, ministryCode, projectCode);
-    });
+	document.getElementById('ministryFilter').addEventListener('change', function () {
+		const frameworkCode = document.getElementById('frameworkFilter').value;
+		const ministryCode = this.value;
+		const projectCode = document.getElementById('projectFilter').value;
+		loadGauges(frameworkCode, ministryCode, projectCode);
+	});
 
-    document.getElementById('projectFilter').addEventListener('change', function () {
-        const frameworkCode = document.getElementById('frameworkFilter').value;
-        const ministryCode = document.getElementById('ministryFilter').value;
-        const projectCode = this.value;
-        loadGauges(frameworkCode, ministryCode, projectCode);
-    });
+	document.getElementById('projectFilter').addEventListener('change', function () {
+		const frameworkCode = document.getElementById('frameworkFilter').value;
+		const ministryCode = document.getElementById('ministryFilter').value;
+		const projectCode = this.value;
+		loadGauges(frameworkCode, ministryCode, projectCode);
+	});
 
-        document.getElementById('clearFiltersBtn').addEventListener('click', function () {
-        document.getElementById('frameworkFilter').selectedIndex = 0;
-        document.getElementById('ministryFilter').selectedIndex = 0;
-        document.getElementById('projectFilter').selectedIndex = 0;
+		document.getElementById('clearFiltersBtn').addEventListener('click', function () {
+		document.getElementById('frameworkFilter').selectedIndex = 0;
+		document.getElementById('ministryFilter').selectedIndex = 0;
+		document.getElementById('projectFilter').selectedIndex = 0;
 
-        loadGauges(); // reload with no filters
-    });
+		loadGauges(); // reload with no filters
+	});
+
+				// Governorate → District
+			document.getElementById('governorateFilter').addEventListener('change', function() {
+			  const govCode = this.value;
+			  // Reset downstream
+			  resetDropdown('districtFilter');
+			  resetDropdown('subDistrictFilter');
+			  resetDropdown('communityFilter');
+			  if (!govCode) return;
+
+			  fetch(`/Dashboard/GetDistrictsByGovernorate?governorateCode=${govCode}`)
+				.then(r => r.json())
+				.then(list => populateDropdown('districtFilter', list))
+				.catch(e => console.error(e));
+			});
+
+			// District → Sub-District
+			document.getElementById('districtFilter').addEventListener('change', function() {
+			  const distCode = this.value;
+			  resetDropdown('subDistrictFilter');
+			  resetDropdown('communityFilter');
+			  if (!distCode) return;
+
+			  fetch(`/Dashboard/GetSubDistrictsByDistrict?districtCode=${distCode}`)
+				.then(r => r.json())
+				.then(list => populateDropdown('subDistrictFilter', list))
+				.catch(e => console.error(e));
+			});
+
+			// Sub-District → Community
+			document.getElementById('subDistrictFilter').addEventListener('change', function() {
+			  const subCode = this.value;
+			  resetDropdown('communityFilter');
+			  if (!subCode) return;
+
+			  fetch(`/Dashboard/GetCommunitiesBySubDistrict?subDistrictCode=${subCode}`)
+				.then(r => r.json())
+				.then(list => populateDropdown('communityFilter', list))
+				.catch(e => console.error(e));
+			});
+
+			// Helpers
+			function resetDropdown(id) {
+			  const dd = document.getElementById(id);
+			  dd.innerHTML = `<option disabled selected value="">-- Select --</option>`;
+			  dd.disabled = true;
+			}
+
+			function populateDropdown(id, items) {
+			  const dd = document.getElementById(id);
+			  items.forEach(i => {
+				const opt = document.createElement('option');
+				opt.value = i.DistrictCode ?? i.SubDistrictCode ?? i.Code;
+				opt.textContent = i.Name;
+				dd.appendChild(opt);
+			  });
+			  dd.disabled = false;
+			}
+
+			// Also, include these filters when calling loadGauges:
+			function getFilters() {
+			  return {
+				frameworkCode: document.getElementById('frameworkFilter').value,
+				ministryCode:  document.getElementById('ministryFilter').value,
+				projectCode:   document.getElementById('projectFilter').value,
+				governorateCode: document.getElementById('governorateFilter').value,
+				districtCode:    document.getElementById('districtFilter').value,
+				subDistrictCode: document.getElementById('subDistrictFilter').value,
+				communityCode:   document.getElementById('communityFilter').value
+			  };
+			}
+
+			// Change your loadGauges signature and URL‐building to include these two new params.
+
 
 </script>

@@ -287,7 +287,35 @@ public class DashboardController : Controller
         });
     }
 
+    [HttpGet]
+    public JsonResult GetDistrictsByGovernorate(string governorateCode)
+    {
+        var list = _context.Districts
+                       .Where(d => d.GovernorateCode == governorateCode)
+                       .Select(d => new { d.Code, d.Name })
+                       .ToList();
+        return Json(list);
+    }
 
+    [HttpGet]
+    public JsonResult GetSubDistrictsByDistrict(string districtCode)
+    {
+        var list = _context.SubDistricts
+                       .Where(s => s.DistrictCode == districtCode)
+                       .Select(s => new { s.Code, s.Name })
+                       .ToList();
+        return Json(list);
+    }
+
+    [HttpGet]
+    public JsonResult GetCommunitiesBySubDistrict(string subDistrictCode)
+    {
+        var list = _context.Communities
+                       .Where(r => r.SubDistrictCode == subDistrictCode)
+                       .Select(r => new { Code = r.SubDistrictCode, Name = r.Name })
+                       .ToList();
+        return Json(list);
+    }
 
     public async Task<IActionResult> Test4()
     {
@@ -363,8 +391,11 @@ public class DashboardController : Controller
             TotalProjects = await _context.Projects.CountAsync(),
             Projects = await _context.Projects.ToListAsync(),
 
-            TotalRegions = await _context.Regions.CountAsync(),
-            Regions = await _context.Regions.ToListAsync()
+            TotalGovernorate = await _context.Governorates.CountAsync(),
+            Governorates = await _context.Governorates.ToListAsync(),
+            Districts = await _context.Districts.ToListAsync(),
+            SubDistricts = await _context.SubDistricts.ToListAsync(),
+            Communities = await _context.Communities.ToListAsync()
         };
 
         return View(model);
