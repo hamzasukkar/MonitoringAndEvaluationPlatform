@@ -551,8 +551,6 @@ public class DashboardController : Controller
 
         return Json(new { rate = achievementRate });
     }
-
-    [HttpGet]
     public async Task<IActionResult> FrameworksGauge(int? frameworkCode, int? ministryCode = null, int? projectCode = null)
     {
         var frameworksQuery = _context.Frameworks
@@ -562,7 +560,7 @@ public class DashboardController : Controller
                         .ThenInclude(so => so.Indicators)
                             .ThenInclude(i => i.Measures)
                                 .ThenInclude(m => m.Project)
-                                    .ThenInclude(p => p.Ministry); // Include Ministry for filtering
+                                    .ThenInclude(p => p.Ministry);
 
         var frameworks = await frameworksQuery.ToListAsync();
 
@@ -578,17 +576,31 @@ public class DashboardController : Controller
                     .Where(m =>
                         m.Project != null &&
                         (ministryCode == null || m.Project.MinistryCode == ministryCode) &&
-                        (projectCode == null || m.Project.ProjectID == projectCode) // 🔍 Filter by projectCode
+                        (projectCode == null || m.Project.ProjectID == projectCode)
                     )
                     .Select(m => m.Project)
                     .Distinct()
                     .ToList();
 
+                double indicatorsPerformance;
+
+                if (projectCode != null)
+                {
+                    var selectedProjects = projects.Where(p => p.ProjectID == projectCode).ToList();
+                    indicatorsPerformance = selectedProjects.Any()
+                        ? Math.Round(selectedProjects.Average(p => p.performance), 2)
+                        : 0;
+                }
+                else
+                {
+                    indicatorsPerformance = Math.Round(fw.IndicatorsPerformance, 2);
+                }
+
                 return new
                 {
                     code = fw.Code,
                     name = fw.Name,
-                    indicatorsPerformance = Math.Round(fw.IndicatorsPerformance, 2),
+                    indicatorsPerformance,
                     indicatorCount = fw.Outcomes
                         .SelectMany(o => o.Outputs)
                         .SelectMany(op => op.SubOutputs)
@@ -605,6 +617,8 @@ public class DashboardController : Controller
 
         return Json(result);
     }
+
+
     [HttpGet]
     public async Task<IActionResult> GetProjectsByFramework(int frameworkCode)
     {
