@@ -568,31 +568,43 @@ public class DashboardController : Controller
             .Where(fw => frameworkCode == null || fw.Code == frameworkCode)
             .Select(fw =>
             {
-                var projects = fw.Outcomes
+                var allProjects = fw.Outcomes
                     .SelectMany(o => o.Outputs)
                     .SelectMany(op => op.SubOutputs)
                     .SelectMany(so => so.Indicators)
                     .SelectMany(i => i.Measures)
-                    .Where(m =>
-                        m.Project != null &&
-                        (ministryCode == null || m.Project.MinistryCode == ministryCode) &&
-                        (projectCode == null || m.Project.ProjectID == projectCode)
-                    )
+                    .Where(m => m.Project != null)
                     .Select(m => m.Project)
                     .Distinct()
+                    .ToList();
+
+                // Filtered projects based on input parameters
+                var filteredProjects = allProjects
+                    .Where(p =>
+                        (ministryCode == null || p.MinistryCode == ministryCode) &&
+                        (projectCode == null || p.ProjectID == projectCode)
+                    )
                     .ToList();
 
                 double indicatorsPerformance;
 
                 if (projectCode != null)
                 {
-                    var selectedProjects = projects.Where(p => p.ProjectID == projectCode).ToList();
-                    indicatorsPerformance = selectedProjects.Any()
-                        ? Math.Round(selectedProjects.Average(p => p.performance), 2)
+                    // Use average of selected project
+                    indicatorsPerformance = filteredProjects.Any()
+                        ? Math.Round(filteredProjects.Average(p => p.performance), 2)
+                        : 0;
+                }
+                else if (ministryCode != null)
+                {
+                    // Use average of all projects under the selected ministry
+                    indicatorsPerformance = filteredProjects.Any()
+                        ? Math.Round(filteredProjects.Average(p => p.performance), 2)
                         : 0;
                 }
                 else
                 {
+                    // Default to stored framework performance
                     indicatorsPerformance = Math.Round(fw.IndicatorsPerformance, 2);
                 }
 
@@ -606,7 +618,7 @@ public class DashboardController : Controller
                         .SelectMany(op => op.SubOutputs)
                         .SelectMany(so => so.Indicators)
                         .Count(),
-                    projects = projects.Select(p => new
+                    projects = filteredProjects.Select(p => new
                     {
                         p.ProjectID,
                         p.ProjectName,
@@ -617,6 +629,7 @@ public class DashboardController : Controller
 
         return Json(result);
     }
+
 
 
     [HttpGet]
