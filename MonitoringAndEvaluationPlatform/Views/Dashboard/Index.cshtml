@@ -337,11 +337,11 @@
 			}
 
 			function populateDropdown(id, items) {
-			  const dd = document.getElementById(id);
+			const dd = document.getElementById(id);
 			  items.forEach(i => {
 				const opt = document.createElement('option');
-				opt.value = i.DistrictCode ?? i.SubDistrictCode ?? i.Code;
-				opt.textContent = i.Name;
+				opt.value =  i.code;
+				opt.textContent = i.name;
 				dd.appendChild(opt);
 			  });
 			  dd.disabled = false;
