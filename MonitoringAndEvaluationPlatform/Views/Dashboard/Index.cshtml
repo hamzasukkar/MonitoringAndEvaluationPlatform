@@ -138,11 +138,12 @@
 <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-doughnutlabel@1.0.3"></script>
 
 <script>
-	async function loadGauges(frameworkCode = '', ministryCode = '', projectCode = '') {
+	async function loadGauges(frameworkCode = '', ministryCode = '', projectCode = '',governorateCode='') {
 		const urlParams = new URLSearchParams();
 		if (frameworkCode) urlParams.append('frameworkCode', frameworkCode);
 		if (ministryCode) urlParams.append('ministryCode', ministryCode);
 		if (projectCode) urlParams.append('projectCode', projectCode);
+		if (governorateCode) urlParams.append('governorateCode', governorateCode);
 
 		const response = await fetch(`/Dashboard/FrameworksGauge?${urlParams.toString()}`);
 		const frameworks = await response.json();
@@ -271,14 +272,25 @@
 		const frameworkCode = document.getElementById('frameworkFilter').value;
 		const ministryCode = this.value;
 		const projectCode = document.getElementById('projectFilter').value;
-		loadGauges(frameworkCode, ministryCode, projectCode);
+		const governorateCode = document.getElementById('governorateFilter').value;
+		loadGauges(frameworkCode, ministryCode, projectCode,governorateCode);
 	});
 
 	document.getElementById('projectFilter').addEventListener('change', function () {
 		const frameworkCode = document.getElementById('frameworkFilter').value;
 		const ministryCode = document.getElementById('ministryFilter').value;
+		const governorateCode = document.getElementById('governorateFilter').value;
 		const projectCode = this.value;
-		loadGauges(frameworkCode, ministryCode, projectCode);
+		loadGauges(frameworkCode, ministryCode, projectCode,governorateCode);
+	});
+
+	document.getElementById('governorateFilter').addEventListener('change', function () {
+		const frameworkCode = document.getElementById('frameworkFilter').value;
+		const ministryCode = document.getElementById('ministryFilter').value;
+		const projectCode = document.getElementById('projectFilter').value;;
+		const governorateCode = this.value;
+		debugger;
+		loadGauges(frameworkCode, ministryCode, projectCode,governorateCode);
 	});
 
 		document.getElementById('clearFiltersBtn').addEventListener('click', function () {

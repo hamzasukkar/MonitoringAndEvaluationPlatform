@@ -551,16 +551,34 @@ public class DashboardController : Controller
 
         return Json(new { rate = achievementRate });
     }
-    public async Task<IActionResult> FrameworksGauge(int? frameworkCode, int? ministryCode = null, int? projectCode = null)
+    public async Task<IActionResult> FrameworksGauge(
+        int? frameworkCode,
+        int? ministryCode = null,
+        int? projectCode = null,
+        string? governorateCode = null,
+        string? districtCode = null,
+        string? subDistrictCode = null,
+        string? communityCode = null)
     {
         var frameworksQuery = _context.Frameworks
-            .Include(f => f.Outcomes)
-                .ThenInclude(o => o.Outputs)
-                    .ThenInclude(op => op.SubOutputs)
-                        .ThenInclude(so => so.Indicators)
-                            .ThenInclude(i => i.Measures)
-                                .ThenInclude(m => m.Project)
-                                    .ThenInclude(p => p.Ministry);
+        .Include(f => f.Outcomes)
+            .ThenInclude(o => o.Outputs)
+                .ThenInclude(op => op.SubOutputs)
+                    .ThenInclude(so => so.Indicators)
+                        .ThenInclude(i => i.Measures)
+                            .ThenInclude(m => m.Project)
+                                .ThenInclude(p => p.Ministry)
+        .Include(f => f.Outcomes)
+            .ThenInclude(o => o.Outputs)
+                .ThenInclude(op => op.SubOutputs)
+                    .ThenInclude(so => so.Indicators)
+                        .ThenInclude(i => i.Measures)
+                            .ThenInclude(m => m.Project)
+                                .ThenInclude(p => p.Governorate)
+                                .ThenInclude(p => p.Districts)
+                                .ThenInclude(p => p.SubDistricts)
+                                .ThenInclude(p => p.Communities);
+
 
         var frameworks = await frameworksQuery.ToListAsync();
 
@@ -578,33 +596,34 @@ public class DashboardController : Controller
                     .Distinct()
                     .ToList();
 
-                // Filtered projects based on input parameters
+                // Apply all filters
                 var filteredProjects = allProjects
                     .Where(p =>
+                        (projectCode == null || p.ProjectID == projectCode) &&
                         (ministryCode == null || p.MinistryCode == ministryCode) &&
-                        (projectCode == null || p.ProjectID == projectCode)
+                        (governorateCode == null || p.GovernorateCode == governorateCode) &&
+                        (districtCode == null || p.DistrictCode == districtCode) &&
+                        (subDistrictCode == null || p.SubDistrictCode == subDistrictCode) &&
+                        (communityCode == null || p.CommunityCode == communityCode)
                     )
                     .ToList();
 
+                // Determine indicatorsPerformance
                 double indicatorsPerformance;
-
                 if (projectCode != null)
                 {
-                    // Use average of selected project
                     indicatorsPerformance = filteredProjects.Any()
                         ? Math.Round(filteredProjects.Average(p => p.performance), 2)
                         : 0;
                 }
-                else if (ministryCode != null)
+                else if (ministryCode != null || governorateCode != null || districtCode != null || subDistrictCode != null || communityCode != null)
                 {
-                    // Use average of all projects under the selected ministry
                     indicatorsPerformance = filteredProjects.Any()
                         ? Math.Round(filteredProjects.Average(p => p.performance), 2)
                         : 0;
                 }
                 else
                 {
-                    // Default to stored framework performance
                     indicatorsPerformance = Math.Round(fw.IndicatorsPerformance, 2);
                 }
 
@@ -629,6 +648,7 @@ public class DashboardController : Controller
 
         return Json(result);
     }
+
 
 
 
