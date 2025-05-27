@@ -72,7 +72,7 @@
         <div class="card-body">
             <div class="row">
                 <!-- Basic Info -->
-                <div class="col-md-6">
+                <div class="col-md-4">
                     <div class="mb-4">
                         <h5 class="border-bottom pb-2">Basic Information</h5>
                         <dl class="row">
@@ -110,8 +110,30 @@
                     </div>
                 </div>
 
+                <!-- Region Info -->
+                <div class="col-md-4">
+                    <div class="mb-4">
+                        <h5 class="border-bottom pb-2">Financial Information</h5>
+                        <dl class="row">
+                            <dt class="col-sm-4">Governorate</dt>
+                            <dd class="col-sm-8">@Html.DisplayFor(model => model.Governorate.Name)</dd>
+
+                            <dt class="col-sm-4">District</dt>
+                            <dd class="col-sm-8">@Html.DisplayFor(model => model.District.Name)</dd>
+
+                            <dt class="col-sm-4">SubDistrict</dt>
+                            <dd class="col-sm-8">@Html.DisplayFor(model => model.SubDistrict.Name)</dd>
+
+                            <dt class="col-sm-4">Community</dt>
+                            <dd class="col-sm-8">@Html.DisplayFor(model => model.Community.Name)</dd>
+
+                        </dl>
+                    </div>
+                </div>
+
+
                 <!-- Budget Info -->
-                <div class="col-md-6">
+                <div class="col-md-4">
                     <div class="mb-4">
                         <h5 class="border-bottom pb-2">Financial Information</h5>
                         <dl class="row">

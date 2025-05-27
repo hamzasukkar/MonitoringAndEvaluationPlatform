@@ -138,12 +138,16 @@
 <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-doughnutlabel@1.0.3"></script>
 
 <script>
-	async function loadGauges(frameworkCode = '', ministryCode = '', projectCode = '',governorateCode='') {
+	async function loadGauges(frameworkCode = '', ministryCode = '', projectCode = '',governorateCode='',districtCoder='',subDistrictCode='',communityCode='') {
+		debugger;
 		const urlParams = new URLSearchParams();
 		if (frameworkCode) urlParams.append('frameworkCode', frameworkCode);
 		if (ministryCode) urlParams.append('ministryCode', ministryCode);
 		if (projectCode) urlParams.append('projectCode', projectCode);
 		if (governorateCode) urlParams.append('governorateCode', governorateCode);
+		if (districtCoder) urlParams.append('districtCoder', districtFilter);
+		if (subDistrictCode) urlParams.append('subDistrictCode', subDistrictFilter);
+		if (communityCode) urlParams.append('communityCode)', communityFilter);
 
 		const response = await fetch(`/Dashboard/FrameworksGauge?${urlParams.toString()}`);
 		const frameworks = await response.json();
@@ -293,10 +297,44 @@
 		loadGauges(frameworkCode, ministryCode, projectCode,governorateCode);
 	});
 
+		document.getElementById('districtFilter').addEventListener('change', function () {
+		debugger;
+		const frameworkCode = document.getElementById('frameworkFilter').value;
+		const ministryCode = document.getElementById('ministryFilter').value;
+		const projectCode = document.getElementById('projectFilter').value;
+		const governorateCode = document.getElementById('governorateFilter').value;
+		const districtCode = this.value;
+		loadGauges(frameworkCode, ministryCode, projectCode,governorateCode,districtCode);
+	});
+
+		document.getElementById('subDistrictFilter').addEventListener('change', function () {
+		const frameworkCode = document.getElementById('frameworkFilter').value;
+		const ministryCode = document.getElementById('ministryFilter').value;
+		const projectCode = document.getElementById('projectFilter').value;
+		const governorateCode = document.getElementById('governorateFilter').value;
+		const districtCode = document.getElementById('districtFilter').value;
+		const subDistrictCode = this.value;
+		loadGauges(frameworkCode, ministryCode, projectCode,governorateCode,districtCode,subDistrictCode);
+	});
+	document.getElementById('communityFilter').addEventListener('change', function () {
+		const frameworkCode = document.getElementById('frameworkFilter').value;
+		const ministryCode = document.getElementById('ministryFilter').value;
+		const projectCode = document.getElementById('projectFilter').value;
+		const governorateCode = document.getElementById('governorateFilter').value;
+		const districtCode = document.getElementById('districtFilter').value;
+		const subDistrictCode =document.getElementById('subDistrictFilter').value;
+		const communityCode = this.value;
+		loadGauges(frameworkCode, ministryCode, projectCode,governorateCode,districtCode,subDistrictCode,communityCode);
+	});
+
 		document.getElementById('clearFiltersBtn').addEventListener('click', function () {
 		document.getElementById('frameworkFilter').selectedIndex = 0;
 		document.getElementById('ministryFilter').selectedIndex = 0;
 		document.getElementById('projectFilter').selectedIndex = 0;
+		document.getElementById('governorateFilter').selectedIndex = 0;
+		document.getElementById('districtFilter').selectedIndex = 0;
+		document.getElementById('subDistrictFilter').selectedIndex = 0;
+		document.getElementById('communityFilter').selectedIndex = 0;
 
 		loadGauges(); // reload with no filters
 	});

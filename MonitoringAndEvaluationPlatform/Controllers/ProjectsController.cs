@@ -212,6 +212,10 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 .Include(p => p.Regions)
                 .Include(p => p.Sector)
                 .Include(p => p.ProjectFiles)
+                .Include(p => p.Governorate)
+                .Include(p => p.District)
+                .Include(p => p.SubDistrict)
+                .Include(p => p.Community)
                 .FirstOrDefaultAsync(m => m.ProjectID == id);
 
             if (project == null)
