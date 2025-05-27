@@ -410,6 +410,33 @@
 			  };
 			}
 
+			  document.getElementById('frameworkFilter')
+	.addEventListener('change', function() {
+	  const frameworkCode = this.value;
+	  const ministryDropdown = document.getElementById('ministryFilter');
+
+	  // reset
+	  ministryDropdown.innerHTML = '<option disabled selected value="">-- Select Ministry --</option>';
+
+	  if (!frameworkCode) return;
+
+	  fetch(`/Dashboard/GetMinistriesByFramework?frameworkCode=${frameworkCode}`)
+		.then(res => {
+		  if (!res.ok) throw new Error('Network response was not ok');
+		  return res.json();
+		})
+		.then(ministries => {
+		  ministries.forEach(mn => {
+			const opt = document.createElement('option');
+			opt.value       = mn.id;
+			opt.textContent = mn.name;
+			ministryDropdown.appendChild(opt);
+		  });
+		})
+		.catch(err => console.error('Error fetching ministries:', err));
+	});
+
+
 			// Change your loadGauges signature and URL‐building to include these two new params.
 
 

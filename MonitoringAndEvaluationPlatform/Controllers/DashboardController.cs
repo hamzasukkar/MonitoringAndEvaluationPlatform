@@ -650,6 +650,41 @@ public class DashboardController : Controller
     }
 
 
+    [HttpGet]
+    public async Task<IActionResult> GetMinistriesByFramework(int frameworkCode)
+    {
+        // Load the whole tree down to Project → Ministry
+        var framework = await _context.Frameworks
+            .Include(f => f.Outcomes)
+                .ThenInclude(o => o.Outputs)
+                    .ThenInclude(op => op.SubOutputs)
+                        .ThenInclude(so => so.Indicators)
+                            .ThenInclude(i => i.Measures)
+                                .ThenInclude(m => m.Project)
+                                    .ThenInclude(p => p.Ministry)        // <— include the Ministry nav prop
+            .FirstOrDefaultAsync(f => f.Code == frameworkCode);
+
+        if (framework == null)
+            return Json(new List<object>());
+
+        var ministries = framework.Outcomes
+            .SelectMany(o => o.Outputs)
+            .SelectMany(op => op.SubOutputs)
+            .SelectMany(so => so.Indicators)
+            .SelectMany(i => i.Measures)
+            .Where(m => m.Project != null && m.Project.Ministry != null)
+            .Select(m => m.Project.Ministry)
+            .Distinct()   // remove duplicates
+            .Select(mn => new {
+                id = mn.Code,          // or your PK for Ministry
+                name = mn.MinistryName
+            })
+            .ToList();
+
+        return Json(ministries);
+    }
+
+
 
 
     [HttpGet]
