@@ -20,7 +20,7 @@
 					<option disabled selected value="">-- Select Framework --</option>
 					@foreach (var fw in Model.Frameworks)
 					{
-						<option value="@fw.Code">@fw.Name</option>
+							<option value="@fw.Code">@fw.Name</option>
 					}
 				</select>
 			</div>
@@ -38,7 +38,7 @@
 					<option disabled selected>-- Select Project --</option>
 					@foreach (var proj in Model.Projects)
 					{
-						<option value="@proj.ProjectID">@proj.ProjectName</option>
+							<option value="@proj.ProjectID">@proj.ProjectName</option>
 					}
 				</select>
 			</div>
@@ -56,7 +56,7 @@
 					<option disabled selected value="">-- Select Ministry --</option>
 					@foreach (var min in Model.Ministries)
 					{
-						<option value="@min.Code">@min.MinistryName</option>
+							<option value="@min.Code">@min.MinistryName</option>
 					}
 				</select>
 			</div>
@@ -75,7 +75,7 @@
 					<option disabled selected value="">-- Select Governorate --</option>
 					@foreach (var gov in Model.Governorates)
 					{
-						<option value="@gov.Code">@gov.Name</option>
+							<option value="@gov.Code">@gov.Name</option>
 					}
 				</select>
 			</div>
@@ -196,39 +196,61 @@
 			container.appendChild(card);
 
 			const ctx = document.getElementById(chartId).getContext('2d');
-			new Chart(ctx, {
-				type: 'doughnut',
-				data: {
+
+							new Chart(ctx, {
+				  type: 'doughnut',
+				  data: {
 					datasets: [{
-						data: [framework.indicatorsPerformance, 100 - framework.indicatorsPerformance],
-						backgroundColor: ['#00c853', '#e0e0e0'],
-						borderWidth: 0,
-						cutout: '80%'
+					  data: [framework.indicatorsPerformance, 100 - framework.indicatorsPerformance],
+					  backgroundColor: ['#00c853', '#e0e0e0'],
+					  borderWidth: 0,
+					  cutout: '80%'
 					}]
-				},
-				options: {
+				  },
+				  options: {
 					responsive: true,
 					plugins: {
-						legend: { display: false },
-						tooltip: { enabled: false },
-						doughnutlabel: {
-							labels: [
-								{
-									text: `${framework.indicatorsPerformance}%`,
-									font: { size: 24, weight: 'bold' },
-									color: '#00c853'
-								},
-								{
-									text: 'Achieved',
-									font: { size: 14 },
-									color: '#666'
-								}
-							]
+					  legend: { display: false },
+					  tooltip: {
+						enabled: true,
+						callbacks: {
+						  label: function(context) {
+							const value = context.raw;            // the numeric value of this segment
+							const idx   = context.dataIndex;      // 0 for achieved, 1 for remaining
+							if (idx === 0) {
+							  // Achieved slice
+							  if (value >= 80) {
+								return `Excellent: ${value}% achieved`;
+							  } else if (value >= 50) {
+								return `Satisfactory: ${value}% achieved`;
+							  } else {
+								return `Needs Improvement: ${value}% achieved`;
+							  }
+							} else {
+							  // Remaining slice
+							  return `Remaining: ${value}% to goal`;
+							}
+						  }
 						}
+					  },
+					  doughnutlabel: {
+						labels: [
+						  {
+							text: `${framework.indicatorsPerformance}%`,
+							font: { size: 24, weight: 'bold' },
+							color: '#00c853'
+						  },
+						  {
+							text: 'Achieved',
+							font: { size: 14 },
+							color: '#666'
+						  }
+						]
+					  }
 					}
-				}
+				  }
+				});
 			});
-		});
 	}
 
 	// Load default gauges on page load
