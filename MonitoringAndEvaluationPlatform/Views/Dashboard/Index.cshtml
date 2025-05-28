@@ -20,7 +20,7 @@
 					<option disabled selected value="">-- Select Framework --</option>
 					@foreach (var fw in Model.Frameworks)
 					{
-							<option value="@fw.Code">@fw.Name</option>
+										<option value="@fw.Code">@fw.Name</option>
 					}
 				</select>
 			</div>
@@ -38,7 +38,7 @@
 					<option disabled selected>-- Select Project --</option>
 					@foreach (var proj in Model.Projects)
 					{
-							<option value="@proj.ProjectID">@proj.ProjectName</option>
+										<option value="@proj.ProjectID">@proj.ProjectName</option>
 					}
 				</select>
 			</div>
@@ -56,7 +56,7 @@
 					<option disabled selected value="">-- Select Ministry --</option>
 					@foreach (var min in Model.Ministries)
 					{
-							<option value="@min.Code">@min.MinistryName</option>
+										<option value="@min.Code">@min.MinistryName</option>
 					}
 				</select>
 			</div>
@@ -75,7 +75,7 @@
 					<option disabled selected value="">-- Select Governorate --</option>
 					@foreach (var gov in Model.Governorates)
 					{
-							<option value="@gov.Code">@gov.Name</option>
+										<option value="@gov.Code">@gov.Name</option>
 					}
 				</select>
 			</div>
@@ -86,6 +86,7 @@
 		<div class="card shadow-lg border-0 bg-info text-white">
 			<div class="card-body">
 				<h5 class="card-title">District</h5>
+				<h2 id="districtCount" class="fw-bold">Total Districts: 0</h2>
 				<select id="districtFilter" class="form-select mt-3 text-dark" disabled>
 					<option disabled selected value="">-- Select District --</option>
 				</select>
@@ -98,6 +99,7 @@
 		<div class="card shadow-lg border-0 bg-secondary text-white">
 			<div class="card-body">
 				<h5 class="card-title">Sub-District</h5>
+				<h2 id="subDistrictCount" class="fw-bold">Total SubDistrict:0</h2>
 				<select id="subDistrictFilter" class="form-select mt-3 text-dark" disabled>
 					<option disabled selected value="">-- Select Sub-District --</option>
 				</select>
@@ -110,6 +112,7 @@
 		<div class="card shadow-lg border-0 bg-dark text-white">
 			<div class="card-body">
 				<h5 class="card-title">Community</h5>
+				<h2 id="CommunityCount" class="fw-bold">Total Communities:0</h2>
 				<select id="communityFilter" class="form-select mt-3 text-dark" disabled>
 					<option disabled selected value="">-- Select Community --</option>
 				</select>
@@ -361,19 +364,31 @@
 	});
 
 				// Governorate → District
-			document.getElementById('governorateFilter').addEventListener('change', function() {
-			  const govCode = this.value;
-			  // Reset downstream
-			  resetDropdown('districtFilter');
-			  resetDropdown('subDistrictFilter');
-			  resetDropdown('communityFilter');
-			  if (!govCode) return;
+		  document.getElementById('governorateFilter').addEventListener('change', function() {
+		  const govCode = this.value;
+		  // Reset downstream
+		  resetDropdown('districtFilter');
+		  resetDropdown('subDistrictFilter');
+		  resetDropdown('communityFilter');
 
-			  fetch(`/Dashboard/GetDistrictsByGovernorate?governorateCode=${govCode}`)
-				.then(r => r.json())
-				.then(list => populateDropdown('districtFilter', list))
-				.catch(e => console.error(e));
-			});
+		  // Reset count
+		  document.getElementById('districtCount').innerText = 'Total Districts: 0';
+
+		  if (!govCode) return;
+
+		  fetch(`/Dashboard/GetDistrictsByGovernorate?governorateCode=${govCode}`)
+			.then(r => r.json())
+			.then(list => {
+			  populateDropdown('districtFilter', list);
+			  // Update the count:
+			  document.getElementById('districtCount').innerText =
+				`Total Districts: ${list.length}`;
+			  // Re-enable the select now that it has items:
+			  document.getElementById('districtFilter').disabled = list.length === 0;
+			})
+			.catch(e => console.error(e));
+		});
+
 
 			// District → Sub-District
 			document.getElementById('districtFilter').addEventListener('change', function() {
