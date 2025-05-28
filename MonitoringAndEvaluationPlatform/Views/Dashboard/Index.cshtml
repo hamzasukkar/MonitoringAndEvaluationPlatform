@@ -136,6 +136,7 @@
 <!-- Scripts -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-doughnutlabel@1.0.3"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2"></script>
 
 <script>
 	async function loadGauges(frameworkCode = '', ministryCode = '', projectCode = '',governorateCode='',districtCoder='',subDistrictCode='',communityCode='') {
@@ -197,59 +198,57 @@
 
 			const ctx = document.getElementById(chartId).getContext('2d');
 
-							new Chart(ctx, {
-				  type: 'doughnut',
-				  data: {
-					datasets: [{
-					  data: [framework.indicatorsPerformance, 100 - framework.indicatorsPerformance],
-					  backgroundColor: ['#00c853', '#e0e0e0'],
-					  borderWidth: 0,
-					  cutout: '80%'
-					}]
-				  },
-				  options: {
-					responsive: true,
-					plugins: {
-					  legend: { display: false },
-					  tooltip: {
-						enabled: true,
-						callbacks: {
-						  label: function(context) {
-							const value = context.raw;            // the numeric value of this segment
-							const idx   = context.dataIndex;      // 0 for achieved, 1 for remaining
-							if (idx === 0) {
-							  // Achieved slice
-							  if (value >= 80) {
-								return `Excellent: ${value}% achieved`;
-							  } else if (value >= 50) {
-								return `Satisfactory: ${value}% achieved`;
-							  } else {
-								return `Needs Improvement: ${value}% achieved`;
+													new Chart(ctx, {
+						  type: 'doughnut',
+						  data: {
+							datasets: [{
+							  data: [framework.indicatorsPerformance, 100 - framework.indicatorsPerformance],
+							  backgroundColor: ['#00c853', '#e0e0e0'],
+							  borderWidth: 0,
+							  cutout: '80%'
+							}]
+						  },
+						  plugins: [ChartDataLabels],   // ← register it here
+						  options: {
+							responsive: true,
+							plugins: {
+							  datalabels: {
+								color: '#fff',
+								anchor: 'center',
+								align: 'center',
+								font: {
+								  weight: 'bold',
+								  size: 16
+								},
+								formatter: (value, ctx) => {
+								  // Only show label on the achieved slice
+								  if (ctx.dataIndex === 0) {
+									return value + '%';
+								  }
+								  return ''; 
+								}
+							  },
+							  legend: { display: false },
+							  tooltip: {
+								enabled: true,
+								callbacks: {
+								  label: function(context) {
+									const value = context.raw;
+									const idx   = context.dataIndex;
+									if (idx === 0) {
+									  if (value >= 80) return `Excellent: ${value}% achieved`;
+									  if (value >= 50) return `Satisfactory: ${value}% achieved`;
+									  return `Needs Improvement: ${value}% achieved`;
+									} else {
+									  return `Remaining: ${value}% to goal`;
+									}
+								  }
+								}
 							  }
-							} else {
-							  // Remaining slice
-							  return `Remaining: ${value}% to goal`;
 							}
 						  }
-						}
-					  },
-					  doughnutlabel: {
-						labels: [
-						  {
-							text: `${framework.indicatorsPerformance}%`,
-							font: { size: 24, weight: 'bold' },
-							color: '#00c853'
-						  },
-						  {
-							text: 'Achieved',
-							font: { size: 14 },
-							color: '#666'
-						  }
-						]
-					  }
-					}
-				  }
-				});
+						});
+
 			});
 	}
 
