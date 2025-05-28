@@ -20,7 +20,7 @@
 					<option disabled selected value="">-- Select Framework --</option>
 					@foreach (var fw in Model.Frameworks)
 					{
-										<option value="@fw.Code">@fw.Name</option>
+						<option value="@fw.Code">@fw.Name</option>
 					}
 				</select>
 			</div>
@@ -38,7 +38,7 @@
 					<option disabled selected>-- Select Project --</option>
 					@foreach (var proj in Model.Projects)
 					{
-										<option value="@proj.ProjectID">@proj.ProjectName</option>
+						<option value="@proj.ProjectID">@proj.ProjectName</option>
 					}
 				</select>
 			</div>
@@ -56,7 +56,7 @@
 					<option disabled selected value="">-- Select Ministry --</option>
 					@foreach (var min in Model.Ministries)
 					{
-										<option value="@min.Code">@min.MinistryName</option>
+						<option value="@min.Code">@min.MinistryName</option>
 					}
 				</select>
 			</div>
@@ -75,7 +75,7 @@
 					<option disabled selected value="">-- Select Governorate --</option>
 					@foreach (var gov in Model.Governorates)
 					{
-										<option value="@gov.Code">@gov.Name</option>
+						<option value="@gov.Code">@gov.Name</option>
 					}
 				</select>
 			</div>
@@ -228,7 +228,7 @@
 								  if (ctx.dataIndex === 0) {
 									return value + '%';
 								  }
-								  return ''; 
+								  return '';
 								}
 							  },
 							  legend: { display: false },
@@ -390,18 +390,33 @@
 		});
 
 
-			// District → Sub-District
-			document.getElementById('districtFilter').addEventListener('change', function() {
-			  const distCode = this.value;
-			  resetDropdown('subDistrictFilter');
-			  resetDropdown('communityFilter');
-			  if (!distCode) return;
+				// District → Sub-District
+	document.getElementById('districtFilter').addEventListener('change', function() {
+	  const distCode = this.value;
+	  resetDropdown('subDistrictFilter');
+	  resetDropdown('communityFilter');
 
-			  fetch(`/Dashboard/GetSubDistrictsByDistrict?districtCode=${distCode}`)
-				.then(r => r.json())
-				.then(list => populateDropdown('subDistrictFilter', list))
-				.catch(e => console.error(e));
-			});
+	  // Reset count
+	  document.getElementById('subDistrictCount').innerText = 'Total sub-District: 0';
+
+	  if (!distCode) return;
+
+	  fetch(`/Dashboard/GetSubDistrictsByDistrict?districtCode=${distCode}`)
+		.then(r => r.json())
+		.then(list => {
+		  populateDropdown('subDistrictFilter', list);
+
+		  // Update the count:
+		  document.getElementById('subDistrictCount').innerText =
+			`Total sub-District: ${list.length}`;
+
+		  // Re-enable the select now that it has items:
+		  document.getElementById('subDistrictFilter').disabled = list.length === 0;
+		})
+		.catch(e => console.error(e));
+	});
+
+
 
 			// Sub-District → Community
 			document.getElementById('subDistrictFilter').addEventListener('change', function() {
