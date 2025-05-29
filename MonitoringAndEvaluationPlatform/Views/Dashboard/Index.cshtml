@@ -107,18 +107,19 @@
 		</div>
 	</div>
 
-	<!-- Community -->
+	<!-- Sub-District → Community Card -->
 	<div class="col-md-3">
 		<div class="card shadow-lg border-0 bg-dark text-white">
 			<div class="card-body">
 				<h5 class="card-title">Community</h5>
-				<h2 id="CommunityCount" class="fw-bold">Total Communities:0</h2>
+				<h2 id="communityCount" class="fw-bold">Total Communities: 0</h2>
 				<select id="communityFilter" class="form-select mt-3 text-dark" disabled>
 					<option disabled selected value="">-- Select Community --</option>
 				</select>
 			</div>
 		</div>
 	</div>
+
 
 </div>
 
@@ -417,18 +418,29 @@
 	});
 
 
+		// Sub-District → Community
+	document
+	  .getElementById('subDistrictFilter')
+	  .addEventListener('change', function () {
+		const subCode = this.value;
 
-			// Sub-District → Community
-			document.getElementById('subDistrictFilter').addEventListener('change', function() {
-			  const subCode = this.value;
-			  resetDropdown('communityFilter');
-			  if (!subCode) return;
+		// Reset community dropdown & count
+		resetDropdown('communityFilter');
+		document.getElementById('communityCount').innerText = 'Total Communities: 0';
 
-			  fetch(`/Dashboard/GetCommunitiesBySubDistrict?subDistrictCode=${subCode}`)
-				.then(r => r.json())
-				.then(list => populateDropdown('communityFilter', list))
-				.catch(e => console.error(e));
-			});
+		if (!subCode) return;
+
+		fetch(`/Dashboard/GetCommunitiesBySubDistrict?subDistrictCode=${subCode}`)
+		  .then((r) => r.json())
+		  .then((list) => {
+			populateDropdown('communityFilter', list);
+
+			// Update the total communities count
+			document.getElementById('communityCount').innerText =
+			  `Total Communities: ${list.length}`;
+		  })
+		  .catch((e) => console.error(e));
+	  });
 
 			// Helpers
 			function resetDropdown(id) {
