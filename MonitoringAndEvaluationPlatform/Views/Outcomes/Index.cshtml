@@ -87,9 +87,9 @@
 								</td>
 								<td class="text-end">
 									<div class="btn-group" role="group">
-										<a asp-action="Details" asp-route-id="@item.Code" class="btn btn-sm btn-outline-primary" title="View">
+										@* <a asp-action="Details" asp-route-id="@item.Code" class="btn btn-sm btn-outline-primary" title="View">
 											<i class="fas fa-eye"></i>
-										</a>
+										</a> *@
 										<button class="btn btn-sm btn-outline-warning"
 												id="edit-btn-@item.Code"
 												onclick="toggleOutcomeEdit(@item.Code)">
