@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using MonitoringAndEvaluationPlatform.Data;
 using MonitoringAndEvaluationPlatform.Models;
+using MonitoringAndEvaluationPlatform.Services;
 using MonitoringAndEvaluationPlatform.ViewModel;
 
 namespace MonitoringAndEvaluationPlatform.Controllers
@@ -17,12 +18,14 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         private readonly ApplicationDbContext _context;
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly RoleManager<IdentityRole> _roleManager;
+        private readonly IActivityService _activityService;
 
-        public ProjectsController(ApplicationDbContext context, UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager)
+        public ProjectsController(ApplicationDbContext context, UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager, IActivityService activityService)
         {
             _context = context;
             _userManager = userManager;
             _roleManager = roleManager;
+            _activityService = activityService;
         }
 
 
@@ -135,6 +138,15 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             ModelState.Remove(nameof(Project.SubDistrict));
             ModelState.Remove(nameof(Project.Governorate));
 
+            if (PlansCount < 1)
+            {
+                // Add a ModelState error against the field name “PlansCount”
+                ModelState.AddModelError(
+                    "PlansCount",
+                    "Plans Count must be at least 1."
+                );
+            }
+
             if (!ModelState.IsValid)
             {
                 // Re-populate ViewBag dropdowns in case of validation failure
@@ -156,16 +168,35 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                                          .ToList();
             project.Regions = selectedRegions;
 
-            //// 2) Create the ActionPlan and attach it to the new Project
-            //project.ActionPlan = new ActionPlan
-            //{
-            //    PlansCount = PlansCount
-            //    // (ProjectID will get set by EF once the Project is inserted)
-            //};
+            // 2) Create the ActionPlan and attach it to the new Project
+            project.ActionPlan = new ActionPlan
+            {
+                PlansCount = PlansCount
+                // (ProjectID will get set by EF once the Project is inserted)
+            };
 
             // 3) Save both Project and ActionPlan together
             _context.Projects.Add(project);
             await _context.SaveChangesAsync();
+
+            var baseActivity = new Activity
+            {
+                Name = project.ProjectName ?? "New Project Activity",
+                ActionPlanCode = project.ActionPlan.Code
+                // Note: do NOT fill in ActivityType here—Service will set it for each enum
+            };
+
+            // 6) Call your service to automatically generate all Activities + Plans
+            var success = await _activityService.CreateActivitiesForAllTypesAsync(baseActivity);
+            if (!success)
+            {
+                // You can handle the “failure” case however you like. 
+                // For instance, if the ActionPlan was somehow missing, you might 
+                // set an error message and return to the View. In most normal flows,
+                // it succeeds, so you can skip this or log something.
+                ModelState.AddModelError("", "Unable to create activities for the new ActionPlan.");
+                return View(project);
+            }
 
             // 4) Handle file uploads exactly as before
             if (UploadedFiles != null && UploadedFiles.Count > 0)

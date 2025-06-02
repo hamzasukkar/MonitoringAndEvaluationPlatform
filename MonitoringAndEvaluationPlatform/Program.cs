@@ -35,6 +35,7 @@ builder.Services.ConfigureApplicationCookie(options =>
 
 builder.Services.AddScoped<MonitoringService>();
 builder.Services.AddScoped<PlanService>();
+builder.Services.AddScoped<IActivityService, ActivityService>();
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.

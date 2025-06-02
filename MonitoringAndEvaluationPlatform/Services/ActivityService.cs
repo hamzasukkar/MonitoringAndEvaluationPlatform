@@ -5,7 +5,7 @@ using MonitoringAndEvaluationPlatform.Models;
 
 namespace MonitoringAndEvaluationPlatform.Services
 {
-    public class ActivityService
+    public class ActivityService : IActivityService
     {
         private readonly ApplicationDbContext _context;
 
