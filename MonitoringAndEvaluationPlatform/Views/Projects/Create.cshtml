@@ -31,6 +31,19 @@
                                     <span asp-validation-for="ProjectName" class="text-danger small"></span>
                                 </div>
 
+                                <!-- NEW: Plans Count for ActionPlan -->
+                                <div class="mb-4">
+                                    <label for="PlansCount" class="form-label">Plans Count</label>
+                                    <input type="number"
+                                           id="PlansCount"
+                                           name="PlansCount"
+                                           class="form-control"
+                                           value="0"
+                                           min="0"
+                                           required />
+                                   @*  <span asp-validation-for="PlansCount" class="text-danger small"></span> *@
+                                </div>
+
                                 <!-- Location Hierarchy -->
                                 <div class="mb-4">
                                     <h6 class="mb-3 text-muted">Project Location</h6>
@@ -97,6 +110,8 @@
                                     </div>
                                 </div>
                             </div>
+
+                         
 
                             <!-- Right Column -->
                             <div class="col-md-6">

@@ -117,7 +117,11 @@ namespace MonitoringAndEvaluationPlatform.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create(Project project, List<IFormFile> UploadedFiles)
+        public async Task<IActionResult> Create(
+        Project project,
+        List<IFormFile> UploadedFiles,
+        int PlansCount                // <— new parameter
+    )
         {
             // Remove navigation property validation to avoid unnecessary errors
             ModelState.Remove(nameof(Project.ProjectManager));
@@ -145,25 +149,30 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 return View(project);
             }
 
-            // Handle region selection from form
+            // 1) Handle region selection from form
             var selectedRegionCodes = Request.Form["Regions"].ToList();
             var selectedRegions = _context.Regions
-                                          .Where(r => selectedRegionCodes.Contains(r.Code.ToString()))
-                                          .ToList();
-
+                                         .Where(r => selectedRegionCodes.Contains(r.Code.ToString()))
+                                         .ToList();
             project.Regions = selectedRegions;
 
+            //// 2) Create the ActionPlan and attach it to the new Project
+            //project.ActionPlan = new ActionPlan
+            //{
+            //    PlansCount = PlansCount
+            //    // (ProjectID will get set by EF once the Project is inserted)
+            //};
+
+            // 3) Save both Project and ActionPlan together
             _context.Projects.Add(project);
             await _context.SaveChangesAsync();
 
-            // Handle file uploads
+            // 4) Handle file uploads exactly as before
             if (UploadedFiles != null && UploadedFiles.Count > 0)
             {
                 var uploadsFolder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/uploads");
                 if (!Directory.Exists(uploadsFolder))
-                {
                     Directory.CreateDirectory(uploadsFolder);
-                }
 
                 foreach (var file in UploadedFiles)
                 {
@@ -193,6 +202,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
 
             return RedirectToAction("Index");
         }
+
 
 
 
