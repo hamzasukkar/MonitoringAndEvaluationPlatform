@@ -6,6 +6,54 @@
 }
 
 <h1>Activities</h1>
+<div class="project-nav mb-4">
+    <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm rounded">
+        <div class="container-fluid">
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#projectNavbar">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="projectNavbar">
+                <ul class="navbar-nav nav-fill w-100">
+                    <li class="nav-item">
+                        <a asp-controller="Projects" asp-action="Details" asp-route-id="@ViewBag.ProjectID" class="nav-link">
+                            <i class="fas fa-project-diagram me-2"></i>Project
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a asp-action="LinkProjectToIndicators" asp-route-projectId="@ViewBag.ProjectID" class="nav-link">
+                            <i class="fas fa-link me-2"></i>Alignement
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a asp-action="Create" asp-controller="LogicalFrameworks" asp-route-projectId="@ViewBag.ProjectID" class="nav-link">
+                            <i class="fas fa-sitemap me-2"></i>LogicalFramework
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a asp-action="ProjectMeasures" asp-controller="Measures" asp-route-id="@ViewBag.ProjectID" class="nav-link">
+                            <i class="fas fa-ruler-combined me-2"></i>Measures
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a asp-controller="Plans" asp-action="ProjectPlans" asp-route-id="@ViewBag.ProjectID" class="nav-link">
+                            <i class="fas fa-calendar-alt me-2"></i>Plans
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a asp-controller="ActionPlans" asp-action="ActionPlan" asp-route-id="@ViewBag.ProjectID" class="nav-link">
+                            <i class="fas fa-tasks me-2"></i>Action Plans
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active" aria-current="page" asp-action="Index" asp-controller="Activities" asp-route-id="@ViewBag.ProjectID">
+                            <i class="fas fa-running me-2"></i>Activities
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+</div>
 
 <div class="accordion" id="actionPlanAccordion">
     @for (int i = 0; i < Model.Count; i++)

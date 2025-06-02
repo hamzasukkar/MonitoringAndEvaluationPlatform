@@ -23,8 +23,10 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         }
 
         // GET: Activities
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(int? id)
         {
+            ViewBag.ProjectID = id;
+
             var activities = await _context.Activities
                 .Include(a => a.ActionPlan)
                 .Include(a => a.Plans)
@@ -41,6 +43,8 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         // GET: Activities/Details/5
         public async Task<IActionResult> Details(int? id)
         {
+            ViewBag.ProjectID = id;
+
             if (id == null)
             {
                 return NotFound();

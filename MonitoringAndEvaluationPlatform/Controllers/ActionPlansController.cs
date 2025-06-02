@@ -34,6 +34,8 @@ namespace MonitoringAndEvaluationPlatform.Controllers
 
         public async Task<IActionResult> ActionPlan(int? id)
         {
+            ViewBag.ProjectID = id;
+
             var actionPlan = await _context.ActionPlans.FirstOrDefaultAsync(ac => ac.ProjectID == id);
 
             if (actionPlan == null)
