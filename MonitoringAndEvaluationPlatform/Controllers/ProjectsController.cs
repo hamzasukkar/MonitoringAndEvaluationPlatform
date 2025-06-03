@@ -346,7 +346,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             ViewBag.Donor = new SelectList(await _context.Donors.ToListAsync(), "Code", "Partner", project.DonorCode);
 
             return View(project);
-        
+
         }
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -367,7 +367,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         // POST: Projects/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, Project project, List<IFormFile> UploadedFiles)
+        public async Task<IActionResult> Edit(int id, Project project, List<IFormFile> UploadedFiles, List<int> SelectedSectorCodes)
         {
             if (id != project.ProjectID)
                 return NotFound();
@@ -388,7 +388,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             if (!ModelState.IsValid)
             {
                 // If we fail, re‑populate all ViewBag lists exactly as in GET:
-                await PopulateEditDropdowns(project);
+                await PopulateEditDropdowns(project, SelectedSectorCodes);
                 return View(project);
             }
 
@@ -425,17 +425,17 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             foreach (var r in selectedRegions)
                 dbProject.Regions.Add(r);
 
-            // 1) Handle region selection from form
-            var selectedSectorCodes = Request.Form["Sectors"].ToList();
-            var selectedSectors = _context.Sectors
-                                         .Where(r => selectedSectorCodes.Contains(r.Code.ToString()))
-                                         .ToList();
-            project.Sectors = selectedSectors;
+            // Now overwrite the many‐to‐many Sectors:
+            var sectors = await _context.Sectors
+                .Where(s => SelectedSectorCodes.Contains(s.Code))
+                .ToListAsync();
 
-
+            // Clear out existing ones, then assign the newly chosen list:
             dbProject.Sectors.Clear();
-            foreach (var s in selectedSectors)
-                dbProject.Sectors.Add(s);
+            foreach (var sec in sectors)
+            {
+                dbProject.Sectors.Add(sec);
+            }
 
             // --- Handle any new file uploads ---
             if (UploadedFiles != null && UploadedFiles.Count > 0)
@@ -478,7 +478,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         }
 
         // Helper to DRY‑up re‑populating dropdowns on POST failure
-        private async Task PopulateEditDropdowns(Project project)
+        private async Task PopulateEditDropdowns(Project project, List<int> SelectedSectorCodes)
         {
             ViewBag.Governorates = new SelectList(
                 await _context.Governorates.ToListAsync(),
@@ -500,6 +500,14 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 await _context.Regions.ToListAsync(),
                 "Code", "Name",
                 project.Regions.Select(r => r.Code.ToString()));
+
+            var allSectors = await _context.Sectors.ToListAsync();
+            ViewBag.SectorList = new MultiSelectList(
+                allSectors,
+                "Code",
+                "Name",
+                SelectedSectorCodes
+            );
 
             ViewBag.SectorList = new MultiSelectList(
                 await _context.Sectors.ToListAsync(),
@@ -621,8 +629,8 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         }
 
         private string GetContentType(string path)
-                {
-                    var types = new Dictionary<string, string>
+        {
+            var types = new Dictionary<string, string>
             {
                 {".txt", "text/plain"},
                 {".pdf", "application/pdf"},
@@ -636,8 +644,8 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 {".gif", "image/gif"},
                 {".csv", "text/csv"}
             };
-                    var ext = Path.GetExtension(path).ToLowerInvariant();
-                    return types.ContainsKey(ext) ? types[ext] : "application/octet-stream";
+            var ext = Path.GetExtension(path).ToLowerInvariant();
+            return types.ContainsKey(ext) ? types[ext] : "application/octet-stream";
         }
 
 
