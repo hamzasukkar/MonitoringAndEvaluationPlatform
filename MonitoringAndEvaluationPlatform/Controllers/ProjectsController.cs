@@ -391,22 +391,26 @@ namespace MonitoringAndEvaluationPlatform.Controllers
 
 
 
-        // POST: Projects/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, Project project, List<IFormFile> UploadedFiles, List<int> SelectedSectorCodes, List<int> SelectedDonorCodes)
+        public async Task<IActionResult> Edit(
+      int id,
+      Project project,
+      List<IFormFile> UploadedFiles,
+      List<int> SelectedRegionCodes,
+      List<int> SelectedSectorCodes,
+      List<int> SelectedDonorCodes)
         {
             if (id != project.ProjectID)
                 return NotFound();
 
-            // Remove nav‑props so EF Core won't demand them
+            // Remove nav-props so EF Core won't demand them at bind time
             ModelState.Remove(nameof(Project.Regions));
             ModelState.Remove(nameof(Project.ProjectManager));
             ModelState.Remove(nameof(Project.Sectors));
             ModelState.Remove(nameof(Project.SuperVisor));
             ModelState.Remove(nameof(Project.Ministry));
-            //To Check
-           // ModelState.Remove(nameof(Project.Donor));
+            ModelState.Remove(nameof(Project.Donors));       // <— Uncommented so EF doesn’t require it
             ModelState.Remove(nameof(Project.Governorate));
             ModelState.Remove(nameof(Project.District));
             ModelState.Remove(nameof(Project.SubDistrict));
@@ -415,17 +419,20 @@ namespace MonitoringAndEvaluationPlatform.Controllers
 
             if (!ModelState.IsValid)
             {
-                // If we fail, re‑populate all ViewBag lists exactly as in GET:
+                // If validation fails, re‐populate all dropdowns with the already‐selected codes:
                 await PopulateEditDropdowns(project, SelectedSectorCodes, SelectedDonorCodes);
                 return View(project);
             }
 
-            // Fetch the existing entity (to update its nav‑props safely)
+            // --- Include Regions, Sectors, and Donors so Clear() will delete old join rows ---
             var dbProject = await _context.Projects
                 .Include(p => p.Regions)
+                .Include(p => p.Sectors)
+                .Include(p => p.Donors)
                 .FirstOrDefaultAsync(p => p.ProjectID == id);
 
-            if (dbProject == null) return NotFound();
+            if (dbProject == null)
+                return NotFound();
 
             // --- Update scalar properties ---
             dbProject.ProjectName = project.ProjectName;
@@ -441,44 +448,36 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             dbProject.ProjectManagerCode = project.ProjectManagerCode;
             dbProject.SuperVisorCode = project.SuperVisorCode;
             dbProject.MinistryCode = project.MinistryCode;
-            //To Check
-            //dbProject.DonorCode = project.DonorCode;
+            //dbProject.DonorCode        = project.DonorCode; // Removed, since you now use many‐to‐many
 
-            // --- Update Regions many‑to‑many ---
-            var selectedRegionCodes = Request.Form["Regions"].ToList();
-            var selectedRegions = await _context.Regions
-                .Where(r => selectedRegionCodes.Contains(r.Code.ToString()))
+            // --- Update Regions many‐to‐many ---
+            var regions = await _context.Regions
+                .Where(r => SelectedRegionCodes.Contains(r.Code))
                 .ToListAsync();
 
             dbProject.Regions.Clear();
-            foreach (var r in selectedRegions)
+            foreach (var r in regions)
                 dbProject.Regions.Add(r);
 
-            // Now overwrite the many‐to‐many Sectors:
+            // --- Update Sectors many‐to‐many ---
             var sectors = await _context.Sectors
                 .Where(s => SelectedSectorCodes.Contains(s.Code))
                 .ToListAsync();
 
-            // Clear out existing ones, then assign the newly chosen list:
             dbProject.Sectors.Clear();
-            foreach (var sec in sectors)
-            {
-                dbProject.Sectors.Add(sec);
-            }
+            foreach (var s in sectors)
+                dbProject.Sectors.Add(s);
 
-            // Now overwrite the many‐to‐many Sectors:
+            // --- Update Donors many‐to‐many ---
             var donors = await _context.Donors
-                .Where(s => SelectedDonorCodes.Contains(s.Code))
+                .Where(d => SelectedDonorCodes.Contains(d.Code))
                 .ToListAsync();
 
-            // Clear out existing ones, then assign the newly chosen list:
             dbProject.Donors.Clear();
-            foreach (var don in donors)
-            {
-                dbProject.Donors.Add(don);
-            }
+            foreach (var d in donors)
+                dbProject.Donors.Add(d);
 
-            // --- Handle any new file uploads ---
+            // --- Handle file uploads (unchanged) ---
             if (UploadedFiles != null && UploadedFiles.Count > 0)
             {
                 var uploadsFolder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/uploads");
@@ -505,7 +504,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 }
             }
 
-            // Persist everything
+            // Save changes
             try
             {
                 await _context.SaveChangesAsync();
@@ -517,6 +516,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
 
             return RedirectToAction(nameof(Index));
         }
+
 
         // Helper to DRY‑up re‑populating dropdowns on POST failure
         private async Task PopulateEditDropdowns(Project project, List<int> SelectedSectorCodes, List<int> SelectedDonorCodes)
