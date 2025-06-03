@@ -39,7 +39,6 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         {
             // Load dropdown/filter data
             filter.Ministries = await _context.Ministries.ToListAsync();
-            filter.Regions = await _context.Regions.ToListAsync();
             filter.Donors = await _context.Donors.ToListAsync();
 
             // Get the logged-in user
@@ -61,10 +60,6 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 projectQuery = projectQuery.Where(p => filter.SelectedMinistries.Contains(p.MinistryCode));
             }
 
-            if (filter.SelectedRegions.Any())
-            {
-                projectQuery = projectQuery.Where(p => p.Regions.Any(r => filter.SelectedRegions.Contains(r.Code)));
-            }
 
             //To Fix
             //if (filter.SelectedDonors.Any())
@@ -82,7 +77,6 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         {
             // Retrieve related data
             var donors = _context.Donors.ToList();
-            var regions = _context.Regions.ToList();
             var sectors = _context.Sectors.ToList();
             var ministries = _context.Ministries.ToList();
             var supervisors = _context.SuperVisors.ToList();
@@ -109,7 +103,6 @@ namespace MonitoringAndEvaluationPlatform.Controllers
 
             // Prepare dropdown and multiselect data
             ViewBag.Donor = new SelectList(donors, "Code", "Partner");
-            ViewBag.RegionList = new MultiSelectList(regions, "Code", "Name");
             ViewBag.SectorList = new MultiSelectList(sectors, "Code", "Name", new List<int> { firstSectorCode ?? 0 });
             ViewBag.Ministry = new SelectList(ministries, "Code", "MinistryName");
             ViewBag.SuperVisor = new SelectList(supervisors, "Code", "Name");
@@ -154,7 +147,6 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             {
                 // Re-populate ViewBag dropdowns in case of validation failure
                 ViewBag.Governorates = new SelectList(_context.Governorates, "Code", "Name");
-                ViewBag.RegionList = new MultiSelectList(_context.Regions, "Code", "Name");
                 ViewBag.SectorList = new MultiSelectList(_context.Sectors, "Code", "Name");
                 ViewBag.ProjectManager = new SelectList(_context.ProjectManagers, "Code", "FullName");
                 ViewBag.SuperVisor = new SelectList(_context.SuperVisors, "Code", "FullName");
@@ -163,13 +155,6 @@ namespace MonitoringAndEvaluationPlatform.Controllers
 
                 return View(project);
             }
-
-            // 1) Handle region selection from form
-            var selectedRegionCodes = Request.Form["Regions"].ToList();
-            var selectedRegions = _context.Regions
-                                         .Where(r => selectedRegionCodes.Contains(r.Code.ToString()))
-                                         .ToList();
-            project.Regions = selectedRegions;
 
             // 1) Handle sector selection from form
             var selectedSectorCodes = Request.Form["Sectors"].ToList();
@@ -268,7 +253,6 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 .Include(p => p.ProjectManager)
                 .Include(p => p.SuperVisor)
                 .Include(p => p.Donors)
-                .Include(p => p.Regions)
                 .Include(p => p.Sectors)
                 .Include(p => p.ProjectFiles)
                 .Include(p => p.Governorate)
@@ -295,7 +279,6 @@ namespace MonitoringAndEvaluationPlatform.Controllers
 
             // Load project + its Regions
             var project = await _context.Projects
-                .Include(p => p.Regions)
                 .Include(p => p.Sectors)
                 .Include(p => p.Donors)
                 .FirstOrDefaultAsync(p => p.ProjectID == id.Value);
@@ -326,10 +309,6 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 .ToListAsync();
             ViewBag.Communities = new SelectList(comms, "Code", "Name", project.CommunityCode);
 
-            // Regions multi‑select (pre‑select the ones already on the project)
-            var allRegions = await _context.Regions.ToListAsync();
-            var selectedRegionCodes = project.Regions.Select(r => r.Code.ToString()).ToArray();
-            ViewBag.RegionList = new MultiSelectList(allRegions, "Code", "Name", selectedRegionCodes);
 
             // Build the Sectors MultiSelectList, marking the project’s existing sector codes as “selected”:
             var allSectors = await _context.Sectors.ToListAsync();
@@ -405,7 +384,6 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 return NotFound();
 
             // Remove nav-props so EF Core won't demand them at bind time
-            ModelState.Remove(nameof(Project.Regions));
             ModelState.Remove(nameof(Project.ProjectManager));
             ModelState.Remove(nameof(Project.Sectors));
             ModelState.Remove(nameof(Project.SuperVisor));
@@ -426,7 +404,6 @@ namespace MonitoringAndEvaluationPlatform.Controllers
 
             // --- Include Regions, Sectors, and Donors so Clear() will delete old join rows ---
             var dbProject = await _context.Projects
-                .Include(p => p.Regions)
                 .Include(p => p.Sectors)
                 .Include(p => p.Donors)
                 .FirstOrDefaultAsync(p => p.ProjectID == id);
@@ -448,16 +425,8 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             dbProject.ProjectManagerCode = project.ProjectManagerCode;
             dbProject.SuperVisorCode = project.SuperVisorCode;
             dbProject.MinistryCode = project.MinistryCode;
-            //dbProject.DonorCode        = project.DonorCode; // Removed, since you now use many‐to‐many
 
-            // --- Update Regions many‐to‐many ---
-            var regions = await _context.Regions
-                .Where(r => SelectedRegionCodes.Contains(r.Code))
-                .ToListAsync();
 
-            dbProject.Regions.Clear();
-            foreach (var r in regions)
-                dbProject.Regions.Add(r);
 
             // --- Update Sectors many‐to‐many ---
             var sectors = await _context.Sectors
@@ -537,10 +506,6 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 await _context.Communities.Where(c => c.SubDistrictCode == project.SubDistrictCode).ToListAsync(),
                 "Code", "Name", project.CommunityCode);
 
-            ViewBag.RegionList = new MultiSelectList(
-                await _context.Regions.ToListAsync(),
-                "Code", "Name",
-                project.Regions.Select(r => r.Code.ToString()));
 
             var allSectors = await _context.Sectors.ToListAsync();
             ViewBag.SectorList = new MultiSelectList(

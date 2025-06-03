@@ -8,7 +8,6 @@ namespace MonitoringAndEvaluationPlatform.Models
         [Key]
         public int ProjectID { get; set; }
         public string ProjectName { get; set; }
-        public ICollection<Region> Regions { get; set; } = new List<Region>();
         public ICollection<Sector> Sectors { get; set; } = new List<Sector>();
 
         public ICollection<Donor> Donors { get; set; } = new List<Donor>();

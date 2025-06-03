@@ -98,16 +98,6 @@
                             <dt class="col-sm-4">End Date</dt>
                             <dd class="col-sm-8">@Model.EndDate.ToString("yyyy-MM-dd")</dd>
 
-                            <dt class="col-sm-4">Regions</dt>
-                            <dd class="col-sm-8">
-                                @foreach (var region in Model.Regions)
-                                {
-                                    <span class="badge bg-primary me-1">
-                                        @region.Name <small class="text-light">(@region.Type)</small>
-                                    </span>
-                                }
-                            </dd>
-
                             <dt class="col-sm-4">Sector</dt>
                             <dd class="col-sm-8">
                                 @foreach (var sector in Model.Sectors)

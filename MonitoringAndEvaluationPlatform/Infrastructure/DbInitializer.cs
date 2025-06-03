@@ -36,17 +36,6 @@ namespace MonitoringAndEvaluationPlatform.Infrastructure
                     context.Donors.AddRange(donors);
                 }
 
-                if (!context.Regions.Any())
-                {
-                    var regions = new List<Region>
-                    {
-                        new Region { Name = "Region 1", Type = RegionType.Region },
-                        new Region { Name = "Region 2", Type = RegionType.Province },
-                        new Region { Name = "Region 3", Type = RegionType.District }
-                    };
-
-                    context.Regions.AddRange(regions);
-                }
                 if (!context.SuperVisors.Any())
                 {
                     var superVisors = new List<SuperVisor>

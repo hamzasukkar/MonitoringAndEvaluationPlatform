@@ -900,26 +900,6 @@ namespace MonitoringAndEvaluationPlatform.Migrations
                     b.ToTable("ProjectManagers");
                 });
 
-            modelBuilder.Entity("MonitoringAndEvaluationPlatform.Models.Region", b =>
-                {
-                    b.Property<int>("Code")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Code"));
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("Type")
-                        .HasColumnType("int");
-
-                    b.HasKey("Code");
-
-                    b.ToTable("Regions");
-                });
-
             modelBuilder.Entity("MonitoringAndEvaluationPlatform.Models.Sector", b =>
                 {
                     b.Property<int>("Code")
@@ -1009,21 +989,6 @@ namespace MonitoringAndEvaluationPlatform.Migrations
                     b.HasKey("Code");
 
                     b.ToTable("SuperVisors");
-                });
-
-            modelBuilder.Entity("ProjectRegion", b =>
-                {
-                    b.Property<int>("ProjectsProjectID")
-                        .HasColumnType("int");
-
-                    b.Property<int>("RegionsCode")
-                        .HasColumnType("int");
-
-                    b.HasKey("ProjectsProjectID", "RegionsCode");
-
-                    b.HasIndex("RegionsCode");
-
-                    b.ToTable("ProjectRegions", (string)null);
                 });
 
             modelBuilder.Entity("ProjectSector", b =>
@@ -1354,21 +1319,6 @@ namespace MonitoringAndEvaluationPlatform.Migrations
                         .IsRequired();
 
                     b.Navigation("Output");
-                });
-
-            modelBuilder.Entity("ProjectRegion", b =>
-                {
-                    b.HasOne("MonitoringAndEvaluationPlatform.Models.Project", null)
-                        .WithMany()
-                        .HasForeignKey("ProjectsProjectID")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("MonitoringAndEvaluationPlatform.Models.Region", null)
-                        .WithMany()
-                        .HasForeignKey("RegionsCode")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
                 });
 
             modelBuilder.Entity("ProjectSector", b =>

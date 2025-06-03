@@ -17,7 +17,6 @@ namespace MonitoringAndEvaluationPlatform.Data
         public DbSet<SubOutput> SubOutputs { get; set; } = default!;
         public DbSet<Ministry> Ministries { get; set; } = default!;
         public DbSet<Project> Projects { get; set; } = default!;
-        public DbSet<Region> Regions { get; set; } = default!;
         public DbSet<Sector> Sectors { get; set; } = default!;
         public DbSet<Donor> Donors { get; set; } = default!;
         public DbSet<Measure> Measures { get; set; } = default!;
@@ -64,11 +63,6 @@ namespace MonitoringAndEvaluationPlatform.Data
                 .HasOne(pi => pi.Indicator)
                 .WithMany(i => i.ProjectIndicators)
                 .HasForeignKey(pi => pi.IndicatorCode);
-
-            modelBuilder.Entity<Project>()
-                .HasMany(p => p.Regions)
-                .WithMany(r => r.Projects)
-                .UsingEntity(j => j.ToTable("ProjectRegions")); // optional table name
 
             modelBuilder.Entity<Project>()
                 .HasMany(p => p.Sectors)

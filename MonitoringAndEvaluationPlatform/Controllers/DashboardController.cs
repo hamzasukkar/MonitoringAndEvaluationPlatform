@@ -348,11 +348,6 @@ public class DashboardController : Controller
             Ministries = await _context.Ministries
                .Select(m => new SelectListItem { Value = m.Code.ToString(), Text = m.MinistryName })
                .ToListAsync(),
-
-            Regions = await _context.Regions
-               .Select(r => new SelectListItem { Value = r.Code.ToString(), Text = r.Name })
-               .ToListAsync(),
-
             Sectors = await _context.Sectors
                .Select(s => new SelectListItem { Value = s.Code.ToString(), Text = s.Name })
                .ToListAsync(),
@@ -408,7 +403,6 @@ public class DashboardController : Controller
         // Base query for projects
         var query = _context.Projects
             .Include(p => p.Measures)
-            .Include(p => p.Regions)
             .Include(p => p.Donors)
             .AsQueryable();
 
@@ -444,9 +438,6 @@ public class DashboardController : Controller
             SectorId = sectorId,
             DonorId = donorId,
             Projects = projectList,
-            Regions = _context.Regions
-                .Select(r => new SelectListItem { Value = r.Code.ToString(), Text = r.Name })
-                .ToList(),
             Sectors = _context.Sectors
                 .Select(s => new SelectListItem { Value = s.Code.ToString(), Text = s.Name })
                 .ToList(),
@@ -465,9 +456,6 @@ public class DashboardController : Controller
             .Include(p => p.Measures)
             .ThenInclude(m => m.Indicator)
             .AsQueryable();
-
-        if (regionId.HasValue)
-            projectsQuery = projectsQuery.Where(p => p.Regions.Any(s => s.Code == regionId.Value));
 
         //To check
         if (sectorId.HasValue)
@@ -506,11 +494,6 @@ public class DashboardController : Controller
             RegionId = regionId,
             SectorId = sectorId,
             DonorId = donorId,
-            Regions = await _context.Regions.Select(r => new SelectListItem
-            {
-                Value = r.Code.ToString(),
-                Text = r.Name
-            }).ToListAsync(),
             Sectors = await _context.Sectors.Select(s => new SelectListItem
             {
                 Value = s.Code.ToString(),
