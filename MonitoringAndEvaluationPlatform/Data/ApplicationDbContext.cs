@@ -76,6 +76,11 @@ namespace MonitoringAndEvaluationPlatform.Data
                 .UsingEntity(j => j.ToTable("ProjectSectors")); // optional table name
 
             modelBuilder.Entity<Project>()
+            .HasMany(p => p.Donors)
+            .WithMany(r => r.Projects)
+            .UsingEntity(j => j.ToTable("ProjectDonors")); // optional table name
+
+            modelBuilder.Entity<Project>()
             .HasOne(p => p.Governorate)
             .WithMany()
             .HasForeignKey(p => p.GovernorateCode)

@@ -409,7 +409,7 @@ public class DashboardController : Controller
         var query = _context.Projects
             .Include(p => p.Measures)
             .Include(p => p.Regions)
-            .Include(p => p.Donor)
+            .Include(p => p.Donors)
             .AsQueryable();
 
         //// Apply filters
@@ -420,8 +420,9 @@ public class DashboardController : Controller
         //if (sectorId.HasValue)
         //    query = query.Where(p => p.SectorCode == sectorId);
 
-        if (donorId.HasValue)
-            query = query.Where(p => p.DonorCode == donorId);
+        //To Check
+        //if (donorId.HasValue)
+        //    query = query.Where(p => p.DonorCode == donorId);
 
         // Project progress list
         var projectList = query.Select(p => new ProjectProgressItem
@@ -472,8 +473,10 @@ public class DashboardController : Controller
         if (sectorId.HasValue)
             projectsQuery = projectsQuery.Where(p => p.Sectors.Any(s => s.Code == sectorId.Value));
 
+        //To check
         if (donorId.HasValue)
-            projectsQuery = projectsQuery.Where(p => p.DonorCode == donorId);
+            projectsQuery = projectsQuery.Where(p => p.Donors.Any(s => s.Code == donorId.Value));
+
 
         var projects = await projectsQuery.ToListAsync();
 

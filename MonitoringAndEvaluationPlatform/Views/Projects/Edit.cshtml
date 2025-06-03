@@ -181,13 +181,13 @@
                                         <option value="">Select Ministry</option>
                                     </select>
                                 </div>
+                               @*  To Check *@
                                 <div class="mb-3">
-                                    <label asp-for="DonorCode" class="form-label">Donor</label>
-                                    <select asp-for="DonorCode"
-                                            class="form-select"
-                                            asp-items="ViewBag.Donor">
-                                        <option value="">Select Donor</option>
+                                    <label class="form-label">Donor</label>
+                                    <select name="SelectedDonorCodes" class="form-select" asp-items="ViewBag.DonorList" multiple size="4">
+                                        <option disabled>Select one or more donor</option>
                                     </select>
+                                    <small class="text-muted">Hold Ctrl/Cmd to select multiple donor</small>
                                 </div>
                             </div>
                         </div>

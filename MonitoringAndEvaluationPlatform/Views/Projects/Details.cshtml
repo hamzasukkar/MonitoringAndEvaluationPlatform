@@ -83,7 +83,14 @@
                             <dd class="col-sm-8">@Html.DisplayFor(model => model.SuperVisor.Name)</dd>
 
                             <dt class="col-sm-4">Donor</dt>
-                            <dd class="col-sm-8">@Html.DisplayFor(model => model.Donor.Partner)</dd>
+                            <dd class="col-sm-8">
+                                @foreach (var donor in Model.Donors)
+                                {
+                                    <span class="badge bg-primary me-1">
+                                        <small>@donor.Partner</small>
+                                    </span>
+                                }
+                            </dd>
 
                             <dt class="col-sm-4">Start Date</dt>
                             <dd class="col-sm-8">@Model.StartDate.ToString("yyyy-MM-dd")</dd>

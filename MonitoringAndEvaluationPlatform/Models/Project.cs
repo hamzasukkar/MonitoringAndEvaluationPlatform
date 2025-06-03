@@ -11,8 +11,9 @@ namespace MonitoringAndEvaluationPlatform.Models
         public ICollection<Region> Regions { get; set; } = new List<Region>();
         public ICollection<Sector> Sectors { get; set; } = new List<Sector>();
 
-        //public int SectorCode { get; set; }
-        //public virtual Sector Sector { get; set; }
+        public ICollection<Donor> Donors { get; set; } = new List<Donor>();
+        //public int DonorCode { get; set; }
+        //public virtual Donor Donor { get; set; }
         public double EstimatedBudget { get; set; }
         public double RealBudget { get; set; }
         public int ProjectManagerCode { get; set; }
@@ -21,8 +22,7 @@ namespace MonitoringAndEvaluationPlatform.Models
         public virtual SuperVisor SuperVisor { get; set; }
         public int MinistryCode { get; set; }
         public Ministry Ministry { get; set; }
-        public int DonorCode { get; set; }
-        public virtual Donor Donor { get; set; }
+
         public DateTime StartDate { get; set; }
         public DateTime EndDate { get; set; }
         public double performance { get; set; }

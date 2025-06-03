@@ -66,11 +66,11 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 projectQuery = projectQuery.Where(p => p.Regions.Any(r => filter.SelectedRegions.Contains(r.Code)));
             }
 
-
-            if (filter.SelectedDonors.Any())
-            {
-                projectQuery = projectQuery.Where(p => filter.SelectedDonors.Contains(p.DonorCode));
-            }
+            //To Fix
+            //if (filter.SelectedDonors.Any())
+            //{
+            //    projectQuery = projectQuery.Where(p => filter.SelectedDonors.Contains(p.DonorCode));
+            //}
 
             // Finalize and assign filtered results
             filter.Projects = await projectQuery.ToListAsync();
@@ -98,7 +98,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 RealBudget = 0,
                 StartDate = DateTime.Today,
                 EndDate = DateTime.Today.AddYears(1),
-                DonorCode = donors.FirstOrDefault()?.Code ?? 0,
+                //DonorCode = donors.FirstOrDefault()?.Code ?? 0,//To Check
                 MinistryCode = ministries.FirstOrDefault()?.Code ?? 0,
                 SuperVisorCode = supervisors.FirstOrDefault()?.Code ?? 0,
                 ProjectManagerCode = projectManagers.FirstOrDefault()?.Code ?? 0,
@@ -131,7 +131,8 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             // Remove navigation property validation to avoid unnecessary errors
             ModelState.Remove(nameof(Project.ProjectManager));
             ModelState.Remove(nameof(Project.Sectors));
-            ModelState.Remove(nameof(Project.Donor));
+            //To Check
+            //ModelState.Remove(nameof(Project.Donor));
             ModelState.Remove(nameof(Project.Ministry));
             ModelState.Remove(nameof(Project.SuperVisor));
             ModelState.Remove(nameof(Project.ActionPlan));
@@ -176,6 +177,14 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                                          .Where(r => selectedSectorCodes.Contains(r.Code.ToString()))
                                          .ToList();
             project.Sectors = selectedSectors;
+
+
+            // 1) Handle donor selection from form
+            var selectedDonorCodes = Request.Form["Donors"].ToList();
+            var selectedDonors = _context.Donors
+                                         .Where(r => selectedDonorCodes.Contains(r.Code.ToString()))
+                                         .ToList();
+            project.Donors = selectedDonors;
 
             // 2) Create the ActionPlan and attach it to the new Project
             project.ActionPlan = new ActionPlan
@@ -258,7 +267,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             var project = await _context.Projects
                 .Include(p => p.ProjectManager)
                 .Include(p => p.SuperVisor)
-                .Include(p => p.Donor)
+                .Include(p => p.Donors)
                 .Include(p => p.Regions)
                 .Include(p => p.Sectors)
                 .Include(p => p.ProjectFiles)
@@ -288,6 +297,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             var project = await _context.Projects
                 .Include(p => p.Regions)
                 .Include(p => p.Sectors)
+                .Include(p => p.Donors)
                 .FirstOrDefaultAsync(p => p.ProjectID == id.Value);
 
             if (project == null) return NotFound();
@@ -337,13 +347,30 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             );
 
 
+            // Build the Donors MultiSelectList, marking the project’s existing donor codes as “selected”:
+            var allDonors = await _context.Donors.ToListAsync();
+            // Grab an array of strings (or ints) that represent the already‐assigned donors:
+            var selectedDonorCodes = project.Donors
+                                        .Select(s => s.Code)      // a collection of int
+                                        .ToList();
+
+            // When you construct the MultiSelectList, pass in that “selected” list:
+            ViewBag.DonorList = new MultiSelectList(
+                allDonors,
+                "Code",      // value field
+                "Partner",      // text field
+                selectedDonorCodes  // whichever codes should be pre‐checked
+            );
+
 
             // Stakeholders
 
             ViewBag.ProjectManager = new SelectList(await _context.ProjectManagers.ToListAsync(), "Code", "Name", project.ProjectManagerCode);
             ViewBag.SuperVisor = new SelectList(await _context.SuperVisors.ToListAsync(), "Code", "Name", project.SuperVisorCode);
             ViewBag.Ministry = new SelectList(await _context.Ministries.ToListAsync(), "Code", "MinistryName", project.MinistryCode);
-            ViewBag.Donor = new SelectList(await _context.Donors.ToListAsync(), "Code", "Partner", project.DonorCode);
+
+            //To Check
+            //ViewBag.Donor = new SelectList(await _context.Donors.ToListAsync(), "Code", "Partner", project.DonorCode);
 
             return View(project);
 
@@ -367,7 +394,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         // POST: Projects/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, Project project, List<IFormFile> UploadedFiles, List<int> SelectedSectorCodes)
+        public async Task<IActionResult> Edit(int id, Project project, List<IFormFile> UploadedFiles, List<int> SelectedSectorCodes, List<int> SelectedDonorCodes)
         {
             if (id != project.ProjectID)
                 return NotFound();
@@ -378,7 +405,8 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             ModelState.Remove(nameof(Project.Sectors));
             ModelState.Remove(nameof(Project.SuperVisor));
             ModelState.Remove(nameof(Project.Ministry));
-            ModelState.Remove(nameof(Project.Donor));
+            //To Check
+           // ModelState.Remove(nameof(Project.Donor));
             ModelState.Remove(nameof(Project.Governorate));
             ModelState.Remove(nameof(Project.District));
             ModelState.Remove(nameof(Project.SubDistrict));
@@ -388,7 +416,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             if (!ModelState.IsValid)
             {
                 // If we fail, re‑populate all ViewBag lists exactly as in GET:
-                await PopulateEditDropdowns(project, SelectedSectorCodes);
+                await PopulateEditDropdowns(project, SelectedSectorCodes, SelectedDonorCodes);
                 return View(project);
             }
 
@@ -413,7 +441,8 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             dbProject.ProjectManagerCode = project.ProjectManagerCode;
             dbProject.SuperVisorCode = project.SuperVisorCode;
             dbProject.MinistryCode = project.MinistryCode;
-            dbProject.DonorCode = project.DonorCode;
+            //To Check
+            //dbProject.DonorCode = project.DonorCode;
 
             // --- Update Regions many‑to‑many ---
             var selectedRegionCodes = Request.Form["Regions"].ToList();
@@ -435,6 +464,18 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             foreach (var sec in sectors)
             {
                 dbProject.Sectors.Add(sec);
+            }
+
+            // Now overwrite the many‐to‐many Sectors:
+            var donors = await _context.Donors
+                .Where(s => SelectedDonorCodes.Contains(s.Code))
+                .ToListAsync();
+
+            // Clear out existing ones, then assign the newly chosen list:
+            dbProject.Donors.Clear();
+            foreach (var don in donors)
+            {
+                dbProject.Donors.Add(don);
             }
 
             // --- Handle any new file uploads ---
@@ -478,7 +519,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         }
 
         // Helper to DRY‑up re‑populating dropdowns on POST failure
-        private async Task PopulateEditDropdowns(Project project, List<int> SelectedSectorCodes)
+        private async Task PopulateEditDropdowns(Project project, List<int> SelectedSectorCodes, List<int> SelectedDonorCodes)
         {
             ViewBag.Governorates = new SelectList(
                 await _context.Governorates.ToListAsync(),
@@ -509,15 +550,20 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 SelectedSectorCodes
             );
 
-            ViewBag.SectorList = new MultiSelectList(
-                await _context.Sectors.ToListAsync(),
-                "Code", "Name",
-                project.Sectors.Select(r => r.Code.ToString()));
+            var allDonors = await _context.Donors.ToListAsync();
+            ViewBag.DonorList = new MultiSelectList(
+                allDonors,
+                "Code",
+                "Partner",
+                SelectedDonorCodes
+            );
+
 
             ViewBag.ProjectManager = new SelectList(await _context.ProjectManagers.ToListAsync(), "Code", "Name", project.ProjectManagerCode);
             ViewBag.SuperVisor = new SelectList(await _context.SuperVisors.ToListAsync(), "Code", "Name", project.SuperVisorCode);
             ViewBag.Ministry = new SelectList(await _context.Ministries.ToListAsync(), "Code", "MinistryName", project.MinistryCode);
-            ViewBag.Donor = new SelectList(await _context.Donors.ToListAsync(), "Code", "Partner", project.DonorCode);
+            //To Check
+            //ViewBag.Donor = new SelectList(await _context.Donors.ToListAsync(), "Code", "Partner", project.DonorCode);
         }
 
 

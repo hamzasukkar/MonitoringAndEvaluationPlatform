@@ -6,8 +6,6 @@
 
     var startDate = DateTime.Today.ToString("yyyy-MM-dd");
     var endDate = DateTime.Today.ToString("yyyy-MM-dd");
-
-    var selectedSectorCodes = Model.Sectors?.Select(s => s.Code).ToList() ?? new List<int>();
 }
 
 <div class="container-fluid py-4">
@@ -153,7 +151,7 @@
                                     <div class="card-body">
                                         <div class="mb-3">
                                             <label class="form-label">Sectors</label>
-                                            <select name="SelectedSectorCodes" class="form-select" asp-items="ViewBag.SectorList" multiple size="4">
+                                            <select asp-for="Sectors"  class="form-select" asp-items="ViewBag.SectorList" multiple size="4">
                                                 <option disabled>Select one or more sectors</option>
                                             </select>
                                             <small class="text-muted">Hold Ctrl/Cmd to select multiple sectors</small>
@@ -179,12 +177,15 @@
                                             </select>
                                         </div>
 
+                                       @*  To Check *@
                                         <div class="mb-3">
-                                            <label asp-for="DonorCode" class="form-label">Donor</label>
-                                            <select asp-for="DonorCode" class="form-select" asp-items="ViewBag.Donor">
-                                                <option value="">Select Donor</option>
+                                            <label class="form-label">Donor</label>
+                                            <select asp-for="Donors" class="form-select" asp-items="ViewBag.Donor" multiple size="4">
+                                                <option disabled>Select one or more donor</option>
                                             </select>
+                                            <small class="text-muted">Hold Ctrl/Cmd to select multiple donor</small>
                                         </div>
+
                                     </div>
                                 </div>
 

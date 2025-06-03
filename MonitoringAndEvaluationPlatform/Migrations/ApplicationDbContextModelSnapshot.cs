@@ -22,6 +22,21 @@ namespace MonitoringAndEvaluationPlatform.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
+            modelBuilder.Entity("DonorProject", b =>
+                {
+                    b.Property<int>("DonorsCode")
+                        .HasColumnType("int");
+
+                    b.Property<int>("ProjectsProjectID")
+                        .HasColumnType("int");
+
+                    b.HasKey("DonorsCode", "ProjectsProjectID");
+
+                    b.HasIndex("ProjectsProjectID");
+
+                    b.ToTable("ProjectDonors", (string)null);
+                });
+
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>
                 {
                     b.Property<string>("Id")
@@ -752,9 +767,6 @@ namespace MonitoringAndEvaluationPlatform.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(450)");
 
-                    b.Property<int>("DonorCode")
-                        .HasColumnType("int");
-
                     b.Property<DateTime>("EndDate")
                         .HasColumnType("datetime2");
 
@@ -808,8 +820,6 @@ namespace MonitoringAndEvaluationPlatform.Migrations
                     b.HasIndex("CommunityCode");
 
                     b.HasIndex("DistrictCode");
-
-                    b.HasIndex("DonorCode");
 
                     b.HasIndex("GovernorateCode");
 
@@ -1031,6 +1041,21 @@ namespace MonitoringAndEvaluationPlatform.Migrations
                     b.ToTable("ProjectSectors", (string)null);
                 });
 
+            modelBuilder.Entity("DonorProject", b =>
+                {
+                    b.HasOne("MonitoringAndEvaluationPlatform.Models.Donor", null)
+                        .WithMany()
+                        .HasForeignKey("DonorsCode")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("MonitoringAndEvaluationPlatform.Models.Project", null)
+                        .WithMany()
+                        .HasForeignKey("ProjectsProjectID")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
                 {
                     b.HasOne("Microsoft.AspNetCore.Identity.IdentityRole", null)
@@ -1234,12 +1259,6 @@ namespace MonitoringAndEvaluationPlatform.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.HasOne("MonitoringAndEvaluationPlatform.Models.Donor", "Donor")
-                        .WithMany()
-                        .HasForeignKey("DonorCode")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
                     b.HasOne("MonitoringAndEvaluationPlatform.Models.Governorate", "Governorate")
                         .WithMany()
                         .HasForeignKey("GovernorateCode")
@@ -1273,8 +1292,6 @@ namespace MonitoringAndEvaluationPlatform.Migrations
                     b.Navigation("Community");
 
                     b.Navigation("District");
-
-                    b.Navigation("Donor");
 
                     b.Navigation("Governorate");
 
