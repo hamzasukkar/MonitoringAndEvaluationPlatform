@@ -416,8 +416,9 @@ public class DashboardController : Controller
         //if (regionId.HasValue)
         //    query = query.Where(p => p.RegionCode == regionId);
 
-        if (sectorId.HasValue)
-            query = query.Where(p => p.SectorCode == sectorId);
+       //To Check
+        //if (sectorId.HasValue)
+        //    query = query.Where(p => p.SectorCode == sectorId);
 
         if (donorId.HasValue)
             query = query.Where(p => p.DonorCode == donorId);
@@ -464,11 +465,12 @@ public class DashboardController : Controller
             .ThenInclude(m => m.Indicator)
             .AsQueryable();
 
-        //if (regionId.HasValue)
-        //    projectsQuery = projectsQuery.Where(p => p.RegionCode == regionId);
+        if (regionId.HasValue)
+            projectsQuery = projectsQuery.Where(p => p.Regions.Any(s => s.Code == regionId.Value));
 
+        //To check
         if (sectorId.HasValue)
-            projectsQuery = projectsQuery.Where(p => p.SectorCode == sectorId);
+            projectsQuery = projectsQuery.Where(p => p.Sectors.Any(s => s.Code == sectorId.Value));
 
         if (donorId.HasValue)
             projectsQuery = projectsQuery.Where(p => p.DonorCode == donorId);

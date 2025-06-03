@@ -141,15 +141,22 @@
                             <div class="card-header bg-light">
                                 <h5 class="mb-0">Stakeholders</h5>
                             </div>
-                            <div class="card-body">
+                            <div class="card-body">        
+                                <!-- Sectors Multi-select -->
                                 <div class="mb-3">
-                                    <label asp-for="SectorCode" class="form-label">Sector</label>
-                                    <select asp-for="SectorCode"
+                                    <label class="form-label">Sectors</label>
+                                    @* We do NOT use asp-for="Sectors" here; we need a plain name that the form will post back as List<int> *@
+                                    <select name="SelectedSectorCodes"
                                             class="form-select"
-                                            asp-items="ViewBag.Sector">
-                                        <option value="">Select Sector</option>
+                                            asp-items="ViewBag.SectorList"
+                                            multiple
+                                            size="4">
+                                        <option disabled>Select one or more sectors</option>
                                     </select>
+
+                                    <small class="text-muted">Hold Ctrl/Cmd to select multiple sectors</small>
                                 </div>
+
                                 <div class="mb-3">
                                     <label asp-for="ProjectManagerCode" class="form-label">Project Manager</label>
                                     <select asp-for="ProjectManagerCode"
@@ -219,7 +226,7 @@
     </div>
 </div>
 
-@section Scripts {
+
     @await Html.PartialAsync("_ValidationScriptsPartial")
 
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
@@ -289,4 +296,4 @@
             });
         })();
     </script>
-}
+

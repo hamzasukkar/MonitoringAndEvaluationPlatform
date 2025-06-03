@@ -98,17 +98,19 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 RealBudget = 0,
                 StartDate = DateTime.Today,
                 EndDate = DateTime.Today.AddYears(1),
-                DonorCode = donors.FirstOrDefault().Code,
-                SectorCode = sectors.FirstOrDefault().Code,
-                MinistryCode = ministries.FirstOrDefault().Code,
-                SuperVisorCode = supervisors.FirstOrDefault().Code,
-                ProjectManagerCode = projectManagers.FirstOrDefault().Code
+                DonorCode = donors.FirstOrDefault()?.Code ?? 0,
+                MinistryCode = ministries.FirstOrDefault()?.Code ?? 0,
+                SuperVisorCode = supervisors.FirstOrDefault()?.Code ?? 0,
+                ProjectManagerCode = projectManagers.FirstOrDefault()?.Code ?? 0,
+                Sectors = sectors.Take(1).ToList()
             };
+
+            var firstSectorCode = sectors.FirstOrDefault()?.Code;
 
             // Prepare dropdown and multiselect data
             ViewBag.Donor = new SelectList(donors, "Code", "Partner");
             ViewBag.RegionList = new MultiSelectList(regions, "Code", "Name");
-            ViewBag.Sector = new SelectList(sectors, "Code", "Name");
+            ViewBag.SectorList = new MultiSelectList(sectors, "Code", "Name", new List<int> { firstSectorCode ?? 0 });
             ViewBag.Ministry = new SelectList(ministries, "Code", "MinistryName");
             ViewBag.SuperVisor = new SelectList(supervisors, "Code", "Name");
             ViewBag.ProjectManager = new SelectList(projectManagers, "Code", "Name");
@@ -128,7 +130,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         {
             // Remove navigation property validation to avoid unnecessary errors
             ModelState.Remove(nameof(Project.ProjectManager));
-            ModelState.Remove(nameof(Project.Sector));
+            ModelState.Remove(nameof(Project.Sectors));
             ModelState.Remove(nameof(Project.Donor));
             ModelState.Remove(nameof(Project.Ministry));
             ModelState.Remove(nameof(Project.SuperVisor));
@@ -152,7 +154,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 // Re-populate ViewBag dropdowns in case of validation failure
                 ViewBag.Governorates = new SelectList(_context.Governorates, "Code", "Name");
                 ViewBag.RegionList = new MultiSelectList(_context.Regions, "Code", "Name");
-                ViewBag.Sector = new SelectList(_context.Sectors, "Code", "Name");
+                ViewBag.SectorList = new MultiSelectList(_context.Sectors, "Code", "Name");
                 ViewBag.ProjectManager = new SelectList(_context.ProjectManagers, "Code", "FullName");
                 ViewBag.SuperVisor = new SelectList(_context.SuperVisors, "Code", "FullName");
                 ViewBag.Ministry = new SelectList(_context.Ministries, "Code", "Name");
@@ -167,6 +169,13 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                                          .Where(r => selectedRegionCodes.Contains(r.Code.ToString()))
                                          .ToList();
             project.Regions = selectedRegions;
+
+            // 1) Handle sector selection from form
+            var selectedSectorCodes = Request.Form["Sectors"].ToList();
+            var selectedSectors = _context.Sectors
+                                         .Where(r => selectedSectorCodes.Contains(r.Code.ToString()))
+                                         .ToList();
+            project.Sectors = selectedSectors;
 
             // 2) Create the ActionPlan and attach it to the new Project
             project.ActionPlan = new ActionPlan
@@ -251,7 +260,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 .Include(p => p.SuperVisor)
                 .Include(p => p.Donor)
                 .Include(p => p.Regions)
-                .Include(p => p.Sector)
+                .Include(p => p.Sectors)
                 .Include(p => p.ProjectFiles)
                 .Include(p => p.Governorate)
                 .Include(p => p.District)
@@ -278,6 +287,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             // Load project + its Regions
             var project = await _context.Projects
                 .Include(p => p.Regions)
+                .Include(p => p.Sectors)
                 .FirstOrDefaultAsync(p => p.ProjectID == id.Value);
 
             if (project == null) return NotFound();
@@ -311,8 +321,25 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             var selectedRegionCodes = project.Regions.Select(r => r.Code.ToString()).ToArray();
             ViewBag.RegionList = new MultiSelectList(allRegions, "Code", "Name", selectedRegionCodes);
 
+            // Build the Sectors MultiSelectList, marking the project’s existing sector codes as “selected”:
+            var allSectors = await _context.Sectors.ToListAsync();
+            // Grab an array of strings (or ints) that represent the already‐assigned sectors:
+            var selectedSectorCodes = project.Sectors
+                                        .Select(s => s.Code)      // a collection of int
+                                        .ToList();
+
+            // When you construct the MultiSelectList, pass in that “selected” list:
+            ViewBag.SectorList = new MultiSelectList(
+                allSectors,
+                "Code",      // value field
+                "Name",      // text field
+                selectedSectorCodes  // whichever codes should be pre‐checked
+            );
+
+
+
             // Stakeholders
-            ViewBag.Sector = new SelectList(await _context.Sectors.ToListAsync(), "Code", "Name", project.SectorCode);
+
             ViewBag.ProjectManager = new SelectList(await _context.ProjectManagers.ToListAsync(), "Code", "Name", project.ProjectManagerCode);
             ViewBag.SuperVisor = new SelectList(await _context.SuperVisors.ToListAsync(), "Code", "Name", project.SuperVisorCode);
             ViewBag.Ministry = new SelectList(await _context.Ministries.ToListAsync(), "Code", "MinistryName", project.MinistryCode);
@@ -348,7 +375,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             // Remove nav‑props so EF Core won't demand them
             ModelState.Remove(nameof(Project.Regions));
             ModelState.Remove(nameof(Project.ProjectManager));
-            ModelState.Remove(nameof(Project.Sector));
+            ModelState.Remove(nameof(Project.Sectors));
             ModelState.Remove(nameof(Project.SuperVisor));
             ModelState.Remove(nameof(Project.Ministry));
             ModelState.Remove(nameof(Project.Donor));
@@ -383,8 +410,6 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             dbProject.DistrictCode = project.DistrictCode;
             dbProject.SubDistrictCode = project.SubDistrictCode;
             dbProject.CommunityCode = project.CommunityCode;
-
-            dbProject.SectorCode = project.SectorCode;
             dbProject.ProjectManagerCode = project.ProjectManagerCode;
             dbProject.SuperVisorCode = project.SuperVisorCode;
             dbProject.MinistryCode = project.MinistryCode;
@@ -399,6 +424,18 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             dbProject.Regions.Clear();
             foreach (var r in selectedRegions)
                 dbProject.Regions.Add(r);
+
+            // 1) Handle region selection from form
+            var selectedSectorCodes = Request.Form["Sectors"].ToList();
+            var selectedSectors = _context.Sectors
+                                         .Where(r => selectedSectorCodes.Contains(r.Code.ToString()))
+                                         .ToList();
+            project.Sectors = selectedSectors;
+
+
+            dbProject.Sectors.Clear();
+            foreach (var s in selectedSectors)
+                dbProject.Sectors.Add(s);
 
             // --- Handle any new file uploads ---
             if (UploadedFiles != null && UploadedFiles.Count > 0)
@@ -464,7 +501,11 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 "Code", "Name",
                 project.Regions.Select(r => r.Code.ToString()));
 
-            ViewBag.Sector = new SelectList(await _context.Sectors.ToListAsync(), "Code", "Name", project.SectorCode);
+            ViewBag.SectorList = new MultiSelectList(
+                await _context.Sectors.ToListAsync(),
+                "Code", "Name",
+                project.Sectors.Select(r => r.Code.ToString()));
+
             ViewBag.ProjectManager = new SelectList(await _context.ProjectManagers.ToListAsync(), "Code", "Name", project.ProjectManagerCode);
             ViewBag.SuperVisor = new SelectList(await _context.SuperVisors.ToListAsync(), "Code", "Name", project.SuperVisorCode);
             ViewBag.Ministry = new SelectList(await _context.Ministries.ToListAsync(), "Code", "MinistryName", project.MinistryCode);

@@ -6,6 +6,8 @@
 
     var startDate = DateTime.Today.ToString("yyyy-MM-dd");
     var endDate = DateTime.Today.ToString("yyyy-MM-dd");
+
+    var selectedSectorCodes = Model.Sectors?.Select(s => s.Code).ToList() ?? new List<int>();
 }
 
 <div class="container-fluid py-4">
@@ -147,14 +149,15 @@
                                     <div class="card-header bg-light">
                                         <h6 class="mb-0">Stakeholders</h6>
                                     </div>
+                                    <!-- Sectors -->
                                     <div class="card-body">
                                         <div class="mb-3">
-                                            <label asp-for="SectorCode" class="form-label">Sector</label>
-                                            <select asp-for="SectorCode" class="form-select" asp-items="ViewBag.Sector">
-                                                <option value="">Select Sector</option>
+                                            <label class="form-label">Sectors</label>
+                                            <select name="SelectedSectorCodes" class="form-select" asp-items="ViewBag.SectorList" multiple size="4">
+                                                <option disabled>Select one or more sectors</option>
                                             </select>
+                                            <small class="text-muted">Hold Ctrl/Cmd to select multiple sectors</small>
                                         </div>
-
                                         <div class="mb-3">
                                             <label asp-for="ProjectManagerCode" class="form-label">Project Manager</label>
                                             <select asp-for="ProjectManagerCode" class="form-select" asp-items="ViewBag.ProjectManager">
