@@ -286,7 +286,7 @@
 			const name = row.find('input[name="Name"]').val();
 
 			$.ajax({
-				url: '/LogicalFramework/EditNameInline',
+				url: '/LogicalFrameworks/EditNameInline',
 				method: 'POST',
 				data: { code: rowId, name: name },
 				success: function (response) {
