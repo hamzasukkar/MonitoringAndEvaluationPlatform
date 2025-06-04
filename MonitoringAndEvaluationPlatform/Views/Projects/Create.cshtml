@@ -163,11 +163,13 @@
                                         </div>
 
                                         <div class="mb-3">
-                                            <label asp-for="MinistryCode" class="form-label">Ministry</label>
-                                            <select asp-for="MinistryCode" class="form-select" asp-items="ViewBag.Ministry">
-                                                <option value="">Select Ministry</option>
+                                            <label class="form-label">Ministries</label>
+                                            <select asp-for="Ministries" class="form-select" asp-items="ViewBag.MinistryList" multiple size="4">
+                                                <option disabled>Select one or more ministry</option>
                                             </select>
+                                            <small class="text-muted">Hold Ctrl/Cmd to select multiple ministry</small>
                                         </div>
+     
 
                                        @*  To Check *@
                                         <div class="mb-3">

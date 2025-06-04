@@ -75,6 +75,11 @@ namespace MonitoringAndEvaluationPlatform.Data
             .UsingEntity(j => j.ToTable("ProjectDonors")); // optional table name
 
             modelBuilder.Entity<Project>()
+            .HasMany(p => p.Ministries)
+            .WithMany(r => r.Projects)
+            .UsingEntity(j => j.ToTable("ProjectMinistries")); // optional table name
+
+            modelBuilder.Entity<Project>()
             .HasOne(p => p.Governorate)
             .WithMany()
             .HasForeignKey(p => p.GovernorateCode)
@@ -100,27 +105,6 @@ namespace MonitoringAndEvaluationPlatform.Data
               .OnDelete(DeleteBehavior.Restrict);
 
             // Repeat for District, SubDistrict, and Community
-
-            //// Seed Districts
-            //modelBuilder.Entity<District>().HasData(
-            //    new District { Code = 1, Name = "Saalihia", GovernorateCode = 1 },
-            //    new District { Code = 2, Name = "Jablah", GovernorateCode = 2 },
-            //    new District { Code = 3, Name = "Masyaf", GovernorateCode = 3 }
-            //);
-
-            //// Seed SubDistricts
-            //modelBuilder.Entity<SubDistrict>().HasData(
-            //    new SubDistrict { Code = 1, Name = "Muhairen", DistrictCode = 1 },
-            //    new SubDistrict { Code = 2, Name = "Ein Elsharqiyeh", DistrictCode = 2 },
-            //    new SubDistrict { Code = 3, Name = "Jeb Ramleh", DistrictCode = 3 }
-            //);
-
-            //// Seed Communities
-            //modelBuilder.Entity<Community>().HasData(
-            //    new Community { Code = 1, Name = "Alefaif", SubDistrictCode = 1 },
-            //    new Community { Code = 2, Name = "Battara", SubDistrictCode = 2 },  
-            //    new Community { Code = 3, Name = "Alamiyeh", SubDistrictCode = 3 }
-            //);
 
         }
     }

@@ -86,35 +86,51 @@ public class MonitoringService
 
     public async Task UpdateMinistryPerformance(int projectId)
     {
-        var project = _context.Projects.Find(projectId);
-        var ministry = _context.Ministries.Find(project.MinistryCode);
+        // 1) Load the project along with its Ministries collection
+        var project = await _context.Projects
+            .Include(p => p.Ministries)
+            .FirstOrDefaultAsync(p => p.ProjectID == projectId);
 
-        double totalMinistryTarget = 0;
-        double totalMinistryReal = 0;
+        if (project == null)
+            return; // (Or throw, if you prefer)
 
-        var ministryProjects = _context.Projects.Where(p => p.MinistryCode == project.MinistryCode);
-
-        foreach (var ministryProject in ministryProjects)
+        // 2) For each ministry linked to this project, recalc performance:
+        foreach (var ministry in project.Ministries)
         {
-            foreach (var measure in ministryProject.Measures)
+            double totalMinistryTarget = 0;
+            double totalMinistryReal = 0;
+
+            // 2a) Find all projects that belong to this same ministry, and include their Measures
+            var ministryProjects = await _context.Projects
+                .Where(p => p.Ministries.Any(m => m.Code == ministry.Code))
+                .Include(p => p.Measures)
+                .ToListAsync();
+
+            // 2b) Sum up Target/Real values from each Measure on those projects
+            foreach (var ministryProject in ministryProjects)
             {
-                if (measure.ValueType==MeasureValueType.Real)
+                foreach (var measure in ministryProject.Measures)
                 {
-                    totalMinistryReal += measure.Value;
-                }
-                else if(measure.ValueType == MeasureValueType.Target)
-                {
-                    totalMinistryTarget += measure.Value;
+                    if (measure.ValueType == MeasureValueType.Real)
+                        totalMinistryReal += measure.Value;
+                    else if (measure.ValueType == MeasureValueType.Target)
+                        totalMinistryTarget += measure.Value;
                 }
             }
+
+            // 2c) Compute performance percentage (or zero if no targets)
+            ministry.IndicatorsPerformance = (totalMinistryTarget > 0)
+                ? (totalMinistryReal / totalMinistryTarget) * 100
+                : 0;
+
+            // EF Core is already tracking 'ministry' because it came in via Include(p => p.Ministries).
+            // No need to call _context.Ministries.Update(ministry) explicitly.
         }
 
-        ministry.IndicatorsPerformance = (totalMinistryTarget > 0) ? (totalMinistryReal / totalMinistryTarget) * 100 : 0;
-
-
-        _context.Update(ministry);
+        // 3) Persist all ministry changes at once
         await _context.SaveChangesAsync();
     }
+
 
     private async Task UpdateOutputPerformance(int outputCode)
     {

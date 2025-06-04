@@ -9,19 +9,14 @@ namespace MonitoringAndEvaluationPlatform.Models
         public int ProjectID { get; set; }
         public string ProjectName { get; set; }
         public ICollection<Sector> Sectors { get; set; } = new List<Sector>();
-
         public ICollection<Donor> Donors { get; set; } = new List<Donor>();
-        //public int DonorCode { get; set; }
-        //public virtual Donor Donor { get; set; }
+        public ICollection<Ministry> Ministries { get; set; } = new List<Ministry>();
         public double EstimatedBudget { get; set; }
         public double RealBudget { get; set; }
         public int ProjectManagerCode { get; set; }
         public virtual ProjectManager ProjectManager { get; set; }
         public int SuperVisorCode { get; set; }
         public virtual SuperVisor SuperVisor { get; set; }
-        public int MinistryCode { get; set; }
-        public Ministry Ministry { get; set; }
-
         public DateTime StartDate { get; set; }
         public DateTime EndDate { get; set; }
         public double performance { get; set; }

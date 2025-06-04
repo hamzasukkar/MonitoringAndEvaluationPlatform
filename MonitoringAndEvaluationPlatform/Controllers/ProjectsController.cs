@@ -50,14 +50,18 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             // If the user is associated with a Ministry, filter projects to only that Ministry
             if (user?.MinistryName != null)
             {
-                projectQuery = projectQuery.Where(p => p.Ministry.MinistryName == user.MinistryName);
+                projectQuery = projectQuery
+                    .Where(p => p.Ministries
+                                 .Any(m => m.MinistryName == user.MinistryName));
                 filter.IsMinistryUser = true;
             }
 
             // Apply additional filters
             if (filter.SelectedMinistries.Any())
             {
-                projectQuery = projectQuery.Where(p => filter.SelectedMinistries.Contains(p.MinistryCode));
+                projectQuery = projectQuery
+                    .Where(p => p.Ministries
+                                 .Any(m => filter.SelectedMinistries.Contains(m.Code)));
             }
 
 
@@ -93,18 +97,19 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 StartDate = DateTime.Today,
                 EndDate = DateTime.Today.AddYears(1),
                 //DonorCode = donors.FirstOrDefault()?.Code ?? 0,//To Check
-                MinistryCode = ministries.FirstOrDefault()?.Code ?? 0,
+                //MinistryCode = ministries.FirstOrDefault()?.Code ?? 0,
                 SuperVisorCode = supervisors.FirstOrDefault()?.Code ?? 0,
                 ProjectManagerCode = projectManagers.FirstOrDefault()?.Code ?? 0,
                 Sectors = sectors.Take(1).ToList()
             };
 
             var firstSectorCode = sectors.FirstOrDefault()?.Code;
+            var firstMinistryCode = ministries.FirstOrDefault()?.Code;
 
             // Prepare dropdown and multiselect data
             ViewBag.Donor = new SelectList(donors, "Code", "Partner");
             ViewBag.SectorList = new MultiSelectList(sectors, "Code", "Name", new List<int> { firstSectorCode ?? 0 });
-            ViewBag.Ministry = new SelectList(ministries, "Code", "MinistryName");
+            ViewBag.MinistryList = new MultiSelectList(ministries, "Code", "MinistryName", new List<int> { firstMinistryCode ?? 0 });
             ViewBag.SuperVisor = new SelectList(supervisors, "Code", "Name");
             ViewBag.ProjectManager = new SelectList(projectManagers, "Code", "Name");
             ViewBag.Governorates = new SelectList(governorates, "Code", "Name");
@@ -124,9 +129,8 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             // Remove navigation property validation to avoid unnecessary errors
             ModelState.Remove(nameof(Project.ProjectManager));
             ModelState.Remove(nameof(Project.Sectors));
-            //To Check
-            //ModelState.Remove(nameof(Project.Donor));
-            ModelState.Remove(nameof(Project.Ministry));
+            ModelState.Remove(nameof(Project.Donors));
+            ModelState.Remove(nameof(Project.Ministries));
             ModelState.Remove(nameof(Project.SuperVisor));
             ModelState.Remove(nameof(Project.ActionPlan));
             ModelState.Remove(nameof(Project.Community));
@@ -170,6 +174,13 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                                          .Where(r => selectedDonorCodes.Contains(r.Code.ToString()))
                                          .ToList();
             project.Donors = selectedDonors;
+
+            // 1) Handle donor selection from form
+            var selectedMinistryCodes = Request.Form["Ministries"].ToList();
+            var selectedMinistries = _context.Ministries
+                                         .Where(r => selectedMinistryCodes.Contains(r.Code.ToString()))
+                                         .ToList();
+            project.Ministries = selectedMinistries;
 
             // 2) Create the ActionPlan and attach it to the new Project
             project.ActionPlan = new ActionPlan
@@ -253,6 +264,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 .Include(p => p.ProjectManager)
                 .Include(p => p.SuperVisor)
                 .Include(p => p.Donors)
+                .Include(p => p.Ministries)
                 .Include(p => p.Sectors)
                 .Include(p => p.ProjectFiles)
                 .Include(p => p.Governorate)
@@ -281,6 +293,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             var project = await _context.Projects
                 .Include(p => p.Sectors)
                 .Include(p => p.Donors)
+                .Include(p => p.Ministries)
                 .FirstOrDefaultAsync(p => p.ProjectID == id.Value);
 
             if (project == null) return NotFound();
@@ -341,12 +354,27 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 selectedDonorCodes  // whichever codes should be pre‐checked
             );
 
+            // Build the Donors MultiSelectList, marking the project’s existing donor codes as “selected”:
+            var allMinistries = await _context.Ministries.ToListAsync();
+            // Grab an array of strings (or ints) that represent the already‐assigned donors:
+            var selectedMinistryCodes = project.Ministries
+                                        .Select(s => s.Code)      // a collection of int
+                                        .ToList();
+
+            // When you construct the MultiSelectList, pass in that “selected” list:
+            ViewBag.MinistryList = new MultiSelectList(
+                allMinistries,
+                "Code",      // value field
+                "MinistryName",      // text field
+                selectedMinistryCodes  // whichever codes should be pre‐checked
+            );
 
             // Stakeholders
 
             ViewBag.ProjectManager = new SelectList(await _context.ProjectManagers.ToListAsync(), "Code", "Name", project.ProjectManagerCode);
             ViewBag.SuperVisor = new SelectList(await _context.SuperVisors.ToListAsync(), "Code", "Name", project.SuperVisorCode);
-            ViewBag.Ministry = new SelectList(await _context.Ministries.ToListAsync(), "Code", "MinistryName", project.MinistryCode);
+
+
 
             //To Check
             //ViewBag.Donor = new SelectList(await _context.Donors.ToListAsync(), "Code", "Partner", project.DonorCode);
@@ -376,9 +404,9 @@ namespace MonitoringAndEvaluationPlatform.Controllers
       int id,
       Project project,
       List<IFormFile> UploadedFiles,
-      List<int> SelectedRegionCodes,
       List<int> SelectedSectorCodes,
-      List<int> SelectedDonorCodes)
+      List<int> SelectedDonorCodes,
+      List<int> selectedMinistryCodes)
         {
             if (id != project.ProjectID)
                 return NotFound();
@@ -387,7 +415,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             ModelState.Remove(nameof(Project.ProjectManager));
             ModelState.Remove(nameof(Project.Sectors));
             ModelState.Remove(nameof(Project.SuperVisor));
-            ModelState.Remove(nameof(Project.Ministry));
+            ModelState.Remove(nameof(Project.Ministries));
             ModelState.Remove(nameof(Project.Donors));       // <— Uncommented so EF doesn’t require it
             ModelState.Remove(nameof(Project.Governorate));
             ModelState.Remove(nameof(Project.District));
@@ -398,7 +426,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             if (!ModelState.IsValid)
             {
                 // If validation fails, re‐populate all dropdowns with the already‐selected codes:
-                await PopulateEditDropdowns(project, SelectedSectorCodes, SelectedDonorCodes);
+                await PopulateEditDropdowns(project, SelectedSectorCodes, SelectedDonorCodes, selectedMinistryCodes);
                 return View(project);
             }
 
@@ -406,6 +434,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             var dbProject = await _context.Projects
                 .Include(p => p.Sectors)
                 .Include(p => p.Donors)
+                .Include(p => p.Ministries)
                 .FirstOrDefaultAsync(p => p.ProjectID == id);
 
             if (dbProject == null)
@@ -424,7 +453,6 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             dbProject.CommunityCode = project.CommunityCode;
             dbProject.ProjectManagerCode = project.ProjectManagerCode;
             dbProject.SuperVisorCode = project.SuperVisorCode;
-            dbProject.MinistryCode = project.MinistryCode;
 
 
 
@@ -445,6 +473,21 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             dbProject.Donors.Clear();
             foreach (var d in donors)
                 dbProject.Donors.Add(d);
+
+
+
+            // 1) Get the complete, up-to-date list of Ministry entities to keep
+            var newMinistrySet = await _context.Ministries
+                .Where(m => selectedMinistryCodes.Contains(m.Code))
+                .ToListAsync();
+
+            // 2) Replace the collection on the tracked entity
+            dbProject.Ministries.Clear();                // remove all current links
+            foreach (var min in newMinistrySet)          // add the newly selected ones
+            {
+                dbProject.Ministries.Add(min);
+            }
+
 
             // --- Handle file uploads (unchanged) ---
             if (UploadedFiles != null && UploadedFiles.Count > 0)
@@ -488,7 +531,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
 
 
         // Helper to DRY‑up re‑populating dropdowns on POST failure
-        private async Task PopulateEditDropdowns(Project project, List<int> SelectedSectorCodes, List<int> SelectedDonorCodes)
+        private async Task PopulateEditDropdowns(Project project, List<int> SelectedSectorCodes, List<int> SelectedDonorCodes, List<int> selectedMinistryCodes)
         {
             ViewBag.Governorates = new SelectList(
                 await _context.Governorates.ToListAsync(),
@@ -523,12 +566,17 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 SelectedDonorCodes
             );
 
+            var allMinistries = await _context.Ministries.ToListAsync();
+            ViewBag.MinistryList = new MultiSelectList(
+                allMinistries,
+                "Code",
+                "MinistryName",
+                selectedMinistryCodes
+            );
+
 
             ViewBag.ProjectManager = new SelectList(await _context.ProjectManagers.ToListAsync(), "Code", "Name", project.ProjectManagerCode);
-            ViewBag.SuperVisor = new SelectList(await _context.SuperVisors.ToListAsync(), "Code", "Name", project.SuperVisorCode);
-            ViewBag.Ministry = new SelectList(await _context.Ministries.ToListAsync(), "Code", "MinistryName", project.MinistryCode);
-            //To Check
-            //ViewBag.Donor = new SelectList(await _context.Donors.ToListAsync(), "Code", "Partner", project.DonorCode);
+            ViewBag.SuperVisor = new SelectList(await _context.SuperVisors.ToListAsync(), "Code", "Name", project.SuperVisorCode);        
         }
 
 

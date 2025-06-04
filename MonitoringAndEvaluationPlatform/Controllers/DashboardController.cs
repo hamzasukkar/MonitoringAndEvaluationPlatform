@@ -33,43 +33,50 @@ public class DashboardController : Controller
                         .ThenInclude(so => so.Indicators)
                             .ThenInclude(i => i.Measures)
                                 .ThenInclude(m => m.Project)
-                                    .ThenInclude(p => p.Ministry); // include Ministry for filtering
+                                    .ThenInclude(p => p.Ministries); // include Ministry for filtering
 
         var frameworks = await frameworksQuery.ToListAsync();
 
         var result = frameworks
-            .Where(fw => frameworkCode == null || fw.Code == frameworkCode)
-            .Select(fw =>
-            {
-                var projects = fw.Outcomes
-                    .SelectMany(o => o.Outputs)
-                    .SelectMany(op => op.SubOutputs)
-                    .SelectMany(so => so.Indicators)
-                    .SelectMany(i => i.Measures)
-                    .Where(m => m.Project != null &&
-                                (ministryCode == null || m.Project.MinistryCode == ministryCode)) // filtering by ministry
-                    .Select(m => m.Project)
-                    .Distinct()
-                    .ToList();
+     .Where(fw => frameworkCode == null || fw.Code == frameworkCode)
+     .Select(fw =>
+     {
+         var projects = fw.Outcomes
+             .SelectMany(o => o.Outputs)
+             .SelectMany(op => op.SubOutputs)
+             .SelectMany(so => so.Indicators)
+             .SelectMany(i => i.Measures)
+             .Where(m => m.Project != null &&
+                         (
+                           ministryCode == null
+                           || m.Project.Ministries.Any(min => min.Code == ministryCode)
+                         )
+             )
+             .Select(m => m.Project)
+             .Distinct()
+             .ToList();
 
-                return new
-                {
-                    code = fw.Code,
-                    name = fw.Name,
-                    indicatorsPerformance = fw.IndicatorsPerformance,
-                    indicatorCount = fw.Outcomes
-                        .SelectMany(o => o.Outputs)
-                        .SelectMany(op => op.SubOutputs)
-                        .SelectMany(so => so.Indicators)
-                        .Count(),
-                    projects = projects.Select(p => new
-                    {
-                        p.ProjectID,
-                        p.ProjectName,
-                        p.performance
-                    }).ToList()
-                };
-            });
+         return new
+         {
+             code = fw.Code,
+             name = fw.Name,
+             indicatorsPerformance = fw.IndicatorsPerformance,
+             indicatorCount = fw.Outcomes
+                 .SelectMany(o => o.Outputs)
+                 .SelectMany(op => op.SubOutputs)
+                 .SelectMany(so => so.Indicators)
+                 .Count(),
+             projects = projects
+                 .Select(p => new
+                 {
+                     p.ProjectID,
+                     p.ProjectName,
+                     p.performance
+                 })
+                 .ToList()
+         };
+     });
+
 
         return Json(result);
     }
@@ -410,7 +417,7 @@ public class DashboardController : Controller
         //if (regionId.HasValue)
         //    query = query.Where(p => p.RegionCode == regionId);
 
-       //To Check
+        //To Check
         //if (sectorId.HasValue)
         //    query = query.Where(p => p.SectorCode == sectorId);
 
@@ -555,7 +562,7 @@ public class DashboardController : Controller
                     .ThenInclude(so => so.Indicators)
                         .ThenInclude(i => i.Measures)
                             .ThenInclude(m => m.Project)
-                                .ThenInclude(p => p.Ministry)
+                                .ThenInclude(p => p.Ministries)
         .Include(f => f.Outcomes)
             .ThenInclude(o => o.Outputs)
                 .ThenInclude(op => op.SubOutputs)
@@ -588,13 +595,14 @@ public class DashboardController : Controller
                 var filteredProjects = allProjects
                     .Where(p =>
                         (projectCode == null || p.ProjectID == projectCode) &&
-                        (ministryCode == null || p.MinistryCode == ministryCode) &&
+                        (ministryCode == null || p.Ministries.Any(m => m.Code == ministryCode)) &&
                         (governorateCode == null || p.GovernorateCode == governorateCode) &&
                         (districtCode == null || p.DistrictCode == districtCode) &&
                         (subDistrictCode == null || p.SubDistrictCode == subDistrictCode) &&
                         (communityCode == null || p.CommunityCode == communityCode)
                     )
                     .ToList();
+
 
                 // Determine indicatorsPerformance
                 double indicatorsPerformance;
@@ -649,25 +657,28 @@ public class DashboardController : Controller
                         .ThenInclude(so => so.Indicators)
                             .ThenInclude(i => i.Measures)
                                 .ThenInclude(m => m.Project)
-                                    .ThenInclude(p => p.Ministry)        // <— include the Ministry nav prop
+                                    .ThenInclude(p => p.Ministries)        // <— include the Ministry nav prop
             .FirstOrDefaultAsync(f => f.Code == frameworkCode);
 
         if (framework == null)
             return Json(new List<object>());
 
         var ministries = framework.Outcomes
-            .SelectMany(o => o.Outputs)
-            .SelectMany(op => op.SubOutputs)
-            .SelectMany(so => so.Indicators)
-            .SelectMany(i => i.Measures)
-            .Where(m => m.Project != null && m.Project.Ministry != null)
-            .Select(m => m.Project.Ministry)
-            .Distinct()   // remove duplicates
-            .Select(mn => new {
-                id = mn.Code,          // or your PK for Ministry
-                name = mn.MinistryName
-            })
-            .ToList();
+             .SelectMany(o => o.Outputs)
+             .SelectMany(op => op.SubOutputs)
+             .SelectMany(so => so.Indicators)
+             .SelectMany(i => i.Measures)
+             .Where(m => m.Project != null)
+             // ↓ Flatten the collection of Ministries for each project:
+             .SelectMany(m => m.Project.Ministries)
+             .Distinct()   // remove duplicates
+             .Select(mn => new
+             {
+                 id = mn.Code,         // your Ministry primary key
+                 name = mn.MinistryName
+             })
+             .ToList();
+
 
         return Json(ministries);
     }

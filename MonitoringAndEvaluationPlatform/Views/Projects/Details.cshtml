@@ -92,6 +92,16 @@
                                 }
                             </dd>
 
+                            <dt class="col-sm-4">Ministry</dt>
+                            <dd class="col-sm-8">
+                                @foreach (var donor in Model.Ministries)
+                                {
+                                    <span class="badge bg-primary me-1">
+                                        <small>@donor.MinistryName</small>
+                                    </span>
+                                }
+                            </dd>
+
                             <dt class="col-sm-4">Start Date</dt>
                             <dd class="col-sm-8">@Model.StartDate.ToString("yyyy-MM-dd")</dd>
 

@@ -22,26 +22,34 @@ namespace MonitoringAndEvaluationPlatform.Controllers
 
         public IActionResult FrameworkDashboard(List<int> selectedMinistryIds)
         {
+            // 1) Load all ministries (for the filter dropdown, etc.)
             var allMinistries = _context.Ministries.ToList();
 
+            // 2) Start from Frameworks, but now eagerly include Project.Ministries
             var frameworks = _context.Frameworks
                 .Include(f => f.Outcomes)
                     .ThenInclude(o => o.Outputs)
-                        .ThenInclude(out2 => out2.SubOutputs)
+                        .ThenInclude(outp => outp.SubOutputs)
                             .ThenInclude(so => so.Indicators)
                                 .ThenInclude(i => i.Measures)
+                                    // <-- NEW: include Project, and then its Ministries collection
                                     .ThenInclude(m => m.Project)
+                                        .ThenInclude(p => p.Ministries)
                 .AsQueryable();
 
             if (selectedMinistryIds != null && selectedMinistryIds.Any())
             {
                 frameworks = frameworks
-                    .Where(f => f.Outcomes
-                        .SelectMany(o => o.Outputs)
-                        .SelectMany(outp => outp.SubOutputs)
-                        .SelectMany(so => so.Indicators)
-                        .SelectMany(i => i.Measures)
-                        .Any(m => selectedMinistryIds.Contains(m.Project.MinistryCode)));
+                    .Where(f =>
+                        f.Outcomes
+                         .SelectMany(o => o.Outputs)
+                         .SelectMany(outp => outp.SubOutputs)
+                         .SelectMany(so => so.Indicators)
+                         .SelectMany(i => i.Measures)
+                         .Any(m =>
+                             m.Project.Ministries.Any(min => selectedMinistryIds.Contains(min.Code))
+                         )
+                    );
             }
 
             var viewModel = new FrameworkDashboardViewModel

@@ -174,6 +174,21 @@ namespace MonitoringAndEvaluationPlatform.Migrations
                     b.ToTable("AspNetUserTokens", (string)null);
                 });
 
+            modelBuilder.Entity("MinistryProject", b =>
+                {
+                    b.Property<int>("MinistriesCode")
+                        .HasColumnType("int");
+
+                    b.Property<int>("ProjectsProjectID")
+                        .HasColumnType("int");
+
+                    b.HasKey("MinistriesCode", "ProjectsProjectID");
+
+                    b.HasIndex("ProjectsProjectID");
+
+                    b.ToTable("ProjectMinistries", (string)null);
+                });
+
             modelBuilder.Entity("MonitoringAndEvaluationPlatform.Models.ActionPlan", b =>
                 {
                     b.Property<int>("Code")
@@ -786,9 +801,6 @@ namespace MonitoringAndEvaluationPlatform.Migrations
                     b.Property<double>("ImpactAssessment")
                         .HasColumnType("float");
 
-                    b.Property<int>("MinistryCode")
-                        .HasColumnType("int");
-
                     b.Property<int>("Physical")
                         .HasColumnType("int");
 
@@ -822,8 +834,6 @@ namespace MonitoringAndEvaluationPlatform.Migrations
                     b.HasIndex("DistrictCode");
 
                     b.HasIndex("GovernorateCode");
-
-                    b.HasIndex("MinistryCode");
 
                     b.HasIndex("ProjectManagerCode");
 
@@ -1072,6 +1082,21 @@ namespace MonitoringAndEvaluationPlatform.Migrations
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("MinistryProject", b =>
+                {
+                    b.HasOne("MonitoringAndEvaluationPlatform.Models.Ministry", null)
+                        .WithMany()
+                        .HasForeignKey("MinistriesCode")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("MonitoringAndEvaluationPlatform.Models.Project", null)
+                        .WithMany()
+                        .HasForeignKey("ProjectsProjectID")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
             modelBuilder.Entity("MonitoringAndEvaluationPlatform.Models.ActionPlan", b =>
                 {
                     b.HasOne("MonitoringAndEvaluationPlatform.Models.Project", "Project")
@@ -1230,12 +1255,6 @@ namespace MonitoringAndEvaluationPlatform.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.HasOne("MonitoringAndEvaluationPlatform.Models.Ministry", "Ministry")
-                        .WithMany()
-                        .HasForeignKey("MinistryCode")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
                     b.HasOne("MonitoringAndEvaluationPlatform.Models.ProjectManager", "ProjectManager")
                         .WithMany()
                         .HasForeignKey("ProjectManagerCode")
@@ -1259,8 +1278,6 @@ namespace MonitoringAndEvaluationPlatform.Migrations
                     b.Navigation("District");
 
                     b.Navigation("Governorate");
-
-                    b.Navigation("Ministry");
 
                     b.Navigation("ProjectManager");
 

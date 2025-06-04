@@ -437,7 +437,6 @@ namespace MonitoringAndEvaluationPlatform.Migrations
                     RealBudget = table.Column<double>(type: "float", nullable: false),
                     ProjectManagerCode = table.Column<int>(type: "int", nullable: false),
                     SuperVisorCode = table.Column<int>(type: "int", nullable: false),
-                    MinistryCode = table.Column<int>(type: "int", nullable: false),
                     StartDate = table.Column<DateTime>(type: "datetime2", nullable: false),
                     EndDate = table.Column<DateTime>(type: "datetime2", nullable: false),
                     performance = table.Column<double>(type: "float", nullable: false),
@@ -472,12 +471,6 @@ namespace MonitoringAndEvaluationPlatform.Migrations
                         principalTable: "Governorates",
                         principalColumn: "Code",
                         onDelete: ReferentialAction.Restrict);
-                    table.ForeignKey(
-                        name: "FK_Projects_Ministries_MinistryCode",
-                        column: x => x.MinistryCode,
-                        principalTable: "Ministries",
-                        principalColumn: "Code",
-                        onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
                         name: "FK_Projects_ProjectManagers_ProjectManagerCode",
                         column: x => x.ProjectManagerCode,
@@ -635,6 +628,30 @@ namespace MonitoringAndEvaluationPlatform.Migrations
                     table.ForeignKey(
                         name: "FK_ProjectIndicators_Projects_ProjectId",
                         column: x => x.ProjectId,
+                        principalTable: "Projects",
+                        principalColumn: "ProjectID",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "ProjectMinistries",
+                columns: table => new
+                {
+                    MinistriesCode = table.Column<int>(type: "int", nullable: false),
+                    ProjectsProjectID = table.Column<int>(type: "int", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_ProjectMinistries", x => new { x.MinistriesCode, x.ProjectsProjectID });
+                    table.ForeignKey(
+                        name: "FK_ProjectMinistries_Ministries_MinistriesCode",
+                        column: x => x.MinistriesCode,
+                        principalTable: "Ministries",
+                        principalColumn: "Code",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_ProjectMinistries_Projects_ProjectsProjectID",
+                        column: x => x.ProjectsProjectID,
                         principalTable: "Projects",
                         principalColumn: "ProjectID",
                         onDelete: ReferentialAction.Cascade);
@@ -886,6 +903,11 @@ namespace MonitoringAndEvaluationPlatform.Migrations
                 column: "ProjectId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_ProjectMinistries_ProjectsProjectID",
+                table: "ProjectMinistries",
+                column: "ProjectsProjectID");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Projects_CommunityCode",
                 table: "Projects",
                 column: "CommunityCode");
@@ -899,11 +921,6 @@ namespace MonitoringAndEvaluationPlatform.Migrations
                 name: "IX_Projects_GovernorateCode",
                 table: "Projects",
                 column: "GovernorateCode");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Projects_MinistryCode",
-                table: "Projects",
-                column: "MinistryCode");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Projects_ProjectManagerCode",
@@ -973,6 +990,9 @@ namespace MonitoringAndEvaluationPlatform.Migrations
                 name: "ProjectIndicators");
 
             migrationBuilder.DropTable(
+                name: "ProjectMinistries");
+
+            migrationBuilder.DropTable(
                 name: "ProjectSectors");
 
             migrationBuilder.DropTable(
@@ -994,6 +1014,9 @@ namespace MonitoringAndEvaluationPlatform.Migrations
                 name: "Indicators");
 
             migrationBuilder.DropTable(
+                name: "Ministries");
+
+            migrationBuilder.DropTable(
                 name: "Sectors");
 
             migrationBuilder.DropTable(
@@ -1013,9 +1036,6 @@ namespace MonitoringAndEvaluationPlatform.Migrations
 
             migrationBuilder.DropTable(
                 name: "Communities");
-
-            migrationBuilder.DropTable(
-                name: "Ministries");
 
             migrationBuilder.DropTable(
                 name: "ProjectManagers");
