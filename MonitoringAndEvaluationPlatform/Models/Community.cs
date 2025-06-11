@@ -10,5 +10,7 @@ namespace MonitoringAndEvaluationPlatform.Models
 
         public string SubDistrictCode { get; set; }
         public SubDistrict SubDistrict { get; set; }
+
+        public ICollection<Project2> project2s { get; set; } = new List<Project2>();
     }
 }

@@ -1,0 +1,111 @@
+﻿@model Project2
+@{
+    ViewBag.Title = "Create Project2";
+    var governorates = ViewBag.Governorates as List<Governorate>;
+}
+<h2>Create Project2</h2>
+
+<form asp-action="Create" method="post">
+    <label>Project Name</label>
+    <input name="ProjectName" class="form-control" />
+
+    <div id="location-selector">
+        <select id="governorate" class="form-control">
+            <option value="">-- Select Governorate --</option>
+            @foreach (var gov in governorates)
+            {
+                <option value="@gov.Code">@gov.Name</option>
+            }
+        </select>
+
+        <select id="district" class="form-control"></select>
+        <select id="subdistrict" class="form-control"></select>
+        <select id="community" class="form-control"></select>
+
+        <button type="button" id="add-location" class="btn btn-primary mt-2">Add Location</button>
+        <button type="button" id="reset-dropdowns" class="btn btn-secondary mt-2">Reset</button>
+    </div>
+
+    <ul id="selected-locations" class="mt-3"></ul>
+
+    <input type="hidden" id="location-data" name="selections" />
+
+    <button type="submit" class="btn btn-success mt-3">Save Project</button>
+</form>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+    let selections = [];
+
+    $("#governorate").change(function () {
+        $.get("/Project2/GetDistricts", { governorateCode: $(this).val() }, function (data) {
+            fillSelect("#district", data);
+            resetSelect("#subdistrict");
+            resetSelect("#community");
+        });
+    });
+
+    $("#district").change(function () {
+        $.get("/Project2/GetSubDistricts", { districtCode: $(this).val() }, function (data) {
+            fillSelect("#subdistrict", data);
+            resetSelect("#community");
+        });
+    });
+
+    $("#subdistrict").change(function () {
+        $.get("/Project2/GetCommunities", { subDistrictCode: $(this).val() }, function (data) {
+            fillSelect("#community", data);
+        });
+    });
+
+    $("#add-location").click(function () {
+        const govCode = $("#governorate").val();
+        const govName = $("#governorate option:selected").text();
+
+        const distCode = $("#district").val();
+        const distName = $("#district option:selected").text();
+
+        const subCode = $("#subdistrict").val();
+        const subName = $("#subdistrict option:selected").text();
+
+        const commCode = $("#community").val();
+        const commName = $("#community option:selected").text();
+
+        if (govCode && distCode && subCode && commCode) {
+            const item = {
+                GovernorateCode: govCode,
+                DistrictCode: distCode,
+                SubDistrictCode: subCode,
+                CommunityCode: commCode
+            };
+
+            selections.push(item);
+            $("#selected-locations").append(`<li>${govName} > ${distName} > ${subName} > ${commName}</li>`);
+            $("#location-data").val(JSON.stringify(selections));
+
+            resetDropdowns(); // Automatically reset dropdowns
+        } else {
+            alert("Please select all location levels.");
+        }
+    });
+
+    $("#reset-dropdowns").click(resetDropdowns);
+
+    function fillSelect(selector, data) {
+        let select = $(selector);
+        select.empty();
+        select.append(`<option value="">-- Select --</option>`);
+        data.forEach(x => select.append(`<option value="${x.code}">${x.name}</option>`));
+    }
+
+    function resetSelect(selector) {
+        $(selector).empty().append(`<option value="">-- Select --</option>`);
+    }
+
+    function resetDropdowns() {
+        $("#governorate").val("");
+        resetSelect("#district");
+        resetSelect("#subdistrict");
+        resetSelect("#community");
+    }
+</script>

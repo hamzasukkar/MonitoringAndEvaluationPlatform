@@ -12,5 +12,7 @@ namespace MonitoringAndEvaluationPlatform.Models
         public District District { get; set; }
 
         public ICollection<Community> Communities { get; set; } = new List<Community>();
+
+        public ICollection<Project2> project2s { get; set; } = new List<Project2>();
     }
 }
