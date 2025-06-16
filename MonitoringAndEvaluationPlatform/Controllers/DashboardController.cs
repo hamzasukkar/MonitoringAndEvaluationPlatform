@@ -569,7 +569,7 @@ public class DashboardController : Controller
                     .ThenInclude(so => so.Indicators)
                         .ThenInclude(i => i.Measures)
                             .ThenInclude(m => m.Project)
-                                .ThenInclude(p => p.Governorate)
+                                .ThenInclude(p => p.Governorates)
                                 .ThenInclude(p => p.Districts)
                                 .ThenInclude(p => p.SubDistricts)
                                 .ThenInclude(p => p.Communities);
@@ -596,10 +596,10 @@ public class DashboardController : Controller
                     .Where(p =>
                         (projectCode == null || p.ProjectID == projectCode) &&
                         (ministryCode == null || p.Ministries.Any(m => m.Code == ministryCode)) &&
-                        (governorateCode == null || p.GovernorateCode == governorateCode) &&
-                        (districtCode == null || p.DistrictCode == districtCode) &&
-                        (subDistrictCode == null || p.SubDistrictCode == subDistrictCode) &&
-                        (communityCode == null || p.CommunityCode == communityCode)
+                        (governorateCode == null || p.Governorates.Any(m => m.Code == governorateCode)) &&
+                        (districtCode == null || p.Districts.Any(m => m.Code == districtCode)) &&
+                        (subDistrictCode == null || p.SubDistricts.Any(m => m.Code == districtCode)) &&
+                        (communityCode == null || p.Communities.Any(m => m.Code == communityCode))
                     )
                     .ToList();
 

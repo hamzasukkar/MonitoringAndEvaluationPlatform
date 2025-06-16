@@ -1,10 +1,15 @@
 ﻿@model MonitoringAndEvaluationPlatform.Models.Project
-
+@using Newtonsoft.Json
 @{
     ViewData["Title"] = "Edit Project";
     Layout = "~/Views/Shared/_ProjectsLayout.cshtml";
+    var governorates = ViewBag.Governorates as List<Governorate>;
+    var selectedLocationsJson = JsonConvert.SerializeObject(ViewBag.SelectedLocations);
 }
-
+  
+<head>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
 <div class="container-fluid py-4">
     <div class="card shadow-lg">
         <div class="card-header bg-primary text-white">
@@ -70,57 +75,35 @@
                                     </div>
                                 </div>
 
+
                                 <!-- Location Hierarchy -->
                                 <h6 class="text-muted mt-4">Project Location</h6>
                                 <div class="mb-3">
-                                    <label asp-for="GovernorateCode" class="form-label">Governorate</label>
-                                    <select asp-for="GovernorateCode"
-                                            class="form-select"
-                                            asp-items="ViewBag.Governorates"
-                                            id="GovernorateCode"
-                                            required>
+                                    <select id="governorate" class="form-select">
                                         <option value="">-- Select Governorate --</option>
+                                        @foreach (var gov in governorates)
+                                        {
+                                            <option value="@gov.Code">@gov.Name</option>
+                                        }
                                     </select>
-                                    <span asp-validation-for="GovernorateCode" class="text-danger small"></span>
+
                                 </div>
                                 <div class="mb-3">
-                                    <label class="form-label">District</label>
-                                    <select asp-for="DistrictCode"
-                                            name="DistrictCode"
-                                            id="DistrictCode"
-                                            class="form-select"
-                                            required
-                                            disabled>
-                                        <option value="">-- Select District --</option>
-                                    </select>
-                                    <span asp-validation-for="DistrictCode" class="text-danger small"></span>
+                                    <select id="district" class="form-select"></select>
                                 </div>
                                 <div class="mb-3">
-                                    <label class="form-label">Sub‑District</label>
-                                    <select asp-for="SubDistrictCode"
-                                            name="SubDistrictCode"
-                                            id="SubDistrictCode"
-                                            class="form-select"
-                                            required
-                                            disabled>
-                                        <option value="">-- Select Sub‑District --</option>
-                                    </select>
-                                    <span asp-validation-for="SubDistrictCode" class="text-danger small"></span>
+                                    <select id="subdistrict" class="form-select"></select>
                                 </div>
                                 <div class="mb-3">
-                                    <label class="form-label">Community</label>
-                                    <select asp-for="CommunityCode"
-                                            name="CommunityCode"
-                                            id="CommunityCode"
-                                            class="form-select"
-                                            required
-                                            disabled>
-                                        <option value="">-- Select Community --</option>
-                                    </select>
-                                    <span asp-validation-for="CommunityCode" class="text-danger small"></span>
+                                    <select id="community" class="form-select"></select>
                                 </div>
                             </div>
                         </div>
+                        <button type="button" id="add-location" class="btn btn-primary mt-2">Add Location</button>
+                        <button type="button" id="reset-dropdowns" class="btn btn-secondary mt-2">Reset</button>
+                        <ul id="selected-locations" class="mt-3"></ul>
+
+                        <input type="hidden" id="location-data" name="selections" />
                     </div>
 
                     <!-- Right Column: Stakeholders + File Upload -->
@@ -221,71 +204,240 @@
 
     @await Html.PartialAsync("_ValidationScriptsPartial")
 
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script>
-        // Dynamic dropdowns for location hierarchy (same as Create)
-        $('#GovernorateCode').change(function () {
-            var code = $(this).val();
-            $('#DistrictCode').html('<option>Loading…</option>').prop('disabled', true);
-            $('#SubDistrictCode, #CommunityCode')
-              .html('<option value="">-- Select --</option>')
-              .prop('disabled', true);
+<script>
+    let selections = [];
 
-            if (code) {
-                $.getJSON('/Location/GetDistricts', { governorateCode: code }, function (data) {
-                    var $d = $('#DistrictCode').empty().prop('disabled', false);
-                    $d.append('<option value="">-- Select District --</option>');
-                    $.each(data, function (i, x) {
-                        $d.append(`<option value="${x.code}">${x.name}</option>`);
-                    });
-                });
-            }
+    // Cascading dropdowns
+    $("#governorate").change(function () {
+        $.get("/Projects/GetDistricts", { governorateCode: $(this).val() }, function (data) {
+            fillSelect("#district", data);
+            resetSelect("#subdistrict");
+            resetSelect("#community");
+        });
+    });
+
+    $("#district").change(function () {
+        $.get("/Projects/GetSubDistricts", { districtCode: $(this).val() }, function (data) {
+            fillSelect("#subdistrict", data);
+            resetSelect("#community");
+        });
+    });
+
+    $("#subdistrict").change(function () {
+        $.get("/Projects/GetCommunities", { subDistrictCode: $(this).val() }, function (data) {
+            fillSelect("#community", data);
+        });
+    });
+
+    // Add location
+    $("#add-location").click(function () {
+        const govCode = $("#governorate").val();
+        const govName = $("#governorate option:selected").text();
+
+        const distCode = $("#district").val();
+        const distName = $("#district option:selected").text();
+
+        const subCode = $("#subdistrict").val();
+        const subName = $("#subdistrict option:selected").text();
+
+        const commCode = $("#community").val();
+        const commName = $("#community option:selected").text();
+
+        if (!govCode || !distCode || !subCode || !commCode) {
+            showValidationMessage("Please select all location levels.");
+            return;
+        }
+
+        // Check for duplicates
+        const exists = selections.some(x =>
+            x.GovernorateCode === govCode &&
+            x.DistrictCode === distCode &&
+            x.SubDistrictCode === subCode &&
+            x.CommunityCode === commCode
+        );
+
+        if (exists) {
+            showValidationMessage("This location has already been added.");
+            return;
+        }
+
+        // Add location
+        const item = {
+            GovernorateCode: govCode,
+            DistrictCode: distCode,
+            SubDistrictCode: subCode,
+            CommunityCode: commCode
+        };
+
+        selections.push(item);
+
+        // Create list item with "Clear" button
+        const $li = $(`
+            <li class="list-group-item d-flex justify-content-between align-items-center">
+                ${govName} > ${distName} > ${subName} > ${commName}
+                <button type="button" class="btn btn-sm btn-danger btn-clear">Clear</button>
+            </li>
+        `);
+
+        // Attach remove handler
+        $li.find(".btn-clear").click(function () {
+            // Remove from selections array
+            selections = selections.filter(x =>
+                !(x.GovernorateCode === govCode &&
+                  x.DistrictCode === distCode &&
+                  x.SubDistrictCode === subCode &&
+                  x.CommunityCode === commCode)
+            );
+            // Remove from DOM
+            $li.remove();
+            // Update hidden input
+            $("#location-data").val(JSON.stringify(selections));
         });
 
-        $('#DistrictCode').change(function () {
-            var code = $(this).val();
-            $('#SubDistrictCode').html('<option>Loading…</option>').prop('disabled', true);
-            $('#CommunityCode').html('<option value="">-- Select Community --</option>').prop('disabled', true);
+        $("#selected-locations").append($li);
+        $("#location-data").val(JSON.stringify(selections));
 
-            if (code) {
-                $.getJSON('/Location/GetSubDistricts', { districtCode: code }, function (data) {
-                    var $s = $('#SubDistrictCode').empty().prop('disabled', false);
-                    $s.append('<option value="">-- Select Sub‑District --</option>');
-                    $.each(data, function (i, x) {
-                        $s.append(`<option value="${x.code}">${x.name}</option>`);
-                    });
-                });
-            }
+        resetDropdowns();
+    });
+
+    // Reset handler
+    $("#reset-dropdowns").click(resetDropdowns);
+
+    // Utility functions
+    function fillSelect(selector, data) {
+        let select = $(selector);
+        select.empty().append(`<option value="">-- Select --</option>`);
+        data.forEach(x => select.append(`<option value="${x.code}">${x.name}</option>`));
+    }
+
+    function resetSelect(selector) {
+        $(selector).empty().append(`<option value="">-- Select --</option>`);
+    }
+
+    function resetDropdowns() {
+        $("#governorate").val("");
+        resetSelect("#district");
+        resetSelect("#subdistrict");
+        resetSelect("#community");
+    }
+
+    // Validation message display
+    function showValidationMessage(message) {
+        const alertBox = $("#location-validation-alert");
+
+        if (alertBox.length === 0) {
+            $("#location-selector").after(`
+                <div id="location-validation-alert" class="alert alert-warning mt-3">${message}</div>
+            `);
+        } else {
+            alertBox.text(message).fadeIn();
+        }
+
+        setTimeout(() => $("#location-validation-alert").fadeOut(), 3000);
+    }
+</script>
+@* In the Razor view (Edit.cshtml) *@
+<script type="text/javascript">
+    // Inject the pre-selected locations into JavaScript
+    var initialSelections = @Html.Raw(selectedLocationsJson);    // Pre-fill the selections array with their code values
+    var selections2 = initialSelections.map(function(loc) {
+        return [loc.GovernorateCode, loc.DistrictCode, loc.SubDistrictCode, loc.CommunityCode];
+    });
+</script>
+
+@* <script>
+    $(function() {
+        // For each pre-selected location, add a list item
+        initialSelections.forEach(function(loc) {
+            var itemText = loc.GovernorateName + ' > ' +
+                           loc.DistrictName + ' > ' +
+                           loc.SubDistrictName + ' > ' +
+                           loc.CommunityName;
+            var $li = $('<li class="list-group-item d-flex justify-content-between align-items-center"></li>');
+            $li.text(itemText);
+            // Store the codes (optional) for reference when removing
+            $li.data('codes', [loc.GovernorateCode, loc.DistrictCode, loc.SubDistrictCode, loc.CommunityCode]);
+
+            // Create the Clear button
+            var $btn = $('<button type="button" class="btn btn-sm btn-outline-danger clear-selection">Clear</button>');
+            $li.append($btn);
+
+            // Append to the list
+            $('#selected-locations').append($li);
+        });
+         // Update the hidden input after loading all initial values
+    });
+
+    // Delegate the click event for any Clear button (so it works for dynamic items)
+    $('#selected-locations').on('click', '.clear-selection', function() {
+        var $li = $(this).closest('li');
+        // Remove the corresponding code tuple from the selections array
+        var codes = $li.data('codes');
+        var idx = selections.findIndex(function(arr) {
+            return arr.join(',') === codes.join(',');
+        });
+        if (idx > -1) selections.splice(idx, 1);
+        // Remove the list item from the DOM
+        $li.remove();
+    });
+      function updateHiddenInput() {
+        $('#location-data').val(JSON.stringify(selections));
+    }
+</script> *@
+
+<script>
+   // var selections = [];
+
+    $(function () {
+        // For each pre-selected location from the backend
+        initialSelections.forEach(function (loc) {
+            var itemText = loc.GovernorateName + ' > ' +
+                loc.DistrictName + ' > ' +
+                loc.SubDistrictName + ' > ' +
+                loc.CommunityName;
+
+            var locationObj = {
+                GovernorateCode: loc.GovernorateCode,
+                DistrictCode: loc.DistrictCode,
+                SubDistrictCode: loc.SubDistrictCode,
+                CommunityCode: loc.CommunityCode
+            };
+
+            var $li = $('<li class="list-group-item d-flex justify-content-between align-items-center"></li>');
+            $li.text(itemText);
+            $li.data('location', locationObj);
+
+            var $btn = $('<button type="button" class="btn btn-sm btn-outline-danger clear-selection">Clear</button>');
+            $li.append($btn);
+
+            $('#selected-locations').append($li);
+
+            // Push full object
+            selections.push(locationObj);
         });
 
-        $('#SubDistrictCode').change(function () {
-            var code = $(this).val();
-            $('#CommunityCode').html('<option>Loading…</option>').prop('disabled', true);
+        updateHiddenInput();
+    });
 
-            if (code) {
-                $.getJSON('/Location/GetCommunities', { subDistrictCode: code }, function (data) {
-                    var $c = $('#CommunityCode').empty().prop('disabled', false);
-                    $c.append('<option value="">-- Select Community --</option>');
-                    $.each(data, function (i, x) {
-                        $c.append(`<option value="${x.code}">${x.name}</option>`);
-                    });
-                });
-            }
+    // Remove location
+    $('#selected-locations').on('click', '.clear-selection', function () {
+        var $li = $(this).closest('li');
+        var targetLoc = $li.data('location');
+
+        // Remove from selections using a match by all codes
+        selections = selections.filter(function (loc) {
+            return !(loc.GovernorateCode === targetLoc.GovernorateCode &&
+                     loc.DistrictCode === targetLoc.DistrictCode &&
+                     loc.SubDistrictCode === targetLoc.SubDistrictCode &&
+                     loc.CommunityCode === targetLoc.CommunityCode);
         });
 
-        // Bootstrap 5 custom validation
-        (function () {
-            'use strict';
-            var forms = document.querySelectorAll('.needs-validation');
-            Array.prototype.forEach.call(forms, function (form) {
-                form.addEventListener('submit', function (e) {
-                    if (!form.checkValidity()) {
-                        e.preventDefault();
-                        e.stopPropagation();
-                    }
-                    form.classList.add('was-validated');
-                }, false);
-            });
-        })();
-    </script>
+        $li.remove();
+        updateHiddenInput();
+    });
+
+    function updateHiddenInput() {
+        $('#location-data').val(JSON.stringify(selections));
+    }
+</script>
 

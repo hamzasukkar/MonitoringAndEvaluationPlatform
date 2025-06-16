@@ -17,7 +17,6 @@ namespace MonitoringAndEvaluationPlatform.Data
         public DbSet<SubOutput> SubOutputs { get; set; } = default!;
         public DbSet<Ministry> Ministries { get; set; } = default!;
         public DbSet<Project> Projects { get; set; } = default!;
-        public DbSet<Project2> project2s { get; set; } = default!;
         public DbSet<Sector> Sectors { get; set; } = default!;
         public DbSet<Donor> Donors { get; set; } = default!;
         public DbSet<Measure> Measures { get; set; } = default!;
@@ -80,81 +79,34 @@ namespace MonitoringAndEvaluationPlatform.Data
             .WithMany(r => r.Projects)
             .UsingEntity(j => j.ToTable("ProjectMinistries")); // optional table name
 
-            modelBuilder.Entity<Project>()
-            .HasOne(p => p.Governorate)
-            .WithMany()
-            .HasForeignKey(p => p.GovernorateCode)
-            .OnDelete(DeleteBehavior.Restrict);
-
-            modelBuilder.Entity<Project>()
-            .HasOne(p => p.District)
-            .WithMany()
-            .HasForeignKey(p => p.DistrictCode)
-            .OnDelete(DeleteBehavior.Restrict);
-
-
-            modelBuilder.Entity<Project>()
-           .HasOne(p => p.SubDistrict)
-           .WithMany()
-           .HasForeignKey(p => p.SubDistrictCode)
-           .OnDelete(DeleteBehavior.Restrict);
-
-            modelBuilder.Entity<Project>()
-              .HasOne(p => p.Community)
-              .WithMany()
-              .HasForeignKey(p => p.CommunityCode)
-              .OnDelete(DeleteBehavior.Restrict);
-
             // Project <-> Governorate
-            modelBuilder.Entity<Project2>()
+            modelBuilder.Entity<Project>()
                 .HasMany(p => p.Governorates)
-                .WithMany(g => g.project2s)
+                .WithMany(g => g.projects)
                 .UsingEntity(j => j.ToTable("ProjectGovernorates"));
 
             // Project <-> District
-            modelBuilder.Entity<Project2>()
+            modelBuilder.Entity<Project>()
                 .HasMany(p => p.Districts)
-                .WithMany(d => d.project2s)
+                .WithMany(d => d.projects)
                 .UsingEntity(j => j.ToTable("ProjectDistricts"));
 
             // Project <-> SubDistrict
-            modelBuilder.Entity<Project2>()
+            modelBuilder.Entity<Project>()
                 .HasMany(p => p.SubDistricts)
-                .WithMany(s => s.project2s)
+                .WithMany(s => s.projects)
                 .UsingEntity(j => j.ToTable("ProjectSubDistricts"));
 
             // Project <-> Community
-            modelBuilder.Entity<Project2>()
+            modelBuilder.Entity<Project>()
                 .HasMany(p => p.Communities)
-                .WithMany(c => c.project2s)
+                .WithMany(c => c.projects)
                 .UsingEntity(j => j.ToTable("ProjectCommunities"));
 
-            // Repeat for District, SubDistrict, and Community
 
-            // Sample Governorate
-            modelBuilder.Entity<Governorate>().HasData(
-                new Governorate { Code = "GOV001", Name = "Governorate A" },
-                new Governorate { Code = "GOV002", Name = "Governorate B" }
-            );
 
-            // Sample Districts
-            modelBuilder.Entity<District>().HasData(
-                new District { Code = "D001", Name = "District 1", GovernorateCode = "GOV001" },
-                new District { Code = "D002", Name = "District 2", GovernorateCode = "GOV001" },
-                new District { Code = "D003", Name = "District 3", GovernorateCode = "GOV002" }
-            );
 
-            // Sample SubDistricts
-            modelBuilder.Entity<SubDistrict>().HasData(
-                new SubDistrict { Code = "SD001", Name = "SubDistrict 1", DistrictCode = "D001" },
-                new SubDistrict { Code = "SD002", Name = "SubDistrict 2", DistrictCode = "D002" }
-            );
 
-            // Sample Communities
-            modelBuilder.Entity<Community>().HasData(
-                new Community { Code = "C001", Name = "Community 1", SubDistrictCode = "SD001" },
-                new Community { Code = "C002", Name = "Community 2", SubDistrictCode = "SD002" }
-            );
 
         }
     }

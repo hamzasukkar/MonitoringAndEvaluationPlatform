@@ -6,8 +6,12 @@
 
     var startDate = DateTime.Today.ToString("yyyy-MM-dd");
     var endDate = DateTime.Today.ToString("yyyy-MM-dd");
-}
 
+    var governorates = ViewBag.Governorates as List<Governorate>;
+}
+<head>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
 <div class="container-fluid py-4">
     <div class="row">
         <div class="col-12">
@@ -47,44 +51,43 @@
                                 <!-- Location Hierarchy -->
                                 <div class="mb-4">
                                     <h6 class="mb-3 text-muted">Project Location</h6>
+                                    <div id="location-selector">
+                                
                                     <div class="mb-3">
-                                        <label asp-for="GovernorateCode" class="form-label">Governorate</label>
-                                        <select asp-for="GovernorateCode"
-                                                class="form-select"
-                                                asp-items="ViewBag.Governorates"
-                                                required>
+                                        <select id="governorate" class="form-select">
                                             <option value="">-- Select Governorate --</option>
+                                            @foreach (var gov in governorates)
+                                            {
+                                                <option value="@gov.Code">@gov.Name</option>
+                                            }
                                         </select>
-                                        <span asp-validation-for="GovernorateCode" class="text-danger small"></span>
-                                    </div>
-
-
-                                    <div class="mb-3">
-                                        <label class="form-label">District</label>
-                                        <select id="DistrictCode" name="DistrictCode" class="form-select" required disabled>
-                                            <option value="">-- Select District --</option>
-                                        </select>
-                                        <span asp-validation-for="DistrictCode" class="text-danger small"></span>
                                     </div>
 
                                     <div class="mb-3">
-                                        <label class="form-label">Sub-District</label>
-                                        <select id="SubDistrictCode" name="SubDistrictCode" class="form-select" required disabled>
-                                            <option value="">-- Select Sub-District --</option>
-                                        </select>
-                                        <span asp-validation-for="SubDistrictCode" class="text-danger small"></span>
+                                        <select id="district" class="form-select"></select>
                                     </div>
 
                                     <div class="mb-3">
-                                        <label class="form-label">Community</label>
-                                        <select id="CommunityCode" name="CommunityCode" class="form-select" required disabled>
-                                            <option value="">-- Select Community --</option>
-                                        </select>
-                                        <span asp-validation-for="CommunityCode" class="text-danger small"></span>
+                                        <select id="subdistrict" class="form-select"></select>
                                     </div>
+
+                                    <div class="mb-3">
+                                        <select id="community" class="form-select"></select>
+                                    </div>
+                                    </div>
+                                    <button type="button" id="add-location" class="btn btn-primary mt-2">Add Location</button>
+                                    <button type="button" id="reset-dropdowns" class="btn btn-secondary mt-2">Reset</button>
+                                    <ul id="selected-locations" class="mt-3"></ul>
+
+                                    <input type="hidden" id="location-data" name="selections" />
+                                    <div id="location-validation-alert" style="display:none;" class="alert alert-warning mt-3"></div>
                                 </div>
 
+                                   
 
+                                
+                                    
+                                   
                                 <!-- Dates -->
                                 <div class="mb-4">
                                     <h6 class="mb-3 text-muted">Project Timeline</h6>
@@ -215,89 +218,136 @@
 </div>
 
 <partial name="_ValidationScriptsPartial" />
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
 <script>
-    $(document).ready(function() {
-        // Enable district dropdown when governorate is selected
-        $('#GovernorateCode').change(function() {
-            var governorateCode = $(this).val();
-            var $districtDropdown = $('#DistrictCode');
+    let selections = [];
 
-            $districtDropdown.html('<option value="">Loading...</option>').prop('disabled', true);
-            $('#SubDistrictCode').html('<option value="">-- Select Sub-District --</option>').prop('disabled', true);
-            $('#CommunityCode').html('<option value="">-- Select Community --</option>').prop('disabled', true);
-
-            if (governorateCode) {
-                $.getJSON('/Location/GetDistricts', { governorateCode: governorateCode }, function(data) {
-                    $districtDropdown.html('<option value="">-- Select District --</option>');
-                    $.each(data, function(i, item) {
-                        $districtDropdown.append($('<option>', {
-                            value: item.code,
-                            text: item.name
-                        }));
-                    });
-                    $districtDropdown.prop('disabled', false);
-                }).fail(function() {
-                    $districtDropdown.html('<option value="">Error loading districts</option>');
-                });
-            }
-        });
-
-        // Enable sub-district dropdown when district is selected
-        $('#DistrictCode').change(function() {
-            var districtCode = $(this).val();
-            var $subDistrictDropdown = $('#SubDistrictCode');
-
-            $subDistrictDropdown.html('<option value="">Loading...</option>').prop('disabled', true);
-            $('#CommunityCode').html('<option value="">-- Select Community --</option>').prop('disabled', true);
-
-            if (districtCode) {
-                $.getJSON('/Location/GetSubDistricts', { districtCode: districtCode }, function(data) {
-                    $subDistrictDropdown.html('<option value="">-- Select Sub-District --</option>');
-                    $.each(data, function(i, item) {
-                        $subDistrictDropdown.append($('<option>', {
-                            value: item.code,
-                            text: item.name
-                        }));
-                    });
-                    $subDistrictDropdown.prop('disabled', false);
-                }).fail(function() {
-                    $subDistrictDropdown.html('<option value="">Error loading sub-districts</option>');
-                });
-            }
-        });
-
-        // Enable community dropdown when sub-district is selected
-        $('#SubDistrictCode').change(function() {
-            var subDistrictCode = $(this).val();
-            var $communityDropdown = $('#CommunityCode');
-
-            $communityDropdown.html('<option value="">Loading...</option>').prop('disabled', true);
-
-            if (subDistrictCode) {
-                $.getJSON('/Location/GetCommunities', { subDistrictCode: subDistrictCode }, function(data) {
-                    $communityDropdown.html('<option value="">-- Select Community --</option>');
-                    $.each(data, function(i, item) {
-                        $communityDropdown.append($('<option>', {
-                            value: item.code,
-                            text: item.name
-                        }));
-                    });
-                    $communityDropdown.prop('disabled', false);
-                }).fail(function() {
-                    $communityDropdown.html('<option value="">Error loading communities</option>');
-                });
-            }
-        });
-
-        // Form validation
-        $('form').on('submit', function(e) {
-            if (!this.checkValidity()) {
-                e.preventDefault();
-                e.stopPropagation();
-            }
-            $(this).addClass('was-validated');
+    // Cascading dropdowns
+    $("#governorate").change(function () {
+        $.get("/Projects/GetDistricts", { governorateCode: $(this).val() }, function (data) {
+            fillSelect("#district", data);
+            resetSelect("#subdistrict");
+            resetSelect("#community");
         });
     });
-</script>
 
+    $("#district").change(function () {
+        $.get("/Projects/GetSubDistricts", { districtCode: $(this).val() }, function (data) {
+            fillSelect("#subdistrict", data);
+            resetSelect("#community");
+        });
+    });
+
+    $("#subdistrict").change(function () {
+        $.get("/Projects/GetCommunities", { subDistrictCode: $(this).val() }, function (data) {
+            fillSelect("#community", data);
+        });
+    });
+
+    // Add location
+    $("#add-location").click(function () {
+        const govCode = $("#governorate").val();
+        const govName = $("#governorate option:selected").text();
+
+        const distCode = $("#district").val();
+        const distName = $("#district option:selected").text();
+
+        const subCode = $("#subdistrict").val();
+        const subName = $("#subdistrict option:selected").text();
+
+        const commCode = $("#community").val();
+        const commName = $("#community option:selected").text();
+
+        if (!govCode || !distCode || !subCode || !commCode) {
+            showValidationMessage("Please select all location levels.");
+            return;
+        }
+
+        // Check for duplicates
+        const exists = selections.some(x =>
+            x.GovernorateCode === govCode &&
+            x.DistrictCode === distCode &&
+            x.SubDistrictCode === subCode &&
+            x.CommunityCode === commCode
+        );
+
+        if (exists) {
+            showValidationMessage("This location has already been added.");
+            return;
+        }
+
+        // Add location
+        const item = {
+            GovernorateCode: govCode,
+            DistrictCode: distCode,
+            SubDistrictCode: subCode,
+            CommunityCode: commCode
+        };
+
+        selections.push(item);
+
+        // Create list item with "Clear" button
+        const $li = $(`
+            <li class="list-group-item d-flex justify-content-between align-items-center">
+                ${govName} > ${distName} > ${subName} > ${commName}
+                <button type="button" class="btn btn-sm btn-danger btn-clear">Clear</button>
+            </li>
+        `);
+
+        // Attach remove handler
+        $li.find(".btn-clear").click(function () {
+            // Remove from selections array
+            selections = selections.filter(x =>
+                !(x.GovernorateCode === govCode &&
+                  x.DistrictCode === distCode &&
+                  x.SubDistrictCode === subCode &&
+                  x.CommunityCode === commCode)
+            );
+            // Remove from DOM
+            $li.remove();
+            // Update hidden input
+            $("#location-data").val(JSON.stringify(selections));
+        });
+
+        $("#selected-locations").append($li);
+        $("#location-data").val(JSON.stringify(selections));
+
+        resetDropdowns();
+    });
+
+    // Reset handler
+    $("#reset-dropdowns").click(resetDropdowns);
+
+    // Utility functions
+    function fillSelect(selector, data) {
+        let select = $(selector);
+        select.empty().append(`<option value="">-- Select --</option>`);
+        data.forEach(x => select.append(`<option value="${x.code}">${x.name}</option>`));
+    }
+
+    function resetSelect(selector) {
+        $(selector).empty().append(`<option value="">-- Select --</option>`);
+    }
+
+    function resetDropdowns() {
+        $("#governorate").val("");
+        resetSelect("#district");
+        resetSelect("#subdistrict");
+        resetSelect("#community");
+    }
+
+    // Validation message display
+    function showValidationMessage(message) {
+        const alertBox = $("#location-validation-alert");
+
+        if (alertBox.length === 0) {
+            $("#location-selector").after(`
+                <div id="location-validation-alert" class="alert alert-warning mt-3">${message}</div>
+            `);
+        } else {
+            alertBox.text(message).fadeIn();
+        }
+
+        setTimeout(() => $("#location-validation-alert").fadeOut(), 3000);
+    }
+</script>

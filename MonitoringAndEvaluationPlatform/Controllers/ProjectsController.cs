@@ -10,6 +10,7 @@ using MonitoringAndEvaluationPlatform.Data;
 using MonitoringAndEvaluationPlatform.Models;
 using MonitoringAndEvaluationPlatform.Services;
 using MonitoringAndEvaluationPlatform.ViewModel;
+using Newtonsoft.Json;
 
 namespace MonitoringAndEvaluationPlatform.Controllers
 {
@@ -76,6 +77,26 @@ namespace MonitoringAndEvaluationPlatform.Controllers
 
             return View(filter);
         }
+
+        // APIs for cascading
+        public JsonResult GetDistricts(string governorateCode)
+        {
+            var districts = _context.Districts.Where(d => d.GovernorateCode == governorateCode).ToList();
+            return Json(districts);
+        }
+
+        public JsonResult GetSubDistricts(string districtCode)
+        {
+            var subs = _context.SubDistricts.Where(s => s.DistrictCode == districtCode).ToList();
+            return Json(subs);
+        }
+
+        public JsonResult GetCommunities(string subDistrictCode)
+        {
+            var comms = _context.Communities.Where(c => c.SubDistrictCode == subDistrictCode).ToList();
+            return Json(comms);
+        }
+
         // GET: Programs/Create
         public IActionResult Create()
         {
@@ -85,10 +106,8 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             var ministries = _context.Ministries.ToList();
             var supervisors = _context.SuperVisors.ToList();
             var projectManagers = _context.ProjectManagers.ToList();
-            var governorates = _context.Governorates
-             .Select(g => new { g.Code, g.Name })
-             .ToList();
 
+            ViewBag.Governorates = _context.Governorates.ToList();
             // Initialize project with defaults
             var project = new Project
             {
@@ -112,20 +131,46 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             ViewBag.MinistryList = new MultiSelectList(ministries, "Code", "MinistryName", new List<int> { firstMinistryCode ?? 0 });
             ViewBag.SuperVisor = new SelectList(supervisors, "Code", "Name");
             ViewBag.ProjectManager = new SelectList(projectManagers, "Code", "Name");
-            ViewBag.Governorates = new SelectList(governorates, "Code", "Name");
 
             return View(project);
         }
 
 
         [HttpPost]
-        [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(
         Project project,
         List<IFormFile> UploadedFiles,
-        int PlansCount                // <— new parameter
+        int PlansCount,
+        string selections                // <— new parameter
     )
         {
+            // Deserialize JSON string into a list of location selection objects
+            var selectedLocations = JsonConvert.DeserializeObject<List<LocationSelectionViewModel>>(selections);
+
+            // Initialize navigation collections if necessary
+            project.Governorates = new List<Governorate>();
+            project.Districts = new List<District>();
+            project.SubDistricts = new List<SubDistrict>();
+            project.Communities = new List<Community>();
+
+            // Loop through each selection and add entities to the project
+            foreach (var sel in selectedLocations)
+            {
+                var governorate = await _context.Governorates.FindAsync(sel.GovernorateCode);
+                var district = await _context.Districts.FindAsync(sel.DistrictCode);
+                var subDistrict = await _context.SubDistricts.FindAsync(sel.SubDistrictCode);
+                var community = await _context.Communities.FindAsync(sel.CommunityCode);
+
+                if (governorate != null && !project.Governorates.Contains(governorate))
+                    project.Governorates.Add(governorate);
+                if (district != null && !project.Districts.Contains(district))
+                    project.Districts.Add(district);
+                if (subDistrict != null && !project.SubDistricts.Contains(subDistrict))
+                    project.SubDistricts.Add(subDistrict);
+                if (community != null && !project.Communities.Contains(community))
+                    project.Communities.Add(community);
+            }
+
             // Remove navigation property validation to avoid unnecessary errors
             ModelState.Remove(nameof(Project.ProjectManager));
             ModelState.Remove(nameof(Project.Sectors));
@@ -133,10 +178,10 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             ModelState.Remove(nameof(Project.Ministries));
             ModelState.Remove(nameof(Project.SuperVisor));
             ModelState.Remove(nameof(Project.ActionPlan));
-            ModelState.Remove(nameof(Project.Community));
-            ModelState.Remove(nameof(Project.District));
-            ModelState.Remove(nameof(Project.SubDistrict));
-            ModelState.Remove(nameof(Project.Governorate));
+            ModelState.Remove(nameof(Project.Communities));
+            ModelState.Remove(nameof(Project.Districts));
+            ModelState.Remove(nameof(Project.SubDistricts));
+            ModelState.Remove(nameof(Project.Governorates));
 
             if (PlansCount < 1)
             {
@@ -159,7 +204,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
 
                 return View(project);
             }
-
+            
             // 1) Handle sector selection from form
             var selectedSectorCodes = Request.Form["Sectors"].ToList();
             var selectedSectors = _context.Sectors
@@ -267,10 +312,10 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 .Include(p => p.Ministries)
                 .Include(p => p.Sectors)
                 .Include(p => p.ProjectFiles)
-                .Include(p => p.Governorate)
-                .Include(p => p.District)
-                .Include(p => p.SubDistrict)
-                .Include(p => p.Community)
+                .Include(p => p.Governorates)
+                .Include(p => p.Districts)
+                .Include(p => p.SubDistricts)
+                .Include(p => p.Communities)
                 .FirstOrDefaultAsync(m => m.ProjectID == id);
 
             if (project == null)
@@ -284,7 +329,6 @@ namespace MonitoringAndEvaluationPlatform.Controllers
 
 
         // GET: Programs/Edit/5
-        // GET: Projects/Edit/5
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null) return NotFound();
@@ -294,34 +338,28 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 .Include(p => p.Sectors)
                 .Include(p => p.Donors)
                 .Include(p => p.Ministries)
+                .Include(p => p.Communities)
+                .ThenInclude(c => c.SubDistrict)
+                .ThenInclude(sd => sd.District)
+                .ThenInclude(d => d.Governorate)
                 .FirstOrDefaultAsync(p => p.ProjectID == id.Value);
 
             if (project == null) return NotFound();
 
-            // --- Populate dropdown data ---
+            // Build a list of selection DTOs containing names and codes
+            var selectedLocations = project.Communities.Select(c => new {
+                GovernorateName = c.SubDistrict.District.Governorate.Name,
+                GovernorateCode = c.SubDistrict.District.Governorate.Code,
+                DistrictName = c.SubDistrict.District.Name,
+                DistrictCode = c.SubDistrict.District.Code,
+                SubDistrictName = c.SubDistrict.Name,
+                SubDistrictCode = c.SubDistrict.Code,
+                CommunityName = c.Name,
+                CommunityCode = c.Code
+            }).ToList();
 
-            // Governorates
-            var allGovs = await _context.Governorates.ToListAsync();
-            ViewBag.Governorates = new SelectList(allGovs, "Code", "Name", project.GovernorateCode);
-
-            // Districts under the selected governorate
-            var districts = await _context.Districts
-                .Where(d => d.GovernorateCode == project.GovernorateCode)
-                .ToListAsync();
-            ViewBag.Districts = new SelectList(districts, "Code", "Name", project.DistrictCode);
-
-            // SubDistricts under the selected district
-            var subs = await _context.SubDistricts
-                .Where(s => s.DistrictCode == project.DistrictCode)
-                .ToListAsync();
-            ViewBag.SubDistricts = new SelectList(subs, "Code", "Name", project.SubDistrictCode);
-
-            // Communities under the selected sub-district
-            var comms = await _context.Communities
-                .Where(c => c.SubDistrictCode == project.SubDistrictCode)
-                .ToListAsync();
-            ViewBag.Communities = new SelectList(comms, "Code", "Name", project.CommunityCode);
-
+            ViewBag.Governorates = _context.Governorates.ToList();
+            ViewBag.SelectedLocations = selectedLocations;
 
             // Build the Sectors MultiSelectList, marking the project’s existing sector codes as “selected”:
             var allSectors = await _context.Sectors.ToListAsync();
@@ -373,14 +411,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
 
             ViewBag.ProjectManager = new SelectList(await _context.ProjectManagers.ToListAsync(), "Code", "Name", project.ProjectManagerCode);
             ViewBag.SuperVisor = new SelectList(await _context.SuperVisors.ToListAsync(), "Code", "Name", project.SuperVisorCode);
-
-
-
-            //To Check
-            //ViewBag.Donor = new SelectList(await _context.Donors.ToListAsync(), "Code", "Partner", project.DonorCode);
-
             return View(project);
-
         }
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -401,15 +432,43 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(
-      int id,
-      Project project,
-      List<IFormFile> UploadedFiles,
-      List<int> SelectedSectorCodes,
-      List<int> SelectedDonorCodes,
-      List<int> selectedMinistryCodes)
+          int id,
+          Project project,
+          List<IFormFile> UploadedFiles,
+          List<int> SelectedSectorCodes,
+          List<int> SelectedDonorCodes,
+          List<int> selectedMinistryCodes,
+            string selections)
         {
             if (id != project.ProjectID)
                 return NotFound();
+
+            // Deserialize JSON string into a list of location selection objects
+            var selectedLocations = JsonConvert.DeserializeObject<List<LocationSelectionViewModel>>(selections);
+
+            // Initialize navigation collections if necessary
+            project.Governorates = new List<Governorate>();
+            project.Districts = new List<District>();
+            project.SubDistricts = new List<SubDistrict>();
+            project.Communities = new List<Community>();
+
+            // Loop through each selection and add entities to the project
+            foreach (var sel in selectedLocations)
+            {
+                var governorate = await _context.Governorates.FindAsync(sel.GovernorateCode);
+                var district = await _context.Districts.FindAsync(sel.DistrictCode);
+                var subDistrict = await _context.SubDistricts.FindAsync(sel.SubDistrictCode);
+                var community = await _context.Communities.FindAsync(sel.CommunityCode);
+
+                if (governorate != null && !project.Governorates.Contains(governorate))
+                    project.Governorates.Add(governorate);
+                if (district != null && !project.Districts.Contains(district))
+                    project.Districts.Add(district);
+                if (subDistrict != null && !project.SubDistricts.Contains(subDistrict))
+                    project.SubDistricts.Add(subDistrict);
+                if (community != null && !project.Communities.Contains(community))
+                    project.Communities.Add(community);
+            }
 
             // Remove nav-props so EF Core won't demand them at bind time
             ModelState.Remove(nameof(Project.ProjectManager));
@@ -417,10 +476,10 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             ModelState.Remove(nameof(Project.SuperVisor));
             ModelState.Remove(nameof(Project.Ministries));
             ModelState.Remove(nameof(Project.Donors));       // <— Uncommented so EF doesn’t require it
-            ModelState.Remove(nameof(Project.Governorate));
-            ModelState.Remove(nameof(Project.District));
-            ModelState.Remove(nameof(Project.SubDistrict));
-            ModelState.Remove(nameof(Project.Community));
+            ModelState.Remove(nameof(Project.Governorates));
+            ModelState.Remove(nameof(Project.Districts));
+            ModelState.Remove(nameof(Project.SubDistricts));
+            ModelState.Remove(nameof(Project.Communities));
             ModelState.Remove(nameof(Project.ActionPlan));
 
             if (!ModelState.IsValid)
@@ -435,6 +494,10 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 .Include(p => p.Sectors)
                 .Include(p => p.Donors)
                 .Include(p => p.Ministries)
+                .Include(p => p.Governorates)
+                .Include(p => p.Districts)
+                .Include(p => p.SubDistricts)
+                .Include(p => p.Communities)
                 .FirstOrDefaultAsync(p => p.ProjectID == id);
 
             if (dbProject == null)
@@ -447,10 +510,10 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             dbProject.EstimatedBudget = project.EstimatedBudget;
             dbProject.RealBudget = project.RealBudget;
 
-            dbProject.GovernorateCode = project.GovernorateCode;
-            dbProject.DistrictCode = project.DistrictCode;
-            dbProject.SubDistrictCode = project.SubDistrictCode;
-            dbProject.CommunityCode = project.CommunityCode;
+            dbProject.Governorates = project.Governorates;
+            dbProject.Districts = project.Districts;
+            dbProject.SubDistricts = project.SubDistricts;
+            dbProject.Communities = project.Communities;
             dbProject.ProjectManagerCode = project.ProjectManagerCode;
             dbProject.SuperVisorCode = project.SuperVisorCode;
 
@@ -533,21 +596,22 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         // Helper to DRY‑up re‑populating dropdowns on POST failure
         private async Task PopulateEditDropdowns(Project project, List<int> SelectedSectorCodes, List<int> SelectedDonorCodes, List<int> selectedMinistryCodes)
         {
-            ViewBag.Governorates = new SelectList(
-                await _context.Governorates.ToListAsync(),
-                "Code", "Name", project.GovernorateCode);
+            //To check
+            //ViewBag.Governorates = new SelectList(
+            //    await _context.Governorates.ToListAsync(),
+            //    "Code", "Name", project.GovernorateCode);
 
-            ViewBag.Districts = new SelectList(
-                await _context.Districts.Where(d => d.GovernorateCode == project.GovernorateCode).ToListAsync(),
-                "Code", "Name", project.DistrictCode);
+            //ViewBag.Districts = new SelectList(
+            //    await _context.Districts.Where(d => d.GovernorateCode == project.GovernorateCode).ToListAsync(),
+            //    "Code", "Name", project.DistrictCode);
 
-            ViewBag.SubDistricts = new SelectList(
-                await _context.SubDistricts.Where(s => s.DistrictCode == project.DistrictCode).ToListAsync(),
-                "Code", "Name", project.SubDistrictCode);
+            //ViewBag.SubDistricts = new SelectList(
+            //    await _context.SubDistricts.Where(s => s.DistrictCode == project.DistrictCode).ToListAsync(),
+            //    "Code", "Name", project.SubDistrictCode);
 
-            ViewBag.Communities = new SelectList(
-                await _context.Communities.Where(c => c.SubDistrictCode == project.SubDistrictCode).ToListAsync(),
-                "Code", "Name", project.CommunityCode);
+            //ViewBag.Communities = new SelectList(
+            //    await _context.Communities.Where(c => c.SubDistrictCode == project.SubDistrictCode).ToListAsync(),
+            //    "Code", "Name", project.CommunityCode);
 
 
             var allSectors = await _context.Sectors.ToListAsync();

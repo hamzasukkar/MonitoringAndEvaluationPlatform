@@ -123,26 +123,52 @@
                 </div>
 
                 <!-- Region Info -->
-                <div class="col-md-4">
+                  <div class="col-md-4">
                     <div class="mb-4">
                         <h5 class="border-bottom pb-2">Regions Information</h5>
                         <dl class="row">
                             <dt class="col-sm-4">Governorate</dt>
-                            <dd class="col-sm-8">@Html.DisplayFor(model => model.Governorate.Name)</dd>
+                            <dd class="col-sm-8">
+                                @foreach (var governorate in Model.Governorates)
+                                {
+                                    <span class="badge bg-primary me-1">
+                                        <small>@governorate.Name</small>
+                                    </span>
+                                }
+                            </dd>
 
                             <dt class="col-sm-4">District</dt>
-                            <dd class="col-sm-8">@Html.DisplayFor(model => model.District.Name)</dd>
+                            <dd class="col-sm-8">
+                                @foreach (var district in Model.Districts)
+                                {
+                                    <span class="badge bg-primary me-1">
+                                        <small>@district.Name</small>
+                                    </span>
+                                }
+                            </dd>
 
                             <dt class="col-sm-4">SubDistrict</dt>
-                            <dd class="col-sm-8">@Html.DisplayFor(model => model.SubDistrict.Name)</dd>
+                            <dd class="col-sm-8">
+                                @foreach (var subDistrict in Model.SubDistricts)
+                                {
+                                    <span class="badge bg-primary me-1">
+                                        <small>@subDistrict.Name</small>
+                                    </span>
+                                }
+                            </dd>
 
                             <dt class="col-sm-4">Community</dt>
-                            <dd class="col-sm-8">@Html.DisplayFor(model => model.Community.Name)</dd>
-
+                            <dd class="col-sm-8">
+                                @foreach (var community in Model.Communities)
+                                {
+                                    <span class="badge bg-primary me-1">
+                                        <small>@community.Name</small>
+                                    </span>
+                                }
+                            </dd>
                         </dl>
                     </div>
                 </div>
-
 
                 <!-- Budget Info -->
                 <div class="col-md-4">

@@ -22,6 +22,21 @@ namespace MonitoringAndEvaluationPlatform.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
+            modelBuilder.Entity("CommunityProject", b =>
+                {
+                    b.Property<string>("CommunitiesCode")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<int>("projectsProjectID")
+                        .HasColumnType("int");
+
+                    b.HasKey("CommunitiesCode", "projectsProjectID");
+
+                    b.HasIndex("projectsProjectID");
+
+                    b.ToTable("ProjectCommunities", (string)null);
+                });
+
             modelBuilder.Entity("CommunityProject2", b =>
                 {
                     b.Property<string>("CommunitiesCode")
@@ -34,7 +49,22 @@ namespace MonitoringAndEvaluationPlatform.Migrations
 
                     b.HasIndex("project2sProjectID");
 
-                    b.ToTable("ProjectCommunities", (string)null);
+                    b.ToTable("Project2Communities", (string)null);
+                });
+
+            modelBuilder.Entity("DistrictProject", b =>
+                {
+                    b.Property<string>("DistrictsCode")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<int>("projectsProjectID")
+                        .HasColumnType("int");
+
+                    b.HasKey("DistrictsCode", "projectsProjectID");
+
+                    b.HasIndex("projectsProjectID");
+
+                    b.ToTable("ProjectDistricts", (string)null);
                 });
 
             modelBuilder.Entity("DistrictProject2", b =>
@@ -49,7 +79,7 @@ namespace MonitoringAndEvaluationPlatform.Migrations
 
                     b.HasIndex("project2sProjectID");
 
-                    b.ToTable("ProjectDistricts", (string)null);
+                    b.ToTable("Project2Districts", (string)null);
                 });
 
             modelBuilder.Entity("DonorProject", b =>
@@ -67,6 +97,21 @@ namespace MonitoringAndEvaluationPlatform.Migrations
                     b.ToTable("ProjectDonors", (string)null);
                 });
 
+            modelBuilder.Entity("GovernorateProject", b =>
+                {
+                    b.Property<string>("GovernoratesCode")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<int>("projectsProjectID")
+                        .HasColumnType("int");
+
+                    b.HasKey("GovernoratesCode", "projectsProjectID");
+
+                    b.HasIndex("projectsProjectID");
+
+                    b.ToTable("ProjectGovernorates", (string)null);
+                });
+
             modelBuilder.Entity("GovernorateProject2", b =>
                 {
                     b.Property<string>("GovernoratesCode")
@@ -79,7 +124,7 @@ namespace MonitoringAndEvaluationPlatform.Migrations
 
                     b.HasIndex("project2sProjectID");
 
-                    b.ToTable("ProjectGovernorates", (string)null);
+                    b.ToTable("Project2Governorates", (string)null);
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>
@@ -367,20 +412,6 @@ namespace MonitoringAndEvaluationPlatform.Migrations
                     b.HasIndex("SubDistrictCode");
 
                     b.ToTable("Communities");
-
-                    b.HasData(
-                        new
-                        {
-                            Code = "C001",
-                            Name = "Community 1",
-                            SubDistrictCode = "SD001"
-                        },
-                        new
-                        {
-                            Code = "C002",
-                            Name = "Community 2",
-                            SubDistrictCode = "SD002"
-                        });
                 });
 
             modelBuilder.Entity("MonitoringAndEvaluationPlatform.Models.District", b =>
@@ -401,26 +432,6 @@ namespace MonitoringAndEvaluationPlatform.Migrations
                     b.HasIndex("GovernorateCode");
 
                     b.ToTable("Districts");
-
-                    b.HasData(
-                        new
-                        {
-                            Code = "D001",
-                            GovernorateCode = "GOV001",
-                            Name = "District 1"
-                        },
-                        new
-                        {
-                            Code = "D002",
-                            GovernorateCode = "GOV001",
-                            Name = "District 2"
-                        },
-                        new
-                        {
-                            Code = "D003",
-                            GovernorateCode = "GOV002",
-                            Name = "District 3"
-                        });
                 });
 
             modelBuilder.Entity("MonitoringAndEvaluationPlatform.Models.Donor", b =>
@@ -490,18 +501,6 @@ namespace MonitoringAndEvaluationPlatform.Migrations
                     b.HasKey("Code");
 
                     b.ToTable("Governorates");
-
-                    b.HasData(
-                        new
-                        {
-                            Code = "GOV001",
-                            Name = "Governorate A"
-                        },
-                        new
-                        {
-                            Code = "GOV002",
-                            Name = "Governorate B"
-                        });
                 });
 
             modelBuilder.Entity("MonitoringAndEvaluationPlatform.Models.Indicator", b =>
@@ -862,16 +861,8 @@ namespace MonitoringAndEvaluationPlatform.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ProjectID"));
 
-                    b.Property<string>("CommunityCode")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
-
                     b.Property<double>("DisbursementPerformance")
                         .HasColumnType("float");
-
-                    b.Property<string>("DistrictCode")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
 
                     b.Property<DateTime>("EndDate")
                         .HasColumnType("datetime2");
@@ -884,10 +875,6 @@ namespace MonitoringAndEvaluationPlatform.Migrations
 
                     b.Property<int>("Financial")
                         .HasColumnType("int");
-
-                    b.Property<string>("GovernorateCode")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
 
                     b.Property<double>("ImpactAssessment")
                         .HasColumnType("float");
@@ -908,10 +895,6 @@ namespace MonitoringAndEvaluationPlatform.Migrations
                     b.Property<DateTime>("StartDate")
                         .HasColumnType("datetime2");
 
-                    b.Property<string>("SubDistrictCode")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
-
                     b.Property<int>("SuperVisorCode")
                         .HasColumnType("int");
 
@@ -920,15 +903,7 @@ namespace MonitoringAndEvaluationPlatform.Migrations
 
                     b.HasKey("ProjectID");
 
-                    b.HasIndex("CommunityCode");
-
-                    b.HasIndex("DistrictCode");
-
-                    b.HasIndex("GovernorateCode");
-
                     b.HasIndex("ProjectManagerCode");
-
-                    b.HasIndex("SubDistrictCode");
 
                     b.HasIndex("SuperVisorCode");
 
@@ -1053,20 +1028,6 @@ namespace MonitoringAndEvaluationPlatform.Migrations
                     b.HasIndex("DistrictCode");
 
                     b.ToTable("SubDistricts");
-
-                    b.HasData(
-                        new
-                        {
-                            Code = "SD001",
-                            DistrictCode = "D001",
-                            Name = "SubDistrict 1"
-                        },
-                        new
-                        {
-                            Code = "SD002",
-                            DistrictCode = "D002",
-                            Name = "SubDistrict 2"
-                        });
                 });
 
             modelBuilder.Entity("MonitoringAndEvaluationPlatform.Models.SubOutput", b =>
@@ -1135,7 +1096,7 @@ namespace MonitoringAndEvaluationPlatform.Migrations
 
                     b.HasIndex("project2sProjectID");
 
-                    b.ToTable("ProjectSubDistricts", (string)null);
+                    b.ToTable("Project2SubDistricts", (string)null);
                 });
 
             modelBuilder.Entity("ProjectSector", b =>
@@ -1153,6 +1114,36 @@ namespace MonitoringAndEvaluationPlatform.Migrations
                     b.ToTable("ProjectSectors", (string)null);
                 });
 
+            modelBuilder.Entity("ProjectSubDistrict", b =>
+                {
+                    b.Property<string>("SubDistrictsCode")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<int>("projectsProjectID")
+                        .HasColumnType("int");
+
+                    b.HasKey("SubDistrictsCode", "projectsProjectID");
+
+                    b.HasIndex("projectsProjectID");
+
+                    b.ToTable("ProjectSubDistricts", (string)null);
+                });
+
+            modelBuilder.Entity("CommunityProject", b =>
+                {
+                    b.HasOne("MonitoringAndEvaluationPlatform.Models.Community", null)
+                        .WithMany()
+                        .HasForeignKey("CommunitiesCode")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("MonitoringAndEvaluationPlatform.Models.Project", null)
+                        .WithMany()
+                        .HasForeignKey("projectsProjectID")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
             modelBuilder.Entity("CommunityProject2", b =>
                 {
                     b.HasOne("MonitoringAndEvaluationPlatform.Models.Community", null)
@@ -1164,6 +1155,21 @@ namespace MonitoringAndEvaluationPlatform.Migrations
                     b.HasOne("MonitoringAndEvaluationPlatform.Models.Project2", null)
                         .WithMany()
                         .HasForeignKey("project2sProjectID")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("DistrictProject", b =>
+                {
+                    b.HasOne("MonitoringAndEvaluationPlatform.Models.District", null)
+                        .WithMany()
+                        .HasForeignKey("DistrictsCode")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("MonitoringAndEvaluationPlatform.Models.Project", null)
+                        .WithMany()
+                        .HasForeignKey("projectsProjectID")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
@@ -1194,6 +1200,21 @@ namespace MonitoringAndEvaluationPlatform.Migrations
                     b.HasOne("MonitoringAndEvaluationPlatform.Models.Project", null)
                         .WithMany()
                         .HasForeignKey("ProjectsProjectID")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("GovernorateProject", b =>
+                {
+                    b.HasOne("MonitoringAndEvaluationPlatform.Models.Governorate", null)
+                        .WithMany()
+                        .HasForeignKey("GovernoratesCode")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("MonitoringAndEvaluationPlatform.Models.Project", null)
+                        .WithMany()
+                        .HasForeignKey("projectsProjectID")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
@@ -1419,34 +1440,10 @@ namespace MonitoringAndEvaluationPlatform.Migrations
 
             modelBuilder.Entity("MonitoringAndEvaluationPlatform.Models.Project", b =>
                 {
-                    b.HasOne("MonitoringAndEvaluationPlatform.Models.Community", "Community")
-                        .WithMany()
-                        .HasForeignKey("CommunityCode")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.HasOne("MonitoringAndEvaluationPlatform.Models.District", "District")
-                        .WithMany()
-                        .HasForeignKey("DistrictCode")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.HasOne("MonitoringAndEvaluationPlatform.Models.Governorate", "Governorate")
-                        .WithMany()
-                        .HasForeignKey("GovernorateCode")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
                     b.HasOne("MonitoringAndEvaluationPlatform.Models.ProjectManager", "ProjectManager")
                         .WithMany()
                         .HasForeignKey("ProjectManagerCode")
                         .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("MonitoringAndEvaluationPlatform.Models.SubDistrict", "SubDistrict")
-                        .WithMany()
-                        .HasForeignKey("SubDistrictCode")
-                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.HasOne("MonitoringAndEvaluationPlatform.Models.SuperVisor", "SuperVisor")
@@ -1455,15 +1452,7 @@ namespace MonitoringAndEvaluationPlatform.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("Community");
-
-                    b.Navigation("District");
-
-                    b.Navigation("Governorate");
-
                     b.Navigation("ProjectManager");
-
-                    b.Navigation("SubDistrict");
 
                     b.Navigation("SuperVisor");
                 });
@@ -1546,6 +1535,21 @@ namespace MonitoringAndEvaluationPlatform.Migrations
                     b.HasOne("MonitoringAndEvaluationPlatform.Models.Sector", null)
                         .WithMany()
                         .HasForeignKey("SectorsCode")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("ProjectSubDistrict", b =>
+                {
+                    b.HasOne("MonitoringAndEvaluationPlatform.Models.SubDistrict", null)
+                        .WithMany()
+                        .HasForeignKey("SubDistrictsCode")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("MonitoringAndEvaluationPlatform.Models.Project", null)
+                        .WithMany()
+                        .HasForeignKey("projectsProjectID")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });

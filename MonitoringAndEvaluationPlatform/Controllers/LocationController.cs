@@ -32,24 +32,25 @@ namespace MonitoringAndEvaluationPlatform.Controllers
 
             return View(locations);
         }
-        public IActionResult ProjectsWithLocations()
-        {
-            var projects = _context.Projects
-                .Include(p => p.Community)
-                    .ThenInclude(c => c.SubDistrict)
-                        .ThenInclude(sd => sd.District)
-                            .ThenInclude(d => d.Governorate)
-                .Select(p => new ProjectLocationViewModel
-                {
-                    ProjectName = p.ProjectName,
-                    Community = p.Community.Name,
-                    SubDistrict = p.Community.SubDistrict.Name,
-                    District = p.Community.SubDistrict.District.Name,
-                    Governorate = p.Community.SubDistrict.District.Governorate.Name
-                }).ToList();
+       //To check
+        //public IActionResult ProjectsWithLocations()
+        //{
+        //    var projects = _context.Projects
+        //        .Include(p => p.Community)
+        //            .ThenInclude(c => c.SubDistrict)
+        //                .ThenInclude(sd => sd.District)
+        //                    .ThenInclude(d => d.Governorate)
+        //        .Select(p => new ProjectLocationViewModel
+        //        {
+        //            ProjectName = p.ProjectName,
+        //            Community = p.Community.Name,
+        //            SubDistrict = p.Community.SubDistrict.Name,
+        //            District = p.Community.SubDistrict.District.Name,
+        //            Governorate = p.Community.SubDistrict.District.Governorate.Name
+        //        }).ToList();
 
-            return View(projects);
-        }
+        //    return View(projects);
+        //}
 
 
         [HttpGet]
