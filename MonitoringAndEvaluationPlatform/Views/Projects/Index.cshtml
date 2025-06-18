@@ -281,7 +281,7 @@
         });
     }
 
-    function deleteProject(projectId) {
+     function deleteProject(projectId) {
         Swal.fire({
             title: 'Are you sure?',
             text: 'This will permanently delete the project.',
@@ -298,9 +298,10 @@
                         id: projectId,
                         __RequestVerificationToken: token
                     },
-                      success: function () {
-                        $(`#row_${projectId}`).find('.project-name').text(result.value);
-                        Swal.fire('Updated!', 'Project name has been updated.', 'success');
+                    success: function () {
+                        // Remove the row from the table
+                        $(`#row_${projectId}`).remove();
+                        Swal.fire('Deleted!', 'Project has been deleted.', 'success');
                     },
                     error: function () {
                         Swal.fire('Error', 'Failed to delete project.', 'error');

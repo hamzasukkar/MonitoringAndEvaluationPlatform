@@ -3,11 +3,6 @@
 	ViewData["Title"] = "Summary";
 	Layout = "~/Views/Shared/_DashboardLayout.cshtml";
 }
-
-<head>
-	<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
-</head>
-
 <div class="row text-center g-4 mb-4" style="padding-top: 10px;">
 	<!-- Frameworks -->
 	<div class="col-md-3">
@@ -71,7 +66,7 @@
 				<i class="bi bi-geo-alt-fill display-5 mb-2"></i>
 				<h5 class="card-title">Total Governorates</h5>
 				<h2 class="fw-bold">@Model.TotalGovernorate</h2>
-				<select id="governorateFilter" class="form-select mt-3 text-dark">
+				<select id="governorateFilter" class="form-select mt-3 text-dark" multiple>
 					<option disabled selected value="">-- Select Governorate --</option>
 					@foreach (var gov in Model.Governorates)
 					{
@@ -137,10 +132,6 @@
 <!-- Container for Gauge Charts -->
 <div id="gaugesContainer" class="row"></div>
 
-<!-- Scripts -->
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-doughnutlabel@1.0.3"></script>
-<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2"></script>
 
 <script>
 	async function loadGauges(frameworkCode = '', ministryCode = '', projectCode = '',governorateCode='',districtCoder='',subDistrictCode='',communityCode='') {
@@ -364,31 +355,31 @@
 		loadGauges(); // reload with no filters
 	});
 
-				// Governorate → District
-		  document.getElementById('governorateFilter').addEventListener('change', function() {
-		  const govCode = this.value;
-		  // Reset downstream
-		  resetDropdown('districtFilter');
-		  resetDropdown('subDistrictFilter');
-		  resetDropdown('communityFilter');
+		// 		// Governorate → District
+		//   document.getElementById('governorateFilter').addEventListener('change', function() {
+		//   const govCode = this.value;
+		//   // Reset downstream
+		//   resetDropdown('districtFilter');
+		//   resetDropdown('subDistrictFilter');
+		//   resetDropdown('communityFilter');
 
-		  // Reset count
-		  document.getElementById('districtCount').innerText = 'Total Districts: 0';
+		//   // Reset count
+		//   document.getElementById('districtCount').innerText = 'Total Districts: 0';
 
-		  if (!govCode) return;
+		//   if (!govCode) return;
 
-		  fetch(`/Dashboard/GetDistrictsByGovernorate?governorateCode=${govCode}`)
-			.then(r => r.json())
-			.then(list => {
-			  populateDropdown('districtFilter', list);
-			  // Update the count:
-			  document.getElementById('districtCount').innerText =
-				`Total Districts: ${list.length}`;
-			  // Re-enable the select now that it has items:
-			  document.getElementById('districtFilter').disabled = list.length === 0;
-			})
-			.catch(e => console.error(e));
-		});
+		//   fetch(`/Dashboard/GetDistrictsByGovernorate?governorateCode=${govCode}`)
+		// 	.then(r => r.json())
+		// 	.then(list => {
+		// 	  populateDropdown('districtFilter', list);
+		// 	  // Update the count:
+		// 	  document.getElementById('districtCount').innerText =
+		// 		`Total Districts: ${list.length}`;
+		// 	  // Re-enable the select now that it has items:
+		// 	  document.getElementById('districtFilter').disabled = list.length === 0;
+		// 	})
+		// 	.catch(e => console.error(e));
+		// });
 
 
 				// District → Sub-District
@@ -502,5 +493,30 @@
 
 			// Change your loadGauges signature and URL‐building to include these two new params.
 
+				$(document).ready(function() {
+		$('#governorateFilter').select2({
+			placeholder: "-- Select Governorate(s) --",
+			allowClear: true
+		});
+	});
+		$('#governorateFilter').on('change', function() {
+		const selectedGovCodes = $(this).val() || []; // Get selected values (empty array if none)
 
+		if (selectedGovCodes.length === 0) {
+			resetDropdown('districtFilter');
+			resetDropdown('subDistrictFilter');
+			resetDropdown('communityFilter');
+			document.getElementById('districtCount').innerText = 'Total Districts: 0';
+			return;
+		}
+			fetch(`/Dashboard/GetDistrictsByGovernorates?governorateCodes=${selectedGovCodes.join(',')}`)
+			.then(r => r.json())
+			.then(list => {
+				resetDropdown('districtFilter');
+				populateDropdown('districtFilter', list);
+				document.getElementById('districtCount').innerText = `Total Districts: ${list.length}`;
+				document.getElementById('districtFilter').disabled = list.length === 0;
+			})
+			.catch(e => console.error(e));
+	});
 </script>

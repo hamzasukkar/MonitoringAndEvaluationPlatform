@@ -295,6 +295,24 @@ public class DashboardController : Controller
     }
 
     [HttpGet]
+    public JsonResult GetDistrictsByGovernorates(string governorateCodes)
+    {
+        if (string.IsNullOrEmpty(governorateCodes))
+        {
+            return Json(new List<object>());
+        }
+
+        var codes = governorateCodes.Split(',');
+
+        var districts = _context.Districts
+            .Where(d => codes.Contains(d.GovernorateCode))
+            .Select(d => new { d.Code, d.Name })
+            .ToList();
+
+        return Json(districts);
+    }
+
+    [HttpGet]
     public JsonResult GetDistrictsByGovernorate(string governorateCode)
     {
         var list = _context.Districts
