@@ -31,46 +31,40 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         {
             return View();
         }
+        // In your controller (e.g., PlansController or ActivitiesController)
 
-        public async Task<IActionResult> ActionPlan(int? id)
+        public IActionResult ActionPlan(int id) // Or however you get your data
         {
-            ViewBag.ProjectID = id;
+            // 1. Fetch your data from the database
+            var projectActionPlan = _context.ActionPlans
+                                            .Include(ap => ap.Activities)
+                                            .ThenInclude(a => a.Plans)
+                                            .FirstOrDefault(ap => ap.ProjectID == id);
 
-            var actionPlan = await _context.ActionPlans.FirstOrDefaultAsync(ac => ac.ProjectID == id);
+            if (projectActionPlan == null) return NotFound();
 
-            if (actionPlan == null)
-            {
-                return RedirectToAction("Create"); // Redirect to Create action if no ActionPlan exists
-            }
-
-            var activities = await _context.Activities
-                .Where(ac=>ac.ActionPlanCode== actionPlan.Code)
-                .Include(a => a.Plans)
-                .ToListAsync();
-
-            if (activities.Count == 0)
-            {
-                return RedirectToAction("Create", "Activities"); // Redirect to Activities Create page
-            }
-
-            var groupedActivities = activities
-                .GroupBy(a => a.ActivityType)
-                .Select(g => new ActivityPlanViewModel
+            // 2. Map the data to your NEW ViewModel
+            var viewModel = projectActionPlan.Activities
+                .GroupBy(a => a.ActivityType.ToString()) // Group activities by type
+                .Select(group => new ActivityPlanViewModel
                 {
-                    ActivityType = g.Key.ToString(),
-                    Activities = g.Select(a => new ActivityRow
+                    ActivityType = group.Key,
+                    Activities = group.Select(activity => new ActivityRow
                     {
-                        ActivityName = a.Name,
-                        Dates = a.Plans.Select(p => p.Date).ToList(),
-                        PlannedValues = a.Plans.Select(p => p.Planned).ToList(),
-                        RealisedValues = a.Plans.Select(p => p.Realised).ToList(),
-                        TotalEstimatedCost = a.Plans.Sum(p => p.Planned), // Modify as needed
-                        TotalRealisedCost = a.Plans.Sum(p => p.Realised) // Modify as needed
+                        ActivityName = activity.Name,
+                        // This is where you populate the new 'Plans' list
+                        Plans = activity.Plans.Select(plan => new PlanDetail
+                        {
+                            PlanCode = plan.Code, // <-- The crucial ID
+                            Date = plan.Date,
+                            PlannedValue = plan.Planned,
+                            RealisedValue = plan.Realised
+                        }).ToList()
                     }).ToList()
-                })
-                .ToList();
+                }).ToList();
 
-            return View(groupedActivities);
+            ViewBag.ProjectID = id; // Pass project ID for navigation links
+            return View(viewModel);
         }
 
         // GET: ActionPlans/Details/5

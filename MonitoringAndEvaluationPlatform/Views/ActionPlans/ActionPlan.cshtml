@@ -1,48 +1,36 @@
-﻿@model List<@MonitoringAndEvaluationPlatform.ViewModel.ActivityPlanViewModel>
+﻿@model List<MonitoringAndEvaluationPlatform.ViewModel.ActivityPlanViewModel>
 @{
     ViewData["Title"] = "ActionPlan";
     Layout = "~/Views/Shared/_ProjectsLayout.cshtml";
-    int projectTotalRealisedCost = 0;
+    int projectTotalPlannedCost = 0; // For project total
+    int projectTotalRealisedCost = 0; // For project total
 }
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Financial Cost Table</title>
     <style>
-        body {
-        font-family: Arial, sans-serif;
+        /* Styles from previous answer are perfect here */
+        .editable-cell {
+            cursor: pointer;
         }
 
-        table {
-        width: 100%;
-        border-collapse: collapse;
-        margin: 20px 0;
+            .editable-cell[contenteditable="true"]:focus {
+                background-color: lightyellow;
+                outline: 2px solid #007bff;
+            }
+
+        td.saving {
+            background-color: #f0ad4e !important;
         }
 
-        th, td {
-        border: 1px solid #000;
-        padding: 8px;
-        text-align: center;
+        td.success {
+            background-color: #d4edda !important;
+            transition: background-color 1s ease-out;
         }
 
-        th {
-        background-color: #003366;
-        color: #fff;
-        }
-
-        .section-header {
-        background-color: #add8e6;
-        font-weight: bold;
-        text-align: left;
-        }
-
-        .subtotal, .total {
-        font-weight: bold;
-        }
-
-        .total {
-        background-color: #003366;
-        color: #fff;
+        td.error {
+            background-color: #f8d7da !important;
         }
     </style>
 </head>
@@ -95,14 +83,18 @@
         </div>
     </nav>
 </div>
+
 <table border="1" width="100%">
     <thead>
         <tr style="background-color: #004080; color: white;">
             <th>Activity Name</th>
             <th>Framework</th>
-            @for (int i = 1; i <= Model.Max(m => m.PlansCount); i++)
+            @if (Model.Any())
             {
-                <th>P @i</th>
+                @for (int i = 1; i <= Model.Max(m => m.PlansCount); i++)
+                {
+                    <th>P @i</th>
+                }
             }
             <th>Total Estimated Cost ($)</th>
         </tr>
@@ -110,82 +102,133 @@
     <tbody>
         @foreach (var activityGroup in Model)
         {
-            <!-- Activity Type Header -->
             <tr style="background-color: #cccccc;">
-                <td colspan="9"><strong>@activityGroup.ActivityType</strong></td>
+                <td colspan="@(3 + activityGroup.PlansCount)"><strong>@activityGroup.ActivityType</strong></td>
             </tr>
 
             @foreach (var activity in activityGroup.Activities)
             {
                 <tr>
                     <td rowspan="3">@activity.ActivityName</td>
-                    <td >Date</td> <!-- Framework Column (if needed) -->
-                    @foreach (var date in activity.Dates)
+                    <td>Date</td>
+                    @foreach (var plan in activity.Plans)
                     {
-                        <td>@date.ToString("yyyy-MM-dd")</td>
+                        <td>@plan.Date.ToString("yyyy-MM-dd")</td>
                     }
                     <td>-</td>
                 </tr>
 
                 <tr>
-                    <td>planned</td> <!-- Framework Column (if needed) -->
-                    @foreach (var planned in activity.PlannedValues)
+                    <td>planned</td>
+                    @foreach (var plan in activity.Plans)
                     {
-                        <td>@planned</td>
+                        <td class="editable-cell" contenteditable="true"
+                            data-plan-code="@plan.PlanCode"
+                            data-value-type="Planned">
+                            @plan.PlannedValue
+                        </td>
                     }
                     <td>@activity.TotalEstimatedCost</td>
                 </tr>
 
                 <tr>
-                    <td>realised</td> <!-- Framework Column (if needed) -->
-                    @foreach (var realised in activity.RealisedValues)
+                    <td>realised</td>
+                    @foreach (var plan in activity.Plans)
                     {
-                        <td>@realised</td>
+                        <td class="editable-cell" contenteditable="true"
+                            data-plan-code="@plan.PlanCode"
+                            data-value-type="Realised">
+                            @plan.RealisedValue
+                        </td>
                     }
                     <td>@activity.TotalRealisedCost</td>
-
                 </tr>
             }
 
             <tr style="font-weight: bold;">
                 <td colspan="2">Subtotal Planned</td>
-                @for (int i = 0; i < activityGroup.Activities.First().PlannedValues.Count; i++)
+                @for (int i = 0; i < activityGroup.PlansCount; i++)
                 {
-                    <td>@activityGroup.Activities.Sum(a => a.PlannedValues[i])</td>
+                    <td>@activityGroup.Activities.Sum(a => a.Plans.Count > i ? a.Plans[i].PlannedValue : 0)</td>
                 }
                 <td>@activityGroup.Activities.Sum(a => a.TotalEstimatedCost)</td>
             </tr>
-
             <tr style="font-weight: bold;">
                 <td colspan="2">Subtotal Realised</td>
-                @for (int i = 0; i < activityGroup.Activities.First().RealisedValues.Count; i++)
+                @for (int i = 0; i < activityGroup.PlansCount; i++)
                 {
-                    <td>@activityGroup.Activities.Sum(a => a.RealisedValues[i])</td>
+                    <td>@activityGroup.Activities.Sum(a => a.Plans.Count > i ? a.Plans[i].RealisedValue : 0)</td>
                 }
                 <td>@activityGroup.Activities.Sum(a => a.TotalRealisedCost)</td>
-                @{
-                    projectTotalRealisedCost +=@activityGroup.Activities.Sum(a => a.TotalRealisedCost);
-                }
             </tr>
-
+            
+           
+                projectTotalPlannedCost += activityGroup.Activities.Sum(a => a.TotalEstimatedCost);
+               projectTotalRealisedCost += activityGroup.Activities.Sum(a => a.TotalRealisedCost);
+            }
         }
 
-        <!-- Final Total Row -->
         <tr style="background-color: #004080; color: white; font-weight: bold;">
-            <td colspan="2">PROJECT TOTAL FINANCIAL COST</td>
-            @for (int i = 1; i <= Model.Max(m => m.PlansCount); i++)
-            {
-                <td>200</td> <!-- Replace with actual sum logic -->
-            }
-            <td>@projectTotalRealisedCost</td>
+            <td colspan="@(2 + (Model.Any() ? Model.Max(m=>m.PlansCount) : 0))">PROJECT TOTAL ESTIMATED COST</td>
+            <td>@projectTotalPlannedCost</td>
         </tr>
         <tr style="background-color: #004080; color: white; font-weight: bold;">
-            <td colspan="2">PROJECT TOTAL ESTIMATED COST</td>
-            @for (int i = 1; i <= Model.Max(m => m.PlansCount); i++)
-            {
-                <td>200</td> <!-- Replace with actual sum logic -->
-            }
+            <td colspan="@(2 + (Model.Any() ? Model.Max(m => m.PlansCount) : 0))">PROJECT TOTAL FINANCIAL COST</td>
             <td>@projectTotalRealisedCost</td>
         </tr>
     </tbody>
 </table>
+
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+<script>
+    $(document).ready(function () {
+        let originalValue;
+
+        // Store original value on focus
+        $('.editable-cell').on('focus', function () {
+            originalValue = $(this).text().trim();
+        });
+
+        // Process update on blur (when clicking away)
+        $('.editable-cell').on('blur', function () {
+            var cell = $(this);
+            var newValue = cell.text().trim();
+
+            // If value hasn't changed, do nothing
+            if (newValue === originalValue) {
+                return;
+            }
+
+            var planCode = cell.data('plan-code');
+            var valueType = cell.data('value-type'); // "Planned" or "Realised"
+
+            cell.removeClass('success error').addClass('saving');
+
+            $.ajax({
+                url: '@Url.Action("UpdatePlanValue", "Plans")',
+                type: 'POST',
+                data: {
+                    planCode: planCode,
+                    valueType: valueType,
+                    newValue: newValue
+                },
+                success: function (response) {
+                    if (response.success) {
+                        // Simply reload the page to get fresh data from server
+                        location.reload();
+                    } else {
+                        cell.removeClass('saving').addClass('error');
+                        cell.text(originalValue); // Revert to original value on failure
+                        alert('Error: ' + response.message);
+                    }
+                },
+                error: function () {
+                    cell.removeClass('saving').addClass('error');
+                    cell.text(originalValue); // Revert on AJAX error
+                    alert('A server error occurred. Please try again.');
+                }
+            });
+        });
+    });
+</script>
