@@ -114,19 +114,6 @@ namespace MonitoringAndEvaluationPlatform.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "project2s",
-                columns: table => new
-                {
-                    ProjectID = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    ProjectName = table.Column<string>(type: "nvarchar(max)", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_project2s", x => x.ProjectID);
-                });
-
-            migrationBuilder.CreateTable(
                 name: "ProjectManagers",
                 columns: table => new
                 {
@@ -316,30 +303,6 @@ namespace MonitoringAndEvaluationPlatform.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Project2Governorates",
-                columns: table => new
-                {
-                    GovernoratesCode = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    project2sProjectID = table.Column<int>(type: "int", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Project2Governorates", x => new { x.GovernoratesCode, x.project2sProjectID });
-                    table.ForeignKey(
-                        name: "FK_Project2Governorates_Governorates_GovernoratesCode",
-                        column: x => x.GovernoratesCode,
-                        principalTable: "Governorates",
-                        principalColumn: "Code",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_Project2Governorates_project2s_project2sProjectID",
-                        column: x => x.project2sProjectID,
-                        principalTable: "project2s",
-                        principalColumn: "ProjectID",
-                        onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
                 name: "Projects",
                 columns: table => new
                 {
@@ -398,30 +361,6 @@ namespace MonitoringAndEvaluationPlatform.Migrations
                         column: x => x.OutcomeCode,
                         principalTable: "Outcomes",
                         principalColumn: "Code",
-                        onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "Project2Districts",
-                columns: table => new
-                {
-                    DistrictsCode = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    project2sProjectID = table.Column<int>(type: "int", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Project2Districts", x => new { x.DistrictsCode, x.project2sProjectID });
-                    table.ForeignKey(
-                        name: "FK_Project2Districts_Districts_DistrictsCode",
-                        column: x => x.DistrictsCode,
-                        principalTable: "Districts",
-                        principalColumn: "Code",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_Project2Districts_project2s_project2sProjectID",
-                        column: x => x.project2sProjectID,
-                        principalTable: "project2s",
-                        principalColumn: "ProjectID",
                         onDelete: ReferentialAction.Cascade);
                 });
 
@@ -672,30 +611,6 @@ namespace MonitoringAndEvaluationPlatform.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Project2SubDistricts",
-                columns: table => new
-                {
-                    SubDistrictsCode = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    project2sProjectID = table.Column<int>(type: "int", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Project2SubDistricts", x => new { x.SubDistrictsCode, x.project2sProjectID });
-                    table.ForeignKey(
-                        name: "FK_Project2SubDistricts_SubDistricts_SubDistrictsCode",
-                        column: x => x.SubDistrictsCode,
-                        principalTable: "SubDistricts",
-                        principalColumn: "Code",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_Project2SubDistricts_project2s_project2sProjectID",
-                        column: x => x.project2sProjectID,
-                        principalTable: "project2s",
-                        principalColumn: "ProjectID",
-                        onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
                 name: "ProjectSubDistricts",
                 columns: table => new
                 {
@@ -803,30 +718,6 @@ namespace MonitoringAndEvaluationPlatform.Migrations
                         column: x => x.SubOutputCode,
                         principalTable: "SubOutputs",
                         principalColumn: "Code",
-                        onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "Project2Communities",
-                columns: table => new
-                {
-                    CommunitiesCode = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    project2sProjectID = table.Column<int>(type: "int", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Project2Communities", x => new { x.CommunitiesCode, x.project2sProjectID });
-                    table.ForeignKey(
-                        name: "FK_Project2Communities_Communities_CommunitiesCode",
-                        column: x => x.CommunitiesCode,
-                        principalTable: "Communities",
-                        principalColumn: "Code",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_Project2Communities_project2s_project2sProjectID",
-                        column: x => x.project2sProjectID,
-                        principalTable: "project2s",
-                        principalColumn: "ProjectID",
                         onDelete: ReferentialAction.Cascade);
                 });
 
@@ -1060,26 +951,6 @@ namespace MonitoringAndEvaluationPlatform.Migrations
                 column: "ActivityCode");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Project2Communities_project2sProjectID",
-                table: "Project2Communities",
-                column: "project2sProjectID");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Project2Districts_project2sProjectID",
-                table: "Project2Districts",
-                column: "project2sProjectID");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Project2Governorates_project2sProjectID",
-                table: "Project2Governorates",
-                column: "project2sProjectID");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Project2SubDistricts_project2sProjectID",
-                table: "Project2SubDistricts",
-                column: "project2sProjectID");
-
-            migrationBuilder.CreateIndex(
                 name: "IX_ProjectCommunities_projectsProjectID",
                 table: "ProjectCommunities",
                 column: "projectsProjectID");
@@ -1178,18 +1049,6 @@ namespace MonitoringAndEvaluationPlatform.Migrations
                 name: "Plans");
 
             migrationBuilder.DropTable(
-                name: "Project2Communities");
-
-            migrationBuilder.DropTable(
-                name: "Project2Districts");
-
-            migrationBuilder.DropTable(
-                name: "Project2Governorates");
-
-            migrationBuilder.DropTable(
-                name: "Project2SubDistricts");
-
-            migrationBuilder.DropTable(
                 name: "ProjectCommunities");
 
             migrationBuilder.DropTable(
@@ -1227,9 +1086,6 @@ namespace MonitoringAndEvaluationPlatform.Migrations
 
             migrationBuilder.DropTable(
                 name: "Activities");
-
-            migrationBuilder.DropTable(
-                name: "project2s");
 
             migrationBuilder.DropTable(
                 name: "Communities");

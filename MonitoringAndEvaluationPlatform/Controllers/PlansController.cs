@@ -57,7 +57,8 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 {
                     return Json(new { success = false, message = "Invalid data type specified." });
                 }
-
+                var plan = _context.Plans.Find(planCode);
+                await _planService.UpdatePlanAsync(plan);
                 await _context.SaveChangesAsync();
 
                 // Return a success response
