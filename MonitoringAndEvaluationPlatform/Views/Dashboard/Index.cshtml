@@ -339,26 +339,40 @@
 	});
 
 	$('#governorateFilter').on('change', function () {
-		const filters = getFilters();
-		loadGauges(filters.frameworkCode, filters.ministryCode, filters.projectCode, filters.governorateCode);
+	  const filters = getFilters();
+	  loadGauges(
+		filters.frameworkCode,
+		filters.ministryCode,
+		filters.projectCode,
+		filters.governorateCode
+	  );
 
-		const selectedGovCodes = $(this).val() || [];
-		if (selectedGovCodes.length === 0) {
-			resetDropdown('districtFilter');
-			resetDropdown('subDistrictFilter');
-			resetDropdown('communityFilter');
-			document.getElementById('districtCount').innerText = 'Total Districts: 0';
-			return;
-		}
-		fetch(`/Dashboard/GetDistrictsByGovernorates?governorateCodes=${selectedGovCodes.join(',')}`)
-			.then(r => r.json())
-			.then(list => {
-				//resetDropdown('districtFilter');
-				populateDropdown('districtFilter', list);
-				document.getElementById('districtCount').innerText = `Total Districts: ${list.length}`;
-				document.getElementById('districtFilter').disabled = list.length === 0;
-			})
-			.catch(e => console.error(e));
+	  const selectedGovCodes = $(this).val() || [];
+
+	  // If nothing’s selected, wipe out all the downstream selects
+	  if (selectedGovCodes.length === 0) {
+		resetDropdown('districtFilter');
+		resetDropdown('subDistrictFilter');
+		resetDropdown('communityFilter');
+		document.getElementById('districtCount').innerText = 'Total Districts: 0';
+		return;
+	  }
+
+	  // Fetch all districts for the currently selected governorates
+	  fetch(`/Dashboard/GetDistrictsByGovernorates?governorateCodes=${selectedGovCodes.join(',')}`)
+		.then((r) => r.json())
+		.then((list) => {
+		  // 1) Clear out any old districts
+		  resetDropdown('districtFilter');
+
+		  // 2) Re‐populate with exactly the set we just got back (no duplicates)
+		  populateDropdown('districtFilter', list);
+
+		  // 3) Update count and disabled state
+		  document.getElementById('districtCount').innerText = `Total Districts: ${list.length}`;
+		  document.getElementById('districtFilter').disabled = list.length === 0;
+		})
+		.catch((e) => console.error(e));
 	});
 
 	$('#districtFilter').on('change', function () {
