@@ -82,7 +82,7 @@
 			<div class="card-body">
 				<h5 class="card-title">District</h5>
 				<h2 id="districtCount" class="fw-bold">Total Districts: 0</h2>
-				<select id="districtFilter" class="form-select mt-3 text-dark" disabled>
+				<select id="districtFilter" class="form-select mt-3 text-dark" disabled multiple>
 					<option disabled selected value="">-- Select District --</option>
 				</select>
 			</div>
@@ -95,7 +95,7 @@
 			<div class="card-body">
 				<h5 class="card-title">Sub-District</h5>
 				<h2 id="subDistrictCount" class="fw-bold">Total SubDistrict:0</h2>
-				<select id="subDistrictFilter" class="form-select mt-3 text-dark" disabled>
+				<select id="subDistrictFilter" class="form-select mt-3 text-dark" disabled multiple>
 					<option disabled selected value="">-- Select Sub-District --</option>
 				</select>
 			</div>
@@ -108,7 +108,7 @@
 			<div class="card-body">
 				<h5 class="card-title">Community</h5>
 				<h2 id="communityCount" class="fw-bold">Total Communities: 0</h2>
-				<select id="communityFilter" class="form-select mt-3 text-dark" disabled>
+				<select id="communityFilter" class="form-select mt-3 text-dark" disabled multiple>
 					<option disabled selected value="">-- Select Community --</option>
 				</select>
 			</div>
@@ -259,6 +259,22 @@
 			placeholder: "-- Select Governorate(s) --",
 			allowClear: true
 		});
+
+		$('#districtFilter').select2({
+			placeholder: "-- Select District(s) --",
+			allowClear: true
+		});
+
+		$('#subDistrictFilter').select2({
+			placeholder: "-- Select Sub District(s) --",
+			allowClear: true
+		});
+
+		$('#communityFilter').select2({
+			placeholder: "-- Select community(s) --",
+			allowClear: true
+		});
+
 	});
 
 	// Event listeners for filters
@@ -337,7 +353,7 @@
 		fetch(`/Dashboard/GetDistrictsByGovernorates?governorateCodes=${selectedGovCodes.join(',')}`)
 			.then(r => r.json())
 			.then(list => {
-				resetDropdown('districtFilter');
+				//resetDropdown('districtFilter');
 				populateDropdown('districtFilter', list);
 				document.getElementById('districtCount').innerText = `Total Districts: ${list.length}`;
 				document.getElementById('districtFilter').disabled = list.length === 0;
@@ -345,16 +361,19 @@
 			.catch(e => console.error(e));
 	});
 
-	document.getElementById('districtFilter').addEventListener('change', function () {
+	$('#districtFilter').on('change', function () {
 		const filters = getFilters();
 		loadGauges(filters.frameworkCode, filters.ministryCode, filters.projectCode, filters.governorateCode, filters.districtCode);
 
-		const distCode = this.value;
+		//const distCode = this.value;
+		const selectedDistCodes = $(this).val() || [];
+
 		resetDropdown('subDistrictFilter');
 		resetDropdown('communityFilter');
 		document.getElementById('subDistrictCount').innerText = 'Total sub-District: 0';
-		if (!distCode) return;
-		fetch(`/Dashboard/GetSubDistrictsByDistrict?districtCode=${distCode}`)
+
+
+		fetch(`/Dashboard/GetSubDistrictsByDistrict?districtCodes=${selectedDistCodes.join(',')}`)
 			.then(r => r.json())
 			.then(list => {
 				populateDropdown('subDistrictFilter', list);
@@ -362,24 +381,24 @@
 				document.getElementById('subDistrictFilter').disabled = list.length === 0;
 			})
 			.catch(e => console.error(e));
-	});
+		});
 
-	document.getElementById('subDistrictFilter').addEventListener('change', function () {
-		const filters = getFilters();
+	$('#subDistrictFilter').on('change', function () {
+			const filters = getFilters();
 		loadGauges(filters.frameworkCode, filters.ministryCode, filters.projectCode, filters.governorateCode, filters.districtCode, filters.subDistrictCode);
 
-		const subCode = this.value;
+	   const selectedsubDistCodes = $(this).val() || [];
+
 		resetDropdown('communityFilter');
 		document.getElementById('communityCount').innerText = 'Total Communities: 0';
-		if (!subCode) return;
-		fetch(`/Dashboard/GetCommunitiesBySubDistrict?subDistrictCode=${subCode}`)
+		fetch(`/Dashboard/GetCommunitiesBySubDistrict?subDistrictCodes=${selectedsubDistCodes}`)
 			.then((r) => r.json())
 			.then((list) => {
 				populateDropdown('communityFilter', list);
 				document.getElementById('communityCount').innerText = `Total Communities: ${list.length}`;
 			})
 			.catch((e) => console.error(e));
-	});
+		});
 
 	document.getElementById('communityFilter').addEventListener('change', function () {
 		const filters = getFilters();

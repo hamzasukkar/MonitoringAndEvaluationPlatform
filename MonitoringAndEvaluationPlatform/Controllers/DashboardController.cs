@@ -313,6 +313,50 @@ public class DashboardController : Controller
     }
 
     [HttpGet]
+    public JsonResult GetSubDistrictsByDistrict(string districtCodes)
+    {
+        // 1. Handle null or empty input string
+        if (string.IsNullOrEmpty(districtCodes))
+        {
+            return Json(new List<object>());
+        }
+
+        // 2. Split the comma-separated string into an array of codes
+        var codes = districtCodes.Split(',');
+
+        // 3. Use .Contains() in the Where clause to find all matching sub-districts
+        var subDistricts = _context.SubDistricts
+                               .Where(s => codes.Contains(s.DistrictCode))
+                               .Select(s => new { s.Code, s.Name })
+                               .ToList();
+
+        return Json(subDistricts);
+    }
+
+    [HttpGet]
+    public JsonResult GetCommunitiesBySubDistrict(string subDistrictCodes)
+    {
+        // Handle null or empty input string
+        if (string.IsNullOrEmpty(subDistrictCodes))
+        {
+            return Json(new List<object>());
+        }
+
+        // Split the comma-separated string into an array of codes
+        var codes = subDistrictCodes.Split(',');
+
+        // Use .Contains() in the Where clause and select the community's own code
+        var communities = _context.Communities
+                                  .Where(c => codes.Contains(c.SubDistrictCode))
+                                  // Corrected from 'Code = c.SubDistrictCode' to 'Code = c.Code'
+                                  // to return the unique code of the community itself.
+                                  .Select(c => new { c.Code, c.Name })
+                                  .ToList();
+
+        return Json(communities);
+    }
+
+    [HttpGet]
     public JsonResult GetDistrictsByGovernorate(string governorateCode)
     {
         var list = _context.Districts
@@ -322,25 +366,7 @@ public class DashboardController : Controller
         return Json(list);
     }
 
-    [HttpGet]
-    public JsonResult GetSubDistrictsByDistrict(string districtCode)
-    {
-        var list = _context.SubDistricts
-                       .Where(s => s.DistrictCode == districtCode)
-                       .Select(s => new { s.Code, s.Name })
-                       .ToList();
-        return Json(list);
-    }
 
-    [HttpGet]
-    public JsonResult GetCommunitiesBySubDistrict(string subDistrictCode)
-    {
-        var list = _context.Communities
-                       .Where(r => r.SubDistrictCode == subDistrictCode)
-                       .Select(r => new { Code = r.SubDistrictCode, Name = r.Name })
-                       .ToList();
-        return Json(list);
-    }
 
     public async Task<IActionResult> Test4()
     {
