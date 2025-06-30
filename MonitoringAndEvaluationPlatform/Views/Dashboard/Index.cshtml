@@ -379,34 +379,6 @@
 		.catch((err) => console.error(err));
 	});
 
-		function populateDropdown(selectId, items, preserveSelection = false) {
-	  const $ddl = $(`#${selectId}`);
-	  const prevSelected = preserveSelection ? ($ddl.val() || []) : [];
-
-	  // Dedupe the incoming array by `value`
-	  const seen = new Set();
-	  const uniqueItems = items.filter(it => {
-		if (seen.has(it.value)) return false;
-		seen.add(it.value);
-		return true;
-	  });
-
-	  $ddl.empty();
-	  uniqueItems.forEach(it =>
-		$('<option>')
-		  .val(it.value)
-		  .text(it.text)
-		  .appendTo($ddl)
-	  );
-
-	  // Re-apply any still-valid selections
-	  const valid = prevSelected.filter(v =>
-		uniqueItems.some(it => it.value === v)
-	  );
-	  $ddl.val(valid).trigger('change');
-	}
-
-
 	$('#districtFilter').on('change', function () {
 	  // 1. Re-load your gauges with the new district context
 	  const filters = getFilters();
