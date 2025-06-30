@@ -379,56 +379,76 @@
 		.catch((err) => console.error(err));
 	});
 
-	function populateDropdown(selectId, items, preserveSelection = false) {
+		function populateDropdown(selectId, items, preserveSelection = false) {
 	  const $ddl = $(`#${selectId}`);
-	  const currentlySelected = preserveSelection ? ($ddl.val() || []) : [];
+	  const prevSelected = preserveSelection ? ($ddl.val() || []) : [];
 
-	  // remove duplicates in the incoming items
+	  // Dedupe the incoming array by `value`
 	  const seen = new Set();
-	  const uniqueItems = items.filter((it) => {
+	  const uniqueItems = items.filter(it => {
 		if (seen.has(it.value)) return false;
 		seen.add(it.value);
 		return true;
 	  });
 
-	  // wipe & rebuild
 	  $ddl.empty();
-	  uniqueItems.forEach((it) =>
+	  uniqueItems.forEach(it =>
 		$('<option>')
 		  .val(it.value)
 		  .text(it.text)
 		  .appendTo($ddl)
 	  );
 
-	  // re‐apply selection, but only for values that still exist
-	  const validSelection = currentlySelected.filter((v) =>
-		uniqueItems.some((it) => it.value === v)
+	  // Re-apply any still-valid selections
+	  const valid = prevSelected.filter(v =>
+		uniqueItems.some(it => it.value === v)
 	  );
-	  $ddl.val(validSelection);
-	  $ddl.trigger('change'); // if you want downstream cascades
+	  $ddl.val(valid).trigger('change');
 	}
 
+
 	$('#districtFilter').on('change', function () {
-		const filters = getFilters();
-		loadGauges(filters.frameworkCode, filters.ministryCode, filters.projectCode, filters.governorateCode, filters.districtCode);
+	  // 1. Re-load your gauges with the new district context
+	  const filters = getFilters();
+	  loadGauges(
+		filters.frameworkCode,
+		filters.ministryCode,
+		filters.projectCode,
+		filters.governorateCode,
+		filters.districtCode
+	  );
 
-		//const distCode = this.value;
-		const selectedDistCodes = $(this).val() || [];
+	  // 2. Grab & dedupe the selected district codes
+	  const selectedDistCodes = Array.from(new Set($(this).val() || []));
 
+	  // 3. If none selected, clear downstream & exit
+	  if (!selectedDistCodes.length) {
 		resetDropdown('subDistrictFilter');
 		resetDropdown('communityFilter');
-		document.getElementById('subDistrictCount').innerText = 'Total sub-District: 0';
+		$('#subDistrictCount').text('Total sub-Districts: 0');
+		$('#subDistrictFilter').prop('disabled', true);
+		return;
+	  }
 
+	  // 4. Fetch all sub-districts for the chosen district(s)
+	  fetch(
+		`/Dashboard/GetSubDistrictsByDistrict?districtCodes=${selectedDistCodes.join(',')}`
+	  )
+		.then(r => r.json())
+		.then(subDistricts => {
+		  // 5. Repopulate, preserving any multi-select picks
+		  populateDropdown(
+			'subDistrictFilter',
+			subDistricts,
+			/* preserveSelection = */ true
+		  );
 
-		fetch(`/Dashboard/GetSubDistrictsByDistrict?districtCodes=${selectedDistCodes.join(',')}`)
-			.then(r => r.json())
-			.then(list => {
-				populateDropdown('subDistrictFilter', list);
-				document.getElementById('subDistrictCount').innerText = `Total sub-District: ${list.length}`;
-				document.getElementById('subDistrictFilter').disabled = list.length === 0;
-			})
-			.catch(e => console.error(e));
-		});
+		  // 6. Update count & disable state
+		  $('#subDistrictCount').text(`Total sub-Districts: ${subDistricts.length}`);
+		  $('#subDistrictFilter').prop('disabled', !subDistricts.length);
+		})
+		.catch(console.error);
+	});
 
 	$('#subDistrictFilter').on('change', function () {
 			const filters = getFilters();
