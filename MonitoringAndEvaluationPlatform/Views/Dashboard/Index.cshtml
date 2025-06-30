@@ -339,6 +339,7 @@
 	});
 
 	$('#governorateFilter').on('change', function () {
+	  // 1. re‐apply your filters & gauges
 	  const filters = getFilters();
 	  loadGauges(
 		filters.frameworkCode,
@@ -347,33 +348,65 @@
 		filters.governorateCode
 	  );
 
+	  // 2. pull the selected values (might be an array)
 	  const selectedGovCodes = $(this).val() || [];
 
-	  // If nothing’s selected, wipe out all the downstream selects
-	  if (selectedGovCodes.length === 0) {
+	  // 3. if nothing selected, clear downstream filters
+	  if (!selectedGovCodes.length) {
 		resetDropdown('districtFilter');
 		resetDropdown('subDistrictFilter');
 		resetDropdown('communityFilter');
-		document.getElementById('districtCount').innerText = 'Total Districts: 0';
+		$('#districtCount').text('Total Districts: 0');
 		return;
 	  }
 
-	  // Fetch all districts for the currently selected governorates
-	  fetch(`/Dashboard/GetDistrictsByGovernorates?governorateCodes=${selectedGovCodes.join(',')}`)
-		.then((r) => r.json())
-		.then((list) => {
-		  // 1) Clear out any old districts
-		  resetDropdown('districtFilter');
+	  // 4. dedupe your codes
+	  const uniqueGovCodes = Array.from(new Set(selectedGovCodes));
 
-		  // 2) Re‐populate with exactly the set we just got back (no duplicates)
-		  populateDropdown('districtFilter', list);
+	  // 5. fetch districts for ALL selected governorates
+	  fetch(
+		`/Dashboard/GetDistrictsByGovernorates?governorateCodes=${uniqueGovCodes.join(',')}`
+	  )
+		.then((resp) => resp.json())
+		.then((districts) => {
+		  // 6. repopulate the district dropdown, preserving any already‐picked districts
+		  populateDropdown('districtFilter', districts, /*preserveSelection=*/ true);
 
-		  // 3) Update count and disabled state
-		  document.getElementById('districtCount').innerText = `Total Districts: ${list.length}`;
-		  document.getElementById('districtFilter').disabled = list.length === 0;
+		  // 7. update UI pieces
+		  $('#districtCount').text(`Total Districts: ${districts.length}`);
+		  $('#districtFilter').prop('disabled', districts.length === 0);
 		})
-		.catch((e) => console.error(e));
+		.catch((err) => console.error(err));
 	});
+
+	function populateDropdown(selectId, items, preserveSelection = false) {
+	  const $ddl = $(`#${selectId}`);
+	  const currentlySelected = preserveSelection ? ($ddl.val() || []) : [];
+
+	  // remove duplicates in the incoming items
+	  const seen = new Set();
+	  const uniqueItems = items.filter((it) => {
+		if (seen.has(it.value)) return false;
+		seen.add(it.value);
+		return true;
+	  });
+
+	  // wipe & rebuild
+	  $ddl.empty();
+	  uniqueItems.forEach((it) =>
+		$('<option>')
+		  .val(it.value)
+		  .text(it.text)
+		  .appendTo($ddl)
+	  );
+
+	  // re‐apply selection, but only for values that still exist
+	  const validSelection = currentlySelected.filter((v) =>
+		uniqueItems.some((it) => it.value === v)
+	  );
+	  $ddl.val(validSelection);
+	  $ddl.trigger('change'); // if you want downstream cascades
+	}
 
 	$('#districtFilter').on('change', function () {
 		const filters = getFilters();
