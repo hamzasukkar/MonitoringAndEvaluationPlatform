@@ -270,25 +270,15 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         }
 
 
-
-
-
-
         // GET: Measures/Delete/5
-        public async Task<IActionResult> Delete(int? id)
+        public async Task<IActionResult> Delete(int id)
         {
-            if (id == null)
-            {
-                return NotFound();
-            }
-
             var measure = await _context.Measures
                 .Include(m => m.Indicator)
+                .Include(m => m.Project)
                 .FirstOrDefaultAsync(m => m.Code == id);
             if (measure == null)
-            {
                 return NotFound();
-            }
 
             return View(measure);
         }
@@ -298,15 +288,54 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var measure = await _context.Measures.FindAsync(id);
-            if (measure != null)
+            var monitoringService = new MonitoringService(_context);
+            try
             {
-                _context.Measures.Remove(measure);
+                await monitoringService.DeleteMeasureAndRecalculateAsync(id);
+            }
+            catch (InvalidOperationException ex)
+            {
+                return NotFound(ex.Message);
             }
 
-            await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }
+
+
+
+        //// GET: Measures/Delete/5
+        //public async Task<IActionResult> Delete(int? id)
+        //{
+        //    if (id == null)
+        //    {
+        //        return NotFound();
+        //    }
+
+        //    var measure = await _context.Measures
+        //        .Include(m => m.Indicator)
+        //        .FirstOrDefaultAsync(m => m.Code == id);
+        //    if (measure == null)
+        //    {
+        //        return NotFound();
+        //    }
+
+        //    return View(measure);
+        //}
+
+        //// POST: Measures/Delete/5
+        //[HttpPost, ActionName("Delete")]
+        //[ValidateAntiForgeryToken]
+        //public async Task<IActionResult> DeleteConfirmed(int id)
+        //{
+        //    var measure = await _context.Measures.FindAsync(id);
+        //    if (measure != null)
+        //    {
+        //        _context.Measures.Remove(measure);
+        //    }
+
+        //    await _context.SaveChangesAsync();
+        //    return RedirectToAction(nameof(Index));
+        //}
 
         private bool MeasureExists(int id)
         {

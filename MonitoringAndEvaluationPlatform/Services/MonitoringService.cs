@@ -211,4 +211,57 @@ public class MonitoringService
             await UpdateIndicatorPerformance(indicatorId);
         }
     }
+    public async Task DeleteMeasureAndRecalculateAsync(int measureCode)
+    {
+        // 1. Load the measure
+        var measure = await _context.Measures
+            .AsNoTracking()
+            .FirstOrDefaultAsync(m => m.Code == measureCode);
+
+        if (measure == null)
+            throw new InvalidOperationException($"Measure with code {measureCode} not found.");
+
+        // Capture related IDs before deletion
+        var indicatorId = measure.IndicatorCode;
+        var projectId = measure.ProjectID;
+
+        // 2. Delete the measure
+        _context.Measures.Remove(measure);
+        await _context.SaveChangesAsync();
+
+        // 3. Recalculate performances in correct order
+        await UpdateIndicatorPerformance(indicatorId);
+        await UpdateSubOutputPerformance(
+            (await _context.Indicators.FindAsync(indicatorId))?.SubOutputCode ?? 0
+        );
+
+        await UpdateOutputPerformance(
+            (await _context.SubOutputs.FindAsync(
+                (await _context.Indicators.FindAsync(indicatorId))?.SubOutputCode
+            ))?.OutputCode ?? 0
+        );
+
+        await UpdateOutcomePerformance(
+            (await _context.Outputs.FindAsync(
+                (await _context.SubOutputs.FindAsync(
+                    (await _context.Indicators.FindAsync(indicatorId))?.SubOutputCode
+                ))?.OutputCode
+            ))?.OutcomeCode ?? 0
+        );
+
+        await UpdateFrameworkPerformance(
+            (await _context.Outcomes.FindAsync(
+                (await _context.Outputs.FindAsync(
+                    (await _context.SubOutputs.FindAsync(
+                        (await _context.Indicators.FindAsync(indicatorId))?.SubOutputCode
+                    ))?.OutputCode
+                ))?.OutcomeCode
+            ))?.FrameworkCode ?? 0
+        );
+
+        await UpdateProjectPerformance(projectId);
+        await UpdateMinistryPerformance(projectId);
+    }
+
+
 }
