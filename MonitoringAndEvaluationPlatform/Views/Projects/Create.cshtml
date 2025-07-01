@@ -350,4 +350,16 @@
 
         setTimeout(() => $("#location-validation-alert").fadeOut(), 3000);
     }
+
+
+    // Prevent submitting if no locations have been added
+    $('form.needs-validation').on('submit', function (e) {
+      if (selections.length === 0) {
+        e.preventDefault();
+        showValidationMessage("You must add at least one location before creating the project.");
+        return false;
+      }
+    });
+
+
 </script>
