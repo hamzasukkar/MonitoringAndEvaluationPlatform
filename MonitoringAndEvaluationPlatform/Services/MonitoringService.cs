@@ -211,9 +211,9 @@ public class MonitoringService
             await UpdateIndicatorPerformance(indicatorId);
         }
     }
+
     public async Task DeleteMeasureAndRecalculateAsync(int measureCode)
     {
-        // 1. Load the measure
         var measure = await _context.Measures
             .AsNoTracking()
             .FirstOrDefaultAsync(m => m.Code == measureCode);
@@ -221,47 +221,87 @@ public class MonitoringService
         if (measure == null)
             throw new InvalidOperationException($"Measure with code {measureCode} not found.");
 
-        // Capture related IDs before deletion
         var indicatorId = measure.IndicatorCode;
         var projectId = measure.ProjectID;
 
-        // 2. Delete the measure
         _context.Measures.Remove(measure);
         await _context.SaveChangesAsync();
 
-        // 3. Recalculate performances in correct order
         await UpdateIndicatorPerformance(indicatorId);
-        await UpdateSubOutputPerformance(
-            (await _context.Indicators.FindAsync(indicatorId))?.SubOutputCode ?? 0
-        );
-
-        await UpdateOutputPerformance(
-            (await _context.SubOutputs.FindAsync(
-                (await _context.Indicators.FindAsync(indicatorId))?.SubOutputCode
-            ))?.OutputCode ?? 0
-        );
-
-        await UpdateOutcomePerformance(
-            (await _context.Outputs.FindAsync(
-                (await _context.SubOutputs.FindAsync(
-                    (await _context.Indicators.FindAsync(indicatorId))?.SubOutputCode
-                ))?.OutputCode
-            ))?.OutcomeCode ?? 0
-        );
-
-        await UpdateFrameworkPerformance(
-            (await _context.Outcomes.FindAsync(
-                (await _context.Outputs.FindAsync(
-                    (await _context.SubOutputs.FindAsync(
-                        (await _context.Indicators.FindAsync(indicatorId))?.SubOutputCode
-                    ))?.OutputCode
-                ))?.OutcomeCode
-            ))?.FrameworkCode ?? 0
-        );
-
         await UpdateProjectPerformance(projectId);
         await UpdateMinistryPerformance(projectId);
     }
+
+    /// <summary>
+    /// Deletes a Project (cascade removes measures) and recalculates all related performance metrics.
+    /// </summary>
+    public async Task DeleteProjectAndRecalculateAsync(int projectId)
+    {
+        // 1. Load project with related Measures and Ministries
+        var project = await _context.Projects
+            .Include(p => p.Measures)
+            .Include(p => p.Ministries)
+            .FirstOrDefaultAsync(p => p.ProjectID == projectId);
+
+        if (project == null)
+            throw new InvalidOperationException($"Project with ID {projectId} not found.");
+
+        // 2. Capture related IDs
+        var indicatorIds = project.Measures.Select(m => m.IndicatorCode).Distinct().ToList();
+        var ministryCodes = project.Ministries.Select(m => m.Code).Distinct().ToList();
+
+        // 3. Remove the project (cascade deletes measures)
+        _context.Projects.Remove(project);
+        await _context.SaveChangesAsync();
+
+        // 4. Recalculate Indicator and hierarchical metrics
+        foreach (var indId in indicatorIds)
+        {
+            await UpdateIndicatorPerformance(indId);
+        }
+
+        // 5. Recalculate ministry performance for affected ministries
+        foreach (var ministryCode in ministryCodes)
+        {
+            await UpdateMinistryPerformanceByMinistryCode(ministryCode);
+        }
+    }
+
+    /// <summary>
+    /// Always recalc ministry performance by Ministry Code.
+    /// </summary>
+    private async Task UpdateMinistryPerformanceByMinistryCode(int ministryCode)
+    {
+        var ministry = await _context.Ministries
+            .Include(m => m.Projects)
+                .ThenInclude(p => p.Measures)
+            .FirstOrDefaultAsync(m => m.Code == ministryCode);
+
+        if (ministry == null)
+            return;
+
+        double totalTarget = 0.0;
+        double totalReal = 0.0;
+
+        foreach (var proj in ministry.Projects)
+        {
+            foreach (var measure in proj.Measures)
+            {
+                if (measure.ValueType == MeasureValueType.Real)
+                    totalReal += measure.Value;
+                else if (measure.ValueType == MeasureValueType.Target)
+                    totalTarget += measure.Value;
+            }
+        }
+
+        ministry.IndicatorsPerformance = totalTarget > 0
+            ? (totalReal / totalTarget) * 100.0
+            : 0.0;
+
+        _context.Ministries.Update(ministry);
+        await _context.SaveChangesAsync();
+    }
+
 
 
 }

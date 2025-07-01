@@ -665,18 +665,19 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         }
 
         [HttpPost]
-        [ValidateAntiForgeryToken]
-        public IActionResult DeleteConfirmed(int id)
+        public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var project = _context.Projects.Find(id);
-            if (project == null) return NotFound();
-
-            _context.Projects.Remove(project);
-            _context.SaveChanges();
-            return Ok();
+            var service = new MonitoringService(_context);
+            try
+            {
+                await service.DeleteProjectAndRecalculateAsync(id);
+            }
+            catch (InvalidOperationException ex)
+            {
+                return NotFound(ex.Message);
+            }
+            return RedirectToAction(nameof(Index));
         }
-
-
 
         private bool ProgramExists(int id)
         {
