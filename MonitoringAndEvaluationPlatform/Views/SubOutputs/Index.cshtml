@@ -114,7 +114,7 @@
                                         </a> *@
                                         <button class="btn btn-sm btn-outline-warning"
                                                 id="edit-btn-@item.Code"
-                                                onclick="toggleSubOutputEdit(@item.Code)">
+                                                onclick="toggleSubOutputEdit(@item.Code,@item.Output.Outcome.FrameworkCode)">
                                             <i class="fas fa-edit"></i>
                                         </button>
                                         <button class="btn btn-sm btn-outline-danger"
@@ -148,7 +148,7 @@
              form.style.display = form.style.display === 'none' ? 'block' : 'none';
          });
 
-    function toggleSubOutputEdit(code) {
+    function toggleSubOutputEdit(code,frameworkCode) {
        debugger;
         const viewSpan = $(`#fw-name-${code}`);
         const input = $(`#fw-name-input-${code}`);
@@ -165,7 +165,7 @@
                 type: 'POST',
                 data: { id: code, name: newName },
                 success: function () {
-                    viewSpan.html(`<a href="/Indicators/Index/${code}" class="text-decoration-none"><strong>${newName}</strong></a>`);
+                    viewSpan.html(`<a href="/Indicators?subOutputCode=${code}&frameworkCode=${frameworkCode}" class="text-decoration-none"><strong>${newName}</strong></a>`);
                     input.addClass('d-none');
                     viewSpan.removeClass('d-none');
                     button.html('<i class="fas fa-edit"></i>');

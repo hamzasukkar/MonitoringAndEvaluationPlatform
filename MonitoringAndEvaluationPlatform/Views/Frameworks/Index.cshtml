@@ -151,7 +151,7 @@
                     type: 'POST',
                     data: { id: code, name: newName },
                     success: function () {
-                        viewSpan.html(`<a href="/Outcomes/Index/${code}" class="text-decoration-none"><strong>${newName}</strong></a>`);
+                    viewSpan.html(`<a href="/Outcomes?frameworkCode=${code}" class="text-decoration-none"><strong>${newName}</strong></a>`);
                         input.addClass('d-none');
                         viewSpan.removeClass('d-none');
                         button.html('<i class="fas fa-edit"></i>');
