@@ -492,6 +492,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             {
                 ModelState.AddModelError("", "Total weight must equal 100%.");
                 ViewBag.SubOutputCode = subOutputCode;
+                ViewBag.FrameworkCode = frameworkCode;
                 return View(model);
             }
 
