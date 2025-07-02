@@ -17,6 +17,9 @@
             <button class="btn btn-primary" type="button" data-bs-toggle="collapse" data-bs-target="#createOutputForm" aria-expanded="false" aria-controls="createOutputForm">
                 <i class="fas fa-plus me-2"></i>New Output
             </button>
+            <a asp-action="AdjustWeights" asp-route-outcomeCode="@ViewBag.SelectedOutcomeCode" class="btn btn-warning">
+                <i class="fas fa-balance-scale me-2"></i>Adjust Weights
+            </a>
         </div>
     }
     else
