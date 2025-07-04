@@ -85,6 +85,33 @@ public class PlanService
             project.ImpactAssessment = 0;
         }
 
+        // Calculate Physical
+        double totalPlannedPhysical = actionPlan.Activities.Sum(a => a.Plans.Where(p => p.Activity.ActivityType == ActivityType.Physical).Sum(p => p.Planned));
+        double totalRealisedPhysical = actionPlan.Activities.Sum(a => a.Plans.Where(p => p.Activity.ActivityType == ActivityType.Physical).Sum(p => p.Realised));
+
+        if (totalPlannedPhysical > 0)
+        {
+            project.Physical = (int)((totalRealisedPhysical / totalPlannedPhysical) * 100);
+        }
+        else
+        {
+            project.Physical = 0;
+        }
+
+
+        // Calculate Financial
+        double totalPlannedFinancial = actionPlan.Activities.Sum(a => a.Plans.Where(p => p.Activity.ActivityType == ActivityType.Financial).Sum(p => p.Planned));
+        double totalRealisedFinancial = actionPlan.Activities.Sum(a => a.Plans.Where(p => p.Activity.ActivityType == ActivityType.Financial).Sum(p => p.Realised));
+
+        if (totalPlannedFinancial > 0)
+        {
+            project.Financial = (int)((totalRealisedFinancial / totalPlannedFinancial) * 100);
+        }
+        else
+        {
+            project.Financial = 0;
+        }
+
         _context.Projects.Update(project);
         await _context.SaveChangesAsync();
 

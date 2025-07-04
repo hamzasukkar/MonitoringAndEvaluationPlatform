@@ -123,10 +123,10 @@
                                         </td>  
                                         <td>
                                             @await Html.PartialAsync("_ProgressBar", new Tuple<double, string>(
-                                                     item.Financial,
-                                                     item.Financial >= 80 ? "success" :
-                                                     item.Financial >= 50 ? "info" :
-                                                     item.Financial >= 30 ? "warning" : "danger"
+                                                     item.Physical,
+                                                     item.Physical >= 80 ? "success" :
+                                                     item.Physical >= 50 ? "info" :
+                                                     item.Physical >= 30 ? "warning" : "danger"
                                                      ))
                                         </td>
                                     @*     <td>
