@@ -29,9 +29,20 @@ namespace MonitoringAndEvaluationPlatform.Infrastructure
                 {
                     var donors = new List<Donor>
                     {
-                        new Donor { Partner = "Donor 1" }, // Remove explicit Code if using auto-increment
-                        new Donor { Partner = "Donor 2" },
-                        new Donor { Partner = "Donor 3" }
+                        new Donor { Partner = "OCHA" }, // Remove explicit Code if using auto-increment
+                        new Donor { Partner = "UNHCR 2" },
+                        new Donor { Partner = "WFP" },
+                        new Donor { Partner = "UNICEF" },
+                        new Donor { Partner = "WHO" },
+                        new Donor { Partner = "UNDP" },
+                        new Donor { Partner = "FAO" },
+                        new Donor { Partner = "OHCHR" },
+                        new Donor { Partner = "UNRWA" },
+                        new Donor { Partner = "INGO's" },
+                        new Donor { Partner = "ICRC" },
+                        new Donor { Partner = "MSF" },
+                        new Donor { Partner = "NRC" },
+                        new Donor { Partner = "UN-OCHA" },
                     };
                     context.Donors.AddRange(donors);
                 }
@@ -64,9 +75,36 @@ namespace MonitoringAndEvaluationPlatform.Infrastructure
                 {
                     var ministries = new List<Ministry>
                     {
-                        new Ministry { MinistryName = "Ministry 1" }, // Remove explicit Code if using auto-increment
-                        new Ministry { MinistryName = "Ministry 2" },
-                        new Ministry { MinistryName = "Ministry 3" }
+                        new Ministry { MinistryName = "Ministry of Public Works and Housing" },
+                        new Ministry { MinistryName = "Ministry of Endowments" },
+                        new Ministry { MinistryName = "Ministry of Local Administration and Environment" },
+                        new Ministry { MinistryName = "Ministry of Information" },
+                        new Ministry { MinistryName = "Ministry of Communications and Information Technology" },
+                        new Ministry { MinistryName = "Ministry of Economy and Foreign Trade" },
+                        new Ministry { MinistryName = "Ministry of Internal Trade and Consumer Protection" },
+                        new Ministry { MinistryName = "Ministry of Education" },
+                        new Ministry { MinistryName = "Ministry of Higher Education and Scientific Research" },
+                        new Ministry { MinistryName = "Ministry of Administrative Development" },
+                        new Ministry { MinistryName = "Ministry of Foreign Affairs and Expatriates" },
+                        new Ministry { MinistryName = "Ministry of Interior" },
+                        new Ministry { MinistryName = "Ministry of Defense" },
+                        new Ministry { MinistryName = "Ministry of Irrigation" },
+                        new Ministry { MinistryName = "Ministry of Youth and Sports" },
+                        new Ministry { MinistryName = "Ministry of Agriculture and Agrarian Reform" },
+                        new Ministry { MinistryName = "Ministry of Tourism" },
+                        new Ministry { MinistryName = "Ministry of Social Affairs and Labor" },
+                        new Ministry { MinistryName = "Ministry of Health" },
+                        new Ministry { MinistryName = "Ministry of Industry" },
+                        new Ministry { MinistryName = "Ministry of Energy" },
+                        new Ministry { MinistryName = "Ministry of Emergency and Disaster Management" },
+                        new Ministry { MinistryName = "Ministry of Justice" },
+                        new Ministry { MinistryName = "Ministry of Electricity" },
+                        new Ministry { MinistryName = "Ministry of Finance" },
+                        new Ministry { MinistryName = "Ministry of Expatriates" },
+                        new Ministry { MinistryName = "Ministry of Water Resources" },
+                        new Ministry { MinistryName = "Ministry of Oil and Mineral Resources" },
+                        new Ministry { MinistryName = "Ministry of Transport" },
+                        new Ministry { MinistryName = "Ministry of Presidential Affairs" },
                     };
 
                     context.Ministries.AddRange(ministries);
