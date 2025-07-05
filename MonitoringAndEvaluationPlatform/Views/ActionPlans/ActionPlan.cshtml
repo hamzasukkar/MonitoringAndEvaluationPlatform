@@ -397,7 +397,7 @@
             $('body').on('focus', '.editable-cell', function () {
                 originalValue = $(this).text().trim();
                 // Select all text in the cell for easy editing
-                document.execCommand('selectAll', false, null);
+                //document.execCommand('selectAll', false, null);
             });
 
             $('body').on('blur', '.editable-cell', function () {
