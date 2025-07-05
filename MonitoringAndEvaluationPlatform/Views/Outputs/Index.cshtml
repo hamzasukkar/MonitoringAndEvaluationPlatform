@@ -1,4 +1,5 @@
 ﻿@model List<MonitoringAndEvaluationPlatform.Models.Output>
+@using MonitoringAndEvaluationPlatform.Helpers
 @{
     ViewData["Title"] = "Outputs";
     Layout = "~/Views/Shared/_ResultsFrameworkLayout.cshtml";
@@ -59,7 +60,7 @@
                         <tr>
                             <th>Name</th>
                             <th>Weight</th>
-                            <th>Indicators</th>
+                            <th>Indicators Performance</th>
                             <th>Disbursement</th>
                             <th>Field Monitoring</th>
                             <th>Impact</th>
@@ -67,7 +68,7 @@
                         </tr>
                     </thead>
                     <tbody>
-                        @foreach (var item in Model)
+                       @*  @foreach (var item in Model)
                         {
                             <tr id="output-row-@item.Code">
                                 <td>
@@ -92,6 +93,56 @@
                                             onclick="confirmOutputDelete(@item.Code)">
                                         <i class="fas fa-trash-alt"></i>
                                     </button>
+                                </td>
+                            </tr>
+                        } *@
+                        @foreach (var item in Model)
+                        {
+                            string indicatorsClass = ProgressBarHelper.GetProgressBarClass(item.IndicatorsPerformance);
+                            string disbursementClass = ProgressBarHelper.GetProgressBarClass(item.DisbursementPerformance);
+                            string fieldMonitoringClass = ProgressBarHelper.GetProgressBarClass(item.FieldMonitoring);
+                            string impactAssessmentClass = ProgressBarHelper.GetProgressBarClass(item.ImpactAssessment);
+                            double IndicatorsPerformance = Math.Round(item.IndicatorsPerformance, 0);
+
+                            <tr>
+                                <td>
+                                    <a asp-action="Index" asp-controller="SubOutputs" asp-route-outputCode="@item.Code" class="text-decoration-none">
+                                        <strong>@item.Name</strong>
+                                    </a>
+                                </td>
+                                <td>
+                                    @Html.DisplayFor(modelItem => item.Weight)
+                                </td>
+                                <td>
+                                    @await Html.PartialAsync("_ProgressBar", Tuple.Create(IndicatorsPerformance, indicatorsClass))
+                                </td>
+                                <td>
+                                    @await Html.PartialAsync("_ProgressBar", Tuple.Create(item.DisbursementPerformance, disbursementClass))
+                                </td>
+                                <td>
+                                    @await Html.PartialAsync("_ProgressBar", Tuple.Create(item.FieldMonitoring, fieldMonitoringClass))
+                                </td>
+                                <td>
+                                    @await Html.PartialAsync("_ProgressBar", Tuple.Create(item.ImpactAssessment, impactAssessmentClass))
+                                </td>
+                                <td>
+                                    <a href="/Outcomes/Index/@item.OutcomeCode" class="text-decoration-none">@item.Outcome.Name</a>
+                                </td>
+                                <td class="text-end">
+                                    <div class="btn-group" role="group">
+                                        <a asp-action="Details" asp-route-id="@item.Code" class="btn btn-sm btn-outline-primary" title="View">
+                                            <i class="fas fa-eye"></i>
+                                        </a>
+                                        <a asp-action="Edit" asp-route-id="@item.Code" class="btn btn-sm btn-outline-warning" title="Edit">
+                                            <i class="fas fa-edit"></i>
+                                        </a>
+                                        <a asp-action="Delete" asp-route-id="@item.Code" class="btn btn-sm btn-outline-danger" title="Delete">
+                                            <i class="fas fa-trash-alt"></i>
+                                        </a>
+                                        <a href="#" class="btn btn-sm btn-outline-success" title="Tree View">
+                                            <i class="fas fa-project-diagram"></i>
+                                        </a>
+                                    </div>
                                 </td>
                             </tr>
                         }
