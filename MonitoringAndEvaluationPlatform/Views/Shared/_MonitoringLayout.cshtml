@@ -19,8 +19,8 @@
             <div class="title">Monitoring & Evaluation System</div>
             <div class="nav-links">
                 <ul class="nav">
-                    <li class="nav-item">
-                        <a class="nav-link" href="#">
+                    @* <li class="nav-item">
+                        <a class="nav-link active" href="#">
                             <i class="fas fa-sitemap me-1"></i> Framework
                         </a>
                     </li>
@@ -33,10 +33,10 @@
                         <a class="nav-link" href="#">
                             <i class="fas fa-map-marked-alt me-1"></i> Region
                         </a>
-                    </li>
+                    </li> *@
                     <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                            <img class="rounded-circle me-2" width="28" height="28" src="~/img/profile.jpeg" />
+                               @* <img class="rounded-circle me-2" width="28" height="28" src="~/img/profile.jpeg" /> *@ 
                             @if (SignInManager.IsSignedIn(User))
                             {
                                 var user = await UserManager.GetUserAsync(User);
@@ -92,17 +92,17 @@
                         <span>Dashboard</span>
                     </a>
                 </li>
-                <li>
+               @*  <li>
                     <a class="d-flex align-items-center" href="#">
                         <img src="~/img/settings.png" alt="Settings Icon" class="me-2" width="24" height="24">
                         <span>Settings</span>
                     </a>
-                </li>
+                </li> *@
             </ul>
         </div>
 
         <!-- Content Area -->
-        <div class="container">
+        <div class="container-full">
             <main role="main" class="pb-3">
                 @RenderBody()
             </main>
