@@ -2,8 +2,8 @@
 @using Microsoft.AspNetCore.Razor.TagHelpers;
 @model IEnumerable<MonitoringAndEvaluationPlatform.Models.Project>
 @{
-    ViewData["Title"] = "Monitoring";
-    Layout = "~/Views/Shared/_ResultsFrameworkLayout.cshtml";
+	ViewData["Title"] = "Monitoring";
+	Layout = "~/Views/Shared/_ResultsFrameworkLayout.cshtml";
 }
 <!DOCTYPE html>
 <html lang="en">
@@ -22,40 +22,34 @@
 			{
 				new {
 				Value = Math.Round(item.performance),
-				Label = "Performance Assessment"
+				Label = "Performance"
 				},
 				new {
-				Value = Math.Round(item.DisbursementPerformance),
-				Label = "Disbursement"
-				},
-				new {
-				Value = Math.Round(item.FieldMonitoring),
-				Label = "Monitoring"
-				},
-				new {
-				Value = Math.Round(item.ImpactAssessment),
-				Label = "Assessment"
+				Value = (double)item.Financial,
+				Label = "Financial"
 				}
 		};
 
-			<div class="framework-card">
-				<div class="framework-header">
-					<h2>@item.ProjectName</h2>
-					<div class="outcome-badge">Test</div>
-				</div>
+				<div class="framework-card">
+					<div class="framework-header">
+						<h2>@item.ProjectName</h2>
+							 <div class="outcome-badge">
+									 <a href="/Dashboard/Index" style="text-decoration: none; color: white;">Dashboard</a>
+						     </div> 
+					</div>
 
 				@foreach (var metric in metrics)
 				{
 					var progressClass = ProgressHelper.GetProgressClass(metric.Value);
-					<div class="metric">
-						<div class="metric-value @progressClass.Split(' ')[1]">@metric.Value%</div>
-						<div class="metric-label">@metric.Label</div>
-						<div class="progress-container">
-							<div class="progress-bar @progressClass.Split(' ')[0]" style="width: @metric.Value%"></div>
-						</div>
-					</div>
+							<div class="metric">
+								<div class="metric-value @progressClass.Split(' ')[1]">@metric.Value%</div>
+								<div class="metric-label">@metric.Label</div>
+								<div class="progress-container">
+									<div class="progress-bar @progressClass.Split(' ')[0]" style="width: @metric.Value%"></div>
+								</div>
+							</div>
 				}
-			</div>
+				</div>
 		}
 	</div>
 </body>

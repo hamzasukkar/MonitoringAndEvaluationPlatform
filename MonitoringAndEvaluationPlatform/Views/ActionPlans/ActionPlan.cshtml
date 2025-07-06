@@ -20,208 +20,208 @@
 
     <style>
         :root {
-            --primary-color: #007bff;
-            --secondary-color: #6c757d;
-            --success-color: #28a745;
-            --warning-color: #ffc107;
-            --danger-color: #dc3545;
-            --light-color: #f8f9fa;
-            --dark-color: #343a40;
-            --font-family-sans-serif: 'Inter', sans-serif;
-            --border-radius: 0.375rem;
+        --primary-color: #007bff;
+        --secondary-color: #6c757d;
+        --success-color: #28a745;
+        --warning-color: #ffc107;
+        --danger-color: #dc3545;
+        --light-color: #f8f9fa;
+        --dark-color: #343a40;
+        --font-family-sans-serif: 'Inter', sans-serif;
+        --border-radius: 0.375rem;
         }
 
         body {
-            font-family: var(--font-family-sans-serif);
-            background-color: #f4f7f9;
+        font-family: var(--font-family-sans-serif);
+        background-color: #f4f7f9;
         }
 
         /* Project Navigation */
         .project-nav .navbar {
-            border-radius: var(--border-radius);
-            border: 1px solid #dee2e6;
+        border-radius: var(--border-radius);
+        border: 1px solid #dee2e6;
         }
 
         .project-nav .nav-link {
-            color: var(--secondary-color);
-            font-weight: 600;
-            transition: color 0.3s ease, background-color 0.3s ease;
-            padding: 0.75rem 1rem;
-            border-radius: var(--border-radius);
-            margin: 0 0.25rem;
+        color: var(--secondary-color);
+        font-weight: 600;
+        transition: color 0.3s ease, background-color 0.3s ease;
+        padding: 0.75rem 1rem;
+        border-radius: var(--border-radius);
+        margin: 0 0.25rem;
         }
 
-            .project-nav .nav-link:hover {
-                color: var(--primary-color);
-            }
+        .project-nav .nav-link:hover {
+        color: var(--primary-color);
+        }
 
-            .project-nav .nav-link.active {
-                color: #fff;
-                background-color: var(--primary-color);
-            }
+        .project-nav .nav-link.active {
+        color: #fff;
+        background-color: var(--primary-color);
+        }
 
         /* Page Header */
         .page-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 2rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 2rem;
         }
 
-            .page-header h1 {
-                font-weight: 700;
-                color: var(--dark-color);
-            }
+        .page-header h1 {
+        font-weight: 700;
+        color: var(--dark-color);
+        }
 
         /* Totals Section */
         .totals-card {
-            background-color: #fff;
-            padding: 1.5rem;
-            border-radius: var(--border-radius);
-            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
-            display: flex;
-            gap: 1.5rem;
+        background-color: #fff;
+        padding: 1.5rem;
+        border-radius: var(--border-radius);
+        box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+        display: flex;
+        gap: 1.5rem;
         }
 
         .total-item {
-            flex: 1;
-            text-align: center;
+        flex: 1;
+        text-align: center;
         }
 
-            .total-item .value {
-                font-size: 2rem;
-                font-weight: 700;
-                color: var(--primary-color);
-            }
+        .total-item .value {
+        font-size: 2rem;
+        font-weight: 700;
+        color: var(--primary-color);
+        }
 
-                .total-item .value.realised {
-                    color: var(--success-color);
-                }
+        .total-item .value.realised {
+        color: var(--success-color);
+        }
 
-            .total-item .label {
-                font-size: 0.9rem;
-                color: var(--secondary-color);
-                text-transform: uppercase;
-                font-weight: 600;
-            }
+        .total-item .label {
+        font-size: 0.9rem;
+        color: var(--secondary-color);
+        text-transform: uppercase;
+        font-weight: 600;
+        }
 
         /* Activity Group Card */
         .activity-group-card {
-            background-color: #fff;
-            margin-bottom: 2rem;
-            border-radius: var(--border-radius);
-            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
-            overflow: hidden; /* To keep rounded corners with the table */
+        background-color: #fff;
+        margin-bottom: 2rem;
+        border-radius: var(--border-radius);
+        box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+        overflow: hidden; /* To keep rounded corners with the table */
         }
 
         .activity-group-header {
-            background-color: #343a40;
-            color: #fff;
-            padding: 1rem 1.5rem;
-            font-size: 1.2rem;
-            font-weight: 600;
+        background-color: #343a40;
+        color: #fff;
+        padding: 1rem 1.5rem;
+        font-size: 1.2rem;
+        font-weight: 600;
         }
 
         /* Table Styling */
         .action-plan-table {
-            width: 100%;
-            border-collapse: collapse;
+        width: 100%;
+        border-collapse: collapse;
         }
 
-            .action-plan-table th, .action-plan-table td {
-                padding: 1rem;
-                text-align: left;
-                border-bottom: 1px solid #e9ecef;
-                vertical-align: middle;
-            }
+        .action-plan-table th, .action-plan-table td {
+        padding: 1rem;
+        text-align: left;
+        border-bottom: 1px solid #e9ecef;
+        vertical-align: middle;
+        }
 
-            .action-plan-table thead th {
-                background-color: #f8f9fa;
-                color: var(--secondary-color);
-                font-weight: 600;
-                text-transform: uppercase;
-                font-size: 0.85rem;
-                border-top: none;
-                border-bottom: 2px solid #dee2e6;
-            }
+        .action-plan-table thead th {
+        background-color: #f8f9fa;
+        color: var(--secondary-color);
+        font-weight: 600;
+        text-transform: uppercase;
+        font-size: 0.85rem;
+        border-top: none;
+        border-bottom: 2px solid #dee2e6;
+        }
 
-            .action-plan-table tbody tr:last-child td {
-                border-bottom: none;
-            }
+        .action-plan-table tbody tr:last-child td {
+        border-bottom: none;
+        }
 
-            .action-plan-table tbody tr:hover {
-                background-color: #f1f3f5;
-            }
+        .action-plan-table tbody tr:hover {
+        background-color: #f1f3f5;
+        }
 
         .activity-name {
-            font-weight: 600;
-            color: var(--dark-color);
+        font-weight: 600;
+        color: var(--dark-color);
         }
 
         .framework-label {
-            font-size: 0.9rem;
-            font-weight: 500;
-            padding-left: 2rem;
+        font-size: 0.9rem;
+        font-weight: 500;
+        padding-left: 2rem;
         }
 
         .plan-date {
-            font-size: 0.9rem;
-            color: var(--secondary-color);
+        font-size: 0.9rem;
+        color: var(--secondary-color);
         }
 
         .subtotal-row td {
-            font-weight: 700;
-            background-color: #f8f9fa;
+        font-weight: 700;
+        background-color: #f8f9fa;
         }
 
         .total-cost {
-            font-weight: 700;
+        font-weight: 700;
         }
 
         /* Editable Cell Styling */
         .editable-cell {
-            cursor: pointer;
-            transition: background-color 0.3s ease;
-            border-radius: 4px;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+        border-radius: 4px;
         }
 
-            .editable-cell:hover {
-                background-color: #e9ecef;
-            }
+        .editable-cell:hover {
+        background-color: #e9ecef;
+        }
 
-            .editable-cell[contenteditable="true"]:focus {
-                background-color: #fff3cd; /* Light yellow */
-                outline: 2px solid var(--warning-color);
-                box-shadow: 0 0 5px rgba(255,193,7,0.5);
-            }
+        .editable-cell[contenteditable="true"]:focus {
+        background-color: #fff3cd; /* Light yellow */
+        outline: 2px solid var(--warning-color);
+        box-shadow: 0 0 5px rgba(255,193,7,0.5);
+        }
 
         td.saving {
-            background-color: #fff3cd !important;
-            color: #856404;
-            animation: pulse 1.5s infinite;
+        background-color: #fff3cd !important;
+        color: #856404;
+        animation: pulse 1.5s infinite;
         }
 
         td.success {
-            background-color: #d4edda !important;
-            transition: background-color 1s ease-out;
+        background-color: #d4edda !important;
+        transition: background-color 1s ease-out;
         }
 
         td.error {
-            background-color: #f8d7da !important;
+        background-color: #f8d7da !important;
         }
 
         @@keyframes pulse {
-            0% {
-                opacity: 1;
-            }
+        0% {
+        opacity: 1;
+        }
 
-            50% {
-                opacity: 0.6;
-            }
+        50% {
+        opacity: 0.6;
+        }
 
-            100% {
-                opacity: 1;
-            }
+        100% {
+        opacity: 1;
+        }
         }
 
     </style>
@@ -279,7 +279,7 @@
 
     <div class="page-header">
         <h1>Action Plan</h1>
-        <div class="totals-card">
+        @*         <div class="totals-card">
             <div class="total-item">
                 <div class="value">@projectTotalPlannedCost.ToString("C0")</div>
                 <div class="label">Project Total Estimated Cost</div>
@@ -289,7 +289,7 @@
                 <div class="label">Project Total Financial Cost</div>
             </div>
         </div>
-    </div>
+ *@    </div>
 
     @foreach (var activityGroup in Model)
     {
@@ -304,7 +304,7 @@
                         {
                             <th class="text-center">Plan @i</th>
                         }
-                        <th class="text-end">Total ($)</th>
+                        <th class="text-end">Total</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -312,10 +312,12 @@
                     {
                         <tr>
                             <td rowspan="3" class="activity-name align-middle">@activity.ActivityName</td>
-                            <td class="framework-label">Date</td>
+                         @*    <td class="framework-label">Date</td> *@
+                            <td class="framework-label"></td>
                             @foreach (var plan in activity.Plans)
                             {
-                                <td class="text-center plan-date">@plan.Date.ToString("yyyy-MM-dd")</td>
+                               @*  <td class="text-center plan-date">@plan.Date.ToString("yyyy-MM-dd")</td> *@
+                                <td class="text-center plan-date"></td>
                             }
                             @for (int i = activity.Plans.Count; i < maxPlans; i++)
                             {

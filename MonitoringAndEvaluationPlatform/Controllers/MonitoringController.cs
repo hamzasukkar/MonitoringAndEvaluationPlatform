@@ -208,54 +208,60 @@ namespace MonitoringAndEvaluationPlatform.Controllers
 
 
         public async Task<IActionResult> Projects(
-             int? frameworkCode,
-             int? outcomeCode,
-             int? outputCode,
-             int? subOutputCode,
-             int? indicatorCode)
+            int? frameworkCode,
+            int? outcomeCode,
+            int? outputCode,
+            int? subOutputCode,
+            int? indicatorCode)
         {
-            List<Project> projects = new();
+            // Start with a query on Measures, including all necessary navigation properties
+            IQueryable<Measure> measuresQuery = _context.Measures
+                .Include(m => m.Project) // Eager load the Project associated with the Measure
+                .Include(m => m.Indicator) // Eager load the Indicator associated with the Measure
+                    .ThenInclude(i => i.SubOutput) // Eager load SubOutput from Indicator
+                        .ThenInclude(so => so.Output) // Eager load Output from SubOutput
+                            .ThenInclude(o => o.Outcome) // Eager load Outcome from Output
+                                .ThenInclude(outc => outc.Framework); // Eager load Framework from Outcome
 
             if (indicatorCode.HasValue)
             {
-                projects = await _context.ProjectIndicators
-                    .Where(pi => pi.IndicatorCode == indicatorCode.Value)
-                    .Select(pi => pi.Project)
-                    .Distinct()
-                    .ToListAsync();
+                // Filter by IndicatorCode directly from the Measure's Indicator
+                measuresQuery = measuresQuery.Where(m => m.IndicatorCode == indicatorCode.Value);
             }
             else if (subOutputCode.HasValue)
             {
-                projects = await _context.ProjectIndicators
-                    .Where(pi => pi.Indicator.SubOutputCode == subOutputCode.Value)
-                    .Select(pi => pi.Project)
-                    .Distinct()
-                    .ToListAsync();
+                // Filter by SubOutputCode, traversing from Measure -> Indicator -> SubOutput
+                measuresQuery = measuresQuery.Where(m => m.Indicator.SubOutputCode == subOutputCode.Value);
             }
             else if (outputCode.HasValue)
             {
-                projects = await _context.ProjectIndicators
-                    .Where(pi => pi.Indicator.SubOutput.OutputCode == outputCode.Value)
-                    .Select(pi => pi.Project)
-                    .Distinct()
-                    .ToListAsync();
+                // Filter by OutputCode, traversing from Measure -> Indicator -> SubOutput -> Output
+                measuresQuery = measuresQuery.Where(m => m.Indicator.SubOutput.OutputCode == outputCode.Value);
             }
             else if (outcomeCode.HasValue)
             {
-                projects = await _context.ProjectIndicators
-                    .Where(pi => pi.Indicator.SubOutput.Output.OutcomeCode == outcomeCode.Value)
-                    .Select(pi => pi.Project)
-                    .Distinct()
-                    .ToListAsync();
+                // Filter by OutcomeCode, traversing from Measure -> Indicator -> SubOutput -> Output -> Outcome
+                measuresQuery = measuresQuery.Where(m => m.Indicator.SubOutput.Output.OutcomeCode == outcomeCode.Value);
             }
             else if (frameworkCode.HasValue)
             {
-                projects = await _context.ProjectIndicators
-                    .Where(pi => pi.Indicator.SubOutput.Output.Outcome.FrameworkCode == frameworkCode.Value)
-                    .Select(pi => pi.Project)
-                    .Distinct()
-                    .ToListAsync();
+                // Filter by FrameworkCode, traversing from Measure -> Indicator -> SubOutput -> Output -> Outcome -> Framework
+                measuresQuery = measuresQuery.Where(m => m.Indicator.SubOutput.Output.Outcome.FrameworkCode == frameworkCode.Value);
             }
+            else
+            {
+                // If no specific hierarchy level is provided, you might want to:
+                // 1. Return all projects that have *any* measure (current behavior if no filters match)
+                // 2. Return an empty list
+                // 3. Handle an error or redirect
+                // For now, it will return all projects linked to any measure if no specific filter is applied.
+            }
+
+            // Select distinct projects from the filtered Measures
+            List<Project> projects = await measuresQuery
+                .Select(m => m.Project) // Select the Project entity from each Measure
+                .Distinct() // Get only unique Project entities
+                .ToListAsync();
 
             return View(projects);
         }
