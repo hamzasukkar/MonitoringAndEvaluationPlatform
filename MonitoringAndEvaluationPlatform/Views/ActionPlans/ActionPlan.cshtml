@@ -241,11 +241,11 @@
                                 <i class="fas fa-project-diagram me-2"></i>Project
                             </a>
                         </li>
-                        <li class="nav-item">
+                        @*    <li class="nav-item">
                             <a asp-action="LinkProjectToIndicators" asp-route-projectId="@ViewBag.ProjectID" class="nav-link">
                                 <i class="fas fa-link me-2"></i>Alignment
                             </a>
-                        </li>
+                        </li> *@
                         <li class="nav-item">
                             <a asp-action="Create" asp-controller="LogicalFrameworks" asp-route-projectId="@ViewBag.ProjectID" class="nav-link">
                                 <i class="fas fa-sitemap me-2"></i>Logical Framework
@@ -256,11 +256,11 @@
                                 <i class="fas fa-ruler-combined me-2"></i>Measures
                             </a>
                         </li>
-                        <li class="nav-item">
+                        @*     <li class="nav-item">
                             <a asp-controller="Plans" asp-action="ProjectPlans" asp-route-id="@ViewBag.ProjectID" class="nav-link">
                                 <i class="fas fa-calendar-alt me-2"></i>Plans
                             </a>
-                        </li>
+                        </li> *@
                         <li class="nav-item">
                             <a class="nav-link active" aria-current="page">
                                 <i class="fas fa-tasks me-2"></i>Action Plans
@@ -293,92 +293,96 @@
 
     @foreach (var activityGroup in Model)
     {
-        <div class="activity-group-card">
-            <div class="activity-group-header">@activityGroup.ActivityType</div>
-            <table class="action-plan-table">
-                <thead>
-                    <tr>
-                        <th>Activity</th>
-                        <th>Framework</th>
-                        @for (int i = 1; i <= maxPlans; i++)
-                        {
-                            <th class="text-center">Plan @i</th>
-                        }
-                        <th class="text-end">Total</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach (var activity in activityGroup.Activities)
-                    {
+        @if (@activityGroup.ActivityType != "Physical")
+        {
+            <div class="activity-group-card">
+                <div class="activity-group-header">@activityGroup.ActivityType</div>
+                <table class="action-plan-table">
+                    <thead>
                         <tr>
-                            <td rowspan="3" class="activity-name align-middle">@activity.ActivityName</td>
-                         @*    <td class="framework-label">Date</td> *@
-                            <td class="framework-label"></td>
-                            @foreach (var plan in activity.Plans)
+                            <th>Activity</th>
+                            <th>Framework</th>
+                            @for (int i = 1; i <= maxPlans; i++)
                             {
-                               @*  <td class="text-center plan-date">@plan.Date.ToString("yyyy-MM-dd")</td> *@
-                                <td class="text-center plan-date"></td>
+                                <th class="text-center">Plan @i</th>
                             }
-                            @for (int i = activity.Plans.Count; i < maxPlans; i++)
-                            {
-                                <td></td>
-                            }
-                            <td class="text-end">-</td>
+                            <th class="text-end">Total</th>
                         </tr>
-                        <tr>
-                            <td class="framework-label">Planned</td>
-                            @foreach (var plan in activity.Plans)
-                            {
-                                <td class="editable-cell text-center" contenteditable="true"
-                                    data-plan-code="@plan.PlanCode"
-                                    data-value-type="Planned">
-                                    @plan.PlannedValue
-                                </td>
-                            }
-                            @for (int i = activity.Plans.Count; i < maxPlans; i++)
-                            {
-                                <td></td>
-                            }
-                            <td class="total-cost text-end">@activity.TotalEstimatedCost.ToString("N0")</td>
-                        </tr>
-                        <tr>
-                            <td class="framework-label">Realised</td>
-                            @foreach (var plan in activity.Plans)
-                            {
-                                <td class="editable-cell text-center" contenteditable="true"
-                                    data-plan-code="@plan.PlanCode"
-                                    data-value-type="Realised">
-                                    @plan.RealisedValue
-                                </td>
-                            }
-                            @for (int i = activity.Plans.Count; i < maxPlans; i++)
-                            {
-                                <td></td>
-                            }
-                            <td class="total-cost text-end">@activity.TotalRealisedCost.ToString("N0")</td>
-                        </tr>
-                    }
-                </tbody>
-                <tfoot>
-                    <tr class="subtotal-row">
-                        <td colspan="2">Subtotal Planned</td>
-                        @for (int i = 0; i < maxPlans; i++)
+                    </thead>
+                    <tbody>
+                        @foreach (var activity in activityGroup.Activities)
                         {
-                            <td class="text-center">@activityGroup.Activities.Sum(a => a.Plans.Count > i ? a.Plans[i].PlannedValue : 0)</td>
+                            <tr>
+                                <td rowspan="3" class="activity-name align-middle">@activity.ActivityName</td>
+                                @*    <td class="framework-label">Date</td> *@
+                                <td class="framework-label"></td>
+                                @foreach (var plan in activity.Plans)
+                                {
+                                    @*  <td class="text-center plan-date">@plan.Date.ToString("yyyy-MM-dd")</td> *@
+                                    <td class="text-center plan-date"></td>
+                                }
+                                @for (int i = activity.Plans.Count; i < maxPlans; i++)
+                                {
+                                    <td></td>
+                                }
+                                <td class="text-end">-</td>
+                            </tr>
+                            <tr>
+                                <td class="framework-label">Planned</td>
+                                @foreach (var plan in activity.Plans)
+                                {
+                                    <td class="editable-cell text-center" contenteditable="true"
+                                        data-plan-code="@plan.PlanCode"
+                                        data-value-type="Planned">
+                                        @plan.PlannedValue
+                                    </td>
+                                }
+                                @for (int i = activity.Plans.Count; i < maxPlans; i++)
+                                {
+                                    <td></td>
+                                }
+                                <td class="total-cost text-end">@activity.TotalEstimatedCost.ToString("N0")</td>
+                            </tr>
+                            <tr>
+                                <td class="framework-label">Realised</td>
+                                @foreach (var plan in activity.Plans)
+                                {
+                                    <td class="editable-cell text-center" contenteditable="true"
+                                        data-plan-code="@plan.PlanCode"
+                                        data-value-type="Realised">
+                                        @plan.RealisedValue
+                                    </td>
+                                }
+                                @for (int i = activity.Plans.Count; i < maxPlans; i++)
+                                {
+                                    <td></td>
+                                }
+                                <td class="total-cost text-end">@activity.TotalRealisedCost.ToString("N0")</td>
+                            </tr>
                         }
-                        <td class="text-end">@activityGroup.Activities.Sum(a => a.TotalEstimatedCost).ToString("N0")</td>
-                    </tr>
-                    <tr class="subtotal-row">
-                        <td colspan="2">Subtotal Realised</td>
-                        @for (int i = 0; i < maxPlans; i++)
-                        {
-                            <td class="text-center">@activityGroup.Activities.Sum(a => a.Plans.Count > i ? a.Plans[i].RealisedValue : 0)</td>
-                        }
-                        <td class="text-end">@activityGroup.Activities.Sum(a => a.TotalRealisedCost).ToString("N0")</td>
-                    </tr>
-                </tfoot>
-            </table>
-        </div>
+                    </tbody>
+                    <tfoot>
+                        <tr class="subtotal-row">
+                            <td colspan="2">Subtotal Planned</td>
+                            @for (int i = 0; i < maxPlans; i++)
+                            {
+                                <td class="text-center">@activityGroup.Activities.Sum(a => a.Plans.Count > i ? a.Plans[i].PlannedValue : 0)</td>
+                            }
+                            <td class="text-end">@activityGroup.Activities.Sum(a => a.TotalEstimatedCost).ToString("N0")</td>
+                        </tr>
+                        <tr class="subtotal-row">
+                            <td colspan="2">Subtotal Realised</td>
+                            @for (int i = 0; i < maxPlans; i++)
+                            {
+                                <td class="text-center">@activityGroup.Activities.Sum(a => a.Plans.Count > i ? a.Plans[i].RealisedValue : 0)</td>
+                            }
+                            <td class="text-end">@activityGroup.Activities.Sum(a => a.TotalRealisedCost).ToString("N0")</td>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+
+        }
     }
 
     @if (!Model.Any())

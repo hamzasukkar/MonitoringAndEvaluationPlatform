@@ -183,26 +183,30 @@
 							</div>
 							<div class="mt-3">
 								<strong class="text-muted">Projects:</strong>
-								${framework.projects.map(p => {
-									// START of CHANGE: Logic to color project progress bars
-									const projectBarColor = p.performance >= 80 ? 'bg-success'
-														  : p.performance >= 50 ? 'bg-warning'
-														  : 'bg-danger';
-									// END of CHANGE
+									${framework.projects.map(p => {
+									// Round p.performance to the nearest whole number
+									const roundedPerformance = Math.round(p.performance);
+
+									// Logic to color project progress bars based on rounded performance
+									const projectBarColor = roundedPerformance >= 80 ? 'bg-success'
+																	: roundedPerformance >= 50 ? 'bg-warning'
+																	: 'bg-danger';
+
 									return `
-									<div class="mt-2">
-										<div class="d-flex justify-content-between">
-											<span style="font-size: 0.85rem;" class="text-muted">${p.projectName}</span>
-											<span style="font-size: 0.85rem;" class="fw-bold text-muted">${p.performance}%</span>
-										</div>
-										<div class="progress mt-1" style="height: 8px; border-radius: 0.25rem;">
-											<div class="progress-bar ${projectBarColor}" role="progressbar"
-												 style="width: ${p.performance}%"
-												 aria-valuenow="${p.performance}" aria-valuemin="0" aria-valuemax="100">
+										<div class="mt-2">
+											<div class="d-flex justify-content-between">
+												<span style="font-size: 0.85rem;" class="text-muted">${p.projectName}</span>
+												<span style="font-size: 0.85rem;" class="fw-bold text-muted">${roundedPerformance}%</span>
+											</div>
+											<div class="progress mt-1" style="height: 8px; border-radius: 0.25rem;">
+												<div class="progress-bar ${projectBarColor}" role="progressbar"
+													style="width: ${roundedPerformance}%"
+													aria-valuenow="${roundedPerformance}" aria-valuemin="0" aria-valuemax="100">
+												</div>
 											</div>
 										</div>
-									</div>
-								`}).join('')}
+									`;
+								}).join('')}
 							</div>
 						</div>
 					</div>
