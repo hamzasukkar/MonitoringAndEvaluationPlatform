@@ -694,7 +694,11 @@ namespace MonitoringAndEvaluationPlatform.Migrations
                     b.Property<double>("IndicatorsPerformance")
                         .HasColumnType("float");
 
-                    b.Property<string>("MinistryName")
+                    b.Property<string>("MinistryDisplayName")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("MinistryUserName")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 

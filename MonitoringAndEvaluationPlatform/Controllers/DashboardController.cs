@@ -397,7 +397,7 @@ public class DashboardController : Controller
                .ToListAsync(),
 
             Ministries = await _context.Ministries
-               .Select(m => new SelectListItem { Value = m.Code.ToString(), Text = m.MinistryName })
+               .Select(m => new SelectListItem { Value = m.Code.ToString(), Text = m.MinistryDisplayName })
                .ToListAsync(),
             Sectors = await _context.Sectors
                .Select(s => new SelectListItem { Value = s.Code.ToString(), Text = s.Name })
@@ -719,7 +719,7 @@ public class DashboardController : Controller
              .Select(mn => new
              {
                  id = mn.Code,         // your Ministry primary key
-                 name = mn.MinistryName
+                 name = mn.MinistryDisplayName
              })
              .ToList();
 

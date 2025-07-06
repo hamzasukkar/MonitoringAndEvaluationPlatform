@@ -244,7 +244,7 @@
 				<label class="checkbox-item">
 					<input type="checkbox" name="selectedMinistryIds" value="@ministry.Code"
 					@(Model.SelectedMinistryIds.Contains(ministry.Code) ? "checked" : "") />
-					@ministry.MinistryName
+					@ministry.MinistryDisplayName
 				</label>
 			}
 		</div>

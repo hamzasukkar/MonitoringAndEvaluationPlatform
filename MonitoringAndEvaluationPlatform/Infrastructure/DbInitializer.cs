@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using MonitoringAndEvaluationPlatform.Data;
 using MonitoringAndEvaluationPlatform.Enums;
 using MonitoringAndEvaluationPlatform.Models;
@@ -7,12 +8,14 @@ namespace MonitoringAndEvaluationPlatform.Infrastructure
 {
     public static class DbInitializer
     {
-        public static void Seed(IServiceProvider serviceProvider)
+        public static async Task SeedAsync(IServiceProvider serviceProvider)
         {
             // Create a scope to manage the context's lifetime
             using (var scope = serviceProvider.CreateScope())
             {
                 var context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+                var userManager = scope.ServiceProvider.GetRequiredService<UserManager<ApplicationUser>>();
+                var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
 
                 if (!context.Sectors.Any())
                 {
@@ -73,73 +76,78 @@ namespace MonitoringAndEvaluationPlatform.Infrastructure
 
                 if (!context.Ministries.Any())
                 {
-                    //var ministries = new List<Ministry>
-                    //{
-                    //    new Ministry { MinistryName = "Ministry of Public Works and Housing" },
-                    //    new Ministry { MinistryName = "Ministry of Endowments" },
-                    //    new Ministry { MinistryName = "Ministry of Local Administration and Environment" },
-                    //    new Ministry { MinistryName = "Ministry of Information" },
-                    //    new Ministry { MinistryName = "Ministry of Communications and Information Technology" },
-                    //    new Ministry { MinistryName = "Ministry of Economy and Foreign Trade" },
-                    //    new Ministry { MinistryName = "Ministry of Internal Trade and Consumer Protection" },
-                    //    new Ministry { MinistryName = "Ministry of Education" },
-                    //    new Ministry { MinistryName = "Ministry of Higher Education and Scientific Research" },
-                    //    new Ministry { MinistryName = "Ministry of Administrative Development" },
-                    //    new Ministry { MinistryName = "Ministry of Foreign Affairs and Expatriates" },
-                    //    new Ministry { MinistryName = "Ministry of Interior" },
-                    //    new Ministry { MinistryName = "Ministry of Defense" },
-                    //    new Ministry { MinistryName = "Ministry of Irrigation" },
-                    //    new Ministry { MinistryName = "Ministry of Youth and Sports" },
-                    //    new Ministry { MinistryName = "Ministry of Agriculture and Agrarian Reform" },
-                    //    new Ministry { MinistryName = "Ministry of Tourism" },
-                    //    new Ministry { MinistryName = "Ministry of Social Affairs and Labor" },
-                    //    new Ministry { MinistryName = "Ministry of Health" },
-                    //    new Ministry { MinistryName = "Ministry of Industry" },
-                    //    new Ministry { MinistryName = "Ministry of Energy" },
-                    //    new Ministry { MinistryName = "Ministry of Emergency and Disaster Management" },
-                    //    new Ministry { MinistryName = "Ministry of Justice" },
-                    //    new Ministry { MinistryName = "Ministry of Electricity" },
-                    //    new Ministry { MinistryName = "Ministry of Finance" },
-                    //    new Ministry { MinistryName = "Ministry of Expatriates" },
-                    //    new Ministry { MinistryName = "Ministry of Water Resources" },
-                    //    new Ministry { MinistryName = "Ministry of Oil and Mineral Resources" },
-                    //    new Ministry { MinistryName = "Ministry of Transport" },
-                    //    new Ministry { MinistryName = "Ministry of Presidential Affairs" },
-                    //};
-
                     var ministries = new List<Ministry>
                     {
-                        new Ministry { MinistryName = "وزارة الخارجية والمغتربين" },
-                        new Ministry { MinistryName = "وزارة الدفاع" },
-                        new Ministry { MinistryName = "وزارة الداخلية" },
-                        new Ministry { MinistryName = "وزارة العدل" },
-                        new Ministry { MinistryName = "وزارة الأوقاف" },
-                        new Ministry { MinistryName = "وزارة التعليم العالي والبحث العلمي" },
-                        new Ministry { MinistryName = "وزارة التربية" },
-                        new Ministry { MinistryName = "وزارة الشؤون الاجتماعية والعمل" },
-                        new Ministry { MinistryName = "وزارة الاقتصاد والتجارة الخارجية" },
-                        new Ministry { MinistryName = "وزارة المالية" },
-                        new Ministry { MinistryName = "وزارة الصحة" },
-                        new Ministry { MinistryName = "وزارة الإدارة المحلية والبيئة" },
-                        new Ministry { MinistryName = "وزارة الأشغال العامة والإسكان" },
-                        new Ministry { MinistryName = "وزارة النقل" },
-                        new Ministry { MinistryName = "وزارة الاتصالات وتقانة المعلومات" },
-                        new Ministry { MinistryName = "وزارة الزراعة والإصلاح الزراعي" },
-                        new Ministry { MinistryName = "وزارة السياحة" },
-                        new Ministry { MinistryName = "وزارة الصناعة" },
-                        new Ministry { MinistryName = "وزارة الكهرباء" },
-                        new Ministry { MinistryName = "وزارة النفط والثروة المعدنية" },
-                        new Ministry { MinistryName = "وزارة الموارد المائية" },
-                        new Ministry { MinistryName = "وزارة الإعلام" },
-                        new Ministry { MinistryName = "وزارة الثقافة" },
-                        new Ministry { MinistryName = "وزارة التنمية الإدارية" },
-                        new Ministry { MinistryName = "وزارة الرياضة والشباب" },
-                        new Ministry { MinistryName = "وزارة الطاقة" },
-                        new Ministry { MinistryName = "وزارة الطوارئ والكوارث" },
+                        new Ministry { MinistryDisplayName = "وزارة الخارجية والمغتربين", MinistryUserName = "MoFA" },
+                        new Ministry { MinistryDisplayName = "وزارة الدفاع", MinistryUserName = "MoD" },
+                        new Ministry { MinistryDisplayName = "وزارة الداخلية", MinistryUserName = "MoI" },
+                        new Ministry { MinistryDisplayName = "وزارة العدل", MinistryUserName = "MoJ" },
+                        new Ministry { MinistryDisplayName = "وزارة الأوقاف", MinistryUserName = "MoAwaqf" },
+                        new Ministry { MinistryDisplayName = "وزارة التعليم العالي والبحث العلمي", MinistryUserName = "MoHESR" },
+                        new Ministry { MinistryDisplayName = "وزارة التربية", MinistryUserName = "MoE" },
+                        new Ministry { MinistryDisplayName = "وزارة الشؤون الاجتماعية والعمل", MinistryUserName = "MoSAL" },
+                        new Ministry { MinistryDisplayName = "وزارة الاقتصاد والتجارة الخارجية", MinistryUserName = "MoECT" },
+                        new Ministry { MinistryDisplayName = "وزارة المالية", MinistryUserName = "MoF" },
+                        new Ministry { MinistryDisplayName = "وزارة الصحة", MinistryUserName = "MoH" },
+                        new Ministry { MinistryDisplayName = "وزارة الإدارة المحلية والبيئة", MinistryUserName = "MoLAE" },
+                        new Ministry { MinistryDisplayName = "وزارة الأشغال العامة والإسكان", MinistryUserName = "MoPWH" },
+                        new Ministry { MinistryDisplayName = "وزارة النقل", MinistryUserName = "MoT" },
+                        new Ministry { MinistryDisplayName = "وزارة الاتصالات وتقانة المعلومات", MinistryUserName = "MoCIT" },
+                        new Ministry { MinistryDisplayName = "وزارة الزراعة والإصلاح الزراعي", MinistryUserName = "MoAAR" },
+                        new Ministry { MinistryDisplayName = "وزارة السياحة", MinistryUserName = "MoTourism" },
+                        new Ministry { MinistryDisplayName = "وزارة الصناعة", MinistryUserName = "MoIndustry" },
+                        new Ministry { MinistryDisplayName = "وزارة الكهرباء", MinistryUserName = "MoElectricity" },
+                        new Ministry { MinistryDisplayName = "وزارة النفط والثروة المعدنية", MinistryUserName = "MoOMR" },
+                        new Ministry { MinistryDisplayName = "وزارة الموارد المائية", MinistryUserName = "MoWR" },
+                        new Ministry { MinistryDisplayName = "وزارة الإعلام", MinistryUserName = "MoInfo" },
+                        new Ministry { MinistryDisplayName = "وزارة الثقافة", MinistryUserName = "MoCulture" },
+                        new Ministry { MinistryDisplayName = "وزارة التنمية الإدارية", MinistryUserName = "MoAD" },
+                        new Ministry { MinistryDisplayName = "وزارة الرياضة والشباب", MinistryUserName = "MoSY" },
+                        new Ministry { MinistryDisplayName = "وزارة الطاقة", MinistryUserName = "MoEnergy" },
+                        new Ministry { MinistryDisplayName = "وزارة الطوارئ والكوارث", MinistryUserName = "MoEDM" },
                     };
-
                     context.Ministries.AddRange(ministries);
+                    await context.SaveChangesAsync(); // Ensure ministries are saved before creating users
+
+                    foreach (var ministry in ministries)
+                    {
+                        string roleName = ministry.MinistryUserName;
+                        string userName = ministry.MinistryUserName;
+                        string email = $"{userName.ToLower()}@example.com";
+                        string defaultPassword = "Ministry@123";
+
+                        // Create role if it doesn’t exist
+                        if (!await roleManager.RoleExistsAsync(roleName))
+                        {
+                            await roleManager.CreateAsync(new IdentityRole(roleName));
+                        }
+
+                        // Create user if it doesn’t exist
+                        var existingUser = await userManager.FindByNameAsync(userName);
+                        if (existingUser == null)
+                        {
+                            var user = new ApplicationUser
+                            {
+                                UserName = userName,
+                                Email = email,
+                                EmailConfirmed = true,
+                                MinistryName = userName // Or MinistryDisplayName if preferred
+                            };
+
+                            var result = await userManager.CreateAsync(user, defaultPassword);
+                            if (result.Succeeded)
+                            {
+                                await userManager.AddToRoleAsync(user, roleName);
+                            }
+                            else
+                            {
+                                Console.WriteLine($"⚠️ Failed to create user {userName}: {string.Join(", ", result.Errors.Select(e => e.Description))}");
+                            }
+                        }
+                    }
                 }
+            
+
 
 
                 // ✅ Check if Frameworks already exist

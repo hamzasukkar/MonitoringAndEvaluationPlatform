@@ -53,7 +53,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             {
                 projectQuery = projectQuery
                     .Where(p => p.Ministries
-                                 .Any(m => m.MinistryName == user.MinistryName));
+                                 .Any(m => m.MinistryDisplayName == user.MinistryName));
                 filter.IsMinistryUser = true;
             }
 
@@ -108,6 +108,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             var projectManagers = _context.ProjectManagers.ToList();
 
             ViewBag.Governorates = _context.Governorates.ToList();
+
             // Initialize project with defaults
             var project = new Project
             {
@@ -128,7 +129,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             // Prepare dropdown and multiselect data
             ViewBag.Donor = new SelectList(donors, "Code", "Partner");
             ViewBag.SectorList = new MultiSelectList(sectors, "Code", "Name", new List<int> { firstSectorCode ?? 0 });
-            ViewBag.MinistryList = new MultiSelectList(ministries, "Code", "MinistryName", new List<int> { firstMinistryCode ?? 0 });
+            ViewBag.MinistryList = new MultiSelectList(ministries, "Code", "MinistryDisplayName", new List<int> { firstMinistryCode ?? 0 });
             ViewBag.SuperVisor = new SelectList(supervisors, "Code", "Name");
             ViewBag.ProjectManager = new SelectList(projectManagers, "Code", "Name");
 
@@ -403,7 +404,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             ViewBag.MinistryList = new MultiSelectList(
                 allMinistries,
                 "Code",      // value field
-                "MinistryName",      // text field
+                "MinistryDisplayName",      // text field
                 selectedMinistryCodes  // whichever codes should be pre‐checked
             );
 
@@ -634,7 +635,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             ViewBag.MinistryList = new MultiSelectList(
                 allMinistries,
                 "Code",
-                "MinistryName",
+                "MinistryDisplayName",
                 selectedMinistryCodes
             );
 

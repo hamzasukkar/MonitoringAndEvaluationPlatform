@@ -7,7 +7,8 @@ namespace MonitoringAndEvaluationPlatform.Models
     {
         [Key]
         public int Code { get; set; }
-        public string MinistryName { get; set; }
+        public string MinistryUserName { get; set; }
+        public string MinistryDisplayName { get; set; }
         public double IndicatorsPerformance { get; set; } = 0;
         public double DisbursementPerformance { get; set; } = 0;
         public double FieldMonitoring { get; set; } = 0;

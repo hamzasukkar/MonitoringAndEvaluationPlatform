@@ -39,7 +39,7 @@
                                                    value="@ministry.Code" id="ministry-@ministry.Code"
                                             @(Model.SelectedMinistries.Contains(ministry.Code) ? "checked" : "")>
                                             <label class="form-check-label" for="ministry-@ministry.Code">
-                                                @ministry.MinistryName
+                                                @ministry.MinistryDisplayName
                                             </label>
                                         </div>
                                     }

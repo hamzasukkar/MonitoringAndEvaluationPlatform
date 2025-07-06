@@ -102,7 +102,8 @@ namespace MonitoringAndEvaluationPlatform.Migrations
                 {
                     Code = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    MinistryName = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    MinistryUserName = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    MinistryDisplayName = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     IndicatorsPerformance = table.Column<double>(type: "float", nullable: false),
                     DisbursementPerformance = table.Column<double>(type: "float", nullable: false),
                     FieldMonitoring = table.Column<double>(type: "float", nullable: false),

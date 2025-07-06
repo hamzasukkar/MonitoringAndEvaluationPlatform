@@ -12,7 +12,7 @@ using MonitoringAndEvaluationPlatform.Data;
 namespace MonitoringAndEvaluationPlatform.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20250625134850_Models")]
+    [Migration("20250706051513_Models")]
     partial class Models
     {
         /// <inheritdoc />
@@ -697,7 +697,11 @@ namespace MonitoringAndEvaluationPlatform.Migrations
                     b.Property<double>("IndicatorsPerformance")
                         .HasColumnType("float");
 
-                    b.Property<string>("MinistryName")
+                    b.Property<string>("MinistryDisplayName")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("MinistryUserName")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 

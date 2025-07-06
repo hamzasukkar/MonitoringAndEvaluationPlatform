@@ -1,4 +1,4 @@
-using Microsoft.AspNetCore.Identity;
+ï»¿using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using MonitoringAndEvaluationPlatform.Data;
 using MonitoringAndEvaluationPlatform.Infrastructure;
@@ -81,20 +81,20 @@ using (var scope = app.Services.CreateScope())
     var roleManager = services.GetRequiredService<RoleManager<IdentityRole>>();
     var userManager = services.GetRequiredService<UserManager<ApplicationUser>>();
     var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-    DbInitializer.Seed(services);
+    DbInitializer.SeedAsync(services);
     ApplicationDbInitializer.SeedGovernoratesFromJson(dbContext);
     ApplicationDbInitializer.SeedDistrictsFromJson(dbContext);
     ApplicationDbInitializer.SeedSubDistrictsFromJson(dbContext);
     ApplicationDbInitializer.SeedCommunitiesFromJson(dbContext);
 
-    // Create Admin role if it doesn’t exist
+    // Create Admin role if it doesnâ€™t exist
     string adminRole = "Admin";
     if (!await roleManager.RoleExistsAsync(adminRole))
     {
         await roleManager.CreateAsync(new IdentityRole(adminRole));
     }
 
-    // Create an Admin user if it doesn’t exist
+    // Create an Admin user if it doesnâ€™t exist
     string adminUserName = "admin";
     string adminEmail = "admin@example.com";
     string adminPassword = "Admin@123"; // Change this in production
