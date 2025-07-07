@@ -10,7 +10,7 @@
 			<div class="card-body">
 				<i class="bi bi-diagram-3-fill display-5 mb-2"></i>
 				<h5 class="card-title">Total Frameworks</h5>
-				<h2 class="fw-bold">@Model.TotalFrameworks</h2>
+				<h2 class="fw-bold" id="totalFrameworks">@Model.TotalFrameworks</h2>
 				<select id="frameworkFilter" class="form-select mt-3 text-dark">
 					<option disabled selected value="">-- Select Framework --</option>
 					@foreach (var fw in Model.Frameworks)
@@ -28,7 +28,7 @@
 			<div class="card-body">
 				<i class="bi bi-building display-5 mb-2"></i>
 				<h5 class="card-title">Total Projects</h5>
-				<h2 class="fw-bold">@Model.TotalProjects</h2>
+				<h2 id="totalProjects" class="fw-bold">@Model.TotalProjects</h2>
 				<select id="projectFilter" class="form-select mt-3">
 					<option disabled selected>-- Select Project --</option>
 					@foreach (var proj in Model.Projects)
@@ -46,7 +46,7 @@
 			<div class="card-body">
 				<i class="bi bi-bar-chart-fill display-5 mb-2"></i>
 				<h5 class="card-title">Total Ministries</h5>
-				<h2 class="fw-bold">@Model.TotlalMinistries</h2>
+				<h2 id="totalMinistries" class="fw-bold">@Model.TotlalMinistries</h2>
 				<select id="ministryFilter" class="form-select mt-3 text-dark">
 					<option disabled selected value="">-- Select Ministry --</option>
 					@foreach (var min in Model.Ministries)
@@ -287,7 +287,7 @@
 		const ministryCode = document.getElementById('ministryFilter').value;
 		const projectCode = document.getElementById('projectFilter').value;
 		loadGauges(frameworkCode, ministryCode, projectCode);
-
+		document.getElementById('totalFrameworks').textContent = 1;
 		// Clear existing project options
 		const projectDropdown = document.getElementById('projectFilter');
 		projectDropdown.innerHTML = '<option value="">Select Project</option>';
@@ -304,14 +304,18 @@
 					if (!response.ok) throw new Error("Network response was not ok for projects");
 					return response.json();
 				})
-				.then(projects => {
-					projects.forEach(project => {
-						const option = document.createElement('option');
-						option.value = project.id;
-						option.textContent = project.name;
-						projectDropdown.appendChild(option);
-					});
-				})
+					.then(projects => {
+		projects.forEach(project => {
+			const option = document.createElement('option');
+			option.value = project.id;
+			option.textContent = project.name;
+			projectDropdown.appendChild(option);
+		});
+
+		// Update total projects (excluding the default option)
+		const totalProjects = projectDropdown.options.length - 1;
+		document.getElementById('totalProjects').textContent = totalProjects;
+	})
 				.catch(error => console.error('Error fetching projects:', error));
 
 			// Fetch ministries for the selected framework
@@ -321,13 +325,17 @@
 					return res.json();
 				})
 				.then(ministries => {
-					ministries.forEach(mn => {
-						const opt = document.createElement('option');
-						opt.value = mn.id;
-						opt.textContent = mn.name;
-						ministryDropdown.appendChild(opt);
-					});
-				})
+		ministries.forEach(mn => {
+			const opt = document.createElement('option');
+			opt.value = mn.id;
+			opt.textContent = mn.name;
+			ministryDropdown.appendChild(opt);
+		});
+
+		// Update total ministries (excluding the default option)
+		const totalMinistries = ministryDropdown.options.length - 1;
+		document.getElementById('totalMinistries').textContent = totalMinistries;
+	})
 				.catch(err => console.error('Error fetching ministries:', err));
 		}
 	});
