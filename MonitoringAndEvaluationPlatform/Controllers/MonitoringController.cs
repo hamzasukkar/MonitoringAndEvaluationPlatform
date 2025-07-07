@@ -267,12 +267,20 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         }
 
         public async Task<IActionResult> Indicators(
-             int? frameworkCode,
-             int? outcomeCode,
-             int? outputCode,
-             int? subOutputCode)
+           int? frameworkCode,
+           int? outcomeCode,
+           int? outputCode,
+           int? subOutputCode)
         {
             var indicatorsQuery = _context.Indicators.AsQueryable();
+
+            // Eager load necessary navigation properties for filtering and project counting
+            indicatorsQuery = indicatorsQuery
+                .Include(i => i.SubOutput) // Include SubOutput for filtering by Output/Outcome/Framework
+                    .ThenInclude(so => so.Output) // Include Output
+                        .ThenInclude(o => o.Outcome) // Include Outcome
+                            .ThenInclude(outc => outc.Framework) // Include Framework
+                .Include(i => i.Measures); // <--- CRUCIAL: Include Measures to count projects via Measures
 
             if (subOutputCode.HasValue)
             {
@@ -291,15 +299,16 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 indicatorsQuery = indicatorsQuery.Where(i => i.SubOutput.Output.Outcome.FrameworkCode == frameworkCode.Value);
             }
 
-            var indicators = await indicatorsQuery.Include(i => i.ProjectIndicators).ToListAsync();
+            var indicators = await indicatorsQuery.ToListAsync();
 
             // Create a dictionary of IndicatorCode -> ProjectCount
+            // Now correctly counting distinct projects via the Measures collection
             var projectCounts = indicators.ToDictionary(
-                i => i.IndicatorCode,
-                i => i.ProjectIndicators
-                      .Select(pi => pi.ProjectId)
-                      .Distinct()
-                      .Count()
+                i => i.IndicatorCode, // Use i.Code as the key for the dictionary
+                i => i.Measures // Access the Measures collection on the indicator
+                      .Select(m => m.ProjectID) // Select the ProjectID from each Measure
+                      .Distinct() // Get distinct ProjectIDs
+                      .Count() // Count them
             );
 
             ViewBag.ProjectCounts = projectCounts;
