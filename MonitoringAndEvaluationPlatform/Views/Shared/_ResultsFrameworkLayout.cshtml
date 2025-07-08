@@ -1,15 +1,24 @@
 ﻿@using Microsoft.AspNetCore.Identity
+@using Microsoft.AspNetCore.Mvc.Localization
 @inject SignInManager<ApplicationUser> SignInManager
 @inject UserManager<ApplicationUser> UserManager
 @using MonitoringAndEvaluationPlatform.Data
 @inject ApplicationDbContext _context
+@inject IViewLocalizer Localizer
+@using Microsoft.AspNetCore.Localization
+
+@{
+    var culture = Context.Features.Get<IRequestCultureFeature>()?.RequestCulture.Culture.Name;
+    var dir = culture == "ar" ? "rtl" : "ltr";
+    var lang = culture == "ar" ? "ar" : "en";
+}
 
 <!DOCTYPE html>
-<html lang="en">
+<html lang="@lang" dir="@dir">
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@ViewData["Title"] - Monitoring & Evaluation System</title>
+    <title>@Localizer["AppTitle"]</title>
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/css/all.min.css" />
@@ -19,7 +28,7 @@
 <body>
     <header>
         <div class="topbar">
-            <div class="title">Monitoring & Evaluation System</div>
+            <div class="title">@Localizer["AppTitle"]</div>
             <div class="nav-links">
                 <ul class="nav">
                     <!-- Framework Dropdowns -->
@@ -72,6 +81,15 @@
                                     <button type="submit" class="dropdown-item"><i class="fas fa-sign-out-alt me-2"></i>Logout</button>
                                 </form>
                             </li>
+                            <li>
+                                <form asp-controller="Frameworks" asp-action="SetLanguage" method="post">
+                                    <select name="culture" onchange="this.form.submit();">
+                                        <option value="en" selected>English</option>
+                                        <option value="ar">العربية</option>
+                                    </select>
+                                    <input type="hidden" name="returnUrl" value="@Context.Request.Path" />
+                                </form>
+                            </li>
                         </ul>
                     </li>
                 </ul>
@@ -86,31 +104,31 @@
                 <li>
                     <a class="d-flex align-items-center" href="/Frameworks/Index">
                         <i class="fas fa-sitemap"></i>
-                        <span>Results Framework</span>
+                        <span>@Localizer["Frameworks"]</span>
                     </a>
                 </li>
                 <li>
                     <a class="d-flex align-items-center" href="/Ministries/Index">
                         <i class="fas fa-cogs"></i>
-                        <span>Set Up</span>
+                        <span>@Localizer["Set Up"]</span>
                     </a>
                 </li>
                 <li>
                     <a class="d-flex align-items-center" href="/Projects/Index">
                         <i class="fas fa-project-diagram"></i>
-                        <span>Projects</span>
+                        <span>@Localizer["Projects"]</span>
                     </a>
                 </li>
                 <li>
                     <a class="d-flex align-items-center" href="/Monitoring/Index">
                         <i class="fas fa-chart-line"></i>
-                        <span>Monitoring</span>
+                        <span>@Localizer["Monitoring"]</span>
                     </a>
                 </li>
                 <li>
                     <a class="d-flex align-items-center" href="/Dashboard/Index">
                         <i class="fas fa-tachometer-alt"></i>
-                        <span>Dashboard</span>
+                        <span>@Localizer["Dashboard"]</span>
                     </a>
                 </li>
            @*      <li>
