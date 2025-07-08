@@ -1,108 +1,240 @@
 ﻿@model IEnumerable<MonitoringAndEvaluationPlatform.Models.SubOutput>
 @using MonitoringAndEvaluationPlatform.Helpers
-
 @{
-    ViewData["Title"] = "Index";
+    ViewData["Title"] = "SubOutputs";
     Layout = "~/Views/Shared/_ResultsFrameworkLayout.cshtml";
 }
 
-<h1>Index</h1>
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h4 class="mb-0">SubOutputs Management</h4>
+            <p class="text-muted mb-0">View and manage all suboutput performance metrics</p>
+        </div>
+        <div class="d-flex flex-wrap gap-2">
+            @if (ViewBag.SelectedOutputCode != null)
+            {
+  
+                <button class="btn btn-success me-2" type="button" id="toggleCreateForm">
+                    <i class="fas fa-plus me-2"></i>Create New SubOutput
+                </button>
+                <a asp-action="AdjustWeights" asp-route-outputCode="@ViewBag.SelectedOutputCode" class="btn btn-warning">
+                    <i class="fas fa-balance-scale me-2"></i>Adjust Weights
+                </a>
+            }
+            else
+            {
+                <a asp-action="Create" asp-route-id="@ViewBag.SelectedOutputCode" class="btn btn-success">
+                    <i class="fas fa-plus me-2"></i>Create New
+                </a>
+            }
+           
+        </div>
+    </div>
+    <!-- Collapsible Outcome Creation Form -->
+    <div id="createSubOutcomeForm" class="card shadow-sm mb-4" style="display:none;">
+        <div class="card-body">
+            <form asp-action="Create" method="post">
+                <input type="hidden" name="OutputCode" value="@ViewBag.SelectedOutputCode" />
+                <div class="mb-3">
+                    <label for="Name" class="form-label">Outcome Name</label>
+                    <input type="text" class="form-control" id="Name" name="Name" required />
+                </div>
+                <!-- Add other fields as needed -->
 
-<p>
-    <a asp-action="Create" asp-route-id="@ViewBag.SelectedOutputCode" class="btn btn-success">Create New Sub Output</a>
-    @if (@ViewBag.SelectedOutputCode != null)
-    {
-        <a asp-action="AdjustWeights"  asp-route-outputCode="@ViewBag.SelectedOutputCode" class="btn btn-warning">Adjust Weights</a>
-    }
-</p>
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-save me-2"></i>Save SubOutput
+                </button>
+            </form>
+        </div>
+    </div>
+   
 
-<table class="table">
-    <thead>
-        <tr>
-            <th>
-                Name
-            </th>
-            <th>
-                Weight
-            </th>
-   @*          <th>
-                Trend
-            </th> *@
-            <th>
-                Indicators Performance
-            </th>
-            <th>
-                Disbursement Performance
-            </th>
-            <th>
-                Field Monitoring
-            </th>
-            <th>
-                Impact Assessment
-            </th>
-            <th>
-                Output
-            </th>
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var item in Model)
-        {
-            string indicatorsClass = ProgressBarHelper.GetProgressBarClass(item.IndicatorsPerformance);
-            string disbursementClass = ProgressBarHelper.GetProgressBarClass(item.DisbursementPerformance);
-            string fieldMonitoringClass = ProgressBarHelper.GetProgressBarClass(item.FieldMonitoring);
-            string impactAssessmentClass = ProgressBarHelper.GetProgressBarClass(item.ImpactAssessment);
-            double IndicatorsPerformance = Math.Round(item.IndicatorsPerformance, 2);
-            <tr>
-                <td>
-                    <a asp-controller="Indicators" asp-route-frameworkCode="@item.Output.Outcome.FrameworkCode" asp-route-subOutputCode="@item.Code" asp-action="Index">@item.Name</a>
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.Weight)
-                </td>
-           @*      <td>
-                    @Html.DisplayFor(modelItem => item.Trend)
-                </td> *@
-                <td>
-                    @await Html.PartialAsync("_ProgressBar", Tuple.Create(IndicatorsPerformance, indicatorsClass))
-                </td>
-                <td>
-                    @await Html.PartialAsync("_ProgressBar", Tuple.Create(item.DisbursementPerformance, disbursementClass))
-                </td>
-                <td>
-                    @await Html.PartialAsync("_ProgressBar", Tuple.Create(item.FieldMonitoring, fieldMonitoringClass))
-                </td>
-                <td>
-                    @await Html.PartialAsync("_ProgressBar", Tuple.Create(item.ImpactAssessment, impactAssessmentClass))
-                </td>
 
-                <td>
-                    <a href="/Outputs/Index/@item.OutputCode">@item.Output.Name</a>
-                </td>
-                <td>
-                    <form method="post" style="display: inline;">
-                        <button class="btn btn-sm btn-success" title="Tree">
-                            <i class="bi bi-diagram-3"></i>
-                        </button>
-                    </form>
-                    <form asp-action="Details" asp-route-id="@item.Code" method="get" style="display: inline;">
-                        <button class="btn btn-sm btn-primary" title="View">
-                            <i class="bi bi-eye"></i>
-                        </button>
-                    </form>
-                    <form asp-action="Edit" asp-route-id="@item.Code" method="get" style="display: inline;">
-                        <button class="btn btn-sm btn-warning" title="Edit">
-                            <i class="bi bi-pencil"></i>
-                        </button>
-                    </form>
-                    <form asp-action="Delete" asp-route-id="@item.Code" method="post" style="display: inline;">
-                        <button class="btn btn-sm btn-danger" title="Delete">
-                            <i class="bi bi-trash"></i>
-                        </button>
-                    </form>
-                </td>
-            </tr>
+
+    <!-- SubOutputs Table -->
+    <div class="card shadow-sm">
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead class="table-light">
+                        <tr>
+                            <th>SubOutput Name</th>
+                            <th>Weight</th>
+                            <th>Indicators Performance</th>
+                            <th>Disbursement Performance</th>
+                            <th>Field Monitoring</th>
+                            <th>Impact Assessment</th>
+                            <th>Output</th>
+                            <th class="text-end">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model)
+                        {
+                            string indicatorsClass = ProgressBarHelper.GetProgressBarClass(item.IndicatorsPerformance);
+                            string disbursementClass = ProgressBarHelper.GetProgressBarClass(item.DisbursementPerformance);
+                            string fieldMonitoringClass = ProgressBarHelper.GetProgressBarClass(item.FieldMonitoring);
+                            string impactAssessmentClass = ProgressBarHelper.GetProgressBarClass(item.ImpactAssessment);
+                            double IndicatorsPerformance = Math.Round(item.IndicatorsPerformance, 0);
+
+                            <tr id="subOutput-row-@item.Code">
+                                <td>
+                                    <span id="fw-name-@item.Code" class="fw-name-view">
+                                        <a asp-controller="Indicators" asp-action="Index"
+                                           asp-route-frameworkCode="@item.Output.Outcome.FrameworkCode"
+                                           asp-route-subOutputCode="@item.Code"
+                                           class="text-decoration-none">
+                                            <strong>@item.Name</strong>                                  
+                                        </a>
+                                    </span>
+                                    <input type="text" id="fw-name-input-@item.Code" class="form-control form-control-sm fw-name-edit d-none"
+                                           value="@item.Name" />
+                                </td>
+                                <td>@item.Weight</td>
+                                <td>
+                                    @await Html.PartialAsync("_ProgressBar", Tuple.Create(IndicatorsPerformance, indicatorsClass))
+                                </td>
+                                <td>
+                                    @await Html.PartialAsync("_ProgressBar", Tuple.Create(item.DisbursementPerformance, disbursementClass))
+                                </td>
+                                <td>
+                                    @await Html.PartialAsync("_ProgressBar", Tuple.Create(item.FieldMonitoring, fieldMonitoringClass))
+                                </td>
+                                <td>
+                                    @await Html.PartialAsync("_ProgressBar", Tuple.Create(item.ImpactAssessment, impactAssessmentClass))
+                                </td>
+                                <td>
+                                    <a href="/Outputs/Index/@item.OutputCode" class="text-decoration-none">@item.Output.Name</a>
+                                </td>
+                                <td class="text-end">
+                                    <div class="btn-group" role="group">
+                                      @*   <a asp-action="Details" asp-route-id="@item.Code" class="btn btn-sm btn-outline-primary" title="View">
+                                            <i class="fas fa-eye"></i>
+                                        </a> *@
+                                        <button class="btn btn-sm btn-outline-warning"
+                                                id="edit-btn-@item.Code"
+                                                onclick="toggleSubOutputEdit(@item.Code,@item.Output.Outcome.FrameworkCode)">
+                                            <i class="fas fa-edit"></i>
+                                        </button>
+                                        <button class="btn btn-sm btn-outline-danger"
+                                                onclick="confirmSubOutputDelete(@item.Code)">
+                                            <i class="fas fa-trash-alt"></i>
+                                        </button>
+                                  @*       <a asp-action="Edit" asp-route-id="@item.Code" class="btn btn-sm btn-outline-warning" title="Edit">
+                                            <i class="fas fa-edit"></i>
+                                        </a>
+                                        <a asp-action="Delete" asp-route-id="@item.Code" class="btn btn-sm btn-outline-danger" title="Delete">
+                                            <i class="fas fa-trash-alt"></i>
+                                        </a> *@
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- JavaScript to toggle form -->
+<script>
+    document.getElementById('toggleCreateForm').addEventListener('click', function () {
+             const form = document.getElementById('createSubOutcomeForm');
+             form.style.display = form.style.display === 'none' ? 'block' : 'none';
+         });
+
+    function toggleSubOutputEdit(code,frameworkCode) {
+       debugger;
+        const viewSpan = $(`#fw-name-${code}`);
+        const input = $(`#fw-name-input-${code}`);
+        const button = $(`#edit-btn-${code}`);
+
+        const isEditing = input.hasClass('d-none') === false;
+
+        if (isEditing) {
+            // Save via AJAX
+            const newName = input.val();
+
+            $.ajax({
+                url: `/SubOutputs/UpdateName`,
+                type: 'POST',
+                data: { id: code, name: newName },
+                success: function () {
+                    viewSpan.html(`<a href="/Indicators?subOutputCode=${code}&frameworkCode=${frameworkCode}" class="text-decoration-none"><strong>${newName}</strong></a>`);
+                    input.addClass('d-none');
+                    viewSpan.removeClass('d-none');
+                    button.html('<i class="fas fa-edit"></i>');
+                    button.removeClass('btn-success').addClass('btn-outline-warning');
+                    Swal.fire('Saved!', 'Output name updated.', 'success');
+                },
+                error: function () {
+                    Swal.fire('Error', 'Could not update name.', 'error');
+                }
+            });
+        } else {
+            // Enter edit mode
+            input.removeClass('d-none');
+            viewSpan.addClass('d-none');
+            button.html('<i class="fas fa-save"></i>');
+            button.removeClass('btn-outline-warning').addClass('btn-success');
         }
-    </tbody>
-</table>
+    }
+            function confirmSubOutputDelete(code) {
+            Swal.fire({
+                title: 'Are you sure?',
+                text: 'This will delete the suboutputs!',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                cancelButtonColor: '#3085d6',
+                confirmButtonText: 'Yes, delete it!'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    $.ajax({
+                        url: `/SubOutputs/DeleteConfirmed/${code}`,
+                        type: 'POST',
+                        success: function () {
+                            $(`#subOutput-row-${code}`).fadeOut();
+                            Swal.fire('Deleted!', 'SubOutput has been deleted.', 'success');
+                        },
+                        error: function () {
+                            Swal.fire('Error', 'Could not delete output.', 'error');
+                        }
+                    });
+                }
+            });
+        }
+
+</script>
+<style>
+    .table-hover tbody tr:hover {
+        background-color: rgba(13, 110, 253, 0.05);
+    }
+
+    .progress {
+        height: 24px;
+        border-radius: 4px;
+    }
+
+    .progress-bar {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.75rem;
+        font-weight: 500;
+    }
+
+    .btn-group .btn {
+        padding: 0.25rem 0.5rem;
+    }
+
+    .card-header {
+        font-weight: 600;
+    }
+
+    .table-responsive {
+        overflow-x: hidden;
+    }
+</style>

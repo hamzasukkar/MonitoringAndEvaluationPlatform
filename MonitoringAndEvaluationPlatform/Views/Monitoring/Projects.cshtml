@@ -1,0 +1,56 @@
+﻿@using MonitoringAndEvaluationPlatform.Helpers;
+@using Microsoft.AspNetCore.Razor.TagHelpers;
+@model IEnumerable<MonitoringAndEvaluationPlatform.Models.Project>
+@{
+	ViewData["Title"] = "Monitoring";
+	Layout = "~/Views/Shared/_ResultsFrameworkLayout.cshtml";
+}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Health Framework Dashboard</title>
+	<link rel="stylesheet" href="~/css/progress-bars.css" />
+</head>
+<body>
+	<div class="framework-container">
+		@foreach (var item in Model)
+		{
+			// Create metrics array for cleaner iteration
+			var metrics = new[]
+			{
+				new {
+				Value = Math.Round(item.performance),
+				Label = "Performance"
+				},
+				new {
+				Value = (double)item.Financial,
+				Label = "Financial"
+				}
+		};
+
+				<div class="framework-card">
+					<div class="framework-header">
+						<h2>@item.ProjectName</h2>
+							 <div class="outcome-badge">
+									 <a href="/Dashboard/Index" style="text-decoration: none; color: white;">Dashboard</a>
+						     </div> 
+					</div>
+
+				@foreach (var metric in metrics)
+				{
+					var progressClass = ProgressHelper.GetProgressClass(metric.Value);
+							<div class="metric">
+								<div class="metric-value @progressClass.Split(' ')[1]">@metric.Value%</div>
+								<div class="metric-label">@metric.Label</div>
+								<div class="progress-container">
+									<div class="progress-bar @progressClass.Split(' ')[0]" style="width: @metric.Value%"></div>
+								</div>
+							</div>
+				}
+				</div>
+		}
+	</div>
+</body>
+</html>

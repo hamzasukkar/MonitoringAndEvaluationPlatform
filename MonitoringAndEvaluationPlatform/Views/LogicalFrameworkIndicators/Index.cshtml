@@ -1,0 +1,102 @@
+﻿@model IEnumerable<MonitoringAndEvaluationPlatform.Models.LogicalFrameworkIndicator>
+
+@{
+    ViewData["Title"] = "Index";
+    Layout = "~/Views/Shared/_ProjectsLayout.cshtml";
+}
+
+<h1>Index</h1>
+
+<p>
+    <a asp-action="Create">Create New</a>
+</p>
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.Name)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Performance)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Weight)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.LogicalFramework)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.IsCommon)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Active)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Target)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.TargetYear)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.GAGRA)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.GAGRR)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Concept)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Description)
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+@foreach (var item in Model) {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.Name)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Performance)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Weight)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.LogicalFramework.Code)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.IsCommon)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Active)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Target)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.TargetYear)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.GAGRA)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.GAGRR)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Concept)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Description)
+            </td>
+            <td>
+                <a asp-action="Edit" asp-route-id="@item.IndicatorCode">Edit</a> |
+                <a asp-action="Details" asp-route-id="@item.IndicatorCode">Details</a> |
+                <a asp-action="Delete" asp-route-id="@item.IndicatorCode">Delete</a>
+            </td>
+        </tr>
+}
+    </tbody>
+</table>

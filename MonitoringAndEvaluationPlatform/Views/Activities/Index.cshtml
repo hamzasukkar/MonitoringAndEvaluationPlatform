@@ -1,48 +1,90 @@
-﻿@model IEnumerable<MonitoringAndEvaluationPlatform.Models.Activity>
+﻿@model List<IGrouping<MonitoringAndEvaluationPlatform.Models.ActionPlan, MonitoringAndEvaluationPlatform.Models.Activity>>
 
 @{
-    ViewData["Title"] = "Index";
+    ViewData["Title"] = "Activities";
     Layout = "~/Views/Shared/_ProjectsLayout.cshtml";
 }
 
-<h1>Index</h1>
+<h1>Activities</h1>
+<div class="project-nav mb-4">
+    <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm rounded">
+        <div class="container-fluid">
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#projectNavbar">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="projectNavbar">
+                <ul class="navbar-nav nav-fill w-100">
+                    <li class="nav-item">
+                        <a asp-controller="Projects" asp-action="Details" asp-route-id="@ViewBag.ProjectID" class="nav-link">
+                            <i class="fas fa-project-diagram me-2"></i>Project
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a asp-action="LinkProjectToIndicators" asp-route-projectId="@ViewBag.ProjectID" class="nav-link">
+                            <i class="fas fa-link me-2"></i>Alignement
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a asp-action="Create" asp-controller="LogicalFrameworks" asp-route-projectId="@ViewBag.ProjectID" class="nav-link">
+                            <i class="fas fa-sitemap me-2"></i>LogicalFramework
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a asp-action="ProjectMeasures" asp-controller="Measures" asp-route-id="@ViewBag.ProjectID" class="nav-link">
+                            <i class="fas fa-ruler-combined me-2"></i>Measures
+                        </a>
+                    </li>
+                   @*  <li class="nav-item">
+                        <a asp-controller="Plans" asp-action="ProjectPlans" asp-route-id="@ViewBag.ProjectID" class="nav-link">
+                            <i class="fas fa-calendar-alt me-2"></i>Plans
+                        </a>
+                    </li> *@
+                    <li class="nav-item">
+                        <a asp-controller="ActionPlans" asp-action="ActionPlan" asp-route-id="@ViewBag.ProjectID" class="nav-link">
+                            <i class="fas fa-tasks me-2"></i>Action Plans
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active" aria-current="page" asp-action="Index" asp-controller="Activities" asp-route-id="@ViewBag.ProjectID">
+                            <i class="fas fa-running me-2"></i>Activities
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+</div>
 
-<p>
-    <a asp-action="Create">Create New</a>
-</p>
-<table class="table">
-    <thead>
-        <tr>
-            <th>
-                @Html.DisplayNameFor(model => model.Name)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.ActivityType)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.ActionPlan)
-            </th>
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-@foreach (var item in Model) {
-        <tr>
-            <td>
-                @Html.DisplayFor(modelItem => item.Name)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.ActivityType)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.ActionPlan.Code)
-            </td>
-            <td>
-                <a asp-action="Edit" asp-route-id="@item.Code">Edit</a> |
-                <a asp-action="Details" asp-route-id="@item.Code">Details</a> |
-                <a asp-action="Delete" asp-route-id="@item.Code">Delete</a>
-            </td>
-        </tr>
-}
-    </tbody>
-</table>
+<div class="accordion" id="actionPlanAccordion">
+    @for (int i = 0; i < Model.Count; i++)
+    {
+        var actionPlanGroup = Model[i];
+        var collapseId = $"collapse{i}";
+
+        <div class="accordion-item">
+            <h2 class="accordion-header" id="heading@i">
+                <button class="accordion-button @(i > 0 ? "collapsed" : "")" type="button" data-bs-toggle="collapse" data-bs-target="#@collapseId" aria-expanded="@(i == 0 ? "true" : "false")" aria-controls="@collapseId">
+                    Action Plan: @actionPlanGroup.Key.Code
+                </button>
+            </h2>
+            <div id="@collapseId" class="accordion-collapse collapse @(i == 0 ? "show" : "")" aria-labelledby="heading@i" data-bs-parent="#actionPlanAccordion">
+                <div class="accordion-body">
+                    <ul class="list-group">
+                        @foreach (var activity in actionPlanGroup.OrderBy(a => a.ActivityType))
+                        {
+                            <li class="list-group-item">
+                                <strong>@activity.ActivityType:</strong> @activity.Name
+                                <ul>
+                                    @foreach (var plan in activity.Plans)
+                                    {
+                                        <li>@plan.Name - Planned: @plan.Planned - Realized: @plan.Realised</li>
+                                    }
+                                </ul>
+                            </li>
+                        }
+                    </ul>
+                </div>
+            </div>
+        </div>
+    }
+</div>

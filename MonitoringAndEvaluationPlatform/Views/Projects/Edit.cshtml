@@ -1,103 +1,443 @@
 ﻿@model MonitoringAndEvaluationPlatform.Models.Project
-
+@using Newtonsoft.Json
 @{
-    ViewData["Title"] = "Edit";
+    ViewData["Title"] = "Edit Project";
     Layout = "~/Views/Shared/_ProjectsLayout.cshtml";
+    var governorates = ViewBag.Governorates as List<Governorate>;
+    var selectedLocationsJson = JsonConvert.SerializeObject(ViewBag.SelectedLocations);
 }
+  
+<head>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+<div class="container-fluid py-4">
+    <div class="card shadow-lg">
+        <div class="card-header bg-primary text-white">
+            <div class="d-flex justify-content-between align-items-center">
+                <h4 class="mb-0">Edit Project</h4>
+                <a asp-action="Index" class="btn btn-light btn-sm">
+                    <i class="fas fa-arrow-left me-1"></i>Back to List
+                </a>
+            </div>
+        </div>
 
-<h1>Edit</h1>
+        <div class="card-body">
+            <form asp-action="Edit" method="post" enctype="multipart/form-data" class="needs-validation" novalidate>
+                <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+                <input type="hidden" asp-for="ProjectID" />
 
-<h4>Program</h4>
-<hr />
-<div class="row">
-    <div class="col-md-4">
-        <form asp-action="Edit">
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-            <input type="hidden" asp-for="ProjectID" />
-            <div class="form-group">
-                <label asp-for="ProjectName" class="control-label"></label>
-                <input asp-for="ProjectName" class="form-control" />
-                <span asp-validation-for="ProjectName" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="EstimatedBudget" class="control-label"></label>
-                <input asp-for="EstimatedBudget" class="form-control" />
-                <span asp-validation-for="EstimatedBudget" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="RealBudget" class="control-label"></label>
-                <input asp-for="RealBudget" class="form-control" />
-                <span asp-validation-for="RealBudget" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="ProjectManager" class="control-label"></label>
-                <input asp-for="ProjectManager" class="form-control" />
-                <span asp-validation-for="ProjectManager" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="SuperVisor" class="control-label"></label>
-                <input asp-for="SuperVisor" class="form-control" />
-                <span asp-validation-for="SuperVisor" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="Donor" class="control-label"></label>
-                <input asp-for="Donor" class="form-control" />
-                <span asp-validation-for="Donor" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="StartDate" class="control-label"></label>
-                <input asp-for="StartDate" class="form-control" />
-                <span asp-validation-for="StartDate" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="EndDate" class="control-label"></label>
-                <input asp-for="EndDate" class="form-control" />
-                <span asp-validation-for="EndDate" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="Region" class="control-label"></label>
-                <input asp-for="Region" class="form-control" />
-                <span asp-validation-for="Region" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="performance" class="control-label"></label>
-                <input asp-for="performance" class="form-control" />
-                <span asp-validation-for="performance" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="DisbursementPerformance" class="control-label"></label>
-                <input asp-for="DisbursementPerformance" class="form-control" />
-                <span asp-validation-for="DisbursementPerformance" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="FieldMonitoring" class="control-label"></label>
-                <input asp-for="FieldMonitoring" class="form-control" />
-                <span asp-validation-for="FieldMonitoring" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="ImpactAssessment" class="control-label"></label>
-                <input asp-for="ImpactAssessment" class="form-control" />
-                <span asp-validation-for="ImpactAssessment" class="text-danger"></span>
-            </div>
-      @*       <div class="form-group">
-                <label>Select Indicators</label>
-                <select name="selectedIndicators" class="form-control" multiple>
-                    @foreach (var indicator in ViewBag.Indicators)
-                    {
-                        <option value="@indicator.Code" selected="@(Model.Indicators.Any(i => i.Code == indicator.Code) ? "selected" : null)">
-                            @indicator.Name
-                        </option>
-                    }
-                </select>
-            </div> *@
-            <div class="form-group">
-                <input type="submit" value="Save" class="btn btn-primary" />
-            </div>
-        </form>
+                <div class="row g-3">
+                    <!-- Left Column: Basic Info + Location + Regions -->
+                    <div class="col-md-6">
+                        <div class="card mb-4">
+                            <div class="card-header bg-light">
+                                <h5 class="mb-0">Basic Information</h5>
+                            </div>
+                            <div class="card-body">
+                                <!-- Project Name -->
+                                <div class="mb-3">
+                                    <label asp-for="ProjectName" class="form-label">Project Name</label>
+                                    <input asp-for="ProjectName" class="form-control" required />
+                                    <span asp-validation-for="ProjectName" class="text-danger small"></span>
+                                </div>
+
+                                <!-- Dates -->
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label asp-for="StartDate" class="form-label">Start Date</label>
+                                        <input asp-for="StartDate" type="date" class="form-control" required />
+                                        <span asp-validation-for="StartDate" class="text-danger small"></span>
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label asp-for="EndDate" class="form-label">End Date</label>
+                                        <input asp-for="EndDate" type="date" class="form-control" required />
+                                        <span asp-validation-for="EndDate" class="text-danger small"></span>
+                                    </div>
+                                </div>
+
+                                <!-- Budget -->
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label asp-for="EstimatedBudget" class="form-label">Estimated Budget</label>
+                                        <div class="input-group">
+                                            <span class="input-group-text">$</span>
+                                            <input asp-for="EstimatedBudget" class="form-control" />
+                                        </div>
+                                        <span asp-validation-for="EstimatedBudget" class="text-danger small"></span>
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label asp-for="RealBudget" class="form-label">Real Budget</label>
+                                        <div class="input-group">
+                                            <span class="input-group-text">$</span>
+                                            <input asp-for="RealBudget" class="form-control" />
+                                        </div>
+                                        <span asp-validation-for="RealBudget" class="text-danger small"></span>
+                                    </div>
+                                </div>
+
+
+                                <!-- Location Hierarchy -->
+                                <h6 class="text-muted mt-4">Project Location</h6>
+                                <div class="mb-3">
+                                    <select id="governorate" class="form-select">
+                                        <option value="">-- Select Governorate --</option>
+                                        @foreach (var gov in governorates)
+                                        {
+                                            <option value="@gov.Code">@gov.Name</option>
+                                        }
+                                    </select>
+
+                                </div>
+                                <div class="mb-3">
+                                    <select id="district" class="form-select"></select>
+                                </div>
+                                <div class="mb-3">
+                                    <select id="subdistrict" class="form-select"></select>
+                                </div>
+                                <div class="mb-3">
+                                    <select id="community" class="form-select"></select>
+                                </div>
+                            </div>
+                        </div>
+                        <button type="button" id="add-location" class="btn btn-primary mt-2">Add Location</button>
+                        <button type="button" id="reset-dropdowns" class="btn btn-secondary mt-2">Reset</button>
+                        <ul id="selected-locations" class="mt-3"></ul>
+
+                        <input type="hidden" id="location-data" name="selections" />
+                    </div>
+
+                    <!-- Right Column: Stakeholders + File Upload -->
+                    <div class="col-md-6">
+                        <div class="card mb-4">
+                            <div class="card-header bg-light">
+                                <h5 class="mb-0">Stakeholders</h5>
+                            </div>
+                            <div class="card-body">        
+                                <!-- Sectors Multi-select -->
+                                <div class="mb-3">
+                                    <label class="form-label">Sectors</label>
+                                    @* We do NOT use asp-for="Sectors" here; we need a plain name that the form will post back as List<int> *@
+                                    <select name="SelectedSectorCodes"
+                                            class="form-select"
+                                            asp-items="ViewBag.SectorList"
+                                            multiple
+                                            size="4">
+                                        <option disabled>Select one or more sectors</option>
+                                    </select>
+
+                                    <small class="text-muted">Hold Ctrl/Cmd to select multiple sectors</small>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label asp-for="ProjectManagerCode" class="form-label">Project Manager</label>
+                                    <select asp-for="ProjectManagerCode"
+                                            class="form-select"
+                                            asp-items="ViewBag.ProjectManager">
+                                        <option value="">Select Project Manager</option>
+                                    </select>
+                                </div>
+                                <div class="mb-3">
+                                    <label asp-for="SuperVisorCode" class="form-label">Supervisor</label>
+                                    <select asp-for="SuperVisorCode"
+                                            class="form-select"
+                                            asp-items="ViewBag.SuperVisor">
+                                        <option value="">Select Supervisor</option>
+                                    </select>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Ministry</label>
+                                    <select name="SelectedMinistryCodes"
+                                            class="form-select"
+                                            asp-items="ViewBag.MinistryList"
+                                            multiple
+                                            size="4">
+                                        <option disabled>Select one or more Ministry</option>
+                                    </select>
+
+                                    <small class="text-muted">Hold Ctrl/Cmd to select multiple Ministries</small>
+                                </div>
+                               @*  To Check *@
+                                <div class="mb-3">
+                                    <label class="form-label">Donor</label>
+                                    <select name="SelectedDonorCodes" class="form-select" asp-items="ViewBag.DonorList" multiple size="4">
+                                        <option disabled>Select one or more donor</option>
+                                    </select>
+                                    <small class="text-muted">Hold Ctrl/Cmd to select multiple donor</small>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Optionally allow uploading new files on edit -->
+                        <div class="card border-0 shadow-sm">
+                            <div class="card-header bg-light">
+                                <h6 class="mb-0">Upload Additional Documents</h6>
+                            </div>
+                            <div class="card-body">
+                                <div class="mb-3">
+                                    <input type="file"
+                                           name="UploadedFiles"
+                                           multiple
+                                           class="form-control" />
+                                    <small class="text-muted">
+                                        You can add more files here. Max size: 10 MB.
+                                    </small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Submit / Cancel -->
+                <div class="mt-4 d-flex justify-content-end gap-2">
+                    <button type="submit" class="btn btn-primary px-4">
+                        <i class="fas fa-save me-2"></i>Save Changes
+                    </button>
+                    <a asp-action="Index" class="btn btn-outline-secondary px-4">
+                        Cancel
+                    </a>
+                </div>
+            </form>
+        </div>
     </div>
 </div>
 
-<div>
-    <a asp-action="Index">Back to List</a>
-</div>
+
+    @await Html.PartialAsync("_ValidationScriptsPartial")
+
+<script>
+    let selections = [];
+
+    // Cascading dropdowns
+    $("#governorate").change(function () {
+        $.get("/Projects/GetDistricts", { governorateCode: $(this).val() }, function (data) {
+            fillSelect("#district", data);
+            resetSelect("#subdistrict");
+            resetSelect("#community");
+        });
+    });
+
+    $("#district").change(function () {
+        $.get("/Projects/GetSubDistricts", { districtCode: $(this).val() }, function (data) {
+            fillSelect("#subdistrict", data);
+            resetSelect("#community");
+        });
+    });
+
+    $("#subdistrict").change(function () {
+        $.get("/Projects/GetCommunities", { subDistrictCode: $(this).val() }, function (data) {
+            fillSelect("#community", data);
+        });
+    });
+
+    // Add location
+    $("#add-location").click(function () {
+        const govCode = $("#governorate").val();
+        const govName = $("#governorate option:selected").text();
+
+        const distCode = $("#district").val();
+        const distName = $("#district option:selected").text();
+
+        const subCode = $("#subdistrict").val();
+        const subName = $("#subdistrict option:selected").text();
+
+        const commCode = $("#community").val();
+        const commName = $("#community option:selected").text();
+
+        if (!govCode || !distCode || !subCode || !commCode) {
+            showValidationMessage("Please select all location levels.");
+            return;
+        }
+
+        // Check for duplicates
+        const exists = selections.some(x =>
+            x.GovernorateCode === govCode &&
+            x.DistrictCode === distCode &&
+            x.SubDistrictCode === subCode &&
+            x.CommunityCode === commCode
+        );
+
+        if (exists) {
+            showValidationMessage("This location has already been added.");
+            return;
+        }
+
+        // Add location
+        const item = {
+            GovernorateCode: govCode,
+            DistrictCode: distCode,
+            SubDistrictCode: subCode,
+            CommunityCode: commCode
+        };
+
+        selections.push(item);
+
+        // Create list item with "Clear" button
+        const $li = $(`
+            <li class="list-group-item d-flex justify-content-between align-items-center">
+                ${govName} > ${distName} > ${subName} > ${commName}
+                <button type="button" class="btn btn-sm btn-danger btn-clear">Clear</button>
+            </li>
+        `);
+
+        // Attach remove handler
+        $li.find(".btn-clear").click(function () {
+            // Remove from selections array
+            selections = selections.filter(x =>
+                !(x.GovernorateCode === govCode &&
+                  x.DistrictCode === distCode &&
+                  x.SubDistrictCode === subCode &&
+                  x.CommunityCode === commCode)
+            );
+            // Remove from DOM
+            $li.remove();
+            // Update hidden input
+            $("#location-data").val(JSON.stringify(selections));
+        });
+
+        $("#selected-locations").append($li);
+        $("#location-data").val(JSON.stringify(selections));
+
+        resetDropdowns();
+    });
+
+    // Reset handler
+    $("#reset-dropdowns").click(resetDropdowns);
+
+    // Utility functions
+    function fillSelect(selector, data) {
+        let select = $(selector);
+        select.empty().append(`<option value="">-- Select --</option>`);
+        data.forEach(x => select.append(`<option value="${x.code}">${x.name}</option>`));
+    }
+
+    function resetSelect(selector) {
+        $(selector).empty().append(`<option value="">-- Select --</option>`);
+    }
+
+    function resetDropdowns() {
+        $("#governorate").val("");
+        resetSelect("#district");
+        resetSelect("#subdistrict");
+        resetSelect("#community");
+    }
+
+    // Validation message display
+    function showValidationMessage(message) {
+        const alertBox = $("#location-validation-alert");
+
+        if (alertBox.length === 0) {
+            $("#location-selector").after(`
+                <div id="location-validation-alert" class="alert alert-warning mt-3">${message}</div>
+            `);
+        } else {
+            alertBox.text(message).fadeIn();
+        }
+
+        setTimeout(() => $("#location-validation-alert").fadeOut(), 3000);
+    }
+</script>
+@* In the Razor view (Edit.cshtml) *@
+<script type="text/javascript">
+    // Inject the pre-selected locations into JavaScript
+    var initialSelections = @Html.Raw(selectedLocationsJson);    // Pre-fill the selections array with their code values
+    var selections2 = initialSelections.map(function(loc) {
+        return [loc.GovernorateCode, loc.DistrictCode, loc.SubDistrictCode, loc.CommunityCode];
+    });
+</script>
+
+@* <script>
+    $(function() {
+        // For each pre-selected location, add a list item
+        initialSelections.forEach(function(loc) {
+            var itemText = loc.GovernorateName + ' > ' +
+                           loc.DistrictName + ' > ' +
+                           loc.SubDistrictName + ' > ' +
+                           loc.CommunityName;
+            var $li = $('<li class="list-group-item d-flex justify-content-between align-items-center"></li>');
+            $li.text(itemText);
+            // Store the codes (optional) for reference when removing
+            $li.data('codes', [loc.GovernorateCode, loc.DistrictCode, loc.SubDistrictCode, loc.CommunityCode]);
+
+            // Create the Clear button
+            var $btn = $('<button type="button" class="btn btn-sm btn-outline-danger clear-selection">Clear</button>');
+            $li.append($btn);
+
+            // Append to the list
+            $('#selected-locations').append($li);
+        });
+         // Update the hidden input after loading all initial values
+    });
+
+    // Delegate the click event for any Clear button (so it works for dynamic items)
+    $('#selected-locations').on('click', '.clear-selection', function() {
+        var $li = $(this).closest('li');
+        // Remove the corresponding code tuple from the selections array
+        var codes = $li.data('codes');
+        var idx = selections.findIndex(function(arr) {
+            return arr.join(',') === codes.join(',');
+        });
+        if (idx > -1) selections.splice(idx, 1);
+        // Remove the list item from the DOM
+        $li.remove();
+    });
+      function updateHiddenInput() {
+        $('#location-data').val(JSON.stringify(selections));
+    }
+</script> *@
+
+<script>
+   // var selections = [];
+
+    $(function () {
+        // For each pre-selected location from the backend
+        initialSelections.forEach(function (loc) {
+            var itemText = loc.GovernorateName + ' > ' +
+                loc.DistrictName + ' > ' +
+                loc.SubDistrictName + ' > ' +
+                loc.CommunityName;
+
+            var locationObj = {
+                GovernorateCode: loc.GovernorateCode,
+                DistrictCode: loc.DistrictCode,
+                SubDistrictCode: loc.SubDistrictCode,
+                CommunityCode: loc.CommunityCode
+            };
+
+            var $li = $('<li class="list-group-item d-flex justify-content-between align-items-center"></li>');
+            $li.text(itemText);
+            $li.data('location', locationObj);
+
+            var $btn = $('<button type="button" class="btn btn-sm btn-outline-danger clear-selection">Clear</button>');
+            $li.append($btn);
+
+            $('#selected-locations').append($li);
+
+            // Push full object
+            selections.push(locationObj);
+        });
+
+        updateHiddenInput();
+    });
+
+    // Remove location
+    $('#selected-locations').on('click', '.clear-selection', function () {
+        var $li = $(this).closest('li');
+        var targetLoc = $li.data('location');
+
+        // Remove from selections using a match by all codes
+        selections = selections.filter(function (loc) {
+            return !(loc.GovernorateCode === targetLoc.GovernorateCode &&
+                     loc.DistrictCode === targetLoc.DistrictCode &&
+                     loc.SubDistrictCode === targetLoc.SubDistrictCode &&
+                     loc.CommunityCode === targetLoc.CommunityCode);
+        });
+
+        $li.remove();
+        updateHiddenInput();
+    });
+
+    function updateHiddenInput() {
+        $('#location-data').val(JSON.stringify(selections));
+    }
+</script>
 

@@ -1,136 +1,368 @@
 ﻿@model MonitoringAndEvaluationPlatform.Models.Project
 
 @{
-    ViewData["Title"] = "Details";
+    ViewData["Title"] = "Project Details";
     Layout = "~/Views/Shared/_ProjectsLayout.cshtml";
 }
 
-<nav class="navbar navbar-expand-lg navbar-light bg-light">
-    <div class="collapse navbar-collapse" id="navbarNav">
-        <ul class="navbar-nav">
-            <li class="nav-item active">
-                <a class="nav-link">Project <span class="sr-only">(current)</span></a>
-            </li>
-            <li class="nav-item">
-                <a asp-action="ProjectMeasures" asp-controller="Measures" asp-route-id="@Model.ProjectID" class="nav-link">Measures</a>
-            </li>
-          @*   <li class="nav-item">
-                <a asp-action="Index" asp-controller="LogicalFrameworks" asp-route-id="@Model.ProjectID" class="nav-link">Logical Framework</a>
-            </li> *@
-            <li class="nav-item">
-                <a asp-controller="Plans" asp-action="ProjectPlans" asp-route-id="@Model.ProjectID" class="nav-link">Plans</a>
-            </li>
-
-            <li class="nav-item">
-                <a asp-controller="ActionPlans" asp-action="ActionPlan" asp-route-id="@Model.ProjectID" class="nav-link">Action Plans</a>
-            </li>
-            <li class="nav-item">
-                <a asp-action="Index" asp-controller="Activities" class="nav-link">Activity</a>
-            </li>
-        </ul>
+<div class="container-fluid px-4">
+    <!-- Project Navigation -->
+    <div class="project-nav mb-4">
+        <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm rounded">
+            <div class="container-fluid">
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#projectNavbar">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse" id="projectNavbar">
+                    <ul class="navbar-nav nav-fill w-100">
+                        <li class="nav-item">
+                            <a class="nav-link active" aria-current="page">
+                                <i class="fas fa-project-diagram me-2"></i>Project
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a asp-action="LinkProjectToIndicators" asp-route-projectId="@Model.ProjectID" class="nav-link">
+                                <i class="fas fa-link me-2"></i>Alignement
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a asp-action="Create" asp-controller="LogicalFrameworks" asp-route-projectId="@Model.ProjectID" class="nav-link">
+                                <i class="fas fa-sitemap me-2"></i>LogicalFramework
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a asp-action="ProjectMeasures" asp-controller="Measures" asp-route-id="@Model.ProjectID" class="nav-link">
+                                <i class="fas fa-ruler-combined me-2"></i>Measures
+                            </a>
+                        </li>
+                     @*    <li class="nav-item">
+                            <a asp-controller="Plans" asp-action="ProjectPlans" asp-route-id="@Model.ProjectID" class="nav-link">
+                                <i class="fas fa-calendar-alt me-2"></i>Plans
+                            </a>
+                        </li> *@
+                        <li class="nav-item">
+                            <a asp-controller="ActionPlans" asp-action="ActionPlan" asp-route-id="@Model.ProjectID" class="nav-link">
+                                <i class="fas fa-tasks me-2"></i>Action Plans
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a asp-action="Index" asp-controller="Activities" asp-route-id="@Model.ProjectID" class="nav-link">
+                                <i class="fas fa-running me-2"></i>Activities
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </nav>
     </div>
-</nav>
 
-<div>
-    <h4>Program</h4>
-    <hr />
-    <dl class="row">
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.ProjectName)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.ProjectName)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.EstimatedBudget)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.EstimatedBudget)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.RealBudget)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.RealBudget)
-        </dd>
-@*         <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Trend)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Trend)
-        </dd> *@
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.ProjectManager)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.ProjectManager.Name)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.SuperVisor)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.SuperVisor.Name)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Donor)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Donor.Partner)
-        </dd>
-@*         <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.StartDate)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.StartDate)
-        </dd> 
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.EndDate)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.EndDate)
-        </dd>
-        *@
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Region)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Region.Name)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.performance)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.performance)%
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.DisbursementPerformance)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.DisbursementPerformance)%
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.FieldMonitoring)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.FieldMonitoring)%
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.ImpactAssessment)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.ImpactAssessment)%
-        </dd>
-    </dl>
-</div>
-@* Indicators
-<ul>
-    @foreach (var indicator in Model.Indicators)
-    {
-        <li>@indicator.Name</li>
+    <!-- Project Header -->
+    <div class="card mb-4 shadow-sm">
+        <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+            <h4 class="mb-0">@Model.ProjectName</h4>
+            <div>
+                <a asp-action="Edit" asp-route-id="@Model?.ProjectID" class="btn btn-sm btn-light me-2">
+                    <i class="fas fa-edit me-1"></i>Edit
+                </a>
+                <a asp-action="Index" class="btn btn-sm btn-outline-light">
+                    <i class="fas fa-arrow-left me-1"></i>Back to List
+                </a>
+            </div>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <!-- Basic Info -->
+                <div class="col-md-4">
+                    <div class="mb-4">
+                        <h5 class="border-bottom pb-2">Basic Information</h5>
+                        <dl class="row">
+                            <dt class="col-sm-4">Project Manager</dt>
+                            <dd class="col-sm-8">@Html.DisplayFor(model => model.ProjectManager.Name)</dd>
+
+                            <dt class="col-sm-4">Supervisor</dt>
+                            <dd class="col-sm-8">@Html.DisplayFor(model => model.SuperVisor.Name)</dd>
+
+                            <dt class="col-sm-4">Donor</dt>
+                            <dd class="col-sm-8">
+                                @foreach (var donor in Model.Donors)
+                                {
+                                    <span class="badge bg-primary me-1">
+                                        <small>@donor.Partner</small>
+                                    </span>
+                                }
+                            </dd>
+
+                            <dt class="col-sm-4">Ministry</dt>
+                            <dd class="col-sm-8">
+                                @foreach (var donor in Model.Ministries)
+                                {
+                                    <span class="badge bg-primary me-1">
+                                        <small>@donor.MinistryDisplayName</small>
+                                    </span>
+                                }
+                            </dd>
+
+                            <dt class="col-sm-4">Start Date</dt>
+                            <dd class="col-sm-8">@Model.StartDate.ToString("yyyy-MM-dd")</dd>
+
+                            <dt class="col-sm-4">End Date</dt>
+                            <dd class="col-sm-8">@Model.EndDate.ToString("yyyy-MM-dd")</dd>
+
+                            <dt class="col-sm-4">Sector</dt>
+                            <dd class="col-sm-8">
+                                @foreach (var sector in Model.Sectors)
+                                {
+                                    <span class="badge bg-primary me-1">
+                                        <small>@sector.Name</small>
+                                    </span>
+                                }
+                            </dd>
+
+                        </dl>
+                    </div>
+                </div>
+
+                <!-- Region Info -->
+                  <div class="col-md-4">
+                    <div class="mb-4">
+                        <h5 class="border-bottom pb-2">Regions Information</h5>
+                        <dl class="row">
+                            <dt class="col-sm-4">Governorate</dt>
+                            <dd class="col-sm-8">
+                                @foreach (var governorate in Model.Governorates)
+                                {
+                                    <span class="badge bg-primary me-1">
+                                        <small>@governorate.Name</small>
+                                    </span>
+                                }
+                            </dd>
+
+                            <dt class="col-sm-4">District</dt>
+                            <dd class="col-sm-8">
+                                @foreach (var district in Model.Districts)
+                                {
+                                    <span class="badge bg-primary me-1">
+                                        <small>@district.Name</small>
+                                    </span>
+                                }
+                            </dd>
+
+                            <dt class="col-sm-4">SubDistrict</dt>
+                            <dd class="col-sm-8">
+                                @foreach (var subDistrict in Model.SubDistricts)
+                                {
+                                    <span class="badge bg-primary me-1">
+                                        <small>@subDistrict.Name</small>
+                                    </span>
+                                }
+                            </dd>
+
+                            <dt class="col-sm-4">Community</dt>
+                            <dd class="col-sm-8">
+                                @foreach (var community in Model.Communities)
+                                {
+                                    <span class="badge bg-primary me-1">
+                                        <small>@community.Name</small>
+                                    </span>
+                                }
+                            </dd>
+                        </dl>
+                    </div>
+                </div>
+
+                <!-- Budget Info -->
+                <div class="col-md-4">
+                    <div class="mb-4">
+                        <h5 class="border-bottom pb-2">Financial Information</h5>
+                        <dl class="row">
+                            <dt class="col-sm-4">Estimated Budget</dt>
+                            <dd class="col-sm-8">@Html.DisplayFor(model => model.EstimatedBudget)</dd>
+
+                            <dt class="col-sm-4">Real Budget</dt>
+                            <dd class="col-sm-8">@Html.DisplayFor(model => model.RealBudget)</dd>
+                        </dl>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    @{
+        double performance = Math.Round(@Model.performance, 0);
     }
-</ul>
- *@
-<div>
-    <a asp-action="Edit" asp-route-id="@Model?.ProjectID">Edit</a> |
-    <a asp-action="Index">Back to List</a>
+    <!-- Performance Metrics -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card shadow-sm h-100">
+                <div class="card-body text-center">
+                    <h6 class="card-title text-muted">Performance</h6>
+                    <div class="progress-circle progress-@((int)performance)" data-value="@performance">
+                        <span class="progress-circle-value">@performance%</span>
+                    </div>
+                    <p class="text-muted mt-2 mb-0">Overall project performance</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card shadow-sm h-100">
+                <div class="card-body text-center">
+                    <h6 class="card-title text-muted">Disbursement</h6>
+                    <div class="progress-circle progress-@((int)Model.DisbursementPerformance)" data-value="@Model.DisbursementPerformance">
+                        <span class="progress-circle-value">@Model.DisbursementPerformance%</span>
+                    </div>
+                    <p class="text-muted mt-2 mb-0">Budget utilization</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card shadow-sm h-100">
+                <div class="card-body text-center">
+                    <h6 class="card-title text-muted">Field Monitoring</h6>
+                    <div class="progress-circle progress-@((int)Model.FieldMonitoring)" data-value="@Model.FieldMonitoring">
+                        <span class="progress-circle-value">@Model.FieldMonitoring%</span>
+                    </div>
+                    <p class="text-muted mt-2 mb-0">Field activities completion</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card shadow-sm h-100">
+                <div class="card-body text-center">
+                    <h6 class="card-title text-muted">Impact Assessment</h6>
+                    <div class="progress-circle progress-@((int)Model.ImpactAssessment)" data-value="@Model.ImpactAssessment">
+                        <span class="progress-circle-value">@Model.ImpactAssessment%</span>
+                    </div>
+                    <p class="text-muted mt-2 mb-0">Impact measurement</p>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
+<h4>Uploaded Files</h4>
+
+@if (Model.ProjectFiles != null && Model.ProjectFiles.Any())
+{
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                <th>#</th>
+                <th>File Name</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            @for (int i = 0; i < Model.ProjectFiles.Count; i++)
+            {
+                var file = Model.ProjectFiles.ElementAt(i);
+                <tr>
+                    <td>@(i + 1)</td>
+                    <td>@file.FileName</td>
+                    <td>
+                        <a asp-action="DownloadFile" asp-route-id="@file.Id" class="btn btn-success btn-sm">
+                            Download
+                        </a>
+
+                        <form asp-action="DeleteFile" asp-route-id="@file.Id" method="post" style="display:inline;" onsubmit="return confirm('Are you sure you want to delete this file?');">
+                            <button type="submit" class="btn btn-danger btn-sm">
+                                Delete
+                            </button>
+                        </form>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+else
+{
+    <p>No files uploaded for this project.</p>
+}
+
+
+
+    <style>
+        .project-nav .nav-link {
+            color: #495057;
+            font-weight: 500;
+            padding: 0.75rem 1rem;
+            transition: all 0.3s;
+        }
+
+            .project-nav .nav-link:hover {
+                color: #0d6efd;
+                background-color: rgba(13, 110, 253, 0.1);
+            }
+
+            .project-nav .nav-link.active {
+                color: #0d6efd;
+                border-bottom: 3px solid #0d6efd;
+            }
+
+        .progress-circle {
+            position: relative;
+            width: 100px;
+            height: 100px;
+            margin: 0 auto;
+            border-radius: 50%;
+            background: conic-gradient(#0d6efd calc(var(--value)*1%), #e9ecef 0%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+            .progress-circle::before {
+                content: "";
+                position: absolute;
+                width: 80px;
+                height: 80px;
+                background: white;
+                border-radius: 50%;
+            }
+
+        .progress-circle-value {
+            position: relative;
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: #0d6efd;
+        }
+
+        /* Color coding for progress circles */
+        .progress-0-50 {
+            background: conic-gradient(#dc3545 calc(var(--value)*1%), #e9ecef 0%);
+        }
+
+        .progress-51-75 {
+            background: conic-gradient(#ffc107 calc(var(--value)*1%), #e9ecef 0%);
+        }
+
+        .progress-76-100 {
+            background: conic-gradient(#28a745 calc(var(--value)*1%), #e9ecef 0%);
+        }
+
+        .card-header {
+            font-weight: 600;
+        }
+
+        dt {
+            font-weight: 500;
+            color: #6c757d;
+        }
+    </style>
+
+
+
+    <script>
+        // Initialize progress circles
+        document.querySelectorAll('.progress-circle').forEach(circle => {
+            const value = circle.getAttribute('data-value');
+            circle.style.setProperty('--value', value);
+
+            // Apply color class based on value
+            if (value <= 50) {
+                circle.classList.add('progress-0-50');
+            } else if (value <= 75) {
+                circle.classList.add('progress-51-75');
+            } else {
+                circle.classList.add('progress-76-100');
+            }
+        });
+    </script>

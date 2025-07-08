@@ -1,0 +1,29 @@
+﻿@model IEnumerable<Community>
+
+@{
+    ViewData["Title"] = "Communities";
+}
+
+<h2>Communities</h2>
+
+<a asp-action="CreateCommunity" class="btn btn-primary mb-2">Add New Community</a>
+
+<table class="table table-bordered">
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>SubDistrict</th>
+            <th>District</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var comm in Model)
+        {
+            <tr>
+                <td>@comm.Name</td>
+                <td>@comm.SubDistrict?.Name</td>
+                <td>@comm.SubDistrict?.District?.Name</td>
+            </tr>
+        }
+    </tbody>
+</table>

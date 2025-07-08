@@ -102,14 +102,27 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             if (ModelState.IsValid)
             {
                 _context.Add(subOutput);
-               await _context.SaveChangesAsync();
-               await RedistributeWeights(subOutput.OutputCode);
+                await _context.SaveChangesAsync();
+                await RedistributeWeights(subOutput.OutputCode);
                 return RedirectToAction("Index", new { outputCode = subOutput.OutputCode });
             }
             ViewData["OutputCode"] = new SelectList(_context.Outputs, "Code", "Name", subOutput.OutputCode);
             return View(subOutput);
         }
 
+        [HttpPost]
+        public async Task<IActionResult> UpdateName(int id, string name)
+        {
+            var subOutput = await _context.SubOutputs.FindAsync(id);
+
+            if (subOutput == null) return NotFound();
+
+            subOutput.Name = name;
+            _context.Update(subOutput);
+            await _context.SaveChangesAsync();
+
+            return Ok();
+        }
         // GET: SubOutputs/Edit/5
         public async Task<IActionResult> Edit(int? id)
         {
@@ -186,18 +199,17 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         }
 
         // POST: SubOutputs/Delete/5
-        [HttpPost, ActionName("Delete")]
-        [ValidateAntiForgeryToken]
+        [HttpPost]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
             var subOutput = await _context.SubOutputs.FindAsync(id);
-            if (subOutput != null)
-            {
-                _context.SubOutputs.Remove(subOutput);
-            }
+
+            if (subOutput == null) return NotFound();
+
+            _context.SubOutputs.Remove(subOutput);
 
             await _context.SaveChangesAsync();
-            return RedirectToAction(nameof(Index));
+            return Ok();
         }
 
         private bool SubOutputExists(int id)

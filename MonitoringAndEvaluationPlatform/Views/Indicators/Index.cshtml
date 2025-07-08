@@ -2,103 +2,258 @@
 @using MonitoringAndEvaluationPlatform.Helpers
 
 @{
-    ViewData["Title"] = "Index";
+    ViewData["Title"] = "Indicators";
     Layout = "~/Views/Shared/_ResultsFrameworkLayout.cshtml";
 }
 
-<h1>Indicators</h1>
-
-<form asp-action="Index" method="get" class="mb-3">
-    <div class="input-group">
-        <input type="text" name="searchString" class="form-control" placeholder="Search by Name or SubOutput" value="@ViewData["CurrentFilter"]" />
-        <button type="submit" class="btn btn-primary">Search</button>
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h4 class="mb-0">Indicators Management</h4>
+            <p class="text-muted mb-0">View and manage all indicator performance metrics</p>
+        </div>
+        <div>
+            <a asp-action="Create" asp-route-id="@ViewData["subOutputCode"]" class="btn btn-success me-2">
+                <i class="fas fa-plus me-2"></i>Create New Indicator
+            </a>
+            @if (@ViewData["subOutputCode"] != null)
+            {
+                <a asp-action="AdjustWeights" asp-route-frameworkCode="@ViewData["frameworkCode"]"
+                asp-route-subOutputCode="@ViewData["subOutputCode"]" class="btn btn-warning">
+                    <i class="fas fa-balance-scale me-2"></i>Adjust Weights
+                </a>
+            }
+        </div>
     </div>
-</form>
 
-<p>
-    <a asp-action="Create" asp-route-id="@ViewData["subOutputCode"]" class="btn btn-success">Create New Indicator</a>
-    @if (@ViewData["subOutputCode"]!=null)
+    @if (TempData["Error"] != null)
     {
-        <a asp-action="AdjustWeights" asp-route-frameworkCode="@ViewData["frameworkCode"]" asp-route-subOutputCode="@ViewData["subOutputCode"]" class="btn btn-warning">Adjust Weights</a>
+        <div class="alert alert-danger">@TempData["Error"]</div>
     }
-</p>
 
-<table class="table">
-    <thead>
-        <tr>
-            <th>@Html.DisplayNameFor(model => model.Name)</th>
-            @* <th>@Html.DisplayNameFor(model => model.Trend)</th> *@
-            <th>@Html.DisplayNameFor(model => model.Weight)</th>
-            <th>
-                Indicators Performance
-            </th>
-            <th>
-                Disbursement Performance
-            </th>
-            <th>
-                Field Monitoring
-            </th>
-            <th>
-                Impact Assessment
-            </th>
-            <th>@Html.DisplayNameFor(model => model.SubOutput)</th>
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var item in Model)
-        {
-            string indicatorsClass = ProgressBarHelper.GetProgressBarClass(item.IndicatorsPerformance);
-            string disbursementClass = ProgressBarHelper.GetProgressBarClass(item.DisbursementPerformance);
-            string fieldMonitoringClass = ProgressBarHelper.GetProgressBarClass(item.FieldMonitoring);
-            string impactAssessmentClass = ProgressBarHelper.GetProgressBarClass(item.ImpactAssessment);
-            double IndicatorsPerformance = Math.Round(item.IndicatorsPerformance, 2);
-            <tr>
-                <td>
-                    <a href="/Indicators/Details/@item.IndicatorCode">@item.Name</a>
-                </td>
-               @*  <td>@Html.DisplayFor(modelItem => item.Trend)</td> *@
-                <td>@Html.DisplayFor(modelItem => item.Weight)</td>
-                <td>
-                    @await Html.PartialAsync("_ProgressBar", Tuple.Create(IndicatorsPerformance, indicatorsClass))
-                </td>
-                <td>
-                    @await Html.PartialAsync("_ProgressBar", Tuple.Create(item.DisbursementPerformance, disbursementClass))
-                </td>
-                <td>
-                    @await Html.PartialAsync("_ProgressBar", Tuple.Create(item.FieldMonitoring, fieldMonitoringClass))
-                </td>
-                <td>
-                    @await Html.PartialAsync("_ProgressBar", Tuple.Create(item.ImpactAssessment, impactAssessmentClass))
-                </td>
-                <td>
-                    <a href="/SubOutputs/Index/@item.SubOutputCode">@item.SubOutput.Name</a>
-                </td>
-                <td>
-                    <div class="d-inline">
-                        <form method="post" style="display: inline;">
-                            <button class="btn btn-sm btn-success" title="Tree">
-                                <i class="bi bi-diagram-3"></i>
-                            </button>
-                        </form>
-                        <form asp-action="Details" asp-route-id="@item.IndicatorCode" method="get" style="display: inline;">
-                            <button class="btn btn-sm btn-primary" title="View">
-                                <i class="bi bi-eye"></i>
-                            </button>
-                        </form>
-                        <form asp-action="Edit" asp-route-id="@item.IndicatorCode" method="get" style="display: inline;">
-                            <button class="btn btn-sm btn-warning" title="Edit">
-                                <i class="bi bi-pencil"></i>
-                            </button>
-                        </form>
-                        <form asp-action="Delete" asp-route-id="@item.IndicatorCode" method="post" style="display: inline;">
-                            <button class="btn btn-sm btn-danger" title="Delete">
-                                <i class="bi bi-trash"></i>
-                            </button>
-                        </form>
+    @if (@ViewData["subOutputCode"] != null)
+    {
+        <!-- Inline Create Form -->
+        <div class="card mb-4 border-primary">
+            <div class="card-header bg-primary text-white">
+                <strong>Add New Indicator</strong>
+            </div>
+            <div class="card-body">
+                <form asp-action="CreateInline" method="post" class="row g-3">
+                    @Html.AntiForgeryToken()
+
+                    <input type="hidden" name="SubOutputCode" value="@ViewData["subOutputCode"]" />
+
+                    <div class="col-md-6">
+                        <label for="Name" class="form-label">Name</label>
+                        <input type="text" name="Name" class="form-control" required />
                     </div>
-                </td>
-            </tr>
+
+                    <div class="col-md-4">
+                        <label for="Target" class="form-label">Target</label>
+                        <input type="number" step="0.01" name="Target" class="form-control" required />
+                    </div>
+
+                    <div class="col-md-2 d-flex align-items-end">
+                        <button type="submit" class="btn btn-success w-100">
+                            <i class="fas fa-plus-circle me-1"></i> Add
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    }
+  
+
+    <!-- Search Form -->
+    <div class="card shadow-sm mb-4">
+        <div class="card-body">
+            <form asp-action="Index" method="get" class="row g-3">
+                <div class="col-md-8">
+                    <div class="input-group">
+                        <input type="text" name="searchString" class="form-control"
+                               placeholder="Search by indicator name or suboutput..."
+                               value="@ViewData["CurrentFilter"]">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-search me-1"></i> Search
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Indicators Table -->
+    <div class="card shadow-sm">
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Indicator Name</th>
+                            <th>Weight</th>
+                            <th>Performance</th>
+                            <th>Disbursement</th>
+                            <th>Monitoring</th>
+                            <th>Impact</th>
+                            <th>SubOutput</th>
+                            <th class="text-end">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model)
+                        {
+                            string indicatorsClass = ProgressBarHelper.GetProgressBarClass(item.IndicatorsPerformance);
+                            string disbursementClass = ProgressBarHelper.GetProgressBarClass(item.DisbursementPerformance);
+                            string fieldMonitoringClass = ProgressBarHelper.GetProgressBarClass(item.FieldMonitoring);
+                            string impactAssessmentClass = ProgressBarHelper.GetProgressBarClass(item.ImpactAssessment);
+                            double IndicatorsPerformance = Math.Round(item.IndicatorsPerformance, 0);
+
+                            <tr id="indicator-row-@item.IndicatorCode">
+                                <td>
+                                    <span id="name-display-@item.IndicatorCode">@item.Name</span>
+                                    <input type="text" class="form-control d-none" id="name-input-@item.IndicatorCode" value="@item.Name" />
+                                </td>
+
+
+                                <td>@item.Weight</td>
+                                <td>@await Html.PartialAsync("_ProgressBar", Tuple.Create(IndicatorsPerformance, indicatorsClass))</td>
+                                <td>@await Html.PartialAsync("_ProgressBar", Tuple.Create(item.DisbursementPerformance, disbursementClass))</td>
+                                <td>@await Html.PartialAsync("_ProgressBar", Tuple.Create(item.FieldMonitoring, fieldMonitoringClass))</td>
+                                <td>@await Html.PartialAsync("_ProgressBar", Tuple.Create(item.ImpactAssessment, impactAssessmentClass))</td>
+                                <td>
+                                    <a href="/SubOutputs/Index/@item.SubOutputCode" class="text-decoration-none">@item.SubOutput?.Name</a>
+                                </td>
+                                <td class="text-end">
+                                    <div class="btn-group" role="group">
+                                        <a asp-action="Details" asp-route-id="@item.IndicatorCode" class="btn btn-sm btn-outline-primary" title="View">
+                                            <i class="fas fa-eye"></i>
+                                        </a>
+                                        <button type="button" class="btn btn-sm btn-outline-warning" title="Edit"
+                                                onclick="toggleEdit('@item.IndicatorCode')"
+                                                id="edit-btn-@item.IndicatorCode">
+                                            <i class="fas fa-edit"></i>
+                                        </button>
+                                        <a href="javascript:void(0);"
+                                           class="btn btn-sm btn-outline-danger"
+                                           title="Delete"
+                                           onclick="confirmDelete(@item.IndicatorCode)">
+                                            <i class="fas fa-trash-alt"></i>
+                                        </a>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Styles -->
+<style>
+    .table-hover tbody tr:hover {
+        background-color: rgba(13, 110, 253, 0.05);
+    }
+
+    .progress {
+        height: 24px;
+        border-radius: 4px;
+    }
+
+    .progress-bar {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.75rem;
+        font-weight: 500;
+    }
+
+    .btn-group .btn {
+        padding: 0.25rem 0.5rem;
+    }
+
+    .card-header {
+        font-weight: 600;
+    }
+
+    .input-group {
+        max-width: 500px;
+    }
+
+    .table-responsive {
+        overflow-x: hidden;
+    }
+</style>
+    <script>
+        function toggleEdit(id) {
+            const nameDisplay = document.getElementById(`name-display-${id}`);
+            const nameInput = document.getElementById(`name-input-${id}`);
+            const editBtn = document.getElementById(`edit-btn-${id}`);
+
+            if (editBtn.innerHTML.includes("fa-save")) {
+                // Save action
+                const newName = nameInput.value;
+
+                fetch(`/Indicators/InlineEditName/${id}`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'RequestVerificationToken': $('input[name="__RequestVerificationToken"]').val() // if using AntiForgery
+                    },
+                    body: JSON.stringify({ name: newName })
+                })
+                .then(response => {
+                    if (response.ok) {
+                        nameDisplay.textContent = newName;
+                        nameDisplay.classList.remove("d-none");
+                        nameInput.classList.add("d-none");
+                        editBtn.innerHTML = `<i class="fas fa-edit"></i>`;
+
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Updated!',
+                            text: 'Indicator name updated successfully',
+                            timer: 1200,
+                            showConfirmButton: false
+                        });
+                    } else {
+                        Swal.fire('Error', 'Could not save changes', 'error');
+                    }
+                });
+            } else {
+                // Edit mode
+                nameDisplay.classList.add("d-none");
+                nameInput.classList.remove("d-none");
+                editBtn.innerHTML = `<i class="fas fa-save"></i>`;
+            }
         }
-    </tbody>
-</table>
+        function confirmDelete(indicatorCode) {
+        Swal.fire({
+            title: 'Are you sure?',
+            text: "You won't be able to revert this!",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#d33',
+            cancelButtonColor: '#3085d6',
+            confirmButtonText: 'Yes, delete it!'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                $.ajax({
+                    url: `/Indicators/DeleteConfirmed/${indicatorCode}`,
+                    type: 'POST',
+                    success: function () {
+                        $(`#indicator-row-${indicatorCode}`).fadeOut();
+                        Swal.fire('Deleted!', 'Indicator has been deleted.', 'success');
+                    },
+                    error: function () {
+                        Swal.fire('Error', 'Failed to delete the indicator.', 'error');
+                    }
+                });
+            }
+        });
+    }
+    </script>
+
+

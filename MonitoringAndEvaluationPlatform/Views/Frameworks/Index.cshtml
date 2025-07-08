@@ -5,134 +5,224 @@
 @inject SignInManager<ApplicationUser> SignInManager
 
 @{
-    ViewData["Title"] = "Index";
+    ViewData["Title"] = "Results Frameworks";
     Layout = "~/Views/Shared/_ResultsFrameworkLayout.cshtml";
 }
 
-@if (SignInManager.IsSignedIn(User))
-{
-    var user = await UserManager.GetUserAsync(User);
-    if (user!=null)
-    {
-        var roles = await UserManager.GetRolesAsync(user);
+@* <div class="container-fluid"> *@
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h4 class="mb-0">Results Frameworks</h4>
+        </div>
 
-        if (roles.Contains("Admin"))
+        @if (SignInManager.IsSignedIn(User))
         {
-            <p>
-                <a asp-action="Create">Create New</a>
-            </p>
+            var user = await UserManager.GetUserAsync(User);
+            if (user != null)
+            {
+                var roles = await UserManager.GetRolesAsync(user);
+                if (roles.Contains("Admin"))
+                {
+                    <a asp-action="Create" class="btn btn-primary">
+                        <i class="fas fa-plus me-2"></i>Create New
+                    </a>
+                }
+            }
         }
-    }
-    
-}
-
-
-
-<form asp-action="Index" method="get" class="mb-3">
-    <div class="input-group">
-        <input style="width:20%" type="text" name="searchString" class="form-control" placeholder="Search by Framework" value="@ViewData["CurrentFilter"]" />
-        <button type="submit" class="btn btn-primary">Search</button>
     </div>
-</form>
 
-<table class="table">
-    <thead>
-        <tr>
-            <th>
-                Name
-            </th>
-            @* 
-            <th>
+    <!-- Search Form -->
+    <div class="card shadow-sm mb-4">
+        <div class="card-body">
+            <form asp-action="Index" method="get" class="row g-3 align-items-center">
+                <div class="col-md-4">
+                    <div class="input-group">
+                        <input type="text" name="searchString" class="form-control"
+                               placeholder="Search by framework name..."
+                               value="@ViewData["CurrentFilter"]" />
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-search"></i>
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
 
-            </th>
-            <th>
-                Trend
-            </th>
- *@
-            <th>
-                Indicators Performance
-            </th>
-            <th>
-                Disbursement Performance
-            </th>
-            <th>
-                Field Monitoring
-            </th>
-            <th>
-                Impact Assessment
-            </th>
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-
-        @foreach (var item in Model)
-        {
-            string indicatorsClass = ProgressBarHelper.GetProgressBarClass(item.IndicatorsPerformance);
-            string disbursementClass = ProgressBarHelper.GetProgressBarClass(item.DisbursementPerformance);
-            string fieldMonitoringClass = ProgressBarHelper.GetProgressBarClass(item.FieldMonitoring);
-            string impactAssessmentClass = ProgressBarHelper.GetProgressBarClass(item.ImpactAssessment);
-            double IndicatorsPerformance = Math.Round(item.IndicatorsPerformance, 2);
-
-            <tr>
-                <td>
-                    <a asp-controller="Outcomes" asp-action="Index" asp-route-frameworkCode="@item.Code">@item.Name</a>
-                </td>
-        @*         <td>
-                    <img src="~/img/@trendImage" />
-                </td>
-                <td>
-                    @item.Trend
-                </td> *@
-                <td>
-                    @await Html.PartialAsync("_ProgressBar", Tuple.Create(IndicatorsPerformance, indicatorsClass))
-                </td>
-                <td>
-                    @await Html.PartialAsync("_ProgressBar", Tuple.Create(item.DisbursementPerformance, disbursementClass))
-                </td>
-                <td>
-                    @await Html.PartialAsync("_ProgressBar", Tuple.Create(item.FieldMonitoring, fieldMonitoringClass))
-                </td>
-                <td>
-                    @await Html.PartialAsync("_ProgressBar", Tuple.Create(item.ImpactAssessment, impactAssessmentClass))
-                </td>
-              
-                <td>
-                    @if (SignInManager.IsSignedIn(User))
-                    {
-                        var user = await UserManager.GetUserAsync(User);
-                        if (user != null)
+    <!-- Frameworks Table -->
+    <div class="card shadow-sm">
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Framework Name</th>
+                            <th>Indicators Performance</th>
+                            <th>Disbursement Performance</th>
+                            <th>Field Monitoring</th>
+                            <th>Impact Assessment</th>
+                            <th class="text-end">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model)
                         {
-                            var roles = await UserManager.GetRolesAsync(user);
+                            string indicatorsClass = ProgressBarHelper.GetProgressBarClass(item.IndicatorsPerformance);
+                            string disbursementClass = ProgressBarHelper.GetProgressBarClass(item.DisbursementPerformance);
+                            string fieldMonitoringClass = ProgressBarHelper.GetProgressBarClass(item.FieldMonitoring);
+                            string impactAssessmentClass = ProgressBarHelper.GetProgressBarClass(item.ImpactAssessment);
+                            double IndicatorsPerformance = Math.Round(item.IndicatorsPerformance, 2);
 
-                            if (roles.Contains("Admin"))
-                            {
-                                <form asp-controller="Tree" asp-action="Index" asp-route-id="@item.Code" method="post" style="display: inline;">
-                                    <button class="btn btn-sm btn-success" title="Tree">
-                                        <i class="bi bi-diagram-3"></i>
+                        <tr id="framework-row-@item.Code">
+                            <td>
+                                <span id="fw-name-@item.Code" class="fw-name-view">
+                                    <a asp-controller="Outcomes" asp-action="Index" asp-route-frameworkCode="@item.Code" class="text-decoration-none"> <strong>@item.Name</strong></a>                       
+                                </span>
+                                <input type="text" id="fw-name-input-@item.Code" class="form-control form-control-sm fw-name-edit d-none" value="@item.Name" />    
+                            </td>
+                                <td>
+                                    @await Html.PartialAsync("_ProgressBar", Tuple.Create(IndicatorsPerformance, indicatorsClass))
+                                </td>
+                                <td>
+                                    @await Html.PartialAsync("_ProgressBar", Tuple.Create(item.DisbursementPerformance, disbursementClass))
+                                </td>
+                                <td>
+                                    @await Html.PartialAsync("_ProgressBar", Tuple.Create(item.FieldMonitoring, fieldMonitoringClass))
+                                </td>
+                                <td>
+                                    @await Html.PartialAsync("_ProgressBar", Tuple.Create(item.ImpactAssessment, impactAssessmentClass))
+                                </td>
+                                <td class="text-end">
+                                    <div class="btn-group" role="group">
+                                        @if (SignInManager.IsSignedIn(User))
+                                        {
+                                            var user = await UserManager.GetUserAsync(User);
+                                            if (user != null)
+                                            {
+                                                var roles = await UserManager.GetRolesAsync(user);
+                                                if (roles.Contains("Admin"))
+                                                {
+                                                    <form asp-controller="Tree" asp-action="Index" asp-route-id="@item.Code" method="post" style="display: inline;">
+                                                        <button class="btn btn-sm btn-outline-success" title="Tree View">
+                                                            <i class="fas fa-project-diagram"></i>
+                                                        </button>
+                                                    </form>
+                                                }
+                                            }
+                                        }
+                                  @*       <a asp-action="Details" asp-route-id="@item.Code" class="btn btn-sm btn-outline-primary" title="View">
+                                            <i class="fas fa-eye"></i>
+                                        </a> *@
+                                    <button class="btn btn-sm btn-outline-warning"
+                                            id="edit-btn-@item.Code"
+                                            onclick="toggleFrameworkEdit(@item.Code)">
+                                        <i class="fas fa-edit"></i>
                                     </button>
-                                </form>
-                            }
+                                    <button class="btn btn-sm btn-outline-danger"
+                                            onclick="confirmFrameworkDelete(@item.Code)">
+                                        <i class="fas fa-trash-alt"></i>
+                                    </button>
+                                    </div>
+                                </td>
+                            </tr>
                         }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+@* </div> *@
 
+
+    <script>
+        function toggleFrameworkEdit(code) {
+            const viewSpan = $(`#fw-name-${code}`);
+            const input = $(`#fw-name-input-${code}`);
+            const button = $(`#edit-btn-${code}`);
+
+            const isEditing = input.hasClass('d-none') === false;
+
+            if (isEditing) {
+                // Save via AJAX
+                const newName = input.val();
+
+                $.ajax({
+                    url: `/Frameworks/UpdateName`,
+                    type: 'POST',
+                    data: { id: code, name: newName },
+                    success: function () {
+                    viewSpan.html(`<a href="/Outcomes?frameworkCode=${code}" class="text-decoration-none"><strong>${newName}</strong></a>`);
+                        input.addClass('d-none');
+                        viewSpan.removeClass('d-none');
+                        button.html('<i class="fas fa-edit"></i>');
+                        button.removeClass('btn-success').addClass('btn-outline-warning');
+                        Swal.fire('Saved!', 'Framework name updated.', 'success');
+                    },
+                    error: function () {
+                        Swal.fire('Error', 'Could not update name.', 'error');
                     }
-                    <form asp-action="Details" asp-route-id="@item.Code" method="get" style="display: inline;">
-                        <button class="btn btn-sm btn-primary" title="View">
-                            <i class="bi bi-eye"></i>
-                        </button>
-                    </form>
-                    <form asp-action="Edit" asp-route-id="@item.Code" method="get" style="display: inline;">
-                        <button class="btn btn-sm btn-warning" title="Edit">
-                            <i class="bi bi-pencil"></i>
-                        </button>
-                    </form>
-                    <form asp-action="Delete" asp-route-id="@item.Code" method="post" style="display: inline;">
-                        <button class="btn btn-sm btn-danger" title="Delete">
-                            <i class="bi bi-trash"></i>
-                        </button>
-                    </form>
-                </td>
-            </tr>
+                });
+            } else {
+                // Enter edit mode
+                input.removeClass('d-none');
+                viewSpan.addClass('d-none');
+                button.html('<i class="fas fa-save"></i>');
+                button.removeClass('btn-outline-warning').addClass('btn-success');
+            }
         }
-    </tbody>
-</table>
+
+        function confirmFrameworkDelete(code) {
+            Swal.fire({
+                title: 'Are you sure?',
+                text: 'This will delete the framework!',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                cancelButtonColor: '#3085d6',
+                confirmButtonText: 'Yes, delete it!'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    $.ajax({
+                        url: `/Frameworks/DeleteConfirmed/${code}`,
+                        type: 'POST',
+                        success: function () {
+                            $(`#framework-row-${code}`).fadeOut();
+                            Swal.fire('Deleted!', 'Framework has been deleted.', 'success');
+                        },
+                        error: function () {
+                            Swal.fire('Error', 'Could not delete framework.', 'error');
+                        }
+                    });
+                }
+            });
+        }
+    </script>
+
+
+
+    <style>
+        .table-hover tbody tr:hover {
+            background-color: rgba(13, 110, 253, 0.05);
+        }
+
+        .progress {
+            height: 24px;
+            border-radius: 4px;
+        }
+
+        .progress-bar {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+
+        .btn-group .btn {
+            padding: 0.25rem 0.5rem;
+        }
+
+    .table-responsive {
+        overflow-x: hidden;
+    }
+    </style>

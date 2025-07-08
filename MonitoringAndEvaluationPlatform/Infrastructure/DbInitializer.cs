@@ -1,25 +1,29 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using MonitoringAndEvaluationPlatform.Data;
+using MonitoringAndEvaluationPlatform.Enums;
 using MonitoringAndEvaluationPlatform.Models;
 
 namespace MonitoringAndEvaluationPlatform.Infrastructure
 {
     public static class DbInitializer
     {
-        public static void Seed(IServiceProvider serviceProvider)
+        public static async Task SeedAsync(IServiceProvider serviceProvider)
         {
             // Create a scope to manage the context's lifetime
             using (var scope = serviceProvider.CreateScope())
             {
                 var context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+                var userManager = scope.ServiceProvider.GetRequiredService<UserManager<ApplicationUser>>();
+                var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
 
                 if (!context.Sectors.Any())
                 {
                     var sectors = new List<Sector>
                     {
-                        new Sector { Partner = "Sector 1" }, // Remove explicit Code if using auto-increment
-                        new Sector { Partner = "Sector 2" },
-                        new Sector { Partner = "Sector 3" }
+                        new Sector { Name = "Sector 1" }, // Remove explicit Code if using auto-increment
+                        new Sector { Name = "Sector 2" },
+                        new Sector { Name = "Sector 3" }
                     };
                     context.Sectors.AddRange(sectors);
                 }
@@ -28,24 +32,24 @@ namespace MonitoringAndEvaluationPlatform.Infrastructure
                 {
                     var donors = new List<Donor>
                     {
-                        new Donor { Partner = "Donor 1" }, // Remove explicit Code if using auto-increment
-                        new Donor { Partner = "Donor 2" },
-                        new Donor { Partner = "Donor 3" }
+                        new Donor { Partner = "OCHA" }, // Remove explicit Code if using auto-increment
+                        new Donor { Partner = "UNHCR 2" },
+                        new Donor { Partner = "WFP" },
+                        new Donor { Partner = "UNICEF" },
+                        new Donor { Partner = "WHO" },
+                        new Donor { Partner = "UNDP" },
+                        new Donor { Partner = "FAO" },
+                        new Donor { Partner = "OHCHR" },
+                        new Donor { Partner = "UNRWA" },
+                        new Donor { Partner = "INGO's" },
+                        new Donor { Partner = "ICRC" },
+                        new Donor { Partner = "MSF" },
+                        new Donor { Partner = "NRC" },
+                        new Donor { Partner = "UN-OCHA" },
                     };
                     context.Donors.AddRange(donors);
                 }
 
-                if (!context.Regions.Any())
-                {
-                    var regions = new List<Region>
-                    {
-                        new Region { Name = "Region 1" }, // Remove explicit Code if using auto-increment
-                        new Region { Name = "Region 2" },
-                        new Region { Name = "Region 3" }
-                    };
-
-                    context.Regions.AddRange(regions);
-                }
                 if (!context.SuperVisors.Any())
                 {
                     var superVisors = new List<SuperVisor>
@@ -74,13 +78,76 @@ namespace MonitoringAndEvaluationPlatform.Infrastructure
                 {
                     var ministries = new List<Ministry>
                     {
-                        new Ministry { MinistryName = "Ministry 1" }, // Remove explicit Code if using auto-increment
-                        new Ministry { MinistryName = "Ministry 2" },
-                        new Ministry { MinistryName = "Ministry 3" }
+                        new Ministry { MinistryDisplayName = "وزارة الخارجية والمغتربين", MinistryUserName = "MoFA" },
+                        new Ministry { MinistryDisplayName = "وزارة الدفاع", MinistryUserName = "MoD" },
+                        new Ministry { MinistryDisplayName = "وزارة الداخلية", MinistryUserName = "MoI" },
+                        new Ministry { MinistryDisplayName = "وزارة العدل", MinistryUserName = "MoJ" },
+                        new Ministry { MinistryDisplayName = "وزارة الأوقاف", MinistryUserName = "MoAwaqf" },
+                        new Ministry { MinistryDisplayName = "وزارة التعليم العالي والبحث العلمي", MinistryUserName = "MoHESR" },
+                        new Ministry { MinistryDisplayName = "وزارة التربية", MinistryUserName = "MoE" },
+                        new Ministry { MinistryDisplayName = "وزارة الشؤون الاجتماعية والعمل", MinistryUserName = "MoSAL" },
+                        new Ministry { MinistryDisplayName = "وزارة الاقتصاد والتجارة الخارجية", MinistryUserName = "MoECT" },
+                        new Ministry { MinistryDisplayName = "وزارة المالية", MinistryUserName = "MoF" },
+                        new Ministry { MinistryDisplayName = "وزارة الصحة", MinistryUserName = "MoH" },
+                        new Ministry { MinistryDisplayName = "وزارة الإدارة المحلية والبيئة", MinistryUserName = "MoLAE" },
+                        new Ministry { MinistryDisplayName = "وزارة الأشغال العامة والإسكان", MinistryUserName = "MoPWH" },
+                        new Ministry { MinistryDisplayName = "وزارة النقل", MinistryUserName = "MoT" },
+                        new Ministry { MinistryDisplayName = "وزارة الاتصالات وتقانة المعلومات", MinistryUserName = "MoCIT" },
+                        new Ministry { MinistryDisplayName = "وزارة الزراعة والإصلاح الزراعي", MinistryUserName = "MoAAR" },
+                        new Ministry { MinistryDisplayName = "وزارة السياحة", MinistryUserName = "MoTourism" },
+                        new Ministry { MinistryDisplayName = "وزارة الصناعة", MinistryUserName = "MoIndustry" },
+                        new Ministry { MinistryDisplayName = "وزارة الكهرباء", MinistryUserName = "MoElectricity" },
+                        new Ministry { MinistryDisplayName = "وزارة النفط والثروة المعدنية", MinistryUserName = "MoOMR" },
+                        new Ministry { MinistryDisplayName = "وزارة الموارد المائية", MinistryUserName = "MoWR" },
+                        new Ministry { MinistryDisplayName = "وزارة الإعلام", MinistryUserName = "MoInfo" },
+                        new Ministry { MinistryDisplayName = "وزارة الثقافة", MinistryUserName = "MoCulture" },
+                        new Ministry { MinistryDisplayName = "وزارة التنمية الإدارية", MinistryUserName = "MoAD" },
+                        new Ministry { MinistryDisplayName = "وزارة الرياضة والشباب", MinistryUserName = "MoSY" },
+                        new Ministry { MinistryDisplayName = "وزارة الطاقة", MinistryUserName = "MoEnergy" },
+                        new Ministry { MinistryDisplayName = "وزارة الطوارئ والكوارث", MinistryUserName = "MoEDM" },
                     };
-
                     context.Ministries.AddRange(ministries);
+                    await context.SaveChangesAsync(); // Ensure ministries are saved before creating users
+
+                    foreach (var ministry in ministries)
+                    {
+                        string roleName = ministry.MinistryUserName;
+                        string userName = ministry.MinistryUserName;
+                        string email = $"{userName.ToLower()}@example.com";
+                        string defaultPassword = "Ministry@123";
+
+                        // Create role if it doesn’t exist
+                        if (!await roleManager.RoleExistsAsync(roleName))
+                        {
+                            await roleManager.CreateAsync(new IdentityRole(roleName));
+                        }
+
+                        // Create user if it doesn’t exist
+                        var existingUser = await userManager.FindByNameAsync(userName);
+                        if (existingUser == null)
+                        {
+                            var user = new ApplicationUser
+                            {
+                                UserName = userName,
+                                Email = email,
+                                EmailConfirmed = true,
+                                MinistryName = userName // Or MinistryDisplayName if preferred
+                            };
+
+                            var result = await userManager.CreateAsync(user, defaultPassword);
+                            if (result.Succeeded)
+                            {
+                                await userManager.AddToRoleAsync(user, roleName);
+                            }
+                            else
+                            {
+                                Console.WriteLine($"⚠️ Failed to create user {userName}: {string.Join(", ", result.Errors.Select(e => e.Description))}");
+                            }
+                        }
+                    }
                 }
+            
+
 
 
                 // ✅ Check if Frameworks already exist

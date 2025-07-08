@@ -8,6 +8,7 @@ using Microsoft.EntityFrameworkCore;
 using MonitoringAndEvaluationPlatform.Data;
 using MonitoringAndEvaluationPlatform.Enums;
 using MonitoringAndEvaluationPlatform.Models;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 namespace MonitoringAndEvaluationPlatform.Controllers
 {
@@ -61,6 +62,9 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             }
 
             ViewBag.ProjectId = id;
+            ViewBag.Indicators = await _context.Indicators
+            .Where(i => /* Filter to project-related indicators, if needed */ true)
+            .ToListAsync();
             var measures = _context.Measures.Where(m => m.ProjectID == id).Include(m => m.Indicator).ToListAsync();
 
             return View(await measures);
@@ -83,6 +87,20 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             }
 
             return View(measure);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> CreateFromDetails(Measure measure)
+        {
+            ModelState.Remove(nameof(measure.Indicator));
+            if (ModelState.IsValid)
+            {
+                _context.Add(measure);
+                await _context.SaveChangesAsync();
+                return Ok(); // for AJAX
+            }
+
+            return BadRequest("Invalid input");
         }
 
         // GET: Measures/Create
@@ -131,7 +149,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
 
             if (ModelState.IsValid)
             {
-                measure.Date= DateTime.Now;
+               
                 _context.Measures.Add(measure);
                 await _context.SaveChangesAsync();
 
@@ -167,8 +185,8 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             {
                 return NotFound();
             }
-           // ViewData["IndicatorCode"] = new SelectList(_context.Indicators, "Code", "Code", measure.IndicatorCode);
-            ViewData["IndicatorCode"] = new SelectList(_context.Indicators, "Code", "Code");
+            ViewData["Indicators"] = new SelectList(_context.Indicators, "IndicatorCode", "Name");
+            ViewData["Projects"] = new SelectList(_context.Projects, "ProjectID", "ProjectName");
             return View(measure);
         }
 
@@ -177,19 +195,24 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Code,Date,Value,ValueType,IndicatorCode")] Measure measure)
+        public async Task<IActionResult> Edit(int id,Measure measure)
         {
             if (id != measure.Code)
             {
                 return NotFound();
             }
-
+            ModelState.Remove(nameof(measure.Indicator));
+            ModelState.Remove(nameof(measure.Project));
             if (ModelState.IsValid)
             {
                 try
                 {
                     _context.Update(measure);
                     await _context.SaveChangesAsync();
+                    var monitoringService = new MonitoringService(_context);
+                    await monitoringService.UpdateIndicatorPerformance(measure.IndicatorCode);
+                    await monitoringService.UpdateMinistryPerformance(measure.ProjectID);
+                    await monitoringService.UpdateProjectPerformance(measure.ProjectID);
                 }
                 catch (DbUpdateConcurrencyException)
                 {
@@ -208,21 +231,54 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             return View(measure);
         }
 
-        // GET: Measures/Delete/5
-        public async Task<IActionResult> Delete(int? id)
+        [HttpPost]
+        public async Task<IActionResult> EditInline([FromBody] Measure updated)
         {
-            if (id == null)
-            {
+            var existing = await _context.Measures.FindAsync(updated.Code);
+            if (existing == null)
                 return NotFound();
-            }
 
+            existing.Date = updated.Date;
+            existing.Value = updated.Value;
+
+            await _context.SaveChangesAsync();
+            var monitoringService = new MonitoringService(_context);
+            await monitoringService.UpdateIndicatorPerformance(updated.IndicatorCode);
+            await monitoringService.UpdateMinistryPerformance(updated.ProjectID);
+            await monitoringService.UpdateProjectPerformance(updated.ProjectID);
+
+            return Ok();
+        }
+
+        [HttpDelete]
+        public async Task<IActionResult> DeleteInline(int id, int projectId, int indicatorCode)
+        {
+            var measure = await _context.Measures
+                .FirstOrDefaultAsync(m => m.Code == id && m.ProjectID == projectId && m.IndicatorCode == indicatorCode);
+
+            if (measure == null)
+                return NotFound();
+
+            _context.Measures.Remove(measure);
+            await _context.SaveChangesAsync();
+            var monitoringService = new MonitoringService(_context);
+            await monitoringService.UpdateIndicatorPerformance(indicatorCode);
+            await monitoringService.UpdateMinistryPerformance(projectId);
+            await monitoringService.UpdateProjectPerformance(projectId);
+
+            return Ok();
+        }
+
+
+        // GET: Measures/Delete/5
+        public async Task<IActionResult> Delete(int id)
+        {
             var measure = await _context.Measures
                 .Include(m => m.Indicator)
+                .Include(m => m.Project)
                 .FirstOrDefaultAsync(m => m.Code == id);
             if (measure == null)
-            {
                 return NotFound();
-            }
 
             return View(measure);
         }
@@ -232,15 +288,54 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var measure = await _context.Measures.FindAsync(id);
-            if (measure != null)
+            var monitoringService = new MonitoringService(_context);
+            try
             {
-                _context.Measures.Remove(measure);
+                await monitoringService.DeleteMeasureAndRecalculateAsync(id);
+            }
+            catch (InvalidOperationException ex)
+            {
+                return NotFound(ex.Message);
             }
 
-            await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }
+
+
+
+        //// GET: Measures/Delete/5
+        //public async Task<IActionResult> Delete(int? id)
+        //{
+        //    if (id == null)
+        //    {
+        //        return NotFound();
+        //    }
+
+        //    var measure = await _context.Measures
+        //        .Include(m => m.Indicator)
+        //        .FirstOrDefaultAsync(m => m.Code == id);
+        //    if (measure == null)
+        //    {
+        //        return NotFound();
+        //    }
+
+        //    return View(measure);
+        //}
+
+        //// POST: Measures/Delete/5
+        //[HttpPost, ActionName("Delete")]
+        //[ValidateAntiForgeryToken]
+        //public async Task<IActionResult> DeleteConfirmed(int id)
+        //{
+        //    var measure = await _context.Measures.FindAsync(id);
+        //    if (measure != null)
+        //    {
+        //        _context.Measures.Remove(measure);
+        //    }
+
+        //    await _context.SaveChangesAsync();
+        //    return RedirectToAction(nameof(Index));
+        //}
 
         private bool MeasureExists(int id)
         {

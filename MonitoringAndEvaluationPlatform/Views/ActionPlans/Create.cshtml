@@ -1,35 +1,128 @@
 ﻿@model MonitoringAndEvaluationPlatform.Models.ActionPlan
 
 @{
-    ViewData["Title"] = "Create";
+    ViewData["Title"] = "Create Action Plan";
     Layout = "~/Views/Shared/_ProjectsLayout.cshtml";
 }
 
-<h1>Create</h1>
+<div class="container-fluid px-4">
+    <!-- Project Navigation -->
+    <div class="project-nav mb-4">
+        <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm rounded">
+            <div class="container-fluid">
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#projectNavbar">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse" id="projectNavbar">
+                    <ul class="navbar-nav nav-fill w-100">
+                        <li class="nav-item">
+                            <a asp-controller="Projects" asp-action="Details" asp-route-id="@ViewBag.ProjectID" class="nav-link">
+                                <i class="fas fa-project-diagram me-2"></i>Project
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a asp-action="ProjectMeasures" asp-controller="Measures" class="nav-link">
+                                <i class="fas fa-ruler-combined me-2"></i>Measures
+                            </a>
+                        </li>
+                    @*     <li class="nav-item">
+                            <a asp-controller="Plans" asp-action="ProjectPlans" class="nav-link">
+                                <i class="fas fa-calendar-alt me-2"></i>Plans
+                            </a>
+                        </li> *@
+                        <li class="nav-item">
+                            <a asp-controller="ActionPlans" asp-action="ActionPlan" class="nav-link active" aria-current="page">
+                                <i class="fas fa-tasks me-2"></i>Action Plans
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a asp-action="Index" asp-controller="Activities" asp-route-id="@ViewBag.ProjectID" class="nav-link">
+                                <i class="fas fa-running me-2"></i>Activities
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </nav>
+    </div>
 
-<h4>ActionPlan</h4>
-<hr />
-<div class="row">
-    <div class="col-md-12">
-        <form asp-action="Create">
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-            <div class="form-group">
-                <label asp-for="PlansCount" class="control-label"></label>
-                <input asp-for="PlansCount" class="form-control" />
-                <span asp-validation-for="PlansCount" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="ProjectID" class="control-label"></label>
-                <select asp-for="ProjectID" class ="form-control" asp-items="ViewBag.ProjectID"></select>
-            </div>
-            <div class="form-group">
-                <input type="submit" value="Create" class="btn btn-primary" />
-            </div>
-        </form>
+    <!-- Page Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h4 class="mb-0">Create Action Plan</h4>
+            <p class="text-muted mb-0">Define a new action plan for your project</p>
+        </div>
+        <a asp-action="Index" class="btn btn-outline-secondary">
+            <i class="fas fa-arrow-left me-2"></i>Back to List
+        </a>
+    </div>
+
+    <!-- Create Form -->
+    <div class="card shadow-sm">
+        <div class="card-body">
+            <form asp-action="Create">
+                <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+
+                <div class="row mb-4">
+                    <div class="col-md-6">
+                        <div class="form-group mb-3">
+                            <label asp-for="ProjectID" class="form-label fw-bold"></label>
+                            <select asp-for="ProjectID" class="form-select" asp-items="ViewBag.ProjectID">
+                                <option value="">-- Select Project --</option>
+                            </select>
+                            <span asp-validation-for="ProjectID" class="text-danger small"></span>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group mb-3">
+                            <label asp-for="PlansCount" class="form-label fw-bold"></label>
+                            <input asp-for="PlansCount" class="form-control" />
+                            <span asp-validation-for="PlansCount" class="text-danger small"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group mt-4">
+                    <button type="submit" class="btn btn-primary px-4">
+                        <i class="fas fa-save me-2"></i>Create Action Plan
+                    </button>
+                </div>
+            </form>
+        </div>
     </div>
 </div>
 
-<div>
-    <a asp-action="Index">Back to List</a>
-</div>
+
+    <style>
+        .project-nav .nav-link {
+            color: #495057;
+            font-weight: 500;
+            padding: 0.75rem 1rem;
+            transition: all 0.3s;
+        }
+
+            .project-nav .nav-link:hover {
+                color: #0d6efd;
+                background-color: rgba(13, 110, 253, 0.1);
+            }
+
+            .project-nav .nav-link.active {
+                color: #0d6efd;
+                border-bottom: 3px solid #0d6efd;
+            }
+
+        .form-select, .form-control {
+            padding: 0.5rem 0.75rem;
+            border-radius: 0.375rem;
+        }
+
+        .form-label {
+            margin-bottom: 0.5rem;
+        }
+
+        .card {
+            border: none;
+        }
+    </style>
+
 

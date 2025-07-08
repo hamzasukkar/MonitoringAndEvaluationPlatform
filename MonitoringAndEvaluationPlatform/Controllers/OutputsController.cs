@@ -110,6 +110,19 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             return View(output);
         }
 
+        [HttpPost]
+        public async Task<IActionResult> UpdateName(int id, string name)
+        {
+            var output = await _context.Outputs.FindAsync(id);
+            if (output == null) return NotFound();
+
+            output.Name = name;
+            _context.Update(output);
+            await _context.SaveChangesAsync();
+
+            return Ok();
+        }
+
         // GET: Outputs/Edit/5
         public async Task<IActionResult> Edit(int? id)
         {
@@ -184,19 +197,15 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             return View(output);
         }
 
-        // POST: Outputs/Delete/5
-        [HttpPost, ActionName("Delete")]
-        [ValidateAntiForgeryToken]
+        [HttpPost]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
             var output = await _context.Outputs.FindAsync(id);
-            if (output != null)
-            {
-                _context.Outputs.Remove(output);
-            }
+            if (output == null) return NotFound();
 
+            _context.Outputs.Remove(output);
             await _context.SaveChangesAsync();
-            return RedirectToAction(nameof(Index));
+            return Ok();
         }
 
         private bool OutputExists(int id)

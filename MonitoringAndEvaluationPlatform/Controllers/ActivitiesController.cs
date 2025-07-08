@@ -23,15 +23,28 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         }
 
         // GET: Activities
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(int? id)
         {
-            var applicationDbContext = _context.Activities.Include(a => a.ActionPlan);
-            return View(await applicationDbContext.ToListAsync());
+            ViewBag.ProjectID = id;
+
+            var activities = await _context.Activities
+                .Include(a => a.ActionPlan)
+                .Include(a => a.Plans)
+                .ToListAsync();
+
+            var groupedActivities = activities
+                .GroupBy(a => a.ActionPlan) // Group by ActionPlan
+                .ToList();
+
+            return View(groupedActivities);
         }
+
 
         // GET: Activities/Details/5
         public async Task<IActionResult> Details(int? id)
         {
+            ViewBag.ProjectID = id;
+
             if (id == null)
             {
                 return NotFound();
@@ -64,7 +77,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         {
             if (ModelState.IsValid || true)
             {
-                bool success = await _activityService.CreateActivityAsync(activity);
+                bool success = await _activityService.CreateActivitiesForAllTypesAsync(activity);
 
                 if (!success)
                 {
@@ -73,12 +86,29 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                     return View(activity);
                 }
 
-                return RedirectToAction(nameof(Index));
+                // 🛠 Fetch the ProjectID from the ActionPlan
+                var actionPlan = await _context.ActionPlans
+                    .FirstOrDefaultAsync(ap => ap.Code == activity.ActionPlanCode);
+
+                if (actionPlan == null)
+                {
+                    // Handle unexpected missing ActionPlan
+                    return NotFound();
+                }
+
+                return RedirectToRoute(new
+                {
+                    controller = "ActionPlans",
+                    action = "ActionPlan",
+                    id = actionPlan.ProjectID // ✅ Use correct ProjectID
+                });
             }
 
             ViewData["ActionPlanCode"] = new SelectList(_context.ActionPlans, "Code", "Code", activity.ActionPlanCode);
             return View(activity);
         }
+
+
 
         // GET: Activities/Edit/5
         public async Task<IActionResult> Edit(int? id)

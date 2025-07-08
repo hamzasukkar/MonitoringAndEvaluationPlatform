@@ -1,0 +1,31 @@
+﻿@model IEnumerable<Governorate>
+
+@{
+    ViewData["Title"] = "Governorates";
+}
+
+<h2>Governorates</h2>
+
+<a asp-action="CreateGovernorate" class="btn btn-primary mb-2">Add New Governorate</a>
+
+<table class="table table-bordered">
+    <thead>
+        <tr>
+            <th>Name</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var gov in Model)
+        {
+            <tr>
+                <td>@gov.Name</td>
+                <td>
+                    <a asp-action="EditGovernorate" asp-route-id="@gov.Code" class="btn btn-sm btn-warning">Edit</a>
+                    <a asp-action="DeleteGovernorate" asp-route-id="@gov.Code" class="btn btn-sm btn-danger"
+                       onclick="return confirm('Are you sure you want to delete this governorate?');">Delete</a>
+                </td>
+
+            </tr>
+        }
+    </tbody>
+</table>

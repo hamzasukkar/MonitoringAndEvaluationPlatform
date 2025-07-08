@@ -21,7 +21,55 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             _context = context;
             _planService = planService;
         }
+        [HttpPost]
+        public async Task<IActionResult> UpdatePlanValue(int planCode, string valueType, string newValue)
+        {
+            if (planCode <= 0)
+            {
+                return Json(new { success = false, message = "Invalid Plan Code." });
+            }
 
+            if (!int.TryParse(newValue, out int parsedValue))
+            {
+                return Json(new { success = false, message = "Invalid number. Please enter a whole number." });
+            }
+
+            try
+            {
+                // Find the Plan entity directly by its Primary Key (Code)
+                var planToUpdate = await _context.Plans.FindAsync(planCode);
+
+                if (planToUpdate == null)
+                {
+                    return Json(new { success = false, message = "The record could not be found." });
+                }
+
+                // Update the correct property based on valueType
+                if (valueType == "Planned")
+                {
+                    planToUpdate.Planned = parsedValue;
+                }
+                else if (valueType == "Realised")
+                {
+                    planToUpdate.Realised = parsedValue;
+                }
+                else
+                {
+                    return Json(new { success = false, message = "Invalid data type specified." });
+                }
+                var plan = _context.Plans.Find(planCode);
+                await _planService.UpdatePlanAsync(plan);
+                await _context.SaveChangesAsync();
+
+                // Return a success response
+                return Json(new { success = true });
+            }
+            catch (Exception ex)
+            {
+                // Log the exception (using a proper logging framework is recommended)
+                return StatusCode(500, Json(new { success = false, message = "An internal server error occurred." }));
+            }
+        }
         // GET: Plans
         public async Task<IActionResult> Index()
         {

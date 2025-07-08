@@ -1,218 +1,319 @@
 ﻿@model MonitoringAndEvaluationPlatform.ViewModel.ProgramFilterViewModel
 @{
-    ViewData["Title"] = "Index";
+    ViewData["Title"] = "Projects Dashboard";
     Layout = "~/Views/Shared/_ProjectsLayout.cshtml";
 }
-
-<div class="row">
-    <div class="col-md-2">
-        <form asp-action="Index" method="get">
-            <h4>Filter by Ministry</h4>
-            @foreach (var ministry in Model.Ministries)
-            {
-                <div>
-                    <input type="checkbox" name="SelectedMinistries" value="@ministry.Code"
-                    @(Model.SelectedMinistries.Contains(ministry.Code) ? "checked" : "") />
-                    <label>@ministry.MinistryName</label>
-                </div>
-            }
-
-            <h4>Filter by Region</h4>
-            @foreach (var region in Model.Regions)
-            {
-                <div>
-                    <input type="checkbox" name="SelectedRegions" value="@region.Code"
-                    @(Model.SelectedRegions.Contains(region.Code) ? "checked" : "") />
-                    <label>@region.Name</label>
-                </div>
-            }
-
-            <h4>Filter by Donor</h4>
-            @foreach (var donor in Model.Donors)
-            {
-                <div>
-                    <input type="checkbox" name="SelectedDonors" value="@donor.Code"
-                    @(Model.SelectedDonors.Contains(donor.Code) ? "checked" : "") />
-                    <label>@donor.Partner</label>
-                </div>
-            }
-
-            <button type="submit" class="btn btn-primary">Filter</button>
-            <a asp-action="Index" class="btn btn-secondary">Reset</a>
-        </form>
+<head>
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+</head>
+<div class="container-fluid px-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h4 class="mb-0">Projects Dashboard</h4>
+            <p class="text-muted mb-0">Filter and analyze project performance</p>
+        </div>
+        <a asp-action="Create" class="btn btn-primary">
+            <i class="fas fa-plus me-2"></i>Create New
+        </a>
     </div>
 
-    <div class="col-md-9">
-        <p>
-            <a asp-action="Create">Create New</a>
-        </p>
-        <table class="table">
-            <thead>
-                <tr>
-                    <th>@Html.DisplayNameFor(model => model.Projects.FirstOrDefault().ProjectName)</th>
-@*                     <th>@Html.DisplayNameFor(model => model.Projects.FirstOrDefault().EstimatedBudget)</th>
-                    <th>@Html.DisplayNameFor(model => model.Projects.FirstOrDefault().RealBudget)</th>
-                    <th>@Html.DisplayNameFor(model => model.Projects.FirstOrDefault().Trend)</th> *@
-                    <th>@Html.DisplayNameFor(model => model.Projects.FirstOrDefault().performance)</th>
-                    <th>@Html.DisplayNameFor(model => model.Projects.FirstOrDefault().DisbursementPerformance)</th>
-                    <th>@Html.DisplayNameFor(model => model.Projects.FirstOrDefault().FieldMonitoring)</th>
-                    <th>@Html.DisplayNameFor(model => model.Projects.FirstOrDefault().ImpactAssessment)</th>
-                    <th></th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach (var item in Model.Projects)
-                {
-                    string IndicatorsPerformanceProgressBarClass = "";
-                    string DisbursementPerformanceProgressBarClass = "";
-                    string FieldMonitoringProgressBarClass = "";
-                    string ImpactAssessmentProgressBarClass = "";
-                    string TrendImage = "";
-
-                    switch (item.performance)
-                    {
-                        case >= 80:
-                            IndicatorsPerformanceProgressBarClass = "progress-bar-success";
-                            break;
-
-                        case >= 50:
-                            IndicatorsPerformanceProgressBarClass = "progress-bar-info";
-                            break;
-
-                        case >= 30:
-                            IndicatorsPerformanceProgressBarClass = "progress-bar-warning";
-                            break;
-
-                        case < 30:
-                            IndicatorsPerformanceProgressBarClass = "progress-bar-danger";
-                            break;
-                    }
-
-                    switch (item.DisbursementPerformance)
-                    {
-                        case >= 80:
-                            DisbursementPerformanceProgressBarClass = "progress-bar-success";
-                            break;
-
-                        case >= 50:
-                            DisbursementPerformanceProgressBarClass = "progress-bar-info";
-                            break;
-
-                        case >= 30:
-                            DisbursementPerformanceProgressBarClass = "progress-bar-warning";
-                            break;
-
-                        case < 30:
-                            DisbursementPerformanceProgressBarClass = "progress-bar-danger";
-                            break;
-                    }
-
-                    switch (item.FieldMonitoring)
-                    {
-                        case >= 80:
-                            FieldMonitoringProgressBarClass = "progress-bar-success";
-                            break;
-
-                        case >= 50:
-                            FieldMonitoringProgressBarClass = "progress-bar-info";
-                            break;
-
-                        case >= 30:
-                            FieldMonitoringProgressBarClass = "progress-bar-warning";
-                            break;
-
-                        case < 30:
-                            FieldMonitoringProgressBarClass = "progress-bar-danger";
-                            break;
-                    }
-
-                    switch (item.ImpactAssessment)
-                    {
-                        case >= 80:
-                            ImpactAssessmentProgressBarClass = "progress-bar-success";
-                            break;
-
-                        case >= 50:
-                            ImpactAssessmentProgressBarClass = "progress-bar-info";
-                            break;
-
-                        case >= 30:
-                            ImpactAssessmentProgressBarClass = "progress-bar-warning";
-                            break;
-
-                        case < 30:
-                            ImpactAssessmentProgressBarClass = "progress-bar-danger";
-                            break;
-                    }
-                    <tr>
-                        <td>
-                            <a asp-action="Details" asp-route-id="@item.ProjectID">@item.ProjectName</a>
-                        </td>
-       @*                  <td>
-                            @Html.DisplayFor(modelItem => item.EstimatedBudget)
-                        </td>
-                        <td>
-                            @Html.DisplayFor(modelItem => item.RealBudget)
-                        </td>
-                        <td>
-                            @Html.DisplayFor(modelItem => item.Trend)
-                        </td> *@
-                        <td>
-                            <div class="progress">
-                                <div class="progress-bar @IndicatorsPerformanceProgressBarClass progress-bar-striped"
-                                     role="progressbar" aria-valuenow="@item.performance" aria-valuemin="0" aria-valuemax="100"
-                                     style="width:@item.performance%">
-                                    @item.performance%
+    <div class="row">
+        <!-- Filter Sidebar -->
+        <div class="col-md-3">
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-light">
+                    <h5 class="mb-0">Filters</h5>
+                </div>
+                <div class="card-body">
+                    <form asp-action="Index" method="get">
+                        <!-- Ministry Filter -->
+                        @if (!Model.IsMinistryUser)
+                        {
+                            <div class="mb-4">
+                                <h6 class="fw-bold border-bottom pb-2">Ministry</h6>
+                                <div class="filter-options" style="max-height: 200px; overflow-y: auto;">
+                                    @foreach (var ministry in Model.Ministries)
+                                    {
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" name="SelectedMinistries"
+                                                   value="@ministry.Code" id="ministry-@ministry.Code"
+                                            @(Model.SelectedMinistries.Contains(ministry.Code) ? "checked" : "")>
+                                            <label class="form-check-label" for="ministry-@ministry.Code">
+                                                @ministry.MinistryDisplayName
+                                            </label>
+                                        </div>
+                                    }
                                 </div>
                             </div>
-                        </td>
-                        <td>
-                            <div class="progress">
-                                <div class="progress-bar @DisbursementPerformanceProgressBarClass progress-bar-striped"
-                                     role="progressbar" aria-valuenow="@item.DisbursementPerformance" aria-valuemin="0"
-                                     aria-valuemax="100" style="width:@item.DisbursementPerformance%">
-                                    @item.DisbursementPerformance%
-                                </div>
+
+                        }
+
+
+                        <!-- Donor Filter -->
+                        <div class="mb-4">
+                            <h6 class="fw-bold border-bottom pb-2">Donor</h6>
+                            <div class="filter-options" style="max-height: 200px; overflow-y: auto;">
+                                @foreach (var donor in Model.Donors)
+                                {
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" name="SelectedDonors"
+                                               value="@donor.Code" id="donor-@donor.Code"
+                                        @(Model.SelectedDonors.Contains(donor.Code) ? "checked" : "")>
+                                        <label class="form-check-label" for="donor-@donor.Code">
+                                            @donor.Partner
+                                        </label>
+                                    </div>
+                                }
                             </div>
-                        </td>
-                        <td>
-                            <div class="progress">
-                                <div class="progress-bar @FieldMonitoringProgressBarClass progress-bar-striped"
-                                     role="progressbar" aria-valuenow="@item.FieldMonitoring" aria-valuemin="0" aria-valuemax="100"
-                                     style="width:@item.FieldMonitoring%">
-                                    @item.FieldMonitoring%
-                                </div>
-                            </div>
-                        </td>
-                        <td>
-                            <div class="progress">
-                                <div class="progress-bar @ImpactAssessmentProgressBarClass progress-bar-striped"
-                                     role="progressbar" aria-valuenow="@item.ImpactAssessment" aria-valuemin="0" aria-valuemax="100"
-                                     style="width:@item.ImpactAssessment%">
-                                    @item.ImpactAssessment%
-                                </div>
-                            </div>
-                        </td>
-                        <td>
-                            <form asp-action="Details" asp-route-id="@item.ProjectID" method="get" style="display: inline;">
-                                <button class="btn btn-sm btn-primary" title="View">
-                                    <i class="bi bi-eye"></i>
-                                </button>
-                            </form>
-                            <form asp-action="Edit" asp-route-id="@item.ProjectID" method="get" style="display: inline;">
-                                <button class="btn btn-sm btn-warning" title="Edit">
-                                    <i class="bi bi-pencil"></i>
-                                </button>
-                            </form>
-                            <form asp-action="Delete" asp-route-id="@item.ProjectID" method="post" style="display: inline;">
-                                <button class="btn btn-sm btn-danger" title="Delete">
-                                    <i class="bi bi-trash"></i>
-                                </button>
-                            </form>
-                        </td>
-                    </tr>
-                }
-            </tbody>
-        </table>
+                        </div>
+
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-filter me-2"></i>Apply Filters
+                            </button>
+                            <a asp-action="Index" class="btn btn-outline-secondary">
+                                <i class="fas fa-sync-alt me-2"></i>Reset
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Projects Table -->
+        <div class="col-md-9">
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Project Name</th>
+                                    <th>Performance</th>
+                                    <th>Financial</th>
+                                    @* 
+                                    <th>Physical</th>
+                                   <th>Disbursement</th>
+                                    <th>Monitoring</th>
+                                    <th>Impact</th> *@
+                                    <th class="text-end">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var item in Model.Projects)
+                                {
+                                    double performance = Math.Round(@item.performance, 0);
+                                    var rowId = "row_" + item.ProjectID;
+                                    <tr id="row_@item.ProjectID">
+                                        <td class="project-name">@item.ProjectName</td>
+                                        <td>
+                                            @await Html.PartialAsync("_ProgressBar", new Tuple<double, string>(
+                                                     performance,
+                                                     performance >= 80 ? "success" :
+                                                     performance >= 50 ? "info" :
+                                                     performance >= 30 ? "warning" : "danger"
+                                                     ))
+                                        </td>  
+                                        <td>
+                                            @await Html.PartialAsync("_ProgressBar", new Tuple<double, string>(
+                                                     item.Financial,
+                                                     item.Financial >= 80 ? "success" :
+                                                     item.Financial >= 50 ? "info" :
+                                                     item.Financial >= 30 ? "warning" : "danger"
+                                                     ))
+                                        </td>
+                                        @* 
+                                        <td>
+                                            @await Html.PartialAsync("_ProgressBar", new Tuple<double, string>(
+                                                     item.Physical,
+                                                     item.Physical >= 80 ? "success" :
+                                                     item.Physical >= 50 ? "info" :
+                                                     item.Physical >= 30 ? "warning" : "danger"
+                                                     ))
+                                        </td>
+                                     <td>
+                                            @await Html.PartialAsync("_ProgressBar", new Tuple<double, string>(
+                                                     item.DisbursementPerformance,
+                                                     item.DisbursementPerformance >= 80 ? "success" :
+                                                     item.DisbursementPerformance >= 50 ? "info" :
+                                                     item.DisbursementPerformance >= 30 ? "warning" : "danger"
+                                                     ))
+                                        </td>
+                                        <td>
+                                            @await Html.PartialAsync("_ProgressBar", new Tuple<double, string>(
+                                                     item.FieldMonitoring,
+                                                     item.FieldMonitoring >= 80 ? "success" :
+                                                     item.FieldMonitoring >= 50 ? "info" :
+                                                     item.FieldMonitoring >= 30 ? "warning" : "danger"
+                                                     ))
+                                        </td>
+                                        <td>
+                                            @await Html.PartialAsync("_ProgressBar", new Tuple<double, string>(
+                                                     item.ImpactAssessment,
+                                                     item.ImpactAssessment >= 80 ? "success" :
+                                                     item.ImpactAssessment >= 50 ? "info" :
+                                                     item.ImpactAssessment >= 30 ? "warning" : "danger"
+                                                     ))
+                                        </td> *@
+                                        <td class="text-end">
+                                            <div class="btn-group" role="group">
+                                                <a asp-action="Details" asp-route-id="@item.ProjectID" class="btn btn-sm btn-outline-primary" title="View">
+                                                    <i class="fas fa-eye"></i>
+                                                </a>
+                                                <button type="button" class="btn btn-sm btn-outline-warning"
+                                                        onclick="editProjectName(@item.ProjectID, '@item.ProjectName.Replace("'", "\\'")')">
+                                                    <i class="fas fa-edit"></i>
+                                                </button>
+                                                <button type="button" class="btn btn-sm btn-outline-danger"
+                                                        onclick="deleteProject(@item.ProjectID)">
+                                                    <i class="fas fa-trash-alt"></i>
+                                                </button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                }
+                                @Html.AntiForgeryToken() <!-- Required for AJAX security -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 </div>
+
+
+    <style>
+        .filter-options {
+            scrollbar-width: thin;
+        }
+
+            .filter-options::-webkit-scrollbar {
+                width: 6px;
+            }
+
+            .filter-options::-webkit-scrollbar-track {
+                background: #f1f1f1;
+            }
+
+            .filter-options::-webkit-scrollbar-thumb {
+                background: #888;
+                border-radius: 3px;
+            }
+
+                .filter-options::-webkit-scrollbar-thumb:hover {
+                    background: #555;
+                }
+
+        .form-check-label {
+            cursor: pointer;
+        }
+
+        .progress {
+            border-radius: 4px;
+            background-color: #e9ecef;
+        }
+
+        .progress-bar {
+            font-size: 0.75rem;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .table-hover tbody tr:hover {
+            background-color: rgba(13, 110, 253, 0.05);
+        }
+
+        .card-header {
+            font-weight: 600;
+        }
+
+        .btn-group .btn {
+            padding: 0.25rem 0.5rem;
+        }
+
+    .table-responsive {
+        overflow-x: hidden;
+    }
+    </style>
+<script>
+    const token = $('input[name="__RequestVerificationToken"]').val();
+
+    function editProjectName(projectId, currentName) {
+       debugger
+        Swal.fire({
+            title: 'Edit Project Name',
+            input: 'text',
+            inputLabel: 'Project Name',
+            inputValue: currentName,
+            showCancelButton: true,
+            confirmButtonText: 'Save',
+            preConfirm: (newName) => {
+                if (!newName.trim()) {
+                    Swal.showValidationMessage('Project name cannot be empty');
+                }
+                return newName.trim();
+            }
+        }).then((result) => {
+            if (result.isConfirmed) {
+                $.ajax({
+                    url: '/Projects/UpdateProjectName',
+                    type: 'POST',
+                    data: {
+                        projectId: projectId,
+                        projectName: result.value,
+                        __RequestVerificationToken: token
+                    },
+                    success: function () {
+                        $(`#row_${projectId} .project-name`).text(result.value);
+                        Swal.fire('Updated!', 'Project name has been updated.', 'success');
+                            $(`#row_${projectId}`).addClass('table-success');
+
+    setTimeout(() => {
+        $(`#row_${projectId}`).removeClass('table-success');
+    }, 2000);
+                    },
+                    error: function () {
+                        Swal.fire('Error', 'Failed to update project name.', 'error');
+                    }
+                });
+            }
+        });
+    }
+
+     function deleteProject(projectId) {
+        Swal.fire({
+            title: 'Are you sure?',
+            text: 'This will permanently delete the project.',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonText: 'Yes, delete it!',
+            reverseButtons: true
+        }).then((result) => {
+            if (result.isConfirmed) {
+                $.ajax({
+                    url: '/Projects/DeleteConfirmed',
+                    type: 'POST',
+                    data: {
+                        id: projectId,
+                        __RequestVerificationToken: token
+                    },
+                    success: function () {
+                        // Remove the row from the table
+                        $(`#row_${projectId}`).remove();
+                        Swal.fire('Deleted!', 'Project has been deleted.', 'success');
+                    },
+                    error: function () {
+                        Swal.fire('Error', 'Failed to delete project.', 'error');
+                    }
+                });
+            }
+        });
+    }
+</script>
+
+
+
+

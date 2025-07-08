@@ -1,0 +1,360 @@
+﻿@model MonitoringAndEvaluationPlatform.ViewModel.LinkProjectIndicatorViewModel
+@{
+    ViewData["Title"] = "Link Project Indicator";
+    Layout = "~/Views/Shared/_ProjectsLayout.cshtml";
+}
+
+
+<style>
+    :root {
+        --primary-color: #0d6efd;
+        --hover-color: rgba(13, 110, 253, 0.1);
+        --border-radius: 0.375rem;
+    }
+
+    .project-nav .nav-link {
+        color: #495057;
+        font-weight: 500;
+        padding: 0.75rem 1rem;
+        transition: all 0.3s ease;
+        position: relative;
+    }
+
+        .project-nav .nav-link:hover {
+            color: var(--primary-color);
+            background-color: var(--hover-color);
+        }
+
+        .project-nav .nav-link.active {
+            color: var(--primary-color);
+        }
+
+            .project-nav .nav-link.active:after {
+                content: '';
+                position: absolute;
+                bottom: 0;
+                left: 50%;
+                transform: translateX(-50%);
+                width: 80%;
+                height: 3px;
+                background-color: var(--primary-color);
+                border-radius: 3px 3px 0 0;
+            }
+
+    .form-container {
+        background-color: white;
+        border-radius: var(--border-radius);
+        box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+        padding: 2rem;
+        margin-bottom: 2rem;
+    }
+
+    .form-control:focus, .form-select:focus {
+        border-color: var(--primary-color);
+        box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+    }
+
+    .btn-primary {
+        background-color: var(--primary-color);
+        border-color: var(--primary-color);
+        padding: 0.5rem 1.5rem;
+    }
+
+    .table {
+        border-radius: var(--border-radius);
+        overflow: hidden;
+    }
+
+        .table th {
+            background-color: #f8f9fa;
+            font-weight: 600;
+        }
+
+    .empty-state {
+        text-align: center;
+        padding: 2rem;
+        background-color: #f8f9fa;
+        border-radius: var(--border-radius);
+    }
+
+        .empty-state i {
+            font-size: 2.5rem;
+            color: #6c757d;
+            margin-bottom: 1rem;
+        }
+
+    select[multiple] {
+        min-height: 150px;
+    }
+
+    .loading-spinner {
+        display: none;
+        margin-left: 10px;
+    }
+</style>
+
+<div class="container-fluid px-4">
+    <!-- Project Navigation -->
+    <div class="project-nav mb-4">
+        <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm rounded">
+            <div class="container-fluid">
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#projectNavbar">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse" id="projectNavbar">
+                    <ul class="navbar-nav nav-fill w-100">
+                        <li class="nav-item">
+                            <a class="nav-link" asp-action="Details" asp-route-id="@Model.SelectedProjectId">
+                                <i class="fas fa-project-diagram me-2"></i>Project
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link active" aria-current="page">
+                                <i class="fas fa-link me-2"></i>Alignment
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a asp-action="Create" asp-controller="LogicalFrameworks" asp-route-projectId="@Model.SelectedProjectId" class="nav-link">
+                                <i class="fas fa-sitemap me-2"></i>Logical Framework
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a asp-action="ProjectMeasures" asp-controller="Measures" asp-route-id="@Model.SelectedProjectId" class="nav-link">
+                                <i class="fas fa-ruler-combined me-2"></i>Measures
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a asp-controller="Plans" asp-action="ProjectPlans" asp-route-id="@Model.SelectedProjectId" class="nav-link">
+                                <i class="fas fa-calendar-alt me-2"></i>Plans
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a asp-controller="ActionPlans" asp-action="ActionPlan" asp-route-id="@Model.SelectedProjectId" class="nav-link">
+                                <i class="fas fa-tasks me-2"></i>Action Plans
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a asp-action="Index" asp-controller="Activities" asp-route-projectId="@Model.SelectedProjectId" class="nav-link">
+                                <i class="fas fa-running me-2"></i>Activities
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </nav>
+    </div>
+
+    <div class="form-container">
+        <h4 class="mb-4"><i class="fas fa-link me-2"></i>Link Indicators to Project</h4>
+
+        <form asp-action="LinkProjectToIndicators" method="post">
+            <input type="hidden" asp-for="SelectedProjectId" />
+
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <label class="form-label">Framework</label>
+                    <select asp-for="SelectedFrameworkCode" asp-items="Model.Frameworks" class="form-select" id="framework" required>
+                        <option value="">-- Select Framework --</option>
+                    </select>
+                </div>
+
+                <div class="col-md-6">
+                    <label class="form-label">Outcome</label>
+                    <select asp-for="SelectedOutcomeCode" class="form-select" id="outcome" required disabled>
+                        <option value="">-- Select Outcome --</option>
+                    </select>
+                </div>
+
+                <div class="col-md-6">
+                    <label class="form-label">Output</label>
+                    <select asp-for="SelectedOutputCode" class="form-select" id="output" required disabled>
+                        <option value="">-- Select Output --</option>
+                    </select>
+                </div>
+
+                <div class="col-md-6">
+                    <label class="form-label">SubOutput</label>
+                    <select asp-for="SelectedSubOutputCode" class="form-select" id="suboutput" required disabled>
+                        <option value="">-- Select SubOutput --</option>
+                    </select>
+                </div>
+
+                <div class="col-12">
+                    <label class="form-label">Indicators</label>
+                    <select asp-for="SelectedIndicatorCodes" class="form-select" id="indicator" multiple size="5" required disabled>
+                        <option value="">-- Select indicators --</option>
+                    </select>
+                    <small class="text-muted">Hold Ctrl/Cmd to select multiple indicators</small>
+                </div>
+
+                <div class="col-12 mt-3">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-save me-2"></i>Link Indicators to Project
+                    </button>
+                    <span class="loading-spinner spinner-border spinner-border-sm text-primary" role="status"></span>
+                </div>
+            </div>
+        </form>
+    </div>
+
+    @if (Model.LinkedIndicators.Any())
+    {
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="fas fa-list-check me-2"></i>Currently Linked Indicators</h5>
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0">
+                        <thead>
+                            <tr>
+                                <th>Indicator Name</th>
+                                <th>Target</th>
+                                <th>Year</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var indicator in Model.LinkedIndicators)
+                            {
+                                <tr>
+                                    <td>@indicator.Name</td>
+                                    <td>@indicator.Target</td>
+                                    <td>@indicator.TargetYear</td>
+                                    <td class="text-truncate" style="max-width: 300px;">@indicator.Description</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    }
+    else
+    {
+        <div class="empty-state">
+            <i class="fas fa-unlink"></i>
+            <h5 class="mt-2">No Linked Indicators</h5>
+            <p class="text-muted">This project doesn't have any indicators linked yet</p>
+        </div>
+    }
+</div>
+
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            // Enable loading states
+            function showLoading(selectElement) {
+                $(selectElement).prop('disabled', true).empty().append('<option value="">Loading...</option>');
+                $('.loading-spinner').show();
+            }
+
+            function hideLoading() {
+                $('.loading-spinner').hide();
+            }
+
+            // Framework change
+            $('#framework').change(function () {
+                const frameworkId = $(this).val();
+                if (!frameworkId) {
+                    $('#outcome, #output, #suboutput, #indicator').prop('disabled', true).empty().append('<option value="">-- Select previous option first --</option>');
+                    return;
+                }
+
+                showLoading('#outcome');
+                $('#output, #suboutput, #indicator').prop('disabled', true).empty().append('<option value="">-- Select previous option first --</option>');
+
+                $.getJSON('/Projects/GetOutcomes', { frameworkCode: frameworkId })
+                    .done(function (data) {
+                        $('#outcome').empty().append('<option value="">-- Select Outcome --</option>');
+                        $.each(data, function (i, item) {
+                            $('#outcome').append(`<option value="${item.code}">${item.name}</option>`);
+                        });
+                        $('#outcome').prop('disabled', false);
+                    })
+                    .fail(function() {
+                        $('#outcome').empty().append('<option value="">Error loading outcomes</option>');
+                    })
+                    .always(hideLoading);
+            });
+
+            // Outcome change
+            $('#outcome').change(function () {
+                const outcomeId = $(this).val();
+                if (!outcomeId) {
+                    $('#output, #suboutput, #indicator').prop('disabled', true).empty().append('<option value="">-- Select previous option first --</option>');
+                    return;
+                }
+
+                showLoading('#output');
+                $('#suboutput, #indicator').prop('disabled', true).empty().append('<option value="">-- Select previous option first --</option>');
+
+                $.getJSON('/Projects/GetOutputs', { outcomeCode: outcomeId })
+                    .done(function (data) {
+                        $('#output').empty().append('<option value="">-- Select Output --</option>');
+                        $.each(data, function (i, item) {
+                            $('#output').append(`<option value="${item.code}">${item.name}</option>`);
+                        });
+                        $('#output').prop('disabled', false);
+                    })
+                    .fail(function() {
+                        $('#output').empty().append('<option value="">Error loading outputs</option>');
+                    })
+                    .always(hideLoading);
+            });
+
+            // Output change
+            $('#output').change(function () {
+                const outputId = $(this).val();
+                if (!outputId) {
+                    $('#suboutput, #indicator').prop('disabled', true).empty().append('<option value="">-- Select previous option first --</option>');
+                    return;
+                }
+
+                showLoading('#suboutput');
+                $('#indicator').prop('disabled', true).empty().append('<option value="">-- Select previous option first --</option>');
+
+                $.getJSON('/Projects/GetSubOutputs', { outputCode: outputId })
+                    .done(function (data) {
+                        $('#suboutput').empty().append('<option value="">-- Select SubOutput --</option>');
+                        $.each(data, function (i, item) {
+                            $('#suboutput').append(`<option value="${item.code}">${item.name}</option>`);
+                        });
+                        $('#suboutput').prop('disabled', false);
+                    })
+                    .fail(function() {
+                        $('#suboutput').empty().append('<option value="">Error loading suboutputs</option>');
+                    })
+                    .always(hideLoading);
+            });
+
+            // SubOutput change
+            $('#suboutput').change(function () {
+                const suboutputId = $(this).val();
+                if (!suboutputId) {
+                    $('#indicator').prop('disabled', true).empty().append('<option value="">-- Select SubOutput first --</option>');
+                    return;
+                }
+
+                showLoading('#indicator');
+
+                $.getJSON('/Projects/GetIndicators', { subOutputCode: suboutputId })
+                    .done(function (data) {
+                        $('#indicator').empty();
+                        if (data.length === 0) {
+                            $('#indicator').append('<option value="">No indicators available</option>');
+                        } else {
+                            $.each(data, function (i, item) {
+                                $('#indicator').append(`<option value="${item.indicatorCode}">${item.name}</option>`);
+                            });
+                            $('#indicator').prop('disabled', false);
+                        }
+                    })
+                    .fail(function() {
+                        $('#indicator').empty().append('<option value="">Error loading indicators</option>');
+                    })
+                    .always(hideLoading);
+            });
+        });
+    </script>

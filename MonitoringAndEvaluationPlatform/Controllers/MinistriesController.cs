@@ -57,7 +57,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         // 🔹 Create Ministry (Automatically Creates User & Role)
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("MinistryName,DisbursementPerformance,FieldMonitoring,ImpactAssessment")] Ministry ministry)
+        public async Task<IActionResult> Create(Ministry ministry)
         {
             if (ModelState.IsValid)
             {
@@ -66,25 +66,26 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 await _context.SaveChangesAsync();
 
                 // 🔹 Create Role (if it doesn’t exist)
-                if (!await _roleManager.RoleExistsAsync(ministry.MinistryName))
+                if (!await _roleManager.RoleExistsAsync(ministry.MinistryUserName))
                 {
-                    await _roleManager.CreateAsync(new IdentityRole(ministry.MinistryName));
+                    await _roleManager.CreateAsync(new IdentityRole(ministry.MinistryUserName));
                 }
 
                 // 🔹 Create User for the Ministry
                 string defaultPassword = "Ministry@123";  // ⚠️ Change in production
                 var user = new ApplicationUser
                 {
-                    UserName = ministry.MinistryName,
-                    Email = $"{ministry.MinistryName.ToLower()}@example.com", // Example email
-                    EmailConfirmed = true
+                    UserName = ministry.MinistryUserName,
+                    Email = $"{ministry.MinistryUserName.ToLower()}@example.com", // Example email
+                    EmailConfirmed = true,
+                    MinistryName = ministry.MinistryUserName
                 };
 
                 var result = await _userManager.CreateAsync(user, defaultPassword);
                 if (result.Succeeded)
                 {
                     // 🔹 Assign User to Role
-                    await _userManager.AddToRoleAsync(user, ministry.MinistryName);
+                    await _userManager.AddToRoleAsync(user, ministry.MinistryUserName);
                 }
                 else
                 {
@@ -98,22 +99,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             return View(ministry);
         }
 
-        //// POST: Ministries/Create
-        //// To protect from overposting attacks, enable the specific properties you want to bind to.
-        //// For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
-        //[HttpPost]
-        //[ValidateAntiForgeryToken]
-        //public async Task<IActionResult> Create([Bind("Code,MinistryName,DisbursementPerformance,FieldMonitoring,ImpactAssessment")] Ministry Ministry)
-        //{
-        //    if (ModelState.IsValid)
-        //    {
-        //        _context.Add(Ministry);
-        //        await _context.SaveChangesAsync();
-        //        return RedirectToAction(nameof(Index));
-        //    }
-        //    return View(Ministry);
-        //}
-
+     
         // GET: Ministries/Edit/5
         public async Task<IActionResult> Edit(int? id)
         {
@@ -135,7 +121,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Code,Partner,DisbursementPerformance,FieldMonitoring,ImpactAssessment")] Ministry Ministry)
+        public async Task<IActionResult> Edit(int id,Ministry Ministry)
         {
             if (id != Ministry.Code)
             {

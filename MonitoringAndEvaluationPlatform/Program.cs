@@ -1,4 +1,4 @@
-using Microsoft.AspNetCore.Identity;
+ï»¿using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using MonitoringAndEvaluationPlatform.Data;
 using MonitoringAndEvaluationPlatform.Infrastructure;
@@ -6,6 +6,7 @@ using MonitoringAndEvaluationPlatform.Models;
 using MonitoringAndEvaluationPlatform.Services;
 
 var builder = WebApplication.CreateBuilder(args);
+ ApplicationDbContext applicationDbContext;
 
 // Add services to the container.
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection") ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
@@ -34,6 +35,7 @@ builder.Services.ConfigureApplicationCookie(options =>
 
 builder.Services.AddScoped<MonitoringService>();
 builder.Services.AddScoped<PlanService>();
+builder.Services.AddScoped<IActivityService, ActivityService>();
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -78,16 +80,21 @@ using (var scope = app.Services.CreateScope())
     var services = scope.ServiceProvider;
     var roleManager = services.GetRequiredService<RoleManager<IdentityRole>>();
     var userManager = services.GetRequiredService<UserManager<ApplicationUser>>();
-    DbInitializer.Seed(services);
+    var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+    DbInitializer.SeedAsync(services);
+    ApplicationDbInitializer.SeedGovernoratesFromJson(dbContext);
+    ApplicationDbInitializer.SeedDistrictsFromJson(dbContext);
+    ApplicationDbInitializer.SeedSubDistrictsFromJson(dbContext);
+    ApplicationDbInitializer.SeedCommunitiesFromJson(dbContext);
 
-    // Create Admin role if it doesn’t exist
+    // Create Admin role if it doesnâ€™t exist
     string adminRole = "Admin";
     if (!await roleManager.RoleExistsAsync(adminRole))
     {
         await roleManager.CreateAsync(new IdentityRole(adminRole));
     }
 
-    // Create an Admin user if it doesn’t exist
+    // Create an Admin user if it doesnâ€™t exist
     string adminUserName = "admin";
     string adminEmail = "admin@example.com";
     string adminPassword = "Admin@123"; // Change this in production

@@ -1,165 +1,469 @@
-﻿@model List<@MonitoringAndEvaluationPlatform.ViewModel.ActivityPlanViewModel>
+﻿@model List<MonitoringAndEvaluationPlatform.ViewModel.ActivityPlanViewModel>
 @{
-    ViewData["Title"] = "ActionPlan";
+    ViewData["Title"] = "Project Action Plan";
     Layout = "~/Views/Shared/_ProjectsLayout.cshtml";
-    int projectTotalRealisedCost = 0;
+    int projectTotalPlannedCost = Model.Sum(ag => ag.Activities.Sum(a => a.TotalEstimatedCost));
+    int projectTotalRealisedCost = Model.Sum(ag => ag.Activities.Sum(a => a.TotalRealisedCost));
+    int maxPlans = Model.Any() ? Model.Max(m => m.PlansCount) : 0;
 }
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Financial Cost Table</title>
+    <title>@ViewData["Title"]</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+
     <style>
+        :root {
+        --primary-color: #007bff;
+        --secondary-color: #6c757d;
+        --success-color: #28a745;
+        --warning-color: #ffc107;
+        --danger-color: #dc3545;
+        --light-color: #f8f9fa;
+        --dark-color: #343a40;
+        --font-family-sans-serif: 'Inter', sans-serif;
+        --border-radius: 0.375rem;
+        }
+
         body {
-        font-family: Arial, sans-serif;
+        font-family: var(--font-family-sans-serif);
+        background-color: #f4f7f9;
         }
 
-        table {
-        width: 100%;
-        border-collapse: collapse;
-        margin: 20px 0;
+        /* Project Navigation */
+        .project-nav .navbar {
+        border-radius: var(--border-radius);
+        border: 1px solid #dee2e6;
         }
 
-        th, td {
-        border: 1px solid #000;
-        padding: 8px;
+        .project-nav .nav-link {
+        color: var(--secondary-color);
+        font-weight: 600;
+        transition: color 0.3s ease, background-color 0.3s ease;
+        padding: 0.75rem 1rem;
+        border-radius: var(--border-radius);
+        margin: 0 0.25rem;
+        }
+
+        .project-nav .nav-link:hover {
+        color: var(--primary-color);
+        }
+
+        .project-nav .nav-link.active {
+        color: #fff;
+        background-color: var(--primary-color);
+        }
+
+        /* Page Header */
+        .page-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 2rem;
+        }
+
+        .page-header h1 {
+        font-weight: 700;
+        color: var(--dark-color);
+        }
+
+        /* Totals Section */
+        .totals-card {
+        background-color: #fff;
+        padding: 1.5rem;
+        border-radius: var(--border-radius);
+        box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+        display: flex;
+        gap: 1.5rem;
+        }
+
+        .total-item {
+        flex: 1;
         text-align: center;
         }
 
-        th {
-        background-color: #003366;
-        color: #fff;
+        .total-item .value {
+        font-size: 2rem;
+        font-weight: 700;
+        color: var(--primary-color);
         }
 
-        .section-header {
-        background-color: #add8e6;
-        font-weight: bold;
+        .total-item .value.realised {
+        color: var(--success-color);
+        }
+
+        .total-item .label {
+        font-size: 0.9rem;
+        color: var(--secondary-color);
+        text-transform: uppercase;
+        font-weight: 600;
+        }
+
+        /* Activity Group Card */
+        .activity-group-card {
+        background-color: #fff;
+        margin-bottom: 2rem;
+        border-radius: var(--border-radius);
+        box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+        overflow: hidden; /* To keep rounded corners with the table */
+        }
+
+        .activity-group-header {
+        background-color: #343a40;
+        color: #fff;
+        padding: 1rem 1.5rem;
+        font-size: 1.2rem;
+        font-weight: 600;
+        }
+
+        /* Table Styling */
+        .action-plan-table {
+        width: 100%;
+        border-collapse: collapse;
+        }
+
+        .action-plan-table th, .action-plan-table td {
+        padding: 1rem;
         text-align: left;
+        border-bottom: 1px solid #e9ecef;
+        vertical-align: middle;
         }
 
-        .subtotal, .total {
-        font-weight: bold;
+        .action-plan-table thead th {
+        background-color: #f8f9fa;
+        color: var(--secondary-color);
+        font-weight: 600;
+        text-transform: uppercase;
+        font-size: 0.85rem;
+        border-top: none;
+        border-bottom: 2px solid #dee2e6;
         }
 
-        .total {
-        background-color: #003366;
-        color: #fff;
+        .action-plan-table tbody tr:last-child td {
+        border-bottom: none;
         }
+
+        .action-plan-table tbody tr:hover {
+        background-color: #f1f3f5;
+        }
+
+        .activity-name {
+        font-weight: 600;
+        color: var(--dark-color);
+        }
+
+        .framework-label {
+        font-size: 0.9rem;
+        font-weight: 500;
+        padding-left: 2rem;
+        }
+
+        .plan-date {
+        font-size: 0.9rem;
+        color: var(--secondary-color);
+        }
+
+        .subtotal-row td {
+        font-weight: 700;
+        background-color: #f8f9fa;
+        }
+
+        .total-cost {
+        font-weight: 700;
+        }
+
+        /* Editable Cell Styling */
+        .editable-cell {
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+        border-radius: 4px;
+        }
+
+        .editable-cell:hover {
+        background-color: #e9ecef;
+        }
+
+        .editable-cell[contenteditable="true"]:focus {
+        background-color: #fff3cd; /* Light yellow */
+        outline: 2px solid var(--warning-color);
+        box-shadow: 0 0 5px rgba(255,193,7,0.5);
+        }
+
+        td.saving {
+        background-color: #fff3cd !important;
+        color: #856404;
+        animation: pulse 1.5s infinite;
+        }
+
+        td.success {
+        background-color: #d4edda !important;
+        transition: background-color 1s ease-out;
+        }
+
+        td.error {
+        background-color: #f8d7da !important;
+        }
+
+        @@keyframes pulse {
+        0% {
+        opacity: 1;
+        }
+
+        50% {
+        opacity: 0.6;
+        }
+
+        100% {
+        opacity: 1;
+        }
+        }
+
     </style>
 </head>
 
-<nav class="navbar navbar-expand-lg navbar-light bg-light">
-    <div class="collapse navbar-collapse" id="navbarNav">
-        <ul class="navbar-nav">
-            <li class="nav-item active">
-                <a asp-controller="Projects" asp-action="Details" asp-route-id="@ViewBag.ProjectID" class="nav-link">Project <span class="sr-only">(current)</span></a>
-            </li>
-            <li class="nav-item">
-                <a asp-action="ProjectMeasures" asp-controller="Measures" class="nav-link">Measures</a>
-            </li>
-            <li class="nav-item">
-                <a asp-controller="Plans" asp-action="ProjectPlans" class="nav-link">Plans</a>
-            </li>
-
-            <li class="nav-item">
-                <a asp-controller="ActionPlans" asp-action="ActionPlan" class="nav-link">Action Plans<span class="sr-only">(current)</span></a>
-            </li>
-            <li class="nav-item">
-                <a asp-action="Index" asp-controller="Activities" class="nav-link">Activity</a>
-            </li>
-        </ul>
+<body>
+    <div class="project-nav mb-4">
+        <nav class="navbar navbar-expand-lg navbar-light bg-white">
+            <div class="container-fluid">
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#projectNavbar">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse" id="projectNavbar">
+                    <ul class="navbar-nav nav-fill w-100">
+                        <li class="nav-item">
+                            <a asp-controller="Projects" asp-action="Details" asp-route-id="@ViewBag.ProjectID" class="nav-link">
+                                <i class="fas fa-project-diagram me-2"></i>Project
+                            </a>
+                        </li>
+                        @*    <li class="nav-item">
+                            <a asp-action="LinkProjectToIndicators" asp-route-projectId="@ViewBag.ProjectID" class="nav-link">
+                                <i class="fas fa-link me-2"></i>Alignment
+                            </a>
+                        </li> *@
+                        <li class="nav-item">
+                            <a asp-action="Create" asp-controller="LogicalFrameworks" asp-route-projectId="@ViewBag.ProjectID" class="nav-link">
+                                <i class="fas fa-sitemap me-2"></i>Logical Framework
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a asp-action="ProjectMeasures" asp-controller="Measures" asp-route-id="@ViewBag.ProjectID" class="nav-link">
+                                <i class="fas fa-ruler-combined me-2"></i>Measures
+                            </a>
+                        </li>
+                        @*     <li class="nav-item">
+                            <a asp-controller="Plans" asp-action="ProjectPlans" asp-route-id="@ViewBag.ProjectID" class="nav-link">
+                                <i class="fas fa-calendar-alt me-2"></i>Plans
+                            </a>
+                        </li> *@
+                        <li class="nav-item">
+                            <a class="nav-link active" aria-current="page">
+                                <i class="fas fa-tasks me-2"></i>Action Plans
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a asp-action="Index" asp-controller="Activities" asp-route-id="@ViewBag.ProjectID" class="nav-link">
+                                <i class="fas fa-running me-2"></i>Activities
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </nav>
     </div>
-</nav>
-<table border="1" width="100%">
-    <thead>
-        <tr style="background-color: #004080; color: white;">
-            <th>Activity Name</th>
-            <th>Framework</th>
-            @for (int i = 1; i <= Model.Max(m => m.PlansCount); i++)
-            {
-                <th>P @i</th>
-            }
-            <th>Total Estimated Cost ($)</th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var activityGroup in Model)
+
+    <div class="page-header">
+        <h1>Action Plan</h1>
+        @*         <div class="totals-card">
+            <div class="total-item">
+                <div class="value">@projectTotalPlannedCost.ToString("C0")</div>
+                <div class="label">Project Total Estimated Cost</div>
+            </div>
+            <div class="total-item">
+                <div class="value realised">@projectTotalRealisedCost.ToString("C0")</div>
+                <div class="label">Project Total Financial Cost</div>
+            </div>
+        </div>
+ *@    </div>
+
+    @foreach (var activityGroup in Model)
+    {
+        @if (@activityGroup.ActivityType != "Physical")
         {
-            <!-- Activity Type Header -->
-            <tr style="background-color: #cccccc;">
-                <td colspan="9"><strong>@activityGroup.ActivityType</strong></td>
-            </tr>
-
-            @foreach (var activity in activityGroup.Activities)
-            {
-                <tr>
-                    <td rowspan="3">@activity.ActivityName</td>
-                    <td >Date</td> <!-- Framework Column (if needed) -->
-                    @foreach (var date in activity.Dates)
-                    {
-                        <td>@date.ToString("yyyy-MM-dd")</td>
-                    }
-                    <td>-</td>
-                </tr>
-
-                <tr>
-                    <td>planned</td> <!-- Framework Column (if needed) -->
-                    @foreach (var planned in activity.PlannedValues)
-                    {
-                        <td>@planned</td>
-                    }
-                    <td>@activity.TotalEstimatedCost</td>
-                </tr>
-
-                <tr>
-                    <td>realised</td> <!-- Framework Column (if needed) -->
-                    @foreach (var realised in activity.RealisedValues)
-                    {
-                        <td>@realised</td>
-                    }
-                    <td>@activity.TotalRealisedCost</td>
-
-                </tr>
-            }
-
-            <tr style="font-weight: bold;">
-                <td colspan="2">Subtotal Planned</td>
-                @for (int i = 0; i < activityGroup.Activities.First().PlannedValues.Count; i++)
-                {
-                    <td>@activityGroup.Activities.Sum(a => a.PlannedValues[i])</td>
-                }
-                <td>@activityGroup.Activities.Sum(a => a.TotalEstimatedCost)</td>
-            </tr>
-
-            <tr style="font-weight: bold;">
-                <td colspan="2">Subtotal Realised</td>
-                @for (int i = 0; i < activityGroup.Activities.First().RealisedValues.Count; i++)
-                {
-                    <td>@activityGroup.Activities.Sum(a => a.RealisedValues[i])</td>
-                }
-                <td>@activityGroup.Activities.Sum(a => a.TotalRealisedCost)</td>
-                @{
-                    projectTotalRealisedCost +=@activityGroup.Activities.Sum(a => a.TotalRealisedCost);
-                }
-            </tr>
+            <div class="activity-group-card">
+                <div class="activity-group-header">@activityGroup.ActivityType</div>
+                <table class="action-plan-table">
+                    <thead>
+                        <tr>
+                            <th>Activity</th>
+                            <th>Framework</th>
+                            @for (int i = 1; i <= maxPlans; i++)
+                            {
+                                <th class="text-center">Plan @i</th>
+                            }
+                            <th class="text-end">Total</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var activity in activityGroup.Activities)
+                        {
+                            <tr>
+                                <td rowspan="3" class="activity-name align-middle">@activity.ActivityName</td>
+                                @*    <td class="framework-label">Date</td> *@
+                                <td class="framework-label"></td>
+                                @foreach (var plan in activity.Plans)
+                                {
+                                    @*  <td class="text-center plan-date">@plan.Date.ToString("yyyy-MM-dd")</td> *@
+                                    <td class="text-center plan-date"></td>
+                                }
+                                @for (int i = activity.Plans.Count; i < maxPlans; i++)
+                                {
+                                    <td></td>
+                                }
+                                <td class="text-end">-</td>
+                            </tr>
+                            <tr>
+                                <td class="framework-label">Planned</td>
+                                @foreach (var plan in activity.Plans)
+                                {
+                                    <td class="editable-cell text-center" contenteditable="true"
+                                        data-plan-code="@plan.PlanCode"
+                                        data-value-type="Planned">
+                                        @plan.PlannedValue
+                                    </td>
+                                }
+                                @for (int i = activity.Plans.Count; i < maxPlans; i++)
+                                {
+                                    <td></td>
+                                }
+                                <td class="total-cost text-end">@activity.TotalEstimatedCost.ToString("N0")</td>
+                            </tr>
+                            <tr>
+                                <td class="framework-label">Realised</td>
+                                @foreach (var plan in activity.Plans)
+                                {
+                                    <td class="editable-cell text-center" contenteditable="true"
+                                        data-plan-code="@plan.PlanCode"
+                                        data-value-type="Realised">
+                                        @plan.RealisedValue
+                                    </td>
+                                }
+                                @for (int i = activity.Plans.Count; i < maxPlans; i++)
+                                {
+                                    <td></td>
+                                }
+                                <td class="total-cost text-end">@activity.TotalRealisedCost.ToString("N0")</td>
+                            </tr>
+                        }
+                    </tbody>
+                    <tfoot>
+                        <tr class="subtotal-row">
+                            <td colspan="2">Subtotal Planned</td>
+                            @for (int i = 0; i < maxPlans; i++)
+                            {
+                                <td class="text-center">@activityGroup.Activities.Sum(a => a.Plans.Count > i ? a.Plans[i].PlannedValue : 0)</td>
+                            }
+                            <td class="text-end">@activityGroup.Activities.Sum(a => a.TotalEstimatedCost).ToString("N0")</td>
+                        </tr>
+                        <tr class="subtotal-row">
+                            <td colspan="2">Subtotal Realised</td>
+                            @for (int i = 0; i < maxPlans; i++)
+                            {
+                                <td class="text-center">@activityGroup.Activities.Sum(a => a.Plans.Count > i ? a.Plans[i].RealisedValue : 0)</td>
+                            }
+                            <td class="text-end">@activityGroup.Activities.Sum(a => a.TotalRealisedCost).ToString("N0")</td>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
 
         }
+    }
 
-        <!-- Final Total Row -->
-        <tr style="background-color: #004080; color: white; font-weight: bold;">
-            <td colspan="2">PROJECT TOTAL FINANCIAL COST</td>
-            @for (int i = 1; i <= Model.Max(m => m.PlansCount); i++)
-            {
-                <td>200</td> <!-- Replace with actual sum logic -->
-            }
-            <td>@projectTotalRealisedCost</td>
-        </tr>
-        <tr style="background-color: #004080; color: white; font-weight: bold;">
-            <td colspan="2">PROJECT TOTAL ESTIMATED COST</td>
-            @for (int i = 1; i <= Model.Max(m => m.PlansCount); i++)
-            {
-                <td>200</td> <!-- Replace with actual sum logic -->
-            }
-            <td>@projectTotalRealisedCost</td>
-        </tr>
-    </tbody>
-</table>
+    @if (!Model.Any())
+    {
+        <div class="card">
+            <div class="card-body text-center">
+                <p class="text-muted">No action plans have been created for this project yet.</p>
+            </div>
+        </div>
+    }
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            let originalValue;
+
+            // Use event delegation for dynamically added content if needed in the future
+            $('body').on('focus', '.editable-cell', function () {
+                originalValue = $(this).text().trim();
+                // Select all text in the cell for easy editing
+                //document.execCommand('selectAll', false, null);
+            });
+
+            $('body').on('blur', '.editable-cell', function () {
+                var cell = $(this);
+                var newValue = cell.text().trim();
+
+                // If value hasn't changed, do nothing
+                if (newValue === originalValue) {
+                    return;
+                }
+
+                // Basic validation: ensure the value is a number
+                if (isNaN(newValue) || newValue === '') {
+                    cell.addClass('error');
+                    cell.text(originalValue); // Revert to original value
+                    // Optionally show a more specific alert
+                    // alert("Invalid input. Please enter a number.");
+                    setTimeout(() => cell.removeClass('error'), 1500);
+                    return;
+                }
+
+                var planCode = cell.data('plan-code');
+                var valueType = cell.data('value-type');
+
+                cell.removeClass('success error').addClass('saving');
+
+                $.ajax({
+                    url: '@Url.Action("UpdatePlanValue", "Plans")',
+                    type: 'POST',
+                    data: {
+                        planCode: planCode,
+                        valueType: valueType,
+                        newValue: newValue
+                    },
+                    success: function (response) {
+                        if (response.success) {
+                            // On success, simply reload the page to ensure all calculations and totals are updated from the server.
+                            // This is the most reliable way to reflect the change everywhere.
+                            location.reload();
+                        } else {
+                            cell.removeClass('saving').addClass('error');
+                            cell.text(originalValue); // Revert on failure
+                            alert('Error: ' + response.message);
+                        }
+                    },
+                    error: function (jqXHR, textStatus, errorThrown) {
+                        cell.removeClass('saving').addClass('error');
+                        cell.text(originalValue); // Revert on AJAX error
+                        alert('A server error occurred: ' + textStatus + ' - ' + errorThrown);
+                    }
+                });
+            });
+
+            // Allow Enter key to function like Tab (blur)
+            $('body').on('keydown', '.editable-cell', function(e) {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    $(this).blur();
+                }
+            });
+        });
+    </script>
+</body>

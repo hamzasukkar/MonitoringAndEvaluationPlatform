@@ -1,49 +1,125 @@
 ﻿@model MonitoringAndEvaluationPlatform.Models.Outcome
 
 @{
-	ViewData["Title"] = "Create";
-	Layout = "~/Views/Shared/_ResultsFrameworkLayout.cshtml";
+    ViewData["Title"] = "Create New Outcome";
+    Layout = "~/Views/Shared/_ResultsFrameworkLayout.cshtml";
+    var isFrameworkLocked = ViewBag.SelectedFrameworkCode != null;
 }
 
-<h1>Create</h1>
+<div class="container-fluid">
+    <div class="row mb-4">
+        <div class="col-12">
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a asp-action="Index">Outcomes</a></li>
+                    @if (isFrameworkLocked)
+                    {
+                        <li class="breadcrumb-item"><a asp-controller="Frameworks" asp-action="Details" asp-route-id="@ViewBag.SelectedFrameworkCode">Framework</a></li>
+                    }
+                    <li class="breadcrumb-item active" aria-current="page">Create New</li>
+                </ol>
+            </nav>
 
-<h4>Outcome</h4>
-<hr />
-<div class="row">
-	<div class="col-md-4">
-		<form asp-action="Create">
-			<div asp-validation-summary="ModelOnly" class="text-danger"></div>
-			<div class="form-group">
-				<label asp-for="Name" class="control-label"></label>
-				<input asp-for="Name" class="form-control" />
-				<span asp-validation-for="Name" class="text-danger"></span>
-			</div>
-			@{
-				var isFrameworkLocked = ViewBag.SelectedFrameworkCode != null;
-			}
+            <div class="d-flex justify-content-between align-items-center">
+                <h2 class="mb-0">Create New Outcome</h2>
+                <a asp-action="Index" class="btn btn-outline-secondary">
+                    <i class="fas fa-arrow-left"></i> Back to List
+                </a>
+            </div>
+        </div>
+    </div>
 
-			<!-- Hidden input when FrameworkCode is provided -->
-			@if (isFrameworkLocked)
-			{
-				<input type="hidden" asp-for="FrameworkCode" value="@ViewBag.SelectedFrameworkCode" />
-			}
-			else
-			{
-				<div class="form-group">
-					<label asp-for="FrameworkCode" class="control-label"></label>
-					<select asp-for="FrameworkCode" class="form-control" asp-items="ViewBag.FrameworkCode"></select>
-					<span asp-validation-for="FrameworkCode" class="text-danger"></span>
-				</div>
-			}
+    <div class="row justify-content-center">
+        <div class="col-md-8 col-lg-6">
+            <div class="card shadow-sm">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">Outcome Details</h5>
+                </div>
 
-			<div class="form-group">
-				<input type="submit" value="Create" class="btn btn-primary" />
-			</div>
-		</form>
-	</div>
+                <div class="card-body">
+                    <form asp-action="Create" class="needs-validation" novalidate>
+                        <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+
+                        <div class="form-group mb-4">
+                            <label asp-for="Name" class="form-label fw-bold"></label>
+                            <input asp-for="Name" class="form-control form-control-lg" placeholder="Enter outcome name" required />
+                            <span asp-validation-for="Name" class="text-danger small"></span>
+                            <div class="form-text">Describe the expected outcome in clear, measurable terms.</div>
+                        </div>
+
+                        @if (isFrameworkLocked)
+                        {
+                            <div class="alert alert-info mb-4">
+                                <i class="fas fa-info-circle me-2"></i>
+                                This outcome will be added to framework: <strong>@ViewBag.SelectedFrameworkName</strong>
+                                <input type="hidden" asp-for="FrameworkCode" value="@ViewBag.SelectedFrameworkCode" />
+                            </div>
+                        }
+                        else
+                        {
+                            <div class="form-group mb-4">
+                                <label asp-for="FrameworkCode" class="form-label fw-bold"></label>
+                                <select asp-for="FrameworkCode" class="form-select form-select-lg" asp-items="ViewBag.FrameworkCode" required>
+                                    <option value="">-- Select Framework --</option>
+                                </select>
+                                <span asp-validation-for="FrameworkCode" class="text-danger small"></span>
+                                <div class="form-text">Select which framework this outcome belongs to.</div>
+                            </div>
+                        }
+
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-end mt-4">
+                            <button type="submit" class="btn btn-primary px-4">
+                                <i class="fas fa-save me-2"></i>Create Outcome
+                            </button>
+                            <a asp-action="Index" class="btn btn-outline-secondary px-4">Cancel</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
 
-<div>
-	<a asp-action="Index">Back to List</a>
-</div>
 
+    <style>
+        .card {
+            border-radius: 0.5rem;
+            border: none;
+        }
+
+        .form-control-lg, .form-select-lg {
+            padding: 0.75rem 1rem;
+            font-size: 1.05rem;
+        }
+
+        .breadcrumb {
+            background-color: transparent;
+            padding: 0;
+        }
+
+        .alert-info {
+            background-color: #e7f6fe;
+            border-color: #b8e2fb;
+        }
+    </style>
+
+
+
+    <script>
+        // Client-side validation enhancement
+        (function() {
+            'use strict';
+            const forms = document.querySelectorAll('.needs-validation');
+
+            Array.from(forms).forEach(form => {
+                form.addEventListener('submit', event => {
+                    if (!form.checkValidity()) {
+                        event.preventDefault();
+                        event.stopPropagation();
+                    }
+                    form.classList.add('was-validated');
+                }, false);
+            });
+        })();
+    </script>
+}

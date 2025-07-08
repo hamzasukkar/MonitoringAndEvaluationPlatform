@@ -1,0 +1,29 @@
+﻿@model IEnumerable<SubDistrict>
+
+@{
+    ViewData["Title"] = "SubDistricts";
+}
+
+<h2>SubDistricts</h2>
+
+<a asp-action="CreateSubDistrict" class="btn btn-primary mb-2">Add New SubDistrict</a>
+
+<table class="table table-bordered">
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>District</th>
+            <th>Governorate</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var sd in Model)
+        {
+            <tr>
+                <td>@sd.Name</td>
+                <td>@sd.District?.Name</td>
+                <td>@sd.District?.Governorate?.Name</td>
+            </tr>
+        }
+    </tbody>
+</table>

@@ -1,0 +1,340 @@
+﻿:root {
+    /* New Syrian Visual Identity Colors */
+    --primary-background-color: #1A3B33; /* Dark Green - Main background, topbar, table headers (if applicable) */
+    --secondary-card-background: #2A4C44; /* Slightly Lighter Dark Green - Cards, main content area, sidebar, table rows (if applicable) */
+    --accent-gold-color: #C8A85F; /* Gold - Accents, buttons, active states, important text */
+    --text-light-color: #E0E0E0; /* Light text on dark backgrounds */
+    --text-dark-contrast: #333333; /* Dark text for contrast on light elements (if any) */
+    --border-color: #4A6E66; /* Border color for inputs/elements */
+    --hover-gold-color: #DDAA66; /* Slightly lighter gold for hover states */
+    /* Standard Bootstrap-like colors, adjusted for harmony */
+    --success-color: #28a745;
+    --info-color: #17a2b8;
+    --warning-color: #ffc107;
+    --danger-color: #dc3545;
+    --orange-color: #fd7e14; /* For specific progress bars or warnings */
+
+    --sidebar-width: 250px;
+    --font-family-sans-serif: 'Inter', sans-serif; /* Using Inter font */
+}
+
+body {
+    font-family: var(--font-family-sans-serif);
+    background-color: var(--primary-background-color); /* Main background color */
+    margin: 0;
+    padding: 0;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    color: var(--text-light-color); /* Default text color for the body */
+}
+
+/* Header Styles */
+.topbar {
+    background-color: var(--primary-background-color); /* Dark Green */
+    color: var(--text-light-color);
+    padding: 0.75rem 2rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2); /* Stronger shadow for dark background */
+    position: fixed;
+    width: 100%;
+    z-index: 1000;
+    height: 60px;
+}
+
+.title {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: var(--accent-gold-color); /* Gold for the title */
+}
+
+.nav-links .nav {
+    display: flex;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    align-items: center;
+}
+
+.nav-item {
+    margin: 0 0.5rem;
+}
+
+.nav-link {
+    color: rgba(255, 255, 255, 0.85); /* Slightly transparent white */
+    text-decoration: none;
+    padding: 0.5rem 1rem;
+    border-radius: 4px;
+    transition: all 0.3s ease;
+    font-weight: 500;
+}
+
+    .nav-link:hover, .nav-link.active {
+        color: var(--accent-gold-color); /* Gold on hover/active */
+        background-color: rgba(255, 255, 255, 0.08); /* Subtle highlight */
+    }
+
+.dropdown-menu {
+    border: none;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2); /* Stronger shadow */
+    border-radius: 8px;
+    padding: 0.5rem 0;
+    background-color: var(--secondary-card-background); /* Darker background for dropdown */
+}
+
+.dropdown-item {
+    padding: 0.5rem 1.5rem;
+    transition: all 0.2s;
+    color: var(--text-light-color); /* Light text for dropdown items */
+}
+
+    .dropdown-item:hover {
+        background-color: rgba(200, 168, 95, 0.15); /* Light gold tint on hover */
+        color: var(--accent-gold-color); /* Gold text on hover */
+    }
+
+/* Main Content Layout */
+.main {
+    display: flex;
+    margin-top: 60px; /* Offset for fixed header */
+    min-height: calc(100vh - 60px);
+}
+
+/* Sidebar Styles */
+.sidebar {
+    width: var(--sidebar-width);
+    background-color: var(--secondary-card-background); /* Slightly Lighter Dark Green */
+    box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1); /* Subtle shadow */
+    padding: 1.5rem 0;
+    position: fixed;
+    height: calc(100vh - 60px);
+    overflow-y: auto;
+    z-index: 900;
+}
+
+    .sidebar ul {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+
+    .sidebar li {
+        margin-bottom: 0.5rem;
+    }
+
+    .sidebar a {
+        display: flex;
+        align-items: center;
+        padding: 0.75rem 1.5rem;
+        color: var(--text-light-color); /* Light text for sidebar links */
+        text-decoration: none;
+        transition: all 0.2s;
+        font-weight: 500;
+    }
+
+        .sidebar a:hover, .sidebar a.active {
+            color: var(--accent-gold-color); /* Gold on hover/active */
+            background-color: rgba(200, 168, 95, 0.1); /* Light gold tint for background */
+            border-right: 3px solid var(--accent-gold-color); /* Gold border highlight */
+        }
+
+    .sidebar img {
+        margin-right: 1rem;
+        opacity: 0.8; /* Slightly less opaque on default */
+    }
+
+    .sidebar a:hover img {
+        opacity: 1; /* Full opacity on hover */
+    }
+
+/* Content Area */
+.container-full {
+    flex: 1;
+    padding: 2rem;
+    margin-left: var(--sidebar-width);
+    background-color: var(--secondary-card-background); /* Slightly Lighter Dark Green */
+    min-height: calc(100vh - 60px);
+    color: var(--text-light-color); /* Default text color for content area */
+    /* New: Background Image for .container-full */
+    background-image: url('/img/Emblem_of_Syria.png'); /* Path to your image */
+    background-repeat: no-repeat; /* Prevents the image from repeating */
+    background-position: center center; /* Centers the image */
+    background-size: 70%; /* Adjust this value to make the emblem smaller or larger */
+    background-blend-mode: multiply; /* Blends the image with the background color */
+}
+
+/* Dashboard Card Styles */
+.dashboard-card {
+    border: none;
+    border-radius: 10px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15); /* Stronger shadow */
+    transition: transform 0.2s, box-shadow 0.2s;
+    margin-bottom: 1.5rem;
+    height: 100%;
+    background-color: #3A5C54; /* Slightly lighter than secondary-card-background for cards */
+    color: var(--text-light-color); /* Text inside cards */
+}
+
+    .dashboard-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
+    }
+
+.dashboard-card-header {
+    background-color: var(--primary-background-color); /* Dark Green for card headers */
+    border-bottom: 1px solid var(--border-color); /* Border color from new palette */
+    font-weight: 600;
+    padding: 1rem 1.5rem;
+    border-radius: 10px 10px 0 0 !important;
+    color: var(--accent-gold-color); /* Gold text for card headers */
+}
+
+.dashboard-card-body {
+    padding: 1.5rem;
+}
+
+/* Responsive Adjustments */
+@media (max-width: 992px) {
+    .sidebar {
+        width: 70px;
+        overflow: hidden;
+    }
+
+        .sidebar a span {
+            display: none;
+        }
+
+        .sidebar img {
+            margin-right: 0;
+        }
+
+    .container-full {
+        margin-left: 70px;
+    }
+}
+
+@media (max-width: 768px) {
+    .sidebar {
+        display: none;
+    }
+
+    .container-full {
+        margin-left: 0;
+        padding: 1rem;
+    }
+
+    .topbar .title {
+        font-size: 1.2rem;
+    }
+
+    .nav-links .nav-item:not(:last-child) {
+        display: none;
+    }
+}
+
+/* Card Styling (general, if any) */
+.card {
+    border: none;
+    border-radius: 10px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15); /* Stronger shadow */
+    transition: transform 0.2s, box-shadow 0.2s;
+    margin-bottom: 1.5rem;
+    background-color: #3A5C54; /* Consistent card background */
+    color: var(--text-light-color); /* Consistent card text color */
+}
+
+    .card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
+    }
+
+.card-header {
+    background-color: var(--primary-background-color); /* Consistent card header background */
+    border-bottom: 1px solid var(--border-color);
+    font-weight: 600;
+    padding: 1rem 1.5rem;
+    border-radius: 10px 10px 0 0 !important;
+    color: var(--accent-gold-color); /* Consistent card header text color */
+}
+
+
+/* Button Styling */
+.btn-primary {
+    background-color: var(--accent-gold-color); /* Gold button */
+    border-color: var(--accent-gold-color);
+    color: var(--primary-background-color); /* Dark text on gold button */
+}
+
+    .btn-primary:hover {
+        background-color: var(--hover-gold-color); /* Lighter gold on hover */
+        border-color: var(--hover-gold-color);
+        color: var(--primary-background-color);
+    }
+
+.btn-outline-primary {
+    color: var(--accent-gold-color); /* Gold outline button */
+    border-color: var(--accent-gold-color);
+}
+
+    .btn-outline-primary:hover {
+        background-color: var(--accent-gold-color);
+        color: var(--primary-background-color);
+    }
+
+
+/* Table Styling */
+.table {
+    border-collapse: separate;
+    border-spacing: 0;
+    color: var(--text-light-color); /* Default table text color */
+}
+
+    .table thead th {
+        background-color: var(--primary-background-color); /* Dark Green for table header */
+        border: none;
+        font-weight: 600;
+        padding: 1rem;
+        color: var(--accent-gold-color); /* Gold text for table headers */
+    }
+
+    .table tbody tr {
+        background-color: var(--secondary-card-background); /* Slightly Lighter Dark Green for table rows */
+        transition: all 0.2s;
+    }
+
+        .table tbody tr:hover {
+            background-color: #3A5C54; /* Even lighter green on hover */
+            transform: translateX(2px);
+        }
+
+    .table tbody td {
+        border-color: var(--border-color); /* Border color for table cells */
+    }
+
+/* Specific progress bar colors if still used */
+.progress-bar-orange {
+    background-color: var(--orange-color);
+}
+
+/* Adjust text colors for specific Bootstrap classes if they appear on dark backgrounds */
+.text-muted {
+    color: rgba(255, 255, 255, 0.6) !important; /* Lighter muted text for dark backgrounds */
+}
+
+.text-danger {
+    color: var(--danger-color) !important; /* Ensure danger text is visible */
+}
+
+.text-info {
+    color: var(--info-color) !important;
+}
+
+.text-success {
+    color: var(--success-color) !important;
+}
+
+.text-warning {
+    color: var(--warning-color) !important;
+}

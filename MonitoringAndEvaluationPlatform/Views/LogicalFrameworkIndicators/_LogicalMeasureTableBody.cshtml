@@ -1,0 +1,10 @@
+﻿@model List<LogicalMeasure>
+
+@foreach (var item in Model)
+{
+    <tr>
+        <td>@item.Date.ToString("yyyy-MM-dd")</td>
+        <td>@item.Value</td>
+        <td>@item.ValueType</td>
+    </tr>
+}

@@ -1,11 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.Json;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using MonitoringAndEvaluationPlatform.Data;
+using MonitoringAndEvaluationPlatform.Enums;
 using MonitoringAndEvaluationPlatform.Models;
 using MonitoringAndEvaluationPlatform.ViewModel;
 
@@ -127,6 +129,36 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             return View(indicator);
         }
 
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> CreateInline(string Name, int Target, int SubOutputCode)
+        {
+            if (string.IsNullOrWhiteSpace(Name) || Target <= 0)
+            {
+                TempData["Error"] = "Name and Target are required and must be valid.";
+                return RedirectToAction("Index", new { subOutputCode = SubOutputCode });
+            }
+
+            var indicator = new Indicator
+            {
+                Name = Name,
+                Target = Target,
+                SubOutputCode = SubOutputCode
+            };
+
+            _context.Indicators.Add(indicator);
+            await _context.SaveChangesAsync();
+
+
+            // Update related entities
+            await UpdateSubOutputPerformance(indicator.SubOutputCode);
+            // Recalculate weights
+            await RedistributeWeights(indicator.SubOutputCode);
+
+            return RedirectToAction(nameof(Index), new { frameworkCode = indicator.SubOutput.Output.Outcome.FrameworkCode, subOutputCode = indicator.SubOutputCode });
+        }
+
+
         private async Task UpdateSubOutputPerformance(int subOutputCode)
         {
             var subOutput = await _context.SubOutputs.FirstOrDefaultAsync(i => i.Code == subOutputCode);
@@ -185,6 +217,32 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         {
             return performances.Any() ? performances.Sum() / performances.Count : 0;
         }
+        [HttpPost]
+        public async Task<IActionResult> InlineEditName(int id, [FromBody] JsonElement data)
+        {
+            var indicator = await _context.Indicators.FindAsync(id);
+            if (indicator == null) return NotFound();
+
+            var newName = data.GetProperty("name").GetString();
+            indicator.Name = newName;
+            await _context.SaveChangesAsync();
+
+            return Ok();
+        }
+        [HttpPost]
+        public async Task<IActionResult> DeleteConfirmed(int id)
+        {
+            var indicator = await _context.Indicators.FindAsync(id);
+            if (indicator == null)
+            {
+                return NotFound();
+            }
+
+            _context.Indicators.Remove(indicator);
+            await _context.SaveChangesAsync();
+            return Ok();
+        }
+
 
 
         // GET: Indicators/Edit/5
@@ -206,7 +264,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Code,Name,Trend,IndicatorsPerformance,SubOutputCode")] Indicator indicator)
+        public async Task<IActionResult> Edit(int id,Indicator indicator)
         {
             if (id != indicator.IndicatorCode)
             {
@@ -320,23 +378,42 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         }
 
 
-
-
-        // POST: Indicators/Delete/5
-        [HttpPost, ActionName("Delete")]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DeleteConfirmed(int id)
+        [HttpGet]
+        public async Task<IActionResult> GetMeasureChartData(int indicatorCode)
         {
-            var indicator = await _context.Indicators.FindAsync(id);
-            if (indicator != null)
-            {
-                _context.Indicators.Remove(indicator);
-            }
+            var data = await _context.Measures
+                .Where(m => m.IndicatorCode == indicatorCode)
+                .OrderBy(m => m.Date)
+                .ToListAsync();
 
-            await _context.SaveChangesAsync();
-            return RedirectToAction(nameof(Index));
+            var real = data
+                .Where(m => m.ValueType == MeasureValueType.Real)
+                .Select(m => new { date = m.Date.ToString("yyyy-MM-dd"), value = m.Value })
+                .ToList();
+
+            var target = data
+                .Where(m => m.ValueType == MeasureValueType.Target)
+                .Select(m => new { date = m.Date.ToString("yyyy-MM-dd"), value = m.Value })
+                .ToList();
+
+
+
+            var result = new { Real = real, Target = target };
+
+            return Json(result);
         }
 
+        public async Task<IActionResult> MeasureTablePartial(int indicatorCode)
+        {
+            var measures = await _context.Measures
+                .Where(m => m.IndicatorCode == indicatorCode)
+                .OrderBy(m => m.Date)
+                .ToListAsync();
+
+            return PartialView("_MeasureTablePartial", measures);
+        }
+
+   
         private bool IndicatorExists(int id)
         {
             return _context.Indicators.Any(e => e.IndicatorCode == id);
@@ -415,6 +492,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             {
                 ModelState.AddModelError("", "Total weight must equal 100%.");
                 ViewBag.SubOutputCode = subOutputCode;
+                ViewBag.FrameworkCode = frameworkCode;
                 return View(model);
             }
 

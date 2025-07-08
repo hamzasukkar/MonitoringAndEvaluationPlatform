@@ -17,15 +17,24 @@ namespace MonitoringAndEvaluationPlatform.Data
         public DbSet<SubOutput> SubOutputs { get; set; } = default!;
         public DbSet<Ministry> Ministries { get; set; } = default!;
         public DbSet<Project> Projects { get; set; } = default!;
-        public DbSet<Region> Regions { get; set; } = default!;
         public DbSet<Sector> Sectors { get; set; } = default!;
         public DbSet<Donor> Donors { get; set; } = default!;
         public DbSet<Measure> Measures { get; set; } = default!;
+        public DbSet<LogicalMeasure> logicalMeasures { get; set; } = default!;
         public DbSet<SuperVisor> SuperVisors { get; set; } = default!;
         public DbSet<ProjectManager> ProjectManagers { get; set; } = default!;
         public DbSet<Activity> Activities { get; set; } = default!;
         public DbSet<Plan> Plans { get; set; } = default!;
         public DbSet<ActionPlan> ActionPlans { get; set; } = default!;
+        public DbSet<ProjectIndicator> ProjectIndicators { get; set; } = default!;
+        public DbSet<LogicalFramework> logicalFrameworks { get; set; } = default!;
+        public DbSet<LogicalFrameworkIndicator> logicalFrameworkIndicators { get; set; } = default!;
+        public DbSet<ProjectFile> ProjectFiles { get; set; }
+        public DbSet<Governorate> Governorates { get; set; }
+        public DbSet<District> Districts { get; set; }
+        public DbSet<SubDistrict> SubDistricts { get; set; }
+        public DbSet<Community> Communities { get; set; }
+
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -45,13 +54,60 @@ namespace MonitoringAndEvaluationPlatform.Data
                 .WithMany(i => i.Measures)
                 .HasForeignKey(m => m.IndicatorCode);
 
+            modelBuilder.Entity<ProjectIndicator>()
+                .HasOne(pi => pi.Project)
+                .WithMany(p => p.ProjectIndicators)
+                .HasForeignKey(pi => pi.ProjectId);
+
+            modelBuilder.Entity<ProjectIndicator>()
+                .HasOne(pi => pi.Indicator)
+                .WithMany(i => i.ProjectIndicators)
+                .HasForeignKey(pi => pi.IndicatorCode);
+
             modelBuilder.Entity<Project>()
-               .HasOne(p => p.ActionPlan)
-               .WithOne(ap => ap.Project)
-               .HasForeignKey<ActionPlan>(ap => ap.ProjectID)
-               .OnDelete(DeleteBehavior.Cascade); // Ensures deletion propagates
+                .HasMany(p => p.Sectors)
+                .WithMany(r => r.Projects)
+                .UsingEntity(j => j.ToTable("ProjectSectors")); // optional table name
+
+            modelBuilder.Entity<Project>()
+            .HasMany(p => p.Donors)
+            .WithMany(r => r.Projects)
+            .UsingEntity(j => j.ToTable("ProjectDonors")); // optional table name
+
+            modelBuilder.Entity<Project>()
+            .HasMany(p => p.Ministries)
+            .WithMany(r => r.Projects)
+            .UsingEntity(j => j.ToTable("ProjectMinistries")); // optional table name
+
+            // Project <-> Governorate
+            modelBuilder.Entity<Project>()
+                .HasMany(p => p.Governorates)
+                .WithMany(g => g.projects)
+                .UsingEntity(j => j.ToTable("ProjectGovernorates"));
+
+            // Project <-> District
+            modelBuilder.Entity<Project>()
+                .HasMany(p => p.Districts)
+                .WithMany(d => d.projects)
+                .UsingEntity(j => j.ToTable("ProjectDistricts"));
+
+            // Project <-> SubDistrict
+            modelBuilder.Entity<Project>()
+                .HasMany(p => p.SubDistricts)
+                .WithMany(s => s.projects)
+                .UsingEntity(j => j.ToTable("ProjectSubDistricts"));
+
+            // Project <-> Community
+            modelBuilder.Entity<Project>()
+                .HasMany(p => p.Communities)
+                .WithMany(c => c.projects)
+                .UsingEntity(j => j.ToTable("ProjectCommunities"));
+
+
+
+
+
 
         }
-     
     }
 }

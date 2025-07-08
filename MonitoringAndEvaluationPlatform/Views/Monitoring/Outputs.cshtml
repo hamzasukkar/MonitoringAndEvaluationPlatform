@@ -1,0 +1,79 @@
+﻿@using MonitoringAndEvaluationPlatform.Helpers;
+@using Microsoft.AspNetCore.Razor.TagHelpers;
+@model IEnumerable<MonitoringAndEvaluationPlatform.Models.Output>
+@{
+	Layout = "~/Views/Shared/_ResultsFrameworkLayout.cshtml";
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Health Framework Dashboard</title>
+	<link rel="stylesheet" href="~/css/progress-bars.css" />
+</head>
+<body>
+	<div class="framework-container">
+		@foreach (var item in Model)
+		{
+			var subOutputs = item.SubOutputs;
+			var indicators = subOutputs.SelectMany(subOutput => subOutput.Indicators);
+
+
+			var metrics = new[]
+			{
+		new { Value = Math.Round(item.IndicatorsPerformance, 2), Label = "Performance Assessment" },
+		new { Value = Math.Round(item.DisbursementPerformance, 2), Label = "Disbursement" },
+		new { Value = Math.Round(item.FieldMonitoring, 2), Label = "Monitoring" },
+		new { Value = Math.Round(item.ImpactAssessment, 2), Label = "Assessment" }
+		};
+
+			<div class="framework-card">
+				<div class="framework-header">
+					<h2>@item.Name</h2>
+					<div class="outcome-badge">SubOutputs: @subOutputs.Count()</div>
+				</div>
+
+				@foreach (var metric in metrics)
+				{
+					var progressClass = ProgressHelper.GetProgressClass(metric.Value);
+					var classes = progressClass.Split(' ');
+
+					<div class="metric">
+						<div class="metric-value @classes[1]">@metric.Value%</div>
+						<div class="metric-label">@metric.Label</div>
+						<div class="progress-container">
+							<div class="progress-bar @classes[0]" style="width: @metric.Value%"></div>
+						</div>
+					</div>
+				}
+
+				<div class="outcome-stats">
+					<div class="stat-grid">
+						<div class="stat-item">
+							<a asp-controller="Monitoring" asp-action="SubOutputs" asp-route-outputCode="@item.Code">
+								<div class="stat-value">@subOutputs.Count()</div>
+								<div class="stat-label">Sub-outputs</div>
+							</a>
+						</div>
+						<div class="stat-item">
+							<a asp-controller="Monitoring" asp-action="Indicators" asp-route-outputCode="@item.Code">
+								<div class="stat-value">@indicators.Count()</div>
+								<div class="stat-label">Indicators</div>
+							</a>
+						</div>
+						<div class="stat-item">
+							<a asp-controller="Monitoring" asp-action="Projects" asp-route-outputCode="@item.Code">
+								<div class="stat-value">@ViewBag.ProjectCounts[item.Code]</div>
+								<div class="stat-label">Projects</div>
+							</a>
+						</div>
+					</div>
+				</div>
+			</div>
+		}
+	</div>
+</body>
+</html>
+
