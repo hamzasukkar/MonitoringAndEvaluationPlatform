@@ -3,6 +3,9 @@
 @using Microsoft.AspNetCore.Identity
 @inject UserManager<ApplicationUser> UserManager
 @inject SignInManager<ApplicationUser> SignInManager
+@using Microsoft.AspNetCore.Mvc.Localization
+@inject IViewLocalizer Localizer
+@using Microsoft.AspNetCore.Localization
 
 @{
     ViewData["Title"] = "Results Frameworks";
@@ -12,7 +15,7 @@
 @* <div class="container-fluid"> *@
     <div class="d-flex justify-content-between align-items-center mb-4">
         <div>
-            <h4 class="mb-0">Results Frameworks</h4>
+        <h4 class="mb-0">@Localizer["Results Frameworks"]</h4>
         </div>
 
         @if (SignInManager.IsSignedIn(User))
@@ -24,8 +27,8 @@
                 if (roles.Contains("Admin"))
                 {
                     <a asp-action="Create" class="btn btn-primary">
-                        <i class="fas fa-plus me-2"></i>Create New
-                    </a>
+                    <i class="fas fa-plus me-2"></i>@Localizer["Create New Framework"]
+                </a>
                 }
             }
         }
@@ -56,12 +59,12 @@
                 <table class="table table-hover">
                     <thead class="table-light">
                         <tr>
-                            <th>Framework Name</th>
-                            <th>Indicators Performance</th>
-                            <th>Disbursement Performance</th>
-                            <th>Field Monitoring</th>
-                            <th>Impact Assessment</th>
-                            <th class="text-end">Actions</th>
+                        <th>@Localizer["Framework Name"]</th>
+                        <th>@Localizer["Indicators Performance"]</th>
+                        <th>@Localizer["Disbursement Performance"]</th>
+                        <th>@Localizer["Field Monitoring"]</th>
+                        <th>@Localizer["Impact Assessment"]</th>
+                        <th class="text-end">@Localizer["Actions"]</th>
                         </tr>
                     </thead>
                     <tbody>

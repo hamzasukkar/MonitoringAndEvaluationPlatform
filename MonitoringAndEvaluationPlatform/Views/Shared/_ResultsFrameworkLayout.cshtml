@@ -41,22 +41,22 @@
                             <ul class="dropdown-menu" aria-labelledby="framework-@framework.Code">
                                 <li>
                                     <a class="dropdown-item" asp-controller="Outcomes" asp-action="Index" asp-route-frameworkCode="@framework.Code">
-                                        <i class="fas fa-bullseye"></i> Outcomes
+                                        <i class="fas fa-bullseye"></i>@Localizer["Outcomes"]
                                     </a>
                                 </li>
                                 <li>
                                     <a class="dropdown-item" asp-controller="Outputs" asp-action="Index" asp-route-frameworkCode="@framework.Code">
-                                        <i class="fas fa-project-diagram"></i> Outputs
+                                        <i class="fas fa-project-diagram"></i>@Localizer["Outputs"]
                                     </a>
                                 </li>
                                 <li>
                                     <a class="dropdown-item" asp-controller="SubOutputs" asp-action="Index" asp-route-frameworkCode="@framework.Code">
-                                        <i class="fas fa-code-branch"></i> SubOutputs
+                                        <i class="fas fa-code-branch"></i>@Localizer["SubOutputs"]
                                     </a>
                                 </li>
                                 <li>
                                     <a class="dropdown-item" asp-controller="Indicators" asp-action="Index" asp-route-frameworkCode="@framework.Code">
-                                        <i class="fas fa-chart-line"></i> Indicators
+                                        <i class="fas fa-chart-line"></i>@Localizer["Indicators"]
                                     </a>
                                 </li>
                             </ul>
@@ -74,11 +74,11 @@
                             }
                         </a>
                         <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
-                            <li><a class="dropdown-item" href="#"><i class="fas fa-cog me-2"></i>Settings</a></li>
+                            <li><a class="dropdown-item" href="#"><i class="fas fa-cog me-2"></i>@Localizer["Settings"]</a></li>
                             <li><hr class="dropdown-divider"></li>
                             <li>
                                 <form class="form-inline" asp-area="Identity" asp-page="/Account/Logout" asp-route-returnUrl="@Url.Action("Index", "Home", new { area = "" })">
-                                    <button type="submit" class="dropdown-item"><i class="fas fa-sign-out-alt me-2"></i>Logout</button>
+                                    <button type="submit" class="dropdown-item"><i class="fas fa-sign-out-alt me-2"></i>@Localizer["Logout"]</button>
                                 </form>
                             </li>
                             <li>
@@ -141,7 +141,7 @@
         </div>
 
         <!-- Content Area -->
-        <div class="container-full">
+        <div class="container-full" lang="@lang" dir="@dir">
             <main role="main" class="pb-3">
                 @RenderBody()
             </main>

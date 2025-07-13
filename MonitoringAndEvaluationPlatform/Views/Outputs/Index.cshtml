@@ -1,5 +1,8 @@
 ﻿@model List<MonitoringAndEvaluationPlatform.Models.Output>
 @using MonitoringAndEvaluationPlatform.Helpers
+@using Microsoft.AspNetCore.Mvc.Localization
+@inject IViewLocalizer Localizer
+@using Microsoft.AspNetCore.Localization
 @{
     ViewData["Title"] = "Outputs";
     Layout = "~/Views/Shared/_ResultsFrameworkLayout.cshtml";
@@ -8,42 +11,42 @@
 
 <div class="container-fluid">
     <div class="mb-4">
-        <h4>Outputs Management</h4>
-        <p class="text-muted">Add new outputs and monitor performance</p>
+        <h4>@Localizer["Outputs Management"]</h4>
+        <p class="text-muted">@Localizer["Add new outputs and monitor performance"]</p>
     </div>
 
     @if (selectedOutcomeCode != null)
     {
         <div class="mb-3">
             <button class="btn btn-primary" type="button" data-bs-toggle="collapse" data-bs-target="#createOutputForm" aria-expanded="false" aria-controls="createOutputForm">
-                <i class="fas fa-plus me-2"></i>New Output
+                <i class="fas fa-plus me-2"></i>@Localizer["New Output"]
             </button>
             <a asp-action="AdjustWeights" asp-route-outcomeCode="@ViewBag.SelectedOutcomeCode" class="btn btn-warning">
-                <i class="fas fa-balance-scale me-2"></i>Adjust Weights
+                <i class="fas fa-balance-scale me-2"></i>@Localizer["Adjust Weights"]
             </a>
         </div>
     }
     else
     {
-        <a asp-action="Create"  class="btn btn-success">Create New Output</a>
+        <a asp-action="Create" class="btn btn-success">@Localizer["Create New Output"]</a>
     }
 
     <div class="collapse" id="createOutputForm">
         <div class="card shadow-sm mb-4">
             <div class="card-header">
-                <strong>Create New Output</strong>
+                <strong>@Localizer["Create New Output"]</strong>
             </div>
             <div class="card-body">
                 <form asp-action="Create" method="post" class="row g-3">
                     <input type="hidden" name="OutcomeCode" value="@selectedOutcomeCode" />
 
                     <div class="col-md-6">
-                        <label class="form-label">Name</label>
+                        <label class="form-label">@Localizer["Output Name"]</label>
                         <input name="Name" class="form-control" required />
                     </div>
                     <div class="col-md-3 d-flex align-items-end">
                         <button type="submit" class="btn btn-success w-100">
-                            <i class="fas fa-save me-2"></i>Save Output
+                            <i class="fas fa-save me-2"></i>@Localizer["Save Output"]
                         </button>
                     </div>
                 </form>
@@ -58,13 +61,14 @@
                 <table class="table table-hover">
                     <thead class="table-light">
                         <tr>
-                            <th>Name</th>
-                            <th>Weight</th>
-                            <th>Indicators Performance</th>
-                            <th>Disbursement</th>
-                            <th>Field Monitoring</th>
-                            <th>Impact</th>
-                            <th class="text-end">Actions</th>
+                            <th>@Localizer["Name Output"]</th>
+                            <th>@Localizer["Weight"]</th>
+                            <th>@Localizer["Indicators Performance"]</th>
+                            <th>@Localizer["Disbursement Performance"]</th>
+                            <th>@Localizer["Field Monitoring"]</th>
+                            <th>@Localizer["Impact Assessment"]</th>
+                            <th>@Localizer["Output Name"]</th>
+                            <th class="text-end">@Localizer["Actions"]</th>
                         </tr>
                     </thead>
                     <tbody>
