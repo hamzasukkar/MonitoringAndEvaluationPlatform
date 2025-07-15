@@ -1,4 +1,7 @@
 ﻿@model MonitoringAndEvaluationPlatform.Models.Project
+@using Microsoft.AspNetCore.Mvc.Localization
+@inject IViewLocalizer Localizer
+@using Microsoft.AspNetCore.Localization
 
 @{
     ViewData["Title"] = "Project Details";
@@ -17,22 +20,22 @@
                     <ul class="navbar-nav nav-fill w-100">
                         <li class="nav-item">
                             <a class="nav-link active" aria-current="page">
-                                <i class="fas fa-project-diagram me-2"></i>Project
+                                <i class="fas fa-project-diagram me-2"></i>@Localizer["Project"]
                             </a>
                         </li>
                         <li class="nav-item">
                             <a asp-action="LinkProjectToIndicators" asp-route-projectId="@Model.ProjectID" class="nav-link">
-                                <i class="fas fa-link me-2"></i>Alignement
+                                <i class="fas fa-link me-2"></i>@Localizer["Alignement"]
                             </a>
                         </li>
                         <li class="nav-item">
                             <a asp-action="Create" asp-controller="LogicalFrameworks" asp-route-projectId="@Model.ProjectID" class="nav-link">
-                                <i class="fas fa-sitemap me-2"></i>LogicalFramework
+                                <i class="fas fa-sitemap me-2"></i>@Localizer["LogicalFramework"]
                             </a>
                         </li>
                         <li class="nav-item">
                             <a asp-action="ProjectMeasures" asp-controller="Measures" asp-route-id="@Model.ProjectID" class="nav-link">
-                                <i class="fas fa-ruler-combined me-2"></i>Measures
+                                <i class="fas fa-ruler-combined me-2"></i>@Localizer["Measures"]
                             </a>
                         </li>
                      @*    <li class="nav-item">
@@ -42,12 +45,12 @@
                         </li> *@
                         <li class="nav-item">
                             <a asp-controller="ActionPlans" asp-action="ActionPlan" asp-route-id="@Model.ProjectID" class="nav-link">
-                                <i class="fas fa-tasks me-2"></i>Action Plans
+                                <i class="fas fa-tasks me-2"></i>@Localizer["Action Plans"]
                             </a>
                         </li>
                         <li class="nav-item">
                             <a asp-action="Index" asp-controller="Activities" asp-route-id="@Model.ProjectID" class="nav-link">
-                                <i class="fas fa-running me-2"></i>Activities
+                                <i class="fas fa-running me-2"></i>@Localizer["Activities"]
                             </a>
                         </li>
                     </ul>
@@ -74,15 +77,15 @@
                 <!-- Basic Info -->
                 <div class="col-md-4">
                     <div class="mb-4">
-                        <h5 class="border-bottom pb-2">Basic Information</h5>
+                        <h5 class="border-bottom pb-2">@Localizer["Basic Information"]</h5>
                         <dl class="row">
-                            <dt class="col-sm-4">Project Manager</dt>
+                            <dt class="col-sm-4">@Localizer["Project Manager"]</dt>
                             <dd class="col-sm-8">@Html.DisplayFor(model => model.ProjectManager.Name)</dd>
 
-                            <dt class="col-sm-4">Supervisor</dt>
+                            <dt class="col-sm-4">@Localizer["Supervisor"]</dt>
                             <dd class="col-sm-8">@Html.DisplayFor(model => model.SuperVisor.Name)</dd>
 
-                            <dt class="col-sm-4">Donor</dt>
+                            <dt class="col-sm-4">@Localizer["Donor"]</dt>
                             <dd class="col-sm-8">
                                 @foreach (var donor in Model.Donors)
                                 {
@@ -92,7 +95,7 @@
                                 }
                             </dd>
 
-                            <dt class="col-sm-4">Ministry</dt>
+                            <dt class="col-sm-4">@Localizer["Ministry"]</dt>
                             <dd class="col-sm-8">
                                 @foreach (var donor in Model.Ministries)
                                 {
@@ -102,13 +105,13 @@
                                 }
                             </dd>
 
-                            <dt class="col-sm-4">Start Date</dt>
+                            <dt class="col-sm-4">@Localizer["Start Date"]</dt>
                             <dd class="col-sm-8">@Model.StartDate.ToString("yyyy-MM-dd")</dd>
 
-                            <dt class="col-sm-4">End Date</dt>
+                            <dt class="col-sm-4">@Localizer["End Date"]</dt>
                             <dd class="col-sm-8">@Model.EndDate.ToString("yyyy-MM-dd")</dd>
 
-                            <dt class="col-sm-4">Sector</dt>
+                            <dt class="col-sm-4">@Localizer["Sector"]</dt>
                             <dd class="col-sm-8">
                                 @foreach (var sector in Model.Sectors)
                                 {
@@ -125,9 +128,9 @@
                 <!-- Region Info -->
                   <div class="col-md-4">
                     <div class="mb-4">
-                        <h5 class="border-bottom pb-2">Regions Information</h5>
+                        <h5 class="border-bottom pb-2">@Localizer["Regions Information"]</h5>
                         <dl class="row">
-                            <dt class="col-sm-4">Governorate</dt>
+                            <dt class="col-sm-4">@Localizer["Governorate"]</dt>
                             <dd class="col-sm-8">
                                 @foreach (var governorate in Model.Governorates)
                                 {
@@ -137,7 +140,7 @@
                                 }
                             </dd>
 
-                            <dt class="col-sm-4">District</dt>
+                            <dt class="col-sm-4">@Localizer["District"]</dt>
                             <dd class="col-sm-8">
                                 @foreach (var district in Model.Districts)
                                 {
@@ -147,7 +150,7 @@
                                 }
                             </dd>
 
-                            <dt class="col-sm-4">SubDistrict</dt>
+                            <dt class="col-sm-4">@Localizer["SubDistrict"]</dt>
                             <dd class="col-sm-8">
                                 @foreach (var subDistrict in Model.SubDistricts)
                                 {
@@ -157,7 +160,7 @@
                                 }
                             </dd>
 
-                            <dt class="col-sm-4">Community</dt>
+                            <dt class="col-sm-4">@Localizer["Community"]</dt>
                             <dd class="col-sm-8">
                                 @foreach (var community in Model.Communities)
                                 {
@@ -173,12 +176,12 @@
                 <!-- Budget Info -->
                 <div class="col-md-4">
                     <div class="mb-4">
-                        <h5 class="border-bottom pb-2">Financial Information</h5>
+                        <h5 class="border-bottom pb-2">@Localizer["Financial Information"]</h5>
                         <dl class="row">
-                            <dt class="col-sm-4">Estimated Budget</dt>
+                            <dt class="col-sm-4">@Localizer["Estimated Budget"]</dt>
                             <dd class="col-sm-8">@Html.DisplayFor(model => model.EstimatedBudget)</dd>
 
-                            <dt class="col-sm-4">Real Budget</dt>
+                            <dt class="col-sm-4">@Localizer["Real Budget"]</dt>
                             <dd class="col-sm-8">@Html.DisplayFor(model => model.RealBudget)</dd>
                         </dl>
                     </div>
@@ -198,40 +201,40 @@
                     <div class="progress-circle progress-@((int)performance)" data-value="@performance">
                         <span class="progress-circle-value">@performance%</span>
                     </div>
-                    <p class="text-muted mt-2 mb-0">Overall project performance</p>
+                    <p class="text-muted mt-2 mb-0">@Localizer["Overall project performance"]</p>
                 </div>
             </div>
         </div>
         <div class="col-md-3">
             <div class="card shadow-sm h-100">
                 <div class="card-body text-center">
-                    <h6 class="card-title text-muted">Disbursement</h6>
+                    <h6 class="card-title text-muted">@Localizer["Disbursement"]</h6>
                     <div class="progress-circle progress-@((int)Model.DisbursementPerformance)" data-value="@Model.DisbursementPerformance">
                         <span class="progress-circle-value">@Model.DisbursementPerformance%</span>
                     </div>
-                    <p class="text-muted mt-2 mb-0">Budget utilization</p>
+                    <p class="text-muted mt-2 mb-0">@Localizer["Budget utilization"]</p>
                 </div>
             </div>
         </div>
         <div class="col-md-3">
             <div class="card shadow-sm h-100">
                 <div class="card-body text-center">
-                    <h6 class="card-title text-muted">Field Monitoring</h6>
+                    <h6 class="card-title text-muted">@Localizer["Field Monitoring"]</h6>
                     <div class="progress-circle progress-@((int)Model.FieldMonitoring)" data-value="@Model.FieldMonitoring">
                         <span class="progress-circle-value">@Model.FieldMonitoring%</span>
                     </div>
-                    <p class="text-muted mt-2 mb-0">Field activities completion</p>
+                    <p class="text-muted mt-2 mb-0">@Localizer["Field activities completion"]</p>
                 </div>
             </div>
         </div>
         <div class="col-md-3">
             <div class="card shadow-sm h-100">
                 <div class="card-body text-center">
-                    <h6 class="card-title text-muted">Impact Assessment</h6>
+                    <h6 class="card-title text-muted">@Localizer["Impact Assessment"]</h6>
                     <div class="progress-circle progress-@((int)Model.ImpactAssessment)" data-value="@Model.ImpactAssessment">
                         <span class="progress-circle-value">@Model.ImpactAssessment%</span>
                     </div>
-                    <p class="text-muted mt-2 mb-0">Impact measurement</p>
+                    <p class="text-muted mt-2 mb-0">@Localizer["Impact measurement"]</p>
                 </div>
             </div>
         </div>
@@ -245,8 +248,8 @@
         <thead>
             <tr>
                 <th>#</th>
-                <th>File Name</th>
-                <th>Actions</th>
+                <th>@Localizer["File Name"]</th>
+                <th>@Localizer["Actions"]</th>
             </tr>
         </thead>
         <tbody>
@@ -274,7 +277,7 @@
 }
 else
 {
-    <p>No files uploaded for this project.</p>
+    <p>@Localizer["No files uploaded for this project."]</p>
 }
 
 

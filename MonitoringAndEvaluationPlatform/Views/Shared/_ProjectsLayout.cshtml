@@ -1,8 +1,17 @@
 ﻿@using Microsoft.AspNetCore.Identity
+@using Microsoft.AspNetCore.Mvc.Localization
 @inject SignInManager<ApplicationUser> SignInManager
 @inject UserManager<ApplicationUser> UserManager
+@inject IViewLocalizer Localizer
+@using Microsoft.AspNetCore.Localization
+@{
+	var culture = Context.Features.Get<IRequestCultureFeature>()?.RequestCulture.Culture.Name;
+	var dir = culture == "ar" ? "rtl" : "ltr";
+	var lang = culture == "ar" ? "ar" : "en";
+}
+
 <!DOCTYPE html>
-<html lang="en">
+<html lang="@lang" dir="@dir">
 <head>
 	<meta charset="utf-8" />
 	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -29,31 +38,31 @@
 				<li>
 					<a class="d-flex align-items-center" href="/Frameworks/Index">
 						<i class="fas fa-sitemap me-3"></i>
-						<span>Results Framework</span>
+						<span>@Localizer["Results Framework"]</span>
 					</a>
 				</li>
 				<li>
 					<a class="d-flex align-items-center" href="/Ministries/Index">
 						<i class="fas fa-cogs me-3"></i>
-						<span>Set Up</span>
+						<span>@Localizer["Set Up"]</span>
 					</a>
 				</li>
 				<li>
 					<a class="d-flex align-items-center" href="/Projects/Index">
 						<i class="fas fa-project-diagram me-3"></i>
-						<span>Projects</span>
+						<span>@Localizer["Projects"]</span>
 					</a>
 				</li>
 				<li>
 					<a class="d-flex align-items-center" href="/Monitoring/Index">
 						<i class="fas fa-chart-line me-3"></i>
-						<span>Monitoring</span>
+						<span>@Localizer["Monitoring"]</span>
 					</a>
 				</li>
 				<li>
 					<a class="d-flex align-items-center" href="/Dashboard/Index">
 						<i class="fas fa-tachometer-alt me-3"></i>
-						<span>Dashboard</span>
+						<span>@Localizer["Dashboard"]</span>
 					</a>
 				</li>
 		@* 		<li>
