@@ -10,6 +10,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Localization;
 using MonitoringAndEvaluationPlatform.Data;
 using MonitoringAndEvaluationPlatform.Models;
+using MonitoringAndEvaluationPlatform.ViewModel;
 
 namespace MonitoringAndEvaluationPlatform.Controllers
 {
@@ -37,22 +38,93 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         }
 
         // GET: Frameworks
-        public async Task<IActionResult> Index(string searchString)
+        public async Task<IActionResult> Index(string searchString, FrameworkFilterViewModel filter)
         {
-            ViewData["ProgressBarClass"] = "progress-bar-danger";
-            @ViewData["CurrentFilter"] = searchString;
+            ViewData["ProgressBarClass"] = "progress-bar-danger"; // This is static, consider dynamic logic if needed
+            ViewData["CurrentFilter"] = searchString;
 
-            var framework = await _context.Frameworks.ToListAsync();
+            // Load dropdown/filter data for the ViewModel
+            filter.Ministries = await _context.Ministries.ToListAsync();
+            filter.Donors = await _context.Donors.ToListAsync();
+            filter.Sectors = await _context.Sectors.ToListAsync();
 
+            // Start with a queryable collection of Frameworks
+            // We need to include the full hierarchy down to Measures for filtering
+            IQueryable<Framework> frameworksQuery = _context.Frameworks
+                .Include(f => f.Outcomes)
+                    .ThenInclude(o => o.Outputs)
+                        .ThenInclude(op => op.SubOutputs)
+                            .ThenInclude(so => so.Indicators)
+                                .ThenInclude(i => i.Measures) // Include Measures
+                                    .ThenInclude(m => m.Project) // Include Project from Measure
+                                        .ThenInclude(p => p.Ministries) // Include Ministries from Project
+                .Include(f => f.Outcomes) // Re-include to branch for Donors/Sectors
+                    .ThenInclude(o => o.Outputs)
+                        .ThenInclude(op => op.SubOutputs)
+                            .ThenInclude(so => so.Indicators)
+                                .ThenInclude(i => i.Measures)
+                                    .ThenInclude(m => m.Project)
+                                        .ThenInclude(p => p.Donors) // Include Donors from Project
+                .Include(f => f.Outcomes) // Re-include to branch for Donors/Sectors
+                    .ThenInclude(o => o.Outputs)
+                        .ThenInclude(op => op.SubOutputs)
+                            .ThenInclude(so => so.Indicators)
+                                .ThenInclude(i => i.Measures)
+                                    .ThenInclude(m => m.Project)
+                                        .ThenInclude(p => p.Sectors); // Include Sectors from Project
+
+
+            // Apply search string filter if provided
             if (!string.IsNullOrEmpty(searchString))
             {
-                framework = framework.Where(f => f.Name.Contains(searchString)).ToList();
+                frameworksQuery = frameworksQuery.Where(f => f.Name.Contains(searchString));
             }
 
-            
+            // --- Apply Ministry Filter ---
+            if (filter.SelectedMinistries != null && filter.SelectedMinistries.Any())
+            {
+                // Filter frameworks where ANY of their measures' projects are linked to the selected ministries
+                frameworksQuery = frameworksQuery.Where(f =>
+                    f.Outcomes.Any(o =>
+                        o.Outputs.Any(op =>
+                            op.SubOutputs.Any(so =>
+                                so.Indicators.Any(i =>
+                                    i.Measures.Any(m =>
+                                        m.Project.Ministries.Any(min => filter.SelectedMinistries.Contains(min.Code))))))));
+            }
 
-                return View(framework);
+            // --- Apply Donor Filter ---
+            if (filter.SelectedDonors != null && filter.SelectedDonors.Any())
+            {
+                // Filter frameworks where ANY of their measures' projects are linked to the selected donors
+                frameworksQuery = frameworksQuery.Where(f =>
+                    f.Outcomes.Any(o =>
+                        o.Outputs.Any(op =>
+                            op.SubOutputs.Any(so =>
+                                so.Indicators.Any(i =>
+                                    i.Measures.Any(m =>
+                                        m.Project.Donors.Any(don => filter.SelectedDonors.Contains(don.Code))))))));
+            }
+
+            // --- Apply Sector Filter ---
+            if (filter.SelectedSector != null && filter.SelectedSector.Any())
+            {
+                // Filter frameworks where ANY of their measures' projects are linked to the selected sectors
+                frameworksQuery = frameworksQuery.Where(f =>
+                    f.Outcomes.Any(o =>
+                        o.Outputs.Any(op =>
+                            op.SubOutputs.Any(so =>
+                                so.Indicators.Any(i =>
+                                    i.Measures.Any(m =>
+                                        m.Project.Sectors.Any(sec => filter.SelectedSector.Contains(sec.Code))))))));
+            }
+
+            // Execute the query and assign the filtered frameworks to the ViewModel
+            filter.Frameworks = await frameworksQuery.ToListAsync();
+
+            return View(filter);
         }
+    
 
         // GET: Frameworks/Details/5
         public async Task<IActionResult> Details(int? id)

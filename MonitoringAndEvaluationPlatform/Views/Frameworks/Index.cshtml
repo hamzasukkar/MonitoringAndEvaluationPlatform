@@ -1,5 +1,8 @@
-﻿@model IEnumerable<MonitoringAndEvaluationPlatform.Models.Framework>
-@using MonitoringAndEvaluationPlatform.Helpers
+﻿@* @model IEnumerable<MonitoringAndEvaluationPlatform.Models.Framework>
+ *@
+ @model MonitoringAndEvaluationPlatform.ViewModel.FrameworkFilterViewModel
+
+ @using MonitoringAndEvaluationPlatform.Helpers
 @using Microsoft.AspNetCore.Identity
 @inject UserManager<ApplicationUser> UserManager
 @inject SignInManager<ApplicationUser> SignInManager
@@ -11,7 +14,7 @@
     ViewData["Title"] = "Results Frameworks";
     Layout = "~/Views/Shared/_ResultsFrameworkLayout.cshtml";
 }
-
+<div class="container-fluid px-4">
 @* <div class="container-fluid"> *@
     <div class="d-flex justify-content-between align-items-center mb-4">
         <div>
@@ -52,91 +55,177 @@
         </div>
     </div>
 
-    <!-- Frameworks Table -->
-    <div class="card shadow-sm">
-        <div class="card-body">
-            <div class="table-responsive">
-                <table class="table table-hover">
-                    <thead class="table-light">
-                        <tr>
-                        <th>@Localizer["Framework Name"]</th>
-                        <th>@Localizer["Indicators Performance"]</th>
-                        <th>@Localizer["Disbursement Performance"]</th>
-                        <th>@Localizer["Field Monitoring"]</th>
-                        <th>@Localizer["Impact Assessment"]</th>
-                        <th class="text-end">@Localizer["Actions"]</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @foreach (var item in Model)
+    <div class="row">
+        <div class="col-md-3">
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-light">
+                    <h5 class="mb-0">@Localizer["Filters"]</h5>
+                </div>
+                <div class="card-body">
+                    <form asp-action="Index" method="get">
+                        <!-- Ministry Filter -->
+                        @if (!Model.IsMinistryUser)
                         {
-                            string indicatorsClass = ProgressBarHelper.GetProgressBarClass(item.IndicatorsPerformance);
-                            string disbursementClass = ProgressBarHelper.GetProgressBarClass(item.DisbursementPerformance);
-                            string fieldMonitoringClass = ProgressBarHelper.GetProgressBarClass(item.FieldMonitoring);
-                            string impactAssessmentClass = ProgressBarHelper.GetProgressBarClass(item.ImpactAssessment);
-                            double IndicatorsPerformance = Math.Round(item.IndicatorsPerformance, 2);
+                            <div class="mb-4">
+                                <h6 class="fw-bold border-bottom pb-2">Ministry</h6>
+                                <div class="filter-options" style="max-height: 200px; overflow-y: auto;">
+                                    @foreach (var ministry in Model.Ministries)
+                                    {
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" name="SelectedMinistries"
+                                                   value="@ministry.Code" id="ministry-@ministry.Code"
+                                            @(Model.SelectedMinistries.Contains(ministry.Code) ? "checked" : "")>
+                                            <label class="form-check-label" for="ministry-@ministry.Code">
+                                                @ministry.MinistryDisplayName
+                                            </label>
+                                        </div>
+                                    }
+                                </div>
+                            </div>
 
-                        <tr id="framework-row-@item.Code">
-                            <td>
-                                <span id="fw-name-@item.Code" class="fw-name-view">
-                                    <a asp-controller="Outcomes" asp-action="Index" asp-route-frameworkCode="@item.Code" class="text-decoration-none"> <strong>@item.Name</strong></a>                       
-                                </span>
-                                <input type="text" id="fw-name-input-@item.Code" class="form-control form-control-sm fw-name-edit d-none" value="@item.Name" />    
-                            </td>
-                                <td>
-                                    @await Html.PartialAsync("_ProgressBar", Tuple.Create(IndicatorsPerformance, indicatorsClass))
-                                </td>
-                                <td>
-                                    @await Html.PartialAsync("_ProgressBar", Tuple.Create(item.DisbursementPerformance, disbursementClass))
-                                </td>
-                                <td>
-                                    @await Html.PartialAsync("_ProgressBar", Tuple.Create(item.FieldMonitoring, fieldMonitoringClass))
-                                </td>
-                                <td>
-                                    @await Html.PartialAsync("_ProgressBar", Tuple.Create(item.ImpactAssessment, impactAssessmentClass))
-                                </td>
-                                <td class="text-end">
-                                    <div class="btn-group" role="group">
-                                        @if (SignInManager.IsSignedIn(User))
-                                        {
-                                            var user = await UserManager.GetUserAsync(User);
-                                            if (user != null)
-                                            {
-                                                var roles = await UserManager.GetRolesAsync(user);
-                                                if (roles.Contains("Admin"))
-                                                {
-                                                    <form asp-controller="Tree" asp-action="Index" asp-route-id="@item.Code" method="post" style="display: inline;">
-                                                        <button class="btn btn-sm btn-outline-success" title="Tree View">
-                                                            <i class="fas fa-project-diagram"></i>
-                                                        </button>
-                                                    </form>
-                                                }
-                                            }
-                                        }
-                                  @*       <a asp-action="Details" asp-route-id="@item.Code" class="btn btn-sm btn-outline-primary" title="View">
-                                            <i class="fas fa-eye"></i>
-                                        </a> *@
-                                    <button class="btn btn-sm btn-outline-warning"
-                                            id="edit-btn-@item.Code"
-                                            onclick="toggleFrameworkEdit(@item.Code)">
-                                        <i class="fas fa-edit"></i>
-                                    </button>
-                                    <button class="btn btn-sm btn-outline-danger"
-                                            onclick="confirmFrameworkDelete(@item.Code)">
-                                        <i class="fas fa-trash-alt"></i>
-                                    </button>
-                                    </div>
-                                </td>
-                            </tr>
                         }
-                    </tbody>
-                </table>
+
+
+                        <!-- Donor Filter -->
+                        <div class="mb-4">
+                            <h6 class="fw-bold border-bottom pb-2">Donor</h6>
+                            <div class="filter-options" style="max-height: 200px; overflow-y: auto;">
+                                @foreach (var donor in Model.Donors)
+                                {
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" name="SelectedDonors"
+                                               value="@donor.Code" id="donor-@donor.Code"
+                                        @(Model.SelectedDonors.Contains(donor.Code) ? "checked" : "")>
+                                        <label class="form-check-label" for="donor-@donor.Code">
+                                            @donor.Partner
+                                        </label>
+                                    </div>
+                                }
+                            </div>
+                        </div>
+
+                        <!-- Sector Filter -->
+                        <div class="mb-4">
+                            <h6 class="fw-bold border-bottom pb-2">Sector</h6>
+                            <div class="filter-options" style="max-height: 200px; overflow-y: auto;">
+                                @foreach (var sector in Model.Sectors)
+                                {
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" name="SelectedSector"
+                                               value="@sector.Code" id="donor-@sector.Code"
+                                        @(Model.SelectedSector.Contains(sector.Code) ? "checked" : "")>
+                                        <label class="form-check-label" for="donor-@sector.Code">
+                                            @sector.Name
+                                        </label>
+                                    </div>
+                                }
+                            </div>
+                        </div>
+
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-filter me-2"></i>@Localizer["Apply Filters"]
+                            </button>
+                            <a asp-action="Index" class="btn btn-outline-secondary">
+                                <i class="fas fa-sync-alt me-2"></i>@Localizer["Reset"]
+                            </a>
+                        </div>
+                    </form>
+                </div>
             </div>
         </div>
+
+        <div class="col-md-9">
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>@Localizer["Framework Name"]</th>
+                                    <th>@Localizer["Indicators Performance"]</th>
+                                    <th>@Localizer["Disbursement Performance"]</th>
+                                    <th>@Localizer["Field Monitoring"]</th>
+                                    <th>@Localizer["Impact Assessment"]</th>
+                                    <th class="text-end">@Localizer["Actions"]</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var item in Model.Frameworks)
+                                {
+                                    string indicatorsClass = ProgressBarHelper.GetProgressBarClass(item.IndicatorsPerformance);
+                                    string disbursementClass = ProgressBarHelper.GetProgressBarClass(item.DisbursementPerformance);
+                                    string fieldMonitoringClass = ProgressBarHelper.GetProgressBarClass(item.FieldMonitoring);
+                                    string impactAssessmentClass = ProgressBarHelper.GetProgressBarClass(item.ImpactAssessment);
+                                    double IndicatorsPerformance = Math.Round(item.IndicatorsPerformance, 2);
+
+                                    <tr id="framework-row-@item.Code">
+                                        <td>
+                                            <span id="fw-name-@item.Code" class="fw-name-view">
+                                                <a asp-controller="Outcomes" asp-action="Index" asp-route-frameworkCode="@item.Code" class="text-decoration-none"> <strong>@item.Name</strong></a>
+                                            </span>
+                                            <input type="text" id="fw-name-input-@item.Code" class="form-control form-control-sm fw-name-edit d-none" value="@item.Name" />
+                                        </td>
+                                        <td>
+                                            @await Html.PartialAsync("_ProgressBar", Tuple.Create(IndicatorsPerformance, indicatorsClass))
+                                        </td>
+                                        <td>
+                                            @await Html.PartialAsync("_ProgressBar", Tuple.Create(item.DisbursementPerformance, disbursementClass))
+                                        </td>
+                                        <td>
+                                            @await Html.PartialAsync("_ProgressBar", Tuple.Create(item.FieldMonitoring, fieldMonitoringClass))
+                                        </td>
+                                        <td>
+                                            @await Html.PartialAsync("_ProgressBar", Tuple.Create(item.ImpactAssessment, impactAssessmentClass))
+                                        </td>
+                                        <td class="text-end">
+                                            <div class="btn-group" role="group">
+                                                @if (SignInManager.IsSignedIn(User))
+                                                {
+                                                    var user = await UserManager.GetUserAsync(User);
+                                                    if (user != null)
+                                                    {
+                                                        var roles = await UserManager.GetRolesAsync(user);
+                                                        if (roles.Contains("Admin"))
+                                                        {
+                                                            <form asp-controller="Tree" asp-action="Index" asp-route-id="@item.Code" method="post" style="display: inline;">
+                                                                <button class="btn btn-sm btn-outline-success" title="Tree View">
+                                                                    <i class="fas fa-project-diagram"></i>
+                                                                </button>
+                                                            </form>
+                                                        }
+                                                    }
+                                                }
+                                                @*       <a asp-action="Details" asp-route-id="@item.Code" class="btn btn-sm btn-outline-primary" title="View">
+                                            <i class="fas fa-eye"></i>
+                                        </a> *@
+                                                <button class="btn btn-sm btn-outline-warning"
+                                                        id="edit-btn-@item.Code"
+                                                        onclick="toggleFrameworkEdit(@item.Code)">
+                                                    <i class="fas fa-edit"></i>
+                                                </button>
+                                                <button class="btn btn-sm btn-outline-danger"
+                                                        onclick="confirmFrameworkDelete(@item.Code)">
+                                                    <i class="fas fa-trash-alt"></i>
+                                                </button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+         </div>
+
+
     </div>
+
+    <!-- Frameworks Table -->
 @* </div> *@
 
-
+</div>
     <script>
         function toggleFrameworkEdit(code) {
             const viewSpan = $(`#fw-name-${code}`);
