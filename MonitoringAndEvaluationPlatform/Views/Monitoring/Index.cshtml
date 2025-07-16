@@ -1,6 +1,9 @@
 ﻿@using MonitoringAndEvaluationPlatform.Helpers;
 @using Microsoft.AspNetCore.Razor.TagHelpers;
 @model IEnumerable<MonitoringAndEvaluationPlatform.Models.Framework>
+@using Microsoft.AspNetCore.Mvc.Localization
+@inject IViewLocalizer Localizer
+@using Microsoft.AspNetCore.Localization
 @{
     Layout = "~/Views/Shared/_MonitoringLayout.cshtml";
 }
@@ -30,16 +33,16 @@
 
             var metrics = new[]
             {
-        new { Value = Math.Round(item.IndicatorsPerformance), Label = "Performance Assessment" },
-        new { Value = Math.Round(item.DisbursementPerformance), Label = "Disbursement" },
-        new { Value = Math.Round(item.FieldMonitoring), Label = "Monitoring" },
-        new { Value = Math.Round(item.ImpactAssessment), Label = "Assessment" }
+        new { Value = Math.Round(item.IndicatorsPerformance), Label = @Localizer["Assessment"] },
+        new { Value = Math.Round(item.DisbursementPerformance), Label = @Localizer["Disbursement"] },
+        new { Value = Math.Round(item.FieldMonitoring), Label = @Localizer["Monitoring"] },
+        new { Value = Math.Round(item.ImpactAssessment), Label = @Localizer["Assessment"] }
         };
-
+        
             <div class="framework-card">
                 <div class="framework-header">
                     <h2>@item.Name</h2>
-                    <div class="outcome-badge">Outcome: @item.Outcomes.Count</div>
+                    <div class="outcome-badge">@Localizer["Outcome"]: @item.Outcomes.Count</div>
                 </div>
 
                 @foreach (var metric in metrics)
@@ -61,31 +64,31 @@
                         <div class="stat-item">
                             <a asp-controller="Monitoring" asp-action="Outcome" asp-route-frameworkCode="@item.Code">
                                 <div class="stat-value">@item.Outcomes.Count</div>
-                                <div class="stat-label">Outcome</div>
+                                <div class="stat-label">@Localizer["Outcome"]</div>
                             </a>
                         </div>
                         <div class="stat-item">
                             <a asp-controller="Monitoring" asp-action="Outputs" asp-route-frameworkCode="@item.Code">
                                 <div class="stat-value">@outputs.Count()</div>
-                                <div class="stat-label">Outputs</div>
+                                <div class="stat-label">@Localizer["Outputs"]</div>
                             </a>
                         </div>
                         <div class="stat-item">
                             <a asp-controller="Monitoring" asp-action="SubOutputs" asp-route-frameworkCode="@item.Code">
                                 <div class="stat-value">@subOutputs.Count()</div>
-                                <div class="stat-label">Sub-outputs</div>
+                                <div class="stat-label">@Localizer["Sub-outputs"]</div>
                             </a>
                         </div>
                         <div class="stat-item">
                             <a asp-controller="Monitoring" asp-action="Indicators" asp-route-frameworkCode="@item.Code">
                                 <div class="stat-value">@indicators.Count()</div>
-                                <div class="stat-label">Indicators</div>
+                                <div class="stat-label">@Localizer["Indicators"]</div>
                             </a>
                         </div>
                         <div class="stat-item">
                             <a asp-controller="Monitoring" asp-action="Projects" asp-route-frameworkCode="@item.Code">
                                 <div class="stat-value">@projectCount</div>
-                                <div class="stat-label">Projects</div>
+                                <div class="stat-label">@Localizer["Projects"]</div>
                             </a>
                         </div>
                     </div>
