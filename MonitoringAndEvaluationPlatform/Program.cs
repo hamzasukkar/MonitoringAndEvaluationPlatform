@@ -51,9 +51,10 @@ builder.Services.Configure<RequestLocalizationOptions>(options =>
         new CultureInfo("fr")  // French, optional
     };
 
-    options.DefaultRequestCulture = new RequestCulture("en");
+    options.DefaultRequestCulture = new RequestCulture("ar");
     options.SupportedCultures = supportedCultures;
     options.SupportedUICultures = supportedCultures;
+
 });
 
 builder.Services.AddControllersWithViews()
@@ -62,6 +63,8 @@ builder.Services.AddControllersWithViews()
 
 
 var app = builder.Build();
+
+
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
