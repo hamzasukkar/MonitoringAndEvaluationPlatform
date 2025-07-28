@@ -413,3 +413,48 @@ body.rtl .table tbody tr:hover {
 body.rtl .dropdown-menu form select {
     background-position: 0.75rem center; /* Position arrow on the left for RTL */
 }
+
+
+
+/* Style both dropdown and standalone language selectors */
+.dropdown-menu form select,
+form.language-selector select {
+    width: calc(100% - 2rem);
+    padding: 0.5rem 1rem;
+    margin: 0.5rem 1rem;
+    background-color: var(--primary-background-color);
+    color: var(--text-light-color);
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    cursor: pointer;
+    font-size: 0.95rem;
+    transition: all 0.2s ease;
+    text-align: var(--text-align-start);
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath fill='%23C8A85F' d='M7.247 11.14 2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592c.859 0 1.319 1.013.753 1.658L8.753 11.14a1.86 1.86 0 0 1-1.506 0z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: calc(100% - 0.75rem) center;
+    background-size: 1rem;
+}
+
+    .dropdown-menu form select:focus,
+    form.language-selector select:focus {
+        outline: none;
+        border-color: var(--accent-gold-color);
+        box-shadow: 0 0 0 0.2rem rgba(200, 168, 95, 0.25);
+    }
+
+    .dropdown-menu form select option,
+    form.language-selector select option {
+        background-color: var(--primary-background-color);
+        color: var(--text-light-color);
+        padding: 0.5rem 1rem;
+    }
+
+/* RTL fix */
+body.rtl .dropdown-menu form select,
+body.rtl form.language-selector select {
+    background-position: 0.75rem center;
+}

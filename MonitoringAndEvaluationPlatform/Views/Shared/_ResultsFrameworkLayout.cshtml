@@ -11,6 +11,9 @@
     var culture = Context.Features.Get<IRequestCultureFeature>()?.RequestCulture.Culture.Name;
     var dir = culture == "ar" ? "rtl" : "ltr";
     var lang = culture == "ar" ? "ar" : "en";
+    var currentCulture = System.Globalization.CultureInfo.CurrentUICulture.Name;
+    var isArabic = currentCulture.StartsWith("ar");
+    var isEnglish = currentCulture.StartsWith("en");
 }
 
 <!DOCTYPE html>
@@ -92,6 +95,16 @@
                             </li>
                         </ul>
                     </li>
+                    <li>
+                        <form class="language-selector" asp-controller="Frameworks" asp-action="SetLanguage" method="post">
+                            <select name="culture" onchange="this.form.submit();">
+                                <option value="ar" selected="@(isArabic ? "selected" : null)">العربية</option>
+                                <option value="en" selected="@(isEnglish ? "selected" : null)">English</option>
+                            </select>
+                            <input type="hidden" name="returnUrl" value="@Context.Request.Path" />
+                        </form>
+                    </li>
+
                 </ul>
             </div>
         </div>

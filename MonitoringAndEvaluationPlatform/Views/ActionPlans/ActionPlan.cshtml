@@ -293,8 +293,8 @@
 
     @foreach (var activityGroup in Model)
     {
-        @if (@activityGroup.ActivityType != "Physical")
-        {
+       @*  @if (@activityGroup.ActivityType != "Physical")
+        { *@
             <div class="activity-group-card">
                 <div class="activity-group-header">@activityGroup.ActivityType</div>
                 <table class="action-plan-table">
@@ -382,7 +382,7 @@
                 </table>
             </div>
 
-        }
+        @* } *@
     }
 
     @if (!Model.Any())
