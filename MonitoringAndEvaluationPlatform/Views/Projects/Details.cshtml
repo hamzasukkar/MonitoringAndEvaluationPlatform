@@ -23,7 +23,7 @@
                                 <i class="fas fa-project-diagram me-2"></i>@Localizer["Project"]
                             </a>
                         </li>
-                        <li class="nav-item">
+@*                         <li class="nav-item">
                             <a asp-action="LinkProjectToIndicators" asp-route-projectId="@Model.ProjectID" class="nav-link">
                                 <i class="fas fa-link me-2"></i>@Localizer["Alignement"]
                             </a>
@@ -32,7 +32,7 @@
                             <a asp-action="Create" asp-controller="LogicalFrameworks" asp-route-projectId="@Model.ProjectID" class="nav-link">
                                 <i class="fas fa-sitemap me-2"></i>@Localizer["LogicalFramework"]
                             </a>
-                        </li>
+                        </li> *@
                         <li class="nav-item">
                             <a asp-action="ProjectMeasures" asp-controller="Measures" asp-route-id="@Model.ProjectID" class="nav-link">
                                 <i class="fas fa-ruler-combined me-2"></i>@Localizer["Measures"]
@@ -48,11 +48,11 @@
                                 <i class="fas fa-tasks me-2"></i>@Localizer["Action Plans"]
                             </a>
                         </li>
-                        <li class="nav-item">
+                     @*    <li class="nav-item">
                             <a asp-action="Index" asp-controller="Activities" asp-route-id="@Model.ProjectID" class="nav-link">
                                 <i class="fas fa-running me-2"></i>@Localizer["Activities"]
                             </a>
-                        </li>
+                        </li> *@
                     </ul>
                 </div>
             </div>
@@ -65,10 +65,10 @@
             <h4 class="mb-0">@Model.ProjectName</h4>
             <div>
                 <a asp-action="Edit" asp-route-id="@Model?.ProjectID" class="btn btn-sm btn-light me-2">
-                    <i class="fas fa-edit me-1"></i>Edit
+                    <i class="fas fa-edit me-1"></i>@Localizer["Edit"]
                 </a>
                 <a asp-action="Index" class="btn btn-sm btn-outline-light">
-                    <i class="fas fa-arrow-left me-1"></i>Back to List
+                    <i class="fas fa-arrow-left me-1"></i>@Localizer["Back to List"]
                 </a>
             </div>
         </div>
@@ -240,7 +240,7 @@
         </div>
     </div>
 </div>
-<h4>Uploaded Files</h4>
+<h4>@Localizer["Uploaded Files"]</h4>
 
 @if (Model.ProjectFiles != null && Model.ProjectFiles.Any())
 {

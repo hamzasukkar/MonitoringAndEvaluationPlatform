@@ -1,4 +1,7 @@
 ﻿@model List<MonitoringAndEvaluationPlatform.ViewModel.ActivityPlanViewModel>
+@using Microsoft.AspNetCore.Mvc.Localization
+@inject IViewLocalizer Localizer
+@using Microsoft.AspNetCore.Localization
 @{
     ViewData["Title"] = "Project Action Plan";
     Layout = "~/Views/Shared/_ProjectsLayout.cshtml";
@@ -238,7 +241,7 @@
                     <ul class="navbar-nav nav-fill w-100">
                         <li class="nav-item">
                             <a asp-controller="Projects" asp-action="Details" asp-route-id="@ViewBag.ProjectID" class="nav-link">
-                                <i class="fas fa-project-diagram me-2"></i>Project
+                                <i class="fas fa-project-diagram me-2"></i>@Localizer["Project"]
                             </a>
                         </li>
                         @*    <li class="nav-item">
@@ -246,14 +249,14 @@
                                 <i class="fas fa-link me-2"></i>Alignment
                             </a>
                         </li> *@
-                        <li class="nav-item">
+                   @*      <li class="nav-item">
                             <a asp-action="Create" asp-controller="LogicalFrameworks" asp-route-projectId="@ViewBag.ProjectID" class="nav-link">
                                 <i class="fas fa-sitemap me-2"></i>Logical Framework
                             </a>
-                        </li>
+                        </li> *@
                         <li class="nav-item">
                             <a asp-action="ProjectMeasures" asp-controller="Measures" asp-route-id="@ViewBag.ProjectID" class="nav-link">
-                                <i class="fas fa-ruler-combined me-2"></i>Measures
+                                <i class="fas fa-ruler-combined me-2"></i>@Localizer["Measures"]
                             </a>
                         </li>
                         @*     <li class="nav-item">
@@ -263,14 +266,14 @@
                         </li> *@
                         <li class="nav-item">
                             <a class="nav-link active" aria-current="page">
-                                <i class="fas fa-tasks me-2"></i>Action Plans
+                                <i class="fas fa-tasks me-2"></i>@Localizer["Action Plans"]
                             </a>
                         </li>
-                        <li class="nav-item">
+                @*         <li class="nav-item">
                             <a asp-action="Index" asp-controller="Activities" asp-route-id="@ViewBag.ProjectID" class="nav-link">
                                 <i class="fas fa-running me-2"></i>Activities
                             </a>
-                        </li>
+                        </li> *@
                     </ul>
                 </div>
             </div>
@@ -278,7 +281,7 @@
     </div>
 
     <div class="page-header">
-        <h1>Action Plan</h1>
+        <h1>@Localizer["Action Plans"]</h1>
         @*         <div class="totals-card">
             <div class="total-item">
                 <div class="value">@projectTotalPlannedCost.ToString("C0")</div>
@@ -296,17 +299,17 @@
        @*  @if (@activityGroup.ActivityType != "Physical")
         { *@
             <div class="activity-group-card">
-                <div class="activity-group-header">@activityGroup.ActivityType</div>
+            <div class="activity-group-header">@Localizer[@activityGroup.ActivityType]</div>
                 <table class="action-plan-table">
                     <thead>
                         <tr>
-                            <th>Activity</th>
-                            <th>Framework</th>
+                        <th>@Localizer["Activity"]</th>
+                        <th>@Localizer["Framework"]</th>
                             @for (int i = 1; i <= maxPlans; i++)
                             {
-                                <th class="text-center">Plan @i</th>
+                            <th class="text-center">@Localizer["Plan"] @i</th>
                             }
-                            <th class="text-end">Total</th>
+                        <th class="text-end">@Localizer["Total"]</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -328,7 +331,7 @@
                                 <td class="text-end">-</td>
                             </tr>
                             <tr>
-                                <td class="framework-label">Planned</td>
+                            <td class="framework-label">@Localizer["Planned"]</td>
                                 @foreach (var plan in activity.Plans)
                                 {
                                     <td class="editable-cell text-center" contenteditable="true"
@@ -344,7 +347,7 @@
                                 <td class="total-cost text-end">@activity.TotalEstimatedCost.ToString("N0")</td>
                             </tr>
                             <tr>
-                                <td class="framework-label">Realised</td>
+                            <td class="framework-label">@Localizer["Realised"]</td>
                                 @foreach (var plan in activity.Plans)
                                 {
                                     <td class="editable-cell text-center" contenteditable="true"
@@ -363,7 +366,6 @@
                     </tbody>
                     <tfoot>
                         <tr class="subtotal-row">
-                            <td colspan="2">Subtotal Planned</td>
                             @for (int i = 0; i < maxPlans; i++)
                             {
                                 <td class="text-center">@activityGroup.Activities.Sum(a => a.Plans.Count > i ? a.Plans[i].PlannedValue : 0)</td>
@@ -371,7 +373,7 @@
                             <td class="text-end">@activityGroup.Activities.Sum(a => a.TotalEstimatedCost).ToString("N0")</td>
                         </tr>
                         <tr class="subtotal-row">
-                            <td colspan="2">Subtotal Realised</td>
+                        <td colspan="2">@Localizer["Subtotal Realised"]</td>
                             @for (int i = 0; i < maxPlans; i++)
                             {
                                 <td class="text-center">@activityGroup.Activities.Sum(a => a.Plans.Count > i ? a.Plans[i].RealisedValue : 0)</td>
