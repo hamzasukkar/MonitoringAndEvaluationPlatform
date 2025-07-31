@@ -16,6 +16,52 @@
 
     --sidebar-width: 250px;
     --font-family-sans-serif: 'Inter', sans-serif; /* Using Inter font */
+    /* LTR Specific Properties (Defaults) */
+    --text-align-start: left;
+    --text-align-end: right;
+    /* Logical properties for margins/paddings/borders/positions */
+    --margin-inline-start-value: var(--sidebar-width); /* Default margin-left for sidebar-dependent elements */
+    --margin-inline-end-value: 0;
+    --border-inline-end-value: 3px solid var(--accent-gold-color); /* For active sidebar link border */
+    --border-image-margin-inline-end: 1rem; /* For sidebar image */
+    /* Dropdown specific variables for positioning */
+    --dropdown-menu-inset-inline-start: auto;
+    --dropdown-menu-inset-inline-end: 0; /* Default for dropdown-menu-end behavior in LTR */
+    /* Card header border-radius (top-left top-right bottom-right bottom-left) */
+    --card-header-border-radius-top-start: 10px;
+    --card-header-border-radius-top-end: 10px;
+    --card-header-border-radius-bottom-end: 0;
+    --card-header-border-radius-bottom-start: 0;
+    /* Table hover transform */
+    --table-hover-transform-x: 2px; /* LTR: move right */
+    /* Custom select arrow position */
+    --select-arrow-position-end: calc(100% - 0.75rem); /* For LTR, arrow on the right */
+    --select-arrow-position-start: 0.75rem; /* For RTL, arrow on the left */
+}
+
+/* RTL Specific Properties (Override defaults when .rtl class is present) */
+body.rtl {
+    --text-align-start: right;
+    --text-align-end: left;
+    --margin-inline-start-value: 0; /* Sidebar is on the right, so content margin-inline-start is 0 */
+    --margin-inline-end-value: var(--sidebar-width); /* Content shifts left by sidebar width */
+    --border-inline-end-value: none; /* No border-right in RTL for sidebar active */
+    --border-inline-start-value: 3px solid var(--accent-gold-color); /* Border-left in RTL for sidebar active */
+    --border-image-margin-inline-end: 0; /* No margin-right for image */
+    --border-image-margin-inline-start: 1rem; /* Margin-left for image */
+    /* Dropdown specific variables for positioning in RTL */
+    --dropdown-menu-inset-inline-start: 0;
+    --dropdown-menu-inset-inline-end: auto;
+    /* Card header border-radius for RTL */
+    --card-header-border-radius-top-start: 10px; /* Still top-right in LTR sense, but logical top-start */
+    --card-header-border-radius-top-end: 10px; /* Still top-left in LTR sense, but logical top-end */
+    --card-header-border-radius-bottom-end: 0;
+    --card-header-border-radius-bottom-start: 0;
+    /* Table hover transform in RTL */
+    --table-hover-transform-x: -2px; /* RTL: move left */
+    /* Custom select arrow position in RTL */
+    --select-arrow-position-end: 0.75rem; /* For RTL, arrow on the left */
+    --select-arrow-position-start: calc(100% - 0.75rem); /* For LTR, arrow on the right */
 }
 
 body {
@@ -27,6 +73,7 @@ body {
     display: flex;
     flex-direction: column;
     color: var(--text-light-color); /* Default text color for the body */
+    text-align: var(--text-align-start); /* Default text alignment */
 }
 
 /* Header Styles */
@@ -35,13 +82,18 @@ body {
     color: var(--text-light-color);
     padding: 0.75rem 2rem;
     display: flex;
-    justify-content: space-between; /* Kept as per your provided code */
+    justify-content: space-between; /* This will automatically adapt with flex-direction */
     align-items: center;
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2); /* Stronger shadow for dark background */
     position: fixed;
     width: 100%;
     z-index: 1000;
     height: 60px;
+    flex-direction: row; /* Default LTR flow */
+}
+
+body.rtl .topbar {
+    flex-direction: row-reverse; /* Reverse direction for RTL */
 }
 
 .title {
@@ -59,7 +111,9 @@ body {
 }
 
 .nav-item {
-    margin: 0 0.5rem;
+    /* Uses logical property: margin-right in LTR, margin-left in RTL */
+    margin-inline-end: 0.5rem;
+    margin-inline-start: 0.5rem;
 }
 
 .nav-link {
@@ -82,12 +136,29 @@ body {
     border-radius: 8px;
     padding: 0.5rem 0;
     background-color: var(--secondary-card-background); /* Darker background for dropdown */
+    /* Positioning adjustments using logical properties and variables */
+    position: absolute;
+    inset-inline-start: var(--dropdown-menu-inset-inline-start);
+    inset-inline-end: var(--dropdown-menu-inset-inline-end);
+    transform: translate(0, 10px); /* Adjust vertical positioning */
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.15s, transform 0.15s, visibility 0.15s;
+    z-index: 1000; /* Ensure it's above other content */
+    min-width: 10rem; /* Give it a reasonable minimum width */
 }
+
+    .dropdown-menu.show {
+        opacity: 1;
+        visibility: visible;
+        transform: translate(0, 0);
+    }
 
 .dropdown-item {
     padding: 0.5rem 1.5rem;
     transition: all 0.2s;
     color: var(--text-light-color); /* Light text for dropdown items */
+    text-align: var(--text-align-start); /* Ensure dropdown items align correctly */
 }
 
     .dropdown-item:hover {
@@ -95,11 +166,56 @@ body {
         color: var(--accent-gold-color); /* Gold text on hover */
     }
 
+/* Styling for the Language Select inside the Dropdown */
+.dropdown-menu form select {
+    width: calc(100% - 2rem); /* Take full width minus padding on each side */
+    padding: 0.5rem 1rem;
+    margin: 0.5rem 1rem; /* Center it with surrounding dropdown items */
+    background-color: var(--primary-background-color); /* Darker background like topbar */
+    color: var(--text-light-color); /* Light text */
+    border: 1px solid var(--border-color); /* Subtle border */
+    border-radius: 6px; /* Slightly rounded corners */
+    appearance: none; /* Remove default browser styling for select */
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    cursor: pointer;
+    font-size: 0.95rem; /* Slightly smaller font than regular text */
+    transition: all 0.2s ease;
+    text-align: var(--text-align-start); /* Align text based on direction */
+    /* Custom Dropdown Arrow */
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath fill='%23C8A85F' d='M7.247 11.14 2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592c.859 0 1.319 1.013.753 1.658L8.753 11.14a1.86 1.86 0 0 1-1.506 0z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-size: 1rem;
+    /* Position arrow using logical properties based on direction */
+    background-position: var(--select-arrow-position-end) center;
+}
+
+body.rtl .dropdown-menu form select {
+    background-position: var(--select-arrow-position-end) center; /* Overridden by var for RTL */
+}
+
+.dropdown-menu form select:focus {
+    outline: none;
+    border-color: var(--accent-gold-color); /* Gold border on focus */
+    box-shadow: 0 0 0 0.2rem rgba(200, 168, 95, 0.25); /* Subtle gold glow */
+}
+
+.dropdown-menu form select option {
+    background-color: var(--primary-background-color); /* Match select background */
+    color: var(--text-light-color);
+    padding: 0.5rem 1rem; /* Add some padding to options */
+}
+
 /* Main Content Layout */
 .main {
     display: flex;
     margin-top: 60px; /* Offset for fixed header */
     min-height: calc(100vh - 60px);
+    flex-direction: row; /* Default LTR flow */
+}
+
+body.rtl .main {
+    flex-direction: row-reverse; /* Reverse direction for RTL */
 }
 
 /* Sidebar Styles */
@@ -112,6 +228,8 @@ body {
     height: calc(100vh - 60px);
     overflow-y: auto;
     z-index: 900;
+    /* Position sidebar based on direction using logical property */
+    inset-inline-start: 0;
 }
 
     .sidebar ul {
@@ -137,27 +255,44 @@ body {
         .sidebar a:hover, .sidebar a.active {
             color: var(--accent-gold-color); /* Gold on hover/active */
             background-color: rgba(200, 168, 95, 0.1); /* Light gold tint for background */
-            border-right: 3px solid var(--accent-gold-color); /* Gold border highlight */
+            /* Use logical property for border and variables for its value */
+            border-inline-end: var(--border-inline-end-value);
+            border-inline-start: var(--border-inline-start-value, none); /* Fallback to 'none' if not defined in RTL */
         }
 
-    .sidebar img {
-        margin-right: 1rem;
-        opacity: 0.8; /* Slightly less opaque on default */
-    }
+body.rtl .sidebar a:hover, body.rtl .sidebar a.active {
+    border-inline-end: none; /* Remove border-right in RTL */
+    border-inline-start: 3px solid var(--accent-gold-color); /* Add border-left in RTL */
+}
 
-    .sidebar a:hover img {
-        opacity: 1; /* Full opacity on hover */
-    }
+
+.sidebar img {
+    /* Use logical property for margin and variables for its value */
+    margin-inline-end: var(--border-image-margin-inline-end);
+    margin-inline-start: var(--border-image-margin-inline-start, 0); /* Fallback to 0 if not defined in RTL */
+    opacity: 0.8; /* Slightly less opaque on default */
+}
+
+body.rtl .sidebar img {
+    margin-inline-end: 0; /* Remove margin-right in RTL */
+    margin-inline-start: 1rem; /* Add margin-left in RTL */
+}
+
+
+.sidebar a:hover img {
+    opacity: 1; /* Full opacity on hover */
+}
 
 /* Content Area */
-.container-full { /* Kept .container-full as per your provided code */
+.container-full {
     flex: 1;
     padding: 2rem;
-    margin-left: var(--sidebar-width);
+    /* Use logical property for margin and variables for its value */
+    margin-inline-start: var(--margin-inline-start-value);
+    margin-inline-end: var(--margin-inline-end-value); /* This will be 0 in LTR, sidebar-width in RTL */
     background-color: var(--secondary-card-background); /* Slightly Lighter Dark Green */
     min-height: calc(100vh - 60px);
     color: var(--text-light-color); /* Default text color for content area */
-    /* New: Background Image for .container-full */
     background-image: url('/img/Emblem_of_Syria.png'); /* Path to your image */
     background-repeat: no-repeat; /* Prevents the image from repeating */
     background-position: center center; /* Centers the image */
@@ -177,11 +312,19 @@ body {
         }
 
         .sidebar img {
-            margin-right: 0;
+            margin-inline-end: 0; /* Reset margin for collapsed sidebar icons */
+            margin-inline-start: 0; /* Also reset logical start margin */
         }
 
-    .container-full { /* Kept .container-full as per your provided code */
-        margin-left: 70px;
+    .container-full {
+        /* Adjust margin for collapsed sidebar using logical property */
+        margin-inline-start: 70px;
+        margin-inline-end: 0; /* Ensure no extra margin in LTR */
+    }
+
+    body.rtl .container-full {
+        margin-inline-start: 0; /* In RTL, content starts at 0 */
+        margin-inline-end: 70px; /* And has a margin-right of 70px */
     }
 }
 
@@ -190,12 +333,14 @@ body {
         display: none;
     }
 
-    .container-full { /* Kept .container-full as per your provided code */
-        margin-left: 0;
+    .container-full {
+        /* Reset margin when sidebar is hidden using logical property */
+        margin-inline-start: 0;
+        margin-inline-end: 0;
     }
 
     .topbar .nav-links {
-        display: none;
+        display: none; /* Hide nav links on small screens */
     }
 }
 
@@ -220,8 +365,13 @@ body {
     border-bottom: 1px solid var(--border-color); /* Border color from new palette */
     font-weight: 600;
     padding: 1rem 1.5rem;
-    border-radius: 10px 10px 0 0 !important;
+    /* Use logical properties for border-radius */
+    border-top-left-radius: var(--card-header-border-radius-top-start) !important;
+    border-top-right-radius: var(--card-header-border-radius-top-end) !important;
+    border-bottom-left-radius: var(--card-header-border-radius-bottom-start) !important;
+    border-bottom-right-radius: var(--card-header-border-radius-bottom-end) !important;
     color: var(--accent-gold-color); /* Gold text for card headers */
+    text-align: var(--text-align-start); /* Align card header text */
 }
 
 /* Button Styling */
@@ -261,6 +411,7 @@ body {
         font-weight: 600;
         padding: 1rem;
         color: var(--accent-gold-color); /* Gold text for table headers */
+        text-align: var(--text-align-start); /* Align table headers */
     }
 
     .table tbody tr {
@@ -270,11 +421,12 @@ body {
 
         .table tbody tr:hover {
             background-color: #3A5C54; /* Even lighter green on hover */
-            transform: translateX(2px);
+            transform: translateX(var(--table-hover-transform-x)); /* Controlled by CSS variable */
         }
 
     .table tbody td {
         border-color: var(--border-color); /* Border color for table cells */
+        text-align: var(--text-align-start); /* Align table cells */
     }
 
 /* Specific progress bar colors if still used */

@@ -1,13 +1,21 @@
 ﻿@using Microsoft.AspNetCore.Identity
 @inject SignInManager<ApplicationUser> SignInManager
 @inject UserManager<ApplicationUser> UserManager
+@using Microsoft.AspNetCore.Mvc.Localization
+@inject IViewLocalizer Localizer
+@using Microsoft.AspNetCore.Localization
+@{
+    var culture = Context.Features.Get<IRequestCultureFeature>()?.RequestCulture.Culture.Name;
+    var dir = culture == "ar" ? "rtl" : "ltr";
+    var lang = culture == "ar" ? "ar" : "en";
+}
 
 <!DOCTYPE html>
-<html lang="en">
+<html lang="@lang" dir="@dir">
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@ViewData["Title"] - Monitoring & Evaluation System</title>
+    <title>@ViewData["Title"] -@Localizer["Monitoring & Evaluation System"] </title>
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/css/MonitoringLayout.css" />
@@ -16,7 +24,7 @@
 <body>
     <header>
         <div class="topbar">
-            <div class="title">Monitoring & Evaluation System</div>
+            <div class="title">@Localizer["Monitoring & Evaluation System"]</div>
             <div class="nav-links">
                 <ul class="nav">
                     @* <li class="nav-item">
@@ -65,31 +73,31 @@
                 <li>
                     <a class="d-flex align-items-center" href="/Frameworks/Index">
                         <img src="~/img/results.png" alt="Results Icon" class="me-2" width="24" height="24">
-                        <span>Results Framework</span>
+                        <span>@Localizer["Results Framework"]</span>
                     </a>
                 </li>
                 <li>
                     <a class="d-flex align-items-center" href="/Ministries/Index">
                         <img src="~/img/setup.png" alt="Setup Icon" class="me-2" width="24" height="24">
-                        <span>Set Up</span>
+                        <span>@Localizer["Set Up"]</span>
                     </a>
                 </li>
                 <li>
                     <a class="d-flex align-items-center" href="/Projects/Index">
                         <img src="~/img/programs.png" alt="Programs Icon" class="me-2" width="24" height="24">
-                        <span>Projects</span>
+                        <span>@Localizer["Projects"]</span>
                     </a>
                 </li>
                 <li>
                     <a class="d-flex align-items-center active" href="/Monitoring/Index">
                         <img src="~/img/monitor.png" alt="Monitoring Icon" class="me-2" width="24" height="24">
-                        <span>Monitoring</span>
+                        <span>@Localizer["Monitoring"]</span>
                     </a>
                 </li>
                 <li>
                     <a class="d-flex align-items-center" href="/Dashboard/Index">
                         <img src="~/img/dashboard.png" alt="Dashboard Icon" class="me-2" width="24" height="24">
-                        <span>Dashboard</span>
+                        <span>@Localizer["Dashboard"]</span>
                     </a>
                 </li>
                @*  <li>

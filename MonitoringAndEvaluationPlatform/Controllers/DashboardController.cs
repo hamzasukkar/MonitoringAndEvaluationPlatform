@@ -591,103 +591,77 @@ public class DashboardController : Controller
         return Json(new { rate = achievementRate });
     }
     public async Task<IActionResult> FrameworksGauge(
-        int? frameworkCode,
-        int? ministryCode = null,
-        int? projectCode = null,
-        string? governorateCode = null,
-        string? districtCode = null,
-        string? subDistrictCode = null,
-        string? communityCode = null)
+     int? frameworkCode,
+     int? ministryCode = null,
+     int? projectCode = null,
+     string? governorateCode = null,
+     string? districtCode = null,
+     string? subDistrictCode = null,
+     string? communityCode = null)
     {
-        var frameworksQuery = _context.Frameworks
-        .Include(f => f.Outcomes)
-            .ThenInclude(o => o.Outputs)
-                .ThenInclude(op => op.SubOutputs)
-                    .ThenInclude(so => so.Indicators)
-                        .ThenInclude(i => i.Measures)
-                            .ThenInclude(m => m.Project)
-                                .ThenInclude(p => p.Ministries)
-        .Include(f => f.Outcomes)
-            .ThenInclude(o => o.Outputs)
-                .ThenInclude(op => op.SubOutputs)
-                    .ThenInclude(so => so.Indicators)
-                        .ThenInclude(i => i.Measures)
-                            .ThenInclude(m => m.Project)
-                                .ThenInclude(p => p.Governorates)
-                                .ThenInclude(p => p.Districts)
-                                .ThenInclude(p => p.SubDistricts)
-                                .ThenInclude(p => p.Communities);
-
-
-        var frameworks = await frameworksQuery.ToListAsync();
-
-        var result = frameworks
+        var frameworkQuery = _context.Frameworks
             .Where(fw => frameworkCode == null || fw.Code == frameworkCode)
-            .Select(fw =>
+            .Select(fw => new
             {
-                var allProjects = fw.Outcomes
+                fw.Code,
+                fw.Name,
+                fw.IndicatorsPerformance,
+                Indicators = fw.Outcomes
                     .SelectMany(o => o.Outputs)
                     .SelectMany(op => op.SubOutputs)
                     .SelectMany(so => so.Indicators)
-                    .SelectMany(i => i.Measures)
-                    .Where(m => m.Project != null)
-                    .Select(m => m.Project)
-                    .Distinct()
-                    .ToList();
-
-                // Apply all filters
-                var filteredProjects = allProjects
-                    .Where(p =>
-                        (projectCode == null || p.ProjectID == projectCode) &&
-                        (ministryCode == null || p.Ministries.Any(m => m.Code == ministryCode)) &&
-                        (governorateCode == null || p.Governorates.Any(m => m.Code == governorateCode)) &&
-                        (districtCode == null || p.Districts.Any(m => m.Code == districtCode)) &&
-                        (subDistrictCode == null || p.SubDistricts.Any(m => m.Code == districtCode)) &&
-                        (communityCode == null || p.Communities.Any(m => m.Code == communityCode))
-                    )
-                    .ToList();
-
-
-                // Determine indicatorsPerformance
-                double indicatorsPerformance;
-                if (projectCode != null)
-                {
-                    indicatorsPerformance = filteredProjects.Any()
-                        ? Math.Round(filteredProjects.Average(p => p.performance), 2)
-                        : 0;
-                }
-                else if (ministryCode != null || governorateCode != null || districtCode != null || subDistrictCode != null || communityCode != null)
-                {
-                    indicatorsPerformance = filteredProjects.Any()
-                        ? Math.Round(filteredProjects.Average(p => p.performance), 2)
-                        : 0;
-                }
-                else
-                {
-                    indicatorsPerformance = Math.Round(fw.IndicatorsPerformance, 2);
-                }
-
-                return new
-                {
-                    code = fw.Code,
-                    name = fw.Name,
-                    indicatorsPerformance,
-                    indicatorCount = fw.Outcomes
-                        .SelectMany(o => o.Outputs)
-                        .SelectMany(op => op.SubOutputs)
-                        .SelectMany(so => so.Indicators)
-                        .Count(),
-                    projects = filteredProjects.Select(p => new
-                    {
-                        p.ProjectID,
-                        p.ProjectName,
-                        p.performance
-                    }).ToList()
-                };
             });
+
+        var frameworks = await frameworkQuery.ToListAsync();
+
+        var result = frameworks.Select(fw =>
+        {
+            var measures = fw.Indicators
+                .SelectMany(i => i.Measures)
+                .Where(m => m.Project != null);
+
+            // Apply filters directly to Measures/Projects
+            var filteredProjects = measures
+                .Select(m => m.Project)
+                .Where(p =>
+                    (projectCode == null || p.ProjectID == projectCode) &&
+                    (ministryCode == null || p.Ministries.Any(m => m.Code == ministryCode)) &&
+                    (governorateCode == null || p.Governorates.Any(g => g.Code == governorateCode)) &&
+                    (districtCode == null || p.Districts.Any(d => d.Code == districtCode)) &&
+                    (subDistrictCode == null || p.SubDistricts.Any(s => s.Code == subDistrictCode)) &&
+                    (communityCode == null || p.Communities.Any(c => c.Code == communityCode))
+                )
+                .Distinct()
+                .ToList();
+
+            double indicatorsPerformance;
+            if (filteredProjects.Any())
+            {
+                indicatorsPerformance = Math.Round(filteredProjects.Average(p => p.performance), 2);
+            }
+            else
+            {
+                indicatorsPerformance = Math.Round(fw.IndicatorsPerformance, 2);
+            }
+
+            return new
+            {
+                code = fw.Code,
+                name = fw.Name,
+                indicatorsPerformance,
+                indicatorCount = fw.Indicators.Count(),
+                projects = filteredProjects.Select(p => new
+                {
+                    p.ProjectID,
+                    p.ProjectName,
+                    p.performance
+                }).ToList()
+            };
+        });
 
         return Json(result);
     }
+
 
 
     [HttpGet]

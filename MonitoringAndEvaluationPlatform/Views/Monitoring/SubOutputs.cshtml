@@ -1,5 +1,8 @@
 ﻿@using MonitoringAndEvaluationPlatform.Helpers;
 @using Microsoft.AspNetCore.Razor.TagHelpers;
+@using Microsoft.AspNetCore.Mvc.Localization
+@inject IViewLocalizer Localizer
+@using Microsoft.AspNetCore.Localization
 @model IEnumerable<MonitoringAndEvaluationPlatform.Models.SubOutput>
 @{
 	ViewData["Title"] = "Monitoring";
@@ -20,28 +23,16 @@
 			// Create metrics array for cleaner iteration
 			var metrics = new[]
 			{
-		new {
-		Value = Math.Round(item.IndicatorsPerformance, 2),
-		Label = "Performance Assessment"
-		},
-		new {
-		Value = Math.Round(item.DisbursementPerformance, 2),
-		Label = "Disbursement"
-		},
-		new {
-		Value = Math.Round(item.FieldMonitoring, 2),
-		Label = "Monitoring"
-		},
-		new {
-		Value = Math.Round(item.ImpactAssessment, 2),
-		Label = "Assessment"
-		}
+		new { Value = Math.Round(item.IndicatorsPerformance), Label = @Localizer["Assessment"] },
+		new { Value = Math.Round(item.DisbursementPerformance), Label = @Localizer["Disbursement"] },
+		new { Value = Math.Round(item.FieldMonitoring), Label = @Localizer["Monitoring"] },
+		new { Value = Math.Round(item.ImpactAssessment), Label = @Localizer["Assessment"] }
 		};
 
 			<div class="framework-card">
 				<div class="framework-header">
 					<h2>@item.Name</h2>
-					<div class="outcome-badge">Indicators: @item.Indicators.Count()</div>
+					<div class="outcome-badge">@Localizer["Indicators"]: @item.Indicators.Count()</div>
 				</div>
 
 				@foreach (var metric in metrics)
@@ -61,13 +52,13 @@
 						<div class="stat-item">
 							<a asp-controller="Monitoring" asp-action="Indicators" asp-route-subOutputCode="@item.Code">
 								<div class="stat-value">@item.Indicators.Count()</div>
-								<div class="stat-label">Indicators</div>
+								<div class="stat-label">@Localizer["Indicators"]</div>
 							</a>
 						</div>
 						<div class="stat-item">
 							<a asp-controller="Monitoring" asp-action="Projects" asp-route-subOutputCode="@item.Code">
 								<div class="stat-value">@ViewBag.ProjectCounts[item.Code]</div>
-								<div class="stat-label">Projects</div>
+								<div class="stat-label">@Localizer["Projects"]</div>
 							</a>
 						</div>
 					</div>

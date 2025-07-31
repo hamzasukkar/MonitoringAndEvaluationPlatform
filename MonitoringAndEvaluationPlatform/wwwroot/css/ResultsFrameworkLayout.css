@@ -16,7 +16,41 @@
 
     --sidebar-width: 250px;
     --font-family-sans-serif: 'Inter', sans-serif; /* Using Inter font */
+    /* LTR Specific Properties (Defaults) */
+    --float-start: left;
+    --float-end: right;
+    --text-align-start: left;
+    --text-align-end: right;
+    --margin-start: margin-right;
+    --margin-end: margin-left;
+    --padding-start: padding-left;
+    --padding-end: padding-right;
+    --border-start: border-left;
+    --border-end: border-right;
+    --border-radius-start-start: 10px; /* Top-left for LTR */
+    --border-radius-start-end: 0; /* Top-right for LTR */
+    --border-radius-end-start: 0; /* Bottom-left for LTR */
+    --border-radius-end-end: 10px; /* Bottom-right for LTR */
 }
+
+/* RTL Specific Properties (Override defaults when .rtl class is present) */
+body.rtl {
+    --float-start: right;
+    --float-end: left;
+    --text-align-start: right;
+    --text-align-end: left;
+    --margin-start: margin-left;
+    --margin-end: margin-right;
+    --padding-start: padding-right;
+    --padding-end: padding-left;
+    --border-start: border-right;
+    --border-end: border-left;
+    --border-radius-start-start: 0; /* Top-left for RTL */
+    --border-radius-start-end: 10px; /* Top-right for RTL */
+    --border-radius-end-start: 10px; /* Bottom-left for RTL */
+    --border-radius-end-end: 0; /* Bottom-right for RTL */
+}
+
 
 body {
     font-family: var(--font-family-sans-serif);
@@ -27,6 +61,7 @@ body {
     display: flex;
     flex-direction: column;
     color: var(--text-light-color); /* Default text color for the body */
+    text-align: var(--text-align-start); /* Use variable for text alignment */
 }
 
 /* Header Styles */
@@ -59,7 +94,8 @@ body {
 }
 
 .nav-item {
-    margin-right: 1rem;
+    /* Use logical properties for margin */
+    margin-inline-end: 1rem; /* Equivalent to margin-right in LTR, margin-left in RTL */
 }
 
 .nav-link {
@@ -82,12 +118,14 @@ body {
     border-radius: 8px;
     padding: 0.5rem 0;
     background-color: var(--secondary-card-background); /* Darker background for dropdown */
+    /* Adjust dropdown alignment if needed for RTL, typically handled by JS frameworks or specific positioning */
 }
 
 .dropdown-item {
     padding: 0.5rem 1.5rem;
     transition: all 0.2s;
     color: var(--text-light-color); /* Light text for dropdown items */
+    text-align: var(--text-align-start); /* Ensure dropdown items align correctly */
 }
 
     .dropdown-item:hover {
@@ -100,6 +138,13 @@ body {
     display: flex;
     margin-top: 60px; /* Offset for fixed header */
     min-height: calc(100vh - 60px);
+    /* Flex direction needs to be adapted for RTL if content flows differently */
+    /* By default, flex-direction: row; is LTR. For RTL, you might want flex-direction: row-reverse; */
+    /* This can be achieved by adding a class to main or overriding in .rtl */
+}
+
+body.rtl .main {
+    flex-direction: row-reverse;
 }
 
 /* Sidebar Styles */
@@ -112,6 +157,8 @@ body {
     height: calc(100vh - 60px);
     overflow-y: auto;
     z-index: 900;
+    /* Position sidebar based on direction */
+    var(--float-start): 0; /* Left for LTR, Right for RTL */
 }
 
     .sidebar ul {
@@ -137,11 +184,13 @@ body {
         .sidebar a:hover, .sidebar a.active {
             color: var(--accent-gold-color); /* Gold on hover/active */
             background-color: rgba(200, 168, 95, 0.1); /* Light gold tint for background */
-            border-right: 3px solid var(--accent-gold-color); /* Gold border highlight */
+            /* Use logical property for border */
+            border-inline-end: 3px solid var(--accent-gold-color); /* border-right for LTR, border-left for RTL */
         }
 
     .sidebar img {
-        margin-right: 1rem;
+        /* Use logical property for margin */
+        margin-inline-end: 1rem; /* margin-right for LTR, margin-left for RTL */
         opacity: 0.8; /* Slightly less opaque on default */
     }
 
@@ -153,7 +202,8 @@ body {
 .container-full {
     flex: 1;
     padding: 2rem;
-    margin-left: var(--sidebar-width);
+    /* Use logical property for margin */
+    margin-inline-start: var(--sidebar-width); /* margin-left for LTR, margin-right for RTL */
     background-color: var(--secondary-card-background); /* Slightly Lighter Dark Green */
     min-height: calc(100vh - 60px);
     color: var(--text-light-color); /* Default text color for content area */
@@ -177,11 +227,11 @@ body {
         }
 
         .sidebar img {
-            margin-right: 0;
+            margin-inline-end: 0; /* Reset margin */
         }
 
     .container-full {
-        margin-left: 70px;
+        margin-inline-start: 70px; /* Adjust margin for collapsed sidebar */
     }
 }
 
@@ -191,7 +241,7 @@ body {
     }
 
     .container-full {
-        margin-left: 0;
+        margin-inline-start: 0; /* Reset margin when sidebar is hidden */
     }
 
     .topbar .nav-links {
@@ -220,7 +270,11 @@ body {
     border-bottom: 1px solid var(--border-color); /* Border color from new palette */
     font-weight: 600;
     padding: 1rem 1.5rem;
-    border-radius: 10px 10px 0 0 !important;
+    /* Use logical properties for border-radius */
+    border-top-left-radius: var(--border-radius-start-start) !important;
+    border-top-right-radius: var(--border-radius-start-end) !important;
+    border-bottom-left-radius: var(--border-radius-end-start) !important;
+    border-bottom-right-radius: var(--border-radius-end-end) !important;
     color: var(--accent-gold-color); /* Gold text for card headers */
 }
 
@@ -247,7 +301,6 @@ body {
         color: var(--primary-background-color);
     }
 
-
 /* Table Styling */
 .table {
     border-collapse: separate;
@@ -261,6 +314,7 @@ body {
         font-weight: 600;
         padding: 1rem;
         color: var(--accent-gold-color); /* Gold text for table headers */
+        text-align: var(--text-align-start); /* Align table headers */
     }
 
     .table tbody tr {
@@ -270,12 +324,22 @@ body {
 
         .table tbody tr:hover {
             background-color: #3A5C54; /* Even lighter green on hover */
-            transform: translateX(2px);
+            /* Use transform property for movement */
+            transform: translateX(var(--table-hover-transform-x)); /* Controlled by CSS variable */
         }
 
-    .table tbody td {
-        border-color: var(--border-color); /* Border color for table cells */
-    }
+body:not(.rtl) .table tbody tr:hover {
+    --table-hover-transform-x: 2px; /* LTR: move right */
+}
+
+body.rtl .table tbody tr:hover {
+    --table-hover-transform-x: -2px; /* RTL: move left */
+}
+
+.table tbody td {
+    border-color: var(--border-color); /* Border color for table cells */
+    text-align: var(--text-align-start); /* Align table cells */
+}
 
 /* Specific progress bar colors if still used */
 .progress-bar-orange {
@@ -301,4 +365,96 @@ body {
 
 .text-warning {
     color: var(--warning-color) !important;
+}
+
+
+/* Add these styles to your CSS file */
+
+.dropdown-menu form select {
+    /* Base styling for the select dropdown */
+    width: calc(100% - 2rem); /* Take full width minus padding on each side */
+    padding: 0.5rem 1rem;
+    margin: 0.5rem 1rem; /* Center it with surrounding dropdown items */
+    background-color: var(--primary-background-color); /* Darker background like topbar */
+    color: var(--text-light-color); /* Light text */
+    border: 1px solid var(--border-color); /* Subtle border */
+    border-radius: 6px; /* Slightly rounded corners */
+    appearance: none; /* Remove default browser styling for select */
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    cursor: pointer;
+    font-size: 0.95rem; /* Slightly smaller font than regular text */
+    transition: all 0.2s ease;
+    text-align: var(--text-align-start); /* Align text based on direction */
+}
+
+    .dropdown-menu form select:focus {
+        outline: none;
+        border-color: var(--accent-gold-color); /* Gold border on focus */
+        box-shadow: 0 0 0 0.2rem rgba(200, 168, 95, 0.25); /* Subtle gold glow */
+    }
+
+    .dropdown-menu form select option {
+        /* Styling for the options within the dropdown */
+        background-color: var(--primary-background-color); /* Match select background */
+        color: var(--text-light-color);
+        padding: 0.5rem 1rem; /* Add some padding to options */
+    }
+
+/* Optional: Add a custom dropdown arrow icon if 'appearance: none' makes it look too plain */
+/* This requires a bit more advanced CSS or an SVG background */
+.dropdown-menu form select {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath fill='%23C8A85F' d='M7.247 11.14 2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592c.859 0 1.319 1.013.753 1.658L8.753 11.14a1.86 1.86 0 0 1-1.506 0z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: calc(100% - 0.75rem) center; /* Position arrow on the right */
+    background-size: 1rem;
+}
+
+body.rtl .dropdown-menu form select {
+    background-position: 0.75rem center; /* Position arrow on the left for RTL */
+}
+
+
+
+/* Style both dropdown and standalone language selectors */
+.dropdown-menu form select,
+form.language-selector select {
+    width: calc(100% - 2rem);
+    padding: 0.5rem 1rem;
+    margin: 0.5rem 1rem;
+    background-color: var(--primary-background-color);
+    color: var(--text-light-color);
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    cursor: pointer;
+    font-size: 0.95rem;
+    transition: all 0.2s ease;
+    text-align: var(--text-align-start);
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath fill='%23C8A85F' d='M7.247 11.14 2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592c.859 0 1.319 1.013.753 1.658L8.753 11.14a1.86 1.86 0 0 1-1.506 0z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: calc(100% - 0.75rem) center;
+    background-size: 1rem;
+}
+
+    .dropdown-menu form select:focus,
+    form.language-selector select:focus {
+        outline: none;
+        border-color: var(--accent-gold-color);
+        box-shadow: 0 0 0 0.2rem rgba(200, 168, 95, 0.25);
+    }
+
+    .dropdown-menu form select option,
+    form.language-selector select option {
+        background-color: var(--primary-background-color);
+        color: var(--text-light-color);
+        padding: 0.5rem 1rem;
+    }
+
+/* RTL fix */
+body.rtl .dropdown-menu form select,
+body.rtl form.language-selector select {
+    background-position: 0.75rem center;
 }

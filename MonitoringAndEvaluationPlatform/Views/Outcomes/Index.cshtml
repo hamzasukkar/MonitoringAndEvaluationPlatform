@@ -1,5 +1,9 @@
 ﻿@model IEnumerable<MonitoringAndEvaluationPlatform.Models.Outcome>
 @using MonitoringAndEvaluationPlatform.Helpers
+@inject IViewLocalizer Localizer
+@using Microsoft.AspNetCore.Mvc.Localization
+@inject IViewLocalizer Localizer
+@using Microsoft.AspNetCore.Localization
 @{
 	ViewData["Title"] = "Outcomes";
 	Layout = "~/Views/Shared/_ResultsFrameworkLayout.cshtml";
@@ -8,18 +12,18 @@
 <div class="container-fluid">
 	<div class="d-flex justify-content-between align-items-center mb-4">
 		<div>
-			<h4 class="mb-0">Outcomes Management</h4>
+			<h4 class="mb-0">@Localizer["Outcomes Management"]</h4>
 		</div>
 		<div>
 			
 			@if (ViewBag.SelectedFrameworkCode != null)
 			{
 				<button class="btn btn-success me-2" type="button" id="toggleCreateForm">
-					<i class="fas fa-plus me-2"></i>Create New Outcome
+					<i class="fas fa-plus me-2"></i>@Localizer["Create New Outcome"]
 				</button>
 
 				<a asp-action="AdjustWeights" asp-route-frameworkCode="@ViewBag.SelectedFrameworkCode" class="btn btn-warning">
-					<i class="fas fa-balance-scale me-2"></i>Adjust Weights
+					<i class="fas fa-balance-scale me-2"></i>@Localizer["Adjust Weights"]
 				</a>
 			}
 		</div>
@@ -31,13 +35,13 @@
 			<form asp-action="Create" method="post">
 				<input type="hidden" name="FrameworkCode" value="@ViewBag.SelectedFrameworkCode" />
 				<div class="mb-3">
-					<label for="Name" class="form-label">Outcome Name</label>
+					<label for="Name" class="form-label">@Localizer["Outcome Name"]</label>
 					<input type="text" class="form-control" id="Name" name="Name" required />
 				</div>
 				<!-- Add other fields as needed -->
 
 				<button type="submit" class="btn btn-primary">
-					<i class="fas fa-save me-2"></i>Save Outcome
+					<i class="fas fa-save me-2"></i>@Localizer["Save Outcome"]
 				</button>
 			</form>
 		</div>
@@ -50,14 +54,14 @@
 				<table class="table table-hover">
 					<thead class="table-light">
 						<tr>
-							<th>Outcome Name</th>
-							<th>Weight</th>
-							<th>Indicators Performance</th>
-							<th>Disbursement Performance</th>
-							<th>Field Monitoring</th>
-							<th>Impact Assessment</th>
-							<th>Framework</th>
-							<th class="text-end">Actions</th>
+							<th>@Localizer["Outcome Name"]</th>
+							<th>@Localizer["Weight"]</th>
+							<th>@Localizer["Indicators Performance"]</th>
+							<th>@Localizer["Disbursement Performance"]</th>
+							<th>@Localizer["Field Monitoring"]</th>
+							<th>@Localizer["Impact Assessment"]</th>
+							<th>@Localizer["Framework"]</th>
+							<th class="text-end">@Localizer["Actions"]</th>
 						</tr>
 					</thead>
 					<tbody>

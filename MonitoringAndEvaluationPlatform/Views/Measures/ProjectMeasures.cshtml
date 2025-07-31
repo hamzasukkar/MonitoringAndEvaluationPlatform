@@ -1,6 +1,9 @@
 ﻿@model IEnumerable<MonitoringAndEvaluationPlatform.Models.Measure>
 @using MonitoringAndEvaluationPlatform.Enums
 @using MonitoringAndEvaluationPlatform.Models
+@using Microsoft.AspNetCore.Mvc.Localization
+@inject IViewLocalizer Localizer
+@using Microsoft.AspNetCore.Localization
 @{
 	ViewData["Title"] = "Project Measures";
 	Layout = "~/Views/Shared/_ProjectsLayout.cshtml";
@@ -18,10 +21,10 @@
 					<ul class="navbar-nav nav-fill w-100">
 						<li class="nav-item">
 							<a asp-controller="Projects" asp-action="Details" asp-route-id="@ViewBag.ProjectID" class="nav-link">
-								<i class="fas fa-project-diagram me-2"></i>Project
+								<i class="fas fa-project-diagram me-2"></i>@Localizer["Project"]
 							</a>
 						</li>
-						<li class="nav-item">
+				@* 		<li class="nav-item">
 							<a asp-action="LinkProjectToIndicators" asp-route-projectId="@ViewBag.ProjectID" class="nav-link">
 								<i class="fas fa-link me-2"></i>Alignement
 							</a>
@@ -30,10 +33,10 @@
 							<a asp-action="Create" asp-controller="LogicalFrameworks" asp-route-projectId="@ViewBag.ProjectID" class="nav-link">
 								<i class="fas fa-sitemap me-2"></i>LogicalFramework
 							</a>
-						</li>
+						</li> *@
 						<li class="nav-item">
 							<a class="nav-link active" aria-current="page">
-								<i class="fas fa-ruler-combined me-2"></i>Measures
+								<i class="fas fa-ruler-combined me-2"></i>@Localizer["Measures"]
 							</a>
 						</li>
 					@* 	<li class="nav-item">
@@ -43,14 +46,14 @@
 						</li> *@
 						<li class="nav-item">
 							<a asp-controller="ActionPlans" asp-action="ActionPlan" asp-route-id="@ViewBag.ProjectID" class="nav-link">
-								<i class="fas fa-tasks me-2"></i>Action Plans
+								<i class="fas fa-tasks me-2"></i>@Localizer["Action Plans"]
 							</a>
 						</li>
-						<li class="nav-item">
+					@* 	<li class="nav-item">
 							<a asp-action="Index" asp-controller="Activities" asp-route-id="@ViewBag.ProjectID" class="nav-link">
 								<i class="fas fa-running me-2"></i>Activities
 							</a>
-						</li>
+						</li> *@
 					</ul>
 				</div>
 			</div>
@@ -59,7 +62,7 @@
 
 	<!-- Header -->
 	<div class="d-flex justify-content-between align-items-center mb-4">
-		<h4 class="mb-0">Project Measures</h4>
+		<h4 class="mb-0">@Localizer["Project Measures"]</h4>
 	</div>
 
 	<!-- Alerts -->
@@ -87,15 +90,15 @@
 
 				<div class="row g-3 align-items-center">
 					<div class="col-md-3">
-						<label class="form-label">Date</label>
+						<label class="form-label">@Localizer["Date"]</label>
 						<input name="Date" type="date" class="form-control" required />
 					</div>
 					<div class="col-md-2">
-						<label class="form-label">Value</label>
+						<label class="form-label">@Localizer["Value"]</label>
 						<input name="Value" type="number" step="0.01" class="form-control" required />
 					</div>
 					<div class="col-md-3">
-						<label class="form-label">Value Type</label>
+						<label class="form-label">@Localizer["Value Type"]</label>
 						<select name="ValueType" class="form-select" required>
 							@foreach (var val in Enum.GetValues(typeof(MeasureValueType)))
 							{
@@ -104,7 +107,7 @@
 						</select>
 					</div>
 					<div class="col-md-3">
-						<label class="form-label">Indicator</label>
+						<label class="form-label">@Localizer["Indicator"]</label>
 						<select name="IndicatorCode" class="form-select" required>
 							@foreach (var indicator in ViewBag.Indicators as List<Indicator>)
 							{
@@ -114,7 +117,7 @@
 					</div>
 					<div class="col-md-2 d-flex align-items-end">
 						<button type="submit" class="btn btn-success w-100">
-							<i class="fas fa-plus"></i> Add
+							<i class="fas fa-plus"></i> @Localizer["Add"]
 						</button>
 					</div>
 				</div>
@@ -130,11 +133,11 @@
 				<table class="table table-hover align-middle">
 					<thead class="table-light">
 						<tr>
-							<th>Date</th>
-							<th>Value</th>
-							<th>Value Type</th>
-							<th>Indicator</th>
-							<th class="text-end">Actions</th>
+							<th>@Localizer["Date"]</th>
+							<th>@Localizer["Value"]</th>
+							<th>@Localizer["Value Type"]</th>
+							<th>@Localizer["Indicator"]</th>
+							<th class="text-end">@Localizer["Actions"]</th>
 						</tr>
 					</thead>
 					<tbody>

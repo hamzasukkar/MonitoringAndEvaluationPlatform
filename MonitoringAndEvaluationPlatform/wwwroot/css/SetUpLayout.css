@@ -16,7 +16,51 @@
 
     --sidebar-width: 250px;
     --font-family-sans-serif: 'Inter', sans-serif; /* Using Inter font */
+    /* LTR Specific Properties (Defaults) */
+    --float-start: left;
+    --float-end: right;
+    --text-align-start: left;
+    --text-align-end: right;
+    --margin-start: margin-left;
+    --margin-end: margin-right;
+    --padding-start: padding-left;
+    --padding-end: padding-right;
+    --border-start: border-left;
+    --border-end: border-right;
+    --border-radius-start-start: 10px; /* Top-left for LTR */
+    --border-radius-start-end: 0; /* Top-right for LTR */
+    --border-radius-end-start: 0; /* Bottom-left for LTR */
+    --border-radius-end-end: 10px; /* Bottom-right for LTR */
+    /* Dropdown specific variables for positioning */
+    --dropdown-menu-start-position: auto;
+    --dropdown-menu-end-position: 0; /* Default for dropdown-menu-end behavior in LTR */
+    /* Table hover transform */
+    --table-hover-transform-x: 2px; /* LTR: move right */
 }
+
+/* RTL Specific Properties (Override defaults when .rtl class is present) */
+body.rtl {
+    --float-start: right;
+    --float-end: left;
+    --text-align-start: right;
+    --text-align-end: left;
+    --margin-start: margin-right; /* Adjusted for logical flow */
+    --margin-end: margin-left; /* Adjusted for logical flow */
+    --padding-start: padding-right;
+    --padding-end: padding-left;
+    --border-start: border-right;
+    --border-end: border-left;
+    --border-radius-start-start: 0; /* Top-left for RTL */
+    --border-radius-start-end: 10px; /* Top-right for RTL */
+    --border-radius-end-start: 10px; /* Bottom-left for RTL */
+    --border-radius-end-end: 0; /* Bottom-right for RTL */
+    /* Dropdown specific variables for positioning in RTL */
+    --dropdown-menu-start-position: 0;
+    --dropdown-menu-end-position: auto;
+    /* Table hover transform in RTL */
+    --table-hover-transform-x: -2px; /* RTL: move left */
+}
+
 
 body {
     font-family: var(--font-family-sans-serif);
@@ -27,6 +71,7 @@ body {
     display: flex;
     flex-direction: column;
     color: var(--text-light-color); /* Default text color for the body */
+    text-align: var(--text-align-start); /* Use variable for text alignment */
 }
 
 /* Header Styles */
@@ -42,7 +87,14 @@ body {
     width: 100%;
     z-index: 1000;
     height: 60px;
+    /* Ensure flex direction respects overall document direction */
+    flex-direction: row; /* Default for LTR */
 }
+
+body.rtl .topbar {
+    flex-direction: row-reverse; /* Reverse direction for RTL */
+}
+
 
 .title {
     font-size: 1.5rem;
@@ -56,10 +108,18 @@ body {
     margin: 0;
     padding: 0;
     align-items: center;
+    /* Nav links should also respect flex direction */
+    flex-direction: row; /* Default for LTR */
 }
 
+body.rtl .nav-links .nav {
+    flex-direction: row-reverse; /* Reverse direction for RTL */
+}
+
+
 .nav-item {
-    margin: 0 0.5rem; /* Adjusted margin for nav items */
+    margin-inline-end: 1rem; /* Use logical margin */
+    margin-inline-start: 0; /* Reset */
 }
 
 .nav-link {
@@ -82,12 +142,29 @@ body {
     border-radius: 8px;
     padding: 0.5rem 0;
     background-color: var(--secondary-card-background); /* Darker background for dropdown */
+    /* Positioning adjustments */
+    position: absolute; /* Ensure it's positioned relative to its parent */
+    inset-inline-start: var(--dropdown-menu-start-position); /* left in LTR, right in RTL */
+    inset-inline-end: var(--dropdown-menu-end-position); /* right in LTR, left in RTL */
+    transform: translate(0, 10px); /* Adjust vertical positioning */
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.15s, transform 0.15s, visibility 0.15s;
+    z-index: 1000; /* Ensure it's above other content */
+    min-width: 10rem; /* Give it a reasonable minimum width */
 }
+
+    .dropdown-menu.show {
+        opacity: 1;
+        visibility: visible;
+        transform: translate(0, 0);
+    }
 
 .dropdown-item {
     padding: 0.5rem 1.5rem;
     transition: all 0.2s;
     color: var(--text-light-color); /* Light text for dropdown items */
+    text-align: var(--text-align-start); /* Ensure dropdown items align correctly */
 }
 
     .dropdown-item:hover {
@@ -95,11 +172,56 @@ body {
         color: var(--accent-gold-color); /* Gold text on hover */
     }
 
+/* Styling for the Language Select inside the Dropdown */
+.dropdown-menu form select {
+    width: calc(100% - 2rem); /* Take full width minus padding on each side */
+    padding: 0.5rem 1rem;
+    margin: 0.5rem 1rem; /* Center it with surrounding dropdown items */
+    background-color: var(--primary-background-color); /* Darker background like topbar */
+    color: var(--text-light-color); /* Light text */
+    border: 1px solid var(--border-color); /* Subtle border */
+    border-radius: 6px; /* Slightly rounded corners */
+    appearance: none; /* Remove default browser styling for select */
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    cursor: pointer;
+    font-size: 0.95rem; /* Slightly smaller font than regular text */
+    transition: all 0.2s ease;
+    text-align: var(--text-align-start); /* Align text based on direction */
+    /* Custom Dropdown Arrow */
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath fill='%23C8A85F' d='M7.247 11.14 2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592c.859 0 1.319 1.013.753 1.658L8.753 11.14a1.86 1.86 0 0 1-1.506 0z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: calc(100% - 0.75rem) center; /* Position arrow on the right */
+    background-size: 1rem;
+}
+
+body.rtl .dropdown-menu form select {
+    background-position: 0.75rem center; /* Position arrow on the left for RTL */
+}
+
+.dropdown-menu form select:focus {
+    outline: none;
+    border-color: var(--accent-gold-color); /* Gold border on focus */
+    box-shadow: 0 0 0 0.2rem rgba(200, 168, 95, 0.25); /* Subtle gold glow */
+}
+
+.dropdown-menu form select option {
+    background-color: var(--primary-background-color); /* Match select background */
+    color: var(--text-light-color);
+    padding: 0.5rem 1rem; /* Add some padding to options */
+}
+
+
 /* Main Content Layout */
 .main {
     display: flex;
     margin-top: 60px; /* Offset for fixed header */
     min-height: calc(100vh - 60px);
+    flex-direction: row; /* Default for LTR */
+}
+
+body.rtl .main {
+    flex-direction: row-reverse; /* Reverse direction for RTL */
 }
 
 /* Sidebar Styles */
@@ -112,6 +234,8 @@ body {
     height: calc(100vh - 60px);
     overflow-y: auto;
     z-index: 900;
+    /* Position sidebar based on direction */
+    inset-inline-start: 0; /* Left for LTR, Right for RTL */
 }
 
     .sidebar ul {
@@ -137,11 +261,11 @@ body {
         .sidebar a:hover, .sidebar a.active {
             color: var(--accent-gold-color); /* Gold on hover/active */
             background-color: rgba(200, 168, 95, 0.1); /* Light gold tint for background */
-            border-right: 3px solid var(--accent-gold-color); /* Gold border highlight */
+            border-inline-end: 3px solid var(--accent-gold-color); /* border-right for LTR, border-left for RTL */
         }
 
     .sidebar img {
-        margin-right: 1rem;
+        margin-inline-end: 1rem; /* margin-right for LTR, margin-left for RTL */
         opacity: 0.8; /* Slightly less opaque on default */
     }
 
@@ -153,11 +277,10 @@ body {
 .container { /* Changed from .container-full to .container as per your provided code */
     flex: 1;
     padding: 2rem;
-    margin-left: var(--sidebar-width);
+    margin-inline-start: var(--sidebar-width); /* margin-left for LTR, margin-right for RTL */
     background-color: var(--secondary-card-background); /* Slightly Lighter Dark Green */
     min-height: calc(100vh - 60px);
     color: var(--text-light-color); /* Default text color for content area */
-    /* New: Background Image for .container-full */
     background-image: url('/img/Emblem_of_Syria.png'); /* Path to your image */
     background-repeat: no-repeat; /* Prevents the image from repeating */
     background-position: center center; /* Centers the image */
@@ -170,9 +293,10 @@ body {
     background-color: var(--primary-background-color); /* Dark Green */
     color: var(--text-light-color);
     padding: 1rem;
-    margin-left: var(--sidebar-width);
+    margin-inline-start: var(--sidebar-width); /* margin-left for LTR, margin-right for RTL */
     position: relative;
     z-index: 800;
+    text-align: center; /* Center the footer content */
 }
 
 /* Responsive Adjustments */
@@ -187,11 +311,11 @@ body {
         }
 
         .sidebar img {
-            margin-right: 0;
+            margin-inline-end: 0; /* Reset margin for collapsed sidebar icons */
         }
 
     .container, .footer {
-        margin-left: 70px;
+        margin-inline-start: 70px; /* Adjust margin for collapsed sidebar */
     }
 }
 
@@ -201,13 +325,18 @@ body {
     }
 
     .container, .footer {
-        margin-left: 0;
+        margin-inline-start: 0; /* Reset margin when sidebar is hidden */
     }
 
-    .topbar .nav-links {
-        display: none;
+    .topbar {
+        padding: 0.75rem 1rem; /* Adjust padding for smaller screens */
     }
+
+        .topbar .nav-links {
+            display: none; /* Hide nav links on small screens */
+        }
 }
+
 
 /* Card Styling */
 .card {
@@ -230,8 +359,13 @@ body {
     border-bottom: 1px solid var(--border-color); /* Border color from new palette */
     font-weight: 600;
     padding: 1rem 1.5rem;
-    border-radius: 10px 10px 0 0 !important;
+    /* Use logical properties for border-radius */
+    border-top-left-radius: var(--border-radius-start-start) !important;
+    border-top-right-radius: var(--border-radius-start-end) !important;
+    border-bottom-left-radius: var(--border-radius-end-start) !important;
+    border-bottom-right-radius: var(--border-radius-end-end) !important;
     color: var(--accent-gold-color); /* Gold text for card headers */
+    text-align: var(--text-align-start); /* Align card header text */
 }
 
 /* Button Styling */
@@ -271,6 +405,7 @@ body {
         font-weight: 600;
         padding: 1rem;
         color: var(--accent-gold-color); /* Gold text for table headers */
+        text-align: var(--text-align-start); /* Align table headers */
     }
 
     .table tbody tr {
@@ -280,11 +415,12 @@ body {
 
         .table tbody tr:hover {
             background-color: #3A5C54; /* Even lighter green on hover */
-            transform: translateX(2px);
+            transform: translateX(var(--table-hover-transform-x)); /* Controlled by CSS variable */
         }
 
     .table tbody td {
         border-color: var(--border-color); /* Border color for table cells */
+        text-align: var(--text-align-start); /* Align table cells */
     }
 
 /* Specific progress bar colors if still used */
