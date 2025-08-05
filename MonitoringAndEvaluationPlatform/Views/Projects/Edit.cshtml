@@ -6,6 +6,9 @@
     var governorates = ViewBag.Governorates as List<Governorate>;
     var selectedLocationsJson = JsonConvert.SerializeObject(ViewBag.SelectedLocations);
 }
+@using Microsoft.AspNetCore.Mvc.Localization
+@inject IViewLocalizer Localizer
+@using Microsoft.AspNetCore.Localization
   
 <head>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
@@ -80,13 +83,15 @@
                                 <h6 class="text-muted mt-4">Project Location</h6>
                                 <div class="mb-3">
                                     <select id="governorate" class="form-select">
-                                        <option value="">-- Select Governorate --</option>
+                                        <option value="">--اختر المحافظة--</option>
                                         @foreach (var gov in governorates)
                                         {
-                                            <option value="@gov.Code">@gov.Name</option>
+                                            var displayName = System.Threading.Thread.CurrentThread.CurrentUICulture.TwoLetterISOLanguageName == "ar"
+                                            ? gov.AR_Name
+                                            : gov.EN_Name;
+                                            <option value="@gov.Code">@displayName</option>
                                         }
                                     </select>
-
                                 </div>
                                 <div class="mb-3">
                                     <select id="district" class="form-select"></select>
@@ -155,6 +160,12 @@
                                     </select>
 
                                     <small class="text-muted">Hold Ctrl/Cmd to select multiple Ministries</small>
+                                </div>
+                                <div class="mb-3">
+                                    <label asp-for="GoalCode" class="form-label">@Localizer["SDGs"]</label>
+                                    <select asp-for="GoalCode" class="form-select" asp-items="ViewBag.Goals">
+                                        <option value="">@Localizer["SDGs"]</option>
+                                    </select>
                                 </div>
                                @*  To Check *@
                                 <div class="mb-3">

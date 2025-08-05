@@ -18,7 +18,7 @@
         @foreach (var gov in Model)
         {
             <tr>
-                <td>@gov.Name</td>
+                <td>@gov.EN_Name</td>
                 <td>
                     <a asp-action="EditGovernorate" asp-route-id="@gov.Code" class="btn btn-sm btn-warning">Edit</a>
                     <a asp-action="DeleteGovernorate" asp-route-id="@gov.Code" class="btn btn-sm btn-danger"

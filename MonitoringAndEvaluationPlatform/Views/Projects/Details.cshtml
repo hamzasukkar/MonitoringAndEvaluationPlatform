@@ -2,6 +2,7 @@
 @using Microsoft.AspNetCore.Mvc.Localization
 @inject IViewLocalizer Localizer
 @using Microsoft.AspNetCore.Localization
+@using System.Globalization
 
 @{
     ViewData["Title"] = "Project Details";
@@ -105,6 +106,19 @@
                                 }
                             </dd>
 
+                            @if (CultureInfo.CurrentUICulture.TwoLetterISOLanguageName == "ar")
+                            {
+                                <dt class="col-sm-4">@Localizer["SDGs"]</dt>
+                                <dd class="col-sm-8">@Html.DisplayFor(model => model.Goal.AR_Name)</dd>
+                            }
+                            else
+                            {
+                                <dt class="col-sm-4">@Localizer["SDGs"]</dt>
+                                <dd class="col-sm-8">@Html.DisplayFor(model => model.Goal.EN_Name)</dd>
+                            }
+
+                    
+
                             <dt class="col-sm-4">@Localizer["Start Date"]</dt>
                             <dd class="col-sm-8">@Model.StartDate.ToString("yyyy-MM-dd")</dd>
 
@@ -135,7 +149,7 @@
                                 @foreach (var governorate in Model.Governorates)
                                 {
                                     <span class="badge bg-primary me-1">
-                                        <small>@governorate.Name</small>
+                                        <small>@governorate.EN_Name</small>
                                     </span>
                                 }
                             </dd>
@@ -145,7 +159,7 @@
                                 @foreach (var district in Model.Districts)
                                 {
                                     <span class="badge bg-primary me-1">
-                                        <small>@district.Name</small>
+                                        <small>@district.EN_Name</small>
                                     </span>
                                 }
                             </dd>
@@ -155,7 +169,7 @@
                                 @foreach (var subDistrict in Model.SubDistricts)
                                 {
                                     <span class="badge bg-primary me-1">
-                                        <small>@subDistrict.Name</small>
+                                        <small>@subDistrict.EN_Name</small>
                                     </span>
                                 }
                             </dd>
@@ -165,7 +179,7 @@
                                 @foreach (var community in Model.Communities)
                                 {
                                     <span class="badge bg-primary me-1">
-                                        <small>@community.Name</small>
+                                        <small>@community.EN_Name</small>
                                     </span>
                                 }
                             </dd>

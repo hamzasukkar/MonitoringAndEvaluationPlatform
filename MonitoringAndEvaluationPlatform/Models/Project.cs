@@ -8,8 +8,8 @@ namespace MonitoringAndEvaluationPlatform.Models
         [Key]
         public int ProjectID { get; set; }
         public string ProjectName { get; set; }
-        public ICollection<Sector> Sectors { get; set; } = new List<Sector>();
-        public ICollection<Donor> Donors { get; set; } = new List<Donor>();
+        public ICollection<Sector>? Sectors { get; set; } = new List<Sector>();
+        public ICollection<Donor>? Donors { get; set; } = new List<Donor>();
         public ICollection<Ministry> Ministries { get; set; } = new List<Ministry>();
         public double EstimatedBudget { get; set; }
         public double RealBudget { get; set; }
@@ -17,6 +17,8 @@ namespace MonitoringAndEvaluationPlatform.Models
         public virtual ProjectManager ProjectManager { get; set; }
         public int SuperVisorCode { get; set; }
         public virtual SuperVisor SuperVisor { get; set; }
+        public int? GoalCode { get; set; }
+        public virtual Goal Goal { get; set; }
         public DateTime StartDate { get; set; }
         public DateTime EndDate { get; set; }
         public double performance { get; set; }
@@ -44,6 +46,7 @@ namespace MonitoringAndEvaluationPlatform.Models
         public ICollection<District> Districts { get; set; } = new List<District>();
         public ICollection<SubDistrict> SubDistricts { get; set; } = new List<SubDistrict>();
         public ICollection<Community> Communities { get; set; } = new List<Community>();
+        
 
 
         public void UpdatePerformance(double totalPlanned, double totalRealised)

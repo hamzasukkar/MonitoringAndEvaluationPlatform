@@ -57,16 +57,19 @@
                                 <div class="mb-4">
                                     <h6 class="mb-3 text-muted">@Localizer["Project Location"]</h6>
                                     <div id="location-selector">
-                                
-                                    <div class="mb-3">
-                                        <select id="governorate" class="form-select">
-                                                <option value="">-- @Localizer["Select Governorate"] --</option>
-                                            @foreach (var gov in governorates)
-                                            {
-                                                <option value="@gov.Code">@gov.Name</option>
-                                            }
-                                        </select>
-                                    </div>
+
+                                        <div class="mb-3">
+                                            <select id="governorate" class="form-select">
+                                                <option value="">-- اختر المحافظة --</option>
+                                                @foreach (var gov in governorates)
+                                                {
+                                                    var displayName = System.Threading.Thread.CurrentThread.CurrentUICulture.TwoLetterISOLanguageName == "ar"
+                                                    ? gov.AR_Name
+                                                    : gov.EN_Name;
+                                                    <option value="@gov.Code">@displayName</option>
+                                                }
+                                            </select>
+                                        </div>
 
                                     <div class="mb-3">
                                         <select id="district" class="form-select"></select>
@@ -130,7 +133,7 @@
                                                 </div>
                                                 <span asp-validation-for="EstimatedBudget" class="text-danger small"></span>
                                             </div>
-                                            <div class="col-md-6 mb-3">
+@*                                             <div class="col-md-6 mb-3">
                                                 <label asp-for="RealBudget" class="form-label">@Localizer["Real Budget"]</label>
                                                 <div class="input-group">
                                                     <span class="input-group-text">$</span>
@@ -138,7 +141,7 @@
                                                 </div>
                                                 <span asp-validation-for="RealBudget" class="text-danger small"></span>
                                             </div>
-                                        </div>
+ *@                                        </div>
                                     </div>
                                 </div>
 
@@ -177,7 +180,13 @@
                                             </select>
                                             <small class="text-muted">@Localizer["Hold Ctrl/Cmd to select multiple ministry"]</small>
                                         </div>
-     
+
+                                        <div class="mb-3">
+                                            <label asp-for="GoalCode" class="form-label">@Localizer["SDGs"]</label>
+                                            <select asp-for="GoalCode" class="form-select" asp-items="ViewBag.Goals">
+                                                <option value="">@Localizer["SDGs"]</option>
+                                            </select>
+                                        </div>
 
                                        @*  To Check *@
                                         <div class="mb-3">
@@ -327,7 +336,7 @@
     function fillSelect(selector, data) {
         let select = $(selector);
         select.empty().append(`<option value="">-- Select --</option>`);
-        data.forEach(x => select.append(`<option value="${x.code}">${x.name}</option>`));
+        data.forEach(x => select.append(`<option value="${x.code}">${x.aR_Name}</option>`));
     }
 
     function resetSelect(selector) {

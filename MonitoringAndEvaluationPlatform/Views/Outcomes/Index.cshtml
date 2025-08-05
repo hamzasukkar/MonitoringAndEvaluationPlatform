@@ -59,8 +59,8 @@
 							<th>@Localizer["Indicators Performance"]</th>
 							<th>@Localizer["Disbursement Performance"]</th>
 							<th>@Localizer["Field Monitoring"]</th>
-							<th>@Localizer["Impact Assessment"]</th>
-							<th>@Localizer["Framework"]</th>
+@* 							<th>@Localizer["Impact Assessment"]</th>
+ *@							<th>@Localizer["Framework"]</th>
 							<th class="text-end">@Localizer["Actions"]</th>
 						</tr>
 					</thead>
@@ -87,8 +87,8 @@
 								<td>@await Html.PartialAsync("_ProgressBar", Tuple.Create(IndicatorsPerformance, indicatorsClass))</td>
 								<td>@await Html.PartialAsync("_ProgressBar", Tuple.Create(item.DisbursementPerformance, disbursementClass))</td>
 								<td>@await Html.PartialAsync("_ProgressBar", Tuple.Create(item.FieldMonitoring, fieldMonitoringClass))</td>
-								<td>@await Html.PartialAsync("_ProgressBar", Tuple.Create(item.ImpactAssessment, impactAssessmentClass))</td>
-								<td>
+@* 								<td>@await Html.PartialAsync("_ProgressBar", Tuple.Create(item.ImpactAssessment, impactAssessmentClass))</td>
+ *@								<td>
 									<a href="/Frameworks/Index/@item.FrameworkCode" class="text-decoration-none">@item.Framework.Name</a>
 								</td>
 								<td class="text-end">

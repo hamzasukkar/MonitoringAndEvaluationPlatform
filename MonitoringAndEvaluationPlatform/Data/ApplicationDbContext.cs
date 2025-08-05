@@ -34,6 +34,10 @@ namespace MonitoringAndEvaluationPlatform.Data
         public DbSet<District> Districts { get; set; }
         public DbSet<SubDistrict> SubDistricts { get; set; }
         public DbSet<Community> Communities { get; set; }
+        public DbSet<Goal> Goals { get; set; }
+        public DbSet<Target> Targets { get; set; }
+        public DbSet<SDGIndicator> sDGIndicators { get; set; }
+
 
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)

@@ -67,7 +67,7 @@
                             <th>@Localizer["Indicators Performance"]</th>
                             <th>@Localizer["Disbursement Performance"]</th>
                             <th>@Localizer["Field Monitoring"]</th>
-                            <th>@Localizer["Impact Assessment"]</th>
+                           @*  <th>@Localizer["Impact Assessment"]</th> *@
                             <th class="text-end">@Localizer["Actions"]</th>
                             <th>Output</th>
                         </tr>
@@ -104,9 +104,9 @@
                                 <td>
                                     @await Html.PartialAsync("_ProgressBar", Tuple.Create(item.FieldMonitoring, fieldMonitoringClass))
                                 </td>
-                                <td>
+                            @*     <td>
                                     @await Html.PartialAsync("_ProgressBar", Tuple.Create(item.ImpactAssessment, impactAssessmentClass))
-                                </td>
+                                </td> *@
                                 <td>
                                     <a href="/Outputs/Index/@item.OutputCode" class="text-decoration-none">@item.Output.Name</a>
                                 </td>

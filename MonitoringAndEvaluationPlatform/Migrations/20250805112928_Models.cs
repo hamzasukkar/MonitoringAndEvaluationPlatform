@@ -85,11 +85,30 @@ namespace MonitoringAndEvaluationPlatform.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "Goals",
+                columns: table => new
+                {
+                    Code = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    EN_Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    AR_Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    IndicatorsPerformance = table.Column<double>(type: "float", nullable: false),
+                    DisbursementPerformance = table.Column<double>(type: "float", nullable: false),
+                    FieldMonitoring = table.Column<double>(type: "float", nullable: false),
+                    ImpactAssessment = table.Column<double>(type: "float", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Goals", x => x.Code);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "Governorates",
                 columns: table => new
                 {
                     Code = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    Name = table.Column<string>(type: "nvarchar(max)", nullable: false)
+                    EN_Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    AR_Name = table.Column<string>(type: "nvarchar(max)", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -285,11 +304,37 @@ namespace MonitoringAndEvaluationPlatform.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "Targets",
+                columns: table => new
+                {
+                    Code = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    EN_Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    AR_Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    IndicatorsPerformance = table.Column<double>(type: "float", nullable: false),
+                    DisbursementPerformance = table.Column<double>(type: "float", nullable: false),
+                    FieldMonitoring = table.Column<double>(type: "float", nullable: false),
+                    ImpactAssessment = table.Column<double>(type: "float", nullable: false),
+                    GoalCode = table.Column<int>(type: "int", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Targets", x => x.Code);
+                    table.ForeignKey(
+                        name: "FK_Targets_Goals_GoalCode",
+                        column: x => x.GoalCode,
+                        principalTable: "Goals",
+                        principalColumn: "Code",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "Districts",
                 columns: table => new
                 {
                     Code = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    EN_Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    AR_Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     GovernorateCode = table.Column<string>(type: "nvarchar(450)", nullable: false)
                 },
                 constraints: table =>
@@ -314,6 +359,7 @@ namespace MonitoringAndEvaluationPlatform.Migrations
                     RealBudget = table.Column<double>(type: "float", nullable: false),
                     ProjectManagerCode = table.Column<int>(type: "int", nullable: false),
                     SuperVisorCode = table.Column<int>(type: "int", nullable: false),
+                    GoalCode = table.Column<int>(type: "int", nullable: true),
                     StartDate = table.Column<DateTime>(type: "datetime2", nullable: false),
                     EndDate = table.Column<DateTime>(type: "datetime2", nullable: false),
                     performance = table.Column<double>(type: "float", nullable: false),
@@ -326,6 +372,11 @@ namespace MonitoringAndEvaluationPlatform.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Projects", x => x.ProjectID);
+                    table.ForeignKey(
+                        name: "FK_Projects_Goals_GoalCode",
+                        column: x => x.GoalCode,
+                        principalTable: "Goals",
+                        principalColumn: "Code");
                     table.ForeignKey(
                         name: "FK_Projects_ProjectManagers_ProjectManagerCode",
                         column: x => x.ProjectManagerCode,
@@ -366,11 +417,40 @@ namespace MonitoringAndEvaluationPlatform.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "sDGIndicators",
+                columns: table => new
+                {
+                    IndicatorCode = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    EN_Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    AR_Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Source = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    IndicatorsPerformance = table.Column<double>(type: "float", nullable: false),
+                    DisbursementPerformance = table.Column<double>(type: "float", nullable: false),
+                    FieldMonitoring = table.Column<double>(type: "float", nullable: false),
+                    ImpactAssessment = table.Column<double>(type: "float", nullable: false),
+                    TargetCode = table.Column<int>(type: "int", nullable: false),
+                    IsCommon = table.Column<bool>(type: "bit", nullable: false),
+                    Active = table.Column<bool>(type: "bit", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_sDGIndicators", x => x.IndicatorCode);
+                    table.ForeignKey(
+                        name: "FK_sDGIndicators_Targets_TargetCode",
+                        column: x => x.TargetCode,
+                        principalTable: "Targets",
+                        principalColumn: "Code",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "SubDistricts",
                 columns: table => new
                 {
                     Code = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    EN_Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    AR_Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     DistrictCode = table.Column<string>(type: "nvarchar(450)", nullable: false)
                 },
                 constraints: table =>
@@ -597,7 +677,8 @@ namespace MonitoringAndEvaluationPlatform.Migrations
                 columns: table => new
                 {
                     Code = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    EN_Name = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    AR_Name = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     SubDistrictCode = table.Column<string>(type: "nvarchar(450)", nullable: false)
                 },
                 constraints: table =>
@@ -992,6 +1073,11 @@ namespace MonitoringAndEvaluationPlatform.Migrations
                 column: "ProjectsProjectID");
 
             migrationBuilder.CreateIndex(
+                name: "IX_Projects_GoalCode",
+                table: "Projects",
+                column: "GoalCode");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Projects_ProjectManagerCode",
                 table: "Projects",
                 column: "ProjectManagerCode");
@@ -1012,6 +1098,11 @@ namespace MonitoringAndEvaluationPlatform.Migrations
                 column: "projectsProjectID");
 
             migrationBuilder.CreateIndex(
+                name: "IX_sDGIndicators_TargetCode",
+                table: "sDGIndicators",
+                column: "TargetCode");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_SubDistricts_DistrictCode",
                 table: "SubDistricts",
                 column: "DistrictCode");
@@ -1020,6 +1111,11 @@ namespace MonitoringAndEvaluationPlatform.Migrations
                 name: "IX_SubOutputs_OutputCode",
                 table: "SubOutputs",
                 column: "OutputCode");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Targets_GoalCode",
+                table: "Targets",
+                column: "GoalCode");
         }
 
         /// <inheritdoc />
@@ -1077,6 +1173,9 @@ namespace MonitoringAndEvaluationPlatform.Migrations
                 name: "ProjectSubDistricts");
 
             migrationBuilder.DropTable(
+                name: "sDGIndicators");
+
+            migrationBuilder.DropTable(
                 name: "AspNetRoles");
 
             migrationBuilder.DropTable(
@@ -1104,6 +1203,9 @@ namespace MonitoringAndEvaluationPlatform.Migrations
                 name: "Sectors");
 
             migrationBuilder.DropTable(
+                name: "Targets");
+
+            migrationBuilder.DropTable(
                 name: "logicalFrameworks");
 
             migrationBuilder.DropTable(
@@ -1123,6 +1225,9 @@ namespace MonitoringAndEvaluationPlatform.Migrations
 
             migrationBuilder.DropTable(
                 name: "Outputs");
+
+            migrationBuilder.DropTable(
+                name: "Goals");
 
             migrationBuilder.DropTable(
                 name: "ProjectManagers");

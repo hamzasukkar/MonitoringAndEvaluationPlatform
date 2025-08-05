@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Identity;
@@ -106,6 +107,9 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             var ministries = _context.Ministries.ToList();
             var supervisors = _context.SuperVisors.ToList();
             var projectManagers = _context.ProjectManagers.ToList();
+            var goals= _context.Goals.ToList();
+            var isArabic = CultureInfo.CurrentUICulture.TwoLetterISOLanguageName == "ar";
+
 
             ViewBag.Governorates = _context.Governorates.ToList();
 
@@ -120,7 +124,8 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 //MinistryCode = ministries.FirstOrDefault()?.Code ?? 0,
                 SuperVisorCode = supervisors.FirstOrDefault()?.Code ?? 0,
                 ProjectManagerCode = projectManagers.FirstOrDefault()?.Code ?? 0,
-                Sectors = sectors.Take(1).ToList()
+                Sectors = sectors.Take(1).ToList(),
+                GoalCode= goals.FirstOrDefault()?.Code ?? 0,
             };
 
             var firstSectorCode = sectors.FirstOrDefault()?.Code;
@@ -132,6 +137,11 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             ViewBag.MinistryList = new MultiSelectList(ministries, "Code", "MinistryDisplayName", new List<int> { firstMinistryCode ?? 0 });
             ViewBag.SuperVisor = new SelectList(supervisors, "Code", "Name");
             ViewBag.ProjectManager = new SelectList(projectManagers, "Code", "Name");
+            ViewBag.Goals = new SelectList(
+                goals,
+                "Code",
+                isArabic ? "AR_Name" : "EN_Name"
+            );
 
             return View(project);
         }
@@ -147,6 +157,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         {
             // Deserialize JSON string into a list of location selection objects
             var selectedLocations = JsonConvert.DeserializeObject<List<LocationSelectionViewModel>>(selections);
+            var isArabic = CultureInfo.CurrentUICulture.TwoLetterISOLanguageName == "ar";
 
             // Initialize navigation collections if necessary
             project.Governorates = new List<Governorate>();
@@ -183,6 +194,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             ModelState.Remove(nameof(Project.Districts));
             ModelState.Remove(nameof(Project.SubDistricts));
             ModelState.Remove(nameof(Project.Governorates));
+            ModelState.Remove(nameof(Project.Goal));
 
             if (PlansCount < 1)
             {
@@ -202,6 +214,11 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 ViewBag.SuperVisor = new SelectList(_context.SuperVisors, "Code", "FullName");
                 ViewBag.Ministry = new SelectList(_context.Ministries, "Code", "Name");
                 ViewBag.Donor = new SelectList(_context.Donors, "Code", "Name");
+                ViewBag.Goals = new SelectList(
+                 _context.Goals,
+                 "Code",
+                 isArabic ? "AR_Name" : "EN_Name"
+             );
 
                 return View(project);
             }
@@ -308,6 +325,12 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 // Include only the most essential relationships initially
                 .Include(p => p.ProjectManager)
                 .Include(p => p.SuperVisor)
+                .Include(p => p.Governorates)
+                .Include(p => p.Districts)
+                .Include(p => p.SubDistricts)
+                .Include(p => p.Communities)
+                .Include(p => p.Sectors)
+                .Include(p => p.Goal)
                 .FirstOrDefaultAsync(m => m.ProjectID == id);
 
             if (project == null)
@@ -327,6 +350,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         // GET: Programs/Edit/5
         public async Task<IActionResult> Edit(int? id)
         {
+            var isArabic = CultureInfo.CurrentUICulture.TwoLetterISOLanguageName == "ar";
             if (id == null) return NotFound();
 
             // Load project + its Regions
@@ -344,13 +368,13 @@ namespace MonitoringAndEvaluationPlatform.Controllers
 
             // Build a list of selection DTOs containing names and codes
             var selectedLocations = project.Communities.Select(c => new {
-                GovernorateName = c.SubDistrict.District.Governorate.Name,
+                GovernorateName = c.SubDistrict.District.Governorate.EN_Name,
                 GovernorateCode = c.SubDistrict.District.Governorate.Code,
-                DistrictName = c.SubDistrict.District.Name,
+                DistrictName = c.SubDistrict.District.EN_Name,
                 DistrictCode = c.SubDistrict.District.Code,
-                SubDistrictName = c.SubDistrict.Name,
+                SubDistrictName = c.SubDistrict.EN_Name,
                 SubDistrictCode = c.SubDistrict.Code,
-                CommunityName = c.Name,
+                CommunityName = c.EN_Name,
                 CommunityCode = c.Code
             }).ToList();
 
@@ -407,6 +431,11 @@ namespace MonitoringAndEvaluationPlatform.Controllers
 
             ViewBag.ProjectManager = new SelectList(await _context.ProjectManagers.ToListAsync(), "Code", "Name", project.ProjectManagerCode);
             ViewBag.SuperVisor = new SelectList(await _context.SuperVisors.ToListAsync(), "Code", "Name", project.SuperVisorCode);
+            ViewBag.Goals = new SelectList(
+                await _context.Goals.ToListAsync(),
+                "Code",
+                isArabic ? "AR_Name" : "EN_Name"
+            );
             return View(project);
         }
         [HttpPost]
@@ -477,6 +506,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             ModelState.Remove(nameof(Project.SubDistricts));
             ModelState.Remove(nameof(Project.Communities));
             ModelState.Remove(nameof(Project.ActionPlan));
+            ModelState.Remove(nameof(Project.Goal));
 
             if (!ModelState.IsValid)
             {
@@ -494,6 +524,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 .Include(p => p.Districts)
                 .Include(p => p.SubDistricts)
                 .Include(p => p.Communities)
+                .Include(p => p.Goal)
                 .FirstOrDefaultAsync(p => p.ProjectID == id);
 
             if (dbProject == null)
@@ -512,6 +543,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             dbProject.Communities = project.Communities;
             dbProject.ProjectManagerCode = project.ProjectManagerCode;
             dbProject.SuperVisorCode = project.SuperVisorCode;
+            dbProject.GoalCode = project.GoalCode;
 
 
 

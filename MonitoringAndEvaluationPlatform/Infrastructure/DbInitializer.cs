@@ -74,6 +74,30 @@ namespace MonitoringAndEvaluationPlatform.Infrastructure
                     context.ProjectManagers.AddRange(projectManagers);
                 }
 
+                var goals = new List<Goal>
+                    {
+                        new Goal { EN_Name = "No Poverty", AR_Name = "القضاء على الفقر" },
+                        new Goal { EN_Name = "Zero Hunger", AR_Name = "القضاء التام على الجوع" },
+                        new Goal { EN_Name = "Good Health and Well‑being", AR_Name = "الصحة الجيدة والرفاه" },
+                        new Goal { EN_Name = "Quality Education", AR_Name = "التعليم الجيد" },
+                        new Goal { EN_Name = "Gender Equality", AR_Name = "المساواة بين الجنسين" },
+                        new Goal { EN_Name = "Clean Water and Sanitation", AR_Name = "المياه النظيفة والنظافة الصحية" },
+                        new Goal { EN_Name = "Affordable and Clean Energy", AR_Name = "طاقة نظيفة وبأسعار معقولة" },
+                        new Goal { EN_Name = "Decent Work and Economic Growth", AR_Name = "العمل اللائق ونمو الاقتصاد" },
+                        new Goal { EN_Name = "Industry, Innovation and Infrastructure", AR_Name = "الصناعة والابتكار والهياكل الأساسية" },
+                        new Goal { EN_Name = "Reduced Inequalities", AR_Name = "الحد من أوجه عدم المساواة" },
+                        new Goal { EN_Name = "Sustainable Cities and Communities", AR_Name = "مدن ومجتمعات محلية مستدامة" },
+                        new Goal { EN_Name = "Responsible Consumption and Production", AR_Name = "الاستهلاك والإنتاج المسؤولان" },
+                        new Goal { EN_Name = "Climate Action", AR_Name = "العمل المناخي" },
+                        new Goal { EN_Name = "Life Below Water", AR_Name = "الحياة تحت الماء" },
+                        new Goal { EN_Name = "Life on Land", AR_Name = "الحياة في البر" },
+                        new Goal { EN_Name = "Peace, Justice and Strong Institutions", AR_Name = "السلام والعدل والمؤسسات القوية" },
+                        new Goal { EN_Name = "Partnerships for the Goals", AR_Name = "عقد الشراكات لتحقيق الأهداف" },
+                    };
+
+                context.Goals.AddRange(goals);
+
+
                 if (!context.Ministries.Any())
                 {
                     var ministries = new List<Ministry>

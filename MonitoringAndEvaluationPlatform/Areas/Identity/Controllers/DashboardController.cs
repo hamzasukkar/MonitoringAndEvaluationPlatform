@@ -306,7 +306,7 @@ public class DashboardController : Controller
 
         var districts = _context.Districts
             .Where(d => codes.Contains(d.GovernorateCode))
-            .Select(d => new { d.Code, d.Name })
+            .Select(d => new { d.Code, d.EN_Name, d.AR_Name })
             .ToList();
 
         return Json(districts);
@@ -327,7 +327,7 @@ public class DashboardController : Controller
         // 3. Use .Contains() in the Where clause to find all matching sub-districts
         var subDistricts = _context.SubDistricts
                                .Where(s => codes.Contains(s.DistrictCode))
-                               .Select(s => new { s.Code, s.Name })
+                               .Select(s => new { s.Code, s.AR_Name })
                                .ToList();
 
         return Json(subDistricts);
@@ -350,7 +350,7 @@ public class DashboardController : Controller
                                   .Where(c => codes.Contains(c.SubDistrictCode))
                                   // Corrected from 'Code = c.SubDistrictCode' to 'Code = c.Code'
                                   // to return the unique code of the community itself.
-                                  .Select(c => new { c.Code, c.Name })
+                                  .Select(c => new { c.Code, c.AR_Name })
                                   .ToList();
 
         return Json(communities);
@@ -361,7 +361,7 @@ public class DashboardController : Controller
     {
         var list = _context.Districts
                        .Where(d => d.GovernorateCode == governorateCode)
-                       .Select(d => new { d.Code, d.Name })
+                       .Select(d => new { d.Code, d.AR_Name })
                        .ToList();
         return Json(list);
     }

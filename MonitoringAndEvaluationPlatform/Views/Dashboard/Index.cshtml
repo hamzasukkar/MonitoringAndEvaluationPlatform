@@ -73,7 +73,7 @@
 					<option disabled selected value="">-- Select Governorate --</option>
 					@foreach (var gov in Model.Governorates)
 					{
-						<option value="@gov.Code">@gov.Name</option>
+						<option value="@gov.Code">@gov.AR_Name</option>
 					}
 				</select>
 			</div>
@@ -485,7 +485,7 @@
 		items.forEach(i => {
 			const opt = document.createElement('option');
 			opt.value = i.code;
-			opt.textContent = i.name;
+			opt.textContent = i.aR_Name;
 			dd.appendChild(opt);
 		});
 		dd.disabled = false;
