@@ -65,7 +65,7 @@
                             <th>@Localizer["Weight"]</th>
                             <th>@Localizer["Indicators Performance"]</th>
                             <th>@Localizer["Disbursement Performance"]</th>
-                            <th>@Localizer["Field Monitoring"]</th>
+                            @* <th>@Localizer["Field Monitoring"]</th> *@
                         @*     <th>@Localizer["Impact Assessment"]</th> *@
                             <th>@Localizer["Output Name"]</th>
                             <th class="text-end">@Localizer["Actions"]</th>
@@ -110,7 +110,7 @@
 
                             <tr>
                                 <td>
-                                    <a asp-action="Index" asp-controller="SubOutputs" asp-route-outputCode="@item.Code" class="text-decoration-none">
+                                    <a style="color:#fff" asp-action="Index" asp-controller="SubOutputs" asp-route-outputCode="@item.Code" class="text-decoration-none">
                                         <strong>@item.Name</strong>
                                     </a>
                                 </td>
@@ -123,14 +123,16 @@
                                 <td>
                                     @await Html.PartialAsync("_ProgressBar", Tuple.Create(item.DisbursementPerformance, disbursementClass))
                                 </td>
+                                @* 
                                 <td>
                                     @await Html.PartialAsync("_ProgressBar", Tuple.Create(item.FieldMonitoring, fieldMonitoringClass))
                                 </td>
-                             @*    <td>
+                              <td>
                                     @await Html.PartialAsync("_ProgressBar", Tuple.Create(item.ImpactAssessment, impactAssessmentClass))
-                                </td> *@
+                                </td> 
+                                *@
                                 <td>
-                                    <a href="/Outcomes/Index/@item.OutcomeCode" class="text-decoration-none">@item.Outcome.Name</a>
+                                    <a style="color:#fff"  href="/Outcomes/Index/@item.OutcomeCode" class="text-decoration-none">@item.Outcome.Name</a>
                                 </td>
                                 <td class="text-end">
                                     <div class="btn-group" role="group">

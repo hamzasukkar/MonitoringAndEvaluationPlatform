@@ -1,4 +1,8 @@
 ﻿@model IEnumerable<MonitoringAndEvaluationPlatform.Models.Donor>
+@using MonitoringAndEvaluationPlatform.Helpers
+@using Microsoft.AspNetCore.Mvc.Localization
+@inject IViewLocalizer Localizer
+@using Microsoft.AspNetCore.Localization
 
 @{
 	ViewData["Title"] = "Index";
@@ -16,45 +20,41 @@
 			<th>
 				@Html.DisplayNameFor(model => model.Partner)
 			</th>
-			@*    <th>
-                @Html.DisplayNameFor(model => model.DisbursementPerformance)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.FieldMonitoring)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.ImpactAssessment)
-            </th> *@
+            <th>@Localizer["Indicators Performance"]</th>
+            <th>@Localizer["Disbursement Performance"]</th>
 			<th></th>
 		</tr>
 	</thead>
-	<tbody>
-		@foreach (var item in Model)
-		{
-			<tr>
-				<td>
-					@Html.DisplayFor(modelItem => item.Partner)
-				</td>
-				@*             <td>
-                @Html.DisplayFor(modelItem => item.DisbursementPerformance)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.FieldMonitoring)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.ImpactAssessment)
-            </td> *@
-				<td class="text-end">
-					<div class="btn-group" role="group">
-						<a asp-action="Edit" asp-route-id="@item.Code" class="btn btn-sm btn-outline-warning" title="Edit">
-							<i class="fas fa-edit"></i>
-						</a>
-						<a asp-action="Delete" asp-route-id="@item.Code" class="btn btn-sm btn-outline-danger" title="Delete">
-							<i class="fas fa-trash-alt"></i>
-						</a>
-					</div>
-				</td>
-			</tr>
-		}
-	</tbody>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            string indicatorsClass = ProgressBarHelper.GetProgressBarClass(item.IndicatorsPerformance);
+            string disbursementClass = ProgressBarHelper.GetProgressBarClass(item.DisbursementPerformance);
+            string fieldMonitoringClass = ProgressBarHelper.GetProgressBarClass(item.FieldMonitoring);
+            string impactAssessmentClass = ProgressBarHelper.GetProgressBarClass(item.ImpactAssessment);
+            double IndicatorsPerformance = Math.Round(item.IndicatorsPerformance, 0);
+
+            <tr>
+                <td>
+                    <strong>@Html.DisplayFor(modelItem => item.Partner)</strong>
+                </td>
+                <td>
+                    @await Html.PartialAsync("_ProgressBar", Tuple.Create(IndicatorsPerformance, indicatorsClass))
+                </td>
+                <td>
+                    @await Html.PartialAsync("_ProgressBar", Tuple.Create(item.DisbursementPerformance, disbursementClass))
+                </td>
+                <td class="text-end">
+                    <div class="btn-group" role="group">
+                        <a asp-action="Edit" asp-route-id="@item.Code" class="btn btn-sm btn-outline-warning" title="Edit">
+                            <i class="fas fa-edit"></i>
+                        </a>
+                        <a asp-action="Delete" asp-route-id="@item.Code" class="btn btn-sm btn-outline-danger" title="Delete">
+                            <i class="fas fa-trash-alt"></i>
+                        </a>
+                    </div>
+                </td>
+            </tr>
+        }
+    </tbody>
 </table>

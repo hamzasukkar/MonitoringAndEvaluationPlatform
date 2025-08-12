@@ -93,10 +93,10 @@
                                 <tr>
                                     <th>@Localizer["Project Name"]</th>
                                     <th>@Localizer["Performance"]</th>
-                                    <th>@Localizer["Financial"]</th>
+                                    <th>@Localizer["Disbursement"]</th>
                                     @* 
-                                    <th>Physical</th>
-                                   <th>Disbursement</th>
+                                    <th>@Localizer["Financial"]</th>
+                                    <th>Physical</th>                           
                                     <th>Monitoring</th>
                                     <th>Impact</th> *@
                                     <th class="text-end">@Localizer["Actions"]</th>
@@ -117,7 +117,17 @@
                                                      performance >= 30 ? "warning" : "danger"
                                                      ))
                                         </td>  
+                                   
                                         <td>
+                                            @await Html.PartialAsync("_ProgressBar", new Tuple<double, string>(
+                                                     item.DisbursementPerformance,
+                                                     item.DisbursementPerformance >= 80 ? "success" :
+                                                     item.DisbursementPerformance >= 50 ? "info" :
+                                                     item.DisbursementPerformance >= 30 ? "warning" : "danger"
+                                                     ))
+                                        </td>
+                                        @* 
+                                         <td>
                                             @await Html.PartialAsync("_ProgressBar", new Tuple<double, string>(
                                                      item.Financial,
                                                      item.Financial >= 80 ? "success" :
@@ -125,7 +135,6 @@
                                                      item.Financial >= 30 ? "warning" : "danger"
                                                      ))
                                         </td>
-                                        @* 
                                         <td>
                                             @await Html.PartialAsync("_ProgressBar", new Tuple<double, string>(
                                                      item.Physical,
@@ -134,14 +143,7 @@
                                                      item.Physical >= 30 ? "warning" : "danger"
                                                      ))
                                         </td>
-                                     <td>
-                                            @await Html.PartialAsync("_ProgressBar", new Tuple<double, string>(
-                                                     item.DisbursementPerformance,
-                                                     item.DisbursementPerformance >= 80 ? "success" :
-                                                     item.DisbursementPerformance >= 50 ? "info" :
-                                                     item.DisbursementPerformance >= 30 ? "warning" : "danger"
-                                                     ))
-                                        </td>
+                                
                                         <td>
                                             @await Html.PartialAsync("_ProgressBar", new Tuple<double, string>(
                                                      item.FieldMonitoring,

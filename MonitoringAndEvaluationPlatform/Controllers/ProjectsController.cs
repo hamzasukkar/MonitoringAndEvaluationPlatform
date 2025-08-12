@@ -325,11 +325,6 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 // Include only the most essential relationships initially
                 .Include(p => p.ProjectManager)
                 .Include(p => p.SuperVisor)
-                .Include(p => p.Governorates)
-                .Include(p => p.Districts)
-                .Include(p => p.SubDistricts)
-                .Include(p => p.Communities)
-                .Include(p => p.Sectors)
                 .Include(p => p.Goal)
                 .FirstOrDefaultAsync(m => m.ProjectID == id);
 
@@ -341,6 +336,11 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             // Explicitly load other collections only if needed later in the view
             await _context.Entry(project).Collection(p => p.Donors).LoadAsync();
             await _context.Entry(project).Collection(p => p.Ministries).LoadAsync();
+            await _context.Entry(project).Collection(p => p.Governorates).LoadAsync();
+            await _context.Entry(project).Collection(p => p.Districts).LoadAsync();
+            await _context.Entry(project).Collection(p => p.SubDistricts).LoadAsync();
+            await _context.Entry(project).Collection(p => p.Communities).LoadAsync();
+            await _context.Entry(project).Collection(p => p.Sectors).LoadAsync();
             // ... and so on for other collections
 
             return View(project);
@@ -355,14 +355,21 @@ namespace MonitoringAndEvaluationPlatform.Controllers
 
             // Load project + its Regions
             var project = await _context.Projects
-                .Include(p => p.Sectors)
-                .Include(p => p.Donors)
-                .Include(p => p.Ministries)
-                .Include(p => p.Communities)
-                .ThenInclude(c => c.SubDistrict)
-                .ThenInclude(sd => sd.District)
-                .ThenInclude(d => d.Governorate)
+                .Include(p => p.ProjectManager)
+                .Include(p => p.SuperVisor)
+                .Include(p => p.Goal)
                 .FirstOrDefaultAsync(p => p.ProjectID == id.Value);
+
+
+            // Explicitly load other collections only if needed later in the view
+            await _context.Entry(project).Collection(p => p.Donors).LoadAsync();
+            await _context.Entry(project).Collection(p => p.Ministries).LoadAsync();
+            await _context.Entry(project).Collection(p => p.Governorates).LoadAsync();
+            await _context.Entry(project).Collection(p => p.Districts).LoadAsync();
+            await _context.Entry(project).Collection(p => p.SubDistricts).LoadAsync();
+            await _context.Entry(project).Collection(p => p.Communities).LoadAsync();
+            await _context.Entry(project).Collection(p => p.Sectors).LoadAsync();
+            // ... and so on for other collections
 
             if (project == null) return NotFound();
 

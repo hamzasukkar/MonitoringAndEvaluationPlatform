@@ -61,21 +61,21 @@
                                 <!-- Budget -->
                                 <div class="row">
                                     <div class="col-md-6 mb-3">
-                                        <label asp-for="EstimatedBudget" class="form-label">Estimated Budget</label>
+                                        <label asp-for="EstimatedBudget" class="form-label">@Localizer["Estimated Budget"]</label>
                                         <div class="input-group">
                                             <span class="input-group-text">$</span>
                                             <input asp-for="EstimatedBudget" class="form-control" />
                                         </div>
                                         <span asp-validation-for="EstimatedBudget" class="text-danger small"></span>
                                     </div>
-                                    <div class="col-md-6 mb-3">
+                              @*       <div class="col-md-6 mb-3">
                                         <label asp-for="RealBudget" class="form-label">Real Budget</label>
                                         <div class="input-group">
                                             <span class="input-group-text">$</span>
                                             <input asp-for="RealBudget" class="form-control" />
                                         </div>
                                         <span asp-validation-for="RealBudget" class="text-danger small"></span>
-                                    </div>
+                                    </div> *@
                                 </div>
 
 

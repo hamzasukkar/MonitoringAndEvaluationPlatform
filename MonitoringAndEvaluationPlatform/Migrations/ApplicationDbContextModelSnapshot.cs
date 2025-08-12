@@ -403,14 +403,17 @@ namespace MonitoringAndEvaluationPlatform.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Code"));
 
-                    b.Property<int>("DisbursementPerformance")
-                        .HasColumnType("int");
+                    b.Property<double>("DisbursementPerformance")
+                        .HasColumnType("float");
 
-                    b.Property<int>("FieldMonitoring")
-                        .HasColumnType("int");
+                    b.Property<double>("FieldMonitoring")
+                        .HasColumnType("float");
 
-                    b.Property<int>("ImpactAssessment")
-                        .HasColumnType("int");
+                    b.Property<double>("ImpactAssessment")
+                        .HasColumnType("float");
+
+                    b.Property<double>("IndicatorsPerformance")
+                        .HasColumnType("float");
 
                     b.Property<string>("Partner")
                         .IsRequired()
@@ -1038,6 +1041,18 @@ namespace MonitoringAndEvaluationPlatform.Migrations
                         .HasColumnType("int");
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Code"));
+
+                    b.Property<double>("DisbursementPerformance")
+                        .HasColumnType("float");
+
+                    b.Property<double>("FieldMonitoring")
+                        .HasColumnType("float");
+
+                    b.Property<double>("ImpactAssessment")
+                        .HasColumnType("float");
+
+                    b.Property<double>("IndicatorsPerformance")
+                        .HasColumnType("float");
 
                     b.Property<string>("Name")
                         .IsRequired()

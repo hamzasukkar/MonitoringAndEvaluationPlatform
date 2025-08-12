@@ -25,9 +25,18 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         }
 
         // GET: Ministries
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(int? ministryCode)
         {
-            return View(await _context.Ministries.ToListAsync());
+            IQueryable<Ministry> query = _context.Ministries;
+
+            if (ministryCode.HasValue)
+            {
+                // Show only the ministry with the given code
+                query = query.Where(m => m.Code == ministryCode.Value);
+            }
+
+            var ministries = await query.ToListAsync();
+            return View(ministries);
         }
 
         // GET: Ministries/Details/5

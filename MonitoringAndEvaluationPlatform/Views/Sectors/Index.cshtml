@@ -1,4 +1,9 @@
 ﻿@model IEnumerable<MonitoringAndEvaluationPlatform.Models.Sector>
+@using MonitoringAndEvaluationPlatform.Helpers
+@using Microsoft.AspNetCore.Mvc.Localization
+@inject IViewLocalizer Localizer
+@using Microsoft.AspNetCore.Localization
+
 
 @{
     ViewData["Title"] = "Index";
@@ -16,15 +21,30 @@
             <th>
                 @Html.DisplayNameFor(model => model.Name)
             </th>
+            <th>@Localizer["Indicators Performance"]</th>
+            <th>@Localizer["Disbursement Performance"]</th>
             <th></th>
         </tr>
     </thead>
     <tbody>
-@foreach (var item in Model) {
-        <tr>
-            <td>
-                @Html.DisplayFor(modelItem => item.Name)
-            </td>
+        @foreach (var item in Model)
+        {
+            string indicatorsClass = ProgressBarHelper.GetProgressBarClass(item.IndicatorsPerformance);
+            string disbursementClass = ProgressBarHelper.GetProgressBarClass(item.DisbursementPerformance);
+            string fieldMonitoringClass = ProgressBarHelper.GetProgressBarClass(item.FieldMonitoring);
+            string impactAssessmentClass = ProgressBarHelper.GetProgressBarClass(item.ImpactAssessment);
+            double IndicatorsPerformance = Math.Round(item.IndicatorsPerformance, 0);
+
+            <tr>
+                <td>
+                    <strong>@Html.DisplayFor(modelItem => item.Name)</strong>
+                </td>
+                <td>
+                    @await Html.PartialAsync("_ProgressBar", Tuple.Create(IndicatorsPerformance, indicatorsClass))
+                </td>
+                <td>
+                    @await Html.PartialAsync("_ProgressBar", Tuple.Create(item.DisbursementPerformance, disbursementClass))
+                </td>
                 <td class="text-end">
                     <div class="btn-group" role="group">
                         <a asp-action="Edit" asp-route-id="@item.Code" class="btn btn-sm btn-outline-warning" title="Edit">
@@ -35,8 +55,7 @@
                         </a>
                     </div>
                 </td>
-
-        </tr>
-}
+            </tr>
+        }
     </tbody>
 </table>

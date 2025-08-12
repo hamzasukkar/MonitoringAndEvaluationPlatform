@@ -15,7 +15,7 @@
 				<h5 class="card-title">@Localizer["Total Frameworks"]</h5>
 				<h2 class="fw-bold" id="totalFrameworks">@Model.TotalFrameworks</h2>
 				<select id="frameworkFilter" class="form-select mt-3 text-dark">
-					<option disabled selected value="">-- Select Framework --</option>
+					<option disabled selected value="">-- @Localizer["Select Framework"] --</option>
 					@foreach (var fw in Model.Frameworks)
 					{
 						<option value="@fw.Code">@fw.Name</option>
@@ -33,7 +33,7 @@
 				<h5 class="card-title">@Localizer["Total Projects"]</h5>
 				<h2 id="totalProjects" class="fw-bold">@Model.TotalProjects</h2>
 				<select id="projectFilter" class="form-select mt-3">
-					<option disabled selected>-- Select Project --</option>
+					<option disabled selected>-- @Localizer["Select Project"] --</option>
 					@foreach (var proj in Model.Projects)
 					{
 						<option value="@proj.ProjectID">@proj.ProjectName</option>
@@ -51,7 +51,7 @@
 				<h5 class="card-title">@Localizer["Total Ministries"]</h5>
 				<h2 id="totalMinistries" class="fw-bold">@Model.TotlalMinistries</h2>
 				<select id="ministryFilter" class="form-select mt-3 text-dark">
-					<option disabled selected value="">-- Select Ministry --</option>
+					<option disabled selected value="">-- @Localizer["Select Ministry"] --</option>
 					@foreach (var min in Model.Ministries)
 					{
 						<option value="@min.Code">@min.MinistryDisplayName</option>
@@ -70,7 +70,7 @@
 				<h5 class="card-title">@Localizer["Total Governorates"]</h5>
 				<h2 class="fw-bold">@Model.TotalGovernorate</h2>
 				<select id="governorateFilter" class="form-select mt-3 text-dark" multiple>
-					<option disabled selected value="">-- Select Governorate --</option>
+					<option disabled selected value="">-- @Localizer["Select Governorate"] --</option>
 					@foreach (var gov in Model.Governorates)
 					{
 						<option value="@gov.Code">@gov.AR_Name</option>
@@ -263,22 +263,22 @@
 		loadGauges();
 		// Initialize Select2 for governorate filter
 		$('#governorateFilter').select2({
-			placeholder: "-- Select Governorate(s) --",
+			placeholder: "-- @Localizer["Select Governorate"] --",
 			allowClear: true
 		});
 
 		$('#districtFilter').select2({
-			placeholder: "-- Select District(s) --",
+			placeholder: "-- @Localizer["Select District"] --",
 			allowClear: true
 		});
 
 		$('#subDistrictFilter').select2({
-			placeholder: "-- Select Sub District(s) --",
+			placeholder: "-- @Localizer["Select Sub District"] --",
 			allowClear: true
 		});
 
 		$('#communityFilter').select2({
-			placeholder: "-- Select community(s) --",
+			placeholder: "-- @Localizer["Select Community"] --",
 			allowClear: true
 		});
 

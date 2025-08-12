@@ -39,7 +39,7 @@
                             <i class="fas fa-sitemap me-1"></i> @Localizer["National Development Strategy"]
                         </a>
                         <ul class="dropdown-menu" aria-labelledby="policiesDropdown">
-                            @foreach (var framework in _context.Frameworks.Take(3).ToList())
+                            @foreach (var framework in _context.Frameworks.ToList())
                             {
                                 <li class="dropdown-submenu dropend">
                                     <a class="dropdown-item dropdown-toggle" href="#" id="framework-@framework.Code">
@@ -113,7 +113,7 @@
                             @foreach (var ministry in _context.Ministries.ToList())
                             {
                                 <li class="ministry-item">
-                                    <a class="dropdown-item" href="#" id="framework-@ministry.Code">
+                                    <a asp-controller="Ministries" asp-action="Index" asp-route-ministryCode="@ministry.Code" class="dropdown-item" id="framework-@ministry.Code">
                                         @ministry.MinistryDisplayName
                                     </a>
                                 </li>
@@ -129,7 +129,7 @@
                         <ul class="dropdown-menu p-2" aria-labelledby="SectorsDropdown" style="max-height: 300px; overflow-y: auto; min-width: 250px;">
                               
                                 <li class="ministry-item">
-                                    <a class="dropdown-item" href="#" id="">
+                                <a class="dropdown-item" asp-controller="Ministries" asp-action="Index">
                                     @Localizer["Public"]
                                     </a>
                                     <a class="dropdown-item" href="#" id="">
@@ -152,13 +152,13 @@
                         <ul class="dropdown-menu p-2" aria-labelledby="InternationalCooperationPartnersDropdown" style="max-height: 300px; overflow-y: auto; min-width: 250px;">
 
                             <li class="ministry-item">
-                                <a class="dropdown-item" href="#" id="">
+                                <a class="dropdown-item" asp-action="Index" asp-controller="UNorganizations">
                                     @Localizer["United Nations organizations"]
                                 </a>
                                 <a class="dropdown-item" href="#" id="">
                                     @Localizer["International non-governmental organizations"]
                                 </a>
-                                <a class="dropdown-item" href="#" id="">
+                                <a class="dropdown-item" asp-action="Index" asp-controller="DonorCountries">
                                     @Localizer["Countries"]
                                 </a>
                                 <a class="dropdown-item" href="#" id="">

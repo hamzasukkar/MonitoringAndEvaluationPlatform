@@ -62,14 +62,14 @@
                 <table class="table table-hover">
                     <thead class="table-light">
                         <tr>
-                            <th>SubOutput Name</th>
+                            <th>@Localizer["SubOutput Name"]</th>
                             <th>@Localizer["Weight"]</th>
                             <th>@Localizer["Indicators Performance"]</th>
                             <th>@Localizer["Disbursement Performance"]</th>
-                            <th>@Localizer["Field Monitoring"]</th>
+                            @* <th>@Localizer["Field Monitoring"]</th> *@
                            @*  <th>@Localizer["Impact Assessment"]</th> *@
+                            <th>@Localizer["Output"]</th>
                             <th class="text-end">@Localizer["Actions"]</th>
-                            <th>Output</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -84,7 +84,7 @@
                             <tr id="subOutput-row-@item.Code">
                                 <td>
                                     <span id="fw-name-@item.Code" class="fw-name-view">
-                                        <a asp-controller="Indicators" asp-action="Index"
+                                        <a style="color:#fff" asp-controller="Indicators" asp-action="Index"
                                            asp-route-frameworkCode="@item.Output.Outcome.FrameworkCode"
                                            asp-route-subOutputCode="@item.Code"
                                            class="text-decoration-none">
@@ -101,14 +101,15 @@
                                 <td>
                                     @await Html.PartialAsync("_ProgressBar", Tuple.Create(item.DisbursementPerformance, disbursementClass))
                                 </td>
+                                @*
                                 <td>
                                     @await Html.PartialAsync("_ProgressBar", Tuple.Create(item.FieldMonitoring, fieldMonitoringClass))
                                 </td>
-                            @*     <td>
+                              <td>
                                     @await Html.PartialAsync("_ProgressBar", Tuple.Create(item.ImpactAssessment, impactAssessmentClass))
                                 </td> *@
                                 <td>
-                                    <a href="/Outputs/Index/@item.OutputCode" class="text-decoration-none">@item.Output.Name</a>
+                                    <a style="color:#fff" href="/Outputs/Index/@item.OutputCode" class="text-decoration-none">@item.Output.Name</a>
                                 </td>
                                 <td class="text-end">
                                     <div class="btn-group" role="group">

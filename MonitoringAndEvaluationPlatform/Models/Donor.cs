@@ -9,8 +9,9 @@ namespace MonitoringAndEvaluationPlatform.Models
         public string Partner { get; set; }
 
         public ICollection<Project> Projects { get; set; } = new List<Project>();
-        public int DisbursementPerformance { get; set; } = 0;
-        public int FieldMonitoring { get; set; } = 0;
-        public int ImpactAssessment { get; set; } = 0;
+        public double IndicatorsPerformance { get; set; } = 0;
+        public double DisbursementPerformance { get; set; } = 0;
+        public double FieldMonitoring { get; set; } = 0;
+        public double ImpactAssessment { get; set; } = 0;
     }
 }
