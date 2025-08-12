@@ -37,9 +37,6 @@ namespace MonitoringAndEvaluationPlatform.Data
         public DbSet<Goal> Goals { get; set; }
         public DbSet<Target> Targets { get; set; }
         public DbSet<SDGIndicator> sDGIndicators { get; set; }
-        public DbSet<UNorganization> UNorganizations { get; set; }
-        public DbSet<DonorCountry> DonorCountries { get; set; }
-
 
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)

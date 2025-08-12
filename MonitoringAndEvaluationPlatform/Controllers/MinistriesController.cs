@@ -23,9 +23,15 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             _userManager = userManager;
             _roleManager = roleManager;
         }
+        // GET: Ministries
+        public async Task<IActionResult> Index()
+        {
+            var ministries = await _context.Ministries.ToListAsync();
+            return View(ministries);
+        }
 
         // GET: Ministries
-        public async Task<IActionResult> Index(int? ministryCode)
+        public async Task<IActionResult> ResultIndex(int? ministryCode)
         {
             IQueryable<Ministry> query = _context.Ministries;
 

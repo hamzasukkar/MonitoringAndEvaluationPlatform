@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using MonitoringAndEvaluationPlatform.Data;
+using MonitoringAndEvaluationPlatform.Enums;
 using MonitoringAndEvaluationPlatform.Models;
 
 namespace MonitoringAndEvaluationPlatform.Controllers
@@ -21,8 +22,19 @@ namespace MonitoringAndEvaluationPlatform.Controllers
 
         // GET: Donors
         public async Task<IActionResult> Index()
+
         {
+
             return View(await _context.Donors.ToListAsync());
+
+        }
+
+        // GET: Donors
+        public async Task<IActionResult> ResultIndex(DonorCategory donorCategory)
+        {
+            var donors = _context.Donors.Where(d => d.donorCategory == donorCategory);
+
+            return View(await donors.ToListAsync());
         }
 
         // GET: Donors/Details/5

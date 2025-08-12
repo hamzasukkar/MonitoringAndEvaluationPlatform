@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using MonitoringAndEvaluationPlatform.Data;
 
@@ -11,9 +12,11 @@ using MonitoringAndEvaluationPlatform.Data;
 namespace MonitoringAndEvaluationPlatform.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250812063833_organizations")]
+    partial class organizations
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -419,12 +422,38 @@ namespace MonitoringAndEvaluationPlatform.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("donorCategory")
-                        .HasColumnType("int");
-
                     b.HasKey("Code");
 
                     b.ToTable("Donors");
+                });
+
+            modelBuilder.Entity("MonitoringAndEvaluationPlatform.Models.DonorCountry", b =>
+                {
+                    b.Property<int>("Code")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Code"));
+
+                    b.Property<double>("DisbursementPerformance")
+                        .HasColumnType("float");
+
+                    b.Property<double>("FieldMonitoring")
+                        .HasColumnType("float");
+
+                    b.Property<double>("ImpactAssessment")
+                        .HasColumnType("float");
+
+                    b.Property<double>("IndicatorsPerformance")
+                        .HasColumnType("float");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Code");
+
+                    b.ToTable("DonorCountries");
                 });
 
             modelBuilder.Entity("MonitoringAndEvaluationPlatform.Models.Framework", b =>
@@ -1180,6 +1209,35 @@ namespace MonitoringAndEvaluationPlatform.Migrations
                     b.HasIndex("GoalCode");
 
                     b.ToTable("Targets");
+                });
+
+            modelBuilder.Entity("MonitoringAndEvaluationPlatform.Models.UNorganization", b =>
+                {
+                    b.Property<int>("Code")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Code"));
+
+                    b.Property<double>("DisbursementPerformance")
+                        .HasColumnType("float");
+
+                    b.Property<double>("FieldMonitoring")
+                        .HasColumnType("float");
+
+                    b.Property<double>("ImpactAssessment")
+                        .HasColumnType("float");
+
+                    b.Property<double>("IndicatorsPerformance")
+                        .HasColumnType("float");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Code");
+
+                    b.ToTable("UNorganizations");
                 });
 
             modelBuilder.Entity("ProjectSector", b =>

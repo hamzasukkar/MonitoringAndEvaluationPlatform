@@ -1,4 +1,4 @@
-﻿@model IEnumerable<MonitoringAndEvaluationPlatform.Models.DonorCountry>
+﻿@model IEnumerable<MonitoringAndEvaluationPlatform.Models.Donor>
 @using MonitoringAndEvaluationPlatform.Helpers
 @using Microsoft.AspNetCore.Mvc.Localization
 @inject IViewLocalizer Localizer
@@ -6,20 +6,13 @@
 
 @{
 	ViewData["Title"] = "Index";
-	Layout = "~/Views/Shared/_SetUpLayout.cshtml";
+    Layout = "~/Views/Shared/_ResultsFrameworkLayout.cshtml";
 }
 
-<h1>Index</h1>
-
-<p>
-	<a asp-action="Create">Create New</a>
-</p>
 <table class="table">
 	<thead>
 		<tr>
-			<th>
-				@Html.DisplayNameFor(model => model.Name)
-			</th>
+            <th> @Localizer["Partner"]</th>
             <th>@Localizer["Indicators Performance"]</th>
             <th>@Localizer["Disbursement Performance"]</th>
 			<th></th>
@@ -36,7 +29,7 @@
 
             <tr>
                 <td>
-                    <strong>@Html.DisplayFor(modelItem => item.Name)</strong>
+                    <strong>@Html.DisplayFor(modelItem => item.Partner)</strong>
                 </td>
                 <td>
                     @await Html.PartialAsync("_ProgressBar", Tuple.Create(IndicatorsPerformance, indicatorsClass))

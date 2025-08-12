@@ -25,6 +25,18 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             return View(await _context.Sectors.ToListAsync());
         }
 
+        public async Task<IActionResult> ResultIndex(int code)
+        {
+            var sector = await _context.Sectors.FirstOrDefaultAsync(s => s.Code == code);
+
+            if (sector == null)
+            {
+                return NotFound();
+            }
+
+            return View(new List<Sector> { sector });
+        }
+
         // GET: Sectors/Details/5
         public async Task<IActionResult> Details(int? id)
         {
