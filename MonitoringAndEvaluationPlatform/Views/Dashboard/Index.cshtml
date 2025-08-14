@@ -460,6 +460,33 @@
 			// If no governorates are selected, reset the framework count
 			document.getElementById('totalFrameworks').textContent = 0;
 		}
+
+	  // 3. if nothing selected, clear downstream filters
+	  if (!selectedGovCodes.length) {
+		resetDropdown('districtFilter');
+		resetDropdown('subDistrictFilter');
+		resetDropdown('communityFilter');
+		$('#districtCount').text('Total Districts: 0');
+		return;
+	  }
+
+	  // 4. dedupe your codes
+	  const uniqueGovCodes = Array.from(new Set(selectedGovCodes));
+
+	  // 5. fetch districts for ALL selected governorates
+	  fetch(
+		`/Dashboard/GetDistrictsByGovernorates?governorateCodes=${uniqueGovCodes.join(',')}`
+	  )
+		.then((resp) => resp.json())
+		.then((districts) => {
+		  // 6. repopulate the district dropdown, preserving any already‐picked districts
+		  populateDropdown('districtFilter', districts, /*preserveSelection=*/ true);
+
+		  // 7. update UI pieces
+		  $('#districtCount').text(`@Localizer["Total Districts"]: ${districts.length}`);
+		  $('#districtFilter').prop('disabled', districts.length === 0);
+		})
+		.catch((err) => console.error(err));
 	});
 
 	$('#districtFilter').on('change', function () {
@@ -480,7 +507,7 @@
 	  if (!selectedDistCodes.length) {
 		resetDropdown('subDistrictFilter');
 		resetDropdown('communityFilter');
-		$('#subDistrictCount').text('Total sub-Districts: 0');
+		$('#subDistrictCount').text('@Localizer["Total SubDistrict"] : 0');
 		$('#subDistrictFilter').prop('disabled', true);
 		return;
 	  }
@@ -499,7 +526,7 @@
 		  );
 
 		  // 6. Update count & disable state
-		  $('#subDistrictCount').text(`Total sub-Districts: ${subDistricts.length}`);
+		  $('#subDistrictCount').text(`@Localizer["Total SubDistrict"]: ${subDistricts.length}`);
 		  $('#subDistrictFilter').prop('disabled', !subDistricts.length);
 		})
 		.catch(console.error);
@@ -517,7 +544,7 @@
 			.then((r) => r.json())
 			.then((list) => {
 				populateDropdown('communityFilter', list);
-				document.getElementById('communityCount').innerText = `Total Communities: ${list.length}`;
+				document.getElementById('communityCount').innerText = `@Localizer["Total Communities"] : ${list.length}`;
 			})
 			.catch((e) => console.error(e));
 		});
@@ -535,9 +562,9 @@
 		resetDropdown('districtFilter');
 		resetDropdown('subDistrictFilter');
 		resetDropdown('communityFilter');
-		document.getElementById('districtCount').innerText = 'Total Districts: 0';
-		document.getElementById('subDistrictCount').innerText = 'Total sub-District: 0';
-		document.getElementById('communityCount').innerText = 'Total Communities: 0';
+		document.getElementById('districtCount').innerText = '@Localizer["Total Districts"] : 0';
+		document.getElementById('subDistrictCount').innerText = '@Localizer["Total SubDistrict"] : 0';
+		document.getElementById('communityCount').innerText = '@Localizer["Total Communities"] : 0';
 		loadGauges();
 	});
 
