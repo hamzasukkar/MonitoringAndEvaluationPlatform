@@ -856,5 +856,21 @@ public class DashboardController : Controller
 
         return Json(frameworks);
     }
+
+    [HttpGet]
+    public async Task<IActionResult> GetMinistriesByProject(int projectCode)
+    {
+        var ministries = await _context.Ministries
+            .Where(m => m.Projects.Any(p => p.ProjectID == projectCode))
+            .Select(m => new
+            {
+                id = m.Code,
+                name = m.MinistryDisplayName
+            })
+            .Distinct()
+            .ToListAsync();
+
+        return Json(ministries);
+    }
 }
 //totalTarget = Math.Round(totalTarget, 2),
