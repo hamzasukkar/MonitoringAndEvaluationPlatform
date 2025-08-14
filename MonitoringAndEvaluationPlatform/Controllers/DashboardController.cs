@@ -840,5 +840,21 @@ public class DashboardController : Controller
 
         return Json(projects);
     }
+
+    [HttpGet]
+    public async Task<IActionResult> GetFrameworksByProject(int projectCode)
+    {
+        var frameworks = await _context.Frameworks
+            .Where(f => f.Outcomes.Any(o => o.Outputs.Any(op => op.SubOutputs.Any(so => so.Indicators.Any(i => i.Measures.Any(m => m.ProjectID == projectCode))))))
+            .Select(f => new
+            {
+                code = f.Code,
+                name = f.Name
+            })
+            .Distinct()
+            .ToListAsync();
+
+        return Json(frameworks);
+    }
 }
 //totalTarget = Math.Round(totalTarget, 2),

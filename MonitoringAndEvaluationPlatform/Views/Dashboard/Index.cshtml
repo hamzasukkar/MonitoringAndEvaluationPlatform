@@ -379,11 +379,40 @@
 		}
 	});
 
-	
 
-	document.getElementById('projectFilter').addEventListener('change', function () {
+
+		document.getElementById('projectFilter').addEventListener('change', function () {
+		const projectCode = this.value;
 		const filters = getFilters();
+		filters.projectCode = projectCode;
+
+		// Load gauges with the new filter
 		loadGauges(filters.frameworkCode, filters.ministryCode, filters.projectCode, filters.governorateCode);
+
+		// Clear and reset the Frameworks dropdown and count
+		const frameworkDropdown = document.getElementById('frameworkFilter');
+		frameworkDropdown.innerHTML = '<option disabled selected value="">-- @Localizer["Select Framework"] --</option>';
+		document.getElementById('totalFrameworks').textContent = 0;
+
+		if (projectCode) {
+			// Fetch frameworks for the selected project
+			fetch(`/Dashboard/GetFrameworksByProject?projectCode=${projectCode}`)
+				.then(response => {
+					if (!response.ok) throw new Error("Network response was not ok for frameworks by project");
+					return response.json();
+				})
+				.then(frameworks => {
+					frameworks.forEach(framework => {
+						const option = document.createElement('option');
+						option.value = framework.code;
+						option.textContent = framework.name;
+						frameworkDropdown.appendChild(option);
+					});
+					const totalFrameworks = frameworks.length;
+					document.getElementById('totalFrameworks').textContent = totalFrameworks;
+				})
+				.catch(error => console.error('Error fetching frameworks:', error));
+		}
 	});
 
 	// Add or modify this part within your existing JavaScript block
