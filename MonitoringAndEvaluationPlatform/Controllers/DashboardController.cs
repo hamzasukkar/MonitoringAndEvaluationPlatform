@@ -5,6 +5,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using MonitoringAndEvaluationPlatform.ViewModel;
 using MonitoringAndEvaluationPlatform.Enums;
+using System.Linq;
 
 public class DashboardController : Controller
 {
@@ -755,6 +756,27 @@ public class DashboardController : Controller
             .ToListAsync();
 
         return Json(projectsByGovernorate);
+    }
+
+    [HttpGet]
+    public async Task<IActionResult> GetMinistriesByGovernorates(string governorateCodes)
+    {
+        // The governorateCodes parameter will be a comma-separated string,
+        // so we need to split it and parse it into a list of integers.
+        var codes = governorateCodes.Split(',')
+                                    .ToList();
+
+        var ministries = await _context.Ministries
+            .Where(m => m.Projects.Any(p => p.Governorates.Any(g => codes.Contains(g.Code))))
+            .Select(m => new
+            {
+                id = m.Code,
+                name = m.MinistryDisplayName
+            })
+            .Distinct()
+            .ToListAsync();
+
+        return Json(ministries);
     }
 }
 //totalTarget = Math.Round(totalTarget, 2),

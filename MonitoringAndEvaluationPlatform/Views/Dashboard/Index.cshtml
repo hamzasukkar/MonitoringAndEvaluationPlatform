@@ -399,6 +399,38 @@
 		// Existing logic for districts and other filters will follow...
 		// The rest of the original $('#governorateFilter').on('change', function () { ... });
 		// block should remain, as it handles the cascading of geographical filters.
+			// Inside your existing `$('#governorateFilter').on('change', function () { ... });` block
+
+	// ... [Existing code for updating gauges and projects] ...
+
+	// New section to update the Ministries dropdown
+	const ministryDropdown = document.getElementById('ministryFilter');
+	ministryDropdown.innerHTML = '<option disabled selected value="">-- Select Ministry --</option>';
+
+	if (governorateCode) {
+		fetch(`/Dashboard/GetMinistriesByGovernorates?governorateCodes=${governorateCode}`)
+			.then(response => {
+				if (!response.ok) throw new Error("Network response was not ok for ministries by governorate");
+				return response.json();
+			})
+			.then(ministries => {
+				ministries.forEach(ministry => {
+					const option = document.createElement('option');
+					option.value = ministry.id;
+					option.textContent = ministry.name;
+					ministryDropdown.appendChild(option);
+				});
+				// Update the total ministries count
+				const totalMinistries = ministries.length;
+				document.getElementById('totalMinistries').textContent = totalMinistries;
+			})
+			.catch(error => console.error('Error fetching ministries:', error));
+	} else {
+		// If no governorates are selected, reset the ministry count
+		document.getElementById('totalMinistries').textContent = 0;
+	}
+
+	// ... [The rest of your existing code for districts and sub-districts] ...
 	});
 
 	$('#districtFilter').on('change', function () {
