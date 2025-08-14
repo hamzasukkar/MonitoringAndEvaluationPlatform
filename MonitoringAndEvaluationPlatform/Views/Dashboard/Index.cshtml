@@ -293,11 +293,11 @@
 		document.getElementById('totalFrameworks').textContent = 1;
 		// Clear existing project options
 		const projectDropdown = document.getElementById('projectFilter');
-		projectDropdown.innerHTML = '<option value="">Select Project</option>';
+		projectDropdown.innerHTML = '<option value="">@Localizer["Select Project"]</option>';
 
 		// Clear ministry options
 		const ministryDropdown = document.getElementById('ministryFilter');
-		ministryDropdown.innerHTML = '<option disabled selected value="">-- Select Ministry --</option>';
+		ministryDropdown.innerHTML = '<option disabled selected value="">-- @Localizer["Select Ministry"] --</option>';
 
 
 		if (frameworkCode) {
@@ -529,8 +529,8 @@
 
 	document.getElementById('clearFiltersBtn').addEventListener('click', function () {
 		document.getElementById('frameworkFilter').selectedIndex = 0;
-		document.getElementById('ministryFilter').innerHTML = '<option disabled selected value="">-- Select Ministry --</option>';
-		document.getElementById('projectFilter').innerHTML = '<option value="">Select Project</option>';
+		document.getElementById('ministryFilter').innerHTML = '<option disabled selected value="">-- @Localizer["Select Ministry"]  --</option>';
+		document.getElementById('projectFilter').innerHTML = '<option value="">@Localizer["Select Project"] </option>';
 		$('#governorateFilter').val(null).trigger('change'); // Clear Select2
 		resetDropdown('districtFilter');
 		resetDropdown('subDistrictFilter');
