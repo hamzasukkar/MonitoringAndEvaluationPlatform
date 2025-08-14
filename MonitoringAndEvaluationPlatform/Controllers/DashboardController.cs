@@ -600,8 +600,34 @@ public class DashboardController : Controller
      string? subDistrictCode = null,
      string? communityCode = null)
     {
-        var frameworkQuery = _context.Frameworks
-            .Where(fw => frameworkCode == null || fw.Code == frameworkCode)
+        // Parse comma-separated codes into lists of integers
+        var governorateCodes = governorateCode?.Split(',').ToList();
+        var districtCodes = districtCode?.Split(',').ToList();
+        var subDistrictCodes = subDistrictCode?.Split(',').ToList();
+        var communityCodes = communityCode?.Split(',').ToList();
+
+        // Start with the base query for frameworks
+        var frameworkQuery = _context.Frameworks.AsQueryable();
+
+        // Apply the frameworkCode filter if it exists
+        if (frameworkCode.HasValue)
+        {
+            frameworkQuery = frameworkQuery.Where(fw => fw.Code == frameworkCode);
+        }
+        // Apply the governorateCode filter if it exists
+        else if (governorateCodes != null && governorateCodes.Any())
+        {
+            frameworkQuery = frameworkQuery.Where(f =>
+                f.Outcomes.Any(o =>
+                    o.Outputs.Any(op =>
+                        op.SubOutputs.Any(so =>
+                            so.Indicators.Any(i =>
+                                i.Measures.Any(m =>
+                                    m.Project.Governorates.Any(g => governorateCodes.Contains(g.Code))))))));
+        }
+
+        // Select the necessary data for each framework
+        var frameworks = await frameworkQuery
             .Select(fw => new
             {
                 fw.Code,
@@ -611,9 +637,8 @@ public class DashboardController : Controller
                     .SelectMany(o => o.Outputs)
                     .SelectMany(op => op.SubOutputs)
                     .SelectMany(so => so.Indicators)
-            });
-
-        var frameworks = await frameworkQuery.ToListAsync();
+            })
+            .ToListAsync();
 
         var result = frameworks.Select(fw =>
         {
@@ -621,20 +646,21 @@ public class DashboardController : Controller
                 .SelectMany(i => i.Measures)
                 .Where(m => m.Project != null);
 
-            // Apply filters directly to Measures/Projects
+            // Apply all other filters to the projects
             var filteredProjects = measures
                 .Select(m => m.Project)
                 .Where(p =>
                     (projectCode == null || p.ProjectID == projectCode) &&
                     (ministryCode == null || p.Ministries.Any(m => m.Code == ministryCode)) &&
-                    (governorateCode == null || p.Governorates.Any(g => g.Code == governorateCode)) &&
-                    (districtCode == null || p.Districts.Any(d => d.Code == districtCode)) &&
-                    (subDistrictCode == null || p.SubDistricts.Any(s => s.Code == subDistrictCode)) &&
-                    (communityCode == null || p.Communities.Any(c => c.Code == communityCode))
+                    (governorateCodes == null || !governorateCodes.Any() || p.Governorates.Any(g => governorateCodes.Contains(g.Code))) &&
+                    (districtCodes == null || !districtCodes.Any() || p.Districts.Any(d => districtCodes.Contains(d.Code))) &&
+                    (subDistrictCodes == null || !subDistrictCodes.Any() || p.SubDistricts.Any(s => subDistrictCodes.Contains(s.Code))) &&
+                    (communityCodes == null || !communityCodes.Any() || p.Communities.Any(c => communityCodes.Contains(c.Code)))
                 )
                 .Distinct()
                 .ToList();
 
+            // The rest of the logic remains the same...
             double indicatorsPerformance;
             if (filteredProjects.Any())
             {
@@ -642,7 +668,7 @@ public class DashboardController : Controller
             }
             else
             {
-                indicatorsPerformance = Math.Round(fw.IndicatorsPerformance, 2);
+                indicatorsPerformance = 0; // Use 0 if no projects are found
             }
 
             return new
