@@ -195,8 +195,8 @@
                             <dt class="col-sm-4">@Localizer["Estimated Budget"]</dt>
                             <dd class="col-sm-8">@Html.DisplayFor(model => model.EstimatedBudget)</dd>
 
-                            <dt class="col-sm-4">@Localizer["Real Budget"]</dt>
-                            <dd class="col-sm-8">@Html.DisplayFor(model => model.RealBudget)</dd>
+                       @*      <dt class="col-sm-4">@Localizer["Real Budget"]</dt>
+                            <dd class="col-sm-8">@Html.DisplayFor(model => model.RealBudget)</dd> *@
                         </dl>
                     </div>
                 </div>
@@ -211,7 +211,7 @@
         <div class="col-md-3">
             <div class="card shadow-sm h-100">
                 <div class="card-body text-center">
-                    <h6 class="card-title text-muted">Performance</h6>
+                    <h6 class="card-title text-muted">@Localizer["Performance"]</h6>
                     <div class="progress-circle progress-@((int)performance)" data-value="@performance">
                         <span class="progress-circle-value">@performance%</span>
                     </div>

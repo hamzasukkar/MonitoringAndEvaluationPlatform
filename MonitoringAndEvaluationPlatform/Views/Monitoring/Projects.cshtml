@@ -1,56 +1,127 @@
 ﻿@using MonitoringAndEvaluationPlatform.Helpers;
 @using Microsoft.AspNetCore.Razor.TagHelpers;
 @model IEnumerable<MonitoringAndEvaluationPlatform.Models.Project>
+@using Microsoft.AspNetCore.Mvc.Localization
+@inject IViewLocalizer Localizer
+@using Microsoft.AspNetCore.Localization
+
 @{
-	ViewData["Title"] = "Monitoring";
-	Layout = "~/Views/Shared/_ResultsFrameworkLayout.cshtml";
+    ViewData["Title"] = "Monitoring";
+    Layout = "~/Views/Shared/_ResultsFrameworkLayout.cshtml";
 }
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
-	<meta charset="UTF-8">
-	<meta name="viewport" content="width=device-width, initial-scale=1.0">
-	<title>Health Framework Dashboard</title>
-	<link rel="stylesheet" href="~/css/progress-bars.css" />
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Health Framework Dashboard</title>
+    <link rel="stylesheet" href="~/css/progress-bars.css" />
+    <style>
+        .framework-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .framework-title {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .lamp-icon {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+        }
+
+        /* Glow + Pulse animations */
+        @@keyframes pulseGreen {
+            0%
+
+        {
+            box-shadow: 0 0 6px 2px rgba(0, 255, 0, 0.6);
+        }
+
+        50% {
+            box-shadow: 0 0 12px 4px rgba(0, 255, 0, 0.9);
+        }
+
+        100% {
+            box-shadow: 0 0 6px 2px rgba(0, 255, 0, 0.6);
+        }
+
+        }
+        @@keyframes pulseRed {
+            0%
+
+        {
+            box-shadow: 0 0 6px 2px rgba(255, 0, 0, 0.6);
+        }
+
+        50% {
+            box-shadow: 0 0 12px 4px rgba(255, 0, 0, 0.9);
+        }
+
+        100% {
+            box-shadow: 0 0 6px 2px rgba(255, 0, 0, 0.6);
+        }
+
+        }
+
+        /* Colored lamps */
+        .lamp-green {
+            background-color: green;
+            animation: pulseGreen 1.5s infinite;
+        }
+
+        .lamp-red {
+            background-color: red;
+            animation: pulseRed 1.5s infinite;
+        }
+    </style>
 </head>
+
 <body>
-	<div class="framework-container">
-		@foreach (var item in Model)
-		{
-			// Create metrics array for cleaner iteration
-			var metrics = new[]
-			{
-				new {
-				Value = Math.Round(item.performance),
-				Label = "Performance"
-				},
-				new {
-				Value = (double)item.Financial,
-				Label = "Financial"
-				}
-		};
+    <div class="framework-container">
+        @foreach (var item in Model)
+        {
+            var metrics = new[]
+            {
+                new { Value = Math.Round(item.performance), Label = @Localizer["Performance"] },
+                new { Value = (double)item.Financial, Label = @Localizer["Financial"] }
+            };
 
-				<div class="framework-card">
-					<div class="framework-header">
-						<h2>@item.ProjectName</h2>
-							 <div class="outcome-badge">
-									 <a href="/Dashboard/Index" style="text-decoration: none; color: white;">Dashboard</a>
-						     </div> 
-					</div>
+            // Example logic for lamp color
+            var lampClass = item.performance >= 50 ? "lamp-green" : "lamp-red";
 
-				@foreach (var metric in metrics)
-				{
-					var progressClass = ProgressHelper.GetProgressClass(metric.Value);
-							<div class="metric">
-								<div class="metric-value @progressClass.Split(' ')[1]">@metric.Value%</div>
-								<div class="metric-label">@metric.Label</div>
-								<div class="progress-container">
-									<div class="progress-bar @progressClass.Split(' ')[0]" style="width: @metric.Value%"></div>
-								</div>
-							</div>
-				}
-				</div>
-		}
-	</div>
+            <div class="framework-card">
+                <div class="framework-header">
+                    <div class="framework-title">
+                        <h2>@item.ProjectName</h2>
+                        <!-- Lamp as a colored circle -->
+                        <div class="lamp-icon @lampClass"></div>
+                    </div>
+
+                    <div class="outcome-badge">
+                        <a href="/Dashboard/Index" style="text-decoration: none; color: white;">@Localizer["Dashboard"]</a>
+                    </div>
+                </div>
+
+                @foreach (var metric in metrics)
+                {
+                    var progressClass = ProgressHelper.GetProgressClass(metric.Value);
+                    <div class="metric">
+                        <div class="metric-value @progressClass.Split(' ')[1]">@metric.Value%</div>
+                        <div class="metric-label">@metric.Label</div>
+                        <div class="progress-container">
+                            <div class="progress-bar @progressClass.Split(' ')[0]" style="width: @metric.Value%"></div>
+                        </div>
+                    </div>
+                }
+            </div>
+        }
+    </div>
 </body>
 </html>

@@ -94,6 +94,7 @@
                     <thead class="table-light">
                         <tr>
                             <th>@Localizer["Indicator Name"]</th>
+                            <th>@Localizer["Weight"]</th>
                             <th>@Localizer["Indicators Performance"]</th>
                             <th>@Localizer["Disbursement Performance"]</th>
                             @* <th>@Localizer["Field Monitoring"]</th> *@
@@ -116,6 +117,7 @@
                                     <span id="name-display-@item.IndicatorCode">@item.Name</span>
                                     <input type="text" class="form-control d-none" id="name-input-@item.IndicatorCode" value="@item.Name" />
                                 </td>
+                                <td>@item.Weight</td>
                                 <td>@await Html.PartialAsync("_ProgressBar", Tuple.Create(IndicatorsPerformance, indicatorsClass))</td>
                                 <td>@await Html.PartialAsync("_ProgressBar", Tuple.Create(item.DisbursementPerformance, disbursementClass))</td>
                                 @*

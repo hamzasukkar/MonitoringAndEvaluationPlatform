@@ -33,7 +33,7 @@
                         @if (!Model.IsMinistryUser)
                         {
                             <div class="mb-4">
-                                <h6 class="fw-bold border-bottom pb-2">Ministry</h6>
+                                <h6 class="fw-bold border-bottom pb-2">@Localizer["Ministry"]</h6>
                                 <div class="filter-options" style="max-height: 200px; overflow-y: auto;">
                                     @foreach (var ministry in Model.Ministries)
                                     {
@@ -54,7 +54,7 @@
 
                         <!-- Donor Filter -->
                         <div class="mb-4">
-                            <h6 class="fw-bold border-bottom pb-2">Donor</h6>
+                            <h6 class="fw-bold border-bottom pb-2">@Localizer["Donor"]</h6>
                             <div class="filter-options" style="max-height: 200px; overflow-y: auto;">
                                 @foreach (var donor in Model.Donors)
                                 {

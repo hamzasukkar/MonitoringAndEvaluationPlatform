@@ -102,7 +102,7 @@
 						<select name="ValueType" class="form-select" required>
 							@foreach (var val in Enum.GetValues(typeof(MeasureValueType)))
 							{
-								<option value="@val">@val</option>
+								<option value="@val">@Localizer[val.ToString()]</option>
 							}
 						</select>
 					</div>
@@ -148,7 +148,7 @@
 									<input type="date" class="form-control" value="@item.Date.ToString("yyyy-MM-dd")" data-field="Date" data-id="@item.Code" />
 								</td>
 								<td>
-									<span class="badge bg-secondary">@item.ValueType</span>
+									<span class="badge bg-secondary">@Localizer[@item.ValueType.ToString()]</span>
 								</td>
 								<td>
 									<input type="number" class="form-control" value="@item.Value" data-field="Value" data-id="@item.Code" />

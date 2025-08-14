@@ -1,11 +1,15 @@
 ﻿@using MonitoringAndEvaluationPlatform.ViewModel
 @model List<SubOutputViewModel>
+@using Microsoft.AspNetCore.Mvc.Localization
+@inject IViewLocalizer Localizer
+@using Microsoft.AspNetCore.Localization
 @{
     ViewData["Title"] = "Adjust Weights";
     var outputCode = (int)ViewBag.OutputCode;
+    Layout = "~/Views/Shared/_ResultsFrameworkLayout.cshtml";
 }
 
-<h2>Adjust Weights</h2>
+<h2>@Localizer["Adjust Weights"]</h2>
 
 <form asp-action="AdjustWeights" method="post">
     <input type="hidden" name="outputCode" value="@outputCode" />
@@ -13,8 +17,8 @@
     <table class="table table-bordered">
         <thead>
             <tr>
-                <th>SubOutput</th>
-                <th>Weight (%)</th>
+                <th>@Localizer["SubOutput"]</th>
+                <th>@Localizer["Weight"] (%)</th>
             </tr>
         </thead>
         <tbody>
@@ -39,7 +43,7 @@
         @Html.ValidationSummary()
     </div>
 
-    <button type="submit" class="btn btn-success">Save Weights</button>
+    <button type="submit" class="btn btn-success">@Localizer["Save Weights"]</button>
 </form>
 
 @section Scripts {
