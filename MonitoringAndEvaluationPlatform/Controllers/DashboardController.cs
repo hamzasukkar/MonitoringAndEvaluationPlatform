@@ -741,7 +741,20 @@ public class DashboardController : Controller
         return Json(projects);
     }
 
+    [HttpGet]
+    public async Task<IActionResult> GetProjectsByGovernorate(string governorateCode)
+    {
+        var projectsByGovernorate = await _context.Projects
+            .Where(p => p.Governorates.Any(g => g.Code == governorateCode))
+            .Select(p => new
+            {
+                id = p.ProjectID,
+                name = p.ProjectName
+            })
+            .Distinct()
+            .ToListAsync();
 
-
+        return Json(projectsByGovernorate);
+    }
 }
 //totalTarget = Math.Round(totalTarget, 2),
