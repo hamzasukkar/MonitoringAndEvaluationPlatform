@@ -343,10 +343,43 @@
 		}
 	});
 
-	document.getElementById('ministryFilter').addEventListener('change', function () {
+		document.getElementById('ministryFilter').addEventListener('change', function () {
+		const ministryCode = this.value;
 		const filters = getFilters();
-		loadGauges(filters.frameworkCode, filters.ministryCode, filters.projectCode, filters.governorateCode);
+		filters.ministryCode = ministryCode;
+
+		// Load gauges with the new filter
+		loadGauges(filters.frameworkCode, filters.ministryCode, filters.projectCode, filters.governorateCode, filters.districtCode, filters.subDistrictCode, filters.communityCode);
+
+		// Clear existing project options
+		const projectDropdown = document.getElementById('projectFilter');
+		projectDropdown.innerHTML = '<option value="">@Localizer["Select Project"]</option>';
+
+		// Reset project count
+		document.getElementById('totalProjects').textContent = 0;
+
+		if (ministryCode) {
+			// Fetch projects for the selected ministry
+			fetch(`/Dashboard/GetProjectsByMinistry?ministryCode=${ministryCode}`)
+				.then(response => {
+					if (!response.ok) throw new Error("Network response was not ok for projects by ministry");
+					return response.json();
+				})
+				.then(projects => {
+					projects.forEach(project => {
+						const option = document.createElement('option');
+						option.value = project.id;
+						option.textContent = project.name;
+						projectDropdown.appendChild(option);
+					});
+					const totalProjects = projects.length;
+					document.getElementById('totalProjects').textContent = totalProjects;
+				})
+				.catch(error => console.error('Error fetching projects:', error));
+		}
 	});
+
+	
 
 	document.getElementById('projectFilter').addEventListener('change', function () {
 		const filters = getFilters();
