@@ -431,6 +431,35 @@
 	}
 
 	// ... [The rest of your existing code for districts and sub-districts] ...
+		// Add this to your existing `$('#governorateFilter').on('change', function () { ... });` block,
+	// along with the code for updating projects and ministries.
+
+	// New section to update the Frameworks dropdown
+		const frameworkDropdown = document.getElementById('frameworkFilter');
+		frameworkDropdown.innerHTML = '<option disabled selected value="">-- Select Framework --</option>';
+
+		if (governorateCode) {
+			fetch(`/Dashboard/GetFrameworksByGovernorates?governorateCodes=${governorateCode}`)
+				.then(response => {
+					if (!response.ok) throw new Error("Network response was not ok for frameworks by governorate");
+					return response.json();
+				})
+				.then(frameworks => {
+					frameworks.forEach(framework => {
+						const option = document.createElement('option');
+						option.value = framework.code;
+						option.textContent = framework.name;
+						frameworkDropdown.appendChild(option);
+					});
+					// Update the total frameworks count
+					const totalFrameworks = frameworks.length;
+					document.getElementById('totalFrameworks').textContent = totalFrameworks;
+				})
+				.catch(error => console.error('Error fetching frameworks:', error));
+		} else {
+			// If no governorates are selected, reset the framework count
+			document.getElementById('totalFrameworks').textContent = 0;
+		}
 	});
 
 	$('#districtFilter').on('change', function () {

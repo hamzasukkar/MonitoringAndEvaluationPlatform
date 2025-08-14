@@ -778,5 +778,26 @@ public class DashboardController : Controller
 
         return Json(ministries);
     }
+
+    [HttpGet]
+    public async Task<IActionResult> GetFrameworksByGovernorates(string governorateCodes)
+    {
+        // The governorateCodes parameter will be a comma-separated string,
+        // so we need to split it and parse it into a list of integers.
+        var codes = governorateCodes.Split(',')
+                                    .ToList();
+
+        var frameworks = await _context.Frameworks
+            .Where(f => f.Outcomes.Any(o => o.Outputs.Any(op => op.SubOutputs.Any(so => so.Indicators.Any(i => i.Measures.Any(m => m.Project.Governorates.Any(g => codes.Contains(g.Code))))))))
+            .Select(f => new
+            {
+                code = f.Code,
+                name = f.Name
+            })
+            .Distinct()
+            .ToListAsync();
+
+        return Json(frameworks);
+    }
 }
 //totalTarget = Math.Round(totalTarget, 2),
