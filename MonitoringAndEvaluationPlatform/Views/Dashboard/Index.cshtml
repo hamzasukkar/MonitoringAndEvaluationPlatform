@@ -372,7 +372,7 @@
 
 		// 3. Clear existing project options
 		const projectDropdown = document.getElementById('projectFilter');
-		projectDropdown.innerHTML = '<option disabled selected>-- Select Project --</option>';
+		projectDropdown.innerHTML = '<option disabled selected>-- @Localizer["Select Project"]  --</option>';
 		document.getElementById('totalProjects').textContent = 0; // Reset project count
 
 		// 4. If any governorates are selected, fetch projects for them
@@ -405,7 +405,7 @@
 
 	// New section to update the Ministries dropdown
 	const ministryDropdown = document.getElementById('ministryFilter');
-	ministryDropdown.innerHTML = '<option disabled selected value="">-- Select Ministry --</option>';
+	ministryDropdown.innerHTML = '<option disabled selected value="">-- @Localizer["Select Ministry"] --</option>';
 
 	if (governorateCode) {
 		fetch(`/Dashboard/GetMinistriesByGovernorates?governorateCodes=${governorateCode}`)
@@ -436,7 +436,7 @@
 
 	// New section to update the Frameworks dropdown
 		const frameworkDropdown = document.getElementById('frameworkFilter');
-		frameworkDropdown.innerHTML = '<option disabled selected value="">-- Select Framework --</option>';
+		frameworkDropdown.innerHTML = '<option disabled selected value="">-- @Localizer["Select Framework"] --</option>';
 
 		if (governorateCode) {
 			fetch(`/Dashboard/GetFrameworksByGovernorates?governorateCodes=${governorateCode}`)
