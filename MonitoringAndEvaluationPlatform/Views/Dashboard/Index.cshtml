@@ -182,7 +182,7 @@
 								</div>
 							</div>
 							<div class="text-muted" style="font-size: 0.9rem;">
-								@Localizer["Indicators"]: ${framework.indicatorCount}<br/>
+	@Localizer["Indicators"]: ${framework.indicatorCount}<br/>
 							</div>
 							<div class="mt-3">
 								<strong class="text-muted">@Localizer["Projects"]:</strong>
@@ -446,6 +446,7 @@
 
 	// Event listener for the governorate filter
 	$('#governorateFilter').on('change', function () {
+		debugger;
 		// 1. Get the selected governorate codes
 		const selectedGovCodes = $(this).val() || [];
 		const governorateCode = selectedGovCodes.join(',');
@@ -577,266 +578,84 @@
 		})
 		.catch((err) => console.error(err));
 	});
-$('#districtFilter').on('change', function () {
-	// 1. Re-load gauges with the new filter
-	const filters = getFilters();
-	loadGauges(filters.frameworkCode, filters.ministryCode, filters.projectCode, filters.governorateCode, filters.districtCode);
 
-	// 2. Clear & reset ministry, project, and framework dropdowns
-	const ministryDropdown = document.getElementById('ministryFilter');
-	ministryDropdown.innerHTML = '<option disabled selected value="">-- @Localizer["Select Ministry"] --</option>';
-	document.getElementById('totalMinistries').textContent = 0;
+	$('#districtFilter').on('change', function () {
+	  // 1. Re-load your gauges with the new district context
+	  const filters = getFilters();
+	  loadGauges(
+		filters.frameworkCode,
+		filters.ministryCode,
+		filters.projectCode,
+		filters.governorateCode,
+		filters.districtCode
+	  );
 
-	const projectDropdown = document.getElementById('projectFilter');
-	projectDropdown.innerHTML = '<option value="">@Localizer["Select Project"]</option>';
-	document.getElementById('totalProjects').textContent = 0;
+	  // 2. Grab & dedupe the selected district codes
+	  const selectedDistCodes = Array.from(new Set($(this).val() || []));
 
-	const frameworkDropdown = document.getElementById('frameworkFilter');
-	frameworkDropdown.innerHTML = '<option disabled selected value="">-- @Localizer["Select Framework"] --</option>';
-	document.getElementById('totalFrameworks').textContent = 0;
+	  // 3. If none selected, clear downstream & exit
+	  if (!selectedDistCodes.length) {
+		resetDropdown('subDistrictFilter');
+		resetDropdown('communityFilter');
+		$('#subDistrictCount').text('@Localizer["Total SubDistrict"] : 0');
+		$('#subDistrictFilter').prop('disabled', true);
+		return;
+	  }
 
-	// 3. Grab the selected district codes
-	const selectedDistCodes = Array.from(new Set($(this).val() || []));
-	const districtCodeString = selectedDistCodes.join(',');
+	  // 4. Fetch all sub-districts for the chosen district(s)
+	  fetch(
+		`/Dashboard/GetSubDistrictsByDistrict?districtCodes=${selectedDistCodes.join(',')}`
+	  )
+		.then(r => r.json())
+		.then(subDistricts => {
+		  // 5. Repopulate, preserving any multi-select picks
+		  populateDropdown(
+			'subDistrictFilter',
+			subDistricts,
+			/* preserveSelection = */ true
+		  );
 
-		  // 3. If none selected, clear downstream & exit
-		  if (!selectedDistCodes.length) {
-			resetDropdown('subDistrictFilter');
-			resetDropdown('communityFilter');
-			$('#subDistrictCount').text('@Localizer["Total SubDistrict"] : 0');
-			$('#subDistrictFilter').prop('disabled', true);
-			return;
-		  }
-
-		  // 4. Fetch all sub-districts for the chosen district(s)
-		  fetch(
-			`/Dashboard/GetSubDistrictsByDistrict?districtCodes=${selectedDistCodes.join(',')}`
-		  )
-			.then(r => r.json())
-			.then(subDistricts => {
-			  // 5. Repopulate, preserving any multi-select picks
-			  populateDropdown(
-				'subDistrictFilter',
-				subDistricts,
-				/* preserveSelection = */ true
-			  );
-
-			  // 6. Update count & disable state
-			  $('#subDistrictCount').text(`@Localizer["Total SubDistrict"]: ${subDistricts.length}`);
-			  $('#subDistrictFilter').prop('disabled', !subDistricts.length);
-			})
-			.catch(console.error);
-
-	// 4. If any districts are selected, fetch data for all dependent dropdowns
-	if (districtCodeString) {
-		// Fetch projects for the selected districts
-		fetch(`/Dashboard/GetProjectsByDistricts?districtCodes=${districtCodeString}`)
-			.then(response => {
-				if (!response.ok) throw new Error("Network response was not ok for projects by district");
-				return response.json();
-			})
-			.then(projects => {
-				projects.forEach(project => {
-					const option = document.createElement('option');
-					option.value = project.id;
-					option.textContent = project.name;
-					projectDropdown.appendChild(option);
-				});
-				const totalProjects = projects.length;
-				document.getElementById('totalProjects').textContent = totalProjects;
-			})
-			.catch(error => console.error('Error fetching projects:', error));
-
-		// Fetch ministries for the selected districts
-		fetch(`/Dashboard/GetMinistriesByDistricts?districtCodes=${districtCodeString}`)
-			.then(response => {
-				if (!response.ok) throw new Error("Network response was not ok for ministries by district");
-				return response.json();
-			})
-			.then(ministries => {
-				ministries.forEach(mn => {
-					const opt = document.createElement('option');
-					opt.value = mn.id;
-					opt.textContent = mn.name;
-					ministryDropdown.appendChild(opt);
-				});
-				const totalMinistries = ministries.length;
-				document.getElementById('totalMinistries').textContent = totalMinistries;
-			})
-			.catch(error => console.error('Error fetching ministries:', error));
-
-		// Fetch frameworks for the selected districts
-		fetch(`/Dashboard/GetFrameworksByDistricts?districtCodes=${districtCodeString}`)
-			.then(response => {
-				if (!response.ok) throw new Error("Network response was not ok for frameworks by district");
-				return response.json();
-			})
-			.then(frameworks => {
-				frameworks.forEach(framework => {
-					const option = document.createElement('option');
-					option.value = framework.code;
-					option.textContent = framework.name;
-					frameworkDropdown.appendChild(option);
-				});
-				const totalFrameworks = frameworks.length;
-				document.getElementById('totalFrameworks').textContent = totalFrameworks;
-			})
-			.catch(error => console.error('Error fetching frameworks:', error));
-
-		// ... [The rest of your existing logic for fetching sub-districts, etc.] ...
-	}
-});
+		  // 6. Update count & disable state
+		  $('#subDistrictCount').text(`@Localizer["Total SubDistrict"]: ${subDistricts.length}`);
+		  $('#subDistrictFilter').prop('disabled', !subDistricts.length);
+		})
+		.catch(console.error);
+	});
 
 	$('#subDistrictFilter').on('change', function () {
-	const filters = getFilters();
-	loadGauges(filters.frameworkCode, filters.ministryCode, filters.projectCode, filters.governorateCode, filters.districtCode, filters.subDistrictCode);
+			const filters = getFilters();
+		loadGauges(filters.frameworkCode, filters.ministryCode, filters.projectCode, filters.governorateCode, filters.districtCode, filters.subDistrictCode);
 
-	// Clear and reset the Framework, Ministry, and Project dropdowns
-	const frameworkDropdown = document.getElementById('frameworkFilter');
-	frameworkDropdown.innerHTML = '<option disabled selected value="">-- @Localizer["Select Framework"] --</option>';
-	document.getElementById('totalFrameworks').textContent = 0;
+	   const selectedsubDistCodes = $(this).val() || [];
 
-	const ministryDropdown = document.getElementById('ministryFilter');
-	ministryDropdown.innerHTML = '<option disabled selected value="">-- @Localizer["Select Ministry"] --</option>';
-	document.getElementById('totalMinistries').textContent = 0;
-
-	const projectDropdown = document.getElementById('projectFilter');
-	projectDropdown.innerHTML = '<option value="">@Localizer["Select Project"]</option>';
-	document.getElementById('totalProjects').textContent = 0;
-
-	const selectedsubDistCodes = $(this).val() || [];
-	const subDistrictCodeString = selectedsubDistCodes.join(',');
-
-	// Clear and reset the Community dropdown
-	resetDropdown('communityFilter');
-	document.getElementById('communityCount').innerText = 'Total Communities: 0';
-			fetch(`/Dashboard/GetCommunitiesBySubDistrict?subDistrictCodes=${selectedsubDistCodes}`)
-				.then((r) => r.json())
-				.then((list) => {
-					populateDropdown('communityFilter', list);
-					document.getElementById('communityCount').innerText = `@Localizer["Total Communities"] : ${list.length}`;
-				})
-				.catch((e) => console.error(e));
-
-	if (subDistrictCodeString) {
-		// Fetch Communities for the selected sub-districts
-		fetch(`/Dashboard/GetCommunitiesBySubDistrict?subDistrictCodes=${subDistrictCodeString}`)
-				.then((r) => r.json())
+		resetDropdown('communityFilter');
+		document.getElementById('communityCount').innerText = 'Total Communities: 0';
+		fetch(`/Dashboard/GetCommunitiesBySubDistrict?subDistrictCodes=${selectedsubDistCodes}`)
+			.then((r) => r.json())
 			.then((list) => {
 				populateDropdown('communityFilter', list);
 				document.getElementById('communityCount').innerText = `@Localizer["Total Communities"] : ${list.length}`;
-				$('#communityFilter').prop('disabled', !list.length);
-				})
-			.catch((e) => console.error(e));
-
-		// Fetch Frameworks for the selected sub-districts
-		fetch(`/Dashboard/GetFrameworksBySubDistricts?subDistrictCodes=${subDistrictCodeString}`)
-			.then((r) => r.json())
-			.then((list) => {
-				list.forEach(item => {
-					const opt = document.createElement('option');
-					opt.value = item.code;
-					opt.textContent = item.name;
-					frameworkDropdown.appendChild(opt);
-				});
-				document.getElementById('totalFrameworks').textContent = list.length;
 			})
 			.catch((e) => console.error(e));
+		});
 
-		// Fetch Ministries for the selected sub-districts
-		fetch(`/Dashboard/GetMinistriesBySubDistricts?subDistrictCodes=${subDistrictCodeString}`)
-			.then((r) => r.json())
-			.then((list) => {
-				list.forEach(item => {
-					const opt = document.createElement('option');
-					opt.value = item.id;
-					opt.textContent = item.name;
-					ministryDropdown.appendChild(opt);
-				});
-				document.getElementById('totalMinistries').textContent = list.length;
-			})
-			.catch((e) => console.error(e));
-
-		// Fetch Projects for the selected sub-districts
-		fetch(`/Dashboard/GetProjectsBySubDistricts?subDistrictCodes=${subDistrictCodeString}`)
-			.then((r) => r.json())
-			.then((list) => {
-				list.forEach(item => {
-					const opt = document.createElement('option');
-					opt.value = item.id;
-					opt.textContent = item.name;
-					projectDropdown.appendChild(opt);
-				});
-				document.getElementById('totalProjects').textContent = list.length;
-			})
-			.catch((e) => console.error(e));
-	}
-});
-
-// This block must be outside the `$('#subDistrictFilter').on('change', function () { ... });` block
-		$('#communityFilter').on('change', function () {
+	document.getElementById('communityFilter').addEventListener('change', function () {
 		const filters = getFilters();
 		loadGauges(filters.frameworkCode, filters.ministryCode, filters.projectCode, filters.governorateCode, filters.districtCode, filters.subDistrictCode, filters.communityCode);
+	});
 
-		// Clear and reset the Framework, Ministry, and Project dropdowns
-		const frameworkDropdown = document.getElementById('frameworkFilter');
-		frameworkDropdown.innerHTML = '<option disabled selected value="">-- @Localizer["Select Framework"] --</option>';
-		document.getElementById('totalFrameworks').textContent = 0;
-
-		const ministryDropdown = document.getElementById('ministryFilter');
-		ministryDropdown.innerHTML = '<option disabled selected value="">-- @Localizer["Select Ministry"] --</option>';
-		document.getElementById('totalMinistries').textContent = 0;
-
-		const projectDropdown = document.getElementById('projectFilter');
-		projectDropdown.innerHTML = '<option value="">@Localizer["Select Project"]</option>';
-		document.getElementById('totalProjects').textContent = 0;
-
-		const selectedCommunityCodes = $(this).val() || [];
-		const communityCodeString = selectedCommunityCodes.join(',');
-
-		if (communityCodeString) {
-			// Fetch Frameworks for the selected communities
-			fetch(`/Dashboard/GetFrameworksByCommunities?communityCodes=${communityCodeString}`)
-				.then((r) => r.json())
-				.then((list) => {
-					list.forEach(item => {
-						const opt = document.createElement('option');
-						opt.value = item.code;
-						opt.textContent = item.name;
-						frameworkDropdown.appendChild(opt);
-					});
-					document.getElementById('totalFrameworks').textContent = list.length;
-				})
-				.catch((e) => console.error(e));
-
-			// Fetch Ministries for the selected communities
-			fetch(`/Dashboard/GetMinistriesByCommunities?communityCodes=${communityCodeString}`)
-				.then((r) => r.json())
-				.then((list) => {
-					list.forEach(item => {
-						const opt = document.createElement('option');
-						opt.value = item.id;
-						opt.textContent = item.name;
-						ministryDropdown.appendChild(opt);
-					});
-					document.getElementById('totalMinistries').textContent = list.length;
-				})
-				.catch((e) => console.error(e));
-
-			// Fetch Projects for the selected communities
-			fetch(`/Dashboard/GetProjectsByCommunities?communityCodes=${communityCodeString}`)
-				.then((r) => r.json())
-				.then((list) => {
-					list.forEach(item => {
-						const opt = document.createElement('option');
-						opt.value = item.id;
-						opt.textContent = item.name;
-						projectDropdown.appendChild(opt);
-					});
-					document.getElementById('totalProjects').textContent = list.length;
-				})
-				.catch((e) => console.error(e));
-		}
+	document.getElementById('clearFiltersBtn').addEventListener('click', function () {
+		document.getElementById('frameworkFilter').selectedIndex = 0;
+		document.getElementById('ministryFilter').innerHTML = '<option disabled selected value="">-- @Localizer["Select Ministry"]  --</option>';
+		document.getElementById('projectFilter').innerHTML = '<option value="">@Localizer["Select Project"] </option>';
+		$('#governorateFilter').val(null).trigger('change'); // Clear Select2
+		resetDropdown('districtFilter');
+		resetDropdown('subDistrictFilter');
+		resetDropdown('communityFilter');
+		document.getElementById('districtCount').innerText = '@Localizer["Total Districts"] : 0';
+		document.getElementById('subDistrictCount').innerText = '@Localizer["Total SubDistrict"] : 0';
+		document.getElementById('communityCount').innerText = '@Localizer["Total Communities"] : 0';
+		loadGauges();
 	});
 
 	// Helpers
@@ -857,15 +676,15 @@ $('#districtFilter').on('change', function () {
 		dd.disabled = false;
 	}
 
-	function getFilters() {
+		function getFilters() {
 		return {
 			frameworkCode: document.getElementById('frameworkFilter').value,
 			ministryCode: document.getElementById('ministryFilter').value,
 			projectCode: document.getElementById('projectFilter').value,
-			governorateCode: $('#governorateFilter').val().join(','), // For multi-select
-			districtCode: document.getElementById('districtFilter').value,
-			subDistrictCode: document.getElementById('subDistrictFilter').value,
-			communityCode: document.getElementById('communityFilter').value
+			governorateCode: $('#governorateFilter').val() ? $('#governorateFilter').val().join(',') : '',
+			districtCode: $('#districtFilter').val() ? $('#districtFilter').val().join(',') : '',
+			subDistrictCode: $('#subDistrictFilter').val() ? $('#subDistrictFilter').val().join(',') : '',
+			communityCode: $('#communityFilter').val() ? $('#communityFilter').val().join(',') : ''
 		};
 	}
 </script>

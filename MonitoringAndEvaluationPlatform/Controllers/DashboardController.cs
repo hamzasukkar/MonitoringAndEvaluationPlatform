@@ -592,61 +592,69 @@ public class DashboardController : Controller
         return Json(new { rate = achievementRate });
     }
     public async Task<IActionResult> FrameworksGauge(
-     int? frameworkCode,
-     int? ministryCode = null,
-     int? projectCode = null,
-     string? governorateCode = null,
-     string? districtCode = null,
-     string? subDistrictCode = null,
-     string? communityCode = null)
+    int? frameworkCode,
+    int? ministryCode = null,
+    int? projectCode = null,
+    string? governorateCode = null,
+    string? districtCode = null,
+    string? subDistrictCode = null,
+    string? communityCode = null)
     {
-        // Parse comma-separated codes into lists of integers
-        var governorateCodes = governorateCode?.Split(',').ToList();
-        var districtCodes = districtCode?.Split(',').ToList();
-        var subDistrictCodes = subDistrictCode?.Split(',').ToList();
-        var communityCodes = communityCode?.Split(',').ToList();
+        // Corrected: Parse comma-separated codes into lists of integers
+        var governorateCodes = governorateCode?.Split(',', StringSplitOptions.RemoveEmptyEntries).ToList();
+        var districtCodes = districtCode?.Split(',', StringSplitOptions.RemoveEmptyEntries).ToList();
+        var subDistrictCodes = subDistrictCode?.Split(',', StringSplitOptions.RemoveEmptyEntries).ToList();
+        var communityCodes = communityCode?.Split(',', StringSplitOptions.RemoveEmptyEntries).ToList();
 
-        // Start with the base query for frameworks
-        var frameworkQuery = _context.Frameworks.AsQueryable();
-
-        // Apply the frameworkCode filter if it exists
-        if (frameworkCode.HasValue)
-        {
-            frameworkQuery = frameworkQuery.Where(fw => fw.Code == frameworkCode);
-        }
-        // Apply the governorateCode filter if it exists
-        else if (governorateCodes != null && governorateCodes.Any())
-        {
-            frameworkQuery = frameworkQuery.Where(f =>
-                f.Outcomes.Any(o =>
-                    o.Outputs.Any(op =>
-                        op.SubOutputs.Any(so =>
-                            so.Indicators.Any(i =>
-                                i.Measures.Any(m =>
-                                    m.Project.Governorates.Any(g => governorateCodes.Contains(g.Code))))))));
-        }
-
-        // Select the necessary data for each framework
-        var frameworks = await frameworkQuery
-            .Select(fw => new
-            {
-                fw.Code,
-                fw.Name,
-                fw.IndicatorsPerformance,
-                Indicators = fw.Outcomes
-                    .SelectMany(o => o.Outputs)
-                    .SelectMany(op => op.SubOutputs)
-                    .SelectMany(so => so.Indicators)
-            })
+        // Start with the base query with Eager Loading to get the full object graph
+        var frameworks = await _context.Frameworks
+            .Include(f => f.Outcomes)
+                .ThenInclude(o => o.Outputs)
+                    .ThenInclude(op => op.SubOutputs)
+                        .ThenInclude(so => so.Indicators)
+                            .ThenInclude(i => i.Measures)
+                                .ThenInclude(m => m.Project)
+                                    .ThenInclude(p => p.Governorates) // Include related geographical data
+            .Include(f => f.Outcomes)
+                .ThenInclude(o => o.Outputs)
+                    .ThenInclude(op => op.SubOutputs)
+                        .ThenInclude(so => so.Indicators)
+                            .ThenInclude(i => i.Measures)
+                                .ThenInclude(m => m.Project)
+                                    .ThenInclude(p => p.Districts)
+            .Include(f => f.Outcomes)
+                .ThenInclude(o => o.Outputs)
+                    .ThenInclude(op => op.SubOutputs)
+                        .ThenInclude(so => so.Indicators)
+                            .ThenInclude(i => i.Measures)
+                                .ThenInclude(m => m.Project)
+                                    .ThenInclude(p => p.SubDistricts)
+            .Include(f => f.Outcomes)
+                .ThenInclude(o => o.Outputs)
+                    .ThenInclude(op => op.SubOutputs)
+                        .ThenInclude(so => so.Indicators)
+                            .ThenInclude(i => i.Measures)
+                                .ThenInclude(m => m.Project)
+                                    .ThenInclude(p => p.Communities)
+            .Include(f => f.Outcomes) // Also include Ministry relationships
+                .ThenInclude(o => o.Outputs)
+                    .ThenInclude(op => op.SubOutputs)
+                        .ThenInclude(so => so.Indicators)
+                            .ThenInclude(i => i.Measures)
+                                .ThenInclude(m => m.Project)
+                                    .ThenInclude(p => p.Ministries)
             .ToListAsync();
 
+        // Now, apply all the filters in memory using LINQ to Objects
         var result = frameworks.Select(fw =>
         {
-            var measures = fw.Indicators
+            var measures = fw.Outcomes
+                .SelectMany(o => o.Outputs)
+                .SelectMany(op => op.SubOutputs)
+                .SelectMany(so => so.Indicators)
                 .SelectMany(i => i.Measures)
                 .Where(m => m.Project != null);
 
-            // Apply all other filters to the projects
             var filteredProjects = measures
                 .Select(m => m.Project)
                 .Where(p =>
@@ -660,15 +668,11 @@ public class DashboardController : Controller
                 .Distinct()
                 .ToList();
 
-            // The rest of the logic remains the same...
-            double indicatorsPerformance;
+            // Calculate performance based on filtered projects
+            double indicatorsPerformance = 0;
             if (filteredProjects.Any())
             {
                 indicatorsPerformance = Math.Round(filteredProjects.Average(p => p.performance), 2);
-            }
-            else
-            {
-                indicatorsPerformance = 0; // Use 0 if no projects are found
             }
 
             return new
@@ -676,7 +680,10 @@ public class DashboardController : Controller
                 code = fw.Code,
                 name = fw.Name,
                 indicatorsPerformance,
-                indicatorCount = fw.Indicators.Count(),
+                indicatorCount = fw.Outcomes
+                    .SelectMany(o => o.Outputs)
+                    .SelectMany(op => op.SubOutputs)
+                    .SelectMany(so => so.Indicators).Count(),
                 projects = filteredProjects.Select(p => new
                 {
                     p.ProjectID,
@@ -684,10 +691,11 @@ public class DashboardController : Controller
                     p.performance
                 }).ToList()
             };
-        });
+        }).ToList();
 
         return Json(result);
     }
+
 
 
 
@@ -871,204 +879,6 @@ public class DashboardController : Controller
             .ToListAsync();
 
         return Json(ministries);
-    }
-
-    [HttpGet]
-    public async Task<IActionResult> GetFrameworksByDistricts(string districtCodes)
-    {
-        var codes = districtCodes?.Split(',', StringSplitOptions.RemoveEmptyEntries).ToList();
-        if (codes == null || !codes.Any())
-        {
-            return Json(new List<object>());
-        }
-
-        var frameworks = await _context.Frameworks
-            .Where(f => f.Outcomes.Any(o => o.Outputs.Any(op => op.SubOutputs.Any(so => so.Indicators.Any(i => i.Measures.Any(m => m.Project.Districts.Any(d => codes.Contains(d.Code))))))))
-            .Select(f => new
-            {
-                code = f.Code,
-                name = f.Name
-            })
-            .Distinct()
-            .ToListAsync();
-
-        return Json(frameworks);
-    }
-
-    [HttpGet]
-    public async Task<IActionResult> GetMinistriesByDistricts(string districtCodes)
-    {
-        var codes = districtCodes?.Split(',', StringSplitOptions.RemoveEmptyEntries).ToList();
-        if (codes == null || !codes.Any())
-        {
-            return Json(new List<object>());
-        }
-
-        var ministries = await _context.Ministries
-            .Where(m => m.Projects.Any(p => p.Districts.Any(d => codes.Contains(d.Code))))
-            .Select(m => new
-            {
-                id = m.Code,
-                name = m.MinistryDisplayName
-            })
-            .Distinct()
-            .ToListAsync();
-
-        return Json(ministries);
-    }
-
-    [HttpGet]
-    public async Task<IActionResult> GetProjectsByDistricts(string districtCodes)
-    {
-        var codes = districtCodes?.Split(',', StringSplitOptions.RemoveEmptyEntries).ToList();
-        if (codes == null || !codes.Any())
-        {
-            return Json(new List<object>());
-        }
-
-        var projects = await _context.Projects
-            .Where(p => p.Districts.Any(d => codes.Contains(d.Code)))
-            .Select(p => new
-            {
-                id = p.ProjectID,
-                name = p.ProjectName
-            })
-            .Distinct()
-            .ToListAsync();
-
-        return Json(projects);
-    }
-
-    [HttpGet]
-    public async Task<IActionResult> GetFrameworksBySubDistricts(string subDistrictCodes)
-    {
-        var codes = subDistrictCodes?.Split(',', StringSplitOptions.RemoveEmptyEntries).ToList();
-        if (codes == null || !codes.Any())
-        {
-            return Json(new List<object>());
-        }
-
-        var frameworks = await _context.Frameworks
-            .Where(f => f.Outcomes.Any(o => o.Outputs.Any(op => op.SubOutputs.Any(so => so.Indicators.Any(i => i.Measures.Any(m => m.Project.SubDistricts.Any(s => codes.Contains(s.Code))))))))
-            .Select(f => new
-            {
-                code = f.Code,
-                name = f.Name
-            })
-            .Distinct()
-            .ToListAsync();
-
-        return Json(frameworks);
-    }
-
-    [HttpGet]
-    public async Task<IActionResult> GetMinistriesBySubDistricts(string subDistrictCodes)
-    {
-        var codes = subDistrictCodes?.Split(',', StringSplitOptions.RemoveEmptyEntries).ToList();
-        if (codes == null || !codes.Any())
-        {
-            return Json(new List<object>());
-        }
-
-        var ministries = await _context.Ministries
-            .Where(m => m.Projects.Any(p => p.SubDistricts.Any(s => codes.Contains(s.Code))))
-            .Select(m => new
-            {
-                id = m.Code,
-                name = m.MinistryDisplayName
-            })
-            .Distinct()
-            .ToListAsync();
-
-        return Json(ministries);
-    }
-
-    [HttpGet]
-    public async Task<IActionResult> GetProjectsBySubDistricts(string subDistrictCodes)
-    {
-        var codes = subDistrictCodes?.Split(',', StringSplitOptions.RemoveEmptyEntries).ToList();
-        if (codes == null || !codes.Any())
-        {
-            return Json(new List<object>());
-        }
-
-        var projects = await _context.Projects
-            .Where(p => p.SubDistricts.Any(s => codes.Contains(s.Code)))
-            .Select(p => new
-            {
-                id = p.ProjectID,
-                name = p.ProjectName
-            })
-            .Distinct()
-            .ToListAsync();
-
-        return Json(projects);
-    }
-
-    [HttpGet]
-    public async Task<IActionResult> GetFrameworksByCommunities(string communityCodes)
-    {
-        var codes = communityCodes?.Split(',', StringSplitOptions.RemoveEmptyEntries).ToList();
-        if (codes == null || !codes.Any())
-        {
-            return Json(new List<object>());
-        }
-
-        var frameworks = await _context.Frameworks
-            .Where(f => f.Outcomes.Any(o => o.Outputs.Any(op => op.SubOutputs.Any(so => so.Indicators.Any(i => i.Measures.Any(m => m.Project.Communities.Any(c => codes.Contains(c.Code))))))))
-            .Select(f => new
-            {
-                code = f.Code,
-                name = f.Name
-            })
-            .Distinct()
-            .ToListAsync();
-
-        return Json(frameworks);
-    }
-
-    [HttpGet]
-    public async Task<IActionResult> GetMinistriesByCommunities(string communityCodes)
-    {
-        var codes = communityCodes?.Split(',', StringSplitOptions.RemoveEmptyEntries).ToList();
-        if (codes == null || !codes.Any())
-        {
-            return Json(new List<object>());
-        }
-
-        var ministries = await _context.Ministries
-            .Where(m => m.Projects.Any(p => p.Communities.Any(c => codes.Contains(c.Code))))
-            .Select(m => new
-            {
-                id = m.Code,
-                name = m.MinistryDisplayName
-            })
-            .Distinct()
-            .ToListAsync();
-
-        return Json(ministries);
-    }
-
-    [HttpGet]
-    public async Task<IActionResult> GetProjectsByCommunities(string communityCodes)
-    {
-        var codes = communityCodes?.Split(',', StringSplitOptions.RemoveEmptyEntries).ToList();
-        if (codes == null || !codes.Any())
-        {
-            return Json(new List<object>());
-        }
-
-        var projects = await _context.Projects
-            .Where(p => p.Communities.Any(c => codes.Contains(c.Code)))
-            .Select(p => new
-            {
-                id = p.ProjectID,
-                name = p.ProjectName
-            })
-            .Distinct()
-            .ToListAsync();
-
-        return Json(projects);
     }
 }
 //totalTarget = Math.Round(totalTarget, 2),
