@@ -577,49 +577,47 @@
 		})
 		.catch((err) => console.error(err));
 	});
-
-	$('#districtFilter').on('change', function () {
-	  // 1. Re-load your gauges with the new district context
-	  const filters = getFilters();
-	  loadGauges(
+$('#districtFilter').on('change', function () {
+	// 1. Re-load your gauges with the new district context
+	const filters = getFilters();
+	loadGauges(
 		filters.frameworkCode,
 		filters.ministryCode,
 		filters.projectCode,
 		filters.governorateCode,
 		filters.districtCode
-	  );
+	);
 
-	  // 2. Grab & dedupe the selected district codes
-	  const selectedDistCodes = Array.from(new Set($(this).val() || []));
+	// 2. Clear & reset the Frameworks dropdown and count
+	const frameworkDropdown = document.getElementById('frameworkFilter');
+	frameworkDropdown.innerHTML = '<option disabled selected value="">-- @Localizer["Select Framework"] --</option>';
+	document.getElementById('totalFrameworks').textContent = 0;
 
-	  // 3. If none selected, clear downstream & exit
-	  if (!selectedDistCodes.length) {
-		resetDropdown('subDistrictFilter');
-		resetDropdown('communityFilter');
-		$('#subDistrictCount').text('@Localizer["Total SubDistrict"] : 0');
-		$('#subDistrictFilter').prop('disabled', true);
-		return;
-	  }
+	// 3. Grab & dedupe the selected district codes
+	const selectedDistCodes = Array.from(new Set($(this).val() || []));
+	const districtCodeString = selectedDistCodes.join(',');
 
-	  // 4. Fetch all sub-districts for the chosen district(s)
-	  fetch(
-		`/Dashboard/GetSubDistrictsByDistrict?districtCodes=${selectedDistCodes.join(',')}`
-	  )
-		.then(r => r.json())
-		.then(subDistricts => {
-		  // 5. Repopulate, preserving any multi-select picks
-		  populateDropdown(
-			'subDistrictFilter',
-			subDistricts,
-			/* preserveSelection = */ true
-		  );
-
-		  // 6. Update count & disable state
-		  $('#subDistrictCount').text(`@Localizer["Total SubDistrict"]: ${subDistricts.length}`);
-		  $('#subDistrictFilter').prop('disabled', !subDistricts.length);
-		})
-		.catch(console.error);
-	});
+	// 4. If any districts are selected, fetch frameworks for them
+	if (districtCodeString) {
+		fetch(`/Dashboard/GetFrameworksByDistricts?districtCodes=${districtCodeString}`)
+			.then(response => {
+				if (!response.ok) throw new Error("Network response was not ok for frameworks by district");
+				return response.json();
+			})
+			.then(frameworks => {
+				frameworks.forEach(framework => {
+					const option = document.createElement('option');
+					option.value = framework.code;
+					option.textContent = framework.name;
+					frameworkDropdown.appendChild(option);
+				});
+				const totalFrameworks = frameworks.length;
+				document.getElementById('totalFrameworks').textContent = totalFrameworks;
+			})
+			.catch(error => console.error('Error fetching frameworks:', error));
+	}
+	// ... [The rest of your existing logic for fetching sub-districts, etc.] ...
+});
 
 	$('#subDistrictFilter').on('change', function () {
 			const filters = getFilters();

@@ -872,5 +872,27 @@ public class DashboardController : Controller
 
         return Json(ministries);
     }
+
+    [HttpGet]
+    public async Task<IActionResult> GetFrameworksByDistricts(string districtCodes)
+    {
+        var codes = districtCodes?.Split(',', StringSplitOptions.RemoveEmptyEntries).ToList();
+        if (codes == null || !codes.Any())
+        {
+            return Json(new List<object>());
+        }
+
+        var frameworks = await _context.Frameworks
+            .Where(f => f.Outcomes.Any(o => o.Outputs.Any(op => op.SubOutputs.Any(so => so.Indicators.Any(i => i.Measures.Any(m => m.Project.Districts.Any(d => codes.Contains(d.Code))))))))
+            .Select(f => new
+            {
+                code = f.Code,
+                name = f.Name
+            })
+            .Distinct()
+            .ToListAsync();
+
+        return Json(frameworks);
+    }
 }
 //totalTarget = Math.Round(totalTarget, 2),
