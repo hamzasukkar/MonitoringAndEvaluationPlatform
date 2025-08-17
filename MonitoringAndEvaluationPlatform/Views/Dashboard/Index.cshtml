@@ -593,6 +593,10 @@ $('#districtFilter').on('change', function () {
 	frameworkDropdown.innerHTML = '<option disabled selected value="">-- @Localizer["Select Framework"] --</option>';
 	document.getElementById('totalFrameworks').textContent = 0;
 
+	 const ministryDropdown = document.getElementById('ministryFilter');
+	ministryDropdown.innerHTML = '<option disabled selected value="">-- @Localizer["Select Ministry"] --</option>';
+	document.getElementById('totalMinistries').textContent = 0;
+
 	// 3. Grab & dedupe the selected district codes
 	const selectedDistCodes = Array.from(new Set($(this).val() || []));
 	const districtCodeString = selectedDistCodes.join(',');
@@ -615,6 +619,23 @@ $('#districtFilter').on('change', function () {
 				document.getElementById('totalFrameworks').textContent = totalFrameworks;
 			})
 			.catch(error => console.error('Error fetching frameworks:', error));
+
+			fetch(`/Dashboard/GetMinistriesByDistricts?districtCodes=${districtCodeString}`)
+			.then(response => {
+				if (!response.ok) throw new Error("Network response was not ok for ministries by district");
+				return response.json();
+			})
+			.then(ministries => {
+				ministries.forEach(mn => {
+					const opt = document.createElement('option');
+					opt.value = mn.id;
+					opt.textContent = mn.name;
+					ministryDropdown.appendChild(opt);
+				});
+				const totalMinistries = ministries.length;
+				document.getElementById('totalMinistries').textContent = totalMinistries;
+			})
+			.catch(error => console.error('Error fetching ministries:', error));
 	}
 	// ... [The rest of your existing logic for fetching sub-districts, etc.] ...
 });

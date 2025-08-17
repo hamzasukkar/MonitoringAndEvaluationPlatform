@@ -894,5 +894,27 @@ public class DashboardController : Controller
 
         return Json(frameworks);
     }
+
+    [HttpGet]
+    public async Task<IActionResult> GetMinistriesByDistricts(string districtCodes)
+    {
+        var codes = districtCodes?.Split(',', StringSplitOptions.RemoveEmptyEntries).ToList();
+        if (codes == null || !codes.Any())
+        {
+            return Json(new List<object>());
+        }
+
+        var ministries = await _context.Ministries
+            .Where(m => m.Projects.Any(p => p.Districts.Any(d => codes.Contains(d.Code))))
+            .Select(m => new
+            {
+                id = m.Code,
+                name = m.MinistryDisplayName
+            })
+            .Distinct()
+            .ToListAsync();
+
+        return Json(ministries);
+    }
 }
 //totalTarget = Math.Round(totalTarget, 2),
