@@ -591,14 +591,15 @@ public class DashboardController : Controller
 
         return Json(new { rate = achievementRate });
     }
+    [HttpGet]
     public async Task<IActionResult> FrameworksGauge(
-    int? frameworkCode,
-    int? ministryCode = null,
-    int? projectCode = null,
-    string? governorateCode = null,
-    string? districtCode = null,
-    string? subDistrictCode = null,
-    string? communityCode = null)
+         int? frameworkCode,
+         int? ministryCode = null,
+         int? projectCode = null,
+         string? governorateCode = null,
+         string? districtCode = null,
+         string? subDistrictCode = null,
+         string? communityCode = null)
     {
         // Corrected: Parse comma-separated codes into lists of integers
         var governorateCodes = governorateCode?.Split(',', StringSplitOptions.RemoveEmptyEntries).ToList();
@@ -606,55 +607,81 @@ public class DashboardController : Controller
         var subDistrictCodes = subDistrictCode?.Split(',', StringSplitOptions.RemoveEmptyEntries).ToList();
         var communityCodes = communityCode?.Split(',', StringSplitOptions.RemoveEmptyEntries).ToList();
 
-        // Start with the base query with Eager Loading to get the full object graph
-        var frameworks = await _context.Frameworks
-            .Include(f => f.Outcomes)
-                .ThenInclude(o => o.Outputs)
-                    .ThenInclude(op => op.SubOutputs)
-                        .ThenInclude(so => so.Indicators)
-                            .ThenInclude(i => i.Measures)
-                                .ThenInclude(m => m.Project)
-                                    .ThenInclude(p => p.Governorates) // Include related geographical data
-            .Include(f => f.Outcomes)
-                .ThenInclude(o => o.Outputs)
-                    .ThenInclude(op => op.SubOutputs)
-                        .ThenInclude(so => so.Indicators)
-                            .ThenInclude(i => i.Measures)
-                                .ThenInclude(m => m.Project)
-                                    .ThenInclude(p => p.Districts)
-            .Include(f => f.Outcomes)
-                .ThenInclude(o => o.Outputs)
-                    .ThenInclude(op => op.SubOutputs)
-                        .ThenInclude(so => so.Indicators)
-                            .ThenInclude(i => i.Measures)
-                                .ThenInclude(m => m.Project)
-                                    .ThenInclude(p => p.SubDistricts)
-            .Include(f => f.Outcomes)
-                .ThenInclude(o => o.Outputs)
-                    .ThenInclude(op => op.SubOutputs)
-                        .ThenInclude(so => so.Indicators)
-                            .ThenInclude(i => i.Measures)
-                                .ThenInclude(m => m.Project)
-                                    .ThenInclude(p => p.Communities)
-            .Include(f => f.Outcomes) // Also include Ministry relationships
-                .ThenInclude(o => o.Outputs)
-                    .ThenInclude(op => op.SubOutputs)
-                        .ThenInclude(so => so.Indicators)
-                            .ThenInclude(i => i.Measures)
-                                .ThenInclude(m => m.Project)
-                                    .ThenInclude(p => p.Ministries)
+        // Start with the base query for frameworks
+        var frameworkQuery = _context.Frameworks.AsQueryable();
+
+        // IMPROVED FILTERING LOGIC:
+        // Prioritize the most specific filter first.
+        if (frameworkCode.HasValue)
+        {
+            frameworkQuery = frameworkQuery.Where(fw => fw.Code == frameworkCode);
+        }
+        else if (communityCodes != null && communityCodes.Any())
+        {
+            // Filter by Communities
+            frameworkQuery = frameworkQuery.Where(f =>
+                f.Outcomes.Any(o =>
+                    o.Outputs.Any(op =>
+                        op.SubOutputs.Any(so =>
+                            so.Indicators.Any(i =>
+                                i.Measures.Any(m =>
+                                    m.Project.Communities.Any(c => communityCodes.Contains(c.Code))))))));
+        }
+        else if (subDistrictCodes != null && subDistrictCodes.Any())
+        {
+            // Filter by SubDistricts
+            frameworkQuery = frameworkQuery.Where(f =>
+                f.Outcomes.Any(o =>
+                    o.Outputs.Any(op =>
+                        op.SubOutputs.Any(so =>
+                            so.Indicators.Any(i =>
+                                i.Measures.Any(m =>
+                                    m.Project.SubDistricts.Any(s => subDistrictCodes.Contains(s.Code))))))));
+        }
+        else if (districtCodes != null && districtCodes.Any())
+        {
+            // Filter by Districts
+            frameworkQuery = frameworkQuery.Where(f =>
+                f.Outcomes.Any(o =>
+                    o.Outputs.Any(op =>
+                        op.SubOutputs.Any(so =>
+                            so.Indicators.Any(i =>
+                                i.Measures.Any(m =>
+                                    m.Project.Districts.Any(d => districtCodes.Contains(d.Code))))))));
+        }
+        else if (governorateCodes != null && governorateCodes.Any())
+        {
+            // Filter by Governorates
+            frameworkQuery = frameworkQuery.Where(f =>
+                f.Outcomes.Any(o =>
+                    o.Outputs.Any(op =>
+                        op.SubOutputs.Any(so =>
+                            so.Indicators.Any(i =>
+                                i.Measures.Any(m =>
+                                    m.Project.Governorates.Any(g => governorateCodes.Contains(g.Code))))))));
+        }
+
+        // Now, select the necessary data for each framework from the filtered query
+        var frameworks = await frameworkQuery
+            .Select(fw => new
+            {
+                fw.Code,
+                fw.Name,
+                fw.IndicatorsPerformance,
+                Indicators = fw.Outcomes
+                    .SelectMany(o => o.Outputs)
+                    .SelectMany(op => op.SubOutputs)
+                    .SelectMany(so => so.Indicators)
+            })
             .ToListAsync();
 
-        // Now, apply all the filters in memory using LINQ to Objects
         var result = frameworks.Select(fw =>
         {
-            var measures = fw.Outcomes
-                .SelectMany(o => o.Outputs)
-                .SelectMany(op => op.SubOutputs)
-                .SelectMany(so => so.Indicators)
+            var measures = fw.Indicators
                 .SelectMany(i => i.Measures)
                 .Where(m => m.Project != null);
 
+            // Apply all other filters to the projects in memory
             var filteredProjects = measures
                 .Select(m => m.Project)
                 .Where(p =>
@@ -668,11 +695,14 @@ public class DashboardController : Controller
                 .Distinct()
                 .ToList();
 
-            // Calculate performance based on filtered projects
-            double indicatorsPerformance = 0;
+            double indicatorsPerformance;
             if (filteredProjects.Any())
             {
                 indicatorsPerformance = Math.Round(filteredProjects.Average(p => p.performance), 2);
+            }
+            else
+            {
+                indicatorsPerformance = Math.Round(fw.IndicatorsPerformance,2);
             }
 
             return new
@@ -680,10 +710,7 @@ public class DashboardController : Controller
                 code = fw.Code,
                 name = fw.Name,
                 indicatorsPerformance,
-                indicatorCount = fw.Outcomes
-                    .SelectMany(o => o.Outputs)
-                    .SelectMany(op => op.SubOutputs)
-                    .SelectMany(so => so.Indicators).Count(),
+                indicatorCount = fw.Indicators.Count(),
                 projects = filteredProjects.Select(p => new
                 {
                     p.ProjectID,
@@ -691,11 +718,10 @@ public class DashboardController : Controller
                     p.performance
                 }).ToList()
             };
-        }).ToList();
+        });
 
         return Json(result);
     }
-
 
 
 
