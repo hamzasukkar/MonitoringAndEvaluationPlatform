@@ -593,32 +593,28 @@ public class DashboardController : Controller
     }
     [HttpGet]
     public async Task<IActionResult> FrameworksGauge(
-         int? frameworkCode,
-         int? ministryCode = null,
-         int? projectCode = null,
-         string? governorateCode = null,
-         string? districtCode = null,
-         string? subDistrictCode = null,
-         string? communityCode = null)
+     int? frameworkCode,
+     int? ministryCode = null,
+     int? projectCode = null,
+     string? governorateCode = null,
+     string? districtCode = null,
+     string? subDistrictCode = null,
+     string? communityCode = null)
     {
-        // Corrected: Parse comma-separated codes into lists of integers
         var governorateCodes = governorateCode?.Split(',', StringSplitOptions.RemoveEmptyEntries).ToList();
         var districtCodes = districtCode?.Split(',', StringSplitOptions.RemoveEmptyEntries).ToList();
         var subDistrictCodes = subDistrictCode?.Split(',', StringSplitOptions.RemoveEmptyEntries).ToList();
         var communityCodes = communityCode?.Split(',', StringSplitOptions.RemoveEmptyEntries).ToList();
 
-        // Start with the base query for frameworks
         var frameworkQuery = _context.Frameworks.AsQueryable();
 
-        // IMPROVED FILTERING LOGIC:
-        // Prioritize the most specific filter first.
+        // Prioritize the most specific geographic filter
         if (frameworkCode.HasValue)
         {
             frameworkQuery = frameworkQuery.Where(fw => fw.Code == frameworkCode);
         }
         else if (communityCodes != null && communityCodes.Any())
         {
-            // Filter by Communities
             frameworkQuery = frameworkQuery.Where(f =>
                 f.Outcomes.Any(o =>
                     o.Outputs.Any(op =>
@@ -629,7 +625,6 @@ public class DashboardController : Controller
         }
         else if (subDistrictCodes != null && subDistrictCodes.Any())
         {
-            // Filter by SubDistricts
             frameworkQuery = frameworkQuery.Where(f =>
                 f.Outcomes.Any(o =>
                     o.Outputs.Any(op =>
@@ -640,7 +635,6 @@ public class DashboardController : Controller
         }
         else if (districtCodes != null && districtCodes.Any())
         {
-            // Filter by Districts
             frameworkQuery = frameworkQuery.Where(f =>
                 f.Outcomes.Any(o =>
                     o.Outputs.Any(op =>
@@ -651,7 +645,6 @@ public class DashboardController : Controller
         }
         else if (governorateCodes != null && governorateCodes.Any())
         {
-            // Filter by Governorates
             frameworkQuery = frameworkQuery.Where(f =>
                 f.Outcomes.Any(o =>
                     o.Outputs.Any(op =>
@@ -661,7 +654,29 @@ public class DashboardController : Controller
                                     m.Project.Governorates.Any(g => governorateCodes.Contains(g.Code))))))));
         }
 
-        // Now, select the necessary data for each framework from the filtered query
+        // APPLY MINISTRY AND PROJECT FILTER AT THE QUERY LEVEL
+        if (ministryCode.HasValue)
+        {
+            frameworkQuery = frameworkQuery.Where(f =>
+                f.Outcomes.Any(o =>
+                    o.Outputs.Any(op =>
+                        op.SubOutputs.Any(so =>
+                            so.Indicators.Any(i =>
+                                i.Measures.Any(m =>
+                                    m.Project.Ministries.Any(min => min.Code == ministryCode.Value)))))));
+        }
+
+        if (projectCode.HasValue)
+        {
+            frameworkQuery = frameworkQuery.Where(f =>
+                f.Outcomes.Any(o =>
+                    o.Outputs.Any(op =>
+                        op.SubOutputs.Any(so =>
+                            so.Indicators.Any(i =>
+                                i.Measures.Any(m =>
+                                    m.Project.ProjectID == projectCode.Value))))));
+        }
+
         var frameworks = await frameworkQuery
             .Select(fw => new
             {
@@ -681,29 +696,22 @@ public class DashboardController : Controller
                 .SelectMany(i => i.Measures)
                 .Where(m => m.Project != null);
 
-            // Apply all other filters to the projects in memory
             var filteredProjects = measures
                 .Select(m => m.Project)
                 .Where(p =>
-                    (projectCode == null || p.ProjectID == projectCode) &&
-                    (ministryCode == null || p.Ministries.Any(m => m.Code == ministryCode)) &&
-                    (governorateCodes == null || !governorateCodes.Any() || p.Governorates.Any(g => governorateCodes.Contains(g.Code))) &&
-                    (districtCodes == null || !districtCodes.Any() || p.Districts.Any(d => districtCodes.Contains(d.Code))) &&
+                    (!projectCode.HasValue || p.ProjectID == projectCode) &&
+                    (!ministryCode.HasValue || p.Ministries.Any(m => m.Code == ministryCode)) &&
+                    (communityCodes == null || !communityCodes.Any() || p.Communities.Any(c => communityCodes.Contains(c.Code))) &&
                     (subDistrictCodes == null || !subDistrictCodes.Any() || p.SubDistricts.Any(s => subDistrictCodes.Contains(s.Code))) &&
-                    (communityCodes == null || !communityCodes.Any() || p.Communities.Any(c => communityCodes.Contains(c.Code)))
+                    (districtCodes == null || !districtCodes.Any() || p.Districts.Any(d => districtCodes.Contains(d.Code))) &&
+                    (governorateCodes == null || !governorateCodes.Any() || p.Governorates.Any(g => governorateCodes.Contains(g.Code)))
                 )
                 .Distinct()
                 .ToList();
 
-            double indicatorsPerformance;
-            if (filteredProjects.Any())
-            {
-                indicatorsPerformance = Math.Round(filteredProjects.Average(p => p.performance), 2);
-            }
-            else
-            {
-                indicatorsPerformance = Math.Round(fw.IndicatorsPerformance,2);
-            }
+            double indicatorsPerformance = filteredProjects.Any()
+                ? Math.Round(filteredProjects.Average(p => p.performance), 2)
+                : Math.Round(fw.IndicatorsPerformance, 2);
 
             return new
             {
