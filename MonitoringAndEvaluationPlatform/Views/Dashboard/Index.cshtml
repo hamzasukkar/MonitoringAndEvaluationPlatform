@@ -599,6 +599,34 @@ $('#districtFilter').on('change', function () {
 	const selectedDistCodes = Array.from(new Set($(this).val() || []));
 	const districtCodeString = selectedDistCodes.join(',');
 
+		  // 3. If none selected, clear downstream & exit
+		  if (!selectedDistCodes.length) {
+			resetDropdown('subDistrictFilter');
+			resetDropdown('communityFilter');
+			$('#subDistrictCount').text('@Localizer["Total SubDistrict"] : 0');
+			$('#subDistrictFilter').prop('disabled', true);
+			return;
+		  }
+
+		  // 4. Fetch all sub-districts for the chosen district(s)
+		  fetch(
+			`/Dashboard/GetSubDistrictsByDistrict?districtCodes=${selectedDistCodes.join(',')}`
+		  )
+			.then(r => r.json())
+			.then(subDistricts => {
+			  // 5. Repopulate, preserving any multi-select picks
+			  populateDropdown(
+				'subDistrictFilter',
+				subDistricts,
+				/* preserveSelection = */ true
+			  );
+
+			  // 6. Update count & disable state
+			  $('#subDistrictCount').text(`@Localizer["Total SubDistrict"]: ${subDistricts.length}`);
+			  $('#subDistrictFilter').prop('disabled', !subDistricts.length);
+			})
+			.catch(console.error);
+
 	// 4. If any districts are selected, fetch data for all dependent dropdowns
 	if (districtCodeString) {
 		// Fetch projects for the selected districts
@@ -660,26 +688,96 @@ $('#districtFilter').on('change', function () {
 });
 
 	$('#subDistrictFilter').on('change', function () {
-			const filters = getFilters();
-		loadGauges(filters.frameworkCode, filters.ministryCode, filters.projectCode, filters.governorateCode, filters.districtCode, filters.subDistrictCode);
+	const filters = getFilters();
+	loadGauges(filters.frameworkCode, filters.ministryCode, filters.projectCode, filters.governorateCode, filters.districtCode, filters.subDistrictCode);
 
-	   const selectedsubDistCodes = $(this).val() || [];
+	// Clear and reset the Framework, Ministry, and Project dropdowns
+	const frameworkDropdown = document.getElementById('frameworkFilter');
+	frameworkDropdown.innerHTML = '<option disabled selected value="">-- @Localizer["Select Framework"] --</option>';
+	document.getElementById('totalFrameworks').textContent = 0;
 
-		resetDropdown('communityFilter');
-		document.getElementById('communityCount').innerText = 'Total Communities: 0';
-		fetch(`/Dashboard/GetCommunitiesBySubDistrict?subDistrictCodes=${selectedsubDistCodes}`)
-			.then((r) => r.json())
+	const ministryDropdown = document.getElementById('ministryFilter');
+	ministryDropdown.innerHTML = '<option disabled selected value="">-- @Localizer["Select Ministry"] --</option>';
+	document.getElementById('totalMinistries').textContent = 0;
+
+	const projectDropdown = document.getElementById('projectFilter');
+	projectDropdown.innerHTML = '<option value="">@Localizer["Select Project"]</option>';
+	document.getElementById('totalProjects').textContent = 0;
+
+	const selectedsubDistCodes = $(this).val() || [];
+	const subDistrictCodeString = selectedsubDistCodes.join(',');
+
+	// Clear and reset the Community dropdown
+	resetDropdown('communityFilter');
+	document.getElementById('communityCount').innerText = 'Total Communities: 0';
+			fetch(`/Dashboard/GetCommunitiesBySubDistrict?subDistrictCodes=${selectedsubDistCodes}`)
+				.then((r) => r.json())
+				.then((list) => {
+					populateDropdown('communityFilter', list);
+					document.getElementById('communityCount').innerText = `@Localizer["Total Communities"] : ${list.length}`;
+				})
+				.catch((e) => console.error(e));
+
+	if (subDistrictCodeString) {
+		// Fetch Communities for the selected sub-districts
+		fetch(`/Dashboard/GetCommunitiesBySubDistrict?subDistrictCodes=${subDistrictCodeString}`)
+				.then((r) => r.json())
 			.then((list) => {
 				populateDropdown('communityFilter', list);
 				document.getElementById('communityCount').innerText = `@Localizer["Total Communities"] : ${list.length}`;
+				$('#communityFilter').prop('disabled', !list.length);
+				})
+			.catch((e) => console.error(e));
+
+		// Fetch Frameworks for the selected sub-districts
+		fetch(`/Dashboard/GetFrameworksBySubDistricts?subDistrictCodes=${subDistrictCodeString}`)
+			.then((r) => r.json())
+			.then((list) => {
+				list.forEach(item => {
+					const opt = document.createElement('option');
+					opt.value = item.code;
+					opt.textContent = item.name;
+					frameworkDropdown.appendChild(opt);
+				});
+				document.getElementById('totalFrameworks').textContent = list.length;
 			})
 			.catch((e) => console.error(e));
-		});
 
-	document.getElementById('communityFilter').addEventListener('change', function () {
-		const filters = getFilters();
-		loadGauges(filters.frameworkCode, filters.ministryCode, filters.projectCode, filters.governorateCode, filters.districtCode, filters.subDistrictCode, filters.communityCode);
-	});
+		// Fetch Ministries for the selected sub-districts
+		fetch(`/Dashboard/GetMinistriesBySubDistricts?subDistrictCodes=${subDistrictCodeString}`)
+			.then((r) => r.json())
+			.then((list) => {
+				list.forEach(item => {
+					const opt = document.createElement('option');
+					opt.value = item.id;
+					opt.textContent = item.name;
+					ministryDropdown.appendChild(opt);
+				});
+				document.getElementById('totalMinistries').textContent = list.length;
+			})
+			.catch((e) => console.error(e));
+
+		// Fetch Projects for the selected sub-districts
+		fetch(`/Dashboard/GetProjectsBySubDistricts?subDistrictCodes=${subDistrictCodeString}`)
+			.then((r) => r.json())
+			.then((list) => {
+				list.forEach(item => {
+					const opt = document.createElement('option');
+					opt.value = item.id;
+					opt.textContent = item.name;
+					projectDropdown.appendChild(opt);
+				});
+				document.getElementById('totalProjects').textContent = list.length;
+			})
+			.catch((e) => console.error(e));
+	}
+});
+
+// This block must be outside the `$('#subDistrictFilter').on('change', function () { ... });` block
+document.getElementById('communityFilter').addEventListener('change', function () {
+	const filters = getFilters();
+	loadGauges(filters.frameworkCode, filters.ministryCode, filters.projectCode, filters.governorateCode, filters.districtCode, filters.subDistrictCode, filters.communityCode);
+});
 
 	document.getElementById('clearFiltersBtn').addEventListener('click', function () {
 		document.getElementById('frameworkFilter').selectedIndex = 0;
