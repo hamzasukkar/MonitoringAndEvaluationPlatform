@@ -774,23 +774,69 @@ $('#districtFilter').on('change', function () {
 });
 
 // This block must be outside the `$('#subDistrictFilter').on('change', function () { ... });` block
-document.getElementById('communityFilter').addEventListener('change', function () {
-	const filters = getFilters();
-	loadGauges(filters.frameworkCode, filters.ministryCode, filters.projectCode, filters.governorateCode, filters.districtCode, filters.subDistrictCode, filters.communityCode);
-});
+		$('#communityFilter').on('change', function () {
+		const filters = getFilters();
+		loadGauges(filters.frameworkCode, filters.ministryCode, filters.projectCode, filters.governorateCode, filters.districtCode, filters.subDistrictCode, filters.communityCode);
 
-	document.getElementById('clearFiltersBtn').addEventListener('click', function () {
-		document.getElementById('frameworkFilter').selectedIndex = 0;
-		document.getElementById('ministryFilter').innerHTML = '<option disabled selected value="">-- @Localizer["Select Ministry"]  --</option>';
-		document.getElementById('projectFilter').innerHTML = '<option value="">@Localizer["Select Project"] </option>';
-		$('#governorateFilter').val(null).trigger('change'); // Clear Select2
-		resetDropdown('districtFilter');
-		resetDropdown('subDistrictFilter');
-		resetDropdown('communityFilter');
-		document.getElementById('districtCount').innerText = '@Localizer["Total Districts"] : 0';
-		document.getElementById('subDistrictCount').innerText = '@Localizer["Total SubDistrict"] : 0';
-		document.getElementById('communityCount').innerText = '@Localizer["Total Communities"] : 0';
-		loadGauges();
+		// Clear and reset the Framework, Ministry, and Project dropdowns
+		const frameworkDropdown = document.getElementById('frameworkFilter');
+		frameworkDropdown.innerHTML = '<option disabled selected value="">-- @Localizer["Select Framework"] --</option>';
+		document.getElementById('totalFrameworks').textContent = 0;
+
+		const ministryDropdown = document.getElementById('ministryFilter');
+		ministryDropdown.innerHTML = '<option disabled selected value="">-- @Localizer["Select Ministry"] --</option>';
+		document.getElementById('totalMinistries').textContent = 0;
+
+		const projectDropdown = document.getElementById('projectFilter');
+		projectDropdown.innerHTML = '<option value="">@Localizer["Select Project"]</option>';
+		document.getElementById('totalProjects').textContent = 0;
+
+		const selectedCommunityCodes = $(this).val() || [];
+		const communityCodeString = selectedCommunityCodes.join(',');
+
+		if (communityCodeString) {
+			// Fetch Frameworks for the selected communities
+			fetch(`/Dashboard/GetFrameworksByCommunities?communityCodes=${communityCodeString}`)
+				.then((r) => r.json())
+				.then((list) => {
+					list.forEach(item => {
+						const opt = document.createElement('option');
+						opt.value = item.code;
+						opt.textContent = item.name;
+						frameworkDropdown.appendChild(opt);
+					});
+					document.getElementById('totalFrameworks').textContent = list.length;
+				})
+				.catch((e) => console.error(e));
+
+			// Fetch Ministries for the selected communities
+			fetch(`/Dashboard/GetMinistriesByCommunities?communityCodes=${communityCodeString}`)
+				.then((r) => r.json())
+				.then((list) => {
+					list.forEach(item => {
+						const opt = document.createElement('option');
+						opt.value = item.id;
+						opt.textContent = item.name;
+						ministryDropdown.appendChild(opt);
+					});
+					document.getElementById('totalMinistries').textContent = list.length;
+				})
+				.catch((e) => console.error(e));
+
+			// Fetch Projects for the selected communities
+			fetch(`/Dashboard/GetProjectsByCommunities?communityCodes=${communityCodeString}`)
+				.then((r) => r.json())
+				.then((list) => {
+					list.forEach(item => {
+						const opt = document.createElement('option');
+						opt.value = item.id;
+						opt.textContent = item.name;
+						projectDropdown.appendChild(opt);
+					});
+					document.getElementById('totalProjects').textContent = list.length;
+				})
+				.catch((e) => console.error(e));
+		}
 	});
 
 	// Helpers

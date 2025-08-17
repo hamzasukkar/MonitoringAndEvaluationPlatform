@@ -1004,5 +1004,71 @@ public class DashboardController : Controller
 
         return Json(projects);
     }
+
+    [HttpGet]
+    public async Task<IActionResult> GetFrameworksByCommunities(string communityCodes)
+    {
+        var codes = communityCodes?.Split(',', StringSplitOptions.RemoveEmptyEntries).ToList();
+        if (codes == null || !codes.Any())
+        {
+            return Json(new List<object>());
+        }
+
+        var frameworks = await _context.Frameworks
+            .Where(f => f.Outcomes.Any(o => o.Outputs.Any(op => op.SubOutputs.Any(so => so.Indicators.Any(i => i.Measures.Any(m => m.Project.Communities.Any(c => codes.Contains(c.Code))))))))
+            .Select(f => new
+            {
+                code = f.Code,
+                name = f.Name
+            })
+            .Distinct()
+            .ToListAsync();
+
+        return Json(frameworks);
+    }
+
+    [HttpGet]
+    public async Task<IActionResult> GetMinistriesByCommunities(string communityCodes)
+    {
+        var codes = communityCodes?.Split(',', StringSplitOptions.RemoveEmptyEntries).ToList();
+        if (codes == null || !codes.Any())
+        {
+            return Json(new List<object>());
+        }
+
+        var ministries = await _context.Ministries
+            .Where(m => m.Projects.Any(p => p.Communities.Any(c => codes.Contains(c.Code))))
+            .Select(m => new
+            {
+                id = m.Code,
+                name = m.MinistryDisplayName
+            })
+            .Distinct()
+            .ToListAsync();
+
+        return Json(ministries);
+    }
+
+    [HttpGet]
+    public async Task<IActionResult> GetProjectsByCommunities(string communityCodes)
+    {
+        var codes = communityCodes?.Split(',', StringSplitOptions.RemoveEmptyEntries).ToList();
+        if (codes == null || !codes.Any())
+        {
+            return Json(new List<object>());
+        }
+
+        var projects = await _context.Projects
+            .Where(p => p.Communities.Any(c => codes.Contains(c.Code)))
+            .Select(p => new
+            {
+                id = p.ProjectID,
+                name = p.ProjectName
+            })
+            .Distinct()
+            .ToListAsync();
+
+        return Json(projects);
+    }
 }
 //totalTarget = Math.Round(totalTarget, 2),
