@@ -593,13 +593,13 @@ public class DashboardController : Controller
     }
     [HttpGet]
     public async Task<IActionResult> FrameworksGauge(
-     int? frameworkCode,
-     int? ministryCode = null,
-     int? projectCode = null,
-     string? governorateCode = null,
-     string? districtCode = null,
-     string? subDistrictCode = null,
-     string? communityCode = null)
+      int? frameworkCode,
+      int? ministryCode = null,
+      int? projectCode = null,
+      string? governorateCode = null,
+      string? districtCode = null,
+      string? subDistrictCode = null,
+      string? communityCode = null)
     {
         var governorateCodes = governorateCode?.Split(',', StringSplitOptions.RemoveEmptyEntries).ToList();
         var districtCodes = districtCode?.Split(',', StringSplitOptions.RemoveEmptyEntries).ToList();
@@ -613,7 +613,7 @@ public class DashboardController : Controller
         {
             frameworkQuery = frameworkQuery.Where(fw => fw.Code == frameworkCode);
         }
-        else if (communityCodes != null && communityCodes.Any())
+        else if (communityCodes?.Any() == true)
         {
             frameworkQuery = frameworkQuery.Where(f =>
                 f.Outcomes.Any(o =>
@@ -623,7 +623,7 @@ public class DashboardController : Controller
                                 i.Measures.Any(m =>
                                     m.Project.Communities.Any(c => communityCodes.Contains(c.Code))))))));
         }
-        else if (subDistrictCodes != null && subDistrictCodes.Any())
+        else if (subDistrictCodes?.Any() == true)
         {
             frameworkQuery = frameworkQuery.Where(f =>
                 f.Outcomes.Any(o =>
@@ -633,7 +633,7 @@ public class DashboardController : Controller
                                 i.Measures.Any(m =>
                                     m.Project.SubDistricts.Any(s => subDistrictCodes.Contains(s.Code))))))));
         }
-        else if (districtCodes != null && districtCodes.Any())
+        else if (districtCodes?.Any() == true)
         {
             frameworkQuery = frameworkQuery.Where(f =>
                 f.Outcomes.Any(o =>
@@ -643,7 +643,7 @@ public class DashboardController : Controller
                                 i.Measures.Any(m =>
                                     m.Project.Districts.Any(d => districtCodes.Contains(d.Code))))))));
         }
-        else if (governorateCodes != null && governorateCodes.Any())
+        else if (governorateCodes?.Any() == true)
         {
             frameworkQuery = frameworkQuery.Where(f =>
                 f.Outcomes.Any(o =>
@@ -654,7 +654,7 @@ public class DashboardController : Controller
                                     m.Project.Governorates.Any(g => governorateCodes.Contains(g.Code))))))));
         }
 
-        // APPLY MINISTRY AND PROJECT FILTER AT THE QUERY LEVEL
+        // APPLY MINISTRY AND PROJECT FILTER
         if (ministryCode.HasValue)
         {
             frameworkQuery = frameworkQuery.Where(f =>
@@ -686,31 +686,30 @@ public class DashboardController : Controller
                 Indicators = fw.Outcomes
                     .SelectMany(o => o.Outputs)
                     .SelectMany(op => op.SubOutputs)
+                    .SelectMany(so => so.Indicators),
+                Projects = fw.Outcomes
+                    .SelectMany(o => o.Outputs)
+                    .SelectMany(op => op.SubOutputs)
                     .SelectMany(so => so.Indicators)
+                    .SelectMany(i => i.Measures)
+                    .Select(m => m.Project)
+                    .Where(p =>
+                        p != null &&
+                        (!projectCode.HasValue || p.ProjectID == projectCode.Value) &&
+                        (!ministryCode.HasValue || p.Ministries.Any(m => m.Code == ministryCode.Value)) &&
+                        (communityCodes == null || !communityCodes.Any() || p.Communities.Any(c => communityCodes.Contains(c.Code))) &&
+                        (subDistrictCodes == null || !subDistrictCodes.Any() || p.SubDistricts.Any(s => subDistrictCodes.Contains(s.Code))) &&
+                        (districtCodes == null || !districtCodes.Any() || p.Districts.Any(d => districtCodes.Contains(d.Code))) &&
+                        (governorateCodes == null || !governorateCodes.Any() || p.Governorates.Any(g => governorateCodes.Contains(g.Code)))
+                    )
+                    .Distinct()
             })
             .ToListAsync();
 
         var result = frameworks.Select(fw =>
         {
-            var measures = fw.Indicators
-                .SelectMany(i => i.Measures)
-                .Where(m => m.Project != null);
-
-            var filteredProjects = measures
-                .Select(m => m.Project)
-                .Where(p =>
-                    (!projectCode.HasValue || p.ProjectID == projectCode) &&
-                    (!ministryCode.HasValue || p.Ministries.Any(m => m.Code == ministryCode)) &&
-                    (communityCodes == null || !communityCodes.Any() || p.Communities.Any(c => communityCodes.Contains(c.Code))) &&
-                    (subDistrictCodes == null || !subDistrictCodes.Any() || p.SubDistricts.Any(s => subDistrictCodes.Contains(s.Code))) &&
-                    (districtCodes == null || !districtCodes.Any() || p.Districts.Any(d => districtCodes.Contains(d.Code))) &&
-                    (governorateCodes == null || !governorateCodes.Any() || p.Governorates.Any(g => governorateCodes.Contains(g.Code)))
-                )
-                .Distinct()
-                .ToList();
-
-            double indicatorsPerformance = filteredProjects.Any()
-                ? Math.Round(filteredProjects.Average(p => p.performance), 2)
+            double indicatorsPerformance = fw.Projects.Any()
+                ? Math.Round(fw.Projects.Average(p => p.performance), 2)
                 : Math.Round(fw.IndicatorsPerformance, 2);
 
             return new
@@ -719,7 +718,7 @@ public class DashboardController : Controller
                 name = fw.Name,
                 indicatorsPerformance,
                 indicatorCount = fw.Indicators.Count(),
-                projects = filteredProjects.Select(p => new
+                projects = fw.Projects.Select(p => new
                 {
                     p.ProjectID,
                     p.ProjectName,
@@ -730,6 +729,7 @@ public class DashboardController : Controller
 
         return Json(result);
     }
+
 
 
 
