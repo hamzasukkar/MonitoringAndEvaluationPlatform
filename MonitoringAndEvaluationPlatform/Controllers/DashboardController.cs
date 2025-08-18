@@ -867,6 +867,23 @@ public class DashboardController : Controller
 
         return Json(frameworks);
     }
+
+    [HttpGet]
+    public async Task<IActionResult> GetFrameworksByMinistry(int ministryCode)
+    {
+        var frameworks = await _context.Frameworks
+            .Where(f => f.Outcomes.Any(o => o.Outputs.Any(op => op.SubOutputs.Any(so => so.Indicators.Any(i => i.Measures.Any(m => m.Project.Ministries.Any(min => min.Code == ministryCode)))))))
+            .Select(f => new
+            {
+                code = f.Code,
+                name = f.Name
+            })
+            .Distinct()
+            .ToListAsync();
+
+        return Json(frameworks);
+    }
+
     [HttpGet]
     public async Task<IActionResult> GetProjectsByMinistry(int ministryCode)
     {
@@ -946,6 +963,23 @@ public class DashboardController : Controller
             {
                 Code = g.Code,   // adjust to your Governorate PK
                 Name = g.AR_Name
+            })
+            .Distinct()
+            .ToListAsync();
+
+        return Json(governorates);
+    }
+
+    [HttpGet]
+    public async Task<IActionResult> GetGovernoratesByMinistry(int ministryCode)
+    {
+        var governorates = await _context.Projects
+            .Where(p => p.Ministries.Any(m => m.Code == ministryCode))
+            .SelectMany(p => p.Governorates) // many-to-many Project ↔ Governorate
+            .Select(g => new
+            {
+                code = g.Code,   // adjust if PK is GovernorateCode
+                name = g.AR_Name
             })
             .Distinct()
             .ToListAsync();
