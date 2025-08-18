@@ -132,14 +132,41 @@ public class MonitoringService
     }
 
 
+    // Helper method to calculate weighted average
+    private double CalculateWeightedAverage<T>(List<T> items, Func<T, double> valueSelector, Func<T, double> weightSelector)
+    {
+        var totalWeight = items.Sum(weightSelector);
+        return totalWeight > 0 ? items.Sum(i => valueSelector(i) * weightSelector(i)) / totalWeight : 0;
+    }
+
+    private async Task UpdateSubOutputPerformance(int subOutputCode)
+    {
+        var subOutput = await _context.SubOutputs.FirstOrDefaultAsync(i => i.Code == subOutputCode);
+        if (subOutput == null) return;
+
+        var indicators = await _context.Indicators
+            .Where(i => i.SubOutputCode == subOutput.Code)
+            .ToListAsync();
+
+        // Calculate weighted performance of SubOutput based on its Indicators
+        subOutput.IndicatorsPerformance = CalculateWeightedAverage(indicators, i => i.IndicatorsPerformance, i => i.Weight);
+
+        await _context.SaveChangesAsync();
+
+        await UpdateOutputPerformance(subOutput.OutputCode);
+    }
+
     private async Task UpdateOutputPerformance(int outputCode)
     {
         var output = await _context.Outputs.FirstOrDefaultAsync(i => i.Code == outputCode);
-
         if (output == null) return;
 
-        var subOutputs = await _context.SubOutputs.Where(i => i.OutputCode == output.Code).ToListAsync();
-        output.IndicatorsPerformance = CalculateAveragePerformance(subOutputs.Select(s => s.IndicatorsPerformance).ToList());
+        var subOutputs = await _context.SubOutputs
+            .Where(s => s.OutputCode == output.Code)
+            .ToListAsync();
+
+        // Calculate weighted performance of Output based on its SubOutputs
+        output.IndicatorsPerformance = CalculateWeightedAverage(subOutputs, s => s.IndicatorsPerformance, s => s.Weight);
 
         await _context.SaveChangesAsync();
 
@@ -149,11 +176,14 @@ public class MonitoringService
     private async Task UpdateOutcomePerformance(int outcomeCode)
     {
         var outcome = await _context.Outcomes.FirstOrDefaultAsync(i => i.Code == outcomeCode);
-
         if (outcome == null) return;
 
-        var outputs = await _context.Outputs.Where(i => i.OutcomeCode == outcome.Code).ToListAsync();
-        outcome.IndicatorsPerformance = CalculateAveragePerformance(outputs.Select(o => o.IndicatorsPerformance).ToList());
+        var outputs = await _context.Outputs
+            .Where(o => o.OutcomeCode == outcome.Code)
+            .ToListAsync();
+
+        // Calculate weighted performance of Outcome based on its Outputs
+        outcome.IndicatorsPerformance = CalculateWeightedAverage(outputs, o => o.IndicatorsPerformance, o => o.Weight);
 
         await _context.SaveChangesAsync();
 
@@ -163,27 +193,16 @@ public class MonitoringService
     private async Task UpdateFrameworkPerformance(int frameworkCode)
     {
         var framework = await _context.Frameworks.FirstOrDefaultAsync(i => i.Code == frameworkCode);
-
         if (framework == null) return;
 
-        var outcomes = await _context.Outcomes.Where(i => i.FrameworkCode == framework.Code).ToListAsync();
-        framework.IndicatorsPerformance = CalculateAveragePerformance(outcomes.Select(o => o.IndicatorsPerformance).ToList());
+        var outcomes = await _context.Outcomes
+            .Where(o => o.FrameworkCode == framework.Code)
+            .ToListAsync();
+
+        // Calculate weighted performance of Framework based on its Outcomes
+        framework.IndicatorsPerformance = CalculateWeightedAverage(outcomes, o => o.IndicatorsPerformance, o => o.Weight);
 
         await _context.SaveChangesAsync();
-    }
-
-    private async Task UpdateSubOutputPerformance(int subOutputCode)
-    {
-        var subOutput = await _context.SubOutputs.FirstOrDefaultAsync(i => i.Code == subOutputCode);
-
-        if (subOutput == null) return;
-
-        var indicators = await _context.Indicators.Where(i => i.SubOutputCode == subOutput.Code).ToListAsync();
-        subOutput.IndicatorsPerformance = CalculateAveragePerformance(indicators.Select(i => i.IndicatorsPerformance).ToList());
-
-        await _context.SaveChangesAsync();
-
-        await UpdateOutputPerformance(subOutput.OutputCode);
     }
 
     private double CalculateAveragePerformance(List<double> performances)
