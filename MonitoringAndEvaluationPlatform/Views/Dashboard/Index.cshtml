@@ -446,6 +446,8 @@
 		const projectCode = this.value;
 		const filters = getFilters();
 		filters.projectCode = projectCode;
+		const governorateDropdown = document.getElementById('governorateFilter');
+		governorateDropdown.innerHTML = '';
 
 		// Load gauges with the new filter
 		loadGauges(filters.frameworkCode, filters.ministryCode, filters.projectCode, filters.governorateCode, filters.districtCode, filters.subDistrictCode, filters.communityCode);
@@ -500,7 +502,25 @@
 				})
 				.catch(error => console.error('Error fetching frameworks:', error));
 
+				fetch(`/Dashboard/GetGovernoratesByProject?projectCode=${projectCode}`)
+				.then(res => res.json())
+				.then(governorates => {
+					governorates.forEach(gov => {
+						const opt = document.createElement('option');
+						opt.value = gov.code;
+						opt.textContent = gov.name;
+						governorateDropdown.appendChild(opt);
+					});
+					document.getElementById('totalGovernorates').textContent = governorates.length;
+					$('#governorateFilter').trigger('change.select2');
+				})
+				.catch(console.error);
+		} 
+		else {
+			document.getElementById('totalGovernorates').textContent = 0;
 		}
+
+		
 	});
 
 	// Add or modify this part within your existing JavaScript block

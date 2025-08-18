@@ -933,5 +933,27 @@ public class DashboardController : Controller
         return Json(governorates);
     }
 
+    [HttpGet]
+    public async Task<IActionResult> GetGovernoratesByProject(int projectCode)
+    {
+        if (projectCode == 0)
+            return Json(new List<object>());
+
+        var governorates = await _context.Projects
+            .Where(p => p.ProjectID == projectCode)
+            .SelectMany(p => p.Governorates) // many-to-many navigation property
+            .Select(g => new
+            {
+                Code = g.Code,   // adjust to your Governorate PK
+                Name = g.AR_Name
+            })
+            .Distinct()
+            .ToListAsync();
+
+        return Json(governorates);
+    }
+
+
+
 }
 //totalTarget = Math.Round(totalTarget, 2),
