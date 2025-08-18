@@ -914,5 +914,24 @@ public class DashboardController : Controller
 
         return Json(ministries);
     }
+
+    [HttpGet]
+    public IActionResult GetGovernoratesByFramework(int frameworkCode)
+    {
+        // Collect governorates from projects that are linked via measures to indicators in the framework
+        var governorates = _context.Measures
+            .Where(m => m.Indicator.SubOutput.Output.Outcome.Framework.Code == frameworkCode)
+            .SelectMany(m => m.Project.Governorates) // assumes Project has navigation property Governorates
+            .Distinct()
+            .Select(g => new
+            {
+                code = g.Code,
+                name = g.AR_Name
+            })
+            .ToList();
+
+        return Json(governorates);
+    }
+
 }
 //totalTarget = Math.Round(totalTarget, 2),
