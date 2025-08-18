@@ -403,7 +403,6 @@
 			document.getElementById('totalGovernorates').textContent = 0;
 		}
 	});
-
 		document.getElementById('ministryFilter').addEventListener('change', function () {
 		const ministryCode = this.value;
 		const filters = getFilters();
@@ -412,59 +411,75 @@
 		// Load gauges with the new filter
 		loadGauges(filters.frameworkCode, filters.ministryCode, filters.projectCode, filters.governorateCode);
 
-		// Clear and reset Frameworks dropdown
+		// ------------------- Clear and reset dropdowns -------------------
 		const frameworkDropdown = document.getElementById('frameworkFilter');
 		frameworkDropdown.innerHTML = '<option disabled selected value="">-- @Localizer["Select Framework"] --</option>';
 		document.getElementById('totalFrameworks').textContent = 0;
 
-		// Clear and reset Projects dropdown
 		const projectDropdown = document.getElementById('projectFilter');
 		projectDropdown.innerHTML = '<option value="">@Localizer["Select Project"]</option>';
 		document.getElementById('totalProjects').textContent = 0;
 
-		if (ministryCode) {
-			// Fetch projects for the selected ministry
-			fetch(`/Dashboard/GetProjectsByMinistry?ministryCode=${ministryCode}`)
-				.then(response => {
-					if (!response.ok) throw new Error("Network response was not ok for projects by ministry");
-					return response.json();
-				})
-				.then(projects => {
-					projects.forEach(project => {
-						const option = document.createElement('option');
-						option.value = project.id;
-						option.textContent = project.name;
-						projectDropdown.appendChild(option);
-					});
-					const totalProjects = projects.length;
-					document.getElementById('totalProjects').textContent = totalProjects;
-				})
-				.catch(error => console.error('Error fetching projects:', error));
+		const governorateDropdown = document.getElementById('governorateFilter');
+		governorateDropdown.innerHTML = '<option value="">@Localizer["Select Governorate"]</option>';
+		document.getElementById('totalGovernorates').textContent = 0;
 
-			// Fetch frameworks for the selected ministry
-			fetch(`/Dashboard/GetFrameworksByMinistry?ministryCode=${ministryCode}`)
-				.then(response => {
-					if (!response.ok) throw new Error("Network response was not ok for frameworks by ministry");
-					return response.json();
-				})
-				.then(frameworks => {
-					frameworks.forEach(framework => {
-						const option = document.createElement('option');
-						option.value = framework.code;
-						option.textContent = framework.name;
-						frameworkDropdown.appendChild(option);
-					});
-					const totalFrameworks = frameworks.length;
-					document.getElementById('totalFrameworks').textContent = totalFrameworks;
-				})
-				.catch(error => console.error('Error fetching frameworks:', error));
+		if (!ministryCode) return;
 
-				document.getElementById('totalMinistries').textContent = 1;
-		}
+		// ------------------- Fetch Projects -------------------
+		fetch(`/Dashboard/GetProjectsByMinistry?ministryCode=${ministryCode}`)
+			.then(response => {
+				if (!response.ok) throw new Error("Network response was not ok for projects by ministry");
+				return response.json();
+			})
+			.then(projects => {
+				projects.forEach(project => {
+					const option = document.createElement('option');
+					option.value = project.id;
+					option.textContent = project.name;
+					projectDropdown.appendChild(option);
+				});
+				document.getElementById('totalProjects').textContent = projects.length;
+			})
+			.catch(error => console.error('Error fetching projects:', error));
+
+		// ------------------- Fetch Frameworks -------------------
+		fetch(`/Dashboard/GetFrameworksByMinistry?ministryCode=${ministryCode}`)
+			.then(response => {
+				if (!response.ok) throw new Error("Network response was not ok for frameworks by ministry");
+				return response.json();
+			})
+			.then(frameworks => {
+				frameworks.forEach(framework => {
+					const option = document.createElement('option');
+					option.value = framework.code;
+					option.textContent = framework.name;
+					frameworkDropdown.appendChild(option);
+				});
+				document.getElementById('totalFrameworks').textContent = frameworks.length;
+			})
+			.catch(error => console.error('Error fetching frameworks:', error));
+
+		// ------------------- Fetch Governorates -------------------
+		fetch(`/Dashboard/GetGovernoratesByMinistry?ministryCode=${ministryCode}`)
+			.then(response => {
+				if (!response.ok) throw new Error("Network response was not ok for governorates by ministry");
+				return response.json();
+			})
+			.then(governorates => {
+				governorates.forEach(gov => {
+					const option = document.createElement('option');
+					option.value = gov.code;
+					option.textContent = gov.name;
+					governorateDropdown.appendChild(option);
+				});
+				document.getElementById('totalGovernorates').textContent = governorates.length;
+			})
+			.catch(error => console.error('Error fetching governorates:', error));
+
+		// Update total ministries count
+		document.getElementById('totalMinistries').textContent = 1;
 	});
-
-
-
 
 		document.getElementById('projectFilter').addEventListener('change', function () {
 		const projectCode = this.value;
