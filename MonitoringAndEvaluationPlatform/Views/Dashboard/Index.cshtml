@@ -554,6 +554,8 @@
 					$('#governorateFilter').trigger('change.select2');
 				})
 				.catch(console.error);
+
+				document.getElementById('totalProjects').textContent = 1;
 		} 
 		else {
 			document.getElementById('totalGovernorates').textContent = 0;
