@@ -6,6 +6,45 @@
 	ViewData["Title"] = "Summary";
 	Layout = "~/Views/Shared/_DashboardLayout.cshtml";
 }
+<head>
+	<style>
+		/* Background for the multi-select input box */
+		.select2-container--default .select2-selection--multiple {
+			background-color: #f7f9fa; /* A very light grey, almost white */
+			border: 1px solid #d1d5db; /* A soft, subtle border */
+		}
+
+		/* Styling for the individual dropdown options */
+		.select2-container--default .select2-results__option {
+			background-color: rgba(255, 255, 255, 0.7); /* White with a slight transparency */
+			color: #374151; /* Dark grey text for readability */
+			backdrop-filter: blur(8px); /* A stronger, more noticeable blur effect */
+			transition: background-color 0.2s ease-in-out; /* Smooth transition on hover */
+		}
+
+		/* Styling for the dropdown options on hover */
+		.select2-container--default .select2-results__option--highlighted {
+			background-color: rgba(156, 163, 175, 0.4); /* A semi-transparent grey for a subtle highlight */
+			color: #111827; /* Darker text on hover */
+		}
+
+		/* Styling for a selected item in the dropdown list */
+		.select2-container--default .select2-results__option[aria-selected=true] {
+			background-color: rgba(99, 102, 241, 0.6); /* A semi-transparent purplish-blue for selected state */
+			color: #fff; /* White text for contrast */
+		}
+
+		.select2-container--default .select2-selection--multiple .select2-selection__choice 
+		{
+			background-color: #898989; /* Dark grey background for the selected tag */
+			color: #fff; /* White text for contrast */
+			border: 1px solid #1f2937;
+			border-radius: 4px;
+			padding: 2px 8px;
+			margin: 2px;
+		}
+	</style>
+</head>
 <div class="row text-center g-4 mb-4" style="padding-top: 10px;">
 	<!-- Frameworks -->
 	<div class="col-md-3">
@@ -69,11 +108,11 @@
 				<i class="bi bi-geo-alt-fill display-5 mb-2"></i>
 				<h5 class="card-title">@Localizer["Total Governorates"]</h5>
 				<h2 class="fw-bold">@Model.TotalGovernorate</h2>
-				<select id="governorateFilter" class="form-select mt-3 text-dark" multiple>
+				<select  id="governorateFilter" class="form-select mt-3 text-dark" multiple>
 					<option disabled selected value="">-- @Localizer["Select Governorate"] --</option>
 					@foreach (var gov in Model.Governorates)
 					{
-						<option value="@gov.Code">@gov.AR_Name</option>
+						<option  value="@gov.Code">@gov.AR_Name</option>
 					}
 				</select>
 			</div>
