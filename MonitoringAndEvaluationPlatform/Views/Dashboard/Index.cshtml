@@ -760,10 +760,80 @@
 			.catch((e) => console.error(e));
 		});
 
-	document.getElementById('communityFilter').addEventListener('change', function () {
+	$('#communityFilter').on('change', function () {
+		debugger;
 		const filters = getFilters();
-		loadGauges(filters.frameworkCode, filters.ministryCode, filters.projectCode, filters.governorateCode, filters.districtCode, filters.subDistrictCode, filters.communityCode);
+		const selectedCommunityCodes = $(this).val() || [];
+		const communityCodeString = selectedCommunityCodes.join(',');
+
+		loadGauges(filters.frameworkCode, filters.ministryCode, filters.projectCode, filters.governorateCode, filters.districtCode, filters.subDistrictCode, communityCodeString);
+
+		// Clear and reset the Framework, Ministry, and Project dropdowns
+		const frameworkDropdown = document.getElementById('frameworkFilter');
+		frameworkDropdown.innerHTML = '<option disabled selected value="">-- @Localizer["Select Framework"] --</option>';
+		document.getElementById('totalFrameworks').textContent = 0;
+
+		const ministryDropdown = document.getElementById('ministryFilter');
+		ministryDropdown.innerHTML = '<option disabled selected value="">-- @Localizer["Select Ministry"] --</option>';
+		document.getElementById('totalMinistries').textContent = 0;
+
+		const projectDropdown = document.getElementById('projectFilter');
+		projectDropdown.innerHTML = '<option value="">@Localizer["Select Project"]</option>';
+		document.getElementById('totalProjects').textContent = 0;
+
+		if (communityCodeString) {
+			// Fetch Frameworks for the selected communities
+			fetch(`/Dashboard/GetFrameworksByCommunities?communityCodes=${communityCodeString}`)
+				.then(r => r.json())
+				.then(list => {
+					list.forEach(item => {
+						const opt = document.createElement('option');
+						opt.value = item.code;
+						opt.textContent = item.name;
+						frameworkDropdown.appendChild(opt);
+					});
+					document.getElementById('totalFrameworks').textContent = list.length;
+				})
+				.catch(e => console.error(e));
+
+			// Fetch Ministries for the selected communities
+			fetch(`/Dashboard/GetMinistriesByCommunities?communityCodes=${communityCodeString}`)
+				.then(r => r.json())
+				.then(list => {
+					list.forEach(item => {
+						const opt = document.createElement('option');
+						opt.value = item.id;
+						opt.textContent = item.name;
+						ministryDropdown.appendChild(opt);
+					});
+					document.getElementById('totalMinistries').textContent = list.length;
+				})
+				.catch(e => console.error(e));
+
+			// Fetch Projects for the selected communities
+			fetch(`/Dashboard/GetProjectsByCommunities?communityCodes=${communityCodeString}`)
+				.then(r => r.json())
+				.then(list => {
+					list.forEach(item => {
+						const opt = document.createElement('option');
+						opt.value = item.id;
+						opt.textContent = item.name;
+						projectDropdown.appendChild(opt);
+					});
+					document.getElementById('totalProjects').textContent = list.length;
+				})
+				.catch(e => console.error(e));
+		}
 	});
+
+
+
+
+	// document.getElementById('communityFilter').addEventListener('change', function () {
+	// 	debugger;
+	// 	const filters = getFilters();
+	// 	loadGauges(filters.frameworkCode, filters.ministryCode, filters.projectCode, filters.governorateCode, filters.districtCode, filters.subDistrictCode, filters.communityCode);
+	// });
 
 	document.getElementById('clearFiltersBtn').addEventListener('click', function () {
 		document.getElementById('frameworkFilter').selectedIndex = 0;
@@ -808,4 +878,6 @@
 			communityCode: $('#communityFilter').val() ? $('#communityFilter').val().join(',') : ''
 		};
 	}
+
+
 </script>
