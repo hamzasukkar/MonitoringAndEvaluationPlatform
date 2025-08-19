@@ -120,7 +120,9 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             }
 
             // Execute the query and assign the filtered frameworks to the ViewModel
-            filter.Frameworks = await frameworksQuery.ToListAsync();
+            filter.Frameworks = await frameworksQuery
+              .OrderByDescending(f => f.IndicatorsPerformance)
+              .ToListAsync();
 
             return View(filter);
         }
