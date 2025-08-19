@@ -88,6 +88,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 .ThenInclude(i => i.Indicators)
                 .ThenInclude(i => i.Measures)
                 .ThenInclude(i => i.Project)
+                .OrderByDescending(f => f.IndicatorsPerformance)
                 .ToListAsync();
             return View(frameworks);
         }

@@ -704,7 +704,7 @@ public class DashboardController : Controller
                     )
                     .Distinct()
             })
-            .ToListAsync();
+           .OrderByDescending(f => f.IndicatorsPerformance).ToListAsync();
 
         var result = frameworks.Select(fw =>
         {
