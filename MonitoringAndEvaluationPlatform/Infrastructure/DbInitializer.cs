@@ -73,29 +73,30 @@ namespace MonitoringAndEvaluationPlatform.Infrastructure
 
                     context.ProjectManagers.AddRange(projectManagers);
                 }
-
-                var goals = new List<Goal>
+                if (!context.Goals.Any())
+                {
+                    var goals = new List<Goal>
                     {
-                        new Goal { EN_Name = "No Poverty", AR_Name = "القضاء على الفقر" },
-                        new Goal { EN_Name = "Zero Hunger", AR_Name = "القضاء التام على الجوع" },
-                        new Goal { EN_Name = "Good Health and Well‑being", AR_Name = "الصحة الجيدة والرفاه" },
-                        new Goal { EN_Name = "Quality Education", AR_Name = "التعليم الجيد" },
-                        new Goal { EN_Name = "Gender Equality", AR_Name = "المساواة بين الجنسين" },
-                        new Goal { EN_Name = "Clean Water and Sanitation", AR_Name = "المياه النظيفة والنظافة الصحية" },
-                        new Goal { EN_Name = "Affordable and Clean Energy", AR_Name = "طاقة نظيفة وبأسعار معقولة" },
-                        new Goal { EN_Name = "Decent Work and Economic Growth", AR_Name = "العمل اللائق ونمو الاقتصاد" },
-                        new Goal { EN_Name = "Industry, Innovation and Infrastructure", AR_Name = "الصناعة والابتكار والهياكل الأساسية" },
-                        new Goal { EN_Name = "Reduced Inequalities", AR_Name = "الحد من أوجه عدم المساواة" },
-                        new Goal { EN_Name = "Sustainable Cities and Communities", AR_Name = "مدن ومجتمعات محلية مستدامة" },
-                        new Goal { EN_Name = "Responsible Consumption and Production", AR_Name = "الاستهلاك والإنتاج المسؤولان" },
-                        new Goal { EN_Name = "Climate Action", AR_Name = "العمل المناخي" },
-                        new Goal { EN_Name = "Life Below Water", AR_Name = "الحياة تحت الماء" },
-                        new Goal { EN_Name = "Life on Land", AR_Name = "الحياة في البر" },
-                        new Goal { EN_Name = "Peace, Justice and Strong Institutions", AR_Name = "السلام والعدل والمؤسسات القوية" },
-                        new Goal { EN_Name = "Partnerships for the Goals", AR_Name = "عقد الشراكات لتحقيق الأهداف" },
+                        new Goal { EN_Name = "No Poverty", AR_Name = "القضاء على الفقر", Icon = "https://sustainabledevelopment.un.org/content/images/sdg-1.svg" },
+                        new Goal { EN_Name = "Zero Hunger", AR_Name = "القضاء التام على الجوع", Icon = "https://sustainabledevelopment.un.org/content/images/sdg-2.svg" },
+                        new Goal { EN_Name = "Good Health and Well‑being", AR_Name = "الصحة الجيدة والرفاه", Icon = "https://sustainabledevelopment.un.org/content/images/sdg-3.svg" },
+                        new Goal { EN_Name = "Quality Education", AR_Name = "التعليم الجيد", Icon = "https://sustainabledevelopment.un.org/content/images/sdg-4.svg" },
+                        new Goal { EN_Name = "Gender Equality", AR_Name = "المساواة بين الجنسين", Icon = "https://sustainabledevelopment.un.org/content/images/sdg-5.svg" },
+                        new Goal { EN_Name = "Clean Water and Sanitation", AR_Name = "المياه النظيفة والنظافة الصحية", Icon = "https://sustainabledevelopment.un.org/content/images/sdg-6.svg" },
+                        new Goal { EN_Name = "Affordable and Clean Energy", AR_Name = "طاقة نظيفة وبأسعار معقولة", Icon = "https://sustainabledevelopment.un.org/content/images/sdg-7.svg" },
+                        new Goal { EN_Name = "Decent Work and Economic Growth", AR_Name = "العمل اللائق ونمو الاقتصاد", Icon = "https://sustainabledevelopment.un.org/content/images/sdg-8.svg" },
+                        new Goal { EN_Name = "Industry, Innovation and Infrastructure", AR_Name = "الصناعة والابتكار والهياكل الأساسية", Icon = "https://sustainabledevelopment.un.org/content/images/sdg-9.svg" },
+                        new Goal { EN_Name = "Reduced Inequalities", AR_Name = "الحد من أوجه عدم المساواة", Icon = "https://sustainabledevelopment.un.org/content/images/sdg10.svg" },
+                        new Goal { EN_Name = "Sustainable Cities and Communities", AR_Name = "مدن ومجتمعات محلية مستدامة", Icon = "https://sustainabledevelopment.un.org/content/images/sdg11.svg" },
+                        new Goal { EN_Name = "Responsible Consumption and Production", AR_Name = "الاستهلاك والإنتاج المسؤولان", Icon = "https://sustainabledevelopment.un.org/content/images/sdg12.svg" },
+                        new Goal { EN_Name = "Climate Action", AR_Name = "العمل المناخي", Icon = "https://sustainabledevelopment.un.org/content/images/sdg13.svg" },
+                        new Goal { EN_Name = "Life Below Water", AR_Name = "الحياة تحت الماء", Icon = "https://sustainabledevelopment.un.org/content/images/sdg14.svg" },
+                        new Goal { EN_Name = "Life on Land", AR_Name = "الحياة في البر", Icon = "https://sustainabledevelopment.un.org/content/images/sdg15.svg" },
+                        new Goal { EN_Name = "Peace, Justice and Strong Institutions", AR_Name = "السلام والعدل والمؤسسات القوية", Icon = "https://sustainabledevelopment.un.org/content/images/sdg16.svg" },
+                        new Goal { EN_Name = "Partnerships for the Goals", AR_Name = "عقد الشراكات لتحقيق الأهداف", Icon = "https://sustainabledevelopment.un.org/content/images/sdg17.svg" },
                     };
-
-                context.Goals.AddRange(goals);
+                    context.Goals.AddRange(goals);
+                }
 
 
                 if (!context.Ministries.Any())
