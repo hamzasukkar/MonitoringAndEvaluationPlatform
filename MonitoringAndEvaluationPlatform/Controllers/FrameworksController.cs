@@ -38,52 +38,30 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         }
 
         // GET: Frameworks
-        public async Task<IActionResult> Index(string searchString, FrameworkFilterViewModel filter)
+        public async Task<IActionResult> Index(string sortOrder, string searchString, FrameworkFilterViewModel filter)
         {
-            ViewData["ProgressBarClass"] = "progress-bar-danger"; // This is static, consider dynamic logic if needed
+            ViewData["CurrentSort"] = sortOrder;
+            // هنا قمنا بتغيير الفرز الافتراضي ليكون تنازليًا حسب أداء المؤشرات
+            ViewData["NameSortParm"] = string.IsNullOrEmpty(sortOrder) ? "name_desc" : "";
+            ViewData["IndicatorsSortParm"] = sortOrder == "indicators" ? "indicators_desc" : "indicators";
+            ViewData["DisbursementSortParm"] = sortOrder == "disbursement" ? "disbursement_desc" : "disbursement";
             ViewData["CurrentFilter"] = searchString;
 
             // Load dropdown/filter data for the ViewModel
             filter.Ministries = await _context.Ministries.ToListAsync();
             filter.Donors = await _context.Donors.ToListAsync();
             filter.Sectors = await _context.Sectors.ToListAsync();
+            filter.IsMinistryUser = false; // Assuming this logic is handled elsewhere
 
-            // Start with a queryable collection of Frameworks
-            // We need to include the full hierarchy down to Measures for filtering
-            IQueryable<Framework> frameworksQuery = _context.Frameworks
-                .Include(f => f.Outcomes)
-                    .ThenInclude(o => o.Outputs)
-                        .ThenInclude(op => op.SubOutputs)
-                            .ThenInclude(so => so.Indicators)
-                                .ThenInclude(i => i.Measures) // Include Measures
-                                    .ThenInclude(m => m.Project) // Include Project from Measure
-                                        .ThenInclude(p => p.Ministries) // Include Ministries from Project
-                .Include(f => f.Outcomes) // Re-include to branch for Donors/Sectors
-                    .ThenInclude(o => o.Outputs)
-                        .ThenInclude(op => op.SubOutputs)
-                            .ThenInclude(so => so.Indicators)
-                                .ThenInclude(i => i.Measures)
-                                    .ThenInclude(m => m.Project)
-                                        .ThenInclude(p => p.Donors) // Include Donors from Project
-                .Include(f => f.Outcomes) // Re-include to branch for Donors/Sectors
-                    .ThenInclude(o => o.Outputs)
-                        .ThenInclude(op => op.SubOutputs)
-                            .ThenInclude(so => so.Indicators)
-                                .ThenInclude(i => i.Measures)
-                                    .ThenInclude(m => m.Project)
-                                        .ThenInclude(p => p.Sectors); // Include Sectors from Project
+            IQueryable<Framework> frameworksQuery = _context.Frameworks.AsQueryable();
 
-
-            // Apply search string filter if provided
             if (!string.IsNullOrEmpty(searchString))
             {
                 frameworksQuery = frameworksQuery.Where(f => f.Name.Contains(searchString));
             }
 
-            // --- Apply Ministry Filter ---
             if (filter.SelectedMinistries != null && filter.SelectedMinistries.Any())
             {
-                // Filter frameworks where ANY of their measures' projects are linked to the selected ministries
                 frameworksQuery = frameworksQuery.Where(f =>
                     f.Outcomes.Any(o =>
                         o.Outputs.Any(op =>
@@ -93,10 +71,8 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                                         m.Project.Ministries.Any(min => filter.SelectedMinistries.Contains(min.Code))))))));
             }
 
-            // --- Apply Donor Filter ---
             if (filter.SelectedDonors != null && filter.SelectedDonors.Any())
             {
-                // Filter frameworks where ANY of their measures' projects are linked to the selected donors
                 frameworksQuery = frameworksQuery.Where(f =>
                     f.Outcomes.Any(o =>
                         o.Outputs.Any(op =>
@@ -106,10 +82,8 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                                         m.Project.Donors.Any(don => filter.SelectedDonors.Contains(don.Code))))))));
             }
 
-            // --- Apply Sector Filter ---
             if (filter.SelectedSector != null && filter.SelectedSector.Any())
             {
-                // Filter frameworks where ANY of their measures' projects are linked to the selected sectors
                 frameworksQuery = frameworksQuery.Where(f =>
                     f.Outcomes.Any(o =>
                         o.Outputs.Any(op =>
@@ -119,14 +93,33 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                                         m.Project.Sectors.Any(sec => filter.SelectedSector.Contains(sec.Code))))))));
             }
 
-            // Execute the query and assign the filtered frameworks to the ViewModel
-            filter.Frameworks = await frameworksQuery
-              .OrderByDescending(f => f.IndicatorsPerformance)
-              .ToListAsync();
+            // Apply sorting logic
+            switch (sortOrder)
+            {
+                case "name_desc":
+                    frameworksQuery = frameworksQuery.OrderByDescending(f => f.Name);
+                    break;
+                case "indicators":
+                    frameworksQuery = frameworksQuery.OrderBy(f => f.IndicatorsPerformance);
+                    break;
+                case "indicators_desc":
+                    frameworksQuery = frameworksQuery.OrderByDescending(f => f.IndicatorsPerformance);
+                    break;
+                case "disbursement":
+                    frameworksQuery = frameworksQuery.OrderBy(f => f.DisbursementPerformance);
+                    break;
+                case "disbursement_desc":
+                    frameworksQuery = frameworksQuery.OrderByDescending(f => f.DisbursementPerformance);
+                    break;
+                default:
+                    // تم تغيير القيمة الافتراضية هنا
+                    frameworksQuery = frameworksQuery.OrderByDescending(f => f.IndicatorsPerformance);
+                    break;
+            }
 
+            filter.Frameworks = await frameworksQuery.ToListAsync();
             return View(filter);
         }
-    
 
         // GET: Frameworks/Details/5
         public async Task<IActionResult> Details(int? id)

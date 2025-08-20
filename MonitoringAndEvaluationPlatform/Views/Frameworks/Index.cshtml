@@ -9,11 +9,20 @@
 @using Microsoft.AspNetCore.Mvc.Localization
 @inject IViewLocalizer Localizer
 @using Microsoft.AspNetCore.Localization
-
+<head>
+    <style>
+        .table-light th a {
+            color: #C8A85F !important;
+            text-decoration: none;
+        }
+    </style>
+</head>
 @{
     ViewData["Title"] = "Results Frameworks";
     Layout = "~/Views/Shared/_ResultsFrameworkLayout.cshtml";
 }
+
+
 <div class="container-fluid px-4">
 @* <div class="container-fluid"> *@
     <div class="d-flex justify-content-between align-items-center mb-4">
@@ -142,11 +151,51 @@
                         <table class="table table-hover">
                             <thead class="table-light">
                                 <tr>
-                                    <th>@Localizer["Framework Name"]</th>
-                                    <th>@Localizer["Indicators Performance"]</th>
-                                    <th>@Localizer["Disbursement Performance"]</th>
-                                    @*  <th>@Localizer["Field Monitoring"]</th> *@
-                                    @*    <th>@Localizer["Impact Assessment"]</th> *@
+                                    <th>
+                                        <a asp-action="Index"
+                                           asp-route-sortOrder="@ViewData["NameSortParm"]"
+                                           asp-route-searchString="@ViewData["CurrentFilter"]">
+                                            @Localizer["Framework Name"]
+                                            @if (ViewData["CurrentSort"]?.ToString() == "name_desc")
+                                            {
+                                                <i class="fas fa-arrow-down"></i>
+                                            }
+                                            else if (ViewData["CurrentSort"]?.ToString() == "")
+                                            {
+                                                <i class="fas fa-arrow-up"></i>
+                                            }
+                                        </a>
+                                    </th>
+                                    <th>
+                                        <a asp-action="Index"
+                                           asp-route-sortOrder="@ViewData["IndicatorsSortParm"]"
+                                           asp-route-searchString="@ViewData["CurrentFilter"]">
+                                            @Localizer["Indicators Performance"]
+                                            @if (ViewData["CurrentSort"]?.ToString() == "indicators_desc")
+                                            {
+                                                <i class="fas fa-arrow-down"></i>
+                                            }
+                                            else if (ViewData["CurrentSort"]?.ToString() == "indicators")
+                                            {
+                                                <i class="fas fa-arrow-up"></i>
+                                            }
+                                        </a>
+                                    </th>
+                                    <th>
+                                        <a asp-action="Index"
+                                           asp-route-sortOrder="@ViewData["DisbursementSortParm"]"
+                                           asp-route-searchString="@ViewData["CurrentFilter"]">
+                                            @Localizer["Disbursement Performance"]
+                                            @if (ViewData["CurrentSort"]?.ToString() == "disbursement_desc")
+                                            {
+                                                <i class="fas fa-arrow-down"></i>
+                                            }
+                                            else if (ViewData["CurrentSort"]?.ToString() == "disbursement")
+                                            {
+                                                <i class="fas fa-arrow-up"></i>
+                                            }
+                                        </a>
+                                    </th>
                                     <th class="text-end">@Localizer["Actions"]</th>
                                 </tr>
                             </thead>
@@ -155,14 +204,14 @@
                                 {
                                     string indicatorsClass = ProgressBarHelper.GetProgressBarClass(item.IndicatorsPerformance);
                                     string disbursementClass = ProgressBarHelper.GetProgressBarClass(item.DisbursementPerformance);
-                                    string fieldMonitoringClass = ProgressBarHelper.GetProgressBarClass(item.FieldMonitoring);
-                                    string impactAssessmentClass = ProgressBarHelper.GetProgressBarClass(item.ImpactAssessment);
                                     double IndicatorsPerformance = Math.Round(item.IndicatorsPerformance, 2);
 
                                     <tr id="framework-row-@item.Code">
                                         <td>
                                             <span id="fw-name-@item.Code" class="fw-name-view">
-                                                <a style="color:#fff" asp-controller="Outcomes" asp-action="Index" asp-route-frameworkCode="@item.Code" class="text-decoration-none"> <strong>@item.Name</strong></a>
+                                                <a style="color:#fff" asp-controller="Outcomes" asp-action="Index" asp-route-frameworkCode="@item.Code" class="text-decoration-none">
+                                                    <strong>@item.Name</strong>
+                                                </a>
                                             </span>
                                             <input type="text" id="fw-name-input-@item.Code" class="form-control form-control-sm fw-name-edit d-none" value="@item.Name" />
                                         </td>
@@ -172,15 +221,9 @@
                                         <td>
                                             @await Html.PartialAsync("_ProgressBar", Tuple.Create(item.DisbursementPerformance, disbursementClass))
                                         </td>
-                                        @* 
-                                        <td>
-                                            @await Html.PartialAsync("_ProgressBar", Tuple.Create(item.FieldMonitoring, fieldMonitoringClass))
-                                        </td>
-                                      <td>
-                                            @await Html.PartialAsync("_ProgressBar", Tuple.Create(item.ImpactAssessment, impactAssessmentClass))
-                                        </td> *@
                                         <td class="text-end">
                                             <div class="btn-group" role="group">
+                                                @* ... (باقي أزرار الإجراءات) ... *@
                                                 @if (SignInManager.IsSignedIn(User))
                                                 {
                                                     var user = await UserManager.GetUserAsync(User);
