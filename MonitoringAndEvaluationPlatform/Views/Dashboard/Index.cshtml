@@ -834,21 +834,9 @@
 	// 	const filters = getFilters();
 	// 	loadGauges(filters.frameworkCode, filters.ministryCode, filters.projectCode, filters.governorateCode, filters.districtCode, filters.subDistrictCode, filters.communityCode);
 	// });
-
 	document.getElementById('clearFiltersBtn').addEventListener('click', function () {
-		document.getElementById('frameworkFilter').selectedIndex = 0;
-		document.getElementById('ministryFilter').innerHTML = '<option disabled selected value="">-- @Localizer["Select Ministry"]  --</option>';
-		document.getElementById('projectFilter').innerHTML = '<option value="">@Localizer["Select Project"] </option>';
-		$('#governorateFilter').val(null).trigger('change'); // Clear Select2
-		resetDropdown('districtFilter');
-		resetDropdown('subDistrictFilter');
-		resetDropdown('communityFilter');
-		document.getElementById('districtCount').innerText = '@Localizer["Total Districts"] : 0';
-		document.getElementById('subDistrictCount').innerText = '@Localizer["Total SubDistrict"] : 0';
-		document.getElementById('communityCount').innerText = '@Localizer["Total Communities"] : 0';
-		loadGauges();
+		location.reload();
 	});
-
 	// Helpers
 	function resetDropdown(id) {
 		const dd = document.getElementById(id);
