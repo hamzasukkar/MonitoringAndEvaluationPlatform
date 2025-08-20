@@ -109,7 +109,7 @@
                                     @await Html.PartialAsync("_ProgressBar", Tuple.Create(item.ImpactAssessment, impactAssessmentClass))
                                 </td> *@
                                 <td>
-                                    <a style="color:#fff" href="/Outputs/Index/@item.OutputCode" class="text-decoration-none">@item.Output.Name</a>
+                                    <a style="color:#fff" asp-controller="Outputs" asp-action="Index" asp-route-outcomeCode="@item.Output.OutcomeCode"  class="text-decoration-none">@item.Output.Name</a>
                                 </td>
                                 <td class="text-end">
                                     <div class="btn-group" role="group">

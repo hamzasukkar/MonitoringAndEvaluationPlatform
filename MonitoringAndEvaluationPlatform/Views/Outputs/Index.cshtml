@@ -132,7 +132,7 @@
                                 </td> 
                                 *@
                                 <td>
-                                    <a style="color:#fff"  href="/Outcomes/Index/@item.OutcomeCode" class="text-decoration-none">@item.Outcome.Name</a>
+                                    <a style="color:#fff" asp-controller="Outcomes" asp-action="Index" asp-route-frameworkCode="@item.Outcome.FrameworkCode"  class="text-decoration-none">@item.Outcome.Name</a>
                                 </td>
                                 <td class="text-end">
                                     <div class="btn-group" role="group">
