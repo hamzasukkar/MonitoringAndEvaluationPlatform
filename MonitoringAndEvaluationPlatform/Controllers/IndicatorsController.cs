@@ -158,20 +158,41 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             return RedirectToAction(nameof(Index), new { frameworkCode = indicator.SubOutput.Output.Outcome.FrameworkCode, subOutputCode = indicator.SubOutputCode });
         }
 
-
-        private async Task UpdateSubOutputPerformance(int subOutputCode)
+        // مثال على UpdateSubOutputPerformance محسّن ليحسب الأداء المرجح بالأوزان
+        public async Task UpdateSubOutputPerformance(int subOutputCode)
         {
-            var subOutput = await _context.SubOutputs.FirstOrDefaultAsync(i => i.Code == subOutputCode);
+            var subOutput = await _context.SubOutputs
+                .Include(s => s.Indicators)
+                .FirstOrDefaultAsync(s => s.Code == subOutputCode);
 
-            if (subOutput == null) return;
+            if (subOutput == null)
+                throw new Exception("SubOutput not found");
 
-            var indicators = await _context.Indicators.Where(i => i.SubOutputCode == subOutput.Code).ToListAsync();
-            subOutput.IndicatorsPerformance = CalculateAveragePerformance(indicators.Select(i => i.IndicatorsPerformance).ToList())* subOutput.Weight;
+            double totalWeight = subOutput.Indicators.Sum(i => i.Weight);
 
+            if (totalWeight <= 0) totalWeight = subOutput.Indicators.Count; // fallback للأوزان المتساوية
+
+            double weightedPerformance = subOutput.Indicators.Sum(i => i.IndicatorsPerformance * i.Weight / totalWeight);
+
+            subOutput.IndicatorsPerformance = (int)Math.Round(weightedPerformance);
+
+            _context.SubOutputs.Update(subOutput);
             await _context.SaveChangesAsync();
-
-            await UpdateOutputPerformance(subOutput.OutputCode);
         }
+
+        //private async Task UpdateSubOutputPerformance(int subOutputCode)
+        //{
+        //    var subOutput = await _context.SubOutputs.FirstOrDefaultAsync(i => i.Code == subOutputCode);
+
+        //    if (subOutput == null) return;
+
+        //    var indicators = await _context.Indicators.Where(i => i.SubOutputCode == subOutput.Code).ToListAsync();
+        //    subOutput.IndicatorsPerformance = CalculateAveragePerformance(indicators.Select(i => i.IndicatorsPerformance).ToList()) * subOutput.Weight;
+
+        //    await _context.SaveChangesAsync();
+
+        //    await UpdateOutputPerformance(subOutput.OutputCode);
+        //}
 
         private async Task UpdateOutputPerformance(int outputCode)
         {
@@ -484,6 +505,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
+
         public async Task<IActionResult> AdjustWeights(List<IndicatorViewModel> model, int frameworkCode, int subOutputCode)
         {
             double totalWeight = model.Sum(i => i.Weight);
@@ -507,6 +529,10 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             }
 
             await _context.SaveChangesAsync();
+
+            // بعد حفظ الأوزان الجديدة، إعادة حساب أداء SubOutput بناء على الأوزان
+            await UpdateSubOutputPerformance(subOutputCode);
+
             return RedirectToAction(nameof(Index), new { frameworkCode = frameworkCode, subOutputCode = subOutputCode });
         }
     }
