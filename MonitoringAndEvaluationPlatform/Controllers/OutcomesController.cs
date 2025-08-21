@@ -9,6 +9,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Localization;
 using MonitoringAndEvaluationPlatform.Data;
 using MonitoringAndEvaluationPlatform.Models;
+using MonitoringAndEvaluationPlatform.Services;
 using MonitoringAndEvaluationPlatform.ViewModel;
 
 namespace MonitoringAndEvaluationPlatform.Controllers
@@ -17,10 +18,12 @@ namespace MonitoringAndEvaluationPlatform.Controllers
     public class OutcomesController : Controller
     {
         private readonly ApplicationDbContext _context;
+        private readonly IPerformanceService _performanceService;
 
-        public OutcomesController(ApplicationDbContext context)
+        public OutcomesController(ApplicationDbContext context, IPerformanceService performanceService)
         {
             _context = context;
+            _performanceService = performanceService;
         }
 
         // GET: Outcomes
@@ -288,6 +291,9 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             }
 
             await _context.SaveChangesAsync();
+
+            await _performanceService.UpdateFrameworkPerformance(frameworkCode);
+
             return RedirectToAction(nameof(Index), new { frameworkCode = frameworkCode });
         }
     }

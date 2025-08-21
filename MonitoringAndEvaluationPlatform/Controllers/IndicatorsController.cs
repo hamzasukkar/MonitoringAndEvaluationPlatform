@@ -158,7 +158,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             return RedirectToAction(nameof(Index), new { frameworkCode = indicator.SubOutput.Output.Outcome.FrameworkCode, subOutputCode = indicator.SubOutputCode });
         }
 
-        // مثال على UpdateSubOutputPerformance محسّن ليحسب الأداء المرجح بالأوزان
+        // تحديث SubOutput بناءً على Indicators
         public async Task UpdateSubOutputPerformance(int subOutputCode)
         {
             var subOutput = await _context.SubOutputs
@@ -174,70 +174,84 @@ namespace MonitoringAndEvaluationPlatform.Controllers
 
             double weightedPerformance = subOutput.Indicators.Sum(i => i.IndicatorsPerformance * i.Weight / totalWeight);
 
-            subOutput.IndicatorsPerformance = (int)Math.Round(weightedPerformance);
+            subOutput.IndicatorsPerformance = Math.Round(weightedPerformance, 2);
 
             _context.SubOutputs.Update(subOutput);
             await _context.SaveChangesAsync();
+
+            await UpdateOutputPerformance(subOutput.OutputCode);
         }
 
-        //private async Task UpdateSubOutputPerformance(int subOutputCode)
-        //{
-        //    var subOutput = await _context.SubOutputs.FirstOrDefaultAsync(i => i.Code == subOutputCode);
-
-        //    if (subOutput == null) return;
-
-        //    var indicators = await _context.Indicators.Where(i => i.SubOutputCode == subOutput.Code).ToListAsync();
-        //    subOutput.IndicatorsPerformance = CalculateAveragePerformance(indicators.Select(i => i.IndicatorsPerformance).ToList()) * subOutput.Weight;
-
-        //    await _context.SaveChangesAsync();
-
-        //    await UpdateOutputPerformance(subOutput.OutputCode);
-        //}
-
-        private async Task UpdateOutputPerformance(int outputCode)
+        // تحديث Output بناءً على SubOutputs
+        public async Task UpdateOutputPerformance(int outputCode)
         {
-            var output = await _context.Outputs.FirstOrDefaultAsync(i => i.Code == outputCode);
+            var output = await _context.Outputs
+                .Include(o => o.SubOutputs)
+                .FirstOrDefaultAsync(o => o.Code == outputCode);
 
-            if (output == null) return;
+            if (output == null)
+                throw new Exception("Output not found");
 
-            var subOutputs = await _context.SubOutputs.Where(i => i.OutputCode == output.Code).ToListAsync();
-            output.IndicatorsPerformance = CalculateAveragePerformance(subOutputs.Select(s => s.IndicatorsPerformance).ToList())* output.Weight;
+            double totalWeight = output.SubOutputs.Sum(s => s.Weight);
 
+            if (totalWeight <= 0) totalWeight = output.SubOutputs.Count;
+
+            double weightedPerformance = output.SubOutputs.Sum(s => s.IndicatorsPerformance * s.Weight / totalWeight);
+
+            output.IndicatorsPerformance = Math.Round(weightedPerformance, 2);
+
+            _context.Outputs.Update(output);
             await _context.SaveChangesAsync();
 
             await UpdateOutcomePerformance(output.OutcomeCode);
         }
 
-        private async Task UpdateOutcomePerformance(int outcomeCode)
+        // تحديث Outcome بناءً على Outputs
+        public async Task UpdateOutcomePerformance(int outcomeCode)
         {
-            var outcome = await _context.Outcomes.FirstOrDefaultAsync(i => i.Code == outcomeCode);
+            var outcome = await _context.Outcomes
+                .Include(o => o.Outputs)
+                .FirstOrDefaultAsync(o => o.Code == outcomeCode);
 
-            if (outcome == null) return;
+            if (outcome == null)
+                throw new Exception("Outcome not found");
 
-            var outputs = await _context.Outputs.Where(i => i.OutcomeCode == outcome.Code).ToListAsync();
-            outcome.IndicatorsPerformance = CalculateAveragePerformance(outputs.Select(o => o.IndicatorsPerformance).ToList())*outcome.Weight;
+            double totalWeight = outcome.Outputs.Sum(o => o.Weight);
 
+            if (totalWeight <= 0) totalWeight = outcome.Outputs.Count;
+
+            double weightedPerformance = outcome.Outputs.Sum(o => o.IndicatorsPerformance * o.Weight / totalWeight);
+
+            outcome.IndicatorsPerformance = Math.Round(weightedPerformance, 2);
+
+            _context.Outcomes.Update(outcome);
             await _context.SaveChangesAsync();
 
             await UpdateFrameworkPerformance(outcome.FrameworkCode);
         }
 
-        private async Task UpdateFrameworkPerformance(int frameworkCode)
+        // تحديث Framework بناءً على Outcomes
+        public async Task UpdateFrameworkPerformance(int frameworkCode)
         {
-            var framework = await _context.Frameworks.FirstOrDefaultAsync(i => i.Code == frameworkCode);
+            var framework = await _context.Frameworks
+                .Include(f => f.Outcomes)
+                .FirstOrDefaultAsync(f => f.Code == frameworkCode);
 
-            if (framework == null) return;
+            if (framework == null)
+                throw new Exception("Framework not found");
 
-            var outcomes = await _context.Outcomes.Where(i => i.FrameworkCode == framework.Code).ToListAsync();
-            framework.IndicatorsPerformance = CalculateAveragePerformance(outcomes.Select(o => o.IndicatorsPerformance).ToList());
+            double totalWeight = framework.Outcomes.Sum(o => o.Weight);
 
+            if (totalWeight <= 0) totalWeight = framework.Outcomes.Count;
+
+            double weightedPerformance = framework.Outcomes.Sum(o => o.IndicatorsPerformance * o.Weight / totalWeight);
+
+            framework.IndicatorsPerformance = Math.Round(weightedPerformance, 2);
+
+            _context.Frameworks.Update(framework);
             await _context.SaveChangesAsync();
         }
 
-        private double CalculateAveragePerformance(List<double> performances)
-        {
-            return performances.Any() ? performances.Sum() / performances.Count : 0;
-        }
         [HttpPost]
         public async Task<IActionResult> InlineEditName(int id, [FromBody] JsonElement data)
         {
