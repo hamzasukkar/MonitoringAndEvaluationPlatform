@@ -8,6 +8,7 @@
 @{
     ViewData["Title"] = "Index";
     Layout = "~/Views/Shared/_ResultsFrameworkLayout.cshtml";
+    var culture = Context.Features.Get<IRequestCultureFeature>().RequestCulture.Culture.Name;
 }
 
 
@@ -15,7 +16,7 @@
     <thead>
         <tr>
             <th>
-                @Html.DisplayNameFor(model => model.Name)
+                @Localizer["Name"]
             </th>
             <th>@Localizer["Indicators Performance"]</th>
             <th>@Localizer["Disbursement Performance"]</th>
@@ -33,7 +34,14 @@
 
             <tr>
                 <td>
-                    <strong>@Html.DisplayFor(modelItem => item.Name)</strong>
+                    @if (culture.StartsWith("ar"))
+                    {
+                        <strong>@Html.DisplayFor(modelItem => item.AR_Name)</strong>
+                    }
+                    else
+                    {
+                        <strong>@Html.DisplayFor(modelItem => item.EN_Name)</strong>
+                    }
                 </td>
                 <td>
                     @await Html.PartialAsync("_ProgressBar", Tuple.Create(IndicatorsPerformance, indicatorsClass))

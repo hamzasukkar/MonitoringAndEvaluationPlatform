@@ -7,6 +7,7 @@
 @{
     ViewData["Title"] = "Project Details";
     Layout = "~/Views/Shared/_ProjectsLayout.cshtml";
+    var culture = Context.Features.Get<IRequestCultureFeature>().RequestCulture.Culture.Name;
 }
 
 <div class="container-fluid px-4">
@@ -130,7 +131,14 @@
                                 @foreach (var sector in Model.Sectors)
                                 {
                                     <span class="badge bg-primary me-1">
-                                        <small>@sector.Name</small>
+                                        @if (culture.StartsWith("ar"))
+                                        {
+                                            @sector.AR_Name
+                                        }
+                                        else
+                                        {
+                                            @sector.EN_Name
+                                        }
                                     </span>
                                 }
                             </dd>

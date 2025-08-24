@@ -401,7 +401,7 @@ public class DashboardController : Controller
                .Select(m => new SelectListItem { Value = m.Code.ToString(), Text = m.MinistryDisplayName })
                .ToListAsync(),
             Sectors = await _context.Sectors
-               .Select(s => new SelectListItem { Value = s.Code.ToString(), Text = s.Name })
+               .Select(s => new SelectListItem { Value = s.Code.ToString(), Text = s.AR_Name })
                .ToListAsync(),
 
             Donors = await _context.Donors
@@ -491,7 +491,7 @@ public class DashboardController : Controller
             DonorId = donorId,
             Projects = projectList,
             Sectors = _context.Sectors
-                .Select(s => new SelectListItem { Value = s.Code.ToString(), Text = s.Name })
+                .Select(s => new SelectListItem { Value = s.Code.ToString(), Text = s.EN_Name })
                 .ToList(),
             Donors = _context.Donors
                 .Select(d => new SelectListItem { Value = d.Code.ToString(), Text = d.Partner })
@@ -549,7 +549,7 @@ public class DashboardController : Controller
             Sectors = await _context.Sectors.Select(s => new SelectListItem
             {
                 Value = s.Code.ToString(),
-                Text = s.Name
+                Text = s.EN_Name
             }).ToListAsync(),
             Donors = await _context.Donors.Select(d => new SelectListItem
             {

@@ -20,6 +20,7 @@
 @{
     ViewData["Title"] = "Results Frameworks";
     Layout = "~/Views/Shared/_ResultsFrameworkLayout.cshtml";
+    var culture = Context.Features.Get<IRequestCultureFeature>().RequestCulture.Culture.Name;
 }
 
 
@@ -124,7 +125,14 @@
                                                value="@sector.Code" id="donor-@sector.Code"
                                         @(Model.SelectedSector.Contains(sector.Code) ? "checked" : "")>
                                         <label class="form-check-label" for="donor-@sector.Code">
-                                            @sector.Name
+                                            @if (culture.StartsWith("ar"))
+                                            {
+                                                @sector.AR_Name
+                                            }
+                                            else
+                                            {
+                                                @sector.EN_Name
+                                            }
                                         </label>
                                     </div>
                                 }

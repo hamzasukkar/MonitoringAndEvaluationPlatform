@@ -3,24 +3,23 @@
 @using Microsoft.AspNetCore.Mvc.Localization
 @inject IViewLocalizer Localizer
 @using Microsoft.AspNetCore.Localization
-
+@{
+    var requestCultureFeature = Context.Features.Get<IRequestCultureFeature>();
+    var culture = requestCultureFeature.RequestCulture.Culture.Name;
+}
 
 @{
     ViewData["Title"] = "Index";
     Layout = "~/Views/Shared/_SetUpLayout.cshtml";
 }
 
-<h1>Index</h1>
-
 <p>
-    <a asp-action="Create">Create New</a>
+    <a asp-action="Create">@Localizer["Create New Sector"]</a>
 </p>
 <table class="table">
     <thead>
         <tr>
-            <th>
-                @Html.DisplayNameFor(model => model.Name)
-            </th>
+            <th>@Localizer["Name"]</th>
             <th>@Localizer["Indicators Performance"]</th>
             <th>@Localizer["Disbursement Performance"]</th>
             <th></th>
@@ -37,7 +36,14 @@
 
             <tr>
                 <td>
-                    <strong>@Html.DisplayFor(modelItem => item.Name)</strong>
+                    @if (culture.StartsWith("ar"))
+                    {
+                        <strong>@Html.DisplayFor(modelItem => item.AR_Name)</strong>
+                    }
+                    else
+                    {
+                        <strong>@Html.DisplayFor(modelItem => item.EN_Name)</strong>
+                    }
                 </td>
                 <td>
                     @await Html.PartialAsync("_ProgressBar", Tuple.Create(IndicatorsPerformance, indicatorsClass))

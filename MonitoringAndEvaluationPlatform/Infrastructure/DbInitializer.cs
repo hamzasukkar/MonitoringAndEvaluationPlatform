@@ -21,9 +21,10 @@ namespace MonitoringAndEvaluationPlatform.Infrastructure
                 {
                     var sectors = new List<Sector>
                     {
-                        new Sector { Name = "Sector 1" }, // Remove explicit Code if using auto-increment
-                        new Sector { Name = "Sector 2" },
-                        new Sector { Name = "Sector 3" }
+                        new Sector { EN_Name = "Public",AR_Name = "عام" }, 
+                        new Sector { EN_Name = "Private",AR_Name = "خاص" },
+                        new Sector { EN_Name = "Common",AR_Name = "مشترك" },
+                        new Sector { EN_Name = "Domestic",AR_Name = "أهلي" }
                     };
                     context.Sectors.AddRange(sectors);
                 }
