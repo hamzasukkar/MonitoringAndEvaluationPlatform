@@ -248,10 +248,20 @@
                     type: 'POST',
                     success: function () {
                         $(`#indicator-row-${indicatorCode}`).fadeOut();
-                        Swal.fire('Deleted!', 'Indicator has been deleted.', 'success');
+                      //  Swal.fire('Deleted!', 'Indicator has been deleted.', 'success');
+                            Swal.fire({
+                            title: '"@Localizer["Deleted"]"تم الحذف!',
+                            text: '"@Localizer["Indicator has been deleted."]"',
+                            icon: 'success',
+                            timer: 2000, // المدة بالمللي ثانية (هنا 2 ثانية)
+                            showConfirmButton: false
+                        });
+                          setTimeout(function(){
+                            window.location.reload();
+                        }, 2000);
                     },
                     error: function () {
-                        Swal.fire('Error', 'Failed to delete the indicator.', 'error');
+                        Swal.fire('Error', '"@Localizer["Failed to delete the indicator."]"', 'error');
                     }
                 });
             }
