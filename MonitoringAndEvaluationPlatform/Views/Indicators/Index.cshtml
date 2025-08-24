@@ -75,7 +75,7 @@
                 <div class="col-md-8">
                     <div class="input-group">
                         <input type="text" name="searchString" class="form-control"
-                               placeholder="Search by indicator name or suboutput..."
+                               placeholder="@Localizer["Search by indicator name or suboutput..."]"
                                value="@ViewData["CurrentFilter"]">
                         <button type="submit" class="btn btn-primary">
                             <i class="fas fa-search me-1"></i> @Localizer["Search"]
@@ -216,13 +216,13 @@
 
                         Swal.fire({
                             icon: 'success',
-                            title: 'Updated!',
-                            text: 'Indicator name updated successfully',
+                            title: '@Localizer["Updated!"]',
+                            text: '@Localizer["Indicator name updated successfully"]',
                             timer: 1200,
                             showConfirmButton: false
                         });
                     } else {
-                        Swal.fire('Error', 'Could not save changes', 'error');
+                        Swal.fire('Error', '@Localizer["Could not save changes"]', 'error');
                     }
                 });
             } else {
@@ -234,13 +234,13 @@
         }
         function confirmDelete(indicatorCode) {
         Swal.fire({
-            title: 'Are you sure?',
-            text: "You won't be able to revert this!",
+            title: '@Localizer["Are you sure?"]',
+            text: "@Localizer["You won't be able to revert this!"]",
             icon: 'warning',
             showCancelButton: true,
             confirmButtonColor: '#d33',
             cancelButtonColor: '#3085d6',
-            confirmButtonText: 'Yes, delete it!'
+            confirmButtonText: '@Localizer["Yes, delete it!"]'
         }).then((result) => {
             if (result.isConfirmed) {
                 $.ajax({
@@ -250,10 +250,10 @@
                         $(`#indicator-row-${indicatorCode}`).fadeOut();
                       //  Swal.fire('Deleted!', 'Indicator has been deleted.', 'success');
                             Swal.fire({
-                            title: '"@Localizer["Deleted"]"تم الحذف!',
+                            title: '"@Localizer["Deleted!"]"',
                             text: '"@Localizer["Indicator has been deleted."]"',
                             icon: 'success',
-                            timer: 2000, // المدة بالمللي ثانية (هنا 2 ثانية)
+                            timer: 2000,
                             showConfirmButton: false
                         });
                           setTimeout(function(){

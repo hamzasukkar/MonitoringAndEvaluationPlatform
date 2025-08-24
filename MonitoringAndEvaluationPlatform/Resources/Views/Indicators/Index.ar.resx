@@ -165,16 +165,13 @@
   <data name="Indicator Name" xml:space="preserve">
     <value>اسم المشروع</value>
   </data>
-  <data name="Search by indicator name or suboutput" xml:space="preserve">
-    <value>البحث حسب اسم المشروع أو البرنامج الفرعي...</value>
-  </data>
   <data name="Create New Indicator" xml:space="preserve">
     <value>إنشاء مشروع جديد</value>
   </data>
   <data name="Weight" xml:space="preserve">
     <value>الوزن</value>
   </data>
-  <data name="Deleted" xml:space="preserve">
+  <data name="Deleted!" xml:space="preserve">
     <value>تم الحذف!</value>
   </data>
   <data name="Indicator has been deleted." xml:space="preserve">
@@ -182,5 +179,29 @@
   </data>
   <data name="Failed to delete the indicator." xml:space="preserve">
     <value>فشل في حذف المؤشر.</value>
+  </data>
+  <data name="Are you sure?" xml:space="preserve">
+    <value>هل أنت متأكد؟</value>
+  </data>
+  <data name="You won't be able to revert this!" xml:space="preserve">
+    <value>لن تتمكن من التراجع عن هذا!</value>
+  </data>
+  <data name="Yes, delete it!" xml:space="preserve">
+    <value>نعم احذفه!</value>
+  </data>
+  <data name="Updated!" xml:space="preserve">
+    <value>تم التحديث!</value>
+  </data>
+  <data name="Indicator name updated successfully" xml:space="preserve">
+    <value>تم تحديث اسم المؤشر بنجاح</value>
+  </data>
+  <data name="Could not save changes" xml:space="preserve">
+    <value>لم يتمكن من حفظ التغييرات</value>
+  </data>
+  <data name="earch by indicator name or suboutput..." xml:space="preserve">
+    <value>البحث حسب اسم المؤشر أو الناتج الفرعي...</value>
+  </data>
+  <data name="Search by indicator name or suboutput..." xml:space="preserve">
+    <value>البحث حسب اسم المشروع أو البرنامج الفرعي...</value>
   </data>
 </root>

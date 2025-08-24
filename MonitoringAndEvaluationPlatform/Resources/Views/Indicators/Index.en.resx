@@ -166,16 +166,13 @@
   <data name="Indicator Name" xml:space="preserve">
     <value>Indicator Name</value>
   </data>
-  <data name="Search by indicator name or suboutput" xml:space="preserve">
-    <value>Search by indicator name or suboutput...</value>
-  </data>
   <data name="Create New Indicator" xml:space="preserve">
     <value>Create New Indicator</value>
   </data>
   <data name="Weight" xml:space="preserve">
     <value>Weight</value>
   </data>
-  <data name="Deleted" xml:space="preserve">
+  <data name="Deleted!" xml:space="preserve">
     <value>Deleted!</value>
   </data>
   <data name="Indicator has been deleted." xml:space="preserve">
@@ -183,5 +180,29 @@
   </data>
   <data name="Failed to delete the indicator." xml:space="preserve">
     <value>Failed to delete the indicator.</value>
+  </data>
+  <data name="Are you sure?" xml:space="preserve">
+    <value>Are you sure?</value>
+  </data>
+  <data name="You won't be able to revert this!" xml:space="preserve">
+    <value>You won't be able to revert this!</value>
+  </data>
+  <data name="Yes, delete it!" xml:space="preserve">
+    <value>Yes, delete it!</value>
+  </data>
+  <data name="Updated!" xml:space="preserve">
+    <value>Updated!</value>
+  </data>
+  <data name="Indicator name updated successfully" xml:space="preserve">
+    <value>Indicator name updated successfully</value>
+  </data>
+  <data name="Could not save changes" xml:space="preserve">
+    <value>Could not save changes</value>
+  </data>
+  <data name="earch by indicator name or suboutput..." xml:space="preserve">
+    <value>earch by indicator name or suboutput...</value>
+  </data>
+  <data name="Search by indicator name or suboutput..." xml:space="preserve">
+    <value>Search by indicator name or suboutput...</value>
   </data>
 </root>
