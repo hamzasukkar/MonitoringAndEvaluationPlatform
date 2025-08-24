@@ -275,6 +275,9 @@ namespace MonitoringAndEvaluationPlatform.Controllers
 
             _context.Indicators.Remove(indicator);
             await _context.SaveChangesAsync();
+            await RedistributeWeights(indicator.SubOutputCode);
+            await UpdateSubOutputPerformance(indicator.SubOutputCode);
+           
             return Ok();
         }
 
