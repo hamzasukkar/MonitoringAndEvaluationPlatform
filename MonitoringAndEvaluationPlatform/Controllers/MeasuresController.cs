@@ -161,6 +161,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                     await monitoringService.UpdateMinistryPerformance(measure.ProjectID);
                     await monitoringService.UpdateProjectPerformance(measure.ProjectID);
                     await monitoringService.UpdateSectorPerformance(measure.ProjectID);
+                    await monitoringService.UpdateDonorPerformance(measure.ProjectID);
                 }
 
                 return RedirectToAction("ProjectMeasures", new { id = measure.ProjectID });

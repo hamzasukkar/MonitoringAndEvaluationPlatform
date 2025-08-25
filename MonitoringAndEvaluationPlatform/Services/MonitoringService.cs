@@ -175,7 +175,90 @@ public class MonitoringService
         await _context.SaveChangesAsync();
     }
 
+    /// <summary>
+    /// Updates performance for all donors linked to a specific project
+    /// </summary>
+    public async Task UpdateDonorPerformance(int projectId)
+    {
+        // 1) Load the project along with its Donors collection
+        var project = await _context.Projects
+            .Include(p => p.Donors)
+            .FirstOrDefaultAsync(p => p.ProjectID == projectId);
 
+        if (project == null)
+            return; // (Or throw, if you prefer)
+
+        // 2) For each donor linked to this project, recalc performance:
+        foreach (var donor in project.Donors)
+        {
+            double totalDonorTarget = 0;
+            double totalDonorReal = 0;
+
+            // 2a) Find all projects that belong to this same donor, and include their Measures
+            var donorProjects = await _context.Projects
+                .Where(p => p.Donors.Any(d => d.Code == donor.Code))
+                .Include(p => p.Measures)
+                .ToListAsync();
+
+            // 2b) Sum up Target/Real values from each Measure on those projects
+            foreach (var donorProject in donorProjects)
+            {
+                foreach (var measure in donorProject.Measures)
+                {
+                    if (measure.ValueType == MeasureValueType.Real)
+                        totalDonorReal += measure.Value;
+                    else if (measure.ValueType == MeasureValueType.Target)
+                        totalDonorTarget += measure.Value;
+                }
+            }
+
+            // 2c) Compute performance percentage (or zero if no targets)
+            donor.IndicatorsPerformance = (totalDonorTarget > 0)
+                ? (totalDonorReal / totalDonorTarget) * 100
+                : 0;
+
+            // EF Core is already tracking 'donor' because it came in via Include(p => p.Donors).
+            // No need to call _context.Donors.Update(donor) explicitly.
+        }
+
+        // 3) Persist all donor changes at once
+        await _context.SaveChangesAsync();
+    }
+
+    /// <summary>
+    /// Updates donor performance by Donor Code (used in delete operations)
+    /// </summary>
+    private async Task UpdateDonorPerformanceByDonorCode(int donorCode)
+    {
+        var donor = await _context.Donors
+            .Include(d => d.Projects)
+                .ThenInclude(p => p.Measures)
+            .FirstOrDefaultAsync(d => d.Code == donorCode);
+
+        if (donor == null)
+            return;
+
+        double totalTarget = 0.0;
+        double totalReal = 0.0;
+
+        foreach (var proj in donor.Projects)
+        {
+            foreach (var measure in proj.Measures)
+            {
+                if (measure.ValueType == MeasureValueType.Real)
+                    totalReal += measure.Value;
+                else if (measure.ValueType == MeasureValueType.Target)
+                    totalTarget += measure.Value;
+            }
+        }
+
+        donor.IndicatorsPerformance = totalTarget > 0
+            ? (totalReal / totalTarget) * 100.0
+            : 0.0;
+
+        _context.Donors.Update(donor);
+        await _context.SaveChangesAsync();
+    }
     // Helper method to calculate weighted average
     private double CalculateWeightedAverage<T>(List<T> items, Func<T, double> valueSelector, Func<T, double> weightSelector)
     {
@@ -275,6 +358,7 @@ public class MonitoringService
             await UpdateProjectPerformance(projectId);
             await UpdateMinistryPerformance(projectId);
             await UpdateSectorPerformance(projectId);
+            await UpdateDonorPerformance(projectId);
         }
     }
 
@@ -297,6 +381,7 @@ public class MonitoringService
         await UpdateProjectPerformance(projectId);
         await UpdateMinistryPerformance(projectId);
         await UpdateSectorPerformance(projectId);
+        await UpdateDonorPerformance(projectId);
     }
 
     /// <summary>
@@ -309,6 +394,7 @@ public class MonitoringService
             .Include(p => p.Measures)
             .Include(p => p.Ministries)
             .Include(p => p.Sectors)
+            .Include(p => p.Donors)
             .FirstOrDefaultAsync(p => p.ProjectID == projectId);
 
         if (project == null)
@@ -318,6 +404,7 @@ public class MonitoringService
         var indicatorIds = project.Measures.Select(m => m.IndicatorCode).Distinct().ToList();
         var ministryCodes = project.Ministries.Select(m => m.Code).Distinct().ToList();
         var sectorIds = project.Sectors.Select(s => s.Code).Distinct().ToList();
+        var donorCodes = project.Donors.Select(d => d.Code).Distinct().ToList();
 
         // 3. Remove the project (cascade deletes measures)
         _context.Projects.Remove(project);
@@ -339,6 +426,11 @@ public class MonitoringService
         foreach (var sectorId in sectorIds)
         {
             await UpdateSectorPerformanceBySectorId(sectorId);
+        }
+        // 7. Recalculate donor performance for affected donors ✅ Add this block
+        foreach (var donorCode in donorCodes)
+        {
+            await UpdateDonorPerformanceByDonorCode(donorCode);
         }
     }
 

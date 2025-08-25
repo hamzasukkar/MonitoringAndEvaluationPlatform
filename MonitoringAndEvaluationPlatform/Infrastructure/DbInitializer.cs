@@ -21,7 +21,7 @@ namespace MonitoringAndEvaluationPlatform.Infrastructure
                 {
                     var sectors = new List<Sector>
                     {
-                        new Sector { EN_Name = "Public",AR_Name = "عام" }, 
+                        new Sector { EN_Name = "Public",AR_Name = "عام" },
                         new Sector { EN_Name = "Private",AR_Name = "خاص" },
                         new Sector { EN_Name = "Common",AR_Name = "مشترك" },
                         new Sector { EN_Name = "Domestic",AR_Name = "أهلي" }
@@ -78,31 +78,30 @@ namespace MonitoringAndEvaluationPlatform.Infrastructure
                 {
                     var goals = new List<Goal>
                     {
-                        new Goal { EN_Name = "No Poverty", AR_Name = "القضاء على الفقر", Icon = "https://sustainabledevelopment.un.org/content/images/sdg-1.svg" },
-                        new Goal { EN_Name = "Zero Hunger", AR_Name = "القضاء التام على الجوع", Icon = "https://sustainabledevelopment.un.org/content/images/sdg-2.svg" },
-                        new Goal { EN_Name = "Good Health and Well‑being", AR_Name = "الصحة الجيدة والرفاه", Icon = "https://sustainabledevelopment.un.org/content/images/sdg-3.svg" },
-                        new Goal { EN_Name = "Quality Education", AR_Name = "التعليم الجيد", Icon = "https://sustainabledevelopment.un.org/content/images/sdg-4.svg" },
-                        new Goal { EN_Name = "Gender Equality", AR_Name = "المساواة بين الجنسين", Icon = "https://sustainabledevelopment.un.org/content/images/sdg-5.svg" },
-                        new Goal { EN_Name = "Clean Water and Sanitation", AR_Name = "المياه النظيفة والنظافة الصحية", Icon = "https://sustainabledevelopment.un.org/content/images/sdg-6.svg" },
-                        new Goal { EN_Name = "Affordable and Clean Energy", AR_Name = "طاقة نظيفة وبأسعار معقولة", Icon = "https://sustainabledevelopment.un.org/content/images/sdg-7.svg" },
-                        new Goal { EN_Name = "Decent Work and Economic Growth", AR_Name = "العمل اللائق ونمو الاقتصاد", Icon = "https://sustainabledevelopment.un.org/content/images/sdg-8.svg" },
-                        new Goal { EN_Name = "Industry, Innovation and Infrastructure", AR_Name = "الصناعة والابتكار والهياكل الأساسية", Icon = "https://sustainabledevelopment.un.org/content/images/sdg-9.svg" },
-                        new Goal { EN_Name = "Reduced Inequalities", AR_Name = "الحد من أوجه عدم المساواة", Icon = "https://sustainabledevelopment.un.org/content/images/sdg10.svg" },
-                        new Goal { EN_Name = "Sustainable Cities and Communities", AR_Name = "مدن ومجتمعات محلية مستدامة", Icon = "https://sustainabledevelopment.un.org/content/images/sdg11.svg" },
-                        new Goal { EN_Name = "Responsible Consumption and Production", AR_Name = "الاستهلاك والإنتاج المسؤولان", Icon = "https://sustainabledevelopment.un.org/content/images/sdg12.svg" },
-                        new Goal { EN_Name = "Climate Action", AR_Name = "العمل المناخي", Icon = "https://sustainabledevelopment.un.org/content/images/sdg13.svg" },
-                        new Goal { EN_Name = "Life Below Water", AR_Name = "الحياة تحت الماء", Icon = "https://sustainabledevelopment.un.org/content/images/sdg14.svg" },
-                        new Goal { EN_Name = "Life on Land", AR_Name = "الحياة في البر", Icon = "https://sustainabledevelopment.un.org/content/images/sdg15.svg" },
-                        new Goal { EN_Name = "Peace, Justice and Strong Institutions", AR_Name = "السلام والعدل والمؤسسات القوية", Icon = "https://sustainabledevelopment.un.org/content/images/sdg16.svg" },
-                        new Goal { EN_Name = "Partnerships for the Goals", AR_Name = "عقد الشراكات لتحقيق الأهداف", Icon = "https://sustainabledevelopment.un.org/content/images/sdg17.svg" },
+                        new Goal { EN_Name = "No Poverty", AR_Name = "القضاء على الفقر", Icon = "/img/E-WEB-Goal-01.png" },
+                        new Goal { EN_Name = "Zero Hunger", AR_Name = "القضاء التام على الجوع", Icon = "/img/E-WEB-Goal-02.png" },
+                        new Goal { EN_Name = "Good Health and Well‑being", AR_Name = "الصحة الجيدة والرفاه", Icon = "/img/E-WEB-Goal-03.png" },
+                        new Goal { EN_Name = "Quality Education", AR_Name = "التعليم الجيد", Icon = "/img/E-WEB-Goal-04.png" },
+                        new Goal { EN_Name = "Gender Equality", AR_Name = "المساواة بين الجنسين", Icon = "/img/E-WEB-Goal-05.png" },
+                        new Goal { EN_Name = "Clean Water and Sanitation", AR_Name = "المياه النظيفة والنظافة الصحية", Icon = "/img/E-WEB-Goal-06.png" },
+                        new Goal { EN_Name = "Affordable and Clean Energy", AR_Name = "طاقة نظيفة وبأسعار معقولة", Icon = "/img/E-WEB-Goal-07.png" },
+                        new Goal { EN_Name = "Decent Work and Economic Growth", AR_Name = "العمل اللائق ونمو الاقتصاد", Icon = "/img/E-WEB-Goal-08.png" },
+                        new Goal { EN_Name = "Industry, Innovation and Infrastructure", AR_Name = "الصناعة والابتكار والهياكل الأساسية", Icon = "/img/E-WEB-Goal-09.png" },
+                        new Goal { EN_Name = "Reduced Inequalities", AR_Name = "الحد من أوجه عدم المساواة", Icon = "/img/E-WEB-Goal-10.png" },
+                        new Goal { EN_Name = "Sustainable Cities and Communities", AR_Name = "مدن ومجتمعات محلية مستدامة", Icon = "/img/E-WEB-Goal-11.png" },
+                        new Goal { EN_Name = "Responsible Consumption and Production", AR_Name = "الاستهلاك والإنتاج المسؤولان", Icon = "/img/E-WEB-Goal-12.png" },
+                        new Goal { EN_Name = "Climate Action", AR_Name = "العمل المناخي", Icon = "/img/E-WEB-Goal-13.png" },
+                        new Goal { EN_Name = "Life Below Water", AR_Name = "الحياة تحت الماء", Icon = "/img/E-WEB-Goal-14.png" },
+                        new Goal { EN_Name = "Life on Land", AR_Name = "الحياة في البر", Icon = "/img/E-WEB-Goal-15.png" },
+                        new Goal { EN_Name = "Peace, Justice and Strong Institutions", AR_Name = "السلام والعدل والمؤسسات القوية", Icon = "/img/E-WEB-Goal-16.png" },
+                        new Goal { EN_Name = "Partnerships for the Goals", AR_Name = "عقد الشراكات لتحقيق الأهداف", Icon = "/img/E-WEB-Goal-17.png" },
                     };
                     context.Goals.AddRange(goals);
-                }
 
 
-                if (!context.Ministries.Any())
-                {
-                    var ministries = new List<Ministry>
+                    if (!context.Ministries.Any())
+                    {
+                        var ministries = new List<Ministry>
                     {
                         new Ministry { MinistryDisplayName = "وزارة الخارجية والمغتربين", MinistryUserName = "MoFA" },
                         new Ministry { MinistryDisplayName = "وزارة الدفاع", MinistryUserName = "MoD" },
@@ -132,54 +131,54 @@ namespace MonitoringAndEvaluationPlatform.Infrastructure
                         new Ministry { MinistryDisplayName = "وزارة الطاقة", MinistryUserName = "MoEnergy" },
                         new Ministry { MinistryDisplayName = "وزارة الطوارئ والكوارث", MinistryUserName = "MoEDM" },
                     };
-                    context.Ministries.AddRange(ministries);
-                    await context.SaveChangesAsync(); // Ensure ministries are saved before creating users
+                        context.Ministries.AddRange(ministries);
+                        await context.SaveChangesAsync(); // Ensure ministries are saved before creating users
 
-                    foreach (var ministry in ministries)
-                    {
-                        string roleName = ministry.MinistryUserName;
-                        string userName = ministry.MinistryUserName;
-                        string email = $"{userName.ToLower()}@example.com";
-                        string defaultPassword = "Ministry@123";
-
-                        // Create role if it doesn’t exist
-                        if (!await roleManager.RoleExistsAsync(roleName))
+                        foreach (var ministry in ministries)
                         {
-                            await roleManager.CreateAsync(new IdentityRole(roleName));
-                        }
+                            string roleName = ministry.MinistryUserName;
+                            string userName = ministry.MinistryUserName;
+                            string email = $"{userName.ToLower()}@example.com";
+                            string defaultPassword = "Ministry@123";
 
-                        // Create user if it doesn’t exist
-                        var existingUser = await userManager.FindByNameAsync(userName);
-                        if (existingUser == null)
-                        {
-                            var user = new ApplicationUser
+                            // Create role if it doesn’t exist
+                            if (!await roleManager.RoleExistsAsync(roleName))
                             {
-                                UserName = userName,
-                                Email = email,
-                                EmailConfirmed = true,
-                                MinistryName = userName // Or MinistryDisplayName if preferred
-                            };
-
-                            var result = await userManager.CreateAsync(user, defaultPassword);
-                            if (result.Succeeded)
-                            {
-                                await userManager.AddToRoleAsync(user, roleName);
+                                await roleManager.CreateAsync(new IdentityRole(roleName));
                             }
-                            else
+
+                            // Create user if it doesn’t exist
+                            var existingUser = await userManager.FindByNameAsync(userName);
+                            if (existingUser == null)
                             {
-                                Console.WriteLine($"⚠️ Failed to create user {userName}: {string.Join(", ", result.Errors.Select(e => e.Description))}");
+                                var user = new ApplicationUser
+                                {
+                                    UserName = userName,
+                                    Email = email,
+                                    EmailConfirmed = true,
+                                    MinistryName = userName // Or MinistryDisplayName if preferred
+                                };
+
+                                var result = await userManager.CreateAsync(user, defaultPassword);
+                                if (result.Succeeded)
+                                {
+                                    await userManager.AddToRoleAsync(user, roleName);
+                                }
+                                else
+                                {
+                                    Console.WriteLine($"⚠️ Failed to create user {userName}: {string.Join(", ", result.Errors.Select(e => e.Description))}");
+                                }
                             }
                         }
                     }
-                }
-            
 
 
 
-                // ✅ Check if Frameworks already exist
-                if (!context.Frameworks.Include(f => f.Outcomes).Any())
-                {
-                    var frameworks = new List<Framework>
+
+                    // ✅ Check if Frameworks already exist
+                    if (!context.Frameworks.Include(f => f.Outcomes).Any())
+                    {
+                        var frameworks = new List<Framework>
                 {
                     new Framework
                     {
@@ -243,16 +242,17 @@ namespace MonitoringAndEvaluationPlatform.Infrastructure
                     }
                 };
 
-                    context.Frameworks.AddRange(frameworks);
+                        context.Frameworks.AddRange(frameworks);
+                        context.SaveChanges();
+                    }
+
+
+
+
                     context.SaveChanges();
-                }
 
-
-
-
-                context.SaveChanges();
-
-            } // Context is disposed here when the scope ends
+                } // Context is disposed here when the scope ends
+            }
         }
     }
 }
