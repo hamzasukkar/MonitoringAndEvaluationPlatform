@@ -2,6 +2,7 @@
 @using Microsoft.AspNetCore.Mvc.Localization
 @inject SignInManager<ApplicationUser> SignInManager
 @inject UserManager<ApplicationUser> UserManager
+@using Microsoft.EntityFrameworkCore
 @using MonitoringAndEvaluationPlatform.Data
 @inject ApplicationDbContext _context
 @inject IViewLocalizer Localizer
@@ -104,24 +105,62 @@
                             SDGs
                         </a>
                         <ul class="dropdown-menu" aria-labelledby="SDGsDropdown">
-                            @foreach (var framework in _context.Goals.ToList())
+                            @foreach (var goal in _context.Goals
+                            .Include(g => g.Targets)
+                            .ThenInclude(t => t.SDGsIndicators)
+                            .ToList())
                             {
                                 <li class="dropdown-submenu dropend">
-                                    <a class="dropdown-item dropdown-toggle" href="#" id="framework-@framework.Code">
-                                        @framework.AR_Name
-                                        <img src="@framework.Icon" alt="@framework.AR_Name" class="me-2" style="width:40px; height:40px;" />
+                                    <a class="dropdown-item dropdown-toggle" href="#" id="goal-@goal.Code">
+                                        <img src="@goal.Icon" alt="@goal.AR_Name" class="me-2" style="width:24px; height:24px;" />
+                                        @goal.AR_Name
                                     </a>
-                                    <ul class="dropdown-menu" aria-labelledby="framework-@framework.Code">
-                                        <li>
-                                            <a class="dropdown-item" asp-controller="Outcomes" asp-action="Index" asp-route-frameworkCode="@framework.Code">
+
+                                    <ul class="dropdown-menu" aria-labelledby="goal-@goal.Code">
+
+                                        <!-- Targets Menu -->
+                                        <li class="dropdown-submenu dropend">
+                                            <a class="dropdown-item dropdown-toggle" href="#" id="targets-@goal.Code">
                                                 <i class="fas fa-bullseye me-1"></i> @Localizer["Targets"]
                                             </a>
+                                            <ul class="dropdown-menu" aria-labelledby="targets-@goal.Code">
+                                                @foreach (var target in goal.Targets)
+                                                {
+                                                    <li class="dropdown-submenu dropend">
+                                                        <a class="dropdown-item dropdown-toggle" href="#" id="target-@target.Code">
+                                                            @target.AR_Name
+                                                        </a>
+                                                        <ul class="dropdown-menu" aria-labelledby="target-@target.Code">
+                                                            @foreach (var indicator in target.SDGsIndicators)
+                                                            {
+                                                                <li>
+                                                                    <a class="dropdown-item" href="#">
+                                                                        <i class="fas fa-chart-line me-1"></i> @indicator.AR_Name
+                                                                    </a>
+                                                                </li>
+                                                            }
+                                                        </ul>
+                                                    </li>
+                                                }
+                                            </ul>
                                         </li>
-                                        <li>
-                                            <a class="dropdown-item" asp-controller="Outputs" asp-action="Index" asp-route-frameworkCode="@framework.Code">
-                                                <i class="fas fa-project-diagram me-1"></i> @Localizer["SDGIndicator"]
+
+                                        <!-- Frameworks Menu -->
+                                        <li class="dropdown-submenu dropend">
+                                            <a class="dropdown-item dropdown-toggle" href="#" id="frameworks-@goal.Code">
+                                                <i class="fas fa-project-diagram me-1"></i> @Localizer["Frameworks"]
                                             </a>
+                                            <ul class="dropdown-menu" aria-labelledby="frameworks-@goal.Code">
+                                                
+                                                    <li>
+                                                        <a class="dropdown-item" href="#">
+                                                            Frameworks
+                                                        </a>
+                                                    </li>
+                                                
+                                            </ul>
                                         </li>
+
                                     </ul>
                                 </li>
                             }

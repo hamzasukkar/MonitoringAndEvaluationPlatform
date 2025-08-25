@@ -74,9 +74,84 @@ namespace MonitoringAndEvaluationPlatform.Infrastructure
                 if (!context.Goals.Any())
                 {
                     var goals = new List<Goal>
-                    {
-                        new Goal { EN_Name = "No Poverty", AR_Name = "القضاء على الفقر", Icon = "/img/E-WEB-Goal-01.png" },
-                        new Goal { EN_Name = "Zero Hunger", AR_Name = "القضاء التام على الجوع", Icon = "/img/E-WEB-Goal-02.png" },
+                    
+                        {
+                            new Goal
+                            {
+                                EN_Name = "No Poverty",
+                                AR_Name = "القضاء على الفقر",
+                                Icon = "/img/E-WEB-Goal-01.png",
+                                Targets = new List<Target>
+                                {
+                                    new Target
+                                    {
+                                        EN_Name = "Eradicate extreme poverty",
+                                        AR_Name = "القضاء على الفقر المدقع",
+                                        SDGsIndicators = new List<SDGIndicator>
+                                        {
+                                            new SDGIndicator
+                                            {
+                                                EN_Name = "Proportion of population below $1.90 a day",
+                                                AR_Name = "نسبة السكان تحت خط الفقر (1.90 دولار يومياً)",
+                                                Source = "UN",
+                                                IsCommon = true,
+                                                Active = true
+                                            },
+                                            new SDGIndicator
+                                            {
+                                                EN_Name = "Proportion of men, women and children living in poverty",
+                                                AR_Name = "نسبة الرجال والنساء والأطفال الذين يعيشون في فقر",
+                                                Source = "World Bank",
+                                                IsCommon = false,
+                                                Active = true
+                                            }
+                                        }
+                                    },
+                                    new Target
+                                    {
+                                        EN_Name = "Implement social protection systems",
+                                        AR_Name = "تنفيذ نظم الحماية الاجتماعية",
+                                        SDGsIndicators = new List<SDGIndicator>
+                                        {
+                                            new SDGIndicator
+                                            {
+                                                EN_Name = "Coverage of social protection systems",
+                                                AR_Name = "نسبة التغطية بأنظمة الحماية الاجتماعية",
+                                                Source = "ILO",
+                                                IsCommon = true,
+                                                Active = true
+                                            }
+                                        }
+                                    }
+                                }
+                            },
+
+                            new Goal
+                            {
+                                EN_Name = "Zero Hunger",
+                                AR_Name = "القضاء التام على الجوع",
+                                Icon = "/img/E-WEB-Goal-02.png",
+                                Targets = new List<Target>
+                                {
+                                    new Target
+                                    {
+                                        EN_Name = "End hunger and ensure access to safe food",
+                                        AR_Name = "القضاء على الجوع وضمان الحصول على غذاء آمن",
+                                        SDGsIndicators = new List<SDGIndicator>
+                                        {
+                                            new SDGIndicator
+                                            {
+                                                EN_Name = "Prevalence of undernourishment",
+                                                AR_Name = "معدل انتشار سوء التغذية",
+                                                Source = "FAO",
+                                                IsCommon = true,
+                                                Active = true
+                                            }
+                                        }
+                                    }
+                                }
+                            },
+
                         new Goal { EN_Name = "Good Health and Well‑being", AR_Name = "الصحة الجيدة والرفاه", Icon = "/img/E-WEB-Goal-03.png" },
                         new Goal { EN_Name = "Quality Education", AR_Name = "التعليم الجيد", Icon = "/img/E-WEB-Goal-04.png" },
                         new Goal { EN_Name = "Gender Equality", AR_Name = "المساواة بين الجنسين", Icon = "/img/E-WEB-Goal-05.png" },
@@ -94,7 +169,8 @@ namespace MonitoringAndEvaluationPlatform.Infrastructure
                         new Goal { EN_Name = "Partnerships for the Goals", AR_Name = "عقد الشراكات لتحقيق الأهداف", Icon = "/img/E-WEB-Goal-17.png" },
                     };
                     context.Goals.AddRange(goals);
-                }
+                    }
+       
                 if (!context.Ministries.Any())
                 {
                     var ministries = new List<Ministry>
