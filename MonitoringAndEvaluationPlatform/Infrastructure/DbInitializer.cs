@@ -28,7 +28,6 @@ namespace MonitoringAndEvaluationPlatform.Infrastructure
                     };
                     context.Sectors.AddRange(sectors);
                 }
-
                 if (!context.Donors.Any())
                 {
                     var donors = new List<Donor>
@@ -50,7 +49,6 @@ namespace MonitoringAndEvaluationPlatform.Infrastructure
                     };
                     context.Donors.AddRange(donors);
                 }
-
                 if (!context.SuperVisors.Any())
                 {
                     var superVisors = new List<SuperVisor>
@@ -62,7 +60,6 @@ namespace MonitoringAndEvaluationPlatform.Infrastructure
 
                     context.SuperVisors.AddRange(superVisors);
                 }
-
                 if (!context.ProjectManagers.Any())
                 {
                     var projectManagers = new List<ProjectManager>
@@ -97,11 +94,10 @@ namespace MonitoringAndEvaluationPlatform.Infrastructure
                         new Goal { EN_Name = "Partnerships for the Goals", AR_Name = "عقد الشراكات لتحقيق الأهداف", Icon = "/img/E-WEB-Goal-17.png" },
                     };
                     context.Goals.AddRange(goals);
-
-
-                    if (!context.Ministries.Any())
-                    {
-                        var ministries = new List<Ministry>
+                }
+                if (!context.Ministries.Any())
+                {
+                    var ministries = new List<Ministry>
                     {
                         new Ministry { MinistryDisplayName = "وزارة الخارجية والمغتربين", MinistryUserName = "MoFA" },
                         new Ministry { MinistryDisplayName = "وزارة الدفاع", MinistryUserName = "MoD" },
@@ -131,54 +127,49 @@ namespace MonitoringAndEvaluationPlatform.Infrastructure
                         new Ministry { MinistryDisplayName = "وزارة الطاقة", MinistryUserName = "MoEnergy" },
                         new Ministry { MinistryDisplayName = "وزارة الطوارئ والكوارث", MinistryUserName = "MoEDM" },
                     };
-                        context.Ministries.AddRange(ministries);
-                        await context.SaveChangesAsync(); // Ensure ministries are saved before creating users
+                    context.Ministries.AddRange(ministries);
+                    await context.SaveChangesAsync(); // Ensure ministries are saved before creating users
 
-                        foreach (var ministry in ministries)
+                    foreach (var ministry in ministries)
+                    {
+                        string roleName = ministry.MinistryUserName;
+                        string userName = ministry.MinistryUserName;
+                        string email = $"{userName.ToLower()}@example.com";
+                        string defaultPassword = "Ministry@123";
+
+                        // Create role if it doesn’t exist
+                        if (!await roleManager.RoleExistsAsync(roleName))
                         {
-                            string roleName = ministry.MinistryUserName;
-                            string userName = ministry.MinistryUserName;
-                            string email = $"{userName.ToLower()}@example.com";
-                            string defaultPassword = "Ministry@123";
+                            await roleManager.CreateAsync(new IdentityRole(roleName));
+                        }
 
-                            // Create role if it doesn’t exist
-                            if (!await roleManager.RoleExistsAsync(roleName))
+                        // Create user if it doesn’t exist
+                        var existingUser = await userManager.FindByNameAsync(userName);
+                        if (existingUser == null)
+                        {
+                            var user = new ApplicationUser
                             {
-                                await roleManager.CreateAsync(new IdentityRole(roleName));
+                                UserName = userName,
+                                Email = email,
+                                EmailConfirmed = true,
+                                MinistryName = userName // Or MinistryDisplayName if preferred
+                            };
+
+                            var result = await userManager.CreateAsync(user, defaultPassword);
+                            if (result.Succeeded)
+                            {
+                                await userManager.AddToRoleAsync(user, roleName);
                             }
-
-                            // Create user if it doesn’t exist
-                            var existingUser = await userManager.FindByNameAsync(userName);
-                            if (existingUser == null)
+                            else
                             {
-                                var user = new ApplicationUser
-                                {
-                                    UserName = userName,
-                                    Email = email,
-                                    EmailConfirmed = true,
-                                    MinistryName = userName // Or MinistryDisplayName if preferred
-                                };
-
-                                var result = await userManager.CreateAsync(user, defaultPassword);
-                                if (result.Succeeded)
-                                {
-                                    await userManager.AddToRoleAsync(user, roleName);
-                                }
-                                else
-                                {
-                                    Console.WriteLine($"⚠️ Failed to create user {userName}: {string.Join(", ", result.Errors.Select(e => e.Description))}");
-                                }
+                                Console.WriteLine($"⚠️ Failed to create user {userName}: {string.Join(", ", result.Errors.Select(e => e.Description))}");
                             }
                         }
                     }
-
-
-
-
-                    // ✅ Check if Frameworks already exist
-                    if (!context.Frameworks.Include(f => f.Outcomes).Any())
-                    {
-                        var frameworks = new List<Framework>
+                }
+                if (!context.Frameworks.Include(f => f.Outcomes).Any())
+                {
+                    var frameworks = new List<Framework>
                 {
                     new Framework
                     {
@@ -242,17 +233,14 @@ namespace MonitoringAndEvaluationPlatform.Infrastructure
                     }
                 };
 
-                        context.Frameworks.AddRange(frameworks);
-                        context.SaveChanges();
-                    }
-
-
-
-
+                    context.Frameworks.AddRange(frameworks);
                     context.SaveChanges();
+                }
 
-                } // Context is disposed here when the scope ends
-            }
+                context.SaveChanges();
+
+            } // Context is disposed here when the scope ends
         }
     }
 }
+
