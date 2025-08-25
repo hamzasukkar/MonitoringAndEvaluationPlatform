@@ -131,6 +131,50 @@ public class MonitoringService
         await _context.SaveChangesAsync();
     }
 
+    public async Task UpdateSectorPerformance(int projectId)
+    {
+        // 1) Load the project along with its Sectors collection
+        var project = await _context.Projects
+            .Include(p => p.Sectors)
+            .FirstOrDefaultAsync(p => p.ProjectID == projectId);
+
+        if (project == null)
+            return; // (Or throw, if you prefer)
+
+        // 2) For each sector linked to this project, recalc performance:
+        foreach (var sector in project.Sectors)
+        {
+            double totalSectorTarget = 0;
+            double totalSectorReal = 0;
+
+            // 2a) Find all projects that belong to this same sector, and include their Measures
+            var sectorProjects = await _context.Projects
+                .Where(p => p.Sectors.Any(s => s.Code == sector.Code))
+                .Include(p => p.Measures)
+                .ToListAsync();
+
+            // 2b) Sum up Target/Real values from each Measure on those projects
+            foreach (var sectorProject in sectorProjects)
+            {
+                foreach (var measure in sectorProject.Measures)
+                {
+                    if (measure.ValueType == MeasureValueType.Real)
+                        totalSectorReal += measure.Value;
+                    else if (measure.ValueType == MeasureValueType.Target)
+                        totalSectorTarget += measure.Value;
+                }
+            }
+
+            // 2c) Compute performance percentage (or zero if no targets)
+            sector.IndicatorsPerformance = (totalSectorTarget > 0)
+                ? (totalSectorReal / totalSectorTarget) * 100
+                : 0;
+        }
+
+        // 3) Persist all sector changes at once
+        await _context.SaveChangesAsync();
+    }
+
 
     // Helper method to calculate weighted average
     private double CalculateWeightedAverage<T>(List<T> items, Func<T, double> valueSelector, Func<T, double> weightSelector)
@@ -228,6 +272,9 @@ public class MonitoringService
         if (valueType == MeasureValueType.Real)
         {
             await UpdateIndicatorPerformance(indicatorId);
+            await UpdateProjectPerformance(projectId);
+            await UpdateMinistryPerformance(projectId);
+            await UpdateSectorPerformance(projectId);
         }
     }
 
@@ -249,6 +296,7 @@ public class MonitoringService
         await UpdateIndicatorPerformance(indicatorId);
         await UpdateProjectPerformance(projectId);
         await UpdateMinistryPerformance(projectId);
+        await UpdateSectorPerformance(projectId);
     }
 
     /// <summary>
@@ -260,6 +308,7 @@ public class MonitoringService
         var project = await _context.Projects
             .Include(p => p.Measures)
             .Include(p => p.Ministries)
+            .Include(p => p.Sectors)
             .FirstOrDefaultAsync(p => p.ProjectID == projectId);
 
         if (project == null)
@@ -268,6 +317,7 @@ public class MonitoringService
         // 2. Capture related IDs
         var indicatorIds = project.Measures.Select(m => m.IndicatorCode).Distinct().ToList();
         var ministryCodes = project.Ministries.Select(m => m.Code).Distinct().ToList();
+        var sectorIds = project.Sectors.Select(s => s.Code).Distinct().ToList();
 
         // 3. Remove the project (cascade deletes measures)
         _context.Projects.Remove(project);
@@ -283,6 +333,12 @@ public class MonitoringService
         foreach (var ministryCode in ministryCodes)
         {
             await UpdateMinistryPerformanceByMinistryCode(ministryCode);
+        }
+
+        // 6. Recalculate sector performance for affected sectors
+        foreach (var sectorId in sectorIds)
+        {
+            await UpdateSectorPerformanceBySectorId(sectorId);
         }
     }
 
@@ -318,6 +374,38 @@ public class MonitoringService
             : 0.0;
 
         _context.Ministries.Update(ministry);
+        await _context.SaveChangesAsync();
+    }
+
+    private async Task UpdateSectorPerformanceBySectorId(int sectorId)
+    {
+        var sector = await _context.Sectors
+            .Include(s => s.Projects)
+                .ThenInclude(p => p.Measures)
+            .FirstOrDefaultAsync(s => s.Code == sectorId);
+
+        if (sector == null)
+            return;
+
+        double totalTarget = 0.0;
+        double totalReal = 0.0;
+
+        foreach (var proj in sector.Projects)
+        {
+            foreach (var measure in proj.Measures)
+            {
+                if (measure.ValueType == MeasureValueType.Real)
+                    totalReal += measure.Value;
+                else if (measure.ValueType == MeasureValueType.Target)
+                    totalTarget += measure.Value;
+            }
+        }
+
+        sector.IndicatorsPerformance = totalTarget > 0
+            ? (totalReal / totalTarget) * 100.0
+            : 0.0;
+
+        _context.Sectors.Update(sector);
         await _context.SaveChangesAsync();
     }
 

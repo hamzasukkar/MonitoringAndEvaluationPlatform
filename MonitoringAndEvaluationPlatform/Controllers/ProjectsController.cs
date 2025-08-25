@@ -133,7 +133,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
 
             // Prepare dropdown and multiselect data
             ViewBag.Donor = new SelectList(donors, "Code", "Partner");
-            ViewBag.SectorList = new MultiSelectList(sectors, "Code", "Name", new List<int> { firstSectorCode ?? 0 });
+            ViewBag.SectorList = new MultiSelectList(sectors, "Code", "AR_Name", new List<int> { firstSectorCode ?? 0 });
             ViewBag.MinistryList = new MultiSelectList(ministries, "Code", "MinistryDisplayName", new List<int> { firstMinistryCode ?? 0 });
             ViewBag.SuperVisor = new SelectList(supervisors, "Code", "Name");
             ViewBag.ProjectManager = new SelectList(projectManagers, "Code", "Name");
@@ -208,8 +208,8 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             if (!ModelState.IsValid)
             {
                 // Re-populate ViewBag dropdowns in case of validation failure
-                ViewBag.Governorates = new SelectList(_context.Governorates, "Code", "Name");
-                ViewBag.SectorList = new MultiSelectList(_context.Sectors, "Code", "Name");
+                ViewBag.Governorates = new SelectList(_context.Governorates, "Code", "AR_Name");
+                ViewBag.SectorList = new MultiSelectList(_context.Sectors, "Code", "AR_Name");
                 ViewBag.ProjectManager = new SelectList(_context.ProjectManagers, "Code", "FullName");
                 ViewBag.SuperVisor = new SelectList(_context.SuperVisors, "Code", "FullName");
                 ViewBag.Ministry = new SelectList(_context.Ministries, "Code", "Name");
