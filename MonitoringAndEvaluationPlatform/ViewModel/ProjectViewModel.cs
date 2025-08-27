@@ -6,7 +6,7 @@ namespace MonitoringAndEvaluationPlatform.ViewModel
 {
     public class ProjectViewModel
     {
-        public Project project { get; set; }
+        public Project project { get; set; } = new();
 
         [Required]
         public int GovernorateCode { get; set; }
