@@ -122,108 +122,101 @@ public class PlanService
 
     private async Task UpdateRelatedEntities(Project project)
     {
-        // A. Fetch all relevant Measures for the current project, including their linked Indicators and the hierarchy above
-        var relevantMeasures = await _context.Measures
+        // A. Get all affected indicators through measures
+        var affectedIndicatorIds = await _context.Measures
             .Where(m => m.ProjectID == project.ProjectID)
-            .Include(m => m.Indicator)
-                .ThenInclude(i => i.SubOutput)
-                    .ThenInclude(so => so.Output)
-                        .ThenInclude(o => o.Outcome)
-                            .ThenInclude(outc => outc.Framework) // Renamed 'o' to 'outc' to avoid conflict
+            .Select(m => m.IndicatorCode)
+            .Distinct()
             .ToListAsync();
 
-        // Use HashSets to keep track of unique entities to avoid re-processing and ensure we update each entity only once
-        var indicatorsToUpdate = new HashSet<Indicator>();
-        var subOutputsToUpdate = new HashSet<SubOutput>();
-        var outputsToUpdate = new HashSet<Output>();
-        var outcomesToUpdate = new HashSet<Outcome>();
-        var frameworksToUpdate = new HashSet<Framework>();
+        // B. Calculate DisbursementPerformance for each affected Indicator
+        var indicatorsToUpdate = await _context.Indicators
+            .Where(i => affectedIndicatorIds.Contains(i.IndicatorCode))
+            .Include(i => i.Measures)
+                .ThenInclude(m => m.Project)
+            .ToListAsync();
 
-        // B. Propagate performance from Project to Indicator (and collect unique entities)
-        foreach (var measure in relevantMeasures)
-        {
-            var indicator = measure.Indicator;
-            if (indicator != null)
-            {
-                // For simplicity, let's assume direct propagation of project performance to indicators
-                // In a real scenario, indicator performance would be derived from its measures,
-                // then aggregated up.
-                indicator.DisbursementPerformance = project.DisbursementPerformance;
-                indicator.FieldMonitoring = project.FieldMonitoring;
-                indicator.ImpactAssessment = project.ImpactAssessment;
-                indicatorsToUpdate.Add(indicator); // Add to set for tracking
-            }
-        }
-
-        // C. Aggregate performance upwards from Indicator to Framework
-        // This is where the weights would typically come into play for a more accurate calculation.
-        // For this example, I'll still do a direct propagation for simplicity, but note the
-        // comment about weighted average.
-
-        // Process SubOutputs
         foreach (var indicator in indicatorsToUpdate)
         {
-            var subOutput = indicator.SubOutput;
-            if (subOutput != null)
+            // Calculate average DisbursementPerformance from all projects linked to this indicator via Measures
+            var linkedProjects = indicator.Measures.Select(m => m.Project).Where(p => p != null).ToList();
+            if (linkedProjects.Any())
             {
-                // In a real scenario, calculate subOutput.DisbursementPerformance
-                // as a weighted average of its indicators' DisbursementPerformance.
-                // For now, propagating directly from project.
-                subOutput.DisbursementPerformance = project.DisbursementPerformance;
-                subOutput.FieldMonitoring = project.FieldMonitoring;
-                subOutput.ImpactAssessment = project.ImpactAssessment;
-                subOutputsToUpdate.Add(subOutput);
+                indicator.DisbursementPerformance = (int)linkedProjects.Average(p => p.DisbursementPerformance);
+                indicator.FieldMonitoring = (int)linkedProjects.Average(p => p.FieldMonitoring);
+                indicator.ImpactAssessment = (int)linkedProjects.Average(p => p.ImpactAssessment);
             }
         }
 
-        // Process Outputs
+        // C. Calculate DisbursementPerformance for SubOutputs
+        var affectedSubOutputIds = indicatorsToUpdate.Select(i => i.SubOutputCode).Distinct().Where(id => id!=0).ToList();
+        var subOutputsToUpdate = await _context.SubOutputs
+            .Where(so => affectedSubOutputIds.Contains(so.Code))
+            .Include(so => so.Indicators)
+            .ToListAsync();
+
         foreach (var subOutput in subOutputsToUpdate)
         {
-            var output = subOutput.Output;
-            if (output != null)
+            if (subOutput.Indicators.Any())
             {
-                // In a real scenario, calculate output.DisbursementPerformance
-                // as a weighted average of its subOutputs' DisbursementPerformance.
-                output.DisbursementPerformance = project.DisbursementPerformance;
-                output.FieldMonitoring = project.FieldMonitoring;
-                output.ImpactAssessment = project.ImpactAssessment;
-                outputsToUpdate.Add(output);
+                subOutput.DisbursementPerformance = (int)subOutput.Indicators.Average(i => i.DisbursementPerformance);
+                subOutput.FieldMonitoring = (int)subOutput.Indicators.Average(i => i.FieldMonitoring);
+                subOutput.ImpactAssessment = (int)subOutput.Indicators.Average(i => i.ImpactAssessment);
             }
         }
 
-        // Process Outcomes
+        // D. Calculate DisbursementPerformance for Outputs
+        var affectedOutputIds = subOutputsToUpdate.Select(so => so.OutputCode).Distinct().Where(id => id!=0).ToList();
+        var outputsToUpdate = await _context.Outputs
+            .Where(o => affectedOutputIds.Contains(o.Code))
+            .Include(o => o.SubOutputs)
+            .ToListAsync();
+
         foreach (var output in outputsToUpdate)
         {
-            var outcome = output.Outcome;
-            if (outcome != null)
+            if (output.SubOutputs.Any())
             {
-                // In a real scenario, calculate outcome.DisbursementPerformance
-                // as a weighted average of its outputs' DisbursementPerformance.
-                outcome.DisbursementPerformance = project.DisbursementPerformance;
-                outcome.FieldMonitoring = project.FieldMonitoring;
-                outcome.ImpactAssessment = project.ImpactAssessment;
-                outcomesToUpdate.Add(outcome);
+                output.DisbursementPerformance = (int)output.SubOutputs.Average(so => so.DisbursementPerformance);
+                output.FieldMonitoring = (int)output.SubOutputs.Average(so => so.FieldMonitoring);
+                output.ImpactAssessment = (int)output.SubOutputs.Average(so => so.ImpactAssessment);
             }
         }
 
-        // Process Frameworks
+        // E. Calculate DisbursementPerformance for Outcomes
+        var affectedOutcomeIds = outputsToUpdate.Select(o => o.OutcomeCode).Distinct().Where(id => id!=0).ToList();
+        var outcomesToUpdate = await _context.Outcomes
+            .Where(oc => affectedOutcomeIds.Contains(oc.Code))
+            .Include(oc => oc.Outputs)
+            .ToListAsync();
+
         foreach (var outcome in outcomesToUpdate)
         {
-            var framework = outcome.Framework;
-            if (framework != null)
+            if (outcome.Outputs.Any())
             {
-                // In a real scenario, calculate framework.DisbursementPerformance
-                // as a weighted average of its outcomes' DisbursementPerformance.
-                framework.DisbursementPerformance = project.DisbursementPerformance;
-                framework.FieldMonitoring = project.FieldMonitoring;
-                framework.ImpactAssessment = project.ImpactAssessment;
-                frameworksToUpdate.Add(framework);
+                outcome.DisbursementPerformance = (int)outcome.Outputs.Average(o => o.DisbursementPerformance);
+                outcome.FieldMonitoring = (int)outcome.Outputs.Average(o => o.FieldMonitoring);
+                outcome.ImpactAssessment = (int)outcome.Outputs.Average(o => o.ImpactAssessment);
             }
         }
 
-        // D. Save changes
-        // Entity Framework's change tracking will handle saving updates to all entities
-        // that have been modified and added to the context.
+        // F. Calculate DisbursementPerformance for Frameworks
+        var affectedFrameworkIds = outcomesToUpdate.Select(oc => oc.FrameworkCode).Distinct().Where(id => id != 0).ToList();
+        var frameworksToUpdate = await _context.Frameworks
+            .Where(f => affectedFrameworkIds.Contains(f.Code))
+            .Include(f => f.Outcomes)
+            .ToListAsync();
+
+        foreach (var framework in frameworksToUpdate)
+        {
+            if (framework.Outcomes.Any())
+            {
+                framework.DisbursementPerformance = (int)framework.Outcomes.Average(oc => oc.DisbursementPerformance);
+                framework.FieldMonitoring = (int)framework.Outcomes.Average(oc => oc.FieldMonitoring);
+                framework.ImpactAssessment = (int)framework.Outcomes.Average(oc => oc.ImpactAssessment);
+            }
+        }
+
+        // G. Save all changes
         await _context.SaveChangesAsync();
     }
 }
