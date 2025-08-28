@@ -21,13 +21,15 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly RoleManager<IdentityRole> _roleManager;
         private readonly IActivityService _activityService;
+        private readonly PlanService _planService;
 
-        public ProjectsController(ApplicationDbContext context, UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager, IActivityService activityService)
+        public ProjectsController(ApplicationDbContext context, UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager, IActivityService activityService, PlanService planService)
         {
             _context = context;
             _userManager = userManager;
             _roleManager = roleManager;
             _activityService = activityService;
+            _planService = planService;
         }
 
 
@@ -705,7 +707,14 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             var service = new MonitoringService(_context);
             try
             {
+                // Call the recalculation method BEFORE deleting the project
+                var project = await _context.Projects.FindAsync(id);
+              
                 await service.DeleteProjectAndRecalculateAsync(id);
+                if (project != null)
+                {
+                    await _planService.RecalculatePerformanceAfterProjectDeletion(project);
+                }
             }
             catch (InvalidOperationException ex)
             {

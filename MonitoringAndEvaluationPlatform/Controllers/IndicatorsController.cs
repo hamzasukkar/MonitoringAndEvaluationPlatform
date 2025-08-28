@@ -16,10 +16,12 @@ namespace MonitoringAndEvaluationPlatform.Controllers
     public class IndicatorsController : Controller
     {
         private readonly ApplicationDbContext _context;
+        private readonly PlanService _planService;
 
-        public IndicatorsController(ApplicationDbContext context)
+        public IndicatorsController(ApplicationDbContext context, PlanService planService)
         {
             _context = context;
+            _planService = planService;
         }
 
         // GET: Indicators
@@ -277,7 +279,9 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             await _context.SaveChangesAsync();
             await RedistributeWeights(indicator.SubOutputCode);
             await UpdateSubOutputPerformance(indicator.SubOutputCode);
-           
+            // Call recalculation BEFORE deleting the indicator
+            await _planService.RecalculatePerformanceAfterIndicatorDeletion(indicator);
+
             return Ok();
         }
 
