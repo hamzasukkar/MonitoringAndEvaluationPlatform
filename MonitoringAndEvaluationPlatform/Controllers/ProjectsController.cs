@@ -709,12 +709,13 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             {
                 // Call the recalculation method BEFORE deleting the project
                 var project = await _context.Projects.FindAsync(id);
-              
-                await service.DeleteProjectAndRecalculateAsync(id);
+
                 if (project != null)
                 {
                     await _planService.RecalculatePerformanceAfterProjectDeletion(project);
                 }
+                await service.DeleteProjectAndRecalculateAsync(id);
+              
             }
             catch (InvalidOperationException ex)
             {

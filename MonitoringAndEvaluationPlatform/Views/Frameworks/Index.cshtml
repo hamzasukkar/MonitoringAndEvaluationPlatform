@@ -317,13 +317,14 @@
 
         function confirmFrameworkDelete(code) {
             Swal.fire({
-                title: 'Are you sure?',
-                text: 'This will delete the framework!',
+                title:'@Localizer["Are you sure?"]',
+                text: '@Localizer["This will delete the framework!"]',
                 icon: 'warning',
                 showCancelButton: true,
                 confirmButtonColor: '#d33',
                 cancelButtonColor: '#3085d6',
-                confirmButtonText: 'Yes, delete it!'
+                cancelButtonText: '@Localizer["Cancel"]',
+                confirmButtonText: '@Localizer["Yes, delete it!?"]'
             }).then((result) => {
                 if (result.isConfirmed) {
                     $.ajax({
@@ -331,10 +332,10 @@
                         type: 'POST',
                         success: function () {
                             $(`#framework-row-${code}`).fadeOut();
-                            Swal.fire('Deleted!', 'Framework has been deleted.', 'success');
+                            Swal.fire('Deleted!', '@Localizer["Framework has been deleted."]', 'success');
                         },
                         error: function () {
-                            Swal.fire('Error', 'Could not delete framework.', 'error');
+                         Swal.fire('Error', '@Localizer["Could not delete framework."]', 'error');
                         }
                     });
                 }

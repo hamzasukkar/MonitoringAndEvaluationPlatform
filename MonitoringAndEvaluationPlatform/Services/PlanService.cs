@@ -274,6 +274,9 @@ public class PlanService
                 indicator.FieldMonitoring = 0;
                 indicator.ImpactAssessment = 0;
             }
+
+            // ✅ Mark entity as modified
+            _context.Indicators.Update(indicator);
         }
 
         // C. Calculate DisbursementPerformance for SubOutputs
@@ -297,6 +300,9 @@ public class PlanService
                 subOutput.FieldMonitoring = 0;
                 subOutput.ImpactAssessment = 0;
             }
+
+            // ✅ Mark entity as modified
+            _context.SubOutputs.Update(subOutput);
         }
 
         // D. Calculate DisbursementPerformance for Outputs
@@ -320,6 +326,9 @@ public class PlanService
                 output.FieldMonitoring = 0;
                 output.ImpactAssessment = 0;
             }
+
+            // ✅ Mark entity as modified
+            _context.Outputs.Update(output);
         }
 
         // E. Calculate DisbursementPerformance for Outcomes
@@ -343,6 +352,9 @@ public class PlanService
                 outcome.FieldMonitoring = 0;
                 outcome.ImpactAssessment = 0;
             }
+
+            // ✅ Mark entity as modified
+            _context.Outcomes.Update(outcome);
         }
 
         // F. Calculate DisbursementPerformance for Frameworks
@@ -366,12 +378,14 @@ public class PlanService
                 framework.FieldMonitoring = 0;
                 framework.ImpactAssessment = 0;
             }
+
+            // ✅ Mark entity as modified
+            _context.Frameworks.Update(framework);
         }
 
         // G. Save all changes
         await _context.SaveChangesAsync();
     }
-
     private async Task RecalculateParentEntitiesPerformance(int subOutputCode)
     {
         // A. Recalculate SubOutput performance from remaining indicators

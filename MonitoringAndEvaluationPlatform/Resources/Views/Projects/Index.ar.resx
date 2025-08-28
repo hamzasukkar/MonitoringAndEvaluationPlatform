@@ -123,11 +123,20 @@
   <data name="Apply Filters" xml:space="preserve">
     <value>تطبيق الفلاتر</value>
   </data>
+  <data name="Are you sure?" xml:space="preserve">
+    <value>هل أنت متأكد؟</value>
+  </data>
+  <data name="Cancel" xml:space="preserve">
+    <value>إلغاء</value>
+  </data>
   <data name="Create New Project" xml:space="preserve">
     <value>إنشاء أستمارة  مشروع جديد</value>
   </data>
   <data name="Disbursement" xml:space="preserve">
     <value>نسبة الأنفاق</value>
+  </data>
+  <data name="Failed to delete project." xml:space="preserve">
+    <value>فشل في حذف المشروع.</value>
   </data>
   <data name="Filter and analyze project performance" xml:space="preserve">
     <value>تصفية وتحليل أداء المشروع</value>
@@ -141,6 +150,9 @@
   <data name="Performance" xml:space="preserve">
     <value>أداء</value>
   </data>
+  <data name="Project has been deleted." xml:space="preserve">
+    <value>تم حذف المشروع.</value>
+  </data>
   <data name="Project Name" xml:space="preserve">
     <value>اسم المشروع</value>
   </data>
@@ -149,5 +161,11 @@
   </data>
   <data name="Reset" xml:space="preserve">
     <value>إعادة ضبط</value>
+  </data>
+  <data name="This will delete the project!" xml:space="preserve">
+    <value>سيؤدي هذا إلى حذف المشروع!</value>
+  </data>
+  <data name="Yes, delete it!?" xml:space="preserve">
+    <value>نعم احذفه!؟</value>
   </data>
 </root>

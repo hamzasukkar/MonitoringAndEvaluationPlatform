@@ -196,7 +196,7 @@
 						Swal.fire({
 							icon: 'success',
 							title: 'Saved',
-							text: 'The measure was updated successfully!',
+							text: '@Localizer["The measure was updated successfully!"]',
 							timer: 1500,
 							showConfirmButton: false
 						});
@@ -204,7 +204,7 @@
 						Swal.fire({
 							icon: 'error',
 							title: 'Error',
-							text: 'Failed to save the measure!'
+							text: '@Localizer["Failed to save the measure!"]'
 						});
 					}
 		}
@@ -216,13 +216,14 @@
 				const indicatorCode = row.dataset.indicatorCode;
 
 				const result = await Swal.fire({
-					title: 'Are you sure?',
-					text: "This measure will be deleted.",
+					title:'@Localizer["Are you sure?"]',
+					text: '@Localizer["This will delete the Measure!"]',
 					icon: 'warning',
 					showCancelButton: true,
 					confirmButtonColor: '#d33',
 					cancelButtonColor: '#3085d6',
-					confirmButtonText: 'Yes, delete it!'
+					confirmButtonText: '@Localizer["Yes, delete it!"]',
+					cancelButtonText: '@Localizer["Cancel"]',
 				});
 
 				if (result.isConfirmed) {
@@ -235,7 +236,7 @@
 						Swal.fire({
 							icon: 'success',
 							title: 'Deleted!',
-							text: 'The measure has been deleted.',
+							text: '@Localizer["The measure has been deleted."]',
 							timer: 1500,
 							showConfirmButton: false
 						});
@@ -243,7 +244,7 @@
 						Swal.fire({
 							icon: 'error',
 							title: 'Failed',
-							text: 'Could not delete the measure.'
+							text: '@Localizer["Could not delete the measure."]'
 						});
 					}
 				}

@@ -123,8 +123,20 @@
   <data name="Add" xml:space="preserve">
     <value>Add</value>
   </data>
+  <data name="Are you sure?" xml:space="preserve">
+    <value>Are you sure?</value>
+  </data>
+  <data name="Cancel" xml:space="preserve">
+    <value>Cancel</value>
+  </data>
+  <data name="Could not delete the measure." xml:space="preserve">
+    <value>Could not delete the measure.</value>
+  </data>
   <data name="Date" xml:space="preserve">
     <value>Date</value>
+  </data>
+  <data name="Failed to save the measure!" xml:space="preserve">
+    <value>Failed to save the measure!</value>
   </data>
   <data name="Indicator" xml:space="preserve">
     <value>Indicator</value>
@@ -150,10 +162,22 @@
   <data name="Target" xml:space="preserve">
     <value>Target</value>
   </data>
+  <data name="The measure has been deleted." xml:space="preserve">
+    <value>The measure has been deleted.</value>
+  </data>
+  <data name="The measure was updated successfully!" xml:space="preserve">
+    <value>The measure was updated successfully!</value>
+  </data>
+  <data name="This will delete the Measure!" xml:space="preserve">
+    <value>This will delete the Measure!</value>
+  </data>
   <data name="Value" xml:space="preserve">
     <value>Value</value>
   </data>
   <data name="Value Type" xml:space="preserve">
     <value>Value Type</value>
+  </data>
+  <data name="Yes, delete it!" xml:space="preserve">
+    <value>Yes, delete it!</value>
   </data>
 </root>

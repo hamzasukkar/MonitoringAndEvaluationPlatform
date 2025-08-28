@@ -290,11 +290,12 @@
 
      function deleteProject(projectId) {
         Swal.fire({
-            title: 'Are you sure?',
-            text: 'This will permanently delete the project.',
+            title:'@Localizer["Are you sure?"]',
+            text: '@Localizer["This will delete the project!"]',
             icon: 'warning',
             showCancelButton: true,
-            confirmButtonText: 'Yes, delete it!',
+            cancelButtonText: '@Localizer["Cancel"]',
+            confirmButtonText: '@Localizer["Yes, delete it!?"]',
             reverseButtons: true
         }).then((result) => {
             if (result.isConfirmed) {
@@ -308,10 +309,10 @@
                     success: function () {
                         // Remove the row from the table
                         $(`#row_${projectId}`).remove();
-                        Swal.fire('Deleted!', 'Project has been deleted.', 'success');
+                        Swal.fire('Deleted!', '@Localizer["Project has been deleted."]', 'success');
                     },
                     error: function () {
-                        Swal.fire('Error', 'Failed to delete project.', 'error');
+                        Swal.fire('Error', '@Localizer["Failed to delete project."]', 'error');
                     }
                 });
             }
