@@ -526,57 +526,51 @@
 
         /* Responsive Adjustments (from previous segments) */
         @@media (max-width: 992px) {
-            .sidebar
+            .sidebar {
+                width: 70px;
+                overflow: hidden;
+            }
 
-        {
-            width: 70px;
-            overflow: hidden;
-        }
+                .sidebar a span {
+                    display: none;
+                }
 
-        .sidebar a span {
-            display: none;
-        }
+                .sidebar img {
+                    margin-inline-end: 0; /* Reset margin for collapsed sidebar icons */
+                    margin-inline-start: 0; /* Also reset logical start margin */
+                }
 
-        .sidebar img {
-            margin-inline-end: 0; /* Reset margin for collapsed sidebar icons */
-            margin-inline-start: 0; /* Also reset logical start margin */
-        }
+            .container-full {
+                /* Adjust margin for collapsed sidebar using logical property */
+                margin-inline-start: 70px;
+                margin-inline-end: 0; /* Default LTR positioning for collapsed sidebar */
+            }
 
-        .container-full {
-            /* Adjust margin for collapsed sidebar using logical property */
-            margin-inline-start: 70px;
-            margin-inline-end: 0; /* Default LTR positioning for collapsed sidebar */
-        }
-
-        body.rtl .container-full {
-            margin-inline-start: 0; /* In RTL, content starts at 0 */
-            margin-inline-end: 70px; /* And has a margin-right of 70px */
-        }
-
+            body.rtl .container-full {
+                margin-inline-start: 0; /* In RTL, content starts at 0 */
+                margin-inline-end: 70px; /* And has a margin-right of 70px */
+            }
         }
 
         @@media (max-width: 768px) {
-            .sidebar
+            .sidebar {
+                display: none;
+            }
 
-        {
-            display: none;
-        }
+            .container-full {
+                /* Reset margin when sidebar is hidden using logical property */
+                margin-inline-start: 0;
+                margin-inline-end: 0;
+                padding: 1rem; /* Apply padding for smaller screens */
+            }
 
-        .container-full {
-            /* Reset margin when sidebar is hidden using logical property */
-            margin-inline-start: 0;
-            margin-inline-end: 0;
-            padding: 1rem; /* Apply padding for smaller screens */
-        }
+            .topbar .title {
+                font-size: 1.2rem;
+            }
 
-        .topbar .title {
-            font-size: 1.2rem;
-        }
-
-        .nav-links .nav-item:not(:last-child) {
-            display: none;
-        }
-
+            .nav-links .nav-item:not(:last-child) {
+                display: none;
+            }
         }
 
         /* General Card Styling (ensuring consistency from previous snippets) */
@@ -692,20 +686,17 @@
         }
 
         @@keyframes pulse {
-            0%
+            0% {
+                opacity: 1;
+            }
 
-        {
-            opacity: 1;
-        }
+            50% {
+                opacity: 0.6;
+            }
 
-        50% {
-            opacity: 0.6;
-        }
-
-        100% {
-            opacity: 1;
-        }
-
+            100% {
+                opacity: 1;
+            }
         }
     </style>
 </head>
@@ -729,7 +720,7 @@
                                 <i class="fas fa-link me-2"></i>Alignment
                             </a>
                         </li> *@
-                   @*      <li class="nav-item">
+                        @*      <li class="nav-item">
                             <a asp-action="Create" asp-controller="LogicalFrameworks" asp-route-projectId="@ViewBag.ProjectID" class="nav-link">
                                 <i class="fas fa-sitemap me-2"></i>Logical Framework
                             </a>
@@ -749,7 +740,7 @@
                                 <i class="fas fa-tasks me-2"></i>@Localizer["Action Plans"]
                             </a>
                         </li>
-                @*         <li class="nav-item">
+                        @*         <li class="nav-item">
                             <a asp-action="Index" asp-controller="Activities" asp-route-id="@ViewBag.ProjectID" class="nav-link">
                                 <i class="fas fa-running me-2"></i>Activities
                             </a>
@@ -776,32 +767,56 @@
 
     @foreach (var activityGroup in Model)
     {
-       @*  @if (@activityGroup.ActivityType != "Physical")
-        { *@
-            <div class="activity-group-card">
+        @if (@activityGroup.ActivityType == "DisbursementPerformance")
+        {
+        <div class="activity-group-card">
             <div class="activity-group-header">@Localizer[@activityGroup.ActivityType]</div>
-                <table class="action-plan-table">
-                    <thead>
-                        <tr>
+            <table class="action-plan-table">
+                <thead>
+                    <tr>
                         <th>@Localizer["Activity"]</th>
                         <th>@Localizer["Framework"]</th>
-                            @for (int i = 1; i <= maxPlans; i++)
-                            {
-                            <th class="text-center">@Localizer["Plan"] @i</th>
-                            }
-                        <th class="text-end">@Localizer["Total"]</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @foreach (var activity in activityGroup.Activities)
+                        @for (int i = 1; i <= maxPlans; i++)
                         {
+                            <th class="text-center">@Localizer["Plan"] @i</th>
+                        }
+                        <th class="text-end">@Localizer["Total"]</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var activity in activityGroup.Activities)
+                    {
+                       
+
+
                             <tr>
-                                <td rowspan="3" class="activity-name align-middle">@activity.ActivityName</td>
-                                @*    <td class="framework-label">Date</td> *@
+                                <td rowspan="3" class="activity-name align-middle">
+                                    @{
+                                        var activityName = activity.ActivityName;
+                                        string displayName = activityName; // Default to the original name
+
+                                        if (activityName.Contains("-"))
+                                        {
+                                            // Split the string only on the first hyphen
+                                            var parts = activityName.Split(new[] { '-' }, 2);
+                                            if (parts.Length == 2)
+                                            {
+                                                var prefix = parts[0];
+                                                var keyToLocalize = parts[1];
+                                                // Get the localized value
+                                                var localizedValue = @Localizer[keyToLocalize];
+                                                // Reconstruct the string
+                                                displayName = $"{prefix}-{localizedValue.Value}";
+                                            }
+                                        }
+                                    }
+                                    @displayName
+                                </td>
+                                @* <td class="framework-label">Date</td> *@
                                 <td class="framework-label"></td>
                                 @foreach (var plan in activity.Plans)
                                 {
-                                    @*  <td class="text-center plan-date">@plan.Date.ToString("yyyy-MM-dd")</td> *@
+                                    @* <td class="text-center plan-date">@plan.Date.ToString("yyyy-MM-dd")</td> *@
                                     <td class="text-center plan-date"></td>
                                 }
                                 @for (int i = activity.Plans.Count; i < maxPlans; i++)
@@ -811,7 +826,7 @@
                                 <td class="text-end">-</td>
                             </tr>
                             <tr>
-                            <td class="framework-label">@Localizer["Planned"]</td>
+                                <td class="framework-label">@Localizer["Planned"]</td>
                                 @foreach (var plan in activity.Plans)
                                 {
                                     <td class="editable-cell text-center" contenteditable="true"
@@ -827,7 +842,7 @@
                                 <td class="total-cost text-end">@activity.TotalEstimatedCost.ToString("N0")</td>
                             </tr>
                             <tr>
-                            <td class="framework-label">@Localizer["Realised"]</td>
+                                <td class="framework-label">@Localizer["Realised"]</td>
                                 @foreach (var plan in activity.Plans)
                                 {
                                     <td class="editable-cell text-center" contenteditable="true"
@@ -842,29 +857,30 @@
                                 }
                                 <td class="total-cost text-end">@activity.TotalRealisedCost.ToString("N0")</td>
                             </tr>
+                        
+                    }
+                </tbody>
+                <tfoot>
+                    <tr class="subtotal-row">
+                        @for (int i = 0; i < maxPlans; i++)
+                        {
+                            <td class="text-center">@activityGroup.Activities.Sum(a => a.Plans.Count > i ? a.Plans[i].PlannedValue : 0)</td>
                         }
-                    </tbody>
-                    <tfoot>
-                        <tr class="subtotal-row">
-                            @for (int i = 0; i < maxPlans; i++)
-                            {
-                                <td class="text-center">@activityGroup.Activities.Sum(a => a.Plans.Count > i ? a.Plans[i].PlannedValue : 0)</td>
-                            }
-                            <td class="text-end">@activityGroup.Activities.Sum(a => a.TotalEstimatedCost).ToString("N0")</td>
-                        </tr>
-                        <tr class="subtotal-row">
+                        <td class="text-end">@activityGroup.Activities.Sum(a => a.TotalEstimatedCost).ToString("N0")</td>
+                    </tr>
+                    <tr class="subtotal-row">
                         <td colspan="2">@Localizer["Subtotal Realised"]</td>
-                            @for (int i = 0; i < maxPlans; i++)
-                            {
-                                <td class="text-center">@activityGroup.Activities.Sum(a => a.Plans.Count > i ? a.Plans[i].RealisedValue : 0)</td>
-                            }
-                            <td class="text-end">@activityGroup.Activities.Sum(a => a.TotalRealisedCost).ToString("N0")</td>
-                        </tr>
-                    </tfoot>
-                </table>
-            </div>
+                        @for (int i = 0; i < maxPlans; i++)
+                        {
+                            <td class="text-center">@activityGroup.Activities.Sum(a => a.Plans.Count > i ? a.Plans[i].RealisedValue : 0)</td>
+                        }
+                        <td class="text-end">@activityGroup.Activities.Sum(a => a.TotalRealisedCost).ToString("N0")</td>
+                    </tr>
+                </tfoot>
+            </table>
+        </div>
 
-        @* } *@
+        }
     }
 
     @if (!Model.Any())
