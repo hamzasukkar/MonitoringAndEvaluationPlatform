@@ -11,6 +11,7 @@ using MonitoringAndEvaluationPlatform.Data;
 using MonitoringAndEvaluationPlatform.Models;
 using MonitoringAndEvaluationPlatform.Services;
 using MonitoringAndEvaluationPlatform.ViewModel;
+using MonitoringAndEvaluationPlatform.Enums;
 using Newtonsoft.Json;
 
 namespace MonitoringAndEvaluationPlatform.Controllers
@@ -101,7 +102,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         }
 
         // GET: Programs/Create
-        public IActionResult Create()
+        private ProjectWithMeasuresViewModel PrepareProjectCreateViewModel(Project project = null)
         {
             // Retrieve related data
             var donors = _context.Donors.ToList();
@@ -109,26 +110,27 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             var ministries = _context.Ministries.ToList();
             var supervisors = _context.SuperVisors.ToList();
             var projectManagers = _context.ProjectManagers.ToList();
-            var goals= _context.Goals.ToList();
+            var goals = _context.Goals.ToList();
+            var indicators = _context.Indicators.ToList();
             var isArabic = CultureInfo.CurrentUICulture.TwoLetterISOLanguageName == "ar";
-
 
             ViewBag.Governorates = _context.Governorates.ToList();
 
-            // Initialize project with defaults
-            var project = new Project
+            // Initialize project with defaults if not provided
+            if (project == null)
             {
-                EstimatedBudget = 0,
-                RealBudget = 0,
-                StartDate = DateTime.Today,
-                EndDate = DateTime.Today.AddYears(1),
-                //DonorCode = donors.FirstOrDefault()?.Code ?? 0,//To Check
-                //MinistryCode = ministries.FirstOrDefault()?.Code ?? 0,
-                SuperVisorCode = supervisors.FirstOrDefault()?.Code ?? 0,
-                ProjectManagerCode = projectManagers.FirstOrDefault()?.Code ?? 0,
-                Sectors = sectors.Take(1).ToList(),
-                GoalCode= goals.FirstOrDefault()?.Code ?? 0,
-            };
+                project = new Project
+                {
+                    EstimatedBudget = 0,
+                    RealBudget = 0,
+                    StartDate = DateTime.Today,
+                    EndDate = DateTime.Today.AddYears(1),
+                    SuperVisorCode = supervisors.FirstOrDefault()?.Code ?? 0,
+                    ProjectManagerCode = projectManagers.FirstOrDefault()?.Code ?? 0,
+                    Sectors = sectors.Take(1).ToList(),
+                    GoalCode = goals.FirstOrDefault()?.Code ?? 0,
+                };
+            }
 
             var firstSectorCode = sectors.FirstOrDefault()?.Code;
             var firstMinistryCode = ministries.FirstOrDefault()?.Code;
@@ -145,22 +147,59 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 isArabic ? "AR_Name" : "EN_Name"
             );
 
-            return View(project);
+            // Add indicators to ViewBag for JavaScript
+            ViewBag.IndicatorsJson = JsonConvert.SerializeObject(indicators.Select(i => new { 
+                IndicatorCode = i.IndicatorCode, 
+                Name = i.Name 
+            }));
+
+            // Create ViewModel
+            return new ProjectWithMeasuresViewModel
+            {
+                Project = project,
+                TargetMeasures = new List<MeasureInputModel>(),
+                AvailableIndicators = indicators ?? new List<Indicator>()
+            };
+        }
+
+        public IActionResult Create()
+        {
+            var viewModel = PrepareProjectCreateViewModel();
+            return View(viewModel);
         }
 
 
         [HttpPost]
         public async Task<IActionResult> Create(
-        Project project,
+        ProjectWithMeasuresViewModel viewModel,
         List<IFormFile> UploadedFiles,
-        int PlansCount,
-        string selections                // <— new parameter
+        int PlansCount = 6,
+        string selections = "[]"                // <— make optional with default
     )
         {
+            // FIRST: Remove navigation property validations immediately
+            ModelState.Remove("Project.ProjectManager");
+            ModelState.Remove("Project.SuperVisor");
+            ModelState.Remove("Project.Goal");
+            ModelState.Remove("Project.ActionPlan");
+            ModelState.Remove("Project.Sectors");
+            ModelState.Remove("Project.Donors");
+            ModelState.Remove("Project.Ministries");
+            ModelState.Remove("Project.Communities");
+            ModelState.Remove("Project.Districts");
+            ModelState.Remove("Project.SubDistricts");
+            ModelState.Remove("Project.Governorates");
+            ModelState.Remove("Project.Measures");
+
             // Deserialize JSON string into a list of location selection objects
-            var selectedLocations = JsonConvert.DeserializeObject<List<LocationSelectionViewModel>>(selections);
+            var selectedLocations = string.IsNullOrEmpty(selections) || selections == "[]" 
+                ? new List<LocationSelectionViewModel>() 
+                : JsonConvert.DeserializeObject<List<LocationSelectionViewModel>>(selections);
             var isArabic = CultureInfo.CurrentUICulture.TwoLetterISOLanguageName == "ar";
 
+            // Extract the project from the ViewModel
+            var project = viewModel.Project;
+            
             // Initialize navigation collections if necessary
             project.Governorates = new List<Governorate>();
             project.Districts = new List<District>();
@@ -185,18 +224,18 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                     project.Communities.Add(community);
             }
 
-            // Remove navigation property validation to avoid unnecessary errors
-            ModelState.Remove(nameof(Project.ProjectManager));
-            ModelState.Remove(nameof(Project.Sectors));
-            ModelState.Remove(nameof(Project.Donors));
-            ModelState.Remove(nameof(Project.Ministries));
-            ModelState.Remove(nameof(Project.SuperVisor));
-            ModelState.Remove(nameof(Project.ActionPlan));
-            ModelState.Remove(nameof(Project.Communities));
-            ModelState.Remove(nameof(Project.Districts));
-            ModelState.Remove(nameof(Project.SubDistricts));
-            ModelState.Remove(nameof(Project.Governorates));
-            ModelState.Remove(nameof(Project.Goal));
+            // Navigation property validations already removed at the start of method
+
+            // Remove TargetMeasures validation if no measures were added
+            if (viewModel.TargetMeasures == null || !viewModel.TargetMeasures.Any())
+            {
+                // Remove all TargetMeasures related validations since they're optional
+                var keysToRemove = ModelState.Keys.Where(k => k.StartsWith("TargetMeasures")).ToList();
+                foreach (var key in keysToRemove)
+                {
+                    ModelState.Remove(key);
+                }
+            }
 
             if (PlansCount < 1)
             {
@@ -209,20 +248,34 @@ namespace MonitoringAndEvaluationPlatform.Controllers
 
             if (!ModelState.IsValid)
             {
-                // Re-populate ViewBag dropdowns in case of validation failure
-                ViewBag.Governorates = new SelectList(_context.Governorates, "Code", "AR_Name");
-                ViewBag.SectorList = new MultiSelectList(_context.Sectors, "Code", "AR_Name");
-                ViewBag.ProjectManager = new SelectList(_context.ProjectManagers, "Code", "FullName");
-                ViewBag.SuperVisor = new SelectList(_context.SuperVisors, "Code", "FullName");
-                ViewBag.Ministry = new SelectList(_context.Ministries, "Code", "Name");
-                ViewBag.Donor = new SelectList(_context.Donors, "Code", "Name");
-                ViewBag.Goals = new SelectList(
-                 _context.Goals,
-                 "Code",
-                 isArabic ? "AR_Name" : "EN_Name"
-             );
+                // Debug: Log submitted values
+                System.Diagnostics.Debug.WriteLine("=== MODELSTATE VALIDATION FAILED ===");
+                System.Diagnostics.Debug.WriteLine($"Project Name: '{project?.ProjectName}'");
+                System.Diagnostics.Debug.WriteLine($"EstimatedBudget: {project?.EstimatedBudget}");
+                System.Diagnostics.Debug.WriteLine($"StartDate: {project?.StartDate}");
+                System.Diagnostics.Debug.WriteLine($"EndDate: {project?.EndDate}");
+                System.Diagnostics.Debug.WriteLine($"ProjectManagerCode: {project?.ProjectManagerCode}");
+                System.Diagnostics.Debug.WriteLine($"SuperVisorCode: {project?.SuperVisorCode}");
+                System.Diagnostics.Debug.WriteLine($"PlansCount: {PlansCount}");
+                System.Diagnostics.Debug.WriteLine($"TargetMeasures Count: {viewModel?.TargetMeasures?.Count ?? 0}");
 
-                return View(project);
+                // Debug: Log all ModelState errors
+                System.Diagnostics.Debug.WriteLine("=== MODELSTATE ERRORS ===");
+                foreach (var modelError in ModelState)
+                {
+                    var key = modelError.Key;
+                    var errors = modelError.Value.Errors;
+                    foreach (var error in errors)
+                    {
+                        System.Diagnostics.Debug.WriteLine($"Key: '{key}' - Error: '{error.ErrorMessage}'");
+                    }
+                }
+                System.Diagnostics.Debug.WriteLine("=== END MODELSTATE ERRORS ===");
+
+                // Create proper ViewModel for validation errors
+                var validationErrorViewModel = PrepareProjectCreateViewModel(project);
+                validationErrorViewModel.TargetMeasures = viewModel.TargetMeasures ?? new List<MeasureInputModel>();
+                return View(validationErrorViewModel);
             }
             
             // 1) Handle sector selection from form
@@ -274,7 +327,9 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 // set an error message and return to the View. In most normal flows,
                 // it succeeds, so you can skip this or log something.
                 ModelState.AddModelError("", "Unable to create activities for the new ActionPlan.");
-                return View(project);
+                var errorViewModel = PrepareProjectCreateViewModel(project);
+                errorViewModel.TargetMeasures = viewModel.TargetMeasures ?? new List<MeasureInputModel>();
+                return View(errorViewModel);
             }
 
             // 7) Distribute EstimatedBudget equally across all Plans
@@ -287,6 +342,35 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             if (actionPlanWithActivities != null)
             {
                 actionPlanWithActivities.DistributeBudgetEquallyToPlans();
+                await _context.SaveChangesAsync();
+            }
+
+            // 8) Create Target Measures
+            if (viewModel.TargetMeasures != null && viewModel.TargetMeasures.Any())
+            {
+                foreach (var targetMeasure in viewModel.TargetMeasures)
+                {
+                    // Check if target already exists for this project and indicator
+                    var existingTarget = await _context.Measures
+                        .FirstOrDefaultAsync(m => m.ProjectID == project.ProjectID
+                                              && m.IndicatorCode == targetMeasure.IndicatorCode
+                                              && m.ValueType == MeasureValueType.Target);
+
+                    if (existingTarget == null)
+                    {
+                        var measure = new Measure
+                        {
+                            Date = targetMeasure.Date,
+                            Value = targetMeasure.Value,
+                            ValueType = MeasureValueType.Target,
+                            IndicatorCode = targetMeasure.IndicatorCode,
+                            ProjectID = project.ProjectID
+                        };
+
+                        _context.Measures.Add(measure);
+                    }
+                }
+
                 await _context.SaveChangesAsync();
             }
 
