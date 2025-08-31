@@ -64,7 +64,7 @@
                                         <label asp-for="EstimatedBudget" class="form-label">@Localizer["Estimated Budget"]</label>
                                         <div class="input-group">
                                             <span class="input-group-text">$</span>
-                                            <input asp-for="EstimatedBudget" class="form-control" />
+                                            <input asp-for="EstimatedBudget" class="form-control" min="0.01" step="0.01" required />
                                         </div>
                                         <span asp-validation-for="EstimatedBudget" class="text-danger small"></span>
                                     </div>

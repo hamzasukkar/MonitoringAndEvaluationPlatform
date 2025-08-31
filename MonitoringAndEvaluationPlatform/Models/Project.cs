@@ -11,6 +11,8 @@ namespace MonitoringAndEvaluationPlatform.Models
         public ICollection<Sector>? Sectors { get; set; } = new List<Sector>();
         public ICollection<Donor>? Donors { get; set; } = new List<Donor>();
         public ICollection<Ministry> Ministries { get; set; } = new List<Ministry>();
+        
+        [Range(0.01, double.MaxValue, ErrorMessage = "Estimated Budget must be greater than 0")]
         public double EstimatedBudget { get; set; }
         public double RealBudget { get; set; }
         public int ProjectManagerCode { get; set; }

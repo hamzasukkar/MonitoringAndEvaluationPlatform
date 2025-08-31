@@ -26,6 +26,22 @@ namespace MonitoringAndEvaluationPlatform.Models
             }
         }
 
+        public void DistributeBudgetEquallyToPlans()
+        {
+            if (Project?.EstimatedBudget > 0)
+            {
+                var allPlans = Activities.SelectMany(a => a.Plans).ToList();
+                if (allPlans.Count > 0)
+                {
+                    int equalPlannedValue = (int)(Project.EstimatedBudget / allPlans.Count);
+                    foreach (var plan in allPlans)
+                    {
+                        plan.Planned = equalPlannedValue;
+                    }
+                }
+            }
+        }
+
 
 
     }

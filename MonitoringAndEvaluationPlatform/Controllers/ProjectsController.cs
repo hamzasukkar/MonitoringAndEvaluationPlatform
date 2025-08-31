@@ -269,12 +269,25 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             var success = await _activityService.CreateActivitiesForAllTypesAsync(baseActivity);
             if (!success)
             {
-                // You can handle the “failure” case however you like. 
+                // You can handle the "failure" case however you like. 
                 // For instance, if the ActionPlan was somehow missing, you might 
                 // set an error message and return to the View. In most normal flows,
                 // it succeeds, so you can skip this or log something.
                 ModelState.AddModelError("", "Unable to create activities for the new ActionPlan.");
                 return View(project);
+            }
+
+            // 7) Distribute EstimatedBudget equally across all Plans
+            var actionPlanWithActivities = await _context.ActionPlans
+                .Include(ap => ap.Project)
+                .Include(ap => ap.Activities)
+                    .ThenInclude(a => a.Plans)
+                .FirstOrDefaultAsync(ap => ap.Code == project.ActionPlan.Code);
+
+            if (actionPlanWithActivities != null)
+            {
+                actionPlanWithActivities.DistributeBudgetEquallyToPlans();
+                await _context.SaveChangesAsync();
             }
 
             // 4) Handle file uploads exactly as before
