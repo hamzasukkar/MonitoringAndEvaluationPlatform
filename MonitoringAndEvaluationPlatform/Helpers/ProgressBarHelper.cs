@@ -7,7 +7,7 @@
             return value switch
             {
                 > 80 => "bg-success",
-                > 60 => "bg-info",
+                > 60 => "progress-bar-yellow",
                 > 40 => "bg-warning",
                 > 20 => "progress-bar-orange",
                 _ => "bg-danger"
