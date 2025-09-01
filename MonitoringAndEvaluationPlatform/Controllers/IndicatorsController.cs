@@ -159,6 +159,42 @@ namespace MonitoringAndEvaluationPlatform.Controllers
 
             return RedirectToAction(nameof(Index), new { frameworkCode = indicator.SubOutput.Output.Outcome.FrameworkCode, subOutputCode = indicator.SubOutputCode });
         }
+        /// <summary>
+        /// This is the NEW action that handles the "Add & Create Project" button.
+        /// It creates the Indicator and then redirects to the Create action in the ProjectsController,
+        /// passing the new Indicator's ID.
+        /// </summary>
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> CreateAndRedirectToProject(string Name, int Target, int SubOutputCode)
+        {
+            if (string.IsNullOrWhiteSpace(Name) || Target <= 0)
+            {
+                TempData["Error"] = "Name and Target are required and must be valid.";
+                return RedirectToAction("Index", new { subOutputCode = SubOutputCode });
+            }
+
+            var indicator = new Indicator
+            {
+                Name = Name,
+                Target = Target,
+                SubOutputCode = SubOutputCode
+            };
+
+            _context.Indicators.Add(indicator);
+            await _context.SaveChangesAsync(); // This saves the indicator and populates its ID
+
+            // Update related entities
+            await UpdateSubOutputPerformance(indicator.SubOutputCode);
+            // Recalculate weights
+            await RedistributeWeights(indicator.SubOutputCode);
+
+            TempData["Success"] = "Indicator created. You can now add project details.";
+
+            // Redirect to the "Create" action in the "Projects" controller.
+            // Pass the newly created indicator's ID so the project can be associated with it.
+            return RedirectToAction("Create", "Projects", new { indicatorId = indicator.IndicatorCode });
+        }
 
         // تحديث SubOutput بناءً على Indicators
         public async Task UpdateSubOutputPerformance(int subOutputCode)

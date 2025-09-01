@@ -42,7 +42,8 @@
                 <strong>@Localizer["Add New Indicator"]</strong>
             </div>
             <div class="card-body">
-                <form asp-action="CreateInline" method="post" class="row g-3">
+                <!-- The main form action is removed from here -->
+                <form method="post" class="row g-3">
                     @Html.AntiForgeryToken()
 
                     <input type="hidden" name="SubOutputCode" value="@ViewData["subOutputCode"]" />
@@ -54,12 +55,22 @@
 
                     <div class="col-md-4">
                         <label for="Target" class="form-label">@Localizer["Target"]</label>
-                        <input type="number" step="0.01" name="Target" class="form-control" required />
+                        <!-- Note: The input type is number, but the C# action expects an int.
+                             This will work, but for decimals, you'd change the C# type to double or decimal. -->
+                        <input type="number" step="1" name="Target" class="form-control" required />
                     </div>
 
+                    <!-- BUTTON 1: Submits to the 'CreateInline' action -->
                     <div class="col-md-2 d-flex align-items-end">
-                        <button type="submit" class="btn btn-success w-100">
+                        <button type="submit" class="btn btn-success w-100" asp-action="CreateInline">
                             <i class="fas fa-plus-circle me-1"></i> @Localizer["Add"]
+                        </button>
+                    </div>
+
+                    <!-- BUTTON 2: Submits to the new 'CreateAndRedirectToProject' action -->
+                    <div class="col-md-2 d-flex align-items-end">
+                        <button type="submit" class="btn btn-primary w-100" asp-action="CreateAndRedirectToProject">
+                            <i class="fas fa-arrow-circle-right me-1"></i> @Localizer["Add & Create Project"]
                         </button>
                     </div>
                 </form>
