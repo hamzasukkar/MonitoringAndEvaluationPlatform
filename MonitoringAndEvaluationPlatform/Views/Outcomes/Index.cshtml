@@ -84,8 +84,8 @@
 								</td>
 
 								<td>@item.Weight</td>
-								<td>@await Html.PartialAsync("_ProgressBar", Tuple.Create(IndicatorsPerformance, indicatorsClass))</td>
-								<td>@await Html.PartialAsync("_ProgressBar", Tuple.Create(item.DisbursementPerformance, disbursementClass))</td>
+								<td title="@Localizer["Indicators Performance"]: @IndicatorsPerformance%">@await Html.PartialAsync("_ProgressBar", Tuple.Create(IndicatorsPerformance, indicatorsClass))</td>
+								<td title="@Localizer["Disbursement Performance"]: @item.DisbursementPerformance%">@await Html.PartialAsync("_ProgressBar", Tuple.Create(item.DisbursementPerformance, disbursementClass))</td>
 								@* 	
 								<td>@await Html.PartialAsync("_ProgressBar", Tuple.Create(item.FieldMonitoring, fieldMonitoringClass))</td>			
 							    <td>@await Html.PartialAsync("_ProgressBar", Tuple.Create(item.ImpactAssessment, impactAssessmentClass))</td>

@@ -70,7 +70,7 @@
                     <!-- BUTTON 2: Submits to the new 'CreateAndRedirectToProject' action -->
                     <div class="col-md-2 d-flex align-items-end">
                         <button type="submit" class="btn btn-primary w-100" asp-action="CreateAndRedirectToProject">
-                            <i class="fas fa-arrow-circle-right me-1"></i> @Localizer["Add & Create Project"]
+                            <i class="fas fa-arrow-circle-right me-1"></i>@Localizer["Add & Create Project"]
                         </button>
                     </div>
                 </form>
@@ -129,8 +129,8 @@
                                     <input type="text" class="form-control d-none" id="name-input-@item.IndicatorCode" value="@item.Name" />
                                 </td>
                                 <td>@item.Weight</td>
-                                <td>@await Html.PartialAsync("_ProgressBar", Tuple.Create(IndicatorsPerformance, indicatorsClass))</td>
-                                <td>@await Html.PartialAsync("_ProgressBar", Tuple.Create(item.DisbursementPerformance, disbursementClass))</td>
+                                <td title="@Localizer["Indicators Performance"]: @IndicatorsPerformance%">@await Html.PartialAsync("_ProgressBar", Tuple.Create(IndicatorsPerformance, indicatorsClass))</td>
+                                <td title="@Localizer["Disbursement Performance"]: @item.DisbursementPerformance%">@await Html.PartialAsync("_ProgressBar", Tuple.Create(item.DisbursementPerformance, disbursementClass))</td>
                                 @*
                                 <td>@await Html.PartialAsync("_ProgressBar", Tuple.Create(item.FieldMonitoring, fieldMonitoringClass))</td>
                                 <td>@await Html.PartialAsync("_ProgressBar", Tuple.Create(item.ImpactAssessment, impactAssessmentClass))</td> 

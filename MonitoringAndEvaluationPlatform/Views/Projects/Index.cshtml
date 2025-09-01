@@ -112,11 +112,11 @@
                                     var rowId = "row_" + item.ProjectID;
                                     <tr id="row_@item.ProjectID">
                                         <td class="project-name">@item.ProjectName</td>
-                                        <td>
+                                        <td title="@Localizer["Performance"]: @performance%">
                                             @await Html.PartialAsync("_ProgressBar", Tuple.Create(performance, performanceClass))
-                                        </td>  
-                                   
-                                        <td>
+                                        </td>
+
+                                        <td title="@Localizer["Disbursement"]: @Math.Round(item.DisbursementPerformance, 2)%">
                                             @await Html.PartialAsync("_ProgressBar", Tuple.Create(item.DisbursementPerformance, disbursementClass))
                                         </td>
                                         @* 

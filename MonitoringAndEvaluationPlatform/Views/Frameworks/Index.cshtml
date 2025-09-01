@@ -223,10 +223,10 @@
                                             </span>
                                             <input type="text" id="fw-name-input-@item.Code" class="form-control form-control-sm fw-name-edit d-none" value="@item.Name" />
                                         </td>
-                                        <td>
+                                        <td title="@Localizer["Indicators Performance"]: @IndicatorsPerformance%">
                                             @await Html.PartialAsync("_ProgressBar", Tuple.Create(IndicatorsPerformance, indicatorsClass))
                                         </td>
-                                        <td>
+                                        <td title="@Localizer["Disbursement Performance"]: @item.DisbursementPerformance%">
                                             @await Html.PartialAsync("_ProgressBar", Tuple.Create(item.DisbursementPerformance, disbursementClass))
                                         </td>
                                         <td class="text-end">

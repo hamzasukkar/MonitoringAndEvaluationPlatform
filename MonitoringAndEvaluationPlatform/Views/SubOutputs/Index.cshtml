@@ -95,10 +95,10 @@
                                            value="@item.Name" />
                                 </td>
                                 <td>@item.Weight</td>
-                                <td>
+                                <td title="@Localizer["Indicators Performance"]: @IndicatorsPerformance%">
                                     @await Html.PartialAsync("_ProgressBar", Tuple.Create(IndicatorsPerformance, indicatorsClass))
                                 </td>
-                                <td>
+                                <td title="@Localizer["Disbursement Performance"]: @item.DisbursementPerformance%">
                                     @await Html.PartialAsync("_ProgressBar", Tuple.Create(item.DisbursementPerformance, disbursementClass))
                                 </td>
                                 @*
