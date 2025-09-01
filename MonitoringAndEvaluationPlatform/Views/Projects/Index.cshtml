@@ -1,4 +1,5 @@
 ﻿@model MonitoringAndEvaluationPlatform.ViewModel.ProgramFilterViewModel
+@using MonitoringAndEvaluationPlatform.Helpers
 @using Microsoft.AspNetCore.Mvc.Localization
 @inject IViewLocalizer Localizer
 @using Microsoft.AspNetCore.Localization
@@ -106,25 +107,17 @@
                                 @foreach (var item in Model.Projects)
                                 {
                                     double performance = Math.Round(@item.performance, 0);
+                                    string performanceClass = ProgressBarHelper.GetProgressBarClass(performance);
+                                    string disbursementClass = ProgressBarHelper.GetProgressBarClass(item.DisbursementPerformance);
                                     var rowId = "row_" + item.ProjectID;
                                     <tr id="row_@item.ProjectID">
                                         <td class="project-name">@item.ProjectName</td>
                                         <td>
-                                            @await Html.PartialAsync("_ProgressBar", new Tuple<double, string>(
-                                                     performance,
-                                                     performance >= 80 ? "success" :
-                                                     performance >= 50 ? "info" :
-                                                     performance >= 30 ? "warning" : "danger"
-                                                     ))
+                                            @await Html.PartialAsync("_ProgressBar", Tuple.Create(performance, performanceClass))
                                         </td>  
                                    
                                         <td>
-                                            @await Html.PartialAsync("_ProgressBar", new Tuple<double, string>(
-                                                     item.DisbursementPerformance,
-                                                     item.DisbursementPerformance >= 80 ? "success" :
-                                                     item.DisbursementPerformance >= 50 ? "info" :
-                                                     item.DisbursementPerformance >= 30 ? "warning" : "danger"
-                                                     ))
+                                            @await Html.PartialAsync("_ProgressBar", Tuple.Create(item.DisbursementPerformance, disbursementClass))
                                         </td>
                                         @* 
                                          <td>
