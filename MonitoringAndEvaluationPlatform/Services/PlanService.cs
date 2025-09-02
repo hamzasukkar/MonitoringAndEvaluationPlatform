@@ -745,4 +745,82 @@ public class PlanService
         // K. Save all changes
         await _context.SaveChangesAsync();
     }
+
+    public async Task UpdateRelatedEntitiesAfterProjectEdit(Project project)
+    {
+        // When a project is edited (not performance-related changes), we only need to recalculate
+        // Donors, Sectors, and Ministries that contain this project to ensure accurate averages
+        
+        // H. Calculate DisbursementPerformance for Donors (cross-cutting entity)
+        var donorsToUpdate = await _context.Donors
+            .Include(d => d.Projects)
+            .Where(d => d.Projects.Any(p => p.ProjectID == project.ProjectID))
+            .ToListAsync();
+
+        foreach (var donor in donorsToUpdate)
+        {
+            if (donor.Projects.Any())
+            {
+                donor.DisbursementPerformance = (int)donor.Projects.Average(p => p.DisbursementPerformance);
+                donor.FieldMonitoring = (int)donor.Projects.Average(p => p.FieldMonitoring);
+                donor.ImpactAssessment = (int)donor.Projects.Average(p => p.ImpactAssessment);
+            }
+            else
+            {
+                donor.DisbursementPerformance = 0;
+                donor.FieldMonitoring = 0;
+                donor.ImpactAssessment = 0;
+            }
+            _context.Donors.Update(donor);
+        }
+
+        // I. Calculate DisbursementPerformance for Sectors (cross-cutting entity)
+        var sectorsToUpdate = await _context.Sectors
+            .Include(s => s.Projects)
+            .Where(s => s.Projects.Any(p => p.ProjectID == project.ProjectID))
+            .ToListAsync();
+
+        foreach (var sector in sectorsToUpdate)
+        {
+            if (sector.Projects.Any())
+            {
+                sector.DisbursementPerformance = (int)sector.Projects.Average(p => p.DisbursementPerformance);
+                sector.FieldMonitoring = (int)sector.Projects.Average(p => p.FieldMonitoring);
+                sector.ImpactAssessment = (int)sector.Projects.Average(p => p.ImpactAssessment);
+            }
+            else
+            {
+                sector.DisbursementPerformance = 0;
+                sector.FieldMonitoring = 0;
+                sector.ImpactAssessment = 0;
+            }
+            _context.Sectors.Update(sector);
+        }
+
+        // J. Calculate DisbursementPerformance for Ministries (cross-cutting entity)
+        var ministriesToUpdate = await _context.Ministries
+            .Include(m => m.Projects)
+            .Where(m => m.Projects.Any(p => p.ProjectID == project.ProjectID))
+            .ToListAsync();
+
+        foreach (var ministry in ministriesToUpdate)
+        {
+            if (ministry.Projects.Any())
+            {
+                ministry.DisbursementPerformance = (int)ministry.Projects.Average(p => p.DisbursementPerformance);
+                ministry.FieldMonitoring = (int)ministry.Projects.Average(p => p.FieldMonitoring);
+                ministry.ImpactAssessment = (int)ministry.Projects.Average(p => p.ImpactAssessment);
+            }
+            else
+            {
+                ministry.DisbursementPerformance = 0;
+                ministry.FieldMonitoring = 0;
+                ministry.ImpactAssessment = 0;
+            }
+            _context.Ministries.Update(ministry);
+        }
+
+        // Save all changes
+        await _context.SaveChangesAsync();
+    }
 }

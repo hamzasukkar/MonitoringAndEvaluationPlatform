@@ -717,6 +717,10 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             try
             {
                 await _context.SaveChangesAsync();
+                //To Test
+                // Recalculate performance for related entities (Donors, Sectors, Ministries)
+                // after project has been successfully updated
+                await _planService.UpdateRelatedEntitiesAfterProjectEdit(dbProject);
             }
             catch (DbUpdateConcurrencyException) when (!_context.Projects.Any(e => e.ProjectID == id))
             {
