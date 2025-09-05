@@ -1,13 +1,274 @@
-﻿@{
-    Layout = "~/Views/Shared/_ResultsFrameworkLayout.cshtml"; ;
+@using MonitoringAndEvaluationPlatform.Services
+@inject IThemeService ThemeService
+@{
+    ViewData["Title"] = "Home";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    var currentTheme = ThemeService.GetCurrentTheme(Context);
 }
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Monitoring & Evaluation System</title>
-</head>
-<body>
-</body>
-</html>
+
+<!-- Hero Section -->
+<div class="hero-section py-5 mb-5">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-lg-8">
+                <h1 class="display-4 fw-bold mb-4 gradient-text">
+                    <i class="fas fa-chart-line me-3"></i>
+                    Monitoring & Evaluation Platform
+                </h1>
+                <p class="lead mb-4">
+                    Transform your project monitoring with our modern, intuitive platform designed for comprehensive tracking and evaluation of development projects.
+                </p>
+                <div class="d-flex gap-3 mb-4">
+                    <a href="/Dashboard/Index" class="btn btn-primary btn-lg hover-lift">
+                        <i class="fas fa-tachometer-alt me-2"></i>
+                        Dashboard
+                    </a>
+                    <a href="/Projects/Index" class="btn btn-outline-primary btn-lg hover-lift">
+                        <i class="fas fa-project-diagram me-2"></i>
+                        Projects
+                    </a>
+                </div>
+            </div>
+            <div class="col-lg-4 text-center">
+                <div class="theme-showcase card hover-lift">
+                    <div class="card-header text-center">
+                        <h5 class="card-title mb-0">
+                            <i class="fas fa-palette me-2"></i>
+                            Choose Your Style
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <p class="text-muted mb-3">Experience our platform with different themes</p>
+                        <div class="theme-switcher-large">
+                            @await Html.PartialAsync("_ThemeSwitcher")
+                        </div>
+                        <div class="mt-3">
+                            <small class="text-muted">
+                                Current theme: <span class="fw-medium">@currentTheme.DisplayName</span>
+                            </small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Features Section -->
+<div class="features-section py-5">
+    <div class="container">
+        <div class="row text-center mb-5">
+            <div class="col-lg-8 mx-auto">
+                <h2 class="display-5 fw-bold mb-4">Platform Features</h2>
+                <p class="lead text-muted">Comprehensive tools for effective project monitoring and evaluation</p>
+            </div>
+        </div>
+        <div class="row g-4">
+            <div class="col-md-6 col-lg-3">
+                <div class="card feature-card h-100 hover-lift fade-in-up">
+                    <div class="card-body text-center">
+                        <div class="feature-icon mb-3">
+                            <i class="fas fa-sitemap fa-2x"></i>
+                        </div>
+                        <h5 class="card-title">Results Framework</h5>
+                        <p class="card-text text-muted">Hierarchical structure for monitoring frameworks, outcomes, outputs, and indicators.</p>
+                        <a href="/Frameworks/Index" class="btn btn-outline-primary btn-sm">
+                            <i class="fas fa-arrow-right me-1"></i>
+                            Explore
+                        </a>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6 col-lg-3">
+                <div class="card feature-card h-100 hover-lift fade-in-up">
+                    <div class="card-body text-center">
+                        <div class="feature-icon mb-3">
+                            <i class="fas fa-project-diagram fa-2x"></i>
+                        </div>
+                        <h5 class="card-title">Project Management</h5>
+                        <p class="card-text text-muted">Comprehensive project tracking with multi-dimensional performance metrics.</p>
+                        <a href="/Projects/Index" class="btn btn-outline-primary btn-sm">
+                            <i class="fas fa-arrow-right me-1"></i>
+                            Explore
+                        </a>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6 col-lg-3">
+                <div class="card feature-card h-100 hover-lift fade-in-up">
+                    <div class="card-body text-center">
+                        <div class="feature-icon mb-3">
+                            <i class="fas fa-chart-pie fa-2x"></i>
+                        </div>
+                        <h5 class="card-title">Dashboard Analytics</h5>
+                        <p class="card-text text-muted">Real-time insights with interactive charts and performance indicators.</p>
+                        <a href="/Dashboard/Index" class="btn btn-outline-primary btn-sm">
+                            <i class="fas fa-arrow-right me-1"></i>
+                            Explore
+                        </a>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6 col-lg-3">
+                <div class="card feature-card h-100 hover-lift fade-in-up">
+                    <div class="card-body text-center">
+                        <div class="feature-icon mb-3">
+                            <i class="fas fa-globe fa-2x"></i>
+                        </div>
+                        <h5 class="card-title">Multi-Language</h5>
+                        <p class="card-text text-muted">Support for Arabic, English, and French with RTL/LTR layouts.</p>
+                        <a href="#" class="btn btn-outline-primary btn-sm">
+                            <i class="fas fa-arrow-right me-1"></i>
+                            Explore
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Statistics Section -->
+<div class="stats-section py-5 bg-light">
+    <div class="container">
+        <div class="row text-center">
+            <div class="col-md-3 mb-4">
+                <div class="stat-card">
+                    <div class="stat-number gradient-text">500+</div>
+                    <div class="stat-label">Projects Monitored</div>
+                </div>
+            </div>
+            <div class="col-md-3 mb-4">
+                <div class="stat-card">
+                    <div class="stat-number gradient-text">50+</div>
+                    <div class="stat-label">Active Indicators</div>
+                </div>
+            </div>
+            <div class="col-md-3 mb-4">
+                <div class="stat-card">
+                    <div class="stat-number gradient-text">10+</div>
+                    <div class="stat-label">Frameworks</div>
+                </div>
+            </div>
+            <div class="col-md-3 mb-4">
+                <div class="stat-card">
+                    <div class="stat-number gradient-text">24/7</div>
+                    <div class="stat-label">Real-time Monitoring</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+/* Hero Section */
+.hero-section {
+    background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
+    border-radius: 1rem;
+    margin: 2rem 1rem;
+}
+
+/* Theme Showcase */
+.theme-showcase {
+    background: linear-gradient(145deg, #ffffff 0%, #f8fafc 100%);
+    border: none;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+}
+
+.theme-switcher-large .dropdown-toggle {
+    font-size: 1.1rem;
+    padding: 0.75rem 1.5rem;
+    min-width: 200px;
+}
+
+/* Feature Cards */
+.feature-card {
+    border: none;
+    transition: all 0.3s ease;
+    background: linear-gradient(145deg, #ffffff 0%, #f8fafc 100%);
+}
+
+.feature-card:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+}
+
+.feature-icon {
+    color: #667eea;
+}
+
+.feature-card:hover .feature-icon {
+    transform: scale(1.1);
+    transition: transform 0.3s ease;
+}
+
+/* Statistics */
+.stat-card {
+    padding: 2rem 1rem;
+}
+
+.stat-number {
+    font-size: 3rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+}
+
+.stat-label {
+    color: #64748b;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    font-size: 0.875rem;
+}
+
+/* Theme-specific adjustments */
+.theme-classic .hero-section {
+    background: linear-gradient(135deg, rgba(13, 110, 253, 0.1) 0%, rgba(108, 117, 125, 0.05) 100%);
+}
+
+.theme-classic .feature-icon {
+    color: #0d6efd;
+}
+
+.theme-modern .hero-section {
+    background: linear-gradient(135deg, rgba(102, 126, 234, 0.15) 0%, rgba(118, 75, 162, 0.15) 100%);
+}
+
+.theme-modern .stat-number {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+/* Responsive */
+@@media (max-width: 768px) {
+    .hero-section {
+        margin: 1rem 0.5rem;
+        padding: 2rem 0 !important;
+    }
+    
+    .display-4 {
+        font-size: 2rem;
+    }
+    
+    .theme-switcher-large .dropdown-toggle {
+        min-width: 150px;
+        font-size: 0.9rem;
+        padding: 0.5rem 1rem;
+    }
+}
+</style>
+
+@section Scripts {
+    <script>
+        // Add fade-in animation on load
+        document.addEventListener('DOMContentLoaded', function() {
+            const cards = document.querySelectorAll('.fade-in-up');
+            cards.forEach((card, index) => {
+                setTimeout(() => {
+                    card.style.animation = 'fadeInUp 0.6s ease forwards';
+                }, index * 100);
+            });
+        });
+    </script>
+}

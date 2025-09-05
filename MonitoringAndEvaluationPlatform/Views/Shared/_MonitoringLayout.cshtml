@@ -1,6 +1,8 @@
 ﻿@using Microsoft.AspNetCore.Identity
+@using MonitoringAndEvaluationPlatform.Services
 @inject SignInManager<ApplicationUser> SignInManager
 @inject UserManager<ApplicationUser> UserManager
+@inject IThemeService ThemeService
 @using Microsoft.AspNetCore.Mvc.Localization
 @inject IViewLocalizer Localizer
 @using Microsoft.AspNetCore.Localization
@@ -8,6 +10,7 @@
     var culture = Context.Features.Get<IRequestCultureFeature>()?.RequestCulture.Culture.Name;
     var dir = culture == "ar" ? "rtl" : "ltr";
     var lang = culture == "ar" ? "ar" : "en";
+    var currentTheme = ThemeService.GetCurrentTheme(Context);
 }
 
 <!DOCTYPE html>
@@ -16,12 +19,20 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>@ViewData["Title"] -@Localizer["Monitoring & Evaluation System"] </title>
+    <!-- Bootstrap and Base Styles -->
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
-    <link rel="stylesheet" href="~/css/MonitoringLayout.css" />
     <link rel="stylesheet" href="~/css/all.min.css" />
+    
+    <!-- Theme-specific CSS -->
+    <link rel="stylesheet" href="@currentTheme.CssFile" asp-append-version="true" data-theme-css="@currentTheme.Id" />
+    
+    <!-- Theme Meta Tags -->
+    <meta name="theme-color" content="@(currentTheme.Id == "modern" ? "#667eea" : "#0d6efd")" />
+    <meta name="current-theme" content="@currentTheme.Id" />
 </head>
-<body>
+<body class="theme-@currentTheme.Id">
     <header>
         <div class="topbar">
             <div class="title">@Localizer["Monitoring & Evaluation System"]</div>
@@ -42,6 +53,11 @@
                             <i class="fas fa-map-marked-alt me-1"></i> Region
                         </a>
                     </li> *@
+                    <!-- Theme Switcher -->
+                    <li class="nav-item me-3">
+                        @await Html.PartialAsync("_ThemeSwitcher")
+                    </li>
+                    
                     <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                                @* <img class="rounded-circle me-2" width="28" height="28" src="~/img/profile.jpeg" /> *@ 
@@ -120,6 +136,7 @@
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
+    <script src="~/js/theme-switcher.js" asp-append-version="true"></script>
     @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>

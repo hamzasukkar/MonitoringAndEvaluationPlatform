@@ -1,0 +1,602 @@
+/* Classic Theme - Original Syrian Visual Identity */
+:root {
+    /* New Syrian Visual Identity Colors */
+    --primary-background-color: #1A3B33; /* Dark Green - Main background, topbar, footer, table headers */
+    --secondary-card-background: #2A4C44; /* Slightly Lighter Dark Green - Cards, main content area, sidebar, table rows */
+    --accent-gold-color: #C8A85F; /* Gold - Accents, buttons, active states, important text */
+    --text-light-color: #E0E0E0; /* Light text on dark backgrounds */
+    --text-dark-contrast: #333333; /* Dark text for contrast on light elements (if any) */
+    --border-color: #4A6E66; /* Border color for inputs/elements, table borders */
+    --hover-gold-color: #DDAA66; /* Slightly lighter gold for hover states */
+    --light-element-bg: #3A5C54; /* Even lighter green for elements like card backgrounds */
+    
+    /* Standard Bootstrap-like colors, adjusted for harmony */
+    --success-color: #28a745;
+    --info-color: #17a2b8;
+    --warning-color: #ffc107;
+    --danger-color: #dc3545;
+    --orange-color: #fd7e14; /* For progress-bar-orange if still used */
+    --yellow-color: #ffc107; /* A nice shade of yellow */
+    
+    /* Login Page Specific Variables */
+    --login-body-bg: linear-gradient(135deg, #1A3B33 0%, #2A4C44 100%);
+    --login-card-shadow: 0 20px 40px rgba(26, 59, 51, 0.3);
+    --login-card-hover-shadow: 0 25px 50px rgba(26, 59, 51, 0.4);
+    --login-header-bg: linear-gradient(135deg, #2A4C44, #1A3B33);
+    --login-header-text: #E0E0E0;
+    --login-btn-bg: linear-gradient(135deg, #C8A85F, #DDAA66);
+    --login-btn-text: #1A3B33;
+    --login-btn-hover-bg: linear-gradient(135deg, #DDAA66, #C8A85F);
+    --card-bg: #E0E0E0;
+    --input-border: #4A6E66;
+    --input-bg: #ffffff;
+    --text-color: #1A3B33;
+    --link-color: #C8A85F;
+    --link-hover-color: #DDAA66;
+    --primary-color: #C8A85F;
+    --primary-color-hover: #DDAA66;
+    --secondary-color: #2A4C44;
+    --secondary-color-hover: #1A3B33;
+    --theme-switcher-bg: rgba(224, 224, 224, 0.9);
+    --theme-switcher-border: rgba(200, 168, 95, 0.3);
+    --theme-switcher-text: #1A3B33;
+    --dropdown-bg: #E0E0E0;
+    --dropdown-border: rgba(26, 59, 51, 0.1);
+    --dropdown-shadow: 0 10px 30px rgba(26, 59, 51, 0.2);
+
+    --sidebar-width: 250px;
+    --font-family-sans-serif: 'Inter', sans-serif; /* Using Inter font */
+    
+    /* LTR Specific Properties (Defaults) */
+    --text-align-start: left;
+    --text-align-end: right;
+    --sidebar-inset-inline-start: 0;
+    --sidebar-inset-inline-end: auto;
+    --content-margin-inline-start: var(--sidebar-width);
+    --content-margin-inline-end: 0;
+    --sidebar-link-border-inline-end: 3px solid var(--accent-gold-color);
+    --sidebar-link-border-inline-start: none;
+    --sidebar-img-margin-inline-end: 1rem;
+    --sidebar-img-margin-inline-start: 0;
+    --dropdown-menu-inset-inline-start: auto;
+    --dropdown-menu-inset-inline-end: 0;
+    --card-header-border-radius-top-start: 10px;
+    --card-header-border-radius-top-end: 10px;
+    --card-header-border-radius-bottom-end: 0;
+    --card-header-border-radius-bottom-start: 0;
+    --table-hover-transform-x: 2px;
+    --select-arrow-bg-position-inline-end: calc(100% - 0.75rem);
+    --select-arrow-bg-position-inline-start: 0.75rem;
+}
+
+/* RTL Specific Properties for Arabic Language */
+.theme-classic[dir="rtl"],
+.theme-classic.rtl {
+    direction: rtl;
+    --text-align-start: right;
+    --text-align-end: left;
+    --sidebar-inset-inline-start: auto;
+    --sidebar-inset-inline-end: 0;
+    --content-margin-inline-start: 0;
+    --content-margin-inline-end: var(--sidebar-width);
+    --sidebar-link-border-inline-end: none;
+    --sidebar-link-border-inline-start: 3px solid var(--accent-gold-color);
+    --sidebar-img-margin-inline-end: 0;
+    --sidebar-img-margin-inline-start: 1rem;
+    --dropdown-menu-inset-inline-start: 0;
+    --dropdown-menu-inset-inline-end: auto;
+    --table-hover-transform-x: -2px;
+    --select-arrow-bg-position-inline-end: 0.75rem;
+    --select-arrow-bg-position-inline-start: calc(100% - 0.75rem);
+}
+
+/* Arabic Language Enhancements */
+.theme-classic[lang="ar"],
+.theme-classic[dir="rtl"] {
+    font-family: 'Tajawal', 'Arial', sans-serif;
+    line-height: 1.8; /* Better for Arabic text */
+}
+
+/* RTL Navigation Adjustments */
+.theme-classic[dir="rtl"] .nav-links .nav {
+    flex-direction: row-reverse;
+}
+
+.theme-classic[dir="rtl"] .dropdown-menu {
+    text-align: right;
+    left: auto;
+    right: 0;
+}
+
+/* RTL Table Enhancements */
+.theme-classic[dir="rtl"] .table {
+    direction: rtl;
+    text-align: right;
+}
+
+.theme-classic[dir="rtl"] .table th,
+.theme-classic[dir="rtl"] .table td {
+    text-align: right;
+}
+
+/* RTL Form Controls */
+.theme-classic[dir="rtl"] .form-control {
+    text-align: right;
+    direction: rtl;
+}
+
+.theme-classic[dir="rtl"] .btn {
+    direction: rtl;
+}
+
+/* Base Layout Fixes for Consistent Sizing */
+html, body {
+    overflow-x: hidden;
+    max-width: 100vw;
+    box-sizing: border-box;
+}
+
+*, *:before, *:after {
+    box-sizing: inherit;
+}
+
+.theme-classic {
+    font-family: var(--font-family-sans-serif);
+    background-color: var(--primary-background-color);
+    color: var(--text-light-color);
+    text-align: var(--text-align-start);
+    overflow-x: hidden;
+    max-width: 100vw;
+    box-sizing: border-box;
+}
+
+/* Header Styles */
+.theme-classic .topbar {
+    background-color: var(--primary-background-color);
+    color: var(--text-light-color);
+    padding: 0.75rem 2rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+    position: fixed;
+    width: 100%;
+    z-index: 1000;
+    height: 60px;
+    flex-direction: row;
+}
+
+.theme-classic[dir="rtl"] .topbar,
+.theme-classic.rtl .topbar {
+    flex-direction: row-reverse;
+    text-align: right;
+}
+
+.theme-classic .title {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: var(--accent-gold-color);
+}
+
+.theme-classic .nav-links .nav {
+    display: flex;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    align-items: center;
+}
+
+.theme-classic .nav-item {
+    margin-inline: 0 0.5rem;
+}
+
+.theme-classic .nav-link {
+    color: rgba(255, 255, 255, 0.85);
+    text-decoration: none;
+    padding: 0.5rem 1rem;
+    border-radius: 4px;
+    transition: all 0.3s ease;
+    font-weight: 500;
+}
+
+.theme-classic .nav-link:hover,
+.theme-classic .nav-link.active {
+    color: var(--accent-gold-color);
+    background-color: rgba(255, 255, 255, 0.08);
+}
+
+.theme-classic .dropdown-menu {
+    border: none;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+    border-radius: 8px;
+    padding: 0.5rem 0;
+    background-color: var(--secondary-card-background);
+    position: absolute;
+    inset-inline-start: var(--dropdown-menu-inset-inline-start);
+    inset-inline-end: var(--dropdown-menu-inset-inline-end);
+    transform: translate(0, 10px);
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.15s, transform 0.15s, visibility 0.15s;
+    z-index: 1000;
+    min-width: 10rem;
+}
+
+.theme-classic .dropdown-menu.show {
+    opacity: 1;
+    visibility: visible;
+    transform: translate(0, 0);
+}
+
+.theme-classic .dropdown-item {
+    padding: 0.5rem 1.5rem;
+    transition: all 0.2s;
+    color: var(--text-light-color);
+    text-align: var(--text-align-start);
+}
+
+.theme-classic .dropdown-item:hover {
+    background-color: rgba(200, 168, 95, 0.15);
+    color: var(--accent-gold-color);
+}
+
+/* Main Content Layout */
+.theme-classic .main {
+    display: flex;
+    margin-top: 60px;
+    min-height: calc(100vh - 60px);
+    flex-direction: row;
+}
+
+.theme-classic.rtl .main {
+    flex-direction: row-reverse;
+}
+
+/* Sidebar Styles */
+.theme-classic .sidebar {
+    width: var(--sidebar-width);
+    background-color: var(--secondary-card-background);
+    box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+    padding: 1.5rem 0;
+    position: fixed;
+    height: calc(100vh - 60px);
+    overflow-y: auto;
+    z-index: 900;
+    inset-inline-start: var(--sidebar-inset-inline-start);
+    inset-inline-end: var(--sidebar-inset-inline-end);
+}
+
+.theme-classic .sidebar ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.theme-classic .sidebar li {
+    margin-bottom: 0.5rem;
+}
+
+.theme-classic .sidebar a {
+    display: flex;
+    align-items: center;
+    padding: 0.75rem 1.5rem;
+    color: var(--text-light-color);
+    text-decoration: none;
+    transition: all 0.2s;
+    font-weight: 500;
+}
+
+.theme-classic .sidebar a:hover,
+.theme-classic .sidebar a.active {
+    color: var(--accent-gold-color);
+    background-color: rgba(200, 168, 95, 0.1);
+    border-inline-end: var(--sidebar-link-border-inline-end);
+    border-inline-start: var(--sidebar-link-border-inline-start);
+}
+
+.theme-classic .sidebar img {
+    margin-inline-end: var(--sidebar-img-margin-inline-end);
+    margin-inline-start: var(--sidebar-img-margin-inline-start);
+    opacity: 0.8;
+}
+
+.theme-classic .sidebar a:hover img {
+    opacity: 1;
+}
+
+/* Content Area */
+.theme-classic .container,
+.theme-classic .container-fluid,
+.theme-classic .container-full {
+    flex: 1;
+    padding: 2rem;
+    margin-inline-start: var(--content-margin-inline-start);
+    margin-inline-end: var(--content-margin-inline-end);
+    background-color: var(--secondary-card-background);
+    min-height: calc(100vh - 60px);
+    color: var(--text-light-color);
+    background-image: url('/img/Emblem_of_Syria.png');
+    background-repeat: no-repeat;
+    background-position: center center;
+    background-size: 70%;
+    background-blend-mode: multiply;
+    max-width: 100%;
+    overflow-x: hidden;
+    box-sizing: border-box;
+}
+
+/* Ensure containers don't exceed viewport width */
+.theme-classic .container-fluid {
+    width: 100%;
+    max-width: calc(100vw - var(--sidebar-width));
+}
+
+.theme-classic[dir="rtl"] .container-fluid,
+.theme-classic.rtl .container-fluid {
+    max-width: calc(100vw - var(--sidebar-width));
+}
+
+/* Card Styles */
+.theme-classic .card,
+.theme-classic .dashboard-card {
+    border: none;
+    border-radius: 10px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    transition: transform 0.2s, box-shadow 0.2s;
+    margin-bottom: 1.5rem;
+    height: 100%;
+    background-color: var(--light-element-bg);
+    color: var(--text-light-color);
+}
+
+.theme-classic .card:hover,
+.theme-classic .dashboard-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
+}
+
+.theme-classic .card-header,
+.theme-classic .dashboard-card-header {
+    background-color: var(--primary-background-color);
+    border-bottom: 1px solid var(--border-color);
+    font-weight: 600;
+    padding: 1rem 1.5rem;
+    border-top-left-radius: var(--card-header-border-radius-top-start) !important;
+    border-top-right-radius: var(--card-header-border-radius-top-end) !important;
+    border-bottom-left-radius: var(--card-header-border-radius-bottom-start) !important;
+    border-bottom-right-radius: var(--card-header-border-radius-bottom-end) !important;
+    color: var(--accent-gold-color);
+    text-align: var(--text-align-start);
+}
+
+.theme-classic .card-body,
+.theme-classic .dashboard-card-body {
+    padding: 1.5rem;
+}
+
+/* Button Styles */
+.theme-classic .btn-primary {
+    background-color: var(--accent-gold-color);
+    border-color: var(--accent-gold-color);
+    color: var(--primary-background-color);
+}
+
+.theme-classic .btn-primary:hover {
+    background-color: var(--hover-gold-color);
+    border-color: var(--hover-gold-color);
+    color: var(--primary-background-color);
+}
+
+.theme-classic .btn-outline-primary {
+    color: var(--accent-gold-color);
+    border-color: var(--accent-gold-color);
+}
+
+.theme-classic .btn-outline-primary:hover {
+    background-color: var(--accent-gold-color);
+    color: var(--primary-background-color);
+}
+
+.theme-classic .btn-secondary {
+    background-color: var(--secondary-card-background);
+    border-color: var(--border-color);
+    color: var(--text-light-color);
+}
+
+.theme-classic .btn-outline-secondary {
+    color: var(--text-light-color);
+    border-color: var(--border-color);
+}
+
+/* Table Styles */
+.theme-classic .table {
+    border-collapse: separate;
+    border-spacing: 0;
+    color: var(--text-light-color);
+    width: 100%;
+    max-width: 100%;
+    table-layout: auto;
+    overflow-x: auto;
+}
+
+/* Table wrapper for horizontal scroll on small screens */
+.theme-classic .table-responsive {
+    overflow-x: auto;
+    max-width: 100%;
+}
+
+.theme-classic .table thead th {
+    background-color: var(--primary-background-color);
+    border: none;
+    font-weight: 600;
+    padding: 1rem;
+    color: var(--accent-gold-color);
+    text-align: var(--text-align-start);
+}
+
+.theme-classic .table-light th {
+    background-color: var(--primary-background-color);
+    color: var(--accent-gold-color);
+}
+
+.theme-classic .table-light th a {
+    color: var(--accent-gold-color) !important;
+    text-decoration: none;
+}
+
+.theme-classic .table tbody tr {
+    background-color: var(--secondary-card-background);
+    transition: all 0.2s;
+}
+
+.theme-classic .table tbody tr:hover {
+    background-color: var(--light-element-bg);
+    transform: translateX(var(--table-hover-transform-x));
+}
+
+.theme-classic .table tbody td {
+    border-color: var(--border-color);
+    text-align: var(--text-align-start);
+}
+
+/* Form Styles */
+.theme-classic .form-control {
+    background-color: var(--secondary-card-background);
+    border: 1px solid var(--border-color);
+    color: var(--text-light-color);
+    border-radius: 6px;
+}
+
+.theme-classic .form-control:focus {
+    background-color: var(--light-element-bg);
+    border-color: var(--accent-gold-color);
+    box-shadow: 0 0 0 0.2rem rgba(200, 168, 95, 0.25);
+    color: var(--text-light-color);
+}
+
+.theme-classic .form-select {
+    background-color: var(--secondary-card-background);
+    border: 1px solid var(--border-color);
+    color: var(--text-light-color);
+}
+
+/* Progress Bar Colors */
+.theme-classic .progress-bar-orange {
+    background-color: var(--orange-color);
+}
+
+.theme-classic .progress-bar-yellow {
+    background-color: var(--yellow-color);
+}
+
+/* Text Color Adjustments */
+.theme-classic .text-muted {
+    color: rgba(255, 255, 255, 0.6) !important;
+}
+
+.theme-classic .text-danger {
+    color: var(--danger-color) !important;
+}
+
+.theme-classic .text-info {
+    color: var(--info-color) !important;
+}
+
+.theme-classic .text-success {
+    color: var(--success-color) !important;
+}
+
+.theme-classic .text-warning {
+    color: var(--warning-color) !important;
+}
+
+/* Language Select Dropdown */
+.theme-classic .dropdown-menu form select {
+    width: calc(100% - 2rem);
+    padding: 0.5rem 1rem;
+    margin: 0.5rem 1rem;
+    background-color: var(--primary-background-color);
+    color: var(--text-light-color);
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    cursor: pointer;
+    font-size: 0.95rem;
+    transition: all 0.2s ease;
+    text-align: var(--text-align-start);
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath fill='%23C8A85F' d='M7.247 11.14 2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592c.859 0 1.319 1.013.753 1.658L8.753 11.14a1.86 1.86 0 0 1-1.506 0z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-size: 1rem;
+    background-position: var(--select-arrow-bg-position-inline-end) center;
+}
+
+.theme-classic .dropdown-menu form select:focus {
+    outline: none;
+    border-color: var(--accent-gold-color);
+    box-shadow: 0 0 0 0.2rem rgba(200, 168, 95, 0.25);
+}
+
+.theme-classic .dropdown-menu form select option {
+    background-color: var(--primary-background-color);
+    color: var(--text-light-color);
+    padding: 0.5rem 1rem;
+}
+
+/* Responsive Adjustments */
+@media (max-width: 992px) {
+    .theme-classic .sidebar {
+        width: 70px;
+        overflow: hidden;
+    }
+
+    .theme-classic .sidebar a span {
+        display: none;
+    }
+
+    .theme-classic .sidebar img {
+        margin-inline-end: 0;
+        margin-inline-start: 0;
+    }
+
+    .theme-classic .container-full,
+    .theme-classic .container,
+    .theme-classic .container-fluid {
+        margin-inline-start: 70px;
+        margin-inline-end: 0;
+        max-width: calc(100vw - 70px);
+    }
+
+    .theme-classic.rtl .container-full,
+    .theme-classic.rtl .container,
+    .theme-classic.rtl .container-fluid {
+        margin-inline-start: 0;
+        margin-inline-end: 70px;
+        max-width: calc(100vw - 70px);
+    }
+}
+
+@media (max-width: 768px) {
+    .theme-classic .sidebar {
+        display: none;
+    }
+
+    .theme-classic .container-full,
+    .theme-classic .container,
+    .theme-classic .container-fluid {
+        margin-inline-start: 0;
+        margin-inline-end: 0;
+        padding: 1rem;
+        max-width: 100vw;
+        width: 100%;
+    }
+
+    .theme-classic .topbar .title {
+        font-size: 1.2rem;
+    }
+
+    .theme-classic .nav-links .nav-item:not(:last-child) {
+        display: none;
+    }
+}

@@ -17,6 +17,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ### Configuration
 - Update connection string in `appsettings.json` for your SQL Server instance
 - Default admin credentials: admin@example.com / Admin@123
+- Project uses User Secrets for sensitive configuration (UserSecretsId configured)
 
 ## Architecture Overview
 
@@ -59,10 +60,16 @@ Performance metrics flow upward through the hierarchy:
 - Supports Arabic (default), English, and French
 - Resource files in `Resources/` directory
 - Uses suffix-based view localization
+- Extensive localization for Views (Indicators, Ministries, SubOutputs, Outputs, Outcomes)
 
 ### Key Patterns
 - Entity Framework Core with SQL Server
-- ASP.NET Core Identity for authentication
+- ASP.NET Core Identity for authentication with custom ApplicationUser
 - Razor Views with multiple layout types (Dashboard, Monitoring, Projects, etc.)
 - Service layer pattern with dependency injection
 - Seed data initialization on startup
+- Role-based authorization with custom roles
+
+### Testing
+- No test framework currently configured
+- To add testing: consider `dotnet add package Microsoft.NET.Test.Sdk` and `xunit`

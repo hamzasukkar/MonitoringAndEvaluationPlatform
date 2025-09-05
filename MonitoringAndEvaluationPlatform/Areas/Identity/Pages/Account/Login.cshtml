@@ -1,8 +1,11 @@
 ﻿@page
+@using MonitoringAndEvaluationPlatform.Services
+@inject IThemeService ThemeService
 @model LoginModel
 @{
     ViewData["Title"] = "Login";
     Layout = null; // Remove layout for standalone login page
+    var currentTheme = ThemeService.GetCurrentTheme(HttpContext);
 }
 
 <!DOCTYPE html>
@@ -11,177 +14,185 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>@ViewData["Title"] - Monitoring & Evaluation System</title>
+    
+    <!-- Google Fonts for Arabic Support -->
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Bootstrap and Base Styles -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Theme-specific CSS -->
+    <link rel="stylesheet" href="@currentTheme.CssFile" asp-append-version="true" data-theme-css="@currentTheme.Id" />
+    
+    <!-- Theme Meta Tags -->
+    <meta name="theme-color" content="@(currentTheme.Id == "modern" ? "#667eea" : "#0d6efd")" />
+    <meta name="current-theme" content="@currentTheme.Id" />
 
     <style>
-        :root {
-            /* New Syrian Visual Identity Colors */
-            --primary-background-color: #1A3B33; /* Dark Green */
-            --secondary-card-background: #2A4C44; /* Slightly Lighter Dark Green for cards */
-            --accent-gold-color: #C8A85F; /* Gold for accents, buttons, important text */
-            --text-light-color: #E0E0E0; /* Light text on dark backgrounds */
-            --text-dark-color: #333333; /* Dark text on light backgrounds (if any) */
-            --border-color: #4A6E66; /* Border color for inputs/elements */
-            /* Standard Bootstrap-like colors, adjusted for harmony */
-            --success-color: #28a745;
-            --warning-color: #ffc107;
-            --danger-color: #dc3545;
-            --font-family-sans-serif: 'Inter', sans-serif; /* Using Inter font */
-        }
-
+        /* Login Page Specific Styles */
         body {
-            background-color: var(--primary-background-color); /* Main background */
-            font-family: var(--font-family-sans-serif);
             height: 100vh;
             display: flex;
             align-items: center;
             justify-content: center;
             margin: 0;
             padding: 20px;
-            color: var(--text-light-color); /* Default text color for body */
+            position: relative;
+            background: var(--login-body-bg, linear-gradient(135deg, #667eea 0%, #764ba2 100%));
+            font-family: var(--arabic-font-family, 'Tajawal', 'Inter', sans-serif);
+        }
+
+        .login-container {
+            width: 100%;
+            max-width: 450px;
+            position: relative;
+        }
+
+        .theme-switcher-login {
+            position: absolute;
+            top: -60px;
+            right: 0;
+            z-index: 1000;
         }
 
         .login-card {
             border: none;
             border-radius: 12px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25); /* Stronger shadow for contrast */
             overflow: hidden;
             width: 100%;
-            max-width: 450px;
             transition: transform 0.3s ease, box-shadow 0.3s ease;
-            background-color: var(--secondary-card-background); /* Card background */
+            background: var(--card-bg, #ffffff);
+            box-shadow: var(--login-card-shadow, 0 20px 40px rgba(0,0,0,0.1));
         }
 
-            .login-card:hover {
-                transform: translateY(-5px);
-                box-shadow: 0 15px 40px rgba(0, 0, 0, 0.35);
-            }
+        .login-card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--login-card-hover-shadow, 0 25px 50px rgba(0,0,0,0.15));
+        }
 
         .card-header {
-            background-color: var(--primary-background-color); /* Header matches main background */
-            color: var(--text-light-color);
             padding: 1.5rem;
             text-align: center;
             border-bottom: none;
-            display: flex; /* Use flex for logo and text alignment */
+            display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
+            background: var(--login-header-bg, linear-gradient(135deg, var(--primary-color, #667eea), var(--secondary-color, #764ba2)));
+            color: var(--login-header-text, #ffffff);
         }
 
-            .card-header h2 {
-                margin: 0;
-                font-weight: 600;
-                color: var(--accent-gold-color); /* Gold for the title */
-                margin-top: 1rem; /* Space between logo and title */
-            }
+        .card-header h2 {
+            margin: 0;
+            font-weight: 600;
+            margin-top: 1rem;
+            color: var(--login-header-text, #ffffff);
+        }
 
         .card-body {
             padding: 2rem;
-            background-color: var(--secondary-card-background); /* Body of the card */
-            color: var(--text-light-color); /* Text inside card body */
+            background: var(--card-bg, #ffffff);
         }
 
         .form-control {
             border-radius: 8px;
             padding: 12px 15px;
-            border: 1px solid var(--border-color); /* Border color from new palette */
-            background-color: #3A5C54; /* Slightly lighter input background */
-            color: var(--text-light-color); /* Input text color */
             transition: all 0.3s;
+            border: 1px solid var(--input-border, #ddd);
+            background: var(--input-bg, #ffffff);
+            color: var(--text-color, #333);
         }
 
-            .form-control:focus {
-                border-color: var(--accent-gold-color); /* Gold border on focus */
-                box-shadow: 0 0 0 0.25rem rgba(200, 168, 95, 0.25); /* Gold shadow on focus */
-                background-color: #4A6E66; /* Slightly lighter on focus */
-            }
-
-        .form-floating label {
-            color: var(--text-light-color); /* Label color */
-        }
-
-        /* Adjust placeholder color for better visibility */
-        .form-floating > .form-control:focus ~ label,
-        .form-floating > .form-control:not(:placeholder-shown) ~ label,
-        .form-floating > .form-select ~ label {
-            color: var(--accent-gold-color); /* Gold label when active/filled */
+        .form-control:focus {
+            border-color: var(--primary-color, #667eea);
+            box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
         }
 
         .btn-login {
-            background-color: var(--accent-gold-color); /* Gold button */
             border: none;
             border-radius: 8px;
             padding: 12px;
             font-weight: 600;
             letter-spacing: 0.5px;
             transition: all 0.3s;
-            color: var(--primary-background-color); /* Dark text on gold button */
+            background: var(--login-btn-bg, linear-gradient(135deg, var(--primary-color, #667eea), var(--secondary-color, #764ba2)));
+            color: var(--login-btn-text, #ffffff);
         }
 
-            .btn-login:hover {
-                background-color: #DDAA66; /* Slightly lighter gold on hover */
-                transform: translateY(-2px);
-            }
-
-        .input-group-text {
-            background-color: var(--secondary-card-background); /* Icon background */
-            border: 1px solid var(--border-color);
-            border-right: none;
-            color: var(--text-light-color); /* Icon color */
+        .btn-login:hover {
+            transform: translateY(-2px);
+            background: var(--login-btn-hover-bg, linear-gradient(135deg, var(--primary-color-hover, #5a6fd8), var(--secondary-color-hover, #6a4190)));
         }
 
-        .form-check-input {
-            background-color: var(--secondary-card-background);
-            border-color: var(--border-color);
+        .brand-logo {
+            margin-bottom: 0.5rem;
+            filter: drop-shadow(0 0 5px rgba(0,0,0,0.5));
+            width: 60px;
+            height: 60px;
         }
 
-            .form-check-input:checked {
-                background-color: var(--accent-gold-color);
-                border-color: var(--accent-gold-color);
-            }
-
-        .forgot-password {
-            color: var(--accent-gold-color); /* Gold link */
-            text-decoration: none;
-            transition: all 0.3s;
-        }
-
-            .forgot-password:hover {
-                color: #DDAA66; /* Lighter gold on hover */
-                text-decoration: underline;
-            }
-
-        .validation-summary-errors ul {
-            list-style: none;
-            padding-left: 0;
-            margin-bottom: 0;
-            color: var(--danger-color); /* Keep standard danger color for errors */
-        }
-        /* FIX: Hide the validation summary when it's valid (no errors) */
         .validation-summary-valid {
             display: none;
         }
 
-        .brand-logo {
-           /*  width: 100px; 
-            height: 100px; */
-            margin-bottom: 0.5rem; /* Reduced margin, as title has its own top margin */
-            filter: drop-shadow(0 0 5px rgba(0,0,0,0.5)); /* Optional: Add a subtle shadow to the logo */
+        .forgot-password {
+            color: var(--link-color, var(--primary-color, #667eea));
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+
+        .forgot-password:hover {
+            color: var(--link-hover-color, var(--primary-color-hover, #5a6fd8));
+        }
+
+        /* Theme Switcher Compact Style for Login */
+        .login-theme-switcher .dropdown-toggle {
+            padding: 0.5rem 1rem;
+            font-size: 0.875rem;
+            border-radius: 20px;
+            min-width: 120px;
+            background: var(--theme-switcher-bg, rgba(255,255,255,0.9));
+            border: 1px solid var(--theme-switcher-border, rgba(255,255,255,0.3));
+            color: var(--theme-switcher-text, #333);
+            backdrop-filter: blur(10px);
+        }
+
+        .login-theme-switcher .dropdown-menu {
+            min-width: 200px;
+            background: var(--dropdown-bg, #ffffff);
+            border: 1px solid var(--dropdown-border, rgba(0,0,0,0.1));
+            box-shadow: var(--dropdown-shadow, 0 10px 30px rgba(0,0,0,0.1));
+        }
+
+        /* RTL Support for Arabic */
+        [dir="rtl"] .theme-switcher-login {
+            right: auto;
+            left: 0;
+        }
+
+        [dir="rtl"] .form-floating > label {
+            right: 0.75rem;
+            left: auto;
+            transform-origin: 100% 0;
         }
     </style>
 </head>
 <body>
-    <div class="login-card shadow-lg">
-        <div class="card-header">
-            <!-- Assuming your new logo is syrian_emblem.png in the img folder -->
-            <img src="~/img/syrian_emblem.png" alt="Syrian Emblem" class="brand-logo">
-            <h2>نظام الرصد والتقييم</h2>
+    <div class="login-container">
+        <!-- Theme Switcher for Login Page -->
+        <div class="theme-switcher-login">
+            <div class="login-theme-switcher">
+                @await Html.PartialAsync("_ThemeSwitcher")
+            </div>
         </div>
+        
+        <div class="login-card shadow-lg">
+            <div class="card-header">
+                <!-- Assuming your new logo is syrian_emblem.png in the img folder -->
+                <img src="~/img/syrian_emblem.png" alt="Syrian Emblem" class="brand-logo">
+                <h2>نظام الرصد والتقييم</h2>
+            </div>
         <div class="card-body">
             <form method="post">
                 <div asp-validation-summary="All" class="alert alert-danger mb-4"></div>
@@ -219,8 +230,10 @@
             </form>
         </div>
     </div>
+    </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/theme-switcher.js" asp-append-version="true"></script>
     <partial name="_ValidationScriptsPartial" />
 </body>
 </html>

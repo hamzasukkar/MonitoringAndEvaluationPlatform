@@ -1,0 +1,168 @@
+@using MonitoringAndEvaluationPlatform.Services
+@using MonitoringAndEvaluationPlatform.Models
+@inject IThemeService ThemeService
+
+@{
+    var currentTheme = ThemeService.GetCurrentTheme(Context);
+    var availableThemes = ThemeService.GetAvailableThemes();
+}
+
+<div class="theme-switcher dropdown">
+    <button class="btn btn-outline-light dropdown-toggle d-flex align-items-center" type="button" id="themeSwitcher" data-bs-toggle="dropdown" aria-expanded="false">
+        <i class="fas fa-palette me-2"></i>
+        <span class="theme-name">@currentTheme.DisplayName</span>
+    </button>
+    <ul class="dropdown-menu dropdown-menu-end theme-dropdown" aria-labelledby="themeSwitcher">
+        <li class="dropdown-header">
+            <i class="fas fa-swatchbook me-2"></i>Choose Theme
+        </li>
+        <li><hr class="dropdown-divider"></li>
+        @foreach (var theme in availableThemes)
+        {
+            <li>
+                <a class="dropdown-item theme-option @(theme.Id == currentTheme.Id ? "active" : "")" 
+                   href="#" 
+                   data-theme="@theme.Id"
+                   data-theme-name="@theme.DisplayName">
+                    <div class="d-flex align-items-center justify-content-between">
+                        <div class="d-flex align-items-center">
+                            @if (theme.Id == "classic")
+                            {
+                                <i class="fas fa-desktop me-2 text-primary"></i>
+                            }
+                            else if (theme.Id == "modern")
+                            {
+                                <i class="fas fa-magic me-2 text-gradient"></i>
+                            }
+                            <div>
+                                <div class="fw-medium">@theme.DisplayName</div>
+                                <small class="text-muted">@theme.Description</small>
+                            </div>
+                        </div>
+                        @if (theme.Id == currentTheme.Id)
+                        {
+                            <i class="fas fa-check text-success"></i>
+                        }
+                    </div>
+                </a>
+            </li>
+        }
+        <li><hr class="dropdown-divider"></li>
+        <li>
+            <div class="dropdown-item-text">
+                <small class="text-muted">
+                    <i class="fas fa-info-circle me-1"></i>
+                    Your preference is saved automatically
+                </small>
+            </div>
+        </li>
+    </ul>
+</div>
+
+<style>
+.theme-switcher .btn {
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    color: rgba(255, 255, 255, 0.9);
+    background-color: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+    border-radius: 0.5rem;
+    padding: 0.5rem 1rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+    transition: all 0.3s ease;
+}
+
+.theme-switcher .btn:hover {
+    background-color: rgba(255, 255, 255, 0.2);
+    border-color: rgba(255, 255, 255, 0.5);
+    color: white;
+    transform: translateY(-1px);
+}
+
+.theme-dropdown {
+    min-width: 280px;
+    border: none;
+    border-radius: 0.75rem;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+    padding: 0.5rem;
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(20px);
+}
+
+.theme-dropdown .dropdown-header {
+    color: #667eea;
+    font-weight: 600;
+    padding: 0.75rem 1rem 0.5rem;
+    font-size: 0.875rem;
+}
+
+.theme-dropdown .dropdown-item {
+    border-radius: 0.5rem;
+    padding: 0.75rem 1rem;
+    margin-bottom: 0.25rem;
+    border: none;
+    transition: all 0.3s ease;
+}
+
+.theme-dropdown .dropdown-item:hover {
+    background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
+    transform: translateX(4px);
+}
+
+.theme-dropdown .dropdown-item.active {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+}
+
+.theme-dropdown .dropdown-item.active .text-muted {
+    color: rgba(255, 255, 255, 0.8) !important;
+}
+
+.text-gradient {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.theme-dropdown .dropdown-item-text {
+    padding: 0.5rem 1rem;
+}
+
+.theme-name {
+    font-size: 0.875rem;
+}
+
+@@media (max-width: 768px) {
+    .theme-switcher .theme-name {
+        display: none;
+    }
+    
+    .theme-dropdown {
+        min-width: 250px;
+    }
+}
+
+/* Loading animation for theme switching */
+.theme-switching {
+    transition: opacity 0.3s ease;
+    opacity: 0.7;
+}
+
+.theme-switch-loading {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 9999;
+    background: rgba(255, 255, 255, 0.9);
+    padding: 1rem 2rem;
+    border-radius: 0.75rem;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+    display: none;
+}
+
+.theme-switch-loading.active {
+    display: block;
+}
+</style>
