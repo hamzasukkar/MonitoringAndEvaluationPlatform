@@ -294,7 +294,7 @@ html, body {
     background: linear-gradient(180deg, var(--blue-silver-bg-card) 0%, var(--blue-silver-bg-secondary) 100%);
     border-right: 1px solid var(--blue-silver-border-color);
     padding: 2rem 0;
-    position: fixed;
+    /*position: fixed; To Fix Bug*/
     height: calc(100vh - var(--blue-silver-topbar-height));
     overflow-y: auto;
     z-index: 900;
@@ -557,7 +557,16 @@ html, body {
 .theme-blue-silver .table tbody td {
     padding: 1.25rem;
     border: none;
-    color: var(--blue-silver-text-secondary);
+    color: var(--blue-silver-text-primary);
+}
+
+.theme-blue-silver .table tbody td a {
+    color: var(--blue-silver-text-primary) !important;
+    text-decoration: none;
+}
+
+.theme-blue-silver .table tbody td a:hover {
+    color: var(--blue-silver-primary) !important;
 }
 
 /* Blue Silver Forms */

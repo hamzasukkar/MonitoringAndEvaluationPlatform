@@ -151,6 +151,52 @@
     }
 }
 
+/* Modern theme specific button styling */
+.theme-modern .theme-switcher .btn {
+    border: 2px solid #667eea !important;
+    color: #667eea !important;
+    background-color: rgba(102, 126, 234, 0.1) !important;
+    backdrop-filter: blur(10px);
+}
+
+.theme-modern .theme-switcher .btn:hover {
+    background-color: #667eea !important;
+    border-color: #667eea !important;
+    color: white !important;
+    transform: translateY(-1px);
+}
+
+.theme-modern .theme-switcher .btn:focus {
+    box-shadow: 0 0 0 0.25rem rgba(102, 126, 234, 0.25) !important;
+    border-color: #667eea !important;
+}
+
+/* Dark theme specific button styling */
+.theme-dark .theme-switcher .btn {
+    border: 2px solid #6366f1 !important;
+    color: #6366f1 !important;
+    background-color: rgba(99, 102, 241, 0.1) !important;
+}
+
+.theme-dark .theme-switcher .btn:hover {
+    background-color: #6366f1 !important;
+    border-color: #6366f1 !important;
+    color: white !important;
+}
+
+/* Blue Silver theme specific button styling */
+.theme-blue-silver .theme-switcher .btn {
+    border: 2px solid #1e40af !important;
+    color: #1e40af !important;
+    background-color: rgba(30, 64, 175, 0.1) !important;
+}
+
+.theme-blue-silver .theme-switcher .btn:hover {
+    background-color: #1e40af !important;
+    border-color: #1e40af !important;
+    color: white !important;
+}
+
 /* Loading animation for theme switching */
 .theme-switching {
     transition: opacity 0.3s ease;

@@ -293,7 +293,7 @@ html, body {
     -webkit-backdrop-filter: blur(20px);
     border-right: 1px solid var(--dark-border-color);
     padding: 2rem 0;
-    position: fixed;
+    /*position: fixed; To Fix Bug*/
     height: calc(100vh - var(--dark-topbar-height));
     overflow-y: auto;
     z-index: 900;

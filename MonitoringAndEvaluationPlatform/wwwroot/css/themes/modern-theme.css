@@ -255,27 +255,53 @@ html, body {
 
 .theme-modern .dropdown-menu {
     border: none;
-    background: var(--modern-bg-glass);
+    background: var(--modern-bg-card);
     backdrop-filter: blur(20px);
     -webkit-backdrop-filter: blur(20px);
     box-shadow: var(--modern-shadow-lg);
     border-radius: var(--modern-border-radius);
     padding: 0.75rem;
     border: 1px solid var(--modern-border-color);
+    z-index: 1050;
+    min-width: 200px;
 }
 
 .theme-modern .dropdown-item {
     padding: 0.75rem 1rem;
     border-radius: var(--modern-border-radius-sm);
     transition: all 0.2s ease;
-    color: var(--modern-text-secondary);
+    color: var(--modern-text-primary);
     font-weight: var(--modern-font-weight-medium);
+    background: transparent;
+    border: none;
+    width: 100%;
+    text-align: left;
+    display: block;
 }
 
 .theme-modern .dropdown-item:hover {
     background: var(--modern-primary-light);
     color: var(--modern-primary);
     transform: translateX(4px);
+}
+
+.theme-modern .dropdown-item:focus {
+    background: var(--modern-primary-light);
+    color: var(--modern-primary);
+    outline: none;
+}
+
+/* Theme switcher specific styling */
+.theme-modern .dropdown-menu form select {
+    background: var(--modern-bg-card);
+    color: var(--modern-text-primary);
+    border: 2px solid var(--modern-border-color);
+    border-radius: var(--modern-border-radius-sm);
+}
+
+.theme-modern .dropdown-menu form select:focus {
+    border-color: var(--modern-primary);
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
 }
 
 /* Modern Layout */
@@ -293,7 +319,7 @@ html, body {
     -webkit-backdrop-filter: blur(20px);
     border-right: 1px solid var(--modern-border-color);
     padding: 2rem 0;
-    position: fixed;
+   /* position: fixed; To Fix Bug*/
     height: calc(100vh - var(--modern-topbar-height));
     overflow-y: auto;
     z-index: 900;
@@ -546,7 +572,16 @@ html, body {
 .theme-modern .table tbody td {
     padding: 1.25rem;
     border: none;
-    color: var(--modern-text-secondary);
+    color: var(--modern-text-primary);
+}
+
+.theme-modern .table tbody td a {
+    color: var(--modern-text-primary) !important;
+    text-decoration: none;
+}
+
+.theme-modern .table tbody td a:hover {
+    color: var(--modern-primary) !important;
 }
 
 /* Modern Forms */
