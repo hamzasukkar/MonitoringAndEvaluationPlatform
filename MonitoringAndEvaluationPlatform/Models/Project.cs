@@ -38,7 +38,6 @@ namespace MonitoringAndEvaluationPlatform.Models
 
         // Navigation property for one-to-one relationship
         public ActionPlan ActionPlan { get; set; }
-        public ICollection<LogicalFramework> logicalFramework { get; set; } = new List<LogicalFramework>();
 
         [NotMapped]
         public List<IFormFile> UploadedFiles { get; set; } = new List<IFormFile>();

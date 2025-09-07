@@ -17,7 +17,6 @@ public class MonitoringService
     {
         var project = await _context.Projects
             .Include(p => p.Measures)
-            .Include(p => p.logicalFramework)
             .FirstOrDefaultAsync(p => p.ProjectID == ProjectId);
 
         if (project == null)
@@ -34,27 +33,8 @@ public class MonitoringService
 
         double measuresPerformance = (target > 0) ? (totalAchieved / target) * 100 : 0;
 
-        // Calculate LogicalFrameworks Average Performance
-        double logicalFrameworksPerformance = 0;
-        if (project.logicalFramework != null && project.logicalFramework.Any())
-        {
-            logicalFrameworksPerformance = project.logicalFramework
-                .Average(lf => lf.Performance); // Assuming LogicalFramework has a 'Performance' property (0-100 %)
-        }
-
-        // Combine the two performances
-        if (logicalFrameworksPerformance > 0 && measuresPerformance > 0)
-        {
-            project.performance = (measuresPerformance + logicalFrameworksPerformance) / 2;
-        }
-        else if (logicalFrameworksPerformance > 0)
-        {
-            project.performance = logicalFrameworksPerformance;
-        }
-        else
-        {
-            project.performance = measuresPerformance;
-        }
+        // Set project performance based on measures only
+        project.performance = measuresPerformance;
 
         _context.Projects.Update(project);
         await _context.SaveChangesAsync();

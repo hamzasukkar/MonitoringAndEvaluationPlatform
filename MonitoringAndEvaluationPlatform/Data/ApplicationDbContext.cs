@@ -20,15 +20,12 @@ namespace MonitoringAndEvaluationPlatform.Data
         public DbSet<Sector> Sectors { get; set; } = default!;
         public DbSet<Donor> Donors { get; set; } = default!;
         public DbSet<Measure> Measures { get; set; } = default!;
-        public DbSet<LogicalMeasure> logicalMeasures { get; set; } = default!;
         public DbSet<SuperVisor> SuperVisors { get; set; } = default!;
         public DbSet<ProjectManager> ProjectManagers { get; set; } = default!;
         public DbSet<Activity> Activities { get; set; } = default!;
         public DbSet<Plan> Plans { get; set; } = default!;
         public DbSet<ActionPlan> ActionPlans { get; set; } = default!;
         public DbSet<ProjectIndicator> ProjectIndicators { get; set; } = default!;
-        public DbSet<LogicalFramework> logicalFrameworks { get; set; } = default!;
-        public DbSet<LogicalFrameworkIndicator> logicalFrameworkIndicators { get; set; } = default!;
         public DbSet<ProjectFile> ProjectFiles { get; set; }
         public DbSet<Governorate> Governorates { get; set; }
         public DbSet<District> Districts { get; set; }
