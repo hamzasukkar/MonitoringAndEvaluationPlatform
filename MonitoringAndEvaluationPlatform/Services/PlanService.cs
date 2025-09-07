@@ -33,6 +33,10 @@ public class PlanService
 
         // Update Project and related entities
         await UpdateProjectPerformance(existingPlan.Activity.ActionPlan.Project);
+        
+        // Update disbursement performance across all levels
+        var monitoringService = new MonitoringService(_context);
+        await monitoringService.UpdateDisbursementPerformancesForProject(existingPlan.Activity.ActionPlan.Project.ProjectID);
     }
 
     private async Task UpdateProjectPerformance(Project project)

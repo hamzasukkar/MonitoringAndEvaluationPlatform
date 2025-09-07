@@ -110,6 +110,276 @@ public class MonitoringService
     }
 
     /// <summary>
+    /// Update disbursement performance for a project based on its DisbursementPerformance activity plans
+    /// </summary>
+    public async Task UpdateProjectDisbursementPerformance(int projectId)
+    {
+        var project = await _context.Projects
+            .Include(p => p.ActionPlan)
+                .ThenInclude(ap => ap.Activities.Where(a => a.ActivityType == ActivityType.DisbursementPerformance))
+                    .ThenInclude(a => a.Plans)
+            .FirstOrDefaultAsync(p => p.ProjectID == projectId);
+
+        if (project?.ActionPlan == null)
+            return;
+
+        // Get all DisbursementPerformance activity plans
+        var disbursementActivities = project.ActionPlan.Activities
+            .Where(a => a.ActivityType == ActivityType.DisbursementPerformance);
+
+        double totalPlanned = 0;
+        double totalRealised = 0;
+
+        foreach (var activity in disbursementActivities)
+        {
+            foreach (var plan in activity.Plans)
+            {
+                totalPlanned += plan.Planned;
+                totalRealised += plan.Realised;
+            }
+        }
+
+        // Calculate disbursement performance percentage
+        project.DisbursementPerformance = totalPlanned > 0 
+            ? (totalRealised / totalPlanned) * 100 
+            : 0;
+
+        _context.Projects.Update(project);
+        await _context.SaveChangesAsync();
+    }
+
+    /// <summary>
+    /// Update disbursement performance for an indicator based on all projects linked to it
+    /// </summary>
+    public async Task UpdateIndicatorDisbursementPerformance(int indicatorCode)
+    {
+        var indicator = await _context.Indicators
+            .Include(i => i.ProjectIndicators)
+                .ThenInclude(pi => pi.Project)
+                    .ThenInclude(p => p.ActionPlan)
+                        .ThenInclude(ap => ap.Activities.Where(a => a.ActivityType == ActivityType.DisbursementPerformance))
+                            .ThenInclude(a => a.Plans)
+            .FirstOrDefaultAsync(i => i.IndicatorCode == indicatorCode);
+
+        if (indicator == null)
+            return;
+
+        double totalPlanned = 0;
+        double totalRealised = 0;
+
+        // Aggregate disbursement data from all linked projects
+        foreach (var projectIndicator in indicator.ProjectIndicators)
+        {
+            var project = projectIndicator.Project;
+            if (project?.ActionPlan != null)
+            {
+                var disbursementActivities = project.ActionPlan.Activities
+                    .Where(a => a.ActivityType == ActivityType.DisbursementPerformance);
+
+                foreach (var activity in disbursementActivities)
+                {
+                    foreach (var plan in activity.Plans)
+                    {
+                        totalPlanned += plan.Planned;
+                        totalRealised += plan.Realised;
+                    }
+                }
+            }
+        }
+
+        // Calculate indicator disbursement performance
+        indicator.DisbursementPerformance = totalPlanned > 0 
+            ? (totalRealised / totalPlanned) * 100 
+            : 0;
+
+        _context.Indicators.Update(indicator);
+        await _context.SaveChangesAsync();
+    }
+
+    /// <summary>
+    /// Update disbursement performance for ministry based on all its projects
+    /// </summary>
+    public async Task UpdateMinistryDisbursementPerformance(int ministryCode)
+    {
+        var ministry = await _context.Ministries
+            .Include(m => m.Projects)
+                .ThenInclude(p => p.ActionPlan)
+                    .ThenInclude(ap => ap.Activities.Where(a => a.ActivityType == ActivityType.DisbursementPerformance))
+                        .ThenInclude(a => a.Plans)
+            .FirstOrDefaultAsync(m => m.Code == ministryCode);
+
+        if (ministry == null)
+            return;
+
+        double totalPlanned = 0;
+        double totalRealised = 0;
+
+        // Aggregate disbursement data from all ministry projects
+        foreach (var project in ministry.Projects)
+        {
+            if (project?.ActionPlan != null)
+            {
+                var disbursementActivities = project.ActionPlan.Activities
+                    .Where(a => a.ActivityType == ActivityType.DisbursementPerformance);
+
+                foreach (var activity in disbursementActivities)
+                {
+                    foreach (var plan in activity.Plans)
+                    {
+                        totalPlanned += plan.Planned;
+                        totalRealised += plan.Realised;
+                    }
+                }
+            }
+        }
+
+        // Calculate ministry disbursement performance
+        ministry.DisbursementPerformance = totalPlanned > 0 
+            ? (totalRealised / totalPlanned) * 100 
+            : 0;
+
+        _context.Ministries.Update(ministry);
+        await _context.SaveChangesAsync();
+    }
+
+    /// <summary>
+    /// Update disbursement performance for sector based on all its projects
+    /// </summary>
+    public async Task UpdateSectorDisbursementPerformance(int sectorCode)
+    {
+        var sector = await _context.Sectors
+            .Include(s => s.Projects)
+                .ThenInclude(p => p.ActionPlan)
+                    .ThenInclude(ap => ap.Activities.Where(a => a.ActivityType == ActivityType.DisbursementPerformance))
+                        .ThenInclude(a => a.Plans)
+            .FirstOrDefaultAsync(s => s.Code == sectorCode);
+
+        if (sector == null)
+            return;
+
+        double totalPlanned = 0;
+        double totalRealised = 0;
+
+        // Aggregate disbursement data from all sector projects
+        foreach (var project in sector.Projects)
+        {
+            if (project?.ActionPlan != null)
+            {
+                var disbursementActivities = project.ActionPlan.Activities
+                    .Where(a => a.ActivityType == ActivityType.DisbursementPerformance);
+
+                foreach (var activity in disbursementActivities)
+                {
+                    foreach (var plan in activity.Plans)
+                    {
+                        totalPlanned += plan.Planned;
+                        totalRealised += plan.Realised;
+                    }
+                }
+            }
+        }
+
+        // Calculate sector disbursement performance
+        sector.DisbursementPerformance = totalPlanned > 0 
+            ? (totalRealised / totalPlanned) * 100 
+            : 0;
+
+        _context.Sectors.Update(sector);
+        await _context.SaveChangesAsync();
+    }
+
+    /// <summary>
+    /// Update disbursement performance for donor based on all its projects
+    /// </summary>
+    public async Task UpdateDonorDisbursementPerformance(int donorCode)
+    {
+        var donor = await _context.Donors
+            .Include(d => d.Projects)
+                .ThenInclude(p => p.ActionPlan)
+                    .ThenInclude(ap => ap.Activities.Where(a => a.ActivityType == ActivityType.DisbursementPerformance))
+                        .ThenInclude(a => a.Plans)
+            .FirstOrDefaultAsync(d => d.Code == donorCode);
+
+        if (donor == null)
+            return;
+
+        double totalPlanned = 0;
+        double totalRealised = 0;
+
+        // Aggregate disbursement data from all donor projects
+        foreach (var project in donor.Projects)
+        {
+            if (project?.ActionPlan != null)
+            {
+                var disbursementActivities = project.ActionPlan.Activities
+                    .Where(a => a.ActivityType == ActivityType.DisbursementPerformance);
+
+                foreach (var activity in disbursementActivities)
+                {
+                    foreach (var plan in activity.Plans)
+                    {
+                        totalPlanned += plan.Planned;
+                        totalRealised += plan.Realised;
+                    }
+                }
+            }
+        }
+
+        // Calculate donor disbursement performance
+        donor.DisbursementPerformance = totalPlanned > 0 
+            ? (totalRealised / totalPlanned) * 100 
+            : 0;
+
+        _context.Donors.Update(donor);
+        await _context.SaveChangesAsync();
+    }
+
+    /// <summary>
+    /// Update all disbursement performances related to a project when plan data changes
+    /// </summary>
+    public async Task UpdateDisbursementPerformancesForProject(int projectId)
+    {
+        // Update project disbursement performance first
+        await UpdateProjectDisbursementPerformance(projectId);
+
+        // Get the project with all its relationships
+        var project = await _context.Projects
+            .Include(p => p.ProjectIndicators)
+            .Include(p => p.Ministries)
+            .Include(p => p.Sectors)
+            .Include(p => p.Donors)
+            .FirstOrDefaultAsync(p => p.ProjectID == projectId);
+
+        if (project == null)
+            return;
+
+        // Update indicator disbursement performances for all linked indicators
+        var indicatorCodes = project.ProjectIndicators.Select(pi => pi.IndicatorCode).Distinct();
+        foreach (var indicatorCode in indicatorCodes)
+        {
+            await UpdateIndicatorDisbursementPerformance(indicatorCode);
+        }
+
+        // Update ministry disbursement performances
+        foreach (var ministry in project.Ministries)
+        {
+            await UpdateMinistryDisbursementPerformance(ministry.Code);
+        }
+
+        // Update sector disbursement performances
+        foreach (var sector in project.Sectors)
+        {
+            await UpdateSectorDisbursementPerformance(sector.Code);
+        }
+
+        // Update donor disbursement performances
+        foreach (var donor in project.Donors)
+        {
+            await UpdateDonorDisbursementPerformance(donor.Code);
+        }
+    }
+
+    /// <summary>
     /// Calculate performance for an indicator based on its measures against the indicator's target
     /// </summary>
     /// <param name="indicator">The indicator with loaded measures</param>
