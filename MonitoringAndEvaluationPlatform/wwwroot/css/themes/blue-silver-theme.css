@@ -258,9 +258,7 @@ html, body {
 
 .theme-blue-silver .dropdown-menu {
     border: none;
-    background: var(--blue-silver-bg-glass);
-    backdrop-filter: blur(10px);
-    -webkit-backdrop-filter: blur(10px);
+    background: var(--blue-silver-bg-card);
     box-shadow: var(--blue-silver-shadow-lg);
     border-radius: var(--blue-silver-border-radius);
     padding: 0.75rem;

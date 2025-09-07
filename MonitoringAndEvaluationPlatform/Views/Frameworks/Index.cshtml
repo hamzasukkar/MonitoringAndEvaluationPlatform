@@ -286,39 +286,45 @@
 
 </div>
     <script>
+        // Optimize memory usage with better event handling
         function toggleFrameworkEdit(code) {
-            const viewSpan = $(`#fw-name-${code}`);
-            const input = $(`#fw-name-input-${code}`);
-            const button = $(`#edit-btn-${code}`);
+            const viewSpan = document.getElementById(`fw-name-${code}`);
+            const input = document.getElementById(`fw-name-input-${code}`);
+            const button = document.getElementById(`edit-btn-${code}`);
 
-            const isEditing = input.hasClass('d-none') === false;
+            const isEditing = !input.classList.contains('d-none');
 
             if (isEditing) {
                 // Save via AJAX
-                const newName = input.val();
+                const newName = input.value;
 
-                $.ajax({
-                    url: `/Frameworks/UpdateName`,
-                    type: 'POST',
-                    data: { id: code, name: newName },
-                    success: function () {
-                    viewSpan.html(`<a href="/Outcomes?frameworkCode=${code}" class="text-decoration-none"><strong>${newName}</strong></a>`);
-                        input.addClass('d-none');
-                        viewSpan.removeClass('d-none');
-                        button.html('<i class="fas fa-edit"></i>');
-                        button.removeClass('btn-success').addClass('btn-outline-warning');
-                        Swal.fire('Saved!', 'Framework name updated.', 'success');
+                fetch('/Frameworks/UpdateName', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
                     },
-                    error: function () {
-                        Swal.fire('Error', 'Could not update name.', 'error');
-                    }
+                    body: `id=${encodeURIComponent(code)}&name=${encodeURIComponent(newName)}`
+                })
+                .then(response => response.ok ? Promise.resolve() : Promise.reject())
+                .then(() => {
+                    viewSpan.innerHTML = `<a href="/Outcomes?frameworkCode=${encodeURIComponent(code)}" class="text-decoration-none framework-link"><strong>${newName}</strong></a>`;
+                    input.classList.add('d-none');
+                    viewSpan.classList.remove('d-none');
+                    button.innerHTML = '<i class="fas fa-edit"></i>';
+                    button.classList.remove('btn-success');
+                    button.classList.add('btn-outline-warning');
+                    Swal.fire('Saved!', 'Framework name updated.', 'success');
+                })
+                .catch(() => {
+                    Swal.fire('Error', 'Could not update name.', 'error');
                 });
             } else {
                 // Enter edit mode
-                input.removeClass('d-none');
-                viewSpan.addClass('d-none');
-                button.html('<i class="fas fa-save"></i>');
-                button.removeClass('btn-outline-warning').addClass('btn-success');
+                input.classList.remove('d-none');
+                viewSpan.classList.add('d-none');
+                button.innerHTML = '<i class="fas fa-save"></i>';
+                button.classList.remove('btn-outline-warning');
+                button.classList.add('btn-success');
             }
         }
 
@@ -334,16 +340,16 @@
                 confirmButtonText: '@Localizer["Yes, delete it!?"]'
             }).then((result) => {
                 if (result.isConfirmed) {
-                    $.ajax({
-                        url: `/Frameworks/DeleteConfirmed/${code}`,
-                        type: 'POST',
-                        success: function () {
-                            $(`#framework-row-${code}`).fadeOut();
-                            Swal.fire('Deleted!', '@Localizer["Framework has been deleted."]', 'success');
-                        },
-                        error: function () {
-                         Swal.fire('Error', '@Localizer["Could not delete framework."]', 'error');
-                        }
+                    fetch(`/Frameworks/DeleteConfirmed/${encodeURIComponent(code)}`, {
+                        method: 'POST'
+                    })
+                    .then(response => response.ok ? Promise.resolve() : Promise.reject())
+                    .then(() => {
+                        document.getElementById(`framework-row-${code}`).style.display = 'none';
+                        Swal.fire('Deleted!', '@Localizer["Framework has been deleted."]', 'success');
+                    })
+                    .catch(() => {
+                        Swal.fire('Error', '@Localizer["Could not delete framework."]', 'error');
                     });
                 }
             });

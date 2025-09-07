@@ -185,9 +185,7 @@ html, body {
 
 /* Modern Header */
 .theme-modern .topbar {
-    background: var(--modern-bg-glass);
-    backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
+    background: var(--modern-bg-card);
     border-bottom: 1px solid var(--modern-border-color);
     color: var(--modern-text-primary);
     padding: 0 2rem;
@@ -256,8 +254,6 @@ html, body {
 .theme-modern .dropdown-menu {
     border: none;
     background: var(--modern-bg-card);
-    backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
     box-shadow: var(--modern-shadow-lg);
     border-radius: var(--modern-border-radius);
     padding: 0.75rem;
@@ -314,9 +310,7 @@ html, body {
 /* Modern Sidebar */
 .theme-modern .sidebar {
     width: var(--modern-sidebar-width);
-    background: var(--modern-bg-glass);
-    backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
+    background: var(--modern-bg-secondary);
     border-right: 1px solid var(--modern-border-color);
     padding: 2rem 0;
    /* position: fixed; To Fix Bug*/
@@ -729,13 +723,11 @@ html, body {
     }
 }
 
-/* Modern Glassmorphism Effects */
+/* Modern Glass Effects (Optimized) */
 .theme-modern .glass-effect {
-    background: var(--modern-bg-glass);
-    backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    box-shadow: var(--modern-shadow-glass);
+    background: var(--modern-bg-card);
+    border: 1px solid var(--modern-border-color);
+    box-shadow: var(--modern-shadow-md);
 }
 
 /* Modern Gradient Text */

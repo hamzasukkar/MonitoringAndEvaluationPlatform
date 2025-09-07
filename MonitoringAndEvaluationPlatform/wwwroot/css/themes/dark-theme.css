@@ -185,9 +185,7 @@ html, body {
 
 /* Dark Header */
 .theme-dark .topbar {
-    background: var(--dark-bg-glass);
-    backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
+    background: var(--dark-bg-card);
     border-bottom: 1px solid var(--dark-border-color);
     color: var(--dark-text-primary);
     padding: 0 2rem;
@@ -255,9 +253,7 @@ html, body {
 
 .theme-dark .dropdown-menu {
     border: none;
-    background: var(--dark-bg-glass);
-    backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
+    background: var(--dark-bg-card);
     box-shadow: var(--dark-shadow-lg);
     border-radius: var(--dark-border-radius);
     padding: 0.75rem;
@@ -288,9 +284,7 @@ html, body {
 /* Dark Sidebar */
 .theme-dark .sidebar {
     width: var(--dark-sidebar-width);
-    background: var(--dark-bg-glass);
-    backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
+    background: var(--dark-bg-secondary);
     border-right: 1px solid var(--dark-border-color);
     padding: 2rem 0;
     /*position: fixed; To Fix Bug*/
