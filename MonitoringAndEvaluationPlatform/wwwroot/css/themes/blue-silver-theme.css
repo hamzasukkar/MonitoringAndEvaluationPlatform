@@ -1,0 +1,777 @@
+/* Blue Silver Theme - Professional Corporate Design */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+:root {
+    /* Blue Silver Color Palette */
+    --blue-silver-primary: #1e40af;
+    --blue-silver-primary-light: rgba(30, 64, 175, 0.1);
+    --blue-silver-primary-dark: #1d4ed8;
+    --blue-silver-secondary: #64748b;
+    --blue-silver-silver: #94a3b8;
+    --blue-silver-silver-light: #cbd5e1;
+    --blue-silver-silver-dark: #475569;
+    --blue-silver-accent: #3b82f6;
+    --blue-silver-success: #059669;
+    --blue-silver-warning: #d97706;
+    --blue-silver-danger: #dc2626;
+    --blue-silver-info: #0891b2;
+    
+    /* Blue Silver Backgrounds */
+    --blue-silver-bg-primary: #f8fafc;
+    --blue-silver-bg-secondary: #f1f5f9;
+    --blue-silver-bg-tertiary: #e2e8f0;
+    --blue-silver-bg-card: #ffffff;
+    --blue-silver-bg-glass: rgba(248, 250, 252, 0.95);
+    --blue-silver-bg-silver: #f8fafc;
+    
+    /* Blue Silver Text Colors */
+    --blue-silver-text-primary: #1e293b;
+    --blue-silver-text-secondary: #475569;
+    --blue-silver-text-muted: #64748b;
+    --blue-silver-text-white: #ffffff;
+    --blue-silver-text-silver: #94a3b8;
+    
+    /* Blue Silver Borders */
+    --blue-silver-border-color: #cbd5e1;
+    --blue-silver-border-hover: #94a3b8;
+    --blue-silver-border-focus: var(--blue-silver-primary);
+    --blue-silver-border-silver: #e2e8f0;
+    
+    /* Blue Silver Shadows */
+    --blue-silver-shadow-sm: 0 1px 2px 0 rgba(30, 64, 175, 0.05);
+    --blue-silver-shadow-md: 0 4px 6px -1px rgba(30, 64, 175, 0.1);
+    --blue-silver-shadow-lg: 0 10px 15px -3px rgba(30, 64, 175, 0.1);
+    --blue-silver-shadow-xl: 0 20px 25px -5px rgba(30, 64, 175, 0.1);
+    --blue-silver-shadow-glass: 0 8px 32px rgba(30, 64, 175, 0.15);
+    --blue-silver-shadow-silver: 0 4px 6px -1px rgba(148, 163, 184, 0.1);
+    
+    /* Login Page Specific Variables */
+    --login-body-bg: linear-gradient(135deg, #1e40af 0%, #64748b 100%);
+    --login-card-shadow: 0 20px 40px rgba(30, 64, 175, 0.15);
+    --login-card-hover-shadow: 0 25px 50px rgba(30, 64, 175, 0.2);
+    --login-header-bg: linear-gradient(135deg, #1e40af, #64748b);
+    --login-header-text: #ffffff;
+    --login-btn-bg: linear-gradient(135deg, #1e40af, #3b82f6);
+    --login-btn-text: #ffffff;
+    --login-btn-hover-bg: linear-gradient(135deg, #1d4ed8, #2563eb);
+    --card-bg: #ffffff;
+    --input-border: #cbd5e1;
+    --input-bg: #ffffff;
+    --text-color: #1e293b;
+    --link-color: #1e40af;
+    --link-hover-color: #1d4ed8;
+    --primary-color: #1e40af;
+    --primary-color-hover: #1d4ed8;
+    --secondary-color: #64748b;
+    --secondary-color-hover: #475569;
+    --theme-switcher-bg: rgba(255, 255, 255, 0.9);
+    --theme-switcher-border: rgba(30, 64, 175, 0.3);
+    --theme-switcher-text: #1e293b;
+    --dropdown-bg: #ffffff;
+    --dropdown-border: rgba(203, 213, 225, 0.5);
+    --dropdown-shadow: 0 10px 30px rgba(30, 64, 175, 0.1);
+    
+    /* Blue Silver Spacing */
+    --blue-silver-sidebar-width: 280px;
+    --blue-silver-topbar-height: 70px;
+    --blue-silver-border-radius: 8px;
+    --blue-silver-border-radius-sm: 6px;
+    --blue-silver-border-radius-lg: 12px;
+    
+    /* Blue Silver Typography */
+    --blue-silver-font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    --blue-silver-font-weight-light: 300;
+    --blue-silver-font-weight-normal: 400;
+    --blue-silver-font-weight-medium: 500;
+    --blue-silver-font-weight-semibold: 600;
+    --blue-silver-font-weight-bold: 700;
+    
+    /* Blue Silver Layout Variables */
+    --blue-silver-text-align-start: left;
+    --blue-silver-text-align-end: right;
+    --blue-silver-sidebar-inset-start: 0;
+    --blue-silver-sidebar-inset-end: auto;
+    --blue-silver-content-margin-start: var(--blue-silver-sidebar-width);
+    --blue-silver-content-margin-end: 0;
+}
+
+/* RTL Support for Arabic Language */
+.theme-blue-silver[dir="rtl"],
+.theme-blue-silver.rtl {
+    direction: rtl;
+    --blue-silver-text-align-start: right;
+    --blue-silver-text-align-end: left;
+    --blue-silver-sidebar-inset-start: auto;
+    --blue-silver-sidebar-inset-end: 0;
+    --blue-silver-content-margin-start: 0;
+    --blue-silver-content-margin-end: var(--blue-silver-sidebar-width);
+}
+
+/* Arabic Language Enhancements */
+.theme-blue-silver[lang="ar"],
+.theme-blue-silver[dir="rtl"] {
+    font-family: 'Tajawal', 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    line-height: 1.8;
+}
+
+/* RTL Navigation */
+.theme-blue-silver[dir="rtl"] .nav-links .nav {
+    flex-direction: row-reverse;
+}
+
+.theme-blue-silver[dir="rtl"] .topbar {
+    flex-direction: row-reverse;
+    text-align: right;
+}
+
+.theme-blue-silver[dir="rtl"] .dropdown-menu {
+    text-align: right;
+    left: auto;
+    right: 0;
+}
+
+/* RTL Tables */
+.theme-blue-silver[dir="rtl"] .table {
+    direction: rtl;
+    text-align: right;
+}
+
+.theme-blue-silver[dir="rtl"] .table th,
+.theme-blue-silver[dir="rtl"] .table td {
+    text-align: right;
+}
+
+/* RTL Forms */
+.theme-blue-silver[dir="rtl"] .form-control {
+    text-align: right;
+    direction: rtl;
+}
+
+.theme-blue-silver[dir="rtl"] .btn {
+    direction: rtl;
+}
+
+/* RTL Sidebar */
+.theme-blue-silver[dir="rtl"] .sidebar {
+    right: var(--blue-silver-sidebar-inset-end);
+    left: var(--blue-silver-sidebar-inset-start);
+}
+
+.theme-blue-silver[dir="rtl"] .sidebar a {
+    text-align: right;
+    flex-direction: row-reverse;
+}
+
+.theme-blue-silver[dir="rtl"] .sidebar img {
+    margin-left: 1rem;
+    margin-right: 0;
+}
+
+/* Base Layout */
+html, body {
+    overflow-x: hidden;
+    max-width: 100vw;
+    box-sizing: border-box;
+}
+
+*, *:before, *:after {
+    box-sizing: inherit;
+}
+
+.theme-blue-silver {
+    font-family: var(--blue-silver-font-family);
+    font-weight: var(--blue-silver-font-weight-normal);
+    background: linear-gradient(135deg, var(--blue-silver-bg-primary) 0%, var(--blue-silver-bg-secondary) 100%);
+    color: var(--blue-silver-text-primary);
+    text-align: var(--blue-silver-text-align-start);
+    line-height: 1.6;
+    overflow-x: hidden;
+    max-width: 100vw;
+    box-sizing: border-box;
+}
+
+/* Blue Silver Header */
+.theme-blue-silver .topbar {
+    background: linear-gradient(135deg, var(--blue-silver-primary) 0%, var(--blue-silver-secondary) 100%);
+    color: var(--blue-silver-text-white);
+    padding: 0 2rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    position: fixed;
+    width: 100%;
+    height: var(--blue-silver-topbar-height);
+    z-index: 1000;
+    box-shadow: var(--blue-silver-shadow-lg);
+}
+
+.theme-blue-silver .title {
+    font-size: 1.75rem;
+    font-weight: var(--blue-silver-font-weight-bold);
+    color: var(--blue-silver-text-white);
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.theme-blue-silver .nav-links .nav {
+    display: flex;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.theme-blue-silver .nav-link {
+    color: rgba(255, 255, 255, 0.9);
+    text-decoration: none;
+    padding: 0.75rem 1.25rem;
+    border-radius: var(--blue-silver-border-radius-sm);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    font-weight: var(--blue-silver-font-weight-medium);
+    position: relative;
+    overflow: hidden;
+}
+
+.theme-blue-silver .nav-link::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.05) 100%);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.theme-blue-silver .nav-link:hover::before,
+.theme-blue-silver .nav-link.active::before {
+    opacity: 1;
+}
+
+.theme-blue-silver .nav-link:hover,
+.theme-blue-silver .nav-link.active {
+    color: var(--blue-silver-text-white);
+    transform: translateY(-1px);
+    box-shadow: var(--blue-silver-shadow-sm);
+}
+
+.theme-blue-silver .dropdown-menu {
+    border: none;
+    background: var(--blue-silver-bg-glass);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    box-shadow: var(--blue-silver-shadow-lg);
+    border-radius: var(--blue-silver-border-radius);
+    padding: 0.75rem;
+    border: 1px solid var(--blue-silver-border-color);
+}
+
+.theme-blue-silver .dropdown-item {
+    padding: 0.75rem 1rem;
+    border-radius: var(--blue-silver-border-radius-sm);
+    transition: all 0.2s ease;
+    color: var(--blue-silver-text-secondary);
+    font-weight: var(--blue-silver-font-weight-medium);
+}
+
+.theme-blue-silver .dropdown-item:hover {
+    background: var(--blue-silver-primary-light);
+    color: var(--blue-silver-primary);
+    transform: translateX(4px);
+}
+
+/* Blue Silver Layout */
+.theme-blue-silver .main {
+    display: flex;
+    margin-top: var(--blue-silver-topbar-height);
+    min-height: calc(100vh - var(--blue-silver-topbar-height));
+}
+
+/* Blue Silver Sidebar */
+.theme-blue-silver .sidebar {
+    width: var(--blue-silver-sidebar-width);
+    background: linear-gradient(180deg, var(--blue-silver-bg-card) 0%, var(--blue-silver-bg-secondary) 100%);
+    border-right: 1px solid var(--blue-silver-border-color);
+    padding: 2rem 0;
+    position: fixed;
+    height: calc(100vh - var(--blue-silver-topbar-height));
+    overflow-y: auto;
+    z-index: 900;
+    left: var(--blue-silver-sidebar-inset-start);
+    right: var(--blue-silver-sidebar-inset-end);
+    box-shadow: var(--blue-silver-shadow-silver);
+}
+
+.theme-blue-silver .sidebar ul {
+    list-style: none;
+    padding: 0 1.5rem;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.theme-blue-silver .sidebar a {
+    display: flex;
+    align-items: center;
+    padding: 1rem 1.5rem;
+    color: var(--blue-silver-text-secondary);
+    text-decoration: none;
+    border-radius: var(--blue-silver-border-radius);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    font-weight: var(--blue-silver-font-weight-medium);
+    position: relative;
+    overflow: hidden;
+}
+
+.theme-blue-silver .sidebar a::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(135deg, var(--blue-silver-primary) 0%, var(--blue-silver-accent) 100%);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.theme-blue-silver .sidebar a:hover::before,
+.theme-blue-silver .sidebar a.active::before {
+    opacity: 0.1;
+}
+
+.theme-blue-silver .sidebar a:hover,
+.theme-blue-silver .sidebar a.active {
+    color: var(--blue-silver-primary);
+    transform: translateX(8px);
+    box-shadow: var(--blue-silver-shadow-md);
+    background: rgba(30, 64, 175, 0.05);
+}
+
+.theme-blue-silver .sidebar img {
+    margin-right: 1rem;
+    opacity: 0.7;
+    transition: opacity 0.3s ease;
+}
+
+.theme-blue-silver .sidebar a:hover img,
+.theme-blue-silver .sidebar a.active img {
+    opacity: 1;
+    filter: brightness(1.1);
+}
+
+/* Blue Silver Content Area */
+.theme-blue-silver .container,
+.theme-blue-silver .container-fluid,
+.theme-blue-silver .container-full {
+    flex: 1;
+    padding: 2.5rem;
+    margin-left: var(--blue-silver-content-margin-start);
+    margin-right: var(--blue-silver-content-margin-end);
+    background: transparent;
+    min-height: calc(100vh - var(--blue-silver-topbar-height));
+    color: var(--blue-silver-text-primary);
+    max-width: 100%;
+    overflow-x: hidden;
+    box-sizing: border-box;
+}
+
+/* Ensure containers don't exceed viewport width */
+.theme-blue-silver .container-fluid {
+    width: 100%;
+    max-width: calc(100vw - var(--blue-silver-sidebar-width));
+}
+
+.theme-blue-silver[dir="rtl"] .container-fluid,
+.theme-blue-silver.rtl .container-fluid {
+    max-width: calc(100vw - var(--blue-silver-sidebar-width));
+}
+
+/* Blue Silver Cards */
+.theme-blue-silver .card,
+.theme-blue-silver .dashboard-card {
+    background: var(--blue-silver-bg-card);
+    border: 1px solid var(--blue-silver-border-color);
+    border-radius: var(--blue-silver-border-radius);
+    box-shadow: var(--blue-silver-shadow-sm);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    margin-bottom: 2rem;
+    overflow: hidden;
+}
+
+.theme-blue-silver .card:hover,
+.theme-blue-silver .dashboard-card:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--blue-silver-shadow-lg);
+    border-color: var(--blue-silver-border-hover);
+}
+
+.theme-blue-silver .card-header,
+.theme-blue-silver .dashboard-card-header {
+    background: linear-gradient(135deg, var(--blue-silver-bg-tertiary) 0%, var(--blue-silver-silver-light) 100%);
+    border-bottom: 1px solid var(--blue-silver-border-color);
+    padding: 1.5rem 2rem;
+    font-weight: var(--blue-silver-font-weight-semibold);
+    color: var(--blue-silver-text-primary);
+    position: relative;
+    overflow: hidden;
+}
+
+.theme-blue-silver .card-header::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, var(--blue-silver-primary) 0%, var(--blue-silver-accent) 100%);
+}
+
+.theme-blue-silver .card-body,
+.theme-blue-silver .dashboard-card-body {
+    padding: 2rem;
+}
+
+/* Blue Silver Buttons */
+.theme-blue-silver .btn {
+    border-radius: var(--blue-silver-border-radius-sm);
+    font-weight: var(--blue-silver-font-weight-medium);
+    padding: 0.75rem 1.5rem;
+    border: none;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    overflow: hidden;
+}
+
+.theme-blue-silver .btn::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+    transition: left 0.5s ease;
+}
+
+.theme-blue-silver .btn:hover::before {
+    left: 100%;
+}
+
+.theme-blue-silver .btn-primary {
+    background: linear-gradient(135deg, var(--blue-silver-primary) 0%, var(--blue-silver-accent) 100%);
+    color: var(--blue-silver-text-white);
+    box-shadow: var(--blue-silver-shadow-md);
+}
+
+.theme-blue-silver .btn-primary:hover {
+    transform: translateY(-1px);
+    box-shadow: var(--blue-silver-shadow-lg);
+}
+
+.theme-blue-silver .btn-outline-primary {
+    background: transparent;
+    color: var(--blue-silver-primary);
+    border: 2px solid var(--blue-silver-primary);
+}
+
+.theme-blue-silver .btn-outline-primary:hover {
+    background: linear-gradient(135deg, var(--blue-silver-primary) 0%, var(--blue-silver-accent) 100%);
+    color: var(--blue-silver-text-white);
+    transform: translateY(-1px);
+}
+
+.theme-blue-silver .btn-secondary {
+    background: linear-gradient(135deg, var(--blue-silver-secondary) 0%, var(--blue-silver-silver) 100%);
+    color: var(--blue-silver-text-white);
+    border: 1px solid var(--blue-silver-border-color);
+}
+
+.theme-blue-silver .btn-outline-secondary {
+    background: transparent;
+    color: var(--blue-silver-secondary);
+    border: 2px solid var(--blue-silver-secondary);
+}
+
+/* Blue Silver Tables */
+.theme-blue-silver .table {
+    border-collapse: separate;
+    border-spacing: 0;
+    background: var(--blue-silver-bg-card);
+    border-radius: var(--blue-silver-border-radius);
+    overflow: hidden;
+    box-shadow: var(--blue-silver-shadow-sm);
+    width: 100%;
+    max-width: 100%;
+    table-layout: auto;
+}
+
+/* Table wrapper for horizontal scroll on small screens */
+.theme-blue-silver .table-responsive {
+    overflow-x: auto;
+    max-width: 100%;
+}
+
+.theme-blue-silver .table thead th {
+    background: linear-gradient(135deg, var(--blue-silver-primary) 0%, var(--blue-silver-secondary) 100%);
+    border: none;
+    font-weight: var(--blue-silver-font-weight-semibold);
+    padding: 1.25rem;
+    color: var(--blue-silver-text-white);
+    position: relative;
+}
+
+.theme-blue-silver .table-light th {
+    background: linear-gradient(135deg, var(--blue-silver-primary) 0%, var(--blue-silver-secondary) 100%);
+    color: var(--blue-silver-text-white);
+}
+
+.theme-blue-silver .table-light th a {
+    color: var(--blue-silver-text-white) !important;
+    text-decoration: none;
+    font-weight: var(--blue-silver-font-weight-semibold);
+}
+
+.theme-blue-silver .table tbody tr {
+    background: var(--blue-silver-bg-card);
+    transition: all 0.2s ease;
+    border-bottom: 1px solid var(--blue-silver-border-color);
+}
+
+.theme-blue-silver .table tbody tr:hover {
+    background: var(--blue-silver-bg-secondary);
+    transform: scale(1.005);
+    box-shadow: var(--blue-silver-shadow-sm);
+}
+
+.theme-blue-silver .table tbody tr:nth-child(even) {
+    background: rgba(248, 250, 252, 0.5);
+}
+
+.theme-blue-silver .table tbody tr:nth-child(even):hover {
+    background: var(--blue-silver-bg-secondary);
+}
+
+.theme-blue-silver .table tbody td {
+    padding: 1.25rem;
+    border: none;
+    color: var(--blue-silver-text-secondary);
+}
+
+/* Blue Silver Forms */
+.theme-blue-silver .form-control {
+    background: var(--blue-silver-bg-card);
+    border: 2px solid var(--blue-silver-border-color);
+    color: var(--blue-silver-text-primary);
+    border-radius: var(--blue-silver-border-radius-sm);
+    padding: 0.75rem 1rem;
+    transition: all 0.3s ease;
+    font-weight: var(--blue-silver-font-weight-medium);
+}
+
+.theme-blue-silver .form-control:focus {
+    background: var(--blue-silver-bg-card);
+    border-color: var(--blue-silver-border-focus);
+    box-shadow: 0 0 0 3px rgba(30, 64, 175, 0.1);
+    transform: translateY(-1px);
+}
+
+.theme-blue-silver .form-select {
+    background: var(--blue-silver-bg-card);
+    border: 2px solid var(--blue-silver-border-color);
+    color: var(--blue-silver-text-primary);
+    border-radius: var(--blue-silver-border-radius-sm);
+}
+
+/* Blue Silver Progress Bars */
+.theme-blue-silver .progress {
+    background: var(--blue-silver-bg-tertiary);
+    border-radius: 50px;
+    height: 8px;
+    overflow: hidden;
+    box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+.theme-blue-silver .progress-bar {
+    background: linear-gradient(90deg, var(--blue-silver-primary) 0%, var(--blue-silver-accent) 100%);
+    border-radius: 50px;
+    transition: width 0.6s ease;
+}
+
+.theme-blue-silver .progress-bar-orange {
+    background: linear-gradient(90deg, var(--blue-silver-warning) 0%, #f97316 100%);
+}
+
+.theme-blue-silver .progress-bar-yellow {
+    background: linear-gradient(90deg, var(--blue-silver-warning) 0%, #eab308 100%);
+}
+
+/* Blue Silver Text Colors */
+.theme-blue-silver .text-muted {
+    color: var(--blue-silver-text-muted) !important;
+}
+
+.theme-blue-silver .text-primary {
+    color: var(--blue-silver-primary) !important;
+}
+
+.theme-blue-silver .text-secondary {
+    color: var(--blue-silver-text-secondary) !important;
+}
+
+.theme-blue-silver .text-success {
+    color: var(--blue-silver-success) !important;
+}
+
+.theme-blue-silver .text-warning {
+    color: var(--blue-silver-warning) !important;
+}
+
+.theme-blue-silver .text-danger {
+    color: var(--blue-silver-danger) !important;
+}
+
+.theme-blue-silver .text-info {
+    color: var(--blue-silver-info) !important;
+}
+
+/* Blue Silver Animations */
+@keyframes slideInFromLeft {
+    from {
+        opacity: 0;
+        transform: translateX(-30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+.theme-blue-silver .slide-in-left {
+    animation: slideInFromLeft 0.5s ease forwards;
+}
+
+/* Blue Silver Special Effects */
+.theme-blue-silver .metallic-text {
+    background: linear-gradient(135deg, #94a3b8 0%, #cbd5e1 50%, #94a3b8 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.theme-blue-silver .silver-border {
+    border: 2px solid var(--blue-silver-silver-light);
+    box-shadow: 0 0 10px rgba(203, 213, 225, 0.3);
+}
+
+/* Blue Silver Responsive Design */
+@media (max-width: 992px) {
+    .theme-blue-silver .sidebar {
+        width: 80px;
+        padding: 1rem 0;
+    }
+
+    .theme-blue-silver .sidebar a span {
+        display: none;
+    }
+
+    .theme-blue-silver .sidebar img {
+        margin-right: 0;
+    }
+
+    .theme-blue-silver .container,
+    .theme-blue-silver .container-fluid,
+    .theme-blue-silver .container-full {
+        margin-left: 80px;
+        margin-right: 0;
+        max-width: calc(100vw - 80px);
+    }
+}
+
+@media (max-width: 768px) {
+    .theme-blue-silver .sidebar {
+        display: none;
+    }
+
+    .theme-blue-silver .container,
+    .theme-blue-silver .container-fluid,
+    .theme-blue-silver .container-full {
+        margin-left: 0;
+        margin-right: 0;
+        padding: 1.5rem;
+        max-width: 100vw;
+        width: 100%;
+    }
+
+    .theme-blue-silver .topbar {
+        padding: 0 1rem;
+    }
+
+    .theme-blue-silver .title {
+        font-size: 1.5rem;
+    }
+
+    .theme-blue-silver .card-body,
+    .theme-blue-silver .dashboard-card-body {
+        padding: 1.5rem;
+    }
+}
+
+/* Blue Silver Glassmorphism Effects */
+.theme-blue-silver .glass-effect {
+    background: var(--blue-silver-bg-glass);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: 1px solid rgba(203, 213, 225, 0.3);
+    box-shadow: var(--blue-silver-shadow-glass);
+}
+
+/* Blue Silver Corporate Enhancements */
+.theme-blue-silver .corporate-header {
+    background: linear-gradient(135deg, var(--blue-silver-primary) 0%, var(--blue-silver-secondary) 100%);
+    padding: 2rem 0;
+    color: var(--blue-silver-text-white);
+    text-align: center;
+}
+
+.theme-blue-silver .professional-card {
+    background: var(--blue-silver-bg-card);
+    border-left: 4px solid var(--blue-silver-primary);
+    box-shadow: var(--blue-silver-shadow-md);
+}
+
+.theme-blue-silver .status-indicator {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: var(--blue-silver-success);
+    display: inline-block;
+    margin-right: 0.5rem;
+}
+
+/* Blue Silver Alert Styles */
+.theme-blue-silver .alert {
+    background: var(--blue-silver-bg-card);
+    border: 1px solid var(--blue-silver-border-color);
+    color: var(--blue-silver-text-primary);
+    border-radius: var(--blue-silver-border-radius);
+}
+
+.theme-blue-silver .modal-content {
+    background: var(--blue-silver-bg-card);
+    border: 1px solid var(--blue-silver-border-color);
+    color: var(--blue-silver-text-primary);
+    box-shadow: var(--blue-silver-shadow-xl);
+}
+
+.theme-blue-silver .modal-header {
+    border-bottom: 1px solid var(--blue-silver-border-color);
+    background: linear-gradient(135deg, var(--blue-silver-bg-tertiary) 0%, var(--blue-silver-bg-secondary) 100%);
+}
+
+.theme-blue-silver .modal-footer {
+    border-top: 1px solid var(--blue-silver-border-color);
+    background: var(--blue-silver-bg-silver);
+}
