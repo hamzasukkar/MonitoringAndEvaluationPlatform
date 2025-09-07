@@ -1,51 +1,264 @@
 ﻿@model MonitoringAndEvaluationPlatform.Models.Measure
-@using static MonitoringAndEvaluationPlatform.Enums.MeasureValueType;
+@using MonitoringAndEvaluationPlatform.Enums
+@using Microsoft.AspNetCore.Mvc.Localization
+@inject IViewLocalizer Localizer
 
 @{
-    ViewData["Title"] = "Create";
-    Layout = "~/Views/Shared/_ProjectsLayout.cshtml";
-    var TargetDate = DateTime.Today.ToString("yyyy-MM-dd");
+    ViewData["Title"] = "Create Measure";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    var targetDate = DateTime.Today.ToString("yyyy-MM-dd");
 }
 
-<h1>Create</h1>
+<div class="container-fluid px-4">
+    <!-- Header Section -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="mb-0">@Localizer["Create New Measure"]</h2>
+            <p class="text-muted mb-0">@Localizer["Add a new achieved value to track indicator progress"]</p>
+        </div>
+        <a asp-action="Index" class="btn btn-outline-secondary">
+            <i class="fas fa-arrow-left me-2"></i>@Localizer["Back to List"]
+        </a>
+    </div>
 
-<h4>Measure</h4>
-<hr />
-<div class="row">
-    <div class="col-md-12">
-        <form asp-action="Create">
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-            <div class="form-group">
-                <label asp-for="Date" class="control-label"></label>
-                <input asp-for="Date" type="date" value="@TargetDate" class="form-control" />
-                <span asp-validation-for="Date" class="text-danger"></span>
+    <!-- Success/Error Messages -->
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            <i class="fas fa-check-circle me-2"></i>@TempData["SuccessMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            <i class="fas fa-exclamation-triangle me-2"></i>@TempData["ErrorMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+
+    <!-- Main Form Card -->
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card shadow-sm">
+                <div class="card-header bg-success text-white">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-plus-circle me-2"></i>@Localizer["Record Achievement"]
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <form asp-action="Create" method="post" id="measureForm">
+                        <div asp-validation-summary="ModelOnly" class="alert alert-danger" style="display: none;"></div>
+
+                        <div class="row g-3">
+                            <!-- Indicator Selection -->
+                            <div class="col-12">
+                                <label asp-for="IndicatorCode" class="form-label">
+                                    <i class="fas fa-bullseye me-2 text-success"></i>@Localizer["Indicator"] *
+                                </label>
+                                <select asp-for="IndicatorCode" class="form-select" asp-items="ViewBag.Indicators" id="indicatorSelect" required>
+                                    <option value="">@Localizer["Select an Indicator"]</option>
+                                </select>
+                                <span asp-validation-for="IndicatorCode" class="text-danger"></span>
+                                <div class="form-text">@Localizer["Choose the indicator for which you are recording progress"]</div>
+                            </div>
+
+                            <!-- Date and Value Row -->
+                            <div class="col-md-6">
+                                <label asp-for="Date" class="form-label">
+                                    <i class="fas fa-calendar me-2 text-success"></i>@Localizer["Achievement Date"] *
+                                </label>
+                                <input asp-for="Date" type="date" value="@targetDate" class="form-control" required />
+                                <span asp-validation-for="Date" class="text-danger"></span>
+                                <div class="form-text">@Localizer["Date when this progress was achieved"]</div>
+                            </div>
+
+                            <div class="col-md-6">
+                                <label asp-for="Value" class="form-label">
+                                    <i class="fas fa-chart-line me-2 text-success"></i>@Localizer["Achievement Value"] *
+                                </label>
+                                <div class="input-group">
+                                    <input asp-for="Value" type="number" step="0.01" min="0" class="form-control" placeholder="0.00" required />
+                                    <span class="input-group-text">
+                                        <i class="fas fa-trophy text-warning"></i>
+                                    </span>
+                                </div>
+                                <span asp-validation-for="Value" class="text-danger"></span>
+                                <div class="form-text">@Localizer["Enter the achieved value for this indicator"]</div>
+                            </div>
+
+                            <!-- Hidden ValueType field since it's always Real now -->
+                            <input asp-for="ValueType" type="hidden" value="@MeasureValueType.Real" />
+
+                            <!-- Indicator Target Info Display -->
+                            <div class="col-12" id="indicatorInfo" style="display: none;">
+                                <div class="alert alert-info border-info">
+                                    <div class="d-flex align-items-center">
+                                        <i class="fas fa-info-circle me-3 text-info"></i>
+                                        <div>
+                                            <strong>@Localizer["Indicator Target"]: </strong>
+                                            <span id="indicatorTarget">-</span>
+                                            <br>
+                                            <small class="text-muted">@Localizer["Your achievement will be measured against this target"]</small>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Action Buttons -->
+                        <div class="row mt-4">
+                            <div class="col-12">
+                                <hr class="my-3">
+                                <div class="d-flex justify-content-between">
+                                    <a asp-action="Index" class="btn btn-outline-secondary">
+                                        <i class="fas fa-times me-2"></i>@Localizer["Cancel"]
+                                    </a>
+                                    <button type="submit" class="btn btn-success px-4" id="submitBtn">
+                                        <i class="fas fa-save me-2"></i>@Localizer["Record Achievement"]
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
             </div>
-            <div class="form-group">
-                <label asp-for="Value" class="control-label"></label>
-                <input asp-for="Value" class="form-control" />
-                <span asp-validation-for="Value" class="text-danger"></span>
+        </div>
+    </div>
+
+    <!-- Information Card -->
+    <div class="row justify-content-center mt-4">
+        <div class="col-lg-8">
+            <div class="card border-success">
+                <div class="card-body">
+                    <h6 class="card-title text-success">
+                        <i class="fas fa-lightbulb me-2"></i>@Localizer["How It Works"]
+                    </h6>
+                    <div class="small text-muted">
+                        <ul class="mb-0">
+                            <li>@Localizer["Each measure records actual progress toward an indicator's target"]</li>
+                            <li>@Localizer["Multiple measures can be added to track cumulative progress over time"]</li>
+                            <li>@Localizer["Indicator performance is calculated as: (Total Achievements ÷ Indicator Target) × 100%"]</li>
+                            <li>@Localizer["Performance automatically updates throughout the project hierarchy"]</li>
+                        </ul>
+                    </div>
+                </div>
             </div>
-            <div class="form-group">
-                <label asp-for="ValueType" class="control-label"></label>
-                <select asp-for="ValueType" class="form-control" asp-items="Html.GetEnumSelectList<MonitoringAndEvaluationPlatform.Enums.MeasureValueType>()"></select>
-                <span asp-validation-for="ValueType" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="IndicatorCode" class="control-label"></label>
-                <select asp-for="IndicatorCode" class="form-control" asp-items="ViewBag.Indicators"></select>
-            </div>
-            <div class="form-group">
-                <label asp-for="ProjectID" class="control-label"></label>
-                <select asp-for="ProjectID" class="form-control" asp-items="ViewBag.Projects"></select>
-            </div>
-            <div class="form-group">
-                <input type="submit" value="Create" class="btn btn-primary" />
-            </div>
-        </form>
+        </div>
     </div>
 </div>
 
-<div>
-    <a asp-action="Index">Back to List</a>
-</div>
+<!-- Custom Styles -->
+<style>
+    .card {
+        border: none;
+        border-radius: 12px;
+    }
+    
+    .card-header {
+        border-radius: 12px 12px 0 0 !important;
+        border: none;
+    }
+    
+    .form-control, .form-select {
+        border-radius: 8px;
+        border: 1px solid #dee2e6;
+        transition: all 0.3s;
+    }
+    
+    .form-control:focus, .form-select:focus {
+        box-shadow: 0 0 0 0.2rem rgba(25, 135, 84, 0.25);
+        border-color: #198754;
+    }
+    
+    .form-label {
+        font-weight: 600;
+        color: #495057;
+        margin-bottom: 0.5rem;
+    }
+    
+    .btn {
+        border-radius: 8px;
+        font-weight: 500;
+        padding: 0.5rem 1rem;
+        transition: all 0.3s;
+    }
+    
+    .btn:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    }
+    
+    .alert {
+        border-radius: 8px;
+        border: none;
+    }
+    
+    .input-group-text {
+        background-color: #f8f9fa;
+        border-color: #dee2e6;
+    }
+    
+    .text-success {
+        color: #198754 !important;
+    }
+    
+    .border-success {
+        border-color: #198754 !important;
+    }
+    
+    .form-text {
+        font-size: 0.875rem;
+        margin-top: 0.25rem;
+    }
 
+    .bg-success {
+        background-color: #198754 !important;
+    }
+</style>
+
+<!-- Custom JavaScript -->
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Form validation feedback
+        const form = document.getElementById('measureForm');
+        const submitBtn = document.getElementById('submitBtn');
+        const indicatorSelect = document.getElementById('indicatorSelect');
+        const indicatorInfo = document.getElementById('indicatorInfo');
+        const indicatorTarget = document.getElementById('indicatorTarget');
+        
+        // Indicator targets would be loaded from server in real implementation
+        const indicatorTargets = {};
+        
+        // Indicator selection handler
+        indicatorSelect.addEventListener('change', function() {
+            const selectedValue = this.value;
+            if (selectedValue && indicatorTargets[selectedValue]) {
+                indicatorTarget.textContent = indicatorTargets[selectedValue];
+                indicatorInfo.style.display = 'block';
+            } else {
+                indicatorInfo.style.display = 'none';
+            }
+        });
+        
+        // Form submission handler
+        form.addEventListener('submit', function(e) {
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>@Localizer["Recording..."]';
+        });
+        
+        // Auto-dismiss alerts after 5 seconds
+        setTimeout(function() {
+            const alerts = document.querySelectorAll('.alert');
+            alerts.forEach(function(alert) {
+                if (alert.querySelector('.btn-close')) {
+                    alert.querySelector('.btn-close').click();
+                }
+            });
+        }, 5000);
+    });
+</script>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

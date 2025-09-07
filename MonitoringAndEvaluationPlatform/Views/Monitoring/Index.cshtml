@@ -26,8 +26,8 @@
             var indicators = subOutputs.SelectMany(subOutput => subOutput.Indicators);
 
             var projectCount = indicators
-            .SelectMany(indicator => indicator.Measures)
-            .Select(measure => measure.Project)
+            .SelectMany(indicator => indicator.ProjectIndicators)
+            .Select(pi => pi.Project)
             .Distinct()
             .Count();
 

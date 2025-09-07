@@ -30,10 +30,7 @@ namespace MonitoringAndEvaluationPlatform.Models
         public int Financial { get; set; }
         public int Physical { get; set; }
 
-        // Navigation property for many-to-many relationship
-        public ICollection<Measure> Measures { get; set; } = new List<Measure>();
-
-        // New: Many-to-many with Indicator
+        // Many-to-many with Indicator
         public ICollection<ProjectIndicator> ProjectIndicators { get; set; } = new List<ProjectIndicator>();
 
         // Navigation property for one-to-one relationship

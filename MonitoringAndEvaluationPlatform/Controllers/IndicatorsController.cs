@@ -469,12 +469,12 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 .Select(m => new { date = m.Date.ToString("yyyy-MM-dd"), value = m.Value })
                 .ToList();
 
-            var target = data
-                .Where(m => m.ValueType == MeasureValueType.Target)
-                .Select(m => new { date = m.Date.ToString("yyyy-MM-dd"), value = m.Value })
-                .ToList();
-
-
+            // Get indicator target as baseline
+            var indicator = await _context.Indicators
+                .FirstOrDefaultAsync(i => i.IndicatorCode == indicatorCode);
+            
+            var targetValue = indicator?.Target ?? 0;
+            var target = new[] { new { date = "baseline", value = targetValue } };
 
             var result = new { Real = real, Target = target };
 

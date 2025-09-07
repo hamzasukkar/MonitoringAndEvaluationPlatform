@@ -25,7 +25,7 @@ namespace MonitoringAndEvaluationPlatform.ViewModel
         
         public string IndicatorName { get; set; } = string.Empty;
         
-        // Always Target for project creation
-        public MeasureValueType ValueType { get; set; } = MeasureValueType.Target;
+        // Always Real for actual achievements
+        public MeasureValueType ValueType { get; set; } = MeasureValueType.Real;
     }
 }

@@ -1,9 +1,7 @@
-﻿@model MonitoringAndEvaluationPlatform.ViewModel.ProjectWithMeasuresViewModel
+﻿@model MonitoringAndEvaluationPlatform.Models.Project
 @using Microsoft.AspNetCore.Mvc.Localization
 @inject IViewLocalizer Localizer
 @using Microsoft.AspNetCore.Localization
-@using MonitoringAndEvaluationPlatform.Enums
-@using MonitoringAndEvaluationPlatform.Models
 
 @{
     ViewData["Title"] = "Create New Project";
@@ -22,17 +20,12 @@
         <div class="col-12">
             <div class="card shadow-sm mb-4">
                 <div class="card-header bg-primary text-white">
-                    <h4 class="mb-0"></h5>
+                    <h4 class="mb-0">
+                        </h5>
                         <dl class="row">@Localizer["Create New Project"]
                     </h4>
                     <p class="mb-0 opacity-75">@Localizer["Fill in the project details below"]</p>
                 </div>
-
-                <!-- Display Validation Summary -->
-                @if (!ViewData.ModelState.IsValid)
-                {
-                    <div asp-validation-summary="All" class="alert alert-danger"></div>
-                }
 
                 <form asp-action="Create" method="post" enctype="multipart/form-data" class="needs-validation" novalidate>
                     <div class="card-body">
@@ -43,9 +36,9 @@
 
                                 <!-- Project Name -->
                                 <div class="mb-4">
-                                    <label asp-for="Project.ProjectName" class="form-label">@Localizer["Project Name"]</label>
-                                    <input asp-for="Project.ProjectName" class="form-control" placeholder="Enter project name" required />
-                                    <span asp-validation-for="Project.ProjectName" class="text-danger small"></span>
+                                    <label asp-for="ProjectName" class="form-label">@Localizer["Project Name"]</label>
+                                    <input asp-for="ProjectName" class="form-control" placeholder="Enter project name" required />
+                                    <span asp-validation-for="ProjectName" class="text-danger small"></span>
                                 </div>
 
                                 <!-- NEW: Plans Count for ActionPlan -->
@@ -58,7 +51,7 @@
                                            value="6"
                                            min="1"
                                            required />
-                                   @*  <span asp-validation-for="PlansCount" class="text-danger small"></span> *@
+                                    @*  <span asp-validation-for="PlansCount" class="text-danger small"></span> *@
                                 </div>
 
                                 <!-- Location Hierarchy -->
@@ -79,17 +72,17 @@
                                             </select>
                                         </div>
 
-                                    <div class="mb-3">
-                                        <select id="district" class="form-select"></select>
-                                    </div>
+                                        <div class="mb-3">
+                                            <select id="district" class="form-select"></select>
+                                        </div>
 
-                                    <div class="mb-3">
-                                        <select id="subdistrict" class="form-select"></select>
-                                    </div>
+                                        <div class="mb-3">
+                                            <select id="subdistrict" class="form-select"></select>
+                                        </div>
 
-                                    <div class="mb-3">
-                                        <select id="community" class="form-select"></select>
-                                    </div>
+                                        <div class="mb-3">
+                                            <select id="community" class="form-select"></select>
+                                        </div>
                                     </div>
                                     <button type="button" id="add-location" class="btn btn-primary mt-2">@Localizer["Add Location"]</button>
                                     <button type="button" id="reset-dropdowns" class="btn btn-secondary mt-2">@Localizer["Reset"]</button>
@@ -99,30 +92,30 @@
                                     <div id="location-validation-alert" style="display:none;" class="alert alert-warning mt-3"></div>
                                 </div>
 
-                                   
 
-                                
-                                    
-                                   
+
+
+
+
                                 <!-- Dates -->
                                 <div class="mb-4">
                                     <h6 class="mb-3 text-muted">@Localizer["Project Timeline"]</h6>
                                     <div class="row">
                                         <div class="col-md-6 mb-3">
-                                            <label asp-for="Project.StartDate" class="form-label">@Localizer["Start Date"]</label>
-                                            <input type="date" asp-for="Project.StartDate" value="@startDate" class="form-control" required />
-                                            <span asp-validation-for="Project.StartDate" class="text-danger small"></span>
+                                            <label asp-for="StartDate" class="form-label">@Localizer["Start Date"]</label>
+                                            <input type="date" asp-for="StartDate" value="@startDate" class="form-control" required />
+                                            <span asp-validation-for="StartDate" class="text-danger small"></span>
                                         </div>
                                         <div class="col-md-6 mb-3">
-                                            <label asp-for="Project.EndDate" class="form-label">@Localizer["End Date"]</label>
-                                            <input type="date" asp-for="Project.EndDate" value="@endDate" class="form-control" required />
-                                            <span asp-validation-for="Project.EndDate" class="text-danger small"></span>
+                                            <label asp-for="EndDate" class="form-label">@Localizer["End Date"]</label>
+                                            <input type="date" asp-for="EndDate" value="@endDate" class="form-control" required />
+                                            <span asp-validation-for="EndDate" class="text-danger small"></span>
                                         </div>
                                     </div>
                                 </div>
                             </div>
 
-                         
+
 
                             <!-- Right Column -->
                             <div class="col-md-6">
@@ -134,20 +127,20 @@
                                     <div class="card-body">
                                         <div class="row">
                                             <div class="col-md-6 mb-3">
-                                                <label asp-for="Project.EstimatedBudget" class="form-label">@Localizer["Estimated Budget"]</label>
+                                                <label asp-for="EstimatedBudget" class="form-label">@Localizer["Estimated Budget"]</label>
                                                 <div class="input-group">
                                                     <span class="input-group-text">$</span>
-                                                    <input asp-for="Project.EstimatedBudget" class="form-control" min="0.01" step="0.01" required />
+                                                    <input asp-for="EstimatedBudget" class="form-control" min="0.01" step="0.01" required />
                                                 </div>
-                                                <span asp-validation-for="Project.EstimatedBudget" class="text-danger small"></span>
+                                                <span asp-validation-for="EstimatedBudget" class="text-danger small"></span>
                                             </div>
-@*                                             <div class="col-md-6 mb-3">
-                                                <label asp-for="Project.RealBudget" class="form-label">@Localizer["Real Budget"]</label>
+                                            @*                                             <div class="col-md-6 mb-3">
+                                                <label asp-for="RealBudget" class="form-label">@Localizer["Real Budget"]</label>
                                                 <div class="input-group">
                                                     <span class="input-group-text">$</span>
-                                                    <input asp-for="Project.RealBudget" value="0" class="form-control" />
+                                                    <input asp-for="RealBudget" value="0" class="form-control" />
                                                 </div>
-                                                <span asp-validation-for="Project.RealBudget" class="text-danger small"></span>
+                                                <span asp-validation-for="RealBudget" class="text-danger small"></span>
                                             </div>
  *@                                        </div>
                                     </div>
@@ -162,44 +155,44 @@
                                     <div class="card-body">
                                         <div class="mb-3">
                                             <label class="form-label">@Localizer["Sectors"]</label>
-                                            <select asp-for="Project.Sectors"  class="form-select" asp-items="ViewBag.SectorList" multiple size="4">
+                                            <select asp-for="Sectors" class="form-select" asp-items="ViewBag.SectorList" multiple size="4">
                                                 <option disabled>@Localizer["Select one or more sectors"]</option>
                                             </select>
                                             <small class="text-muted">@Localizer["Hold Ctrl/Cmd to select multiple sectors"]</small>
                                         </div>
                                         <div class="mb-3">
-                                            <label asp-for="Project.ProjectManagerCode" class="form-label">@Localizer["Project Manager"]</label>
-                                            <select asp-for="Project.ProjectManagerCode" class="form-select" asp-items="ViewBag.ProjectManager">
+                                            <label asp-for="ProjectManagerCode" class="form-label">@Localizer["Project Manager"]</label>
+                                            <select asp-for="ProjectManagerCode" class="form-select" asp-items="ViewBag.ProjectManager">
                                                 <option value="">Select Project Manager</option>
                                             </select>
                                         </div>
 
                                         <div class="mb-3">
-                                            <label asp-for="Project.SuperVisorCode" class="form-label">@Localizer["Supervisor"]</label>
-                                            <select asp-for="Project.SuperVisorCode" class="form-select" asp-items="ViewBag.SuperVisor">
+                                            <label asp-for="SuperVisorCode" class="form-label">@Localizer["Supervisor"]</label>
+                                            <select asp-for="SuperVisorCode" class="form-select" asp-items="ViewBag.SuperVisor">
                                                 <option value="">Select Supervisor</option>
                                             </select>
                                         </div>
 
                                         <div class="mb-3">
                                             <label class="form-label">@Localizer["Ministries"]</label>
-                                            <select asp-for="Project.Ministries" class="form-select" asp-items="ViewBag.MinistryList" multiple size="4">
+                                            <select asp-for="Ministries" class="form-select" asp-items="ViewBag.MinistryList" multiple size="4">
                                                 <option disabled>@Localizer["Select one or more ministry"]</option>
                                             </select>
                                             <small class="text-muted">@Localizer["Hold Ctrl/Cmd to select multiple ministry"]</small>
                                         </div>
 
                                         <div class="mb-3">
-                                            <label asp-for="Project.GoalCode" class="form-label">@Localizer["SDGs"]</label>
-                                            <select asp-for="Project.GoalCode" class="form-select" asp-items="ViewBag.Goals">
+                                            <label asp-for="GoalCode" class="form-label">@Localizer["SDGs"]</label>
+                                            <select asp-for="GoalCode" class="form-select" asp-items="ViewBag.Goals">
                                                 <option value="">@Localizer["SDGs"]</option>
                                             </select>
                                         </div>
 
-                                       @*  To Check *@
+                                        @*  To Check *@
                                         <div class="mb-3">
                                             <label class="form-label">@Localizer["Donor"]</label>
-                                            <select asp-for="Project.Donors" class="form-select" asp-items="ViewBag.Donor" multiple size="4">
+                                            <select asp-for="Donors" class="form-select" asp-items="ViewBag.Donor" multiple size="4">
                                                 <option disabled>@Localizer["Select one or more donor"]</option>
                                             </select>
                                             <small class="text-muted">@Localizer["Hold Ctrl/Cmd to select multiple donor"]</small>
@@ -208,21 +201,47 @@
                                     </div>
                                 </div>
 
-                                <!-- Target Measures -->
-                                <div class="card border-0 shadow-sm mb-4">
-                                    <div class="card-header bg-light d-flex justify-content-between align-items-center">
-                                       @*  <h6 class="mb-0">@Localizer["Target Measures"]</h6> *@
-                                        <button type="button" class="btn btn-sm btn-primary" onclick="addMeasureRow()">
-                                            <i class="fas fa-plus"></i> @Localizer["Add Measure"]
-                                        </button>
+                                <!-- Indicators Selection -->
+                                <div class="card mb-4 border-0 shadow-sm">
+                                    <div class="card-header bg-success text-white">
+                                        <h6 class="mb-0">
+                                            <i class="fas fa-bullseye me-2"></i>@Localizer["Project Indicators"]
+                                        </h6>
                                     </div>
                                     <div class="card-body">
-                                        <div id="measures-container">
-                                            <!-- Measure rows will be added here dynamically -->
+                                        <div class="mb-3">
+                                            <label class="form-label">@Localizer["Select Indicators"]</label>
+                                            <select name="SelectedIndicators" class="form-select" multiple size="8" id="indicatorSelect">
+                                                <!-- Will be populated via ViewBag.Indicators -->
+                                                @if (ViewBag.Indicators != null)
+                                                {
+                                                    @foreach (var indicator in ViewBag.Indicators as List<Indicator>)
+                                                    {
+                                                        <option value="@indicator.IndicatorCode" data-target="@indicator.Target">
+                                                            [@indicator.IndicatorCode] @indicator.Name
+                                                            @if (indicator.Target > 0)
+                                                            {
+                                                                <text> (Target: @indicator.Target.ToString("N2"))</text>
+                                                            }
+                                                        </option>
+                                                    }
+                                                }
+                                            </select>
+                                            <small class="text-success">
+                                                <i class="fas fa-info-circle me-1"></i>
+                                                @Localizer["Hold Ctrl/Cmd to select multiple indicators. Selected indicators will be linked to this project for progress tracking."]
+                                            </small>
                                         </div>
-                                    @*     <div class="text-muted small">
-                                            <i class="fas fa-info-circle"></i> @Localizer["Add target measures for your project indicators. These will be used to track project performance."]
-                                        </div> *@
+                                        
+                                        <!-- Selected Indicators Preview -->
+                                        <div id="selectedIndicatorsPreview" class="mt-3" style="display: none;">
+                                            <h6 class="text-success mb-2">
+                                                <i class="fas fa-check-circle me-1"></i>@Localizer["Selected Indicators"]:
+                                            </h6>
+                                            <div id="selectedIndicatorsList" class="border rounded p-2 bg-light">
+                                                <!-- Will be populated by JavaScript -->
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
 
@@ -392,90 +411,48 @@
     }
 
 
-    // Prevent submitting if no locations have been added
-    $('form.needs-validation').on('submit', function (e) {
-      // Make location validation optional for now - users can add locations later
-      // if (selections.length === 0) {
-      //   e.preventDefault();
-      //   showValidationMessage("You must add at least one location before creating the project.");
-      //   return false;
-      // }
-      
-      // Add form submission debugging
-      console.log("=== FORM SUBMISSION DEBUG ===");
-      console.log("Form submitting with selections:", selections.length);
-      
-      // Log form data
-      const formData = new FormData(this);
-      console.log("Form fields:");
-      for (let [key, value] of formData.entries()) {
-        console.log(`${key}: ${value}`);
-      }
-      
-      // Check required fields
-      const projectName = $('[name="Project.ProjectName"]').val();
-      const estimatedBudget = $('[name="Project.EstimatedBudget"]').val();
-      const startDate = $('[name="Project.StartDate"]').val();
-      const endDate = $('[name="Project.EndDate"]').val();
-      
-      console.log("Required fields check:");
-      console.log(`Project Name: '${projectName}'`);
-      console.log(`Estimated Budget: '${estimatedBudget}'`);
-      console.log(`Start Date: '${startDate}'`);
-      console.log(`End Date: '${endDate}'`);
-      console.log("=== END FORM DEBUG ===");
+    // Handle indicator selection preview
+    $("#indicatorSelect").change(function () {
+        const selectedOptions = $(this).find('option:selected');
+        const previewDiv = $("#selectedIndicatorsPreview");
+        const listDiv = $("#selectedIndicatorsList");
+        
+        if (selectedOptions.length > 0) {
+            let html = '<div class="row g-2">';
+            selectedOptions.each(function() {
+                const indicatorCode = $(this).val();
+                const indicatorText = $(this).text();
+                const target = $(this).data('target');
+                
+                html += `
+                    <div class="col-12">
+                        <div class="d-flex justify-content-between align-items-center p-2 border rounded bg-white">
+                            <div>
+                                <span class="badge bg-success me-2">${indicatorCode}</span>
+                                <span class="fw-medium">${indicatorText.split(']')[1]?.trim() || indicatorText}</span>
+                            </div>
+                            ${target > 0 ? `<small class="text-muted">Target: ${parseFloat(target).toFixed(2)}</small>` : ''}
+                        </div>
+                    </div>
+                `;
+            });
+            html += '</div>';
+            
+            listDiv.html(html);
+            previewDiv.show();
+        } else {
+            previewDiv.hide();
+        }
     });
 
-    // Measures Management
-    let measureIndex = 0;
-    const availableIndicators = @Html.Raw(ViewBag.IndicatorsJson ?? "[]");
-    
-    console.log("Available Indicators:", availableIndicators);
-    console.log("Indicators count:", availableIndicators ? availableIndicators.length : 0);
-
-    function addMeasureRow() {
-        const container = document.getElementById('measures-container');
-        
-        // Generate indicator options
-        const indicatorOptions = availableIndicators && availableIndicators.length > 0 
-            ? availableIndicators.map(ind => `<option value="${ind.IndicatorCode || ''}">${ind.Name || 'Unnamed Indicator'}</option>`).join('')
-            : '<option value="">No indicators available</option>';
-        
-        const rowHtml = `
-            <div class="row g-3 align-items-end mb-3" id="measure-row-${measureIndex}">
-                <div class="col-md-3">
-                    <label class="form-label">@Localizer["Date"]</label>
-                    <input name="TargetMeasures[${measureIndex}].Date" type="date" class="form-control" value="${new Date().toISOString().split('T')[0]}" required />
-                </div>
-                <div class="col-md-2">
-                    <label class="form-label">@Localizer["Value"]</label>
-                    <input name="TargetMeasures[${measureIndex}].Value" type="number" step="0.01" min="0.01" class="form-control" required />
-                </div>
-                <div class="col-md-4">
-                    <label class="form-label">@Localizer["Indicator"]</label>
-                    <select name="TargetMeasures[${measureIndex}].IndicatorCode" class="form-select" required>
-                        <option value="">-- @Localizer["Select Indicator"] --</option>
-                        ${indicatorOptions}
-                    </select>
-                </div>
-                <div class="col-md-2">
-                    <button type="button" class="btn btn-outline-danger" onclick="removeMeasureRow(${measureIndex})">
-                        <i class="fas fa-trash"></i>
-                    </button>
-                </div>
-                <input name="TargetMeasures[${measureIndex}].ValueType" type="hidden" value="2" />
-            </div>
-        `;
-        container.insertAdjacentHTML('beforeend', rowHtml);
-        measureIndex++;
-    }
-
-    function removeMeasureRow(index) {
-        const row = document.getElementById(`measure-row-${index}`);
-        if (row) {
-            row.remove();
-        }
-    }
+    // Prevent submitting if no locations have been added
+    $('form.needs-validation').on('submit', function (e) {
+      if (selections.length === 0) {
+        e.preventDefault();
+        showValidationMessage("You must add at least one location before creating the project.");
+        return false;
+      }
+    });
 
 
 </script>

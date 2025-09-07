@@ -45,11 +45,6 @@ namespace MonitoringAndEvaluationPlatform.Data
                 .HasKey(m => m.Code);
 
             modelBuilder.Entity<Measure>()
-                .HasOne(m => m.Project)
-                .WithMany(p => p.Measures)
-                .HasForeignKey(m => m.ProjectID);
-
-            modelBuilder.Entity<Measure>()
                 .HasOne(m => m.Indicator)
                 .WithMany(i => i.Measures)
                 .HasForeignKey(m => m.IndicatorCode);

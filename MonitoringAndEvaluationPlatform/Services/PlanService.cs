@@ -125,10 +125,10 @@ public class PlanService
         // This method recalculates performance for the entire hierarchy and cross-cutting entities
         // Flow: Project → Indicators → SubOutputs → Outputs → Outcomes → Frameworks + Donors/Sectors/Ministries
         
-        // A. Get all affected indicators through measures
-        var affectedIndicatorIds = await _context.Measures
-            .Where(m => m.ProjectID == project.ProjectID)
-            .Select(m => m.IndicatorCode)
+        // A. Get all affected indicators through project indicators
+        var affectedIndicatorIds = await _context.ProjectIndicators
+            .Where(pi => pi.ProjectId == project.ProjectID)
+            .Select(pi => pi.IndicatorCode)
             .Distinct()
             .ToListAsync();
 
@@ -136,13 +136,14 @@ public class PlanService
         var indicatorsToUpdate = await _context.Indicators
             .Where(i => affectedIndicatorIds.Contains(i.IndicatorCode))
             .Include(i => i.Measures)
-                .ThenInclude(m => m.Project)
+            .Include(i => i.ProjectIndicators)
+                .ThenInclude(pi => pi.Project)
             .ToListAsync();
 
         foreach (var indicator in indicatorsToUpdate)
         {
-            // Calculate average DisbursementPerformance from all projects linked to this indicator via Measures
-            var linkedProjects = indicator.Measures.Select(m => m.Project).Where(p => p != null).ToList();
+            // Calculate average DisbursementPerformance from all projects linked to this indicator via ProjectIndicators
+            var linkedProjects = indicator.ProjectIndicators.Select(pi => pi.Project).Where(p => p != null).ToList();
             if (linkedProjects.Any())
             {
                 indicator.DisbursementPerformance = (int)linkedProjects.Average(p => p.DisbursementPerformance);
@@ -326,10 +327,10 @@ public class PlanService
    
     public async Task RecalculatePerformanceAfterProjectDeletion(Project deletedProject)
     {
-        // Get all indicators that were affected by the deleted project through measures
-        var affectedIndicatorIds = await _context.Measures
-            .Where(m => m.ProjectID == deletedProject.ProjectID)
-            .Select(m => m.IndicatorCode)
+        // Get all indicators that were affected by the deleted project through project indicators
+        var affectedIndicatorIds = await _context.ProjectIndicators
+            .Where(pi => pi.ProjectId == deletedProject.ProjectID)
+            .Select(pi => pi.IndicatorCode)
             .Distinct()
             .ToListAsync();
 
@@ -358,13 +359,14 @@ public class PlanService
         var indicatorsToUpdate = await _context.Indicators
             .Where(i => indicatorIds.Contains(i.IndicatorCode))
             .Include(i => i.Measures)
-                .ThenInclude(m => m.Project)
+            .Include(i => i.ProjectIndicators)
+                .ThenInclude(pi => pi.Project)
             .ToListAsync();
 
         foreach (var indicator in indicatorsToUpdate)
         {
-            // Calculate average DisbursementPerformance from all projects linked to this indicator via Measures
-            var linkedProjects = indicator.Measures.Select(m => m.Project).Where(p => p != null).ToList();
+            // Calculate average DisbursementPerformance from all projects linked to this indicator via ProjectIndicators
+            var linkedProjects = indicator.ProjectIndicators.Select(pi => pi.Project).Where(p => p != null).ToList();
             if (linkedProjects.Any())
             {
                 indicator.DisbursementPerformance = (int)linkedProjects.Average(p => p.DisbursementPerformance);
@@ -665,10 +667,10 @@ public class PlanService
         // F. Recalculate Donors, Sectors, Ministries performance (get projects from the deleted indicator's subOutput)
         if (subOutputToUpdate != null)
         {
-            // Get all projects that are linked to indicators in the same subOutput
-            var projectsInSubOutput = await _context.Measures
-                .Where(m => subOutputToUpdate.Indicators.Select(i => i.IndicatorCode).Contains(m.IndicatorCode))
-                .Select(m => m.ProjectID)
+            // Get all projects that are linked to indicators in the same subOutput via ProjectIndicators
+            var projectsInSubOutput = await _context.ProjectIndicators
+                .Where(pi => subOutputToUpdate.Indicators.Select(i => i.IndicatorCode).Contains(pi.IndicatorCode))
+                .Select(pi => pi.ProjectId)
                 .Distinct()
                 .ToListAsync();
 

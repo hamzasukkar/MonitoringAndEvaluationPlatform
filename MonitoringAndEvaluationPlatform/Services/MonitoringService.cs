@@ -16,25 +16,34 @@ public class MonitoringService
     public async Task UpdateProjectPerformance(int ProjectId)
     {
         var project = await _context.Projects
-            .Include(p => p.Measures)
+            .Include(p => p.ProjectIndicators)
+                .ThenInclude(pi => pi.Indicator)
+                    .ThenInclude(i => i.Measures)
             .FirstOrDefaultAsync(p => p.ProjectID == ProjectId);
 
         if (project == null)
             return;
 
-        // Calculate Measures Performance
-        double totalAchieved = project.Measures
-            .Where(m => m.ValueType == MeasureValueType.Real)
-            .Sum(m => m.Value);
+        double totalWeightedAchieved = 0;
+        double totalWeightedTarget = 0;
 
-        double target = project.Measures
-            .Where(m => m.ValueType == MeasureValueType.Target)
-            .Sum(m => m.Value);
+        foreach (var projectIndicator in project.ProjectIndicators)
+        {
+            var indicator = projectIndicator.Indicator;
+            double weight = indicator.Weight > 0 ? indicator.Weight : 1;
+            
+            // Sum all achievements for this indicator
+            double achieved = indicator.Measures.Sum(m => m.Value);
+            
+            // Add to project totals with weighting
+            totalWeightedAchieved += achieved * weight;
+            totalWeightedTarget += indicator.Target * weight;
+        }
 
-        double measuresPerformance = (target > 0) ? (totalAchieved / target) * 100 : 0;
-
-        // Set project performance based on measures only
-        project.performance = measuresPerformance;
+        // Calculate aggregate performance: total achievements vs total targets
+        project.performance = totalWeightedTarget > 0 
+            ? (totalWeightedAchieved / totalWeightedTarget) * 100 
+            : 0;
 
         _context.Projects.Update(project);
         await _context.SaveChangesAsync();
@@ -45,23 +54,81 @@ public class MonitoringService
     {
         var indicator = await _context.Indicators
             .Include(i => i.Measures)
+            .Include(i => i.ProjectIndicators)
+                .ThenInclude(pi => pi.Project)
             .FirstOrDefaultAsync(i => i.IndicatorCode == indicatorId);
 
         if (indicator == null)
             throw new Exception("Indicator not found");
 
-        double totalAchieved = indicator.Measures
-            .Where(m => m.ValueType == MeasureValueType.Real)
-            .Sum(m => m.Value); // Sum of all real measure values
-
-        double target = indicator.Target;
-
-        indicator.IndicatorsPerformance = (target > 0) ? (totalAchieved / target) * 100 : 0;
+        // Calculate performance using the static helper method
+        indicator.IndicatorsPerformance = CalculateIndicatorPerformanceFromMeasures(indicator);
 
         _context.Indicators.Update(indicator);
+        
+        // Update SubOutput performance (existing functionality)
         await UpdateSubOutputPerformance(indicator.SubOutputCode);
+        
+        // NEW: Update performance for all projects linked to this indicator
+        var projectIds = indicator.ProjectIndicators.Select(pi => pi.ProjectId).Distinct().ToList();
+        
+        foreach (var projectId in projectIds)
+        {
+            // Update project performance
+            await UpdateProjectPerformance(projectId);
+            
+            // Get the project to update its associated ministries, sectors, and donors
+            var project = await _context.Projects
+                .Include(p => p.Ministries)
+                .Include(p => p.Sectors)
+                .Include(p => p.Donors)
+                .FirstOrDefaultAsync(p => p.ProjectID == projectId);
+
+            if (project != null)
+            {
+                // Update ministry performance for each ministry linked to this project
+                foreach (var ministry in project.Ministries)
+                {
+                    await UpdateMinistryPerformanceByMinistryCode(ministry.Code);
+                }
+                
+                // Update sector performance for each sector linked to this project
+                foreach (var sector in project.Sectors)
+                {
+                    await UpdateSectorPerformanceBySectorId(sector.Code);
+                }
+                
+                // Update donor performance for each donor linked to this project
+                foreach (var donor in project.Donors)
+                {
+                    await UpdateDonorPerformanceByDonorCode(donor.Code);
+                }
+            }
+        }
        
         await _context.SaveChangesAsync();
+    }
+
+    /// <summary>
+    /// Calculate performance for an indicator based on its measures against the indicator's target
+    /// </summary>
+    /// <param name="indicator">The indicator with loaded measures</param>
+    /// <returns>Performance percentage (0-100+)</returns>
+    public static double CalculateIndicatorPerformanceFromMeasures(Indicator indicator)
+    {
+        if (indicator?.Measures == null || indicator.Target <= 0)
+            return 0;
+
+        // Calculate total achieved from all measures (only Real measures exist now)
+        double totalAchieved = indicator.Measures.Sum(m => m.Value);
+
+        // Use the indicator's target as the baseline
+        double target = indicator.Target;
+
+        // Calculate performance percentage
+        double performance = (totalAchieved / target) * 100;
+        
+        return Math.Round(performance, 2);
     }
 
     public async Task UpdateMinistryPerformance(int projectId)
@@ -77,34 +144,38 @@ public class MonitoringService
         // 2) For each ministry linked to this project, recalc performance:
         foreach (var ministry in project.Ministries)
         {
-            double totalMinistryTarget = 0;
-            double totalMinistryReal = 0;
+            double totalWeightedAchieved = 0;
+            double totalWeightedTarget = 0;
 
-            // 2a) Find all projects that belong to this same ministry, and include their Measures
+            // 2a) Find all projects that belong to this same ministry, and include their Measures through indicators
             var ministryProjects = await _context.Projects
                 .Where(p => p.Ministries.Any(m => m.Code == ministry.Code))
-                .Include(p => p.Measures)
+                .Include(p => p.ProjectIndicators)
+                    .ThenInclude(pi => pi.Indicator)
+                        .ThenInclude(i => i.Measures)
                 .ToListAsync();
 
-            // 2b) Sum up Target/Real values from each Measure on those projects
+            // 2b) Aggregate achievements and targets with proper weighting
             foreach (var ministryProject in ministryProjects)
             {
-                foreach (var measure in ministryProject.Measures)
+                foreach (var projectIndicator in ministryProject.ProjectIndicators)
                 {
-                    if (measure.ValueType == MeasureValueType.Real)
-                        totalMinistryReal += measure.Value;
-                    else if (measure.ValueType == MeasureValueType.Target)
-                        totalMinistryTarget += measure.Value;
+                    var indicator = projectIndicator.Indicator;
+                    double weight = indicator.Weight > 0 ? indicator.Weight : 1;
+                    
+                    double achieved = indicator.Measures.Sum(m => m.Value);
+                    
+                    totalWeightedAchieved += achieved * weight;
+                    totalWeightedTarget += indicator.Target * weight;
                 }
             }
 
-            // 2c) Compute performance percentage (or zero if no targets)
-            ministry.IndicatorsPerformance = (totalMinistryTarget > 0)
-                ? (totalMinistryReal / totalMinistryTarget) * 100
+            // 2c) Compute aggregate performance percentage
+            ministry.IndicatorsPerformance = (totalWeightedTarget > 0)
+                ? (totalWeightedAchieved / totalWeightedTarget) * 100
                 : 0;
 
             // EF Core is already tracking 'ministry' because it came in via Include(p => p.Ministries).
-            // No need to call _context.Ministries.Update(ministry) explicitly.
         }
 
         // 3) Persist all ministry changes at once
@@ -124,30 +195,35 @@ public class MonitoringService
         // 2) For each sector linked to this project, recalc performance:
         foreach (var sector in project.Sectors)
         {
-            double totalSectorTarget = 0;
-            double totalSectorReal = 0;
+            double totalWeightedAchieved = 0;
+            double totalWeightedTarget = 0;
 
-            // 2a) Find all projects that belong to this same sector, and include their Measures
+            // 2a) Find all projects that belong to this same sector, and include their Measures through indicators
             var sectorProjects = await _context.Projects
                 .Where(p => p.Sectors.Any(s => s.Code == sector.Code))
-                .Include(p => p.Measures)
+                .Include(p => p.ProjectIndicators)
+                    .ThenInclude(pi => pi.Indicator)
+                        .ThenInclude(i => i.Measures)
                 .ToListAsync();
 
-            // 2b) Sum up Target/Real values from each Measure on those projects
+            // 2b) Aggregate achievements and targets with proper weighting
             foreach (var sectorProject in sectorProjects)
             {
-                foreach (var measure in sectorProject.Measures)
+                foreach (var projectIndicator in sectorProject.ProjectIndicators)
                 {
-                    if (measure.ValueType == MeasureValueType.Real)
-                        totalSectorReal += measure.Value;
-                    else if (measure.ValueType == MeasureValueType.Target)
-                        totalSectorTarget += measure.Value;
+                    var indicator = projectIndicator.Indicator;
+                    double weight = indicator.Weight > 0 ? indicator.Weight : 1;
+                    
+                    double achieved = indicator.Measures.Sum(m => m.Value);
+                    
+                    totalWeightedAchieved += achieved * weight;
+                    totalWeightedTarget += indicator.Target * weight;
                 }
             }
 
-            // 2c) Compute performance percentage (or zero if no targets)
-            sector.IndicatorsPerformance = (totalSectorTarget > 0)
-                ? (totalSectorReal / totalSectorTarget) * 100
+            // 2c) Compute aggregate performance percentage
+            sector.IndicatorsPerformance = (totalWeightedTarget > 0)
+                ? (totalWeightedAchieved / totalWeightedTarget) * 100
                 : 0;
         }
 
@@ -171,34 +247,38 @@ public class MonitoringService
         // 2) For each donor linked to this project, recalc performance:
         foreach (var donor in project.Donors)
         {
-            double totalDonorTarget = 0;
-            double totalDonorReal = 0;
+            double totalWeightedAchieved = 0;
+            double totalWeightedTarget = 0;
 
-            // 2a) Find all projects that belong to this same donor, and include their Measures
+            // 2a) Find all projects that belong to this same donor, and include their Measures through indicators
             var donorProjects = await _context.Projects
                 .Where(p => p.Donors.Any(d => d.Code == donor.Code))
-                .Include(p => p.Measures)
+                .Include(p => p.ProjectIndicators)
+                    .ThenInclude(pi => pi.Indicator)
+                        .ThenInclude(i => i.Measures)
                 .ToListAsync();
 
-            // 2b) Sum up Target/Real values from each Measure on those projects
+            // 2b) Aggregate achievements and targets with proper weighting
             foreach (var donorProject in donorProjects)
             {
-                foreach (var measure in donorProject.Measures)
+                foreach (var projectIndicator in donorProject.ProjectIndicators)
                 {
-                    if (measure.ValueType == MeasureValueType.Real)
-                        totalDonorReal += measure.Value;
-                    else if (measure.ValueType == MeasureValueType.Target)
-                        totalDonorTarget += measure.Value;
+                    var indicator = projectIndicator.Indicator;
+                    double weight = indicator.Weight > 0 ? indicator.Weight : 1;
+                    
+                    double achieved = indicator.Measures.Sum(m => m.Value);
+                    
+                    totalWeightedAchieved += achieved * weight;
+                    totalWeightedTarget += indicator.Target * weight;
                 }
             }
 
-            // 2c) Compute performance percentage (or zero if no targets)
-            donor.IndicatorsPerformance = (totalDonorTarget > 0)
-                ? (totalDonorReal / totalDonorTarget) * 100
+            // 2c) Compute aggregate performance percentage
+            donor.IndicatorsPerformance = (totalWeightedTarget > 0)
+                ? (totalWeightedAchieved / totalWeightedTarget) * 100
                 : 0;
 
             // EF Core is already tracking 'donor' because it came in via Include(p => p.Donors).
-            // No need to call _context.Donors.Update(donor) explicitly.
         }
 
         // 3) Persist all donor changes at once
@@ -212,7 +292,9 @@ public class MonitoringService
     {
         var donor = await _context.Donors
             .Include(d => d.Projects)
-                .ThenInclude(p => p.Measures)
+                .ThenInclude(p => p.ProjectIndicators)
+                    .ThenInclude(pi => pi.Indicator)
+                        .ThenInclude(i => i.Measures)
             .FirstOrDefaultAsync(d => d.Code == donorCode);
 
         if (donor == null)
@@ -223,12 +305,15 @@ public class MonitoringService
 
         foreach (var proj in donor.Projects)
         {
-            foreach (var measure in proj.Measures)
+            foreach (var projectIndicator in proj.ProjectIndicators)
             {
-                if (measure.ValueType == MeasureValueType.Real)
-                    totalReal += measure.Value;
-                else if (measure.ValueType == MeasureValueType.Target)
-                    totalTarget += measure.Value;
+                var indicator = projectIndicator.Indicator;
+                double weight = indicator.Weight > 0 ? indicator.Weight : 1;
+                
+                double achieved = indicator.Measures.Sum(m => m.Value);
+                
+                totalReal += achieved * weight;
+                totalTarget += indicator.Target * weight;
             }
         }
 
@@ -318,11 +403,10 @@ public class MonitoringService
     }
 
 
-    public async Task AddMeasureToProject(int projectId, int indicatorId, double value, MeasureValueType valueType)
+    public async Task AddMeasureToIndicator(int indicatorId, double value, MeasureValueType valueType)
     {
         var measure = new Measure
         {
-            ProjectID = projectId,
             IndicatorCode = indicatorId,
             Value = value,
             ValueType = valueType,
@@ -332,19 +416,16 @@ public class MonitoringService
         _context.Measures.Add(measure);
         await _context.SaveChangesAsync();
 
-        if (valueType == MeasureValueType.Real)
-        {
-            await UpdateIndicatorPerformance(indicatorId);
-            await UpdateProjectPerformance(projectId);
-            await UpdateMinistryPerformance(projectId);
-            await UpdateSectorPerformance(projectId);
-            await UpdateDonorPerformance(projectId);
-        }
+        // Update indicator performance and cascade up the hierarchy
+        await UpdateIndicatorPerformance(indicatorId);
     }
 
     public async Task DeleteMeasureAndRecalculateAsync(int measureCode)
     {
         var measure = await _context.Measures
+            .Include(m => m.Indicator)
+                .ThenInclude(i => i.ProjectIndicators)
+                    .ThenInclude(pi => pi.Project)
             .AsNoTracking()
             .FirstOrDefaultAsync(m => m.Code == measureCode);
 
@@ -352,16 +433,25 @@ public class MonitoringService
             throw new InvalidOperationException($"Measure with code {measureCode} not found.");
 
         var indicatorId = measure.IndicatorCode;
-        var projectId = measure.ProjectID;
+        // Get all projects related to this measure through indicators
+        var projectIds = measure.Indicator.ProjectIndicators
+            .Select(pi => pi.ProjectId)
+            .Distinct()
+            .ToList();
 
         _context.Measures.Remove(measure);
         await _context.SaveChangesAsync();
 
         await UpdateIndicatorPerformance(indicatorId);
-        await UpdateProjectPerformance(projectId);
-        await UpdateMinistryPerformance(projectId);
-        await UpdateSectorPerformance(projectId);
-        await UpdateDonorPerformance(projectId);
+        
+        // Update performance for all related projects
+        foreach (var projectId in projectIds)
+        {
+            await UpdateProjectPerformance(projectId);
+            await UpdateMinistryPerformance(projectId);
+            await UpdateSectorPerformance(projectId);
+            await UpdateDonorPerformance(projectId);
+        }
     }
 
     /// <summary>
@@ -369,9 +459,11 @@ public class MonitoringService
     /// </summary>
     public async Task DeleteProjectAndRecalculateAsync(int projectId)
     {
-        // 1. Load project with related Measures and Ministries
+        // 1. Load project with related indicators and ministries
         var project = await _context.Projects
-            .Include(p => p.Measures)
+            .Include(p => p.ProjectIndicators)
+                .ThenInclude(pi => pi.Indicator)
+                    .ThenInclude(i => i.Measures)
             .Include(p => p.Ministries)
             .Include(p => p.Sectors)
             .Include(p => p.Donors)
@@ -381,7 +473,7 @@ public class MonitoringService
             throw new InvalidOperationException($"Project with ID {projectId} not found.");
 
         // 2. Capture related IDs
-        var indicatorIds = project.Measures.Select(m => m.IndicatorCode).Distinct().ToList();
+        var indicatorIds = project.ProjectIndicators.Select(pi => pi.IndicatorCode).Distinct().ToList();
         var ministryCodes = project.Ministries.Select(m => m.Code).Distinct().ToList();
         var sectorIds = project.Sectors.Select(s => s.Code).Distinct().ToList();
         var donorCodes = project.Donors.Select(d => d.Code).Distinct().ToList();
@@ -421,7 +513,9 @@ public class MonitoringService
     {
         var ministry = await _context.Ministries
             .Include(m => m.Projects)
-                .ThenInclude(p => p.Measures)
+                .ThenInclude(p => p.ProjectIndicators)
+                    .ThenInclude(pi => pi.Indicator)
+                        .ThenInclude(i => i.Measures)
             .FirstOrDefaultAsync(m => m.Code == ministryCode);
 
         if (ministry == null)
@@ -432,12 +526,15 @@ public class MonitoringService
 
         foreach (var proj in ministry.Projects)
         {
-            foreach (var measure in proj.Measures)
+            foreach (var projectIndicator in proj.ProjectIndicators)
             {
-                if (measure.ValueType == MeasureValueType.Real)
-                    totalReal += measure.Value;
-                else if (measure.ValueType == MeasureValueType.Target)
-                    totalTarget += measure.Value;
+                var indicator = projectIndicator.Indicator;
+                double weight = indicator.Weight > 0 ? indicator.Weight : 1;
+                
+                double achieved = indicator.Measures.Sum(m => m.Value);
+                
+                totalReal += achieved * weight;
+                totalTarget += indicator.Target * weight;
             }
         }
 
@@ -453,7 +550,9 @@ public class MonitoringService
     {
         var sector = await _context.Sectors
             .Include(s => s.Projects)
-                .ThenInclude(p => p.Measures)
+                .ThenInclude(p => p.ProjectIndicators)
+                    .ThenInclude(pi => pi.Indicator)
+                        .ThenInclude(i => i.Measures)
             .FirstOrDefaultAsync(s => s.Code == sectorId);
 
         if (sector == null)
@@ -464,12 +563,15 @@ public class MonitoringService
 
         foreach (var proj in sector.Projects)
         {
-            foreach (var measure in proj.Measures)
+            foreach (var projectIndicator in proj.ProjectIndicators)
             {
-                if (measure.ValueType == MeasureValueType.Real)
-                    totalReal += measure.Value;
-                else if (measure.ValueType == MeasureValueType.Target)
-                    totalTarget += measure.Value;
+                var indicator = projectIndicator.Indicator;
+                double weight = indicator.Weight > 0 ? indicator.Weight : 1;
+                
+                double achieved = indicator.Measures.Sum(m => m.Value);
+                
+                totalReal += achieved * weight;
+                totalTarget += indicator.Target * weight;
             }
         }
 

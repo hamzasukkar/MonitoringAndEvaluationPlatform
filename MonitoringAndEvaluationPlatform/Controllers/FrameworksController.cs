@@ -67,8 +67,8 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                         o.Outputs.Any(op =>
                             op.SubOutputs.Any(so =>
                                 so.Indicators.Any(i =>
-                                    i.Measures.Any(m =>
-                                        m.Project.Ministries.Any(min => filter.SelectedMinistries.Contains(min.Code))))))));
+                                    i.ProjectIndicators.Any(pi =>
+                                        pi.Project.Ministries.Any(min => filter.SelectedMinistries.Contains(min.Code))))))));
             }
 
             if (filter.SelectedDonors != null && filter.SelectedDonors.Any())
@@ -78,8 +78,8 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                         o.Outputs.Any(op =>
                             op.SubOutputs.Any(so =>
                                 so.Indicators.Any(i =>
-                                    i.Measures.Any(m =>
-                                        m.Project.Donors.Any(don => filter.SelectedDonors.Contains(don.Code))))))));
+                                    i.ProjectIndicators.Any(pi =>
+                                        pi.Project.Donors.Any(don => filter.SelectedDonors.Contains(don.Code))))))));
             }
 
             if (filter.SelectedSector != null && filter.SelectedSector.Any())
@@ -89,8 +89,8 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                         o.Outputs.Any(op =>
                             op.SubOutputs.Any(so =>
                                 so.Indicators.Any(i =>
-                                    i.Measures.Any(m =>
-                                        m.Project.Sectors.Any(sec => filter.SelectedSector.Contains(sec.Code))))))));
+                                    i.ProjectIndicators.Any(pi =>
+                                        pi.Project.Sectors.Any(sec => filter.SelectedSector.Contains(sec.Code))))))));
             }
 
             // Apply sorting logic
