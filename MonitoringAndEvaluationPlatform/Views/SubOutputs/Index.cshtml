@@ -9,6 +9,11 @@
 }
 
 <div class="container-fluid">
+    @{
+        ViewData["breadcrumbLevel"] = "suboutput";
+    }
+    @await Html.PartialAsync("_HierarchyBreadcrumb")
+    
     <div class="d-flex justify-content-between align-items-center mb-4">
         <div>
             <h4 class="mb-0">@Localizer["SubOutputs Management"]</h4>

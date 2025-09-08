@@ -1,0 +1,162 @@
+@using Microsoft.AspNetCore.Mvc.Localization
+@using MonitoringAndEvaluationPlatform.Models
+@using Microsoft.EntityFrameworkCore
+@inject IViewLocalizer Localizer
+@inject MonitoringAndEvaluationPlatform.Data.ApplicationDbContext Context
+
+@{
+    var frameworkCode = ViewData["frameworkCode"] as int?;
+    var outcomeCode = ViewData["outcomeCode"] as int?;
+    var outputCode = ViewData["outputCode"] as int?;
+    var subOutputCode = ViewData["subOutputCode"] as int?;
+    var currentLevel = ViewData["breadcrumbLevel"] as string ?? "";
+
+    Framework framework = null;
+    Outcome outcome = null;
+    Output output = null;
+    SubOutput subOutput = null;
+
+    // Get hierarchy data based on available parameters
+    if (subOutputCode.HasValue)
+    {
+        subOutput = await Context.SubOutputs
+            .Include(s => s.Output)
+                .ThenInclude(o => o.Outcome)
+                .ThenInclude(oc => oc.Framework)
+            .FirstOrDefaultAsync(s => s.Code == subOutputCode.Value);
+        
+        if (subOutput != null)
+        {
+            output = subOutput.Output;
+            outcome = output?.Outcome;
+            framework = outcome?.Framework;
+        }
+    }
+    else if (outputCode.HasValue)
+    {
+        output = await Context.Outputs
+            .Include(o => o.Outcome)
+                .ThenInclude(oc => oc.Framework)
+            .FirstOrDefaultAsync(o => o.Code == outputCode.Value);
+        
+        if (output != null)
+        {
+            outcome = output.Outcome;
+            framework = outcome?.Framework;
+        }
+    }
+    else if (outcomeCode.HasValue)
+    {
+        outcome = await Context.Outcomes
+            .Include(oc => oc.Framework)
+            .FirstOrDefaultAsync(oc => oc.Code == outcomeCode.Value);
+        
+        if (outcome != null)
+        {
+            framework = outcome.Framework;
+        }
+    }
+    else if (frameworkCode.HasValue)
+    {
+        framework = await Context.Frameworks
+            .FirstOrDefaultAsync(f => f.Code == frameworkCode.Value);
+    }
+}
+
+@if (framework != null)
+{
+    <nav aria-label="breadcrumb" class="mb-3">
+        <ol class="breadcrumb bg-light p-2 rounded">
+            <!-- Framework Level -->
+            <li class="breadcrumb-item">
+                <a href="@Url.Action("Index", "Frameworks")" class="text-decoration-none">
+                    <i class="fas fa-home me-1"></i>@Localizer["Frameworks"]
+                </a>
+            </li>
+            
+            @if (currentLevel != "framework")
+            {
+                <li class="breadcrumb-item">
+                    <a href="@Url.Action("Index", "Outcomes", new { frameworkCode = framework.Code })" 
+                       class="text-decoration-none text-primary">
+                        @framework.Name
+                    </a>
+                </li>
+            }
+            else
+            {
+                <li class="breadcrumb-item active" aria-current="page">
+                    <strong>@framework.Name</strong>
+                </li>
+            }
+
+            <!-- Outcome Level -->
+            @if (outcome != null)
+            {
+                @if (currentLevel != "outcome")
+                {
+                    <li class="breadcrumb-item">
+                        <a href="@Url.Action("Index", "Outputs", new { frameworkCode = framework.Code, outcomeCode = outcome.Code })" 
+                           class="text-decoration-none text-primary">
+                            @outcome.Name
+                        </a>
+                    </li>
+                }
+                else
+                {
+                    <li class="breadcrumb-item active" aria-current="page">
+                        <strong>@outcome.Name</strong>
+                    </li>
+                }
+            }
+
+            <!-- Output Level -->
+            @if (output != null)
+            {
+                @if (currentLevel != "output")
+                {
+                    <li class="breadcrumb-item">
+                        <a href="@Url.Action("Index", "SubOutputs", new { frameworkCode = framework.Code, outputCode = output.Code })" 
+                           class="text-decoration-none text-primary">
+                            @output.Name
+                        </a>
+                    </li>
+                }
+                else
+                {
+                    <li class="breadcrumb-item active" aria-current="page">
+                        <strong>@output.Name</strong>
+                    </li>
+                }
+            }
+
+            <!-- SubOutput Level -->
+            @if (subOutput != null)
+            {
+                @if (currentLevel != "suboutput")
+                {
+                    <li class="breadcrumb-item">
+                        <a href="@Url.Action("Index", "Indicators", new { frameworkCode = framework.Code, subOutputCode = subOutput.Code })" 
+                           class="text-decoration-none text-primary">
+                            @subOutput.Name
+                        </a>
+                    </li>
+                }
+                else
+                {
+                    <li class="breadcrumb-item active" aria-current="page">
+                        <strong>@subOutput.Name</strong>
+                    </li>
+                }
+            }
+
+            <!-- Indicators Level -->
+            @if (currentLevel == "indicators")
+            {
+                <li class="breadcrumb-item active" aria-current="page">
+                    <i class="fas fa-chart-line me-1"></i><strong>@Localizer["Indicators"]</strong>
+                </li>
+            }
+        </ol>
+    </nav>
+}

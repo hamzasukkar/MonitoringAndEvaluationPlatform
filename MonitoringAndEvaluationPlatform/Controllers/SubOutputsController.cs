@@ -54,6 +54,10 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 return NotFound();
             }
 
+            // Set ViewData for breadcrumb
+            ViewData["frameworkCode"] = frameworkCode;
+            ViewData["outputCode"] = outputCode;
+
             return View(subOutputs);
         }
 

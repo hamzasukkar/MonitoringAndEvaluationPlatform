@@ -27,9 +27,9 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         // GET: Indicators
         public async Task<IActionResult> Index(int? frameworkCode, int? subOutputCode, string searchString)
         {
-            @ViewData["CurrentFilter"] = searchString;
-            @ViewData["subOutputCode"] = subOutputCode;
-            @ViewData["frameworkCode"] = frameworkCode;
+            ViewData["CurrentFilter"] = searchString;
+            ViewData["subOutputCode"] = subOutputCode;
+            ViewData["frameworkCode"] = frameworkCode;
 
             if (frameworkCode == null)
             {

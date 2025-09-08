@@ -10,6 +10,11 @@
 }
 
 <div class="container-fluid">
+    @{
+        ViewData["breadcrumbLevel"] = "output";
+    }
+    @await Html.PartialAsync("_HierarchyBreadcrumb")
+    
     <div class="mb-4">
         <h4>@Localizer["Outputs Management"]</h4>
         <p class="text-muted">@Localizer["Add new outputs and monitor performance"]</p>

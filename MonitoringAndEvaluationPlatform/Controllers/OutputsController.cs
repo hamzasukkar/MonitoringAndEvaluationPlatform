@@ -51,6 +51,10 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             // Execute the query
             var outputs = await query.ToListAsync();
 
+            // Set ViewData for breadcrumb
+            ViewData["frameworkCode"] = frameworkCode;
+            ViewData["outcomeCode"] = outcomeCode;
+
             return View(outputs);
         }
 
