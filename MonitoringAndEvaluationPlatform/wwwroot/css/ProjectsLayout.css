@@ -103,6 +103,8 @@ body.rtl .topbar {
     color: var(--accent-gold-color); /* Gold for the title */
 }
 
+/* Theme dropdown styling is now handled by the partial view */
+
 .nav-links .nav {
     display: flex;
     list-style: none;

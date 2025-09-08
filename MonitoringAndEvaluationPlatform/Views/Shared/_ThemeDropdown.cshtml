@@ -1,0 +1,248 @@
+@using Microsoft.AspNetCore.Mvc.Localization
+@inject IViewLocalizer Localizer
+
+<!-- Beautiful Theme Dropdown -->
+<div class="theme-dropdown-container">
+    <div class="dropdown">
+        <button class="btn btn-outline-light dropdown-toggle theme-dropdown-btn" type="button" id="themeDropdownButton" data-bs-toggle="dropdown" aria-expanded="false">
+            <i class="fas fa-palette me-2"></i>
+            <span class="d-none d-md-inline">@Localizer["Theme"]</span>
+        </button>
+    <div class="dropdown-menu dropdown-menu-end theme-dropdown-menu" aria-labelledby="themeDropdown">
+        <div class="dropdown-header d-flex align-items-center">
+            <i class="fas fa-paint-brush me-2"></i>
+            @Localizer["Choose Theme"]
+        </div>
+        <div class="dropdown-divider"></div>
+        
+        <div class="theme-option" data-theme="default">
+            <div class="theme-preview">
+                <div class="theme-colors">
+                    <div class="color-circle" style="background-color: #1A3B33;"></div>
+                    <div class="color-circle" style="background-color: #C8A85F;"></div>
+                    <div class="color-circle" style="background-color: #2A4C44;"></div>
+                </div>
+                <div class="theme-info">
+                    <div class="theme-name">@Localizer["Default Theme"]</div>
+                    <div class="theme-description">@Localizer["Original dark green & gold"]</div>
+                </div>
+            </div>
+            <div class="theme-check">
+                <i class="fas fa-check"></i>
+            </div>
+        </div>
+
+        <div class="theme-option" data-theme="calm-blue">
+            <div class="theme-preview">
+                <div class="theme-colors">
+                    <div class="color-circle" style="background-color: #4a90b8;"></div>
+                    <div class="color-circle" style="background-color: #708090;"></div>
+                    <div class="color-circle" style="background-color: #f8fafc;"></div>
+                </div>
+                <div class="theme-info">
+                    <div class="theme-name">@Localizer["Calm Blue"]</div>
+                    <div class="theme-description">@Localizer["Soothing blues & grays"]</div>
+                </div>
+            </div>
+            <div class="theme-check">
+                <i class="fas fa-check"></i>
+            </div>
+        </div>
+
+        <div class="theme-option" data-theme="alternative">
+            <div class="theme-preview">
+                <div class="theme-colors">
+                    <div class="color-circle" style="background-color: #8b7355;"></div>
+                    <div class="color-circle" style="background-color: #7a8471;"></div>
+                    <div class="color-circle" style="background-color: #faf9f7;"></div>
+                </div>
+                <div class="theme-info">
+                    <div class="theme-name">@Localizer["Earth Tones"]</div>
+                    <div class="theme-description">@Localizer["Warm earth & sage"]</div>
+                </div>
+            </div>
+            <div class="theme-check">
+                <i class="fas fa-check"></i>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.theme-dropdown-container {
+    display: inline-block;
+}
+
+.theme-dropdown-btn {
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    color: var(--text-white, #fff);
+    background: transparent;
+    transition: all 0.2s ease;
+}
+
+.theme-dropdown-btn:hover {
+    background: rgba(255, 255, 255, 0.1);
+    border-color: rgba(255, 255, 255, 0.5);
+    color: var(--text-white, #fff);
+}
+
+.theme-dropdown-btn:focus {
+    box-shadow: 0 0 0 0.2rem rgba(255, 255, 255, 0.25);
+}
+
+.theme-dropdown-menu {
+    min-width: 280px;
+    padding: 0.5rem 0;
+    border: none;
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
+    border-radius: 12px;
+    background: var(--bg-body);
+    z-index: 1050;
+}
+
+.theme-dropdown-menu .dropdown-header {
+    padding: 0.75rem 1rem;
+    font-weight: 600;
+    font-size: 0.9rem;
+    color: var(--text-primary);
+    background: transparent;
+}
+
+.theme-option {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.75rem 1rem;
+    margin: 0.25rem 0.5rem;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    border: 2px solid transparent;
+}
+
+.theme-option:hover {
+    background-color: var(--bg-secondary);
+    transform: translateX(2px);
+}
+
+.theme-option.active {
+    background-color: rgba(var(--primary-color-rgb, 13, 110, 253), 0.1);
+    border-color: var(--primary-color);
+}
+
+.theme-preview {
+    display: flex;
+    align-items: center;
+    flex: 1;
+}
+
+.theme-colors {
+    display: flex;
+    margin-right: 0.75rem;
+    margin-left: 0;
+}
+
+[dir="rtl"] .theme-colors {
+    margin-right: 0;
+    margin-left: 0.75rem;
+}
+
+.color-circle {
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    margin-right: 0.25rem;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+}
+
+[dir="rtl"] .color-circle {
+    margin-right: 0;
+    margin-left: 0.25rem;
+}
+
+.color-circle:last-child {
+    margin-right: 0;
+    margin-left: 0;
+}
+
+.theme-info {
+    flex: 1;
+}
+
+.theme-name {
+    font-weight: 600;
+    font-size: 0.9rem;
+    color: var(--text-primary);
+    margin-bottom: 0.125rem;
+}
+
+.theme-description {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+}
+
+.theme-check {
+    opacity: 0;
+    transition: opacity 0.2s ease;
+    color: var(--success-color);
+}
+
+.theme-option.active .theme-check {
+    opacity: 1;
+}
+
+/* Theme-specific dropdown styling */
+[data-theme="default"] .theme-dropdown-menu {
+    background: var(--secondary-card-background);
+    border: 1px solid var(--border-color);
+}
+
+[data-theme="calm-blue"] .theme-dropdown-menu {
+    background: var(--bg-body);
+    border: 1px solid var(--border-color);
+}
+
+[data-theme="alternative"] .theme-dropdown-menu {
+    background: var(--bg-body);
+    border: 1px solid var(--border-color);
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const themeOptions = document.querySelectorAll('.theme-option');
+    const currentTheme = localStorage.getItem('selected-theme') || 'default';
+    
+    // Set initial active theme
+    updateActiveTheme(currentTheme);
+    
+    themeOptions.forEach(option => {
+        option.addEventListener('click', function() {
+            const selectedTheme = this.getAttribute('data-theme');
+            
+            // Update theme
+            document.documentElement.setAttribute('data-theme', selectedTheme);
+            localStorage.setItem('selected-theme', selectedTheme);
+            
+            // Update active state
+            updateActiveTheme(selectedTheme);
+            
+            // Close dropdown
+            const dropdown = bootstrap.Dropdown.getInstance(document.getElementById('themeDropdownButton'));
+            if (dropdown) {
+                dropdown.hide();
+            }
+        });
+    });
+    
+    function updateActiveTheme(theme) {
+        themeOptions.forEach(option => {
+            option.classList.remove('active');
+            if (option.getAttribute('data-theme') === theme) {
+                option.classList.add('active');
+            }
+        });
+    }
+});
+</script>

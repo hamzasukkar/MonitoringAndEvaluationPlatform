@@ -27,6 +27,9 @@
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/css/all.min.css" />
     <link rel="stylesheet" href="~/css/ResultsFrameworkLayout.css" />
+    <link rel="stylesheet" href="~/css/themes/theme-default.css" />
+    <link rel="stylesheet" href="~/css/themes/theme-calm-blue.css" />
+    <link rel="stylesheet" href="~/css/themes/theme-alternative.css" />
     <style>
         .has-performance {
             background-color: #007bff !important; /* أزرق أنيق */
@@ -236,6 +239,7 @@
                             }
                         </ul>
                     </li>
+                    @await Html.PartialAsync("_NavThemeDropdown")
                     <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                             @* <img class="rounded-circle me-2" width="28" height="28" src="~/img/profile.jpeg" /> *@
@@ -362,6 +366,7 @@
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
+    <script src="~/js/theme-switcher.js" asp-append-version="true"></script>
     <script src="~/js/jstree.min.js"></script>
     <script src="~/js/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns@3"></script>

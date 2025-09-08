@@ -1,0 +1,322 @@
+/* ===== CALM BLUE THEME ===== */
+/* Beautiful blue and gray color scheme */
+
+:root[data-theme="calm-blue"] {
+    /* Primary Colors - Calm Blues */
+    --primary-color: #4a90b8;
+    --primary-dark: #396b8d;
+    --primary-light: #7bb0d1;
+    
+    /* Secondary Colors - Soft Grays */
+    --secondary-color: #708090;
+    --secondary-dark: #5a6b75;
+    --secondary-light: #9fb0bb;
+    
+    /* Success Colors */
+    --success-color: #5cb85c;
+    --success-dark: #449d44;
+    --success-light: #7cc87c;
+    
+    /* Danger Colors */
+    --danger-color: #d9534f;
+    --danger-dark: #c9302c;
+    --danger-light: #e4888a;
+    
+    /* Warning Colors */
+    --warning-color: #f0ad4e;
+    --warning-dark: #eea236;
+    --warning-light: #f5c275;
+    
+    /* Info Colors */
+    --info-color: #5bc0de;
+    --info-dark: #46b8da;
+    --info-light: #85d1e6;
+    
+    /* Background Colors - Soft Blue-Gray Palette */
+    --bg-body: #f8fafc;
+    --bg-secondary: #e8f2f7;
+    --bg-tertiary: #d4e6f0;
+    --bg-dark: #2c3e50;
+    
+    /* Text Colors */
+    --text-primary: #2c3e50;
+    --text-secondary: #5a6b75;
+    --text-muted: #7a8a96;
+    --text-white: #ffffff;
+    
+    /* Border Colors */
+    --border-color: #b8d4e3;
+    --border-color-translucent: rgba(74, 144, 184, 0.15);
+    
+    /* Shadow - Soft Blue Tints */
+    --box-shadow: 0 .125rem .25rem rgba(44, 62, 80, 0.08);
+    --box-shadow-sm: 0 .125rem .25rem rgba(44, 62, 80, 0.08);
+    --box-shadow-lg: 0 1rem 3rem rgba(44, 62, 80, 0.12);
+    
+    /* Sidebar & Navigation - Calming Blues */
+    --sidebar-bg: var(--primary-color);
+    --sidebar-text: var(--text-white);
+    --navbar-bg: var(--bg-body);
+    --navbar-text: var(--text-primary);
+    
+    /* Cards - Soft White/Light Blue */
+    --card-bg: var(--bg-body);
+    --card-border: var(--border-color);
+    --card-cap-bg: var(--bg-secondary);
+    
+    /* Buttons - Harmonious Blues */
+    --btn-primary-bg: var(--primary-color);
+    --btn-primary-border: var(--primary-color);
+    --btn-secondary-bg: var(--secondary-color);
+    --btn-secondary-border: var(--secondary-color);
+    
+    /* Form Controls */
+    --input-bg: var(--bg-body);
+    --input-border: var(--border-color);
+    --input-focus-border: var(--primary-color);
+    
+    /* Tables */
+    --table-bg: transparent;
+    --table-accent-bg: var(--bg-secondary);
+    --table-hover-bg: rgba(74, 144, 184, 0.06);
+    --table-border-color: var(--border-color);
+    
+    /* Progress Bars */
+    --progress-bg: var(--bg-secondary);
+    --progress-bar-bg: var(--primary-color);
+}
+
+/* RTL Support for Calm Blue Theme */
+[data-theme="calm-blue"] body.rtl {
+    direction: rtl;
+    text-align: right;
+}
+
+[data-theme="calm-blue"] body.rtl .topbar {
+    flex-direction: row-reverse;
+}
+
+[data-theme="calm-blue"] body.rtl .sidebar {
+    right: 0;
+    left: auto;
+}
+
+[data-theme="calm-blue"] body.rtl .container-full {
+    margin-right: 250px;
+    margin-left: 0;
+}
+
+[data-theme="calm-blue"] body.rtl .sidebar a:hover,
+[data-theme="calm-blue"] body.rtl .sidebar a.active {
+    border-right: none;
+    border-left: 3px solid var(--text-white);
+    padding-right: 1.5rem;
+    padding-left: calc(1.5rem - 3px);
+}
+
+[data-theme="calm-blue"] body.rtl .theme-switcher select {
+    background-position: 0.5rem center;
+    padding-right: 0.8rem;
+    padding-left: 2rem;
+}
+
+[data-theme="calm-blue"] body.rtl .form-control {
+    text-align: right;
+}
+
+[data-theme="calm-blue"] body.rtl .table th,
+[data-theme="calm-blue"] body.rtl .table td {
+    text-align: right;
+}
+
+[data-theme="calm-blue"] body.rtl .dropdown-menu {
+    right: 0;
+    left: auto;
+}
+
+/* Responsive adjustments for RTL */
+@media (max-width: 992px) {
+    [data-theme="calm-blue"] body.rtl .container-full {
+        margin-right: 70px;
+        margin-left: 0;
+    }
+}
+
+@media (max-width: 768px) {
+    [data-theme="calm-blue"] body.rtl .container-full {
+        margin-right: 0;
+        margin-left: 0;
+    }
+}
+
+/* Apply theme-specific styles */
+[data-theme="calm-blue"] .btn-primary {
+    background-color: var(--btn-primary-bg);
+    border-color: var(--btn-primary-border);
+    color: var(--text-white);
+    box-shadow: 0 2px 4px rgba(74, 144, 184, 0.2);
+    transition: all 0.3s ease;
+}
+
+[data-theme="calm-blue"] .btn-primary:hover {
+    background-color: var(--primary-dark);
+    border-color: var(--primary-dark);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(74, 144, 184, 0.25);
+}
+
+[data-theme="calm-blue"] .btn-secondary {
+    background-color: var(--btn-secondary-bg);
+    border-color: var(--btn-secondary-border);
+    color: var(--text-white);
+}
+
+[data-theme="calm-blue"] .btn-secondary:hover {
+    background-color: var(--secondary-dark);
+    border-color: var(--secondary-dark);
+}
+
+[data-theme="calm-blue"] .card {
+    background-color: var(--card-bg);
+    border-color: var(--card-border);
+    box-shadow: 0 2px 12px rgba(44, 62, 80, 0.08);
+    transition: all 0.3s ease;
+}
+
+[data-theme="calm-blue"] .card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 20px rgba(44, 62, 80, 0.12);
+}
+
+[data-theme="calm-blue"] .card-header {
+    background-color: var(--card-cap-bg);
+    border-bottom-color: var(--border-color);
+    color: var(--text-primary);
+    font-weight: 600;
+}
+
+[data-theme="calm-blue"] .form-control {
+    background-color: var(--input-bg);
+    border-color: var(--input-border);
+    color: var(--text-primary);
+    transition: all 0.3s ease;
+}
+
+[data-theme="calm-blue"] .form-control:focus {
+    border-color: var(--input-focus-border);
+    box-shadow: 0 0 0 0.2rem rgba(74, 144, 184, 0.15);
+    background-color: var(--bg-body);
+}
+
+[data-theme="calm-blue"] .table {
+    color: var(--text-primary);
+    border-color: var(--table-border-color);
+}
+
+[data-theme="calm-blue"] .table thead th {
+    background-color: var(--primary-color);
+    color: var(--text-white);
+    border-color: var(--primary-dark);
+    font-weight: 600;
+}
+
+[data-theme="calm-blue"] .table-striped > tbody > tr:nth-of-type(odd) > td {
+    background-color: var(--table-accent-bg);
+}
+
+[data-theme="calm-blue"] .table tbody tr:hover {
+    background-color: var(--table-hover-bg);
+}
+
+[data-theme="calm-blue"] .progress {
+    background-color: var(--progress-bg);
+    border-radius: 0.5rem;
+    overflow: hidden;
+}
+
+[data-theme="calm-blue"] .progress-bar {
+    background-color: var(--progress-bar-bg);
+    background-image: linear-gradient(45deg, rgba(255,255,255,.15) 25%, transparent 25%, transparent 50%, rgba(255,255,255,.15) 50%, rgba(255,255,255,.15) 75%, transparent 75%, transparent);
+    background-size: 1rem 1rem;
+    animation: progress-bar-stripes 1s linear infinite;
+}
+
+/* Navigation specific styles */
+[data-theme="calm-blue"] .topbar {
+    background-color: var(--navbar-bg);
+    color: var(--navbar-text);
+    border-bottom: 1px solid var(--border-color);
+    box-shadow: 0 2px 4px rgba(44, 62, 80, 0.06);
+}
+
+[data-theme="calm-blue"] .sidebar {
+    background: linear-gradient(180deg, var(--sidebar-bg) 0%, var(--primary-dark) 100%);
+    color: var(--sidebar-text);
+    box-shadow: 2px 0 10px rgba(44, 62, 80, 0.1);
+}
+
+[data-theme="calm-blue"] .sidebar a {
+    color: var(--sidebar-text);
+    transition: all 0.3s ease;
+}
+
+[data-theme="calm-blue"] .sidebar a:hover,
+[data-theme="calm-blue"] .sidebar a.active {
+    background-color: rgba(255, 255, 255, 0.15);
+    color: var(--text-white);
+    border-left: 3px solid var(--text-white);
+    padding-left: calc(1.5rem - 3px);
+}
+
+/* Alert variants for calm blue theme */
+[data-theme="calm-blue"] .alert-primary {
+    background-color: rgba(74, 144, 184, 0.1);
+    border-color: rgba(74, 144, 184, 0.2);
+    color: var(--primary-dark);
+}
+
+[data-theme="calm-blue"] .alert-info {
+    background-color: rgba(91, 192, 222, 0.1);
+    border-color: rgba(91, 192, 222, 0.2);
+    color: var(--info-dark);
+}
+
+/* Custom accent colors for calm blue theme */
+[data-theme="calm-blue"] .text-primary {
+    color: var(--primary-color) !important;
+}
+
+[data-theme="calm-blue"] .text-muted {
+    color: var(--text-muted) !important;
+}
+
+[data-theme="calm-blue"] .border-primary {
+    border-color: var(--primary-color) !important;
+}
+
+/* Dropdown styles */
+[data-theme="calm-blue"] .dropdown-menu {
+    background-color: var(--bg-body);
+    border: 1px solid var(--border-color);
+    box-shadow: 0 4px 12px rgba(44, 62, 80, 0.12);
+}
+
+[data-theme="calm-blue"] .dropdown-item {
+    color: var(--text-primary);
+}
+
+[data-theme="calm-blue"] .dropdown-item:hover {
+    background-color: var(--bg-secondary);
+    color: var(--primary-color);
+}
+
+/* Badge styles */
+[data-theme="calm-blue"] .badge-primary {
+    background-color: var(--primary-color);
+    color: var(--text-white);
+}
+
+[data-theme="calm-blue"] .badge-secondary {
+    background-color: var(--secondary-color);
+    color: var(--text-white);
+}

@@ -1,0 +1,370 @@
+/* ===== ALTERNATIVE THEME ===== */
+/* Warm earth tones with soft greens - calm and natural */
+
+:root[data-theme="alternative"] {
+    /* Primary Colors - Warm Earth Tones */
+    --primary-color: #8b7355;
+    --primary-dark: #6b5a44;
+    --primary-light: #a89079;
+    
+    /* Secondary Colors - Soft Sage */
+    --secondary-color: #7a8471;
+    --secondary-dark: #5f6b58;
+    --secondary-light: #9ba090;
+    
+    /* Success Colors - Natural Green */
+    --success-color: #6a8a5b;
+    --success-dark: #546e47;
+    --success-light: #87a478;
+    
+    /* Danger Colors - Muted Red */
+    --danger-color: #c4736b;
+    --danger-dark: #a85b52;
+    --danger-light: #d49289;
+    
+    /* Warning Colors - Warm Amber */
+    --warning-color: #d4a574;
+    --warning-dark: #c1935f;
+    --warning-light: #e0bc90;
+    
+    /* Info Colors - Soft Teal */
+    --info-color: #6b9a8a;
+    --info-dark: #557d6f;
+    --info-light: #88b5a7;
+    
+    /* Background Colors - Warm Neutral Palette */
+    --bg-body: #faf9f7;
+    --bg-secondary: #f1ede8;
+    --bg-tertiary: #e6dfd6;
+    --bg-dark: #3c3530;
+    
+    /* Text Colors */
+    --text-primary: #3c3530;
+    --text-secondary: #5f5a52;
+    --text-muted: #8b8680;
+    --text-white: #ffffff;
+    
+    /* Border Colors */
+    --border-color: #d3c7b8;
+    --border-color-translucent: rgba(139, 115, 85, 0.15);
+    
+    /* Shadow - Warm Neutral Tints */
+    --box-shadow: 0 .125rem .25rem rgba(60, 53, 48, 0.08);
+    --box-shadow-sm: 0 .125rem .25rem rgba(60, 53, 48, 0.08);
+    --box-shadow-lg: 0 1rem 3rem rgba(60, 53, 48, 0.12);
+    
+    /* Sidebar & Navigation - Earth Tones */
+    --sidebar-bg: var(--primary-color);
+    --sidebar-text: var(--text-white);
+    --navbar-bg: var(--bg-body);
+    --navbar-text: var(--text-primary);
+    
+    /* Cards - Warm Whites */
+    --card-bg: var(--bg-body);
+    --card-border: var(--border-color);
+    --card-cap-bg: var(--bg-secondary);
+    
+    /* Buttons - Natural Harmony */
+    --btn-primary-bg: var(--primary-color);
+    --btn-primary-border: var(--primary-color);
+    --btn-secondary-bg: var(--secondary-color);
+    --btn-secondary-border: var(--secondary-color);
+    
+    /* Form Controls */
+    --input-bg: var(--bg-body);
+    --input-border: var(--border-color);
+    --input-focus-border: var(--primary-color);
+    
+    /* Tables */
+    --table-bg: transparent;
+    --table-accent-bg: var(--bg-secondary);
+    --table-hover-bg: rgba(139, 115, 85, 0.06);
+    --table-border-color: var(--border-color);
+    
+    /* Progress Bars */
+    --progress-bg: var(--bg-secondary);
+    --progress-bar-bg: var(--primary-color);
+}
+
+/* RTL Support for Alternative Theme */
+[data-theme="alternative"] body.rtl {
+    direction: rtl;
+    text-align: right;
+}
+
+[data-theme="alternative"] body.rtl .topbar {
+    flex-direction: row-reverse;
+}
+
+[data-theme="alternative"] body.rtl .sidebar {
+    right: 0;
+    left: auto;
+}
+
+[data-theme="alternative"] body.rtl .container-full {
+    margin-right: 250px;
+    margin-left: 0;
+}
+
+[data-theme="alternative"] body.rtl .sidebar a:hover,
+[data-theme="alternative"] body.rtl .sidebar a.active {
+    border-right: none;
+    border-left: 3px solid rgba(255, 255, 255, 0.8);
+    padding-right: 1.5rem;
+    padding-left: calc(1.5rem - 3px);
+}
+
+[data-theme="alternative"] body.rtl .theme-switcher select {
+    background-position: 0.5rem center;
+    padding-right: 0.8rem;
+    padding-left: 2rem;
+}
+
+[data-theme="alternative"] body.rtl .form-control {
+    text-align: right;
+}
+
+[data-theme="alternative"] body.rtl .table th,
+[data-theme="alternative"] body.rtl .table td {
+    text-align: right;
+}
+
+[data-theme="alternative"] body.rtl .dropdown-menu {
+    right: 0;
+    left: auto;
+}
+
+/* Responsive adjustments for RTL */
+@media (max-width: 992px) {
+    [data-theme="alternative"] body.rtl .container-full {
+        margin-right: 70px;
+        margin-left: 0;
+    }
+}
+
+@media (max-width: 768px) {
+    [data-theme="alternative"] body.rtl .container-full {
+        margin-right: 0;
+        margin-left: 0;
+    }
+}
+
+/* Apply theme-specific styles */
+[data-theme="alternative"] .btn-primary {
+    background-color: var(--btn-primary-bg);
+    border-color: var(--btn-primary-border);
+    color: var(--text-white);
+    box-shadow: 0 2px 4px rgba(139, 115, 85, 0.2);
+    transition: all 0.3s ease;
+}
+
+[data-theme="alternative"] .btn-primary:hover {
+    background-color: var(--primary-dark);
+    border-color: var(--primary-dark);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(139, 115, 85, 0.25);
+}
+
+[data-theme="alternative"] .btn-secondary {
+    background-color: var(--btn-secondary-bg);
+    border-color: var(--btn-secondary-border);
+    color: var(--text-white);
+}
+
+[data-theme="alternative"] .btn-secondary:hover {
+    background-color: var(--secondary-dark);
+    border-color: var(--secondary-dark);
+}
+
+[data-theme="alternative"] .card {
+    background-color: var(--card-bg);
+    border-color: var(--card-border);
+    box-shadow: 0 2px 12px rgba(60, 53, 48, 0.08);
+    transition: all 0.3s ease;
+}
+
+[data-theme="alternative"] .card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 20px rgba(60, 53, 48, 0.12);
+}
+
+[data-theme="alternative"] .card-header {
+    background-color: var(--card-cap-bg);
+    border-bottom-color: var(--border-color);
+    color: var(--text-primary);
+    font-weight: 600;
+}
+
+[data-theme="alternative"] .form-control {
+    background-color: var(--input-bg);
+    border-color: var(--input-border);
+    color: var(--text-primary);
+    transition: all 0.3s ease;
+}
+
+[data-theme="alternative"] .form-control:focus {
+    border-color: var(--input-focus-border);
+    box-shadow: 0 0 0 0.2rem rgba(139, 115, 85, 0.15);
+    background-color: var(--bg-body);
+}
+
+[data-theme="alternative"] .table {
+    color: var(--text-primary);
+    border-color: var(--table-border-color);
+}
+
+[data-theme="alternative"] .table thead th {
+    background-color: var(--primary-color);
+    color: var(--text-white);
+    border-color: var(--primary-dark);
+    font-weight: 600;
+}
+
+[data-theme="alternative"] .table-striped > tbody > tr:nth-of-type(odd) > td {
+    background-color: var(--table-accent-bg);
+}
+
+[data-theme="alternative"] .table tbody tr:hover {
+    background-color: var(--table-hover-bg);
+}
+
+[data-theme="alternative"] .progress {
+    background-color: var(--progress-bg);
+    border-radius: 0.5rem;
+    overflow: hidden;
+}
+
+[data-theme="alternative"] .progress-bar {
+    background-color: var(--progress-bar-bg);
+    background-image: linear-gradient(45deg, rgba(255,255,255,.15) 25%, transparent 25%, transparent 50%, rgba(255,255,255,.15) 50%, rgba(255,255,255,.15) 75%, transparent 75%, transparent);
+    background-size: 1rem 1rem;
+}
+
+/* Navigation specific styles */
+[data-theme="alternative"] .topbar {
+    background-color: var(--navbar-bg);
+    color: var(--navbar-text);
+    border-bottom: 1px solid var(--border-color);
+    box-shadow: 0 2px 4px rgba(60, 53, 48, 0.06);
+}
+
+[data-theme="alternative"] .sidebar {
+    background: linear-gradient(180deg, var(--sidebar-bg) 0%, var(--primary-dark) 100%);
+    color: var(--sidebar-text);
+    box-shadow: 2px 0 10px rgba(60, 53, 48, 0.1);
+}
+
+[data-theme="alternative"] .sidebar a {
+    color: var(--sidebar-text);
+    transition: all 0.3s ease;
+}
+
+[data-theme="alternative"] .sidebar a:hover,
+[data-theme="alternative"] .sidebar a.active {
+    background-color: rgba(255, 255, 255, 0.15);
+    color: var(--text-white);
+    border-left: 3px solid rgba(255, 255, 255, 0.8);
+    padding-left: calc(1.5rem - 3px);
+}
+
+/* Alert variants for alternative theme */
+[data-theme="alternative"] .alert-primary {
+    background-color: rgba(139, 115, 85, 0.1);
+    border-color: rgba(139, 115, 85, 0.2);
+    color: var(--primary-dark);
+}
+
+[data-theme="alternative"] .alert-success {
+    background-color: rgba(106, 138, 91, 0.1);
+    border-color: rgba(106, 138, 91, 0.2);
+    color: var(--success-dark);
+}
+
+[data-theme="alternative"] .alert-info {
+    background-color: rgba(107, 154, 138, 0.1);
+    border-color: rgba(107, 154, 138, 0.2);
+    color: var(--info-dark);
+}
+
+[data-theme="alternative"] .alert-warning {
+    background-color: rgba(212, 165, 116, 0.1);
+    border-color: rgba(212, 165, 116, 0.2);
+    color: var(--warning-dark);
+}
+
+[data-theme="alternative"] .alert-danger {
+    background-color: rgba(196, 115, 107, 0.1);
+    border-color: rgba(196, 115, 107, 0.2);
+    color: var(--danger-dark);
+}
+
+/* Custom accent colors for alternative theme */
+[data-theme="alternative"] .text-primary {
+    color: var(--primary-color) !important;
+}
+
+[data-theme="alternative"] .text-success {
+    color: var(--success-color) !important;
+}
+
+[data-theme="alternative"] .text-muted {
+    color: var(--text-muted) !important;
+}
+
+[data-theme="alternative"] .border-primary {
+    border-color: var(--primary-color) !important;
+}
+
+/* Dropdown styles */
+[data-theme="alternative"] .dropdown-menu {
+    background-color: var(--bg-body);
+    border: 1px solid var(--border-color);
+    box-shadow: 0 4px 12px rgba(60, 53, 48, 0.12);
+}
+
+[data-theme="alternative"] .dropdown-item {
+    color: var(--text-primary);
+}
+
+[data-theme="alternative"] .dropdown-item:hover {
+    background-color: var(--bg-secondary);
+    color: var(--primary-color);
+}
+
+/* Badge styles */
+[data-theme="alternative"] .badge-primary {
+    background-color: var(--primary-color);
+    color: var(--text-white);
+}
+
+[data-theme="alternative"] .badge-secondary {
+    background-color: var(--secondary-color);
+    color: var(--text-white);
+}
+
+[data-theme="alternative"] .badge-success {
+    background-color: var(--success-color);
+    color: var(--text-white);
+}
+
+/* Input group styles */
+[data-theme="alternative"] .input-group-text {
+    background-color: var(--bg-secondary);
+    border-color: var(--border-color);
+    color: var(--text-primary);
+}
+
+/* Modal styles */
+[data-theme="alternative"] .modal-content {
+    background-color: var(--bg-body);
+    border: 1px solid var(--border-color);
+}
+
+[data-theme="alternative"] .modal-header {
+    background-color: var(--bg-secondary);
+    border-bottom-color: var(--border-color);
+}
+
+[data-theme="alternative"] .modal-footer {
+    border-top-color: var(--border-color);
+}
