@@ -592,6 +592,62 @@ namespace MonitoringAndEvaluationPlatform.Controllers
 
             return RedirectToAction(nameof(Index), new { frameworkCode = frameworkCode, subOutputCode = subOutputCode });
         }
+
+        // GET: Indicators/IndicatorAndProject
+        public async Task<IActionResult> IndicatorAndProject(int? projectId, int? frameworkCode, int? subOutputCode, string searchString)
+        {
+            ViewData["CurrentFilter"] = searchString;
+            ViewData["ProjectId"] = projectId;
+            ViewData["FrameworkCode"] = frameworkCode;
+            ViewData["SubOutputCode"] = subOutputCode;
+
+            // Get all projects for the dropdown filter
+            var projects = await _context.Projects
+                .Select(p => new { p.ProjectID, p.ProjectName })
+                .ToListAsync();
+            ViewData["Projects"] = new SelectList(projects, "ProjectID", "ProjectName", projectId);
+
+            // Base query for indicators with their related projects
+            var indicatorsQuery = _context.Indicators
+                .Include(i => i.SubOutput)
+                    .ThenInclude(so => so.Output)
+                    .ThenInclude(o => o.Outcome)
+                    .ThenInclude(oc => oc.Framework)
+                .Include(i => i.ProjectIndicators)
+                    .ThenInclude(pi => pi.Project)
+                .AsQueryable();
+
+            // Apply framework filter if provided
+            if (frameworkCode.HasValue)
+            {
+                indicatorsQuery = indicatorsQuery.Where(i => i.SubOutput.Output.Outcome.FrameworkCode == frameworkCode);
+            }
+
+            // Apply subOutput filter if provided
+            if (subOutputCode.HasValue)
+            {
+                indicatorsQuery = indicatorsQuery.Where(i => i.SubOutputCode == subOutputCode);
+            }
+
+            // Apply project filter if provided
+            if (projectId.HasValue)
+            {
+                indicatorsQuery = indicatorsQuery.Where(i => i.ProjectIndicators.Any(pi => pi.ProjectId == projectId));
+            }
+
+            // Apply search filter if provided
+            if (!string.IsNullOrEmpty(searchString))
+            {
+                indicatorsQuery = indicatorsQuery.Where(i => 
+                    i.Name.Contains(searchString) ||
+                    (i.SubOutput != null && i.SubOutput.Name.Contains(searchString)) ||
+                    i.ProjectIndicators.Any(pi => pi.Project.ProjectName.Contains(searchString)));
+            }
+
+            var indicators = await indicatorsQuery.ToListAsync();
+
+            return View(indicators);
+        }
     }
 
 

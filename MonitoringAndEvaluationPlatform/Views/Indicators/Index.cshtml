@@ -19,6 +19,10 @@
           @*   <a asp-action="Create" asp-route-id="@ViewData["subOutputCode"]" class="btn btn-success me-2">
                 <i class="fas fa-plus me-2"></i>@Localizer["Create New Indicator"]
             </a> *@
+            <a asp-action="IndicatorAndProject" asp-route-frameworkCode="@ViewData["frameworkCode"]"
+               asp-route-subOutputCode="@ViewData["subOutputCode"]" class="btn btn-info me-2">
+                <i class="fas fa-link me-2"></i>@Localizer["Indicators & Projects"]
+            </a>
             @if (@ViewData["subOutputCode"] != null)
             {
                 <a asp-action="AdjustWeights" asp-route-frameworkCode="@ViewData["frameworkCode"]"

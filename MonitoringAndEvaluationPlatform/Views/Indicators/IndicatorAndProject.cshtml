@@ -1,0 +1,311 @@
+@model IEnumerable<MonitoringAndEvaluationPlatform.Models.Indicator>
+@using MonitoringAndEvaluationPlatform.Helpers
+@using Microsoft.AspNetCore.Mvc.Localization
+@inject IViewLocalizer Localizer
+@using Microsoft.AspNetCore.Localization
+
+@{
+    ViewData["Title"] = "Indicators and Projects";
+    Layout = "~/Views/Shared/_ResultsFrameworkLayout.cshtml";
+}
+
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h4 class="mb-0">@Localizer["Indicators and Projects"]</h4>
+            <p class="text-muted mb-0">@Localizer["View indicators and their related projects with filtering capabilities"]</p>
+        </div>
+    </div>
+
+    <!-- Filter Form -->
+    <div class="card shadow-sm mb-4">
+        <div class="card-header bg-light">
+            <h6 class="mb-0">@Localizer["Filter Options"]</h6>
+        </div>
+        <div class="card-body">
+            <form asp-action="IndicatorAndProject" method="get" class="row g-3">
+                <div class="col-md-4">
+                    <label for="projectId" class="form-label">@Localizer["Filter by Project"]</label>
+                    @Html.DropDownList("projectId", ViewData["Projects"] as SelectList, 
+                        Localizer["-- All Projects --"].Value, new { @class = "form-select" })
+                </div>
+                <div class="col-md-4">
+                    <label for="searchString" class="form-label">@Localizer["Search"]</label>
+                    <input type="text" name="searchString" class="form-control"
+                           placeholder="@Localizer["Search by indicator or project name..."]"
+                           value="@ViewData["CurrentFilter"]">
+                </div>
+                <div class="col-md-4 d-flex align-items-end">
+                    <button type="submit" class="btn btn-primary me-2">
+                        <i class="fas fa-search me-1"></i> @Localizer["Apply Filters"]
+                    </button>
+                    <a asp-action="IndicatorAndProject" class="btn btn-outline-secondary">
+                        <i class="fas fa-times me-1"></i> @Localizer["Clear"]
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Results -->
+    <div class="card shadow-sm">
+        <div class="card-body">
+            @if (Model.Any())
+            {
+                <div class="accordion" id="indicatorAccordion">
+                    @{
+                        int index = 0;
+                    }
+                    @foreach (var indicator in Model)
+                    {
+                        string indicatorsClass = ProgressBarHelper.GetProgressBarClass(indicator.IndicatorsPerformance);
+                        string disbursementClass = ProgressBarHelper.GetProgressBarClass(indicator.DisbursementPerformance);
+                        double IndicatorsPerformance = Math.Round(indicator.IndicatorsPerformance, 0);
+                        string accordionId = $"collapse{index}";
+                        
+                        <div class="accordion-item mb-3">
+                            <h2 class="accordion-header" id="heading@(index)">
+                                <button class="accordion-button @(index == 0 ? "" : "collapsed")" type="button" 
+                                        data-bs-toggle="collapse" data-bs-target="#@accordionId" 
+                                        aria-expanded="@(index == 0 ? "true" : "false")" aria-controls="@accordionId">
+                                    <div class="w-100 d-flex justify-content-between align-items-center me-3">
+                                        <div>
+                                            <strong>@indicator.Name</strong>
+                                            <br>
+                                            <small class="text-muted">
+                                                @Localizer["SubOutput"]: 
+                                                <span class="badge bg-info">@indicator.SubOutput?.Name</span>
+                                                @Localizer["Framework"]: 
+                                                <span class="badge bg-primary">@indicator.SubOutput?.Output?.Outcome?.Framework?.Name</span>
+                                            </small>
+                                        </div>
+                                        <div class="d-flex align-items-center">
+                                            <div class="me-3" style="min-width: 120px;">
+                                                <small class="text-muted d-block">@Localizer["Performance"]</small>
+                                                @await Html.PartialAsync("_ProgressBar", Tuple.Create(IndicatorsPerformance, indicatorsClass))
+                                            </div>
+                                            <span class="badge bg-secondary">
+                                                @indicator.ProjectIndicators.Count() @Localizer["Projects"]
+                                            </span>
+                                        </div>
+                                    </div>
+                                </button>
+                            </h2>
+                            <div id="@accordionId" class="accordion-collapse collapse @(index == 0 ? "show" : "")" 
+                                 aria-labelledby="heading@(index)" data-bs-parent="#indicatorAccordion">
+                                <div class="accordion-body">
+                                    <div class="row">
+                                        <!-- Indicator Details Column -->
+                                        <div class="col-md-4">
+                                            <div class="card h-100">
+                                                <div class="card-header bg-light">
+                                                    <h6 class="mb-0">@Localizer["Indicator Details"]</h6>
+                                                </div>
+                                                <div class="card-body">
+                                                    <table class="table table-sm">
+                                                        <tr>
+                                                            <td><strong>@Localizer["Target"]:</strong></td>
+                                                            <td>@indicator.Target</td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td><strong>@Localizer["Weight"]:</strong></td>
+                                                            <td>@indicator.Weight</td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td><strong>@Localizer["Performance"]:</strong></td>
+                                                            <td>@IndicatorsPerformance%</td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td><strong>@Localizer["Disbursement"]:</strong></td>
+                                                            <td>@indicator.DisbursementPerformance%</td>
+                                                        </tr>
+                                                    </table>
+                                                    <div class="d-grid gap-2">
+                                                        <a asp-action="Details" asp-route-id="@indicator.IndicatorCode" 
+                                                           class="btn btn-sm btn-outline-primary">
+                                                            <i class="fas fa-eye me-1"></i> @Localizer["View Details"]
+                                                        </a>
+                                                        <a asp-action="Edit" asp-route-id="@indicator.IndicatorCode" 
+                                                           class="btn btn-sm btn-outline-warning">
+                                                            <i class="fas fa-edit me-1"></i> @Localizer["Edit Indicator"]
+                                                        </a>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <!-- Related Projects Column -->
+                                        <div class="col-md-8">
+                                            <div class="card h-100">
+                                                <div class="card-header bg-light d-flex justify-content-between align-items-center">
+                                                    <h6 class="mb-0">@Localizer["Related Projects"] (@indicator.ProjectIndicators.Count())</h6>
+                                                    @if (!indicator.ProjectIndicators.Any())
+                                                    {
+                                                        <a asp-action="Create" asp-controller="Projects" 
+                                                           asp-route-indicatorId="@indicator.IndicatorCode"
+                                                           class="btn btn-sm btn-success">
+                                                            <i class="fas fa-plus me-1"></i> @Localizer["Add Project"]
+                                                        </a>
+                                                    }
+                                                </div>
+                                                <div class="card-body">
+                                                    @if (indicator.ProjectIndicators.Any())
+                                                    {
+                                                        <div class="table-responsive">
+                                                            <table class="table table-sm table-hover">
+                                                                <thead class="table-light">
+                                                                    <tr>
+                                                                        <th>@Localizer["Project Name"]</th>
+                                                                        <th>@Localizer["Budget"]</th>
+                                                                        <th>@Localizer["Performance"]</th>
+                                                                        <th>@Localizer["Start Date"]</th>
+                                                                        <th>@Localizer["Actions"]</th>
+                                                                    </tr>
+                                                                </thead>
+                                                                <tbody>
+                                                                    @foreach (var projectIndicator in indicator.ProjectIndicators)
+                                                                    {
+                                                                        var project = projectIndicator.Project;
+                                                                        string projectPerformanceClass = ProgressBarHelper.GetProgressBarClass(project.performance);
+                                                                        
+                                                                        <tr>
+                                                                            <td>
+                                                                                <a asp-action="Details" asp-controller="Projects" 
+                                                                                   asp-route-id="@project.ProjectID" 
+                                                                                   class="text-decoration-none">
+                                                                                    @project.ProjectName
+                                                                                </a>
+                                                                            </td>
+                                                                            <td>@project.EstimatedBudget.ToString("C")</td>
+                                                                            <td>
+                                                                                <div style="min-width: 80px;">
+                                                                                    @await Html.PartialAsync("_ProgressBar", Tuple.Create(project.performance, projectPerformanceClass))
+                                                                                </div>
+                                                                            </td>
+                                                                            <td>@project.StartDate.ToString("MMM yyyy")</td>
+                                                                            <td>
+                                                                                <div class="btn-group" role="group">
+                                                                                    <a asp-action="Details" asp-controller="Projects" 
+                                                                                       asp-route-id="@project.ProjectID" 
+                                                                                       class="btn btn-xs btn-outline-primary" title="@Localizer["View Project"]">
+                                                                                        <i class="fas fa-eye"></i>
+                                                                                    </a>
+                                                                                    <a asp-action="Edit" asp-controller="Projects" 
+                                                                                       asp-route-id="@project.ProjectID" 
+                                                                                       class="btn btn-xs btn-outline-warning" title="@Localizer["Edit Project"]">
+                                                                                        <i class="fas fa-edit"></i>
+                                                                                    </a>
+                                                                                </div>
+                                                                            </td>
+                                                                        </tr>
+                                                                    }
+                                                                </tbody>
+                                                            </table>
+                                                        </div>
+                                                    }
+                                                    else
+                                                    {
+                                                        <div class="text-center text-muted py-4">
+                                                            <i class="fas fa-project-diagram fa-3x mb-3"></i>
+                                                            <p>@Localizer["No projects are currently associated with this indicator."]</p>
+                                                            <a asp-action="Create" asp-controller="Projects" 
+                                                               asp-route-indicatorId="@indicator.IndicatorCode"
+                                                               class="btn btn-primary">
+                                                                <i class="fas fa-plus me-2"></i> @Localizer["Create First Project"]
+                                                            </a>
+                                                        </div>
+                                                    }
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        index++;
+                    }
+                </div>
+            }
+            else
+            {
+                <div class="text-center text-muted py-5">
+                    <i class="fas fa-search fa-3x mb-3"></i>
+                    <h5>@Localizer["No Results Found"]</h5>
+                    <p>@Localizer["Try adjusting your filters or search criteria."]</p>
+                    <a asp-action="IndicatorAndProject" class="btn btn-primary">
+                        <i class="fas fa-refresh me-2"></i> @Localizer["View All"]
+                    </a>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+<!-- Styles -->
+<style>
+    .table-hover tbody tr:hover {
+        background-color: rgba(13, 110, 253, 0.05);
+    }
+
+    .progress {
+        height: 20px;
+        border-radius: 4px;
+    }
+
+    .progress-bar {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.7rem;
+        font-weight: 500;
+    }
+
+    .btn-xs {
+        padding: 0.15rem 0.3rem;
+        font-size: 0.7rem;
+    }
+
+    .accordion-button:not(.collapsed) {
+        background-color: rgba(13, 110, 253, 0.1);
+    }
+
+    .accordion-item {
+        border: 1px solid #dee2e6;
+        border-radius: 0.5rem;
+    }
+
+    .card-header {
+        font-weight: 600;
+        background-color: #f8f9fa !important;
+    }
+
+    .badge {
+        font-size: 0.65rem;
+    }
+
+    .table-sm td {
+        padding: 0.25rem;
+        font-size: 0.85rem;
+    }
+
+    @@media (max-width: 768px) {
+        .accordion-button .d-flex {
+            flex-direction: column;
+            align-items: flex-start !important;
+        }
+        
+        .accordion-button .d-flex > div:last-child {
+            margin-top: 0.5rem;
+            width: 100%;
+            justify-content: space-between;
+        }
+    }
+</style>
+
+<script>
+    // Auto-submit form when project dropdown changes
+    document.getElementById('projectId').addEventListener('change', function() {
+        this.form.submit();
+    });
+</script>
