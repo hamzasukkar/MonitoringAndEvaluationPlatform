@@ -21,11 +21,16 @@
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/css/SetUpLayout.css" />
     <link rel="stylesheet" href="~/css/all.min.css" />
+    
+    <!-- Theme CSS Files -->
+    <link rel="stylesheet" href="~/css/themes/theme-default.css" />
+    <link rel="stylesheet" href="~/css/themes/theme-calm-blue.css" />
+    <link rel="stylesheet" href="~/css/themes/theme-alternative.css" />
     <style>
       
     </style>
 </head>
-<body>
+<body class="@(dir == "rtl" ? "rtl" : "ltr")" data-theme="default">
     <header>
         <div class="topbar">
             <!-- Left nav -->
@@ -62,8 +67,13 @@
             <!-- Center title -->
             <div class="title">@Localizer["Monitoring & Evaluation System"]</div>
 
-            <!-- Far right user dropdown -->
-            <div class="user-dropdown">
+            <!-- Theme dropdown and user dropdown -->
+            <div class="d-flex align-items-center gap-3">
+                <!-- Theme Dropdown -->
+                @await Html.PartialAsync("_ThemeDropdown")
+                
+                <!-- User dropdown -->
+                <div class="user-dropdown">
                 <ul class="nav">
                     <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
@@ -85,6 +95,7 @@
                         </ul>
                     </li>
                 </ul>
+                </div>
             </div>
         </div>
     </header>
@@ -150,6 +161,10 @@
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
+    
+    <!-- Theme Switcher JavaScript -->
+    <script src="~/js/theme-switcher.js" asp-append-version="true"></script>
+    
     @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>
