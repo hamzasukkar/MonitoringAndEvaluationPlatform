@@ -165,5 +165,113 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         {
             return _context.Donors.Any(e => e.Code == id);
         }
+
+        // Inline Operations
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> CreateInline(string Partner, int donorCategory)
+        {
+            if (string.IsNullOrWhiteSpace(Partner))
+            {
+                return Json(new { success = false, message = "Partner name is required." });
+            }
+
+            var donor = new Donor
+            {
+                Partner = Partner,
+                donorCategory = (MonitoringAndEvaluationPlatform.Enums.DonorCategory)donorCategory
+            };
+
+            try
+            {
+                _context.Donors.Add(donor);
+                await _context.SaveChangesAsync();
+                return Json(new { success = true, donor = new { donor.Code, donor.Partner, donorCategory = donor.donorCategory.ToString(), donorCategoryValue = (int)donor.donorCategory } });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = "Error creating donor: " + ex.Message });
+            }
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> InlineEdit(int id, string field, string value)
+        {
+            var donor = await _context.Donors.FindAsync(id);
+            if (donor == null)
+                return Json(new { success = false, message = "Donor not found" });
+
+            switch (field.ToLower())
+            {
+                case "partner":
+                    donor.Partner = value;
+                    break;
+                case "donorcategory":
+                    if (int.TryParse(value, out int categoryValue))
+                    {
+                        donor.donorCategory = (MonitoringAndEvaluationPlatform.Enums.DonorCategory)categoryValue;
+                    }
+                    else
+                    {
+                        return Json(new { success = false, message = "Invalid donor category" });
+                    }
+                    break;
+                default:
+                    return Json(new { success = false, message = "Invalid field" });
+            }
+
+            try
+            {
+                await _context.SaveChangesAsync();
+                return Json(new { success = true });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = ex.Message });
+            }
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> InlineDelete(int id)
+        {
+            var donor = await _context.Donors.FindAsync(id);
+            if (donor == null)
+                return Json(new { success = false, message = "Donor not found" });
+
+            try
+            {
+                _context.Donors.Remove(donor);
+                await _context.SaveChangesAsync();
+                return Json(new { success = true });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = ex.Message });
+            }
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> QuickUpdate(int id, string partner, int donorCategory)
+        {
+            var donor = await _context.Donors.FindAsync(id);
+            if (donor == null)
+                return Json(new { success = false, message = "Donor not found" });
+
+            if (string.IsNullOrWhiteSpace(partner))
+                return Json(new { success = false, message = "Partner name is required" });
+
+            donor.Partner = partner;
+            donor.donorCategory = (DonorCategory)donorCategory;
+
+            try
+            {
+                await _context.SaveChangesAsync();
+                return Json(new { success = true });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = ex.Message });
+            }
+        }
     }
 }

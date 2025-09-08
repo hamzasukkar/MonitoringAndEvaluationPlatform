@@ -155,5 +155,101 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         {
             return _context.ProjectManagers.Any(e => e.Code == id);
         }
+
+        // Inline Operations
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> CreateInline(string Name)
+        {
+            if (string.IsNullOrWhiteSpace(Name))
+            {
+                return Json(new { success = false, message = "Name is required." });
+            }
+
+            var projectManager = new ProjectManager
+            {
+                Name = Name
+            };
+
+            try
+            {
+                _context.ProjectManagers.Add(projectManager);
+                await _context.SaveChangesAsync();
+                return Json(new { success = true, projectManager = new { projectManager.Code, projectManager.Name } });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = "Error creating project manager: " + ex.Message });
+            }
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> InlineEdit(int id, string field, string value)
+        {
+            var projectManager = await _context.ProjectManagers.FindAsync(id);
+            if (projectManager == null)
+                return Json(new { success = false, message = "Project Manager not found" });
+
+            switch (field.ToLower())
+            {
+                case "name":
+                    projectManager.Name = value;
+                    break;
+                default:
+                    return Json(new { success = false, message = "Invalid field" });
+            }
+
+            try
+            {
+                await _context.SaveChangesAsync();
+                return Json(new { success = true });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = ex.Message });
+            }
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> InlineDelete(int id)
+        {
+            var projectManager = await _context.ProjectManagers.FindAsync(id);
+            if (projectManager == null)
+                return Json(new { success = false, message = "Project Manager not found" });
+
+            try
+            {
+                _context.ProjectManagers.Remove(projectManager);
+                await _context.SaveChangesAsync();
+                return Json(new { success = true });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = ex.Message });
+            }
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> QuickUpdate(int id, string name)
+        {
+            var projectManager = await _context.ProjectManagers.FindAsync(id);
+            if (projectManager == null)
+                return Json(new { success = false, message = "Project Manager not found" });
+
+            if (string.IsNullOrWhiteSpace(name))
+                return Json(new { success = false, message = "Name is required" });
+
+            projectManager.Name = name;
+
+            try
+            {
+                await _context.SaveChangesAsync();
+                return Json(new { success = true });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = ex.Message });
+            }
+        }
     }
 }

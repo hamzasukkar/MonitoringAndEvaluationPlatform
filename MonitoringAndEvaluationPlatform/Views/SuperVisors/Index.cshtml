@@ -10,42 +10,60 @@
 <div class="container-fluid">
     @await Html.PartialAsync("_ManagementNavigation")
 
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <div>
-            <!-- Page title is now handled by the navigation header -->
+    <!-- Inline Create Form -->
+    <div class="card mb-4 border-primary">
+        <div class="card-header bg-primary text-white">
+            <strong>@Localizer["Add New SuperVisor"]</strong>
         </div>
-        <a asp-action="Create" class="btn btn-primary btn-lg">
-            <i class="fas fa-plus me-2"></i>@Localizer["Create New SuperVisor"]
-        </a>
+        <div class="card-body">
+            <form id="createSuperVisorForm" class="row g-3">
+                @Html.AntiForgeryToken()
+
+                <div class="col-md-8">
+                    <label for="Name" class="form-label">@Localizer["SuperVisor Name"]</label>
+                    <input type="text" name="Name" class="form-control" required />
+                </div>
+
+                <div class="col-md-4 d-flex align-items-end">
+                    <button type="submit" class="btn btn-success w-100">
+                        <i class="fas fa-plus-circle me-1"></i> @Localizer["Add SuperVisor"]
+                    </button>
+                </div>
+            </form>
+        </div>
     </div>
 
     <div class="card shadow-sm">
         <div class="card-body">
             <div class="table-responsive">
                 <table class="table table-hover">
-	<thead>
+	<thead class="table-light">
 		<tr>
-			<th>
-				@Localizer["Name"]
-			</th>
-			<th></th>
+			<th>@Localizer["SuperVisor Name"]</th>
+			<th class="text-end">@Localizer["Actions"]</th>
 		</tr>
 	</thead>
-	<tbody>
+	<tbody id="supervisorsTableBody">
 		@foreach (var item in Model)
 		{
-			<tr>
+			<tr id="supervisor-row-@item.Code">
 				<td>
-					@Html.DisplayFor(modelItem => item.Name)
+					<span id="supervisor-name-@item.Code" class="supervisor-name-view">
+						@item.Name
+					</span>
+					<input type="text" id="supervisor-name-input-@item.Code" class="form-control form-control-sm supervisor-name-edit d-none" value="@item.Name" />
 				</td>
 				<td class="text-end">
 					<div class="btn-group" role="group">
-						<a asp-action="Edit" asp-route-id="@item.Code" class="btn btn-sm btn-outline-warning" title="Edit">
+						<button class="btn btn-sm btn-outline-warning"
+								id="edit-btn-@item.Code"
+								onclick="toggleSuperVisorEdit(@item.Code)" title="@Localizer["Edit"]">
 							<i class="fas fa-edit"></i>
-						</a>
-						<a asp-action="Delete" asp-route-id="@item.Code" class="btn btn-sm btn-outline-danger" title="Delete">
+						</button>
+						<button class="btn btn-sm btn-outline-danger" title="@Localizer["Delete"]"
+								onclick="deleteSuperVisor(@item.Code)">
 							<i class="fas fa-trash-alt"></i>
-						</a>
+						</button>
 					</div>
 				</td>
 			</tr>
@@ -56,3 +74,258 @@
         </div>
     </div>
 </div>
+
+<!-- Styles -->
+<style>
+    .editable-field {
+        cursor: pointer;
+        padding: 4px 8px;
+        border-radius: 4px;
+        min-width: 100px;
+        display: inline-block;
+    }
+
+    .editable-field:hover {
+        background-color: #f8f9fa;
+        border: 1px solid #dee2e6;
+    }
+
+    .editing .editable-field {
+        background-color: #fff;
+        border: 1px solid #007bff;
+    }
+
+    .edit-input {
+        width: 100%;
+        border: 1px solid #007bff;
+        border-radius: 4px;
+        padding: 4px 8px;
+        font-size: 0.9rem;
+    }
+
+    .table-hover tbody tr:hover {
+        background-color: rgba(13, 110, 253, 0.05);
+    }
+</style>
+
+<script>
+$(document).ready(function() {
+
+// Create SuperVisor Form Submission
+$('#createSuperVisorForm').on('submit', function(e) {
+    e.preventDefault();
+    
+    const formData = new FormData(this);
+    
+    $.ajax({
+        url: '@Url.Action("CreateInline")',
+        type: 'POST',
+        data: formData,
+        processData: false,
+        contentType: false,
+        success: function(response) {
+            if (response.success) {
+                // Add new row to table
+                const newRow = `
+                    <tr id="supervisor-row-${response.supervisor.code}">
+                        <td>
+                            <span id="supervisor-name-${response.supervisor.code}" class="supervisor-name-view">
+                                ${response.supervisor.name}
+                            </span>
+                            <input type="text" id="supervisor-name-input-${response.supervisor.code}" class="form-control form-control-sm supervisor-name-edit d-none" value="${response.supervisor.name}" />
+                        </td>
+                        <td class="text-end">
+                            <div class="btn-group" role="group">
+                                <button class="btn btn-sm btn-outline-warning" id="edit-btn-${response.supervisor.code}" onclick="toggleSuperVisorEdit(${response.supervisor.code})" title="@Localizer["Edit"]">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                                <button class="btn btn-sm btn-outline-danger" title="@Localizer["Delete"]" onclick="deleteSuperVisor(${response.supervisor.code})">
+                                    <i class="fas fa-trash-alt"></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>`;
+                
+                $('#supervisorsTableBody').append(newRow);
+                $('#createSuperVisorForm')[0].reset();
+                
+                Swal.fire({
+                    icon: 'success',
+                    title: '@Localizer["Success!"]',
+                    text: '@Localizer["SuperVisor created successfully"]',
+                    timer: 2000,
+                    showConfirmButton: false
+                });
+            } else {
+                Swal.fire('Error', response.message, 'error');
+            }
+        },
+        error: function() {
+            Swal.fire('Error', '@Localizer["An error occurred while creating the supervisor"]', 'error');
+        }
+    });
+});
+
+// Inline Editing
+$(document).on('click', '.editable-field', function() {
+    if ($(this).hasClass('editing')) return;
+    
+    const $this = $(this);
+    const originalValue = $this.text().trim();
+    const field = $this.data('field');
+    const id = $this.data('id');
+    
+    $this.addClass('editing');
+    $this.html(`<input type="text" class="edit-input" value="${originalValue}" data-original="${originalValue}">`);
+    
+    const $input = $this.find('.edit-input');
+    $input.focus().select();
+    
+    // Save on Enter or blur
+    $input.on('blur keypress', function(e) {
+        if (e.type === 'keypress' && e.which !== 13) return;
+        
+        const newValue = $(this).val().trim();
+        const originalValue = $(this).data('original');
+        
+        if (newValue === originalValue) {
+            $this.removeClass('editing').text(originalValue);
+            return;
+        }
+        
+        if (newValue === '') {
+            Swal.fire('Error', '@Localizer["Value cannot be empty"]', 'error');
+            $this.removeClass('editing').text(originalValue);
+            return;
+        }
+        
+        // Save changes
+        $.ajax({
+            url: '@Url.Action("InlineEdit")',
+            type: 'POST',
+            data: {
+                id: id,
+                field: field,
+                value: newValue
+            },
+            success: function(response) {
+                if (response.success) {
+                    $this.removeClass('editing').text(newValue);
+                    Swal.fire({
+                        icon: 'success',
+                        title: '@Localizer["Updated!"]',
+                        text: '@Localizer["Name updated successfully"]',
+                        timer: 1500,
+                        showConfirmButton: false
+                    });
+                } else {
+                    $this.removeClass('editing').text(originalValue);
+                    Swal.fire('Error', response.message, 'error');
+                }
+            },
+            error: function() {
+                $this.removeClass('editing').text(originalValue);
+                Swal.fire('Error', '@Localizer["An error occurred while updating"]', 'error');
+            }
+        });
+    });
+    
+    // Cancel on Escape
+    $input.on('keypress', function(e) {
+        if (e.which === 27) { // Escape key
+            $this.removeClass('editing').text(originalValue);
+        }
+    });
+});
+
+// Delete SuperVisor
+function deleteSuperVisor(id) {
+    Swal.fire({
+        title: '@Localizer["Are you sure?"]',
+        text: "@Localizer["You won't be able to revert this!"]",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#d33',
+        cancelButtonColor: '#3085d6',
+        confirmButtonText: '@Localizer["Yes, delete it!"]',
+        cancelButtonText: '@Localizer["Cancel"]'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            $.ajax({
+                url: '@Url.Action("InlineDelete")',
+                type: 'POST',
+                data: { id: id },
+                success: function(response) {
+                    if (response.success) {
+                        $(`#supervisor-row-${id}`).fadeOut(function() {
+                            $(this).remove();
+                        });
+                        Swal.fire({
+                            icon: 'success',
+                            title: '@Localizer["Deleted!"]',
+                            text: '@Localizer["SuperVisor has been deleted."]',
+                            timer: 2000,
+                            showConfirmButton: false
+                        });
+                    } else {
+                        Swal.fire('Error', response.message, 'error');
+                    }
+                },
+                error: function() {
+                    Swal.fire('Error', '@Localizer["An error occurred while deleting"]', 'error');
+                }
+            });
+        }
+    });
+}
+
+}); // End document ready
+
+// Toggle SuperVisor Inline Edit - Global function
+function toggleSuperVisorEdit(code) {
+    const nameSpan = $(`#supervisor-name-${code}`);
+    const nameInput = $(`#supervisor-name-input-${code}`);
+    const button = $(`#edit-btn-${code}`);
+
+    const isEditing = nameInput.hasClass('d-none') === false;
+
+    if (isEditing) {
+        // Save via AJAX
+        const newName = nameInput.val();
+
+        $.ajax({
+            url: '@Url.Action("QuickUpdate")',
+            type: 'POST',
+            data: { id: code, name: newName },
+            success: function (response) {
+                if (response.success) {
+                    nameSpan.text(newName);
+                    nameInput.addClass('d-none');
+                    nameSpan.removeClass('d-none');
+                    button.html('<i class="fas fa-edit"></i>');
+                    button.removeClass('btn-success').addClass('btn-outline-warning');
+                    Swal.fire({
+                        icon: 'success',
+                        title: '@Localizer["Updated!"]',
+                        text: '@Localizer["SuperVisor updated successfully"]',
+                        timer: 1500,
+                        showConfirmButton: false
+                    });
+                } else {
+                    Swal.fire('Error', response.message, 'error');
+                }
+            },
+            error: function() {
+                Swal.fire('Error', '@Localizer["An error occurred while updating"]', 'error');
+            }
+        });
+    } else {
+        // Enter edit mode
+        nameInput.removeClass('d-none');
+        nameSpan.addClass('d-none');
+        button.html('<i class="fas fa-save"></i>');
+        button.removeClass('btn-outline-warning').addClass('btn-success');
+        nameInput.focus();
+    }
+}
+</script>

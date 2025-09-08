@@ -155,5 +155,101 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         {
             return _context.SuperVisors.Any(e => e.Code == id);
         }
+
+        // Inline Operations
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> CreateInline(string Name)
+        {
+            if (string.IsNullOrWhiteSpace(Name))
+            {
+                return Json(new { success = false, message = "Name is required." });
+            }
+
+            var supervisor = new SuperVisor
+            {
+                Name = Name
+            };
+
+            try
+            {
+                _context.SuperVisors.Add(supervisor);
+                await _context.SaveChangesAsync();
+                return Json(new { success = true, supervisor = new { supervisor.Code, supervisor.Name } });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = "Error creating supervisor: " + ex.Message });
+            }
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> InlineEdit(int id, string field, string value)
+        {
+            var supervisor = await _context.SuperVisors.FindAsync(id);
+            if (supervisor == null)
+                return Json(new { success = false, message = "SuperVisor not found" });
+
+            switch (field.ToLower())
+            {
+                case "name":
+                    supervisor.Name = value;
+                    break;
+                default:
+                    return Json(new { success = false, message = "Invalid field" });
+            }
+
+            try
+            {
+                await _context.SaveChangesAsync();
+                return Json(new { success = true });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = ex.Message });
+            }
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> InlineDelete(int id)
+        {
+            var supervisor = await _context.SuperVisors.FindAsync(id);
+            if (supervisor == null)
+                return Json(new { success = false, message = "SuperVisor not found" });
+
+            try
+            {
+                _context.SuperVisors.Remove(supervisor);
+                await _context.SaveChangesAsync();
+                return Json(new { success = true });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = ex.Message });
+            }
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> QuickUpdate(int id, string name)
+        {
+            var supervisor = await _context.SuperVisors.FindAsync(id);
+            if (supervisor == null)
+                return Json(new { success = false, message = "SuperVisor not found" });
+
+            if (string.IsNullOrWhiteSpace(name))
+                return Json(new { success = false, message = "Name is required" });
+
+            supervisor.Name = name;
+
+            try
+            {
+                await _context.SaveChangesAsync();
+                return Json(new { success = true });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = ex.Message });
+            }
+        }
     }
 }
