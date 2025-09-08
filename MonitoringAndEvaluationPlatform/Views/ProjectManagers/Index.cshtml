@@ -1,20 +1,22 @@
 ﻿@model IEnumerable<MonitoringAndEvaluationPlatform.Models.ProjectManager>
-
+@using Microsoft.AspNetCore.Mvc.Localization
+@inject IViewLocalizer Localizer
+@using Microsoft.AspNetCore.Localization
 @{
     ViewData["Title"] = "Index";
     Layout = "~/Views/Shared/_SetUpLayout.cshtml";
 }
-
-<h1>Index</h1>
-
 <p>
-    <a asp-action="Create">Create New</a>
+    <a asp-action="Create" class="btn btn-primary">
+        <i class="fas fa-plus me-2"></i>@Localizer["Create a New Entity"]
+    </a>
 </p>
+
 <table class="table">
     <thead>
         <tr>
             <th>
-                @Html.DisplayNameFor(model => model.Name)
+                @Localizer["Name"]
             </th>
             <th></th>
         </tr>
