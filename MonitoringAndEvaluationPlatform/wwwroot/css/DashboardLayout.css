@@ -286,7 +286,7 @@ body.rtl .main {
     min-height: calc(100vh - 60px);
     color: var(--text-light-color); /* Default text color for content area */
     /* New: Background Image for .container-full */
-    background-image: url('/img/Emblem_of_Syria.png'); /* Path to your image */
+    /*background-image: url('/img/Emblem_of_Syria.png');*/ /* Path to your image */
     background-repeat: no-repeat; /* Prevents the image from repeating */
     background-position: center center; /* Centers the image */
     background-size: 70%; /* Adjust this value to make the emblem smaller or larger */
