@@ -2,84 +2,94 @@
 /* Warm earth tones with soft greens - calm and natural */
 
 :root[data-theme="alternative"] {
-    /* Primary Colors - Warm Earth Tones */
-    --primary-color: #8b7355;
-    --primary-dark: #6b5a44;
-    --primary-light: #a89079;
+    /* Modern Warm Earth Color Scheme */
+    --primary-background-color: #5d4e37; /* Rich Brown - Main background, topbar, table headers */
+    --secondary-card-background: #8b4513; /* SaddleBrown - Cards, main content area, sidebar, table rows */
+    --accent-warm-gold: #daa520; /* Golden Rod - Accents, buttons, active states, important text */
+    --tertiary-background: #a0522d; /* Sienna - Slightly lighter brown for cards */
     
-    /* Secondary Colors - Soft Sage */
-    --secondary-color: #7a8471;
-    --secondary-dark: #5f6b58;
-    --secondary-light: #9ba090;
+    /* Primary Colors - Rich Earth Tones */
+    --primary-color: #5d4e37;
+    --primary-dark: #4a3b26;
+    --primary-light: #8b4513;
     
-    /* Success Colors - Natural Green */
-    --success-color: #6a8a5b;
-    --success-dark: #546e47;
-    --success-light: #87a478;
+    /* Secondary Colors - Warm Sage */
+    --secondary-color: #696969;
+    --secondary-dark: #555555;
+    --secondary-light: #808080;
     
-    /* Danger Colors - Muted Red */
-    --danger-color: #c4736b;
-    --danger-dark: #a85b52;
-    --danger-light: #d49289;
+    /* Success Colors - Natural Forest Green */
+    --success-color: #228b22;
+    --success-dark: #006400;
+    --success-light: #32cd32;
     
-    /* Warning Colors - Warm Amber */
-    --warning-color: #d4a574;
-    --warning-dark: #c1935f;
-    --warning-light: #e0bc90;
+    /* Danger Colors - Warm Terracotta */
+    --danger-color: #cd5c5c;
+    --danger-dark: #a0522d;
+    --danger-light: #f08080;
     
-    /* Info Colors - Soft Teal */
-    --info-color: #6b9a8a;
-    --info-dark: #557d6f;
-    --info-light: #88b5a7;
+    /* Warning Colors - Rich Golden */
+    --warning-color: #daa520;
+    --warning-dark: #b8860b;
+    --warning-light: #ffd700;
     
-    /* Background Colors - Warm Neutral Palette */
-    --bg-body: #faf9f7;
-    --bg-secondary: #f1ede8;
-    --bg-tertiary: #e6dfd6;
-    --bg-dark: #3c3530;
+    /* Info Colors - Warm Teal */
+    --info-color: #5f9ea0;
+    --info-dark: #4682b4;
+    --info-light: #87ceeb;
+    
+    /* Background Colors - Modern Warm Palette */
+    --bg-body: #ffffff; /* Keep white for main content areas */
+    --bg-secondary: var(--secondary-card-background); /* SaddleBrown for secondary backgrounds */
+    --bg-tertiary: var(--tertiary-background); /* Sienna for cards */
+    --bg-dark: var(--primary-background-color);
     
     /* Text Colors */
-    --text-primary: #3c3530;
-    --text-secondary: #5f5a52;
-    --text-muted: #8b8680;
+    --text-primary: #2f1b14; /* Dark brown for light backgrounds */
+    --text-secondary: #5d4e37;
+    --text-muted: #8b7355;
     --text-white: #ffffff;
+    --text-light: #f5e6d3; /* Warm light text for dark backgrounds */
     
-    /* Border Colors */
-    --border-color: #d3c7b8;
-    --border-color-translucent: rgba(139, 115, 85, 0.15);
+    /* Border Colors - Warm Golden Accent */
+    --border-color: #daa520; /* Golden rod border */
+    --border-color-translucent: rgba(218, 165, 32, 0.15);
     
     /* Shadow - Warm Neutral Tints */
     --box-shadow: 0 .125rem .25rem rgba(60, 53, 48, 0.08);
     --box-shadow-sm: 0 .125rem .25rem rgba(60, 53, 48, 0.08);
     --box-shadow-lg: 0 1rem 3rem rgba(60, 53, 48, 0.12);
     
-    /* Sidebar & Navigation - Earth Tones */
-    --sidebar-bg: var(--primary-color);
+    /* Sidebar & Navigation - Modern Earth Tones */
+    --sidebar-bg: var(--primary-background-color);
     --sidebar-text: var(--text-white);
-    --navbar-bg: var(--bg-body);
-    --navbar-text: var(--text-primary);
+    --navbar-bg: var(--primary-background-color);
+    --navbar-text: var(--text-white);
     
-    /* Cards - Warm Whites */
-    --card-bg: var(--bg-body);
+    /* Cards - Modern Earth Styling */
+    --card-bg: var(--bg-tertiary); /* Sienna for cards */
     --card-border: var(--border-color);
-    --card-cap-bg: var(--bg-secondary);
+    --card-cap-bg: var(--primary-background-color); /* Rich brown for headers */
     
-    /* Buttons - Natural Harmony */
-    --btn-primary-bg: var(--primary-color);
-    --btn-primary-border: var(--primary-color);
+    /* Buttons - Modern Warm Gold Accents */
+    --btn-primary-bg: var(--accent-warm-gold);
+    --btn-primary-border: var(--accent-warm-gold);
     --btn-secondary-bg: var(--secondary-color);
     --btn-secondary-border: var(--secondary-color);
     
-    /* Form Controls */
-    --input-bg: var(--bg-body);
+    /* Form Controls - Modern Earth Styling */
+    --input-bg: var(--primary-background-color); /* Rich brown for form inputs */
     --input-border: var(--border-color);
-    --input-focus-border: var(--primary-color);
+    --input-focus-border: var(--accent-warm-gold);
+    --input-text: var(--text-light); /* Warm light text for dark inputs */
     
-    /* Tables */
+    /* Tables - Modern Earth Styling */
     --table-bg: transparent;
-    --table-accent-bg: var(--bg-secondary);
-    --table-hover-bg: rgba(139, 115, 85, 0.06);
+    --table-accent-bg: var(--secondary-card-background); /* SaddleBrown for striped rows */
+    --table-hover-bg: var(--bg-tertiary); /* Sienna on hover */
     --table-border-color: var(--border-color);
+    --table-header-bg: var(--primary-background-color); /* Rich brown for headers */
+    --table-row-bg: var(--secondary-card-background); /* SaddleBrown for rows */
     
     /* Progress Bars */
     --progress-bg: var(--bg-secondary);
@@ -367,4 +377,134 @@
 
 [data-theme="alternative"] .modal-footer {
     border-top-color: var(--border-color);
+}
+
+/* ===== MODERN COMPREHENSIVE STYLING ===== */
+
+/* All form controls styling - consistent warm earth backgrounds */
+[data-theme="alternative"] .form-control,
+[data-theme="alternative"] .form-select,
+[data-theme="alternative"] .search-form .form-control,
+[data-theme="alternative"] .filter-form .form-control {
+    background-color: var(--input-bg) !important;
+    border-color: var(--input-border) !important;
+    color: var(--input-text) !important;
+}
+
+[data-theme="alternative"] .form-control::placeholder,
+[data-theme="alternative"] .form-select::placeholder,
+[data-theme="alternative"] .search-form .form-control::placeholder {
+    color: rgba(245, 230, 211, 0.7) !important;
+}
+
+[data-theme="alternative"] .form-control:focus,
+[data-theme="alternative"] .form-select:focus {
+    background-color: var(--input-bg) !important;
+    border-color: var(--input-focus-border) !important;
+    color: var(--input-text) !important;
+    box-shadow: 0 0 0 0.2rem rgba(218, 165, 32, 0.25) !important;
+}
+
+/* Search form styling */
+[data-theme="alternative"] .search-form .btn {
+    background-color: var(--accent-warm-gold) !important;
+    border-color: var(--accent-warm-gold) !important;
+    color: var(--text-primary) !important;
+}
+
+[data-theme="alternative"] .search-form .btn:hover {
+    background-color: var(--warning-dark) !important;
+    border-color: var(--warning-dark) !important;
+}
+
+/* Card styling - modern earth cards */
+[data-theme="alternative"] .card {
+    background-color: var(--card-bg) !important;
+    border-color: var(--card-border) !important;
+    color: var(--text-light) !important;
+    box-shadow: 0 4px 16px rgba(93, 78, 55, 0.15) !important;
+}
+
+[data-theme="alternative"] .card-header {
+    background-color: var(--card-cap-bg) !important;
+    border-color: var(--card-border) !important;
+    color: var(--text-white) !important;
+}
+
+[data-theme="alternative"] .card-body {
+    background-color: var(--card-bg) !important;
+    color: var(--text-light) !important;
+}
+
+/* Table styling - modern earth tables */
+[data-theme="alternative"] .table {
+    color: var(--text-light) !important;
+    border-color: var(--table-border-color) !important;
+}
+
+[data-theme="alternative"] .table thead th {
+    background-color: var(--table-header-bg) !important;
+    border-color: var(--table-border-color) !important;
+    color: var(--text-white) !important;
+    font-weight: 600 !important;
+}
+
+[data-theme="alternative"] .table tbody tr {
+    background-color: var(--table-row-bg) !important;
+    border-color: var(--table-border-color) !important;
+    color: var(--text-light) !important;
+}
+
+[data-theme="alternative"] .table tbody tr:nth-of-type(odd) {
+    background-color: var(--table-accent-bg) !important;
+}
+
+[data-theme="alternative"] .table tbody tr:hover {
+    background-color: var(--table-hover-bg) !important;
+    color: var(--text-light) !important;
+    transform: translateX(2px) !important;
+    transition: all 0.2s ease !important;
+}
+
+[data-theme="alternative"] .table td,
+[data-theme="alternative"] .table th {
+    border-color: var(--table-border-color) !important;
+    color: inherit !important;
+}
+
+/* Enhanced topbar styling */
+[data-theme="alternative"] .topbar {
+    background-color: var(--navbar-bg) !important;
+    color: var(--navbar-text) !important;
+    border-bottom: 1px solid var(--accent-warm-gold) !important;
+    box-shadow: 0 2px 8px rgba(93, 78, 55, 0.15) !important;
+}
+
+[data-theme="alternative"] .topbar .title {
+    color: var(--accent-warm-gold) !important;
+    font-weight: bold !important;
+}
+
+/* Enhanced sidebar styling */
+[data-theme="alternative"] .sidebar {
+    background: linear-gradient(180deg, var(--sidebar-bg) 0%, var(--primary-dark) 100%) !important;
+    color: var(--sidebar-text) !important;
+    box-shadow: 2px 0 12px rgba(93, 78, 55, 0.2) !important;
+}
+
+[data-theme="alternative"] .sidebar a:hover {
+    background-color: rgba(218, 165, 32, 0.2) !important;
+}
+
+[data-theme="alternative"] .sidebar a.active {
+    background-color: rgba(218, 165, 32, 0.3) !important;
+    border-left: 3px solid var(--accent-warm-gold) !important;
+}
+
+/* Enhanced button styling */
+[data-theme="alternative"] .btn-primary {
+    background: linear-gradient(135deg, var(--btn-primary-bg), var(--warning-dark)) !important;
+    border-color: var(--btn-primary-border) !important;
+    color: var(--text-primary) !important;
+    box-shadow: 0 3px 6px rgba(218, 165, 32, 0.3) !important;
 }

@@ -2,84 +2,94 @@
 /* Beautiful blue and gray color scheme */
 
 :root[data-theme="calm-blue"] {
-    /* Primary Colors - Calm Blues */
-    --primary-color: #4a90b8;
-    --primary-dark: #396b8d;
-    --primary-light: #7bb0d1;
+    /* Modern Deep Blue Color Scheme */
+    --primary-background-color: #1a365d; /* Deep Blue - Main background, topbar, table headers */
+    --secondary-card-background: #2c5aa0; /* Medium Blue - Cards, main content area, sidebar, table rows */
+    --accent-light-blue: #60a5fa; /* Light Blue - Accents, buttons, active states, important text */
+    --tertiary-background: #3b6b96; /* Slightly lighter blue for cards */
     
-    /* Secondary Colors - Soft Grays */
-    --secondary-color: #708090;
-    --secondary-dark: #5a6b75;
-    --secondary-light: #9fb0bb;
+    /* Primary Colors - Modern Blues */
+    --primary-color: #1a365d;
+    --primary-dark: #0f2a44;
+    --primary-light: #2c5aa0;
+    
+    /* Secondary Colors - Sophisticated Grays */
+    --secondary-color: #475569;
+    --secondary-dark: #334155;
+    --secondary-light: #64748b;
     
     /* Success Colors */
-    --success-color: #5cb85c;
-    --success-dark: #449d44;
-    --success-light: #7cc87c;
+    --success-color: #10b981;
+    --success-dark: #059669;
+    --success-light: #34d399;
     
     /* Danger Colors */
-    --danger-color: #d9534f;
-    --danger-dark: #c9302c;
-    --danger-light: #e4888a;
+    --danger-color: #ef4444;
+    --danger-dark: #dc2626;
+    --danger-light: #f87171;
     
     /* Warning Colors */
-    --warning-color: #f0ad4e;
-    --warning-dark: #eea236;
-    --warning-light: #f5c275;
+    --warning-color: #f59e0b;
+    --warning-dark: #d97706;
+    --warning-light: #fbbf24;
     
     /* Info Colors */
-    --info-color: #5bc0de;
-    --info-dark: #46b8da;
-    --info-light: #85d1e6;
+    --info-color: #3b82f6;
+    --info-dark: #2563eb;
+    --info-light: #60a5fa;
     
-    /* Background Colors - Soft Blue-Gray Palette */
-    --bg-body: #f8fafc;
-    --bg-secondary: #e8f2f7;
-    --bg-tertiary: #d4e6f0;
-    --bg-dark: #2c3e50;
+    /* Background Colors - Modern Blue Palette */
+    --bg-body: #ffffff; /* Keep white for main content areas */
+    --bg-secondary: var(--secondary-card-background); /* Medium blue for secondary backgrounds */
+    --bg-tertiary: var(--tertiary-background); /* Slightly lighter blue for cards */
+    --bg-dark: var(--primary-background-color);
     
     /* Text Colors */
-    --text-primary: #2c3e50;
-    --text-secondary: #5a6b75;
-    --text-muted: #7a8a96;
+    --text-primary: #1f2937; /* Dark text for light backgrounds */
+    --text-secondary: #6b7280;
+    --text-muted: #9ca3af;
     --text-white: #ffffff;
+    --text-light: #e5e7eb; /* Light text for dark backgrounds */
     
-    /* Border Colors */
-    --border-color: #b8d4e3;
-    --border-color-translucent: rgba(74, 144, 184, 0.15);
+    /* Border Colors - Modern Blue Accent */
+    --border-color: #60a5fa; /* Light blue border */
+    --border-color-translucent: rgba(96, 165, 250, 0.15);
     
     /* Shadow - Soft Blue Tints */
     --box-shadow: 0 .125rem .25rem rgba(44, 62, 80, 0.08);
     --box-shadow-sm: 0 .125rem .25rem rgba(44, 62, 80, 0.08);
     --box-shadow-lg: 0 1rem 3rem rgba(44, 62, 80, 0.12);
     
-    /* Sidebar & Navigation - Calming Blues */
-    --sidebar-bg: var(--primary-color);
+    /* Sidebar & Navigation - Modern Blues */
+    --sidebar-bg: var(--primary-background-color);
     --sidebar-text: var(--text-white);
-    --navbar-bg: var(--bg-body);
-    --navbar-text: var(--text-primary);
+    --navbar-bg: var(--primary-background-color);
+    --navbar-text: var(--text-white);
     
-    /* Cards - Soft White/Light Blue */
-    --card-bg: var(--bg-body);
+    /* Cards - Modern Blue Styling */
+    --card-bg: var(--bg-tertiary); /* Slightly lighter blue for cards */
     --card-border: var(--border-color);
-    --card-cap-bg: var(--bg-secondary);
+    --card-cap-bg: var(--primary-background-color); /* Deep blue for headers */
     
-    /* Buttons - Harmonious Blues */
-    --btn-primary-bg: var(--primary-color);
-    --btn-primary-border: var(--primary-color);
+    /* Buttons - Modern Light Blue Accents */
+    --btn-primary-bg: var(--accent-light-blue);
+    --btn-primary-border: var(--accent-light-blue);
     --btn-secondary-bg: var(--secondary-color);
     --btn-secondary-border: var(--secondary-color);
     
-    /* Form Controls */
-    --input-bg: var(--bg-body);
+    /* Form Controls - Modern Blue Styling */
+    --input-bg: var(--primary-background-color); /* Deep blue for form inputs */
     --input-border: var(--border-color);
-    --input-focus-border: var(--primary-color);
+    --input-focus-border: var(--accent-light-blue);
+    --input-text: var(--text-light); /* Light text for dark inputs */
     
-    /* Tables */
+    /* Tables - Modern Blue Styling */
     --table-bg: transparent;
-    --table-accent-bg: var(--bg-secondary);
-    --table-hover-bg: rgba(74, 144, 184, 0.06);
+    --table-accent-bg: var(--secondary-card-background); /* Medium blue for striped rows */
+    --table-hover-bg: var(--bg-tertiary); /* Slightly lighter blue on hover */
     --table-border-color: var(--border-color);
+    --table-header-bg: var(--primary-background-color); /* Deep blue for headers */
+    --table-row-bg: var(--secondary-card-background); /* Medium blue for rows */
     
     /* Progress Bars */
     --progress-bg: var(--bg-secondary);
@@ -319,4 +329,134 @@
 [data-theme="calm-blue"] .badge-secondary {
     background-color: var(--secondary-color);
     color: var(--text-white);
+}
+
+/* ===== MODERN COMPREHENSIVE STYLING ===== */
+
+/* All form controls styling - consistent dark blue backgrounds */
+[data-theme="calm-blue"] .form-control,
+[data-theme="calm-blue"] .form-select,
+[data-theme="calm-blue"] .search-form .form-control,
+[data-theme="calm-blue"] .filter-form .form-control {
+    background-color: var(--input-bg) !important;
+    border-color: var(--input-border) !important;
+    color: var(--input-text) !important;
+}
+
+[data-theme="calm-blue"] .form-control::placeholder,
+[data-theme="calm-blue"] .form-select::placeholder,
+[data-theme="calm-blue"] .search-form .form-control::placeholder {
+    color: rgba(229, 231, 235, 0.7) !important;
+}
+
+[data-theme="calm-blue"] .form-control:focus,
+[data-theme="calm-blue"] .form-select:focus {
+    background-color: var(--input-bg) !important;
+    border-color: var(--input-focus-border) !important;
+    color: var(--input-text) !important;
+    box-shadow: 0 0 0 0.2rem rgba(96, 165, 250, 0.25) !important;
+}
+
+/* Search form styling */
+[data-theme="calm-blue"] .search-form .btn {
+    background-color: var(--accent-light-blue) !important;
+    border-color: var(--accent-light-blue) !important;
+    color: var(--text-primary) !important;
+}
+
+[data-theme="calm-blue"] .search-form .btn:hover {
+    background-color: var(--info-dark) !important;
+    border-color: var(--info-dark) !important;
+}
+
+/* Card styling - modern blue cards */
+[data-theme="calm-blue"] .card {
+    background-color: var(--card-bg) !important;
+    border-color: var(--card-border) !important;
+    color: var(--text-light) !important;
+    box-shadow: 0 4px 16px rgba(26, 54, 93, 0.15) !important;
+}
+
+[data-theme="calm-blue"] .card-header {
+    background-color: var(--card-cap-bg) !important;
+    border-color: var(--card-border) !important;
+    color: var(--text-white) !important;
+}
+
+[data-theme="calm-blue"] .card-body {
+    background-color: var(--card-bg) !important;
+    color: var(--text-light) !important;
+}
+
+/* Table styling - modern blue tables */
+[data-theme="calm-blue"] .table {
+    color: var(--text-light) !important;
+    border-color: var(--table-border-color) !important;
+}
+
+[data-theme="calm-blue"] .table thead th {
+    background-color: var(--table-header-bg) !important;
+    border-color: var(--table-border-color) !important;
+    color: var(--text-white) !important;
+    font-weight: 600 !important;
+}
+
+[data-theme="calm-blue"] .table tbody tr {
+    background-color: var(--table-row-bg) !important;
+    border-color: var(--table-border-color) !important;
+    color: var(--text-light) !important;
+}
+
+[data-theme="calm-blue"] .table tbody tr:nth-of-type(odd) {
+    background-color: var(--table-accent-bg) !important;
+}
+
+[data-theme="calm-blue"] .table tbody tr:hover {
+    background-color: var(--table-hover-bg) !important;
+    color: var(--text-light) !important;
+    transform: translateX(2px) !important;
+    transition: all 0.2s ease !important;
+}
+
+[data-theme="calm-blue"] .table td,
+[data-theme="calm-blue"] .table th {
+    border-color: var(--table-border-color) !important;
+    color: inherit !important;
+}
+
+/* Enhanced topbar styling */
+[data-theme="calm-blue"] .topbar {
+    background-color: var(--navbar-bg) !important;
+    color: var(--navbar-text) !important;
+    border-bottom: 1px solid var(--accent-light-blue) !important;
+    box-shadow: 0 2px 8px rgba(26, 54, 93, 0.15) !important;
+}
+
+[data-theme="calm-blue"] .topbar .title {
+    color: var(--accent-light-blue) !important;
+    font-weight: bold !important;
+}
+
+/* Enhanced sidebar styling */
+[data-theme="calm-blue"] .sidebar {
+    background: linear-gradient(180deg, var(--sidebar-bg) 0%, var(--primary-dark) 100%) !important;
+    color: var(--sidebar-text) !important;
+    box-shadow: 2px 0 12px rgba(26, 54, 93, 0.2) !important;
+}
+
+[data-theme="calm-blue"] .sidebar a:hover {
+    background-color: rgba(96, 165, 250, 0.2) !important;
+}
+
+[data-theme="calm-blue"] .sidebar a.active {
+    background-color: rgba(96, 165, 250, 0.3) !important;
+    border-left: 3px solid var(--accent-light-blue) !important;
+}
+
+/* Enhanced button styling */
+[data-theme="calm-blue"] .btn-primary {
+    background: linear-gradient(135deg, var(--btn-primary-bg), var(--info-dark)) !important;
+    border-color: var(--btn-primary-border) !important;
+    color: var(--text-primary) !important;
+    box-shadow: 0 3px 6px rgba(96, 165, 250, 0.3) !important;
 }
