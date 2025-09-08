@@ -24,8 +24,8 @@
     <div class="row">
         <!-- Filter Sidebar -->
         <div class="col-md-3">
-            <div class="card shadow-sm mb-4">
-                <div class="card-header bg-light">
+            <div class="card shadow-sm mb-4 search-form">
+                <div class="card-header">
                     <h5 class="mb-0">@Localizer["Filters"]</h5>
                 </div>
                 <div class="card-body">
@@ -35,7 +35,7 @@
                         {
                             <div class="mb-4">
                                 <h6 class="fw-bold border-bottom pb-2">@Localizer["Ministry"]</h6>
-                                <div class="filter-options" style="max-height: 200px; overflow-y: auto;">
+                                <div class="filter-options" >
                                     @foreach (var ministry in Model.Ministries)
                                     {
                                         <div class="form-check">
@@ -56,7 +56,7 @@
                         <!-- Donor Filter -->
                         <div class="mb-4">
                             <h6 class="fw-bold border-bottom pb-2">@Localizer["Donor"]</h6>
-                            <div class="filter-options" style="max-height: 200px; overflow-y: auto;">
+                            <div class="filter-options" >
                                 @foreach (var donor in Model.Donors)
                                 {
                                     <div class="form-check">
@@ -181,61 +181,6 @@
 </div>
 
 
-    <style>
-        .filter-options {
-            scrollbar-width: thin;
-        }
-
-            .filter-options::-webkit-scrollbar {
-                width: 6px;
-            }
-
-            .filter-options::-webkit-scrollbar-track {
-                background: #f1f1f1;
-            }
-
-            .filter-options::-webkit-scrollbar-thumb {
-                background: #888;
-                border-radius: 3px;
-            }
-
-                .filter-options::-webkit-scrollbar-thumb:hover {
-                    background: #555;
-                }
-
-        .form-check-label {
-            cursor: pointer;
-        }
-
-        .progress {
-            border-radius: 4px;
-            background-color: #e9ecef;
-        }
-
-        .progress-bar {
-            font-size: 0.75rem;
-            font-weight: 500;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .table-hover tbody tr:hover {
-            background-color: rgba(13, 110, 253, 0.05);
-        }
-
-        .card-header {
-            font-weight: 600;
-        }
-
-        .btn-group .btn {
-            padding: 0.25rem 0.5rem;
-        }
-
-    .table-responsive {
-        overflow-x: hidden;
-    }
-    </style>
 <script>
     const token = $('input[name="__RequestVerificationToken"]').val();
 

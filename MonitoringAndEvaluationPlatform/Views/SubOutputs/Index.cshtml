@@ -84,7 +84,7 @@
                             <tr id="subOutput-row-@item.Code">
                                 <td>
                                     <span id="fw-name-@item.Code" class="fw-name-view">
-                                        <a style="color:#fff" asp-controller="Indicators" asp-action="Index"
+                                        <a class="nav-theme-link" asp-controller="Indicators" asp-action="Index"
                                            asp-route-frameworkCode="@item.Output.Outcome.FrameworkCode"
                                            asp-route-subOutputCode="@item.Code"
                                            class="text-decoration-none">
@@ -109,7 +109,7 @@
                                     @await Html.PartialAsync("_ProgressBar", Tuple.Create(item.ImpactAssessment, impactAssessmentClass))
                                 </td> *@
                                 <td>
-                                    <a style="color:#fff" asp-controller="Outputs" asp-action="Index" asp-route-outcomeCode="@item.Output.OutcomeCode"  class="text-decoration-none">@item.Output.Name</a>
+                                    <a class="nav-theme-link text-decoration-none" asp-controller="Outputs" asp-action="Index" asp-route-outcomeCode="@item.Output.OutcomeCode">@item.Output.Name</a>
                                 </td>
                                 <td class="text-end">
                                     <div class="btn-group" role="group">

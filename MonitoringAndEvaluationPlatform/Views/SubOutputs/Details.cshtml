@@ -44,17 +44,17 @@
                     <td>@item.Name</td>
                     <td>
                         <div class="d-inline">
-                            <form asp-controller="Indicators" asp-action="Details" asp-route-id="@item.IndicatorCode" method="get" style="display: inline;">
+                            <form asp-controller="Indicators" asp-action="Details" asp-route-id="@item.IndicatorCode" method="get" class="inline-form">
                                 <button class="btn btn-sm btn-primary" title="View">
                                     <i class="bi bi-eye"></i>
                                 </button>
                             </form>
-                            <form asp-controller="Indicators" asp-action="Edit" asp-route-id="@item.IndicatorCode" method="get" style="display: inline;">
+                            <form asp-controller="Indicators" asp-action="Edit" asp-route-id="@item.IndicatorCode" method="get" class="inline-form">
                                 <button class="btn btn-sm btn-warning" title="Edit">
                                     <i class="bi bi-pencil"></i>
                                 </button>
                             </form>
-                            <form asp-controller="Indicators" asp-action="Delete" asp-route-id="@item.IndicatorCode" method="post" style="display: inline;">
+                            <form asp-controller="Indicators" asp-action="Delete" asp-route-id="@item.IndicatorCode" method="post" class="inline-form">
                                 <button class="btn btn-sm btn-danger" title="Delete">
                                     <i class="bi bi-trash"></i>
                                 </button>

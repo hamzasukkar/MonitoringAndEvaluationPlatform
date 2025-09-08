@@ -68,8 +68,8 @@
     <div class="row">
         <!-- Filter Form -->
         <div class="col-md-3">
-            <div class="card shadow-sm mb-4">
-                <div class="card-header bg-light">
+            <div class="card shadow-sm mb-4 search-form">
+                <div class="card-header">
                     <h5 class="mb-0">@Localizer["Filters"]</h5>
                 </div>
                 <div class="card-body">
@@ -79,7 +79,7 @@
                         {
                             <div class="mb-4">
                                 <h6 class="fw-bold border-bottom pb-2">@Localizer["Ministry"]</h6>
-                                <div class="filter-options" style="max-height: 200px; overflow-y: auto;">
+                                <div class="filter-options" >
                                     @foreach (var ministry in Model.Ministries)
                                     {
                                         <div class="form-check">
@@ -100,7 +100,7 @@
                         <!-- Donor Filter -->
                         <div class="mb-4">
                             <h6 class="fw-bold border-bottom pb-2">@Localizer["Donor"]</h6>
-                            <div class="filter-options" style="max-height: 200px; overflow-y: auto;">
+                            <div class="filter-options" >
                                 @foreach (var donor in Model.Donors)
                                 {
                                     <div class="form-check">
@@ -118,7 +118,7 @@
                         <!-- Sector Filter -->
                         <div class="mb-4">
                             <h6 class="fw-bold border-bottom pb-2">@Localizer["Sector"]</h6>
-                            <div class="filter-options" style="max-height: 200px; overflow-y: auto;">
+                            <div class="filter-options" >
                                 @foreach (var sector in Model.Sectors)
                                 {
                                     <div class="form-check">
@@ -218,7 +218,7 @@
                                     <tr id="framework-row-@item.Code">
                                         <td>
                                             <span id="fw-name-@item.Code" class="fw-name-view">
-                                                <a style="color:#fff" asp-controller="Outcomes" asp-action="Index" asp-route-frameworkCode="@item.Code" class="text-decoration-none">
+                                                <a class="nav-theme-link" asp-controller="Outcomes" asp-action="Index" asp-route-frameworkCode="@item.Code" class="text-decoration-none">
                                                     <strong>@item.Name</strong>
                                                 </a>
                                             </span>
@@ -241,7 +241,7 @@
                                                         var roles = await UserManager.GetRolesAsync(user);
                                                         if (roles.Contains("Admin"))
                                                         {
-                                                            <form asp-controller="Tree" asp-action="Index" asp-route-id="@item.Code" method="post" style="display: inline;">
+                                                            <form asp-controller="Tree" asp-action="Index" asp-route-id="@item.Code" method="post" class="inline-form">
                                                                 <button class="btn btn-sm btn-outline-success" title="Tree View">
                                                                     <i class="fas fa-project-diagram"></i>
                                                                 </button>

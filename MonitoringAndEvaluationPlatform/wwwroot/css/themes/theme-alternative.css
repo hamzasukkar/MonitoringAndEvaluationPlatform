@@ -1,12 +1,22 @@
 /* ===== ALTERNATIVE THEME ===== */
 /* Warm earth tones with soft greens - calm and natural */
 
+/* Import Component Styles */
+@import url('../components/components-base.css');
+@import url('../components/components-alternative.css');
+@import url('../components/theme-dropdown.css');
+
 :root[data-theme="alternative"] {
     /* Modern Warm Earth Color Scheme */
     --primary-background-color: #5d4e37; /* Rich Brown - Main background, topbar, table headers */
     --secondary-card-background: #8b4513; /* SaddleBrown - Cards, main content area, sidebar, table rows */
     --accent-warm-gold: #daa520; /* Golden Rod - Accents, buttons, active states, important text */
     --tertiary-background: #a0522d; /* Sienna - Slightly lighter brown for cards */
+    
+    /* RGB Values for rgba() usage */
+    --primary-background-rgb: 93, 78, 55;
+    --secondary-card-background-rgb: 139, 69, 19;
+    --accent-warm-gold-rgb: 218, 165, 32;
     
     /* Primary Colors - Rich Earth Tones */
     --primary-color: #5d4e37;
@@ -239,7 +249,7 @@
 }
 
 [data-theme="alternative"] .progress {
-    background-color: var(--progress-bg);
+    background-color: #fff !important;
     border-radius: 0.5rem;
     overflow: hidden;
 }

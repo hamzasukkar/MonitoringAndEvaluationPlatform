@@ -1,11 +1,21 @@
 /* ===== DEFAULT THEME (Current) ===== */
 /* This maintains the original styling */
 
+/* Import Component Styles */
+@import url('../components/components-base.css');
+@import url('../components/components-default.css');
+@import url('../components/theme-dropdown.css');
+
 :root[data-theme="default"] {
     /* Original Dark Green & Gold Theme Colors */
     --primary-background-color: #1A3B33; /* Dark Green - Main background, topbar, table headers */
     --secondary-card-background: #2A4C44; /* Slightly Lighter Dark Green - Cards, main content area, sidebar, table rows */
     --accent-gold-color: #C8A85F; /* Gold - Accents, buttons, active states, important text */
+    
+    /* RGB Values for rgba() usage */
+    --primary-background-rgb: 26, 59, 51;
+    --secondary-card-background-rgb: 42, 76, 68;
+    --accent-gold-rgb: 200, 168, 95;
     
     /* Primary Colors (Based on original theme) */
     --primary-color: #1A3B33;
@@ -178,7 +188,7 @@
 }
 
 [data-theme="default"] .progress {
-    background-color: var(--progress-bg);
+    background-color: #fff !important;
 }
 
 [data-theme="default"] .progress-bar {
