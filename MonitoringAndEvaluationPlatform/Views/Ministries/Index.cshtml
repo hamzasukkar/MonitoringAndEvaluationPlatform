@@ -281,9 +281,15 @@ $(document).on('click', '.editable-field', function() {
             $this.removeClass('editing').text(originalValue);
         }
     });
+    // Auto-generate username from display name
+    $('input[name="MinistryDisplayName"]').on('input', function() {
+        const displayName = $(this).val();
+        const username = displayName.replace(/\s+/g, '').toLowerCase();
+        $('input[name="MinistryUserName"]').val(username);
+    });
 });
 
-// Delete Ministry
+// Delete Ministry - Global function
 function deleteMinistry(id) {
     console.log('Delete ministry called with id:', id);
     Swal.fire({
@@ -328,16 +334,6 @@ function deleteMinistry(id) {
         }
     });
 }
-
-
-// Auto-generate username from display name
-$('input[name="MinistryDisplayName"]').on('input', function() {
-    const displayName = $(this).val();
-    const username = displayName.replace(/\s+/g, '').toLowerCase();
-    $('input[name="MinistryUserName"]').val(username);
-});
-
-}); // End document ready
 
 // Toggle Ministry Inline Edit - Global function
 function toggleMinistryEdit(code) {
