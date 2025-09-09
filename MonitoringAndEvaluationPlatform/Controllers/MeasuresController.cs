@@ -39,10 +39,35 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         }
 
         // GET: Measures
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(int? indicatorId)
         {
-            var applicationDbContext = _context.Measures.Include(m => m.Indicator);
-            return View(await applicationDbContext.ToListAsync());
+            var query = _context.Measures.Include(m => m.Indicator).AsQueryable();
+            
+            // Filter by indicator if provided
+            if (indicatorId.HasValue)
+            {
+                query = query.Where(m => m.IndicatorCode == indicatorId.Value);
+                
+                // Pass indicator info to view for creating new measures
+                var indicator = await _context.Indicators.FindAsync(indicatorId.Value);
+                ViewBag.SelectedIndicator = indicator;
+                ViewBag.SelectedIndicatorId = indicatorId.Value;
+                
+                // Find project associated with this indicator
+                var projectIndicator = await _context.ProjectIndicators
+                    .Include(pi => pi.Project)
+                    .FirstOrDefaultAsync(pi => pi.IndicatorCode == indicatorId.Value);
+                
+                if (projectIndicator != null)
+                {
+                    ViewBag.SelectedProject = projectIndicator.Project;
+                    ViewBag.SelectedProjectId = projectIndicator.ProjectId;
+                }
+            }
+            
+            ViewData["IndicatorCode"] = new SelectList(_context.Indicators, "IndicatorCode", "Name");
+            
+            return View(await query.ToListAsync());
         }
 
 
@@ -66,23 +91,57 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> CreateFromDetails(Measure measure)
         {
             ModelState.Remove(nameof(measure.Indicator));
+            
+            // Set the measure as Real (only type available now)
+            measure.ValueType = MeasureValueType.Real;
+            
             if (ModelState.IsValid)
             {
                 _context.Add(measure);
                 await _context.SaveChangesAsync();
-                return Ok(); // for AJAX
+                
+                // Update indicator performance after adding the measure
+                await _monitoringService.UpdateIndicatorPerformance(measure.IndicatorCode);
+                
+                return Ok(new { message = "Measure added successfully and indicator performance updated" });
             }
 
             return BadRequest("Invalid input");
         }
 
         // GET: Measures/Create
-        public IActionResult Create()
+        public async Task<IActionResult> Create(int? indicatorId)
         {
-            ViewData["Indicators"] = new SelectList(_context.Indicators, "IndicatorCode", "Name");
+            if (indicatorId.HasValue)
+            {
+                // Pre-populate the form with the selected indicator
+                var indicator = await _context.Indicators.FindAsync(indicatorId.Value);
+                ViewBag.SelectedIndicator = indicator;
+                ViewBag.PreSelectedIndicatorId = indicatorId.Value;
+                
+                // Set dropdown with the selected indicator highlighted
+                ViewData["Indicators"] = new SelectList(_context.Indicators, "IndicatorCode", "Name", indicatorId.Value);
+                
+                // Find associated project for breadcrumb/navigation context
+                var projectIndicator = await _context.ProjectIndicators
+                    .Include(pi => pi.Project)
+                    .FirstOrDefaultAsync(pi => pi.IndicatorCode == indicatorId.Value);
+                
+                if (projectIndicator != null)
+                {
+                    ViewBag.SelectedProject = projectIndicator.Project;
+                    ViewBag.SelectedProjectId = projectIndicator.ProjectId;
+                }
+            }
+            else
+            {
+                ViewData["Indicators"] = new SelectList(_context.Indicators, "IndicatorCode", "Name");
+            }
+            
             return View();
         }
 
@@ -105,7 +164,9 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 await _monitoringService.UpdateIndicatorPerformance(measure.IndicatorCode);
                 
                 TempData["SuccessMessage"] = "Measure added successfully and indicator performance has been updated.";
-                return RedirectToAction(nameof(Index));
+                
+                // Redirect back to Index with indicator filter to show the measures for this indicator
+                return RedirectToAction(nameof(Index), new { indicatorId = measure.IndicatorCode });
             }
 
             ViewData["IndicatorCode"] = new SelectList(_context.Indicators, "IndicatorCode", "Name", measure.IndicatorCode);

@@ -7,6 +7,8 @@
     ViewData["Title"] = "Create Measure";
     Layout = "~/Views/Shared/_Layout.cshtml";
     var targetDate = DateTime.Today.ToString("yyyy-MM-dd");
+    var selectedIndicator = ViewBag.SelectedIndicator as MonitoringAndEvaluationPlatform.Models.Indicator;
+    var preSelectedIndicatorId = ViewBag.PreSelectedIndicatorId as int?;
 }
 
 <div class="container-fluid px-4">
@@ -37,6 +39,28 @@
         </div>
     }
 
+    @if (selectedIndicator != null)
+    {
+        <!-- Pre-selected Indicator Info -->
+        <div class="row justify-content-center mb-4">
+            <div class="col-lg-8">
+                <div class="alert alert-info border-info">
+                    <div class="d-flex align-items-start">
+                        <i class="fas fa-bullseye me-3 text-info mt-1"></i>
+                        <div>
+                            <h6 class="alert-heading mb-2">@Localizer["Creating Measure for Selected Indicator"]</h6>
+                            <p class="mb-1"><strong>[@selectedIndicator.IndicatorCode]</strong> @selectedIndicator.Name</p>
+                            @if (selectedIndicator.Target > 0)
+                            {
+                                <small class="text-muted">@Localizer["Target"]: @selectedIndicator.Target.ToString("N2")</small>
+                            }
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+
     <!-- Main Form Card -->
     <div class="row justify-content-center">
         <div class="col-lg-8">
@@ -56,11 +80,23 @@
                                 <label asp-for="IndicatorCode" class="form-label">
                                     <i class="fas fa-bullseye me-2 text-success"></i>@Localizer["Indicator"] *
                                 </label>
-                                <select asp-for="IndicatorCode" class="form-select" asp-items="ViewBag.Indicators" id="indicatorSelect" required>
-                                    <option value="">@Localizer["Select an Indicator"]</option>
-                                </select>
-                                <span asp-validation-for="IndicatorCode" class="text-danger"></span>
-                                <div class="form-text">@Localizer["Choose the indicator for which you are recording progress"]</div>
+                                @if (preSelectedIndicatorId.HasValue)
+                                {
+                                    <!-- Read-only display of pre-selected indicator -->
+                                    <input type="text" class="form-control" value="[@selectedIndicator.IndicatorCode] @selectedIndicator.Name" readonly />
+                                    <input asp-for="IndicatorCode" type="hidden" value="@preSelectedIndicatorId.Value" />
+                                    <div class="form-text text-success">
+                                        <i class="fas fa-info-circle me-1"></i>@Localizer["This indicator was automatically selected from the project"]
+                                    </div>
+                                }
+                                else
+                                {
+                                    <select asp-for="IndicatorCode" class="form-select" asp-items="ViewBag.Indicators" id="indicatorSelect" required>
+                                        <option value="">@Localizer["Select an Indicator"]</option>
+                                    </select>
+                                    <span asp-validation-for="IndicatorCode" class="text-danger"></span>
+                                    <div class="form-text">@Localizer["Choose the indicator for which you are recording progress"]</div>
+                                }
                             </div>
 
                             <!-- Date and Value Row -->
@@ -91,19 +127,38 @@
                             <input asp-for="ValueType" type="hidden" value="@MeasureValueType.Real" />
 
                             <!-- Indicator Target Info Display -->
-                            <div class="col-12" id="indicatorInfo" style="display: none;">
-                                <div class="alert alert-info border-info">
-                                    <div class="d-flex align-items-center">
-                                        <i class="fas fa-info-circle me-3 text-info"></i>
-                                        <div>
-                                            <strong>@Localizer["Indicator Target"]: </strong>
-                                            <span id="indicatorTarget">-</span>
-                                            <br>
-                                            <small class="text-muted">@Localizer["Your achievement will be measured against this target"]</small>
+                            @if (preSelectedIndicatorId.HasValue && selectedIndicator.Target > 0)
+                            {
+                                <div class="col-12">
+                                    <div class="alert alert-info border-info">
+                                        <div class="d-flex align-items-center">
+                                            <i class="fas fa-info-circle me-3 text-info"></i>
+                                            <div>
+                                                <strong>@Localizer["Indicator Target"]: </strong>
+                                                <span>@selectedIndicator.Target.ToString("N2")</span>
+                                                <br>
+                                                <small class="text-muted">@Localizer["Your achievement will be measured against this target"]</small>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
-                            </div>
+                            }
+                            else if (!preSelectedIndicatorId.HasValue)
+                            {
+                                <div class="col-12" id="indicatorInfo" style="display: none;">
+                                    <div class="alert alert-info border-info">
+                                        <div class="d-flex align-items-center">
+                                            <i class="fas fa-info-circle me-3 text-info"></i>
+                                            <div>
+                                                <strong>@Localizer["Indicator Target"]: </strong>
+                                                <span id="indicatorTarget">-</span>
+                                                <br>
+                                                <small class="text-muted">@Localizer["Your achievement will be measured against this target"]</small>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            }
                         </div>
 
                         <!-- Action Buttons -->

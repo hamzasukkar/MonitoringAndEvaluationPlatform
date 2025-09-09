@@ -395,6 +395,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             await _context.Entry(project).Collection(p => p.SubDistricts).LoadAsync();
             await _context.Entry(project).Collection(p => p.Communities).LoadAsync();
             await _context.Entry(project).Collection(p => p.Sectors).LoadAsync();
+            await _context.Entry(project).Collection(p => p.ProjectIndicators).LoadAsync();
             // ... and so on for other collections
 
             return View(project);

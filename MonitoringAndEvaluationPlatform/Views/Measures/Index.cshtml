@@ -1,54 +1,337 @@
 ﻿@model IEnumerable<MonitoringAndEvaluationPlatform.Models.Measure>
+@using Microsoft.AspNetCore.Mvc.Localization
+@inject IViewLocalizer Localizer
 
 @{
-    ViewData["Title"] = "Index";
+    ViewData["Title"] = "Measures";
     Layout = "~/Views/Shared/_ProjectsLayout.cshtml";
+    var selectedIndicator = ViewBag.SelectedIndicator as MonitoringAndEvaluationPlatform.Models.Indicator;
+    var selectedProject = ViewBag.SelectedProject as MonitoringAndEvaluationPlatform.Models.Project;
 }
 
-<h1>Index</h1>
+<div class="container-fluid py-4">
+    @if (selectedProject != null && selectedIndicator != null)
+    {
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="card shadow-sm">
+                    <div class="card-header bg-primary text-white">
+                        <h5 class="mb-0">
+                            <i class="fas fa-project-diagram me-2"></i>@selectedProject.ProjectName
+                        </h5>
+                        <p class="mb-0 text-white-50">
+                            <i class="fas fa-bullseye me-1"></i>@Localizer["Indicator"]: [@selectedIndicator.IndicatorCode] @selectedIndicator.Name
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+    else if (selectedProject != null)
+    {
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="card shadow-sm">
+                    <div class="card-header bg-primary text-white">
+                        <h5 class="mb-0">
+                            <i class="fas fa-project-diagram me-2"></i>@selectedProject.ProjectName - @Localizer["Measures"]
+                        </h5>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
 
-<p>
-    <a asp-action="Create">Create New</a>
-</p>
-<table class="table">
-    <thead>
-        <tr>
-            <th>
-                @Html.DisplayNameFor(model => model.Date)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Value)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.ValueType)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Indicator)
-            </th>
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-@foreach (var item in Model) {
-        <tr>
-            <td>
-                @Html.DisplayFor(modelItem => item.Date)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Value)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.ValueType)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Indicator.Name)
-            </td>
-            <td>
-                <a asp-action="Edit" asp-route-id="@item.Code">Edit</a> |
-                <a asp-action="Details" asp-route-id="@item.Code">Details</a> |
-                <a asp-action="Delete" asp-route-id="@item.Code">Delete</a>
-            </td>
-        </tr>
-}
-    </tbody>
-</table>
+    @if (selectedIndicator != null && selectedProject == null)
+    {
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="alert alert-info">
+                    <h6 class="alert-heading">
+                        <i class="fas fa-bullseye me-2"></i>@Localizer["Selected Indicator"]
+                    </h6>
+                    <p class="mb-1"><strong>[@selectedIndicator.IndicatorCode]</strong> @selectedIndicator.Name</p>
+                    @if (selectedIndicator.Target > 0)
+                    {
+                        <small class="text-muted">@Localizer["Target"]: @selectedIndicator.Target.ToString("N2")</small>
+                    }
+                </div>
+            </div>
+        </div>
+    }
+
+    @if (ViewBag.SelectedIndicatorId != null)
+    {
+        <!-- Inline Create Form -->
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="card shadow-sm border-success">
+                    <div class="card-header bg-success text-white">
+                        <h6 class="mb-0">
+                            <i class="fas fa-plus-circle me-2"></i>@Localizer["Add New Measure"]
+                        </h6>
+                    </div>
+                    <div class="card-body">
+                        <form id="inlineMeasureForm" class="row g-3">
+                            @Html.AntiForgeryToken()
+                            <div class="col-md-4">
+                                <label for="measureDate" class="form-label">@Localizer["Date"] *</label>
+                                <input type="date" id="measureDate" name="Date" class="form-control" value="@DateTime.Today.ToString("yyyy-MM-dd")" required />
+                            </div>
+                            <div class="col-md-4">
+                                <label for="measureValue" class="form-label">@Localizer["Achievement Value"] *</label>
+                                <input type="number" id="measureValue" name="Value" step="0.01" min="0" class="form-control" placeholder="0.00" required />
+                            </div>
+                            <div class="col-md-4 d-flex align-items-end">
+                                <button type="submit" class="btn btn-success w-100" id="addMeasureBtn">
+                                    <i class="fas fa-save me-2"></i>@Localizer["Add Measure"]
+                                </button>
+                            </div>
+                            <input type="hidden" id="indicatorCode" name="IndicatorCode" value="@ViewBag.SelectedIndicatorId" />
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+
+    <div class="row mb-3">
+        <div class="col-12">
+            @if (selectedProject != null)
+            {
+                <a asp-action="Details" asp-controller="Projects" asp-route-id="@selectedProject.ProjectID" class="btn btn-outline-primary">
+                    <i class="fas fa-arrow-left me-2"></i>@Localizer["Back to Project"]
+                </a>
+            }
+            
+            @if (ViewBag.SelectedIndicatorId == null)
+            {
+                <a asp-action="Create" class="btn btn-success ms-2">
+                    <i class="fas fa-plus me-2"></i>@Localizer["Create New Measure"]
+                </a>
+            }
+        </div>
+    </div>
+</div>
+
+<div class="card shadow-sm">
+    <div class="card-header bg-light">
+        <h5 class="mb-0">
+            <i class="fas fa-list me-2"></i>@Localizer["Measures List"]
+            @if (Model.Any())
+            {
+                <span class="badge bg-primary ms-2">@Model.Count()</span>
+            }
+        </h5>
+    </div>
+    <div class="card-body p-0">
+        @if (Model.Any())
+        {
+            <table class="table table-hover mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th class="border-0">
+                            <i class="fas fa-calendar me-1 text-muted"></i>@Html.DisplayNameFor(model => model.Date)
+                        </th>
+                        <th class="border-0">
+                            <i class="fas fa-chart-line me-1 text-muted"></i>@Html.DisplayNameFor(model => model.Value)
+                        </th>
+                        <th class="border-0">
+                            <i class="fas fa-tag me-1 text-muted"></i>@Html.DisplayNameFor(model => model.ValueType)
+                        </th>
+                        @if (ViewBag.SelectedIndicatorId == null)
+                        {
+                            <th class="border-0">
+                                <i class="fas fa-bullseye me-1 text-muted"></i>@Html.DisplayNameFor(model => model.Indicator)
+                            </th>
+                        }
+                        <th class="border-0 text-end">@Localizer["Actions"]</th>
+                    </tr>
+                </thead>
+                <tbody>
+                @foreach (var item in Model) {
+                    <tr>
+                        <td>
+                            <span class="fw-medium">@item.Date.ToString("yyyy-MM-dd")</span>
+                        </td>
+                        <td>
+                            <span class="badge bg-success fs-6">@item.Value.ToString("N2")</span>
+                        </td>
+                        <td>
+                            <span class="text-muted">@Html.DisplayFor(modelItem => item.ValueType)</span>
+                        </td>
+                        @if (ViewBag.SelectedIndicatorId == null)
+                        {
+                            <td>
+                                <small class="text-muted">[@item.Indicator.IndicatorCode]</small> @Html.DisplayFor(modelItem => item.Indicator.Name)
+                            </td>
+                        }
+                        <td class="text-end">
+                            <div class="btn-group btn-group-sm" role="group">
+                                <a asp-action="Edit" asp-route-id="@item.Code" class="btn btn-outline-primary">
+                                    <i class="fas fa-edit"></i>
+                                </a>
+                                <a asp-action="Details" asp-route-id="@item.Code" class="btn btn-outline-info">
+                                    <i class="fas fa-eye"></i>
+                                </a>
+                                <a asp-action="Delete" asp-route-id="@item.Code" class="btn btn-outline-danger" 
+                                   onclick="return confirm('@Localizer["Are you sure you want to delete this measure?"]')">
+                                    <i class="fas fa-trash"></i>
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                }
+                </tbody>
+            </table>
+        }
+        else
+        {
+            <div class="text-center py-5">
+                <i class="fas fa-chart-line fa-3x text-muted mb-3"></i>
+                <h6 class="text-muted">@Localizer["No measures found"]</h6>
+                <p class="text-muted small">
+                    @if (ViewBag.SelectedIndicatorId != null)
+                    {
+                        @Localizer["No measures have been added for this indicator yet. Use the form above to add the first measure."]
+                    }
+                    else
+                    {
+                        @Localizer["No measures have been added yet."]
+                    }
+                </p>
+            </div>
+        }
+    </div>
+</div>
+
+<!-- Success/Error Messages -->
+<div id="messageContainer"></div>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.7.32/dist/sweetalert2.min.js"></script>
+
+<script>
+$(document).ready(function() {
+    // Handle inline measure form submission
+    $('#inlineMeasureForm').on('submit', function(e) {
+        e.preventDefault();
+        
+        const formData = {
+            Date: $('#measureDate').val(),
+            Value: parseFloat($('#measureValue').val()),
+            IndicatorCode: parseInt($('#indicatorCode').val()),
+            ValueType: 'Real' // Always Real as per your requirement
+        };
+        
+        // Disable button and show loading
+        const btn = $('#addMeasureBtn');
+        const originalText = btn.html();
+        btn.prop('disabled', true).html('<i class="fas fa-spinner fa-spin me-2"></i>@Localizer["Adding..."]');
+        
+        // Add anti-forgery token to form data
+        formData.__RequestVerificationToken = $('input[name="__RequestVerificationToken"]').val();
+        
+        // Send AJAX request
+        $.ajax({
+            url: '@Url.Action("CreateFromDetails", "Measures")',
+            type: 'POST',
+            data: formData,
+            success: function(response) {
+                // Show success message
+                Swal.fire({
+                    icon: 'success',
+                    title: '@Localizer["Success"]',
+                    text: '@Localizer["Measure added successfully and indicator performance updated"]',
+                    timer: 2000,
+                    showConfirmButton: false
+                });
+                
+                // Reset form
+                $('#measureValue').val('');
+                $('#measureDate').val('@DateTime.Today.ToString("yyyy-MM-dd")');
+                
+                // Reload page to show new measure
+                setTimeout(function() {
+                    location.reload();
+                }, 2000);
+            },
+            error: function(xhr) {
+                // Show error message
+                Swal.fire({
+                    icon: 'error',
+                    title: '@Localizer["Error"]',
+                    text: '@Localizer["Failed to add measure. Please try again."]'
+                });
+            },
+            complete: function() {
+                // Re-enable button
+                btn.prop('disabled', false).html(originalText);
+            }
+        });
+    });
+});
+</script>
+
+<style>
+    .border-success {
+        border-color: #198754 !important;
+    }
+    
+    .bg-success {
+        background-color: #198754 !important;
+    }
+    
+    .card {
+        transition: all 0.3s ease;
+    }
+    
+    .card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    }
+    
+    .form-control:focus {
+        border-color: #198754;
+        box-shadow: 0 0 0 0.2rem rgba(25, 135, 84, 0.25);
+    }
+    
+    .btn-success:hover {
+        background-color: #157347;
+        border-color: #146c43;
+    }
+    
+    .table-hover tbody tr:hover {
+        background-color: rgba(0,0,0,0.02);
+    }
+    
+    .btn-group-sm .btn {
+        padding: 0.375rem 0.5rem;
+        font-size: 0.875rem;
+    }
+    
+    .badge.fs-6 {
+        font-size: 0.95rem !important;
+        padding: 0.375rem 0.75rem;
+    }
+    
+    .card-header {
+        border-bottom: 1px solid rgba(0,0,0,0.125);
+    }
+    
+    .table-light th {
+        background-color: #f8f9fa !important;
+        font-weight: 600;
+        color: #495057;
+    }
+    
+    .fw-medium {
+        font-weight: 500;
+    }
+    
+    .alert-info {
+        background-color: #d1ecf1;
+        border-color: #b8daff;
+        color: #0c5460;
+    }
+</style>
