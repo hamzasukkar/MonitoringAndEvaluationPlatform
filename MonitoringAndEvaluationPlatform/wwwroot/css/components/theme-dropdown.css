@@ -138,3 +138,36 @@
     background: var(--bg-body);
     border: 1px solid var(--border-color);
 }
+
+[data-theme="modern-glass"] .theme-dropdown-menu {
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.05));
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+}
+
+/* Color circle definitions for themes */
+.theme-default {
+    background: linear-gradient(135deg, #1A3B33, #C8A85F);
+}
+
+.theme-calm-blue {
+    background: linear-gradient(135deg, #1a365d, #60a5fa);
+}
+
+.theme-alternative {
+    background: linear-gradient(135deg, #2d3748, #68d391);
+}
+
+.theme-modern-glass-1 {
+    background: linear-gradient(135deg, #1a1d3a, #667eea);
+}
+
+.theme-modern-glass-2 {
+    background: linear-gradient(135deg, #667eea, #764ba2);
+}
+
+.theme-modern-glass-3 {
+    background: linear-gradient(135deg, #764ba2, #ffd89b);
+}

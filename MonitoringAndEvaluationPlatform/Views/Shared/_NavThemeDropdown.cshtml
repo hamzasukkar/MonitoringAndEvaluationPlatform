@@ -64,6 +64,23 @@
                 <i class="fas fa-check"></i>
             </div>
         </div>
+
+        <div class="nav-theme-option" data-theme="modern-glass">
+            <div class="nav-theme-preview">
+                <div class="nav-theme-colors">
+                    <div class="nav-color-circle" style="background: linear-gradient(135deg, #1a1d3a, #667eea);"></div>
+                    <div class="nav-color-circle" style="background: linear-gradient(135deg, #667eea, #764ba2);"></div>
+                    <div class="nav-color-circle" style="background: linear-gradient(135deg, #764ba2, #ffd89b);"></div>
+                </div>
+                <div class="nav-theme-info">
+                    <div class="nav-theme-name">Modern Glass</div>
+                    <div class="nav-theme-description">Beautiful glass morphism</div>
+                </div>
+            </div>
+            <div class="nav-theme-check">
+                <i class="fas fa-check"></i>
+            </div>
+        </div>
     </div>
 </li>
 
@@ -184,6 +201,14 @@
 [data-theme="alternative"] .nav-theme-dropdown-menu {
     background: var(--bg-body);
     border: 1px solid var(--border-color);
+}
+
+[data-theme="modern-glass"] .nav-theme-dropdown-menu {
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.05));
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
 }
 </style>
 

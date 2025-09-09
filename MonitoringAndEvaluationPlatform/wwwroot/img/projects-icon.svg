@@ -1,0 +1,41 @@
+<svg class="svg-icon" style="width: 1em; height: 1em; vertical-align: middle; fill: currentColor; overflow: hidden;" viewBox="0 0 24 24" version="1.1" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="projectsGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#ed8936;stop-opacity:1" />
+      <stop offset="50%" style="stop-color:#667eea;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#764ba2;stop-opacity:1" />
+    </linearGradient>
+    <filter id="projectGlow">
+      <feGaussianBlur stdDeviation="1.5" result="coloredBlur"/>
+      <feMerge> 
+        <feMergeNode in="coloredBlur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+  
+  <!-- Main folder background -->
+  <path d="M 3 6 L 3 19 A 2 2 0 0 0 5 21 L 19 21 A 2 2 0 0 0 21 19 L 21 8 A 2 2 0 0 0 19 6 L 12 6 L 10 4 L 5 4 A 2 2 0 0 0 3 6 Z" fill="url(#projectsGradient)" opacity="0.2" stroke="url(#projectsGradient)" stroke-width="1"/>
+  
+  <!-- Inner folder with projects -->
+  <rect x="5" y="8" width="14" height="10" rx="2" fill="url(#projectsGradient)" opacity="0.3"/>
+  
+  <!-- Project task items -->
+  <rect x="7" y="10" width="10" height="1.5" rx="0.75" fill="url(#projectsGradient)" opacity="0.8" filter="url(#projectGlow)"/>
+  <rect x="7" y="12.5" width="8" height="1.5" rx="0.75" fill="url(#projectsGradient)" opacity="0.6"/>
+  <rect x="7" y="15" width="6" height="1.5" rx="0.75" fill="url(#projectsGradient)" opacity="0.7"/>
+  
+  <!-- Completion indicators -->
+  <circle cx="17.5" cy="10.75" r="0.8" fill="#48bb78" opacity="0.9"/>
+  <path d="M 17 10.75 L 17.3 11.05 L 18 10.4" stroke="#ffffff" stroke-width="0.5" fill="none"/>
+  
+  <circle cx="16.5" cy="13.25" r="0.8" fill="#ed8936" opacity="0.8"/>
+  <circle cx="16.5" cy="13.25" r="0.3" fill="#ffffff" opacity="0.9"/>
+  
+  <!-- Progress indicator -->
+  <rect x="13" y="15" width="4" height="1.5" rx="0.75" fill="rgba(255,255,255,0.2)"/>
+  <rect x="13" y="15" width="2.5" height="1.5" rx="0.75" fill="#4299e1" opacity="0.8"/>
+  
+  <!-- Folder tab -->
+  <path d="M 5 4 L 10 4 L 12 6 L 19 6" stroke="url(#projectsGradient)" stroke-width="1.5" fill="none" opacity="0.6"/>
+</svg>

@@ -289,6 +289,7 @@ $(document).on('click', '.editable-field', function() {
 
 // Delete Sector
 function deleteSector(id) {
+    console.log('Delete sector called with id:', id);
     Swal.fire({
         title: '@Localizer["Are you sure?"]',
         text: "@Localizer["You won't be able to revert this!"]",
@@ -299,12 +300,15 @@ function deleteSector(id) {
         confirmButtonText: '@Localizer["Yes, delete it!"]',
         cancelButtonText: '@Localizer["Cancel"]'
     }).then((result) => {
+        console.log('SweetAlert result:', result);
         if (result.isConfirmed) {
+            console.log('Sending delete request for id:', id);
             $.ajax({
                 url: '@Url.Action("InlineDelete")',
                 type: 'POST',
                 data: { id: id },
                 success: function(response) {
+                    console.log('Delete response:', response);
                     if (response.success) {
                         $(`#sector-row-${id}`).fadeOut(function() {
                             $(this).remove();
@@ -317,10 +321,11 @@ function deleteSector(id) {
                             showConfirmButton: false
                         });
                     } else {
-                        Swal.fire('Error', response.message, 'error');
+                        Swal.fire('Error', response.message || 'Unknown error', 'error');
                     }
                 },
-                error: function() {
+                error: function(xhr, status, error) {
+                    console.error('Delete error:', xhr, status, error);
                     Swal.fire('Error', '@Localizer["An error occurred while deleting"]', 'error');
                 }
             });

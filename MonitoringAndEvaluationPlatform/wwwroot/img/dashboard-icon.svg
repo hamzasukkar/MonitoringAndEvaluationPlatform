@@ -1,0 +1,38 @@
+<svg class="svg-icon" style="width: 1em; height: 1em; vertical-align: middle; fill: currentColor; overflow: hidden;" viewBox="0 0 24 24" version="1.1" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="dashboardGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#667eea;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#764ba2;stop-opacity:1" />
+    </linearGradient>
+    <filter id="glow">
+      <feGaussianBlur stdDeviation="2" result="coloredBlur"/>
+      <feMerge> 
+        <feMergeNode in="coloredBlur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+  
+  <!-- Dashboard grid background -->
+  <rect x="2" y="2" width="20" height="20" rx="4" ry="4" fill="url(#dashboardGradient)" opacity="0.1" stroke="url(#dashboardGradient)" stroke-width="1"/>
+  
+  <!-- Top row cards -->
+  <rect x="4" y="4" width="7" height="5" rx="2" ry="2" fill="url(#dashboardGradient)" opacity="0.8" filter="url(#glow)"/>
+  <rect x="13" y="4" width="7" height="5" rx="2" ry="2" fill="url(#dashboardGradient)" opacity="0.6"/>
+  
+  <!-- Bottom row cards -->
+  <rect x="4" y="11" width="7" height="9" rx="2" ry="2" fill="url(#dashboardGradient)" opacity="0.7"/>
+  <rect x="13" y="11" width="7" height="5" rx="2" ry="2" fill="url(#dashboardGradient)" opacity="0.5"/>
+  
+  <!-- Chart elements in cards -->
+  <circle cx="7.5" cy="6.5" r="1" fill="#ffffff" opacity="0.9"/>
+  <rect x="14" y="5.5" width="2" height="2" rx="0.5" fill="#ffffff" opacity="0.8"/>
+  <rect x="17" y="6" width="2" height="1.5" rx="0.3" fill="#ffffff" opacity="0.6"/>
+  
+  <!-- Bottom chart visualization -->
+  <path d="M 5 18 L 7 16 L 9 17 L 10 15" stroke="#ffffff" stroke-width="1.5" fill="none" opacity="0.9"/>
+  
+  <!-- Stats dots -->
+  <circle cx="16" cy="13.5" r="0.8" fill="#ffffff" opacity="0.9"/>
+  <circle cx="18" cy="14.5" r="0.6" fill="#ffffff" opacity="0.7"/>
+</svg>
