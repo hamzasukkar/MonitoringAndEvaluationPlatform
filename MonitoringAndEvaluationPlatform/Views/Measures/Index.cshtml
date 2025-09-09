@@ -136,9 +136,6 @@
                         <th class="border-0">
                             <i class="fas fa-chart-line me-1 text-muted"></i>@Html.DisplayNameFor(model => model.Value)
                         </th>
-                        <th class="border-0">
-                            <i class="fas fa-tag me-1 text-muted"></i>@Html.DisplayNameFor(model => model.ValueType)
-                        </th>
                         @if (ViewBag.SelectedIndicatorId == null)
                         {
                             <th class="border-0">
@@ -156,9 +153,6 @@
                         </td>
                         <td>
                             <span class="badge bg-success fs-6">@item.Value.ToString("N2")</span>
-                        </td>
-                        <td>
-                            <span class="text-muted">@Html.DisplayFor(modelItem => item.ValueType)</span>
                         </td>
                         @if (ViewBag.SelectedIndicatorId == null)
                         {

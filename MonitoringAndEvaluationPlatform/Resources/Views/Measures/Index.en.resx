@@ -117,166 +117,37 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="Project" xml:space="preserve">
-    <value>المشروع</value>
-  </data>
-  <data name="No files uploaded for this project." xml:space="preserve">
-    <value>لم يتم تحميل أي ملفات لهذا المشروع.</value>
-  </data>
-  <data name="Impact Assessment" xml:space="preserve">
-    <value>تقييم الأثر</value>
-  </data>
-  <data name="Impact measurement" xml:space="preserve">
-    <value>قياس الأثر</value>
-  </data>
-  <data name="Field activities completion" xml:space="preserve">
-    <value>إكمال الأنشطة الميدانية</value>
-  </data>
-  <data name="Disbursement" xml:space="preserve">
-    <value>الصرف</value>
-  </data>
-  <data name="Budget utilization" xml:space="preserve">
-    <value>استخدام الميزانية</value>
-  </data>
-  <data name="Overall project performance" xml:space="preserve">
-    <value>الأداء العام للمشروع</value>
-  </data>
-  <data name="Financial Information" xml:space="preserve">
-    <value>المعلومات المالية</value>
-  </data>
-  <data name="Estimated Budget" xml:space="preserve">
-    <value>الموازنة</value>
-  </data>
-  <data name="Community" xml:space="preserve">
-    <value>المجتمع المحلي</value>
-  </data>
-  <data name="SubDistrict" xml:space="preserve">
-    <value>المنطقة الفرعية</value>
-  </data>
-  <data name="District" xml:space="preserve">
-    <value>المنطقة</value>
-  </data>
-  <data name="Regions Information" xml:space="preserve">
-    <value>معلومات المناطق</value>
-  </data>
-  <data name="Start Date" xml:space="preserve">
-    <value>تاريخ البدء</value>
-  </data>
-  <data name="End Date" xml:space="preserve">
-    <value>تاريخ الانتهاء</value>
-  </data>
-  <data name="Sector" xml:space="preserve">
-    <value>القطاع</value>
-  </data>
-  <data name="Basic Information" xml:space="preserve">
-    <value>المعلومات الأساسية</value>
-  </data>
-  <data name="Activities" xml:space="preserve">
-    <value>الأنشطة</value>
-  </data>
-  <data name="Action Plans" xml:space="preserve">
-    <value>خطط العمل</value>
-  </data>
-  <data name="Measures" xml:space="preserve">
-    <value>المقايس</value>
-  </data>
-  <data name="Alignement" xml:space="preserve">
-    <value>التوافق</value>
-  </data>
-  <data name="Governorate" xml:space="preserve">
-    <value>محافظة</value>
-  </data>
-  <data name="Real Budget" xml:space="preserve">
-    <value>الميزانية الحقيقية</value>
-  </data>
-  <data name="Field Monitoring" xml:space="preserve">
-    <value>المراقبة الميدانية</value>
-  </data>
-  <data name="Donor" xml:space="preserve">
-    <value>المانح</value>
-  </data>
-  <data name="Ministry" xml:space="preserve">
-    <value>الوزارة</value>
-  </data>
-  <data name="Project Manager" xml:space="preserve">
-    <value>مدير المشروع</value>
-  </data>
-  <data name="Supervisor" xml:space="preserve">
-    <value>مشرف</value>
-  </data>
-  <data name="Performance" xml:space="preserve">
-    <value>أداء</value>
-  </data>
-  <data name="Project Name" xml:space="preserve">
-    <value>اسم المشروع</value>
-  </data>
-  <data name="Plans Count" xml:space="preserve">
-    <value>عدد الخطط</value>
-  </data>
-  <data name="Project Location" xml:space="preserve">
-    <value>موقع المشروع</value>
-  </data>
-  <data name="Select Governorate" xml:space="preserve">
-    <value>اختر المحافظة</value>
-  </data>
-  <data name="Budget Information" xml:space="preserve">
-    <value>معلومات الميزانية</value>
-  </data>
-  <data name="Stakeholders" xml:space="preserve">
-    <value>المالكون</value>
-  </data>
-  <data name="Add Location" xml:space="preserve">
-    <value>إضافة الموقع</value>
-  </data>
-  <data name="Reset" xml:space="preserve">
-    <value>مسح الفلاتر</value>
-  </data>
-  <data name="Fill in the project details below" xml:space="preserve">
-    <value>املأ تفاصيل المشروع أدناه</value>
-  </data>
-  <data name="Create New Project" xml:space="preserve">
-    <value>إنشاء مشروع جديد</value>
-  </data>
-  <data name="Project Documents" xml:space="preserve">
-    <value>وثائق المشروع</value>
-  </data>
-  <data name="Upload Files" xml:space="preserve">
-    <value>تحميل الملفات</value>
-  </data>
-  <data name="Uploaded Files" xml:space="preserve">
-    <value>الملفات المحمّلة</value>
-  </data>
-  <data name="SDGs" xml:space="preserve">
-    <value>أهداف التنمية المستدامة</value>
-  </data>
-  <data name="Create Project" xml:space="preserve">
-    <value>إنشاء مشروع</value>
-  </data>
-  <data name="Cancel" xml:space="preserve">
-    <value>إلغاء</value>
-  </data>
-  <data name="Target Measures" xml:space="preserve">
-    <value>Target Measures</value>
-  </data>
-  <data name="Add Measure" xml:space="preserve">
-    <value>إضافة مقياس</value>
-  </data>
   <data name="Indicator" xml:space="preserve">
-    <value>المشروع</value>
+    <value>Indicator</value>
   </data>
   <data name="Value" xml:space="preserve">
-    <value>القيمة</value>
+    <value>Value</value>
+  </data>
+  <data name="Create New Measure" xml:space="preserve">
+    <value>Create New Measure</value>
+  </data>
+  <data name="Achievement Value" xml:space="preserve">
+    <value>Achievement Value</value>
+  </data>
+  <data name="Add New Measure" xml:space="preserve">
+    <value>Add New Measure</value>
+  </data>
+  <data name="Add Measure" xml:space="preserve">
+    <value>Add Measure</value>
   </data>
   <data name="Date" xml:space="preserve">
-    <value>التاريخ</value>
+    <value>Date</value>
   </data>
-  <data name="Select Indicator" xml:space="preserve">
-    <value>اختيار المشروع</value>
+  <data name="No measures found" xml:space="preserve">
+    <value>No Measures Found</value>
   </data>
-  <data name="Project Indicators" xml:space="preserve">
-    <value>مؤشرات المشروع</value>
+  <data name="No measures have been added for this indicator yet. Use the form above to add the first measure." xml:space="preserve">
+    <value>No measures have been added for this indicator yet. Use the form above to add the first measure.</value>
   </data>
-  <data name="Select an indicator" xml:space="preserve">
-    <value>اختيار المؤشر</value>
+  <data name="Back to Project" xml:space="preserve">
+    <value>Back to Project</value>
+  </data>
+  <data name="Measures List" xml:space="preserve">
+    <value>Measures List</value>
   </data>
 </root>
