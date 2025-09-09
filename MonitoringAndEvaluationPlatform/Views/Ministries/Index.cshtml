@@ -9,6 +9,7 @@
 @{
     ViewData["Title"] = "Ministries";
     Layout = "~/Views/Shared/_SetUpLayout.cshtml";
+    var culture = Context.Features.Get<IRequestCultureFeature>().RequestCulture.Culture.Name;
 }
 
 <div class="container-fluid">
