@@ -74,6 +74,18 @@
                 </div>
                 <div class="card-body">
                     <form asp-action="Index" method="get">
+                        <div style="margin-bottom:10px">
+                            <div  class="d-grid gap-2">
+                                <button type="submit" class="btn btn-outline-secondar">
+                                    <i class="fas fa-filter me-2"></i>@Localizer["Apply Filters"]
+                                </button>
+                                <a asp-action="Index" class="btn btn-outline-secondary">
+                                    <i class="fas fa-sync-alt me-2"></i>@Localizer["Reset"]
+                                </a>
+                            </div>
+                        </div>
+                   
+                     
                         <!-- Ministry Filter -->
                         @if (!Model.IsMinistryUser)
                         {
@@ -140,14 +152,6 @@
                             </div>
                         </div>
 
-                        <div class="d-grid gap-2">
-                            <button type="submit" class="btn btn-primary">
-                                <i class="fas fa-filter me-2"></i>@Localizer["Apply Filters"]
-                            </button>
-                            <a asp-action="Index" class="btn btn-outline-secondary">
-                                <i class="fas fa-sync-alt me-2"></i>@Localizer["Reset"]
-                            </a>
-                        </div>
                     </form>
                 </div>
             </div>
