@@ -173,330 +173,335 @@
     }
 </style>
 
+<!-- Add this in the head section or before your script -->
+<head>
+    <script src="~/lib/jquery/dist/jquery.js"></script>
+</head>
+
 <script>
-$(document).ready(function() {
+    $(document).ready(function() {
 
-// Create Donor Form Submission
-$('#createDonorForm').on('submit', function(e) {
-    e.preventDefault();
-    
-    const formData = new FormData(this);
-    
-    $.ajax({
-        url: '@Url.Action("CreateInline")',
-        type: 'POST',
-        data: formData,
-        processData: false,
-        contentType: false,
-        success: function(response) {
-            if (response.success) {
-                // Add new row to table
-                const newRow = `
-                    <tr id="donor-row-${response.donor.code}">
-                        <td>
-                            <span id="donor-partner-${response.donor.code}" class="donor-partner-view">
-                                ${response.donor.partner}
-                            </span>
-                            <input type="text" id="donor-partner-input-${response.donor.code}" class="form-control form-control-sm donor-partner-edit d-none" value="${response.donor.partner}" />
-                        </td>
-                        <td>
-                            <span id="donor-category-${response.donor.code}" class="donor-category-view">
-                                ${response.donor.donorCategory}
-                            </span>
-                            <select id="donor-category-select-${response.donor.code}" class="form-select form-select-sm donor-category-edit d-none">
-                                <option value="1">@Localizer["UN Organizations"]</option>
-                                <option value="2">@Localizer["Countries"]</option>
-                                <option value="3">@Localizer["International NGOs"]</option>
-                                <option value="4">@Localizer["Local"]</option>
-                            </select>
-                        </td>
-                        <td title="Indicators Performance: 0%">
-                            <div class="progress" style="height: 24px; border-radius: 4px;">
-                                <div class="progress-bar bg-secondary" role="progressbar" style="width: 0%;">0%</div>
-                            </div>
-                        </td>
-                        <td title="Disbursement Performance: 0%">
-                            <div class="progress" style="height: 24px; border-radius: 4px;">
-                                <div class="progress-bar bg-secondary" role="progressbar" style="width: 0%;">0%</div>
-                            </div>
-                        </td>
-                        <td class="text-end">
-                            <div class="btn-group" role="group">
-                                <button class="btn btn-sm btn-outline-warning" id="edit-btn-${response.donor.code}" onclick="toggleDonorEdit(${response.donor.code})" title="@Localizer["Edit"]">
-                                    <i class="fas fa-edit"></i>
-                                </button>
-                                <button class="btn btn-sm btn-outline-danger" title="@Localizer["Delete"]" onclick="deleteDonor(${response.donor.code})">
-                                    <i class="fas fa-trash-alt"></i>
-                                </button>
-                            </div>
-                        </td>
-                    </tr>`;
-                
-                $('#donorsTableBody').append(newRow);
-                $('#createDonorForm')[0].reset();
-                
-                Swal.fire({
-                    icon: 'success',
-                    title: '@Localizer["Success!"]',
-                    text: '@Localizer["Donor created successfully"]',
-                    timer: 2000,
-                    showConfirmButton: false
-                });
-            } else {
-                Swal.fire('Error', response.message, 'error');
-            }
-        },
-        error: function() {
-            Swal.fire('Error', '@Localizer["An error occurred while creating the donor"]', 'error');
-        }
-    });
-});
+        // Create Donor Form Submission
+        $('#createDonorForm').on('submit', function(e) {
+            e.preventDefault();
 
-// Inline Editing for text fields
-$(document).on('click', '.editable-field', function() {
-    if ($(this).hasClass('editing')) return;
-    
-    const $this = $(this);
-    const originalValue = $this.text().trim();
-    const field = $this.data('field');
-    const id = $this.data('id');
-    
-    $this.addClass('editing');
-    $this.html(`<input type="text" class="edit-input" value="${originalValue}" data-original="${originalValue}">`);
-    
-    const $input = $this.find('.edit-input');
-    $input.focus().select();
-    
-    // Save on Enter or blur
-    $input.on('blur keypress', function(e) {
-        if (e.type === 'keypress' && e.which !== 13) return;
-        
-        const newValue = $(this).val().trim();
-        const originalValue = $(this).data('original');
-        
-        if (newValue === originalValue) {
-            $this.removeClass('editing').text(originalValue);
-            return;
-        }
-        
-        if (newValue === '') {
-            Swal.fire('Error', '@Localizer["Value cannot be empty"]', 'error');
-            $this.removeClass('editing').text(originalValue);
-            return;
-        }
-        
-        // Save changes
-        $.ajax({
-            url: '@Url.Action("InlineEdit")',
-            type: 'POST',
-            data: {
-                id: id,
-                field: field,
-                value: newValue
-            },
-            success: function(response) {
-                if (response.success) {
-                    $this.removeClass('editing').text(newValue);
-                    Swal.fire({
-                        icon: 'success',
-                        title: '@Localizer["Updated!"]',
-                        text: '@Localizer["Field updated successfully"]',
-                        timer: 1500,
-                        showConfirmButton: false
-                    });
-                } else {
-                    $this.removeClass('editing').text(originalValue);
-                    Swal.fire('Error', response.message, 'error');
-                }
-            },
-            error: function() {
-                $this.removeClass('editing').text(originalValue);
-                Swal.fire('Error', '@Localizer["An error occurred while updating"]', 'error');
-            }
-        });
-    });
-    
-    // Cancel on Escape
-    $input.on('keypress', function(e) {
-        if (e.which === 27) { // Escape key
-            $this.removeClass('editing').text(originalValue);
-        }
-    });
-});
+            const formData = new FormData(this);
 
-// Inline Editing for select fields
-$(document).on('click', '.editable-field-select', function() {
-    if ($(this).hasClass('editing')) return;
-    
-    const $this = $(this);
-    const originalValue = $this.text().trim();
-    const originalNumericValue = $this.data('value');
-    const field = $this.data('field');
-    const id = $this.data('id');
-    
-    const selectOptions = `
-        <option value="1" ${originalNumericValue === 1 ? 'selected' : ''}>@Localizer["UN Organizations"]</option>
-        <option value="2" ${originalNumericValue === 2 ? 'selected' : ''}>@Localizer["Countries"]</option>
-        <option value="3" ${originalNumericValue === 3 ? 'selected' : ''}>@Localizer["International NGOs"]</option>
-        <option value="4" ${originalNumericValue === 4 ? 'selected' : ''}>@Localizer["Local"]</option>
-    `;
-    
-    $this.addClass('editing');
-    $this.html(`<select class="edit-select" data-original-text="${originalValue}" data-original-value="${originalNumericValue}">${selectOptions}</select>`);
-    
-    const $select = $this.find('.edit-select');
-    $select.focus();
-    
-    // Save on change or blur
-    $select.on('blur change', function(e) {
-        const newValue = $(this).val();
-        const newText = $(this).find('option:selected').text();
-        const originalValue = $(this).data('original-value');
-        const originalText = $(this).data('original-text');
-        
-        if (newValue == originalValue) {
-            $this.removeClass('editing').text(originalText);
-            return;
-        }
-        
-        // Save changes
-        $.ajax({
-            url: '@Url.Action("InlineEdit")',
-            type: 'POST',
-            data: {
-                id: id,
-                field: field,
-                value: newValue
-            },
-            success: function(response) {
-                if (response.success) {
-                    $this.removeClass('editing').text(newText).data('value', parseInt(newValue));
-                    Swal.fire({
-                        icon: 'success',
-                        title: '@Localizer["Updated!"]',
-                        text: '@Localizer["Category updated successfully"]',
-                        timer: 1500,
-                        showConfirmButton: false
-                    });
-                } else {
-                    $this.removeClass('editing').text(originalText);
-                    Swal.fire('Error', response.message, 'error');
-                }
-            },
-            error: function() {
-                $this.removeClass('editing').text(originalText);
-                Swal.fire('Error', '@Localizer["An error occurred while updating"]', 'error');
-            }
-        });
-    });
-});
-
-// Delete Donor
-function deleteDonor(id) {
-    console.log('Delete donor called with id:', id);
-    Swal.fire({
-        title: '@Localizer["Are you sure?"]',
-        text: "@Localizer["You won't be able to revert this!"]",
-        icon: 'warning',
-        showCancelButton: true,
-        confirmButtonColor: '#d33',
-        cancelButtonColor: '#3085d6',
-        confirmButtonText: '@Localizer["Yes, delete it!"]',
-        cancelButtonText: '@Localizer["Cancel"]'
-    }).then((result) => {
-        console.log('SweetAlert result:', result);
-        if (result.isConfirmed) {
-            console.log('Sending delete request for id:', id);
             $.ajax({
-                url: '@Url.Action("InlineDelete")',
+                url: '@Url.Action("CreateInline")',
                 type: 'POST',
-                data: { id: id },
+                data: formData,
+                processData: false,
+                contentType: false,
                 success: function(response) {
-                    console.log('Delete response:', response);
                     if (response.success) {
-                        $(`#donor-row-${id}`).fadeOut(function() {
-                            $(this).remove();
-                        });
+                        // Add new row to table
+                        const newRow = `
+                            <tr id="donor-row-${response.donor.code}">
+                                <td>
+                                    <span id="donor-partner-${response.donor.code}" class="donor-partner-view">
+                                        ${response.donor.partner}
+                                    </span>
+                                    <input type="text" id="donor-partner-input-${response.donor.code}" class="form-control form-control-sm donor-partner-edit d-none" value="${response.donor.partner}" />
+                                </td>
+                                <td>
+                                    <span id="donor-category-${response.donor.code}" class="donor-category-view">
+                                        ${response.donor.donorCategory}
+                                    </span>
+                                    <select id="donor-category-select-${response.donor.code}" class="form-select form-select-sm donor-category-edit d-none">
+                                        <option value="1">@Localizer["UN Organizations"]</option>
+                                        <option value="2">@Localizer["Countries"]</option>
+                                        <option value="3">@Localizer["International NGOs"]</option>
+                                        <option value="4">@Localizer["Local"]</option>
+                                    </select>
+                                </td>
+                                <td title="Indicators Performance: 0%">
+                                    <div class="progress" style="height: 24px; border-radius: 4px;">
+                                        <div class="progress-bar bg-secondary" role="progressbar" style="width: 0%;">0%</div>
+                                    </div>
+                                </td>
+                                <td title="Disbursement Performance: 0%">
+                                    <div class="progress" style="height: 24px; border-radius: 4px;">
+                                        <div class="progress-bar bg-secondary" role="progressbar" style="width: 0%;">0%</div>
+                                    </div>
+                                </td>
+                                <td class="text-end">
+                                    <div class="btn-group" role="group">
+                                        <button class="btn btn-sm btn-outline-warning" id="edit-btn-${response.donor.code}" onclick="toggleDonorEdit(${response.donor.code})" title="@Localizer["Edit"]">
+                                            <i class="fas fa-edit"></i>
+                                        </button>
+                                        <button class="btn btn-sm btn-outline-danger" title="@Localizer["Delete"]" onclick="deleteDonor(${response.donor.code})">
+                                            <i class="fas fa-trash-alt"></i>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>`;
+
+                        $('#donorsTableBody').append(newRow);
+                        $('#createDonorForm')[0].reset();
+
                         Swal.fire({
                             icon: 'success',
-                            title: '@Localizer["Deleted!"]',
-                            text: '@Localizer["Donor has been deleted."]',
+                            title: '@Localizer["Success!"]',
+                            text: '@Localizer["Donor created successfully"]',
                             timer: 2000,
                             showConfirmButton: false
                         });
                     } else {
-                        Swal.fire('Error', response.message || 'Unknown error', 'error');
+                        Swal.fire('Error', response.message, 'error');
                     }
                 },
-                error: function(xhr, status, error) {
-                    console.error('Delete error:', xhr, status, error);
-                    Swal.fire('Error', '@Localizer["An error occurred while deleting"]', 'error');
+                error: function() {
+                    Swal.fire('Error', '@Localizer["An error occurred while creating the donor"]', 'error');
                 }
             });
-        }
-    });
-}
+        });
 
-}); // End document ready
+        // Inline Editing for text fields
+        $(document).on('click', '.editable-field', function() {
+            if ($(this).hasClass('editing')) return;
 
-// Toggle Donor Inline Edit - Global function
-function toggleDonorEdit(code) {
-    const partnerSpan = $(`#donor-partner-${code}`);
-    const partnerInput = $(`#donor-partner-input-${code}`);
-    const categorySpan = $(`#donor-category-${code}`);
-    const categorySelect = $(`#donor-category-select-${code}`);
-    const button = $(`#edit-btn-${code}`);
+            const $this = $(this);
+            const originalValue = $this.text().trim();
+            const field = $this.data('field');
+            const id = $this.data('id');
 
-    const isEditing = partnerInput.hasClass('d-none') === false;
+            $this.addClass('editing');
+            $this.html(`<input type="text" class="edit-input" value="${originalValue}" data-original="${originalValue}">`);
 
-    if (isEditing) {
-        // Save via AJAX
-        const newPartner = partnerInput.val();
-        const newCategory = categorySelect.val();
-        const categoryText = categorySelect.find('option:selected').text();
+            const $input = $this.find('.edit-input');
+            $input.focus().select();
 
-        $.ajax({
-            url: '@Url.Action("QuickUpdate")',
-            type: 'POST',
-            data: { 
-                id: code, 
-                partner: newPartner,
-                donorCategory: newCategory
-            },
-            success: function (response) {
-                if (response.success) {
-                    partnerSpan.text(newPartner);
-                    categorySpan.text(categoryText);
-                    partnerInput.addClass('d-none');
-                    categorySelect.addClass('d-none');
-                    partnerSpan.removeClass('d-none');
-                    categorySpan.removeClass('d-none');
-                    button.html('<i class="fas fa-edit"></i>');
-                    button.removeClass('btn-success').addClass('btn-outline-warning');
-                    Swal.fire({
-                        icon: 'success',
-                        title: '@Localizer["Updated!"]',
-                        text: '@Localizer["Donor updated successfully"]',
-                        timer: 1500,
-                        showConfirmButton: false
-                    });
-                } else {
-                    Swal.fire('Error', response.message, 'error');
+            // Save on Enter or blur
+            $input.on('blur keypress', function(e) {
+                if (e.type === 'keypress' && e.which !== 13) return;
+
+                const newValue = $(this).val().trim();
+                const originalValue = $(this).data('original');
+
+                if (newValue === originalValue) {
+                    $this.removeClass('editing').text(originalValue);
+                    return;
                 }
-            },
-            error: function() {
-                Swal.fire('Error', '@Localizer["An error occurred while updating"]', 'error');
+
+                if (newValue === '') {
+                    Swal.fire('Error', '@Localizer["Value cannot be empty"]', 'error');
+                    $this.removeClass('editing').text(originalValue);
+                    return;
+                }
+
+                // Save changes
+                $.ajax({
+                    url: '@Url.Action("InlineEdit")',
+                    type: 'POST',
+                    data: {
+                        id: id,
+                        field: field,
+                        value: newValue
+                    },
+                    success: function(response) {
+                        if (response.success) {
+                            $this.removeClass('editing').text(newValue);
+                            Swal.fire({
+                                icon: 'success',
+                                title: '@Localizer["Updated!"]',
+                                text: '@Localizer["Field updated successfully"]',
+                                timer: 1500,
+                                showConfirmButton: false
+                            });
+                        } else {
+                            $this.removeClass('editing').text(originalValue);
+                            Swal.fire('Error', response.message, 'error');
+                        }
+                    },
+                    error: function() {
+                        $this.removeClass('editing').text(originalValue);
+                        Swal.fire('Error', '@Localizer["An error occurred while updating"]', 'error');
+                    }
+                });
+            });
+
+            // Cancel on Escape
+            $input.on('keypress', function(e) {
+                if (e.which === 27) { // Escape key
+                    $this.removeClass('editing').text(originalValue);
+                }
+            });
+        });
+
+        // Inline Editing for select fields
+        $(document).on('click', '.editable-field-select', function() {
+            if ($(this).hasClass('editing')) return;
+
+            const $this = $(this);
+            const originalValue = $this.text().trim();
+            const originalNumericValue = $this.data('value');
+            const field = $this.data('field');
+            const id = $this.data('id');
+
+            const selectOptions = `
+                <option value="1" ${originalNumericValue === 1 ? 'selected' : ''}>@Localizer["UN Organizations"]</option>
+                <option value="2" ${originalNumericValue === 2 ? 'selected' : ''}>@Localizer["Countries"]</option>
+                <option value="3" ${originalNumericValue === 3 ? 'selected' : ''}>@Localizer["International NGOs"]</option>
+                <option value="4" ${originalNumericValue === 4 ? 'selected' : ''}>@Localizer["Local"]</option>
+            `;
+
+            $this.addClass('editing');
+            $this.html(`<select class="edit-select" data-original-text="${originalValue}" data-original-value="${originalNumericValue}">${selectOptions}</select>`);
+
+            const $select = $this.find('.edit-select');
+            $select.focus();
+
+            // Save on change or blur
+            $select.on('blur change', function(e) {
+                const newValue = $(this).val();
+                const newText = $(this).find('option:selected').text();
+                const originalValue = $(this).data('original-value');
+                const originalText = $(this).data('original-text');
+
+                if (newValue == originalValue) {
+                    $this.removeClass('editing').text(originalText);
+                    return;
+                }
+
+                // Save changes
+                $.ajax({
+                    url: '@Url.Action("InlineEdit")',
+                    type: 'POST',
+                    data: {
+                        id: id,
+                        field: field,
+                        value: newValue
+                    },
+                    success: function(response) {
+                        if (response.success) {
+                            $this.removeClass('editing').text(newText).data('value', parseInt(newValue));
+                            Swal.fire({
+                                icon: 'success',
+                                title: '@Localizer["Updated!"]',
+                                text: '@Localizer["Category updated successfully"]',
+                                timer: 1500,
+                                showConfirmButton: false
+                            });
+                        } else {
+                            $this.removeClass('editing').text(originalText);
+                            Swal.fire('Error', response.message, 'error');
+                        }
+                    },
+                    error: function() {
+                        $this.removeClass('editing').text(originalText);
+                        Swal.fire('Error', '@Localizer["An error occurred while updating"]', 'error');
+                    }
+                });
+            });
+        });
+
+    }); // End document ready
+
+    // Delete Donor - Global function
+    function deleteDonor(id) {
+        console.log('Delete donor called with id:', id);
+        Swal.fire({
+            title: '@Localizer["Are you sure?"]',
+            text: "@Localizer["You won't be able to revert this!"]",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#d33',
+            cancelButtonColor: '#3085d6',
+            confirmButtonText: '@Localizer["Yes, delete it!"]',
+            cancelButtonText: '@Localizer["Cancel"]'
+        }).then((result) => {
+            console.log('SweetAlert result:', result);
+            if (result.isConfirmed) {
+                console.log('Sending delete request for id:', id);
+                $.ajax({
+                    url: '@Url.Action("InlineDelete")',
+                    type: 'POST',
+                    data: { id: id },
+                    success: function(response) {
+                        console.log('Delete response:', response);
+                        if (response.success) {
+                            $(`#donor-row-${id}`).fadeOut(function() {
+                                $(this).remove();
+                            });
+                            Swal.fire({
+                                icon: 'success',
+                                title: '@Localizer["Deleted!"]',
+                                text: '@Localizer["Donor has been deleted."]',
+                                timer: 2000,
+                                showConfirmButton: false
+                            });
+                        } else {
+                            Swal.fire('Error', response.message || 'Unknown error', 'error');
+                        }
+                    },
+                    error: function(xhr, status, error) {
+                        console.error('Delete error:', xhr, status, error);
+                        Swal.fire('Error', '@Localizer["An error occurred while deleting"]', 'error');
+                    }
+                });
             }
         });
-    } else {
-        // Enter edit mode
-        partnerInput.removeClass('d-none');
-        categorySelect.removeClass('d-none');
-        partnerSpan.addClass('d-none');
-        categorySpan.addClass('d-none');
-        button.html('<i class="fas fa-save"></i>');
-        button.removeClass('btn-outline-warning').addClass('btn-success');
-        partnerInput.focus();
     }
-}
+
+    // Toggle Donor Inline Edit - Global function
+    function toggleDonorEdit(code) {
+        const partnerSpan = $(`#donor-partner-${code}`);
+        const partnerInput = $(`#donor-partner-input-${code}`);
+        const categorySpan = $(`#donor-category-${code}`);
+        const categorySelect = $(`#donor-category-select-${code}`);
+        const button = $(`#edit-btn-${code}`);
+
+        const isEditing = partnerInput.hasClass('d-none') === false;
+
+        if (isEditing) {
+            // Save via AJAX
+            const newPartner = partnerInput.val();
+            const newCategory = categorySelect.val();
+            const categoryText = categorySelect.find('option:selected').text();
+
+            $.ajax({
+                url: '@Url.Action("QuickUpdate")',
+                type: 'POST',
+                data: {
+                    id: code,
+                    partner: newPartner,
+                    donorCategory: newCategory
+                },
+                success: function (response) {
+                    if (response.success) {
+                        partnerSpan.text(newPartner);
+                        categorySpan.text(categoryText);
+                        partnerInput.addClass('d-none');
+                        categorySelect.addClass('d-none');
+                        partnerSpan.removeClass('d-none');
+                        categorySpan.removeClass('d-none');
+                        button.html('<i class="fas fa-edit"></i>');
+                        button.removeClass('btn-success').addClass('btn-outline-warning');
+                        Swal.fire({
+                            icon: 'success',
+                            title: '@Localizer["Updated!"]',
+                            text: '@Localizer["Donor updated successfully"]',
+                            timer: 1500,
+                            showConfirmButton: false
+                        });
+                    } else {
+                        Swal.fire('Error', response.message, 'error');
+                    }
+                },
+                error: function() {
+                    Swal.fire('Error', '@Localizer["An error occurred while updating"]', 'error');
+                }
+            });
+        } else {
+            // Enter edit mode
+            partnerInput.removeClass('d-none');
+            categorySelect.removeClass('d-none');
+            partnerSpan.addClass('d-none');
+            categorySpan.addClass('d-none');
+            button.html('<i class="fas fa-save"></i>');
+            button.removeClass('btn-outline-warning').addClass('btn-success');
+            partnerInput.focus();
+        }
+    }
 </script>
