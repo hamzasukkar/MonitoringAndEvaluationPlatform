@@ -117,13 +117,22 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
+  <data name="Actions" xml:space="preserve">
+    <value>Actions</value>
+  </data>
+  <data name="Add New Project Manager" xml:space="preserve">
+    <value>Add New Project Manager</value>
+  </data>
   <data name="Add Project Manager" xml:space="preserve">
-    <value />
+    <value>Add Project Manager</value>
   </data>
   <data name="Create a New Entity" xml:space="preserve">
     <value>Create a New Entity</value>
   </data>
   <data name="Name" xml:space="preserve">
     <value>Name</value>
+  </data>
+  <data name="Project Manager Name" xml:space="preserve">
+    <value>Project Manager Name</value>
   </data>
 </root>
