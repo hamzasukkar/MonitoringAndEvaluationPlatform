@@ -1,5 +1,24 @@
+@using Microsoft.AspNetCore.Identity
+@using Microsoft.AspNetCore.Mvc.Localization
+@inject SignInManager<ApplicationUser> SignInManager
+@inject UserManager<ApplicationUser> UserManager
+@using Microsoft.EntityFrameworkCore
+@using MonitoringAndEvaluationPlatform.Data
+@inject ApplicationDbContext _context
+@inject IViewLocalizer Localizer
+@using Microsoft.AspNetCore.Localization
+
+@{
+    var culture = ViewContext.HttpContext.Features.Get<IRequestCultureFeature>()?.RequestCulture.Culture.Name;
+    var dir = culture == "ar" ? "rtl" : "ltr";
+    var lang = culture == "ar" ? "ar" : "en";
+    var currentCulture = System.Globalization.CultureInfo.CurrentUICulture.Name;
+    var isArabic = currentCulture.StartsWith("ar");
+    var isEnglish = currentCulture.StartsWith("en");
+}
+
 <!DOCTYPE html>
-<html lang="en">
+<html lang="@lang" dir="@dir">
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -29,6 +48,108 @@
             font-family: 'Inter', sans-serif;
             background: linear-gradient(135deg, #2196F3 0%, #1976D2 100%);
             min-height: 100vh;
+            color: #333;
+        }
+
+        /* Navigation Styles */
+        .topbar {
+            background: rgba(255, 255, 255, 0.98);
+            backdrop-filter: blur(10px);
+            padding: 15px 30px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .topbar .title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #2196F3, #1976D2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .nav-links .nav {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            list-style: none;
+            margin: 0;
+            padding: 0;
+        }
+
+        .nav-item .nav-link {
+            color: #333;
+            text-decoration: none;
+            padding: 8px 15px;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            font-weight: 500;
+        }
+
+        .nav-item .nav-link:hover {
+            background: rgba(33, 150, 243, 0.1);
+            color: #2196F3;
+        }
+
+        .dropdown-menu {
+            background: rgba(255, 255, 255, 0.98);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        }
+
+        .dropdown-item {
+            color: #333;
+            padding: 10px 20px;
+            border-radius: 8px;
+            margin: 2px;
+            transition: all 0.3s ease;
+        }
+
+        .dropdown-item:hover {
+            background: rgba(33, 150, 243, 0.1);
+            color: #2196F3;
+        }
+
+        .has-performance {
+            background: linear-gradient(135deg, #2196F3, #1976D2) !important;
+            color: white !important;
+            border-radius: 8px;
+            font-weight: 500;
+        }
+
+        .dropdown-submenu {
+            position: relative;
+        }
+
+        .dropdown-submenu > .dropdown-menu {
+            top: 0;
+            margin-top: -6px;
+            left: 100%;
+        }
+
+        body[dir="rtl"] .dropdown-submenu > .dropdown-menu {
+            left: auto;
+            right: 100%;
+        }
+
+        .dropdown-submenu:hover > .dropdown-menu {
+            display: block;
+        }
+
+        .language-selector select {
+            background: rgba(255, 255, 255, 0.9);
+            border: 1px solid rgba(33, 150, 243, 0.3);
+            border-radius: 6px;
+            padding: 5px 10px;
             color: #333;
         }
 
@@ -249,6 +370,144 @@
             font-size: 0.85rem;
         }
 
+        /* Footer Styles */
+        .dashboard-footer {
+            background: rgba(255, 255, 255, 0.98);
+            backdrop-filter: blur(10px);
+            margin-top: 50px;
+            padding: 40px 30px 20px;
+            border-top: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 -10px 30px rgba(0, 0, 0, 0.1);
+        }
+
+        .footer-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 40px;
+            margin-bottom: 30px;
+        }
+
+        .footer-section h4 {
+            color: #2196F3;
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .footer-section p, .footer-section li {
+            color: #666;
+            font-size: 0.95rem;
+            line-height: 1.6;
+            margin-bottom: 10px;
+        }
+
+        .footer-section ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        .footer-section a {
+            color: #666;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 5px 0;
+        }
+
+        .footer-section a:hover {
+            color: #2196F3;
+            transform: translateX(5px);
+        }
+
+        .footer-logo {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .footer-logo img {
+            width: 60px;
+            height: 60px;
+            border-radius: 12px;
+            box-shadow: 0 8px 25px rgba(33, 150, 243, 0.3);
+        }
+
+        .footer-logo .logo-text {
+            font-size: 1.4rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #2196F3, #1976D2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .social-links {
+            display: flex;
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .social-links a {
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            background: linear-gradient(135deg, #2196F3, #1976D2);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+            text-decoration: none;
+        }
+
+        .social-links a:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 25px rgba(33, 150, 243, 0.4);
+        }
+
+        .footer-bottom {
+            border-top: 1px solid rgba(33, 150, 243, 0.2);
+            padding-top: 20px;
+            text-align: center;
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        .footer-stats {
+            display: flex;
+            justify-content: space-around;
+            margin: 20px 0;
+            text-align: center;
+        }
+
+        .footer-stat {
+            padding: 15px;
+            background: rgba(33, 150, 243, 0.1);
+            border-radius: 12px;
+            min-width: 120px;
+        }
+
+        .footer-stat-number {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #2196F3;
+            display: block;
+        }
+
+        .footer-stat-label {
+            font-size: 0.85rem;
+            color: #666;
+            margin-top: 5px;
+        }
+
         @@media (max-width: 768px) {
             .dashboard-container {
                 padding: 15px;
@@ -265,16 +524,316 @@
             .dashboard-title {
                 font-size: 2rem;
             }
+
+            .footer-content {
+                grid-template-columns: 1fr;
+                gap: 30px;
+            }
+
+            .footer-stats {
+                flex-direction: column;
+                gap: 15px;
+            }
+
+            .social-links {
+                justify-content: center;
+            }
         }
     </style>
 </head>
 <body>
+    <header>
+        <div class="topbar">
+            <div class="title">@Localizer["AppTitle"]</div>
+            <div class="nav-links">
+                <ul class="nav">
+                    <li class="nav-item">
+                        <a class="nav-link" asp-controller="Home" asp-action="Index">
+                            <i class="fas fa-home me-1"></i> @Localizer["Dashboard"]
+                        </a>
+                    </li>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="policiesDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="fas fa-sitemap me-1"></i> @Localizer["National Development Strategy"]
+                        </a>
+                        <ul class="dropdown-menu" aria-labelledby="policiesDropdown">
+                            @foreach (var framework in _context.Frameworks
+                            .OrderByDescending(f => f.IndicatorsPerformance)
+                            .ToList())
+                            {
+                                var hasPerformance = framework.IndicatorsPerformance > 0;
+                                var performanceClass = hasPerformance ? "has-performance" : "";
+
+                                <li class="dropdown-submenu dropend">
+                                    <a class="dropdown-item dropdown-toggle @performanceClass" href="#" id="framework-@framework.Code">
+                                        @framework.Name
+                                    </a>
+                                    <ul class="dropdown-menu" aria-labelledby="framework-@framework.Code">
+                                        <li>
+                                            <a class="dropdown-item" asp-controller="Outcomes" asp-action="Index" asp-route-frameworkCode="@framework.Code">
+                                                <i class="fas fa-bullseye"></i>@Localizer["Outcomes"]
+                                            </a>
+                                        </li>
+                                        <li>
+                                            <a class="dropdown-item" asp-controller="Outputs" asp-action="Index" asp-route-frameworkCode="@framework.Code">
+                                                <i class="fas fa-project-diagram"></i>@Localizer["Outputs"]
+                                            </a>
+                                        </li>
+                                        <li>
+                                            <a class="dropdown-item" asp-controller="Indicators" asp-action="Index" asp-route-frameworkCode="@framework.Code">
+                                                <i class="fas fa-chart-line"></i>@Localizer["Indicators"]
+                                            </a>
+                                        </li>
+                                    </ul>
+                                </li>
+                            }
+                        </ul>
+                    </li>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="MinistriesandAgenciesDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="fas fa-building me-1"></i> @Localizer["Ministries and Agencies"]
+                        </a>
+                        <ul class="dropdown-menu p-2" aria-labelledby="MinistriesandAgenciesDropdown" style="max-height: 300px; overflow-y: auto; min-width: 250px;">
+                            <li class="mb-2">
+                                <input type="text" class="form-control form-control-sm" id="ministrySearch" placeholder="@Localizer["Search"]">
+                            </li>
+                            @foreach (var ministry in _context.Ministries.ToList())
+                            {
+                                <li class="ministry-item">
+                                    <a asp-controller="Ministries" asp-action="ResultIndex" asp-route-ministryCode="@ministry.Code" class="dropdown-item">
+                                        @ministry.MinistryDisplayName
+                                    </a>
+                                </li>
+                            }
+                        </ul>
+                    </li>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="ProjectsDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="fas fa-project-diagram me-1"></i> @Localizer["Projects"]
+                        </a>
+                        <ul class="dropdown-menu" aria-labelledby="ProjectsDropdown">
+                            <li><a class="dropdown-item" asp-controller="Projects" asp-action="Index"><i class="fas fa-list me-2"></i>@Localizer["All Projects"]</a></li>
+                            <li><a class="dropdown-item" asp-controller="Monitoring" asp-action="Projects"><i class="fas fa-chart-line me-2"></i>@Localizer["Project Monitoring"]</a></li>
+                        </ul>
+                    </li>
+                    @await Html.PartialAsync("_NavThemeDropdown")
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="fas fa-user me-2"></i>
+                            @if (SignInManager.IsSignedIn(User))
+                            {
+                                var user = await UserManager.GetUserAsync(User);
+                                <span>@user?.UserName</span>
+                            }
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
+                            <li><a class="dropdown-item" href="#"><i class="fas fa-cog me-2"></i>@Localizer["Settings"]</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li>
+                                <form class="form-inline" asp-area="Identity" asp-page="/Account/Logout" asp-route-returnUrl="@Url.Action("Index", "Home", new { area = "" })">
+                                    <button type="submit" class="dropdown-item"><i class="fas fa-sign-out-alt me-2"></i>@Localizer["Logout"]</button>
+                                </form>
+                            </li>
+                        </ul>
+                    </li>
+                    <li>
+                        <form class="language-selector" asp-controller="Frameworks" asp-action="SetLanguage" method="post">
+                            <select name="culture" onchange="this.form.submit();">
+                                <option value="ar" selected="@(isArabic ? "selected" : null)">العربية</option>
+                                <option value="en" selected="@(isEnglish ? "selected" : null)">English</option>
+                            </select>
+                            <input type="hidden" name="returnUrl" value="@ViewContext.HttpContext.Request.Path" />
+                        </form>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </header>
+
     <div class="dashboard-container">
         @RenderBody()
     </div>
 
+    <!-- Footer -->
+    <footer class="dashboard-footer">
+        <div class="footer-content">
+            <!-- About Section -->
+            <div class="footer-section">
+                <div class="footer-logo">
+                    <img src="https://via.placeholder.com/60x60/2196F3/ffffff?text=M&E" alt="M&E Logo">
+                    <div class="logo-text">@Localizer["AppTitle"]</div>
+                </div>
+                <p>
+                    @Localizer["Comprehensive monitoring and evaluation platform for tracking development projects, measuring performance indicators, and assessing impact across multiple frameworks."]
+                </p>
+                <div class="social-links">
+                    <a href="#" title="Facebook"><i class="fab fa-facebook-f"></i></a>
+                    <a href="#" title="Twitter"><i class="fab fa-twitter"></i></a>
+                    <a href="#" title="LinkedIn"><i class="fab fa-linkedin-in"></i></a>
+                    <a href="#" title="YouTube"><i class="fab fa-youtube"></i></a>
+                </div>
+            </div>
+
+            <!-- Quick Links -->
+            <div class="footer-section">
+                <h4><i class="fas fa-link"></i>@Localizer["Quick Links"]</h4>
+                <ul>
+                    <li><a href="#"><i class="fas fa-tachometer-alt"></i>@Localizer["Dashboard"]</a></li>
+                    <li><a href="#"><i class="fas fa-project-diagram"></i>@Localizer["Projects"]</a></li>
+                    <li><a href="#"><i class="fas fa-chart-line"></i>@Localizer["Monitoring"]</a></li>
+                    <li><a href="#"><i class="fas fa-bullseye"></i>@Localizer["Frameworks"]</a></li>
+                    <li><a href="#"><i class="fas fa-file-alt"></i>@Localizer["Reports"]</a></li>
+                </ul>
+            </div>
+
+            <!-- Resources -->
+            <div class="footer-section">
+                <h4><i class="fas fa-book"></i>@Localizer["Resources"]</h4>
+                <ul>
+                    <li><a href="#"><i class="fas fa-question-circle"></i>@Localizer["Help Center"]</a></li>
+                    <li><a href="#"><i class="fas fa-file-download"></i>@Localizer["Documentation"]</a></li>
+                    <li><a href="#"><i class="fas fa-graduation-cap"></i>@Localizer["Training"]</a></li>
+                    <li><a href="#"><i class="fas fa-users"></i>@Localizer["Community"]</a></li>
+                    <li><a href="#"><i class="fas fa-headset"></i>@Localizer["Support"]</a></li>
+                </ul>
+            </div>
+
+            <!-- Contact Info -->
+            <div class="footer-section">
+                <h4><i class="fas fa-envelope"></i>@Localizer["Contact Us"]</h4>
+                <ul>
+                    <li><i class="fas fa-map-marker-alt"></i>@Localizer["Ministry Building, Government Quarter"]</li>
+                    <li><i class="fas fa-phone"></i>+1 (555) 123-4567</li>
+                    <li><i class="fas fa-envelope"></i>info@monitoring-platform.gov</li>
+                    <li><i class="fas fa-globe"></i>www.monitoring-platform.gov</li>
+                    <li><i class="fas fa-clock"></i>@Localizer["Mon-Fri: 8:00 AM - 5:00 PM"]</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Statistics Section -->
+        <div class="footer-stats">
+            <div class="footer-stat">
+                <span class="footer-stat-number" id="footer-projects">@(_context.Projects.Count())</span>
+                <div class="footer-stat-label">@Localizer["Active Projects"]</div>
+            </div>
+            <div class="footer-stat">
+                <span class="footer-stat-number" id="footer-ministries">@(_context.Ministries.Count())</span>
+                <div class="footer-stat-label">@Localizer["Partner Ministries"]</div>
+            </div>
+            <div class="footer-stat">
+                <span class="footer-stat-number" id="footer-locations">@(_context.Governorates.Count())</span>
+                <div class="footer-stat-label">@Localizer["Governorates"]</div>
+            </div>
+            <div class="footer-stat">
+                <span class="footer-stat-number" id="footer-frameworks">@(_context.Frameworks.Count())</span>
+                <div class="footer-stat-label">@Localizer["Active Frameworks"]</div>
+            </div>
+        </div>
+
+        <!-- Footer Bottom -->
+        <div class="footer-bottom">
+            <p>&copy; 2024 @Localizer["Monitoring & Evaluation Platform"]. @Localizer["All rights reserved."] | 
+               @Localizer["Built with"] <i class="fas fa-heart" style="color: #2196F3;"></i> @Localizer["for better governance"]
+            </p>
+            <p style="margin-top: 10px; font-size: 0.85rem;">
+                <a href="#" style="color: #2196F3; text-decoration: none; margin: 0 10px;">@Localizer["Privacy Policy"]</a> |
+                <a href="#" style="color: #2196F3; text-decoration: none; margin: 0 10px;">@Localizer["Terms of Service"]</a> |
+                <a href="#" style="color: #2196F3; text-decoration: none; margin: 0 10px;">@Localizer["Data Protection"]</a>
+            </p>
+        </div>
+    </footer>
+
+    <!-- jQuery -->
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    
     <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- Navigation JavaScript -->
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            // Dropdown submenu functionality
+            document.querySelectorAll('.dropdown-submenu').forEach(function(element) {
+                element.addEventListener('mouseenter', function (e) {
+                    let dropdownMenu = this.querySelector('.dropdown-menu');
+                    if (dropdownMenu) {
+                        dropdownMenu.style.display = 'block';
+                    }
+                });
+                element.addEventListener('mouseleave', function (e) {
+                    let dropdownMenu = this.querySelector('.dropdown-menu');
+                    if (dropdownMenu) {
+                        dropdownMenu.style.display = 'none';
+                    }
+                });
+            });
+
+            // Ministry search functionality
+            const ministrySearch = document.getElementById("ministrySearch");
+            if (ministrySearch) {
+                ministrySearch.addEventListener("keyup", function () {
+                    let filter = this.value.toLowerCase();
+                    let items = document.querySelectorAll("ul.dropdown-menu li.ministry-item");
+                    items.forEach(item => {
+                        let anchor = item.querySelector("a.dropdown-item");
+                        if (anchor) {
+                            item.style.display = anchor.textContent.toLowerCase().includes(filter) ? "" : "none";
+                        }
+                    });
+                });
+            }
+
+            // Dropdown submenu click functionality for mobile
+            $('.dropdown-submenu a.dropdown-toggle').on("click", function(e){
+                if (!$(this).next('ul').hasClass('show')) {
+                    $(this).parents('.dropdown-menu').first().find('.show').removeClass("show");
+                }
+                var $subMenu = $(this).next('ul');
+                $subMenu.toggleClass('show');
+
+                $(this).parents('li.nav-item.dropdown.show').on('hidden.bs.dropdown', function(e) {
+                    $('.dropdown-submenu .show').removeClass("show");
+                });
+
+                return false;
+            });
+
+            // Footer counter animation
+            function animateFooterCounter(elementId) {
+                const element = document.getElementById(elementId);
+                if (element) {
+                    const targetNumber = parseInt(element.textContent);
+                    const increment = targetNumber / 30;
+                    let current = 0;
+                    
+                    const timer = setInterval(() => {
+                        current += increment;
+                        if (current >= targetNumber) {
+                            current = targetNumber;
+                            clearInterval(timer);
+                        }
+                        element.textContent = Math.floor(current);
+                    }, 50);
+                }
+            }
+
+            // Animate footer counters when they come into view
+            const footerStats = document.querySelectorAll('.footer-stat-number');
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        animateFooterCounter(entry.target.id);
+                        observer.unobserve(entry.target);
+                    }
+                });
+            });
+
+            footerStats.forEach(stat => {
+                observer.observe(stat);
+            });
+        });
+    </script>
     
     @await RenderSectionAsync("Scripts", required: false)
 </body>
