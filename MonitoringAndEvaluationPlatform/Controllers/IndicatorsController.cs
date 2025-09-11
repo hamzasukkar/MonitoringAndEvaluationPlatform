@@ -649,8 +649,8 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             return View(indicators);
         }
 
-        // GET: Indicators/IndicatorAndProject2
-        public async Task<IActionResult> IndicatorAndProject2(int? projectId, int? frameworkCode, int? subOutputCode, string searchString)
+        // GET: Indicators/IndicatorAndProjectTable
+        public async Task<IActionResult> IndicatorAndProjectTable(int? projectId, int? frameworkCode, int? subOutputCode, string searchString)
         {
             ViewData["CurrentFilter"] = searchString;
             ViewData["ProjectId"] = projectId;
