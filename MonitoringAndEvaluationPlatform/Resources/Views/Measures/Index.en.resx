@@ -117,88 +117,37 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="Actions" xml:space="preserve">
-    <value>الإجراءات</value>
+  <data name="Indicator" xml:space="preserve">
+    <value>Indicator</value>
   </data>
-  <data name="AppTitle" xml:space="preserve">
-    <value>نظام الرصد والتقييم</value>
+  <data name="Value" xml:space="preserve">
+    <value>Value</value>
   </data>
-  <data name="Dashboard" xml:space="preserve">
-    <value>لوحة التحكم</value>
+  <data name="Create New Measure" xml:space="preserve">
+    <value>Create New Measure</value>
   </data>
-  <data name="Donors" xml:space="preserve">
-    <value>المانحون</value>
+  <data name="Achievement Value" xml:space="preserve">
+    <value>Achievement Value</value>
   </data>
-  <data name="International Cooperation Partners" xml:space="preserve">
-    <value>الشركاء</value>
+  <data name="Add New Measure" xml:space="preserve">
+    <value>Add New Measure</value>
   </data>
-  <data name="Logout" xml:space="preserve">
-    <value>تسجيل الخروج</value>
+  <data name="Add Measure" xml:space="preserve">
+    <value>Add Measure</value>
   </data>
-  <data name="Ministries" xml:space="preserve">
-    <value>الوزارات</value>
+  <data name="Date" xml:space="preserve">
+    <value>Date</value>
   </data>
-  <data name="Ministries and Agencies" xml:space="preserve">
-    <value>الوزارات والجهات</value>
+  <data name="No measures found" xml:space="preserve">
+    <value>No Measures Found</value>
   </data>
-  <data name="Ministries Management" xml:space="preserve">
-    <value>إدارة الوزارات</value>
+  <data name="No measures have been added for this indicator yet. Use the form above to add the first measure." xml:space="preserve">
+    <value>No measures have been added for this indicator yet. Use the form above to add the first measure.</value>
   </data>
-  <data name="Monitoring" xml:space="preserve">
-    <value>المراقبه</value>
+  <data name="Back to Project" xml:space="preserve">
+    <value>Back to Project</value>
   </data>
-  <data name="Monitoring &amp; Evaluation System" xml:space="preserve">
-    <value>نظام الرصد والتقييم</value>
-  </data>
-  <data name="National Development Strategy" xml:space="preserve">
-    <value>استراتيجية التنمية الوطنية </value>
-  </data>
-  <data name="ProjectManagers" xml:space="preserve">
-    <value>مديري المشاريع</value>
-  </data>
-  <data name="Projects" xml:space="preserve">
-    <value>المشاريع</value>
-  </data>
-  <data name="Frameworks" xml:space="preserve">
-    <value>الاستراتيجيات</value>
-  </data>
-  <data name="Sectors" xml:space="preserve">
-    <value>القطاعات</value>
-  </data>
-  <data name="Set Up" xml:space="preserve">
-    <value>ادارة الجهات</value>
-  </data>
-  <data name="Settings" xml:space="preserve">
-    <value>إعدادات</value>
-  </data>
-  <data name="SuperVisors" xml:space="preserve">
-    <value>المشرفون</value>
-  </data>
-  <data name="View and manage all ministry performance metrics" xml:space="preserve">
-    <value>عرض وإدارة جميع مقاييس أداء الوزارة</value>
-  </data>
-  <data name="private" xml:space="preserve">
-    <value>خاص</value>
-  </data>
-  <data name="Public" xml:space="preserve">
-    <value>عام</value>
-  </data>
-  <data name="Common" xml:space="preserve">
-    <value>مشترك</value>
-  </data>
-  <data name="Domestic" xml:space="preserve">
-    <value>أهلي</value>
-  </data>
-  <data name="United Nations organizations" xml:space="preserve">
-    <value>منظمات الأمم المتحدة</value>
-  </data>
-  <data name="International non-governmental organizations" xml:space="preserve">
-    <value>المنظمات غير الحكومية الدولية</value>
-  </data>
-  <data name="Countries" xml:space="preserve">
-    <value> الدول المانحة</value>
-  </data>
-  <data name="Local" xml:space="preserve">
-    <value>محلي</value>
+  <data name="Measures List" xml:space="preserve">
+    <value>Measures List</value>
   </data>
 </root>
