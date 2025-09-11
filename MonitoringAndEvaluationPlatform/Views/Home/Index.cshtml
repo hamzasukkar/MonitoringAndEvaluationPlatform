@@ -236,27 +236,42 @@ document.addEventListener('DOMContentLoaded', function() {
     animateCounter('locations-counter', @Model.TotalGovernorate);
     animateCounter('frameworks-counter', @Model.TotalFrameworks);
     
-    // Chart configurations
-    const chartColors = {
-        primary: ['#2196F3', '#1976D2'],
-        success: ['#42A5F5', '#1E88E5'],
-        warning: ['#5C6BC0', '#3F51B5'],
-        info: ['#64B5F6', '#1976D2'],
-        background: [
-            'rgba(33, 150, 243, 0.8)',
-            'rgba(25, 118, 210, 0.8)',
-            'rgba(66, 165, 245, 0.8)',
-            'rgba(30, 136, 229, 0.8)',
-            'rgba(92, 107, 192, 0.8)',
-            'rgba(63, 81, 181, 0.8)',
-            'rgba(100, 181, 246, 0.8)',
-            'rgba(33, 150, 243, 0.8)'
-        ]
-    };
+    // Store chart instances for theme updates
+    let chartInstances = {};
     
-    // Projects by Ministry Chart (Pie Chart)
-    const ministryCtx = document.getElementById('projectsMinistryChart').getContext('2d');
-    new Chart(ministryCtx, {
+    // Get CSS variable values for theming
+    function getCSSVariableValue(variableName) {
+        return getComputedStyle(document.documentElement).getPropertyValue(variableName).trim();
+    }
+    
+    // Function to create all charts
+    function createCharts() {
+        // Destroy existing charts
+        Object.values(chartInstances).forEach(chart => {
+            if (chart) chart.destroy();
+        });
+        
+        // Chart configurations with dynamic colors (recalculated each time)
+        const chartColors = {
+            primary: [getCSSVariableValue('--primary-color'), getCSSVariableValue('--primary-dark')],
+            success: [getCSSVariableValue('--primary-light'), getCSSVariableValue('--secondary-color')],
+            warning: [getCSSVariableValue('--accent-color'), getCSSVariableValue('--primary-dark')],
+            info: [getCSSVariableValue('--accent-color'), getCSSVariableValue('--primary-dark')],
+            background: [
+                getCSSVariableValue('--primary-color') + 'CC', // 80% opacity
+                getCSSVariableValue('--primary-dark') + 'CC',
+                getCSSVariableValue('--primary-light') + 'CC',
+                getCSSVariableValue('--secondary-color') + 'CC',
+                getCSSVariableValue('--accent-color') + 'CC',
+                getCSSVariableValue('--primary-color') + 'CC',
+                getCSSVariableValue('--primary-light') + 'CC',
+                getCSSVariableValue('--primary-dark') + 'CC'
+            ]
+        };
+        
+        // Projects by Ministry Chart (Pie Chart)
+        const ministryCtx = document.getElementById('projectsMinistryChart').getContext('2d');
+        chartInstances.ministry = new Chart(ministryCtx, {
         type: 'doughnut',
         data: {
             labels: [@Html.Raw(string.Join(",", Model.Ministries.Select(m => $"'{m.MinistryDisplayName ?? m.MinistryUserName}'")))],
@@ -281,17 +296,17 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
     
-    // Framework Performance Chart (Bar Chart)
-    const performanceCtx = document.getElementById('performanceChart').getContext('2d');
-    new Chart(performanceCtx, {
+        // Framework Performance Chart (Bar Chart)
+        const performanceCtx = document.getElementById('performanceChart').getContext('2d');
+        chartInstances.performance = new Chart(performanceCtx, {
         type: 'bar',
         data: {
             labels: [@Html.Raw(string.Join(",", Model.Frameworks.Select(f => $"'{f.Name}'")))],
             datasets: [{
                 label: 'Performance %',
                 data: [@Html.Raw(string.Join(",", Model.Frameworks.Select(f => new Random().Next(60, 95))))],
-                backgroundColor: 'rgba(33, 150, 243, 0.8)',
-                borderColor: 'rgba(33, 150, 243, 1),',
+                backgroundColor: getCSSVariableValue('--primary-color') + 'CC',
+                borderColor: getCSSVariableValue('--primary-color'),
                 borderWidth: 1
             }]
         },
@@ -312,9 +327,9 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
     
-    // Project Distribution by Location (Polar Chart)
-    const locationCtx = document.getElementById('locationChart').getContext('2d');
-    new Chart(locationCtx, {
+        // Project Distribution by Location (Polar Chart)
+        const locationCtx = document.getElementById('locationChart').getContext('2d');
+        chartInstances.location = new Chart(locationCtx, {
         type: 'polarArea',
         data: {
             labels: [@Html.Raw(string.Join(",", Model.Governorates.Select(g => $"'{g.EN_Name ?? g.AR_Name}'")))],
@@ -338,9 +353,9 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
     
-    // Implementation Progress Trend (Line Chart)
-    const trendCtx = document.getElementById('trendChart').getContext('2d');
-    new Chart(trendCtx, {
+        // Implementation Progress Trend (Line Chart)
+        const trendCtx = document.getElementById('trendChart').getContext('2d');
+        chartInstances.trend = new Chart(trendCtx, {
         type: 'line',
         data: {
             labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
@@ -348,16 +363,16 @@ document.addEventListener('DOMContentLoaded', function() {
                 {
                     label: 'Project Implementation',
                     data: [45, 52, 58, 65, 70, 75, 78, 82, 85, 88, 91, 94],
-                    borderColor: 'rgba(33, 150, 243, 1)',
-                    backgroundColor: 'rgba(33, 150, 243, 0.1)',
+                    borderColor: getCSSVariableValue('--primary-color'),
+                    backgroundColor: getCSSVariableValue('--primary-color') + '1A',
                     tension: 0.4,
                     fill: true
                 },
                 {
                     label: 'Performance Indicators',
                     data: [40, 48, 55, 62, 68, 72, 76, 80, 83, 86, 89, 92],
-                    borderColor: 'rgba(25, 118, 210, 1)',
-                    backgroundColor: 'rgba(25, 118, 210, 0.1)',
+                    borderColor: getCSSVariableValue('--primary-dark'),
+                    backgroundColor: getCSSVariableValue('--primary-dark') + '1A',
                     tension: 0.4,
                     fill: true
                 }
@@ -383,6 +398,10 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         }
     });
+    }
+    
+    // Initial chart creation
+    createCharts();
     
     // Add hover effects to stat cards
     const statCards = document.querySelectorAll('.stat-card');
