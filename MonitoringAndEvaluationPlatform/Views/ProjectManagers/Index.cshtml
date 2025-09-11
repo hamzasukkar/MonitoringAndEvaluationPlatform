@@ -19,12 +19,20 @@
             <form id="createProjectManagerForm" class="row g-3">
                 @Html.AntiForgeryToken()
 
-                <div class="col-md-8">
+                <div class="col-md-4">
                     <label for="Name" class="form-label">@Localizer["Project Manager Name"]</label>
                     <input type="text" name="Name" class="form-control" required />
                 </div>
+                <div class="col-md-3">
+                    <label for="PhoneNumber" class="form-label">@Localizer["Phone Number"]</label>
+                    <input type="text" name="PhoneNumber" class="form-control" />
+                </div>
+                <div class="col-md-3">
+                    <label for="Email" class="form-label">@Localizer["Email"]</label>
+                    <input type="email" name="Email" class="form-control" />
+                </div>
 
-                <div class="col-md-4 d-flex align-items-end">
+                <div class="col-md-2 d-flex align-items-end">
                     <button type="submit" class="btn btn-success w-100">
                         <i class="fas fa-plus-circle me-1"></i> @Localizer["Add Project Manager"]
                     </button>
@@ -40,6 +48,8 @@
                     <thead class="table-light">
                         <tr>
                             <th>@Localizer["Project Manager Name"]</th>
+                            <th>@Localizer["Phone Number"]</th>
+                            <th>@Localizer["Email"]</th>
                             <th class="text-end">@Localizer["Actions"]</th>
                         </tr>
                     </thead>
@@ -52,6 +62,18 @@
                                         @item.Name
                                     </span>
                                     <input type="text" id="projectmanager-name-input-@item.Code" class="form-control form-control-sm projectmanager-name-edit d-none" value="@item.Name" />
+                                </td>
+                                <td>
+                                    <span id="projectmanager-phone-@item.Code" class="projectmanager-phone-view">
+                                        @item.PhoneNumber
+                                    </span>
+                                    <input type="text" id="projectmanager-phone-input-@item.Code" class="form-control form-control-sm projectmanager-phone-edit d-none" value="@item.PhoneNumber" />
+                                </td>
+                                <td>
+                                    <span id="projectmanager-email-@item.Code" class="projectmanager-email-view">
+                                        @item.Email
+                                    </span>
+                                    <input type="email" id="projectmanager-email-input-@item.Code" class="form-control form-control-sm projectmanager-email-edit d-none" value="@item.Email" />
                                 </td>
                                 <td class="text-end">
                                     <div class="btn-group" role="group">
@@ -135,6 +157,18 @@
                                         ${response.projectManager.name}
                                     </span>
                                     <input type="text" id="projectmanager-name-input-${response.projectManager.code}" class="form-control form-control-sm projectmanager-name-edit d-none" value="${response.projectManager.name}" />
+                                </td>
+                                <td>
+                                    <span id="projectmanager-phone-${response.projectManager.code}" class="projectmanager-phone-view">
+                                        ${response.projectManager.phoneNumber || ''}
+                                    </span>
+                                    <input type="text" id="projectmanager-phone-input-${response.projectManager.code}" class="form-control form-control-sm projectmanager-phone-edit d-none" value="${response.projectManager.phoneNumber || ''}" />
+                                </td>
+                                <td>
+                                    <span id="projectmanager-email-${response.projectManager.code}" class="projectmanager-email-view">
+                                        ${response.projectManager.email || ''}
+                                    </span>
+                                    <input type="email" id="projectmanager-email-input-${response.projectManager.code}" class="form-control form-control-sm projectmanager-email-edit d-none" value="${response.projectManager.email || ''}" />
                                 </td>
                                 <td class="text-end">
                                     <div class="btn-group" role="group">
@@ -292,6 +326,10 @@
     function toggleProjectManagerEdit(code) {
         const nameSpan = $(`#projectmanager-name-${code}`);
         const nameInput = $(`#projectmanager-name-input-${code}`);
+        const phoneSpan = $(`#projectmanager-phone-${code}`);
+        const phoneInput = $(`#projectmanager-phone-input-${code}`);
+        const emailSpan = $(`#projectmanager-email-${code}`);
+        const emailInput = $(`#projectmanager-email-input-${code}`);
         const button = $(`#edit-btn-${code}`);
 
         const isEditing = nameInput.hasClass('d-none') === false;
@@ -299,40 +337,97 @@
         if (isEditing) {
             // Save via AJAX
             const newName = nameInput.val();
+            const newPhone = phoneInput.val();
+            const newEmail = emailInput.val();
 
+            // Update name
             $.ajax({
-                url: '@Url.Action("QuickUpdate")',
+                url: '@Url.Action("InlineEdit")',
                 type: 'POST',
                 data: {
                     id: code,
-                    name: newName
+                    field: 'name',
+                    value: newName
                 },
                 success: function (response) {
                     if (response.success) {
                         nameSpan.text(newName);
-                        nameInput.addClass('d-none');
-                        nameSpan.removeClass('d-none');
-                        button.html('<i class="fas fa-edit"></i>');
-                        button.removeClass('btn-success').addClass('btn-outline-warning');
-                        Swal.fire({
-                            icon: 'success',
-                            title: '@Localizer["Updated!"]',
-                            text: '@Localizer["Project Manager updated successfully"]',
-                            timer: 1500,
-                            showConfirmButton: false
+                        
+                        // Update phone
+                        $.ajax({
+                            url: '@Url.Action("InlineEdit")',
+                            type: 'POST',
+                            data: {
+                                id: code,
+                                field: 'phonenumber',
+                                value: newPhone
+                            },
+                            success: function (response) {
+                                if (response.success) {
+                                    phoneSpan.text(newPhone);
+                                    
+                                    // Update email
+                                    $.ajax({
+                                        url: '@Url.Action("InlineEdit")',
+                                        type: 'POST',
+                                        data: {
+                                            id: code,
+                                            field: 'email',
+                                            value: newEmail
+                                        },
+                                        success: function (response) {
+                                            if (response.success) {
+                                                emailSpan.text(newEmail);
+                                                
+                                                // Exit edit mode
+                                                nameInput.addClass('d-none');
+                                                nameSpan.removeClass('d-none');
+                                                phoneInput.addClass('d-none');
+                                                phoneSpan.removeClass('d-none');
+                                                emailInput.addClass('d-none');
+                                                emailSpan.removeClass('d-none');
+                                                button.html('<i class="fas fa-edit"></i>');
+                                                button.removeClass('btn-success').addClass('btn-outline-warning');
+                                                
+                                                Swal.fire({
+                                                    icon: 'success',
+                                                    title: '@Localizer["Updated!"]',
+                                                    text: '@Localizer["Project Manager updated successfully"]',
+                                                    timer: 1500,
+                                                    showConfirmButton: false
+                                                });
+                                            } else {
+                                                Swal.fire('Error', response.message, 'error');
+                                            }
+                                        },
+                                        error: function() {
+                                            Swal.fire('Error', '@Localizer["An error occurred while updating email"]', 'error');
+                                        }
+                                    });
+                                } else {
+                                    Swal.fire('Error', response.message, 'error');
+                                }
+                            },
+                            error: function() {
+                                Swal.fire('Error', '@Localizer["An error occurred while updating phone"]', 'error');
+                            }
                         });
                     } else {
                         Swal.fire('Error', response.message, 'error');
                     }
                 },
                 error: function() {
-                    Swal.fire('Error', '@Localizer["An error occurred while updating"]', 'error');
+                    Swal.fire('Error', '@Localizer["An error occurred while updating name"]', 'error');
                 }
             });
         } else {
             // Enter edit mode
             nameInput.removeClass('d-none');
             nameSpan.addClass('d-none');
+            phoneInput.removeClass('d-none');
+            phoneSpan.addClass('d-none');
+            emailInput.removeClass('d-none');
+            emailSpan.addClass('d-none');
             button.html('<i class="fas fa-save"></i>');
             button.removeClass('btn-outline-warning').addClass('btn-success');
             nameInput.focus();
