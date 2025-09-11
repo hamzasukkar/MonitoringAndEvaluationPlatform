@@ -238,19 +238,19 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Chart configurations
     const chartColors = {
-        primary: ['#667eea', '#764ba2'],
-        success: ['#56CCF2', '#2F80ED'],
-        warning: ['#F093FB', '#F5576C'],
-        info: ['#4FACFE', '#00F2FE'],
+        primary: ['#2196F3', '#1976D2'],
+        success: ['#42A5F5', '#1E88E5'],
+        warning: ['#5C6BC0', '#3F51B5'],
+        info: ['#64B5F6', '#1976D2'],
         background: [
-            'rgba(102, 126, 234, 0.8)',
-            'rgba(118, 75, 162, 0.8)',
-            'rgba(86, 204, 242, 0.8)',
-            'rgba(47, 128, 237, 0.8)',
-            'rgba(240, 147, 251, 0.8)',
-            'rgba(245, 87, 108, 0.8)',
-            'rgba(74, 172, 254, 0.8)',
-            'rgba(0, 242, 254, 0.8)'
+            'rgba(33, 150, 243, 0.8)',
+            'rgba(25, 118, 210, 0.8)',
+            'rgba(66, 165, 245, 0.8)',
+            'rgba(30, 136, 229, 0.8)',
+            'rgba(92, 107, 192, 0.8)',
+            'rgba(63, 81, 181, 0.8)',
+            'rgba(100, 181, 246, 0.8)',
+            'rgba(33, 150, 243, 0.8)'
         ]
     };
     
@@ -290,8 +290,8 @@ document.addEventListener('DOMContentLoaded', function() {
             datasets: [{
                 label: 'Performance %',
                 data: [@Html.Raw(string.Join(",", Model.Frameworks.Select(f => new Random().Next(60, 95))))],
-                backgroundColor: 'rgba(102, 126, 234, 0.8)',
-                borderColor: 'rgba(102, 126, 234, 1)',
+                backgroundColor: 'rgba(33, 150, 243, 0.8)',
+                borderColor: 'rgba(33, 150, 243, 1),',
                 borderWidth: 1
             }]
         },
@@ -348,16 +348,16 @@ document.addEventListener('DOMContentLoaded', function() {
                 {
                     label: 'Project Implementation',
                     data: [45, 52, 58, 65, 70, 75, 78, 82, 85, 88, 91, 94],
-                    borderColor: 'rgba(102, 126, 234, 1)',
-                    backgroundColor: 'rgba(102, 126, 234, 0.1)',
+                    borderColor: 'rgba(33, 150, 243, 1)',
+                    backgroundColor: 'rgba(33, 150, 243, 0.1)',
                     tension: 0.4,
                     fill: true
                 },
                 {
                     label: 'Performance Indicators',
                     data: [40, 48, 55, 62, 68, 72, 76, 80, 83, 86, 89, 92],
-                    borderColor: 'rgba(118, 75, 162, 1)',
-                    backgroundColor: 'rgba(118, 75, 162, 0.1)',
+                    borderColor: 'rgba(25, 118, 210, 1)',
+                    backgroundColor: 'rgba(25, 118, 210, 0.1)',
                     tension: 0.4,
                     fill: true
                 }
