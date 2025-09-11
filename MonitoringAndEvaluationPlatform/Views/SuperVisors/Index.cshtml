@@ -21,12 +21,20 @@
             <form id="createSuperVisorForm" class="row g-3">
                 @Html.AntiForgeryToken()
 
-                <div class="col-md-8">
+                <div class="col-md-4">
                     <label for="Name" class="form-label">@Localizer["SuperVisor Name"]</label>
                     <input type="text" name="Name" class="form-control" required />
                 </div>
+                <div class="col-md-3">
+                    <label for="PhoneNumber" class="form-label">@Localizer["Phone Number"]</label>
+                    <input type="text" name="PhoneNumber" class="form-control" />
+                </div>
+                <div class="col-md-3">
+                    <label for="Email" class="form-label">@Localizer["Email"]</label>
+                    <input type="email" name="Email" class="form-control" />
+                </div>
 
-                <div class="col-md-4 d-flex align-items-end">
+                <div class="col-md-2 d-flex align-items-end">
                     <button type="submit" class="btn btn-success w-100">
                         <i class="fas fa-plus-circle me-1"></i> @Localizer["Add SuperVisor"]
                     </button>
@@ -42,6 +50,8 @@
 	<thead class="table-light">
 		<tr>
 			<th>@Localizer["SuperVisor Name"]</th>
+			<th>@Localizer["Phone Number"]</th>
+			<th>@Localizer["Email"]</th>
 			<th class="text-end">@Localizer["Actions"]</th>
 		</tr>
 	</thead>
@@ -54,6 +64,18 @@
 						@item.Name
 					</span>
 					<input type="text" id="supervisor-name-input-@item.Code" class="form-control form-control-sm supervisor-name-edit d-none" value="@item.Name" />
+				</td>
+				<td>
+					<span id="supervisor-phone-@item.Code" class="supervisor-phone-view">
+						@item.PhoneNumber
+					</span>
+					<input type="text" id="supervisor-phone-input-@item.Code" class="form-control form-control-sm supervisor-phone-edit d-none" value="@item.PhoneNumber" />
+				</td>
+				<td>
+					<span id="supervisor-email-@item.Code" class="supervisor-email-view">
+						@item.Email
+					</span>
+					<input type="email" id="supervisor-email-input-@item.Code" class="form-control form-control-sm supervisor-email-edit d-none" value="@item.Email" />
 				</td>
 				<td class="text-end">
 					<div class="btn-group" role="group">
@@ -135,6 +157,18 @@
                                         ${response.supervisor.name}
                                     </span>
                                     <input type="text" id="supervisor-name-input-${response.supervisor.code}" class="form-control form-control-sm supervisor-name-edit d-none" value="${response.supervisor.name}" />
+                                </td>
+                                <td>
+                                    <span id="supervisor-phone-${response.supervisor.code}" class="supervisor-phone-view">
+                                        ${response.supervisor.phoneNumber || ''}
+                                    </span>
+                                    <input type="text" id="supervisor-phone-input-${response.supervisor.code}" class="form-control form-control-sm supervisor-phone-edit d-none" value="${response.supervisor.phoneNumber || ''}" />
+                                </td>
+                                <td>
+                                    <span id="supervisor-email-${response.supervisor.code}" class="supervisor-email-view">
+                                        ${response.supervisor.email || ''}
+                                    </span>
+                                    <input type="email" id="supervisor-email-input-${response.supervisor.code}" class="form-control form-control-sm supervisor-email-edit d-none" value="${response.supervisor.email || ''}" />
                                 </td>
                                 <td class="text-end">
                                     <div class="btn-group" role="group">
@@ -292,6 +326,10 @@
     function toggleSuperVisorEdit(code) {
         const nameSpan = $(`#supervisor-name-${code}`);
         const nameInput = $(`#supervisor-name-input-${code}`);
+        const phoneSpan = $(`#supervisor-phone-${code}`);
+        const phoneInput = $(`#supervisor-phone-input-${code}`);
+        const emailSpan = $(`#supervisor-email-${code}`);
+        const emailInput = $(`#supervisor-email-input-${code}`);
         const button = $(`#edit-btn-${code}`);
 
         const isEditing = nameInput.hasClass('d-none') === false;
@@ -299,40 +337,97 @@
         if (isEditing) {
             // Save via AJAX
             const newName = nameInput.val();
+            const newPhone = phoneInput.val();
+            const newEmail = emailInput.val();
 
+            // Update name
             $.ajax({
-                url: '@Url.Action("QuickUpdate")',
+                url: '@Url.Action("InlineEdit")',
                 type: 'POST',
                 data: {
                     id: code,
-                    name: newName
+                    field: 'name',
+                    value: newName
                 },
                 success: function (response) {
                     if (response.success) {
                         nameSpan.text(newName);
-                        nameInput.addClass('d-none');
-                        nameSpan.removeClass('d-none');
-                        button.html('<i class="fas fa-edit"></i>');
-                        button.removeClass('btn-success').addClass('btn-outline-warning');
-                        Swal.fire({
-                            icon: 'success',
-                            title: '@Localizer["Updated!"]',
-                            text: '@Localizer["SuperVisor updated successfully"]',
-                            timer: 1500,
-                            showConfirmButton: false
+                        
+                        // Update phone
+                        $.ajax({
+                            url: '@Url.Action("InlineEdit")',
+                            type: 'POST',
+                            data: {
+                                id: code,
+                                field: 'phonenumber',
+                                value: newPhone
+                            },
+                            success: function (response) {
+                                if (response.success) {
+                                    phoneSpan.text(newPhone);
+                                    
+                                    // Update email
+                                    $.ajax({
+                                        url: '@Url.Action("InlineEdit")',
+                                        type: 'POST',
+                                        data: {
+                                            id: code,
+                                            field: 'email',
+                                            value: newEmail
+                                        },
+                                        success: function (response) {
+                                            if (response.success) {
+                                                emailSpan.text(newEmail);
+                                                
+                                                // Exit edit mode
+                                                nameInput.addClass('d-none');
+                                                nameSpan.removeClass('d-none');
+                                                phoneInput.addClass('d-none');
+                                                phoneSpan.removeClass('d-none');
+                                                emailInput.addClass('d-none');
+                                                emailSpan.removeClass('d-none');
+                                                button.html('<i class="fas fa-edit"></i>');
+                                                button.removeClass('btn-success').addClass('btn-outline-warning');
+                                                
+                                                Swal.fire({
+                                                    icon: 'success',
+                                                    title: '@Localizer["Updated!"]',
+                                                    text: '@Localizer["SuperVisor updated successfully"]',
+                                                    timer: 1500,
+                                                    showConfirmButton: false
+                                                });
+                                            } else {
+                                                Swal.fire('Error', response.message, 'error');
+                                            }
+                                        },
+                                        error: function() {
+                                            Swal.fire('Error', '@Localizer["An error occurred while updating email"]', 'error');
+                                        }
+                                    });
+                                } else {
+                                    Swal.fire('Error', response.message, 'error');
+                                }
+                            },
+                            error: function() {
+                                Swal.fire('Error', '@Localizer["An error occurred while updating phone"]', 'error');
+                            }
                         });
                     } else {
                         Swal.fire('Error', response.message, 'error');
                     }
                 },
                 error: function() {
-                    Swal.fire('Error', '@Localizer["An error occurred while updating"]', 'error');
+                    Swal.fire('Error', '@Localizer["An error occurred while updating name"]', 'error');
                 }
             });
         } else {
             // Enter edit mode
             nameInput.removeClass('d-none');
             nameSpan.addClass('d-none');
+            phoneInput.removeClass('d-none');
+            phoneSpan.addClass('d-none');
+            emailInput.removeClass('d-none');
+            emailSpan.addClass('d-none');
             button.html('<i class="fas fa-save"></i>');
             button.removeClass('btn-outline-warning').addClass('btn-success');
             nameInput.focus();
