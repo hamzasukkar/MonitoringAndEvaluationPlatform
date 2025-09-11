@@ -41,17 +41,17 @@
                                     <span asp-validation-for="ProjectName" class="text-danger small"></span>
                                 </div>
 
-                                <!-- NEW: Plans Count for ActionPlan -->
+                                <!-- Plans Count calculated from project duration -->
                                 <div class="mb-4">
-                                    <label for="PlansCount" class="form-label">@Localizer["Plans Count"]</label>
+                                    <label for="PlansCount" class="form-label">@Localizer["Plans Count"] (Months)</label>
                                     <input type="number"
                                            id="PlansCount"
                                            name="PlansCount"
                                            class="form-control"
-                                           value="6"
+                                           value="1"
                                            min="1"
-                                           required />
-                                    @*  <span asp-validation-for="PlansCount" class="text-danger small"></span> *@
+                                           readonly />
+                                    <small class="text-muted">@Localizer["Automatically calculated based on project duration"]</small>
                                 </div>
 
                                 <!-- Location Hierarchy -->
@@ -449,6 +449,29 @@
         } else {
             previewDiv.hide();
         }
+    });
+
+    // Calculate plans count based on project duration
+    function calculatePlansCount() {
+        const startDate = new Date($('[name="StartDate"]').val());
+        const endDate = new Date($('[name="EndDate"]').val());
+        
+        if (startDate && endDate && endDate > startDate) {
+            // Calculate months between dates
+            const months = (endDate.getFullYear() - startDate.getFullYear()) * 12 + 
+                          (endDate.getMonth() - startDate.getMonth()) + 1;
+            $('#PlansCount').val(Math.max(1, months));
+        } else {
+            $('#PlansCount').val(1);
+        }
+    }
+
+    // Update plans count when dates change
+    $('[name="StartDate"], [name="EndDate"]').on('change', calculatePlansCount);
+
+    // Calculate initial plans count on page load
+    $(document).ready(function() {
+        calculatePlansCount();
     });
 
     // Prevent submitting if no locations have been added
