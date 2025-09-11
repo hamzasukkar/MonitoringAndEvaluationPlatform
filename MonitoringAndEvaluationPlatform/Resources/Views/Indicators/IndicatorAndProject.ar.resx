@@ -117,100 +117,82 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="Field Monitoring" xml:space="preserve">
-    <value>الرصد الميداني</value>
+  <data name="Apply Filters" xml:space="preserve">
+    <value>تطبيق الفلاتر</value>
   </data>
-  <data name="Framework Name" xml:space="preserve">
-    <value>اسم الإستراتيجية</value>
+  <data name="Clear" xml:space="preserve">
+    <value>مسح</value>
   </data>
-  <data name="Disbursement Performance" xml:space="preserve">
-    <value>أداء الصرف</value>
+  <data name="Edit Indicator" xml:space="preserve">
+    <value>تعديل المؤشر</value>
   </data>
-  <data name="Impact Assessment" xml:space="preserve">
-    <value>التقيم</value>
+  <data name="View Details" xml:space="preserve">
+    <value>عرض التفاصيل</value>
+  </data>
+  <data name="-- All Projects --" xml:space="preserve">
+    <value>-- جميع المشاريع --</value>
   </data>
   <data name="Actions" xml:space="preserve">
     <value>الإجراءات</value>
   </data>
-  <data name="SubOutput" xml:space="preserve">
-    <value>البرنامج الفرعي</value>
+  <data name="Card View" xml:space="preserve">
+    <value>عرض البطاقة</value>
+  </data>
+  <data name="Disbursement" xml:space="preserve">
+    <value>أداء الصرف</value>
+  </data>
+  <data name="Filter by Project" xml:space="preserve">
+    <value>تصفية حسب المشروع</value>
+  </data>
+  <data name="Filter Options" xml:space="preserve">
+    <value>خيارات التصفية</value>
+  </data>
+  <data name="Indicator Details" xml:space="preserve">
+    <value>تفاصيل المؤشر</value>
+  </data>
+  <data name="Indicator Name" xml:space="preserve">
+    <value>اسم المؤشر</value>
+  </data>
+  <data name="Indicators and Projects" xml:space="preserve">
+    <value>المؤشرات والمشاريع</value>
+  </data>
+  <data name="Performance" xml:space="preserve">
+    <value>الأداء والأنجاز</value>
+  </data>
+  <data name="Project Name" xml:space="preserve">
+    <value>اسم المشروع</value>
+  </data>
+  <data name="Regular View" xml:space="preserve">
+    <value>العرض العادي</value>
+  </data>
+  <data name="Related Projects" xml:space="preserve">
+    <value>المشاريع المرتبطة</value>
   </data>
   <data name="Search" xml:space="preserve">
     <value>البحث</value>
   </data>
-  <data name="Add" xml:space="preserve">
-    <value>إضافة</value>
+  <data name="Search by indicator or project name..." xml:space="preserve">
+    <value>البحث حسب اسم المؤشر أو اسم المشروع...</value>
   </data>
-  <data name="Target" xml:space="preserve">
-    <value>الهدف</value>
+  <data name="SubOutput" xml:space="preserve">
+    <value>البرنامج الفرعي</value>
   </data>
-  <data name="Name" xml:space="preserve">
-    <value>الأسم</value>
-  </data>
-  <data name="Add New Indicator" xml:space="preserve">
-    <value>إضافة مؤشر جديد</value>
-  </data>
-  <data name="Adjust Weights" xml:space="preserve">
-    <value>التثقيل</value>
-  </data>
-  <data name="View and manage all indicator performance metrics" xml:space="preserve">
-    <value>عرض وإدارة جميع مقاييس أداء المشاريع</value>
-  </data>
-  <data name="Indicators Management" xml:space="preserve">
-    <value>إدارة المشاريع</value>
-  </data>
-  <data name="Indicator Name" xml:space="preserve">
-    <value>اسم المشروع</value>
-  </data>
-  <data name="Create New Indicator" xml:space="preserve">
-    <value>إنشاء مشروع جديد</value>
+  <data name="View indicators and their related projects with filtering capabilities" xml:space="preserve">
+    <value>عرض المؤشرات والمشاريع المرتبطة بها مع إمكانيات التصفية</value>
   </data>
   <data name="Weight" xml:space="preserve">
     <value>الوزن</value>
   </data>
-  <data name="Deleted!" xml:space="preserve">
-    <value>تم الحذف!</value>
+  <data name="Budget" xml:space="preserve">
+    <value>الميزانية</value>
   </data>
-  <data name="Indicator has been deleted." xml:space="preserve">
-    <value>تم حذف المؤشر بنجاح.</value>
-  </data>
-  <data name="Failed to delete the indicator." xml:space="preserve">
-    <value>فشل في حذف المؤشر.</value>
-  </data>
-  <data name="Are you sure?" xml:space="preserve">
-    <value>هل أنت متأكد؟</value>
-  </data>
-  <data name="You won't be able to revert this!" xml:space="preserve">
-    <value>لن تتمكن من التراجع عن هذا!</value>
-  </data>
-  <data name="Yes, delete it!" xml:space="preserve">
-    <value>نعم احذفه!</value>
-  </data>
-  <data name="Updated!" xml:space="preserve">
-    <value>تم التحديث!</value>
-  </data>
-  <data name="Indicator name updated successfully" xml:space="preserve">
-    <value>تم تحديث اسم المؤشر بنجاح</value>
-  </data>
-  <data name="Could not save changes" xml:space="preserve">
-    <value>لم يتمكن من حفظ التغييرات</value>
-  </data>
-  <data name="earch by indicator name or suboutput..." xml:space="preserve">
-    <value>البحث حسب اسم المؤشر أو الناتج الفرعي...</value>
-  </data>
-  <data name="Search by indicator name or suboutput..." xml:space="preserve">
-    <value>البحث حسب اسم المشروع أو البرنامج الفرعي...</value>
-  </data>
-  <data name="Indicators Performance" xml:space="preserve">
-    <value>الأداء والأنجاز</value>
-  </data>
-  <data name="Add &amp; Create Project" xml:space="preserve">
-    <value>إضافة وإنشاء  استمارة مشروع</value>
-  </data>
-  <data name="Card View" xml:space="preserve">
-    <value>عرض البطاقة</value>
+  <data name="Start Date" xml:space="preserve">
+    <value>تاريخ البداية</value>
   </data>
   <data name="Table View" xml:space="preserve">
     <value>عرض الجدول</value>
+  </data>
+  <data name="Target" xml:space="preserve">
+    <value>الهدف</value>
   </data>
 </root>

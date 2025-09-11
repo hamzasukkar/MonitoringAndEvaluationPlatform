@@ -25,6 +25,12 @@
   </ItemGroup>
 
   <ItemGroup>
+    <EmbeddedResource Update="Resources\Views\Indicators\IndicatorAndProject.ar.resx">
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Update="Resources\Views\Indicators\IndicatorAndProject.en.resx">
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
     <EmbeddedResource Update="Resources\Views\Indicators\IndicatorAndProjectTable.ar.resx">
       <SubType>Designer</SubType>
     </EmbeddedResource>

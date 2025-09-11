@@ -117,19 +117,52 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
+  <data name="Clear" xml:space="preserve">
+    <value>مسح</value>
+  </data>
+  <data name="-- All Projects --" xml:space="preserve">
+    <value>-- جميع المشاريع --</value>
+  </data>
+  <data name="Actions" xml:space="preserve">
+    <value>الإجراءات</value>
+  </data>
+  <data name="Card View" xml:space="preserve">
+    <value>عرض البطاقة</value>
+  </data>
   <data name="Disbursement Performance" xml:space="preserve">
-    <value>Disbursement Performance</value>
+    <value>أداء الصرف</value>
+  </data>
+  <data name="Filter by Project" xml:space="preserve">
+    <value>تصفية حسب المشروع</value>
   </data>
   <data name="Indicator Name" xml:space="preserve">
-    <value>Indicator Name</value>
+    <value>اسم المؤشر</value>
   </data>
   <data name="Indicators Performance" xml:space="preserve">
-    <value>Indicators Performance</value>
+    <value>الأداء والأنجاز</value>
+  </data>
+  <data name="Regular View" xml:space="preserve">
+    <value>العرض العادي</value>
+  </data>
+  <data name="Related Projects" xml:space="preserve">
+    <value>المشاريع المرتبطة</value>
+  </data>
+  <data name="Search" xml:space="preserve">
+    <value>البحث</value>
+  </data>
+  <data name="Search by indicator name, suboutput, or project..." xml:space="preserve">
+    <value>البحث حسب اسم المؤشر، أو البرنامج الفرعي، أو المشروع...</value>
   </data>
   <data name="SubOutput" xml:space="preserve">
-    <value>SubOutput</value>
+    <value>البرنامج الفرعي</value>
   </data>
   <data name="Weight" xml:space="preserve">
-    <value>Weight</value>
+    <value>الوزن</value>
+  </data>
+  <data name="Indicators and Projects Management" xml:space="preserve">
+    <value>المؤشرات وإدارة المشاريع</value>
+  </data>
+  <data name="View and manage indicators with their related projects" xml:space="preserve">
+    <value>عرض المؤشرات وإدارتها مع المشاريع ذات الصلة بها</value>
   </data>
 </root>
