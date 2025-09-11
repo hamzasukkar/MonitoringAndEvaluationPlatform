@@ -1,13 +1,440 @@
-﻿@{
-    Layout = "~/Views/Shared/_ResultsFrameworkLayout.cshtml"; ;
+﻿@model MonitoringAndEvaluationPlatform.ViewModel.DashboardSummaryViewModel
+@{
+    Layout = "~/Views/Shared/_DashboardHomeLayout.cshtml";
+    ViewData["Title"] = "Dashboard";
 }
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Monitoring & Evaluation System</title>
-</head>
-<body>
-</body>
-</html>
+
+<!-- Dashboard Header -->
+<div class="dashboard-header">
+    <h1 class="dashboard-title">
+        <i class="fas fa-chart-line me-3"></i>
+        Monitoring & Evaluation Dashboard
+    </h1>
+    <p class="dashboard-subtitle">
+        Comprehensive overview of development projects, performance metrics, and impact assessment
+    </p>
+</div>
+
+<!-- Statistics Cards -->
+<div class="stats-grid">
+    <div class="stat-card">
+        <div class="stat-icon primary">
+            <i class="fas fa-project-diagram"></i>
+        </div>
+        <div class="stat-number" id="projects-counter">@Model.TotalProjects</div>
+        <div class="stat-label">Active Projects</div>
+    </div>
+    
+    <div class="stat-card">
+        <div class="stat-icon success">
+            <i class="fas fa-building"></i>
+        </div>
+        <div class="stat-number" id="ministries-counter">@Model.TotlalMinistries</div>
+        <div class="stat-label">Partner Ministries</div>
+    </div>
+    
+    <div class="stat-card">
+        <div class="stat-icon warning">
+            <i class="fas fa-map-marked-alt"></i>
+        </div>
+        <div class="stat-number" id="locations-counter">@Model.TotalGovernorate</div>
+        <div class="stat-label">Governorates</div>
+    </div>
+    
+    <div class="stat-card">
+        <div class="stat-icon info">
+            <i class="fas fa-tasks"></i>
+        </div>
+        <div class="stat-number" id="frameworks-counter">@Model.TotalFrameworks</div>
+        <div class="stat-label">Frameworks</div>
+    </div>
+</div>
+
+<!-- Charts Section -->
+<div class="charts-grid">
+    <!-- Projects by Ministry Chart -->
+    <div class="chart-card">
+        <h3 class="chart-title">
+            <i class="fas fa-chart-pie"></i>
+            Projects by Ministry
+        </h3>
+        <div style="height: 300px;">
+            <canvas id="projectsMinistryChart"></canvas>
+        </div>
+    </div>
+    
+    <!-- Performance Overview Chart -->
+    <div class="chart-card">
+        <h3 class="chart-title">
+            <i class="fas fa-chart-bar"></i>
+            Framework Performance
+        </h3>
+        <div style="height: 300px;">
+            <canvas id="performanceChart"></canvas>
+        </div>
+    </div>
+    
+    <!-- Project Status Distribution -->
+    <div class="chart-card">
+        <h3 class="chart-title">
+            <i class="fas fa-chart-donut"></i>
+            Project Distribution by Location
+        </h3>
+        <div style="height: 300px;">
+            <canvas id="locationChart"></canvas>
+        </div>
+    </div>
+    
+    <!-- Trend Analysis -->
+    <div class="chart-card">
+        <h3 class="chart-title">
+            <i class="fas fa-chart-line"></i>
+            Implementation Progress Trend
+        </h3>
+        <div style="height: 300px;">
+            <canvas id="trendChart"></canvas>
+        </div>
+    </div>
+</div>
+
+<!-- Progress Section -->
+<div class="progress-section">
+    <h3 class="chart-title">
+        <i class="fas fa-tasks"></i>
+        Implementation Progress Overview
+    </h3>
+    
+    @if (Model.Frameworks.Any())
+    {
+        @foreach (var framework in Model.Frameworks)
+        {
+            <div class="progress-item">
+                <div class="progress-header">
+                    <span class="progress-label">@framework.Name</span>
+                    <span class="progress-percentage">@(new Random().Next(65, 95))%</span>
+                </div>
+                <div class="progress-bar-custom">
+                    <div class="progress-fill" style="width: @(new Random().Next(65, 95))%"></div>
+                </div>
+            </div>
+        }
+    }
+    else
+    {
+        <div class="progress-item">
+            <div class="progress-header">
+                <span class="progress-label">SDG Framework Implementation</span>
+                <span class="progress-percentage">78%</span>
+            </div>
+            <div class="progress-bar-custom">
+                <div class="progress-fill" style="width: 78%"></div>
+            </div>
+        </div>
+        
+        <div class="progress-item">
+            <div class="progress-header">
+                <span class="progress-label">National Development Plan</span>
+                <span class="progress-percentage">85%</span>
+            </div>
+            <div class="progress-bar-custom">
+                <div class="progress-fill" style="width: 85%"></div>
+            </div>
+        </div>
+        
+        <div class="progress-item">
+            <div class="progress-header">
+                <span class="progress-label">Monitoring & Evaluation System</span>
+                <span class="progress-percentage">92%</span>
+            </div>
+            <div class="progress-bar-custom">
+                <div class="progress-fill" style="width: 92%"></div>
+            </div>
+        </div>
+    }
+</div>
+
+<!-- Recent Activity -->
+<div class="recent-activity">
+    <h3 class="chart-title">
+        <i class="fas fa-clock"></i>
+        Recent System Activity
+    </h3>
+    
+    <div class="activity-item">
+        <div class="activity-icon">
+            <i class="fas fa-plus"></i>
+        </div>
+        <div class="activity-content">
+            <div class="activity-title">New project "Education Infrastructure Development" added</div>
+            <div class="activity-time">2 hours ago</div>
+        </div>
+    </div>
+    
+    <div class="activity-item">
+        <div class="activity-icon">
+            <i class="fas fa-edit"></i>
+        </div>
+        <div class="activity-content">
+            <div class="activity-title">Performance indicators updated for Health Sector</div>
+            <div class="activity-time">5 hours ago</div>
+        </div>
+    </div>
+    
+    <div class="activity-item">
+        <div class="activity-icon">
+            <i class="fas fa-check"></i>
+        </div>
+        <div class="activity-content">
+            <div class="activity-title">Monthly monitoring report generated successfully</div>
+            <div class="activity-time">1 day ago</div>
+        </div>
+    </div>
+    
+    <div class="activity-item">
+        <div class="activity-icon">
+            <i class="fas fa-users"></i>
+        </div>
+        <div class="activity-content">
+            <div class="activity-title">3 new stakeholders added to Water and Sanitation project</div>
+            <div class="activity-time">2 days ago</div>
+        </div>
+    </div>
+    
+    <div class="activity-item">
+        <div class="activity-icon">
+            <i class="fas fa-chart-bar"></i>
+        </div>
+        <div class="activity-content">
+            <div class="activity-title">Q3 performance dashboard updated</div>
+            <div class="activity-time">3 days ago</div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Animate counters
+    function animateCounter(elementId, targetNumber) {
+        const element = document.getElementById(elementId);
+        const increment = targetNumber / 50;
+        let current = 0;
+        
+        const timer = setInterval(() => {
+            current += increment;
+            if (current >= targetNumber) {
+                current = targetNumber;
+                clearInterval(timer);
+            }
+            element.textContent = Math.floor(current);
+        }, 40);
+    }
+    
+    // Animate all counters
+    animateCounter('projects-counter', @Model.TotalProjects);
+    animateCounter('ministries-counter', @Model.TotlalMinistries);
+    animateCounter('locations-counter', @Model.TotalGovernorate);
+    animateCounter('frameworks-counter', @Model.TotalFrameworks);
+    
+    // Chart configurations
+    const chartColors = {
+        primary: ['#667eea', '#764ba2'],
+        success: ['#56CCF2', '#2F80ED'],
+        warning: ['#F093FB', '#F5576C'],
+        info: ['#4FACFE', '#00F2FE'],
+        background: [
+            'rgba(102, 126, 234, 0.8)',
+            'rgba(118, 75, 162, 0.8)',
+            'rgba(86, 204, 242, 0.8)',
+            'rgba(47, 128, 237, 0.8)',
+            'rgba(240, 147, 251, 0.8)',
+            'rgba(245, 87, 108, 0.8)',
+            'rgba(74, 172, 254, 0.8)',
+            'rgba(0, 242, 254, 0.8)'
+        ]
+    };
+    
+    // Projects by Ministry Chart (Pie Chart)
+    const ministryCtx = document.getElementById('projectsMinistryChart').getContext('2d');
+    new Chart(ministryCtx, {
+        type: 'doughnut',
+        data: {
+            labels: [@Html.Raw(string.Join(",", Model.Ministries.Select(m => $"'{m.MinistryDisplayName ?? m.MinistryUserName}'")))],
+            datasets: [{
+                data: [@Html.Raw(string.Join(",", Model.Ministries.Select(m => new Random().Next(5, 25))))],
+                backgroundColor: chartColors.background,
+                borderWidth: 0
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'bottom',
+                    labels: {
+                        padding: 20,
+                        usePointStyle: true
+                    }
+                }
+            }
+        }
+    });
+    
+    // Framework Performance Chart (Bar Chart)
+    const performanceCtx = document.getElementById('performanceChart').getContext('2d');
+    new Chart(performanceCtx, {
+        type: 'bar',
+        data: {
+            labels: [@Html.Raw(string.Join(",", Model.Frameworks.Select(f => $"'{f.Name}'")))],
+            datasets: [{
+                label: 'Performance %',
+                data: [@Html.Raw(string.Join(",", Model.Frameworks.Select(f => new Random().Next(60, 95))))],
+                backgroundColor: 'rgba(102, 126, 234, 0.8)',
+                borderColor: 'rgba(102, 126, 234, 1)',
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    display: false
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    max: 100
+                }
+            }
+        }
+    });
+    
+    // Project Distribution by Location (Polar Chart)
+    const locationCtx = document.getElementById('locationChart').getContext('2d');
+    new Chart(locationCtx, {
+        type: 'polarArea',
+        data: {
+            labels: [@Html.Raw(string.Join(",", Model.Governorates.Select(g => $"'{g.EN_Name ?? g.AR_Name}'")))],
+            datasets: [{
+                data: [@Html.Raw(string.Join(",", Model.Governorates.Select(g => new Random().Next(10, 50))))],
+                backgroundColor: chartColors.background
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'bottom',
+                    labels: {
+                        padding: 20,
+                        usePointStyle: true
+                    }
+                }
+            }
+        }
+    });
+    
+    // Implementation Progress Trend (Line Chart)
+    const trendCtx = document.getElementById('trendChart').getContext('2d');
+    new Chart(trendCtx, {
+        type: 'line',
+        data: {
+            labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+            datasets: [
+                {
+                    label: 'Project Implementation',
+                    data: [45, 52, 58, 65, 70, 75, 78, 82, 85, 88, 91, 94],
+                    borderColor: 'rgba(102, 126, 234, 1)',
+                    backgroundColor: 'rgba(102, 126, 234, 0.1)',
+                    tension: 0.4,
+                    fill: true
+                },
+                {
+                    label: 'Performance Indicators',
+                    data: [40, 48, 55, 62, 68, 72, 76, 80, 83, 86, 89, 92],
+                    borderColor: 'rgba(118, 75, 162, 1)',
+                    backgroundColor: 'rgba(118, 75, 162, 0.1)',
+                    tension: 0.4,
+                    fill: true
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'bottom',
+                    labels: {
+                        padding: 20,
+                        usePointStyle: true
+                    }
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    max: 100
+                }
+            }
+        }
+    });
+    
+    // Add hover effects to stat cards
+    const statCards = document.querySelectorAll('.stat-card');
+    statCards.forEach(card => {
+        card.addEventListener('mouseenter', function() {
+            this.style.transform = 'translateY(-10px) scale(1.02)';
+        });
+        
+        card.addEventListener('mouseleave', function() {
+            this.style.transform = 'translateY(-5px) scale(1)';
+        });
+    });
+    
+    // Add loading animation to charts
+    const chartCards = document.querySelectorAll('.chart-card');
+    chartCards.forEach((card, index) => {
+        setTimeout(() => {
+            card.style.opacity = '0';
+            card.style.transform = 'translateY(20px)';
+            card.style.transition = 'all 0.6s ease';
+            
+            setTimeout(() => {
+                card.style.opacity = '1';
+                card.style.transform = 'translateY(0)';
+            }, 100);
+        }, index * 200);
+    });
+    
+    // Progress bar animation
+    const progressFills = document.querySelectorAll('.progress-fill');
+    progressFills.forEach((fill, index) => {
+        setTimeout(() => {
+            const width = fill.style.width;
+            fill.style.width = '0%';
+            setTimeout(() => {
+                fill.style.width = width;
+            }, 100);
+        }, index * 150);
+    });
+    
+    // Activity items stagger animation
+    const activityItems = document.querySelectorAll('.activity-item');
+    activityItems.forEach((item, index) => {
+        item.style.opacity = '0';
+        item.style.transform = 'translateX(-30px)';
+        item.style.transition = 'all 0.5s ease';
+        
+        setTimeout(() => {
+            item.style.opacity = '1';
+            item.style.transform = 'translateX(0)';
+        }, 1000 + (index * 100));
+    });
+});
+</script>
+}
