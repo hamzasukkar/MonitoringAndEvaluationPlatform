@@ -5,91 +5,111 @@
 
 @{
     ViewData["Title"] = "Create New Project";
-    Layout = "~/Views/Shared/_ProjectsLayout.cshtml";
+    Layout = "~/Views/Shared/_DashboardHomeLayout.cshtml";
 
     var startDate = DateTime.Today.ToString("yyyy-MM-dd");
     var endDate = DateTime.Today.ToString("yyyy-MM-dd");
 
     var governorates = ViewBag.Governorates as List<Governorate>;
 }
-<head>
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-</head>
-<div class="container-fluid py-4">
+<!-- Dashboard Header -->
+<div class="dashboard-header">
+    <h1 class="dashboard-title">
+        <i class="fas fa-plus-circle me-3"></i>
+        @Localizer["Create New Project"]
+    </h1>
+    <p class="dashboard-subtitle">
+        @Localizer["Fill in the project details below to create a comprehensive project plan"]
+    </p>
+</div>
+
+<div class="container-fluid">
     <div class="row">
         <div class="col-12">
-            <div class="card shadow-sm mb-4">
-                <div class="card-header bg-primary text-white">
-                    <h4 class="mb-0">
-                        </h5>
-                        <dl class="row">@Localizer["Create New Project"]
-                    </h4>
-                    <p class="mb-0 opacity-75">@Localizer["Fill in the project details below"]</p>
-                </div>
-
-                <form asp-action="Create" method="post" enctype="multipart/form-data" class="needs-validation" novalidate>
-                    <div class="card-body">
+            <div class="chart-card mb-4">
+                <h3 class="chart-title">
+                    <i class="fas fa-edit"></i>
+                    @Localizer["Project Information"]
+                </h3>
+                <div class="chart-content">
+                    @using (Html.BeginForm("Create", "Projects", FormMethod.Post, new { enctype = "multipart/form-data", @class = "needs-validation modern-form", novalidate = "novalidate" }))
+                    {
                         <div class="row">
                             <!-- Left Column -->
                             <div class="col-md-6">
-                                <h5 class="mb-3 text-primary">@Localizer["Basic Information"]</h5>
-
-                                <!-- Project Name -->
-                                <div class="mb-4">
-                                    <label asp-for="ProjectName" class="form-label">@Localizer["Project Name"]</label>
-                                    <input asp-for="ProjectName" class="form-control" placeholder="Enter project name" required />
-                                    <span asp-validation-for="ProjectName" class="text-danger small"></span>
-                                </div>
-
-                                <!-- Plans Count calculated from project duration -->
-                                <div class="mb-4">
-                                    <label for="PlansCount" class="form-label">@Localizer["Plans Count"] (Months)</label>
-                                    <input type="number"
-                                           id="PlansCount"
-                                           name="PlansCount"
-                                           class="form-control"
-                                           value="1"
-                                           min="1"
-                                           readonly />
-                                    <small class="text-muted">@Localizer["Automatically calculated based on project duration"]</small>
-                                </div>
-
-                                <!-- Location Hierarchy -->
-                                <div class="mb-4">
-                                    <h6 class="mb-3 text-muted">@Localizer["Project Location"]</h6>
-                                    <div id="location-selector">
-
-                                        <div class="mb-3">
-                                            <select id="governorate" class="form-select">
-                                                <option value="">-- اختر المحافظة --</option>
-                                                @foreach (var gov in governorates)
-                                                {
-                                                    var displayName = System.Threading.Thread.CurrentThread.CurrentUICulture.TwoLetterISOLanguageName == "ar"
-                                                    ? gov.AR_Name
-                                                    : gov.EN_Name;
-                                                    <option value="@gov.Code">@displayName</option>
-                                                }
-                                            </select>
-                                        </div>
-
-                                        <div class="mb-3">
-                                            <select id="district" class="form-select"></select>
-                                        </div>
-
-                                        <div class="mb-3">
-                                            <select id="subdistrict" class="form-select"></select>
-                                        </div>
-
-                                        <div class="mb-3">
-                                            <select id="community" class="form-select"></select>
-                                        </div>
+                                <div class="form-section">
+                                    <div class="section-header">
+                                        <i class="fas fa-info-circle me-2"></i>
+                                        <h5 class="section-title">@Localizer["Basic Information"]</h5>
                                     </div>
-                                    <button type="button" id="add-location" class="btn btn-primary mt-2">@Localizer["Add Location"]</button>
-                                    <button type="button" id="reset-dropdowns" class="btn btn-secondary mt-2">@Localizer["Reset"]</button>
-                                    <ul id="selected-locations" class="mt-3"></ul>
 
-                                    <input type="hidden" id="location-data" name="selections" />
-                                    <div id="location-validation-alert" style="display:none;" class="alert alert-warning mt-3"></div>
+                                    <!-- Project Name -->
+                                    <div class="modern-input-group">
+                                        <label asp-for="ProjectName" class="modern-label">
+                                            <i class="fas fa-project-diagram me-2"></i>
+                                            @Localizer["Project Name"]
+                                        </label>
+                                        <input asp-for="ProjectName" class="modern-input" placeholder="Enter project name" required />
+                                        <span asp-validation-for="ProjectName" class="validation-message"></span>
+                                    </div>
+
+                                    <!-- Plans Count calculated from project duration -->
+                                    <div class="modern-input-group">
+                                        <label for="PlansCount" class="modern-label">
+                                            <i class="fas fa-calendar-alt me-2"></i>
+                                            @Localizer["Plans Count"] (Months)
+                                        </label>
+                                        <input type="number"
+                                               id="PlansCount"
+                                               name="PlansCount"
+                                               class="modern-input readonly-input"
+                                               value="1"
+                                               min="1"
+                                               readonly />
+                                        <small class="input-help-text">@Localizer["Automatically calculated based on project duration"]</small>
+                                    </div>
+
+                                    <!-- Location Hierarchy -->
+                                    <div class="location-section">
+                                        <div class="subsection-header">
+                                            <i class="fas fa-map-marker-alt me-2"></i>
+                                            <h6 class="subsection-title">@Localizer["Project Location"]</h6>
+                                        </div>
+                                        <div id="location-selector" class="location-selectors">
+                                            <div class="location-dropdown">
+                                                <select id="governorate" class="modern-select">
+                                                    <option value="">-- اختر المحافظة --</option>
+                                                    @foreach (var gov in governorates)
+                                                    {
+                                                        var displayName = System.Threading.Thread.CurrentThread.CurrentUICulture.TwoLetterISOLanguageName == "ar"
+                                                        ? gov.AR_Name
+                                                        : gov.EN_Name;
+                                                        <option value="@gov.Code">@displayName</option>
+                                                    }
+                                                </select>
+                                            </div>
+                                            <div class="location-dropdown">
+                                                <select id="district" class="modern-select"></select>
+                                            </div>
+                                            <div class="location-dropdown">
+                                                <select id="subdistrict" class="modern-select"></select>
+                                            </div>
+                                            <div class="location-dropdown">
+                                                <select id="community" class="modern-select"></select>
+                                            </div>
+                                        </div>
+                                        <div class="location-actions">
+                                            <button type="button" id="add-location" class="btn btn-modern-primary">
+                                                <i class="fas fa-plus me-2"></i>@Localizer["Add Location"]
+                                            </button>
+                                            <button type="button" id="reset-dropdowns" class="btn btn-modern-secondary">
+                                                <i class="fas fa-redo me-2"></i>@Localizer["Reset"]
+                                            </button>
+                                        </div>
+                                        <ul id="selected-locations" class="selected-locations-list"></ul>
+                                        <input type="hidden" id="location-data" name="selections" />
+                                        <div id="location-validation-alert" style="display:none;" class="validation-alert"></div>
+                                    </div>
                                 </div>
 
 
@@ -97,79 +117,89 @@
 
 
 
-                                <!-- Dates -->
-                                <div class="mb-4">
-                                    <h6 class="mb-3 text-muted">@Localizer["Project Timeline"]</h6>
-                                    <div class="row">
-                                        <div class="col-md-6 mb-3">
-                                            <label asp-for="StartDate" class="form-label">@Localizer["Start Date"]</label>
-                                            <input type="date" asp-for="StartDate" value="@startDate" class="form-control" required />
-                                            <span asp-validation-for="StartDate" class="text-danger small"></span>
+                                    <!-- Dates -->
+                                    <div class="timeline-section">
+                                        <div class="subsection-header">
+                                            <i class="fas fa-clock me-2"></i>
+                                            <h6 class="subsection-title">@Localizer["Project Timeline"]</h6>
                                         </div>
-                                        <div class="col-md-6 mb-3">
-                                            <label asp-for="EndDate" class="form-label">@Localizer["End Date"]</label>
-                                            <input type="date" asp-for="EndDate" value="@endDate" class="form-control" required />
-                                            <span asp-validation-for="EndDate" class="text-danger small"></span>
+                                        <div class="timeline-inputs">
+                                            <div class="modern-input-group">
+                                                <label asp-for="StartDate" class="modern-label">
+                                                    <i class="fas fa-play me-2"></i>
+                                                    @Localizer["Start Date"]
+                                                </label>
+                                                <input type="date" asp-for="StartDate" value="@startDate" class="modern-input" required />
+                                                <span asp-validation-for="StartDate" class="validation-message"></span>
+                                            </div>
+                                            <div class="modern-input-group">
+                                                <label asp-for="EndDate" class="modern-label">
+                                                    <i class="fas fa-stop me-2"></i>
+                                                    @Localizer["End Date"]
+                                                </label>
+                                                <input type="date" asp-for="EndDate" value="@endDate" class="modern-input" required />
+                                                <span asp-validation-for="EndDate" class="validation-message"></span>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
                             </div>
-
-
-
                             <!-- Right Column -->
                             <div class="col-md-6">
                                 <!-- Budget Card -->
-                                <div class="card mb-4 border-0 shadow-sm">
-                                    <div class="card-header bg-light">
-                                        <h6 class="mb-0">@Localizer["Budget Information"]</h6>
+                                <div class="form-section">
+                                    <div class="section-header">
+                                        <i class="fas fa-dollar-sign me-2"></i>
+                                        <h5 class="section-title">@Localizer["Budget Information"]</h5>
                                     </div>
-                                    <div class="card-body">
-                                        <div class="row">
-                                            <div class="col-md-6 mb-3">
-                                                <label asp-for="EstimatedBudget" class="form-label">@Localizer["Estimated Budget"]</label>
-                                                <div class="input-group">
-                                                    <span class="input-group-text">$</span>
-                                                    <input asp-for="EstimatedBudget" class="form-control" min="0.01" step="0.01" required />
-                                                </div>
-                                                <span asp-validation-for="EstimatedBudget" class="text-danger small"></span>
+                                    <div class="section-content">
+                                        <div class="modern-input-group">
+                                            <label asp-for="EstimatedBudget" class="modern-label">
+                                                <i class="fas fa-coins me-2"></i>
+                                                @Localizer["Estimated Budget"]
+                                            </label>
+                                            <div class="input-with-icon">
+                                                <span class="input-icon">$</span>
+                                                <input asp-for="EstimatedBudget" class="modern-input with-icon" min="0.01" step="0.01" required />
                                             </div>
-                                            @*                                             <div class="col-md-6 mb-3">
-                                                <label asp-for="RealBudget" class="form-label">@Localizer["Real Budget"]</label>
-                                                <div class="input-group">
-                                                    <span class="input-group-text">$</span>
-                                                    <input asp-for="RealBudget" value="0" class="form-control" />
-                                                </div>
-                                                <span asp-validation-for="RealBudget" class="text-danger small"></span>
-                                            </div>
- *@                                        </div>
-                                    </div>
+                                            <span asp-validation-for="EstimatedBudget" class="validation-message"></span>
+                                        </div>
+                                                                                </div>
                                 </div>
 
-                                <!-- Stakeholders Card -->
-                                <div class="card mb-4 border-0 shadow-sm">
-                                    <div class="card-header bg-light">
-                                        <h6 class="mb-0">@Localizer["Stakeholders"]</h6>
+                                <!-- Stakeholders Section -->
+                                <div class="form-section">
+                                    <div class="section-header">
+                                        <i class="fas fa-users me-2"></i>
+                                        <h5 class="section-title">@Localizer["Stakeholders"]</h5>
                                     </div>
-                                    <!-- Sectors -->
-                                    <div class="card-body">
-                                        <div class="mb-3">
-                                            <label class="form-label">@Localizer["Sectors"]</label>
-                                            <select asp-for="Sectors" class="form-select" asp-items="ViewBag.SectorList" multiple size="4">
+                                    <div class="section-content">
+                                        <div class="modern-input-group">
+                                            <label class="modern-label">
+                                                <i class="fas fa-industry me-2"></i>
+                                                @Localizer["Sectors"]
+                                            </label>
+                                            <select asp-for="Sectors" class="modern-select multiple" asp-items="ViewBag.SectorList" multiple size="4">
                                                 <option disabled>@Localizer["Select one or more sectors"]</option>
                                             </select>
-                                            <small class="text-muted">@Localizer["Hold Ctrl/Cmd to select multiple sectors"]</small>
+                                            <small class="input-help-text">@Localizer["Hold Ctrl/Cmd to select multiple sectors"]</small>
                                         </div>
-                                        <div class="mb-3">
-                                            <label asp-for="ProjectManagerCode" class="form-label">@Localizer["Project Manager"]</label>
-                                            <select asp-for="ProjectManagerCode" class="form-select" asp-items="ViewBag.ProjectManager">
+                                        <div class="modern-input-group">
+                                            <label asp-for="ProjectManagerCode" class="modern-label">
+                                                <i class="fas fa-user-tie me-2"></i>
+                                                @Localizer["Project Manager"]
+                                            </label>
+                                            <select asp-for="ProjectManagerCode" class="modern-select" asp-items="ViewBag.ProjectManager">
                                                 <option value="">Select Project Manager</option>
                                             </select>
                                         </div>
 
-                                        <div class="mb-3">
-                                            <label asp-for="SuperVisorCode" class="form-label">@Localizer["Supervisor"]</label>
-                                            <select asp-for="SuperVisorCode" class="form-select" asp-items="ViewBag.SuperVisor">
+                                        <div class="modern-input-group">
+                                            <label asp-for="SuperVisorCode" class="modern-label">
+                                                <i class="fas fa-user-check me-2"></i>
+                                                @Localizer["Supervisor"]
+                                            </label>
+                                            <select asp-for="SuperVisorCode" class="modern-select" asp-items="ViewBag.SuperVisor">
                                                 <option value="">Select Supervisor</option>
                                             </select>
                                         </div>
@@ -271,18 +301,17 @@
                                     </div>
                                 </div>
                             </div>
-                        </div>
-                    </div>
 
-                    <div class="card-footer bg-light d-flex justify-content-between">
-                        <a href="@Url.Action("Index")" class="btn btn-outline-secondary">
-                            <i class="fas fa-arrow-left me-2"></i>@Localizer["Cancel"]
-                        </a>
-                        <button type="submit" class="btn btn-primary">
-                            <i class="fas fa-save me-2"></i>@Localizer["Create Project"]
-                        </button>
-                    </div>
-                </form>
+                        <div class="form-actions">
+                            <a href="@Url.Action("Index")" class="btn btn-modern-secondary">
+                                <i class="fas fa-arrow-left me-2"></i>@Localizer["Cancel"]
+                            </a>
+                            <button type="submit" class="btn btn-modern-primary">
+                                <i class="fas fa-save me-2"></i>@Localizer["Create Project"]
+                            </button>
+                        </div>
+                    }
+                </div>
             </div>
         </div>
     </div>
@@ -290,6 +319,278 @@
 
 <partial name="_ValidationScriptsPartial" />
 
+<!-- Modern Styles -->
+<style>
+    .modern-form {
+        background: transparent;
+    }
+
+    .form-section {
+        background: rgba(255, 255, 255, 0.1);
+        backdrop-filter: blur(15px);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        border-radius: 15px;
+        padding: 2rem;
+        margin-bottom: 2rem;
+        transition: all 0.3s ease;
+    }
+
+    .form-section:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    }
+
+    .section-header {
+        display: flex;
+        align-items: center;
+        margin-bottom: 1.5rem;
+        padding-bottom: 1rem;
+        border-bottom: 2px solid rgba(255, 255, 255, 0.2);
+    }
+
+    .section-title {
+        font-size: 1.2rem;
+        font-weight: 700;
+        color: var(--text-color);
+        margin: 0;
+    }
+
+    .section-header i {
+        color: var(--primary-color);
+        font-size: 1.3rem;
+    }
+
+    .subsection-header {
+        display: flex;
+        align-items: center;
+        margin-bottom: 1rem;
+    }
+
+    .subsection-title {
+        font-size: 1rem;
+        font-weight: 600;
+        color: var(--text-color);
+        margin: 0;
+        opacity: 0.9;
+    }
+
+    .subsection-header i {
+        color: var(--primary-light);
+        font-size: 1.1rem;
+    }
+
+    .modern-input-group {
+        margin-bottom: 1.5rem;
+    }
+
+    .modern-label {
+        display: flex;
+        align-items: center;
+        font-weight: 600;
+        color: var(--text-color);
+        margin-bottom: 0.5rem;
+        font-size: 0.95rem;
+    }
+
+    .modern-label i {
+        color: var(--primary-color);
+        opacity: 0.8;
+    }
+
+    .modern-input,
+    .modern-select {
+        width: 100%;
+        padding: 0.75rem 1rem;
+        border: 2px solid rgba(255, 255, 255, 0.2);
+        border-radius: 10px;
+        background: rgba(255, 255, 255, 0.1);
+        backdrop-filter: blur(10px);
+        color: var(--text-color);
+        font-size: 0.95rem;
+        transition: all 0.3s ease;
+    }
+
+    .modern-input:focus,
+    .modern-select:focus {
+        outline: none;
+        border-color: var(--primary-color);
+        box-shadow: 0 0 20px rgba(var(--primary-color-rgb), 0.3);
+        background: rgba(255, 255, 255, 0.15);
+    }
+
+    .modern-input::placeholder {
+        color: rgba(var(--text-color-rgb), 0.6);
+    }
+
+    .readonly-input {
+        background: rgba(255, 255, 255, 0.05);
+        cursor: not-allowed;
+        opacity: 0.8;
+    }
+
+    .input-with-icon {
+        position: relative;
+        display: flex;
+        align-items: center;
+    }
+
+    .input-icon {
+        position: absolute;
+        left: 1rem;
+        z-index: 2;
+        color: var(--primary-color);
+        font-weight: 600;
+    }
+
+    .with-icon {
+        padding-left: 2.5rem;
+    }
+
+    .modern-select.multiple {
+        min-height: 120px;
+    }
+
+    .input-help-text {
+        font-size: 0.8rem;
+        color: rgba(var(--text-color-rgb), 0.7);
+        margin-top: 0.5rem;
+        display: block;
+    }
+
+    .validation-message {
+        color: var(--danger-color);
+        font-size: 0.8rem;
+        margin-top: 0.5rem;
+        display: block;
+    }
+
+    .location-section {
+        background: rgba(255, 255, 255, 0.05);
+        border-radius: 10px;
+        padding: 1.5rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .location-selectors {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .location-dropdown {
+        position: relative;
+    }
+
+    .location-actions {
+        display: flex;
+        gap: 1rem;
+        margin-bottom: 1rem;
+    }
+
+    .selected-locations-list {
+        list-style: none;
+        padding: 0;
+        margin: 1rem 0;
+    }
+
+    .selected-locations-list li {
+        background: rgba(var(--primary-color-rgb), 0.1);
+        border: 1px solid rgba(var(--primary-color-rgb), 0.3);
+        border-radius: 8px;
+        padding: 0.75rem;
+        margin-bottom: 0.5rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        transition: all 0.3s ease;
+    }
+
+    .selected-locations-list li:hover {
+        background: rgba(var(--primary-color-rgb), 0.2);
+        transform: translateX(5px);
+    }
+
+    .timeline-section {
+        background: rgba(255, 255, 255, 0.05);
+        border-radius: 10px;
+        padding: 1.5rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .timeline-inputs {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1.5rem;
+    }
+
+    .validation-alert {
+        background: rgba(var(--warning-color-rgb), 0.1);
+        border: 1px solid rgba(var(--warning-color-rgb), 0.3);
+        border-radius: 8px;
+        padding: 1rem;
+        color: var(--warning-color);
+        margin-top: 1rem;
+    }
+
+    /* Button Styles */
+    .btn-modern-primary {
+        background: linear-gradient(45deg, var(--primary-color), var(--primary-light));
+        border: none;
+        color: white;
+        padding: 0.75rem 1.5rem;
+        border-radius: 10px;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+    }
+
+    .btn-modern-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px rgba(var(--primary-color-rgb), 0.4);
+    }
+
+    .btn-modern-secondary {
+        background: rgba(255, 255, 255, 0.1);
+        border: 2px solid rgba(255, 255, 255, 0.3);
+        color: var(--text-color);
+        padding: 0.75rem 1.5rem;
+        border-radius: 10px;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+    }
+
+    .btn-modern-secondary:hover {
+        background: rgba(255, 255, 255, 0.2);
+        border-color: rgba(255, 255, 255, 0.5);
+        transform: translateY(-2px);
+    }
+
+    /* Responsive Design */
+    @@media (max-width: 768px) {
+        .timeline-inputs {
+            grid-template-columns: 1fr;
+            gap: 1rem;
+        }
+
+        .location-selectors {
+            grid-template-columns: 1fr;
+        }
+
+        .location-actions {
+            flex-direction: column;
+        }
+
+        .form-section {
+            padding: 1.5rem;
+        }
+    }
+</style>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script>
     let selections = [];
 

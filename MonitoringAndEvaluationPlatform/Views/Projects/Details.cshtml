@@ -6,22 +6,41 @@
 
 @{
     ViewData["Title"] = "Project Details";
-    Layout = "~/Views/Shared/_ProjectsLayout.cshtml";
+    Layout = "~/Views/Shared/_DashboardHomeLayout.cshtml";
     var culture = Context.Features.Get<IRequestCultureFeature>().RequestCulture.Culture.Name;
 }
 
-<div class="container-fluid px-4">
+<!-- Dashboard Header -->
+<div class="dashboard-header">
+    <h1 class="dashboard-title">
+        <i class="fas fa-info-circle me-3"></i>
+        @Model.ProjectName
+    </h1>
+    <p class="dashboard-subtitle">
+        Comprehensive project overview with performance metrics and detailed information
+    </p>
+    <div class="dashboard-actions">
+        <a asp-action="Edit" asp-route-id="@Model?.ProjectID" class="btn btn-gradient-primary me-2">
+            <i class="fas fa-edit me-1"></i>@Localizer["Edit"]
+        </a>
+        <a asp-action="Index" class="btn btn-light">
+            <i class="fas fa-arrow-left me-1"></i>@Localizer["Back to List"]
+        </a>
+    </div>
+</div>
+
+<div class="container-fluid">
     <!-- Project Navigation -->
-    <div class="project-nav mb-4">
-        <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm rounded">
-            <div class="container-fluid">
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#projectNavbar">
-                    <span class="navbar-toggler-icon"></span>
+    <div class="project-nav-modern mb-4">
+        <nav class="modern-navbar">
+            <div class="navbar-container">
+                <button class="navbar-toggle" type="button" data-bs-toggle="collapse" data-bs-target="#projectNavbar">
+                    <i class="fas fa-bars"></i>
                 </button>
                 <div class="collapse navbar-collapse" id="projectNavbar">
-                    <ul class="navbar-nav nav-fill w-100">
-                        <li class="nav-item">
-                            <a class="nav-link active" aria-current="page">
+                    <ul class="modern-nav-list">
+                        <li class="nav-item-modern">
+                            <a class="nav-link-modern active" aria-current="page">
                                 <i class="fas fa-project-diagram me-2"></i>@Localizer["Project"]
                             </a>
                         </li>
@@ -35,17 +54,17 @@
                                 <i class="fas fa-sitemap me-2"></i>@Localizer["LogicalFramework"]
                             </a>
                         </li> *@
-                        <li class="nav-item">
+                        <li class="nav-item-modern">
                             @if (Model.ProjectIndicators != null && Model.ProjectIndicators.Any())
                             {
                                 var firstIndicator = Model.ProjectIndicators.First();
-                                <a asp-action="Index" asp-controller="Measures" asp-route-indicatorId="@firstIndicator.IndicatorCode" class="nav-link" title="@Localizer["View measures for indicator"] [@firstIndicator.IndicatorCode]">
+                                <a asp-action="Index" asp-controller="Measures" asp-route-indicatorId="@firstIndicator.IndicatorCode" class="nav-link-modern" title="@Localizer["View measures for indicator"] [@firstIndicator.IndicatorCode]">
                                     <i class="fas fa-ruler-combined me-2"></i>@Localizer["Measures"]
                                 </a>
                             }
                             else
                             {
-                                <a asp-action="Index" asp-controller="Measures" class="nav-link" title="@Localizer["No indicators linked to this project yet"]">
+                                <a asp-action="Index" asp-controller="Measures" class="nav-link-modern" title="@Localizer["No indicators linked to this project yet"]">
                                     <i class="fas fa-ruler-combined me-2"></i>@Localizer["Measures"]
                                 </a>
                             }
@@ -55,8 +74,8 @@
                                 <i class="fas fa-calendar-alt me-2"></i>Plans
                             </a>
                         </li> *@
-                        <li class="nav-item">
-                            <a asp-controller="ActionPlans" asp-action="ActionPlan" asp-route-id="@Model.ProjectID" class="nav-link">
+                        <li class="nav-item-modern">
+                            <a asp-controller="ActionPlans" asp-action="ActionPlan" asp-route-id="@Model.ProjectID" class="nav-link-modern">
                                 <i class="fas fa-tasks me-2"></i>@Localizer["Action Plans"]
                             </a>
                         </li>
@@ -71,51 +90,67 @@
         </nav>
     </div>
 
-    <!-- Project Header -->
-    <div class="card mb-4 shadow-sm">
-        <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
-            <h4 class="mb-0">@Model.ProjectName</h4>
-            <div>
-                <a asp-action="Edit" asp-route-id="@Model?.ProjectID" class="btn btn-sm btn-light me-2">
-                    <i class="fas fa-edit me-1"></i>@Localizer["Edit"]
-                </a>
-                <a asp-action="Index" class="btn btn-sm btn-outline-light">
-                    <i class="fas fa-arrow-left me-1"></i>@Localizer["Back to List"]
-                </a>
-            </div>
-        </div>
-        <div class="card-body">
-            <div class="row">
+    <!-- Project Information -->
+    <div class="chart-card mb-4">
+        <h3 class="chart-title">
+            <i class="fas fa-info-circle"></i>
+            @Localizer["Project Information"]
+        </h3>
+        <div class="chart-content">
+            <div class="project-details-grid">
                 <!-- Basic Info -->
-                <div class="col-md-4">
-                    <div class="mb-4">
-                        <h5 class="border-bottom pb-2">@Localizer["Basic Information"]</h5>
-                        <dl class="row">
-                            <dt class="col-sm-4">@Localizer["Project Manager"]</dt>
-                            <dd class="col-sm-8">@Html.DisplayFor(model => model.ProjectManager.Name)</dd>
+                <div class="info-section">
+                    <div class="info-card">
+                        <div class="info-header">
+                            <i class="fas fa-info-circle me-2"></i>
+                            <h5 class="info-title">@Localizer["Basic Information"]</h5>
+                        </div>
+                        <div class="info-content">
+                            <div class="info-row">
+                                <div class="info-label">
+                                    <i class="fas fa-user-tie me-2"></i>
+                                    @Localizer["Project Manager"]
+                                </div>
+                                <div class="info-value">@Html.DisplayFor(model => model.ProjectManager.Name)</div>
+                            </div>
 
-                            <dt class="col-sm-4">@Localizer["Supervisor"]</dt>
-                            <dd class="col-sm-8">@Html.DisplayFor(model => model.SuperVisor.Name)</dd>
+                            <div class="info-row">
+                                <div class="info-label">
+                                    <i class="fas fa-user-check me-2"></i>
+                                    @Localizer["Supervisor"]
+                                </div>
+                                <div class="info-value">@Html.DisplayFor(model => model.SuperVisor.Name)</div>
+                            </div>
 
-                            <dt class="col-sm-4">@Localizer["Donor"]</dt>
-                            <dd class="col-sm-8">
-                                @foreach (var donor in Model.Donors)
-                                {
-                                    <span class="badge bg-primary me-1">
-                                        <small>@donor.Partner</small>
-                                    </span>
-                                }
-                            </dd>
+                            <div class="info-row">
+                                <div class="info-label">
+                                    <i class="fas fa-handshake me-2"></i>
+                                    @Localizer["Donor"]
+                                </div>
+                                <div class="info-value">
+                                    @foreach (var donor in Model.Donors)
+                                    {
+                                        <span class="modern-badge badge-primary">
+                                            @donor.Partner
+                                        </span>
+                                    }
+                                </div>
+                            </div>
 
-                            <dt class="col-sm-4">@Localizer["Ministry"]</dt>
-                            <dd class="col-sm-8">
-                                @foreach (var donor in Model.Ministries)
-                                {
-                                    <span class="badge bg-primary me-1">
-                                        <small>@donor.MinistryDisplayName</small>
-                                    </span>
-                                }
-                            </dd>
+                            <div class="info-row">
+                                <div class="info-label">
+                                    <i class="fas fa-building me-2"></i>
+                                    @Localizer["Ministry"]
+                                </div>
+                                <div class="info-value">
+                                    @foreach (var ministry in Model.Ministries)
+                                    {
+                                        <span class="modern-badge badge-primary">
+                                            @ministry.MinistryDisplayName
+                                        </span>
+                                    }
+                                </div>
+                            </div>
 
                             @if (CultureInfo.CurrentUICulture.TwoLetterISOLanguageName == "ar")
                             {

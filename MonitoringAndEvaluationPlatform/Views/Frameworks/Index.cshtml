@@ -1,36 +1,31 @@
-﻿@* @model IEnumerable<MonitoringAndEvaluationPlatform.Models.Framework>
- *@
- @model MonitoringAndEvaluationPlatform.ViewModel.FrameworkFilterViewModel
+﻿@model MonitoringAndEvaluationPlatform.ViewModel.FrameworkFilterViewModel
 
- @using MonitoringAndEvaluationPlatform.Helpers
+@using MonitoringAndEvaluationPlatform.Helpers
 @using Microsoft.AspNetCore.Identity
 @inject UserManager<ApplicationUser> UserManager
 @inject SignInManager<ApplicationUser> SignInManager
 @using Microsoft.AspNetCore.Mvc.Localization
 @inject IViewLocalizer Localizer
 @using Microsoft.AspNetCore.Localization
-<head>
-    <style>
-        .table-light th a {
-            color: #C8A85F !important;
-            text-decoration: none;
-        }
-    </style>
-</head>
+
 @{
     ViewData["Title"] = "Results Frameworks";
-    Layout = "~/Views/Shared/_ResultsFrameworkLayout.cshtml";
+    Layout = "~/Views/Shared/_DashboardHomeLayout.cshtml";
     var culture = Context.Features.Get<IRequestCultureFeature>().RequestCulture.Culture.Name;
 }
 
-
-<div class="container-fluid px-4">
-@* <div class="container-fluid"> *@
-    <div class="d-flex justify-content-between align-items-center mb-4">
+<!-- Dashboard Header -->
+<div class="dashboard-header">
+    <div class="d-flex justify-content-between align-items-center">
         <div>
-        <h4 class="mb-0">@Localizer["Results Frameworks"]</h4>
+            <h1 class="dashboard-title">
+                <i class="fas fa-sitemap me-3"></i>
+                @Localizer["Results Frameworks"]
+            </h1>
+            <p class="dashboard-subtitle">
+                @Localizer["Comprehensive overview of monitoring frameworks and their performance metrics"]
+            </p>
         </div>
-
         @if (SignInManager.IsSignedIn(User))
         {
             var user = await UserManager.GetUserAsync(User);
@@ -39,256 +34,323 @@
                 var roles = await UserManager.GetRolesAsync(user);
                 if (roles.Contains("Admin"))
                 {
-                    <a asp-action="Create" class="btn btn-primary">
-                    <i class="fas fa-plus me-2"></i>@Localizer["Create New Framework"]
-                </a>
+                    <a asp-action="Create" class="btn btn-primary btn-lg shadow-sm">
+                        <i class="fas fa-plus me-2"></i>@Localizer["Create New Framework"]
+                    </a>
                 }
             }
         }
     </div>
+</div>
 
-    <!-- Search Form -->
-    <div class="card shadow-sm mb-4">
-        <div class="card-body">
-            <form asp-action="Index" method="get" class="row g-3 align-items-center">
-                <div class="col-md-4">
-                    <div class="input-group">
-                        <input type="text" name="searchString" class="form-control"
-                               placeholder="@Localizer["Search by framework name"]"
-                               value="@ViewData["CurrentFilter"]" />
-                        <button type="submit" class="btn btn-primary">
-                            <i class="fas fa-search"></i>
-                        </button>
+<!-- Search Form -->
+<div class="chart-card mb-4">
+    <div class="chart-title">
+        <i class="fas fa-search"></i>
+        @Localizer["Search & Filter Frameworks"]
+    </div>
+    <form asp-action="Index" method="get" class="row g-3 align-items-center">
+        <div class="col-md-6">
+            <div class="input-group">
+                <input type="text" name="searchString" class="form-control form-control-lg"
+                       placeholder="@Localizer["Search by framework name"]"
+                       value="@ViewData["CurrentFilter"]" />
+                <button type="submit" class="btn btn-primary btn-lg">
+                    <i class="fas fa-search me-2"></i>Search
+                </button>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="d-flex gap-2">
+                <a asp-action="Index" class="btn btn-outline-secondary btn-lg">
+                    <i class="fas fa-sync-alt me-2"></i>@Localizer["Reset"]
+                </a>
+            </div>
+        </div>
+    </form>
+</div>
+
+<!-- Frameworks Grid -->
+<div class="row">
+    <!-- Filter Sidebar -->
+    <div class="col-lg-3 col-md-4 mb-4">
+        <div class="chart-card">
+            <div class="chart-title">
+                <i class="fas fa-filter"></i>
+                @Localizer["Filter Options"]
+            </div>
+            <form asp-action="Index" method="get">
+                <div class="d-grid gap-2 mb-4">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-filter me-2"></i>@Localizer["Apply Filters"]
+                    </button>
+                </div>
+                
+                <!-- Ministry Filter -->
+                @if (!Model.IsMinistryUser)
+                {
+                    <div class="mb-4">
+                        <h6 class="fw-bold text-primary border-bottom pb-2 mb-3">
+                            <i class="fas fa-building me-2"></i>@Localizer["Ministry"]
+                        </h6>
+                        <div class="filter-options">
+                            @foreach (var ministry in Model.Ministries)
+                            {
+                                <div class="form-check mb-2">
+                                    <input class="form-check-input" type="checkbox" name="SelectedMinistries"
+                                           value="@ministry.Code" id="ministry-@ministry.Code"
+                                    @(Model.SelectedMinistries.Contains(ministry.Code) ? "checked" : "")>
+                                    <label class="form-check-label text-sm" for="ministry-@ministry.Code">
+                                        @ministry.MinistryDisplayName
+                                    </label>
+                                </div>
+                            }
+                        </div>
+                    </div>
+                }
+
+                <!-- Donor Filter -->
+                <div class="mb-4">
+                    <h6 class="fw-bold text-primary border-bottom pb-2 mb-3">
+                        <i class="fas fa-handshake me-2"></i>@Localizer["Donor"]
+                    </h6>
+                    <div class="filter-options">
+                        @foreach (var donor in Model.Donors)
+                        {
+                            <div class="form-check mb-2">
+                                <input class="form-check-input" type="checkbox" name="SelectedDonors"
+                                       value="@donor.Code" id="donor-@donor.Code"
+                                @(Model.SelectedDonors.Contains(donor.Code) ? "checked" : "")>
+                                <label class="form-check-label text-sm" for="donor-@donor.Code">
+                                    @donor.Partner
+                                </label>
+                            </div>
+                        }
+                    </div>
+                </div>
+
+                <!-- Sector Filter -->
+                <div class="mb-4">
+                    <h6 class="fw-bold text-primary border-bottom pb-2 mb-3">
+                        <i class="fas fa-industry me-2"></i>@Localizer["Sector"]
+                    </h6>
+                    <div class="filter-options">
+                        @foreach (var sector in Model.Sectors)
+                        {
+                            <div class="form-check mb-2">
+                                <input class="form-check-input" type="checkbox" name="SelectedSector"
+                                       value="@sector.Code" id="sector-@sector.Code"
+                                @(Model.SelectedSector.Contains(sector.Code) ? "checked" : "")>
+                                <label class="form-check-label text-sm" for="sector-@sector.Code">
+                                    @if (culture.StartsWith("ar"))
+                                    {
+                                        @sector.AR_Name
+                                    }
+                                    else
+                                    {
+                                        @sector.EN_Name
+                                    }
+                                </label>
+                            </div>
+                        }
                     </div>
                 </div>
             </form>
         </div>
     </div>
-
-    <div class="row">
-        <!-- Filter Form -->
-        <div class="col-md-3">
-            <div class="card shadow-sm mb-4 search-form">
-                <div class="card-header">
-                    <h5 class="mb-0">@Localizer["Filters"]</h5>
-                </div>
-                <div class="card-body">
-                    <form asp-action="Index" method="get">
-                        <div style="margin-bottom:10px">
-                            <div  class="d-grid gap-2">
-                                <button type="submit" class="btn btn-outline-secondar">
-                                    <i class="fas fa-filter me-2"></i>@Localizer["Apply Filters"]
-                                </button>
-                                <a asp-action="Index" class="btn btn-outline-secondary">
-                                    <i class="fas fa-sync-alt me-2"></i>@Localizer["Reset"]
-                                </a>
-                            </div>
-                        </div>
-                   
-                     
-                        <!-- Ministry Filter -->
-                        @if (!Model.IsMinistryUser)
-                        {
-                            <div class="mb-4">
-                                <h6 class="fw-bold border-bottom pb-2">@Localizer["Ministry"]</h6>
-                                <div class="filter-options" >
-                                    @foreach (var ministry in Model.Ministries)
-                                    {
-                                        <div class="form-check">
-                                            <input class="form-check-input" type="checkbox" name="SelectedMinistries"
-                                                   value="@ministry.Code" id="ministry-@ministry.Code"
-                                            @(Model.SelectedMinistries.Contains(ministry.Code) ? "checked" : "")>
-                                            <label class="form-check-label" for="ministry-@ministry.Code">
-                                                @ministry.MinistryDisplayName
-                                            </label>
-                                        </div>
-                                    }
-                                </div>
-                            </div>
-
-                        }
-
-
-                        <!-- Donor Filter -->
-                        <div class="mb-4">
-                            <h6 class="fw-bold border-bottom pb-2">@Localizer["Donor"]</h6>
-                            <div class="filter-options" >
-                                @foreach (var donor in Model.Donors)
-                                {
-                                    <div class="form-check">
-                                        <input class="form-check-input" type="checkbox" name="SelectedDonors"
-                                               value="@donor.Code" id="donor-@donor.Code"
-                                        @(Model.SelectedDonors.Contains(donor.Code) ? "checked" : "")>
-                                        <label class="form-check-label" for="donor-@donor.Code">
-                                            @donor.Partner
-                                        </label>
-                                    </div>
-                                }
-                            </div>
-                        </div>
-
-                        <!-- Sector Filter -->          
-                        <div class="mb-4">
-                            <h6 class="fw-bold border-bottom pb-2">@Localizer["Sector"]</h6>
-                            <div class="filter-options" >
-                                @foreach (var sector in Model.Sectors)
-                                {
-                                    <div class="form-check">
-                                        <input class="form-check-input" type="checkbox" name="SelectedSector"
-                                               value="@sector.Code" id="donor-@sector.Code"
-                                        @(Model.SelectedSector.Contains(sector.Code) ? "checked" : "")>
-                                        <label class="form-check-label" for="donor-@sector.Code">
-                                            @if (culture.StartsWith("ar"))
-                                            {
-                                                @sector.AR_Name
-                                            }
-                                            else
-                                            {
-                                                @sector.EN_Name
-                                            }
-                                        </label>
-                                    </div>
-                                }
-                            </div>
-                        </div>
-
-                    </form>
-                </div>
+    
+    <!-- Frameworks Table -->
+    <div class="col-lg-9 col-md-8">
+        <div class="chart-card">
+            <div class="chart-title">
+                <i class="fas fa-sitemap"></i>
+                @Localizer["Results Frameworks"] (@Model.Frameworks.Count())
             </div>
-        </div>
-        <!-- Frameworks Table -->
-        <div class="col-md-9">
-            <div class="card shadow-sm">
-                <div class="card-body">
-                    <div class="table-responsive">
-                        <table class="table table-hover">
-                            <thead class="table-light">
-                                <tr>
-                                    <th>
-                                        <a asp-action="Index"
-                                           asp-route-sortOrder="@ViewData["NameSortParm"]"
-                                           asp-route-searchString="@ViewData["CurrentFilter"]">
-                                            @Localizer["Framework Name"]
-                                            @if (ViewData["CurrentSort"]?.ToString() == "name_desc")
+            
+            @if (Model.Frameworks.Any())
+            {
+                <div class="table-responsive">
+                    <table class="table table-hover modern-table">
+                        <thead class="table-header">
+                            <tr>
+                                <th class="sortable-header">
+                                    <a asp-action="Index"
+                                       asp-route-sortOrder="@ViewData["NameSortParm"]"
+                                       asp-route-searchString="@ViewData["CurrentFilter"]"
+                                       class="header-link">
+                                        <i class="fas fa-sitemap me-2"></i>@Localizer["Framework Name"]
+                                        @if (ViewData["CurrentSort"]?.ToString() == "name_desc")
+                                        {
+                                            <i class="fas fa-chevron-down ms-2"></i>
+                                        }
+                                        else if (ViewData["CurrentSort"]?.ToString() == "")
+                                        {
+                                            <i class="fas fa-chevron-up ms-2"></i>
+                                        }
+                                        else
+                                        {
+                                            <i class="fas fa-sort ms-2 text-muted"></i>
+                                        }
+                                    </a>
+                                </th>
+                                <th class="sortable-header text-center">
+                                    <a asp-action="Index"
+                                       asp-route-sortOrder="@ViewData["IndicatorsSortParm"]"
+                                       asp-route-searchString="@ViewData["CurrentFilter"]"
+                                       class="header-link">
+                                        <i class="fas fa-chart-line me-2"></i>@Localizer["Indicators Performance"]
+                                        @if (ViewData["CurrentSort"]?.ToString() == "indicators_desc")
+                                        {
+                                            <i class="fas fa-chevron-down ms-2"></i>
+                                        }
+                                        else if (ViewData["CurrentSort"]?.ToString() == "indicators")
+                                        {
+                                            <i class="fas fa-chevron-up ms-2"></i>
+                                        }
+                                        else
+                                        {
+                                            <i class="fas fa-sort ms-2 text-muted"></i>
+                                        }
+                                    </a>
+                                </th>
+                                <th class="sortable-header text-center">
+                                    <a asp-action="Index"
+                                       asp-route-sortOrder="@ViewData["DisbursementSortParm"]"
+                                       asp-route-searchString="@ViewData["CurrentFilter"]"
+                                       class="header-link">
+                                        <i class="fas fa-money-bill-wave me-2"></i>@Localizer["Disbursement Performance"]
+                                        @if (ViewData["CurrentSort"]?.ToString() == "disbursement_desc")
+                                        {
+                                            <i class="fas fa-chevron-down ms-2"></i>
+                                        }
+                                        else if (ViewData["CurrentSort"]?.ToString() == "disbursement")
+                                        {
+                                            <i class="fas fa-chevron-up ms-2"></i>
+                                        }
+                                        else
+                                        {
+                                            <i class="fas fa-sort ms-2 text-muted"></i>
+                                        }
+                                    </a>
+                                </th>
+                                <th class="text-center">
+                                    <i class="fas fa-cogs me-2"></i>@Localizer["Actions"]
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var item in Model.Frameworks)
+                            {
+                                string indicatorsClass = ProgressBarHelper.GetProgressBarClass(item.IndicatorsPerformance);
+                                string disbursementClass = ProgressBarHelper.GetProgressBarClass(item.DisbursementPerformance);
+                                double IndicatorsPerformance = Math.Round(item.IndicatorsPerformance, 2);
+                                double DisbursementPerformance = Math.Round(item.DisbursementPerformance, 2);
+                                
+                                <tr id="framework-row-@item.Code" class="table-row">
+                                    <td class="framework-name-cell">
+                                        <div class="d-flex align-items-center">
+                                            <div class="framework-icon me-3">
+                                                <i class="fas fa-sitemap"></i>
+                                            </div>
+                                            <div>
+                                                <span id="fw-name-@item.Code" class="fw-name-view">
+                                                    <a asp-controller="Outcomes" asp-action="Index" asp-route-frameworkCode="@item.Code" 
+                                                       class="framework-name-link">
+                                                        @item.Name
+                                                    </a>
+                                                </span>
+                                                <input type="text" id="fw-name-input-@item.Code" 
+                                                       class="form-control fw-name-edit d-none" value="@item.Name" />
+                                                <small class="text-muted d-block">
+                                                    <i class="fas fa-hashtag me-1"></i>ID: @item.Code
+                                                </small>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="text-center">
+                                        <div class="performance-metric">
+                                            <div class="metric-value mb-2">
+                                                <span class="badge bg-primary fs-6">@IndicatorsPerformance%</span>
+                                            </div>
+                                            <div class="progress-bar-modern">
+                                                <div class="progress-fill-modern" 
+                                                     style="width: @IndicatorsPerformance%; background: linear-gradient(90deg, var(--primary-color), var(--primary-dark));"></div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="text-center">
+                                        <div class="performance-metric">
+                                            <div class="metric-value mb-2">
+                                                <span class="badge bg-success fs-6">@DisbursementPerformance%</span>
+                                            </div>
+                                            <div class="progress-bar-modern">
+                                                <div class="progress-fill-modern" 
+                                                     style="width: @DisbursementPerformance%; background: linear-gradient(90deg, var(--secondary-color), var(--primary-light));"></div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="text-center">
+                                        <div class="btn-group action-buttons" role="group">
+                                            @if (SignInManager.IsSignedIn(User))
                                             {
-                                                <i class="fas fa-arrow-down"></i>
-                                            }
-                                            else if (ViewData["CurrentSort"]?.ToString() == "")
-                                            {
-                                                <i class="fas fa-arrow-up"></i>
-                                            }
-                                        </a>
-                                    </th>
-                                    <th>
-                                        <a asp-action="Index"
-                                           asp-route-sortOrder="@ViewData["IndicatorsSortParm"]"
-                                           asp-route-searchString="@ViewData["CurrentFilter"]">
-                                            @Localizer["Indicators Performance"]
-                                            @if (ViewData["CurrentSort"]?.ToString() == "indicators_desc")
-                                            {
-                                                <i class="fas fa-arrow-down"></i>
-                                            }
-                                            else if (ViewData["CurrentSort"]?.ToString() == "indicators")
-                                            {
-                                                <i class="fas fa-arrow-up"></i>
-                                            }
-                                        </a>
-                                    </th>
-                                    <th>
-                                        <a asp-action="Index"
-                                           asp-route-sortOrder="@ViewData["DisbursementSortParm"]"
-                                           asp-route-searchString="@ViewData["CurrentFilter"]">
-                                            @Localizer["Disbursement Performance"]
-                                            @if (ViewData["CurrentSort"]?.ToString() == "disbursement_desc")
-                                            {
-                                                <i class="fas fa-arrow-down"></i>
-                                            }
-                                            else if (ViewData["CurrentSort"]?.ToString() == "disbursement")
-                                            {
-                                                <i class="fas fa-arrow-up"></i>
-                                            }
-                                        </a>
-                                    </th>
-                                    <th class="text-end">@Localizer["Actions"]</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @foreach (var item in Model.Frameworks)
-                                {
-                                    string indicatorsClass = ProgressBarHelper.GetProgressBarClass(item.IndicatorsPerformance);
-                                    string disbursementClass = ProgressBarHelper.GetProgressBarClass(item.DisbursementPerformance);
-                                    double IndicatorsPerformance = Math.Round(item.IndicatorsPerformance, 2);
-
-                                    <tr id="framework-row-@item.Code">
-                                        <td>
-                                            <span id="fw-name-@item.Code" class="fw-name-view">
-                                                <a class="nav-theme-link" asp-controller="Outcomes" asp-action="Index" asp-route-frameworkCode="@item.Code" class="text-decoration-none">
-                                                    <strong>@item.Name</strong>
-                                                </a>
-                                            </span>
-                                            <input type="text" id="fw-name-input-@item.Code" class="form-control form-control-sm fw-name-edit d-none" value="@item.Name" />
-                                        </td>
-                                        <td title="@Localizer["Indicators Performance"]: @IndicatorsPerformance%">
-                                            @await Html.PartialAsync("_ProgressBar", Tuple.Create(IndicatorsPerformance, indicatorsClass))
-                                        </td>
-                                        <td title="@Localizer["Disbursement Performance"]: @item.DisbursementPerformance%">
-                                            @await Html.PartialAsync("_ProgressBar", Tuple.Create(item.DisbursementPerformance, disbursementClass))
-                                        </td>
-                                        <td class="text-end">
-                                            <div class="btn-group" role="group">
-                                                @* ... (باقي أزرار الإجراءات) ... *@
-                                                @if (SignInManager.IsSignedIn(User))
+                                                var user = await UserManager.GetUserAsync(User);
+                                                if (user != null)
                                                 {
-                                                    var user = await UserManager.GetUserAsync(User);
-                                                    if (user != null)
+                                                    var roles = await UserManager.GetRolesAsync(user);
+                                                    if (roles.Contains("Admin"))
                                                     {
-                                                        var roles = await UserManager.GetRolesAsync(user);
-                                                        if (roles.Contains("Admin"))
-                                                        {
-                                                            <form asp-controller="Tree" asp-action="Index" asp-route-id="@item.Code" method="post" class="inline-form">
-                                                                <button class="btn btn-sm btn-outline-success" title="Tree View">
-                                                                    <i class="fas fa-project-diagram"></i>
-                                                                </button>
-                                                            </form>
-                                                        }
+                                                        <form asp-controller="Tree" asp-action="Index" asp-route-id="@item.Code" method="post" class="d-inline">
+                                                            <button class="btn btn-outline-success btn-sm action-btn" title="Tree View">
+                                                                <i class="fas fa-project-diagram"></i>
+                                                            </button>
+                                                        </form>
+                                                        <button class="btn btn-outline-primary btn-sm action-btn"
+                                                                onclick="toggleFrameworkEdit(@item.Code)" title="Edit Name">
+                                                            <i class="fas fa-edit"></i>
+                                                        </button>
+                                                        <button class="btn btn-outline-danger btn-sm action-btn"
+                                                                onclick="confirmFrameworkDelete(@item.Code)" title="Delete">
+                                                            <i class="fas fa-trash-alt"></i>
+                                                        </button>
                                                     }
                                                 }
-                                                @*       <a asp-action="Details" asp-route-id="@item.Code" class="btn btn-sm btn-outline-primary" title="View">
-                                            <i class="fas fa-eye"></i>
-                                        </a> *@
-                                                <button class="btn btn-sm btn-outline-warning"
-                                                        id="edit-btn-@item.Code"
-                                                        onclick="toggleFrameworkEdit(@item.Code)">
-                                                    <i class="fas fa-edit"></i>
-                                                </button>
-                                                <button class="btn btn-sm btn-outline-danger"
-                                                        onclick="confirmFrameworkDelete(@item.Code)">
-                                                    <i class="fas fa-trash-alt"></i>
-                                                </button>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                }
-                            </tbody>
-                        </table>
-                    </div>
+                                            }
+                                            <a asp-controller="Outcomes" asp-action="Index" asp-route-frameworkCode="@item.Code" 
+                                               class="btn btn-primary btn-sm action-btn" title="View Details">
+                                                <i class="fas fa-arrow-right"></i>
+                                            </a>
+                                        </div>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
                 </div>
-            </div>
-         </div>
-
-
+            }
+            else
+            {
+                <div class="text-center py-5">
+                    <div class="stat-icon warning mx-auto mb-3" style="width: 80px; height: 80px; font-size: 2rem;">
+                        <i class="fas fa-search"></i>
+                    </div>
+                    <h4 class="text-muted">@Localizer["No frameworks found"]</h4>
+                    <p class="text-muted">@Localizer["Try adjusting your search criteria or filters"]</p>
+                </div>
+            }
+        </div>
     </div>
-
-@* </div> *@
-
 </div>
+
+@section Scripts {
+    <!-- SweetAlert2 -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    
     <script>
         function toggleFrameworkEdit(code) {
             const viewSpan = $(`#fw-name-${code}`);
             const input = $(`#fw-name-input-${code}`);
-            const button = $(`#edit-btn-${code}`);
-
-            const isEditing = input.hasClass('d-none') === false;
+            
+            const isEditing = !input.hasClass('d-none');
 
             if (isEditing) {
                 // Save via AJAX
@@ -299,79 +361,321 @@
                     type: 'POST',
                     data: { id: code, name: newName },
                     success: function () {
-                    viewSpan.html(`<a href="/Outcomes?frameworkCode=${code}" class="text-decoration-none"><strong>${newName}</strong></a>`);
+                        viewSpan.html(`<h5 class="fw-bold text-dark mb-0"><a href="/Outcomes?frameworkCode=${code}" class="text-decoration-none text-dark framework-link">${newName}</a></h5>`);
                         input.addClass('d-none');
                         viewSpan.removeClass('d-none');
-                        button.html('<i class="fas fa-edit"></i>');
-                        button.removeClass('btn-success').addClass('btn-outline-warning');
-                        Swal.fire('Saved!', 'Framework name updated.', 'success');
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Saved!',
+                            text: 'Framework name updated successfully.',
+                            timer: 2000,
+                            showConfirmButton: false
+                        });
                     },
                     error: function () {
-                        Swal.fire('Error', 'Could not update name.', 'error');
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error',
+                            text: 'Could not update framework name.'
+                        });
                     }
                 });
             } else {
                 // Enter edit mode
                 input.removeClass('d-none');
                 viewSpan.addClass('d-none');
-                button.html('<i class="fas fa-save"></i>');
-                button.removeClass('btn-outline-warning').addClass('btn-success');
+                input.focus();
             }
         }
 
         function confirmFrameworkDelete(code) {
             Swal.fire({
-                title:'@Localizer["Are you sure?"]',
-                text: '@Localizer["This will delete the framework!"]',
+                title: '@Localizer["Are you sure?"]',
+                text: '@Localizer["This will permanently delete the framework and all associated data!"]',
                 icon: 'warning',
                 showCancelButton: true,
                 confirmButtonColor: '#d33',
-                cancelButtonColor: '#3085d6',
+                cancelButtonColor: '#6c757d',
+                confirmButtonText: '@Localizer["Yes, delete it!"]',
                 cancelButtonText: '@Localizer["Cancel"]',
-                confirmButtonText: '@Localizer["Yes, delete it!?"]'
+                customClass: {
+                    popup: 'swal2-modern',
+                    confirmButton: 'btn btn-danger',
+                    cancelButton: 'btn btn-secondary'
+                }
             }).then((result) => {
                 if (result.isConfirmed) {
                     $.ajax({
                         url: `/Frameworks/DeleteConfirmed/${code}`,
                         type: 'POST',
                         success: function () {
-                            $(`#framework-row-${code}`).fadeOut();
-                            Swal.fire('Deleted!', '@Localizer["Framework has been deleted."]', 'success');
+                            $(`#framework-row-${code}`).fadeOut(400, function() {
+                                $(this).remove();
+                            });
+                            Swal.fire({
+                                icon: 'success',
+                                title: 'Deleted!',
+                                text: '@Localizer["Framework has been deleted successfully."]',
+                                timer: 2000,
+                                showConfirmButton: false
+                            });
                         },
                         error: function () {
-                         Swal.fire('Error', '@Localizer["Could not delete framework."]', 'error');
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Error',
+                                text: '@Localizer["Could not delete framework. Please try again."]'
+                            });
                         }
                     });
                 }
             });
         }
+        
+        // Initialize page animations
+        document.addEventListener('DOMContentLoaded', function() {
+            // Animate table rows on load
+            const tableRows = document.querySelectorAll('.table-row');
+            tableRows.forEach((row, index) => {
+                row.style.opacity = '0';
+                row.style.transform = 'translateX(-20px)';
+                setTimeout(() => {
+                    row.style.transition = 'all 0.6s ease';
+                    row.style.opacity = '1';
+                    row.style.transform = 'translateX(0)';
+                }, index * 100);
+            });
+            
+            // Progress bar animation
+            const progressBars = document.querySelectorAll('.progress-fill-modern');
+            progressBars.forEach((bar, index) => {
+                setTimeout(() => {
+                    const width = bar.style.width;
+                    bar.style.width = '0%';
+                    setTimeout(() => {
+                        bar.style.transition = 'width 1.5s ease-out';
+                        bar.style.width = width;
+                    }, 200);
+                }, index * 100);
+            });
+        });
     </script>
 
-
-
     <style>
-        .table-hover tbody tr:hover {
-            background-color: rgba(13, 110, 253, 0.05);
+        /* Modern Table Styles */
+        .modern-table {
+            background: transparent;
+            border: none;
+            border-radius: 15px;
+            overflow: hidden;
         }
-
-        .progress {
-            height: 24px;
-            border-radius: 4px;
+        
+        .table-header {
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-dark) 100%);
+            color: white;
         }
-
-        .progress-bar {
+        
+        .table-header th {
+            border: none;
+            padding: 20px 15px;
+            font-weight: 600;
+            font-size: 0.95rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .sortable-header {
+            position: relative;
+        }
+        
+        .header-link {
+            color: white !important;
+            text-decoration: none !important;
+            display: flex;
+            align-items: center;
+            justify-content: flex-start;
+            transition: all 0.3s ease;
+        }
+        
+        .header-link:hover {
+            color: rgba(255, 255, 255, 0.9) !important;
+            transform: translateY(-1px);
+        }
+        
+        .table-row {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border: none;
+            transition: all 0.3s ease;
+        }
+        
+        .table-row:hover {
+            background: rgba(255, 255, 255, 1);
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+        }
+        
+        .table-row td {
+            border: none;
+            padding: 20px 15px;
+            vertical-align: middle;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+        }
+        
+        .framework-name-cell {
+            min-width: 300px;
+        }
+        
+        .framework-icon {
+            width: 45px;
+            height: 45px;
+            background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+            border-radius: 12px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 0.75rem;
-            font-weight: 500;
+            color: white;
+            font-size: 1.2rem;
         }
-
-        .btn-group .btn {
-            padding: 0.25rem 0.5rem;
+        
+        .framework-name-link {
+            color: #333;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 1.1rem;
+            transition: color 0.3s ease;
         }
-
-    .table-responsive {
-        overflow-x: hidden;
-    }
+        
+        .framework-name-link:hover {
+            color: var(--primary-color);
+        }
+        
+        .performance-metric {
+            min-width: 120px;
+        }
+        
+        .progress-bar-modern {
+            height: 8px;
+            background: rgba(0, 0, 0, 0.1);
+            border-radius: 10px;
+            overflow: hidden;
+            position: relative;
+        }
+        
+        .progress-fill-modern {
+            height: 100%;
+            border-radius: 10px;
+            transition: width 1.5s ease-out;
+            position: relative;
+        }
+        
+        .progress-fill-modern::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+            animation: shimmer 2s infinite;
+        }
+        
+        @@keyframes shimmer {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+        
+        .action-buttons {
+            gap: 5px;
+        }
+        
+        .action-btn {
+            width: 35px;
+            height: 35px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+            border-width: 1px;
+        }
+        
+        .action-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+        
+        .table-responsive {
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+        
+        .filter-options {
+            max-height: 200px;
+            overflow-y: auto;
+        }
+        
+        .text-sm {
+            font-size: 0.875rem;
+        }
+        
+        .swal2-modern {
+            border-radius: 15px;
+        }
+        
+        /* Badge styling */
+        .badge.bg-primary {
+            background: linear-gradient(135deg, var(--primary-color), var(--primary-dark)) !important;
+        }
+        
+        .badge.bg-success {
+            background: linear-gradient(135deg, var(--secondary-color), var(--primary-light)) !important;
+        }
+        
+        /* Responsive Design */
+        @@media (max-width: 768px) {
+            .col-lg-3 {
+                order: 2;
+            }
+            
+            .col-lg-9 {
+                order: 1;
+            }
+            
+            .framework-name-cell {
+                min-width: auto;
+            }
+            
+            .performance-metric {
+                min-width: auto;
+            }
+            
+            .action-buttons {
+                flex-direction: column;
+                gap: 3px;
+            }
+            
+            .table-header th {
+                padding: 15px 10px;
+                font-size: 0.85rem;
+            }
+            
+            .table-row td {
+                padding: 15px 10px;
+            }
+        }
+        
+        @@media (max-width: 576px) {
+            .header-link {
+                flex-direction: column;
+                text-align: center;
+            }
+            
+            .header-link i:first-child {
+                margin-bottom: 5px;
+                margin-right: 0 !important;
+            }
+        }
     </style>
+}

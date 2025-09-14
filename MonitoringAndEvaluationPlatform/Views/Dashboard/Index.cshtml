@@ -4,20 +4,32 @@
 @model MonitoringAndEvaluationPlatform.ViewModel.DashboardSummaryViewModel
 @{
 	ViewData["Title"] = "Summary";
-	Layout = "~/Views/Shared/_DashboardLayout.cshtml";
+	Layout = "~/Views/Shared/_DashboardHomeLayout.cshtml";
 }
-<head>
-</head>
-<div class="row text-center g-4 mb-4" style="padding-top: 10px;">
-	<!-- Frameworks -->
-	<div class="col-md-3">
-		<div class="card shadow-lg border-0 bg-primary text-white">
-			<div class="card-body">
-				<i class="bi bi-diagram-3-fill display-5 mb-2"></i>
-				<h5 class="card-title">@Localizer["Total Frameworks"]</h5>
-				<h2 class="fw-bold" id="totalFrameworks">@Model.TotalFrameworks</h2>
-				<select id="frameworkFilter" class="form-select mt-3 text-dark">
-					<option disabled selected value="">-- @Localizer["Select Framework"] --</option>
+<!-- Dashboard Header -->
+<div class="dashboard-header">
+	<h1 class="dashboard-title">
+		<i class="fas fa-chart-pie me-3"></i>
+		Dashboard Summary
+	</h1>
+	<p class="dashboard-subtitle">
+		Comprehensive overview with interactive filtering and real-time performance metrics
+	</p>
+</div>
+
+<div class="container-fluid">
+	<!-- Filter Cards Grid -->
+	<div class="stats-grid mb-4">
+		<!-- Frameworks Card -->
+		<div class="stat-card frameworks-card">
+			<div class="stat-icon primary">
+				<i class="fas fa-sitemap"></i>
+			</div>
+			<div class="stat-number" id="totalFrameworks">@Model.TotalFrameworks</div>
+			<div class="stat-label">@Localizer["Total Frameworks"]</div>
+			<div class="stat-filter">
+				<select id="frameworkFilter" class="modern-select-filter">
+					<option disabled selected value="">@Localizer["Select Framework"]</option>
 					@foreach (var fw in Model.Frameworks)
 					{
 						<option value="@fw.Code">@fw.Name</option>
@@ -25,17 +37,17 @@
 				</select>
 			</div>
 		</div>
-	</div>
 
-	<!-- Projects -->
-	<div class="col-md-3">
-		<div class="card shadow-lg border-0 bg-warning text-dark">
-			<div class="card-body">
-				<i class="bi bi-building display-5 mb-2"></i>
-				<h5 class="card-title">@Localizer["Total Projects"]</h5>
-				<h2 id="totalProjects" class="fw-bold">@Model.TotalProjects</h2>
-				<select id="projectFilter" class="form-select mt-3">
-					<option disabled selected>-- @Localizer["Select Project"] --</option>
+		<!-- Projects Card -->
+		<div class="stat-card projects-card">
+			<div class="stat-icon warning">
+				<i class="fas fa-project-diagram"></i>
+			</div>
+			<div class="stat-number" id="totalProjects">@Model.TotalProjects</div>
+			<div class="stat-label">@Localizer["Total Projects"]</div>
+			<div class="stat-filter">
+				<select id="projectFilter" class="modern-select-filter">
+					<option disabled selected>@Localizer["Select Project"]</option>
 					@foreach (var proj in Model.Projects)
 					{
 						<option value="@proj.ProjectID">@proj.ProjectName</option>
@@ -43,17 +55,17 @@
 				</select>
 			</div>
 		</div>
-	</div>
 
-	<!-- Ministries -->
-	<div class="col-md-3">
-		<div class="card shadow-lg border-0 bg-success text-white">
-			<div class="card-body">
-				<i class="bi bi-bar-chart-fill display-5 mb-2"></i>
-				<h5 class="card-title">@Localizer["Total Ministries"]</h5>
-				<h2 id="totalMinistries" class="fw-bold">@Model.TotlalMinistries</h2>
-				<select id="ministryFilter" class="form-select mt-3 text-dark">
-					<option disabled selected value="">-- @Localizer["Select Ministry"] --</option>
+		<!-- Ministries Card -->
+		<div class="stat-card ministries-card">
+			<div class="stat-icon success">
+				<i class="fas fa-building"></i>
+			</div>
+			<div class="stat-number" id="totalMinistries">@Model.TotlalMinistries</div>
+			<div class="stat-label">@Localizer["Total Ministries"]</div>
+			<div class="stat-filter">
+				<select id="ministryFilter" class="modern-select-filter">
+					<option disabled selected value="">@Localizer["Select Ministry"]</option>
 					@foreach (var min in Model.Ministries)
 					{
 						<option value="@min.Code">@min.MinistryDisplayName</option>
@@ -61,82 +73,338 @@
 				</select>
 			</div>
 		</div>
-	</div>
 
 
-	<!-- Governorates -->
-	<div class="col-md-3">
-		<div class="card shadow-lg border-0 bg-danger text-white">
-			<div class="card-body">
-				<i class="bi bi-geo-alt-fill display-5 mb-2"></i>
-				<h5 class="card-title">@Localizer["Total Governorates"]</h5>
-				<h2      id="totalGovernorates" class="fw-bold">@Model.TotalGovernorate</h2>
-				<select  id="governorateFilter" class="form-select mt-3 text-dark" multiple>
-					<option disabled selected value="">-- @Localizer["Select Governorate"] --</option>
+		<!-- Governorates Card -->
+		<div class="stat-card governorates-card">
+			<div class="stat-icon danger">
+				<i class="fas fa-map-marked-alt"></i>
+			</div>
+			<div class="stat-number" id="totalGovernorates">@Model.TotalGovernorate</div>
+			<div class="stat-label">@Localizer["Total Governorates"]</div>
+			<div class="stat-filter">
+				<select id="governorateFilter" class="modern-select-filter multiple" multiple>
+					<option disabled selected value="">@Localizer["Select Governorate"]</option>
 					@foreach (var gov in Model.Governorates)
 					{
-						<option  value="@gov.Code">@gov.AR_Name</option>
+						<option value="@gov.Code">@gov.AR_Name</option>
 					}
 				</select>
 			</div>
 		</div>
-	</div>
-	<!-- District -->
-	<div class="col-md-3">
-		<div class="card shadow-lg border-0 bg-info text-white">
-			<div class="card-body">
-				<h5 class="card-title">@Localizer["District"]</h5>
-				<h2 id="districtCount" class="fw-bold">@Localizer["Total Districts"]: 0</h2>
-				<select id="districtFilter" class="form-select mt-3 text-dark" disabled multiple>
-					<option disabled selected value="">-- @Localizer["Select District"] --</option>
+		<!-- Districts Card -->
+		<div class="stat-card districts-card">
+			<div class="stat-icon info">
+				<i class="fas fa-map-signs"></i>
+			</div>
+			<div class="stat-number" id="districtCount">0</div>
+			<div class="stat-label">@Localizer["Total Districts"]</div>
+			<div class="stat-filter">
+				<select id="districtFilter" class="modern-select-filter multiple" disabled multiple>
+					<option disabled selected value="">@Localizer["Select District"]</option>
+				</select>
+			</div>
+		</div>
+
+		<!-- Sub-Districts Card -->
+		<div class="stat-card subdistricts-card">
+			<div class="stat-icon secondary">
+				<i class="fas fa-map"></i>
+			</div>
+			<div class="stat-number" id="subDistrictCount">0</div>
+			<div class="stat-label">@Localizer["Total SubDistricts"]</div>
+			<div class="stat-filter">
+				<select id="subDistrictFilter" class="modern-select-filter multiple" disabled multiple>
+					<option disabled selected value="">@Localizer["Select Sub-District"]</option>
+				</select>
+			</div>
+		</div>
+
+		<!-- Communities Card -->
+		<div class="stat-card communities-card">
+			<div class="stat-icon dark">
+				<i class="fas fa-users"></i>
+			</div>
+			<div class="stat-number" id="communityCount">0</div>
+			<div class="stat-label">@Localizer["Total Communities"]</div>
+			<div class="stat-filter">
+				<select id="communityFilter" class="modern-select-filter multiple" disabled multiple>
+					<option disabled selected value="">@Localizer["Select Community"]</option>
 				</select>
 			</div>
 		</div>
 	</div>
 
-	<!-- Sub-District -->
-	<div class="col-md-3">
-		<div class="card shadow-lg border-0 bg-secondary text-white">
-			<div class="card-body">
-				<h5 class="card-title">@Localizer["Sub-District"]</h5>
-				<h2 id="subDistrictCount" class="fw-bold">@Localizer["Total SubDistrict"]:0</h2>
-				<select id="subDistrictFilter" class="form-select mt-3 text-dark" disabled multiple>
-					<option disabled selected value="">-- Select @Localizer["Sub-District"] --</option>
-				</select>
-			</div>
-		</div>
+
+	<!-- Clear Filters Button -->
+	<div class="filter-actions-container mb-4">
+		<button id="clearFiltersBtn" class="btn btn-modern-secondary">
+			<i class="fas fa-times-circle me-2"></i>@Localizer["Clear Filters"]
+		</button>
 	</div>
 
-	<!-- Sub-District → Community Card -->
-	<div class="col-md-3">
-		<div class="card shadow-lg border-0 bg-dark text-white">
-			<div class="card-body">
-				<h5 class="card-title">@Localizer["Community"]</h5>
-				<h2 id="communityCount" class="fw-bold">@Localizer["Total Communities"]: 0</h2>
-				<select id="communityFilter" class="form-select mt-3 text-dark" disabled multiple>
-					<option disabled selected value="">-- @Localizer["Select Community"] --</option>
-				</select>
-			</div>
+	<!-- Performance Charts Section -->
+	<div class="chart-card">
+		<h3 class="chart-title">
+			<i class="fas fa-chart-pie"></i>
+			Framework Performance Overview
+		</h3>
+		<div class="chart-content">
+			<div id="gaugesContainer" class="performance-charts-grid"></div>
 		</div>
 	</div>
-
-
 </div>
 
+<style>
+	/* Modern Dashboard Styles */
+	.stats-grid {
+		display: grid;
+		grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+		gap: 1.5rem;
+		margin-bottom: 2rem;
+	}
 
+	.stat-card {
+		background: linear-gradient(135deg, rgba(255,255,255,0.95) 0%, rgba(248,249,250,0.95) 100%);
+		backdrop-filter: blur(15px);
+		-webkit-backdrop-filter: blur(15px);
+		border: 1px solid rgba(255,255,255,0.3);
+		border-radius: 20px;
+		padding: 2rem;
+		box-shadow: 
+			0 8px 32px rgba(0,0,0,0.1),
+			0 4px 16px rgba(0,0,0,0.05);
+		transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
+		position: relative;
+		overflow: hidden;
+	}
 
+	.stat-card::before {
+		content: '';
+		position: absolute;
+		top: 0;
+		left: -100%;
+		width: 100%;
+		height: 100%;
+		background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+		transition: left 0.6s;
+	}
 
+	.stat-card:hover::before {
+		left: 100%;
+	}
 
-<div class="text-end mb-3">
-	<button id="clearFiltersBtn" class="btn btn-outline-secondary">
-		<i class="bi bi-x-circle"></i> @Localizer["Clear Filters"]
-	</button>
-</div>
+	.stat-card:hover {
+		transform: translateY(-8px) scale(1.02);
+		box-shadow: 
+			0 20px 40px rgba(0,0,0,0.15),
+			0 8px 24px rgba(0,0,0,0.1);
+		border-color: rgba(255,255,255,0.5);
+	}
 
+	.stat-icon {
+		width: 60px;
+		height: 60px;
+		border-radius: 50%;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		margin-bottom: 1rem;
+		font-size: 1.5rem;
+		color: white;
+		box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+	}
 
-<!-- Container for Gauge Charts -->
-<div id="gaugesContainer" class="row"></div>
+	.stat-icon.primary { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
+	.stat-icon.warning { background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); }
+	.stat-icon.success { background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); }
+	.stat-icon.danger { background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%); }
+	.stat-icon.info { background: linear-gradient(135deg, #fa709a 0%, #fee140 100%); }
+	.stat-icon.secondary { background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%); }
+	.stat-icon.dark { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
 
+	.stat-number {
+		font-size: 2.5rem;
+		font-weight: 700;
+		color: #2d3748;
+		margin-bottom: 0.5rem;
+		background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+		-webkit-background-clip: text;
+		-webkit-text-fill-color: transparent;
+		background-clip: text;
+	}
+
+	.stat-label {
+		font-size: 0.9rem;
+		color: #718096;
+		font-weight: 500;
+		margin-bottom: 1rem;
+		text-transform: uppercase;
+		letter-spacing: 0.5px;
+	}
+
+	.stat-filter {
+		margin-top: auto;
+	}
+
+	.modern-select-filter {
+		width: 100%;
+		padding: 0.75rem;
+		border: 2px solid #e2e8f0;
+		border-radius: 12px;
+		background: rgba(255,255,255,0.9);
+		font-size: 0.85rem;
+		transition: all 0.3s ease;
+		backdrop-filter: blur(10px);
+	}
+
+	.modern-select-filter:focus {
+		outline: none;
+		border-color: #667eea;
+		box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+		transform: translateY(-1px);
+	}
+
+	.filter-actions-container {
+		display: flex;
+		justify-content: center;
+		margin: 2rem 0;
+	}
+
+	.btn-modern-secondary {
+		background: linear-gradient(135deg, #f7fafc 0%, #edf2f7 100%);
+		border: 2px solid #e2e8f0;
+		color: #4a5568;
+		padding: 0.75rem 1.5rem;
+		border-radius: 12px;
+		font-weight: 600;
+		transition: all 0.3s ease;
+		box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+	}
+
+	.btn-modern-secondary:hover {
+		background: linear-gradient(135deg, #edf2f7 0%, #e2e8f0 100%);
+		transform: translateY(-2px);
+		box-shadow: 0 8px 15px rgba(0,0,0,0.1);
+		border-color: #cbd5e0;
+	}
+
+	.chart-card {
+		background: linear-gradient(135deg, rgba(255,255,255,0.95) 0%, rgba(248,249,250,0.95) 100%);
+		backdrop-filter: blur(15px);
+		-webkit-backdrop-filter: blur(15px);
+		border: 1px solid rgba(255,255,255,0.3);
+		border-radius: 20px;
+		padding: 2rem;
+		box-shadow: 
+			0 8px 32px rgba(0,0,0,0.1),
+			0 4px 16px rgba(0,0,0,0.05);
+		margin-bottom: 2rem;
+	}
+
+	.chart-title {
+		font-size: 1.5rem;
+		font-weight: 700;
+		color: #2d3748;
+		margin-bottom: 1.5rem;
+		display: flex;
+		align-items: center;
+		gap: 0.75rem;
+	}
+
+	.chart-title i {
+		color: #667eea;
+		font-size: 1.25rem;
+	}
+
+	.performance-charts-grid {
+		display: grid;
+		grid-template-columns: repeat(auto-fit, minmax(450px, 1fr));
+		gap: 1.5rem;
+	}
+
+	/* Responsive Design */
+	@@media (max-width: 768px) {
+		.stats-grid {
+			grid-template-columns: 1fr;
+			gap: 1rem;
+		}
+
+		.stat-card {
+			padding: 1.5rem;
+		}
+
+		.stat-number {
+			font-size: 2rem;
+		}
+
+		.performance-charts-grid {
+			grid-template-columns: 1fr;
+		}
+
+		.chart-card {
+			padding: 1.5rem;
+		}
+	}
+
+	@@media (max-width: 480px) {
+		.stat-card {
+			padding: 1rem;
+		}
+
+		.stat-icon {
+			width: 50px;
+			height: 50px;
+			font-size: 1.25rem;
+		}
+
+		.stat-number {
+			font-size: 1.75rem;
+		}
+
+		.chart-title {
+			font-size: 1.25rem;
+		}
+	}
+
+	/* Animation for chart loading */
+	@@keyframes fadeInUp {
+		from {
+			opacity: 0;
+			transform: translateY(30px);
+		}
+		to {
+			opacity: 1;
+			transform: translateY(0);
+		}
+	}
+
+	.performance-charts-grid > * {
+		animation: fadeInUp 0.6s ease-out;
+	}
+
+	/* Select2 custom styling */
+	.select2-container--default .select2-selection--multiple {
+		border: 2px solid #e2e8f0 !important;
+		border-radius: 12px !important;
+		background: rgba(255,255,255,0.9) !important;
+		backdrop-filter: blur(10px);
+	}
+
+	.select2-container--default.select2-container--focus .select2-selection--multiple {
+		border-color: #667eea !important;
+		box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1) !important;
+	}
+
+	.select2-container--default .select2-selection--multiple .select2-selection__choice {
+		background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+		border: none !important;
+		color: white !important;
+		border-radius: 8px !important;
+		padding: 2px 8px !important;
+		margin: 2px !important;
+	}
+</style>
 
 <script>
 	async function loadGauges(frameworkCode = '', ministryCode = '', projectCode = '',governorateCode='',districtCode='',subDistrictCode='',communityCode='') {

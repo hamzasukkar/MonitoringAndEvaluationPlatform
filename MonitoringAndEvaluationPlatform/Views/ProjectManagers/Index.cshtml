@@ -4,16 +4,40 @@
 @using Microsoft.AspNetCore.Localization
 @{
     ViewData["Title"] = "ProjectManagers";
-    Layout = "~/Views/Shared/_SetUpLayout.cshtml";
+    Layout = "~/Views/Shared/_DashboardHomeLayout.cshtml";
 }
 
-<div class="container-fluid">
-    @await Html.PartialAsync("_ManagementNavigation")
+<!-- Dashboard Header -->
+<div class="dashboard-header">
+    <div class="header-content">
+        <div class="page-title-section">
+            <div class="page-breadcrumb">
+                <a href="@Url.Action("Index", "Home")" class="breadcrumb-link">
+                    <i class="fas fa-home"></i>
+                    @Localizer["Home"]
+                </a>
+                <i class="fas fa-chevron-right breadcrumb-separator"></i>
+                <span class="current-page">@Localizer["Project Managers"]</span>
+            </div>
+            <h1 class="page-title">@Localizer["Project Manager Management"]</h1>
+            <p class="page-description">Manage project managers and their contact information</p>
+        </div>
+    </div>
+</div>
 
-    <!-- Inline Create Form -->
-    <div class="card mb-4 border-primary">
-        <div class="card-header bg-primary text-white">
-            <strong>@Localizer["Add New Project Manager"]</strong>
+@await Html.PartialAsync("_ManagementNavigation")
+
+<!-- Quick Add Section -->
+<div class="quick-add-section">
+    <div class="quick-add-card">
+        <div class="quick-add-header">
+            <div class="quick-add-icon">
+                <i class="fas fa-user-tie"></i>
+            </div>
+            <div>
+                <h3 class="quick-add-title">@Localizer["Add New Project Manager"]</h3>
+                <p class="quick-add-subtitle">Create a new project manager entry</p>
+            </div>
         </div>
         <div class="card-body">
             <form id="createProjectManagerForm" class="row g-3">

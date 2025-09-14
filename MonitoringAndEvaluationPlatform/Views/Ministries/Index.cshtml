@@ -3,45 +3,68 @@
 @using Microsoft.AspNetCore.Mvc.Localization
 @inject IViewLocalizer Localizer
 @using Microsoft.AspNetCore.Localization
-<head>
-    <script src="~/lib/jquery/dist/jquery.js"></script>
-</head>
 @{
     ViewData["Title"] = "Ministries";
-    Layout = "~/Views/Shared/_SetUpLayout.cshtml";
+    Layout = "~/Views/Shared/_DashboardHomeLayout.cshtml";
     var culture = Context.Features.Get<IRequestCultureFeature>().RequestCulture.Culture.Name;
 }
 
-<div class="container-fluid">
-    @await Html.PartialAsync("_ManagementNavigation")
-
-    <!-- Inline Create Form -->
-    <div class="card mb-4 border-primary">
-        <div class="card-header bg-primary text-white">
-            <strong>@Localizer["Add New Ministry"]</strong>
-        </div>
-        <div class="card-body">
-            <form id="createMinistryForm" class="row g-3">
-                @Html.AntiForgeryToken()
-
-                <div class="col-md-5">
-                    <label for="MinistryDisplayName" class="form-label">@Localizer["Ministry Display Name"]</label>
-                    <input type="text" name="MinistryDisplayName" class="form-control" required />
-                </div>
-
-                <div class="col-md-4">
-                    <label for="MinistryUserName" class="form-label">@Localizer["Ministry User Name"]</label>
-                    <input type="text" name="MinistryUserName" class="form-control" />
-                </div>
-
-                <div class="col-md-3 d-flex align-items-end">
-                    <button type="submit" class="btn btn-success w-100">
-                        <i class="fas fa-plus-circle me-1"></i> @Localizer["Create a New Entity"]
-                    </button>
-                </div>
-            </form>
+<!-- Dashboard Header -->
+<div class="dashboard-header">
+    <div class="header-content">
+        <div class="page-title-section">
+            <div class="page-breadcrumb">
+                <a href="@Url.Action("Index", "Home")" class="breadcrumb-link">
+                    <i class="fas fa-home"></i>
+                    @Localizer["Home"]
+                </a>
+                <i class="fas fa-chevron-right breadcrumb-separator"></i>
+                <span class="current-page">@Localizer["Ministries"]</span>
+            </div>
+            <h1 class="page-title">@Localizer["Ministry Management"]</h1>
+            <p class="page-description">Manage government ministries and track their performance</p>
         </div>
     </div>
+</div>
+
+@await Html.PartialAsync("_ManagementNavigation")
+
+<!-- Quick Add Section -->
+<div class="quick-add-section">
+    <div class="quick-add-card">
+        <div class="quick-add-header">
+            <div class="quick-add-icon">
+                <i class="fas fa-university"></i>
+            </div>
+            <div>
+                <h3 class="quick-add-title">@Localizer["Add New Ministry"]</h3>
+                <p class="quick-add-subtitle">Create a new ministry entry</p>
+            </div>
+        </div>
+        <form id="createMinistryForm" class="quick-add-form">
+            @Html.AntiForgeryToken()
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="MinistryDisplayName" class="form-label">
+                        <i class="fas fa-building me-1"></i>@Localizer["Ministry Display Name"]
+                    </label>
+                    <input type="text" name="MinistryDisplayName" class="modern-input" required placeholder="Enter ministry name" />
+                </div>
+                <div class="form-group">
+                    <label for="MinistryUserName" class="form-label">
+                        <i class="fas fa-user me-1"></i>@Localizer["Ministry User Name"]
+                    </label>
+                    <input type="text" name="MinistryUserName" class="modern-input" placeholder="Enter username" />
+                </div>
+                <div class="form-group action-group">
+                    <button type="submit" class="modern-btn primary">
+                        <i class="fas fa-plus-circle me-2"></i>@Localizer["Create Ministry"]
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
 
     <div class="card shadow-sm">
         <div class="card-body">

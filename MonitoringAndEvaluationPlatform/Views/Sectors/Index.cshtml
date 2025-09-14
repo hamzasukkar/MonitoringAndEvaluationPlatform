@@ -7,138 +7,187 @@
     var requestCultureFeature = Context.Features.Get<IRequestCultureFeature>();
     var culture = requestCultureFeature.RequestCulture.Culture.Name;
 }
-<head>
-    <script src="~/lib/jquery/dist/jquery.js"></script>
-</head>
 
 @{
     ViewData["Title"] = "Sectors";
-    Layout = "~/Views/Shared/_SetUpLayout.cshtml";
+    Layout = "~/Views/Shared/_DashboardHomeLayout.cshtml";
 }
 
-<div class="container-fluid">
-    @await Html.PartialAsync("_ManagementNavigation")
-
-    <!-- Inline Create Form -->
-    <div class="card mb-4 border-primary">
-        <div class="card-header bg-primary text-white">
-            <strong>@Localizer["Add New Sector"]</strong>
-        </div>
-        <div class="card-body">
-            <form id="createSectorForm" class="row g-3">
-                @Html.AntiForgeryToken()
-
-                <div class="col-md-5">
-                    <label for="EN_Name" class="form-label">@Localizer["English Name"]</label>
-                    <input type="text" name="EN_Name" class="form-control" required />
-                </div>
-
-                <div class="col-md-4">
-                    <label for="AR_Name" class="form-label">@Localizer["Arabic Name"]</label>
-                    <input type="text" name="AR_Name" class="form-control" required />
-                </div>
-
-                <div class="col-md-3 d-flex align-items-end">
-                    <button type="submit" class="btn btn-success w-100">
-                        <i class="fas fa-plus-circle me-1"></i> @Localizer["Create a New Entity"]
-                    </button>
-                </div>
-            </form>
-        </div>
-    </div>
-
-    <div class="card shadow-sm">
-        <div class="card-body">
-            <div class="table-responsive">
-<table class="table table-hover">
-    <thead class="table-light">
-        <tr>
-            <th>@Localizer["English Name"]</th>
-            <th>@Localizer["Arabic Name"]</th>
-            <th>@Localizer["Indicators Performance"]</th>
-            <th>@Localizer["Disbursement Performance"]</th>
-            <th class="text-end">@Localizer["Actions"]</th>
-        </tr>
-    </thead>
-    <tbody id="sectorsTableBody">
-        @foreach (var item in Model)
-        {
-            string indicatorsClass = ProgressBarHelper.GetProgressBarClass(item.IndicatorsPerformance);
-            string disbursementClass = ProgressBarHelper.GetProgressBarClass(item.DisbursementPerformance);
-            double IndicatorsPerformance = Math.Round(item.IndicatorsPerformance, 0);
-
-            <tr id="sector-row-@item.Code">
-                <td>
-                    <span id="sector-enname-@item.Code" class="sector-enname-view">
-                        @item.EN_Name
-                    </span>
-                    <input type="text" id="sector-enname-input-@item.Code" class="form-control form-control-sm sector-enname-edit d-none" value="@item.EN_Name" />
-                </td>
-                <td>
-                    <span id="sector-arname-@item.Code" class="sector-arname-view">
-                        @item.AR_Name
-                    </span>
-                    <input type="text" id="sector-arname-input-@item.Code" class="form-control form-control-sm sector-arname-edit d-none" value="@item.AR_Name" />
-                </td>
-                <td title="@Localizer["Indicators Performance"]: @IndicatorsPerformance%">
-                    @await Html.PartialAsync("_ProgressBar", Tuple.Create(IndicatorsPerformance, indicatorsClass))
-                </td>
-                <td title="@Localizer["Disbursement Performance"]: @item.DisbursementPerformance%">
-                    @await Html.PartialAsync("_ProgressBar", Tuple.Create(item.DisbursementPerformance, disbursementClass))
-                </td>
-                <td class="text-end">
-                    <div class="btn-group" role="group">
-                        <button class="btn btn-sm btn-outline-warning"
-                                id="edit-btn-@item.Code"
-                                onclick="toggleSectorEdit(@item.Code)" title="@Localizer["Edit"]">
-                            <i class="fas fa-edit"></i>
-                        </button>
-                        <button class="btn btn-sm btn-outline-danger" title="@Localizer["Delete"]"
-                                onclick="deleteSector(@item.Code)">
-                            <i class="fas fa-trash-alt"></i>
-                        </button>
-                    </div>
-                </td>
-            </tr>
-        }
-    </tbody>
-</table>
+<!-- Dashboard Header -->
+<div class="dashboard-header">
+    <div class="header-content">
+        <div class="page-title-section">
+            <div class="page-breadcrumb">
+                <a href="@Url.Action("Index", "Home")" class="breadcrumb-link">
+                    <i class="fas fa-home"></i>
+                    @Localizer["Home"]
+                </a>
+                <i class="fas fa-chevron-right breadcrumb-separator"></i>
+                <span class="current-page">@Localizer["Sectors"]</span>
             </div>
+            <h1 class="page-title">@Localizer["Sector Management"]</h1>
+            <p class="page-description">Manage project sectors and track their performance</p>
         </div>
     </div>
 </div>
 
-<!-- Styles -->
+@await Html.PartialAsync("_ManagementNavigation")
+
+<!-- Quick Add Section -->
+<div class="quick-add-section">
+    <div class="quick-add-card">
+        <div class="quick-add-header">
+            <div class="quick-add-icon">
+                <i class="fas fa-industry"></i>
+            </div>
+            <div>
+                <h3 class="quick-add-title">@Localizer["Add New Sector"]</h3>
+                <p class="quick-add-subtitle">Create a new project sector entry</p>
+            </div>
+        </div>
+        <form id="createSectorForm" class="quick-add-form">
+            @Html.AntiForgeryToken()
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="EN_Name" class="form-label">
+                        <i class="fas fa-globe me-1"></i>@Localizer["English Name"]
+                    </label>
+                    <input type="text" name="EN_Name" class="modern-input" required placeholder="Enter English name" />
+                </div>
+                <div class="form-group">
+                    <label for="AR_Name" class="form-label">
+                        <i class="fas fa-language me-1"></i>@Localizer["Arabic Name"]
+                    </label>
+                    <input type="text" name="AR_Name" class="modern-input" required placeholder="Enter Arabic name" dir="rtl" />
+                </div>
+                <div class="form-group action-group">
+                    <button type="submit" class="modern-btn primary">
+                        <i class="fas fa-plus-circle me-2"></i>@Localizer["Create Sector"]
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Sectors List Section -->
+<div class="admin-list-section">
+    <div class="admin-card">
+        <div class="admin-header">
+            <div class="header-title">
+                <i class="fas fa-industry"></i>
+                <span>@Localizer["Sectors List"]</span>
+            </div>
+            @if (Model.Any())
+            {
+                <div class="header-badge">
+                    <span class="count-badge">@Model.Count()</span>
+                </div>
+            }
+        </div>
+
+        <div class="admin-content">
+            @if (Model.Any())
+            {
+                <div class="admin-table-container">
+                    <table class="modern-admin-table">
+                        <thead>
+                            <tr>
+                                <th><i class="fas fa-globe me-1"></i>@Localizer["English Name"]</th>
+                                <th><i class="fas fa-language me-1"></i>@Localizer["Arabic Name"]</th>
+                                <th><i class="fas fa-chart-line me-1"></i>@Localizer["Indicators Performance"]</th>
+                                <th><i class="fas fa-dollar-sign me-1"></i>@Localizer["Disbursement Performance"]</th>
+                                <th><i class="fas fa-cogs me-1"></i>@Localizer["Actions"]</th>
+                            </tr>
+                        </thead>
+                        <tbody id="sectorsTableBody">
+                            @foreach (var item in Model)
+                            {
+                                string indicatorsClass = ProgressBarHelper.GetProgressBarClass(item.IndicatorsPerformance);
+                                string disbursementClass = ProgressBarHelper.GetProgressBarClass(item.DisbursementPerformance);
+                                double IndicatorsPerformance = Math.Round(item.IndicatorsPerformance, 0);
+
+                                <tr id="sector-row-@item.Code" class="admin-table-row">
+                                    <td class="name-cell">
+                                        <div class="cell-content">
+                                            <div class="name-display">
+                                                <span id="sector-enname-@item.Code" class="sector-enname-view name-text">
+                                                    @item.EN_Name
+                                                </span>
+                                                <input type="text" id="sector-enname-input-@item.Code" class="modern-input-sm sector-enname-edit d-none" value="@item.EN_Name" />
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="name-cell">
+                                        <div class="cell-content">
+                                            <div class="name-display">
+                                                <span id="sector-arname-@item.Code" class="sector-arname-view name-text arabic-text" dir="rtl">
+                                                    @item.AR_Name
+                                                </span>
+                                                <input type="text" id="sector-arname-input-@item.Code" class="modern-input-sm sector-arname-edit d-none" value="@item.AR_Name" dir="rtl" />
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="performance-cell">
+                                        <div class="modern-progress-bar">
+                                            <div class="progress-track">
+                                                <div class="progress-fill @indicatorsClass.ToLower()" style="width: @IndicatorsPerformance%"></div>
+                                            </div>
+                                            <span class="progress-text">@IndicatorsPerformance%</span>
+                                        </div>
+                                    </td>
+                                    <td class="performance-cell">
+                                        <div class="modern-progress-bar">
+                                            <div class="progress-track">
+                                                <div class="progress-fill @disbursementClass.ToLower()" style="width: @item.DisbursementPerformance%"></div>
+                                            </div>
+                                            <span class="progress-text">@Math.Round(item.DisbursementPerformance, 0)%</span>
+                                        </div>
+                                    </td>
+                                    <td class="actions-cell">
+                                        <div class="action-buttons">
+                                            <button class="action-btn edit"
+                                                    id="edit-btn-@item.Code"
+                                                    onclick="toggleSectorEdit(@item.Code)" title="@Localizer["Edit"]">
+                                                <i class="fas fa-edit"></i>
+                                            </button>
+                                            <button class="action-btn delete" title="@Localizer["Delete"]"
+                                                    onclick="deleteSector(@item.Code)">
+                                                <i class="fas fa-trash-alt"></i>
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+            else
+            {
+                <div class="empty-state">
+                    <div class="empty-state-icon">
+                        <i class="fas fa-industry"></i>
+                    </div>
+                    <h3 class="empty-state-title">@Localizer["No Sectors Found"]</h3>
+                    <p class="empty-state-text">
+                        @Localizer["No sectors have been added yet. Use the form above to add your first sector."]
+                    </p>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
 <style>
-    .editable-field {
-        cursor: pointer;
-        padding: 4px 8px;
-        border-radius: 4px;
-        min-width: 100px;
-        display: inline-block;
-    }
+/* Modern Sectors Styling - Reusing administrative styles */
 
-    .editable-field:hover {
-        background-color: #f8f9fa;
-        border: 1px solid #dee2e6;
-    }
+.arabic-text {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    text-align: right;
+}
 
-    .editing .editable-field {
-        background-color: #fff;
-        border: 1px solid #007bff;
-    }
-
-    .edit-input {
-        width: 100%;
-        border: 1px solid #007bff;
-        border-radius: 4px;
-        padding: 4px 8px;
-        font-size: 0.9rem;
-    }
-
-    .table-hover tbody tr:hover {
-        background-color: rgba(13, 110, 253, 0.05);
-    }
+/* Additional sector-specific styling can be added here if needed */
 </style>
 
 <script>

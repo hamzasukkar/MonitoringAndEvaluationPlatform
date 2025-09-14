@@ -3,239 +3,604 @@
 @using Microsoft.AspNetCore.Mvc.Localization
 @inject IViewLocalizer Localizer
 @using Microsoft.AspNetCore.Localization
+
 @{
     ViewData["Title"] = "Outputs";
-    Layout = "~/Views/Shared/_ResultsFrameworkLayout.cshtml";
+    Layout = "~/Views/Shared/_DashboardHomeLayout.cshtml";
     var selectedOutcomeCode = ViewData["SelectedOutcomeCode"] as int?;
+    var culture = Context.Features.Get<IRequestCultureFeature>().RequestCulture.Culture.Name;
 }
 
-<div class="container-fluid">
-    @{
-        ViewData["breadcrumbLevel"] = "output";
-    }
-    @await Html.PartialAsync("_HierarchyBreadcrumb")
-    
-    <div class="mb-4">
-        <h4>@Localizer["Outputs Management"]</h4>
-        <p class="text-muted">@Localizer["Add new outputs and monitor performance"]</p>
-    </div>
+@{
+    ViewData["breadcrumbLevel"] = "output";
+}
+@await Html.PartialAsync("_HierarchyBreadcrumb")
 
-    @if (selectedOutcomeCode != null)
+<!-- Dashboard Header -->
+<div class="dashboard-header">
+    <div class="d-flex justify-content-between align-items-center">
+        <div>
+            <h1 class="dashboard-title">
+                <i class="fas fa-layer-group me-3"></i>
+                @Localizer["Outputs Management"]
+            </h1>
+            <p class="dashboard-subtitle">
+                @Localizer["Add new outputs and monitor performance across development outcomes"]
+            </p>
+        </div>
+        <div class="d-flex gap-2">
+            @if (selectedOutcomeCode != null)
+            {
+                <button class="btn btn-primary btn-lg shadow-sm" type="button" data-bs-toggle="collapse" 
+                        data-bs-target="#createOutputForm" aria-expanded="false" aria-controls="createOutputForm">
+                    <i class="fas fa-plus me-2"></i>@Localizer["New Output"]
+                </button>
+                <a asp-action="AdjustWeights" asp-route-outcomeCode="@ViewBag.SelectedOutcomeCode" 
+                   class="btn btn-warning btn-lg shadow-sm">
+                    <i class="fas fa-balance-scale me-2"></i>@Localizer["Adjust Weights"]
+                </a>
+            }
+            else
+            {
+                <a asp-action="Create" class="btn btn-success btn-lg shadow-sm">
+                    <i class="fas fa-plus me-2"></i>@Localizer["Create New Output"]
+                </a>
+            }
+        </div>
+    </div>
+</div>
+
+<!-- Collapsible Output Creation Form -->
+<div class="collapse" id="createOutputForm">
+    <div class="chart-card mb-4">
+        <div class="chart-title">
+            <i class="fas fa-plus"></i>
+            @Localizer["Create New Output"]
+        </div>
+        <form asp-action="Create" method="post" class="row g-3">
+            <input type="hidden" name="OutcomeCode" value="@selectedOutcomeCode" />
+            <div class="col-md-8">
+                <div class="mb-3">
+                    <label class="form-label fw-bold">
+                        <i class="fas fa-tag me-2"></i>@Localizer["Output Name"]
+                    </label>
+                    <input name="Name" class="form-control form-control-lg" required 
+                           placeholder="@Localizer["Enter output name"]" />
+                </div>
+            </div>
+            <div class="col-md-4 d-flex align-items-end">
+                <div class="d-grid w-100">
+                    <button type="submit" class="btn btn-success btn-lg">
+                        <i class="fas fa-save me-2"></i>@Localizer["Save Output"]
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Outputs Table -->
+<div class="chart-card">
+    <div class="chart-title">
+        <i class="fas fa-layer-group"></i>
+        @Localizer["Outputs"] (@Model.Count())
+    </div>
+    
+    @if (Model.Any())
     {
-        <div class="mb-3">
-            <button class="btn btn-primary" type="button" data-bs-toggle="collapse" data-bs-target="#createOutputForm" aria-expanded="false" aria-controls="createOutputForm">
-                <i class="fas fa-plus me-2"></i>@Localizer["New Output"]
-            </button>
-            <a asp-action="AdjustWeights" asp-route-outcomeCode="@ViewBag.SelectedOutcomeCode" class="btn btn-warning">
-                <i class="fas fa-balance-scale me-2"></i>@Localizer["Adjust Weights"]
-            </a>
+        <div class="table-responsive">
+            <table class="table table-hover modern-table">
+                <thead class="table-header">
+                    <tr>
+                        <th class="sortable-header">
+                            <div class="header-link">
+                                <i class="fas fa-layer-group me-2"></i>@Localizer["Output Name"]
+                            </div>
+                        </th>
+                        <th class="text-center">
+                            <div class="header-link">
+                                <i class="fas fa-weight me-2"></i>@Localizer["Weight"]
+                            </div>
+                        </th>
+                        <th class="text-center">
+                            <div class="header-link">
+                                <i class="fas fa-chart-line me-2"></i>@Localizer["Indicators Performance"]
+                            </div>
+                        </th>
+                        <th class="text-center">
+                            <div class="header-link">
+                                <i class="fas fa-money-bill-wave me-2"></i>@Localizer["Disbursement Performance"]
+                            </div>
+                        </th>
+                        <th class="text-center">
+                            <div class="header-link">
+                                <i class="fas fa-bullseye me-2"></i>@Localizer["Outcome"]
+                            </div>
+                        </th>
+                        <th class="text-center">
+                            <div class="header-link">
+                                <i class="fas fa-cogs me-2"></i>@Localizer["Actions"]
+                            </div>
+                        </th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model)
+                    {
+                        string indicatorsClass = ProgressBarHelper.GetProgressBarClass(item.IndicatorsPerformance);
+                        string disbursementClass = ProgressBarHelper.GetProgressBarClass(item.DisbursementPerformance);
+                        double IndicatorsPerformance = Math.Round(item.IndicatorsPerformance, 2);
+                        double DisbursementPerformance = Math.Round(item.DisbursementPerformance, 2);
+                        
+                        <tr id="output-row-@item.Code" class="table-row">
+                            <td class="output-name-cell">
+                                <div class="d-flex align-items-center">
+                                    <div class="output-icon me-3">
+                                        <i class="fas fa-layer-group"></i>
+                                    </div>
+                                    <div>
+                                        <span id="fw-name-@item.Code" class="fw-name-view">
+                                            <a asp-action="Index" asp-controller="SubOutputs" asp-route-outputCode="@item.Code" 
+                                               class="output-name-link">
+                                                @item.Name
+                                            </a>
+                                        </span>
+                                        <input type="text" id="fw-name-input-@item.Code" 
+                                               class="form-control fw-name-edit d-none" value="@item.Name" />
+                                        <small class="text-muted d-block">
+                                            <i class="fas fa-hashtag me-1"></i>ID: @item.Code
+                                        </small>
+                                    </div>
+                                </div>
+                            </td>
+                            <td class="text-center">
+                                <div class="weight-badge">
+                                    <span class="badge bg-info fs-6">@item.Weight%</span>
+                                </div>
+                            </td>
+                            <td class="text-center">
+                                <div class="performance-metric">
+                                    <div class="metric-value mb-2">
+                                        <span class="badge bg-primary fs-6">@IndicatorsPerformance%</span>
+                                    </div>
+                                    <div class="progress-bar-modern">
+                                        <div class="progress-fill-modern" 
+                                             style="width: @IndicatorsPerformance%; background: linear-gradient(90deg, var(--primary-color), var(--primary-dark));"></div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td class="text-center">
+                                <div class="performance-metric">
+                                    <div class="metric-value mb-2">
+                                        <span class="badge bg-success fs-6">@DisbursementPerformance%</span>
+                                    </div>
+                                    <div class="progress-bar-modern">
+                                        <div class="progress-fill-modern" 
+                                             style="width: @DisbursementPerformance%; background: linear-gradient(90deg, var(--secondary-color), var(--primary-light));"></div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td class="text-center">
+                                <div class="outcome-badge">
+                                    <a asp-controller="Outcomes" asp-action="Index" asp-route-frameworkCode="@item.Outcome.FrameworkCode"  
+                                       class="badge bg-secondary fs-6 text-decoration-none">
+                                        @item.Outcome.Name
+                                    </a>
+                                </div>
+                            </td>
+                            <td class="text-center">
+                                <div class="btn-group action-buttons" role="group">
+                                    <a asp-action="Index" asp-controller="SubOutputs" asp-route-outputCode="@item.Code" 
+                                       class="btn btn-primary btn-sm action-btn" title="View SubOutputs">
+                                        <i class="fas fa-arrow-right"></i>
+                                    </a>
+                                    <a asp-action="Details" asp-route-id="@item.Code" 
+                                       class="btn btn-outline-info btn-sm action-btn" title="View Details">
+                                        <i class="fas fa-eye"></i>
+                                    </a>
+                                    <button class="btn btn-outline-primary btn-sm action-btn"
+                                            onclick="toggleOutputEdit(@item.Code)" title="Edit Name">
+                                        <i class="fas fa-edit"></i>
+                                    </button>
+                                    <a asp-action="Edit" asp-route-id="@item.Code" 
+                                       class="btn btn-outline-warning btn-sm action-btn" title="Edit">
+                                        <i class="fas fa-cog"></i>
+                                    </a>
+                                    <button class="btn btn-outline-danger btn-sm action-btn"
+                                            onclick="confirmOutputDelete(@item.Code)" title="Delete">
+                                        <i class="fas fa-trash-alt"></i>
+                                    </button>
+                                    <a href="#" class="btn btn-outline-success btn-sm action-btn" title="Tree View">
+                                        <i class="fas fa-project-diagram"></i>
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
         </div>
     }
     else
     {
-        <a asp-action="Create" class="btn btn-success">@Localizer["Create New Output"]</a>
+        <div class="text-center py-5">
+            <div class="stat-icon warning mx-auto mb-3" style="width: 80px; height: 80px; font-size: 2rem;">
+                <i class="fas fa-layer-group"></i>
+            </div>
+            <h4 class="text-muted">@Localizer["No outputs found"]</h4>
+            <p class="text-muted">@Localizer["Create your first output to get started"]</p>
+        </div>
     }
-
-    <div class="collapse" id="createOutputForm">
-        <div class="card shadow-sm mb-4">
-            <div class="card-header">
-                <strong>@Localizer["Create New Output"]</strong>
-            </div>
-            <div class="card-body">
-                <form asp-action="Create" method="post" class="row g-3">
-                    <input type="hidden" name="OutcomeCode" value="@selectedOutcomeCode" />
-
-                    <div class="col-md-6">
-                        <label class="form-label">@Localizer["Output Name"]</label>
-                        <input name="Name" class="form-control" required />
-                    </div>
-                    <div class="col-md-3 d-flex align-items-end">
-                        <button type="submit" class="btn btn-success w-100">
-                            <i class="fas fa-save me-2"></i>@Localizer["Save Output"]
-                        </button>
-                    </div>
-                </form>
-            </div>
-        </div>
-    </div>
-
-    <!-- Outputs Table -->
-    <div class="card shadow-sm">
-        <div class="card-body">
-            <div class="table-responsive">
-                <table class="table table-hover">
-                    <thead class="table-light">
-                        <tr>
-                            <th>@Localizer["Output Name"]</th>
-                            <th>@Localizer["Weight"]</th>
-                            <th>@Localizer["Indicators Performance"]</th>
-                            <th>@Localizer["Disbursement Performance"]</th>
-                            @* <th>@Localizer["Field Monitoring"]</th> *@
-                        @*     <th>@Localizer["Impact Assessment"]</th> *@
-                            <th>@Localizer["Output Name"]</th>
-                            <th class="text-end">@Localizer["Actions"]</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                       @*  @foreach (var item in Model)
-                        {
-                            <tr id="output-row-@item.Code">
-                                <td>
-                                    <span id="fw-name-@item.Code" class="fw-name-view">
-                                        <a asp-action="Index" asp-controller="SubOutputs" asp-route-outputCode="@item.Code" class="text-decoration-none"><strong>@item.Name</strong></a>
-                                    </span>
-                                    <input type="text" id="fw-name-input-@item.Code" class="form-control form-control-sm fw-name-edit d-none"
-                                           value="@item.Name" />
-                                </td>
-                                <td>@item.Weight</td>
-                                <td>@item.IndicatorsPerformance</td>
-                                <td>@item.DisbursementPerformance</td>
-                                <td>@item.FieldMonitoring</td>
-                                <td>@item.ImpactAssessment</td>
-                                <td class="text-end">
-                                    <button class="btn btn-sm btn-outline-warning"
-                                            id="edit-btn-@item.Code"
-                                            onclick="toggleOutputEdit(@item.Code)">
-                                        <i class="fas fa-edit"></i>
-                                    </button>
-                                    <button class="btn btn-sm btn-outline-danger"
-                                            onclick="confirmOutputDelete(@item.Code)">
-                                        <i class="fas fa-trash-alt"></i>
-                                    </button>
-                                </td>
-                            </tr>
-                        } *@
-                        @foreach (var item in Model)
-                        {
-                            string indicatorsClass = ProgressBarHelper.GetProgressBarClass(item.IndicatorsPerformance);
-                            string disbursementClass = ProgressBarHelper.GetProgressBarClass(item.DisbursementPerformance);
-                            string fieldMonitoringClass = ProgressBarHelper.GetProgressBarClass(item.FieldMonitoring);
-                            string impactAssessmentClass = ProgressBarHelper.GetProgressBarClass(item.ImpactAssessment);
-                            double IndicatorsPerformance = Math.Round(item.IndicatorsPerformance, 0);
-
-                            <tr>
-                                <td>
-                                    <a style="color:#fff" asp-action="Index" asp-controller="SubOutputs" asp-route-outputCode="@item.Code" class="text-decoration-none">
-                                        <strong>@item.Name</strong>
-                                    </a>
-                                </td>
-                                <td>
-                                    @Html.DisplayFor(modelItem => item.Weight)
-                                </td>
-                                <td title="@Localizer["Indicators Performance"]: @IndicatorsPerformance%">
-                                    @await Html.PartialAsync("_ProgressBar", Tuple.Create(IndicatorsPerformance, indicatorsClass))
-                                </td>
-                                <td title="@Localizer["Disbursement Performance"]: @item.DisbursementPerformance%">
-                                    @await Html.PartialAsync("_ProgressBar", Tuple.Create(item.DisbursementPerformance, disbursementClass))
-                                </td>
-                                @* 
-                                <td>
-                                    @await Html.PartialAsync("_ProgressBar", Tuple.Create(item.FieldMonitoring, fieldMonitoringClass))
-                                </td>
-                              <td>
-                                    @await Html.PartialAsync("_ProgressBar", Tuple.Create(item.ImpactAssessment, impactAssessmentClass))
-                                </td> 
-                                *@
-                                <td>
-                                    <a style="color:#fff" asp-controller="Outcomes" asp-action="Index" asp-route-frameworkCode="@item.Outcome.FrameworkCode"  class="text-decoration-none">@item.Outcome.Name</a>
-                                </td>
-                                <td class="text-end">
-                                    <div class="btn-group" role="group">
-                                        <a asp-action="Details" asp-route-id="@item.Code" class="btn btn-sm btn-outline-primary" title="View">
-                                            <i class="fas fa-eye"></i>
-                                        </a>
-                                        <a asp-action="Edit" asp-route-id="@item.Code" class="btn btn-sm btn-outline-warning" title="Edit">
-                                            <i class="fas fa-edit"></i>
-                                        </a>
-                                        <a asp-action="Delete" asp-route-id="@item.Code" class="btn btn-sm btn-outline-danger" title="Delete">
-                                            <i class="fas fa-trash-alt"></i>
-                                        </a>
-                                        <a href="#" class="btn btn-sm btn-outline-success" title="Tree View">
-                                            <i class="fas fa-project-diagram"></i>
-                                        </a>
-                                    </div>
-                                </td>
-                            </tr>
-                        }
-                    </tbody>
-                </table>
-            </div>
-        </div>
-    </div>
 </div>
-<script>
-    const outputToggleBtn = document.querySelector('[data-bs-target="#createOutputForm"]');
-    const outputForm = document.getElementById('createOutputForm');
 
-    outputForm.addEventListener('shown.bs.collapse', () => {
-        const nameInput = outputForm.querySelector('input[name="Name"]');
-        if (nameInput) nameInput.focus();
-    });
+@section Scripts {
+    <!-- SweetAlert2 -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    
+    <script>
+        // Form toggle animations
+        const outputToggleBtn = document.querySelector('[data-bs-target="#createOutputForm"]');
+        const outputForm = document.getElementById('createOutputForm');
 
-    function toggleOutputEdit(code) {
-        const viewSpan = $(`#fw-name-${code}`);
-        const input = $(`#fw-name-input-${code}`);
-        const button = $(`#edit-btn-${code}`);
+        outputForm?.addEventListener('shown.bs.collapse', () => {
+            const nameInput = outputForm.querySelector('input[name="Name"]');
+            if (nameInput) {
+                nameInput.focus();
+                outputForm.style.opacity = '0';
+                outputForm.style.transform = 'translateY(-20px)';
+                setTimeout(() => {
+                    outputForm.style.transition = 'all 0.4s ease';
+                    outputForm.style.opacity = '1';
+                    outputForm.style.transform = 'translateY(0)';
+                }, 10);
+            }
+        });
 
-        const isEditing = input.hasClass('d-none') === false;
+        function toggleOutputEdit(code) {
+            const viewSpan = $(`#fw-name-${code}`);
+            const input = $(`#fw-name-input-${code}`);
+            
+            const isEditing = !input.hasClass('d-none');
 
-        if (isEditing) {
-            // Save via AJAX
-            const newName = input.val();
+            if (isEditing) {
+                // Save via AJAX
+                const newName = input.val();
 
-            $.ajax({
-                url: `/Outputs/UpdateName`,
-                type: 'POST',
-                data: { id: code, name: newName },
-                success: function () {
-                    viewSpan.html(`<a href="/SubOutputs?outputCode=${code}" class="text-decoration-none"><strong>${newName}</strong></a>`);
-                    input.addClass('d-none');
-                    viewSpan.removeClass('d-none');
-                    button.html('<i class="fas fa-edit"></i>');
-                    button.removeClass('btn-success').addClass('btn-outline-warning');
-                    Swal.fire('Saved!', 'Output name updated.', 'success');
-                },
-                error: function () {
-                    Swal.fire('Error', 'Could not update name.', 'error');
-                }
-            });
-        } else {
-            // Enter edit mode
-            input.removeClass('d-none');
-            viewSpan.addClass('d-none');
-            button.html('<i class="fas fa-save"></i>');
-            button.removeClass('btn-outline-warning').addClass('btn-success');
+                $.ajax({
+                    url: `/Outputs/UpdateName`,
+                    type: 'POST',
+                    data: { id: code, name: newName },
+                    success: function () {
+                        viewSpan.html(`<a href="/SubOutputs?outputCode=${code}" class="output-name-link">${newName}</a>`);
+                        input.addClass('d-none');
+                        viewSpan.removeClass('d-none');
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Saved!',
+                            text: 'Output name updated successfully.',
+                            timer: 2000,
+                            showConfirmButton: false
+                        });
+                    },
+                    error: function () {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error',
+                            text: 'Could not update output name.'
+                        });
+                    }
+                });
+            } else {
+                // Enter edit mode
+                input.removeClass('d-none');
+                viewSpan.addClass('d-none');
+                input.focus();
+            }
         }
-    }
-            function confirmOutputDelete(code) {
+
+        function confirmOutputDelete(code) {
             Swal.fire({
-                title: 'Are you sure?',
-                text: 'This will delete the outputs!',
+                title: '@Localizer["Are you sure?"]',
+                text: '@Localizer["This will permanently delete the output and all associated data!"]',
                 icon: 'warning',
                 showCancelButton: true,
                 confirmButtonColor: '#d33',
-                cancelButtonColor: '#3085d6',
-                confirmButtonText: 'Yes, delete it!'
+                cancelButtonColor: '#6c757d',
+                confirmButtonText: '@Localizer["Yes, delete it!"]',
+                cancelButtonText: '@Localizer["Cancel"]',
+                customClass: {
+                    popup: 'swal2-modern',
+                    confirmButton: 'btn btn-danger',
+                    cancelButton: 'btn btn-secondary'
+                }
             }).then((result) => {
                 if (result.isConfirmed) {
                     $.ajax({
                         url: `/Outputs/DeleteConfirmed/${code}`,
                         type: 'POST',
                         success: function () {
-                            $(`#output-row-${code}`).fadeOut();
-                            Swal.fire('Deleted!', 'Output has been deleted.', 'success');
+                            $(`#output-row-${code}`).fadeOut(400, function() {
+                                $(this).remove();
+                            });
+                            Swal.fire({
+                                icon: 'success',
+                                title: 'Deleted!',
+                                text: '@Localizer["Output has been deleted successfully."]',
+                                timer: 2000,
+                                showConfirmButton: false
+                            });
                         },
                         error: function () {
-                            Swal.fire('Error', 'Could not delete output.', 'error');
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Error',
+                                text: '@Localizer["Could not delete output. Please try again."]'
+                            });
                         }
                     });
                 }
             });
         }
-    
-</script>
-<style>
-    .table-responsive {
-        overflow-x: hidden;
-    }
-</style>
+        
+        // Initialize page animations
+        document.addEventListener('DOMContentLoaded', function() {
+            // Animate table rows on load
+            const tableRows = document.querySelectorAll('.table-row');
+            tableRows.forEach((row, index) => {
+                row.style.opacity = '0';
+                row.style.transform = 'translateX(-20px)';
+                setTimeout(() => {
+                    row.style.transition = 'all 0.6s ease';
+                    row.style.opacity = '1';
+                    row.style.transform = 'translateX(0)';
+                }, index * 100);
+            });
+            
+            // Progress bar animation
+            const progressBars = document.querySelectorAll('.progress-fill-modern');
+            progressBars.forEach((bar, index) => {
+                setTimeout(() => {
+                    const width = bar.style.width;
+                    bar.style.width = '0%';
+                    setTimeout(() => {
+                        bar.style.transition = 'width 1.5s ease-out';
+                        bar.style.width = width;
+                    }, 200);
+                }, index * 100);
+            });
+        });
+    </script>
+
+    <style>
+        /* Modern Table Styles */
+        .modern-table {
+            background: transparent;
+            border: none;
+            border-radius: 15px;
+            overflow: hidden;
+        }
+        
+        .table-header {
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-dark) 100%);
+            color: white;
+        }
+        
+        .table-header th {
+            border: none;
+            padding: 20px 15px;
+            font-weight: 600;
+            font-size: 0.95rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .header-link {
+            color: white !important;
+            text-decoration: none !important;
+            display: flex;
+            align-items: center;
+            justify-content: flex-start;
+            transition: all 0.3s ease;
+        }
+        
+        .header-link:hover {
+            color: rgba(255, 255, 255, 0.9) !important;
+            transform: translateY(-1px);
+        }
+        
+        .table-row {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border: none;
+            transition: all 0.3s ease;
+        }
+        
+        .table-row:hover {
+            background: rgba(255, 255, 255, 1);
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+        }
+        
+        .table-row td {
+            border: none;
+            padding: 20px 15px;
+            vertical-align: middle;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+        }
+        
+        .output-name-cell {
+            min-width: 300px;
+        }
+        
+        .output-icon {
+            width: 45px;
+            height: 45px;
+            background: linear-gradient(135deg, var(--primary-light), var(--accent-color));
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.2rem;
+        }
+        
+        .output-name-link {
+            color: #333;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 1.1rem;
+            transition: color 0.3s ease;
+        }
+        
+        .output-name-link:hover {
+            color: var(--primary-color);
+        }
+        
+        .performance-metric {
+            min-width: 120px;
+        }
+        
+        .progress-bar-modern {
+            height: 8px;
+            background: rgba(0, 0, 0, 0.1);
+            border-radius: 10px;
+            overflow: hidden;
+            position: relative;
+        }
+        
+        .progress-fill-modern {
+            height: 100%;
+            border-radius: 10px;
+            transition: width 1.5s ease-out;
+            position: relative;
+        }
+        
+        .progress-fill-modern::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+            animation: shimmer 2s infinite;
+        }
+        
+        @@keyframes shimmer {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+        
+        .weight-badge, .outcome-badge {
+            display: flex;
+            justify-content: center;
+        }
+        
+        .action-buttons {
+            gap: 3px;
+        }
+        
+        .action-btn {
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+            border-width: 1px;
+            font-size: 0.8rem;
+        }
+        
+        .action-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+        
+        .table-responsive {
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+        
+        .swal2-modern {
+            border-radius: 15px;
+        }
+        
+        /* Badge styling */
+        .badge.bg-primary {
+            background: linear-gradient(135deg, var(--primary-color), var(--primary-dark)) !important;
+        }
+        
+        .badge.bg-success {
+            background: linear-gradient(135deg, var(--secondary-color), var(--primary-light)) !important;
+        }
+        
+        .badge.bg-info {
+            background: linear-gradient(135deg, var(--accent-color), var(--primary-color)) !important;
+        }
+        
+        .badge.bg-secondary {
+            background: linear-gradient(135deg, #6c757d, #495057) !important;
+            color: white !important;
+        }
+        
+        /* Form styling */
+        .form-control-lg {
+            border: 2px solid rgba(0, 0, 0, 0.1);
+            border-radius: 10px;
+            transition: all 0.3s ease;
+        }
+        
+        .form-control-lg:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 0.2rem color-mix(in srgb, var(--primary-color) 25%, transparent);
+        }
+        
+        /* Responsive Design */
+        @@media (max-width: 768px) {
+            .dashboard-header .d-flex {
+                flex-direction: column;
+                align-items: stretch;
+                gap: 20px;
+            }
+            
+            .dashboard-header .d-flex > div:last-child {
+                align-self: center;
+            }
+            
+            .output-name-cell {
+                min-width: auto;
+            }
+            
+            .performance-metric {
+                min-width: auto;
+            }
+            
+            .action-buttons {
+                flex-wrap: wrap;
+                gap: 2px;
+            }
+            
+            .table-header th {
+                padding: 15px 8px;
+                font-size: 0.8rem;
+            }
+            
+            .table-row td {
+                padding: 15px 8px;
+            }
+            
+            .header-link {
+                flex-direction: column;
+                text-align: center;
+                font-size: 0.75rem;
+            }
+            
+            .header-link i {
+                margin-bottom: 3px;
+                margin-right: 0 !important;
+            }
+        }
+    </style>
+}
