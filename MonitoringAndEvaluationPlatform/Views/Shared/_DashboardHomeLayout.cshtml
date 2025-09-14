@@ -58,6 +58,27 @@
             --theme-name: 'green';
         }
 
+        [data-theme="green"] button,
+        [data-theme="green"] .btn,
+        [data-theme="green"] input[type="submit"],
+        [data-theme="green"] input[type="button"] {
+            background-color: #C8A85F !important;
+            border-color: #C8A85F !important;
+        }
+
+        /* Exclude buttons inside btn-group and action-buttons */
+        [data-theme="green"] .btn-group button,
+        [data-theme="green"] .btn-group .btn,
+        [data-theme="green"] .btn-group input[type="submit"],
+        [data-theme="green"] .btn-group input[type="button"],
+        [data-theme="green"] .action-buttons button,
+        [data-theme="green"] .action-buttons .btn,
+        [data-theme="green"] .action-buttons input[type="submit"],
+        [data-theme="green"] .action-buttons input[type="button"] {
+            background-color: initial !important;
+            border-color: initial !important;
+        }
+
         * {
             margin: 0;
             padding: 0;
