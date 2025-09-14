@@ -194,14 +194,30 @@
             backdrop-filter: blur(20px);
             border-radius: 0;
             padding: 30px 0;
-            box-shadow: 4px 0 20px rgba(0, 0, 0, 0.1);
-            border-right: 1px solid rgba(255, 255, 255, 0.2);
             position: fixed;
-            left: 0;
             top: 0;
             height: 100vh;
             overflow-y: auto;
             z-index: 1000;
+            transition: all 0.3s ease;
+        }
+
+        /* LTR (English) - Sidebar on Left */
+        [dir="ltr"] .modern-sidebar {
+            left: 0;
+            right: auto;
+            box-shadow: 4px 0 20px rgba(0, 0, 0, 0.1);
+            border-right: 1px solid rgba(255, 255, 255, 0.2);
+            border-left: none;
+        }
+
+        /* RTL (Arabic) - Sidebar on Right */
+        [dir="rtl"] .modern-sidebar {
+            right: 0;
+            left: auto;
+            box-shadow: -4px 0 20px rgba(0, 0, 0, 0.1);
+            border-left: 1px solid rgba(255, 255, 255, 0.2);
+            border-right: none;
         }
 
         .sidebar-nav {
@@ -244,10 +260,19 @@
             left: 100%;
         }
 
-        .sidebar-link:hover {
+        /* Hover Effects - LTR */
+        [dir="ltr"] .sidebar-link:hover {
             color: var(--primary-color);
             background: color-mix(in srgb, var(--primary-color) 10%, transparent);
             transform: translateX(5px);
+            box-shadow: 0 10px 25px rgba(33, 150, 243, 0.15);
+        }
+
+        /* Hover Effects - RTL */
+        [dir="rtl"] .sidebar-link:hover {
+            color: var(--primary-color);
+            background: color-mix(in srgb, var(--primary-color) 10%, transparent);
+            transform: translateX(-5px);
             box-shadow: 0 10px 25px rgba(33, 150, 243, 0.15);
         }
 
@@ -257,7 +282,8 @@
             box-shadow: 0 10px 25px color-mix(in srgb, var(--primary-color) 40%, transparent);
         }
 
-        .sidebar-link.active::after {
+        /* Active Link Indicator - LTR */
+        [dir="ltr"] .sidebar-link.active::after {
             content: '';
             position: absolute;
             right: -5px;
@@ -267,6 +293,19 @@
             height: 30px;
             background: white;
             border-radius: 2px 0 0 2px;
+        }
+
+        /* Active Link Indicator - RTL */
+        [dir="rtl"] .sidebar-link.active::after {
+            content: '';
+            position: absolute;
+            left: -5px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 4px;
+            height: 30px;
+            background: white;
+            border-radius: 0 2px 2px 0;
         }
 
         .sidebar-link i {
@@ -292,10 +331,69 @@
             font-weight: 600;
         }
 
+        /* Main Content Area - RTL/LTR Support */
         .main-content-with-sidebar {
-            margin-left: 280px;
             padding: 20px;
             min-height: 100vh;
+            transition: all 0.3s ease;
+        }
+
+        /* LTR (English) - Content margin from left */
+        [dir="ltr"] .main-content-with-sidebar {
+            margin-left: 280px;
+            margin-right: 0;
+        }
+
+        /* RTL (Arabic) - Content margin from right */
+        [dir="rtl"] .main-content-with-sidebar {
+            margin-right: 280px;
+            margin-left: 0;
+        }
+
+        /* Sidebar Language Selector */
+        .sidebar-language-selector {
+            position: absolute;
+            bottom: 20px;
+            left: 15px;
+            right: 15px;
+        }
+
+        .language-dropdown {
+            display: flex;
+            align-items: center;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 12px;
+            padding: 12px 15px;
+            transition: all 0.3s ease;
+        }
+
+        .language-dropdown:hover {
+            background: rgba(255, 255, 255, 0.15);
+            border-color: var(--primary-color);
+        }
+
+        .language-dropdown i {
+            color: var(--primary-color);
+            font-size: 1rem;
+        }
+
+        .language-select {
+            background: transparent;
+            border: none;
+            color: #666;
+            font-size: 0.9rem;
+            font-weight: 500;
+            cursor: pointer;
+            outline: none;
+            flex: 1;
+        }
+
+        .language-select option {
+            background: white;
+            color: #333;
+            padding: 8px;
         }
 
         .dashboard-header {
@@ -653,15 +751,22 @@
                 width: 100%;
                 position: fixed;
                 top: 0;
-                left: 0;
                 height: auto;
                 max-height: none;
                 border-radius: 0;
-                border-right: none;
                 border-bottom: 1px solid rgba(255, 255, 255, 0.2);
                 box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
                 padding: 15px 0;
                 z-index: 1100;
+            }
+
+            /* Mobile - Both LTR and RTL use full width */
+            [dir="ltr"] .modern-sidebar,
+            [dir="rtl"] .modern-sidebar {
+                left: 0;
+                right: 0;
+                border-left: none;
+                border-right: none;
             }
 
             .sidebar-nav {
@@ -689,10 +794,28 @@
                 font-size: 0.8rem;
             }
 
-            .main-content-with-sidebar {
+            /* Mobile - Content margins reset for both directions */
+            [dir="ltr"] .main-content-with-sidebar,
+            [dir="rtl"] .main-content-with-sidebar {
                 margin-left: 0;
+                margin-right: 0;
                 padding: 15px;
                 padding-top: 100px;
+            }
+
+            .sidebar-language-selector {
+                position: static;
+                margin-top: 15px;
+                padding: 0 10px;
+            }
+
+            .language-dropdown {
+                padding: 8px 12px;
+                border-radius: 8px;
+            }
+
+            .language-select {
+                font-size: 0.8rem;
             }
 
             .stats-grid {
@@ -874,6 +997,20 @@
                     </a>
                 </li>
             </ul>
+
+            <!-- Language Selector -->
+            <div class="sidebar-language-selector">
+                <form asp-controller="Frameworks" asp-action="SetLanguage" method="post">
+                    <div class="language-dropdown">
+                        <i class="fas fa-globe me-2"></i>
+                        <select name="culture" onchange="this.form.submit();" class="language-select">
+                            <option value="ar" selected="@(currentCulture.StartsWith("ar") ? "selected" : null)">العربية</option>
+                            <option value="en" selected="@(currentCulture.StartsWith("en") ? "selected" : null)">English</option>
+                        </select>
+                    </div>
+                    <input type="hidden" name="returnUrl" value="@ViewContext.HttpContext.Request.Path" />
+                </form>
+            </div>
         </div>
 
         <!-- Main Content with Sidebar -->
