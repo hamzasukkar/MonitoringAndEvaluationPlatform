@@ -136,8 +136,11 @@
 </div>
 </div>
 
-<!-- Styles -->
-<style>
+@section Scripts {
+    <!-- SweetAlert2 -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <style>
     /* Modern Table Styles */
     .modern-table {
         background: transparent;
@@ -277,10 +280,9 @@
         padding: 4px 8px;
         font-size: 0.9rem;
     }
-</style>
 
-<script>
-    $(document).ready(function() {
+    <script>
+        $(document).ready(function() {
 
         // Create SuperVisor Form Submission
         $('#createSuperVisorForm').on('submit', function(e) {
@@ -597,4 +599,5 @@
             nameInput.focus();
         }
     }
-</script>
+    </script>
+}
