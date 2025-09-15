@@ -131,7 +131,7 @@
                                                     <i class="fas fa-project-diagram"></i>
                                                 </div>
                                                 <div>
-                                                    <span class="project-name fw-semibold">@item.ProjectName</span>
+                                                    <a href="@Url.Action("Details", "Projects", new { id = item.ProjectID })" class="project-name fw-semibold">@item.ProjectName</a>
                                                 </div>
                                             </div>
                                         </td>
@@ -238,11 +238,14 @@
             text-decoration: none;
             font-weight: 600;
             font-size: 1.1rem;
-            transition: color 0.3s ease;
+            transition: all 0.3s ease;
+            cursor: pointer;
         }
 
         .project-name:hover {
             color: var(--primary-color);
+            text-decoration: none;
+            transform: translateX(5px);
         }
 
         .action-buttons {
