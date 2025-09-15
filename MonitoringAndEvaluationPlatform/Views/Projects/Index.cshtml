@@ -103,10 +103,18 @@
                         <table class="modern-table">
                             <thead class="table-header">
                                 <tr>
-                                    <th><i class="fas fa-project-diagram me-2"></i>@Localizer["Project Name"]</th>
-                                    <th><i class="fas fa-chart-line me-2"></i>@Localizer["Performance"]</th>
-                                    <th><i class="fas fa-dollar-sign me-2"></i>@Localizer["Disbursement"]</th>
-                                    <th class="text-end"><i class="fas fa-cogs me-2"></i>@Localizer["Actions"]</th>
+                                    <th>
+                                        <i class="fas fa-project-diagram me-2"></i>@Localizer["Project Name"]
+                                    </th>
+                                    <th class="text-center">
+                                        <i class="fas fa-chart-line me-2"></i>@Localizer["Performance"]
+                                    </th>
+                                    <th class="text-center">
+                                        <i class="fas fa-dollar-sign me-2"></i>@Localizer["Disbursement"]
+                                    </th>
+                                    <th class="text-center">
+                                        <i class="fas fa-cogs me-2"></i>@Localizer["Actions"]
+                                    </th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -116,35 +124,33 @@
                                     string performanceClass = ProgressBarHelper.GetProgressBarClass(performance);
                                     string disbursementClass = ProgressBarHelper.GetProgressBarClass(item.DisbursementPerformance);
                                     var rowId = "row_" + item.ProjectID;
-                                    <tr id="row_@item.ProjectID" class="table-row-hover">
+                                    <tr id="row_@item.ProjectID" class="table-row">
                                         <td class="project-name-cell">
-                                            <div class="project-name-container">
-                                                <i class="fas fa-project-diagram me-2 project-icon"></i>
-                                                <span class="project-name">@item.ProjectName</span>
+                                            <div class="d-flex align-items-center">
+                                                <div class="project-icon me-3">
+                                                    <i class="fas fa-project-diagram"></i>
+                                                </div>
+                                                <div>
+                                                    <span class="project-name fw-semibold">@item.ProjectName</span>
+                                                </div>
                                             </div>
                                         </td>
-                                        <td title="@Localizer["Performance"]: @performance%">
-                                            <div class="progress-bar-modern">
-                                                <div class="progress-fill-modern shimmer" style="width: @performance%; background: linear-gradient(90deg, @(performance > 75 ? "var(--success-color)" : performance > 50 ? "var(--warning-color)" : "var(--danger-color)"), var(--primary-dark));"></div>
-                                                <span class="progress-text">@performance%</span>
-                                            </div>
+                                        <td class="text-center" title="@Localizer["Performance"]: @performance%">
+                                            @await Html.PartialAsync("_ProgressBar", Tuple.Create(performance, performanceClass))
                                         </td>
-                                        <td title="@Localizer["Disbursement"]: @Math.Round(item.DisbursementPerformance, 2)%">
-                                            <div class="progress-bar-modern">
-                                                <div class="progress-fill-modern shimmer" style="width: @Math.Round(item.DisbursementPerformance, 2)%; background: linear-gradient(90deg, @(item.DisbursementPerformance > 75 ? "var(--success-color)" : item.DisbursementPerformance > 50 ? "var(--warning-color)" : "var(--danger-color)"), var(--primary-dark));"></div>
-                                                <span class="progress-text">@Math.Round(item.DisbursementPerformance, 2)%</span>
-                                            </div>
+                                        <td class="text-center" title="@Localizer["Disbursement"]: @Math.Round(item.DisbursementPerformance, 2)%">
+                                            @await Html.PartialAsync("_ProgressBar", Tuple.Create(item.DisbursementPerformance, disbursementClass))
                                         </td>
-                                        <td class="text-end">
-                                            <div class="action-buttons-group">
-                                                <a asp-action="Details" asp-route-id="@item.ProjectID" class="btn btn-action-primary" title="@Localizer["View Details"]">
+                                        <td class="text-center">
+                                            <div class="btn-group action-buttons" role="group">
+                                                <a asp-action="Details" asp-route-id="@item.ProjectID" class="btn btn-outline-info btn-sm action-btn" title="@Localizer["View Details"]">
                                                     <i class="fas fa-eye"></i>
                                                 </a>
-                                                <button type="button" class="btn btn-action-warning"
+                                                <button type="button" class="btn btn-outline-primary btn-sm action-btn"
                                                         onclick="editProjectName(@item.ProjectID, '@item.ProjectName.Replace("'", "\\'")')" title="@Localizer["Edit Project"]">
                                                     <i class="fas fa-edit"></i>
                                                 </button>
-                                                <button type="button" class="btn btn-action-danger"
+                                                <button type="button" class="btn btn-outline-danger btn-sm action-btn"
                                                         onclick="deleteProject(@item.ProjectID)" title="@Localizer["Delete Project"]">
                                                     <i class="fas fa-trash-alt"></i>
                                                 </button>
@@ -163,9 +169,109 @@
 </div>
 
 
-<!-- Modern Styles -->
-<style>
-    .filter-section-title {
+@section Scripts {
+    <!-- SweetAlert2 -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <style>
+        /* Modern Table Styles */
+        .modern-table {
+            width:100%;
+            background: transparent;
+            border: none;
+            border-radius: 15px;
+            overflow: hidden;
+        }
+
+        .table-header {
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-dark) 100%);
+            color: white;
+        }
+
+        .table-header th {
+            border: none;
+            padding: 20px 15px;
+            font-weight: 600;
+            font-size: 0.95rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .table-row {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border: none;
+            transition: all 0.3s ease;
+        }
+
+        .table-row:hover {
+            background: rgba(255, 255, 255, 1);
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+        }
+
+        .table-row td {
+            border: none;
+            padding: 20px 15px;
+            vertical-align: middle;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+        }
+
+        .project-name-cell {
+            min-width: 250px;
+        }
+
+        .project-icon {
+            width: 45px;
+            height: 45px;
+            background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.2rem;
+        }
+
+        .project-name {
+            color: #333;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 1.1rem;
+            transition: color 0.3s ease;
+        }
+
+        .project-name:hover {
+            color: var(--primary-color);
+        }
+
+        .action-buttons {
+            gap: 5px;
+        }
+
+        .action-btn {
+            width: 35px;
+            height: 35px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+            border-width: 1px;
+        }
+
+        .action-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .modern-table-container {
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+        .filter-section-title {
         font-size: 0.95rem;
         font-weight: 600;
         color: var(--text-color);
@@ -527,3 +633,4 @@
         });
     });
 </script>
+}
