@@ -269,24 +269,12 @@
                                     </td>
                                     <td class="text-center">
                                         <div class="performance-metric">
-                                            <div class="metric-value mb-2">
-                                                <span class="badge bg-primary fs-6">@IndicatorsPerformance%</span>
-                                            </div>
-                                            <div class="progress-bar-modern">
-                                                <div class="progress-fill-modern" 
-                                                     style="width: @IndicatorsPerformance%; background: linear-gradient(90deg, var(--primary-color), var(--primary-dark));"></div>
-                                            </div>
+                                            @await Html.PartialAsync("_ProgressBar", Tuple.Create(IndicatorsPerformance, indicatorsClass))
                                         </div>
                                     </td>
                                     <td class="text-center">
                                         <div class="performance-metric">
-                                            <div class="metric-value mb-2">
-                                                <span class="badge bg-success fs-6">@DisbursementPerformance%</span>
-                                            </div>
-                                            <div class="progress-bar-modern">
-                                                <div class="progress-fill-modern" 
-                                                     style="width: @DisbursementPerformance%; background: linear-gradient(90deg, var(--secondary-color), var(--primary-light));"></div>
-                                            </div>
+                                            @await Html.PartialAsync("_ProgressBar", Tuple.Create(DisbursementPerformance, disbursementClass))
                                         </div>
                                     </td>
                                     <td class="text-center">
