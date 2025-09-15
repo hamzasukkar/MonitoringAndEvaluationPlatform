@@ -160,26 +160,10 @@
                                 </div>
                             </td>
                             <td class="text-center">
-                                <div class="performance-metric">
-                                    <div class="metric-value mb-2">
-                                        <span class="badge bg-primary fs-6">@IndicatorsPerformance%</span>
-                                    </div>
-                                    <div class="progress-bar-modern">
-                                        <div class="progress-fill-modern" 
-                                             style="width: @IndicatorsPerformance%; background: linear-gradient(90deg, var(--primary-color), var(--primary-dark));"></div>
-                                    </div>
-                                </div>
+                                @await Html.PartialAsync("_ProgressBar", Tuple.Create(IndicatorsPerformance, indicatorsClass))
                             </td>
                             <td class="text-center">
-                                <div class="performance-metric">
-                                    <div class="metric-value mb-2">
-                                        <span class="badge bg-success fs-6">@DisbursementPerformance%</span>
-                                    </div>
-                                    <div class="progress-bar-modern">
-                                        <div class="progress-fill-modern" 
-                                             style="width: @DisbursementPerformance%; background: linear-gradient(90deg, var(--secondary-color), var(--primary-light));"></div>
-                                    </div>
-                                </div>
+                                @await Html.PartialAsync("_ProgressBar", Tuple.Create(DisbursementPerformance, disbursementClass))
                             </td>
                             <td class="text-center">
                                 <div class="output-badge">
@@ -388,7 +372,7 @@
         }
         
         .header-link {
-            color: white !important;
+            /* color: white !important; */
             text-decoration: none !important;
             display: flex;
             align-items: center;

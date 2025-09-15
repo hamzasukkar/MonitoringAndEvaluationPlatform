@@ -1,9 +1,100 @@
 ﻿@model Tuple<double, string>
 
-<div class="progress">
-    <div class="progress-bar @Model.Item2 progress-bar-striped" role="progressbar"
-         aria-valuenow="@Model.Item1" aria-valuemin="0" aria-valuemax="100"
-         style="width:@Model.Item1%">
-        @Model.Item1%
+@{
+    var percentage = Math.Round(Model.Item1, 2);
+    var showTextInside = percentage >= 15; // Show text inside bar only if >= 15%
+}
+
+<div class="progress-container">
+    <div class="progress modern-progress-bar">
+        <div class="progress-bar @Model.Item2 progress-bar-striped" role="progressbar"
+             aria-valuenow="@percentage" aria-valuemin="0" aria-valuemax="100"
+             style="width: @Math.Max(percentage, 0)%" title="@percentage% Performance">
+            @if (showTextInside)
+            {
+                <span class="progress-text-inside">@percentage%</span>
+            }
+        </div>
+    </div>
+    <div class="progress-value-display">
+        <span class="progress-percentage @Model.Item2-text">@percentage%</span>
     </div>
 </div>
+
+<style>
+    .progress-container {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        min-width: 140px;
+    }
+
+    .modern-progress-bar {
+        height: 18px;
+        background-color: rgba(0, 0, 0, 0.1);
+        border-radius: 9px;
+        overflow: hidden;
+        flex: 1;
+        min-width: 80px;
+    }
+
+    .modern-progress-bar .progress-bar {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.7rem;
+        font-weight: 600;
+        color: white;
+        text-shadow: 1px 1px 1px rgba(0, 0, 0, 0.3);
+        min-width: 2px;
+        height: 100%;
+        border-radius: 9px;
+        transition: width 0.6s ease;
+    }
+
+    .progress-text-inside {
+        position: relative;
+        z-index: 2;
+        white-space: nowrap;
+    }
+
+    .progress-value-display {
+        flex-shrink: 0;
+        min-width: 45px;
+        text-align: center;
+    }
+
+    .progress-percentage {
+        font-size: 0.85rem;
+        font-weight: 700;
+        padding: 2px 6px;
+        border-radius: 4px;
+        white-space: nowrap;
+    }
+
+    /* Color-coded percentage text */
+    .bg-success-text {
+        color: #28a745;
+        background-color: rgba(40, 167, 69, 0.1);
+    }
+
+    .progress-bar-yellow-text {
+        color: #856404;
+        background-color: rgba(255, 193, 7, 0.15);
+    }
+
+    .bg-warning-text {
+        color: #fd7e14;
+        background-color: rgba(253, 126, 20, 0.1);
+    }
+
+    .progress-bar-orange-text {
+        color: #ff6b35;
+        background-color: rgba(255, 107, 53, 0.1);
+    }
+
+    .bg-danger-text {
+        color: #dc3545;
+        background-color: rgba(220, 53, 69, 0.1);
+    }
+</style>
