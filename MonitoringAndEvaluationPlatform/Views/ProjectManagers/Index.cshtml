@@ -28,178 +28,297 @@
 @await Html.PartialAsync("_ManagementNavigation")
 
 <!-- Quick Add Section -->
-<div class="quick-add-section">
-    <div class="quick-add-card">
-        <div class="quick-add-header">
-            <div class="quick-add-icon">
-                <i class="fas fa-user-tie"></i>
-            </div>
-            <div>
-                <h3 class="quick-add-title">@Localizer["Add New Project Manager"]</h3>
-                <p class="quick-add-subtitle">Create a new project manager entry</p>
-            </div>
-        </div>
-        <div class="card-body">
-            <form id="createProjectManagerForm" class="row g-3">
-                @Html.AntiForgeryToken()
-
-                <div class="col-md-4">
-                    <label for="Name" class="form-label">@Localizer["Project Manager Name"]</label>
-                    <input type="text" name="Name" class="form-control" required />
-                </div>
-                <div class="col-md-3">
-                    <label for="PhoneNumber" class="form-label">@Localizer["Phone Number"]</label>
-                    <input type="text" name="PhoneNumber" class="form-control" />
-                </div>
-                <div class="col-md-3">
-                    <label for="Email" class="form-label">@Localizer["Email"]</label>
-                    <input type="email" name="Email" class="form-control" />
-                </div>
-
-                <div class="col-md-2 d-flex align-items-end">
-                    <button type="submit" class="btn btn-success w-100">
-                        <i class="fas fa-plus-circle me-1"></i> @Localizer["Add Project Manager"]
-                    </button>
-                </div>
-            </form>
-        </div>
+<div class="chart-card mb-4">
+    <div class="chart-title">
+        <i class="fas fa-user-tie"></i>
+        @Localizer["Add New Project Manager"]
     </div>
-
-    <div class="card shadow-sm">
-        <div class="card-body">
-            <div class="table-responsive">
-                <table class="table table-hover">
-                    <thead class="table-light">
-                        <tr>
-                            <th>@Localizer["Project Manager Name"]</th>
-                            <th>@Localizer["Phone Number"]</th>
-                            <th>@Localizer["Email"]</th>
-                            <th class="text-end">@Localizer["Actions"]</th>
-                        </tr>
-                    </thead>
-                    <tbody id="projectManagersTableBody">
-                        @foreach (var item in Model)
-                        {
-                            <tr id="projectmanager-row-@item.Code">
-                                <td>
-                                    <span id="projectmanager-name-@item.Code" class="projectmanager-name-view">
-                                        @item.Name
-                                    </span>
-                                    <input type="text" id="projectmanager-name-input-@item.Code" class="form-control form-control-sm projectmanager-name-edit d-none" value="@item.Name" />
-                                </td>
-                                <td>
-                                    <span id="projectmanager-phone-@item.Code" class="projectmanager-phone-view">
-                                        @item.PhoneNumber
-                                    </span>
-                                    <input type="text" id="projectmanager-phone-input-@item.Code" class="form-control form-control-sm projectmanager-phone-edit d-none" value="@item.PhoneNumber" />
-                                </td>
-                                <td>
-                                    <span id="projectmanager-email-@item.Code" class="projectmanager-email-view">
-                                        @item.Email
-                                    </span>
-                                    <input type="email" id="projectmanager-email-input-@item.Code" class="form-control form-control-sm projectmanager-email-edit d-none" value="@item.Email" />
-                                </td>
-                                <td class="text-end">
-                                    <div class="btn-group" role="group">
-                                        <button class="btn btn-sm btn-outline-warning"
-                                                id="edit-btn-@item.Code"
-                                                onclick="toggleProjectManagerEdit(@item.Code)" title="@Localizer["Edit"]">
-                                            <i class="fas fa-edit"></i>
-                                        </button>
-                                        <button class="btn btn-sm btn-outline-danger" title="@Localizer["Delete"]"
-                                                onclick="deleteProjectManager(@item.Code)">
-                                            <i class="fas fa-trash-alt"></i>
-                                        </button>
-                                    </div>
-                                </td>
-                            </tr>
-                        }
-                    </tbody>
-                </table>
+    <form id="createProjectManagerForm" class="row g-3">
+        @Html.AntiForgeryToken()
+        <div class="col-md-3">
+            <label for="Name" class="form-label fw-bold">
+                <i class="fas fa-user me-2"></i>@Localizer["Project Manager Name"]
+            </label>
+            <input type="text" name="Name" class="form-control form-control-lg" required
+                   placeholder="@Localizer["Enter project manager name"]" />
+        </div>
+        <div class="col-md-3">
+            <label for="PhoneNumber" class="form-label fw-bold">
+                <i class="fas fa-phone me-2"></i>@Localizer["Phone Number"]
+            </label>
+            <input type="text" name="PhoneNumber" class="form-control form-control-lg"
+                   placeholder="@Localizer["Enter phone number"]" />
+        </div>
+        <div class="col-md-3">
+            <label for="Email" class="form-label fw-bold">
+                <i class="fas fa-envelope me-2"></i>@Localizer["Email"]
+            </label>
+            <input type="email" name="Email" class="form-control form-control-lg"
+                   placeholder="@Localizer["Enter email address"]" />
+        </div>
+        <div class="col-md-3 d-flex align-items-end">
+            <div class="d-grid w-100">
+                <button type="submit" class="btn btn-primary btn-lg">
+                    <i class="fas fa-plus-circle me-2"></i>@Localizer["Create Project Manager"]
+                </button>
             </div>
         </div>
+    </form>
+</div>
+
+<!-- ProjectManagers Table -->
+<div class="chart-card">
+    <div class="chart-title">
+        <i class="fas fa-users-cog"></i>
+        @Localizer["Project Managers List"]
+    </div>
+    <div class="table-responsive">
+        <table class="table table-hover modern-table">
+            <thead class="table-header">
+                <tr>
+                    <th>
+                        <i class="fas fa-user me-2"></i>
+                        @Localizer["Project Manager Name"]
+                    </th>
+                    <th>
+                        <i class="fas fa-phone me-2"></i>
+                        @Localizer["Phone Number"]
+                    </th>
+                    <th>
+                        <i class="fas fa-envelope me-2"></i>
+                        @Localizer["Email"]
+                    </th>
+                    <th class="text-center">
+                        <i class="fas fa-cogs me-2"></i>
+                        @Localizer["Actions"]
+                    </th>
+                </tr>
+            </thead>
+            <tbody id="projectManagersTableBody">
+                @foreach (var item in Model)
+                {
+                    <tr id="projectmanager-row-@item.Code" class="table-row">
+                        <td>
+                            <span id="projectmanager-name-@item.Code" class="projectmanager-name-view fw-semibold">
+                                @item.Name
+                            </span>
+                            <input type="text" id="projectmanager-name-input-@item.Code" class="form-control form-control-sm projectmanager-name-edit d-none" value="@item.Name" />
+                        </td>
+                        <td>
+                            <span id="projectmanager-phone-@item.Code" class="projectmanager-phone-view text-muted">
+                                @item.PhoneNumber
+                            </span>
+                            <input type="text" id="projectmanager-phone-input-@item.Code" class="form-control form-control-sm projectmanager-phone-edit d-none" value="@item.PhoneNumber" />
+                        </td>
+                        <td>
+                            <span id="projectmanager-email-@item.Code" class="projectmanager-email-view text-muted">
+                                @item.Email
+                            </span>
+                            <input type="email" id="projectmanager-email-input-@item.Code" class="form-control form-control-sm projectmanager-email-edit d-none" value="@item.Email" />
+                        </td>
+                        <td class="text-center">
+                            <div class="btn-group action-buttons" role="group">
+                                <button class="btn btn-outline-primary btn-sm action-btn"
+                                        id="edit-btn-@item.Code"
+                                        onclick="toggleProjectManagerEdit(@item.Code)" title="@Localizer["Edit"]">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                                <button class="btn btn-outline-danger btn-sm action-btn" title="@Localizer["Delete"]"
+                                        onclick="deleteProjectManager(@item.Code)">
+                                    <i class="fas fa-trash-alt"></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
     </div>
 </div>
 
-<!-- Styles -->
-<style>
-    .editable-field {
-        cursor: pointer;
-        padding: 4px 8px;
-        border-radius: 4px;
-        min-width: 100px;
-        display: inline-block;
-    }
+@section Scripts {
+    <!-- SweetAlert2 -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <style>
+        /* Modern Table Styles */
+        .modern-table {
+            background: transparent;
+            border: none;
+            border-radius: 15px;
+            overflow: hidden;
+        }
+
+        .table-header {
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-dark) 100%);
+            color: white;
+        }
+
+        .table-header th {
+            border: none;
+            padding: 20px 15px;
+            font-weight: 600;
+            font-size: 0.95rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .table-row {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border: none;
+            transition: all 0.3s ease;
+        }
+
+        .table-row:hover {
+            background: rgba(255, 255, 255, 1);
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+        }
+
+        .table-row td {
+            border: none;
+            padding: 20px 15px;
+            vertical-align: middle;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+        }
+
+        .action-buttons {
+            gap: 5px;
+        }
+
+        .action-btn {
+            width: 35px;
+            height: 35px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+            border-width: 1px;
+        }
+
+        .action-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .table-responsive {
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+        /* Form styling */
+        .form-control-lg {
+            border: 2px solid rgba(0, 0, 0, 0.1);
+            border-radius: 10px;
+            transition: all 0.3s ease;
+        }
+
+        .form-control-lg:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 0.2rem color-mix(in srgb, var(--primary-color) 25%, transparent);
+        }
+
+        .fw-semibold {
+            font-weight: 600;
+            color: #333;
+        }
+
+        .text-muted {
+            color: #6c757d !important;
+            font-size: 0.9rem;
+        }
+
+        .form-label {
+            color: #374151;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+
+        .form-label i {
+            color: var(--primary-color);
+        }
+
+        .editable-field {
+            cursor: pointer;
+            padding: 4px 8px;
+            border-radius: 4px;
+            min-width: 100px;
+            display: inline-block;
+        }
 
         .editable-field:hover {
             background-color: #f8f9fa;
             border: 1px solid #dee2e6;
         }
 
-    .editing .editable-field {
-        background-color: #fff;
-        border: 1px solid #007bff;
-    }
+        .editing .editable-field {
+            background-color: #fff;
+            border: 1px solid #007bff;
+        }
 
-    .edit-input {
-        width: 100%;
-        border: 1px solid #007bff;
-        border-radius: 4px;
-        padding: 4px 8px;
-        font-size: 0.9rem;
-    }
+        .edit-input {
+            width: 100%;
+            border: 1px solid #007bff;
+            border-radius: 4px;
+            padding: 4px 8px;
+            font-size: 0.9rem;
+        }
+    </style>
+}
 
-    .table-hover tbody tr:hover {
-        background-color: rgba(13, 110, 253, 0.05);
-    }
-</style>
-<head>
-    <script src="~/lib/jquery/dist/jquery.js"></script>
-</head>
 <script>
     $(document).ready(function() {
 
         // Create Project Manager Form Submission
         $('#createProjectManagerForm').on('submit', function(e) {
             e.preventDefault();
+            console.log('Form submitted');
 
-            const formData = new FormData(this);
+            const formData = {
+                'Name': $('input[name="Name"]').val(),
+                'PhoneNumber': $('input[name="PhoneNumber"]').val(),
+                'Email': $('input[name="Email"]').val(),
+                '__RequestVerificationToken': $('input[name="__RequestVerificationToken"]').val()
+            };
+
+            console.log('Form data:', formData);
 
             $.ajax({
                 url: '@Url.Action("CreateInline")',
                 type: 'POST',
                 data: formData,
-                processData: false,
-                contentType: false,
                 success: function(response) {
                     if (response.success) {
                         // Add new row to table
                         const newRow = `
-                            <tr id="projectmanager-row-${response.projectManager.code}">
+                            <tr id="projectmanager-row-${response.projectManager.code}" class="table-row">
                                 <td>
-                                    <span id="projectmanager-name-${response.projectManager.code}" class="projectmanager-name-view">
+                                    <span id="projectmanager-name-${response.projectManager.code}" class="projectmanager-name-view fw-semibold">
                                         ${response.projectManager.name}
                                     </span>
                                     <input type="text" id="projectmanager-name-input-${response.projectManager.code}" class="form-control form-control-sm projectmanager-name-edit d-none" value="${response.projectManager.name}" />
                                 </td>
                                 <td>
-                                    <span id="projectmanager-phone-${response.projectManager.code}" class="projectmanager-phone-view">
+                                    <span id="projectmanager-phone-${response.projectManager.code}" class="projectmanager-phone-view text-muted">
                                         ${response.projectManager.phoneNumber || ''}
                                     </span>
                                     <input type="text" id="projectmanager-phone-input-${response.projectManager.code}" class="form-control form-control-sm projectmanager-phone-edit d-none" value="${response.projectManager.phoneNumber || ''}" />
                                 </td>
                                 <td>
-                                    <span id="projectmanager-email-${response.projectManager.code}" class="projectmanager-email-view">
+                                    <span id="projectmanager-email-${response.projectManager.code}" class="projectmanager-email-view text-muted">
                                         ${response.projectManager.email || ''}
                                     </span>
                                     <input type="email" id="projectmanager-email-input-${response.projectManager.code}" class="form-control form-control-sm projectmanager-email-edit d-none" value="${response.projectManager.email || ''}" />
                                 </td>
-                                <td class="text-end">
-                                    <div class="btn-group" role="group">
-                                        <button class="btn btn-sm btn-outline-warning" id="edit-btn-${response.projectManager.code}" onclick="toggleProjectManagerEdit(${response.projectManager.code})" title="@Localizer["Edit"]">
+                                <td class="text-center">
+                                    <div class="btn-group action-buttons" role="group">
+                                        <button class="btn btn-outline-primary btn-sm action-btn" id="edit-btn-${response.projectManager.code}" onclick="toggleProjectManagerEdit(${response.projectManager.code})" title="@Localizer["Edit"]">
                                             <i class="fas fa-edit"></i>
                                         </button>
-                                        <button class="btn btn-sm btn-outline-danger" title="@Localizer["Delete"]" onclick="deleteProjectManager(${response.projectManager.code})">
+                                        <button class="btn btn-outline-danger btn-sm action-btn" title="@Localizer["Delete"]" onclick="deleteProjectManager(${response.projectManager.code})">
                                             <i class="fas fa-trash-alt"></i>
                                         </button>
                                     </div>
@@ -217,13 +336,24 @@
                             showConfirmButton: false
                         });
                     } else {
+                        console.log('Error response:', response);
                         Swal.fire('Error', response.message, 'error');
                     }
                 },
-                error: function() {
+                error: function(xhr, status, error) {
+                    console.error('AJAX error:', xhr, status, error);
                     Swal.fire('Error', '@Localizer["An error occurred while creating the project manager"]', 'error');
                 }
             });
+        });
+
+        // Fallback event handler
+        $(document).on('click', 'button[type="submit"]', function(e) {
+            if ($(this).closest('#createProjectManagerForm').length > 0) {
+                console.log('Fallback submit triggered');
+                e.preventDefault();
+                $('#createProjectManagerForm').trigger('submit');
+            }
         });
 
         // Inline Editing
@@ -411,7 +541,7 @@
                                                 emailInput.addClass('d-none');
                                                 emailSpan.removeClass('d-none');
                                                 button.html('<i class="fas fa-edit"></i>');
-                                                button.removeClass('btn-success').addClass('btn-outline-warning');
+                                                button.removeClass('btn-success').addClass('btn-outline-primary action-btn');
                                                 
                                                 Swal.fire({
                                                     icon: 'success',
@@ -453,7 +583,7 @@
             emailInput.removeClass('d-none');
             emailSpan.addClass('d-none');
             button.html('<i class="fas fa-save"></i>');
-            button.removeClass('btn-outline-warning').addClass('btn-success');
+            button.removeClass('btn-outline-primary action-btn').addClass('btn-success');
             nameInput.focus();
         }
     }
