@@ -38,26 +38,26 @@
             <label for="Name" class="form-label fw-bold">
                 <i class="fas fa-user me-2"></i>@Localizer["Supervisor Name"]
             </label>
-            <input type="text" name="Name" class="form-control form-control-lg" required
+            <input type="text" name="Name" id="Name" class="form-control form-control-lg" required
                    placeholder="@Localizer["Enter supervisor name"]" />
         </div>
         <div class="col-md-3">
             <label for="PhoneNumber" class="form-label fw-bold">
                 <i class="fas fa-phone me-2"></i>@Localizer["Phone Number"]
             </label>
-            <input type="text" name="PhoneNumber" class="form-control form-control-lg"
+            <input type="text" name="PhoneNumber" id="PhoneNumber" class="form-control form-control-lg"
                    placeholder="@Localizer["Enter phone number"]" />
         </div>
         <div class="col-md-3">
             <label for="Email" class="form-label fw-bold">
                 <i class="fas fa-envelope me-2"></i>@Localizer["Email"]
             </label>
-            <input type="email" name="Email" class="form-control form-control-lg"
+            <input type="email" name="Email" id="Email" class="form-control form-control-lg"
                    placeholder="@Localizer["Enter email address"]" />
         </div>
         <div class="col-md-3 d-flex align-items-end">
             <div class="d-grid w-100">
-                <button type="submit" class="btn btn-primary btn-lg">
+                <button type="submit" id="createSupervisorBtn" class="btn btn-primary btn-lg">
                     <i class="fas fa-plus-circle me-2"></i>@Localizer["Create Supervisor"]
                 </button>
             </div>
@@ -133,7 +133,6 @@
             </tbody>
         </table>
     </div>
-</div>
 </div>
 
 @section Scripts {
@@ -281,323 +280,443 @@
         font-size: 0.9rem;
     }
 
+    .btn-loading {
+        position: relative;
+        pointer-events: none;
+    }
+
+    .btn-loading::after {
+        content: "";
+        position: absolute;
+        width: 16px;
+        height: 16px;
+        margin: auto;
+        border: 2px solid transparent;
+        border-top-color: #ffffff;
+        border-radius: 50%;
+        animation: button-loading-spinner 1s ease infinite;
+    }
+
+    @@keyframes button-loading-spinner {
+        from {
+            transform: rotate(0turn);
+        }
+        to {
+            transform: rotate(1turn);
+        }
+    }
+    </style>
+
     <script>
         $(document).ready(function() {
+            console.log('Document ready, initializing supervisor management...');
 
-        // Create SuperVisor Form Submission
-        $('#createSuperVisorForm').on('submit', function(e) {
-            e.preventDefault();
-            console.log('Form submitted');
-
-            const formData = {
-                'Name': $('input[name="Name"]').val(),
-                'PhoneNumber': $('input[name="PhoneNumber"]').val(),
-                'Email': $('input[name="Email"]').val(),
-                '__RequestVerificationToken': $('input[name="__RequestVerificationToken"]').val()
-            };
-
-            console.log('Form data:', formData);
-
-            $.ajax({
-                url: '@Url.Action("CreateInline")',
-                type: 'POST',
-                data: formData,
-                success: function(response) {
-                    if (response.success) {
-                        // Add new row to table
-                        const newRow = `
-                            <tr id="supervisor-row-${response.supervisor.code}" class="table-row">
-                                <td>
-                                    <span id="supervisor-name-${response.supervisor.code}" class="supervisor-name-view fw-semibold">
-                                        ${response.supervisor.name}
-                                    </span>
-                                    <input type="text" id="supervisor-name-input-${response.supervisor.code}" class="form-control form-control-sm supervisor-name-edit d-none" value="${response.supervisor.name}" />
-                                </td>
-                                <td>
-                                    <span id="supervisor-phone-${response.supervisor.code}" class="supervisor-phone-view text-muted">
-                                        ${response.supervisor.phoneNumber || ''}
-                                    </span>
-                                    <input type="text" id="supervisor-phone-input-${response.supervisor.code}" class="form-control form-control-sm supervisor-phone-edit d-none" value="${response.supervisor.phoneNumber || ''}" />
-                                </td>
-                                <td>
-                                    <span id="supervisor-email-${response.supervisor.code}" class="supervisor-email-view text-muted">
-                                        ${response.supervisor.email || ''}
-                                    </span>
-                                    <input type="email" id="supervisor-email-input-${response.supervisor.code}" class="form-control form-control-sm supervisor-email-edit d-none" value="${response.supervisor.email || ''}" />
-                                </td>
-                                <td class="text-center">
-                                    <div class="btn-group action-buttons" role="group">
-                                        <button class="btn btn-outline-primary btn-sm action-btn" id="edit-btn-${response.supervisor.code}" onclick="toggleSuperVisorEdit(${response.supervisor.code})" title="@Localizer["Edit"]">
-                                            <i class="fas fa-edit"></i>
-                                        </button>
-                                        <button class="btn btn-outline-danger btn-sm action-btn" title="@Localizer["Delete"]" onclick="deleteSuperVisor(${response.supervisor.code})">
-                                            <i class="fas fa-trash-alt"></i>
-                                        </button>
-                                    </div>
-                                </td>
-                            </tr>`;
-
-                        $('#supervisorsTableBody').append(newRow);
-                        $('#createSuperVisorForm')[0].reset();
-
-                        Swal.fire({
-                            icon: 'success',
-                            title: '@Localizer["Success!"]',
-                            text: '@Localizer["SuperVisor created successfully"]',
-                            timer: 2000,
-                            showConfirmButton: false
-                        });
-                    } else {
-                        console.log('Error response:', response);
-                        Swal.fire('Error', response.message, 'error');
-                    }
-                },
-                error: function(xhr, status, error) {
-                    console.error('AJAX error:', xhr, status, error);
-                    Swal.fire('Error', '@Localizer["An error occurred while creating the supervisor"]', 'error');
-                }
-            });
-        });
-
-        // Fallback event handler
-        $(document).on('click', 'button[type="submit"]', function(e) {
-            if ($(this).closest('#createSuperVisorForm').length > 0) {
-                console.log('Fallback submit triggered');
-                e.preventDefault();
-                $('#createSuperVisorForm').trigger('submit');
+            // Get anti-forgery token
+            function getAntiForgeryToken() {
+                return $('input[name="__RequestVerificationToken"]').val();
             }
-        });
 
-        // Inline Editing
-        $(document).on('click', '.editable-field', function() {
-            if ($(this).hasClass('editing')) return;
-
-            const $this = $(this);
-            const originalValue = $this.text().trim();
-            const field = $this.data('field');
-            const id = $this.data('id');
-
-            $this.addClass('editing');
-            $this.html(`<input type="text" class="edit-input" value="${originalValue}" data-original="${originalValue}">`);
-
-            const $input = $this.find('.edit-input');
-            $input.focus().select();
-
-            // Save on Enter or blur
-            $input.on('blur keypress', function(e) {
-                if (e.type === 'keypress' && e.which !== 13) return;
-
-                const newValue = $(this).val().trim();
-                const originalValue = $(this).data('original');
-
-                if (newValue === originalValue) {
-                    $this.removeClass('editing').text(originalValue);
-                    return;
-                }
-
-                if (newValue === '') {
-                    Swal.fire('Error', '@Localizer["Value cannot be empty"]', 'error');
-                    $this.removeClass('editing').text(originalValue);
-                    return;
-                }
-
-                // Save changes
-                $.ajax({
-                    url: '@Url.Action("InlineEdit")',
-                    type: 'POST',
-                    data: {
-                        id: id,
-                        field: field,
-                        value: newValue
-                    },
-                    success: function(response) {
-                        if (response.success) {
-                            $this.removeClass('editing').text(newValue);
-                            Swal.fire({
-                                icon: 'success',
-                                title: '@Localizer["Updated!"]',
-                                text: '@Localizer["Name updated successfully"]',
-                                timer: 1500,
-                                showConfirmButton: false
-                            });
-                        } else {
-                            $this.removeClass('editing').text(originalValue);
-                            Swal.fire('Error', response.message, 'error');
-                        }
-                    },
-                    error: function() {
-                        $this.removeClass('editing').text(originalValue);
-                        Swal.fire('Error', '@Localizer["An error occurred while updating"]', 'error');
+            // Set up AJAX to include anti-forgery token in headers
+            $.ajaxSetup({
+                beforeSend: function(xhr, settings) {
+                    if (settings.type !== 'GET' && settings.type !== 'HEAD') {
+                        xhr.setRequestHeader("RequestVerificationToken", getAntiForgeryToken());
                     }
-                });
-            });
-
-            // Cancel on Escape
-            $input.on('keypress', function(e) {
-                if (e.which === 27) { // Escape key
-                    $this.removeClass('editing').text(originalValue);
                 }
             });
-        });
 
-    }); // End document ready
+            // Create SuperVisor Form Validation
+            function validateForm() {
+                const name = $('#Name').val().trim();
+                const email = $('#Email').val().trim();
+                
+                if (!name) {
+                    Swal.fire('Error', '@Localizer["Supervisor name is required"]', 'error');
+                    return false;
+                }
+                
+                if (email && !isValidEmail(email)) {
+                    Swal.fire('Error', '@Localizer["Please enter a valid email address"]', 'error');
+                    return false;
+                }
+                
+                return true;
+            }
 
-    // Delete SuperVisor - Global function
-    function deleteSuperVisor(id) {
-        console.log('Delete supervisor called with id:', id);
-        Swal.fire({
-            title: '@Localizer["Are you sure?"]',
-            text: "@Localizer["You won't be able to revert this!"]",
-            icon: 'warning',
-            showCancelButton: true,
-            confirmButtonColor: '#d33',
-            cancelButtonColor: '#3085d6',
-            confirmButtonText: '@Localizer["Yes, delete it!"]',
-            cancelButtonText: '@Localizer["Cancel"]'
-        }).then((result) => {
-            console.log('SweetAlert result:', result);
-            if (result.isConfirmed) {
-                console.log('Sending delete request for id:', id);
+            function isValidEmail(email) {
+                const emailRegex = /^[^\s@@]+@@[^\s@@]+\.[^\s@@]+$/;
+                return emailRegex.test(email);
+            }
+
+            // Create SuperVisor Form Submission
+            $('#createSuperVisorForm').on('submit', function(e) {
+                e.preventDefault();
+                console.log('Form submission triggered');
+
+                if (!validateForm()) {
+                    return false;
+                }
+
+                const $submitBtn = $('#createSupervisorBtn');
+                const originalBtnText = $submitBtn.html();
+                
+                // Show loading state
+                $submitBtn.addClass('btn-loading').prop('disabled', true).html('<i class="fas fa-spinner fa-spin me-2"></i>Creating...');
+
+                const formData = new FormData(this);
+                
+                // Convert FormData to regular object for logging
+                const formDataObj = {};
+                for (let [key, value] of formData.entries()) {
+                    formDataObj[key] = value;
+                }
+                console.log('Form data:', formDataObj);
+
                 $.ajax({
-                    url: '@Url.Action("InlineDelete")',
+                    url: '@Url.Action("CreateInline", "SuperVisors")', // Specify controller name
                     type: 'POST',
-                    data: { id: id },
+                    data: formData,
+                    processData: false,
+                    contentType: false,
+                    timeout: 30000, // 30 second timeout
                     success: function(response) {
-                        console.log('Delete response:', response);
-                        if (response.success) {
-                            $(`#supervisor-row-${id}`).fadeOut(function() {
-                                $(this).remove();
-                            });
+                        console.log('Success response:', response);
+                        
+                        if (response && response.success) {
+                            // Add new row to table
+                            const supervisor = response.supervisor;
+                            const newRow = `
+                                <tr id="supervisor-row-${supervisor.code}" class="table-row">
+                                    <td>
+                                        <span id="supervisor-name-${supervisor.code}" class="supervisor-name-view fw-semibold">
+                                            ${supervisor.name || ''}
+                                        </span>
+                                        <input type="text" id="supervisor-name-input-${supervisor.code}" class="form-control form-control-sm supervisor-name-edit d-none" value="${supervisor.name || ''}" />
+                                    </td>
+                                    <td>
+                                        <span id="supervisor-phone-${supervisor.code}" class="supervisor-phone-view text-muted">
+                                            ${supervisor.phoneNumber || ''}
+                                        </span>
+                                        <input type="text" id="supervisor-phone-input-${supervisor.code}" class="form-control form-control-sm supervisor-phone-edit d-none" value="${supervisor.phoneNumber || ''}" />
+                                    </td>
+                                    <td>
+                                        <span id="supervisor-email-${supervisor.code}" class="supervisor-email-view text-muted">
+                                            ${supervisor.email || ''}
+                                        </span>
+                                        <input type="email" id="supervisor-email-input-${supervisor.code}" class="form-control form-control-sm supervisor-email-edit d-none" value="${supervisor.email || ''}" />
+                                    </td>
+                                    <td class="text-center">
+                                        <div class="btn-group action-buttons" role="group">
+                                            <button class="btn btn-outline-primary btn-sm action-btn" id="edit-btn-${supervisor.code}" onclick="toggleSuperVisorEdit(${supervisor.code})" title="@Localizer["Edit"]">
+                                                <i class="fas fa-edit"></i>
+                                            </button>
+                                            <button class="btn btn-outline-danger btn-sm action-btn" title="@Localizer["Delete"]" onclick="deleteSuperVisor(${supervisor.code})">
+                                                <i class="fas fa-trash-alt"></i>
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>`;
+
+                            $('#supervisorsTableBody').append(newRow);
+                            
+                            // Reset form
+                            $('#createSuperVisorForm')[0].reset();
+
                             Swal.fire({
                                 icon: 'success',
-                                title: '@Localizer["Deleted!"]',
-                                text: '@Localizer["SuperVisor has been deleted."]',
+                                title: '@Localizer["Success!"]',
+                                text: '@Localizer["SuperVisor created successfully"]',
                                 timer: 2000,
                                 showConfirmButton: false
                             });
                         } else {
-                            Swal.fire('Error', response.message || 'Unknown error', 'error');
+                            console.error('Unexpected response format:', response);
+                            const errorMessage = response && response.message ? response.message : '@Localizer["An unexpected error occurred"]';
+                            Swal.fire('Error', errorMessage, 'error');
                         }
                     },
                     error: function(xhr, status, error) {
-                        console.error('Delete error:', xhr, status, error);
-                        Swal.fire('Error', '@Localizer["An error occurred while deleting"]', 'error');
+                        console.error('AJAX error:', {
+                            status: status,
+                            error: error,
+                            responseText: xhr.responseText,
+                            statusCode: xhr.status
+                        });
+                        
+                        let errorMessage = '@Localizer["An error occurred while creating the supervisor"]';
+                        
+                        if (xhr.status === 400) {
+                            errorMessage = '@Localizer["Invalid data provided"]';
+                        } else if (xhr.status === 401) {
+                            errorMessage = '@Localizer["Unauthorized access"]';
+                        } else if (xhr.status === 404) {
+                            errorMessage = '@Localizer["Controller action not found"]';
+                        } else if (xhr.status === 500) {
+                            errorMessage = '@Localizer["Server error occurred"]';
+                        }
+                        
+                        try {
+                            const response = JSON.parse(xhr.responseText);
+                            if (response && response.message) {
+                                errorMessage = response.message;
+                            }
+                        } catch (e) {
+                            // Response is not JSON, use default message
+                        }
+                        
+                        Swal.fire('Error', errorMessage, 'error');
+                    },
+                    complete: function() {
+                        // Reset button state
+                        $submitBtn.removeClass('btn-loading').prop('disabled', false).html(originalBtnText);
                     }
                 });
-            }
-        });
-    }
 
-    // Toggle SuperVisor Inline Edit - Global function
-    function toggleSuperVisorEdit(code) {
-        const nameSpan = $(`#supervisor-name-${code}`);
-        const nameInput = $(`#supervisor-name-input-${code}`);
-        const phoneSpan = $(`#supervisor-phone-${code}`);
-        const phoneInput = $(`#supervisor-phone-input-${code}`);
-        const emailSpan = $(`#supervisor-email-${code}`);
-        const emailInput = $(`#supervisor-email-input-${code}`);
-        const button = $(`#edit-btn-${code}`);
+                return false;
+            });
 
-        const isEditing = nameInput.hasClass('d-none') === false;
+            // Inline Editing functionality (existing code remains the same)
+            $(document).on('click', '.editable-field', function() {
+                if ($(this).hasClass('editing')) return;
 
-        if (isEditing) {
-            // Save via AJAX
-            const newName = nameInput.val();
-            const newPhone = phoneInput.val();
-            const newEmail = emailInput.val();
+                const $this = $(this);
+                const originalValue = $this.text().trim();
+                const field = $this.data('field');
+                const id = $this.data('id');
 
-            // Update name
-            $.ajax({
-                url: '@Url.Action("InlineEdit")',
-                type: 'POST',
-                data: {
-                    id: code,
-                    field: 'name',
-                    value: newName
-                },
-                success: function (response) {
-                    if (response.success) {
-                        nameSpan.text(newName);
-                        
-                        // Update phone
+                $this.addClass('editing');
+                $this.html(`<input type="text" class="edit-input" value="${originalValue}" data-original="${originalValue}">`);
+
+                const $input = $this.find('.edit-input');
+                $input.focus().select();
+
+                // Save on Enter or blur
+                $input.on('blur keypress', function(e) {
+                    if (e.type === 'keypress' && e.which !== 13) return;
+
+                    const newValue = $(this).val().trim();
+                    const originalValue = $(this).data('original');
+
+                    if (newValue === originalValue) {
+                        $this.removeClass('editing').text(originalValue);
+                        return;
+                    }
+
+                    if (newValue === '') {
+                        Swal.fire('Error', '@Localizer["Value cannot be empty"]', 'error');
+                        $this.removeClass('editing').text(originalValue);
+                        return;
+                    }
+
+                    // Save changes
+                    $.ajax({
+                        url: '@Url.Action("InlineEdit", "SuperVisor")',
+                        type: 'POST',
+                        data: {
+                            id: id,
+                            field: field,
+                            value: newValue,
+                            __RequestVerificationToken: getAntiForgeryToken()
+                        },
+                        success: function(response) {
+                            if (response.success) {
+                                $this.removeClass('editing').text(newValue);
+                                Swal.fire({
+                                    icon: 'success',
+                                    title: '@Localizer["Updated!"]',
+                                    text: '@Localizer["Field updated successfully"]',
+                                    timer: 1500,
+                                    showConfirmButton: false
+                                });
+                            } else {
+                                $this.removeClass('editing').text(originalValue);
+                                Swal.fire('Error', response.message, 'error');
+                            }
+                        },
+                        error: function(xhr, status, error) {
+                            console.error('Update error:', xhr, status, error);
+                            $this.removeClass('editing').text(originalValue);
+                            Swal.fire('Error', '@Localizer["An error occurred while updating"]', 'error');
+                        }
+                    });
+                });
+
+                // Cancel on Escape
+                $input.on('keydown', function(e) {
+                    if (e.which === 27) { // Escape key
+                        $this.removeClass('editing').text(originalValue);
+                    }
+                });
+            });
+
+        }); // End document ready
+
+        // Delete SuperVisor - Global function
+        function deleteSuperVisor(id) {
+            console.log('Delete supervisor called with id:', id);
+            Swal.fire({
+                title: '@Localizer["Are you sure?"]',
+                text: "@Localizer["You won't be able to revert this!"]",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                cancelButtonColor: '#3085d6',
+                confirmButtonText: '@Localizer["Yes, delete it!"]',
+                cancelButtonText: '@Localizer["Cancel"]'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    $.ajax({
+                        url: '@Url.Action("InlineDelete", "SuperVisor")',
+                        type: 'POST',
+                        data: { 
+                            id: id,
+                            __RequestVerificationToken: $('input[name="__RequestVerificationToken"]').val()
+                        },
+                        success: function(response) {
+                            if (response.success) {
+                                $(`#supervisor-row-${id}`).fadeOut(function() {
+                                    $(this).remove();
+                                });
+                                Swal.fire({
+                                    icon: 'success',
+                                    title: '@Localizer["Deleted!"]',
+                                    text: '@Localizer["SuperVisor has been deleted."]',
+                                    timer: 2000,
+                                    showConfirmButton: false
+                                });
+                            } else {
+                                Swal.fire('Error', response.message || 'Unknown error', 'error');
+                            }
+                        },
+                        error: function(xhr, status, error) {
+                            console.error('Delete error:', xhr, status, error);
+                            Swal.fire('Error', '@Localizer["An error occurred while deleting"]', 'error');
+                        }
+                    });
+                }
+            });
+        }
+
+        // Toggle SuperVisor Inline Edit - Global function
+        function toggleSuperVisorEdit(code) {
+            const nameSpan = $(`#supervisor-name-${code}`);
+            const nameInput = $(`#supervisor-name-input-${code}`);
+            const phoneSpan = $(`#supervisor-phone-${code}`);
+            const phoneInput = $(`#supervisor-phone-input-${code}`);
+            const emailSpan = $(`#supervisor-email-${code}`);
+            const emailInput = $(`#supervisor-email-input-${code}`);
+            const button = $(`#edit-btn-${code}`);
+
+            const isEditing = nameInput.hasClass('d-none') === false;
+
+            if (isEditing) {
+                // Save via AJAX
+                const newName = nameInput.val();
+                const newPhone = phoneInput.val();
+                const newEmail = emailInput.val();
+
+                const updatePromises = [];
+
+                // Update name
+                if (nameSpan.text() !== newName) {
+                    updatePromises.push(
                         $.ajax({
-                            url: '@Url.Action("InlineEdit")',
+                            url: '@Url.Action("InlineEdit", "SuperVisor")',
+                            type: 'POST',
+                            data: {
+                                id: code,
+                                field: 'name',
+                                value: newName,
+                                __RequestVerificationToken: $('input[name="__RequestVerificationToken"]').val()
+                            }
+                        })
+                    );
+                }
+
+                // Update phone
+                if (phoneSpan.text() !== newPhone) {
+                    updatePromises.push(
+                        $.ajax({
+                            url: '@Url.Action("InlineEdit", "SuperVisor")',
                             type: 'POST',
                             data: {
                                 id: code,
                                 field: 'phonenumber',
-                                value: newPhone
-                            },
-                            success: function (response) {
-                                if (response.success) {
-                                    phoneSpan.text(newPhone);
-                                    
-                                    // Update email
-                                    $.ajax({
-                                        url: '@Url.Action("InlineEdit")',
-                                        type: 'POST',
-                                        data: {
-                                            id: code,
-                                            field: 'email',
-                                            value: newEmail
-                                        },
-                                        success: function (response) {
-                                            if (response.success) {
-                                                emailSpan.text(newEmail);
-                                                
-                                                // Exit edit mode
-                                                nameInput.addClass('d-none');
-                                                nameSpan.removeClass('d-none');
-                                                phoneInput.addClass('d-none');
-                                                phoneSpan.removeClass('d-none');
-                                                emailInput.addClass('d-none');
-                                                emailSpan.removeClass('d-none');
-                                                button.html('<i class="fas fa-edit"></i>');
-                                                button.removeClass('btn-success').addClass('btn-outline-primary action-btn');
-                                                
-                                                Swal.fire({
-                                                    icon: 'success',
-                                                    title: '@Localizer["Updated!"]',
-                                                    text: '@Localizer["SuperVisor updated successfully"]',
-                                                    timer: 1500,
-                                                    showConfirmButton: false
-                                                });
-                                            } else {
-                                                Swal.fire('Error', response.message, 'error');
-                                            }
-                                        },
-                                        error: function() {
-                                            Swal.fire('Error', '@Localizer["An error occurred while updating email"]', 'error');
-                                        }
-                                    });
-                                } else {
-                                    Swal.fire('Error', response.message, 'error');
-                                }
-                            },
-                            error: function() {
-                                Swal.fire('Error', '@Localizer["An error occurred while updating phone"]', 'error');
+                                value: newPhone,
+                                __RequestVerificationToken: $('input[name="__RequestVerificationToken"]').val()
                             }
-                        });
-                    } else {
-                        Swal.fire('Error', response.message, 'error');
-                    }
-                },
-                error: function() {
-                    Swal.fire('Error', '@Localizer["An error occurred while updating name"]', 'error');
+                        })
+                    );
                 }
-            });
-        } else {
-            // Enter edit mode
-            nameInput.removeClass('d-none');
-            nameSpan.addClass('d-none');
-            phoneInput.removeClass('d-none');
-            phoneSpan.addClass('d-none');
-            emailInput.removeClass('d-none');
-            emailSpan.addClass('d-none');
-            button.html('<i class="fas fa-save"></i>');
-            button.removeClass('btn-outline-primary action-btn').addClass('btn-success');
-            nameInput.focus();
+
+                // Update email
+                if (emailSpan.text() !== newEmail) {
+                    updatePromises.push(
+                        $.ajax({
+                            url: '@Url.Action("InlineEdit", "SuperVisor")',
+                            type: 'POST',
+                            data: {
+                                id: code,
+                                field: 'email',
+                                value: newEmail,
+                                __RequestVerificationToken: $('input[name="__RequestVerificationToken"]').val()
+                            }
+                        })
+                    );
+                }
+
+                if (updatePromises.length === 0) {
+                    // No changes, just exit edit mode
+                    exitEditMode();
+                } else {
+                    // Wait for all updates to complete
+                    Promise.all(updatePromises)
+                        .then(function(responses) {
+                            const allSuccessful = responses.every(response => response.success);
+                            if (allSuccessful) {
+                                nameSpan.text(newName);
+                                phoneSpan.text(newPhone);
+                                emailSpan.text(newEmail);
+                                exitEditMode();
+                                Swal.fire({
+                                    icon: 'success',
+                                    title: '@Localizer["Updated!"]',
+                                    text: '@Localizer["SuperVisor updated successfully"]',
+                                    timer: 1500,
+                                    showConfirmButton: false
+                                });
+                            } else {
+                                Swal.fire('Error', '@Localizer["Some updates failed"]', 'error');
+                            }
+                        })
+                        .catch(function(error) {
+                            console.error('Update error:', error);
+                            Swal.fire('Error', '@Localizer["An error occurred while updating"]', 'error');
+                        });
+                }
+
+                function exitEditMode() {
+                    nameInput.addClass('d-none');
+                    nameSpan.removeClass('d-none');
+                    phoneInput.addClass('d-none');
+                    phoneSpan.removeClass('d-none');
+                    emailInput.addClass('d-none');
+                    emailSpan.removeClass('d-none');
+                    button.html('<i class="fas fa-edit"></i>');
+                    button.removeClass('btn-success').addClass('btn-outline-primary action-btn');
+                }
+            } else {
+                // Enter edit mode
+                nameInput.removeClass('d-none');
+                nameSpan.addClass('d-none');
+                phoneInput.removeClass('d-none');
+                phoneSpan.addClass('d-none');
+                emailInput.removeClass('d-none');
+                emailSpan.addClass('d-none');
+                button.html('<i class="fas fa-save"></i>');
+                button.removeClass('btn-outline-primary action-btn').addClass('btn-success');
+                nameInput.focus();
+            }
         }
-    }
     </script>
 }
