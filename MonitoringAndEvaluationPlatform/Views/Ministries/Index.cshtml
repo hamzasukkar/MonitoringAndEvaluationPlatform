@@ -8,6 +8,10 @@
     Layout = "~/Views/Shared/_DashboardHomeLayout.cshtml";
     var culture = Context.Features.Get<IRequestCultureFeature>().RequestCulture.Culture.Name;
 }
+<head>
+    <!-- jQuery -->
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+</head>
 
 <!-- Dashboard Header -->
 <div class="dashboard-header">
@@ -30,136 +34,275 @@
 @await Html.PartialAsync("_ManagementNavigation")
 
 <!-- Quick Add Section -->
-<div class="quick-add-section">
-    <div class="quick-add-card">
-        <div class="quick-add-header">
-            <div class="quick-add-icon">
+<div class="chart-card mb-4">
+    <div class="chart-title">
+        <i class="fas fa-university"></i>
+        @Localizer["Add New Ministry"]
+    </div>
+    <form id="createMinistryForm" class="row g-3">
+        @Html.AntiForgeryToken()
+        <div class="col-md-4">
+            <label for="MinistryDisplayName" class="form-label fw-bold">
+                <i class="fas fa-building me-2"></i>@Localizer["Ministry Display Name"]
+            </label>
+            <input type="text" name="MinistryDisplayName" class="form-control form-control-lg" required
+                   placeholder="@Localizer["Enter ministry name"]" />
+        </div>
+        <div class="col-md-4">
+            <label for="MinistryUserName" class="form-label fw-bold">
+                <i class="fas fa-user me-2"></i>@Localizer["Ministry User Name"]
+            </label>
+            <input type="text" name="MinistryUserName" class="form-control form-control-lg"
+                   placeholder="@Localizer["Enter username"]" />
+        </div>
+        <div class="col-md-4 d-flex align-items-end">
+            <div class="d-grid w-100">
+                <button type="submit" class="btn btn-primary btn-lg">
+                    <i class="fas fa-plus-circle me-2"></i>@Localizer["Create Ministry"]
+                </button>
+            </div>
+        </div>
+    </form>
+</div>
+
+<!-- Ministries Table -->
+<div class="chart-card">
+    <div class="chart-title">
+        <i class="fas fa-university"></i>
+        @Localizer["Ministries"] (@Model.Count())
+    </div>
+
+    @if (Model.Any())
+    {
+        <div class="table-responsive">
+            <table class="table table-hover modern-table">
+                <thead class="table-header">
+                    <tr>
+                        <th class="sortable-header">
+                            <div class="header-link">
+                                <i class="fas fa-building me-2"></i>@Localizer["Ministry Display Name"]
+                            </div>
+                        </th>
+                        <th class="sortable-header">
+                            <div class="header-link">
+                                <i class="fas fa-user me-2"></i>@Localizer["Ministry User Name"]
+                            </div>
+                        </th>
+                        <th class="text-center">
+                            <div class="header-link">
+                                <i class="fas fa-chart-line me-2"></i>@Localizer["Indicators Performance"]
+                            </div>
+                        </th>
+                        <th class="text-center">
+                            <div class="header-link">
+                                <i class="fas fa-money-bill-wave me-2"></i>@Localizer["Disbursement Performance"]
+                            </div>
+                        </th>
+                        <th class="text-center">
+                            <div class="header-link">
+                                <i class="fas fa-cogs me-2"></i>@Localizer["Actions"]
+                            </div>
+                        </th>
+                    </tr>
+                </thead>
+                <tbody id="ministriesTableBody">
+                    @foreach (var item in Model)
+                    {
+                        string indicatorsClass = ProgressBarHelper.GetProgressBarClass(item.IndicatorsPerformance);
+                        string disbursementClass = ProgressBarHelper.GetProgressBarClass(item.DisbursementPerformance);
+                        double IndicatorsPerformance = Math.Round(item.IndicatorsPerformance, 2);
+                        double DisbursementPerformance = Math.Round(item.DisbursementPerformance, 2);
+
+                        <tr id="ministry-row-@item.Code" class="table-row">
+                            <td class="ministry-name-cell">
+                                <div class="d-flex align-items-center">
+                                    <div class="ministry-icon me-3">
+                                        <i class="fas fa-university"></i>
+                                    </div>
+                                    <div>
+                                        <span id="ministry-displayname-@item.Code" class="ministry-displayname-view ministry-name-text">
+                                            @item.MinistryDisplayName
+                                        </span>
+                                        <input type="text" id="ministry-displayname-input-@item.Code"
+                                               class="form-control ministry-displayname-edit d-none" value="@item.MinistryDisplayName" />
+                                        <small class="text-muted d-block">
+                                            <i class="fas fa-hashtag me-1"></i>ID: @item.Code
+                                        </small>
+                                    </div>
+                                </div>
+                            </td>
+                            <td class="ministry-username-cell">
+                                <span id="ministry-username-@item.Code" class="ministry-username-view">
+                                    @item.MinistryUserName
+                                </span>
+                                <input type="text" id="ministry-username-input-@item.Code"
+                                       class="form-control ministry-username-edit d-none" value="@item.MinistryUserName" />
+                            </td>
+                            <td class="text-center" title="@Localizer["Indicators Performance"]: @IndicatorsPerformance%">
+                                @await Html.PartialAsync("_ProgressBar", Tuple.Create(IndicatorsPerformance, indicatorsClass))
+                            </td>
+                            <td class="text-center" title="@Localizer["Disbursement Performance"]: @DisbursementPerformance%">
+                                @await Html.PartialAsync("_ProgressBar", Tuple.Create(DisbursementPerformance, disbursementClass))
+                            </td>
+                            <td class="text-center">
+                                <div class="btn-group action-buttons" role="group">
+                                    <button class="btn btn-outline-primary btn-sm action-btn"
+                                            id="edit-btn-@item.Code"
+                                            onclick="toggleMinistryEdit(@item.Code)" title="@Localizer["Edit"]">
+                                        <i class="fas fa-edit"></i>
+                                    </button>
+                                    <button class="btn btn-outline-danger btn-sm action-btn" title="@Localizer["Delete"]"
+                                            onclick="deleteMinistry(@item.Code)">
+                                        <i class="fas fa-trash-alt"></i>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+    else
+    {
+        <div class="text-center py-5">
+            <div class="stat-icon warning mx-auto mb-3" style="width: 80px; height: 80px; font-size: 2rem;">
                 <i class="fas fa-university"></i>
             </div>
-            <div>
-                <h3 class="quick-add-title">@Localizer["Add New Ministry"]</h3>
-                <p class="quick-add-subtitle">Create a new ministry entry</p>
-            </div>
+            <h4 class="text-muted">@Localizer["No ministries found"]</h4>
+            <p class="text-muted">@Localizer["Create your first ministry to get started"]</p>
         </div>
-        <form id="createMinistryForm" class="quick-add-form">
-            @Html.AntiForgeryToken()
-            <div class="form-row">
-                <div class="form-group">
-                    <label for="MinistryDisplayName" class="form-label">
-                        <i class="fas fa-building me-1"></i>@Localizer["Ministry Display Name"]
-                    </label>
-                    <input type="text" name="MinistryDisplayName" class="modern-input" required placeholder="Enter ministry name" />
-                </div>
-                <div class="form-group">
-                    <label for="MinistryUserName" class="form-label">
-                        <i class="fas fa-user me-1"></i>@Localizer["Ministry User Name"]
-                    </label>
-                    <input type="text" name="MinistryUserName" class="modern-input" placeholder="Enter username" />
-                </div>
-                <div class="form-group action-group">
-                    <button type="submit" class="modern-btn primary">
-                        <i class="fas fa-plus-circle me-2"></i>@Localizer["Create Ministry"]
-                    </button>
-                </div>
-            </div>
-        </form>
-    </div>
+    }
 </div>
 
-    <div class="card shadow-sm">
-        <div class="card-body">
-            <div class="table-responsive">
-                <table class="table table-hover">
-                    <thead class="table-light">
-                        <tr>
-                            <th>@Localizer["Ministry Display Name"]</th>
-                            <th>@Localizer["Ministry User Name"]</th>
-                            <th>@Localizer["Indicators Performance"]</th>
-                            <th>@Localizer["Disbursement Performance"]</th>
-                            <th class="text-end">@Localizer["Actions"]</th>
-                        </tr>
-                    </thead>
-                    <tbody id="ministriesTableBody">
-                        @foreach (var item in Model)
-                        {
-                            string indicatorsClass = ProgressBarHelper.GetProgressBarClass(item.IndicatorsPerformance);
-                            string disbursementClass = ProgressBarHelper.GetProgressBarClass(item.DisbursementPerformance);
-                            double IndicatorsPerformance = Math.Round(item.IndicatorsPerformance, 0);
+@section Scripts {
+    <!-- SweetAlert2 -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
-                            <tr id="ministry-row-@item.Code">
-                                <td>
-                                    <span id="ministry-displayname-@item.Code" class="ministry-displayname-view">
-                                        @item.MinistryDisplayName
-                                    </span>
-                                    <input type="text" id="ministry-displayname-input-@item.Code" class="form-control form-control-sm ministry-displayname-edit d-none" value="@item.MinistryDisplayName" />
-                                </td>
-                                <td>
-                                    <span id="ministry-username-@item.Code" class="ministry-username-view">
-                                        @item.MinistryUserName
-                                    </span>
-                                    <input type="text" id="ministry-username-input-@item.Code" class="form-control form-control-sm ministry-username-edit d-none" value="@item.MinistryUserName" />
-                                </td>
-                                <td title="@Localizer["Indicators Performance"]: @IndicatorsPerformance%">
-                                    @await Html.PartialAsync("_ProgressBar", Tuple.Create(IndicatorsPerformance, indicatorsClass))
-                                </td>
-                                <td title="@Localizer["Disbursement Performance"]: @item.DisbursementPerformance%">
-                                    @await Html.PartialAsync("_ProgressBar", Tuple.Create(item.DisbursementPerformance, disbursementClass))
-                                </td>
-                                <td class="text-end">
-                                    <div class="btn-group" role="group">
-                                        <button class="btn btn-sm btn-outline-warning"
-                                                id="edit-btn-@item.Code"
-                                                onclick="toggleMinistryEdit(@item.Code)" title="@Localizer["Edit"]">
-                                            <i class="fas fa-edit"></i>
-                                        </button>
-                                        <button class="btn btn-sm btn-outline-danger" title="@Localizer["Delete"]"
-                                                onclick="deleteMinistry(@item.Code)">
-                                            <i class="fas fa-trash-alt"></i>
-                                        </button>
-                                    </div>
-                                </td>
-                            </tr>
-                        }
-                    </tbody>
-                </table>
-            </div>
-        </div>
-    </div>
-</div>
+    <style>
+        /* Modern Table Styles */
+        .modern-table {
+            background: transparent;
+            border: none;
+            border-radius: 15px;
+            overflow: hidden;
+        }
 
-<!-- Styles -->
-<style>
-    .editable-field {
-        cursor: pointer;
-        padding: 4px 8px;
-        border-radius: 4px;
-        min-width: 100px;
-        display: inline-block;
+        .table-header {
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-dark) 100%);
+            color: white;
+        }
+
+        .table-header th {
+            border: none;
+            padding: 20px 15px;
+            font-weight: 600;
+            font-size: 0.95rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .header-link {
+            color: white !important;
+            text-decoration: none !important;
+            display: flex;
+            align-items: center;
+            justify-content: flex-start;
+            transition: all 0.3s ease;
+        }
+
+        .header-link:hover {
+            color: rgba(255, 255, 255, 0.9) !important;
+            transform: translateY(-1px);
+        }
+
+        .table-row {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border: none;
+            transition: all 0.3s ease;
+        }
+
+        .table-row:hover {
+            background: rgba(255, 255, 255, 1);
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+        }
+
+        .table-row td {
+            border: none;
+            padding: 20px 15px;
+            vertical-align: middle;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+        }
+
+        .ministry-name-cell {
+            min-width: 250px;
+        }
+
+        .ministry-icon {
+            width: 45px;
+            height: 45px;
+            background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.2rem;
+        }
+
+        .ministry-name-text {
+            color: #333;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 1.1rem;
+            transition: color 0.3s ease;
+        }
+
+        .ministry-name-text:hover {
+            color: var(--primary-color);
+        }
+
+        .action-buttons {
+            gap: 5px;
+        }
+
+        .action-btn {
+            width: 35px;
+            height: 35px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+            border-width: 1px;
+        }
+
+        .action-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .table-responsive {
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+        /* Form styling */
+        .form-control-lg {
+            border: 2px solid rgba(0, 0, 0, 0.1);
+            border-radius: 10px;
+            transition: all 0.3s ease;
+        }
+
+        .form-control-lg:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 0.2rem color-mix(in srgb, var(--primary-color) 25%, transparent);
+        }
+    </style>
     }
-
-    .editable-field:hover {
-        background-color: #f8f9fa;
-        border: 1px solid #dee2e6;
-    }
-
-    .editing .editable-field {
-        background-color: #fff;
-        border: 1px solid #007bff;
-    }
-
-    .edit-input {
-        width: 100%;
-        border: 1px solid #007bff;
-        border-radius: 4px;
-        padding: 4px 8px;
-        font-size: 0.9rem;
-    }
-
-    .table-hover tbody tr:hover {
-        background-color: rgba(13, 110, 253, 0.05);
-    }
-</style>
-
 <script>
     $(document).ready(function() {
 
@@ -173,48 +316,89 @@
         // Create Ministry Form Submission
         $('#createMinistryForm').on('submit', function(e) {
             e.preventDefault();
+            console.log('Form submitted!');
 
-            const formData = new FormData(this);
+            const displayName = $('input[name="MinistryDisplayName"]').val().trim();
+            const userName = $('input[name="MinistryUserName"]').val().trim();
+
+            if (!displayName) {
+                Swal.fire('Error', '@Localizer["Ministry Display Name is required"]', 'error');
+                return;
+            }
 
             $.ajax({
                 url: '@Url.Action("CreateInline")',
                 type: 'POST',
-                data: formData,
-                processData: false,
-                contentType: false,
+                data: {
+                    MinistryDisplayName: displayName,
+                    MinistryUserName: userName,
+                    __RequestVerificationToken: $('input[name="__RequestVerificationToken"]').val()
+                },
                 success: function(response) {
+                    console.log('Response:', response);
                     if (response.success) {
-                        // Add new row to table
+                        // Add new row with modern design
                         const newRow = `
-                            <tr id="ministry-row-${response.ministry.code}">
-                                <td>
-                                    <span id="ministry-displayname-${response.ministry.code}" class="ministry-displayname-view">
-                                        ${response.ministry.ministryDisplayName}
-                                    </span>
-                                    <input type="text" id="ministry-displayname-input-${response.ministry.code}" class="form-control form-control-sm ministry-displayname-edit d-none" value="${response.ministry.ministryDisplayName}" />
+                            <tr id="ministry-row-${response.ministry.code}" class="table-row">
+                                <td class="ministry-name-cell">
+                                    <div class="d-flex align-items-center">
+                                        <div class="ministry-icon me-3">
+                                            <i class="fas fa-university"></i>
+                                        </div>
+                                        <div>
+                                            <span id="ministry-displayname-${response.ministry.code}" class="ministry-displayname-view ministry-name-text">
+                                                ${response.ministry.ministryDisplayName}
+                                            </span>
+                                            <input type="text" id="ministry-displayname-input-${response.ministry.code}"
+                                                   class="form-control ministry-displayname-edit d-none" value="${response.ministry.ministryDisplayName}" />
+                                            <small class="text-muted d-block">
+                                                <i class="fas fa-hashtag me-1"></i>ID: ${response.ministry.code}
+                                            </small>
+                                        </div>
+                                    </div>
                                 </td>
-                                <td>
+                                <td class="ministry-username-cell">
                                     <span id="ministry-username-${response.ministry.code}" class="ministry-username-view">
                                         ${response.ministry.ministryUserName}
                                     </span>
-                                    <input type="text" id="ministry-username-input-${response.ministry.code}" class="form-control form-control-sm ministry-username-edit d-none" value="${response.ministry.ministryUserName}" />
+                                    <input type="text" id="ministry-username-input-${response.ministry.code}"
+                                           class="form-control ministry-username-edit d-none" value="${response.ministry.ministryUserName}" />
                                 </td>
-                                <td title="Indicators Performance: 0%">
-                                    <div class="progress" style="height: 24px; border-radius: 4px;">
-                                        <div class="progress-bar bg-secondary" role="progressbar" style="width: 0%;">0%</div>
+                                <td class="text-center">
+                                    <div class="progress-container">
+                                        <div class="progress modern-progress-bar">
+                                            <div class="progress-bar bg-danger progress-bar-striped" role="progressbar"
+                                                 aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"
+                                                 style="width: 0%" title="0% Performance">
+                                            </div>
+                                        </div>
+                                        <div class="progress-value-display">
+                                            <span class="progress-percentage bg-danger-text">0%</span>
+                                        </div>
                                     </div>
                                 </td>
-                                <td title="Disbursement Performance: 0%">
-                                    <div class="progress" style="height: 24px; border-radius: 4px;">
-                                        <div class="progress-bar bg-secondary" role="progressbar" style="width: 0%;">0%</div>
+                                <td class="text-center">
+                                    <div class="progress-container">
+                                        <div class="progress modern-progress-bar">
+                                            <div class="progress-bar bg-danger progress-bar-striped" role="progressbar"
+                                                 aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"
+                                                 style="width: 0%" title="0% Performance">
+                                            </div>
+                                        </div>
+                                        <div class="progress-value-display">
+                                            <span class="progress-percentage bg-danger-text">0%</span>
+                                        </div>
                                     </div>
                                 </td>
-                                <td class="text-end">
-                                    <div class="btn-group" role="group">
-                                        <button class="btn btn-sm btn-outline-warning" id="edit-btn-${response.ministry.code}" onclick="toggleMinistryEdit(${response.ministry.code})" title="@Localizer["Edit"]">
+                                <td class="text-center">
+                                    <div class="btn-group action-buttons" role="group">
+                                        <button class="btn btn-outline-primary btn-sm action-btn"
+                                                id="edit-btn-${response.ministry.code}"
+                                                onclick="toggleMinistryEdit(${response.ministry.code})" title="@Localizer["Edit"]">
                                             <i class="fas fa-edit"></i>
                                         </button>
-                                        <button class="btn btn-sm btn-outline-danger" title="@Localizer["Delete"]" onclick="deleteMinistry(${response.ministry.code})">
+                                        <button class="btn btn-outline-danger btn-sm action-btn" title="@Localizer["Delete"]"
+                                                onclick="deleteMinistry(${response.ministry.code})">
                                             <i class="fas fa-trash-alt"></i>
                                         </button>
                                     </div>
