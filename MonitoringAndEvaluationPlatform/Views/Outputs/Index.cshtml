@@ -147,9 +147,6 @@
                                         </span>
                                         <input type="text" id="fw-name-input-@item.Code" 
                                                class="form-control fw-name-edit d-none" value="@item.Name" />
-                                        <small class="text-muted d-block">
-                                            <i class="fas fa-hashtag me-1"></i>ID: @item.Code
-                                        </small>
                                     </div>
                                 </div>
                             </td>
@@ -174,29 +171,14 @@
                             </td>
                             <td class="text-center">
                                 <div class="btn-group action-buttons" role="group">
-                                    <a asp-action="Index" asp-controller="SubOutputs" asp-route-outputCode="@item.Code" 
-                                       class="btn btn-primary btn-sm action-btn" title="View SubOutputs">
-                                        <i class="fas fa-arrow-right"></i>
-                                    </a>
-                                    <a asp-action="Details" asp-route-id="@item.Code" 
-                                       class="btn btn-outline-info btn-sm action-btn" title="View Details">
-                                        <i class="fas fa-eye"></i>
-                                    </a>
                                     <button class="btn btn-outline-primary btn-sm action-btn"
                                             onclick="toggleOutputEdit(@item.Code)" title="Edit Name">
                                         <i class="fas fa-edit"></i>
                                     </button>
-                                    <a asp-action="Edit" asp-route-id="@item.Code" 
-                                       class="btn btn-outline-warning btn-sm action-btn" title="Edit">
-                                        <i class="fas fa-cog"></i>
-                                    </a>
                                     <button class="btn btn-outline-danger btn-sm action-btn"
                                             onclick="confirmOutputDelete(@item.Code)" title="Delete">
                                         <i class="fas fa-trash-alt"></i>
                                     </button>
-                                    <a href="#" class="btn btn-outline-success btn-sm action-btn" title="Tree View">
-                                        <i class="fas fa-project-diagram"></i>
-                                    </a>
                                 </div>
                             </td>
                         </tr>

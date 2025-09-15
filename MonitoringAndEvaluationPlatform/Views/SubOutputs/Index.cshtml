@@ -148,9 +148,6 @@
                                         </span>
                                         <input type="text" id="fw-name-input-@item.Code" 
                                                class="form-control fw-name-edit d-none" value="@item.Name" />
-                                        <small class="text-muted d-block">
-                                            <i class="fas fa-hashtag me-1"></i>ID: @item.Code
-                                        </small>
                                     </div>
                                 </div>
                             </td>
@@ -175,12 +172,6 @@
                             </td>
                             <td class="text-center">
                                 <div class="btn-group action-buttons" role="group">
-                                    <a asp-controller="Indicators" asp-action="Index"
-                                       asp-route-frameworkCode="@item.Output.Outcome.FrameworkCode"
-                                       asp-route-subOutputCode="@item.Code"
-                                       class="btn btn-primary btn-sm action-btn" title="View Indicators">
-                                        <i class="fas fa-arrow-right"></i>
-                                    </a>
                                     <button class="btn btn-outline-primary btn-sm action-btn"
                                             onclick="toggleSubOutputEdit(@item.Code,@item.Output.Outcome.FrameworkCode)" title="Edit Name">
                                         <i class="fas fa-edit"></i>
