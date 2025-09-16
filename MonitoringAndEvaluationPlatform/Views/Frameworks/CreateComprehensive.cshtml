@@ -801,44 +801,147 @@
         // Populate review
         function populateReview() {
             const container = document.getElementById('reviewContainer');
+            const frameworkName = document.getElementById('frameworkName').value || '@Localizer["New Framework"]';
+
             let reviewHtml = `
                 <div class="review-section">
                     <h4 class="review-title">
-                        <i class="fas fa-sitemap me-2"></i>@Localizer["Framework"]: ${frameworkData.name}
+                        <i class="fas fa-sitemap me-2"></i>@Localizer["Framework"]: ${frameworkName}
                     </h4>
             `;
 
-            // Add outcomes review
-            const outcomes = document.querySelectorAll('.outcome-item input');
-            outcomes.forEach((outcome, index) => {
+            // Get all outcomes
+            const outcomes = document.querySelectorAll('.outcome-item input[name*="name"]');
+            let hasContent = false;
+
+            outcomes.forEach((outcome, outcomeIndex) => {
                 if (outcome.value.trim()) {
+                    hasContent = true;
                     reviewHtml += `
-                        <div class="review-level">
+                        <div class="review-level outcome-level">
                             <h5 class="level-title">
-                                <i class="fas fa-target me-2"></i>@Localizer["Outcome"] ${index + 1}: ${outcome.value}
+                                <i class="fas fa-target me-2"></i>@Localizer["Outcome"] ${outcomeIndex + 1}: <span class="fw-bold">${outcome.value}</span>
                             </h5>
                             <div class="level-content">
                     `;
 
-                    // Add outputs for this outcome
-                    const outputs = document.querySelectorAll(`[data-outcome="${index}"] input[name*="name"]`);
-                    outputs.forEach((output, outIndex) => {
+                    // Get outputs for this outcome
+                    const outputs = document.querySelectorAll(`[data-outcome="${outcomeIndex}"] input[name*="name"]`);
+                    let hasOutputs = false;
+
+                    outputs.forEach((output, outputIndex) => {
                         if (output.value.trim()) {
+                            hasOutputs = true;
+                            const outputElement = output.closest('.output-item');
+                            const actualOutputIndex = Array.from(document.querySelectorAll('.output-item')).indexOf(outputElement);
+
                             reviewHtml += `
-                                <div class="sublevel">
+                                <div class="sublevel output-level">
                                     <h6 class="sublevel-title">
-                                        <i class="fas fa-cubes me-2"></i>@Localizer["Output"] ${outIndex + 1}: ${output.value}
+                                        <i class="fas fa-cubes me-2"></i>@Localizer["Output"] ${outputIndex + 1}: <span class="fw-bold">${output.value}</span>
                                     </h6>
+                                    <div class="sublevel-content">
                             `;
 
-                            // Add sub-outputs and indicators...
-                            reviewHtml += `</div>`;
+                            // Get sub-outputs for this output
+                            const subOutputs = document.querySelectorAll(`[data-output="${actualOutputIndex}"] input[name*="name"]`);
+                            let hasSubOutputs = false;
+
+                            subOutputs.forEach((subOutput, subOutputIndex) => {
+                                if (subOutput.value.trim()) {
+                                    hasSubOutputs = true;
+                                    const subOutputElement = subOutput.closest('.suboutput-item');
+                                    const actualSubOutputIndex = Array.from(document.querySelectorAll('.suboutput-item')).indexOf(subOutputElement);
+
+                                    reviewHtml += `
+                                        <div class="sublevel suboutput-level">
+                                            <h6 class="sublevel-title">
+                                                <i class="fas fa-layer-group me-2"></i>@Localizer["Sub-Output"] ${subOutputIndex + 1}: <span class="fw-bold">${subOutput.value}</span>
+                                            </h6>
+                                            <div class="sublevel-content">
+                                    `;
+
+                                    // Get indicators for this sub-output
+                                    const indicators = document.querySelectorAll(`[data-suboutput="${actualSubOutputIndex}"] input[name*="name"]`);
+                                    let totalWeight = 0;
+
+                                    if (indicators.length > 0) {
+                                        reviewHtml += `<div class="indicators-list">`;
+
+                                        indicators.forEach((indicator, indicatorIndex) => {
+                                            if (indicator.value.trim()) {
+                                                const indicatorItem = indicator.closest('.indicator-item');
+                                                const weightInput = indicatorItem.querySelector('input[name*="weight"]');
+                                                const targetInput = indicatorItem.querySelector('input[name*="target"]');
+                                                const sourceInput = indicatorItem.querySelector('input[name*="source"]');
+
+                                                const weight = parseFloat(weightInput?.value || 0);
+                                                const target = parseInt(targetInput?.value || 0);
+                                                const source = sourceInput?.value?.trim() || '@Localizer["Not specified"]';
+
+                                                totalWeight += weight;
+
+                                                reviewHtml += `
+                                                    <div class="indicator-item-review">
+                                                        <div class="indicator-header">
+                                                            <i class="fas fa-bullseye me-2 text-primary"></i>
+                                                            <strong>${indicator.value}</strong>
+                                                            <span class="badge bg-primary ms-2">${weight}%</span>
+                                                        </div>
+                                                        <div class="indicator-details">
+                                                            <small class="text-muted">
+                                                                <i class="fas fa-crosshairs me-1"></i>@Localizer["Target"]: ${target}
+                                                                ${source !== '@Localizer["Not specified"]' ? `<span class="ms-3"><i class="fas fa-database me-1"></i>@Localizer["Source"]: ${source}</span>` : ''}
+                                                            </small>
+                                                        </div>
+                                                    </div>
+                                                `;
+                                            }
+                                        });
+
+                                        // Add weight summary
+                                        const isWeightValid = Math.abs(totalWeight - 100) < 0.01;
+                                        reviewHtml += `
+                                            <div class="weight-summary-review ${isWeightValid ? 'valid' : 'invalid'}">
+                                                <i class="fas ${isWeightValid ? 'fa-check-circle text-success' : 'fa-exclamation-triangle text-warning'} me-2"></i>
+                                                @Localizer["Total Weight"]: <strong>${totalWeight.toFixed(2)}%</strong>
+                                                ${!isWeightValid ? ` <span class="text-warning">(@Localizer["Should be 100%"])</span>` : ''}
+                                            </div>
+                                        `;
+
+                                        reviewHtml += `</div>`;
+                                    } else {
+                                        reviewHtml += `<div class="text-muted"><i>@Localizer["No indicators defined"]</i></div>`;
+                                    }
+
+                                    reviewHtml += `</div></div>`;
+                                }
+                            });
+
+                            if (!hasSubOutputs) {
+                                reviewHtml += `<div class="text-muted"><i>@Localizer["No sub-outputs defined"]</i></div>`;
+                            }
+
+                            reviewHtml += `</div></div>`;
                         }
                     });
+
+                    if (!hasOutputs) {
+                        reviewHtml += `<div class="text-muted"><i>@Localizer["No outputs defined"]</i></div>`;
+                    }
 
                     reviewHtml += `</div></div>`;
                 }
             });
+
+            if (!hasContent) {
+                reviewHtml += `
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle me-2"></i>
+                        @Localizer["No framework structure has been defined yet. Please go back to previous steps to add outcomes, outputs, sub-outputs, and indicators."]
+                    </div>
+                `;
+            }
 
             reviewHtml += `</div>`;
             container.innerHTML = reviewHtml;
@@ -1338,6 +1441,122 @@
         .weight-input:focus {
             border-color: var(--primary-color);
             box-shadow: 0 0 0 2px rgba(var(--primary-color-rgb), 0.25);
+        }
+
+        /* Enhanced Review Section Styles */
+        .review-level {
+            border-left: 4px solid var(--primary-color);
+            margin-bottom: 1.5rem;
+            padding: 1.5rem;
+            background: linear-gradient(135deg, rgba(255,255,255,0.9) 0%, rgba(248,249,250,0.9) 100%);
+            border-radius: 12px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+
+        .review-level.outcome-level {
+            border-left-color: #dc3545;
+        }
+
+        .level-title {
+            color: #374151;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            font-size: 1.1rem;
+        }
+
+        .sublevel {
+            margin-left: 1.5rem;
+            margin-bottom: 1rem;
+            padding: 1rem;
+            background: rgba(255,255,255,0.8);
+            border-radius: 8px;
+            border-left: 3px solid #6c757d;
+        }
+
+        .sublevel.output-level {
+            border-left-color: #ffc107;
+        }
+
+        .sublevel.suboutput-level {
+            border-left-color: #20c997;
+            margin-left: 2rem;
+        }
+
+        .sublevel-title {
+            color: #4b5563;
+            font-weight: 500;
+            margin-bottom: 0.75rem;
+            font-size: 1rem;
+        }
+
+        .indicators-list {
+            background: rgba(255,255,255,0.6);
+            border-radius: 8px;
+            padding: 1rem;
+            margin-top: 0.5rem;
+        }
+
+        .indicator-item-review {
+            background: white;
+            border-radius: 6px;
+            padding: 0.75rem;
+            margin-bottom: 0.5rem;
+            border: 1px solid rgba(0,0,0,0.1);
+            transition: all 0.2s ease;
+        }
+
+        .indicator-item-review:hover {
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .indicator-item-review:last-child {
+            margin-bottom: 0;
+        }
+
+        .indicator-header {
+            display: flex;
+            align-items: center;
+            justify-content: flex-start;
+            margin-bottom: 0.5rem;
+        }
+
+        .indicator-header strong {
+            flex: 1;
+            color: #1f2937;
+        }
+
+        .indicator-header .badge {
+            font-size: 0.75rem;
+            padding: 0.25rem 0.5rem;
+        }
+
+        .indicator-details {
+            font-size: 0.85rem;
+            padding-left: 1.5rem;
+        }
+
+        .weight-summary-review {
+            margin-top: 1rem;
+            padding: 0.75rem;
+            border-radius: 6px;
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+
+        .weight-summary-review.valid {
+            background-color: rgba(25, 135, 84, 0.1);
+            border: 1px solid rgba(25, 135, 84, 0.2);
+            color: #0f5132;
+        }
+
+        .weight-summary-review.invalid {
+            background-color: rgba(255, 193, 7, 0.1);
+            border: 1px solid rgba(255, 193, 7, 0.2);
+            color: #664d03;
+        }
+
+        .fw-bold {
+            font-weight: 600 !important;
         }
 
         /* Responsive Design */
