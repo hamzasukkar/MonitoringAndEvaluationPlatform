@@ -34,9 +34,14 @@
                 var roles = await UserManager.GetRolesAsync(user);
                 if (roles.Contains("Admin"))
                 {
-                    <button onclick="toggleInlineCreate()" class="btn btn-primary btn-lg shadow-sm" id="createFrameworkBtn">
-                        <i class="fas fa-plus me-2"></i>@Localizer["Create New Framework"]
-                    </button>
+                    <div class="btn-group">
+                        <button onclick="toggleInlineCreate()" class="btn btn-primary btn-lg shadow-sm" id="createFrameworkBtn">
+                            <i class="fas fa-plus me-2"></i>@Localizer["Quick Create"]
+                        </button>
+                        <a asp-action="CreateComprehensive" class="btn btn-success btn-lg shadow-sm">
+                            <i class="fas fa-magic me-2"></i>@Localizer["Comprehensive Builder"]
+                        </a>
+                    </div>
                 }
             }
         }
