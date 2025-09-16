@@ -163,6 +163,59 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             return View(framework);
         }
 
+        // POST: Frameworks/CreateInline - AJAX endpoint for inline creation
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> CreateInline(string name)
+        {
+            try
+            {
+                if (string.IsNullOrWhiteSpace(name))
+                {
+                    return Json(new { success = false, message = _localizer["Framework name is required."] });
+                }
+
+                // Check if framework name already exists
+                var existingFramework = await _context.Frameworks.FirstOrDefaultAsync(f => f.Name.ToLower() == name.ToLower());
+                if (existingFramework != null)
+                {
+                    return Json(new { success = false, message = _localizer["A framework with this name already exists."] });
+                }
+
+                // Create new framework
+                var framework = new Framework
+                {
+                    Name = name.Trim(),
+                    IndicatorsPerformance = 0,
+                    DisbursementPerformance = 0,
+                    FieldMonitoring = 0,
+                    ImpactAssessment = 0
+                };
+
+                _context.Add(framework);
+                await _context.SaveChangesAsync();
+
+                // Return the created framework data for frontend update
+                return Json(new
+                {
+                    success = true,
+                    framework = new
+                    {
+                        code = framework.Code,
+                        name = framework.Name,
+                        indicatorsPerformance = Math.Round(framework.IndicatorsPerformance, 2),
+                        disbursementPerformance = Math.Round(framework.DisbursementPerformance, 2)
+                    },
+                    message = _localizer["Framework created successfully!"]
+                });
+            }
+            catch (Exception ex)
+            {
+                // Log the exception (you might want to use ILogger here)
+                return Json(new { success = false, message = _localizer["An error occurred while creating the framework. Please try again."] });
+            }
+        }
+
         // GET: Frameworks/Edit/5
         public async Task<IActionResult> Edit(int? id)
         {
