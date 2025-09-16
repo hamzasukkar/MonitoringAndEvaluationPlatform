@@ -467,6 +467,13 @@
                     return false;
                 }
             }
+
+            // Validate weights
+            if (!validateIndicatorWeights()) {
+                showError('@Localizer["Please ensure all indicator weights sum to 100% for each sub-output"]');
+                return false;
+            }
+
             return true;
         }
 
@@ -644,8 +651,8 @@
                             </div>
                             <div class="col-md-3">
                                 <div class="form-floating mb-3">
-                                    <input type="number" class="form-control" name="indicators[${indicatorCounter-1}].weight" step="0.01" min="0" max="1" value="1.0" placeholder="1.0">
-                                    <label>@Localizer["Weight"]</label>
+                                    <input type="number" class="form-control weight-input" name="indicators[${indicatorCounter-1}].weight" step="0.01" min="0" max="100" value="100" placeholder="100" data-suboutput="${subOutputIndex}">
+                                    <label>@Localizer["Weight"] (%)</label>
                                 </div>
                             </div>
                             <div class="col-md-3">
@@ -668,11 +675,107 @@
             `;
             container.insertAdjacentHTML('beforeend', indicatorHtml);
             animateNewItem(container.lastElementChild);
+
+            // Redistribute weights for this sub-output
+            redistributeWeights(subOutputIndex);
+
+            // Add event listener for weight input changes
+            const newWeightInput = container.lastElementChild.querySelector('.weight-input');
+            newWeightInput.addEventListener('input', function() {
+                updateWeightSummary(subOutputIndex);
+            });
+            newWeightInput.addEventListener('blur', function() {
+                // Auto-correct if total is close to 100
+                const weightInputs = document.querySelectorAll(`input[data-suboutput="${subOutputIndex}"].weight-input`);
+                const total = Array.from(weightInputs).reduce((sum, input) => sum + parseFloat(input.value || 0), 0);
+
+                if (Math.abs(total - 100) > 0.01 && Math.abs(total - 100) < 2) {
+                    // Auto-adjust the last changed input
+                    const currentValue = parseFloat(this.value || 0);
+                    const adjustment = 100 - total;
+                    this.value = Math.max(0, Math.min(100, currentValue + adjustment)).toFixed(2);
+                    updateWeightSummary(subOutputIndex);
+                }
+            });
         }
 
         function removeIndicator(id) {
             const item = document.querySelector(`[data-id="${id}"]`);
+            const subOutputIndex = item.getAttribute('data-suboutput');
             animateRemoveItem(item);
+
+            // Redistribute weights after removal
+            setTimeout(() => {
+                redistributeWeights(subOutputIndex);
+            }, 300);
+        }
+
+        // Weight management functions
+        function redistributeWeights(subOutputIndex) {
+            const weightInputs = document.querySelectorAll(`input[data-suboutput="${subOutputIndex}"].weight-input`);
+            if (weightInputs.length === 0) return;
+
+            const equalWeight = Math.round((100 / weightInputs.length) * 100) / 100;
+            let total = 0;
+
+            // Distribute equal weights
+            weightInputs.forEach((input, index) => {
+                if (index < weightInputs.length - 1) {
+                    input.value = equalWeight;
+                    total += equalWeight;
+                } else {
+                    // Last input gets the remainder to ensure total = 100
+                    input.value = Math.round((100 - total) * 100) / 100;
+                }
+
+                // Add visual feedback for weight changes
+                input.classList.add('weight-updated');
+                setTimeout(() => {
+                    input.classList.remove('weight-updated');
+                }, 1000);
+            });
+
+            updateWeightSummary(subOutputIndex);
+        }
+
+        function updateWeightSummary(subOutputIndex) {
+            const weightInputs = document.querySelectorAll(`input[data-suboutput="${subOutputIndex}"].weight-input`);
+            const total = Array.from(weightInputs).reduce((sum, input) => sum + parseFloat(input.value || 0), 0);
+
+            // Find or create weight summary element
+            const container = document.getElementById(`indicators_${subOutputIndex}`);
+            let summaryElement = container.querySelector('.weight-summary');
+
+            if (!summaryElement) {
+                summaryElement = document.createElement('div');
+                summaryElement.className = 'weight-summary alert alert-info mt-2';
+                container.appendChild(summaryElement);
+            }
+
+            const isValid = Math.abs(total - 100) < 0.01;
+            summaryElement.className = `weight-summary alert mt-2 ${isValid ? 'alert-success' : 'alert-warning'}`;
+            summaryElement.innerHTML = `
+                <i class="fas ${isValid ? 'fa-check-circle' : 'fa-exclamation-triangle'} me-2"></i>
+                @Localizer["Total Weight"]: <strong>${total.toFixed(2)}%</strong>
+                ${isValid ? '' : '(@Localizer["Must equal 100%"])'}
+            `;
+        }
+
+        function validateIndicatorWeights() {
+            let allValid = true;
+            const subOutputIndices = [...new Set(Array.from(document.querySelectorAll('.weight-input')).map(input => input.dataset.suboutput))];
+
+            subOutputIndices.forEach(subOutputIndex => {
+                const weightInputs = document.querySelectorAll(`input[data-suboutput="${subOutputIndex}"].weight-input`);
+                const total = Array.from(weightInputs).reduce((sum, input) => sum + parseFloat(input.value || 0), 0);
+
+                if (Math.abs(total - 100) > 0.01) {
+                    allValid = false;
+                }
+                updateWeightSummary(subOutputIndex);
+            });
+
+            return allValid;
         }
 
         // Animation helper functions
@@ -1198,6 +1301,43 @@
             border-color: var(--primary-color);
             box-shadow: 0 0 0 3px rgba(var(--primary-color-rgb), 0.1);
             background: rgba(255,255,255,0.95);
+        }
+
+        /* Weight Management Styles */
+        .weight-input.weight-updated {
+            background-color: rgba(40, 167, 69, 0.1);
+            border-color: #28a745;
+            box-shadow: 0 0 0 2px rgba(40, 167, 69, 0.25);
+            transition: all 0.3s ease;
+        }
+
+        .weight-summary {
+            border-radius: 8px;
+            font-size: 0.9rem;
+            margin-bottom: 0;
+            padding: 0.75rem 1rem;
+        }
+
+        .weight-summary i {
+            font-size: 1rem;
+        }
+
+        .alert-success {
+            background-color: rgba(25, 135, 84, 0.1);
+            border-color: rgba(25, 135, 84, 0.2);
+            color: #0f5132;
+        }
+
+        .alert-warning {
+            background-color: rgba(255, 193, 7, 0.1);
+            border-color: rgba(255, 193, 7, 0.2);
+            color: #664d03;
+        }
+
+        /* Enhanced Form Controls for Weights */
+        .weight-input:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 2px rgba(var(--primary-color-rgb), 0.25);
         }
 
         /* Responsive Design */

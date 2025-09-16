@@ -324,6 +324,34 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             return View(await _context.Frameworks.ToListAsync());
         }
 
+        private async Task RedistributeWeights(int subOutputCode)
+        {
+            var indicators = await _context.Indicators
+                .Where(i => i.SubOutputCode == subOutputCode)
+                .ToListAsync();
+
+            if (indicators.Count == 0)
+                return;
+
+            double equalWeight = 100.0 / indicators.Count;
+
+            foreach (var i in indicators)
+            {
+                i.Weight = Math.Round(equalWeight, 2);
+                _context.Entry(i).State = Microsoft.EntityFrameworkCore.EntityState.Modified;
+            }
+
+            // Adjust the last one so the sum is exactly 100
+            double total = indicators.Sum(i => i.Weight);
+            if (Math.Abs(total - 100.0) > 0.01)
+            {
+                double correction = 100.0 - total;
+                indicators.Last().Weight += correction;
+            }
+
+            await _context.SaveChangesAsync();
+        }
+
         // GET: Frameworks/CreateComprehensive
         [Authorize(Roles = "Admin")]
         public IActionResult CreateComprehensive()
@@ -432,7 +460,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                             {
                                 Name = model.Indicators[i].Name.Trim(),
                                 SubOutputCode = subOutputMapping[model.Indicators[i].SubOutputIndex],
-                                Weight = model.Indicators[i].Weight > 0 ? model.Indicators[i].Weight : 1.0,
+                                Weight = model.Indicators[i].Weight > 0 ? model.Indicators[i].Weight : 100.0,
                                 Target = model.Indicators[i].Target,
                                 Source = model.Indicators[i].Source?.Trim() ?? string.Empty,
                                 IndicatorsPerformance = 0,
@@ -451,6 +479,13 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                     }
 
                     await _context.SaveChangesAsync();
+
+                    // Redistribute weights for each sub-output to ensure they sum to 100%
+                    foreach (var subOutputCode in subOutputMapping.Values)
+                    {
+                        await RedistributeWeights(subOutputCode);
+                    }
+
                     await transaction.CommitAsync();
 
                     return Json(new
