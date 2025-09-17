@@ -323,6 +323,13 @@
                 <button type="button" class="btn btn-primary btn-add" onclick="addSingleOutcome()">
                     <i class="fas fa-plus me-2"></i>@Localizer["Add Outcome"]
                 </button>
+                <!-- Temporary debug button -->
+                <button type="button" class="btn btn-warning btn-sm ms-2" onclick="debugSinglePage()">
+                    Debug
+                </button>
+                <button type="button" class="btn btn-info btn-sm ms-2" onclick="testUpdate()">
+                    Test Update
+                </button>
             </div>
             <div class="section-content">
                 <div id="singleOutcomesContainer" class="single-outcomes-container">
@@ -429,13 +436,30 @@
 
         // Initialize wizard
         document.addEventListener('DOMContentLoaded', function() {
+            console.log('DOM loaded, initializing...'); // Debug log
+
+            // Set default mode to wizard
+            document.body.classList.add('wizard-mode');
+
             updateStepDisplay();
             addOutcome(); // Add first outcome by default
-            addSingleOutcome(); // Add first outcome in single mode
+
+            // Initialize single page mode with first outcome
+            setTimeout(() => {
+                console.log('Initializing single page mode...'); // Debug log
+                const singleContainer = document.getElementById('singlePageContainer');
+                console.log('Single page container found:', !!singleContainer); // Debug log
+
+                if (singleContainer) {
+                    addSingleOutcome();
+                    console.log('Single page outcome added successfully'); // Debug log
+                }
+            }, 200);
         });
 
         // Mode switching function
         function switchMode(mode) {
+            console.log('Switching to mode:', mode); // Debug log
             currentMode = mode;
 
             // Update mode selector UI
@@ -444,22 +468,34 @@
             });
             document.querySelector(`[data-mode="${mode}"]`).classList.add('active');
 
-            // Show/hide containers
-            const wizardContainer = document.querySelector('.wizard-form').parentElement;
-            const wizardProgress = document.querySelector('.wizard-progress-container');
-            const singleContainer = document.getElementById('singlePageContainer');
+            // Show/hide the main containers using CSS classes
+            const body = document.body;
 
             if (mode === 'wizard') {
-                wizardContainer.style.display = 'block';
-                wizardProgress.style.display = 'block';
-                singleContainer.style.display = 'none';
+                body.classList.remove('single-page-mode');
+                body.classList.add('wizard-mode');
             } else {
-                wizardContainer.style.display = 'none';
-                wizardProgress.style.display = 'none';
-                singleContainer.style.display = 'block';
+                body.classList.remove('wizard-mode');
+                body.classList.add('single-page-mode');
+
+                // Ensure single page has at least one outcome
+                const outcomeContainer = document.getElementById('singleOutcomesContainer');
+                if (outcomeContainer && outcomeContainer.children.length === 0) {
+                    console.log('Adding first outcome to single page mode'); // Debug log
+                    addSingleOutcome();
+                }
 
                 // Update single-page content when switching
-                updateSinglePageContent();
+                setTimeout(() => {
+                    updateSinglePageContent();
+
+                    // Force update outputs even if outcomes are empty (for testing)
+                    const outputContainer = document.getElementById('singleOutputsContainer');
+                    if (outputContainer && outputContainer.children.length === 0) {
+                        console.log('No output sections found, creating placeholder...'); // Debug
+                        // This will be filled when outcomes are typed
+                    }
+                }, 100);
             }
         }
 
@@ -925,8 +961,17 @@
             const weightInputs = document.querySelectorAll(`input[data-suboutput="${subOutputIndex}"].weight-input`);
             const total = Array.from(weightInputs).reduce((sum, input) => sum + parseFloat(input.value || 0), 0);
 
-            // Find or create weight summary element
-            const container = document.getElementById(`indicators_${subOutputIndex}`);
+            // Find or create weight summary element - try both wizard and single-page mode containers
+            let container = document.getElementById(`indicators_${subOutputIndex}`); // Wizard mode
+            if (!container) {
+                container = document.getElementById(`singleIndicators_${subOutputIndex}`); // Single-page mode
+            }
+
+            if (!container) {
+                console.warn(`No container found for subOutputIndex ${subOutputIndex}`);
+                return; // Exit gracefully if no container found
+            }
+
             let summaryElement = container.querySelector('.weight-summary');
 
             if (!summaryElement) {
@@ -945,19 +990,38 @@
         }
 
         function validateIndicatorWeights() {
+            console.log('validateIndicatorWeights called'); // Debug log
             let allValid = true;
-            const subOutputIndices = [...new Set(Array.from(document.querySelectorAll('.weight-input')).map(input => input.dataset.suboutput))];
 
-            subOutputIndices.forEach(subOutputIndex => {
-                const weightInputs = document.querySelectorAll(`input[data-suboutput="${subOutputIndex}"].weight-input`);
-                const total = Array.from(weightInputs).reduce((sum, input) => sum + parseFloat(input.value || 0), 0);
+            try {
+                const weightInputs = document.querySelectorAll('.weight-input');
+                console.log('Found weight inputs:', weightInputs.length); // Debug log
 
-                if (Math.abs(total - 100) > 0.01) {
-                    allValid = false;
-                }
-                updateWeightSummary(subOutputIndex);
-            });
+                const subOutputIndices = [...new Set(Array.from(weightInputs).map(input => input.dataset.suboutput).filter(Boolean))];
+                console.log('Sub-output indices found:', subOutputIndices); // Debug log
 
+                subOutputIndices.forEach(subOutputIndex => {
+                    const weightInputsForSubOutput = document.querySelectorAll(`input[data-suboutput="${subOutputIndex}"].weight-input`);
+                    const total = Array.from(weightInputsForSubOutput).reduce((sum, input) => sum + parseFloat(input.value || 0), 0);
+
+                    console.log(`Sub-output ${subOutputIndex}: ${weightInputsForSubOutput.length} inputs, total weight: ${total}`); // Debug log
+
+                    if (Math.abs(total - 100) > 0.01) {
+                        allValid = false;
+                        console.log(`Invalid weight total for sub-output ${subOutputIndex}: ${total}%`); // Debug log
+                    }
+
+                    // Only update summary if there are actual inputs
+                    if (weightInputsForSubOutput.length > 0) {
+                        updateWeightSummary(subOutputIndex);
+                    }
+                });
+            } catch (error) {
+                console.error('Error in validateIndicatorWeights:', error);
+                return false; // Return false if validation fails due to error
+            }
+
+            console.log('Weight validation completed, all valid:', allValid); // Debug log
             return allValid;
         }
 
@@ -1134,6 +1198,14 @@
         function addSingleOutcome() {
             singleOutcomeCounter++;
             const container = document.getElementById('singleOutcomesContainer');
+
+            console.log('Adding single outcome, container found:', !!container); // Debug log
+
+            if (!container) {
+                console.error('singleOutcomesContainer not found!');
+                return;
+            }
+
             const outcomeHtml = `
                 <div class="single-item outcome-item" data-id="${singleOutcomeCounter}">
                     <div class="item-header">
@@ -1147,14 +1219,20 @@
                     </div>
                     <div class="item-content">
                         <div class="form-floating">
-                            <input type="text" class="form-control outcome-name-input" name="outcomes[${singleOutcomeCounter-1}].name" placeholder="@Localizer["Enter outcome name"]" required onblur="updateSinglePageContent()">
+                            <input type="text" class="form-control outcome-name-input" name="outcomes[${singleOutcomeCounter-1}].name" placeholder="@Localizer["Enter outcome name"]" required onblur="debouncedUpdateSinglePageContent()">
                             <label>@Localizer["Outcome Name"] *</label>
                         </div>
                     </div>
                 </div>
             `;
             container.insertAdjacentHTML('beforeend', outcomeHtml);
-            animateNewItem(container.lastElementChild);
+
+            const newItem = container.lastElementChild;
+            if (newItem) {
+                animateNewItem(newItem);
+            }
+
+            console.log('Outcome added, updating single page content...'); // Debug log
             updateSinglePageContent();
         }
 
@@ -1167,43 +1245,82 @@
         }
 
         function updateSinglePageContent() {
-            if (currentMode !== 'single') return;
+            console.log('updateSinglePageContent called, currentMode:', currentMode); // Debug log
 
+            if (currentMode !== 'single') {
+                console.log('Not in single mode, returning early'); // Debug log
+                return;
+            }
+
+            console.log('Updating single page content...'); // Debug log
             updateSingleOutputs();
             updateSingleSubOutputs();
             updateSingleIndicators();
         }
 
         function updateSingleOutputs() {
+            console.log('updateSingleOutputs called'); // Debug log
             const outcomes = document.querySelectorAll('.outcome-name-input');
             const container = document.getElementById('singleOutputsContainer');
-            container.innerHTML = '';
 
+            console.log('Found outcomes:', outcomes.length); // Debug log
+            console.log('Output container found:', !!container); // Debug log
+
+            if (!container) {
+                console.error('singleOutputsContainer not found!');
+                return;
+            }
+
+            // Don't clear existing content, only add missing sections
             outcomes.forEach((outcome, index) => {
-                if (outcome.value.trim()) {
-                    const outcomeSection = `
-                        <div class="outcome-group" data-outcome="${index}">
-                            <div class="group-header">
-                                <h5 class="group-title">
-                                    <i class="fas fa-target me-2"></i>${outcome.value}
-                                </h5>
-                                <button type="button" class="btn btn-primary btn-sm" onclick="addSingleOutput(${index})">
-                                    <i class="fas fa-plus me-1"></i>@Localizer["Add Output"]
-                                </button>
+                console.log(`Outcome ${index}:`, outcome.value); // Debug log
+                if (outcome.value && outcome.value.trim()) {
+                    // Check if section already exists
+                    const existingSection = container.querySelector(`[data-outcome="${index}"]`);
+                    if (!existingSection) {
+                        console.log(`Adding new outcome section for: ${outcome.value}`); // Debug log
+                        const outcomeSection = `
+                            <div class="outcome-group" data-outcome="${index}">
+                                <div class="group-header">
+                                    <h5 class="group-title">
+                                        <i class="fas fa-target me-2"></i>${outcome.value}
+                                    </h5>
+                                    <button type="button" class="btn btn-primary btn-sm" onclick="addSingleOutput(${index})">
+                                        <i class="fas fa-plus me-1"></i>@Localizer["Add Output"]
+                                    </button>
+                                </div>
+                                <div id="singleOutputs_${index}" class="group-content">
+                                    <!-- Outputs will be added here -->
+                                </div>
                             </div>
-                            <div id="singleOutputs_${index}" class="group-content">
-                                <!-- Outputs will be added here -->
-                            </div>
-                        </div>
-                    `;
-                    container.insertAdjacentHTML('beforeend', outcomeSection);
+                        `;
+                        container.insertAdjacentHTML('beforeend', outcomeSection);
+                        console.log(`Outcome section added for index ${index}`); // Debug log
+                    } else {
+                        // Update existing section title if name changed
+                        const titleElement = existingSection.querySelector('.group-title');
+                        if (titleElement) {
+                            titleElement.innerHTML = `<i class="fas fa-target me-2"></i>${outcome.value}`;
+                        }
+                        console.log(`Updated existing outcome section for index ${index}`); // Debug log
+                    }
                 }
             });
+            console.log('updateSingleOutputs completed'); // Debug log
         }
 
         function addSingleOutput(outcomeIndex) {
+            console.log('addSingleOutput called with outcomeIndex:', outcomeIndex); // Debug log
             singleOutputCounter++;
             const container = document.getElementById(`singleOutputs_${outcomeIndex}`);
+
+            console.log('Output container found:', !!container); // Debug log
+
+            if (!container) {
+                console.error(`Container singleOutputs_${outcomeIndex} not found!`);
+                return;
+            }
+
             const outputHtml = `
                 <div class="single-item output-item" data-id="${singleOutputCounter}" data-outcome="${outcomeIndex}">
                     <div class="item-header">
@@ -1217,7 +1334,7 @@
                     </div>
                     <div class="item-content">
                         <div class="form-floating">
-                            <input type="text" class="form-control output-name-input" name="outputs[${singleOutputCounter-1}].name" placeholder="@Localizer["Enter output name"]" required onblur="updateSinglePageContent()">
+                            <input type="text" class="form-control output-name-input" name="outputs[${singleOutputCounter-1}].name" placeholder="@Localizer["Enter output name"]" required onblur="debouncedUpdateSinglePageContent()">
                             <input type="hidden" name="outputs[${singleOutputCounter-1}].outcomeIndex" value="${outcomeIndex}">
                             <label>@Localizer["Output Name"] *</label>
                         </div>
@@ -1225,8 +1342,14 @@
                 </div>
             `;
             container.insertAdjacentHTML('beforeend', outputHtml);
-            animateNewItem(container.lastElementChild);
-            updateSinglePageContent();
+
+            const newItem = container.lastElementChild;
+            if (newItem) {
+                animateNewItem(newItem);
+                console.log('Output added successfully'); // Debug log
+            }
+
+            console.log('Output added - update will trigger on blur'); // Debug log
         }
 
         function removeSingleOutput(id) {
@@ -1238,30 +1361,56 @@
         }
 
         function updateSingleSubOutputs() {
+            console.log('updateSingleSubOutputs called'); // Debug log
             const outputs = document.querySelectorAll('.output-name-input');
             const container = document.getElementById('singleSubOutputsContainer');
-            container.innerHTML = '';
 
+            console.log('Found output inputs:', outputs.length); // Debug log
+            console.log('Sub-output container found:', !!container); // Debug log
+
+            if (!container) {
+                console.error('singleSubOutputsContainer not found!');
+                return;
+            }
+
+            // Don't clear existing content, only add missing sections
             outputs.forEach((output, index) => {
-                if (output.value.trim()) {
-                    const outputSection = `
-                        <div class="output-group" data-output="${index}">
-                            <div class="group-header">
-                                <h5 class="group-title">
-                                    <i class="fas fa-cubes me-2"></i>${output.value}
-                                </h5>
-                                <button type="button" class="btn btn-primary btn-sm" onclick="addSingleSubOutput(${index})">
-                                    <i class="fas fa-plus me-1"></i>@Localizer["Add Sub-Output"]
-                                </button>
+                console.log(`Output ${index} value:`, output.value); // Debug log
+                if (output.value && output.value.trim()) {
+                    // Check if section already exists
+                    const existingSection = container.querySelector(`[data-output="${index}"]`);
+                    if (!existingSection) {
+                        console.log(`Adding new sub-output section for output: ${output.value}`); // Debug log
+                        const outputSection = `
+                            <div class="output-group" data-output="${index}">
+                                <div class="group-header">
+                                    <h5 class="group-title">
+                                        <i class="fas fa-cubes me-2"></i>${output.value}
+                                    </h5>
+                                    <button type="button" class="btn btn-primary btn-sm" onclick="addSingleSubOutput(${index})">
+                                        <i class="fas fa-plus me-1"></i>@Localizer["Add Sub-Output"]
+                                    </button>
+                                </div>
+                                <div id="singleSubOutputs_${index}" class="group-content">
+                                    <!-- Sub-outputs will be added here -->
+                                </div>
                             </div>
-                            <div id="singleSubOutputs_${index}" class="group-content">
-                                <!-- Sub-outputs will be added here -->
-                            </div>
-                        </div>
-                    `;
-                    container.insertAdjacentHTML('beforeend', outputSection);
+                        `;
+                        container.insertAdjacentHTML('beforeend', outputSection);
+                        console.log(`Sub-output section added for output index ${index}`); // Debug log
+                    } else {
+                        // Update existing section title if name changed
+                        const titleElement = existingSection.querySelector('.group-title');
+                        if (titleElement) {
+                            titleElement.innerHTML = `<i class="fas fa-cubes me-2"></i>${output.value}`;
+                        }
+                        console.log(`Updated existing sub-output section for output index ${index}`); // Debug log
+                    }
+                } else {
+                    console.log(`Skipping output ${index} - no value or empty value`); // Debug log
                 }
             });
+            console.log('updateSingleSubOutputs completed'); // Debug log
         }
 
         function addSingleSubOutput(outputIndex) {
@@ -1280,7 +1429,7 @@
                     </div>
                     <div class="item-content">
                         <div class="form-floating">
-                            <input type="text" class="form-control suboutput-name-input" name="subOutputs[${singleSubOutputCounter-1}].name" placeholder="@Localizer["Enter sub-output name"]" required onblur="updateSinglePageContent()">
+                            <input type="text" class="form-control suboutput-name-input" name="subOutputs[${singleSubOutputCounter-1}].name" placeholder="@Localizer["Enter sub-output name"]" required onblur="debouncedUpdateSinglePageContent()">
                             <input type="hidden" name="subOutputs[${singleSubOutputCounter-1}].outputIndex" value="${outputIndex}">
                             <label>@Localizer["Sub-Output Name"] *</label>
                         </div>
@@ -1289,7 +1438,7 @@
             `;
             container.insertAdjacentHTML('beforeend', subOutputHtml);
             animateNewItem(container.lastElementChild);
-            updateSinglePageContent();
+            console.log('Sub-output added - update will trigger on blur'); // Debug log
         }
 
         function removeSingleSubOutput(id) {
@@ -1301,30 +1450,53 @@
         }
 
         function updateSingleIndicators() {
+            console.log('updateSingleIndicators called'); // Debug log
             const subOutputs = document.querySelectorAll('.suboutput-name-input');
             const container = document.getElementById('singleIndicatorsContainer');
-            container.innerHTML = '';
 
+            console.log('Found sub-output inputs:', subOutputs.length); // Debug log
+
+            if (!container) {
+                console.error('singleIndicatorsContainer not found!');
+                return;
+            }
+
+            // Don't clear existing content, only add missing sections
             subOutputs.forEach((subOutput, index) => {
-                if (subOutput.value.trim()) {
-                    const subOutputSection = `
-                        <div class="subOutput-group" data-suboutput="${index}">
-                            <div class="group-header">
-                                <h5 class="group-title">
-                                    <i class="fas fa-layer-group me-2"></i>${subOutput.value}
-                                </h5>
-                                <button type="button" class="btn btn-primary btn-sm" onclick="addSingleIndicator(${index})">
-                                    <i class="fas fa-plus me-1"></i>@Localizer["Add Indicator"]
-                                </button>
+                console.log(`Sub-output ${index} value:`, subOutput.value); // Debug log
+                if (subOutput.value && subOutput.value.trim()) {
+                    // Check if section already exists
+                    const existingSection = container.querySelector(`[data-suboutput="${index}"]`);
+                    if (!existingSection) {
+                        console.log(`Adding new indicator section for sub-output: ${subOutput.value}`); // Debug log
+                        const subOutputSection = `
+                            <div class="subOutput-group" data-suboutput="${index}">
+                                <div class="group-header">
+                                    <h5 class="group-title">
+                                        <i class="fas fa-layer-group me-2"></i>${subOutput.value}
+                                    </h5>
+                                    <button type="button" class="btn btn-primary btn-sm" onclick="addSingleIndicator(${index})">
+                                        <i class="fas fa-plus me-1"></i>@Localizer["Add Indicator"]
+                                    </button>
+                                </div>
+                                <div id="singleIndicators_${index}" class="group-content">
+                                    <!-- Indicators will be added here -->
+                                </div>
                             </div>
-                            <div id="singleIndicators_${index}" class="group-content">
-                                <!-- Indicators will be added here -->
-                            </div>
-                        </div>
-                    `;
-                    container.insertAdjacentHTML('beforeend', subOutputSection);
+                        `;
+                        container.insertAdjacentHTML('beforeend', subOutputSection);
+                        console.log(`Indicator section added for sub-output index ${index}`); // Debug log
+                    } else {
+                        // Update existing section title if name changed
+                        const titleElement = existingSection.querySelector('.group-title');
+                        if (titleElement) {
+                            titleElement.innerHTML = `<i class="fas fa-layer-group me-2"></i>${subOutput.value}`;
+                        }
+                        console.log(`Updated existing indicator section for sub-output index ${index}`); // Debug log
+                    }
                 }
             });
+            console.log('updateSingleIndicators completed'); // Debug log
         }
 
         function addSingleIndicator(subOutputIndex) {
@@ -1395,6 +1567,7 @@
             });
 
             redistributeWeights(subOutputIndex);
+            console.log('Indicator added - weights redistributed'); // Debug log
         }
 
         function removeSingleIndicator(id) {
@@ -1581,6 +1754,58 @@
                 }
             });
         });
+
+        // Debounced update function to prevent infinite loops
+        let updateTimeout;
+        function debouncedUpdateSinglePageContent() {
+            clearTimeout(updateTimeout);
+            updateTimeout = setTimeout(() => {
+                updateSinglePageContent();
+            }, 300);
+        }
+
+        // Test function - temporary
+        function testUpdate() {
+            console.log('=== TEST UPDATE ===');
+            console.log('Manually calling updateSinglePageContent...');
+            updateSinglePageContent();
+            console.log('===================');
+        }
+
+        // Debug function - temporary
+        function debugSinglePage() {
+            console.log('=== DEBUG SINGLE PAGE ===');
+            console.log('Current mode:', currentMode);
+            console.log('Single outcome counter:', singleOutcomeCounter);
+
+            const container = document.getElementById('singleOutcomesContainer');
+            console.log('Outcomes container found:', !!container);
+            console.log('Outcomes container children:', container ? container.children.length : 'N/A');
+
+            const singlePageContainer = document.getElementById('singlePageContainer');
+            console.log('Single page container found:', !!singlePageContainer);
+            console.log('Single page container display:', singlePageContainer ? singlePageContainer.style.display : 'N/A');
+
+            // Check outcome inputs
+            const outcomeInputs = document.querySelectorAll('.outcome-name-input');
+            console.log('Outcome inputs found:', outcomeInputs.length);
+            outcomeInputs.forEach((input, index) => {
+                console.log(`Outcome ${index} value:`, input.value);
+            });
+
+            // Check output sections
+            const outputContainer = document.getElementById('singleOutputsContainer');
+            console.log('Output container found:', !!outputContainer);
+            console.log('Output container children:', outputContainer ? outputContainer.children.length : 'N/A');
+
+            if (container) {
+                console.log('Outcomes Container innerHTML:', container.innerHTML.substring(0, 200) + '...');
+            }
+            if (outputContainer) {
+                console.log('Outputs Container innerHTML:', outputContainer.innerHTML.substring(0, 200) + '...');
+            }
+            console.log('========================');
+        }
 
         // Helper functions
         function showError(message) {
@@ -2284,6 +2509,25 @@
             border-radius: 15px;
             font-weight: 600;
             font-size: 1.1rem;
+        }
+
+        /* Mode Control Classes */
+        body.wizard-mode .single-page-container {
+            display: none !important;
+        }
+
+        body.single-page-mode .wizard-progress-container,
+        body.single-page-mode .wizard-form {
+            display: none !important;
+        }
+
+        body.single-page-mode .single-page-container {
+            display: block !important;
+        }
+
+        /* Default state - show wizard mode */
+        body:not(.single-page-mode) .single-page-container {
+            display: none !important;
         }
 
         /* Responsive Mode Selector */
