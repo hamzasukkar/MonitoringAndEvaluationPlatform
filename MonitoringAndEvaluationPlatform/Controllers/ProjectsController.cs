@@ -454,7 +454,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             ViewBag.SectorList = new MultiSelectList(
                 allSectors,
                 "Code",      // value field
-                "Name",      // text field
+                 isArabic ? "AR_Name" : "EN_Name",      // text field
                 selectedSectorCodes  // whichever codes should be pre‐checked
             );
 
