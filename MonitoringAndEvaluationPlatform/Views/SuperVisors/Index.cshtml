@@ -19,7 +19,7 @@
                 <span class="current-page">@Localizer["Supervisors"]</span>
             </div>
             <h1 class="page-title">@Localizer["Supervisor Management"]</h1>
-            <p class="page-description">Manage project supervisors and their contact information</p>
+            <p class="page-description">@Localizer["Manage project supervisors and their contact information"]</p>
         </div>
     </div>
 </div>
@@ -30,13 +30,13 @@
 <div class="chart-card mb-4">
     <div class="chart-title">
         <i class="fas fa-user-check"></i>
-        @Localizer["Add New Supervisor"]
+        @Localizer["Add New SuperVisor"]
     </div>
     <form id="createSuperVisorForm" class="row g-3">
         @Html.AntiForgeryToken()
         <div class="col-md-3">
             <label for="Name" class="form-label fw-bold">
-                <i class="fas fa-user me-2"></i>@Localizer["Supervisor Name"]
+                <i class="fas fa-user me-2"></i>@Localizer["SuperVisor Name"]
             </label>
             <input type="text" name="Name" id="Name" class="form-control form-control-lg" required
                    placeholder="@Localizer["Enter supervisor name"]" />
@@ -58,7 +58,7 @@
         <div class="col-md-3 d-flex align-items-end">
             <div class="d-grid w-100">
                 <button type="submit" id="createSupervisorBtn" class="btn btn-primary btn-lg">
-                    <i class="fas fa-plus-circle me-2"></i>@Localizer["Create Supervisor"]
+                    <i class="fas fa-plus-circle me-2"></i>@Localizer["Create SuperVisor"]
                 </button>
             </div>
         </div>

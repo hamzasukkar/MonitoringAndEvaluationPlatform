@@ -147,11 +147,23 @@
   <data name="Create a New Entity" xml:space="preserve">
     <value>إنشاء جهة جديدة</value>
   </data>
+  <data name="Create SuperVisor" xml:space="preserve">
+    <value>إضافة مشرف</value>
+  </data>
   <data name="Deleted" xml:space="preserve">
     <value>تم الحذف</value>
   </data>
   <data name="Email" xml:space="preserve">
     <value>البريد الإلكتروني</value>
+  </data>
+  <data name="Enter email address" xml:space="preserve">
+    <value>أدخل عنوان البريد الإلكتروني</value>
+  </data>
+  <data name="Enter phone number" xml:space="preserve">
+    <value>أدخل رقم الهاتف</value>
+  </data>
+  <data name="Enter supervisor name" xml:space="preserve">
+    <value>أدخل اسم المشرف</value>
   </data>
   <data name="Name" xml:space="preserve">
     <value>الاسم</value>
@@ -168,8 +180,17 @@
   <data name="Project Manager updated successfully" xml:space="preserve">
     <value>تم تحديث مدير المشروع بنجاح</value>
   </data>
+  <data name="Manage project supervisors and their contact information" xml:space="preserve">
+    <value>إدارة مشرفي المشروع ومعلومات الاتصال الخاصة بهم</value>
+  </data>
+  <data name="Supervisor Management" xml:space="preserve">
+    <value>إدارة قوائم المشرفين</value>
+  </data>
   <data name="SuperVisor Name" xml:space="preserve">
     <value>اسم المشرف</value>
+  </data>
+  <data name="Supervisors List" xml:space="preserve">
+    <value>قائمة المشرفين</value>
   </data>
   <data name="Updated!" xml:space="preserve">
     <value>تم التحديث!</value>
@@ -179,5 +200,11 @@
   </data>
   <data name="You won't be able to revert this!" xml:space="preserve">
     <value>لن تتمكن من التراجع عن هذا!</value>
+  </data>
+  <data name="Supervisors" xml:space="preserve">
+    <value>المشرفين</value>
+  </data>
+  <data name="Home" xml:space="preserve">
+    <value>الصفحة الرئيسية</value>
   </data>
 </root>

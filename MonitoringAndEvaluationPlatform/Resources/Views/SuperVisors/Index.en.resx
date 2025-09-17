@@ -147,11 +147,23 @@
   <data name="Create a New Entity" xml:space="preserve">
     <value>Create a New Entity</value>
   </data>
+  <data name="Create SuperVisor" xml:space="preserve">
+    <value>Create SuperVisor</value>
+  </data>
   <data name="Deleted" xml:space="preserve">
     <value>Deleted</value>
   </data>
   <data name="Email" xml:space="preserve">
     <value>Email</value>
+  </data>
+  <data name="Enter email address" xml:space="preserve">
+    <value>Enter email address</value>
+  </data>
+  <data name="Enter phone number" xml:space="preserve">
+    <value>Enter phone number</value>
+  </data>
+  <data name="Enter supervisor name" xml:space="preserve">
+    <value>Enter supervisor name</value>
   </data>
   <data name="Name" xml:space="preserve">
     <value>Name</value>
@@ -168,8 +180,17 @@
   <data name="Project Manager updated successfully" xml:space="preserve">
     <value>Project Manager updated successfully</value>
   </data>
+  <data name="Manage project supervisors and their contact information" xml:space="preserve">
+    <value>Manage project supervisors and their contact information</value>
+  </data>
+  <data name="Supervisor Management" xml:space="preserve">
+    <value>Supervisor Management</value>
+  </data>
   <data name="SuperVisor Name" xml:space="preserve">
     <value>SuperVisor Name</value>
+  </data>
+  <data name="Supervisors List" xml:space="preserve">
+    <value>Supervisors List</value>
   </data>
   <data name="Updated!" xml:space="preserve">
     <value>Updated!</value>
@@ -179,5 +200,11 @@
   </data>
   <data name="You won't be able to revert this!" xml:space="preserve">
     <value>You won't be able to revert this!</value>
+  </data>
+  <data name="Supervisors" xml:space="preserve">
+    <value>Supervisors</value>
+  </data>
+  <data name="Home" xml:space="preserve">
+    <value>Home</value>
   </data>
 </root>
