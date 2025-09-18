@@ -17,7 +17,7 @@
         @Model.ProjectName
     </h1>
     <p class="dashboard-subtitle">
-        Comprehensive project overview with performance metrics and detailed information
+        @Localizer["Comprehensive project overview with performance metrics and detailed information"];
     </p>
     <div class="dashboard-actions">
         <a asp-action="Edit" asp-route-id="@Model?.ProjectID" class="btn btn-gradient-primary me-2">
@@ -44,7 +44,7 @@
                                 <i class="fas fa-project-diagram me-2"></i>@Localizer["Project"]
                             </a>
                         </li>
-@*                         <li class="nav-item">
+                        @*                         <li class="nav-item">
                             <a asp-action="LinkProjectToIndicators" asp-route-projectId="@Model.ProjectID" class="nav-link">
                                 <i class="fas fa-link me-2"></i>@Localizer["Alignement"]
                             </a>
@@ -69,7 +69,7 @@
                                 </a>
                             }
                         </li>
-                     @*    <li class="nav-item">
+                        @*    <li class="nav-item">
                             <a asp-controller="Plans" asp-action="ProjectPlans" asp-route-id="@Model.ProjectID" class="nav-link">
                                 <i class="fas fa-calendar-alt me-2"></i>Plans
                             </a>
@@ -79,7 +79,7 @@
                                 <i class="fas fa-tasks me-2"></i>@Localizer["Action Plans"]
                             </a>
                         </li>
-                     @*    <li class="nav-item">
+                        @*    <li class="nav-item">
                             <a asp-action="Index" asp-controller="Activities" asp-route-id="@Model.ProjectID" class="nav-link">
                                 <i class="fas fa-running me-2"></i>@Localizer["Activities"]
                             </a>
@@ -227,7 +227,15 @@
                                     @foreach (var governorate in Model.Governorates)
                                     {
                                         <span class="modern-badge badge-info me-1">
-                                            @governorate.EN_Name
+                                            
+                                            @if (culture.StartsWith("ar"))
+                                            {
+                                                @governorate.AR_Name
+                                            }
+                                            else
+                                            {
+                                                @governorate.EN_Name
+                                            }
                                         </span>
                                     }
                                 </div>
@@ -242,7 +250,15 @@
                                     @foreach (var district in Model.Districts)
                                     {
                                         <span class="modern-badge badge-info me-1">
-                                            @district.EN_Name
+                                            @if (culture.StartsWith("ar"))
+                                            {
+                                                @district.AR_Name
+                                            }
+                                            else
+                                            {
+                                                @district.EN_Name
+                                            }
+                                         
                                         </span>
                                     }
                                 </div>
@@ -257,7 +273,15 @@
                                     @foreach (var subDistrict in Model.SubDistricts)
                                     {
                                         <span class="modern-badge badge-info me-1">
-                                            @subDistrict.EN_Name
+                                           
+                                            @if (culture.StartsWith("ar"))
+                                            {
+                                                @subDistrict.AR_Name
+                                            }
+                                            else
+                                            {
+                                                @subDistrict.EN_Name
+                                            }
                                         </span>
                                     }
                                 </div>
@@ -272,7 +296,15 @@
                                     @foreach (var community in Model.Communities)
                                     {
                                         <span class="modern-badge badge-info me-1">
-                                            @community.EN_Name
+                                            
+                                            @if (culture.StartsWith("ar"))
+                                            {
+                                                @community.AR_Name
+                                            }
+                                            else
+                                            {
+                                                @community.EN_Name
+                                            }
                                         </span>
                                     }
                                 </div>

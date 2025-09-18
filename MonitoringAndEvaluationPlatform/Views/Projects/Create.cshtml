@@ -87,7 +87,7 @@
                                     <div id="location-selector" class="row g-3 mb-3">
                                         <div class="col-md-6">
                                             <select id="governorate" class="form-select">
-                                                <option value="">-- اختر المحافظة --</option>
+                                                <option value="">-- @Localizer["Select Governorate"] --</option>
                                                 @foreach (var gov in governorates)
                                                 {
                                                     var displayName = System.Threading.Thread.CurrentThread.CurrentUICulture.TwoLetterISOLanguageName == "ar"
@@ -99,17 +99,19 @@
                                         </div>
                                         <div class="col-md-6">
                                             <select id="district" class="form-select">
-                                                <option value="">-- Select District --</option>
+                                                <option value="">
+                                                    -- @Localizer["Select District"] --
+                                                </option>
                                             </select>
                                         </div>
                                         <div class="col-md-6">
                                             <select id="subdistrict" class="form-select">
-                                                <option value="">-- Select Subdistrict --</option>
+                                                <option value="">-- @Localizer["Select Subdistrict"] --</option>
                                             </select>
                                         </div>
                                         <div class="col-md-6">
                                             <select id="community" class="form-select">
-                                                <option value="">-- Select Community --</option>
+                                                <option value="">-- @Localizer["Select Community"] --</option>
                                             </select>
                                         </div>
                                     </div>
