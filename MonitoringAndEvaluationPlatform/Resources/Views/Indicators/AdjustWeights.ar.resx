@@ -117,9 +117,6 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="Indicator" xml:space="preserve">
-    <value>المؤشر</value>
-  </data>
   <data name="Weight" xml:space="preserve">
     <value>الوزن</value>
   </data>
@@ -127,6 +124,42 @@
     <value>حفظ الوزن</value>
   </data>
   <data name="Adjust Weights" xml:space="preserve">
-    <value>التثقيل</value>
+    <value>تكوين أوزان المؤشرات لتحديد تأثيرها على حسابات الأداء</value>
+  </data>
+  <data name="Indicator Name" xml:space="preserve">
+    <value>اسم المؤشر</value>
+  </data>
+  <data name="Incomplete" xml:space="preserve">
+    <value>غير مكتمل</value>
+  </data>
+  <data name="Status" xml:space="preserve">
+    <value>الحالة</value>
+  </data>
+  <data name="Indicator" xml:space="preserve">
+    <value>المؤشر</value>
+  </data>
+  <data name="Valid" xml:space="preserve">
+    <value>صالح</value>
+  </data>
+  <data name="Distribute Evenly" xml:space="preserve">
+    <value>توزيع بالتساوي</value>
+  </data>
+  <data name="Reset" xml:space="preserve">
+    <value>إعادة ضبط</value>
+  </data>
+  <data name="Tip: Total weights should equal 100% for accurate performance calculations" xml:space="preserve">
+    <value>تنبيه: يجب أن يساوي إجمالي الأوزان 100% للحصول على حسابات أداء دقيقة</value>
+  </data>
+  <data name="Indicator Weights Configuration" xml:space="preserve">
+    <value>ضبط أوزان المؤشرات</value>
+  </data>
+  <data name="Total Weight" xml:space="preserve">
+    <value>مجموع الأوزان</value>
+  </data>
+  <data name="Configure indicator weights to determine their impact on performance calculations" xml:space="preserve">
+    <value>تكوين أوزان المؤشرات لتحديد تأثيرها على حسابات الأداء</value>
+  </data>
+  <data name="Back to Indicators" xml:space="preserve">
+    <value>العودة إلى المؤشرات</value>
   </data>
 </root>

@@ -117,9 +117,6 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="Indicator" xml:space="preserve">
-    <value>Indicator</value>
-  </data>
   <data name="Weight" xml:space="preserve">
     <value>Weight</value>
   </data>
@@ -128,5 +125,41 @@
   </data>
   <data name="Adjust Weights" xml:space="preserve">
     <value>Adjust Weights</value>
+  </data>
+  <data name="Indicator Name" xml:space="preserve">
+    <value>Indicator Name</value>
+  </data>
+  <data name="Incomplete" xml:space="preserve">
+    <value>Incomplete</value>
+  </data>
+  <data name="Status" xml:space="preserve">
+    <value>Status</value>
+  </data>
+  <data name="Indicator" xml:space="preserve">
+    <value>Indicator</value>
+  </data>
+  <data name="Valid" xml:space="preserve">
+    <value>Valid</value>
+  </data>
+  <data name="Distribute Evenly" xml:space="preserve">
+    <value>Distribute Evenly</value>
+  </data>
+  <data name="Reset" xml:space="preserve">
+    <value>Reset</value>
+  </data>
+  <data name="Tip: Total weights should equal 100% for accurate performance calculations" xml:space="preserve">
+    <value>Tip: Total weights should equal 100% for accurate performance calculations</value>
+  </data>
+  <data name="Indicator Weights Configuration" xml:space="preserve">
+    <value>Indicator Weights Configuration</value>
+  </data>
+  <data name="Total Weight" xml:space="preserve">
+    <value>Total Weight</value>
+  </data>
+  <data name="Configure indicator weights to determine their impact on performance calculations" xml:space="preserve">
+    <value>Configure indicator weights to determine their impact on performance calculations</value>
+  </data>
+  <data name="Back to Indicators" xml:space="preserve">
+    <value>Back to Indicators</value>
   </data>
 </root>
