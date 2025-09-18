@@ -34,7 +34,7 @@
                 var roles = await UserManager.GetRolesAsync(user);
                 if (roles.Contains("Admin"))
                 {
-                    <div class="btn-group">
+                    <div>
                         <button onclick="toggleInlineCreate()" class="btn btn-primary btn-lg shadow-sm" id="createFrameworkBtn">
                             <i class="fas fa-plus me-2"></i>@Localizer["Quick Create"]
                         </button>
