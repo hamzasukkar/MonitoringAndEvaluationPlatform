@@ -1,0 +1,301 @@
+﻿@{
+    ViewData["Title"] = "Framework Hierarchy";
+    Layout = "~/Views/Shared/_ResultsFrameworkLayout.cshtml";
+}
+
+<div class="simple-tree">
+    <h1>Framework Hierarchy</h1>
+
+    <div class="controls">
+        <button class="btn" id="expandAll">Expand All</button>
+        <button class="btn" id="collapseAll">Collapse All</button>
+    </div>
+
+    <div id="treeContainer">
+        <div class="loading">Loading...</div>
+    </div>
+</div>
+
+<style>
+    .simple-tree {
+        padding: 20px;
+    }
+
+    h1 {
+        text-align: center;
+        margin-bottom: 20px;
+        color: #333;
+    }
+
+    .controls {
+        text-align: center;
+        margin-bottom: 30px;
+    }
+
+    .btn {
+        padding: 8px 16px;
+        margin: 0 5px;
+        background: #007bff;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+    }
+
+    .btn:hover {
+        background: #0056b3;
+    }
+
+    .loading {
+        text-align: center;
+        padding: 50px;
+        color: #666;
+    }
+
+    .org-chart {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .node-container {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        margin: 20px 10px;
+        position: relative;
+    }
+
+    .tree-node {
+        background: white;
+        border: 2px solid #ddd;
+        border-radius: 8px;
+        padding: 15px;
+        margin: 10px;
+        min-width: 200px;
+        max-width: 300px;
+        text-align: center;
+        cursor: pointer;
+    }
+
+    .tree-node.framework { border-color: #6f42c1; }
+    .tree-node.outcome { border-color: #dc3545; }
+    .tree-node.output { border-color: #007bff; }
+    .tree-node.suboutput { border-color: #28a745; }
+    .tree-node.indicator { border-color: #fd7e14; }
+
+    .node-title {
+        font-weight: bold;
+        margin-bottom: 8px;
+        color: #333;
+    }
+
+    .node-type {
+        background: #f8f9fa;
+        padding: 4px 8px;
+        border-radius: 4px;
+        font-size: 12px;
+        color: #666;
+        margin-bottom: 8px;
+    }
+
+    .performance-badge {
+        background: #28a745;
+        color: white;
+        padding: 4px 8px;
+        border-radius: 4px;
+        font-size: 14px;
+        margin-right: 8px;
+    }
+
+    .weight-badge {
+        background: #6c757d;
+        color: white;
+        padding: 4px 8px;
+        border-radius: 4px;
+        font-size: 12px;
+    }
+
+    .children-container {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 10px;
+        margin-top: 20px;
+    }
+
+    .children-container.collapsed {
+        display: none;
+    }
+
+    .expand-icon {
+        position: absolute;
+        top: 5px;
+        right: 5px;
+        width: 20px;
+        height: 20px;
+        background: #007bff;
+        color: white;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 12px;
+        cursor: pointer;
+    }
+
+    .expand-icon.collapsed::before {
+        content: '+';
+    }
+
+    .expand-icon.expanded::before {
+        content: '−';
+    }
+
+    /* Simple connecting lines */
+    .node-container::before {
+        content: '';
+        position: absolute;
+        top: -20px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 2px;
+        height: 20px;
+        background: #ddd;
+    }
+
+    .org-chart > .node-container:first-child::before {
+        display: none;
+    }
+
+    @@media (max-width: 768px) {
+        .tree-node {
+            min-width: 150px;
+            max-width: 250px;
+            padding: 10px;
+        }
+    }
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const frameworkCode = @ViewData["FrameworkCode"];
+    const expandAllBtn = document.getElementById('expandAll');
+    const collapseAllBtn = document.getElementById('collapseAll');
+
+    loadData();
+
+    function loadData() {
+        fetch(`/Tree/GetFrameworkHierarchy/${frameworkCode}`)
+            .then(response => response.json())
+            .then(data => {
+                const hierarchy = buildHierarchy(data);
+                renderTree(hierarchy);
+            })
+            .catch(error => {
+                document.getElementById('treeContainer').innerHTML = '<div class="loading">Error loading data</div>';
+            });
+    }
+
+    function buildHierarchy(data) {
+        const map = {};
+        const roots = [];
+
+        data.forEach(item => {
+            map[item.id] = { ...item, children: [] };
+        });
+
+        data.forEach(item => {
+            if (item.pid && map[item.pid]) {
+                map[item.pid].children.push(map[item.id]);
+            } else {
+                roots.push(map[item.id]);
+            }
+        });
+
+        return roots;
+    }
+
+    function renderTree(nodes) {
+        const container = document.getElementById('treeContainer');
+        const orgChart = document.createElement('div');
+        orgChart.className = 'org-chart';
+
+        nodes.forEach(node => {
+            orgChart.appendChild(createNode(node));
+        });
+
+        container.innerHTML = '';
+        container.appendChild(orgChart);
+        addEvents();
+    }
+
+    function createNode(node) {
+        const nodeContainer = document.createElement('div');
+        nodeContainer.className = 'node-container';
+
+        const nodeDiv = document.createElement('div');
+        nodeDiv.className = `tree-node ${node.type.toLowerCase()}`;
+
+        nodeDiv.innerHTML = `
+            <div class="node-title">${node.name}</div>
+            <div class="node-type">${node.type}</div>
+            <div>
+                <span class="performance-badge">${node.indicatorsPerformance}</span>
+                <span class="weight-badge">Weight: ${node.weight}</span>
+            </div>
+            ${node.children.length > 0 ? '<div class="expand-icon collapsed"></div>' : ''}
+        `;
+
+        nodeContainer.appendChild(nodeDiv);
+
+        if (node.children.length > 0) {
+            const childrenDiv = document.createElement('div');
+            childrenDiv.className = 'children-container collapsed';
+
+            node.children.forEach(child => {
+                childrenDiv.appendChild(createNode(child));
+            });
+
+            nodeContainer.appendChild(childrenDiv);
+        }
+
+        return nodeContainer;
+    }
+
+    function addEvents() {
+        document.querySelectorAll('.expand-icon').forEach(icon => {
+            icon.addEventListener('click', function() {
+                const container = this.closest('.node-container');
+                const children = container.querySelector('.children-container');
+
+                if (this.classList.contains('collapsed')) {
+                    children.classList.remove('collapsed');
+                    this.classList.remove('collapsed');
+                    this.classList.add('expanded');
+                } else {
+                    children.classList.add('collapsed');
+                    this.classList.remove('expanded');
+                    this.classList.add('collapsed');
+                }
+            });
+        });
+
+        expandAllBtn.addEventListener('click', function() {
+            document.querySelectorAll('.children-container').forEach(el => el.classList.remove('collapsed'));
+            document.querySelectorAll('.expand-icon').forEach(el => {
+                el.classList.remove('collapsed');
+                el.classList.add('expanded');
+            });
+        });
+
+        collapseAllBtn.addEventListener('click', function() {
+            document.querySelectorAll('.children-container').forEach(el => el.classList.add('collapsed'));
+            document.querySelectorAll('.expand-icon').forEach(el => {
+                el.classList.remove('expanded');
+                el.classList.add('collapsed');
+            });
+        });
+    }
+});
+</script>

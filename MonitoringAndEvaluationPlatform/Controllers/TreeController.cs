@@ -26,6 +26,12 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             return View();
         }
 
+        public async Task<IActionResult> Index2(int id)
+        {
+            ViewData["FrameworkCode"] = id;
+            return View();
+        }
+
         public IActionResult GetFrameworkHierarchy(int id)
         {
             var data = _context.Frameworks
