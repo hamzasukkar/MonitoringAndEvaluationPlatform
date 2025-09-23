@@ -88,12 +88,15 @@
                                         <div class="col-md-6">
                                             <select id="governorate" class="form-select">
                                                 <option value="">-- @Localizer["Select Governorate"] --</option>
-                                                @foreach (var gov in governorates)
+                                                @if (governorates != null)
                                                 {
-                                                    var displayName = System.Threading.Thread.CurrentThread.CurrentUICulture.TwoLetterISOLanguageName == "ar"
-                                                    ? gov.AR_Name
-                                                    : gov.EN_Name;
-                                                    <option value="@gov.Code">@displayName</option>
+                                                    @foreach (var gov in governorates)
+                                                    {
+                                                        var displayName = System.Threading.Thread.CurrentThread.CurrentUICulture.TwoLetterISOLanguageName == "ar"
+                                                        ? gov.AR_Name
+                                                        : gov.EN_Name;
+                                                        <option value="@gov.Code">@displayName</option>
+                                                    }
                                                 }
                                             </select>
                                         </div>

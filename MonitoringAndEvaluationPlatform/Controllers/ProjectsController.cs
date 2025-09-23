@@ -136,8 +136,8 @@ namespace MonitoringAndEvaluationPlatform.Controllers
 
             // Prepare dropdown and multiselect data
             ViewBag.Donor = new SelectList(donors, "Code", "Partner");
-            ViewBag.SectorList = new MultiSelectList(sectors, "Code", "AR_Name", new List<int> { firstSectorCode ?? 0 });
-            ViewBag.MinistryList = new MultiSelectList(ministries, "Code", "MinistryDisplayName", new List<int> { firstMinistryCode ?? 0 });
+            ViewBag.SectorList = new MultiSelectList(sectors, "Code", "AR_Name", firstSectorCode.HasValue ? new List<int> { firstSectorCode.Value } : new List<int>());
+            ViewBag.MinistryList = new MultiSelectList(ministries, "Code", "MinistryDisplayName", firstMinistryCode.HasValue ? new List<int> { firstMinistryCode.Value } : new List<int>());
             ViewBag.SuperVisor = new SelectList(supervisors, "Code", "Name");
 
             // Initialize empty donor funding data for create form
@@ -216,17 +216,18 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             if (!ModelState.IsValid)
             {
                 // Re-populate ViewBag dropdowns in case of validation failure
-                ViewBag.Governorates = new SelectList(_context.Governorates, "Code", "AR_Name");
+                ViewBag.Governorates = _context.Governorates.ToList();
                 ViewBag.SectorList = new MultiSelectList(_context.Sectors, "Code", "AR_Name");
-                ViewBag.ProjectManager = new SelectList(_context.ProjectManagers, "Code", "FullName");
-                ViewBag.SuperVisor = new SelectList(_context.SuperVisors, "Code", "FullName");
-                ViewBag.Ministry = new SelectList(_context.Ministries, "Code", "Name");
-                ViewBag.Donor = new SelectList(_context.Donors, "Code", "Name");
+                ViewBag.MinistryList = new MultiSelectList(_context.Ministries, "Code", "MinistryDisplayName");
+                ViewBag.ProjectManager = new SelectList(_context.ProjectManagers, "Code", "Name");
+                ViewBag.SuperVisor = new SelectList(_context.SuperVisors, "Code", "Name");
+                ViewBag.Donor = new SelectList(_context.Donors, "Code", "Partner");
                 ViewBag.Goals = new SelectList(
                  _context.Goals,
                  "Code",
                  isArabic ? "AR_Name" : "EN_Name"
              );
+                ViewBag.Indicators = _context.Indicators.OrderBy(i => i.IndicatorCode).ToList();
 
                 return View(project);
             }

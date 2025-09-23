@@ -318,6 +318,31 @@ namespace MonitoringAndEvaluationPlatform.Infrastructure
                     context.SaveChanges();
                 }
 
+                // Seed Governorates (Syria regions) if they don't exist
+                if (!context.Governorates.Any())
+                {
+                    var governorates = new List<Governorate>
+                    {
+                        new Governorate { Code = "01", AR_Name = "دمشق", EN_Name = "Damascus" },
+                        new Governorate { Code = "02", AR_Name = "ريف دمشق", EN_Name = "Damascus Countryside" },
+                        new Governorate { Code = "03", AR_Name = "حلب", EN_Name = "Aleppo" },
+                        new Governorate { Code = "04", AR_Name = "حمص", EN_Name = "Homs" },
+                        new Governorate { Code = "05", AR_Name = "حماة", EN_Name = "Hama" },
+                        new Governorate { Code = "06", AR_Name = "اللاذقية", EN_Name = "Latakia" },
+                        new Governorate { Code = "07", AR_Name = "طرطوس", EN_Name = "Tartous" },
+                        new Governorate { Code = "08", AR_Name = "إدلب", EN_Name = "Idlib" },
+                        new Governorate { Code = "09", AR_Name = "درعا", EN_Name = "Daraa" },
+                        new Governorate { Code = "10", AR_Name = "السويداء", EN_Name = "As-Suwayda" },
+                        new Governorate { Code = "11", AR_Name = "القنيطرة", EN_Name = "Quneitra" },
+                        new Governorate { Code = "12", AR_Name = "دير الزور", EN_Name = "Deir ez-Zor" },
+                        new Governorate { Code = "13", AR_Name = "الرقة", EN_Name = "Ar-Raqqah" },
+                        new Governorate { Code = "14", AR_Name = "الحسكة", EN_Name = "Al-Hasakah" }
+                    };
+
+                    context.Governorates.AddRange(governorates);
+                    context.SaveChanges();
+                }
+
                 context.SaveChanges();
 
             } // Context is disposed here when the scope ends
