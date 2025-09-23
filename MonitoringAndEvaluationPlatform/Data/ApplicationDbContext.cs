@@ -90,6 +90,13 @@ namespace MonitoringAndEvaluationPlatform.Data
             .WithMany(r => r.Projects)
             .UsingEntity(j => j.ToTable("ProjectMinistries")); // optional table name
 
+            // Configure single Ministry relationship
+            modelBuilder.Entity<Project>()
+                .HasOne(p => p.Ministry)
+                .WithMany()
+                .HasForeignKey(p => p.MinistryCode)
+                .IsRequired(false);
+
             // Project <-> Governorate
             modelBuilder.Entity<Project>()
                 .HasMany(p => p.Governorates)
