@@ -8,13 +8,14 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Localization;
+using MonitoringAndEvaluationPlatform.Attributes;
 using MonitoringAndEvaluationPlatform.Data;
 using MonitoringAndEvaluationPlatform.Models;
 using MonitoringAndEvaluationPlatform.ViewModel;
 
 namespace MonitoringAndEvaluationPlatform.Controllers
 {
-    [Authorize] // Only Admins can access this controller
+    [Authorize]
     public class FrameworksController : Controller
     {
         private readonly ApplicationDbContext _context;
@@ -140,6 +141,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         }
 
         // GET: Frameworks/Create
+        [Permission(Permissions.AddStrategy)]
         public IActionResult Create()
         {
             return View();
@@ -150,6 +152,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Permission(Permissions.AddStrategy)]
         public async Task<IActionResult> Create([Bind("Code,Name")] Framework framework)
         {
             ModelState.Remove(nameof(framework.Outcomes));
@@ -217,6 +220,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         }
 
         // GET: Frameworks/Edit/5
+        [Permission(Permissions.ModifyStrategy)]
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null)
@@ -237,6 +241,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Permission(Permissions.ModifyStrategy)]
         public async Task<IActionResult> Edit(int id, [Bind("Code,Name,Trend,IndicatorsPerformance,DisbursementPerformance,FieldMonitoring,ImpactAssessment")] Framework framework)
         {
             ModelState.Remove(nameof(framework.Outcomes));
@@ -282,6 +287,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             return Ok();
         }
         [HttpPost]
+        [Permission(Permissions.DeleteStrategy)]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
             var framework = await _context.Frameworks.FindAsync(id);
@@ -296,6 +302,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
 
 
         // GET: Frameworks/Delete/5
+        [Permission(Permissions.DeleteStrategy)]
         public async Task<IActionResult> Delete(int? id)
         {
             if (id == null)

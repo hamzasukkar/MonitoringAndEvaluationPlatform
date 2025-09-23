@@ -2,15 +2,18 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
+using MonitoringAndEvaluationPlatform.Attributes;
 using MonitoringAndEvaluationPlatform.Data;
 using MonitoringAndEvaluationPlatform.Models;
 
 namespace MonitoringAndEvaluationPlatform.Controllers
 {
+    [Authorize]
     public class MinistriesController : Controller
     {
         private readonly ApplicationDbContext _context;
@@ -24,6 +27,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             _roleManager = roleManager;
         }
         // GET: Ministries
+        [Permission(Permissions.ReadMinistries)]
         public async Task<IActionResult> Index()
         {
             var ministries = await _context.Ministries.ToListAsync();

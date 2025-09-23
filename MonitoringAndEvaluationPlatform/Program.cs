@@ -1,4 +1,5 @@
 ﻿using System.Globalization;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Localization;
 using Microsoft.AspNetCore.Mvc.Razor;
@@ -30,6 +31,24 @@ builder.Services.AddDefaultIdentity<ApplicationUser>(options =>
 .AddEntityFrameworkStores<ApplicationDbContext>();
 
 builder.Services.AddControllersWithViews();
+
+// Add Authorization policies for permissions
+builder.Services.AddAuthorization(options =>
+{
+    // Register all permissions as policies
+    var permissionFields = typeof(Permissions).GetFields();
+    foreach (var field in permissionFields)
+    {
+        var permission = field.GetValue(null)?.ToString();
+        if (!string.IsNullOrEmpty(permission))
+        {
+            options.AddPolicy(permission, policy =>
+                policy.Requirements.Add(new PermissionRequirement(permission)));
+        }
+    }
+});
+
+builder.Services.AddSingleton<IAuthorizationHandler, PermissionAuthorizationHandler>();
 
 builder.Services.ConfigureApplicationCookie(options =>
 {
@@ -120,23 +139,81 @@ using (var scope = app.Services.CreateScope())
     ApplicationDbInitializer.SeedSubDistrictsFromJson(dbContext);
     ApplicationDbInitializer.SeedCommunitiesFromJson(dbContext);
 
-    // Create Admin role if it doesn’t exist
-    string adminRole = "Admin";
-    if (!await roleManager.RoleExistsAsync(adminRole))
+    // Create roles if they don't exist
+    var rolesToCreate = new[]
     {
-        await roleManager.CreateAsync(new IdentityRole(adminRole));
+        UserRoles.SystemAdministrator,
+        UserRoles.MinistriesUser,
+        UserRoles.DataEntry,
+        UserRoles.ReadingUser
+    };
+
+    foreach (var role in rolesToCreate)
+    {
+        if (!await roleManager.RoleExistsAsync(role))
+        {
+            await roleManager.CreateAsync(new IdentityRole(role));
+        }
     }
 
-    // Create an Admin user if it doesn’t exist
-    string adminUserName = "admin";
-    string adminEmail = "admin@example.com";
-    string adminPassword = "Admin@123"; // Change this in production
-    var adminUser = await userManager.FindByEmailAsync(adminEmail);
-    if (adminUser == null)
+    // Create System Administrator user
+    var sysAdminEmail = "admin@example.com";
+    var sysAdminUser = await userManager.FindByEmailAsync(sysAdminEmail);
+    if (sysAdminUser == null)
     {
-        adminUser = new ApplicationUser { UserName = adminUserName, Email = adminEmail };
-        await userManager.CreateAsync(adminUser, adminPassword);
-        await userManager.AddToRoleAsync(adminUser, adminRole); // Assign Admin role
+        sysAdminUser = new ApplicationUser
+        {
+            UserName = "admin",
+            Email = sysAdminEmail,
+            MinistryName = "System Administration"
+        };
+        await userManager.CreateAsync(sysAdminUser, "Admin@123");
+        await userManager.AddToRoleAsync(sysAdminUser, UserRoles.SystemAdministrator);
+    }
+
+    // Create Ministries User
+    var ministriesEmail = "ministry@example.com";
+    var ministriesUser = await userManager.FindByEmailAsync(ministriesEmail);
+    if (ministriesUser == null)
+    {
+        ministriesUser = new ApplicationUser
+        {
+            UserName = "ministry_user",
+            Email = ministriesEmail,
+            MinistryName = "Ministry of Planning"
+        };
+        await userManager.CreateAsync(ministriesUser, "Ministry@123");
+        await userManager.AddToRoleAsync(ministriesUser, UserRoles.MinistriesUser);
+    }
+
+    // Create Data Entry User
+    var dataEntryEmail = "dataentry@example.com";
+    var dataEntryUser = await userManager.FindByEmailAsync(dataEntryEmail);
+    if (dataEntryUser == null)
+    {
+        dataEntryUser = new ApplicationUser
+        {
+            UserName = "data_entry",
+            Email = dataEntryEmail,
+            MinistryName = "Data Entry Department"
+        };
+        await userManager.CreateAsync(dataEntryUser, "DataEntry@123");
+        await userManager.AddToRoleAsync(dataEntryUser, UserRoles.DataEntry);
+    }
+
+    // Create Reading User
+    var readingEmail = "reader@example.com";
+    var readingUser = await userManager.FindByEmailAsync(readingEmail);
+    if (readingUser == null)
+    {
+        readingUser = new ApplicationUser
+        {
+            UserName = "reading_user",
+            Email = readingEmail,
+            MinistryName = "External Observer"
+        };
+        await userManager.CreateAsync(readingUser, "Reader@123");
+        await userManager.AddToRoleAsync(readingUser, UserRoles.ReadingUser);
     }
 }
 

@@ -6,7 +6,12 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using MonitoringAndEvaluationPlatform.ViewModel;
 using MonitoringAndEvaluationPlatform.Enums;
 using System.Linq;
+using Microsoft.AspNetCore.Authorization;
+using MonitoringAndEvaluationPlatform.Attributes;
+using MonitoringAndEvaluationPlatform.Models;
 
+[Authorize]
+[Permission(Permissions.ViewControlPanel)]
 public class DashboardController : Controller
 {
     private readonly ApplicationDbContext _context;

@@ -1,0 +1,8 @@
+@{
+    ViewData["Title"] = "Admin Only Test";
+}
+
+<h2>Admin Only Test Page</h2>
+<p>This page should be accessible only to System Administrators.</p>
+<p>User: @User.Identity.Name</p>
+<p>Roles: @string.Join(", ", User.Claims.Where(c => c.Type == System.Security.Claims.ClaimTypes.Role).Select(c => c.Value))</p>

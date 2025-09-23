@@ -3,10 +3,12 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
+using MonitoringAndEvaluationPlatform.Attributes;
 using MonitoringAndEvaluationPlatform.Data;
 using MonitoringAndEvaluationPlatform.Models;
 using MonitoringAndEvaluationPlatform.Services;
@@ -15,6 +17,7 @@ using Newtonsoft.Json;
 
 namespace MonitoringAndEvaluationPlatform.Controllers
 {
+    [Authorize]
     public class ProjectsController : Controller
     {
         private readonly ApplicationDbContext _context;
@@ -41,6 +44,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         }
 
         // GET: Programs
+        [Permission(Permissions.ReadProjects)]
         public async Task<IActionResult> Index(ProgramFilterViewModel filter)
         {
             // Load dropdown/filter data
@@ -103,6 +107,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         }
 
         // GET: Programs/Create
+        [Permission(Permissions.AddProject)]
         public IActionResult Create()
         {
             // Retrieve related data
@@ -156,6 +161,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
 
 
         [HttpPost]
+        [Permission(Permissions.AddProject)]
         public async Task<IActionResult> Create(
         Project project,
         List<IFormFile> UploadedFiles,
@@ -464,6 +470,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
 
 
         // GET: Programs/Edit/5
+        [Permission(Permissions.EditProject)]
         public async Task<IActionResult> Edit(int? id)
         {
             var isArabic = CultureInfo.CurrentUICulture.TwoLetterISOLanguageName == "ar";
