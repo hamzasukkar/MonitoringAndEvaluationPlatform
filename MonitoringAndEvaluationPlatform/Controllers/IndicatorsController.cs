@@ -3,9 +3,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text.Json;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
+using MonitoringAndEvaluationPlatform.Attributes;
 using MonitoringAndEvaluationPlatform.Data;
 using MonitoringAndEvaluationPlatform.Enums;
 using MonitoringAndEvaluationPlatform.Models;
@@ -13,6 +15,7 @@ using MonitoringAndEvaluationPlatform.ViewModel;
 
 namespace MonitoringAndEvaluationPlatform.Controllers
 {
+    [Authorize]
     public class IndicatorsController : Controller
     {
         private readonly ApplicationDbContext _context;
@@ -25,6 +28,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         }
 
         // GET: Indicators
+        [Permission(Permissions.ReadIndicators)]
         public async Task<IActionResult> Index(int? frameworkCode, int? subOutputCode, string searchString)
         {
             ViewData["CurrentFilter"] = searchString;
@@ -90,6 +94,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         //}
 
         // GET: Indicators/Create
+        [Permission(Permissions.AddIndicator)]
         public IActionResult Create(int? id)
         {
             // Populate dropdown only if no SubOutput is preselected
@@ -108,6 +113,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Permission(Permissions.AddIndicator)]
         public async Task<IActionResult> Create(Indicator indicator)
         {
             ModelState.Remove(nameof(indicator.SubOutput));
@@ -133,6 +139,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Permission(Permissions.AddIndicator)]
         public async Task<IActionResult> CreateInline(string Name, int Target, int SubOutputCode)
         {
             if (string.IsNullOrWhiteSpace(Name) || Target <= 0)
@@ -166,6 +173,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         /// </summary>
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Permission(Permissions.AddIndicator)]
         public async Task<IActionResult> CreateAndRedirectToProject(string Name, int Target, int SubOutputCode)
         {
             if (string.IsNullOrWhiteSpace(Name) || Target <= 0)
@@ -291,6 +299,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         }
 
         [HttpPost]
+        [Permission(Permissions.ModifyIndicator)]
         public async Task<IActionResult> InlineEditName(int id, [FromBody] JsonElement data)
         {
             var indicator = await _context.Indicators.FindAsync(id);
@@ -303,6 +312,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             return Ok();
         }
         [HttpPost]
+        [Permission(Permissions.DeleteIndicator)]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
             var indicator = await _context.Indicators.FindAsync(id);
@@ -324,6 +334,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
 
 
         // GET: Indicators/Edit/5
+        [Permission(Permissions.ModifyIndicator)]
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null)
@@ -342,6 +353,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Permission(Permissions.ModifyIndicator)]
         public async Task<IActionResult> Edit(int id,Indicator indicator)
         {
             if (id != indicator.IndicatorCode)
@@ -382,6 +394,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         }
 
         // GET: Indicators/Delete/5
+        [Permission(Permissions.DeleteIndicator)]
         public async Task<IActionResult> Delete(int? id)
         {
             if (id == null)
@@ -399,6 +412,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
 
             return View(indicator);
         }
+        [Permission(Permissions.ReadIndicators)]
         public async Task<IActionResult> Details(int id)
         {
             var indicator = await _context.Indicators
@@ -457,6 +471,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
 
 
         [HttpGet]
+        [Permission(Permissions.ReadIndicators)]
         public async Task<IActionResult> GetMeasureChartData(int indicatorCode)
         {
             var data = await _context.Measures
@@ -481,6 +496,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             return Json(result);
         }
 
+        [Permission(Permissions.ReadIndicators)]
         public async Task<IActionResult> MeasureTablePartial(int indicatorCode)
         {
             var measures = await _context.Measures
@@ -497,6 +513,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             return _context.Indicators.Any(e => e.IndicatorCode == id);
         }
 
+        [Permission(Permissions.ReadIndicators)]
         public IActionResult Chart()
         {
             var viewModel = new ChartDataViewModel
@@ -542,6 +559,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         }
 
        // GET: Indicators/AdjustWeights/5
+        [Permission(Permissions.ModifyIndicator)]
         public async Task<IActionResult> AdjustWeights(int frameworkCode, int subOutputCode)
         {
             var indicators = await _context.Indicators
@@ -562,7 +580,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-
+        [Permission(Permissions.ModifyIndicator)]
         public async Task<IActionResult> AdjustWeights(List<IndicatorViewModel> model, int frameworkCode, int subOutputCode)
         {
             double totalWeight = model.Sum(i => i.Weight);
@@ -594,6 +612,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         }
 
         // GET: Indicators/IndicatorAndProject
+        [Permission(Permissions.ReadIndicators)]
         public async Task<IActionResult> IndicatorAndProject(int? projectId, int? frameworkCode, int? subOutputCode, string searchString)
         {
             ViewData["CurrentFilter"] = searchString;
@@ -650,6 +669,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         }
 
         // GET: Indicators/IndicatorAndProjectTable
+        [Permission(Permissions.ReadIndicators)]
         public async Task<IActionResult> IndicatorAndProjectTable(int? projectId, int? frameworkCode, int? subOutputCode, string searchString)
         {
             ViewData["CurrentFilter"] = searchString;

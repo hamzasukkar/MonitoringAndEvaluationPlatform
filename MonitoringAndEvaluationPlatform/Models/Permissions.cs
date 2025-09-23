@@ -78,6 +78,30 @@ namespace MonitoringAndEvaluationPlatform.Models
         public const string AnalyzePerformance = "AnalyzePerformance";
         public const string ExportReports = "ExportReports";
 
+        // Interface 16 - Outcome Management
+        public const string ReadOutcomes = "ReadOutcomes";
+        public const string AddOutcome = "AddOutcome";
+        public const string ModifyOutcome = "ModifyOutcome";
+        public const string DeleteOutcome = "DeleteOutcome";
+
+        // Interface 17 - Output Management
+        public const string ReadOutputs = "ReadOutputs";
+        public const string AddOutput = "AddOutput";
+        public const string ModifyOutput = "ModifyOutput";
+        public const string DeleteOutput = "DeleteOutput";
+
+        // Interface 18 - SubOutput Management
+        public const string ReadSubOutputs = "ReadSubOutputs";
+        public const string AddSubOutput = "AddSubOutput";
+        public const string ModifySubOutput = "ModifySubOutput";
+        public const string DeleteSubOutput = "DeleteSubOutput";
+
+        // Interface 19 - Indicator Management
+        public const string ReadIndicators = "ReadIndicators";
+        public const string AddIndicator = "AddIndicator";
+        public const string ModifyIndicator = "ModifyIndicator";
+        public const string DeleteIndicator = "DeleteIndicator";
+
         // Additional permissions for indicators analysis
         public const string IndicatorAnalysis = "IndicatorAnalysis";
     }

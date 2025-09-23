@@ -175,6 +175,38 @@ namespace MonitoringAndEvaluationPlatform.Infrastructure
                     userRoles.Contains(UserRoles.SystemAdministrator) ||
                     userRoles.Contains(UserRoles.MinistriesUser),
 
+                // Outcome Management - Same as Strategy Management
+                Permissions.ReadOutcomes => userRoles.Contains(UserRoles.SystemAdministrator) ||
+                                          userRoles.Contains(UserRoles.MinistriesUser) ||
+                                          userRoles.Contains(UserRoles.DataEntry) ||
+                                          userRoles.Contains(UserRoles.ReadingUser),
+                Permissions.AddOutcome or Permissions.ModifyOutcome or Permissions.DeleteOutcome =>
+                    userRoles.Contains(UserRoles.SystemAdministrator),
+
+                // Output Management - Same as Strategy Management
+                Permissions.ReadOutputs => userRoles.Contains(UserRoles.SystemAdministrator) ||
+                                         userRoles.Contains(UserRoles.MinistriesUser) ||
+                                         userRoles.Contains(UserRoles.DataEntry) ||
+                                         userRoles.Contains(UserRoles.ReadingUser),
+                Permissions.AddOutput or Permissions.ModifyOutput or Permissions.DeleteOutput =>
+                    userRoles.Contains(UserRoles.SystemAdministrator),
+
+                // SubOutput Management - Same as Strategy Management
+                Permissions.ReadSubOutputs => userRoles.Contains(UserRoles.SystemAdministrator) ||
+                                            userRoles.Contains(UserRoles.MinistriesUser) ||
+                                            userRoles.Contains(UserRoles.DataEntry) ||
+                                            userRoles.Contains(UserRoles.ReadingUser),
+                Permissions.AddSubOutput or Permissions.ModifySubOutput or Permissions.DeleteSubOutput =>
+                    userRoles.Contains(UserRoles.SystemAdministrator),
+
+                // Indicator Management - Same as Strategy Management
+                Permissions.ReadIndicators => userRoles.Contains(UserRoles.SystemAdministrator) ||
+                                            userRoles.Contains(UserRoles.MinistriesUser) ||
+                                            userRoles.Contains(UserRoles.DataEntry) ||
+                                            userRoles.Contains(UserRoles.ReadingUser),
+                Permissions.AddIndicator or Permissions.ModifyIndicator or Permissions.DeleteIndicator =>
+                    userRoles.Contains(UserRoles.SystemAdministrator),
+
                 // Indicator Analysis - SystemAdmin and MinistriesUser only
                 Permissions.IndicatorAnalysis =>
                     userRoles.Contains(UserRoles.SystemAdministrator) ||

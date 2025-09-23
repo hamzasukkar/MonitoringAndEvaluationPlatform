@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
+using MonitoringAndEvaluationPlatform.Attributes;
 using MonitoringAndEvaluationPlatform.Data;
 using MonitoringAndEvaluationPlatform.Models;
 using MonitoringAndEvaluationPlatform.Services;
@@ -13,7 +14,7 @@ using MonitoringAndEvaluationPlatform.ViewModel;
 
 namespace MonitoringAndEvaluationPlatform.Controllers
 {
-    [Authorize(Roles = "Admin")]
+    [Authorize]
     public class OutputsController : Controller
     {
         private readonly ApplicationDbContext _context;
@@ -26,6 +27,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         }
 
         // GET: Outputs
+        [Permission(Permissions.ReadOutputs)]
         public async Task<IActionResult> Index(int? frameworkCode, int? outcomeCode)
         {
             // Start with base query including all related entities
@@ -59,6 +61,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         }
 
         // GET: Outputs/Details/5
+        [Permission(Permissions.ReadOutputs)]
         public async Task<IActionResult> Details(int? id)
         {
             if (id == null)
@@ -79,6 +82,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         }
 
         // GET: Outputs/Create
+        [Permission(Permissions.AddOutput)]
         public IActionResult Create(int? outcomeCode,int? frameworkCode)
         {
             ViewData["OutcomeCode"] = new SelectList(_context.Outcomes, "Code", "Name");
@@ -102,6 +106,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Permission(Permissions.AddOutput)]
         public async Task<IActionResult> Create([Bind("Code,Name,OutcomeCode")] Output output)
         {
             ModelState.Remove(nameof(output.Outcome));
@@ -118,6 +123,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         }
 
         [HttpPost]
+        [Permission(Permissions.ModifyOutput)]
         public async Task<IActionResult> UpdateName(int id, string name)
         {
             var output = await _context.Outputs.FindAsync(id);
@@ -131,6 +137,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         }
 
         // GET: Outputs/Edit/5
+        [Permission(Permissions.ModifyOutput)]
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null)
@@ -152,6 +159,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Permission(Permissions.ModifyOutput)]
         public async Task<IActionResult> Edit(int id, [Bind("Code,Name,Trend,IndicatorsPerformance,DisbursementPerformance,FieldMonitoring,ImpactAssessment,OutcomeCode")] Output output)
         {
             if (id != output.Code)
@@ -186,6 +194,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         }
 
         // GET: Outputs/Delete/5
+        [Permission(Permissions.DeleteOutput)]
         public async Task<IActionResult> Delete(int? id)
         {
             if (id == null)
@@ -205,6 +214,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         }
 
         [HttpPost]
+        [Permission(Permissions.DeleteOutput)]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
             var output = await _context.Outputs.FindAsync(id);
@@ -249,6 +259,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         }
 
         // GET: Indicators/AdjustWeights/5
+        [Permission(Permissions.ModifyOutput)]
         public async Task<IActionResult> AdjustWeights(int outcomeCode)
         {
             var outputs = await _context.Outputs
@@ -268,6 +279,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Permission(Permissions.ModifyOutput)]
         public async Task<IActionResult> AdjustWeights(List<OutputViewModel> model, int outcomeCode)
         {
             double totalWeight = model.Sum(i => i.Weight);
