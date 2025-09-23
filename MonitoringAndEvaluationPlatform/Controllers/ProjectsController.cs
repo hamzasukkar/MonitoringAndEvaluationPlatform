@@ -22,14 +22,16 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         private readonly RoleManager<IdentityRole> _roleManager;
         private readonly IActivityService _activityService;
         private readonly PlanService _planService;
+        private readonly IProjectValidationService _validationService;
 
-        public ProjectsController(ApplicationDbContext context, UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager, IActivityService activityService, PlanService planService)
+        public ProjectsController(ApplicationDbContext context, UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager, IActivityService activityService, PlanService planService, IProjectValidationService validationService)
         {
             _context = context;
             _userManager = userManager;
             _roleManager = roleManager;
             _activityService = activityService;
             _planService = planService;
+            _validationService = validationService;
         }
 
 
@@ -205,14 +207,17 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             ModelState.Remove(nameof(Project.Governorates));
             ModelState.Remove(nameof(Project.Goal));
 
-            if (PlansCount < 1)
-            {
-                // Add a ModelState error against the field name “PlansCount”
-                ModelState.AddModelError(
-                    "PlansCount",
-                    "Plans Count must be at least 1."
-                );
-            }
+            // Get sectors for validation
+            var selectedSectorCodes = Request.Form["Sectors"].ToList();
+
+            // Use validation service for comprehensive validation
+            _validationService.ValidateProjectCreation(
+                project,
+                selectedLocations,
+                selectedSectorCodes,
+                SelectedIndicators,
+                PlansCount,
+                ModelState);
 
             if (!ModelState.IsValid)
             {
@@ -233,8 +238,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 return View(project);
             }
 
-            // 1) Handle sector selection from form
-            var selectedSectorCodes = Request.Form["Sectors"].ToList();
+            // Handle sector selection (already validated above)
             var selectedSectors = _context.Sectors
                                          .Where(r => selectedSectorCodes.Contains(r.Code.ToString()))
                                          .ToList();
@@ -411,12 +415,12 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 
                 await _context.SaveChangesAsync();
                 
-                // Display success message
-                TempData["SuccessMessage"] = $"Project created successfully with {SelectedIndicators.Count} indicator(s) linked.";
+                // Display detailed success message
+                this.SetSuccessMessage($"Project '{project.ProjectName}' has been created successfully with {SelectedIndicators.Count} indicator(s) linked and {PlansCount} month(s) planned.");
             }
             else
             {
-                TempData["SuccessMessage"] = "Project created successfully.";
+                this.SetSuccessMessage($"Project '{project.ProjectName}' has been created successfully.");
             }
 
             return RedirectToAction("Index");

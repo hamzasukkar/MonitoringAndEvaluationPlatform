@@ -41,6 +41,8 @@ builder.Services.AddScoped<MonitoringService>();
 builder.Services.AddScoped<PlanService>();
 builder.Services.AddScoped<IActivityService, ActivityService>();
 builder.Services.AddScoped<IPerformanceService, PerformanceService>();
+builder.Services.AddScoped<IProjectValidationService, ProjectValidationService>();
+builder.Services.AddScoped<INotificationService, NotificationService>();
 builder.Services.AddLocalization(options => options.ResourcesPath = "Resources");
 
 builder.Services.Configure<RequestLocalizationOptions>(options =>

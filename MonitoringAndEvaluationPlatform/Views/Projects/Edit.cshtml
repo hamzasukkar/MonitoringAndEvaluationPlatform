@@ -246,7 +246,7 @@
                                     </h6>
                                     <div class="alert alert-info">
                                         <i class="fas fa-info-circle me-2"></i>
-                                        @Localizer["Use sliders to specify the funding percentage for each donor. Total should equal 100%."]
+                                        @Localizer["Use sliders to specify the funding percentage for each donor. Total cannot exceed 100%."]
                                     </div>
 
                                     <div id="donorContributionList" class="mb-4"></div>
@@ -262,7 +262,7 @@
                                                         <span id="totalPercentage" class="h4 mb-0 me-2">0.00</span>
                                                         <span class="text-muted">%</span>
                                                     </div>
-                                                    <small id="percentageStatus" class="text-muted">@Localizer["Should equal 100%"]</small>
+                                                    <small id="percentageStatus" class="text-muted">@Localizer["Cannot exceed 100%"]</small>
                                                 </div>
                                             </div>
                                         </div>
@@ -823,14 +823,14 @@
 
         // Update status message
         const statusElement = $('#percentageStatus');
-        if (Math.abs(totalPercentage - 100) < 0.1) {
-            statusElement.text('Perfect! Equals 100%').removeClass('text-warning text-danger').addClass('text-success');
-        } else if (totalPercentage > 100) {
-            statusElement.text('Warning: Exceeds 100%').removeClass('text-success text-muted').addClass('text-danger');
-        } else if (totalPercentage > 0 && totalPercentage < 100) {
-            statusElement.text('Incomplete: Less than 100%').removeClass('text-success text-danger').addClass('text-warning');
+        if (totalPercentage > 100) {
+            statusElement.text('Error: Exceeds 100%').removeClass('text-success text-muted text-warning').addClass('text-danger');
+        } else if (totalPercentage === 100) {
+            statusElement.text('Fully funded (100%)').removeClass('text-warning text-danger text-muted').addClass('text-success');
+        } else if (totalPercentage > 0) {
+            statusElement.text(`Partially funded (${totalPercentage.toFixed(1)}%)`).removeClass('text-success text-danger text-muted').addClass('text-warning');
         } else {
-            statusElement.text('Should equal 100%').removeClass('text-success text-warning text-danger').addClass('text-muted');
+            statusElement.text('Cannot exceed 100%').removeClass('text-success text-warning text-danger').addClass('text-muted');
         }
 
         // Update hidden field with funding data

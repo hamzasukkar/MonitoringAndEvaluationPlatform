@@ -41,10 +41,17 @@
                         @Localizer["Project Information"]
                     </h5>
                 </div>
-                <div class="card-body">
+                <div id="main-form-body" class="card-body">
+                    <!-- Include notification partial -->
+                    <partial name="_Notifications" />
+
                     @using (Html.BeginForm("Create", "Projects", FormMethod.Post, new { enctype = "multipart/form-data", @class = "needs-validation", novalidate = "novalidate" }))
                     {
-                        <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+                        <!-- Improved validation summary with better styling -->
+                        <div id="server-validation-summary" asp-validation-summary="ModelOnly" class="alert alert-danger alert-dismissible fade show" role="alert">
+                            <strong><i class="fas fa-exclamation-triangle me-2"></i>Please correct the following errors:</strong>
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
 
                         <div class="row">
                             <!-- Left Column -->
@@ -57,10 +64,11 @@
                                 <div class="mb-4">
                                     <label asp-for="ProjectName" class="form-label fw-bold">
                                         <i class="fas fa-project-diagram me-2"></i>
-                                        @Localizer["Project Name"]
+                                        @Localizer["Project Name"] <span class="text-danger">*</span>
                                     </label>
-                                    <input asp-for="ProjectName" class="form-control form-control-lg" placeholder="Enter project name" required />
-                                    <span asp-validation-for="ProjectName" class="text-danger small"></span>
+                                    <input asp-for="ProjectName" class="form-control form-control-lg" placeholder="Enter a descriptive project name (3-200 characters)" />
+                                    <div class="form-text">Choose a clear and meaningful name for your project</div>
+                                    <span asp-validation-for="ProjectName" class="invalid-feedback d-block"></span>
                                 </div>
 
                                 <!-- Plans Count calculated from project duration -->
@@ -145,18 +153,20 @@
                                     <div class="col-md-6">
                                         <label asp-for="StartDate" class="form-label fw-bold">
                                             <i class="fas fa-play me-2"></i>
-                                            @Localizer["Start Date"]
+                                            @Localizer["Start Date"] <span class="text-danger">*</span>
                                         </label>
-                                        <input type="date" asp-for="StartDate" value="@startDate" class="form-control form-control-lg" required />
-                                        <span asp-validation-for="StartDate" class="text-danger small"></span>
+                                        <input type="date" asp-for="StartDate" value="@startDate" class="form-control form-control-lg" />
+                                        <div class="form-text">Project implementation start date</div>
+                                        <span asp-validation-for="StartDate" class="invalid-feedback d-block"></span>
                                     </div>
                                     <div class="col-md-6">
                                         <label asp-for="EndDate" class="form-label fw-bold">
                                             <i class="fas fa-stop me-2"></i>
-                                            @Localizer["End Date"]
+                                            @Localizer["End Date"] <span class="text-danger">*</span>
                                         </label>
-                                        <input type="date" asp-for="EndDate" value="@endDate" class="form-control form-control-lg" required />
-                                        <span asp-validation-for="EndDate" class="text-danger small"></span>
+                                        <input type="date" asp-for="EndDate" value="@endDate" class="form-control form-control-lg" />
+                                        <div class="form-text">Project completion deadline</div>
+                                        <span asp-validation-for="EndDate" class="invalid-feedback d-block"></span>
                                     </div>
                                 </div>
                                 </div>
@@ -170,13 +180,14 @@
                                 <div class="mb-4">
                                     <label asp-for="EstimatedBudget" class="form-label fw-bold">
                                         <i class="fas fa-coins me-2"></i>
-                                        @Localizer["Estimated Budget"]
+                                        @Localizer["Estimated Budget"] <span class="text-danger">*</span>
                                     </label>
                                     <div class="input-group">
                                         <span class="input-group-text">$</span>
-                                        <input asp-for="EstimatedBudget" class="form-control form-control-lg" min="0.01" step="0.01" required />
+                                        <input asp-for="EstimatedBudget" class="form-control form-control-lg" min="0.01" step="0.01" placeholder="0.00" />
                                     </div>
-                                    <span asp-validation-for="EstimatedBudget" class="text-danger small"></span>
+                                    <div class="form-text">Enter the total estimated budget for this project (minimum $0.01)</div>
+                                    <span asp-validation-for="EstimatedBudget" class="invalid-feedback d-block"></span>
                                 </div>
 
                                 <!-- Stakeholders -->
@@ -186,32 +197,37 @@
                                 <div class="mb-4">
                                     <label class="form-label fw-bold">
                                         <i class="fas fa-industry me-2"></i>
-                                        @Localizer["Sectors"]
+                                        @Localizer["Sectors"] <span class="text-danger">*</span>
                                     </label>
                                     <select asp-for="Sectors" class="form-select" asp-items="ViewBag.SectorList" multiple size="4">
                                         <option disabled>@Localizer["Select one or more sectors"]</option>
                                     </select>
                                     <div class="form-text">@Localizer["Hold Ctrl/Cmd to select multiple sectors"]</div>
+                                    <div id="sectors-validation-error" class="invalid-feedback d-block" style="display: none;"></div>
                                 </div>
 
                                 <div class="mb-4">
                                     <label asp-for="ProjectManagerCode" class="form-label fw-bold">
                                         <i class="fas fa-user-tie me-2"></i>
-                                        @Localizer["Project Manager"]
+                                        @Localizer["Project Manager"] <span class="text-danger">*</span>
                                     </label>
                                     <select asp-for="ProjectManagerCode" class="form-select form-select-lg" asp-items="ViewBag.ProjectManager">
-                                        <option value="">Select Project Manager</option>
+                                        <option value="">-- Select Project Manager --</option>
                                     </select>
+                                    <div class="form-text">Choose the primary manager responsible for this project</div>
+                                    <span asp-validation-for="ProjectManagerCode" class="invalid-feedback d-block"></span>
                                 </div>
 
                                 <div class="mb-4">
                                     <label asp-for="SuperVisorCode" class="form-label fw-bold">
                                         <i class="fas fa-user-check me-2"></i>
-                                        @Localizer["Supervisor"]
+                                        @Localizer["Supervisor"] <span class="text-danger">*</span>
                                     </label>
                                     <select asp-for="SuperVisorCode" class="form-select form-select-lg" asp-items="ViewBag.SuperVisor">
-                                        <option value="">Select Supervisor</option>
+                                        <option value="">-- Select Supervisor --</option>
                                     </select>
+                                    <div class="form-text">Choose the supervisor who will oversee this project</div>
+                                    <span asp-validation-for="SuperVisorCode" class="invalid-feedback d-block"></span>
                                 </div>
 
                                 <div class="mb-4">
@@ -270,7 +286,7 @@
                                     </h6>
                                     <div class="alert alert-info">
                                         <i class="fas fa-info-circle me-2"></i>
-                                        @Localizer["Use sliders to specify the funding percentage for each donor. Total should equal 100%."]
+                                        @Localizer["Use sliders to specify the funding percentage for each donor. Total cannot exceed 100%."]
                                     </div>
 
                                     <div id="donorContributionList" class="mb-4"></div>
@@ -286,7 +302,7 @@
                                                         <span id="totalPercentage" class="h4 mb-0 me-2">0.00</span>
                                                         <span class="text-muted">%</span>
                                                     </div>
-                                                    <small id="percentageStatus" class="text-muted">@Localizer["Should equal 100%"]</small>
+                                                    <small id="percentageStatus" class="text-muted">@Localizer["Cannot exceed 100%"]</small>
                                                 </div>
                                             </div>
                                         </div>
@@ -316,9 +332,12 @@
                                     <i class="fas fa-bullseye me-2"></i>@Localizer["Project Indicators"]
                                 </h6>
                                 <div class="mb-4">
-                                    <label class="form-label fw-bold">@Localizer["Select Indicator"]</label>
+                                    <label class="form-label fw-bold">
+                                        <i class="fas fa-chart-line me-2"></i>
+                                        @Localizer["Select Indicator"] <span class="text-danger">*</span>
+                                    </label>
                                     <select name="SelectedIndicators" class="form-select form-select-lg" id="indicatorSelect">
-                                        <option value="">@Localizer["Select an indicator"]</option>
+                                        <option value="">-- @Localizer["Select an indicator"] --</option>
                                         @if (ViewBag.Indicators != null)
                                         {
                                             @foreach (var indicator in ViewBag.Indicators as List<Indicator>)
@@ -333,6 +352,8 @@
                                             }
                                         }
                                     </select>
+                                    <div class="form-text">Choose the key performance indicator for measuring project success</div>
+                                    <div id="indicator-validation-error" class="invalid-feedback d-block" style="display: none;"></div>
                                 </div>
 
                                 <!-- Files Upload -->
@@ -844,14 +865,14 @@
 
         // Update status message
         const statusElement = $('#percentageStatus');
-        if (Math.abs(totalPercentage - 100) < 0.1) {
-            statusElement.text('Perfect! Equals 100%').removeClass('text-warning text-danger').addClass('text-success');
-        } else if (totalPercentage > 100) {
-            statusElement.text('Warning: Exceeds 100%').removeClass('text-success text-muted').addClass('text-danger');
-        } else if (totalPercentage > 0 && totalPercentage < 100) {
-            statusElement.text('Incomplete: Less than 100%').removeClass('text-success text-danger').addClass('text-warning');
+        if (totalPercentage > 100) {
+            statusElement.text('Error: Exceeds 100%').removeClass('text-success text-muted text-warning').addClass('text-danger');
+        } else if (totalPercentage === 100) {
+            statusElement.text('Fully funded (100%)').removeClass('text-warning text-danger text-muted').addClass('text-success');
+        } else if (totalPercentage > 0) {
+            statusElement.text(`Partially funded (${totalPercentage.toFixed(1)}%)`).removeClass('text-success text-danger text-muted').addClass('text-warning');
         } else {
-            statusElement.text('Should equal 100%').removeClass('text-success text-warning text-danger').addClass('text-muted');
+            statusElement.text('Cannot exceed 100%').removeClass('text-success text-warning text-danger').addClass('text-muted');
         }
 
         // Update hidden field with funding data
@@ -863,13 +884,90 @@
         calculateDonorTotals();
     });
 
-    // Prevent submitting if no locations have been added
+    // Enhanced form validation before submission
     $('form.needs-validation').on('submit', function (e) {
-      if (selections.length === 0) {
-        e.preventDefault();
-        showValidationMessage("You must add at least one location before creating the project.");
-        return false;
-      }
+        let isValid = true;
+        let errorMessages = [];
+
+        // Check if locations are selected
+        if (selections.length === 0) {
+            errorMessages.push("At least one project location must be selected.");
+            isValid = false;
+        }
+
+        // Check if sectors are selected
+        const selectedSectors = $('select[name="Sectors"]').val();
+        if (!selectedSectors || selectedSectors.length === 0) {
+            errorMessages.push("At least one sector must be selected.");
+            $('#sectors-validation-error').text("At least one sector must be selected.").show();
+            isValid = false;
+        } else {
+            $('#sectors-validation-error').hide();
+        }
+
+        // Check if indicator is selected
+        const selectedIndicator = $('#indicatorSelect').val();
+        if (!selectedIndicator) {
+            errorMessages.push("An indicator must be selected.");
+            $('#indicator-validation-error').text("An indicator must be selected.").show();
+            isValid = false;
+        } else {
+            $('#indicator-validation-error').hide();
+        }
+
+        // Check if project manager is selected
+        const projectManager = $('select[name="ProjectManagerCode"]').val();
+        if (!projectManager) {
+            errorMessages.push("A project manager must be selected.");
+            isValid = false;
+        }
+
+        // Check if supervisor is selected
+        const supervisor = $('select[name="SuperVisorCode"]').val();
+        if (!supervisor) {
+            errorMessages.push("A supervisor must be selected.");
+            isValid = false;
+        }
+
+        // Check date range
+        const startDate = new Date($('input[name="StartDate"]').val());
+        const endDate = new Date($('input[name="EndDate"]').val());
+        if (startDate && endDate && endDate <= startDate) {
+            errorMessages.push("End date must be after start date.");
+            isValid = false;
+        }
+
+        // Check donor funding total if donors are selected (should not exceed 100%)
+        if (selectedDonors.length > 0) {
+            const totalPercentage = parseFloat($('#totalPercentage').text());
+            if (totalPercentage > 100) {
+                errorMessages.push("Total donor funding percentage cannot exceed 100%.");
+                isValid = false;
+            }
+        }
+
+        if (!isValid) {
+            e.preventDefault();
+            // Show all error messages
+            const errorHtml = '<div id="form-validation-alert" class="alert alert-danger alert-dismissible fade show mt-3" role="alert">' +
+                '<strong><i class="fas fa-exclamation-triangle me-2"></i>Please fix the following issues:</strong>' +
+                '<ul class="mb-0 mt-2">' +
+                errorMessages.map(msg => `<li>${msg}</li>`).join('') +
+                '</ul>' +
+                '<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>' +
+                '</div>';
+
+            // Remove existing form validation alert and add new one
+            $('#form-validation-alert').remove();
+            $('#main-form-body').prepend(errorHtml);
+
+            // Scroll to top of form
+            $('html, body').animate({
+                scrollTop: $('#main-form-body').offset().top - 100
+            }, 500);
+
+            return false;
+        }
     });
 
 
