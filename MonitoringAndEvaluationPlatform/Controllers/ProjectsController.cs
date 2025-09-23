@@ -139,6 +139,9 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             ViewBag.SectorList = new MultiSelectList(sectors, "Code", "AR_Name", new List<int> { firstSectorCode ?? 0 });
             ViewBag.MinistryList = new MultiSelectList(ministries, "Code", "MinistryDisplayName", new List<int> { firstMinistryCode ?? 0 });
             ViewBag.SuperVisor = new SelectList(supervisors, "Code", "Name");
+
+            // Initialize empty donor funding data for create form
+            ViewBag.DonorFundingData = JsonConvert.SerializeObject(new Dictionary<string, decimal>());
             ViewBag.ProjectManager = new SelectList(projectManagers, "Code", "Name");
             ViewBag.Goals = new SelectList(
                 goals,
@@ -156,7 +159,8 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         List<IFormFile> UploadedFiles,
         int PlansCount,
         string selections,               // Location selections
-        List<int> SelectedIndicators     // Selected indicator codes
+        List<int> SelectedIndicators,    // Selected indicator codes
+        string DonorFundingBreakdown     // Donor funding percentages
     )
         {
             // Deserialize JSON string into a list of location selection objects
@@ -241,6 +245,54 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                                          .Where(r => selectedDonorCodes.Contains(r.Code.ToString()))
                                          .ToList();
             project.Donors = selectedDonors;
+
+            // Handle donor funding breakdown
+            if (!string.IsNullOrEmpty(DonorFundingBreakdown))
+            {
+                try
+                {
+                    var fundingData = JsonConvert.DeserializeObject<Dictionary<string, decimal>>(DonorFundingBreakdown);
+
+                    foreach (var donorCodeStr in selectedDonorCodes)
+                    {
+                        if (int.TryParse(donorCodeStr, out int donorCode))
+                        {
+                            var fundingPercentage = fundingData.ContainsKey(donorCodeStr)
+                                ? fundingData[donorCodeStr]
+                                : 0;
+
+                            var fundingAmount = (decimal)project.EstimatedBudget * (fundingPercentage / 100);
+
+                            var projectDonor = new ProjectDonor
+                            {
+                                DonorCode = donorCode,
+                                FundingPercentage = fundingPercentage,
+                                FundingAmount = fundingAmount
+                            };
+
+                            project.ProjectDonors.Add(projectDonor);
+                        }
+                    }
+                }
+                catch (JsonException)
+                {
+                    // If JSON parsing fails, create ProjectDonor records with 0% funding
+                    foreach (var donorCodeStr in selectedDonorCodes)
+                    {
+                        if (int.TryParse(donorCodeStr, out int donorCode))
+                        {
+                            var projectDonor = new ProjectDonor
+                            {
+                                DonorCode = donorCode,
+                                FundingPercentage = 0,
+                                FundingAmount = 0
+                            };
+
+                            project.ProjectDonors.Add(projectDonor);
+                        }
+                    }
+                }
+            }
 
             // 1) Handle donor selection from form
             var selectedMinistryCodes = Request.Form["Ministries"].ToList();
@@ -418,6 +470,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
 
             // Explicitly load other collections only if needed later in the view
             await _context.Entry(project).Collection(p => p.Donors).LoadAsync();
+            await _context.Entry(project).Collection(p => p.ProjectDonors).LoadAsync();
             await _context.Entry(project).Collection(p => p.Ministries).LoadAsync();
             await _context.Entry(project).Collection(p => p.Governorates).LoadAsync();
             await _context.Entry(project).Collection(p => p.Districts).LoadAsync();
@@ -466,13 +519,20 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                                         .Select(s => s.Code)      // a collection of int
                                         .ToList();
 
-            // When you construct the MultiSelectList, pass in that “selected” list:
+            // When you construct the MultiSelectList, pass in that "selected" list:
             ViewBag.DonorList = new MultiSelectList(
                 allDonors,
                 "Code",      // value field
                 "Partner",      // text field
                 selectedDonorCodes  // whichever codes should be pre‐checked
             );
+
+            // Pass existing donor funding percentages to the view
+            var donorFundingData = project.ProjectDonors.ToDictionary(
+                pd => pd.DonorCode.ToString(),
+                pd => pd.FundingPercentage
+            );
+            ViewBag.DonorFundingData = JsonConvert.SerializeObject(donorFundingData);
 
             // Build the Donors MultiSelectList, marking the project’s existing donor codes as “selected”:
             var allMinistries = await _context.Ministries.ToListAsync();
@@ -525,7 +585,8 @@ namespace MonitoringAndEvaluationPlatform.Controllers
           List<int> SelectedSectorCodes,
           List<int> SelectedDonorCodes,
           List<int> selectedMinistryCodes,
-            string selections)
+          string selections,
+          string DonorFundingBreakdown)
         {
             if (id != project.ProjectID)
                 return NotFound();
@@ -581,6 +642,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             var dbProject = await _context.Projects
                 .Include(p => p.Sectors)
                 .Include(p => p.Donors)
+                .Include(p => p.ProjectDonors)
                 .Include(p => p.Ministries)
                 .Include(p => p.Governorates)
                 .Include(p => p.Districts)
@@ -618,7 +680,83 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             foreach (var s in sectors)
                 dbProject.Sectors.Add(s);
 
-            // --- Update Donors many‐to‐many ---
+            // --- Update Donors with funding percentages ---
+            // Clear existing project donors
+            dbProject.ProjectDonors.Clear();
+
+            // Process donor funding breakdown if provided
+            if (!string.IsNullOrEmpty(DonorFundingBreakdown))
+            {
+                try
+                {
+                    var fundingData = JsonConvert.DeserializeObject<Dictionary<string, decimal>>(DonorFundingBreakdown);
+
+                    foreach (var donorCode in SelectedDonorCodes)
+                    {
+                        var donor = await _context.Donors.FindAsync(donorCode);
+                        if (donor != null)
+                        {
+                            var fundingPercentage = fundingData.ContainsKey(donorCode.ToString())
+                                ? fundingData[donorCode.ToString()]
+                                : 0;
+
+                            var fundingAmount = (decimal)dbProject.EstimatedBudget * (fundingPercentage / 100);
+
+                            var projectDonor = new ProjectDonor
+                            {
+                                ProjectId = dbProject.ProjectID,
+                                DonorCode = donorCode,
+                                FundingPercentage = fundingPercentage,
+                                FundingAmount = fundingAmount
+                            };
+
+                            dbProject.ProjectDonors.Add(projectDonor);
+                        }
+                    }
+                }
+                catch (JsonException)
+                {
+                    // If JSON parsing fails, fall back to creating ProjectDonor records with 0% funding
+                    foreach (var donorCode in SelectedDonorCodes)
+                    {
+                        var donor = await _context.Donors.FindAsync(donorCode);
+                        if (donor != null)
+                        {
+                            var projectDonor = new ProjectDonor
+                            {
+                                ProjectId = dbProject.ProjectID,
+                                DonorCode = donorCode,
+                                FundingPercentage = 0,
+                                FundingAmount = 0
+                            };
+
+                            dbProject.ProjectDonors.Add(projectDonor);
+                        }
+                    }
+                }
+            }
+            else
+            {
+                // No funding breakdown provided, create ProjectDonor records with 0% funding
+                foreach (var donorCode in SelectedDonorCodes)
+                {
+                    var donor = await _context.Donors.FindAsync(donorCode);
+                    if (donor != null)
+                    {
+                        var projectDonor = new ProjectDonor
+                        {
+                            ProjectId = dbProject.ProjectID,
+                            DonorCode = donorCode,
+                            FundingPercentage = 0,
+                            FundingAmount = 0
+                        };
+
+                        dbProject.ProjectDonors.Add(projectDonor);
+                    }
+                }
+            }
+
+            // Also maintain the legacy Donors collection for backward compatibility
             var donors = await _context.Donors
                 .Where(d => SelectedDonorCodes.Contains(d.Code))
                 .ToListAsync();
