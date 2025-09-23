@@ -125,14 +125,40 @@
                             <div class="info-row">
                                 <div class="info-label">
                                     <i class="fas fa-handshake me-2"></i>
-                                    @Localizer["Donor"]
+                                    @Localizer["Donors & Funding"]
                                 </div>
                                 <div class="info-value">
-                                    @foreach (var donor in Model.Donors)
+                                    @if (Model.ProjectDonors != null && Model.ProjectDonors.Any())
                                     {
-                                        <span class="modern-badge badge-primary">
-                                            @donor.Partner
-                                        </span>
+                                        @foreach (var projectDonor in Model.ProjectDonors)
+                                        {
+                                            <div class="donor-funding-item mb-2">
+                                                <div class="donor-info">
+                                                    <span class="modern-badge badge-primary">
+                                                        @projectDonor.Donor.Partner
+                                                    </span>
+                                                    <div class="funding-details mt-1">
+                                                        <small class="text-muted">
+                                                            <i class="fas fa-percentage me-1"></i>
+                                                            @projectDonor.FundingPercentage.ToString("0.##")%
+                                                        </small>
+                                                        <small class="text-muted ms-2">
+                                                            <i class="fas fa-dollar-sign me-1"></i>
+                                                            @projectDonor.FundingAmount.ToString("N2")
+                                                        </small>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        }
+                                    }
+                                    else
+                                    {
+                                        @foreach (var donor in Model.Donors)
+                                        {
+                                            <span class="modern-badge badge-primary">
+                                                @donor.Partner
+                                            </span>
+                                        }
                                     }
                                 </div>
                             </div>
@@ -327,9 +353,52 @@
                                     @Localizer["Estimated Budget"]
                                 </div>
                                 <div class="info-value">
-                                    <span class="budget-amount">@Html.DisplayFor(model => model.EstimatedBudget)</span>
+                                    <span class="budget-amount">$@Model.EstimatedBudget.ToString("N2")</span>
                                 </div>
                             </div>
+
+                            @if (Model.ProjectDonors != null && Model.ProjectDonors.Any())
+                            {
+                                <div class="info-row">
+                                    <div class="info-label">
+                                        <i class="fas fa-hand-holding-usd me-2"></i>
+                                        @Localizer["Total Donor Funding"]
+                                    </div>
+                                    <div class="info-value">
+                                        @{
+                                            var totalDonorFunding = Model.ProjectDonors.Sum(pd => pd.FundingAmount);
+                                            var fundingPercentage = Model.EstimatedBudget > 0 ? (double)(totalDonorFunding / (decimal)Model.EstimatedBudget) * 100 : 0;
+                                        }
+                                        <span class="budget-amount text-success">$@totalDonorFunding.ToString("N2")</span>
+                                        <div class="mt-1">
+                                            <small class="text-muted">
+                                                <i class="fas fa-chart-pie me-1"></i>
+                                                @fundingPercentage.ToString("0.##")% of total budget
+                                            </small>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="info-row">
+                                    <div class="info-label">
+                                        <i class="fas fa-exclamation-triangle me-2"></i>
+                                        @Localizer["Funding Gap"]
+                                    </div>
+                                    <div class="info-value">
+                                        @{
+                                            var remainingBudget = (decimal)Model.EstimatedBudget - totalDonorFunding;
+                                            var remainingPercentage = Model.EstimatedBudget > 0 ? (double)(remainingBudget / (decimal)Model.EstimatedBudget) * 100 : 0;
+                                        }
+                                        <span class="budget-amount @(remainingBudget > 0 ? "text-warning" : "text-success")">$@remainingBudget.ToString("N2")</span>
+                                        <div class="mt-1">
+                                            <small class="text-muted">
+                                                <i class="fas fa-chart-pie me-1"></i>
+                                                @remainingPercentage.ToString("0.##")% remaining to fund
+                                            </small>
+                                        </div>
+                                    </div>
+                                </div>
+                            }
                         </div>
                     </div>
                 </div>
@@ -562,6 +631,40 @@
         .budget-amount {
             font-size: 1.2rem;
             font-weight: 700;
+            color: var(--primary-color);
+        }
+
+        /* Donor Funding Styling */
+        .donor-funding-item {
+            border-left: 3px solid var(--primary-color);
+            padding-left: 0.75rem;
+            margin-bottom: 0.75rem;
+            background: rgba(255, 255, 255, 0.5);
+            border-radius: 8px;
+            padding: 0.75rem;
+        }
+
+        .donor-info {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .funding-details {
+            display: flex;
+            gap: 1rem;
+            margin-top: 0.5rem;
+        }
+
+        .funding-details small {
+            display: flex;
+            align-items: center;
+            font-weight: 600;
+            padding: 0.25rem 0.5rem;
+            border-radius: 15px;
+            background: rgba(108, 117, 125, 0.1);
+        }
+
+        .funding-details small i {
             color: var(--primary-color);
         }
 

@@ -450,6 +450,9 @@ namespace MonitoringAndEvaluationPlatform.Controllers
 
             // Explicitly load other collections only if needed later in the view
             await _context.Entry(project).Collection(p => p.Donors).LoadAsync();
+            await _context.Entry(project).Collection(p => p.ProjectDonors).Query()
+                .Include(pd => pd.Donor)
+                .LoadAsync();
             await _context.Entry(project).Collection(p => p.Ministries).LoadAsync();
             await _context.Entry(project).Collection(p => p.Governorates).LoadAsync();
             await _context.Entry(project).Collection(p => p.Districts).LoadAsync();
