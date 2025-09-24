@@ -1,5 +1,6 @@
 ﻿@model IEnumerable<MonitoringAndEvaluationPlatform.Models.Outcome>
 @using MonitoringAndEvaluationPlatform.Helpers
+@using MonitoringAndEvaluationPlatform.Models
 @inject IViewLocalizer Localizer
 @using Microsoft.AspNetCore.Mvc.Localization
 @using Microsoft.AspNetCore.Localization
@@ -157,14 +158,17 @@
                             </td>
                             <td class="text-center">
                                 <div class="btn-group action-buttons" role="group">
-                                    <button class="btn btn-outline-primary btn-sm action-btn"
-                                            onclick="toggleOutcomeEdit(@item.Code)" title="Edit Name">
-                                        <i class="fas fa-edit"></i>
-                                    </button>
-                                    <button class="btn btn-outline-danger btn-sm action-btn"
-                                            onclick="confirmOutcomeDelete(@item.Code)" title="Delete">
-                                        <i class="fas fa-trash-alt"></i>
-                                    </button>
+                                    @if (User.IsInRole(UserRoles.SystemAdministrator))
+                                    {
+                                        <button class="btn btn-outline-primary btn-sm action-btn"
+                                                onclick="toggleOutcomeEdit(@item.Code)" title="Edit Name">
+                                            <i class="fas fa-edit"></i>
+                                        </button>
+                                        <button class="btn btn-outline-danger btn-sm action-btn"
+                                                onclick="confirmOutcomeDelete(@item.Code)" title="Delete">
+                                            <i class="fas fa-trash-alt"></i>
+                                        </button>
+                                    }
                                 </div>
                             </td>
                         </tr>

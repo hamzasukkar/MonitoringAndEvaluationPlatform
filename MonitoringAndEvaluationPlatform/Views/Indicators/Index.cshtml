@@ -1,5 +1,6 @@
 ﻿@model IEnumerable<MonitoringAndEvaluationPlatform.Models.Indicator>
 @using MonitoringAndEvaluationPlatform.Helpers
+@using MonitoringAndEvaluationPlatform.Models
 @using Microsoft.AspNetCore.Mvc.Localization
 @inject IViewLocalizer Localizer
 @using Microsoft.AspNetCore.Localization
@@ -218,19 +219,22 @@
                             </td>
                             <td class="text-center">
                                 <div class="btn-group action-buttons" role="group">
-                                    <a asp-action="Details" asp-route-id="@item.IndicatorCode" 
+                                    <a asp-action="Details" asp-route-id="@item.IndicatorCode"
                                        class="btn btn-outline-info btn-sm action-btn" title="View Details">
                                         <i class="fas fa-eye"></i>
                                     </a>
-                                    <button type="button" class="btn btn-outline-primary btn-sm action-btn" title="Edit Name"
-                                            onclick="toggleEdit('@item.IndicatorCode')"
-                                            id="edit-btn-@item.IndicatorCode">
-                                        <i class="fas fa-edit"></i>
-                                    </button>
-                                    <button type="button" class="btn btn-outline-danger btn-sm action-btn" title="Delete"
-                                            onclick="confirmDelete(@item.IndicatorCode)">
-                                        <i class="fas fa-trash-alt"></i>
-                                    </button>
+                                    @if (User.IsInRole(UserRoles.SystemAdministrator))
+                                    {
+                                        <button type="button" class="btn btn-outline-primary btn-sm action-btn" title="Edit Name"
+                                                onclick="toggleEdit('@item.IndicatorCode')"
+                                                id="edit-btn-@item.IndicatorCode">
+                                            <i class="fas fa-edit"></i>
+                                        </button>
+                                        <button type="button" class="btn btn-outline-danger btn-sm action-btn" title="Delete"
+                                                onclick="confirmDelete(@item.IndicatorCode)">
+                                            <i class="fas fa-trash-alt"></i>
+                                        </button>
+                                    }
                                 </div>
                             </td>
                         </tr>
