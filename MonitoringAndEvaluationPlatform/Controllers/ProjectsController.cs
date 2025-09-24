@@ -436,31 +436,29 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 return NotFound();
             }
 
+            // OPTIMIZED: Load everything in a single query with all required includes
             var project = await _context.Projects
-                // Include only the most essential relationships initially
                 .Include(p => p.ProjectManager)
                 .Include(p => p.SuperVisor)
                 .Include(p => p.Goal)
+                .Include(p => p.Donors)
+                .Include(p => p.ProjectDonors)
+                    .ThenInclude(pd => pd.Donor)
+                .Include(p => p.Ministries)
+                .Include(p => p.Governorates)
+                .Include(p => p.Districts)
+                .Include(p => p.SubDistricts)
+                .Include(p => p.Communities)
+                .Include(p => p.Sectors)
+                .Include(p => p.ProjectIndicators)
+                .Include(p => p.ProjectFiles) // FIXED: Missing ProjectFiles
+                .AsNoTracking() // OPTIMIZATION: Read-only query for better performance
                 .FirstOrDefaultAsync(m => m.ProjectID == id);
 
             if (project == null)
             {
                 return NotFound();
             }
-
-            // Explicitly load other collections only if needed later in the view
-            await _context.Entry(project).Collection(p => p.Donors).LoadAsync();
-            await _context.Entry(project).Collection(p => p.ProjectDonors).Query()
-                .Include(pd => pd.Donor)
-                .LoadAsync();
-            await _context.Entry(project).Collection(p => p.Ministries).LoadAsync();
-            await _context.Entry(project).Collection(p => p.Governorates).LoadAsync();
-            await _context.Entry(project).Collection(p => p.Districts).LoadAsync();
-            await _context.Entry(project).Collection(p => p.SubDistricts).LoadAsync();
-            await _context.Entry(project).Collection(p => p.Communities).LoadAsync();
-            await _context.Entry(project).Collection(p => p.Sectors).LoadAsync();
-            await _context.Entry(project).Collection(p => p.ProjectIndicators).LoadAsync();
-            // ... and so on for other collections
 
             return View(project);
         }
