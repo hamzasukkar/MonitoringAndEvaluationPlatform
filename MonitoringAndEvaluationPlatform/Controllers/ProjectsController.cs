@@ -57,8 +57,8 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             // Start with base project query
             var projectQuery = _context.Projects.AsQueryable();
 
-            // If the user is associated with a Ministry, filter projects to only that Ministry
-            if (user?.MinistryName != null)
+            // If the user is associated with a Ministry (and not SystemAdministrator), filter projects to only that Ministry
+            if (user?.MinistryName != null && !User.IsInRole(UserRoles.SystemAdministrator))
             {
                 projectQuery = projectQuery
                     .Where(p => p.Ministries
