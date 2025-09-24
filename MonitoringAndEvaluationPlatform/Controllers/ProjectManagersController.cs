@@ -11,7 +11,7 @@ using MonitoringAndEvaluationPlatform.Models;
 
 namespace MonitoringAndEvaluationPlatform.Controllers
 {
-    [Authorize(Roles = "Admin")]
+    [Authorize(Roles = "SystemAdministrator")]
     public class ProjectManagersController : Controller
     {
         private readonly ApplicationDbContext _context;

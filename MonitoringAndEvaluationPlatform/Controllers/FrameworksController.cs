@@ -39,6 +39,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         }
 
         // GET: Frameworks
+        [Permission(Permissions.ReadStrategies)]
         public async Task<IActionResult> Index(string sortOrder, string searchString, FrameworkFilterViewModel filter)
         {
             ViewData["CurrentSort"] = sortOrder;
@@ -123,6 +124,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         }
 
         // GET: Frameworks/Details/5
+        [Permission(Permissions.ReadStrategies)]
         public async Task<IActionResult> Details(int? id)
         {
             if (id == null)
@@ -169,6 +171,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         // POST: Frameworks/CreateInline - AJAX endpoint for inline creation
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Permission(Permissions.AddStrategy)]
         public async Task<IActionResult> CreateInline(string name)
         {
             try
@@ -275,6 +278,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         }
 
         [HttpPost]
+        [Permission(Permissions.ModifyStrategy)]
         public async Task<IActionResult> UpdateName(int id, string name)
         {
             var framework = await _context.Frameworks.FindAsync(id);
@@ -326,6 +330,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             return _context.Frameworks.Any(e => e.Code == id);
         }
 
+        [Permission(Permissions.ReadStrategies)]
         public async Task<IActionResult>Monitoring()
         {
             return View(await _context.Frameworks.ToListAsync());
@@ -360,7 +365,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         }
 
         // GET: Frameworks/CreateComprehensive
-        [Authorize(Roles = "Admin")]
+        [Permission(Permissions.AddStrategy)]
         public IActionResult CreateComprehensive()
         {
             return View();
@@ -369,7 +374,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         // POST: Frameworks/CreateComprehensive - Comprehensive framework creation
         [HttpPost]
         [ValidateAntiForgeryToken]
-        [Authorize(Roles = "Admin")]
+        [Permission(Permissions.AddStrategy)]
         public async Task<IActionResult> CreateComprehensive(ComprehensiveFrameworkModel model)
         {
             try
