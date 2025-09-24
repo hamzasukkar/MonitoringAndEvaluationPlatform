@@ -168,6 +168,11 @@ using (var scope = app.Services.CreateScope())
             MinistryName = "System Administration"
         };
         await userManager.CreateAsync(sysAdminUser, "Admin@123");
+    }
+
+    // Ensure the user has the SystemAdministrator role (whether user was just created or already existed)
+    if (!await userManager.IsInRoleAsync(sysAdminUser, UserRoles.SystemAdministrator))
+    {
         await userManager.AddToRoleAsync(sysAdminUser, UserRoles.SystemAdministrator);
     }
 
@@ -183,6 +188,11 @@ using (var scope = app.Services.CreateScope())
             MinistryName = "Ministry of Planning"
         };
         await userManager.CreateAsync(ministriesUser, "Ministry@123");
+    }
+
+    // Ensure the user has the MinistriesUser role
+    if (!await userManager.IsInRoleAsync(ministriesUser, UserRoles.MinistriesUser))
+    {
         await userManager.AddToRoleAsync(ministriesUser, UserRoles.MinistriesUser);
     }
 
@@ -198,6 +208,11 @@ using (var scope = app.Services.CreateScope())
             MinistryName = "Data Entry Department"
         };
         await userManager.CreateAsync(dataEntryUser, "DataEntry@123");
+    }
+
+    // Ensure the user has the DataEntry role
+    if (!await userManager.IsInRoleAsync(dataEntryUser, UserRoles.DataEntry))
+    {
         await userManager.AddToRoleAsync(dataEntryUser, UserRoles.DataEntry);
     }
 
@@ -213,6 +228,11 @@ using (var scope = app.Services.CreateScope())
             MinistryName = "External Observer"
         };
         await userManager.CreateAsync(readingUser, "Reader@123");
+    }
+
+    // Ensure the user has the ReadingUser role
+    if (!await userManager.IsInRoleAsync(readingUser, UserRoles.ReadingUser))
+    {
         await userManager.AddToRoleAsync(readingUser, UserRoles.ReadingUser);
     }
 }

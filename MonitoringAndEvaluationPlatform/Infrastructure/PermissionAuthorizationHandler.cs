@@ -41,6 +41,9 @@ namespace MonitoringAndEvaluationPlatform.Infrastructure
                 .ToList();
 
             _logger.LogInformation($"User roles: {string.Join(", ", userRoles)}");
+            _logger.LogInformation($"User identity name: {context.User.Identity?.Name}");
+            _logger.LogInformation($"Checking SystemAdministrator: {userRoles.Contains(UserRoles.SystemAdministrator)}");
+            _logger.LogInformation($"SystemAdministrator constant: '{UserRoles.SystemAdministrator}'");
 
             if (HasPermission(userRoles, requirement.Permission))
             {
@@ -49,7 +52,7 @@ namespace MonitoringAndEvaluationPlatform.Infrastructure
             }
             else
             {
-                _logger.LogWarning($"Permission denied for {requirement.Permission}");
+                _logger.LogWarning($"Permission denied for {requirement.Permission}. User roles: [{string.Join(", ", userRoles)}]");
             }
 
             return Task.CompletedTask;
@@ -101,11 +104,12 @@ namespace MonitoringAndEvaluationPlatform.Infrastructure
                 Permissions.AddSubprogram or Permissions.EditSubprogram or Permissions.DeleteSubprogram =>
                     userRoles.Contains(UserRoles.SystemAdministrator),
 
-                // Project Management - SystemAdmin, MinistriesUser, DataEntry can read; Only DataEntry can modify
+                // Project Management - SystemAdmin, MinistriesUser, DataEntry can read; SystemAdmin and DataEntry can modify
                 Permissions.ReadProjects => userRoles.Contains(UserRoles.SystemAdministrator) ||
                                           userRoles.Contains(UserRoles.MinistriesUser) ||
                                           userRoles.Contains(UserRoles.DataEntry),
                 Permissions.AddProject or Permissions.EditProject or Permissions.DeleteProject =>
+                    userRoles.Contains(UserRoles.SystemAdministrator) ||
                     userRoles.Contains(UserRoles.DataEntry),
 
                 // Project Forms - SystemAdmin, MinistriesUser, DataEntry can read; Only DataEntry can modify

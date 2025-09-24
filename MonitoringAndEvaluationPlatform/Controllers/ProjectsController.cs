@@ -435,6 +435,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
 
 
 
+        [Permission(Permissions.ReadProjects)]
         public async Task<IActionResult> Details(int? id)
         {
             if (id == null)
@@ -577,6 +578,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         }
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Permission(Permissions.EditProject)]
         public IActionResult UpdateProjectName(int projectId, string projectName)
         {
             var project = _context.Projects.Find(projectId);
@@ -593,6 +595,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Permission(Permissions.EditProject)]
         public async Task<IActionResult> Edit(
           int id,
           Project project,
@@ -892,6 +895,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
 
 
         // GET: Programs/Delete/5
+        [Permission(Permissions.DeleteProject)]
         public async Task<IActionResult> Delete(int? id)
         {
             if (id == null)
@@ -912,6 +916,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         }
 
         [HttpPost]
+        [Permission(Permissions.DeleteProject)]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
             var service = new MonitoringService(_context);
@@ -939,6 +944,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             return _context.Projects.Any(e => e.ProjectID == id);
         }
 
+        [Permission(Permissions.EditProject)]
         public IActionResult LinkProjectToIndicators(int projectId)
         {
             var model = new LinkProjectIndicatorViewModel
@@ -959,6 +965,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             return View(model);
         }
         [HttpPost]
+        [Permission(Permissions.EditProject)]
         public async Task<IActionResult> DeleteFile(int id)
         {
             var file = await _context.ProjectFiles.FindAsync(id);
@@ -983,6 +990,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         }
 
 
+        [Permission(Permissions.ReadProjects)]
         public async Task<IActionResult> DownloadFile(int id)
         {
             var file = await _context.ProjectFiles.FindAsync(id);
@@ -1029,6 +1037,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
 
 
         [HttpPost]
+        [Permission(Permissions.EditProject)]
         public async Task<IActionResult> LinkProjectToIndicators(LinkProjectIndicatorViewModel model)
         {
             if (!ModelState.IsValid)
