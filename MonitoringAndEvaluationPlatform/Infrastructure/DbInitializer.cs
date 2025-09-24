@@ -52,20 +52,20 @@ namespace MonitoringAndEvaluationPlatform.Infrastructure
                     context.Ministries.AddRange(ministries);
                     await context.SaveChangesAsync(); // Ensure ministries are saved before creating users
 
+                    // Ensure MinistriesUser role exists
+                    string ministriesRoleName = "MinistriesUser";
+                    if (!await roleManager.RoleExistsAsync(ministriesRoleName))
+                    {
+                        await roleManager.CreateAsync(new IdentityRole(ministriesRoleName));
+                    }
+
                     foreach (var ministry in ministries)
                     {
-                        string roleName = ministry.MinistryUserName;
                         string userName = ministry.MinistryUserName;
                         string email = $"{userName.ToLower()}@example.com";
                         string defaultPassword = "Ministry@123";
 
-                        // Create role if it doesn’t exist
-                        if (!await roleManager.RoleExistsAsync(roleName))
-                        {
-                            await roleManager.CreateAsync(new IdentityRole(roleName));
-                        }
-
-                        // Create user if it doesn’t exist
+                        // Create user if it doesn't exist
                         var existingUser = await userManager.FindByNameAsync(userName);
                         if (existingUser == null)
                         {
@@ -74,17 +74,25 @@ namespace MonitoringAndEvaluationPlatform.Infrastructure
                                 UserName = userName,
                                 Email = email,
                                 EmailConfirmed = true,
-                                MinistryName = userName // Or MinistryDisplayName if preferred
+                                MinistryName = ministry.MinistryDisplayName
                             };
 
                             var result = await userManager.CreateAsync(user, defaultPassword);
                             if (result.Succeeded)
                             {
-                                await userManager.AddToRoleAsync(user, roleName);
+                                await userManager.AddToRoleAsync(user, ministriesRoleName);
                             }
                             else
                             {
                                 Console.WriteLine($"⚠️ Failed to create user {userName}: {string.Join(", ", result.Errors.Select(e => e.Description))}");
+                            }
+                        }
+                        else
+                        {
+                            // Ensure existing user has the correct role
+                            if (!await userManager.IsInRoleAsync(existingUser, ministriesRoleName))
+                            {
+                                await userManager.AddToRoleAsync(existingUser, ministriesRoleName);
                             }
                         }
                     }

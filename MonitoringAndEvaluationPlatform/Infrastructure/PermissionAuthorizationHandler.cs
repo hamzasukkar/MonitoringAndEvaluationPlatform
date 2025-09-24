@@ -104,12 +104,13 @@ namespace MonitoringAndEvaluationPlatform.Infrastructure
                 Permissions.AddSubprogram or Permissions.EditSubprogram or Permissions.DeleteSubprogram =>
                     userRoles.Contains(UserRoles.SystemAdministrator),
 
-                // Project Management - SystemAdmin, MinistriesUser, DataEntry can read; SystemAdmin and DataEntry can modify
+                // Project Management - SystemAdmin, MinistriesUser, DataEntry can read; SystemAdmin, MinistriesUser, and DataEntry can modify
                 Permissions.ReadProjects => userRoles.Contains(UserRoles.SystemAdministrator) ||
                                           userRoles.Contains(UserRoles.MinistriesUser) ||
                                           userRoles.Contains(UserRoles.DataEntry),
                 Permissions.AddProject or Permissions.EditProject or Permissions.DeleteProject =>
                     userRoles.Contains(UserRoles.SystemAdministrator) ||
+                    userRoles.Contains(UserRoles.MinistriesUser) ||
                     userRoles.Contains(UserRoles.DataEntry),
 
                 // Project Forms - SystemAdmin, MinistriesUser, DataEntry can read; Only DataEntry can modify
