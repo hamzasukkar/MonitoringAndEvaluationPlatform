@@ -1,4 +1,5 @@
 ﻿@model IEnumerable<MonitoringAndEvaluationPlatform.Models.ProjectManager>
+@using MonitoringAndEvaluationPlatform.Models
 @using Microsoft.AspNetCore.Mvc.Localization
 @inject IViewLocalizer Localizer
 @using Microsoft.AspNetCore.Localization
@@ -27,44 +28,47 @@
 
 @await Html.PartialAsync("_ManagementNavigation")
 
-<!-- Quick Add Section -->
-<div class="chart-card mb-4">
-    <div class="chart-title">
-        <i class="fas fa-user-tie"></i>
-        @Localizer["Add New Project Manager"]
-    </div>
-    <form id="createProjectManagerForm" class="row g-3">
-        @Html.AntiForgeryToken()
-        <div class="col-md-3">
-            <label for="Name" class="form-label fw-bold">
-                <i class="fas fa-user me-2"></i>@Localizer["Project Manager Name"]
-            </label>
-            <input type="text" name="Name" class="form-control form-control-lg" required
-                   placeholder="@Localizer["Enter project manager name"]" />
+@if (User.IsInRole(UserRoles.SystemAdministrator))
+{
+    <!-- Quick Add Section -->
+    <div class="chart-card mb-4">
+        <div class="chart-title">
+            <i class="fas fa-user-tie"></i>
+            @Localizer["Add New Project Manager"]
         </div>
-        <div class="col-md-3">
-            <label for="PhoneNumber" class="form-label fw-bold">
-                <i class="fas fa-phone me-2"></i>@Localizer["Phone Number"]
-            </label>
-            <input type="text" name="PhoneNumber" class="form-control form-control-lg"
-                   placeholder="@Localizer["Enter phone number"]" />
-        </div>
-        <div class="col-md-3">
-            <label for="Email" class="form-label fw-bold">
-                <i class="fas fa-envelope me-2"></i>@Localizer["Email"]
-            </label>
-            <input type="email" name="Email" class="form-control form-control-lg"
-                   placeholder="@Localizer["Enter email address"]" />
-        </div>
-        <div class="col-md-3 d-flex align-items-end">
-            <div class="d-grid w-100">
-                <button type="submit" class="btn btn-primary btn-lg">
-                    <i class="fas fa-plus-circle me-2"></i>@Localizer["Create Project Manager"]
-                </button>
+        <form id="createProjectManagerForm" class="row g-3">
+            @Html.AntiForgeryToken()
+            <div class="col-md-3">
+                <label for="Name" class="form-label fw-bold">
+                    <i class="fas fa-user me-2"></i>@Localizer["Project Manager Name"]
+                </label>
+                <input type="text" name="Name" class="form-control form-control-lg" required
+                       placeholder="@Localizer["Enter project manager name"]" />
             </div>
-        </div>
-    </form>
-</div>
+            <div class="col-md-3">
+                <label for="PhoneNumber" class="form-label fw-bold">
+                    <i class="fas fa-phone me-2"></i>@Localizer["Phone Number"]
+                </label>
+                <input type="text" name="PhoneNumber" class="form-control form-control-lg"
+                       placeholder="@Localizer["Enter phone number"]" />
+            </div>
+            <div class="col-md-3">
+                <label for="Email" class="form-label fw-bold">
+                    <i class="fas fa-envelope me-2"></i>@Localizer["Email"]
+                </label>
+                <input type="email" name="Email" class="form-control form-control-lg"
+                       placeholder="@Localizer["Enter email address"]" />
+            </div>
+            <div class="col-md-3 d-flex align-items-end">
+                <div class="d-grid w-100">
+                    <button type="submit" class="btn btn-primary btn-lg">
+                        <i class="fas fa-plus-circle me-2"></i>@Localizer["Create Project Manager"]
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
+}
 
 <!-- ProjectManagers Table -->
 <div class="chart-card">
@@ -118,15 +122,18 @@
                         </td>
                         <td class="text-center">
                             <div class="btn-group action-buttons" role="group">
-                                <button class="btn btn-outline-primary btn-sm action-btn"
-                                        id="edit-btn-@item.Code"
-                                        onclick="toggleProjectManagerEdit(@item.Code)" title="@Localizer["Edit"]">
-                                    <i class="fas fa-edit"></i>
-                                </button>
-                                <button class="btn btn-outline-danger btn-sm action-btn" title="@Localizer["Delete"]"
-                                        onclick="deleteProjectManager(@item.Code)">
-                                    <i class="fas fa-trash-alt"></i>
-                                </button>
+                                @if (User.IsInRole(UserRoles.SystemAdministrator))
+                                {
+                                    <button class="btn btn-outline-primary btn-sm action-btn"
+                                            id="edit-btn-@item.Code"
+                                            onclick="toggleProjectManagerEdit(@item.Code)" title="@Localizer["Edit"]">
+                                        <i class="fas fa-edit"></i>
+                                    </button>
+                                    <button class="btn btn-outline-danger btn-sm action-btn" title="@Localizer["Delete"]"
+                                            onclick="deleteProjectManager(@item.Code)">
+                                        <i class="fas fa-trash-alt"></i>
+                                    </button>
+                                }
                             </div>
                         </td>
                     </tr>
