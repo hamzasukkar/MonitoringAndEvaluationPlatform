@@ -157,274 +157,125 @@ namespace MonitoringAndEvaluationPlatform.Controllers
 
         [HttpPost]
         public async Task<IActionResult> Create(
-        Project project,
-        List<IFormFile> UploadedFiles,
-        int PlansCount,
-        string selections,               // Location selections
-        List<int> SelectedIndicators,    // Selected indicator codes
-        string DonorFundingBreakdown     // Donor funding percentages
-    )
+            Project project,
+            List<IFormFile> UploadedFiles,
+            int PlansCount,
+            string selections,
+            List<int> SelectedIndicators,
+            string DonorFundingBreakdown)
         {
-            // Deserialize JSON string into a list of location selection objects
-            var selectedLocations = JsonConvert.DeserializeObject<List<LocationSelectionViewModel>>(selections);
-            var isArabic = CultureInfo.CurrentUICulture.TwoLetterISOLanguageName == "ar";
-
-            // Initialize navigation collections if necessary
-            project.Governorates = new List<Governorate>();
-            project.Districts = new List<District>();
-            project.SubDistricts = new List<SubDistrict>();
-            project.Communities = new List<Community>();
-
-            // Loop through each selection and add entities to the project
-            foreach (var sel in selectedLocations)
+            try
             {
-                var governorate = await _context.Governorates.FindAsync(sel.GovernorateCode);
-                var district = await _context.Districts.FindAsync(sel.DistrictCode);
-                var subDistrict = await _context.SubDistricts.FindAsync(sel.SubDistrictCode);
-                var community = await _context.Communities.FindAsync(sel.CommunityCode);
+                // Remove navigation properties from model state FIRST, before any validation
+                RemoveNavigationPropertiesFromModelState();
 
-                if (governorate != null && !project.Governorates.Contains(governorate))
-                    project.Governorates.Add(governorate);
-                if (district != null && !project.Districts.Contains(district))
-                    project.Districts.Add(district);
-                if (subDistrict != null && !project.SubDistricts.Contains(subDistrict))
-                    project.SubDistricts.Add(subDistrict);
-                if (community != null && !project.Communities.Contains(community))
-                    project.Communities.Add(community);
+                // Handle PlansCount - if it's 0 or less, set a default value
+                if (PlansCount <= 0)
+                {
+                    PlansCount = 1; // Default to 1 months if not provided or invalid
+                }
+
+                // Process location selections
+                await ProcessProjectLocationsAsync(project, selections);
+
+                // Get form data
+                var selectedSectorCodes = Request.Form["Sectors"].ToList();
+                var selectedDonorCodes = Request.Form["Donors"].ToList();
+                var selectedLocations = string.IsNullOrEmpty(selections)
+                    ? new List<LocationSelectionViewModel>()
+                    : JsonConvert.DeserializeObject<List<LocationSelectionViewModel>>(selections);
+
+                // Validate project creation
+                _validationService.ValidateProjectCreation(
+                    project,
+                    selectedLocations,
+                    selectedSectorCodes,
+                    SelectedIndicators,
+                    PlansCount,
+                    ModelState);
+
+                if (!ModelState.IsValid)
+                {
+                    await PopulateCreateViewBagAsync();
+                    return View(project);
+                }
+
+                // Process sectors
+                var selectedSectors = _context.Sectors
+                    .Where(s => selectedSectorCodes.Contains(s.Code.ToString()))
+                    .ToList();
+                project.Sectors = selectedSectors;
+
+                // Process donor funding
+                ProcessDonorFunding(project, selectedDonorCodes, DonorFundingBreakdown);
+
+                // Handle ministry selection
+                if (project.MinistryCode.HasValue)
+                {
+                    var selectedMinistry = _context.Ministries.Find(project.MinistryCode.Value);
+                    if (selectedMinistry != null)
+                    {
+                        project.Ministries = new List<Ministry> { selectedMinistry };
+                    }
+                }
+
+                // Create action plan
+                project.ActionPlan = new ActionPlan { PlansCount = PlansCount };
+
+                // Save project and action plan
+                _context.Projects.Add(project);
+                await _context.SaveChangesAsync();
+
+                // Create activities for the project
+                var baseActivity = new Activity
+                {
+                    Name = project.ProjectName ?? "New Project Activity",
+                    ActionPlanCode = project.ActionPlan.Code
+                };
+
+                var activitiesCreated = await _activityService.CreateActivitiesForAllTypesAsync(baseActivity);
+                if (!activitiesCreated)
+                {
+                    ModelState.AddModelError("", "Unable to create activities for the new ActionPlan.");
+                    await PopulateCreateViewBagAsync();
+                    return View(project);
+                }
+
+                // Distribute budget across plans
+                var actionPlanWithActivities = await _context.ActionPlans
+                    .Include(ap => ap.Project)
+                    .Include(ap => ap.Activities)
+                        .ThenInclude(a => a.Plans)
+                    .FirstOrDefaultAsync(ap => ap.Code == project.ActionPlan.Code);
+
+                if (actionPlanWithActivities != null)
+                {
+                    actionPlanWithActivities.DistributeBudgetEquallyToPlans();
+                    await _context.SaveChangesAsync();
+                }
+
+                // Process file uploads
+                await ProcessFileUploadsAsync(project.ProjectID, UploadedFiles);
+
+                // Link indicators to project
+                await LinkProjectIndicatorsAsync(project.ProjectID, SelectedIndicators);
+
+                // Set success message
+                var indicatorCount = SelectedIndicators?.Count ?? 0;
+                var successMessage = indicatorCount > 0
+                    ? $"Project '{project.ProjectName}' has been created successfully with {indicatorCount} indicator(s) linked and {PlansCount} month(s) planned."
+                    : $"Project '{project.ProjectName}' has been created successfully.";
+
+                this.SetSuccessMessage(successMessage);
+
+                return RedirectToAction("Index");
             }
-
-            // Remove navigation property validation to avoid unnecessary errors
-            ModelState.Remove(nameof(Project.ProjectManager));
-            ModelState.Remove(nameof(Project.Sectors));
-            ModelState.Remove(nameof(Project.Donors));
-            ModelState.Remove(nameof(Project.Ministries));
-            ModelState.Remove(nameof(Project.Ministry));
-            ModelState.Remove(nameof(Project.SuperVisor));
-            ModelState.Remove(nameof(Project.ActionPlan));
-            ModelState.Remove(nameof(Project.Communities));
-            ModelState.Remove(nameof(Project.Districts));
-            ModelState.Remove(nameof(Project.SubDistricts));
-            ModelState.Remove(nameof(Project.Governorates));
-            ModelState.Remove(nameof(Project.Goal));
-            ModelState.Remove(nameof(PlansCount));
-
-            // Get sectors for validation
-            var selectedSectorCodes = Request.Form["Sectors"].ToList();
-
-            // Use validation service for comprehensive validation
-            _validationService.ValidateProjectCreation(
-                project,
-                selectedLocations,
-                selectedSectorCodes,
-                SelectedIndicators,
-                PlansCount,
-                ModelState);
-
-            if (!ModelState.IsValid)
+            catch (Exception ex)
             {
-                // Re-populate ViewBag dropdowns in case of validation failure
-                ViewBag.Governorates = _context.Governorates.ToList();
-                ViewBag.SectorList = new MultiSelectList(_context.Sectors, "Code", "AR_Name");
-                ViewBag.MinistryList = new SelectList(_context.Ministries, "Code", "MinistryDisplayName");
-                ViewBag.ProjectManager = new SelectList(_context.ProjectManagers, "Code", "Name");
-                ViewBag.SuperVisor = new SelectList(_context.SuperVisors, "Code", "Name");
-                ViewBag.Donor = new SelectList(_context.Donors, "Code", "Partner");
-                ViewBag.Goals = new SelectList(
-                 _context.Goals,
-                 "Code",
-                 isArabic ? "AR_Name" : "EN_Name"
-             );
-                ViewBag.Indicators = _context.Indicators.OrderBy(i => i.IndicatorCode).ToList();
-
+                ModelState.AddModelError("", $"An error occurred while creating the project: {ex.Message}");
+                await PopulateCreateViewBagAsync();
                 return View(project);
             }
-
-            // Handle sector selection (already validated above)
-            var selectedSectors = _context.Sectors
-                                         .Where(r => selectedSectorCodes.Contains(r.Code.ToString()))
-                                         .ToList();
-            project.Sectors = selectedSectors;
-
-
-            // 1) Handle donor selection from form
-            var selectedDonorCodes = Request.Form["Donors"].ToList();
-            var selectedDonors = _context.Donors
-                                         .Where(r => selectedDonorCodes.Contains(r.Code.ToString()))
-                                         .ToList();
-            project.Donors = selectedDonors;
-
-            // Handle donor funding breakdown
-            if (!string.IsNullOrEmpty(DonorFundingBreakdown))
-            {
-                try
-                {
-                    var fundingData = JsonConvert.DeserializeObject<Dictionary<string, decimal>>(DonorFundingBreakdown);
-
-                    foreach (var donorCodeStr in selectedDonorCodes)
-                    {
-                        if (int.TryParse(donorCodeStr, out int donorCode))
-                        {
-                            var fundingPercentage = fundingData.ContainsKey(donorCodeStr)
-                                ? fundingData[donorCodeStr]
-                                : 0;
-
-                            var fundingAmount = (decimal)project.EstimatedBudget * (fundingPercentage / 100);
-
-                            var projectDonor = new ProjectDonor
-                            {
-                                DonorCode = donorCode,
-                                FundingPercentage = fundingPercentage,
-                                FundingAmount = fundingAmount
-                            };
-
-                            project.ProjectDonors.Add(projectDonor);
-                        }
-                    }
-                }
-                catch (JsonException)
-                {
-                    // If JSON parsing fails, create ProjectDonor records with 0% funding
-                    foreach (var donorCodeStr in selectedDonorCodes)
-                    {
-                        if (int.TryParse(donorCodeStr, out int donorCode))
-                        {
-                            var projectDonor = new ProjectDonor
-                            {
-                                DonorCode = donorCode,
-                                FundingPercentage = 0,
-                                FundingAmount = 0
-                            };
-
-                            project.ProjectDonors.Add(projectDonor);
-                        }
-                    }
-                }
-            }
-
-            // Handle single Ministry selection - keep the collection for backward compatibility
-            if (project.MinistryCode.HasValue)
-            {
-                var selectedMinistry = _context.Ministries.Find(project.MinistryCode.Value);
-                if (selectedMinistry != null)
-                {
-                    project.Ministries = new List<Ministry> { selectedMinistry };
-                }
-            }
-
-            // 2) Create the ActionPlan and attach it to the new Project
-            project.ActionPlan = new ActionPlan
-            {
-                PlansCount = PlansCount
-                // (ProjectID will get set by EF once the Project is inserted)
-            };
-
-            // 3) Save both Project and ActionPlan together
-            _context.Projects.Add(project);
-            await _context.SaveChangesAsync();
-
-            var baseActivity = new Activity
-            {
-                Name = project.ProjectName ?? "New Project Activity",
-                ActionPlanCode = project.ActionPlan.Code
-                // Note: do NOT fill in ActivityType here—Service will set it for each enum
-            };
-
-            // 6) Call your service to automatically generate all Activities + Plans
-            var success = await _activityService.CreateActivitiesForAllTypesAsync(baseActivity);
-            if (!success)
-            {
-                // You can handle the "failure" case however you like. 
-                // For instance, if the ActionPlan was somehow missing, you might 
-                // set an error message and return to the View. In most normal flows,
-                // it succeeds, so you can skip this or log something.
-                ModelState.AddModelError("", "Unable to create activities for the new ActionPlan.");
-                return View(project);
-            }
-
-            // 7) Distribute EstimatedBudget equally across all Plans
-            var actionPlanWithActivities = await _context.ActionPlans
-                .Include(ap => ap.Project)
-                .Include(ap => ap.Activities)
-                    .ThenInclude(a => a.Plans)
-                .FirstOrDefaultAsync(ap => ap.Code == project.ActionPlan.Code);
-
-            if (actionPlanWithActivities != null)
-            {
-                actionPlanWithActivities.DistributeBudgetEquallyToPlans();
-                await _context.SaveChangesAsync();
-            }
-
-            // 4) Handle file uploads exactly as before
-            if (UploadedFiles != null && UploadedFiles.Count > 0)
-            {
-                var uploadsFolder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/uploads");
-                if (!Directory.Exists(uploadsFolder))
-                    Directory.CreateDirectory(uploadsFolder);
-
-                foreach (var file in UploadedFiles)
-                {
-                    if (file.Length > 0)
-                    {
-                        var uniqueFileName = $"{Guid.NewGuid()}_{Path.GetFileName(file.FileName)}";
-                        var filePath = Path.Combine(uploadsFolder, uniqueFileName);
-
-                        using (var stream = new FileStream(filePath, FileMode.Create))
-                        {
-                            await file.CopyToAsync(stream);
-                        }
-
-                        var projectFile = new ProjectFile
-                        {
-                            ProjectId = project.ProjectID,
-                            FileName = file.FileName,
-                            FilePath = "/uploads/" + uniqueFileName
-                        };
-
-                        _context.ProjectFiles.Add(projectFile);
-                    }
-                }
-
-                await _context.SaveChangesAsync();
-            }
-
-            // 5) Link selected indicators to the project
-            if (SelectedIndicators != null && SelectedIndicators.Any())
-            {
-                foreach (var indicatorCode in SelectedIndicators)
-                {
-                    // Check if the indicator exists
-                    var indicator = await _context.Indicators.FindAsync(indicatorCode);
-                    if (indicator != null)
-                    {
-                        // Check if the relationship already exists
-                        var existingLink = await _context.ProjectIndicators
-                            .FirstOrDefaultAsync(pi => pi.ProjectId == project.ProjectID && pi.IndicatorCode == indicatorCode);
-                        
-                        if (existingLink == null)
-                        {
-                            // Create new project-indicator relationship
-                            var projectIndicator = new ProjectIndicator
-                            {
-                                ProjectId = project.ProjectID,
-                                IndicatorCode = indicatorCode
-                            };
-                            
-                            _context.ProjectIndicators.Add(projectIndicator);
-                        }
-                    }
-                }
-                
-                await _context.SaveChangesAsync();
-                
-                // Display detailed success message
-                this.SetSuccessMessage($"Project '{project.ProjectName}' has been created successfully with {SelectedIndicators.Count} indicator(s) linked and {PlansCount} month(s) planned.");
-            }
-            else
-            {
-                this.SetSuccessMessage($"Project '{project.ProjectName}' has been created successfully.");
-            }
-
-            return RedirectToAction("Index");
         }
 
 
@@ -1085,6 +936,204 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 .ToList();
 
             return Json(indicators);
+        }
+
+        private async Task ProcessProjectLocationsAsync(Project project, string selections)
+        {
+            if (string.IsNullOrEmpty(selections))
+                return;
+
+            var selectedLocations = JsonConvert.DeserializeObject<List<LocationSelectionViewModel>>(selections);
+
+            project.Governorates = new List<Governorate>();
+            project.Districts = new List<District>();
+            project.SubDistricts = new List<SubDistrict>();
+            project.Communities = new List<Community>();
+
+            foreach (var selection in selectedLocations)
+            {
+                var governorate = await _context.Governorates.FindAsync(selection.GovernorateCode);
+                var district = await _context.Districts.FindAsync(selection.DistrictCode);
+                var subDistrict = await _context.SubDistricts.FindAsync(selection.SubDistrictCode);
+                var community = await _context.Communities.FindAsync(selection.CommunityCode);
+
+                if (governorate != null && !project.Governorates.Contains(governorate))
+                    project.Governorates.Add(governorate);
+                if (district != null && !project.Districts.Contains(district))
+                    project.Districts.Add(district);
+                if (subDistrict != null && !project.SubDistricts.Contains(subDistrict))
+                    project.SubDistricts.Add(subDistrict);
+                if (community != null && !project.Communities.Contains(community))
+                    project.Communities.Add(community);
+            }
+        }
+
+        private void ProcessDonorFunding(Project project, List<string> selectedDonorCodes, string donorFundingBreakdown)
+        {
+            if (!selectedDonorCodes.Any())
+                return;
+
+            var selectedDonors = _context.Donors
+                .Where(d => selectedDonorCodes.Contains(d.Code.ToString()))
+                .ToList();
+            project.Donors = selectedDonors;
+
+            if (!string.IsNullOrEmpty(donorFundingBreakdown))
+            {
+                try
+                {
+                    var fundingData = JsonConvert.DeserializeObject<Dictionary<string, decimal>>(donorFundingBreakdown);
+                    CreateProjectDonorRecords(project, selectedDonorCodes, fundingData);
+                }
+                catch (JsonException)
+                {
+                    CreateProjectDonorRecordsWithZeroFunding(project, selectedDonorCodes);
+                }
+            }
+            else
+            {
+                CreateProjectDonorRecordsWithZeroFunding(project, selectedDonorCodes);
+            }
+        }
+
+        private void CreateProjectDonorRecords(Project project, List<string> donorCodes, Dictionary<string, decimal> fundingData)
+        {
+            foreach (var donorCodeStr in donorCodes)
+            {
+                if (int.TryParse(donorCodeStr, out int donorCode))
+                {
+                    var fundingPercentage = fundingData.ContainsKey(donorCodeStr) ? fundingData[donorCodeStr] : 0;
+                    var fundingAmount = (decimal)project.EstimatedBudget * (fundingPercentage / 100);
+
+                    project.ProjectDonors.Add(new ProjectDonor
+                    {
+                        DonorCode = donorCode,
+                        FundingPercentage = fundingPercentage,
+                        FundingAmount = fundingAmount
+                    });
+                }
+            }
+        }
+
+        private void CreateProjectDonorRecordsWithZeroFunding(Project project, List<string> donorCodes)
+        {
+            foreach (var donorCodeStr in donorCodes)
+            {
+                if (int.TryParse(donorCodeStr, out int donorCode))
+                {
+                    project.ProjectDonors.Add(new ProjectDonor
+                    {
+                        DonorCode = donorCode,
+                        FundingPercentage = 0,
+                        FundingAmount = 0
+                    });
+                }
+            }
+        }
+
+        private async Task<bool> ProcessFileUploadsAsync(int projectId, List<IFormFile> uploadedFiles)
+        {
+            if (uploadedFiles == null || !uploadedFiles.Any())
+                return true;
+
+            var uploadsFolder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/uploads");
+            if (!Directory.Exists(uploadsFolder))
+                Directory.CreateDirectory(uploadsFolder);
+
+            foreach (var file in uploadedFiles)
+            {
+                if (file.Length > 0)
+                {
+                    var uniqueFileName = $"{Guid.NewGuid()}_{Path.GetFileName(file.FileName)}";
+                    var filePath = Path.Combine(uploadsFolder, uniqueFileName);
+
+                    using (var stream = new FileStream(filePath, FileMode.Create))
+                    {
+                        await file.CopyToAsync(stream);
+                    }
+
+                    _context.ProjectFiles.Add(new ProjectFile
+                    {
+                        ProjectId = projectId,
+                        FileName = file.FileName,
+                        FilePath = "/uploads/" + uniqueFileName
+                    });
+                }
+            }
+
+            await _context.SaveChangesAsync();
+            return true;
+        }
+
+        private async Task<bool> LinkProjectIndicatorsAsync(int projectId, List<int> selectedIndicators)
+        {
+            if (selectedIndicators == null || !selectedIndicators.Any())
+                return true;
+
+            foreach (var indicatorCode in selectedIndicators)
+            {
+                var indicator = await _context.Indicators.FindAsync(indicatorCode);
+                if (indicator != null)
+                {
+                    var existingLink = await _context.ProjectIndicators
+                        .FirstOrDefaultAsync(pi => pi.ProjectId == projectId && pi.IndicatorCode == indicatorCode);
+
+                    if (existingLink == null)
+                    {
+                        _context.ProjectIndicators.Add(new ProjectIndicator
+                        {
+                            ProjectId = projectId,
+                            IndicatorCode = indicatorCode
+                        });
+                    }
+                }
+            }
+
+            await _context.SaveChangesAsync();
+            return true;
+        }
+
+        private void RemoveNavigationPropertiesFromModelState()
+        {
+            var propertiesToRemove = new[]
+            {
+                nameof(Project.ProjectManager),
+                nameof(Project.Sectors),
+                nameof(Project.Donors),
+                nameof(Project.Ministries),
+                nameof(Project.Ministry),
+                nameof(Project.SuperVisor),
+                nameof(Project.ActionPlan),
+                nameof(Project.Communities),
+                nameof(Project.Districts),
+                nameof(Project.SubDistricts),
+                nameof(Project.Governorates),
+                nameof(Project.Goal),
+                "PlansCount"
+            };
+
+            foreach (var property in propertiesToRemove)
+            {
+                ModelState.Remove(property);
+            }
+        }
+
+        private async Task PopulateCreateViewBagAsync()
+        {
+            var isArabic = CultureInfo.CurrentUICulture.TwoLetterISOLanguageName == "ar";
+
+            ViewBag.Governorates = _context.Governorates.ToList();
+            ViewBag.SectorList = new MultiSelectList(_context.Sectors, "Code", "AR_Name");
+            ViewBag.MinistryList = new SelectList(_context.Ministries, "Code", "MinistryDisplayName");
+            ViewBag.ProjectManager = new SelectList(_context.ProjectManagers, "Code", "Name");
+            ViewBag.SuperVisor = new SelectList(_context.SuperVisors, "Code", "Name");
+            ViewBag.Donor = new SelectList(_context.Donors, "Code", "Partner");
+            ViewBag.Goals = new SelectList(
+                _context.Goals,
+                "Code",
+                isArabic ? "AR_Name" : "EN_Name"
+            );
+            ViewBag.Indicators = _context.Indicators.OrderBy(i => i.IndicatorCode).ToList();
         }
     }
 }
