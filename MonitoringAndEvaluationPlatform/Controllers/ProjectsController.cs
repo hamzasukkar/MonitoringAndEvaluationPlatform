@@ -206,6 +206,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             ModelState.Remove(nameof(Project.SubDistricts));
             ModelState.Remove(nameof(Project.Governorates));
             ModelState.Remove(nameof(Project.Goal));
+            ModelState.Remove(nameof(PlansCount));
 
             // Get sectors for validation
             var selectedSectorCodes = Request.Form["Sectors"].ToList();
