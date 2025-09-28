@@ -26,6 +26,12 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             return View();
         }
 
+        public async Task<IActionResult> Index2(int id)
+        {
+            ViewData["FrameworkCode"] = id;
+            return View();
+        }
+
         public IActionResult GetFrameworkHierarchy(int id)
         {
             var data = _context.Frameworks
@@ -43,6 +49,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 pid = "",
                 name = f.Name,
                 type = "Framework",
+                weight = 1.0,
                 IndicatorsPerformance =Math.Round(f.IndicatorsPerformance,0).ToString()+"%"
             }
                 }
@@ -54,6 +61,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 pid = $"F{f.Code}",
                 name = o.Name,
                 type = "Outcome",
+                weight = o.Weight,
                 IndicatorsPerformance = Math.Round(o.IndicatorsPerformance,0).ToString()+"%"
             }
                 }
@@ -65,6 +73,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 pid = $"O{o.Code}",
                 name = op.Name,
                 type = "Output",
+                weight = op.Weight,
                 IndicatorsPerformance = Math.Round(op.IndicatorsPerformance, 0).ToString()+"%"
             }
                 }
@@ -76,6 +85,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 pid = $"Op{op.Code}",
                 name = so.Name,
                 type = "SubOutput",
+                weight = so.Weight,
                 IndicatorsPerformance = Math.Round(so.IndicatorsPerformance, 0).ToString()+"%"
             }
                 }
@@ -85,6 +95,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                     pid = $"S{so.Code}",
                     name = i.Name,
                     type = "Indicator",
+                    weight = i.Weight,
                     IndicatorsPerformance = Math.Round(i.IndicatorsPerformance, 0).ToString() + "%"
                 })))))))));
 

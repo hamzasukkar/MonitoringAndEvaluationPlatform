@@ -3,241 +3,570 @@
 @using Microsoft.AspNetCore.Mvc.Localization
 @inject IViewLocalizer Localizer
 @using Microsoft.AspNetCore.Localization
+
 @{
     ViewData["Title"] = "SubOutputs";
-    Layout = "~/Views/Shared/_ResultsFrameworkLayout.cshtml";
+    Layout = "~/Views/Shared/_DashboardHomeLayout.cshtml";
+    var culture = Context.Features.Get<IRequestCultureFeature>().RequestCulture.Culture.Name;
 }
 
-<div class="container-fluid">
-    <div class="d-flex justify-content-between align-items-center mb-4">
+@{
+    ViewData["breadcrumbLevel"] = "suboutput";
+}
+@await Html.PartialAsync("_HierarchyBreadcrumb")
+
+<!-- Dashboard Header -->
+<div class="dashboard-header">
+    <div class="d-flex justify-content-between align-items-center">
         <div>
-            <h4 class="mb-0">@Localizer["SubOutputs Management"]</h4>
-            <p class="text-muted mb-0">@Localizer["View and manage all suboutput performance metrics"]</p>
+            <h1 class="dashboard-title">
+                <i class="fas fa-list-ul me-3"></i>
+                @Localizer["SubOutputs Management"]
+            </h1>
+            <p class="dashboard-subtitle">
+                @Localizer["View and manage all suboutput performance metrics across development outputs"]
+            </p>
         </div>
-        <div class="d-flex flex-wrap gap-2">
+        <div class="d-flex gap-2">
             @if (ViewBag.SelectedOutputCode != null)
             {
-  
-                <button class="btn btn-success me-2" type="button" id="toggleCreateForm">
+                <button class="btn btn-success btn-lg shadow-sm" type="button" id="toggleCreateForm">
                     <i class="fas fa-plus me-2"></i>@Localizer["Create New SubOutput"]
                 </button>
-                <a asp-action="AdjustWeights" asp-route-outputCode="@ViewBag.SelectedOutputCode" class="btn btn-warning">
+                <a asp-action="AdjustWeights" asp-route-outputCode="@ViewBag.SelectedOutputCode" 
+                   class="btn btn-warning btn-lg shadow-sm">
                     <i class="fas fa-balance-scale me-2"></i>@Localizer["Adjust Weights"]
                 </a>
             }
             else
             {
-                <a asp-action="Create" asp-route-id="@ViewBag.SelectedOutputCode" class="btn btn-success">
+                <a asp-action="Create" asp-route-id="@ViewBag.SelectedOutputCode" 
+                   class="btn btn-success btn-lg shadow-sm">
                     <i class="fas fa-plus me-2"></i>Create New
                 </a>
             }
-           
-        </div>
-    </div>
-    <!-- Collapsible Outcome Creation Form -->
-    <div id="createSubOutcomeForm" class="card shadow-sm mb-4" style="display:none;">
-        <div class="card-body">
-            <form asp-action="Create" method="post">
-                <input type="hidden" name="OutputCode" value="@ViewBag.SelectedOutputCode" />
-                <div class="mb-3">
-                    <label for="Name" class="form-label">Outcome Name</label>
-                    <input type="text" class="form-control" id="Name" name="Name" required />
-                </div>
-                <!-- Add other fields as needed -->
-
-                <button type="submit" class="btn btn-primary">
-                    <i class="fas fa-save me-2"></i>@Localizer["Save SubOutput"]
-                </button>
-            </form>
-        </div>
-    </div>
-   
-
-
-
-    <!-- SubOutputs Table -->
-    <div class="card shadow-sm">
-        <div class="card-body">
-            <div class="table-responsive">
-                <table class="table table-hover">
-                    <thead class="table-light">
-                        <tr>
-                            <th>SubOutput Name</th>
-                            <th>@Localizer["Weight"]</th>
-                            <th>@Localizer["Indicators Performance"]</th>
-                            <th>@Localizer["Disbursement Performance"]</th>
-                            <th>@Localizer["Field Monitoring"]</th>
-                            <th>@Localizer["Impact Assessment"]</th>
-                            <th class="text-end">@Localizer["Actions"]</th>
-                            <th>Output</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @foreach (var item in Model)
-                        {
-                            string indicatorsClass = ProgressBarHelper.GetProgressBarClass(item.IndicatorsPerformance);
-                            string disbursementClass = ProgressBarHelper.GetProgressBarClass(item.DisbursementPerformance);
-                            string fieldMonitoringClass = ProgressBarHelper.GetProgressBarClass(item.FieldMonitoring);
-                            string impactAssessmentClass = ProgressBarHelper.GetProgressBarClass(item.ImpactAssessment);
-                            double IndicatorsPerformance = Math.Round(item.IndicatorsPerformance, 0);
-
-                            <tr id="subOutput-row-@item.Code">
-                                <td>
-                                    <span id="fw-name-@item.Code" class="fw-name-view">
-                                        <a asp-controller="Indicators" asp-action="Index"
-                                           asp-route-frameworkCode="@item.Output.Outcome.FrameworkCode"
-                                           asp-route-subOutputCode="@item.Code"
-                                           class="text-decoration-none">
-                                            <strong>@item.Name</strong>                                  
-                                        </a>
-                                    </span>
-                                    <input type="text" id="fw-name-input-@item.Code" class="form-control form-control-sm fw-name-edit d-none"
-                                           value="@item.Name" />
-                                </td>
-                                <td>@item.Weight</td>
-                                <td>
-                                    @await Html.PartialAsync("_ProgressBar", Tuple.Create(IndicatorsPerformance, indicatorsClass))
-                                </td>
-                                <td>
-                                    @await Html.PartialAsync("_ProgressBar", Tuple.Create(item.DisbursementPerformance, disbursementClass))
-                                </td>
-                                <td>
-                                    @await Html.PartialAsync("_ProgressBar", Tuple.Create(item.FieldMonitoring, fieldMonitoringClass))
-                                </td>
-                                <td>
-                                    @await Html.PartialAsync("_ProgressBar", Tuple.Create(item.ImpactAssessment, impactAssessmentClass))
-                                </td>
-                                <td>
-                                    <a href="/Outputs/Index/@item.OutputCode" class="text-decoration-none">@item.Output.Name</a>
-                                </td>
-                                <td class="text-end">
-                                    <div class="btn-group" role="group">
-                                      @*   <a asp-action="Details" asp-route-id="@item.Code" class="btn btn-sm btn-outline-primary" title="View">
-                                            <i class="fas fa-eye"></i>
-                                        </a> *@
-                                        <button class="btn btn-sm btn-outline-warning"
-                                                id="edit-btn-@item.Code"
-                                                onclick="toggleSubOutputEdit(@item.Code,@item.Output.Outcome.FrameworkCode)">
-                                            <i class="fas fa-edit"></i>
-                                        </button>
-                                        <button class="btn btn-sm btn-outline-danger"
-                                                onclick="confirmSubOutputDelete(@item.Code)">
-                                            <i class="fas fa-trash-alt"></i>
-                                        </button>
-                                  @*       <a asp-action="Edit" asp-route-id="@item.Code" class="btn btn-sm btn-outline-warning" title="Edit">
-                                            <i class="fas fa-edit"></i>
-                                        </a>
-                                        <a asp-action="Delete" asp-route-id="@item.Code" class="btn btn-sm btn-outline-danger" title="Delete">
-                                            <i class="fas fa-trash-alt"></i>
-                                        </a> *@
-                                    </div>
-                                </td>
-                            </tr>
-                        }
-                    </tbody>
-                </table>
-            </div>
         </div>
     </div>
 </div>
 
-<!-- JavaScript to toggle form -->
-<script>
-    document.getElementById('toggleCreateForm').addEventListener('click', function () {
-             const form = document.getElementById('createSubOutcomeForm');
-             form.style.display = form.style.display === 'none' ? 'block' : 'none';
-         });
+<!-- Collapsible SubOutput Creation Form -->
+<div id="createSubOutcomeForm" class="chart-card mb-4" style="display:none;">
+    <div class="chart-title">
+        <i class="fas fa-plus"></i>
+        @Localizer["Create New SubOutput"]
+    </div>
+    <form asp-action="Create" method="post">
+        <input type="hidden" name="OutputCode" value="@ViewBag.SelectedOutputCode" />
+        <div class="row">
+            <div class="col-md-8">
+                <div class="mb-3">
+                    <label for="Name" class="form-label fw-bold">
+                        <i class="fas fa-tag me-2"></i>@Localizer["SubOutput Name"]
+                    </label>
+                    <input type="text" class="form-control form-control-lg" id="Name" name="Name" required 
+                           placeholder="@Localizer["Enter suboutput name"]" />
+                </div>
+            </div>
+            <div class="col-md-4 d-flex align-items-end">
+                <div class="d-grid w-100">
+                    <button type="submit" class="btn btn-primary btn-lg">
+                        <i class="fas fa-save me-2"></i>@Localizer["Save SubOutput"]
+                    </button>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
 
-    function toggleSubOutputEdit(code,frameworkCode) {
-       debugger;
-        const viewSpan = $(`#fw-name-${code}`);
-        const input = $(`#fw-name-input-${code}`);
-        const button = $(`#edit-btn-${code}`);
-
-        const isEditing = input.hasClass('d-none') === false;
-
-        if (isEditing) {
-            // Save via AJAX
-            const newName = input.val();
-
-            $.ajax({
-                url: `/SubOutputs/UpdateName`,
-                type: 'POST',
-                data: { id: code, name: newName },
-                success: function () {
-                    viewSpan.html(`<a href="/Indicators?subOutputCode=${code}&frameworkCode=${frameworkCode}" class="text-decoration-none"><strong>${newName}</strong></a>`);
-                    input.addClass('d-none');
-                    viewSpan.removeClass('d-none');
-                    button.html('<i class="fas fa-edit"></i>');
-                    button.removeClass('btn-success').addClass('btn-outline-warning');
-                    Swal.fire('Saved!', 'Output name updated.', 'success');
-                },
-                error: function () {
-                    Swal.fire('Error', 'Could not update name.', 'error');
-                }
-            });
-        } else {
-            // Enter edit mode
-            input.removeClass('d-none');
-            viewSpan.addClass('d-none');
-            button.html('<i class="fas fa-save"></i>');
-            button.removeClass('btn-outline-warning').addClass('btn-success');
-        }
+<!-- SubOutputs Table -->
+<div class="chart-card">
+    <div class="chart-title">
+        <i class="fas fa-list-ul"></i>
+        @Localizer["SubOutputs"] (@Model.Count())
+    </div>
+    
+    @if (Model.Any())
+    {
+        <div class="table-responsive">
+            <table class="table table-hover modern-table">
+                <thead class="table-header">
+                    <tr>
+                        <th class="sortable-header">
+                            <div class="header-link">
+                                <i class="fas fa-list-ul me-2"></i>@Localizer["SubOutput Name"]
+                            </div>
+                        </th>
+                        <th class="text-center">
+                            <div class="header-link">
+                                <i class="fas fa-weight me-2"></i>@Localizer["Weight"]
+                            </div>
+                        </th>
+                        <th class="text-center">
+                            <div class="header-link">
+                                <i class="fas fa-chart-line me-2"></i>@Localizer["Indicators Performance"]
+                            </div>
+                        </th>
+                        <th class="text-center">
+                            <div class="header-link">
+                                <i class="fas fa-money-bill-wave me-2"></i>@Localizer["Disbursement Performance"]
+                            </div>
+                        </th>
+                        <th class="text-center">
+                            <div class="header-link">
+                                <i class="fas fa-layer-group me-2"></i>@Localizer["Output"]
+                            </div>
+                        </th>
+                        <th class="text-center">
+                            <div class="header-link">
+                                <i class="fas fa-cogs me-2"></i>@Localizer["Actions"]
+                            </div>
+                        </th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model)
+                    {
+                        string indicatorsClass = ProgressBarHelper.GetProgressBarClass(item.IndicatorsPerformance);
+                        string disbursementClass = ProgressBarHelper.GetProgressBarClass(item.DisbursementPerformance);
+                        double IndicatorsPerformance = Math.Round(item.IndicatorsPerformance, 2);
+                        double DisbursementPerformance = Math.Round(item.DisbursementPerformance, 2);
+                        
+                        <tr id="subOutput-row-@item.Code" class="table-row">
+                            <td class="suboutput-name-cell">
+                                <div class="d-flex align-items-center">
+                                    <div class="suboutput-icon me-3">
+                                        <i class="fas fa-list-ul"></i>
+                                    </div>
+                                    <div>
+                                        <span id="fw-name-@item.Code" class="fw-name-view">
+                                            <a asp-controller="Indicators" asp-action="Index"
+                                               asp-route-frameworkCode="@item.Output.Outcome.FrameworkCode"
+                                               asp-route-subOutputCode="@item.Code"
+                                               class="suboutput-name-link">
+                                                @item.Name
+                                            </a>
+                                        </span>
+                                        <input type="text" id="fw-name-input-@item.Code" 
+                                               class="form-control fw-name-edit d-none" value="@item.Name" />
+                                    </div>
+                                </div>
+                            </td>
+                            <td class="text-center">
+                                <div class="weight-badge">
+                                    <span class="badge bg-info fs-6">@item.Weight%</span>
+                                </div>
+                            </td>
+                            <td class="text-center">
+                                @await Html.PartialAsync("_ProgressBar", Tuple.Create(IndicatorsPerformance, indicatorsClass))
+                            </td>
+                            <td class="text-center">
+                                @await Html.PartialAsync("_ProgressBar", Tuple.Create(DisbursementPerformance, disbursementClass))
+                            </td>
+                            <td class="text-center">
+                                <div class="output-badge">
+                                    <a asp-controller="Outputs" asp-action="Index" asp-route-outcomeCode="@item.Output.OutcomeCode"
+                                       class="badge bg-secondary fs-6 text-decoration-none">
+                                        @item.Output.Name
+                                    </a>
+                                </div>
+                            </td>
+                            <td class="text-center">
+                                <div class="btn-group action-buttons" role="group">
+                                    <button class="btn btn-outline-primary btn-sm action-btn"
+                                            onclick="toggleSubOutputEdit(@item.Code,@item.Output.Outcome.FrameworkCode)" title="Edit Name">
+                                        <i class="fas fa-edit"></i>
+                                    </button>
+                                    <button class="btn btn-outline-danger btn-sm action-btn"
+                                            onclick="confirmSubOutputDelete(@item.Code)" title="Delete">
+                                        <i class="fas fa-trash-alt"></i>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
     }
-            function confirmSubOutputDelete(code) {
+    else
+    {
+        <div class="text-center py-5">
+            <div class="stat-icon warning mx-auto mb-3" style="width: 80px; height: 80px; font-size: 2rem;">
+                <i class="fas fa-list-ul"></i>
+            </div>
+            <h4 class="text-muted">@Localizer["No suboutputs found"]</h4>
+            <p class="text-muted">@Localizer["Create your first suboutput to get started"]</p>
+        </div>
+    }
+</div>
+
+@section Scripts {
+    <!-- SweetAlert2 -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    
+    <script>
+        // Toggle create form
+        document.getElementById('toggleCreateForm')?.addEventListener('click', function () {
+            const form = document.getElementById('createSubOutcomeForm');
+            if (form) {
+                const isHidden = form.style.display === 'none';
+                form.style.display = isHidden ? 'block' : 'none';
+                
+                if (isHidden) {
+                    form.style.opacity = '0';
+                    form.style.transform = 'translateY(-20px)';
+                    setTimeout(() => {
+                        form.style.transition = 'all 0.4s ease';
+                        form.style.opacity = '1';
+                        form.style.transform = 'translateY(0)';
+                    }, 10);
+                }
+            }
+        });
+
+        function toggleSubOutputEdit(code, frameworkCode) {
+            const viewSpan = $(`#fw-name-${code}`);
+            const input = $(`#fw-name-input-${code}`);
+            
+            const isEditing = !input.hasClass('d-none');
+
+            if (isEditing) {
+                // Save via AJAX
+                const newName = input.val();
+
+                $.ajax({
+                    url: `/SubOutputs/UpdateName`,
+                    type: 'POST',
+                    data: { id: code, name: newName },
+                    success: function () {
+                        viewSpan.html(`<a href="/Indicators?subOutputCode=${code}&frameworkCode=${frameworkCode}" class="suboutput-name-link">${newName}</a>`);
+                        input.addClass('d-none');
+                        viewSpan.removeClass('d-none');
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Saved!',
+                            text: 'SubOutput name updated successfully.',
+                            timer: 2000,
+                            showConfirmButton: false
+                        });
+                    },
+                    error: function () {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error',
+                            text: 'Could not update suboutput name.'
+                        });
+                    }
+                });
+            } else {
+                // Enter edit mode
+                input.removeClass('d-none');
+                viewSpan.addClass('d-none');
+                input.focus();
+            }
+        }
+
+        function confirmSubOutputDelete(code) {
             Swal.fire({
-                title: 'Are you sure?',
-                text: 'This will delete the suboutputs!',
+                title: '@Localizer["Are you sure?"]',
+                text: '@Localizer["This will permanently delete the suboutput and all associated data!"]',
                 icon: 'warning',
                 showCancelButton: true,
                 confirmButtonColor: '#d33',
-                cancelButtonColor: '#3085d6',
-                confirmButtonText: 'Yes, delete it!'
+                cancelButtonColor: '#6c757d',
+                confirmButtonText: '@Localizer["Yes, delete it!"]',
+                cancelButtonText: '@Localizer["Cancel"]',
+                customClass: {
+                    popup: 'swal2-modern',
+                    confirmButton: 'btn btn-danger',
+                    cancelButton: 'btn btn-secondary'
+                }
             }).then((result) => {
                 if (result.isConfirmed) {
                     $.ajax({
                         url: `/SubOutputs/DeleteConfirmed/${code}`,
                         type: 'POST',
                         success: function () {
-                            $(`#subOutput-row-${code}`).fadeOut();
-                            Swal.fire('Deleted!', 'SubOutput has been deleted.', 'success');
+                            $(`#subOutput-row-${code}`).fadeOut(400, function() {
+                                $(this).remove();
+                            });
+                            Swal.fire({
+                                icon: 'success',
+                                title: 'Deleted!',
+                                text: '@Localizer["SubOutput has been deleted successfully."]',
+                                timer: 2000,
+                                showConfirmButton: false
+                            });
                         },
                         error: function () {
-                            Swal.fire('Error', 'Could not delete output.', 'error');
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Error',
+                                text: '@Localizer["Could not delete suboutput. Please try again."]'
+                            });
                         }
                     });
                 }
             });
         }
+        
+        // Initialize page animations
+        document.addEventListener('DOMContentLoaded', function() {
+            // Animate table rows on load
+            const tableRows = document.querySelectorAll('.table-row');
+            tableRows.forEach((row, index) => {
+                row.style.opacity = '0';
+                row.style.transform = 'translateX(-20px)';
+                setTimeout(() => {
+                    row.style.transition = 'all 0.6s ease';
+                    row.style.opacity = '1';
+                    row.style.transform = 'translateX(0)';
+                }, index * 100);
+            });
+            
+            // Progress bar animation
+            const progressBars = document.querySelectorAll('.progress-fill-modern');
+            progressBars.forEach((bar, index) => {
+                setTimeout(() => {
+                    const width = bar.style.width;
+                    bar.style.width = '0%';
+                    setTimeout(() => {
+                        bar.style.transition = 'width 1.5s ease-out';
+                        bar.style.width = width;
+                    }, 200);
+                }, index * 100);
+            });
+        });
+    </script>
 
-</script>
-<style>
-    .table-hover tbody tr:hover {
-        background-color: rgba(13, 110, 253, 0.05);
-    }
-
-    .progress {
-        height: 24px;
-        border-radius: 4px;
-    }
-
-    .progress-bar {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 0.75rem;
-        font-weight: 500;
-    }
-
-    .btn-group .btn {
-        padding: 0.25rem 0.5rem;
-    }
-
-    .card-header {
-        font-weight: 600;
-    }
-
-    .table-responsive {
-        overflow-x: hidden;
-    }
-</style>
+    <style>
+        /* Modern Table Styles */
+        .modern-table {
+            background: transparent;
+            border: none;
+            border-radius: 15px;
+            overflow: hidden;
+        }
+        
+        .table-header {
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-dark) 100%);
+            color: white;
+        }
+        
+        .table-header th {
+            border: none;
+            padding: 20px 15px;
+            font-weight: 600;
+            font-size: 0.95rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .header-link {
+            /* color: white !important; */
+            text-decoration: none !important;
+            display: flex;
+            align-items: center;
+            justify-content: flex-start;
+            transition: all 0.3s ease;
+        }
+        
+        .header-link:hover {
+            color: rgba(255, 255, 255, 0.9) !important;
+            transform: translateY(-1px);
+        }
+        
+        .table-row {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border: none;
+            transition: all 0.3s ease;
+        }
+        
+        .table-row:hover {
+            background: rgba(255, 255, 255, 1);
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+        }
+        
+        .table-row td {
+            border: none;
+            padding: 20px 15px;
+            vertical-align: middle;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+        }
+        
+        .suboutput-name-cell {
+            min-width: 300px;
+        }
+        
+        .suboutput-icon {
+            width: 45px;
+            height: 45px;
+            background: linear-gradient(135deg, var(--secondary-color), var(--primary-light));
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.2rem;
+        }
+        
+        .suboutput-name-link {
+            color: #333;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 1.1rem;
+            transition: color 0.3s ease;
+        }
+        
+        .suboutput-name-link:hover {
+            color: var(--primary-color);
+        }
+        
+        .performance-metric {
+            min-width: 120px;
+        }
+        
+        .progress-bar-modern {
+            height: 8px;
+            background: rgba(0, 0, 0, 0.1);
+            border-radius: 10px;
+            overflow: hidden;
+            position: relative;
+        }
+        
+        .progress-fill-modern {
+            height: 100%;
+            border-radius: 10px;
+            transition: width 1.5s ease-out;
+            position: relative;
+        }
+        
+        .progress-fill-modern::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+            animation: shimmer 2s infinite;
+        }
+        
+        @@keyframes shimmer {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+        
+        .weight-badge, .output-badge {
+            display: flex;
+            justify-content: center;
+        }
+        
+        .action-buttons {
+            gap: 5px;
+        }
+        
+        .action-btn {
+            width: 35px;
+            height: 35px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+            border-width: 1px;
+        }
+        
+        .action-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+        
+        .table-responsive {
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+        
+        .swal2-modern {
+            border-radius: 15px;
+        }
+        
+        /* Badge styling */
+        .badge.bg-primary {
+            background: linear-gradient(135deg, var(--primary-color), var(--primary-dark)) !important;
+        }
+        
+        .badge.bg-success {
+            background: linear-gradient(135deg, var(--secondary-color), var(--primary-light)) !important;
+        }
+        
+        .badge.bg-info {
+            background: linear-gradient(135deg, var(--accent-color), var(--primary-color)) !important;
+        }
+        
+        .badge.bg-secondary {
+            background: linear-gradient(135deg, #6c757d, #495057) !important;
+            color: white !important;
+        }
+        
+        /* Form styling */
+        .form-control-lg {
+            border: 2px solid rgba(0, 0, 0, 0.1);
+            border-radius: 10px;
+            transition: all 0.3s ease;
+        }
+        
+        .form-control-lg:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 0.2rem color-mix(in srgb, var(--primary-color) 25%, transparent);
+        }
+        
+        /* Responsive Design */
+        @@media (max-width: 768px) {
+            .dashboard-header .d-flex {
+                flex-direction: column;
+                align-items: stretch;
+                gap: 20px;
+            }
+            
+            .dashboard-header .d-flex > div:last-child {
+                align-self: center;
+            }
+            
+            .suboutput-name-cell {
+                min-width: auto;
+            }
+            
+            .performance-metric {
+                min-width: auto;
+            }
+            
+            .action-buttons {
+                flex-direction: column;
+                gap: 3px;
+            }
+            
+            .table-header th {
+                padding: 15px 10px;
+                font-size: 0.85rem;
+            }
+            
+            .table-row td {
+                padding: 15px 10px;
+            }
+            
+            .header-link {
+                flex-direction: column;
+                text-align: center;
+            }
+            
+            .header-link i {
+                margin-bottom: 5px;
+                margin-right: 0 !important;
+            }
+        }
+    </style>
+}

@@ -5,19 +5,23 @@
 @using Microsoft.AspNetCore.Localization
 @model IEnumerable<MonitoringAndEvaluationPlatform.Models.Outcome>
 @{
-	Layout = "~/Views/Shared/_ResultsFrameworkLayout.cshtml";
+	Layout = "~/Views/Shared/_DashboardHomeLayout.cshtml";
 }
 
-<!DOCTYPE html>
-<html lang="en">
-<head>
-	<meta charset="UTF-8">
-	<meta name="viewport" content="width=device-width, initial-scale=1.0">
-	<title>Health Framework Dashboard</title>
-	<link rel="stylesheet" href="~/css/progress-bars.css" />
-</head>
-<body>
-    <div class="framework-container">
+<!-- Dashboard Header -->
+<div class="dashboard-header">
+    <h1 class="dashboard-title">
+        <i class="fas fa-trophy me-3"></i>
+        @Localizer["Outcomes Dashboard"]
+    </h1>
+    <p class="dashboard-subtitle">
+        @Localizer["Strategic outcomes monitoring with comprehensive performance analytics and goal tracking"]
+    </p>
+</div>
+
+<div class="container-fluid">
+    <!-- Outcomes Analytics Grid -->
+    <div class="outcomes-analytics-container">
         @foreach (var item in Model)
         {
             var outputs = item.Outputs;
@@ -25,59 +29,147 @@
             var indicators = subOutputs.SelectMany(subOutput => subOutput.Indicators);
             var projectCount = (ViewBag.ProjectCounts as Dictionary<int, int>)?[item.Code] ?? 0;
 
-
             var metrics = new[]
             {
-        new { Value = Math.Round(item.IndicatorsPerformance), Label = @Localizer["Assessment"] },
-        new { Value = Math.Round(item.DisbursementPerformance), Label = @Localizer["Disbursement"] },
-        new { Value = Math.Round(item.FieldMonitoring), Label = @Localizer["Monitoring"] },
-        new { Value = Math.Round(item.ImpactAssessment), Label = @Localizer["Assessment"] }
-        };
+                new { Value = Math.Round(item.IndicatorsPerformance), Label = @Localizer["Performance Assessment"], Icon = "fas fa-chart-line", Color = "primary" },
+                new { Value = Math.Round(item.DisbursementPerformance), Label = @Localizer["Financial Disbursement"], Icon = "fas fa-coins", Color = "success" }
+            };
 
-            <div class="framework-card">
-                <div class="framework-header">
-                    <h2>@item.Name</h2>
-                    <div class="outcome-badge">@Localizer["Outcome"]: @outputs.Count()</div>
-                </div>
-
-                @foreach (var metric in metrics)
-                {
-                    var progressClass = ProgressHelper.GetProgressClass(metric.Value);
-                    var classes = progressClass.Split(' ');
-
-                    <div class="metric">
-                        <div class="metric-value @classes[1]">@metric.Value%</div>
-                        <div class="metric-label">@metric.Label</div>
-                        <div class="progress-container">
-                            <div class="progress-bar @classes[0]" style="width: @metric.Value%"></div>
+            <div class="modern-outcome-card">
+                <div class="outcome-card-header">
+                    <div class="outcome-header-content">
+                        <div class="outcome-title-section">
+                            <h3 class="outcome-title">
+                                <i class="fas fa-bullseye me-2"></i>
+                                @item.Name
+                            </h3>
+                            <div class="outcome-badge-container">
+                                <div class="outcome-status-badge">
+                                    <i class="fas fa-layer-group me-1"></i>
+                                    @outputs.Count() @Localizer["Outputs"]
+                                </div>
+                            </div>
+                        </div>
+                        <div class="outcome-performance-indicator">
+                            <div class="performance-gauge" data-value="@Math.Round(item.IndicatorsPerformance)">
+                                <svg class="gauge-svg" viewBox="0 0 100 100">
+                                    <circle class="gauge-background" cx="50" cy="50" r="45" stroke="#e2e8f0" stroke-width="8" fill="transparent"></circle>
+                                    <circle class="gauge-progress" cx="50" cy="50" r="45" 
+                                            stroke="@(item.IndicatorsPerformance >= 80 ? "#10B981" : item.IndicatorsPerformance >= 60 ? "#F59E0B" : "#EF4444")" 
+                                            stroke-width="8" fill="transparent"
+                                            stroke-dasharray="283" 
+                                            stroke-dashoffset="@(283 - (283 * item.IndicatorsPerformance / 100))"
+                                            stroke-linecap="round">
+                                    </circle>
+                                </svg>
+                                <div class="gauge-text">
+                                    <span class="gauge-value">@Math.Round(item.IndicatorsPerformance)%</span>
+                                    <span class="gauge-label">Performance</span>
+                                </div>
+                            </div>
                         </div>
                     </div>
-                }
+                </div>
 
-                <div class="outcome-stats">
-                    <div class="stat-grid">
-                        <div class="stat-item">
-                            <a asp-controller="Monitoring" asp-action="Outputs" asp-route-outcomeCode="@item.Code">
-                                <div class="stat-value">@outputs.Count()</div>
-                                <div class="stat-label">@Localizer["Outputs"]</div>
-                            </a>
+                <div class="outcome-card-body">
+                    <!-- Performance Metrics -->
+                    <div class="outcome-metrics-section">
+                        <h5 class="metrics-title">
+                            <i class="fas fa-analytics me-2"></i>
+                            @Localizer["Key Metrics"]
+                        </h5>
+                        <div class="metrics-grid">
+                            @foreach (var metric in metrics)
+                            {
+                                var performanceLevel = metric.Value >= 80 ? "excellent" : metric.Value >= 60 ? "good" : "needs-improvement";
+                                
+                                <div class="outcome-metric-card @performanceLevel">
+                                    <div class="metric-header">
+                                        <div class="metric-icon-wrapper">
+                                            <i class="@metric.Icon"></i>
+                                        </div>
+                                        <div class="metric-info">
+                                            <div class="metric-value">@metric.Value%</div>
+                                            <div class="metric-label">@metric.Label</div>
+                                        </div>
+                                    </div>
+                                    <div class="metric-progress-track">
+                                        <div class="metric-progress-fill" style="width: @metric.Value%"></div>
+                                    </div>
+                                </div>
+                            }
                         </div>
-                        <div class="stat-item">
-                            <a asp-controller="Monitoring" asp-action="SubOutputs" asp-route-outcomeCode="@item.Code">
-                                <div class="stat-value">@subOutputs.Count()</div>
-                                <div class="stat-label">@Localizer["Sub-outputs"]</div>
+                    </div>
+
+                    <!-- Navigation Links -->
+                    <div class="outcome-navigation-section">
+                        <h5 class="navigation-section-title">
+                            <i class="fas fa-sitemap me-2"></i>
+                            @Localizer["Navigate Components"]
+                        </h5>
+                        <div class="outcome-nav-grid">
+                            <a asp-controller="Monitoring" asp-action="Outputs" asp-route-outcomeCode="@item.Code" class="outcome-nav-card outputs">
+                                <div class="nav-card-content">
+                                    <div class="nav-card-icon">
+                                        <i class="fas fa-layer-group"></i>
+                                    </div>
+                                    <div class="nav-card-info">
+                                        <div class="nav-card-value">@outputs.Count()</div>
+                                        <div class="nav-card-label">@Localizer["Outputs"]</div>
+                                        <div class="nav-card-description">Measurable results and deliverables</div>
+                                    </div>
+                                </div>
+                                <div class="nav-card-arrow">
+                                    <i class="fas fa-arrow-right"></i>
+                                </div>
                             </a>
-                        </div>
-                        <div class="stat-item">
-                            <a asp-controller="Monitoring" asp-action="Indicators" asp-route-outcomeCode="@item.Code">
-                                <div class="stat-value">@indicators.Count()</div>
-                                <div class="stat-label">@Localizer["Indicators"]</div>
+
+                            <a asp-controller="Monitoring" asp-action="SubOutputs" asp-route-outcomeCode="@item.Code" class="outcome-nav-card suboutputs">
+                                <div class="nav-card-content">
+                                    <div class="nav-card-icon">
+                                        <i class="fas fa-list-ul"></i>
+                                    </div>
+                                    <div class="nav-card-info">
+                                        <div class="nav-card-value">@subOutputs.Count()</div>
+                                        <div class="nav-card-label">@Localizer["Sub-outputs"]</div>
+                                        <div class="nav-card-description">Detailed output components</div>
+                                    </div>
+                                </div>
+                                <div class="nav-card-arrow">
+                                    <i class="fas fa-arrow-right"></i>
+                                </div>
                             </a>
-                        </div>
-                        <div class="stat-item">
-                            <a asp-controller="Monitoring" asp-action="Projects" asp-route-outcomeCode="@item.Code">
-                                <div class="stat-value">@projectCount</div>
-                                <div class="stat-label">@Localizer["Projects"]</div>
+
+                            <a asp-controller="Monitoring" asp-action="Indicators" asp-route-outcomeCode="@item.Code" class="outcome-nav-card indicators">
+                                <div class="nav-card-content">
+                                    <div class="nav-card-icon">
+                                        <i class="fas fa-chart-bar"></i>
+                                    </div>
+                                    <div class="nav-card-info">
+                                        <div class="nav-card-value">@indicators.Count()</div>
+                                        <div class="nav-card-label">@Localizer["Indicators"]</div>
+                                        <div class="nav-card-description">Performance measurement metrics</div>
+                                    </div>
+                                </div>
+                                <div class="nav-card-arrow">
+                                    <i class="fas fa-arrow-right"></i>
+                                </div>
+                            </a>
+
+                            <a asp-controller="Monitoring" asp-action="Projects" asp-route-outcomeCode="@item.Code" class="outcome-nav-card projects">
+                                <div class="nav-card-content">
+                                    <div class="nav-card-icon">
+                                        <i class="fas fa-project-diagram"></i>
+                                    </div>
+                                    <div class="nav-card-info">
+                                        <div class="nav-card-value">@projectCount</div>
+                                        <div class="nav-card-label">@Localizer["Projects"]</div>
+                                        <div class="nav-card-description">Implementation projects</div>
+                                    </div>
+                                </div>
+                                <div class="nav-card-arrow">
+                                    <i class="fas fa-arrow-right"></i>
+                                </div>
                             </a>
                         </div>
                     </div>
@@ -85,6 +177,639 @@
             </div>
         }
     </div>
-</body>
-</html>
+</div>
+
+<style>
+    /* Modern Outcome Dashboard Styles */
+    
+    .outcomes-analytics-container {
+        display: flex;
+        flex-direction: column;
+        gap: 2.5rem;
+        margin-top: 2rem;
+    }
+
+    .modern-outcome-card {
+        background: linear-gradient(135deg, rgba(255,255,255,0.95) 0%, rgba(248,249,250,0.95) 100%);
+        backdrop-filter: blur(15px);
+        -webkit-backdrop-filter: blur(15px);
+        border: 1px solid rgba(255,255,255,0.3);
+        border-radius: 24px;
+        padding: 0;
+        box-shadow: 
+            0 8px 32px rgba(0,0,0,0.1),
+            0 4px 16px rgba(0,0,0,0.05);
+        transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
+        position: relative;
+        overflow: hidden;
+    }
+
+    .modern-outcome-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+        transition: left 0.6s;
+        z-index: 1;
+    }
+
+    .modern-outcome-card:hover::before {
+        left: 100%;
+    }
+
+    .modern-outcome-card:hover {
+        transform: translateY(-10px) scale(1.02);
+        box-shadow: 
+            0 20px 40px rgba(0,0,0,0.15),
+            0 8px 24px rgba(0,0,0,0.1);
+        border-color: rgba(255,255,255,0.5);
+    }
+
+    /* Outcome Card Header */
+    .outcome-card-header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        padding: 2rem;
+        border-radius: 24px 24px 0 0;
+        color: white;
+        position: relative;
+        z-index: 2;
+    }
+
+    .outcome-header-content {
+        display: grid;
+        grid-template-columns: 1fr auto;
+        gap: 2rem;
+        align-items: center;
+    }
+
+    .outcome-title-section {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+    }
+
+    .outcome-title {
+        font-size: 2rem;
+        font-weight: 700;
+        color: white;
+        margin: 0;
+        display: flex;
+        align-items: center;
+        text-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    }
+
+    .outcome-status-badge {
+        display: inline-flex;
+        align-items: center;
+        padding: 0.5rem 1.25rem;
+        background: rgba(255,255,255,0.2);
+        border: 1px solid rgba(255,255,255,0.3);
+        backdrop-filter: blur(10px);
+        color: white;
+        border-radius: 20px;
+        font-size: 0.9rem;
+        font-weight: 600;
+        text-shadow: 0 1px 2px rgba(0,0,0,0.1);
+        box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    }
+
+    /* Performance Gauge */
+    .performance-gauge {
+        position: relative;
+        width: 80px;
+        height: 80px;
+    }
+
+    .gauge-svg {
+        width: 100%;
+        height: 100%;
+        transform: rotate(-90deg);
+        filter: drop-shadow(0 4px 8px rgba(0,0,0,0.2));
+    }
+
+    .gauge-progress {
+        transition: stroke-dashoffset 1.5s ease-in-out;
+    }
+
+    .gauge-text {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        text-align: center;
+    }
+
+    .gauge-value {
+        display: block;
+        font-size: 1.1rem;
+        font-weight: 700;
+        color: white;
+        line-height: 1;
+        text-shadow: 0 1px 2px rgba(0,0,0,0.2);
+    }
+
+    .gauge-label {
+        display: block;
+        font-size: 0.7rem;
+        color: rgba(255,255,255,0.9);
+        font-weight: 500;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        margin-top: 0.25rem;
+    }
+
+    /* Outcome Card Body */
+    .outcome-card-body {
+        padding: 2rem;
+        z-index: 2;
+        position: relative;
+    }
+
+    /* Metrics Section */
+    .outcome-metrics-section {
+        margin-bottom: 2.5rem;
+    }
+
+    .metrics-title {
+        font-size: 1.3rem;
+        font-weight: 600;
+        color: #2d3748;
+        margin-bottom: 1.5rem;
+        display: flex;
+        align-items: center;
+    }
+
+    .metrics-title i {
+        color: #667eea;
+    }
+
+    .metrics-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 1.5rem;
+    }
+
+    .outcome-metric-card {
+        background: linear-gradient(135deg, rgba(255,255,255,0.9) 0%, rgba(248,249,250,0.9) 100%);
+        border: 1px solid rgba(255,255,255,0.5);
+        border-radius: 16px;
+        padding: 1.5rem;
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .outcome-metric-card::after {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 4px;
+        height: 100%;
+        transition: all 0.3s ease;
+    }
+
+    .outcome-metric-card.excellent::after { background: linear-gradient(135deg, #10B981, #059669); }
+    .outcome-metric-card.good::after { background: linear-gradient(135deg, #F59E0B, #D97706); }
+    .outcome-metric-card.needs-improvement::after { background: linear-gradient(135deg, #EF4444, #DC2626); }
+
+    .outcome-metric-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+        background: rgba(255,255,255,0.95);
+    }
+
+    .metric-header {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        margin-bottom: 1rem;
+    }
+
+    .metric-icon-wrapper {
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.25rem;
+        color: white;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+    }
+
+    .outcome-metric-card.excellent .metric-icon-wrapper {
+        background: linear-gradient(135deg, #10B981, #059669);
+    }
+
+    .outcome-metric-card.good .metric-icon-wrapper {
+        background: linear-gradient(135deg, #F59E0B, #D97706);
+    }
+
+    .outcome-metric-card.needs-improvement .metric-icon-wrapper {
+        background: linear-gradient(135deg, #EF4444, #DC2626);
+    }
+
+    .metric-info {
+        flex: 1;
+    }
+
+    .metric-value {
+        font-size: 1.8rem;
+        font-weight: 700;
+        color: #2d3748;
+        line-height: 1;
+        margin-bottom: 0.25rem;
+    }
+
+    .metric-label {
+        font-size: 0.9rem;
+        color: #718096;
+        font-weight: 500;
+    }
+
+    .metric-progress-track {
+        width: 100%;
+        height: 6px;
+        background: rgba(226, 232, 240, 0.5);
+        border-radius: 3px;
+        overflow: hidden;
+    }
+
+    .metric-progress-fill {
+        height: 100%;
+        border-radius: 3px;
+        transition: width 1.2s ease;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .outcome-metric-card.excellent .metric-progress-fill {
+        background: linear-gradient(90deg, #10B981, #059669);
+    }
+
+    .outcome-metric-card.good .metric-progress-fill {
+        background: linear-gradient(90deg, #F59E0B, #D97706);
+    }
+
+    .outcome-metric-card.needs-improvement .metric-progress-fill {
+        background: linear-gradient(90deg, #EF4444, #DC2626);
+    }
+
+    .metric-progress-fill::after {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
+        animation: shimmer 2.5s infinite;
+    }
+
+    /* Navigation Section */
+    .outcome-navigation-section {
+        border-top: 1px solid rgba(230, 230, 230, 0.5);
+        padding-top: 2rem;
+    }
+
+    .navigation-section-title {
+        font-size: 1.3rem;
+        font-weight: 600;
+        color: #2d3748;
+        margin-bottom: 1.5rem;
+        display: flex;
+        align-items: center;
+    }
+
+    .navigation-section-title i {
+        color: #667eea;
+    }
+
+    .outcome-nav-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 1.5rem;
+    }
+
+    .outcome-nav-card {
+        background: linear-gradient(135deg, rgba(255,255,255,0.8) 0%, rgba(248,249,250,0.8) 100%);
+        border: 1px solid rgba(255,255,255,0.5);
+        border-radius: 16px;
+        padding: 1.5rem;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        text-decoration: none;
+        color: inherit;
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .outcome-nav-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+        transition: left 0.5s;
+    }
+
+    .outcome-nav-card:hover::before {
+        left: 100%;
+    }
+
+    .outcome-nav-card:hover {
+        transform: translateY(-4px) translateX(4px);
+        box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+        text-decoration: none;
+        color: inherit;
+        background: linear-gradient(135deg, rgba(255,255,255,0.95) 0%, rgba(248,249,250,0.95) 100%);
+    }
+
+    .nav-card-content {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        flex: 1;
+    }
+
+    .nav-card-icon {
+        width: 50px;
+        height: 50px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+        color: white;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+    }
+
+    .outcome-nav-card.outputs .nav-card-icon { 
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); 
+    }
+    .outcome-nav-card.suboutputs .nav-card-icon { 
+        background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); 
+    }
+    .outcome-nav-card.indicators .nav-card-icon { 
+        background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); 
+    }
+    .outcome-nav-card.projects .nav-card-icon { 
+        background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%); 
+    }
+
+    .nav-card-info {
+        display: flex;
+        flex-direction: column;
+        gap: 0.25rem;
+    }
+
+    .nav-card-value {
+        font-size: 1.8rem;
+        font-weight: 700;
+        color: #2d3748;
+        line-height: 1;
+    }
+
+    .nav-card-label {
+        font-size: 1rem;
+        color: #4a5568;
+        font-weight: 600;
+        margin-bottom: 0.25rem;
+    }
+
+    .nav-card-description {
+        font-size: 0.8rem;
+        color: #718096;
+        font-weight: 400;
+        line-height: 1.2;
+    }
+
+    .nav-card-arrow {
+        color: #cbd5e0;
+        font-size: 1.25rem;
+        transition: all 0.3s ease;
+    }
+
+    .outcome-nav-card:hover .nav-card-arrow {
+        color: #667eea;
+        transform: translateX(4px);
+    }
+
+    /* Animations */
+    @@keyframes shimmer {
+        0% { left: -100%; }
+        100% { left: 100%; }
+    }
+
+    @@keyframes fadeInSlideUp {
+        from {
+            opacity: 0;
+            transform: translateY(40px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .modern-outcome-card {
+        animation: fadeInSlideUp 0.8s ease-out;
+    }
+
+    .modern-outcome-card:nth-child(2) { animation-delay: 0.2s; }
+    .modern-outcome-card:nth-child(3) { animation-delay: 0.4s; }
+    .modern-outcome-card:nth-child(4) { animation-delay: 0.6s; }
+
+    /* Responsive Design */
+    @@media (max-width: 1024px) {
+        .outcome-header-content {
+            grid-template-columns: 1fr;
+            gap: 1.5rem;
+            text-align: center;
+        }
+
+        .metrics-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .outcome-nav-grid {
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        }
+    }
+
+    @@media (max-width: 768px) {
+        .modern-outcome-card {
+            margin: 0 -1rem;
+            border-radius: 16px;
+        }
+
+        .outcome-card-header,
+        .outcome-card-body {
+            padding: 1.5rem;
+        }
+
+        .outcome-title {
+            font-size: 1.6rem;
+        }
+
+        .metrics-grid {
+            gap: 1rem;
+        }
+
+        .outcome-nav-grid {
+            grid-template-columns: 1fr;
+            gap: 1rem;
+        }
+
+        .nav-card-content {
+            gap: 0.75rem;
+        }
+
+        .nav-card-icon {
+            width: 45px;
+            height: 45px;
+            font-size: 1.25rem;
+        }
+    }
+
+    @@media (max-width: 480px) {
+        .outcome-card-header,
+        .outcome-card-body {
+            padding: 1rem;
+        }
+
+        .outcome-title {
+            font-size: 1.4rem;
+        }
+
+        .outcome-metric-card {
+            padding: 1.25rem;
+        }
+
+        .metric-header {
+            flex-direction: column;
+            text-align: center;
+            gap: 0.75rem;
+        }
+
+        .metric-value {
+            font-size: 1.5rem;
+        }
+
+        .nav-card-value {
+            font-size: 1.5rem;
+        }
+
+        .performance-gauge {
+            width: 70px;
+            height: 70px;
+        }
+
+        .gauge-value {
+            font-size: 1rem;
+        }
+    }
+
+    /* Additional hover effects */
+    .outcome-metric-card:hover .metric-icon-wrapper {
+        transform: scale(1.1) rotate(5deg);
+    }
+
+    .outcome-nav-card:hover .nav-card-icon {
+        transform: scale(1.1);
+    }
+</style>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Animate gauges on load
+        const gauges = document.querySelectorAll('.gauge-progress');
+        gauges.forEach((gauge, index) => {
+            setTimeout(() => {
+                const dashoffset = gauge.style.strokeDashoffset || gauge.getAttribute('stroke-dashoffset');
+                gauge.style.strokeDashoffset = '283';
+                setTimeout(() => {
+                    gauge.style.strokeDashoffset = dashoffset;
+                }, 200);
+            }, index * 300);
+        });
+
+        // Animate progress bars
+        const progressBars = document.querySelectorAll('.metric-progress-fill');
+        progressBars.forEach((bar, index) => {
+            const width = bar.style.width;
+            bar.style.width = '0%';
+            setTimeout(() => {
+                bar.style.width = width;
+            }, 800 + (index * 200));
+        });
+
+        // Add interactive hover effects
+        const navCards = document.querySelectorAll('.outcome-nav-card');
+        navCards.forEach(card => {
+            card.addEventListener('mouseenter', function() {
+                this.style.transform = 'translateY(-4px) translateX(4px)';
+                const icon = this.querySelector('.nav-card-icon');
+                if (icon) icon.style.transform = 'scale(1.1)';
+            });
+            
+            card.addEventListener('mouseleave', function() {
+                this.style.transform = 'translateY(0) translateX(0)';
+                const icon = this.querySelector('.nav-card-icon');
+                if (icon) icon.style.transform = 'scale(1)';
+            });
+        });
+
+        // Add click ripple effect to metric cards
+        const metricCards = document.querySelectorAll('.outcome-metric-card');
+        metricCards.forEach(card => {
+            card.addEventListener('click', function(e) {
+                const ripple = document.createElement('span');
+                const rect = this.getBoundingClientRect();
+                const size = Math.max(rect.height, rect.width);
+                const x = e.clientX - rect.left - size / 2;
+                const y = e.clientY - rect.top - size / 2;
+                
+                ripple.style.cssText = `
+                    width: ${size}px;
+                    height: ${size}px;
+                    left: ${x}px;
+                    top: ${y}px;
+                    position: absolute;
+                    border-radius: 50%;
+                    background: rgba(102, 126, 234, 0.3);
+                    transform: scale(0);
+                    animation: ripple 0.6s linear;
+                    pointer-events: none;
+                `;
+                
+                this.appendChild(ripple);
+                
+                setTimeout(() => {
+                    ripple.remove();
+                }, 600);
+            });
+        });
+
+        // Add CSS for ripple animation
+        const style = document.createElement('style');
+        style.textContent = `
+            @@keyframes ripple {
+                to {
+                    transform: scale(4);
+                    opacity: 0;
+                }
+            }
+        `;
+        document.head.appendChild(style);
+    });
+</script>
 

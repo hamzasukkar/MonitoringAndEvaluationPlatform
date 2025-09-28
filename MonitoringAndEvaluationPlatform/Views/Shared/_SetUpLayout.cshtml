@@ -1,155 +1,367 @@
 ﻿@using Microsoft.AspNetCore.Identity
+@using Microsoft.AspNetCore.Mvc.Localization
 @inject SignInManager<ApplicationUser> SignInManager
 @inject UserManager<ApplicationUser> UserManager
-@using Microsoft.AspNetCore.Mvc.Localization
+@using Microsoft.EntityFrameworkCore
+@using MonitoringAndEvaluationPlatform.Data
+@inject ApplicationDbContext _context
 @inject IViewLocalizer Localizer
 @using Microsoft.AspNetCore.Localization
 
 @{
-    var culture = Context.Features.Get<IRequestCultureFeature>()?.RequestCulture.Culture.Name;
-    var dir = culture == "ar" ? "rtl" : "ltr";
-    var lang = culture == "ar" ? "ar" : "en";
+	var culture = Context.Features.Get<IRequestCultureFeature>()?.RequestCulture.Culture.Name;
+	var dir = culture == "ar" ? "rtl" : "ltr";
+	var lang = culture == "ar" ? "ar" : "en";
+	var currentCulture = System.Globalization.CultureInfo.CurrentUICulture.Name;
+	var isArabic = currentCulture.StartsWith("ar");
+	var isEnglish = currentCulture.StartsWith("en");
 }
+
 
 <!DOCTYPE html>
 <html lang="@lang" dir="@dir">
 <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@ViewData["Title"] - Monitoring & Evaluation System</title>
-    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
-    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
-    <link rel="stylesheet" href="~/css/SetUpLayout.css" />
-    <link rel="stylesheet" href="~/css/all.min.css" />
-    <style>
-      
-    </style>
+	<meta charset="utf-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+	<title>@ViewData["Title"] - Monitoring & Evaluation System</title>
+	<link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+	<link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+	<link rel="stylesheet" href="~/css/SetUpLayout.css" />
+	<link rel="stylesheet" href="~/css/all.min.css" />
+
+	<!-- Theme CSS Files -->
+	<link rel="stylesheet" href="~/css/themes/theme-default.css" />
+	<link rel="stylesheet" href="~/css/themes/theme-calm-blue.css" />
+	<link rel="stylesheet" href="~/css/themes/theme-alternative.css" />
+	<link rel="stylesheet" href="~/css/themes/theme-modern-glass.css" />
+	<style>
+		.has-performance {
+			background-color: #007bff !important; /* أزرق أنيق */
+			color: white !important;
+			border-radius: 5px;
+			font-weight: 500;
+		}
+
+
+		.dropdown-submenu {
+			position: relative;
+		}
+
+			.dropdown-submenu > .dropdown-menu {
+				top: 0;
+				margin-top: -6px; /* You can adjust this value */
+				left: 100%;
+			}
+
+		body[dir="rtl"] .dropdown-submenu > .dropdown-menu {
+			left: auto;
+			right: 100%;
+		}
+
+		.dropdown-submenu:hover > .dropdown-menu {
+			display: block;
+		}
+	</style>
 </head>
-<body>
-    <header>
-        <div class="topbar">
-            <!-- Left nav -->
-            <div class="nav-links">
-                <ul class="nav">
-                    <li class="nav-item">
-                        <a class="nav-link active" href="/Ministries/Index">
-                            <i class="fas fa-landmark me-1"></i>@Localizer["Ministries"]
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="/Sectors/Index">
-                            <i class="fas fa-industry me-1"></i>@Localizer["Sectors"]
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="/Donors/index">
-                            <i class="fas fa-hand-holding-usd me-1"></i>@Localizer["Donors"]
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="/SuperVisors/index">
-                            <i class="fas fa-user-tie me-1"></i>@Localizer["SuperVisors"]
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="/ProjectManagers/index">
-                            <i class="fas fa-user-cog me-1"></i>@Localizer["ProjectManagers"]
-                        </a>
-                    </li>
-                </ul>
-            </div>
+@* <body class="@(dir == "rtl" ? "rtl" : "ltr")" data-theme="default"> *@
+<body data-theme="default">
+	<header>
+		<div class="topbar">
+			<div class="title">@Localizer["AppTitle"]</div>
+			<div class="nav-links">
+				<ul class="nav">
+					<li class="nav-item dropdown">
+						<a class="nav-link dropdown-toggle" href="#" id="policiesDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+							<i class="fas fa-sitemap me-1"></i> @Localizer["National Development Strategy"]
+						</a>
+						<ul class="dropdown-menu" aria-labelledby="policiesDropdown">
+							@foreach (var framework in _context.Frameworks
+												.OrderByDescending(f => f.IndicatorsPerformance)
+												.ToList())
+							{
 
-            <!-- Center title -->
-            <div class="title">@Localizer["Monitoring & Evaluation System"]</div>
+								var hasPerformance = framework.IndicatorsPerformance > 0;
+								var performanceClass = hasPerformance ? "has-performance" : "";
 
-            <!-- Far right user dropdown -->
-            <div class="user-dropdown">
-                <ul class="nav">
-                    <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                              @* <img class="rounded-circle me-2" width="28" height="28" src="~/img/profile.jpeg" /> *@
-                            @if (SignInManager.IsSignedIn(User))
-                            {
-                                var user = await UserManager.GetUserAsync(User);
-                                <span>@user?.UserName</span>
-                            }
-                        </a>
-                        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
-                            <li><a class="dropdown-item" href="#"><i class="fas fa-cog me-2"></i>@Localizer["Settings"]</a></li>
-                            <li><hr class="dropdown-divider"></li>
-                            <li>
-                                <form class="form-inline" asp-area="Identity" asp-page="/Account/Logout" asp-route-returnUrl="@Url.Action("Index", "Home", new { area = "" })">
-                                    <button type="submit" class="dropdown-item"><i class="fas fa-sign-out-alt me-2"></i>@Localizer["Logout"]</button>
-                                </form>
-                            </li>
-                        </ul>
-                    </li>
-                </ul>
-            </div>
-        </div>
-    </header>
+								<li class="dropdown-submenu dropend">
+									<a class="dropdown-item dropdown-toggle @performanceClass" href="#" id="framework-@framework.Code">
+										@framework.Name
+									</a>
+									<ul class="dropdown-menu" aria-labelledby="framework-@framework.Code">
+										<li>
+											<a class="dropdown-item" asp-controller="Outcomes" asp-action="Index" asp-route-frameworkCode="@framework.Code">
+												<i class="fas fa-bullseye"></i>@Localizer["Outcomes"]
+											</a>
+										</li>
+										<li>
+											<a class="dropdown-item" asp-controller="Outputs" asp-action="Index" asp-route-frameworkCode="@framework.Code">
+												<i class="fas fa-project-diagram"></i>@Localizer["Outputs"]
+											</a>
+										</li>
+										<li>
+											<a class="dropdown-item" asp-controller="SubOutputs" asp-action="Index" asp-route-frameworkCode="@framework.Code">
+												<i class="fas fa-code-branch"></i>@Localizer["SubOutputs"]
+											</a>
+										</li>
+										<li>
+											<a class="dropdown-item" asp-controller="Indicators" asp-action="Index" asp-route-frameworkCode="@framework.Code">
+												<i class="fas fa-chart-line"></i>@Localizer["Indicators"]
+											</a>
+										</li>
+										<li>
+											<a class="dropdown-item" asp-controller="Indicators" asp-action="IndicatorAndProject" asp-route-frameworkCode="@framework.Code">
+												<i class="fas fa-link"></i>@Localizer["Indicators & Projects"]
+											</a>
+										</li>
+										<li>
+											<a class="dropdown-item" asp-controller="Indicators" asp-action="IndicatorAndProjectTable" asp-route-frameworkCode="@framework.Code">
+												<i class="fas fa-table"></i>@Localizer["Indicators & Projects Table"]
+											</a>
+										</li>
+									</ul>
+								</li>
+							}
+						</ul>
+					</li>
+					<li class="nav-item dropdown">
+						<a class="nav-link dropdown-toggle" href="#" id="MinistriesandAgenciesDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+							<i class="fas fa-sitemap me-1"></i> @Localizer["Ministries and Agencies"]
+						</a>
+						<ul class="dropdown-menu p-2" aria-labelledby="MinistriesandAgenciesDropdown" style="max-height: 300px; overflow-y: auto; min-width: 250px;">
+							<li class="mb-2">
+								<input type="text" class="form-control form-control-sm" id="ministrySearch" placeholder="@Localizer["Search"]">
+							</li>
 
+							@foreach (var ministry in _context.Ministries.ToList())
+							{
+								<li class="ministry-item">
+									<a asp-controller="Ministries" asp-action="ResultIndex" asp-route-ministryCode="@ministry.Code" class="dropdown-item" id="framework-@ministry.Code">
+										@ministry.MinistryDisplayName
+									</a>
+								</li>
+							}
+						</ul>
+					</li>
+					<li class="nav-item dropdown">
+						<a class="nav-link dropdown-toggle" href="#" id="SectorsDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+							<i class="fas fa-sitemap me-1"></i> @Localizer["Sectors"]
+						</a>
+						<ul class="dropdown-menu p-2" aria-labelledby="SectorsDropdown" style="max-height: 300px; overflow-y: auto; min-width: 250px;">
 
-    <div class="main">
-        <!-- Sidebar -->
-        <div class="sidebar">
-            <ul class="list-unstyled">
-                <li>
-                    <a class="d-flex align-items-center" href="/Frameworks/Index">
-                        <img src="~/img/results.png" alt="Results Icon" class="me-2" width="24" height="24">
-                        <span>@Localizer["Results Framework"]</span>
-                    </a>
-                </li>
-                <li>
-                    <a class="d-flex align-items-center active" href="/Ministries/Index">
-                        <img src="~/img/setup.png" alt="Setup Icon" class="me-2" width="24" height="24">
-                        <span>@Localizer["Set Up"]</span>
-                    </a>
-                </li>
-                <li>
-                    <a class="d-flex align-items-center" href="/Projects/Index">
-                        <img src="~/img/programs.png" alt="Programs Icon" class="me-2" width="24" height="24">
-                        <span>@Localizer["Projects"]</span>
-                    </a>
-                </li>
-                <li>
-                    <a class="d-flex align-items-center" href="/Monitoring/Index">
-                        <img src="~/img/monitor.png" alt="Monitoring Icon" class="me-2" width="24" height="24">
-                        <span>@Localizer["Monitoring"]</span>
-                    </a>
-                </li>
-                <li>
-                    <a class="d-flex align-items-center" href="/Dashboard/Index">
-                        <img src="~/img/dashboard.png" alt="Dashboard Icon" class="me-2" width="24" height="24">
-                        <span>@Localizer["Dashboard"]</span>
-                    </a>
-                </li>
-               @*  <li>
+							<li class="ministry-item">
+								<a class="dropdown-item" asp-controller="Ministries" asp-action="ResultIndex">
+									@Localizer["Public"]
+								</a>
+								<a class="dropdown-item" asp-controller="Sectors" asp-action="ResultIndex" asp-route-code="2">
+									@Localizer["private"]
+								</a>
+								<a class="dropdown-item" asp-controller="Sectors" asp-action="ResultIndex" asp-route-code="3">
+									@Localizer["Common"]
+								</a>
+								<a class="dropdown-item" asp-controller="Sectors" asp-action="ResultIndex" asp-route-code="4">
+									@Localizer["Domestic"]
+								</a>
+
+							</li>
+						</ul>
+					</li>
+					<li class="nav-item dropdown">
+						<a class="nav-link dropdown-toggle" href="#" id="InternationalCooperationPartnersDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+							<i class="fas fa-sitemap me-1"></i> @Localizer["International Cooperation Partners"]
+						</a>
+						<ul class="dropdown-menu p-2" aria-labelledby="InternationalCooperationPartnersDropdown" style="max-height: 300px; overflow-y: auto; min-width: 250px;">
+
+							<li class="ministry-item">
+								<a class="dropdown-item" asp-action="ResultIndex" asp-controller="Donors" asp-route-donorCategory="1">
+									@Localizer["United Nations organizations"]
+								</a>
+								<a class="dropdown-item" asp-action="ResultIndex" asp-controller="Donors" asp-route-donorCategory="2">
+									@Localizer["International non-governmental organizations"]
+								</a>
+								<a class="dropdown-item" asp-action="ResultIndex" asp-controller="Donors" asp-route-donorCategory="3">
+									@Localizer["Countries"]
+								</a>
+								<a class="dropdown-item" asp-action="ResultIndex" asp-controller="Donors" asp-route-donorCategory="4">
+									@Localizer["Local"]
+								</a>
+							</li>
+						</ul>
+					</li>
+					<li class="nav-item dropdown">
+						<a class="nav-link dropdown-toggle" href="#" id="SDGsDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+							<img src="/img/SDG Wheel_Transparent_WEB.png" alt="SDGs" class="me-2" style="width:24px; height:24px;" />
+							SDGs
+						</a>
+						<ul class="dropdown-menu" aria-labelledby="SDGsDropdown">
+							@foreach (var goal in _context.Goals
+												.Include(g => g.Targets)
+												.ThenInclude(t => t.SDGsIndicators)
+												.ToList())
+							{
+								<li class="dropdown-submenu dropend">
+									<a class="dropdown-item dropdown-toggle" href="#" id="goal-@goal.Code">
+										<img src="@goal.Icon" alt="@goal.AR_Name" class="me-2" style="width:40px; height:40px;" />
+										@goal.AR_Name
+									</a>
+
+									<ul class="dropdown-menu" aria-labelledby="goal-@goal.Code">
+
+										<!-- Targets Menu -->
+										<li class="dropdown-submenu dropend">
+											<a class="dropdown-item dropdown-toggle" href="#" id="targets-@goal.Code">
+												<i class="fas fa-bullseye me-1"></i> @Localizer["Targets"]
+											</a>
+											<ul class="dropdown-menu" aria-labelledby="targets-@goal.Code">
+												@foreach (var target in goal.Targets)
+												{
+													<li class="dropdown-submenu dropend">
+														<a class="dropdown-item dropdown-toggle" href="#" id="target-@target.Code">
+															@target.AR_Name
+														</a>
+														<ul class="dropdown-menu" aria-labelledby="target-@target.Code">
+															@foreach (var indicator in target.SDGsIndicators)
+															{
+																<li>
+																	<a class="dropdown-item" href="#">
+																		<i class="fas fa-chart-line me-1"></i> @indicator.AR_Name
+																	</a>
+																</li>
+															}
+														</ul>
+													</li>
+												}
+											</ul>
+										</li>
+
+										<!-- Frameworks Menu -->
+										<li class="dropdown-submenu dropend">
+											<a class="dropdown-item dropdown-toggle" href="#" id="frameworks-@goal.Code">
+												<i class="fas fa-project-diagram me-1"></i> @Localizer["Frameworks"]
+											</a>
+											<ul class="dropdown-menu" aria-labelledby="frameworks-@goal.Code">
+
+												<li>
+													<a class="dropdown-item" href="#">
+														Frameworks
+													</a>
+												</li>
+
+											</ul>
+										</li>
+
+									</ul>
+								</li>
+							}
+						</ul>
+					</li>
+					@await Html.PartialAsync("_NavThemeDropdown")
+					<li class="nav-item dropdown">
+						<a class="nav-link dropdown-toggle d-flex align-items-center" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+							@* <img class="rounded-circle me-2" width="28" height="28" src="~/img/profile.jpeg" /> *@
+							@if (SignInManager.IsSignedIn(User))
+							{
+								var user = await UserManager.GetUserAsync(User);
+								<span>@user?.UserName</span>
+							}
+						</a>
+						<ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
+							<li><a class="dropdown-item" href="#"><i class="fas fa-cog me-2"></i>@Localizer["Settings"]</a></li>
+							<li><hr class="dropdown-divider"></li>
+							<li>
+								<form class="form-inline" asp-area="Identity" asp-page="/Account/Logout" asp-route-returnUrl="@Url.Action("Index", "Home", new { area = "" })">
+									<button type="submit" class="dropdown-item"><i class="fas fa-sign-out-alt me-2"></i>@Localizer["Logout"]</button>
+								</form>
+							</li>
+							<li>
+								<form asp-controller="Frameworks" asp-action="SetLanguage" method="post">
+									<select name="culture" onchange="this.form.submit();">
+										<option value="en" selected>English</option>
+										<option value="ar">العربية</option>
+									</select>
+									<input type="hidden" name="returnUrl" value="@Context.Request.Path" />
+								</form>
+							</li>
+						</ul>
+					</li>
+					<li>
+						<form class="language-selector" asp-controller="Frameworks" asp-action="SetLanguage" method="post">
+							<select name="culture" onchange="this.form.submit();">
+								<option value="ar" selected="@(isArabic ? "selected" : null)">العربية</option>
+								<option value="en" selected="@(isEnglish ? "selected" : null)">English</option>
+							</select>
+							<input type="hidden" name="returnUrl" value="@Context.Request.Path" />
+						</form>
+					</li>
+				</ul>
+			</div>
+		</div>
+	</header>
+
+	<div class="main">
+		<!-- Sidebar -->
+		<div class="sidebar">
+			<ul class="list-unstyled">
+				<li>
+					<a class="d-flex align-items-center" href="/Frameworks/Index">
+						<i class="fas fa-sitemap"></i>
+						<span>@Localizer["Frameworks"]</span>
+					</a>
+				</li>
+				<li>
+					<a class="d-flex align-items-center" href="/Ministries/Index">
+						<i class="fas fa-cogs"></i>
+						<span>@Localizer["Set Up"]</span>
+					</a>
+				</li>
+				<li>
+					<a class="d-flex align-items-center" href="/Projects/Index">
+						<i class="fas fa-project-diagram"></i>
+						<span>@Localizer["Projects"]</span>
+					</a>
+				</li>
+				<li>
+					<a class="d-flex align-items-center" href="/Monitoring/Index">
+						<i class="fas fa-chart-line"></i>
+						<span>@Localizer["Monitoring"]</span>
+					</a>
+				</li>
+				<li>
+					<a class="d-flex align-items-center" href="/Dashboard/Index">
+						<i class="fas fa-tachometer-alt"></i>
+						<span>@Localizer["Dashboard"]</span>
+					</a>
+				</li>
+				@*      <li>
                     <a class="d-flex align-items-center" href="#">
-                        <img src="~/img/settings.png" alt="Settings Icon" class="me-2" width="24" height="24">
+                        <i class="fas fa-sliders-h"></i>
                         <span>Settings</span>
                     </a>
                 </li> *@
-            </ul>
-        </div>
+			</ul>
+		</div>
 
-        <!-- Content Area -->
-        <div class="container">
-            <main role="main" class="pb-3">
-                @RenderBody()
-            </main>
-        </div>
-    </div>
+		<!-- Content Area -->
+		<div class="container">
+			<main role="main" class="pb-3">
+				@RenderBody()
+			</main>
+		</div>
+	</div>
 
-@*     <footer class="footer">
+	@*     <footer class="footer">
         <div class="container text-center">
             &copy; 2024 - MonitoringAndEvaluationPlatform - <a asp-area="" asp-controller="Home" asp-action="Privacy" class="text-white">Privacy</a>
         </div>
     </footer> *@
 
-    <script src="~/lib/jquery/dist/jquery.min.js"></script>
-    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="~/js/site.js" asp-append-version="true"></script>
-    @await RenderSectionAsync("Scripts", required: false)
+	<script src="~/lib/jquery/dist/jquery.js"></script>
+	<script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+	<script src="~/js/sweetalert2@11.js"></script>
+	<script src="~/js/site.js" asp-append-version="true"></script>
+
+	<!-- Theme Switcher JavaScript -->
+	<script src="~/js/theme-switcher.js" asp-append-version="true"></script>
+
+	@await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>

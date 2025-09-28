@@ -56,7 +56,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Code,Name")] ProjectManager projectManager)
+        public async Task<IActionResult> Create([Bind("Code,Name,PhoneNumber,Email")] ProjectManager projectManager)
         {
             if (ModelState.IsValid)
             {
@@ -88,7 +88,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Code,Name")] ProjectManager projectManager)
+        public async Task<IActionResult> Edit(int id, [Bind("Code,Name,PhoneNumber,Email")] ProjectManager projectManager)
         {
             if (id != projectManager.Code)
             {
@@ -154,6 +154,110 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         private bool ProjectManagerExists(int id)
         {
             return _context.ProjectManagers.Any(e => e.Code == id);
+        }
+
+        // Inline Operations
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> CreateInline(string Name, string PhoneNumber, string Email)
+        {
+            if (string.IsNullOrWhiteSpace(Name))
+            {
+                return Json(new { success = false, message = "Name is required." });
+            }
+
+            var projectManager = new ProjectManager
+            {
+                Name = Name,
+                PhoneNumber = PhoneNumber,
+                Email = Email
+            };
+
+            try
+            {
+                _context.ProjectManagers.Add(projectManager);
+                await _context.SaveChangesAsync();
+                return Json(new { success = true, projectManager = new { projectManager.Code, projectManager.Name, projectManager.PhoneNumber, projectManager.Email } });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = "Error creating project manager: " + ex.Message });
+            }
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> InlineEdit(int id, string field, string value)
+        {
+            var projectManager = await _context.ProjectManagers.FindAsync(id);
+            if (projectManager == null)
+                return Json(new { success = false, message = "Project Manager not found" });
+
+            switch (field.ToLower())
+            {
+                case "name":
+                    projectManager.Name = value;
+                    break;
+                case "phonenumber":
+                    projectManager.PhoneNumber = value;
+                    break;
+                case "email":
+                    projectManager.Email = value;
+                    break;
+                default:
+                    return Json(new { success = false, message = "Invalid field" });
+            }
+
+            try
+            {
+                await _context.SaveChangesAsync();
+                return Json(new { success = true });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = ex.Message });
+            }
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> InlineDelete(int id)
+        {
+            var projectManager = await _context.ProjectManagers.FindAsync(id);
+            if (projectManager == null)
+                return Json(new { success = false, message = "Project Manager not found" });
+
+            try
+            {
+                _context.ProjectManagers.Remove(projectManager);
+                await _context.SaveChangesAsync();
+                return Json(new { success = true });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = ex.Message });
+            }
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> QuickUpdate(int id, string name)
+        {
+            var projectManager = await _context.ProjectManagers.FindAsync(id);
+            if (projectManager == null)
+                return Json(new { success = false, message = "Project Manager not found" });
+
+            if (string.IsNullOrWhiteSpace(name))
+                return Json(new { success = false, message = "Name is required" });
+
+            projectManager.Name = name;
+
+            try
+            {
+                await _context.SaveChangesAsync();
+                return Json(new { success = true });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = ex.Message });
+            }
         }
     }
 }

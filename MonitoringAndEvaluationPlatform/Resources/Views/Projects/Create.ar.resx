@@ -145,7 +145,7 @@
     <value>المعلومات المالية</value>
   </data>
   <data name="Estimated Budget" xml:space="preserve">
-    <value>الميزانية التقديرية</value>
+    <value>الموازنة</value>
   </data>
   <data name="Community" xml:space="preserve">
     <value>المجتمع المحلي</value>
@@ -180,9 +180,6 @@
   <data name="Measures" xml:space="preserve">
     <value>المقايس</value>
   </data>
-  <data name="LogicalFramework" xml:space="preserve">
-    <value>الإطار المنطقي</value>
-  </data>
   <data name="Alignement" xml:space="preserve">
     <value>التوافق</value>
   </data>
@@ -196,7 +193,7 @@
     <value>المراقبة الميدانية</value>
   </data>
   <data name="Donor" xml:space="preserve">
-    <value>المتبرع</value>
+    <value>المانح</value>
   </data>
   <data name="Ministry" xml:space="preserve">
     <value>الوزارة</value>
@@ -222,6 +219,15 @@
   <data name="Select Governorate" xml:space="preserve">
     <value>اختر المحافظة</value>
   </data>
+  <data name="Select Subdistrict" xml:space="preserve">
+    <value>حدد المنطقة الفرعية</value>
+  </data>
+  <data name="Select Community" xml:space="preserve">
+    <value>اختر المجتمع</value>
+  </data>
+  <data name="Select District" xml:space="preserve">
+    <value>اختر المنطقة</value>
+  </data>
   <data name="Budget Information" xml:space="preserve">
     <value>معلومات الميزانية</value>
   </data>
@@ -232,7 +238,7 @@
     <value>إضافة الموقع</value>
   </data>
   <data name="Reset" xml:space="preserve">
-    <value>إعادة ضبط</value>
+    <value>مسح الفلاتر</value>
   </data>
   <data name="Fill in the project details below" xml:space="preserve">
     <value>املأ تفاصيل المشروع أدناه</value>
@@ -248,5 +254,104 @@
   </data>
   <data name="Uploaded Files" xml:space="preserve">
     <value>الملفات المحمّلة</value>
+  </data>
+  <data name="SDGs" xml:space="preserve">
+    <value>أهداف التنمية المستدامة</value>
+  </data>
+  <data name="Create Project" xml:space="preserve">
+    <value>إنشاء مشروع</value>
+  </data>
+  <data name="Cancel" xml:space="preserve">
+    <value>إلغاء</value>
+  </data>
+  <data name="Target Measures" xml:space="preserve">
+    <value>الإنجاز المستهدف</value>
+  </data>
+  <data name="Add Measure" xml:space="preserve">
+    <value>إضافة مقياس</value>
+  </data>
+  <data name="Indicator" xml:space="preserve">
+    <value>المشروع</value>
+  </data>
+  <data name="Value" xml:space="preserve">
+    <value>القيمة</value>
+  </data>
+  <data name="Date" xml:space="preserve">
+    <value>التاريخ</value>
+  </data>
+  <data name="Select Indicator" xml:space="preserve">
+    <value>اختيار المشروع</value>
+  </data>
+  <data name="Project Indicators" xml:space="preserve">
+    <value>مؤشرات المشروع</value>
+  </data>
+  <data name="Select an indicator" xml:space="preserve">
+    <value>اختيار المؤشر</value>
+  </data>
+  <data name="Project Information" xml:space="preserve">
+    <value>معلومات المشروع</value>
+  </data>
+  <data name="Enter project name" xml:space="preserve">
+    <value>أدخل اسم المشروع</value>
+  </data>
+  <data name="Project Timeline" xml:space="preserve">
+    <value>الجدول الزمني للمشروع</value>
+  </data>
+  <data name="Sectors" xml:space="preserve">
+    <value>القطاعات</value>
+  </data>
+  <data name="Ministries" xml:space="preserve">
+    <value>الوزارات</value>
+  </data>
+  <data name="Hold Ctrl/Cmd to select multiple donor" xml:space="preserve">
+    <value>اضغط باستمرار على Ctrl/Cmd لتحديد عدة مانحين </value>
+  </data>
+  <data name="Add Donor" xml:space="preserve">
+    <value>إضافة مانح</value>
+  </data>
+  <data name="Available Donors" xml:space="preserve">
+    <value>المانحون المتاحون</value>
+  </data>
+  <data name="Project implementation start date" xml:space="preserve">
+    <value>تاريخ بدء تنفيذ المشروع</value>
+  </data>
+  <data name="Enter the total estimated budget for this project (minimum $0.01)" xml:space="preserve">
+    <value>أدخل إجمالي الميزانية المقدرة لهذا المشروع (الحد الأدنى 0.01 دولار)</value>
+  </data>
+  <data name="Hold Ctrl/Cmd to select multiple sectors" xml:space="preserve">
+    <value>اضغط باستمرار على Ctrl/Cmd لتحديد قطاعات متعددة</value>
+  </data>
+  <data name="Choose the primary manager responsible for this project" xml:space="preserve">
+    <value>اختر المدير الرئيسي المسؤول عن هذا المشروع</value>
+  </data>
+  <data name="Choose the supervisor who will oversee this project" xml:space="preserve">
+    <value>اختر المشرف الذي سيشرف على هذا المشروع</value>
+  </data>
+  <data name="Select donors one by one and specify their funding percentages" xml:space="preserve">
+    <value>حدد الجهات المانحة واحدًا تلو الآخر وحدد نسب تمويلها</value>
+  </data>
+  <data name="Choose the key performance indicator for measuring project success" xml:space="preserve">
+    <value>اختر مؤشر الأداء الرئيسي لقياس نجاح المشروع</value>
+  </data>
+  <data name="Choose a clear and meaningful name for your project" xml:space="preserve">
+    <value>اختر اسمًا واضحًا وذا معنى لمشروعك</value>
+  </data>
+  <data name="Project completion deadline" xml:space="preserve">
+    <value>الموعد النهائي لإكمال المشروع</value>
+  </data>
+  <data name="Fill in the project details below to create a comprehensive project plan" xml:space="preserve">
+    <value>قم بملء تفاصيل المشروع أدناه لإنشاء خطة مشروع شاملة</value>
+  </data>
+  <data name="Select a donor to add" xml:space="preserve">
+    <value>حدد المانح لإضافته</value>
+  </data>
+  <data name="Select Ministry" xml:space="preserve">
+    <value>اختر الوزارة</value>
+  </data>
+  <data name="Select one or more sectors" xml:space="preserve">
+    <value>حدد قطاعًا واحدًا أو أكثر</value>
+  </data>
+  <data name="Enter a descriptive project name (3-200 characters)" xml:space="preserve">
+    <value>أدخل اسمًا وصفيًا للمشروع (3-200 حرف)</value>
   </data>
 </root>

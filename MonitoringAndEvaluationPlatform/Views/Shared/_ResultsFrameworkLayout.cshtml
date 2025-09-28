@@ -2,6 +2,7 @@
 @using Microsoft.AspNetCore.Mvc.Localization
 @inject SignInManager<ApplicationUser> SignInManager
 @inject UserManager<ApplicationUser> UserManager
+@using Microsoft.EntityFrameworkCore
 @using MonitoringAndEvaluationPlatform.Data
 @inject ApplicationDbContext _context
 @inject IViewLocalizer Localizer
@@ -26,7 +27,38 @@
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/css/all.min.css" />
     <link rel="stylesheet" href="~/css/ResultsFrameworkLayout.css" />
- 
+    <link rel="stylesheet" href="~/css/themes/theme-default.css" />
+    <link rel="stylesheet" href="~/css/themes/theme-calm-blue.css" />
+    <link rel="stylesheet" href="~/css/themes/theme-alternative.css" />
+    <link rel="stylesheet" href="~/css/themes/theme-modern-glass.css" />
+    <style>
+        .has-performance {
+            background-color: #007bff !important; /* أزرق أنيق */
+            color: white !important;
+            border-radius: 5px;
+            font-weight: 500;
+        }
+
+   
+        .dropdown-submenu {
+            position: relative;
+        }
+
+            .dropdown-submenu > .dropdown-menu {
+                top: 0;
+                margin-top: -6px; /* You can adjust this value */
+                left: 100%;
+            }
+
+        body[dir="rtl"] .dropdown-submenu > .dropdown-menu {
+            left: auto;
+            right: 100%;
+        }
+
+        .dropdown-submenu:hover > .dropdown-menu {
+            display: block;
+        }
+    </style>
 </head>
 <body>
     <header>
@@ -34,42 +66,194 @@
             <div class="title">@Localizer["AppTitle"]</div>
             <div class="nav-links">
                 <ul class="nav">
-                    <!-- Framework Dropdowns -->
-                    @foreach (var framework in _context.Frameworks.Take(3).ToList())
-                    {
-                        <li class="nav-item dropdown framework-dropdown">
-                            <a class="nav-link dropdown-toggle" href="#" id="framework-@framework.Code" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                <i class="fas fa-sitemap me-1"></i> @framework.Name
-                            </a>
-                            <ul class="dropdown-menu" aria-labelledby="framework-@framework.Code">
-                                <li>
-                                    <a class="dropdown-item" asp-controller="Outcomes" asp-action="Index" asp-route-frameworkCode="@framework.Code">
-                                        <i class="fas fa-bullseye"></i>@Localizer["Outcomes"]
-                                    </a>
-                                </li>
-                                <li>
-                                    <a class="dropdown-item" asp-controller="Outputs" asp-action="Index" asp-route-frameworkCode="@framework.Code">
-                                        <i class="fas fa-project-diagram"></i>@Localizer["Outputs"]
-                                    </a>
-                                </li>
-                                <li>
-                                    <a class="dropdown-item" asp-controller="SubOutputs" asp-action="Index" asp-route-frameworkCode="@framework.Code">
-                                        <i class="fas fa-code-branch"></i>@Localizer["SubOutputs"]
-                                    </a>
-                                </li>
-                                <li>
-                                    <a class="dropdown-item" asp-controller="Indicators" asp-action="Index" asp-route-frameworkCode="@framework.Code">
-                                        <i class="fas fa-chart-line"></i>@Localizer["Indicators"]
-                                    </a>
-                                </li>
-                            </ul>
-                        </li>
-                    }
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="policiesDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="fas fa-sitemap me-1"></i> @Localizer["National Development Strategy"]
+                        </a>
+                        <ul class="dropdown-menu" aria-labelledby="policiesDropdown">
+                            @foreach (var framework in _context.Frameworks
+                            .OrderByDescending(f => f.IndicatorsPerformance)
+                            .ToList())
+                            {
+                                
+                                var hasPerformance = framework.IndicatorsPerformance > 0;
+                                var performanceClass = hasPerformance ? "has-performance" : "";
 
-                    <!-- User Dropdown -->
+                                <li class="dropdown-submenu dropend">
+                                    <a class="dropdown-item dropdown-toggle @performanceClass" href="#" id="framework-@framework.Code">
+                                        @framework.Name
+                                    </a>
+                                    <ul class="dropdown-menu" aria-labelledby="framework-@framework.Code">
+                                        <li>
+                                            <a class="dropdown-item" asp-controller="Outcomes" asp-action="Index" asp-route-frameworkCode="@framework.Code">
+                                                <i class="fas fa-bullseye"></i>@Localizer["Outcomes"]
+                                            </a>
+                                        </li>
+                                        <li>
+                                            <a class="dropdown-item" asp-controller="Outputs" asp-action="Index" asp-route-frameworkCode="@framework.Code">
+                                                <i class="fas fa-project-diagram"></i>@Localizer["Outputs"]
+                                            </a>
+                                        </li>
+                                        <li>
+                                            <a class="dropdown-item" asp-controller="SubOutputs" asp-action="Index" asp-route-frameworkCode="@framework.Code">
+                                                <i class="fas fa-code-branch"></i>@Localizer["SubOutputs"]
+                                            </a>
+                                        </li>
+                                        <li>
+                                            <a class="dropdown-item" asp-controller="Indicators" asp-action="Index" asp-route-frameworkCode="@framework.Code">
+                                                <i class="fas fa-chart-line"></i>@Localizer["Indicators"]
+                                            </a>
+                                        </li>
+                                        <li>
+                                            <a class="dropdown-item" asp-controller="Indicators" asp-action="IndicatorAndProject" asp-route-frameworkCode="@framework.Code">
+                                                <i class="fas fa-link"></i>@Localizer["Indicators & Projects"]
+                                            </a>
+                                        </li>
+                                        <li>
+                                            <a class="dropdown-item" asp-controller="Indicators" asp-action="IndicatorAndProjectTable" asp-route-frameworkCode="@framework.Code">
+                                                <i class="fas fa-table"></i>@Localizer["Indicators & Projects Table"]
+                                            </a>
+                                        </li>
+                                    </ul>
+                                </li>
+                            }
+                        </ul>
+                  </li>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="MinistriesandAgenciesDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="fas fa-sitemap me-1"></i> @Localizer["Ministries and Agencies"]
+                        </a>
+                        <ul class="dropdown-menu p-2" aria-labelledby="MinistriesandAgenciesDropdown" style="max-height: 300px; overflow-y: auto; min-width: 250px;">
+                            <li class="mb-2">
+                                <input type="text" class="form-control form-control-sm" id="ministrySearch" placeholder="@Localizer["Search"]">
+                            </li>
+
+                            @foreach (var ministry in _context.Ministries.ToList())
+                            {
+                                <li class="ministry-item">
+                                    <a asp-controller="Ministries" asp-action="ResultIndex" asp-route-ministryCode="@ministry.Code" class="dropdown-item" id="framework-@ministry.Code">
+                                        @ministry.MinistryDisplayName
+                                    </a>
+                                </li>
+                            }
+                        </ul>
+                    </li>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="SectorsDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="fas fa-sitemap me-1"></i> @Localizer["Sectors"]
+                        </a>
+                        <ul class="dropdown-menu p-2" aria-labelledby="SectorsDropdown" style="max-height: 300px; overflow-y: auto; min-width: 250px;">
+                              
+                                <li class="ministry-item">
+                                <a class="dropdown-item" asp-controller="Ministries" asp-action="ResultIndex">
+                                    @Localizer["Public"]
+                                    </a>
+                                <a class="dropdown-item" asp-controller="Sectors" asp-action="ResultIndex" asp-route-code="2">
+                                    @Localizer["private"]
+                                    </a>
+                                <a class="dropdown-item" asp-controller="Sectors" asp-action="ResultIndex" asp-route-code="3">
+                                    @Localizer["Common"]
+                                </a>
+                                <a class="dropdown-item" asp-controller="Sectors" asp-action="ResultIndex" asp-route-code="4">
+                                    @Localizer["Domestic"]
+                                    </a>
+                               
+                                </li>
+                        </ul>
+                    </li>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="InternationalCooperationPartnersDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="fas fa-sitemap me-1"></i> @Localizer["International Cooperation Partners"]
+                        </a>
+                        <ul class="dropdown-menu p-2" aria-labelledby="InternationalCooperationPartnersDropdown" style="max-height: 300px; overflow-y: auto; min-width: 250px;">
+
+                            <li class="ministry-item">
+                                <a class="dropdown-item" asp-action="ResultIndex" asp-controller="Donors" asp-route-donorCategory="1">
+                                    @Localizer["United Nations organizations"]
+                                </a>
+                                <a class="dropdown-item" asp-action="ResultIndex" asp-controller="Donors" asp-route-donorCategory="2">
+                                    @Localizer["International non-governmental organizations"]
+                                </a>
+                                <a class="dropdown-item" asp-action="ResultIndex" asp-controller="Donors" asp-route-donorCategory="3">
+                                    @Localizer["Countries"]
+                                </a>
+                                <a class="dropdown-item" asp-action="ResultIndex" asp-controller="Donors" asp-route-donorCategory="4">
+                                    @Localizer["Local"]
+                                </a>
+                            </li>
+                        </ul>
+                    </li>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="SDGsDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            <img src="/img/SDG Wheel_Transparent_WEB.png" alt="SDGs" class="me-2" style="width:24px; height:24px;" />
+                            SDGs
+                        </a>
+                        <ul class="dropdown-menu" aria-labelledby="SDGsDropdown">
+                            @foreach (var goal in _context.Goals
+                            .Include(g => g.Targets)
+                            .ThenInclude(t => t.SDGsIndicators)
+                            .ToList())
+                            {
+                                <li class="dropdown-submenu dropend">
+                                    <a class="dropdown-item dropdown-toggle" href="#" id="goal-@goal.Code">
+                                        <img src="@goal.Icon" alt="@goal.AR_Name" class="me-2" style="width:40px; height:40px;" />
+                                        @goal.AR_Name
+                                    </a>
+
+                                    <ul class="dropdown-menu" aria-labelledby="goal-@goal.Code">
+
+                                        <!-- Targets Menu -->
+                                        <li class="dropdown-submenu dropend">
+                                            <a class="dropdown-item dropdown-toggle" href="#" id="targets-@goal.Code">
+                                                <i class="fas fa-bullseye me-1"></i> @Localizer["Targets"]
+                                            </a>
+                                            <ul class="dropdown-menu" aria-labelledby="targets-@goal.Code">
+                                                @foreach (var target in goal.Targets)
+                                                {
+                                                    <li class="dropdown-submenu dropend">
+                                                        <a class="dropdown-item dropdown-toggle" href="#" id="target-@target.Code">
+                                                            @target.AR_Name
+                                                        </a>
+                                                        <ul class="dropdown-menu" aria-labelledby="target-@target.Code">
+                                                            @foreach (var indicator in target.SDGsIndicators)
+                                                            {
+                                                                <li>
+                                                                    <a class="dropdown-item" href="#">
+                                                                        <i class="fas fa-chart-line me-1"></i> @indicator.AR_Name
+                                                                    </a>
+                                                                </li>
+                                                            }
+                                                        </ul>
+                                                    </li>
+                                                }
+                                            </ul>
+                                        </li>
+
+                                        <!-- Frameworks Menu -->
+                                        <li class="dropdown-submenu dropend">
+                                            <a class="dropdown-item dropdown-toggle" href="#" id="frameworks-@goal.Code">
+                                                <i class="fas fa-project-diagram me-1"></i> @Localizer["Frameworks"]
+                                            </a>
+                                            <ul class="dropdown-menu" aria-labelledby="frameworks-@goal.Code">
+
+                                                <li>
+                                                    <a class="dropdown-item" href="#">
+                                                        Frameworks
+                                                    </a>
+                                                </li>
+
+                                            </ul>
+                                        </li>
+
+                                    </ul>
+                                </li>
+                            }
+                        </ul>
+                    </li>
+                    @await Html.PartialAsync("_NavThemeDropdown")
                     <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                              @* <img class="rounded-circle me-2" width="28" height="28" src="~/img/profile.jpeg" /> *@
+                            @* <img class="rounded-circle me-2" width="28" height="28" src="~/img/profile.jpeg" /> *@
                             @if (SignInManager.IsSignedIn(User))
                             {
                                 var user = await UserManager.GetUserAsync(User);
@@ -104,7 +288,6 @@
                             <input type="hidden" name="returnUrl" value="@Context.Request.Path" />
                         </form>
                     </li>
-
                 </ul>
             </div>
         </div>
@@ -160,10 +343,41 @@
             </main>
         </div>
     </div>
-
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            document.querySelectorAll('.dropdown-submenu').forEach(function(element) {
+                element.addEventListener('mouseenter', function (e) {
+                    let dropdownMenu = this.querySelector('.dropdown-menu');
+                    if (dropdownMenu) {
+                        dropdownMenu.style.display = 'block';
+                    }
+                });
+                element.addEventListener('mouseleave', function (e) {
+                    let dropdownMenu = this.querySelector('.dropdown-menu');
+                    if (dropdownMenu) {
+                        dropdownMenu.style.display = 'none';
+                    }
+                });
+            });
+        });
+    </script>
+    <script>
+        // Simple Search Filter
+        document.getElementById("ministrySearch").addEventListener("keyup", function () {
+            let filter = this.value.toLowerCase();
+            let items = document.querySelectorAll("ul.dropdown-menu li.ministry-item");
+            items.forEach(item => {
+                let anchor = item.querySelector("a.dropdown-item");
+                if (anchor) {
+                    item.style.display = anchor.textContent.toLowerCase().includes(filter) ? "" : "none";
+                }
+            });
+        });
+    </script>
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
+    <script src="~/js/theme-switcher.js" asp-append-version="true"></script>
     <script src="~/js/jstree.min.js"></script>
     <script src="~/js/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns@3"></script>
@@ -171,7 +385,23 @@
     <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-luxon"></script>
     <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-annotation@1.4.0"></script>
     <script src="~/js/sweetalert2@11.js"></script>
+    <script>
+                $(document).ready(function() {
+            $('.dropdown-submenu a.dropdown-toggle').on("click", function(e){
+                if (!$(this).next('ul').hasClass('show')) {
+                    $(this).parents('.dropdown-menu').first().find('.show').removeClass("show");
+                }
+                var $subMenu = $(this).next('ul');
+                $subMenu.toggleClass('show');
 
+                $(this).parents('li.nav-item.dropdown.show').on('hidden.bs.dropdown', function(e) {
+                    $('.dropdown-submenu .show').removeClass("show");
+                });
+
+                return false;
+            });
+        });
+    </script>
 
     @await RenderSectionAsync("Scripts", required: false)
 </body>

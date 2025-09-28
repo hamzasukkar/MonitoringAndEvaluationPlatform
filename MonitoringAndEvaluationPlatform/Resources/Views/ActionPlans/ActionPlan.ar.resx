@@ -117,14 +117,32 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
+  <data name="Action Plan" xml:space="preserve">
+    <value>خطة العمل</value>
+  </data>
   <data name="Action Plans" xml:space="preserve">
     <value>خطط العمل</value>
+  </data>
+  <data name="Activities" xml:space="preserve">
+    <value>أنشطة</value>
   </data>
   <data name="Activity" xml:space="preserve">
     <value>نشاط</value>
   </data>
+  <data name="Actual Spending" xml:space="preserve">
+    <value>الإنفاق الفعلي</value>
+  </data>
+  <data name="Back to Project" xml:space="preserve">
+    <value>العودة إلى المشروع</value>
+  </data>
+  <data name="Detailed planning and execution tracking" xml:space="preserve">
+    <value>التخطيط التفصيلي وتتبع التنفيذ</value>
+  </data>
   <data name="DisbursementPerformance" xml:space="preserve">
     <value>أداء الصرف</value>
+  </data>
+  <data name="Estimated Budget" xml:space="preserve">
+    <value>الميزانية التقديرية</value>
   </data>
   <data name="FieldMonitoring" xml:space="preserve">
     <value>المراقبة الميدانية</value>
@@ -153,13 +171,28 @@
   <data name="Project" xml:space="preserve">
     <value>المشروع</value>
   </data>
+  <data name="Project Action Plan" xml:space="preserve">
+    <value>خطة عمل المشروع</value>
+  </data>
+  <data name="Projects" xml:space="preserve">
+    <value>المشاريع</value>
+  </data>
   <data name="Realised" xml:space="preserve">
     <value>تم تحقيقها</value>
+  </data>
+  <data name="Subtotal Planned" xml:space="preserve">
+    <value>المجموع الفرعي المخطط له</value>
   </data>
   <data name="Subtotal Realised" xml:space="preserve">
     <value>المجموع الفرعي المحقق</value>
   </data>
   <data name="Total" xml:space="preserve">
     <value>المجموع</value>
+  </data>
+  <data name="Total Planned" xml:space="preserve">
+    <value>إجمالي المخطط</value>
+  </data>
+  <data name="Total Realised" xml:space="preserve">
+    <value>إجمالي المحقق</value>
   </data>
 </root>

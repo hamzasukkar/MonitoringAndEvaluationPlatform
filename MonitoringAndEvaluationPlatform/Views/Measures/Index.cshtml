@@ -1,54 +1,646 @@
 ﻿@model IEnumerable<MonitoringAndEvaluationPlatform.Models.Measure>
+@using Microsoft.AspNetCore.Mvc.Localization
+@inject IViewLocalizer Localizer
 
 @{
-    ViewData["Title"] = "Index";
-    Layout = "~/Views/Shared/_ProjectsLayout.cshtml";
+    ViewData["Title"] = "Measures";
+    Layout = "~/Views/Shared/_DashboardHomeLayout.cshtml";
+    var selectedIndicator = ViewBag.SelectedIndicator as MonitoringAndEvaluationPlatform.Models.Indicator;
+    var selectedProject = ViewBag.SelectedProject as MonitoringAndEvaluationPlatform.Models.Project;
 }
 
-<h1>Index</h1>
+<!-- Dashboard Header -->
+<div class="dashboard-header">
+    <h1 class="dashboard-title">
+        <i class="fas fa-chart-line me-3"></i>
+        @Localizer["Measures Dashboard"]
+    </h1>
+    <p class="dashboard-subtitle">
+        @Localizer["Track and monitor performance indicators with detailed measurements"]
+    </p>
+    <div class="dashboard-actions">
+        @if (ViewBag.SelectedIndicatorId == null)
+        {
+            <a asp-action="Create" class="btn btn-gradient-primary">
+                <i class="fas fa-plus me-2"></i>@Localizer["Create New Measure"]
+            </a>
+        }
+    </div>
+</div>
 
-<p>
-    <a asp-action="Create">Create New</a>
-</p>
-<table class="table">
-    <thead>
-        <tr>
-            <th>
-                @Html.DisplayNameFor(model => model.Date)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Value)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.ValueType)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Indicator)
-            </th>
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-@foreach (var item in Model) {
-        <tr>
-            <td>
-                @Html.DisplayFor(modelItem => item.Date)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Value)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.ValueType)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Indicator.Name)
-            </td>
-            <td>
-                <a asp-action="Edit" asp-route-id="@item.Code">Edit</a> |
-                <a asp-action="Details" asp-route-id="@item.Code">Details</a> |
-                <a asp-action="Delete" asp-route-id="@item.Code">Delete</a>
-            </td>
-        </tr>
+<div class="container-fluid">
+    @if (selectedProject != null && selectedIndicator != null)
+    {
+        <div class="chart-card mb-4">
+            <h3 class="chart-title">
+                <i class="fas fa-project-diagram"></i>
+                @selectedProject.ProjectName
+            </h3>
+            <div class="chart-content">
+                <div class="info-section">
+                    <div class="info-card">
+                        <div class="info-header">
+                            <i class="fas fa-bullseye me-2"></i>
+                            <h5 class="info-title">@Localizer["Selected Indicator"]</h5>
+                        </div>
+                        <div class="info-content">
+                            <div class="info-row">
+                                <div class="info-label">
+                                    <i class="fas fa-code me-2"></i>
+                                    @Localizer["Code"]
+                                </div>
+                                <div class="info-value">
+                                    <span class="modern-badge badge-primary">@selectedIndicator.IndicatorCode</span>
+                                </div>
+                            </div>
+                            <div class="info-row">
+                                <div class="info-label">
+                                    <i class="fas fa-tag me-2"></i>
+                                    @Localizer["Name"]
+                                </div>
+                                <div class="info-value">@selectedIndicator.Name</div>
+                            </div>
+                            @if (selectedIndicator.Target > 0)
+                            {
+                                <div class="info-row">
+                                    <div class="info-label">
+                                        <i class="fas fa-target me-2"></i>
+                                        @Localizer["Target"]
+                                    </div>
+                                    <div class="info-value">
+                                        <span class="target-value">@selectedIndicator.Target.ToString("N2")</span>
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+    else if (selectedProject != null)
+    {
+        <div class="chart-card mb-4">
+            <h3 class="chart-title">
+                <i class="fas fa-project-diagram"></i>
+                @selectedProject.ProjectName - @Localizer["Measures"]
+            </h3>
+        </div>
+    }
+
+    @if (selectedIndicator != null && selectedProject == null)
+    {
+        <div class="chart-card mb-4">
+            <h3 class="chart-title">
+                <i class="fas fa-bullseye"></i>
+                @Localizer["Selected Indicator"]
+            </h3>
+            <div class="chart-content">
+                <div class="info-section">
+                    <div class="info-card">
+                        <div class="info-content">
+                            <div class="info-row">
+                                <div class="info-label">
+                                    <i class="fas fa-code me-2"></i>
+                                    @Localizer["Code"]
+                                </div>
+                                <div class="info-value">
+                                    <span class="modern-badge badge-primary">@selectedIndicator.IndicatorCode</span>
+                                </div>
+                            </div>
+                            <div class="info-row">
+                                <div class="info-label">
+                                    <i class="fas fa-tag me-2"></i>
+                                    @Localizer["Name"]
+                                </div>
+                                <div class="info-value">@selectedIndicator.Name</div>
+                            </div>
+                            @if (selectedIndicator.Target > 0)
+                            {
+                                <div class="info-row">
+                                    <div class="info-label">
+                                        <i class="fas fa-target me-2"></i>
+                                        @Localizer["Target"]
+                                    </div>
+                                    <div class="info-value">
+                                        <span class="target-value">@selectedIndicator.Target.ToString("N2")</span>
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+
+    @if (ViewBag.SelectedIndicatorId != null)
+    {
+        <!-- Inline Create Form -->
+        <div class="chart-card mb-4">
+            <h3 class="chart-title">
+                <i class="fas fa-plus-circle"></i>
+                @Localizer["Add New Measure"]
+            </h3>
+            <div class="chart-content">
+                <form id="inlineMeasureForm" class="row g-3">
+                    @Html.AntiForgeryToken()
+                    <div class="col-md-4">
+                        <label for="measureDate" class="form-label">@Localizer["Date"] *</label>
+                        <input type="date" id="measureDate" name="Date" class="form-control" value="@DateTime.Today.ToString("yyyy-MM-dd")" required />
+                    </div>
+                    <div class="col-md-4">
+                        <label for="measureValue" class="form-label">@Localizer["Achievement Value"] *</label>
+                        <input type="number" id="measureValue" name="Value" step="0.01" min="0" class="form-control" placeholder="0.00" required />
+                    </div>
+                    <div class="col-md-4 d-flex align-items-end">
+                        <button type="submit" class="btn btn-gradient-primary w-100" id="addMeasureBtn">
+                            <i class="fas fa-save me-2"></i>@Localizer["Add Measure"]
+                        </button>
+                    </div>
+                    <input type="hidden" id="indicatorCode" name="IndicatorCode" value="@ViewBag.SelectedIndicatorId" />
+                </form>
+            </div>
+        </div>
+    }
+
+    @if (selectedProject != null)
+    {
+        <div class="mb-4">
+            <a asp-action="Details" asp-controller="Projects" asp-route-id="@selectedProject.ProjectID" class="btn btn-modern-secondary">
+                <i class="fas fa-arrow-left me-2"></i>@Localizer["Back to Project"]
+            </a>
+        </div>
+    }
+
+    <div class="chart-card">
+        <h3 class="chart-title">
+            <i class="fas fa-list"></i>
+            @Localizer["Measures List"]
+            @if (Model.Any())
+            {
+                <span class="modern-badge badge-primary ms-2">@Model.Count()</span>
+            }
+        </h3>
+        <div class="chart-content">
+            @if (Model.Any())
+            {
+                <div class="modern-table-container">
+                    <table class="modern-table">
+                        <thead class="table-header">
+                            <tr>
+                                <th>
+                                    <i class="fas fa-calendar me-2"></i>@Localizer["Name"]
+                                </th>
+                                <th class="text-center">
+                                    <i class="fas fa-chart-line me-2"></i>@Localizer["Value"]
+                                </th>
+                                @if (ViewBag.SelectedIndicatorId == null)
+                                {
+                                    <th>
+                                        <i class="fas fa-bullseye me-2"></i>@Html.DisplayNameFor(model => model.Indicator)
+                                    </th>
+                                }
+                                <th class="text-center">
+                                    <i class="fas fa-cogs me-2"></i>@Localizer["Actions"]
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        @foreach (var item in Model) {
+                            <tr class="table-row">
+                                <td class="measure-date-cell">
+                                    <div class="d-flex align-items-center">
+                                        <div class="date-icon me-3">
+                                            <i class="fas fa-calendar-alt"></i>
+                                        </div>
+                                        <span class="fw-semibold">@item.Date.ToString("yyyy-MM-dd")</span>
+                                    </div>
+                                </td>
+                                <td class="text-center">
+                                    <span class="modern-badge badge-success">@item.Value.ToString("N2")</span>
+                                </td>
+                                @if (ViewBag.SelectedIndicatorId == null)
+                                {
+                                    <td class="indicator-cell">
+                                        <div class="d-flex align-items-center">
+                                            <div class="indicator-icon me-3">
+                                                <i class="fas fa-bullseye"></i>
+                                            </div>
+                                            <div>
+                                                <span class="indicator-code">[@item.Indicator.IndicatorCode]</span>
+                                                <span class="indicator-name">@Html.DisplayFor(modelItem => item.Indicator.Name)</span>
+                                            </div>
+                                        </div>
+                                    </td>
+                                }
+                                <td class="text-center">
+                                    <div class="btn-group action-buttons" role="group">
+                                        <a asp-action="Edit" asp-route-id="@item.Code" class="btn btn-outline-primary btn-sm action-btn" title="@Localizer["Edit"]">
+                                            <i class="fas fa-edit"></i>
+                                        </a>
+                                        <a asp-action="Details" asp-route-id="@item.Code" class="btn btn-outline-info btn-sm action-btn" title="@Localizer["Details"]">
+                                            <i class="fas fa-eye"></i>
+                                        </a>
+                                        <button type="button" class="btn btn-outline-danger btn-sm action-btn"
+                                               onclick="deleteMeasure('@item.Code')" title="@Localizer["Delete"]">
+                                            <i class="fas fa-trash-alt"></i>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                        </tbody>
+                    </table>
+                </div>
+            }
+            else
+            {
+                <div class="empty-state">
+                    <div class="empty-icon">
+                        <i class="fas fa-chart-line"></i>
+                    </div>
+                    <h5 class="empty-title">@Localizer["No Measures Found"]</h5>
+                    <p class="empty-text">
+                        @if (ViewBag.SelectedIndicatorId != null)
+                        {
+                            @Localizer["No measures have been added for this indicator yet. Use the form above to add the first measure."]
+                        }
+                        else
+                        {
+                            @Localizer["No measures have been added yet."]
+                        }
+                    </p>
+                </div>
+            }
+    </div>
+</div>
+
+@section Scripts {
+    <!-- SweetAlert2 -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <style>
+        /* Info Section Styling */
+        .info-section {
+            background: transparent;
+        }
+
+        .info-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            transition: all 0.3s ease;
+            height: 100%;
+        }
+
+        .info-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+        }
+
+        .info-header {
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-dark) 100%);
+            color: white;
+            padding: 1.5rem;
+            display: flex;
+            align-items: center;
+        }
+
+        .info-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin: 0;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .info-content {
+            padding: 1.5rem;
+        }
+
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            padding: 1rem 0;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+        }
+
+        .info-row:last-child {
+            border-bottom: none;
+        }
+
+        .info-label {
+            font-weight: 600;
+            color: #6c757d;
+            min-width: 140px;
+            display: flex;
+            align-items: center;
+            font-size: 0.9rem;
+        }
+
+        .info-value {
+            flex: 1;
+            margin-left: 1rem;
+            color: #333;
+            font-weight: 500;
+        }
+
+        .modern-badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 0.4rem 0.8rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            margin: 0.2rem;
+            transition: all 0.3s ease;
+        }
+
+        .badge-primary {
+            background: linear-gradient(45deg, var(--primary-color), var(--primary-light));
+            color: white;
+        }
+
+        .badge-success {
+            background: linear-gradient(45deg, #28a745, #20c997);
+            color: white;
+        }
+
+        .target-value {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--primary-color);
+        }
+
+        /* Modern Table Styling */
+        .modern-table {
+            width: 100%;
+            background: transparent;
+            border: none;
+            border-radius: 15px;
+            overflow: hidden;
+        }
+
+        .table-header {
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-dark) 100%);
+            color: white;
+        }
+
+        .table-header th {
+            border: none;
+            padding: 20px 15px;
+            font-weight: 600;
+            font-size: 0.95rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .table-row {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border: none;
+            transition: all 0.3s ease;
+        }
+
+        .table-row:hover {
+            background: rgba(255, 255, 255, 1);
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+        }
+
+        .table-row td {
+            border: none;
+            padding: 20px 15px;
+            vertical-align: middle;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+        }
+
+        .measure-date-cell {
+            min-width: 200px;
+        }
+
+        .date-icon {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(45deg, #17a2b8, #20c997);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.1rem;
+        }
+
+        .indicator-icon {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(45deg, var(--primary-color), var(--primary-light));
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.1rem;
+        }
+
+        .indicator-code {
+            font-weight: 600;
+            color: #6c757d;
+            margin-right: 0.5rem;
+            font-size: 0.9rem;
+        }
+
+        .indicator-name {
+            font-weight: 500;
+            color: #333;
+        }
+
+        .action-buttons {
+            gap: 5px;
+        }
+
+        .action-btn {
+            width: 35px;
+            height: 35px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+            border-width: 1px;
+        }
+
+        .action-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .modern-table-container {
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 3rem 2rem;
+            color: #6c757d;
+        }
+
+        .empty-icon {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+            opacity: 0.5;
+        }
+
+        .empty-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: #495057;
+        }
+
+        .empty-text {
+            font-size: 1rem;
+            margin: 0;
+        }
+
+        /* Form Styling */
+        .form-control:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 0.2rem rgba(var(--primary-color-rgb), 0.25);
+        }
+
+        /* Responsive Design */
+        @@media (max-width: 768px) {
+            .info-row {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .info-label {
+                min-width: auto;
+                margin-bottom: 0.5rem;
+            }
+
+            .info-value {
+                margin-left: 0;
+            }
+        }
+    </style>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            // Handle inline measure form submission
+            $('#inlineMeasureForm').on('submit', function(e) {
+                e.preventDefault();
+
+                const formData = {
+                    Date: $('#measureDate').val(),
+                    Value: parseFloat($('#measureValue').val()),
+                    IndicatorCode: parseInt($('#indicatorCode').val()),
+                    ValueType: 'Real' // Always Real as per your requirement
+                };
+
+                // Disable button and show loading
+                const btn = $('#addMeasureBtn');
+                const originalText = btn.html();
+                btn.prop('disabled', true).html('<i class="fas fa-spinner fa-spin me-2"></i>@Localizer["Adding..."]');
+
+                // Add anti-forgery token to form data
+                formData.__RequestVerificationToken = $('input[name="__RequestVerificationToken"]').val();
+
+                // Send AJAX request
+                $.ajax({
+                    url: '@Url.Action("CreateFromDetails", "Measures")',
+                    type: 'POST',
+                    data: formData,
+                    success: function(response) {
+                        // Show success message
+                        Swal.fire({
+                            icon: 'success',
+                            title: '@Localizer["Success"]',
+                            text: '@Localizer["Measure added successfully and indicator performance updated"]',
+                            timer: 2000,
+                            showConfirmButton: false,
+                            confirmButtonColor: 'var(--primary-color)',
+                            customClass: {
+                                popup: 'modern-swal-popup'
+                            }
+                        });
+
+                        // Reset form
+                        $('#measureValue').val('');
+                        $('#measureDate').val('@DateTime.Today.ToString("yyyy-MM-dd")');
+
+                        // Reload page to show new measure
+                        setTimeout(function() {
+                            location.reload();
+                        }, 2000);
+                    },
+                    error: function(xhr) {
+                        // Show error message
+                        Swal.fire({
+                            icon: 'error',
+                            title: '@Localizer["Error"]',
+                            text: '@Localizer["Failed to add measure. Please try again."]',
+                            confirmButtonColor: 'var(--danger-color)',
+                            customClass: {
+                                popup: 'modern-swal-popup'
+                            }
+                        });
+                    },
+                    complete: function() {
+                        // Re-enable button
+                        btn.prop('disabled', false).html(originalText);
+                    }
+                });
+            });
+        });
+
+        // Delete measure function
+        function deleteMeasure(measureCode) {
+            Swal.fire({
+                title: '@Localizer["Are you sure?"]',
+                text: '@Localizer["This will delete the measure!"]',
+                icon: 'warning',
+                showCancelButton: true,
+                cancelButtonText: '@Localizer["Cancel"]',
+                confirmButtonText: '@Localizer["Yes, delete it!"]',
+                reverseButtons: true,
+                confirmButtonColor: 'var(--danger-color)',
+                cancelButtonColor: 'var(--secondary-color)',
+                customClass: {
+                    popup: 'modern-swal-popup',
+                    title: 'modern-swal-title'
+                }
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    window.location.href = '@Url.Action("Delete", "Measures")/' + measureCode;
+                }
+            });
+        }
+
+        // Add loading animation on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            // Animate table rows
+            const tableRows = document.querySelectorAll('.table-row');
+            tableRows.forEach((row, index) => {
+                row.style.opacity = '0';
+                row.style.transform = 'translateY(20px)';
+                row.style.transition = 'all 0.6s ease';
+
+                setTimeout(() => {
+                    row.style.opacity = '1';
+                    row.style.transform = 'translateY(0)';
+                }, index * 100);
+            });
+        });
+    </script>
 }
-    </tbody>
-</table>

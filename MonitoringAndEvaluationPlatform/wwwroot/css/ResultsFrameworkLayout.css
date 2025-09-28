@@ -13,6 +13,7 @@
     --warning-color: #ffc107;
     --danger-color: #dc3545;
     --orange-color: #fd7e14; /* For progress-bar-orange if still used */
+    --yellow-color: #ffc107; /* A nice shade of yellow */
 
     --sidebar-width: 250px;
     --font-family-sans-serif: 'Inter', sans-serif; /* Using Inter font */
@@ -208,7 +209,7 @@ body.rtl .main {
     min-height: calc(100vh - 60px);
     color: var(--text-light-color); /* Default text color for content area */
     /* New: Background Image for .container-full */
-    background-image: url('/img/Emblem_of_Syria.png'); /* Path to your image */
+    /*background-image: url('/img/Emblem_of_Syria.png');*/ /* Path to your image */
     background-repeat: no-repeat; /* Prevents the image from repeating */
     background-position: center center; /* Centers the image */
     background-size: 70%; /* Adjust this value to make the emblem smaller or larger */
@@ -345,7 +346,10 @@ body.rtl .table tbody tr:hover {
 .progress-bar-orange {
     background-color: var(--orange-color);
 }
-
+/* Specific progress bar colors if still used */
+.progress-bar-yellow {
+    background-color: var(--yellow-color);
+}
 /* Adjust text colors for specific Bootstrap classes if they appear on dark backgrounds */
 .text-muted {
     color: rgba(255, 255, 255, 0.6) !important; /* Lighter muted text for dark backgrounds */

@@ -1,42 +1,684 @@
 ﻿@model IEnumerable<MonitoringAndEvaluationPlatform.Models.ActionPlan>
 
 @{
-    ViewData["Title"] = "Index";
-    Layout = "~/Views/Shared/_ProjectsLayout.cshtml";
+    ViewData["Title"] = "Action Plans";
+    Layout = "~/Views/Shared/_DashboardHomeLayout.cshtml";
 }
 
-<h1>Index</h1>
+<!-- Dashboard Header -->
+<div class="dashboard-header">
+    <h1 class="dashboard-title">
+        <i class="fas fa-tasks me-3"></i>
+        Action Plans Dashboard
+    </h1>
+    <p class="dashboard-subtitle">
+        Manage project action plans with comprehensive planning tools and progress tracking
+    </p>
+    <div class="dashboard-actions">
+        <a asp-action="Create" class="btn btn-gradient-primary">
+            <i class="fas fa-plus me-2"></i>Create New Plan
+        </a>
+    </div>
+</div>
 
-<p>
-    <a asp-action="Create">Create New</a>
-</p>
-<table class="table">
-    <thead>
-        <tr>
-            <th>
-                @Html.DisplayNameFor(model => model.PlansCount)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Project)
-            </th>
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-@foreach (var item in Model) {
-        <tr>
-            <td>
-                @Html.DisplayFor(modelItem => item.PlansCount)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Project.ProjectID)
-            </td>
-            <td>
-                <a asp-action="Edit" asp-route-id="@item.Code">Edit</a> |
-                <a asp-action="Details" asp-route-id="@item.Code">Details</a> |
-                <a asp-action="Delete" asp-route-id="@item.Code">Delete</a>
-            </td>
-        </tr>
-}
-    </tbody>
-</table>
+<div class="container-fluid">
+    @if (Model.Any())
+    {
+        <!-- Action Plans Grid -->
+        <div class="action-plans-container">
+            <div class="plans-header">
+                <h3 class="plans-title">
+                    <i class="fas fa-clipboard-list me-2"></i>
+                    Action Plans (@Model.Count())
+                </h3>
+                <div class="plans-stats">
+                    <div class="stat-item">
+                        <i class="fas fa-project-diagram"></i>
+                        <span>@Model.Select(ap => ap.Project?.ProjectID).Distinct().Count() Projects</span>
+                    </div>
+                    <div class="stat-item">
+                        <i class="fas fa-list-ol"></i>
+                        <span>@Model.Sum(ap => ap.PlansCount) Total Plans</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="plans-grid">
+                @foreach (var item in Model)
+                {
+                    <div class="action-plan-card">
+                        <div class="plan-card-header">
+                            <div class="plan-info">
+                                <h5 class="plan-title">
+                                    Action Plan #@item.Code
+                                </h5>
+                                <div class="plan-project">
+                                    <i class="fas fa-project-diagram me-1"></i>
+                                    Project: @(item.Project?.ProjectID.ToString() ?? "N/A")
+                                </div>
+                            </div>
+                            <div class="plan-status-badge">
+                                <i class="fas fa-check-circle me-1"></i>
+                                Active
+                            </div>
+                        </div>
+
+                        <div class="plan-card-body">
+                            <div class="plan-metric">
+                                <div class="metric-icon">
+                                    <i class="fas fa-list-ol"></i>
+                                </div>
+                                <div class="metric-content">
+                                    <div class="metric-value">@item.PlansCount</div>
+                                    <div class="metric-label">Total Plans</div>
+                                </div>
+                            </div>
+
+                            <div class="plan-progress">
+                                <div class="progress-info">
+                                    <span>Plan Completion</span>
+                                    <span>@(item.PlansCount > 0 ? 100 : 0)%</span>
+                                </div>
+                                <div class="progress-bar-modern">
+                                    <div class="progress-fill" style="width: @(item.PlansCount > 0 ? 100 : 0)%"></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="plan-card-actions">
+                            <a asp-action="Details" asp-route-id="@item.Code" class="action-btn details-btn">
+                                <i class="fas fa-eye me-1"></i>Details
+                            </a>
+                            <a asp-action="Edit" asp-route-id="@item.Code" class="action-btn edit-btn">
+                                <i class="fas fa-edit me-1"></i>Edit
+                            </a>
+                            <a asp-action="Delete" asp-route-id="@item.Code" class="action-btn delete-btn">
+                                <i class="fas fa-trash me-1"></i>Delete
+                            </a>
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+    }
+    else
+    {
+        <!-- Empty State -->
+        <div class="empty-state-container">
+            <div class="empty-state-card">
+                <div class="empty-state-icon">
+                    <i class="fas fa-tasks"></i>
+                </div>
+                <h4 class="empty-state-title">No Action Plans Yet</h4>
+                <p class="empty-state-description">
+                    Get started by creating your first action plan to organize and track project activities.
+                </p>
+                <a asp-action="Create" class="btn btn-gradient-primary btn-lg">
+                    <i class="fas fa-plus me-2"></i>Create First Action Plan
+                </a>
+            </div>
+        </div>
+    }
+</div>
+
+<style>
+    /* Modern Action Plans Dashboard Styles */
+    
+    .action-plans-container {
+        margin-top: 2rem;
+    }
+
+    .plans-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 2rem;
+        padding: 1.5rem;
+        background: linear-gradient(135deg, rgba(255,255,255,0.95) 0%, rgba(248,249,250,0.95) 100%);
+        backdrop-filter: blur(15px);
+        -webkit-backdrop-filter: blur(15px);
+        border: 1px solid rgba(255,255,255,0.3);
+        border-radius: 20px;
+        box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+    }
+
+    .plans-title {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: #2d3748;
+        margin: 0;
+        display: flex;
+        align-items: center;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+    }
+
+    .plans-title i {
+        color: #667eea;
+        -webkit-text-fill-color: #667eea;
+    }
+
+    .plans-stats {
+        display: flex;
+        gap: 2rem;
+    }
+
+    .stat-item {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.75rem 1.25rem;
+        background: rgba(102, 126, 234, 0.1);
+        border: 1px solid rgba(102, 126, 234, 0.2);
+        border-radius: 12px;
+        color: #4a5568;
+        font-weight: 600;
+        font-size: 0.9rem;
+    }
+
+    .stat-item i {
+        color: #667eea;
+    }
+
+    /* Plans Grid */
+    .plans-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
+        gap: 2rem;
+    }
+
+    .action-plan-card {
+        background: linear-gradient(135deg, rgba(255,255,255,0.95) 0%, rgba(248,249,250,0.95) 100%);
+        backdrop-filter: blur(15px);
+        -webkit-backdrop-filter: blur(15px);
+        border: 1px solid rgba(255,255,255,0.3);
+        border-radius: 20px;
+        padding: 0;
+        box-shadow: 
+            0 8px 32px rgba(0,0,0,0.1),
+            0 4px 16px rgba(0,0,0,0.05);
+        transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
+        position: relative;
+        overflow: hidden;
+    }
+
+    .action-plan-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+        transition: left 0.6s;
+        z-index: 1;
+    }
+
+    .action-plan-card:hover::before {
+        left: 100%;
+    }
+
+    .action-plan-card:hover {
+        transform: translateY(-8px) scale(1.02);
+        box-shadow: 
+            0 20px 40px rgba(0,0,0,0.15),
+            0 8px 24px rgba(0,0,0,0.1);
+        border-color: rgba(255,255,255,0.5);
+    }
+
+    /* Plan Card Header */
+    .plan-card-header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        padding: 1.5rem;
+        color: white;
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        position: relative;
+        z-index: 2;
+    }
+
+    .plan-title {
+        font-size: 1.2rem;
+        font-weight: 700;
+        margin: 0 0 0.5rem 0;
+        color: white;
+        text-shadow: 0 1px 2px rgba(0,0,0,0.2);
+    }
+
+    .plan-project {
+        font-size: 0.9rem;
+        color: rgba(255,255,255,0.9);
+        font-weight: 500;
+    }
+
+    .plan-status-badge {
+        padding: 0.5rem 1rem;
+        background: rgba(255,255,255,0.2);
+        border: 1px solid rgba(255,255,255,0.3);
+        border-radius: 20px;
+        font-size: 0.8rem;
+        font-weight: 600;
+        backdrop-filter: blur(10px);
+        text-shadow: 0 1px 2px rgba(0,0,0,0.1);
+    }
+
+    /* Plan Card Body */
+    .plan-card-body {
+        padding: 1.5rem;
+        position: relative;
+        z-index: 2;
+    }
+
+    .plan-metric {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        margin-bottom: 1.5rem;
+        padding: 1rem;
+        background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.05) 100%);
+        border-radius: 12px;
+        border: 1px solid rgba(102, 126, 234, 0.2);
+    }
+
+    .metric-icon {
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 1.25rem;
+        box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+    }
+
+    .metric-content {
+        flex: 1;
+    }
+
+    .metric-value {
+        font-size: 1.8rem;
+        font-weight: 700;
+        color: #2d3748;
+        line-height: 1;
+        margin-bottom: 0.25rem;
+    }
+
+    .metric-label {
+        font-size: 0.9rem;
+        color: #718096;
+        font-weight: 500;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    /* Plan Progress */
+    .plan-progress {
+        margin-bottom: 1rem;
+    }
+
+    .progress-info {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 0.5rem;
+        font-size: 0.9rem;
+        color: #4a5568;
+        font-weight: 600;
+    }
+
+    .progress-bar-modern {
+        width: 100%;
+        height: 8px;
+        background: rgba(226, 232, 240, 0.5);
+        border-radius: 4px;
+        overflow: hidden;
+        box-shadow: inset 0 1px 3px rgba(0,0,0,0.1);
+    }
+
+    .progress-fill {
+        height: 100%;
+        background: linear-gradient(90deg, #667eea, #764ba2);
+        border-radius: 4px;
+        transition: width 1.2s ease;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .progress-fill::after {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
+        animation: shimmer 2s infinite;
+    }
+
+    /* Plan Card Actions */
+    .plan-card-actions {
+        padding: 1rem 1.5rem 1.5rem 1.5rem;
+        background: rgba(248, 249, 250, 0.5);
+        display: flex;
+        gap: 0.75rem;
+        border-top: 1px solid rgba(230, 230, 230, 0.5);
+        position: relative;
+        z-index: 2;
+    }
+
+    .action-btn {
+        flex: 1;
+        padding: 0.75rem 1rem;
+        border-radius: 10px;
+        text-decoration: none;
+        text-align: center;
+        font-size: 0.85rem;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border: 1px solid transparent;
+    }
+
+    .details-btn {
+        background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+        color: white;
+        box-shadow: 0 4px 15px rgba(79, 172, 254, 0.3);
+    }
+
+    .details-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(79, 172, 254, 0.4);
+        color: white;
+        text-decoration: none;
+    }
+
+    .edit-btn {
+        background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
+        color: white;
+        box-shadow: 0 4px 15px rgba(67, 233, 123, 0.3);
+    }
+
+    .edit-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(67, 233, 123, 0.4);
+        color: white;
+        text-decoration: none;
+    }
+
+    .delete-btn {
+        background: linear-gradient(135deg, #ff6b6b 0%, #ee5a24 100%);
+        color: white;
+        box-shadow: 0 4px 15px rgba(255, 107, 107, 0.3);
+    }
+
+    .delete-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(255, 107, 107, 0.4);
+        color: white;
+        text-decoration: none;
+    }
+
+    /* Empty State */
+    .empty-state-container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 60vh;
+        margin-top: 2rem;
+    }
+
+    .empty-state-card {
+        text-align: center;
+        padding: 3rem;
+        background: linear-gradient(135deg, rgba(255,255,255,0.95) 0%, rgba(248,249,250,0.95) 100%);
+        backdrop-filter: blur(15px);
+        -webkit-backdrop-filter: blur(15px);
+        border: 1px solid rgba(255,255,255,0.3);
+        border-radius: 24px;
+        box-shadow: 
+            0 8px 32px rgba(0,0,0,0.1),
+            0 4px 16px rgba(0,0,0,0.05);
+        max-width: 500px;
+    }
+
+    .empty-state-icon {
+        width: 80px;
+        height: 80px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 2rem;
+        color: white;
+        margin: 0 auto 1.5rem;
+        box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
+    }
+
+    .empty-state-title {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: #2d3748;
+        margin-bottom: 1rem;
+    }
+
+    .empty-state-description {
+        font-size: 1rem;
+        color: #718096;
+        margin-bottom: 2rem;
+        line-height: 1.6;
+    }
+
+    /* Animations */
+    @@keyframes shimmer {
+        0% { left: -100%; }
+        100% { left: 100%; }
+    }
+
+    @@keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(30px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .action-plan-card {
+        animation: fadeInUp 0.6s ease-out;
+    }
+
+    .action-plan-card:nth-child(2) { animation-delay: 0.1s; }
+    .action-plan-card:nth-child(3) { animation-delay: 0.2s; }
+    .action-plan-card:nth-child(4) { animation-delay: 0.3s; }
+    .action-plan-card:nth-child(5) { animation-delay: 0.4s; }
+    .action-plan-card:nth-child(6) { animation-delay: 0.5s; }
+
+    /* Responsive Design */
+    @@media (max-width: 1024px) {
+        .plans-header {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 1rem;
+        }
+
+        .plans-stats {
+            width: 100%;
+            justify-content: space-between;
+        }
+
+        .plans-grid {
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 1.5rem;
+        }
+    }
+
+    @@media (max-width: 768px) {
+        .plans-header {
+            padding: 1rem;
+        }
+
+        .plans-stats {
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+
+        .plans-grid {
+            grid-template-columns: 1fr;
+            gap: 1rem;
+        }
+
+        .action-plan-card {
+            margin: 0 -1rem;
+        }
+
+        .plan-card-header {
+            padding: 1.25rem;
+        }
+
+        .plan-card-body {
+            padding: 1.25rem;
+        }
+
+        .plan-card-actions {
+            flex-direction: column;
+            gap: 0.5rem;
+            padding: 1rem 1.25rem 1.25rem 1.25rem;
+        }
+
+        .action-btn {
+            padding: 1rem;
+        }
+    }
+
+    @@media (max-width: 480px) {
+        .plans-header {
+            margin: 0 -1rem 1rem -1rem;
+            border-radius: 0;
+        }
+
+        .empty-state-card {
+            margin: 0 -1rem;
+            border-radius: 0;
+            padding: 2rem 1rem;
+        }
+
+        .plan-title {
+            font-size: 1.1rem;
+        }
+
+        .metric-value {
+            font-size: 1.5rem;
+        }
+
+        .empty-state-icon {
+            width: 60px;
+            height: 60px;
+            font-size: 1.5rem;
+        }
+    }
+
+    /* Button Hover Effects */
+    .btn-gradient-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+    }
+
+    /* Additional Interactive Effects */
+    .plan-metric:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(102, 126, 234, 0.15);
+    }
+
+    .plan-metric:hover .metric-icon {
+        transform: scale(1.1);
+    }
+</style>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Animate progress bars on load
+        const progressBars = document.querySelectorAll('.progress-fill');
+        progressBars.forEach((bar, index) => {
+            const width = bar.style.width;
+            bar.style.width = '0%';
+            setTimeout(() => {
+                bar.style.width = width;
+            }, 500 + (index * 200));
+        });
+
+        // Add click ripple effect to action buttons
+        const actionButtons = document.querySelectorAll('.action-btn');
+        actionButtons.forEach(button => {
+            button.addEventListener('click', function(e) {
+                const ripple = document.createElement('span');
+                const rect = this.getBoundingClientRect();
+                const size = Math.max(rect.height, rect.width);
+                const x = e.clientX - rect.left - size / 2;
+                const y = e.clientY - rect.top - size / 2;
+                
+                ripple.style.cssText = `
+                    width: ${size}px;
+                    height: ${size}px;
+                    left: ${x}px;
+                    top: ${y}px;
+                    position: absolute;
+                    border-radius: 50%;
+                    background: rgba(255,255,255,0.5);
+                    transform: scale(0);
+                    animation: ripple 0.6s linear;
+                    pointer-events: none;
+                `;
+                
+                this.appendChild(ripple);
+                
+                setTimeout(() => {
+                    ripple.remove();
+                }, 600);
+            });
+        });
+
+        // Add hover effects for cards
+        const planCards = document.querySelectorAll('.action-plan-card');
+        planCards.forEach(card => {
+            card.addEventListener('mouseenter', function() {
+                const metrics = this.querySelector('.plan-metric');
+                if (metrics) {
+                    metrics.style.transform = 'translateY(-2px)';
+                }
+            });
+            
+            card.addEventListener('mouseleave', function() {
+                const metrics = this.querySelector('.plan-metric');
+                if (metrics) {
+                    metrics.style.transform = 'translateY(0)';
+                }
+            });
+        });
+
+        // Add CSS for ripple animation
+        const style = document.createElement('style');
+        style.textContent = `
+            @@keyframes ripple {
+                to {
+                    transform: scale(4);
+                    opacity: 0;
+                }
+            }
+            .action-btn {
+                position: relative;
+                overflow: hidden;
+            }
+        `;
+        document.head.appendChild(style);
+    });
+</script>

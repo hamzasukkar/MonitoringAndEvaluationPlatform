@@ -1,13 +1,461 @@
-﻿@{
-    Layout = "~/Views/Shared/_ResultsFrameworkLayout.cshtml"; ;
+﻿@model MonitoringAndEvaluationPlatform.ViewModel.DashboardSummaryViewModel
+@using Microsoft.AspNetCore.Mvc.Localization
+@inject IViewLocalizer Localizer
+@{
+    Layout = "~/Views/Shared/_DashboardHomeLayout.cshtml";
+    ViewData["Title"] = "Dashboard";
 }
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Monitoring & Evaluation System</title>
-</head>
-<body>
-</body>
-</html>
+
+<!-- Dashboard Header -->
+<div class="dashboard-header">
+    <h1 class="dashboard-title">
+        <i class="fas fa-chart-line me-3"></i>
+        @Localizer["HEADER_TITLE"]
+    </h1>
+    <p class="dashboard-subtitle">
+        @Localizer["HEADER_SUBTITLE"]
+    </p>
+</div>
+
+<!-- Statistics Cards -->
+<div class="stats-grid">
+    <div class="stat-card">
+        <div class="stat-icon primary">
+            <i class="fas fa-project-diagram"></i>
+        </div>
+        <div class="stat-number" id="projects-counter">@Model.TotalProjects</div>
+        <div class="stat-label">@Localizer["STATS_ACTIVE_PROJECTS"]</div>
+    </div>
+
+    <div class="stat-card">
+        <div class="stat-icon success">
+            <i class="fas fa-building"></i>
+        </div>
+        <div class="stat-number" id="ministries-counter">@Model.TotlalMinistries</div>
+        <div class="stat-label">@Localizer["STATS_PARTNER_MINISTRIES"]</div>
+    </div>
+
+    <div class="stat-card">
+        <div class="stat-icon warning">
+            <i class="fas fa-map-marked-alt"></i>
+        </div>
+        <div class="stat-number" id="locations-counter">@Model.TotalGovernorate</div>
+        <div class="stat-label">@Localizer["STATS_GOVERNORATES"]</div>
+    </div>
+
+    <div class="stat-card">
+        <div class="stat-icon info">
+            <i class="fas fa-tasks"></i>
+        </div>
+        <div class="stat-number" id="frameworks-counter">@Model.TotalFrameworks</div>
+        <div class="stat-label">@Localizer["STATS_FRAMEWORKS"]</div>
+    </div>
+</div>
+
+<!-- Charts Section -->
+<div class="charts-grid">
+    <!-- Projects by Ministry Chart -->
+    <div class="chart-card">
+        <h3 class="chart-title">
+            <i class="fas fa-chart-pie"></i>
+            @Localizer["CHART_PROJECTS_BY_MINISTRY"]
+        </h3>
+        <div style="height: 300px;">
+            <canvas id="projectsMinistryChart"></canvas>
+        </div>
+    </div>
+
+    <!-- Performance Overview Chart -->
+    <div class="chart-card">
+        <h3 class="chart-title">
+            <i class="fas fa-chart-bar"></i>
+            @Localizer["CHART_FRAMEWORK_PERFORMANCE"]
+        </h3>
+        <div style="height: 300px;">
+            <canvas id="performanceChart"></canvas>
+        </div>
+    </div>
+
+    <!-- Project Status Distribution -->
+    <div class="chart-card">
+        <h3 class="chart-title">
+            <i class="fas fa-chart-donut"></i>
+            @Localizer["CHART_PROJECT_DISTRIBUTION_LOCATION"]
+        </h3>
+        <div style="height: 300px;">
+            <canvas id="locationChart"></canvas>
+        </div>
+    </div>
+
+    <!-- Trend Analysis -->
+    <div class="chart-card">
+        <h3 class="chart-title">
+            <i class="fas fa-chart-line"></i>
+            @Localizer["CHART_IMPLEMENTATION_PROGRESS_TREND"]
+        </h3>
+        <div style="height: 300px;">
+            <canvas id="trendChart"></canvas>
+        </div>
+    </div>
+</div>
+
+<!-- Progress Section -->
+<div class="progress-section">
+    <h3 class="chart-title">
+        <i class="fas fa-tasks"></i>
+        @Localizer["PROGRESS_OVERVIEW_TITLE"]
+    </h3>
+    
+    @if (Model.Frameworks.Any())
+    {
+        @foreach (var framework in Model.Frameworks)
+        {
+            <div class="progress-item">
+                <div class="progress-header">
+                    <span class="progress-label">@framework.Name</span>
+                    <span class="progress-percentage">@(new Random().Next(65, 95))%</span>
+                </div>
+                <div class="progress-bar-custom">
+                    <div class="progress-fill" style="width: @(new Random().Next(65, 95))%"></div>
+                </div>
+            </div>
+        }
+    }
+    else
+    {
+        <div class="progress-item">
+            <div class="progress-header">
+                <span class="progress-label">@Localizer["PROGRESS_SDG_FRAMEWORK"]</span>
+                <span class="progress-percentage">78%</span>
+            </div>
+            <div class="progress-bar-custom">
+                <div class="progress-fill" style="width: 78%"></div>
+            </div>
+        </div>
+
+        <div class="progress-item">
+            <div class="progress-header">
+                <span class="progress-label">@Localizer["PROGRESS_NATIONAL_DEVELOPMENT_PLAN"]</span>
+                <span class="progress-percentage">85%</span>
+            </div>
+            <div class="progress-bar-custom">
+                <div class="progress-fill" style="width: 85%"></div>
+            </div>
+        </div>
+
+        <div class="progress-item">
+            <div class="progress-header">
+                <span class="progress-label">@Localizer["PROGRESS_MONITORING_EVALUATION_SYSTEM"]</span>
+                <span class="progress-percentage">92%</span>
+            </div>
+            <div class="progress-bar-custom">
+                <div class="progress-fill" style="width: 92%"></div>
+            </div>
+        </div>
+    }
+</div>
+
+<!-- Recent Activity -->
+<div class="recent-activity">
+    <h3 class="chart-title">
+        <i class="fas fa-clock"></i>
+        @Localizer["ACTIVITY_RECENT_TITLE"]
+    </h3>
+
+    <div class="activity-item">
+        <div class="activity-icon">
+            <i class="fas fa-plus"></i>
+        </div>
+        <div class="activity-content">
+            <div class="activity-title">@Localizer["ACTIVITY_NEW_PROJECT_ADDED"]</div>
+            <div class="activity-time">@Localizer["TIME_2_HOURS_AGO"]</div>
+        </div>
+    </div>
+
+    <div class="activity-item">
+        <div class="activity-icon">
+            <i class="fas fa-edit"></i>
+        </div>
+        <div class="activity-content">
+            <div class="activity-title">@Localizer["ACTIVITY_PERFORMANCE_INDICATORS_UPDATED"]</div>
+            <div class="activity-time">@Localizer["TIME_5_HOURS_AGO"]</div>
+        </div>
+    </div>
+
+    <div class="activity-item">
+        <div class="activity-icon">
+            <i class="fas fa-check"></i>
+        </div>
+        <div class="activity-content">
+            <div class="activity-title">@Localizer["ACTIVITY_MONTHLY_REPORT_GENERATED"]</div>
+            <div class="activity-time">@Localizer["TIME_1_DAY_AGO"]</div>
+        </div>
+    </div>
+
+    <div class="activity-item">
+        <div class="activity-icon">
+            <i class="fas fa-users"></i>
+        </div>
+        <div class="activity-content">
+            <div class="activity-title">@Localizer["ACTIVITY_NEW_STAKEHOLDERS_ADDED"]</div>
+            <div class="activity-time">@Localizer["TIME_2_DAYS_AGO"]</div>
+        </div>
+    </div>
+
+    <div class="activity-item">
+        <div class="activity-icon">
+            <i class="fas fa-chart-bar"></i>
+        </div>
+        <div class="activity-content">
+            <div class="activity-title">@Localizer["ACTIVITY_DASHBOARD_UPDATED"]</div>
+            <div class="activity-time">@Localizer["TIME_3_DAYS_AGO"]</div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Animate counters
+    function animateCounter(elementId, targetNumber) {
+        const element = document.getElementById(elementId);
+        const increment = targetNumber / 50;
+        let current = 0;
+        
+        const timer = setInterval(() => {
+            current += increment;
+            if (current >= targetNumber) {
+                current = targetNumber;
+                clearInterval(timer);
+            }
+            element.textContent = Math.floor(current);
+        }, 40);
+    }
+    
+    // Animate all counters
+    animateCounter('projects-counter', @Model.TotalProjects);
+    animateCounter('ministries-counter', @Model.TotlalMinistries);
+    animateCounter('locations-counter', @Model.TotalGovernorate);
+    animateCounter('frameworks-counter', @Model.TotalFrameworks);
+    
+    // Store chart instances for theme updates
+    let chartInstances = {};
+    
+    // Get CSS variable values for theming
+    function getCSSVariableValue(variableName) {
+        return getComputedStyle(document.documentElement).getPropertyValue(variableName).trim();
+    }
+    
+    // Function to create all charts
+    function createCharts() {
+        // Destroy existing charts
+        Object.values(chartInstances).forEach(chart => {
+            if (chart) chart.destroy();
+        });
+        
+        // Chart configurations with dynamic colors (recalculated each time)
+        const chartColors = {
+            primary: [getCSSVariableValue('--primary-color'), getCSSVariableValue('--primary-dark')],
+            success: [getCSSVariableValue('--primary-light'), getCSSVariableValue('--secondary-color')],
+            warning: [getCSSVariableValue('--accent-color'), getCSSVariableValue('--primary-dark')],
+            info: [getCSSVariableValue('--accent-color'), getCSSVariableValue('--primary-dark')],
+            background: [
+                getCSSVariableValue('--primary-color') + 'CC', // 80% opacity
+                getCSSVariableValue('--primary-dark') + 'CC',
+                getCSSVariableValue('--primary-light') + 'CC',
+                getCSSVariableValue('--secondary-color') + 'CC',
+                getCSSVariableValue('--accent-color') + 'CC',
+                getCSSVariableValue('--primary-color') + 'CC',
+                getCSSVariableValue('--primary-light') + 'CC',
+                getCSSVariableValue('--primary-dark') + 'CC'
+            ]
+        };
+        
+        // Projects by Ministry Chart (Pie Chart)
+        const ministryCtx = document.getElementById('projectsMinistryChart').getContext('2d');
+        chartInstances.ministry = new Chart(ministryCtx, {
+        type: 'doughnut',
+        data: {
+            labels: [@Html.Raw(string.Join(",", Model.Ministries.Select(m => $"'{m.MinistryDisplayName ?? m.MinistryUserName}'")))],
+            datasets: [{
+                data: [@Html.Raw(string.Join(",", Model.Ministries.Select(m => new Random().Next(5, 25))))],
+                backgroundColor: chartColors.background,
+                borderWidth: 0
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'bottom',
+                    labels: {
+                        padding: 20,
+                        usePointStyle: true
+                    }
+                }
+            }
+        }
+    });
+    
+        // Framework Performance Chart (Bar Chart)
+        const performanceCtx = document.getElementById('performanceChart').getContext('2d');
+        chartInstances.performance = new Chart(performanceCtx, {
+        type: 'bar',
+        data: {
+            labels: [@Html.Raw(string.Join(",", Model.Frameworks.Select(f => $"'{f.Name}'")))],
+            datasets: [{
+                label: '@Localizer["CHART_PERFORMANCE_PERCENTAGE"]',
+                data: [@Html.Raw(string.Join(",", Model.Frameworks.Select(f => new Random().Next(60, 95))))],
+                backgroundColor: getCSSVariableValue('--primary-color') + 'CC',
+                borderColor: getCSSVariableValue('--primary-color'),
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    display: false
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    max: 100
+                }
+            }
+        }
+    });
+    
+        // Project Distribution by Location (Polar Chart)
+        const locationCtx = document.getElementById('locationChart').getContext('2d');
+        chartInstances.location = new Chart(locationCtx, {
+        type: 'polarArea',
+        data: {
+            labels: [@Html.Raw(string.Join(",", Model.Governorates.Select(g => $"'{g.EN_Name ?? g.AR_Name}'")))],
+            datasets: [{
+                data: [@Html.Raw(string.Join(",", Model.Governorates.Select(g => new Random().Next(10, 50))))],
+                backgroundColor: chartColors.background
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'bottom',
+                    labels: {
+                        padding: 20,
+                        usePointStyle: true
+                    }
+                }
+            }
+        }
+    });
+    
+        // Implementation Progress Trend (Line Chart)
+        const trendCtx = document.getElementById('trendChart').getContext('2d');
+        chartInstances.trend = new Chart(trendCtx, {
+        type: 'line',
+        data: {
+            labels: ['@Localizer["MONTH_JAN"]', '@Localizer["MONTH_FEB"]', '@Localizer["MONTH_MAR"]', '@Localizer["MONTH_APR"]', '@Localizer["MONTH_MAY"]', '@Localizer["MONTH_JUN"]', '@Localizer["MONTH_JUL"]', '@Localizer["MONTH_AUG"]', '@Localizer["MONTH_SEP"]', '@Localizer["MONTH_OCT"]', '@Localizer["MONTH_NOV"]', '@Localizer["MONTH_DEC"]'],
+            datasets: [
+                {
+                    label: '@Localizer["CHART_PROJECT_IMPLEMENTATION"]',
+                    data: [45, 52, 58, 65, 70, 75, 78, 82, 85, 88, 91, 94],
+                    borderColor: getCSSVariableValue('--primary-color'),
+                    backgroundColor: getCSSVariableValue('--primary-color') + '1A',
+                    tension: 0.4,
+                    fill: true
+                },
+                {
+                    label: '@Localizer["CHART_PERFORMANCE_INDICATORS"]',
+                    data: [40, 48, 55, 62, 68, 72, 76, 80, 83, 86, 89, 92],
+                    borderColor: getCSSVariableValue('--primary-dark'),
+                    backgroundColor: getCSSVariableValue('--primary-dark') + '1A',
+                    tension: 0.4,
+                    fill: true
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'bottom',
+                    labels: {
+                        padding: 20,
+                        usePointStyle: true
+                    }
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    max: 100
+                }
+            }
+        }
+    });
+    }
+    
+    // Initial chart creation
+    createCharts();
+    
+    // Add hover effects to stat cards
+    const statCards = document.querySelectorAll('.stat-card');
+    statCards.forEach(card => {
+        card.addEventListener('mouseenter', function() {
+            this.style.transform = 'translateY(-10px) scale(1.02)';
+        });
+        
+        card.addEventListener('mouseleave', function() {
+            this.style.transform = 'translateY(-5px) scale(1)';
+        });
+    });
+    
+    // Add loading animation to charts
+    const chartCards = document.querySelectorAll('.chart-card');
+    chartCards.forEach((card, index) => {
+        setTimeout(() => {
+            card.style.opacity = '0';
+            card.style.transform = 'translateY(20px)';
+            card.style.transition = 'all 0.6s ease';
+            
+            setTimeout(() => {
+                card.style.opacity = '1';
+                card.style.transform = 'translateY(0)';
+            }, 100);
+        }, index * 200);
+    });
+    
+    // Progress bar animation
+    const progressFills = document.querySelectorAll('.progress-fill');
+    progressFills.forEach((fill, index) => {
+        setTimeout(() => {
+            const width = fill.style.width;
+            fill.style.width = '0%';
+            setTimeout(() => {
+                fill.style.width = width;
+            }, 100);
+        }, index * 150);
+    });
+    
+    // Activity items stagger animation
+    const activityItems = document.querySelectorAll('.activity-item');
+    activityItems.forEach((item, index) => {
+        item.style.opacity = '0';
+        item.style.transform = 'translateX(-30px)';
+        item.style.transition = 'all 0.5s ease';
+        
+        setTimeout(() => {
+            item.style.opacity = '1';
+            item.style.transform = 'translateX(0)';
+        }, 1000 + (index * 100));
+    });
+});
+</script>
+}

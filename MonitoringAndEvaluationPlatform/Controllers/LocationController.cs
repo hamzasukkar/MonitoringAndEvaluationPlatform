@@ -24,10 +24,10 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                         .ThenInclude(d => d.Governorate)
                 .Select(c => new LocationViewModel
                 {
-                    Community = c.Name,
-                    SubDistrict = c.SubDistrict.Name,
-                    District = c.SubDistrict.District.Name,
-                    Governorate = c.SubDistrict.District.Governorate.Name
+                    Community = c.EN_Name,
+                    SubDistrict = c.SubDistrict.EN_Name,
+                    District = c.SubDistrict.District.EN_Name,
+                    Governorate = c.SubDistrict.District.Governorate.EN_Name
                 }).ToList();
 
             return View(locations);
@@ -64,10 +64,10 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         {
             if (ModelState.IsValid)
             {
-                var governorate = new Governorate { Name = model.GovernorateName };
-                var district = new District { Name = model.DistrictName, Governorate = governorate };
-                var subDistrict = new SubDistrict { Name = model.SubDistrictName, District = district };
-                var community = new Community { Name = model.CommunityName, SubDistrict = subDistrict };
+                var governorate = new Governorate { EN_Name = model.GovernorateName };
+                var district = new District { EN_Name = model.DistrictName, Governorate = governorate };
+                var subDistrict = new SubDistrict { EN_Name = model.SubDistrictName, District = district };
+                var community = new Community { EN_Name = model.CommunityName, SubDistrict = subDistrict };
 
                 _context.Governorates.Add(governorate);
                 _context.Districts.Add(district);
@@ -232,7 +232,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         {
             var districts = _context.Districts
                 .Where(d => d.GovernorateCode == governorateCode)
-                .Select(d => new { d.Code, d.Name })
+                .Select(d => new { d.Code, d.EN_Name })
                 .ToList();
             return Json(districts);
         }
@@ -242,7 +242,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         {
             var subDistricts = _context.SubDistricts
                 .Where(sd => sd.DistrictCode == districtCode)
-                .Select(sd => new { sd.Code, sd.Name })
+                .Select(sd => new { sd.Code, sd.EN_Name })
                 .ToList();
             return Json(subDistricts);
         }
@@ -252,7 +252,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         {
             var communities = _context.Communities
                 .Where(c => c.SubDistrictCode == subDistrictCode)
-                .Select(c => new { c.Code, c.Name })
+                .Select(c => new { c.Code, c.EN_Name })
                 .ToList();
             return Json(communities);
         }

@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using MonitoringAndEvaluationPlatform.Attributes;
 
 namespace MonitoringAndEvaluationPlatform.Models
 {
@@ -7,17 +8,53 @@ namespace MonitoringAndEvaluationPlatform.Models
     {
         [Key]
         public int ProjectID { get; set; }
-        public string ProjectName { get; set; }
-        public ICollection<Sector> Sectors { get; set; } = new List<Sector>();
-        public ICollection<Donor> Donors { get; set; } = new List<Donor>();
+
+        [Required(ErrorMessage = "Project name is required")]
+        [StringLength(200, MinimumLength = 3, ErrorMessage = "Project name must be between 3 and 200 characters")]
+        [Display(Name = "Project Name")]
+        public string ProjectName { get; set; } = string.Empty;
+
+        public ICollection<Sector>? Sectors { get; set; } = new List<Sector>();
+        public ICollection<Donor>? Donors { get; set; } = new List<Donor>();
+        public ICollection<ProjectDonor> ProjectDonors { get; set; } = new List<ProjectDonor>();
         public ICollection<Ministry> Ministries { get; set; } = new List<Ministry>();
+
+        [Display(Name = "Ministry")]
+        public int? MinistryCode { get; set; }
+        public virtual Ministry? Ministry { get; set; }
+
+        [Required(ErrorMessage = "Estimated budget is required")]
+        [Range(0.01, double.MaxValue, ErrorMessage = "Estimated budget must be greater than $0.01")]
+        [Display(Name = "Estimated Budget ($)")]
         public double EstimatedBudget { get; set; }
+
+        [Range(0, double.MaxValue, ErrorMessage = "Real budget cannot be negative")]
+        [Display(Name = "Real Budget ($)")]
         public double RealBudget { get; set; }
+
+        [Required(ErrorMessage = "Project manager is required")]
+        [Display(Name = "Project Manager")]
         public int ProjectManagerCode { get; set; }
-        public virtual ProjectManager ProjectManager { get; set; }
+        public virtual ProjectManager? ProjectManager { get; set; }
+
+        [Required(ErrorMessage = "Supervisor is required")]
+        [Display(Name = "Supervisor")]
         public int SuperVisorCode { get; set; }
-        public virtual SuperVisor SuperVisor { get; set; }
+        public virtual SuperVisor? SuperVisor { get; set; }
+
+        [Display(Name = "SDG Goal")]
+        public int? GoalCode { get; set; }
+        public virtual Goal? Goal { get; set; }
+
+        [Required(ErrorMessage = "Start date is required")]
+        [Display(Name = "Start Date")]
+        [DataType(DataType.Date)]
         public DateTime StartDate { get; set; }
+
+        [Required(ErrorMessage = "End date is required")]
+        [Display(Name = "End Date")]
+        [DataType(DataType.Date)]
+        [DateRangeValidation(nameof(StartDate))]
         public DateTime EndDate { get; set; }
         public double performance { get; set; }
         public double DisbursementPerformance { get; set; }
@@ -26,15 +63,11 @@ namespace MonitoringAndEvaluationPlatform.Models
         public int Financial { get; set; }
         public int Physical { get; set; }
 
-        // Navigation property for many-to-many relationship
-        public ICollection<Measure> Measures { get; set; } = new List<Measure>();
-
-        // New: Many-to-many with Indicator
+        // Many-to-many with Indicator
         public ICollection<ProjectIndicator> ProjectIndicators { get; set; } = new List<ProjectIndicator>();
 
         // Navigation property for one-to-one relationship
         public ActionPlan ActionPlan { get; set; }
-        public ICollection<LogicalFramework> logicalFramework { get; set; } = new List<LogicalFramework>();
 
         [NotMapped]
         public List<IFormFile> UploadedFiles { get; set; } = new List<IFormFile>();
@@ -44,6 +77,7 @@ namespace MonitoringAndEvaluationPlatform.Models
         public ICollection<District> Districts { get; set; } = new List<District>();
         public ICollection<SubDistrict> SubDistricts { get; set; } = new List<SubDistrict>();
         public ICollection<Community> Communities { get; set; } = new List<Community>();
+        
 
 
         public void UpdatePerformance(double totalPlanned, double totalRealised)

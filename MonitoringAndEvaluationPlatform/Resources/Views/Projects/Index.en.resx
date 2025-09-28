@@ -117,11 +117,26 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="Actions" xml:space="preserve">
-    <value>Actions</value>
+  <data name="Apply Filters" xml:space="preserve">
+    <value>Apply Filters</value>
+  </data>
+  <data name="Are you sure?" xml:space="preserve">
+    <value>Are you sure?</value>
+  </data>
+  <data name="Cancel" xml:space="preserve">
+    <value>Cancel</value>
   </data>
   <data name="Create New Project" xml:space="preserve">
     <value>Create New Project</value>
+  </data>
+  <data name="Disbursement" xml:space="preserve">
+    <value>Disbursement</value>
+  </data>
+  <data name="Donor" xml:space="preserve">
+    <value>Donor</value>
+  </data>
+  <data name="Failed to delete project." xml:space="preserve">
+    <value>Failed to delete project.</value>
   </data>
   <data name="Filter and analyze project performance" xml:space="preserve">
     <value>Filter and analyze project performance</value>
@@ -132,13 +147,43 @@
   <data name="Financial" xml:space="preserve">
     <value>Financial</value>
   </data>
+  <data name="Ministry" xml:space="preserve">
+    <value>Ministry</value>
+  </data>
   <data name="Performance" xml:space="preserve">
     <value>Performance</value>
+  </data>
+  <data name="Project has been deleted." xml:space="preserve">
+    <value>Project has been deleted.</value>
   </data>
   <data name="Project Name" xml:space="preserve">
     <value>Project Name</value>
   </data>
   <data name="Projects Dashboard" xml:space="preserve">
     <value>Projects Dashboard</value>
+  </data>
+  <data name="Reset" xml:space="preserve">
+    <value>Reset</value>
+  </data>
+  <data name="This will delete the project!" xml:space="preserve">
+    <value>This will delete the project!</value>
+  </data>
+  <data name="Yes, delete it!?" xml:space="preserve">
+    <value>Yes, delete it!?</value>
+  </data>
+  <data name="Actions" xml:space="preserve">
+    <value>Actions</value>
+  </data>
+  <data name="Filter and analyze project performance with comprehensive insights" xml:space="preserve">
+    <value>Filter and analyze project performance with comprehensive insights</value>
+  </data>
+  <data name="Projects Overview" xml:space="preserve">
+    <value>Projects Overview</value>
+  </data>
+  <data name="Edit Project Name" xml:space="preserve">
+    <value>Edit Project Name</value>
+  </data>
+  <data name="Save" xml:space="preserve">
+    <value>Save</value>
   </data>
 </root>

@@ -6,7 +6,8 @@ namespace MonitoringAndEvaluationPlatform.Models
     {
         [Key]
         public string Code { get; set; }
-        public string Name { get; set; }
+        public string? EN_Name { get; set; }
+        public string? AR_Name { get; set; }
 
         public string SubDistrictCode { get; set; }
         public SubDistrict SubDistrict { get; set; }

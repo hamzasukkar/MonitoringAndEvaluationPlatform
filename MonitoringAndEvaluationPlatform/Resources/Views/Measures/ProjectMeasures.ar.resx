@@ -120,14 +120,29 @@
   <data name="Action Plans" xml:space="preserve">
     <value>خطط العمل</value>
   </data>
+  <data name="Add" xml:space="preserve">
+    <value>إضافة</value>
+  </data>
+  <data name="Are you sure?" xml:space="preserve">
+    <value>هل أنت متأكد؟</value>
+  </data>
+  <data name="Cancel" xml:space="preserve">
+    <value>إلغاء</value>
+  </data>
+  <data name="Could not delete the measure." xml:space="preserve">
+    <value>لم يتمكن من حذف المقياس.</value>
+  </data>
   <data name="Date" xml:space="preserve">
     <value>التاريخ</value>
   </data>
+  <data name="Failed to save the measure!" xml:space="preserve">
+    <value>لم يتمكن من حذف المقياس.</value>
+  </data>
   <data name="Indicator" xml:space="preserve">
-    <value>مؤشر</value>
+    <value>المشروع</value>
   </data>
   <data name="Indicator Performance Over Time" xml:space="preserve">
-    <value>أداء المؤشر بمرور الوقت</value>
+    <value>أداء المشروع بمرور الوقت</value>
   </data>
   <data name="Measures" xml:space="preserve">
     <value>المقايس</value>
@@ -141,13 +156,28 @@
   <data name="Project Measures" xml:space="preserve">
     <value>مقايس المشروع</value>
   </data>
+  <data name="Real" xml:space="preserve">
+    <value>إنجاز</value>
+  </data>
   <data name="Target" xml:space="preserve">
     <value>هدف</value>
+  </data>
+  <data name="The measure has been deleted." xml:space="preserve">
+    <value>لقد تم حذف المقياس.</value>
+  </data>
+  <data name="The measure was updated successfully!" xml:space="preserve">
+    <value>تم تحديث المقياس بنجاح!</value>
+  </data>
+  <data name="This will delete the Measure!" xml:space="preserve">
+    <value>سيؤدي هذا إلى حذف المقياس!</value>
   </data>
   <data name="Value" xml:space="preserve">
     <value>القيمة</value>
   </data>
   <data name="Value Type" xml:space="preserve">
     <value>نوع القيمة</value>
+  </data>
+  <data name="Yes, delete it!" xml:space="preserve">
+    <value>نعم احذفه!</value>
   </data>
 </root>

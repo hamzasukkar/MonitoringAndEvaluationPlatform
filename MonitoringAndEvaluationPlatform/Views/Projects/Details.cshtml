@@ -2,28 +2,49 @@
 @using Microsoft.AspNetCore.Mvc.Localization
 @inject IViewLocalizer Localizer
 @using Microsoft.AspNetCore.Localization
+@using System.Globalization
 
 @{
     ViewData["Title"] = "Project Details";
-    Layout = "~/Views/Shared/_ProjectsLayout.cshtml";
+    Layout = "~/Views/Shared/_DashboardHomeLayout.cshtml";
+    var culture = Context.Features.Get<IRequestCultureFeature>().RequestCulture.Culture.Name;
 }
 
-<div class="container-fluid px-4">
+<!-- Dashboard Header -->
+<div class="dashboard-header">
+    <h1 class="dashboard-title">
+        <i class="fas fa-info-circle me-3"></i>
+        @Model.ProjectName
+    </h1>
+    <p class="dashboard-subtitle">
+        @Localizer["Comprehensive project overview with performance metrics and detailed information"];
+    </p>
+    <div class="dashboard-actions">
+        <a asp-action="Edit" asp-route-id="@Model?.ProjectID" class="btn btn-gradient-primary me-2">
+            <i class="fas fa-edit me-1"></i>@Localizer["Edit"]
+        </a>
+        <a asp-action="Index" class="btn btn-light">
+            <i class="fas fa-arrow-left me-1"></i>@Localizer["Back to List"]
+        </a>
+    </div>
+</div>
+
+<div class="container-fluid">
     <!-- Project Navigation -->
-    <div class="project-nav mb-4">
-        <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm rounded">
-            <div class="container-fluid">
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#projectNavbar">
-                    <span class="navbar-toggler-icon"></span>
+    <div class="project-nav-modern mb-4">
+        <nav class="modern-navbar">
+            <div class="navbar-container">
+                <button class="navbar-toggle" type="button" data-bs-toggle="collapse" data-bs-target="#projectNavbar">
+                    <i class="fas fa-bars"></i>
                 </button>
                 <div class="collapse navbar-collapse" id="projectNavbar">
-                    <ul class="navbar-nav nav-fill w-100">
-                        <li class="nav-item">
-                            <a class="nav-link active" aria-current="page">
+                    <ul class="modern-nav-list">
+                        <li class="nav-item-modern">
+                            <a class="nav-link-modern active" aria-current="page">
                                 <i class="fas fa-project-diagram me-2"></i>@Localizer["Project"]
                             </a>
                         </li>
-@*                         <li class="nav-item">
+                        @*                         <li class="nav-item">
                             <a asp-action="LinkProjectToIndicators" asp-route-projectId="@Model.ProjectID" class="nav-link">
                                 <i class="fas fa-link me-2"></i>@Localizer["Alignement"]
                             </a>
@@ -33,22 +54,32 @@
                                 <i class="fas fa-sitemap me-2"></i>@Localizer["LogicalFramework"]
                             </a>
                         </li> *@
-                        <li class="nav-item">
-                            <a asp-action="ProjectMeasures" asp-controller="Measures" asp-route-id="@Model.ProjectID" class="nav-link">
-                                <i class="fas fa-ruler-combined me-2"></i>@Localizer["Measures"]
-                            </a>
+                        <li class="nav-item-modern">
+                            @if (Model.ProjectIndicators != null && Model.ProjectIndicators.Any())
+                            {
+                                var firstIndicator = Model.ProjectIndicators.First();
+                                <a asp-action="Index" asp-controller="Measures" asp-route-indicatorId="@firstIndicator.IndicatorCode" class="nav-link-modern" title="@Localizer["View measures for indicator"] [@firstIndicator.IndicatorCode]">
+                                    <i class="fas fa-ruler-combined me-2"></i>@Localizer["Measures"]
+                                </a>
+                            }
+                            else
+                            {
+                                <a asp-action="Index" asp-controller="Measures" class="nav-link-modern" title="@Localizer["No indicators linked to this project yet"]">
+                                    <i class="fas fa-ruler-combined me-2"></i>@Localizer["Measures"]
+                                </a>
+                            }
                         </li>
-                     @*    <li class="nav-item">
+                        @*    <li class="nav-item">
                             <a asp-controller="Plans" asp-action="ProjectPlans" asp-route-id="@Model.ProjectID" class="nav-link">
                                 <i class="fas fa-calendar-alt me-2"></i>Plans
                             </a>
                         </li> *@
-                        <li class="nav-item">
-                            <a asp-controller="ActionPlans" asp-action="ActionPlan" asp-route-id="@Model.ProjectID" class="nav-link">
+                        <li class="nav-item-modern">
+                            <a asp-controller="ActionPlans" asp-action="ActionPlan" asp-route-id="@Model.ProjectID" class="nav-link-modern">
                                 <i class="fas fa-tasks me-2"></i>@Localizer["Action Plans"]
                             </a>
                         </li>
-                     @*    <li class="nav-item">
+                        @*    <li class="nav-item">
                             <a asp-action="Index" asp-controller="Activities" asp-route-id="@Model.ProjectID" class="nav-link">
                                 <i class="fas fa-running me-2"></i>@Localizer["Activities"]
                             </a>
@@ -59,131 +90,316 @@
         </nav>
     </div>
 
-    <!-- Project Header -->
-    <div class="card mb-4 shadow-sm">
-        <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
-            <h4 class="mb-0">@Model.ProjectName</h4>
-            <div>
-                <a asp-action="Edit" asp-route-id="@Model?.ProjectID" class="btn btn-sm btn-light me-2">
-                    <i class="fas fa-edit me-1"></i>@Localizer["Edit"]
-                </a>
-                <a asp-action="Index" class="btn btn-sm btn-outline-light">
-                    <i class="fas fa-arrow-left me-1"></i>@Localizer["Back to List"]
-                </a>
-            </div>
-        </div>
-        <div class="card-body">
-            <div class="row">
+    <!-- Project Information -->
+    <div class="chart-card mb-4">
+        <h3 class="chart-title">
+            <i class="fas fa-info-circle"></i>
+            @Localizer["Project Information"]
+        </h3>
+        <div class="chart-content">
+            <div class="project-details-grid">
                 <!-- Basic Info -->
-                <div class="col-md-4">
-                    <div class="mb-4">
-                        <h5 class="border-bottom pb-2">@Localizer["Basic Information"]</h5>
-                        <dl class="row">
-                            <dt class="col-sm-4">@Localizer["Project Manager"]</dt>
-                            <dd class="col-sm-8">@Html.DisplayFor(model => model.ProjectManager.Name)</dd>
+                <div class="info-section">
+                    <div class="info-card">
+                        <div class="info-header">
+                            <i class="fas fa-info-circle me-2"></i>
+                            <h5 class="info-title">@Localizer["Basic Information"]</h5>
+                        </div>
+                        <div class="info-content">
+                            <div class="info-row">
+                                <div class="info-label">
+                                    <i class="fas fa-user-tie me-2"></i>
+                                    @Localizer["Project Manager"]
+                                </div>
+                                <div class="info-value">@Html.DisplayFor(model => model.ProjectManager.Name)</div>
+                            </div>
 
-                            <dt class="col-sm-4">@Localizer["Supervisor"]</dt>
-                            <dd class="col-sm-8">@Html.DisplayFor(model => model.SuperVisor.Name)</dd>
+                            <div class="info-row">
+                                <div class="info-label">
+                                    <i class="fas fa-user-check me-2"></i>
+                                    @Localizer["Supervisor"]
+                                </div>
+                                <div class="info-value">@Html.DisplayFor(model => model.SuperVisor.Name)</div>
+                            </div>
 
-                            <dt class="col-sm-4">@Localizer["Donor"]</dt>
-                            <dd class="col-sm-8">
-                                @foreach (var donor in Model.Donors)
-                                {
-                                    <span class="badge bg-primary me-1">
-                                        <small>@donor.Partner</small>
-                                    </span>
-                                }
-                            </dd>
+                            <div class="info-row">
+                                <div class="info-label">
+                                    <i class="fas fa-handshake me-2"></i>
+                                    @Localizer["Donors & Funding"]
+                                </div>
+                                <div class="info-value">
+                                    @if (Model.ProjectDonors != null && Model.ProjectDonors.Any())
+                                    {
+                                        @foreach (var projectDonor in Model.ProjectDonors)
+                                        {
+                                            <div class="donor-funding-item mb-2">
+                                                <div class="donor-info">
+                                                    <span class="modern-badge badge-primary">
+                                                        @projectDonor.Donor.Partner
+                                                    </span>
+                                                    <div class="funding-details mt-1">
+                                                        <small class="text-muted">
+                                                            <i class="fas fa-percentage me-1"></i>
+                                                            @projectDonor.FundingPercentage.ToString("0.##")%
+                                                        </small>
+                                                        <small class="text-muted ms-2">
+                                                            <i class="fas fa-dollar-sign me-1"></i>
+                                                            @projectDonor.FundingAmount.ToString("N2")
+                                                        </small>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        }
+                                    }
+                                    else
+                                    {
+                                        @foreach (var donor in Model.Donors)
+                                        {
+                                            <span class="modern-badge badge-primary">
+                                                @donor.Partner
+                                            </span>
+                                        }
+                                    }
+                                </div>
+                            </div>
 
-                            <dt class="col-sm-4">@Localizer["Ministry"]</dt>
-                            <dd class="col-sm-8">
-                                @foreach (var donor in Model.Ministries)
-                                {
-                                    <span class="badge bg-primary me-1">
-                                        <small>@donor.MinistryDisplayName</small>
-                                    </span>
-                                }
-                            </dd>
+                            <div class="info-row">
+                                <div class="info-label">
+                                    <i class="fas fa-building me-2"></i>
+                                    @Localizer["Ministry"]
+                                </div>
+                                <div class="info-value">
+                                    @foreach (var ministry in Model.Ministries)
+                                    {
+                                        <span class="modern-badge badge-primary">
+                                            @ministry.MinistryDisplayName
+                                        </span>
+                                    }
+                                </div>
+                            </div>
 
-                            <dt class="col-sm-4">@Localizer["Start Date"]</dt>
-                            <dd class="col-sm-8">@Model.StartDate.ToString("yyyy-MM-dd")</dd>
+                            <div class="info-row">
+                                <div class="info-label">
+                                    <i class="fas fa-bullseye me-2"></i>
+                                    @Localizer["SDGs"]
+                                </div>
+                                <div class="info-value">
+                                    @if (CultureInfo.CurrentUICulture.TwoLetterISOLanguageName == "ar")
+                                    {
+                                        @Html.DisplayFor(model => model.Goal.AR_Name)
+                                    }
+                                    else
+                                    {
+                                        @Html.DisplayFor(model => model.Goal.EN_Name)
+                                    }
+                                </div>
+                            </div>
 
-                            <dt class="col-sm-4">@Localizer["End Date"]</dt>
-                            <dd class="col-sm-8">@Model.EndDate.ToString("yyyy-MM-dd")</dd>
+                            <div class="info-row">
+                                <div class="info-label">
+                                    <i class="fas fa-calendar-alt me-2"></i>
+                                    @Localizer["Start Date"]
+                                </div>
+                                <div class="info-value">@Model.StartDate.ToString("yyyy-MM-dd")</div>
+                            </div>
 
-                            <dt class="col-sm-4">@Localizer["Sector"]</dt>
-                            <dd class="col-sm-8">
-                                @foreach (var sector in Model.Sectors)
-                                {
-                                    <span class="badge bg-primary me-1">
-                                        <small>@sector.Name</small>
-                                    </span>
-                                }
-                            </dd>
+                            <div class="info-row">
+                                <div class="info-label">
+                                    <i class="fas fa-calendar-check me-2"></i>
+                                    @Localizer["End Date"]
+                                </div>
+                                <div class="info-value">@Model.EndDate.ToString("yyyy-MM-dd")</div>
+                            </div>
 
-                        </dl>
+                            <div class="info-row">
+                                <div class="info-label">
+                                    <i class="fas fa-industry me-2"></i>
+                                    @Localizer["Sector"]
+                                </div>
+                                <div class="info-value">
+                                    @foreach (var sector in Model.Sectors)
+                                    {
+                                        <span class="modern-badge badge-secondary me-1">
+                                            @if (culture.StartsWith("ar"))
+                                            {
+                                                @sector.AR_Name
+                                            }
+                                            else
+                                            {
+                                                @sector.EN_Name
+                                            }
+                                        </span>
+                                    }
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
                 <!-- Region Info -->
-                  <div class="col-md-4">
-                    <div class="mb-4">
-                        <h5 class="border-bottom pb-2">@Localizer["Regions Information"]</h5>
-                        <dl class="row">
-                            <dt class="col-sm-4">@Localizer["Governorate"]</dt>
-                            <dd class="col-sm-8">
-                                @foreach (var governorate in Model.Governorates)
-                                {
-                                    <span class="badge bg-primary me-1">
-                                        <small>@governorate.Name</small>
-                                    </span>
-                                }
-                            </dd>
+                <div class="info-section">
+                    <div class="info-card">
+                        <div class="info-header">
+                            <i class="fas fa-map-marker-alt me-2"></i>
+                            <h5 class="info-title">@Localizer["Regions Information"]</h5>
+                        </div>
+                        <div class="info-content">
+                            <div class="info-row">
+                                <div class="info-label">
+                                    <i class="fas fa-map me-2"></i>
+                                    @Localizer["Governorate"]
+                                </div>
+                                <div class="info-value">
+                                    @foreach (var governorate in Model.Governorates)
+                                    {
+                                        <span class="modern-badge badge-info me-1">
+                                            
+                                            @if (culture.StartsWith("ar"))
+                                            {
+                                                @governorate.AR_Name
+                                            }
+                                            else
+                                            {
+                                                @governorate.EN_Name
+                                            }
+                                        </span>
+                                    }
+                                </div>
+                            </div>
 
-                            <dt class="col-sm-4">@Localizer["District"]</dt>
-                            <dd class="col-sm-8">
-                                @foreach (var district in Model.Districts)
-                                {
-                                    <span class="badge bg-primary me-1">
-                                        <small>@district.Name</small>
-                                    </span>
-                                }
-                            </dd>
+                            <div class="info-row">
+                                <div class="info-label">
+                                    <i class="fas fa-location-arrow me-2"></i>
+                                    @Localizer["District"]
+                                </div>
+                                <div class="info-value">
+                                    @foreach (var district in Model.Districts)
+                                    {
+                                        <span class="modern-badge badge-info me-1">
+                                            @if (culture.StartsWith("ar"))
+                                            {
+                                                @district.AR_Name
+                                            }
+                                            else
+                                            {
+                                                @district.EN_Name
+                                            }
+                                         
+                                        </span>
+                                    }
+                                </div>
+                            </div>
 
-                            <dt class="col-sm-4">@Localizer["SubDistrict"]</dt>
-                            <dd class="col-sm-8">
-                                @foreach (var subDistrict in Model.SubDistricts)
-                                {
-                                    <span class="badge bg-primary me-1">
-                                        <small>@subDistrict.Name</small>
-                                    </span>
-                                }
-                            </dd>
+                            <div class="info-row">
+                                <div class="info-label">
+                                    <i class="fas fa-map-pin me-2"></i>
+                                    @Localizer["SubDistrict"]
+                                </div>
+                                <div class="info-value">
+                                    @foreach (var subDistrict in Model.SubDistricts)
+                                    {
+                                        <span class="modern-badge badge-info me-1">
+                                           
+                                            @if (culture.StartsWith("ar"))
+                                            {
+                                                @subDistrict.AR_Name
+                                            }
+                                            else
+                                            {
+                                                @subDistrict.EN_Name
+                                            }
+                                        </span>
+                                    }
+                                </div>
+                            </div>
 
-                            <dt class="col-sm-4">@Localizer["Community"]</dt>
-                            <dd class="col-sm-8">
-                                @foreach (var community in Model.Communities)
-                                {
-                                    <span class="badge bg-primary me-1">
-                                        <small>@community.Name</small>
-                                    </span>
-                                }
-                            </dd>
-                        </dl>
+                            <div class="info-row">
+                                <div class="info-label">
+                                    <i class="fas fa-users me-2"></i>
+                                    @Localizer["Community"]
+                                </div>
+                                <div class="info-value">
+                                    @foreach (var community in Model.Communities)
+                                    {
+                                        <span class="modern-badge badge-info me-1">
+                                            
+                                            @if (culture.StartsWith("ar"))
+                                            {
+                                                @community.AR_Name
+                                            }
+                                            else
+                                            {
+                                                @community.EN_Name
+                                            }
+                                        </span>
+                                    }
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
                 <!-- Budget Info -->
-                <div class="col-md-4">
-                    <div class="mb-4">
-                        <h5 class="border-bottom pb-2">@Localizer["Financial Information"]</h5>
-                        <dl class="row">
-                            <dt class="col-sm-4">@Localizer["Estimated Budget"]</dt>
-                            <dd class="col-sm-8">@Html.DisplayFor(model => model.EstimatedBudget)</dd>
+                <div class="info-section">
+                    <div class="info-card">
+                        <div class="info-header">
+                            <i class="fas fa-dollar-sign me-2"></i>
+                            <h5 class="info-title">@Localizer["Financial Information"]</h5>
+                        </div>
+                        <div class="info-content">
+                            <div class="info-row">
+                                <div class="info-label">
+                                    <i class="fas fa-money-bill-wave me-2"></i>
+                                    @Localizer["Estimated Budget"]
+                                </div>
+                                <div class="info-value">
+                                    <span class="budget-amount">$@Model.EstimatedBudget.ToString("N2")</span>
+                                </div>
+                            </div>
 
-                            <dt class="col-sm-4">@Localizer["Real Budget"]</dt>
-                            <dd class="col-sm-8">@Html.DisplayFor(model => model.RealBudget)</dd>
-                        </dl>
+                            @if (Model.ProjectDonors != null && Model.ProjectDonors.Any())
+                            {
+                                <div class="info-row">
+                                    <div class="info-label">
+                                        <i class="fas fa-hand-holding-usd me-2"></i>
+                                        @Localizer["Total Donor Funding"]
+                                    </div>
+                                    <div class="info-value">
+                                        @{
+                                            var totalDonorFunding = Model.ProjectDonors.Sum(pd => pd.FundingAmount);
+                                            var fundingPercentage = Model.EstimatedBudget > 0 ? (double)(totalDonorFunding / (decimal)Model.EstimatedBudget) * 100 : 0;
+                                        }
+                                        <span class="budget-amount text-success">$@totalDonorFunding.ToString("N2")</span>
+                                        <div class="mt-1">
+                                            <small class="text-muted">
+                                                <i class="fas fa-chart-pie me-1"></i>
+                                                @fundingPercentage.ToString("0.##")% @Localizer["of total budget"]
+                                            </small>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="info-row">
+                                    <div class="info-label">
+                                        <i class="fas fa-exclamation-triangle me-2"></i>
+                                        @Localizer["Funding Gap"]
+                                    </div>
+                                    <div class="info-value">
+                                        @{
+                                            var remainingBudget = (decimal)Model.EstimatedBudget - totalDonorFunding;
+                                            var remainingPercentage = Model.EstimatedBudget > 0 ? (double)(remainingBudget / (decimal)Model.EstimatedBudget) * 100 : 0;
+                                        }
+                                        <span class="budget-amount @(remainingBudget > 0 ? "text-warning" : "text-success")">$@remainingBudget.ToString("N2")</span>
+                                        <div class="mt-1">
+                                            <small class="text-muted">
+                                                <i class="fas fa-chart-pie me-1"></i>
+                                                @remainingPercentage.ToString("0.##")% @Localizer["remaining to fund"]
+                                            </small>
+                                        </div>
+                                    </div>
+                                </div>
+                            }
+                        </div>
                     </div>
                 </div>
             </div>
@@ -197,7 +413,7 @@
         <div class="col-md-3">
             <div class="card shadow-sm h-100">
                 <div class="card-body text-center">
-                    <h6 class="card-title text-muted">Performance</h6>
+                    <h6 class="card-title text-muted">@Localizer["Performance"]</h6>
                     <div class="progress-circle progress-@((int)performance)" data-value="@performance">
                         <span class="progress-circle-value">@performance%</span>
                     </div>
@@ -239,133 +455,91 @@
             </div>
         </div>
     </div>
-</div>
-<h4>@Localizer["Uploaded Files"]</h4>
 
-@if (Model.ProjectFiles != null && Model.ProjectFiles.Any())
-{
-    <table class="table table-bordered">
-        <thead>
-            <tr>
-                <th>#</th>
-                <th>@Localizer["File Name"]</th>
-                <th>@Localizer["Actions"]</th>
-            </tr>
-        </thead>
-        <tbody>
-            @for (int i = 0; i < Model.ProjectFiles.Count; i++)
+    <!-- Project Files Section -->
+    <div class="chart-card mb-4">
+        <h3 class="chart-title">
+            <i class="fas fa-file-alt"></i>
+            @Localizer["Uploaded Files"]
+        </h3>
+        <div class="chart-content">
+            @if (Model.ProjectFiles != null && Model.ProjectFiles.Any())
             {
-                var file = Model.ProjectFiles.ElementAt(i);
-                <tr>
-                    <td>@(i + 1)</td>
-                    <td>@file.FileName</td>
-                    <td>
-                        <a asp-action="DownloadFile" asp-route-id="@file.Id" class="btn btn-success btn-sm">
-                            Download
-                        </a>
-
-                        <form asp-action="DeleteFile" asp-route-id="@file.Id" method="post" style="display:inline;" onsubmit="return confirm('Are you sure you want to delete this file?');">
-                            <button type="submit" class="btn btn-danger btn-sm">
-                                Delete
-                            </button>
-                        </form>
-                    </td>
-                </tr>
+                <div class="modern-table-container">
+                    <table class="modern-table">
+                        <thead class="table-header">
+                            <tr>
+                                <th><i class="fas fa-hashtag me-2"></i>#</th>
+                                <th><i class="fas fa-file me-2"></i>@Localizer["File Name"]</th>
+                                <th class="text-center"><i class="fas fa-cogs me-2"></i>@Localizer["Actions"]</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @for (int i = 0; i < Model.ProjectFiles.Count; i++)
+                            {
+                                var file = Model.ProjectFiles.ElementAt(i);
+                                <tr class="table-row">
+                                    <td>@(i + 1)</td>
+                                    <td>
+                                        <div class="d-flex align-items-center">
+                                            <div class="file-icon me-3">
+                                                <i class="fas fa-file-alt"></i>
+                                            </div>
+                                            <span class="file-name">@file.FileName</span>
+                                        </div>
+                                    </td>
+                                    <td class="text-center">
+                                        <div class="btn-group action-buttons" role="group">
+                                            <a asp-action="DownloadFile" asp-route-id="@file.Id" class="btn btn-outline-success btn-sm action-btn" title="@Localizer["Download"]">
+                                                <i class="fas fa-download"></i>
+                                            </a>
+                                            <button type="button" class="btn btn-outline-danger btn-sm action-btn"
+                                                    onclick="deleteFile(@file.Id, '@file.FileName')" title="@Localizer["Delete"]">
+                                                <i class="fas fa-trash-alt"></i>
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
             }
-        </tbody>
-    </table>
+            else
+            {
+                <div class="empty-state">
+                    <div class="empty-icon">
+                        <i class="fas fa-folder-open"></i>
+                    </div>
+                    <h5 class="empty-title">@Localizer["No Files Found"]</h5>
+                    <p class="empty-text">@Localizer["No files uploaded for this project."]</p>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+
+
+@section Styles {
+    <!-- Optimized external CSS -->
+    <link rel="stylesheet" href="~/css/project-details.css" asp-append-version="true" />
 }
-else
-{
-    <p>@Localizer["No files uploaded for this project."]</p>
-}
 
+@section Scripts {
+    <!-- SweetAlert2 - loaded asynchronously -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11" defer></script>
 
-
-    <style>
-        .project-nav .nav-link {
-            color: #495057;
-            font-weight: 500;
-            padding: 0.75rem 1rem;
-            transition: all 0.3s;
-        }
-
-            .project-nav .nav-link:hover {
-                color: #0d6efd;
-                background-color: rgba(13, 110, 253, 0.1);
-            }
-
-            .project-nav .nav-link.active {
-                color: #0d6efd;
-                border-bottom: 3px solid #0d6efd;
-            }
-
-        .progress-circle {
-            position: relative;
-            width: 100px;
-            height: 100px;
-            margin: 0 auto;
-            border-radius: 50%;
-            background: conic-gradient(#0d6efd calc(var(--value)*1%), #e9ecef 0%);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-            .progress-circle::before {
-                content: "";
-                position: absolute;
-                width: 80px;
-                height: 80px;
-                background: white;
-                border-radius: 50%;
-            }
-
-        .progress-circle-value {
-            position: relative;
-            font-size: 1.25rem;
-            font-weight: 600;
-            color: #0d6efd;
-        }
-
-        /* Color coding for progress circles */
-        .progress-0-50 {
-            background: conic-gradient(#dc3545 calc(var(--value)*1%), #e9ecef 0%);
-        }
-
-        .progress-51-75 {
-            background: conic-gradient(#ffc107 calc(var(--value)*1%), #e9ecef 0%);
-        }
-
-        .progress-76-100 {
-            background: conic-gradient(#28a745 calc(var(--value)*1%), #e9ecef 0%);
-        }
-
-        .card-header {
-            font-weight: 600;
-        }
-
-        dt {
-            font-weight: 500;
-            color: #6c757d;
-        }
-    </style>
-
-
-
+    <!-- Pass localized strings to JavaScript -->
     <script>
-        // Initialize progress circles
-        document.querySelectorAll('.progress-circle').forEach(circle => {
-            const value = circle.getAttribute('data-value');
-            circle.style.setProperty('--value', value);
-
-            // Apply color class based on value
-            if (value <= 50) {
-                circle.classList.add('progress-0-50');
-            } else if (value <= 75) {
-                circle.classList.add('progress-51-75');
-            } else {
-                circle.classList.add('progress-76-100');
-            }
-        });
+        window.deleteFileStrings = {
+            title: '@Localizer["Are you sure?"]',
+            text: '@Localizer["This will delete the file"]',
+            cancel: '@Localizer["Cancel"]',
+            confirm: '@Localizer["Yes, delete it!"]'
+        };
     </script>
+
+    <!-- Optimized external JavaScript -->
+    <script src="~/js/project-details.js" asp-append-version="true" defer></script>
+}

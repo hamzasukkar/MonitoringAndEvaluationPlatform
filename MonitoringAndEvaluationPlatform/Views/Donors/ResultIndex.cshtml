@@ -1,0 +1,53 @@
+﻿@model IEnumerable<MonitoringAndEvaluationPlatform.Models.Donor>
+@using MonitoringAndEvaluationPlatform.Helpers
+@using Microsoft.AspNetCore.Mvc.Localization
+@inject IViewLocalizer Localizer
+@using Microsoft.AspNetCore.Localization
+
+@{
+	ViewData["Title"] = "Index";
+    Layout = "~/Views/Shared/_ResultsFrameworkLayout.cshtml";
+}
+
+<table class="table">
+	<thead>
+		<tr>
+            <th> @Localizer["Partner"]</th>
+            <th>@Localizer["Indicators Performance"]</th>
+            <th>@Localizer["Disbursement Performance"]</th>
+			<th></th>
+		</tr>
+	</thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            string indicatorsClass = ProgressBarHelper.GetProgressBarClass(item.IndicatorsPerformance);
+            string disbursementClass = ProgressBarHelper.GetProgressBarClass(item.DisbursementPerformance);
+            string fieldMonitoringClass = ProgressBarHelper.GetProgressBarClass(item.FieldMonitoring);
+            string impactAssessmentClass = ProgressBarHelper.GetProgressBarClass(item.ImpactAssessment);
+            double IndicatorsPerformance = Math.Round(item.IndicatorsPerformance, 0);
+
+            <tr>
+                <td>
+                    <strong>@Html.DisplayFor(modelItem => item.Partner)</strong>
+                </td>
+                <td>
+                    @await Html.PartialAsync("_ProgressBar", Tuple.Create(IndicatorsPerformance, indicatorsClass))
+                </td>
+                <td>
+                    @await Html.PartialAsync("_ProgressBar", Tuple.Create(item.DisbursementPerformance, disbursementClass))
+                </td>
+                <td class="text-end">
+                    <div class="btn-group" role="group">
+                        <a asp-action="Edit" asp-route-id="@item.Code" class="btn btn-sm btn-outline-warning" title="Edit">
+                            <i class="fas fa-edit"></i>
+                        </a>
+                        <a asp-action="Delete" asp-route-id="@item.Code" class="btn btn-sm btn-outline-danger" title="Delete">
+                            <i class="fas fa-trash-alt"></i>
+                        </a>
+                    </div>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

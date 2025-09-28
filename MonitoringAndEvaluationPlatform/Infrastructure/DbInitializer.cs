@@ -17,63 +17,6 @@ namespace MonitoringAndEvaluationPlatform.Infrastructure
                 var userManager = scope.ServiceProvider.GetRequiredService<UserManager<ApplicationUser>>();
                 var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
 
-                if (!context.Sectors.Any())
-                {
-                    var sectors = new List<Sector>
-                    {
-                        new Sector { Name = "Sector 1" }, // Remove explicit Code if using auto-increment
-                        new Sector { Name = "Sector 2" },
-                        new Sector { Name = "Sector 3" }
-                    };
-                    context.Sectors.AddRange(sectors);
-                }
-
-                if (!context.Donors.Any())
-                {
-                    var donors = new List<Donor>
-                    {
-                        new Donor { Partner = "OCHA" }, // Remove explicit Code if using auto-increment
-                        new Donor { Partner = "UNHCR 2" },
-                        new Donor { Partner = "WFP" },
-                        new Donor { Partner = "UNICEF" },
-                        new Donor { Partner = "WHO" },
-                        new Donor { Partner = "UNDP" },
-                        new Donor { Partner = "FAO" },
-                        new Donor { Partner = "OHCHR" },
-                        new Donor { Partner = "UNRWA" },
-                        new Donor { Partner = "INGO's" },
-                        new Donor { Partner = "ICRC" },
-                        new Donor { Partner = "MSF" },
-                        new Donor { Partner = "NRC" },
-                        new Donor { Partner = "UN-OCHA" },
-                    };
-                    context.Donors.AddRange(donors);
-                }
-
-                if (!context.SuperVisors.Any())
-                {
-                    var superVisors = new List<SuperVisor>
-                    {
-                        new SuperVisor { Name = "SuperVisor 1" }, // Remove explicit Code if using auto-increment
-                        new SuperVisor { Name = "SuperVisor 2" },
-                        new SuperVisor { Name = "SuperVisor 3" }
-                    };
-
-                    context.SuperVisors.AddRange(superVisors);
-                }
-
-                if (!context.ProjectManagers.Any())
-                {
-                    var projectManagers = new List<ProjectManager>
-                    {
-                        new ProjectManager { Name = "ProjectManager 1" }, // Remove explicit Code if using auto-increment
-                        new ProjectManager { Name = "ProjectManager 2" },
-                        new ProjectManager { Name = "ProjectManager 3" }
-                    };
-
-                    context.ProjectManagers.AddRange(projectManagers);
-                }
-
                 if (!context.Ministries.Any())
                 {
                     var ministries = new List<Ministry>
@@ -146,11 +89,165 @@ namespace MonitoringAndEvaluationPlatform.Infrastructure
                         }
                     }
                 }
-            
+                if (!context.Goals.Any())
+                {
+                    var goals = new List<Goal>
+
+                        {
+                            new Goal
+                            {
+                                EN_Name = "No Poverty",
+                                AR_Name = "القضاء على الفقر",
+                                Icon = "/img/E-WEB-Goal-01.png",
+                                Targets = new List<Target>
+                                {
+                                    new Target
+                                    {
+                                        EN_Name = "Eradicate extreme poverty",
+                                        AR_Name = "القضاء على الفقر المدقع",
+                                        SDGsIndicators = new List<SDGIndicator>
+                                        {
+                                            new SDGIndicator
+                                            {
+                                                EN_Name = "Proportion of population below $1.90 a day",
+                                                AR_Name = "نسبة السكان تحت خط الفقر (1.90 دولار يومياً)",
+                                                Source = "UN",
+                                                IsCommon = true,
+                                                Active = true
+                                            },
+                                            new SDGIndicator
+                                            {
+                                                EN_Name = "Proportion of men, women and children living in poverty",
+                                                AR_Name = "نسبة الرجال والنساء والأطفال الذين يعيشون في فقر",
+                                                Source = "World Bank",
+                                                IsCommon = false,
+                                                Active = true
+                                            }
+                                        }
+                                    },
+                                    new Target
+                                    {
+                                        EN_Name = "Implement social protection systems",
+                                        AR_Name = "تنفيذ نظم الحماية الاجتماعية",
+                                        SDGsIndicators = new List<SDGIndicator>
+                                        {
+                                            new SDGIndicator
+                                            {
+                                                EN_Name = "Coverage of social protection systems",
+                                                AR_Name = "نسبة التغطية بأنظمة الحماية الاجتماعية",
+                                                Source = "ILO",
+                                                IsCommon = true,
+                                                Active = true
+                                            }
+                                        }
+                                    }
+                                }
+                            },
+
+                            new Goal
+                            {
+                                EN_Name = "Zero Hunger",
+                                AR_Name = "القضاء التام على الجوع",
+                                Icon = "/img/E-WEB-Goal-02.png",
+                                Targets = new List<Target>
+                                {
+                                    new Target
+                                    {
+                                        EN_Name = "End hunger and ensure access to safe food",
+                                        AR_Name = "القضاء على الجوع وضمان الحصول على غذاء آمن",
+                                        SDGsIndicators = new List<SDGIndicator>
+                                        {
+                                            new SDGIndicator
+                                            {
+                                                EN_Name = "Prevalence of undernourishment",
+                                                AR_Name = "معدل انتشار سوء التغذية",
+                                                Source = "FAO",
+                                                IsCommon = true,
+                                                Active = true
+                                            }
+                                        }
+                                    }
+                                }
+                            },
+
+                        new Goal { EN_Name = "Good Health and Well‑being", AR_Name = "الصحة الجيدة والرفاه", Icon = "/img/E-WEB-Goal-03.png" },
+                        new Goal { EN_Name = "Quality Education", AR_Name = "التعليم الجيد", Icon = "/img/E-WEB-Goal-04.png" },
+                        new Goal { EN_Name = "Gender Equality", AR_Name = "المساواة بين الجنسين", Icon = "/img/E-WEB-Goal-05.png" },
+                        new Goal { EN_Name = "Clean Water and Sanitation", AR_Name = "المياه النظيفة والنظافة الصحية", Icon = "/img/E-WEB-Goal-06.png" },
+                        new Goal { EN_Name = "Affordable and Clean Energy", AR_Name = "طاقة نظيفة وبأسعار معقولة", Icon = "/img/E-WEB-Goal-07.png" },
+                        new Goal { EN_Name = "Decent Work and Economic Growth", AR_Name = "العمل اللائق ونمو الاقتصاد", Icon = "/img/E-WEB-Goal-08.png" },
+                        new Goal { EN_Name = "Industry, Innovation and Infrastructure", AR_Name = "الصناعة والابتكار والهياكل الأساسية", Icon = "/img/E-WEB-Goal-09.png" },
+                        new Goal { EN_Name = "Reduced Inequalities", AR_Name = "الحد من أوجه عدم المساواة", Icon = "/img/E-WEB-Goal-10.png" },
+                        new Goal { EN_Name = "Sustainable Cities and Communities", AR_Name = "مدن ومجتمعات محلية مستدامة", Icon = "/img/E-WEB-Goal-11.png" },
+                        new Goal { EN_Name = "Responsible Consumption and Production", AR_Name = "الاستهلاك والإنتاج المسؤولان", Icon = "/img/E-WEB-Goal-12.png" },
+                        new Goal { EN_Name = "Climate Action", AR_Name = "العمل المناخي", Icon = "/img/E-WEB-Goal-13.png" },
+                        new Goal { EN_Name = "Life Below Water", AR_Name = "الحياة تحت الماء", Icon = "/img/E-WEB-Goal-14.png" },
+                        new Goal { EN_Name = "Life on Land", AR_Name = "الحياة في البر", Icon = "/img/E-WEB-Goal-15.png" },
+                        new Goal { EN_Name = "Peace, Justice and Strong Institutions", AR_Name = "السلام والعدل والمؤسسات القوية", Icon = "/img/E-WEB-Goal-16.png" },
+                        new Goal { EN_Name = "Partnerships for the Goals", AR_Name = "عقد الشراكات لتحقيق الأهداف", Icon = "/img/E-WEB-Goal-17.png" },
+                    };
+                    context.Goals.AddRange(goals);
+                    context.SaveChanges();
+                }
 
 
+                if (!context.Sectors.Any())
+                {
+                    var sectors = new List<Sector>
+                    {
+                        new Sector { EN_Name = "Public",AR_Name = "عام" },
+                        new Sector { EN_Name = "Private",AR_Name = "خاص" },
+                        new Sector { EN_Name = "Common",AR_Name = "مشترك" },
+                        new Sector { EN_Name = "Domestic",AR_Name = "أهلي" }
+                    };
+                    context.Sectors.AddRange(sectors);
+                    context.SaveChanges();
+                }
+                if (!context.Donors.Any())
+                {
+                    var donors = new List<Donor>
+                    {
+                        new Donor { Partner = "OCHA" }, // Remove explicit Code if using auto-increment
+                        new Donor { Partner = "UNHCR 2" },
+                        new Donor { Partner = "WFP" },
+                        new Donor { Partner = "UNICEF" },
+                        new Donor { Partner = "WHO" },
+                        new Donor { Partner = "UNDP" },
+                        new Donor { Partner = "FAO" },
+                        new Donor { Partner = "OHCHR" },
+                        new Donor { Partner = "UNRWA" },
+                        new Donor { Partner = "INGO's" },
+                        new Donor { Partner = "ICRC" },
+                        new Donor { Partner = "MSF" },
+                        new Donor { Partner = "NRC" },
+                        new Donor { Partner = "UN-OCHA" },
+                    };
+                    context.Donors.AddRange(donors);
+                    context.SaveChanges();
+                }
+                if (!context.SuperVisors.Any())
+                {
+                    var superVisors = new List<SuperVisor>
+                    {
+                        new SuperVisor { Name = "SuperVisor 1" }, // Remove explicit Code if using auto-increment
+                        new SuperVisor { Name = "SuperVisor 2" },
+                        new SuperVisor { Name = "SuperVisor 3" }
+                    };
 
-                // ✅ Check if Frameworks already exist
+                    context.SuperVisors.AddRange(superVisors);
+                }
+                if (!context.ProjectManagers.Any())
+                {
+                    var projectManagers = new List<ProjectManager>
+                    {
+                        new ProjectManager { Name = "ProjectManager 1" }, // Remove explicit Code if using auto-increment
+                        new ProjectManager { Name = "ProjectManager 2" },
+                        new ProjectManager { Name = "ProjectManager 3" }
+                    };
+
+                    context.ProjectManagers.AddRange(projectManagers);
+                }
+       
                 if (!context.Frameworks.Include(f => f.Outcomes).Any())
                 {
                     var frameworks = new List<Framework>
@@ -221,8 +318,30 @@ namespace MonitoringAndEvaluationPlatform.Infrastructure
                     context.SaveChanges();
                 }
 
+                // Seed Governorates (Syria regions) if they don't exist
+                if (!context.Governorates.Any())
+                {
+                    var governorates = new List<Governorate>
+                    {
+                        new Governorate { Code = "01", AR_Name = "دمشق", EN_Name = "Damascus" },
+                        new Governorate { Code = "02", AR_Name = "ريف دمشق", EN_Name = "Damascus Countryside" },
+                        new Governorate { Code = "03", AR_Name = "حلب", EN_Name = "Aleppo" },
+                        new Governorate { Code = "04", AR_Name = "حمص", EN_Name = "Homs" },
+                        new Governorate { Code = "05", AR_Name = "حماة", EN_Name = "Hama" },
+                        new Governorate { Code = "06", AR_Name = "اللاذقية", EN_Name = "Latakia" },
+                        new Governorate { Code = "07", AR_Name = "طرطوس", EN_Name = "Tartous" },
+                        new Governorate { Code = "08", AR_Name = "إدلب", EN_Name = "Idlib" },
+                        new Governorate { Code = "09", AR_Name = "درعا", EN_Name = "Daraa" },
+                        new Governorate { Code = "10", AR_Name = "السويداء", EN_Name = "As-Suwayda" },
+                        new Governorate { Code = "11", AR_Name = "القنيطرة", EN_Name = "Quneitra" },
+                        new Governorate { Code = "12", AR_Name = "دير الزور", EN_Name = "Deir ez-Zor" },
+                        new Governorate { Code = "13", AR_Name = "الرقة", EN_Name = "Ar-Raqqah" },
+                        new Governorate { Code = "14", AR_Name = "الحسكة", EN_Name = "Al-Hasakah" }
+                    };
 
-
+                    context.Governorates.AddRange(governorates);
+                    context.SaveChanges();
+                }
 
                 context.SaveChanges();
 
@@ -230,3 +349,4 @@ namespace MonitoringAndEvaluationPlatform.Infrastructure
         }
     }
 }
+

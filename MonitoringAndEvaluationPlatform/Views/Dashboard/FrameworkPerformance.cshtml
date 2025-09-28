@@ -1,20 +1,436 @@
 ﻿@{
     ViewData["Title"] = "Framework Performance";
-    Layout = "~/Views/Shared/_DashboardLayout.cshtml";
+    Layout = "~/Views/Shared/_DashboardHomeLayout.cshtml";
 }
-<div class="row mb-4">
-    <div class="col-md-4">
-        <select id="frameworkSelect" class="form-select">
-            <option value="">-- All Frameworks --</option>
-            @foreach (var fw in ViewBag.Frameworks as List<Framework>)
-            {
-                <option value="@fw.Code">@fw.Name</option>
-            }
-        </select>
+
+<!-- Dashboard Header -->
+<div class="dashboard-header">
+    <h1 class="dashboard-title">
+        <i class="fas fa-chart-line me-3"></i>
+        Framework Performance
+    </h1>
+    <p class="dashboard-subtitle">
+        Interactive performance analytics with detailed framework insights and project metrics
+    </p>
+</div>
+
+<div class="container-fluid">
+    <!-- Framework Selector Card -->
+    <div class="selector-card mb-4">
+        <div class="selector-header">
+            <i class="fas fa-filter me-2"></i>
+            <h5 class="selector-title">Framework Filter</h5>
+        </div>
+        <div class="selector-content">
+            <select id="frameworkSelect" class="modern-select-primary">
+                <option value="">-- All Frameworks --</option>
+                @foreach (var fw in ViewBag.Frameworks as List<Framework>)
+                {
+                    <option value="@fw.Code">@fw.Name</option>
+                }
+            </select>
+        </div>
+    </div>
+
+    <!-- Performance Analytics Container -->
+    <div class="analytics-container">
+        <div id="gaugesContainer" class="performance-gauges-grid"></div>
     </div>
 </div>
 
-<div id="gaugesContainer" class="row"></div>
+<style>
+    /* Modern Framework Performance Styles */
+    .selector-card {
+        background: linear-gradient(135deg, rgba(255,255,255,0.95) 0%, rgba(248,249,250,0.95) 100%);
+        backdrop-filter: blur(15px);
+        -webkit-backdrop-filter: blur(15px);
+        border: 1px solid rgba(255,255,255,0.3);
+        border-radius: 20px;
+        padding: 1.5rem;
+        box-shadow: 
+            0 8px 32px rgba(0,0,0,0.1),
+            0 4px 16px rgba(0,0,0,0.05);
+        transition: all 0.3s ease;
+    }
+
+    .selector-card:hover {
+        transform: translateY(-3px);
+        box-shadow: 
+            0 12px 40px rgba(0,0,0,0.15),
+            0 6px 20px rgba(0,0,0,0.08);
+    }
+
+    .selector-header {
+        display: flex;
+        align-items: center;
+        margin-bottom: 1rem;
+    }
+
+    .selector-title {
+        font-size: 1.1rem;
+        font-weight: 600;
+        color: #2d3748;
+        margin: 0;
+    }
+
+    .selector-header i {
+        color: #667eea;
+        font-size: 1rem;
+    }
+
+    .modern-select-primary {
+        width: 100%;
+        padding: 1rem 1.5rem;
+        border: 2px solid #e2e8f0;
+        border-radius: 15px;
+        background: linear-gradient(135deg, rgba(255,255,255,0.9) 0%, rgba(248,249,250,0.9) 100%);
+        font-size: 1rem;
+        font-weight: 500;
+        color: #2d3748;
+        transition: all 0.3s ease;
+        backdrop-filter: blur(10px);
+        box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    }
+
+    .modern-select-primary:focus {
+        outline: none;
+        border-color: #667eea;
+        box-shadow: 
+            0 0 0 3px rgba(102, 126, 234, 0.1),
+            0 4px 12px rgba(0,0,0,0.1);
+        transform: translateY(-2px);
+    }
+
+    .analytics-container {
+        margin-top: 2rem;
+    }
+
+    .performance-gauges-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
+        gap: 2rem;
+    }
+
+    .performance-gauge-card {
+        background: linear-gradient(135deg, rgba(255,255,255,0.95) 0%, rgba(248,249,250,0.95) 100%);
+        backdrop-filter: blur(15px);
+        -webkit-backdrop-filter: blur(15px);
+        border: 1px solid rgba(255,255,255,0.3);
+        border-radius: 24px;
+        overflow: hidden;
+        transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
+        position: relative;
+        box-shadow: 
+            0 8px 32px rgba(0,0,0,0.1),
+            0 4px 16px rgba(0,0,0,0.05);
+    }
+
+    .performance-gauge-card:hover {
+        transform: translateY(-8px) scale(1.02);
+        box-shadow: 
+            0 20px 40px rgba(0,0,0,0.15),
+            0 8px 24px rgba(0,0,0,0.1);
+        border-color: rgba(255,255,255,0.5);
+    }
+
+    .gauge-card-inner {
+        padding: 2rem;
+    }
+
+    .gauge-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 2rem;
+        padding-bottom: 1rem;
+        border-bottom: 2px solid rgba(230, 230, 230, 0.5);
+    }
+
+    .gauge-title {
+        font-size: 1.4rem;
+        font-weight: 700;
+        color: #2d3748;
+        margin: 0;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+    }
+
+    .performance-badge {
+        padding: 0.5rem 1rem;
+        border-radius: 20px;
+        font-size: 0.9rem;
+        font-weight: 600;
+        color: white;
+        text-shadow: 0 1px 2px rgba(0,0,0,0.2);
+        box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+    }
+
+    .performance-badge.excellent { background: linear-gradient(135deg, #4CAF50, #45a049); }
+    .performance-badge.good { background: linear-gradient(135deg, #2196F3, #1976d2); }
+    .performance-badge.warning { background: linear-gradient(135deg, #FF9800, #f57c00); }
+    .performance-badge.critical { background: linear-gradient(135deg, #F44336, #d32f2f); }
+
+    .gauge-content {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 2rem;
+        align-items: start;
+    }
+
+    .gauge-chart-section {
+        position: relative;
+        text-align: center;
+    }
+
+    .chart-wrapper {
+        position: relative;
+        width: 200px;
+        height: 200px;
+        margin: 0 auto;
+    }
+
+    .gauge-center-text {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        text-align: center;
+        pointer-events: none;
+    }
+
+    .gauge-percentage {
+        display: block;
+        font-size: 2rem;
+        font-weight: 700;
+        color: #2d3748;
+        line-height: 1;
+    }
+
+    .gauge-label {
+        display: block;
+        font-size: 0.8rem;
+        color: #718096;
+        font-weight: 500;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        margin-top: 0.25rem;
+    }
+
+    .gauge-details-section {
+        display: flex;
+        flex-direction: column;
+        gap: 1.5rem;
+    }
+
+    .indicator-count-card {
+        background: linear-gradient(135deg, #f7fafc 0%, #edf2f7 100%);
+        border: 1px solid rgba(226, 232, 240, 0.8);
+        border-radius: 16px;
+        padding: 1.5rem;
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        transition: all 0.3s ease;
+    }
+
+    .indicator-count-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(0,0,0,0.1);
+    }
+
+    .count-icon {
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 1.25rem;
+        box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+    }
+
+    .count-info {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .count-number {
+        font-size: 1.8rem;
+        font-weight: 700;
+        color: #2d3748;
+        line-height: 1;
+    }
+
+    .count-label {
+        font-size: 0.85rem;
+        color: #718096;
+        font-weight: 500;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .projects-section {
+        background: linear-gradient(135deg, #f8f9ff 0%, #f0f4ff 100%);
+        border: 1px solid rgba(102, 126, 234, 0.2);
+        border-radius: 16px;
+        padding: 1.5rem;
+    }
+
+    .projects-title {
+        font-size: 1rem;
+        font-weight: 600;
+        color: #4a5568;
+        margin-bottom: 1rem;
+        display: flex;
+        align-items: center;
+    }
+
+    .projects-title i {
+        color: #667eea;
+    }
+
+    .projects-list {
+        display: flex;
+        flex-direction: column;
+        gap: 0.75rem;
+        max-height: 200px;
+        overflow-y: auto;
+    }
+
+    .project-item {
+        background: rgba(255,255,255,0.8);
+        border: 1px solid rgba(255,255,255,0.5);
+        border-radius: 12px;
+        padding: 1rem;
+        transition: all 0.3s ease;
+    }
+
+    .project-item:hover {
+        background: rgba(255,255,255,0.95);
+        transform: translateX(3px);
+        box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
+
+    .project-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 0.5rem;
+    }
+
+    .project-name {
+        font-size: 0.9rem;
+        font-weight: 600;
+        color: #2d3748;
+        flex: 1;
+        margin-right: 1rem;
+    }
+
+    .project-performance {
+        font-size: 0.8rem;
+        font-weight: 700;
+        padding: 0.25rem 0.75rem;
+        border-radius: 12px;
+        color: white;
+        text-shadow: 0 1px 2px rgba(0,0,0,0.2);
+    }
+
+    .project-performance.high { background: #4CAF50; }
+    .project-performance.medium { background: #FF9800; }
+    .project-performance.low { background: #F44336; }
+
+    .project-progress {
+        width: 100%;
+        height: 4px;
+        background: rgba(224, 224, 224, 0.5);
+        border-radius: 2px;
+        overflow: hidden;
+    }
+
+    .progress-bar-mini {
+        height: 100%;
+        border-radius: 2px;
+        transition: width 0.8s ease;
+        background: linear-gradient(90deg, currentColor, rgba(255,255,255,0.2));
+    }
+
+    /* Responsive Design */
+    @@media (max-width: 1024px) {
+        .performance-gauges-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .gauge-content {
+            grid-template-columns: 1fr;
+            gap: 1.5rem;
+        }
+
+        .chart-wrapper {
+            width: 160px;
+            height: 160px;
+        }
+    }
+
+    @@media (max-width: 768px) {
+        .gauge-card-inner {
+            padding: 1.5rem;
+        }
+
+        .gauge-header {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 1rem;
+        }
+
+        .gauge-title {
+            font-size: 1.2rem;
+        }
+
+        .chart-wrapper {
+            width: 140px;
+            height: 140px;
+        }
+
+        .gauge-percentage {
+            font-size: 1.5rem;
+        }
+    }
+
+    /* Loading animation */
+    @@keyframes fadeInScale {
+        from {
+            opacity: 0;
+            transform: scale(0.9);
+        }
+        to {
+            opacity: 1;
+            transform: scale(1);
+        }
+    }
+
+    .performance-gauge-card {
+        animation: fadeInScale 0.6s ease-out;
+    }
+
+    /* Custom scrollbar for projects list */
+    .projects-list::-webkit-scrollbar {
+        width: 4px;
+    }
+
+    .projects-list::-webkit-scrollbar-track {
+        background: rgba(0,0,0,0.1);
+        border-radius: 2px;
+    }
+
+    .projects-list::-webkit-scrollbar-thumb {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border-radius: 2px;
+    }
+</style>
 
 @section Scripts {
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -34,23 +450,71 @@
             data.forEach(fw => {
                 const chartId = `gauge_${fw.code}`;
                 const card = document.createElement("div");
-                card.className = "col-md-6 mb-4";
+                card.className = "performance-gauge-card";
+
+                // Determine performance colors and status
+                const performanceStatus = fw.indicatorsPerformance >= 85 ? 'excellent' 
+                                        : fw.indicatorsPerformance >= 70 ? 'good'
+                                        : fw.indicatorsPerformance >= 50 ? 'warning'
+                                        : 'critical';
+                
+                const statusColors = {
+                    excellent: '#4CAF50',
+                    good: '#2196F3', 
+                    warning: '#FF9800',
+                    critical: '#F44336'
+                };
 
                 card.innerHTML = `
-                    <div class="card shadow-sm p-4">
-                        <h5 class="mb-3">${fw.name}</h5>
-                        <div class="row align-items-center">
-                            <div class="col-md-6 text-center">
-                                <canvas id="${chartId}" height="160"></canvas>
-                                <div class="fw-bold mt-2 text-primary" style="font-size: 1.1rem;">
-                                    ${fw.indicatorsPerformance}% Performance
+                    <div class="gauge-card-inner">
+                        <div class="gauge-header">
+                            <h5 class="gauge-title">${fw.name}</h5>
+                            <div class="performance-badge ${performanceStatus}">
+                                ${fw.indicatorsPerformance}% Performance
+                            </div>
+                        </div>
+                        
+                        <div class="gauge-content">
+                            <div class="gauge-chart-section">
+                                <div class="chart-wrapper">
+                                    <canvas id="${chartId}" height="180"></canvas>
+                                </div>
+                                <div class="gauge-center-text">
+                                    <span class="gauge-percentage">${fw.indicatorsPerformance}%</span>
+                                    <span class="gauge-label">Achievement</span>
                                 </div>
                             </div>
-                            <div class="col-md-6">
-                                <div class="text-muted">Indicators Count: ${fw.indicatorCount}</div>
-                                <div class="mt-2">
-                                    <strong>Projects:</strong><br/>
-                                    ${fw.projects.map(p => `• ${p.projectName} (${p.performance}%)`).join("<br/>")}
+                            
+                            <div class="gauge-details-section">
+                                <div class="indicator-count-card">
+                                    <div class="count-icon">
+                                        <i class="fas fa-bullseye"></i>
+                                    </div>
+                                    <div class="count-info">
+                                        <span class="count-number">${fw.indicatorCount}</span>
+                                        <span class="count-label">Indicators</span>
+                                    </div>
+                                </div>
+                                
+                                <div class="projects-section">
+                                    <h6 class="projects-title">
+                                        <i class="fas fa-project-diagram me-2"></i>Projects
+                                    </h6>
+                                    <div class="projects-list">
+                                        ${fw.projects.map(p => `
+                                            <div class="project-item">
+                                                <div class="project-header">
+                                                    <span class="project-name">${p.projectName}</span>
+                                                    <span class="project-performance ${p.performance >= 70 ? 'high' : p.performance >= 50 ? 'medium' : 'low'}">
+                                                        ${Math.round(p.performance)}%
+                                                    </span>
+                                                </div>
+                                                <div class="project-progress">
+                                                    <div class="progress-bar-mini" style="width: ${p.performance}%; background: ${p.performance >= 70 ? '#4CAF50' : p.performance >= 50 ? '#FF9800' : '#F44336'}"></div>
+                                                </div>
+                                            </div>
+                                        `).join('')}
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -59,36 +523,44 @@
 
                 container.appendChild(card);
 
+                // Enhanced Chart Configuration
                 const ctx = document.getElementById(chartId).getContext("2d");
                 new Chart(ctx, {
                     type: "doughnut",
                     data: {
                         datasets: [{
                             data: [fw.indicatorsPerformance, 100 - fw.indicatorsPerformance],
-                            backgroundColor: ['#007bff', '#e0e0e0'],
+                            backgroundColor: [statusColors[performanceStatus], 'rgba(224, 224, 224, 0.3)'],
                             borderWidth: 0,
-                            cutout: "80%"
+                            cutout: "85%"
                         }]
                     },
                     options: {
                         responsive: true,
+                        maintainAspectRatio: false,
                         plugins: {
                             legend: { display: false },
-                            tooltip: { enabled: false },
-                            doughnutlabel: {
-                                labels: [
-                                    {
-                                        text: `${fw.indicatorsPerformance}%`,
-                                        font: { size: 24, weight: "bold" },
-                                        color: "#007bff"
-                                    },
-                                    {
-                                        text: "Performance",
-                                        font: { size: 14 },
-                                        color: "#666"
+                            tooltip: {
+                                enabled: true,
+                                backgroundColor: 'rgba(0,0,0,0.8)',
+                                titleColor: '#fff',
+                                bodyColor: '#fff',
+                                borderColor: statusColors[performanceStatus],
+                                borderWidth: 1,
+                                callbacks: {
+                                    label: function(context) {
+                                        const value = context.parsed;
+                                        return context.dataIndex === 0 
+                                            ? `Achievement: ${value}%`
+                                            : `Remaining: ${value}%`;
                                     }
-                                ]
+                                }
                             }
+                        },
+                        animation: {
+                            animateRotate: true,
+                            duration: 1500,
+                            easing: 'easeOutCubic'
                         }
                     }
                 });

@@ -1,0 +1,340 @@
+@using Microsoft.AspNetCore.Mvc.Localization
+@inject IViewLocalizer Localizer
+@{
+    var currentController = ViewContext.RouteData.Values["controller"]?.ToString();
+    var currentAction = ViewContext.RouteData.Values["action"]?.ToString();
+}
+
+<!-- Management Navigation Header -->
+<div class="management-nav-header mb-4">
+    <div class="card shadow-sm border-0">
+        <div class="card-body p-0">
+            <div class="nav-container">
+                <!-- Left Section: Navigation Tabs -->
+                <div class="nav-tabs-section">
+                    <ul class="nav nav-tabs border-0" id="managementTabs" role="tablist">
+                        <li class="nav-item" role="presentation">
+                            <a class="nav-link @(currentController?.Equals("Ministries", StringComparison.OrdinalIgnoreCase) == true ? "active" : "")"
+                               href="@Url.Action("Index", "Ministries")"
+                               role="tab">
+                                <i class="fas fa-landmark me-2"></i>
+                                <span class="nav-text">@Localizer["Ministries"]</span>
+                                <small class="nav-subtitle d-block">@Localizer["Government Entities"]</small>
+                            </a>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <a class="nav-link @(currentController?.Equals("Sectors", StringComparison.OrdinalIgnoreCase) == true ? "active" : "")"
+                               href="@Url.Action("Index", "Sectors")"
+                               role="tab">
+                                <i class="fas fa-industry me-2"></i>
+                                <span class="nav-text">@Localizer["Sectors"]</span>
+                                <small class="nav-subtitle d-block">@Localizer["Economic Sectors"]</small>
+                            </a>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <a class="nav-link @(currentController?.Equals("Donors", StringComparison.OrdinalIgnoreCase) == true ? "active" : "")"
+                               href="@Url.Action("Index", "Donors")"
+                               role="tab">
+                                <i class="fas fa-hand-holding-usd me-2"></i>
+                                <span class="nav-text">@Localizer["Donors"]</span>
+                                <small class="nav-subtitle d-block">@Localizer["Funding Partners"]</small>
+                            </a>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <a class="nav-link @(currentController?.Equals("SuperVisors", StringComparison.OrdinalIgnoreCase) == true ? "active" : "")"
+                               href="@Url.Action("Index", "SuperVisors")"
+                               role="tab">
+                                <i class="fas fa-user-tie me-2"></i>
+                                <span class="nav-text">@Localizer["SuperVisors"]</span>
+                                <small class="nav-subtitle d-block">@Localizer["Project Oversight"]</small>
+                            </a>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <a class="nav-link @(currentController?.Equals("ProjectManagers", StringComparison.OrdinalIgnoreCase) == true ? "active" : "")"
+                               href="@Url.Action("Index", "ProjectManagers")"
+                               role="tab">
+                                <i class="fas fa-user-cog me-2"></i>
+                                <span class="nav-text">@Localizer["Project Managers"]</span>
+                                <small class="nav-subtitle d-block">@Localizer["Implementation Team"]</small>
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+
+                <!-- Right Section: Page Title and Actions -->
+@*                 <div class="page-header-section">
+                    <div class="page-title-wrapper">
+                        @{
+                            string pageTitle = "";
+                            string pageDescription = "";
+                            string pageIcon = "";
+                            
+                            switch (currentController?.ToLower())
+                            {
+                                case "ministries":
+                                    pageTitle = Localizer["Ministries Management"].Value;
+                                    pageDescription = Localizer["Manage government ministries and their performance"].Value;
+                                    pageIcon = "fas fa-landmark";
+                                    break;
+                                case "sectors":
+                                    pageTitle = Localizer["Sectors Management"].Value;
+                                    pageDescription = Localizer["Manage economic sectors and classifications"].Value;
+                                    pageIcon = "fas fa-industry";
+                                    break;
+                                case "donors":
+                                    pageTitle = Localizer["Donors Management"].Value;
+                                    pageDescription = Localizer["Manage funding partners and donors"].Value;
+                                    pageIcon = "fas fa-hand-holding-usd";
+                                    break;
+                                case "supervisors":
+                                    pageTitle = Localizer["SuperVisors Management"].Value;
+                                    pageDescription = Localizer["Manage project supervisors and oversight"].Value;
+                                    pageIcon = "fas fa-user-tie";
+                                    break;
+                                case "projectmanagers":
+                                    pageTitle = Localizer["Project Managers Management"].Value;
+                                    pageDescription = Localizer["Manage project managers and implementation"].Value;
+                                    pageIcon = "fas fa-user-cog";
+                                    break;
+                                default:
+                                    pageTitle = Localizer["Management"].Value;
+                                    pageDescription = Localizer["System Management"].Value;
+                                    pageIcon = "fas fa-cogs";
+                                    break;
+                            }
+                        }
+                        
+                        <div class="page-title-content">
+                            <div class="d-flex align-items-center">
+                                <div class="page-icon me-3">
+                                    <i class="@pageIcon"></i>
+                                </div>
+                                <div>
+                                    <h4 class="page-title mb-1">@pageTitle</h4>
+                                    <p class="page-description mb-0">@pageDescription</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+ *@            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .management-nav-header .card {
+        background: linear-gradient(135deg, #5c5e68 0%, #323232 100%);
+        border-radius: 15px;
+        overflow: hidden;
+    }
+
+    .nav-container {
+        display: flex;
+        align-items: stretch;
+        min-height: 80px;
+    }
+
+    .nav-tabs-section {
+        flex: 1;
+        display: flex;
+        align-items: center;
+        padding: 0 20px;
+    }
+
+    .nav-tabs {
+        background: none !important;
+        border: none !important;
+        flex-wrap: nowrap;
+        overflow-x: auto;
+        scrollbar-width: none;
+        -ms-overflow-style: none;
+    }
+
+    .nav-tabs::-webkit-scrollbar {
+        display: none;
+    }
+
+    .nav-tabs .nav-item {
+        margin-right: 0;
+        white-space: nowrap;
+    }
+
+    .nav-tabs .nav-link {
+        background: none;
+        border: none;
+        color: rgba(255, 255, 255, 0.8);
+        padding: 12px 20px;
+        margin: 0 2px;
+        border-radius: 10px;
+        transition: all 0.3s ease;
+        text-decoration: none;
+        position: relative;
+        text-align: center;
+        min-width: 140px;
+    }
+
+    .nav-tabs .nav-link:hover {
+        background: rgba(255, 255, 255, 0.1);
+        color: white;
+        transform: translateY(-2px);
+    }
+
+    .nav-tabs .nav-link.active {
+        background: rgba(255, 255, 255, 0.2);
+        color: white;
+        backdrop-filter: blur(10px);
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    }
+
+    .nav-tabs .nav-link i {
+        font-size: 1.2rem;
+        display: block;
+        margin-bottom: 2px;
+    }
+
+    .nav-text {
+        font-weight: 600;
+        font-size: 0.9rem;
+        display: block;
+        line-height: 1.2;
+    }
+
+    .nav-subtitle {
+        font-size: 0.7rem;
+        opacity: 0.8;
+        line-height: 1;
+        margin-top: 2px;
+    }
+
+    .page-header-section {
+        padding: 20px 30px;
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(10px);
+        border-radius: 0 15px 15px 0;
+        min-width: 300px;
+        display: flex;
+        align-items: center;
+    }
+
+    .page-title-wrapper {
+        width: 100%;
+    }
+
+    .page-icon {
+        width: 50px;
+        height: 50px;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 1.5rem;
+    }
+
+    .page-title {
+        color: #2d3748;
+        font-weight: 700;
+        margin: 0;
+        font-size: 1.4rem;
+    }
+
+    .page-description {
+        color: #718096;
+        font-size: 0.9rem;
+        margin: 0;
+    }
+
+    /* Mobile Responsiveness */
+    @@media (max-width: 1200px) {
+        .nav-container {
+            flex-direction: column;
+            min-height: auto;
+        }
+
+        .nav-tabs-section {
+            padding: 15px 20px 5px;
+        }
+
+        .page-header-section {
+            padding: 15px 30px;
+            border-radius: 0 0 15px 15px;
+            min-width: auto;
+        }
+
+        .nav-tabs .nav-link {
+            min-width: 120px;
+            padding: 10px 15px;
+        }
+    }
+
+    @@media (max-width: 768px) {
+        .nav-tabs .nav-link {
+            min-width: 100px;
+            padding: 8px 12px;
+        }
+
+        .nav-text {
+            font-size: 0.8rem;
+        }
+
+        .nav-subtitle {
+            font-size: 0.65rem;
+        }
+
+        .page-title {
+            font-size: 1.2rem;
+        }
+
+        .page-description {
+            font-size: 0.8rem;
+        }
+
+        .page-icon {
+            width: 40px;
+            height: 40px;
+            font-size: 1.2rem;
+        }
+    }
+
+    /* RTL Support */
+    [dir="rtl"] .nav-tabs-section {
+        direction: rtl;
+    }
+
+    [dir="rtl"] .nav-tabs .nav-item {
+        margin-right: 0;
+        margin-left: 0;
+    }
+
+    [dir="rtl"] .page-header-section {
+        border-radius: 15px 0 0 15px;
+    }
+
+    [dir="rtl"] .nav-tabs .nav-link i {
+        margin-right: 0;
+        margin-left: 8px;
+    }
+
+    /* Animation for smooth transitions */
+    .nav-tabs .nav-link {
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .nav-tabs .nav-link::before {
+        content: '';
+        position: absolute;
+        bottom: 0;
+        left: 50%;
+        width: 0;
+        height: 2px;
+        background: white;
+        transform: translateX(-50%);
+        transition: width 0.3s ease;
+    }
+
+    .nav-tabs .nav-link.active::before {
+        width: 80%;
+    }
+</style>

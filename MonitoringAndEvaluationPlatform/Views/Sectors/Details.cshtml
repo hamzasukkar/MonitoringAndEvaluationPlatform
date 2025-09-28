@@ -1,8 +1,15 @@
 ﻿@model MonitoringAndEvaluationPlatform.Models.Sector
+@using Microsoft.AspNetCore.Localization
+@using Microsoft.AspNetCore.Mvc.Localization
+@inject IViewLocalizer Localizer
 
 @{
     ViewData["Title"] = "Details";
     Layout = "~/Views/Shared/_SetUpLayout.cshtml";
+}
+@{
+    var requestCultureFeature = Context.Features.Get<IRequestCultureFeature>();
+    var culture = requestCultureFeature.RequestCulture.Culture.Name;
 }
 
 <h1>Details</h1>
@@ -12,10 +19,17 @@
     <hr />
     <dl class="row">
         <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Name)
+            @Localizer["Name"]
         </dt>
         <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Name)
+            @if (culture.StartsWith("ar"))
+            {
+                <strong>@Html.DisplayFor(model => model.AR_Name)</strong>
+            }
+            else
+            {
+                <strong>@Html.DisplayFor(model => model.EN_Name)</strong>
+            }
         </dd>
     </dl>
 </div>

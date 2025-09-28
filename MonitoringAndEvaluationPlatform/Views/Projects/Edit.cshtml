@@ -1,176 +1,307 @@
 ﻿@model MonitoringAndEvaluationPlatform.Models.Project
 @using Newtonsoft.Json
+@using Microsoft.AspNetCore.Mvc.Localization
+@inject IViewLocalizer Localizer
+@using Microsoft.AspNetCore.Localization
+@using System.Web
+
 @{
     ViewData["Title"] = "Edit Project";
-    Layout = "~/Views/Shared/_ProjectsLayout.cshtml";
+    Layout = "~/Views/Shared/_DashboardHomeLayout.cshtml";
     var governorates = ViewBag.Governorates as List<Governorate>;
     var selectedLocationsJson = JsonConvert.SerializeObject(ViewBag.SelectedLocations);
 }
-  
-<head>
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-</head>
-<div class="container-fluid py-4">
-    <div class="card shadow-lg">
-        <div class="card-header bg-primary text-white">
-            <div class="d-flex justify-content-between align-items-center">
-                <h4 class="mb-0">Edit Project</h4>
-                <a asp-action="Index" class="btn btn-light btn-sm">
-                    <i class="fas fa-arrow-left me-1"></i>Back to List
-                </a>
-            </div>
+
+<!-- Dashboard Header -->
+<div class="dashboard-header">
+    <div class="d-flex justify-content-between align-items-center">
+        <div>
+            <h1 class="dashboard-title">
+                <i class="fas fa-edit me-3"></i>
+                @Localizer["Edit Project"]
+            </h1>
+            <p class="dashboard-subtitle">
+                @Localizer["Update the project information and settings"]
+            </p>
         </div>
+        <a asp-action="Index" class="btn btn-outline-secondary btn-lg">
+            <i class="fas fa-arrow-left me-2"></i>@Localizer["Back to Projects"]
+        </a>
+    </div>
+</div>
 
-        <div class="card-body">
-            <form asp-action="Edit" method="post" enctype="multipart/form-data" class="needs-validation" novalidate>
-                <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
-                <input type="hidden" asp-for="ProjectID" />
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="card shadow-sm">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">
+                        <i class="fas fa-project-diagram me-2"></i>
+                        @Localizer["Project Information"]
+                    </h5>
+                </div>
 
-                <div class="row g-3">
-                    <!-- Left Column: Basic Info + Location + Regions -->
-                    <div class="col-md-6">
-                        <div class="card mb-4">
-                            <div class="card-header bg-light">
-                                <h5 class="mb-0">Basic Information</h5>
-                            </div>
-                            <div class="card-body">
+                <div class="card-body">
+                    @using (Html.BeginForm("Edit", "Projects", FormMethod.Post, new { enctype = "multipart/form-data", @class = "needs-validation", novalidate = "novalidate" }))
+                    {
+                        <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+                        <input type="hidden" asp-for="ProjectID" />
+
+                        <div class="row">
+                            <!-- Left Column -->
+                            <div class="col-md-6">
+                                <h6 class="text-primary mb-3">
+                                    <i class="fas fa-info-circle me-2"></i>@Localizer["Basic Information"]
+                                </h6>
+
                                 <!-- Project Name -->
-                                <div class="mb-3">
-                                    <label asp-for="ProjectName" class="form-label">Project Name</label>
-                                    <input asp-for="ProjectName" class="form-control" required />
+                                <div class="mb-4">
+                                    <label asp-for="ProjectName" class="form-label fw-bold">
+                                        <i class="fas fa-project-diagram me-2"></i>
+                                        @Localizer["Project Name"]
+                                    </label>
+                                    <input asp-for="ProjectName" class="form-control form-control-lg" placeholder="Enter project name" required />
                                     <span asp-validation-for="ProjectName" class="text-danger small"></span>
                                 </div>
 
-                                <!-- Dates -->
-                                <div class="row">
-                                    <div class="col-md-6 mb-3">
-                                        <label asp-for="StartDate" class="form-label">Start Date</label>
-                                        <input asp-for="StartDate" type="date" class="form-control" required />
+                                <!-- Timeline -->
+                                <h6 class="text-primary mb-3">
+                                    <i class="fas fa-clock me-2"></i>@Localizer["Project Timeline"]
+                                </h6>
+                                <div class="row g-3 mb-4">
+                                    <div class="col-md-6">
+                                        <label asp-for="StartDate" class="form-label fw-bold">
+                                            <i class="fas fa-play me-2"></i>
+                                            @Localizer["Start Date"]
+                                        </label>
+                                        <input asp-for="StartDate" type="date" class="form-control form-control-lg" required />
                                         <span asp-validation-for="StartDate" class="text-danger small"></span>
                                     </div>
-                                    <div class="col-md-6 mb-3">
-                                        <label asp-for="EndDate" class="form-label">End Date</label>
-                                        <input asp-for="EndDate" type="date" class="form-control" required />
+                                    <div class="col-md-6">
+                                        <label asp-for="EndDate" class="form-label fw-bold">
+                                            <i class="fas fa-stop me-2"></i>
+                                            @Localizer["End Date"]
+                                        </label>
+                                        <input asp-for="EndDate" type="date" class="form-control form-control-lg" required />
                                         <span asp-validation-for="EndDate" class="text-danger small"></span>
                                     </div>
                                 </div>
 
-                                <!-- Budget -->
-                                <div class="row">
-                                    <div class="col-md-6 mb-3">
-                                        <label asp-for="EstimatedBudget" class="form-label">Estimated Budget</label>
-                                        <div class="input-group">
-                                            <span class="input-group-text">$</span>
-                                            <input asp-for="EstimatedBudget" class="form-control" />
-                                        </div>
-                                        <span asp-validation-for="EstimatedBudget" class="text-danger small"></span>
+                                <!-- Budget Information -->
+                                <h6 class="text-primary mb-3">
+                                    <i class="fas fa-dollar-sign me-2"></i>@Localizer["Budget Information"]
+                                </h6>
+                                <div class="mb-4">
+                                    <label asp-for="EstimatedBudget" class="form-label fw-bold">
+                                        <i class="fas fa-coins me-2"></i>
+                                        @Localizer["Estimated Budget"]
+                                    </label>
+                                    <div class="input-group">
+                                        <span class="input-group-text">$</span>
+                                        <input asp-for="EstimatedBudget" class="form-control form-control-lg" min="0.01" step="0.01" required />
                                     </div>
-                                    <div class="col-md-6 mb-3">
-                                        <label asp-for="RealBudget" class="form-label">Real Budget</label>
-                                        <div class="input-group">
-                                            <span class="input-group-text">$</span>
-                                            <input asp-for="RealBudget" class="form-control" />
-                                        </div>
-                                        <span asp-validation-for="RealBudget" class="text-danger small"></span>
-                                    </div>
+                                    <span asp-validation-for="EstimatedBudget" class="text-danger small"></span>
                                 </div>
-
 
                                 <!-- Location Hierarchy -->
-                                <h6 class="text-muted mt-4">Project Location</h6>
-                                <div class="mb-3">
-                                    <select id="governorate" class="form-select">
-                                        <option value="">-- Select Governorate --</option>
-                                        @foreach (var gov in governorates)
-                                        {
-                                            <option value="@gov.Code">@gov.Name</option>
-                                        }
-                                    </select>
-
+                                <h6 class="text-primary mb-3">
+                                    <i class="fas fa-map-marker-alt me-2"></i>@Localizer["Project Location"]
+                                </h6>
+                                <div id="location-selector" class="row g-3 mb-3">
+                                    <div class="col-md-6">
+                                        <select id="governorate" class="form-select">
+                                            <option value="">-- @Localizer["Select Governorate"] --</option>
+                                            @foreach (var gov in governorates)
+                                            {
+                                                var displayName = System.Threading.Thread.CurrentThread.CurrentUICulture.TwoLetterISOLanguageName == "ar"
+                                                ? gov.AR_Name
+                                                : gov.EN_Name;
+                                                <option value="@gov.Code">@displayName</option>
+                                            }
+                                        </select>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <select id="district" class="form-select">
+                                            <option value="">-- @Localizer["Select District"] --</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <select id="subdistrict" class="form-select">
+                                            <option value="">-- @Localizer["Select Subdistrict"] --</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <select id="community" class="form-select">
+                                            <option value="">-- @Localizer["Select Community"] --</option>
+                                        </select>
+                                    </div>
                                 </div>
-                                <div class="mb-3">
-                                    <select id="district" class="form-select"></select>
+                                <div class="d-flex gap-2 mb-3">
+                                    <button type="button" id="add-location" class="btn btn-primary">
+                                        <i class="fas fa-plus me-2"></i>@Localizer["Add Location"]
+                                    </button>
+                                    <button type="button" id="reset-dropdowns" class="btn btn-outline-secondary">
+                                        <i class="fas fa-redo me-2"></i>@Localizer["Reset"]
+                                    </button>
                                 </div>
-                                <div class="mb-3">
-                                    <select id="subdistrict" class="form-select"></select>
-                                </div>
-                                <div class="mb-3">
-                                    <select id="community" class="form-select"></select>
-                                </div>
+                                <ul id="selected-locations" class="list-group mb-3"></ul>
+                                <input type="hidden" id="location-data" name="selections" />
+                                <div id="location-validation-alert" style="display:none;" class="alert alert-warning"></div>
                             </div>
-                        </div>
-                        <button type="button" id="add-location" class="btn btn-primary mt-2">Add Location</button>
-                        <button type="button" id="reset-dropdowns" class="btn btn-secondary mt-2">Reset</button>
-                        <ul id="selected-locations" class="mt-3"></ul>
 
-                        <input type="hidden" id="location-data" name="selections" />
-                    </div>
-
-                    <!-- Right Column: Stakeholders + File Upload -->
-                    <div class="col-md-6">
-                        <div class="card mb-4">
-                            <div class="card-header bg-light">
-                                <h5 class="mb-0">Stakeholders</h5>
-                            </div>
-                            <div class="card-body">        
-                                <!-- Sectors Multi-select -->
-                                <div class="mb-3">
-                                    <label class="form-label">Sectors</label>
-                                    @* We do NOT use asp-for="Sectors" here; we need a plain name that the form will post back as List<int> *@
+                            <!-- Right Column -->
+                            <div class="col-md-6">
+                                <!-- Stakeholders -->
+                                <h6 class="text-primary mb-3">
+                                    <i class="fas fa-users me-2"></i>@Localizer["Stakeholders"]
+                                </h6>        
+                                <div class="mb-4">
+                                    <label class="form-label fw-bold">
+                                        <i class="fas fa-industry me-2"></i>
+                                        @Localizer["Sectors"]
+                                    </label>
                                     <select name="SelectedSectorCodes"
                                             class="form-select"
                                             asp-items="ViewBag.SectorList"
                                             multiple
                                             size="4">
-                                        <option disabled>Select one or more sectors</option>
+                                        <option disabled>@Localizer["Select one or more sectors"]</option>
                                     </select>
-
-                                    <small class="text-muted">Hold Ctrl/Cmd to select multiple sectors</small>
+                                    <div class="form-text">@Localizer["Hold Ctrl/Cmd to select multiple sectors"]</div>
                                 </div>
 
-                                <div class="mb-3">
-                                    <label asp-for="ProjectManagerCode" class="form-label">Project Manager</label>
+                                <div class="mb-4">
+                                    <label asp-for="ProjectManagerCode" class="form-label fw-bold">
+                                        <i class="fas fa-user-tie me-2"></i>
+                                        @Localizer["Project Manager"]
+                                    </label>
                                     <select asp-for="ProjectManagerCode"
-                                            class="form-select"
+                                            class="form-select form-select-lg"
                                             asp-items="ViewBag.ProjectManager">
-                                        <option value="">Select Project Manager</option>
+                                        <option value="">@Localizer["Select Project Manager"]</option>
                                     </select>
                                 </div>
-                                <div class="mb-3">
-                                    <label asp-for="SuperVisorCode" class="form-label">Supervisor</label>
+                                <div class="mb-4">
+                                    <label asp-for="SuperVisorCode" class="form-label fw-bold">
+                                        <i class="fas fa-user-check me-2"></i>
+                                        @Localizer["Supervisor"]
+                                    </label>
                                     <select asp-for="SuperVisorCode"
-                                            class="form-select"
+                                            class="form-select form-select-lg"
                                             asp-items="ViewBag.SuperVisor">
-                                        <option value="">Select Supervisor</option>
+                                        <option value="">@Localizer["Select Supervisor"]</option>
                                     </select>
                                 </div>
-                                <div class="mb-3">
-                                    <label class="form-label">Ministry</label>
-                                    <select name="SelectedMinistryCodes"
-                                            class="form-select"
-                                            asp-items="ViewBag.MinistryList"
-                                            multiple
-                                            size="4">
-                                        <option disabled>Select one or more Ministry</option>
+                                <div class="mb-4">
+                                    <label asp-for="MinistryCode" class="form-label fw-bold">
+                                        <i class="fas fa-building me-2"></i>
+                                        @Localizer["Ministry"]
+                                    </label>
+                                    <select asp-for="MinistryCode" class="form-select form-select-lg" asp-items="ViewBag.MinistryList">
+                                        <option value="">@Localizer["Select Ministry"]</option>
                                     </select>
+                                </div>
+                                <div class="mb-4">
+                                    <label asp-for="GoalCode" class="form-label fw-bold">@Localizer["SDGs"]</label>
+                                    <select asp-for="GoalCode" class="form-select form-select-lg" asp-items="ViewBag.Goals">
+                                        <option value="">@Localizer["SDGs"]</option>
+                                    </select>
+                                </div>
+                                <!-- Donor Selection -->
+                                <div class="mb-4">
+                                    <label class="form-label fw-bold">@Localizer["Available Donors"]</label>
+                                    <div class="row g-3">
+                                        <div class="col-md-8">
+                                            <select class="form-select form-select-lg" id="availableDonorSelect">
+                                                <option value="">@Localizer["Select a donor to add"]</option>
+                                                @if (ViewBag.DonorList != null)
+                                                {
+                                                    var donorSelectList = ViewBag.DonorList as MultiSelectList;
+                                                    if (donorSelectList != null)
+                                                    {
+                                                        @foreach (var item in donorSelectList)
+                                                        {
+                                                            <option value="@item.Value">@item.Text</option>
+                                                        }
+                                                    }
+                                                }
+                                            </select>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <button type="button" id="addDonorBtn" class="btn btn-primary btn-lg w-100">
+                                                <i class="fas fa-plus me-2"></i>@Localizer["Add Donor"]
+                                            </button>
+                                        </div>
+                                    </div>
+                                    <div class="form-text">@Localizer["Select donors one by one and specify their funding percentages"]</div>
+                                </div>
 
-                                    <small class="text-muted">Hold Ctrl/Cmd to select multiple Ministries</small>
+                                <!-- Selected Donors List (Hidden input for form submission) -->
+                                <select name="SelectedDonorCodes" multiple style="display: none;" id="selectedDonorsInput"></select>
+
+                                <!-- Donor Funding Breakdown -->
+                                <div id="donorFundingSection" style="display: none;">
+                                    <h6 class="text-primary mb-3">
+                                        <i class="fas fa-percentage me-2"></i>@Localizer["Donor Funding Breakdown"]
+                                    </h6>
+                                    <div class="alert alert-info">
+                                        <i class="fas fa-info-circle me-2"></i>
+                                        @Localizer["Use sliders to specify the funding percentage for each donor. Total cannot exceed 100%."]
+                                    </div>
+
+                                    <div id="donorContributionList" class="mb-4"></div>
+
+                                    <div class="row g-3 mb-4">
+                                        <div class="col-md-6">
+                                            <div class="card bg-light">
+                                                <div class="card-body">
+                                                    <h6 class="card-title mb-2">
+                                                        <i class="fas fa-calculator me-2"></i>@Localizer["Total Percentage"]
+                                                    </h6>
+                                                    <div class="d-flex align-items-center">
+                                                        <span id="totalPercentage" class="h4 mb-0 me-2">0.00</span>
+                                                        <span class="text-muted">%</span>
+                                                    </div>
+                                                    <small id="percentageStatus" class="text-muted">@Localizer["Cannot exceed 100%"]</small>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="card bg-light">
+                                                <div class="card-body">
+                                                    <h6 class="card-title mb-2">
+                                                        <i class="fas fa-dollar-sign me-2"></i>@Localizer["Total Funding Amount"]
+                                                    </h6>
+                                                    <div class="d-flex align-items-center">
+                                                        <span class="me-1">$</span>
+                                                        <span id="totalFundingAmount" class="h4 mb-0">0.00</span>
+                                                    </div>
+                                                    <small class="text-muted">@Localizer["Based on estimated budget"]</small>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <input type="hidden" id="donorFundingData" name="DonorFundingBreakdown" />
                                 </div>
-                               @*  To Check *@
-                                <div class="mb-3">
-                                    <label class="form-label">Donor</label>
-                                    <select name="SelectedDonorCodes" class="form-select" asp-items="ViewBag.DonorList" multiple size="4">
-                                        <option disabled>Select one or more donor</option>
-                                    </select>
-                                    <small class="text-muted">Hold Ctrl/Cmd to select multiple donor</small>
+
+                                <!-- Files Upload -->
+                                <h6 class="text-primary mb-3">
+                                    <i class="fas fa-file-upload me-2"></i>@Localizer["Project Documents"]
+                                </h6>
+                                <div class="mb-4">
+                                    <label class="form-label fw-bold">@Localizer["Upload Additional Files"]</label>
+                                    <input type="file"
+                                           name="UploadedFiles"
+                                           multiple
+                                           class="form-control form-control-lg" />
+                                    <div class="form-text">Maximum file size: 10MB. Allowed types: PDF, DOC, XLS, JPG, PNG</div>
                                 </div>
                             </div>
                         </div>
 
-                        <!-- Optionally allow uploading new files on edit -->
-                        <div class="card border-0 shadow-sm">
                             <div class="card-header bg-light">
-                                <h6 class="mb-0">Upload Additional Documents</h6>
+                                <h6 class="mb-0">@Localizer["Upload Additional Documents"]</h6>
                             </div>
                             <div class="card-body">
                                 <div class="mb-3">
@@ -183,26 +314,152 @@
                                     </small>
                                 </div>
                             </div>
-                        </div>
-                    </div>
-                </div>
 
-                <!-- Submit / Cancel -->
-                <div class="mt-4 d-flex justify-content-end gap-2">
-                    <button type="submit" class="btn btn-primary px-4">
-                        <i class="fas fa-save me-2"></i>Save Changes
-                    </button>
-                    <a asp-action="Index" class="btn btn-outline-secondary px-4">
-                        Cancel
-                    </a>
-                </div>
-            </form>
+                        <!-- Form Actions -->
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-end mt-4 pt-4 border-top">
+                            <a href="@Url.Action("Index")" class="btn btn-outline-secondary btn-lg px-4">
+                                <i class="fas fa-arrow-left me-2"></i>@Localizer["Cancel"]
+                            </a>
+                            <button type="submit" class="btn btn-primary btn-lg px-4">
+                                <i class="fas fa-save me-2"></i>@Localizer["Save Changes"]
+                            </button>
+                        </div>
+                    }
         </div>
     </div>
 </div>
 
 
-    @await Html.PartialAsync("_ValidationScriptsPartial")
+@await Html.PartialAsync("_ValidationScriptsPartial")
+
+<!-- Standard Styles -->
+<style>
+    .card {
+        border-radius: 0.5rem;
+        border: none;
+    }
+
+    .form-control-lg, .form-select-lg {
+        padding: 0.75rem 1rem;
+        font-size: 1.05rem;
+    }
+
+    .form-control[readonly] {
+        background-color: #f8f9fa;
+        opacity: 1;
+    }
+
+    .list-group-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .donor-funding-card {
+        border: 1px solid #e3e6f0;
+        transition: all 0.3s ease;
+    }
+
+    .donor-funding-card:hover {
+        box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.15);
+        border-color: #5a5c69;
+    }
+
+    .donor-amount {
+        font-size: 1.1rem;
+        color: #5a5c69;
+    }
+
+    #donorFundingSection .card.bg-light {
+        border: 2px solid #e3e6f0;
+    }
+
+    #percentageStatus.text-success {
+        font-weight: 600;
+    }
+
+    #percentageStatus.text-warning {
+        font-weight: 600;
+    }
+
+    #percentageStatus.text-danger {
+        font-weight: 600;
+    }
+
+    /* Enhanced slider styling */
+    .donor-slider {
+        cursor: pointer;
+    }
+
+    .donor-slider::-webkit-slider-thumb {
+        background: #007bff;
+        border: 2px solid #007bff;
+        height: 20px;
+        width: 20px;
+        border-radius: 50%;
+        cursor: pointer;
+        -webkit-appearance: none;
+        box-shadow: 0 2px 4px rgba(0, 123, 255, 0.3);
+    }
+
+    .donor-slider::-webkit-slider-track {
+        background: #e9ecef;
+        height: 6px;
+        border-radius: 3px;
+    }
+
+    .donor-slider::-moz-range-thumb {
+        background: #007bff;
+        border: 2px solid #007bff;
+        height: 20px;
+        width: 20px;
+        border-radius: 50%;
+        cursor: pointer;
+        box-shadow: 0 2px 4px rgba(0, 123, 255, 0.3);
+    }
+
+    .donor-slider::-moz-range-track {
+        background: #e9ecef;
+        height: 6px;
+        border-radius: 3px;
+    }
+
+    .percentage-display {
+        font-weight: 600;
+        color: #007bff;
+    }
+
+    .remove-donor-btn {
+        border-radius: 50%;
+        width: 32px;
+        height: 32px;
+        padding: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .remove-donor-btn:hover {
+        background-color: #dc3545;
+        border-color: #dc3545;
+        color: white;
+    }
+
+    @@media (max-width: 768px) {
+        .d-md-flex {
+            flex-direction: column !important;
+        }
+        .justify-content-md-end {
+            align-items: stretch !important;
+        }
+        .donor-funding-card .col-md-3,
+        .donor-funding-card .col-md-6 {
+            margin-bottom: 10px;
+        }
+    }
+</style>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 
 <script>
     let selections = [];
@@ -273,9 +530,11 @@
 
         // Create list item with "Clear" button
         const $li = $(`
-            <li class="list-group-item d-flex justify-content-between align-items-center">
-                ${govName} > ${distName} > ${subName} > ${commName}
-                <button type="button" class="btn btn-sm btn-danger btn-clear">Clear</button>
+            <li class="list-group-item">
+                <span>${govName} > ${distName} > ${subName} > ${commName}</span>
+                <button type="button" class="btn btn-sm btn-outline-danger btn-clear">
+                    <i class="fas fa-times"></i> Clear
+                </button>
             </li>
         `);
 
@@ -335,6 +594,253 @@
 
         setTimeout(() => $("#location-validation-alert").fadeOut(), 3000);
     }
+
+    // Prevent submitting if no locations have been added
+    $('form.needs-validation').on('submit', function (e) {
+        if (selections.length === 0) {
+            e.preventDefault();
+            showValidationMessage("You must add at least one location before saving the project.");
+            return false;
+        }
+    });
+
+    // =================
+    // DONOR MANAGEMENT
+    // =================
+
+    let selectedDonors = [];
+    let donorFundingData = {};
+
+    // Initialize donor management on page load
+    $(document).ready(function() {
+        initializeSelectedDonors();
+    });
+
+    // Initialize donors from the existing project data
+    function initializeSelectedDonors() {
+        // Get selected donor codes from the MultiSelectList
+        @if (ViewBag.DonorList != null)
+        {
+            var donorList = ViewBag.DonorList as MultiSelectList;
+            if (donorList != null && donorList.Count() > 0)
+            {
+                <text>
+                var initialDonors = [
+                    @foreach (var item in donorList)
+                    {
+                        if (item.Selected)
+                        {
+                            <text>{ value: '@item.Value', text: '@Html.Raw(HttpUtility.JavaScriptStringEncode(item.Text))' },</text>
+                        }
+                    }
+                ];
+
+                // Get existing funding percentages from the controller
+                var existingFundingData = {};
+                @if (ViewBag.DonorFundingData != null)
+                {
+                    <text>
+                    try {
+                        existingFundingData = JSON.parse('@Html.Raw(ViewBag.DonorFundingData)');
+                    } catch (e) {
+                        console.error('Error parsing donor funding data:', e);
+                        existingFundingData = {};
+                    }
+                    </text>
+                }
+
+                // Add existing donors to the management system
+                initialDonors.forEach(function(donor) {
+                    if (donor.value && donor.text) {
+                        selectedDonors.push(donor);
+                        // Use existing funding percentage or default to 0
+                        donorFundingData[donor.value] = existingFundingData[donor.value] || 0;
+                    }
+                });
+
+                updateDonorFundingSection();
+                updateSelectedDonorsInput();
+                </text>
+            }
+        }
+    }
+
+    // Add donor button click handler
+    $('#addDonorBtn').click(function() {
+        const donorValue = $('#availableDonorSelect').val();
+        const donorText = $('#availableDonorSelect option:selected').text();
+
+        if (!donorValue || donorValue === '') {
+            alert('Please select a donor first.');
+            return;
+        }
+
+        // Check if donor is already added
+        if (selectedDonors.some(d => d.value === donorValue)) {
+            alert('This donor has already been added.');
+            return;
+        }
+
+        // Add donor to selected list
+        selectedDonors.push({
+            value: donorValue,
+            text: donorText
+        });
+
+        // Initialize percentage
+        donorFundingData[donorValue] = 0;
+
+        // Update UI
+        updateDonorFundingSection();
+        updateSelectedDonorsInput();
+
+        // Reset dropdown
+        $('#availableDonorSelect').val('');
+    });
+
+    // Update the donor funding section
+    function updateDonorFundingSection() {
+        const donorFundingSection = $('#donorFundingSection');
+        const donorContributionList = $('#donorContributionList');
+
+        if (selectedDonors.length === 0) {
+            donorFundingSection.hide();
+            return;
+        }
+
+        donorFundingSection.show();
+        donorContributionList.empty();
+
+        // Create cards with sliders for each selected donor
+        selectedDonors.forEach(donor => {
+            const currentPercentage = donorFundingData[donor.value] || 0;
+
+            const donorHtml = `
+                <div class="card mb-3 donor-funding-card" data-donor="${donor.value}">
+                    <div class="card-body">
+                        <div class="row align-items-center">
+                            <div class="col-md-4">
+                                <h6 class="mb-1">
+                                    <i class="fas fa-hand-holding-usd me-2"></i>${donor.text}
+                                </h6>
+                                <small class="text-muted">Funding Contribution</small>
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label small mb-1">Percentage: <span class="percentage-display" data-donor="${donor.value}">${currentPercentage.toFixed(1)}%</span></label>
+                                <input type="range"
+                                       class="form-range donor-slider"
+                                       data-donor="${donor.value}"
+                                       min="0"
+                                       max="100"
+                                       step="0.1"
+                                       value="${currentPercentage}">
+                                <div class="d-flex justify-content-between small text-muted">
+                                    <span>0%</span>
+                                    <span>100%</span>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="text-end">
+                                    <strong class="donor-amount" data-donor="${donor.value}">$0.00</strong>
+                                    <br>
+                                    <small class="text-muted">Amount</small>
+                                </div>
+                            </div>
+                            <div class="col-md-1">
+                                <button type="button" class="btn btn-outline-danger btn-sm remove-donor-btn" data-donor="${donor.value}">
+                                    <i class="fas fa-times"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            donorContributionList.append(donorHtml);
+        });
+
+        calculateDonorTotals();
+    }
+
+    // Handle slider changes
+    $(document).on('input', '.donor-slider', function() {
+        const donorValue = $(this).data('donor');
+        const percentage = parseFloat($(this).val()) || 0;
+
+        donorFundingData[donorValue] = percentage;
+
+        // Update percentage display
+        $(`.percentage-display[data-donor="${donorValue}"]`).text(percentage.toFixed(1) + '%');
+
+        calculateDonorTotals();
+    });
+
+    // Handle remove donor button
+    $(document).on('click', '.remove-donor-btn', function() {
+        const donorValue = $(this).data('donor');
+
+        // Remove from selected donors array
+        selectedDonors = selectedDonors.filter(d => d.value !== donorValue);
+
+        // Remove from funding data
+        delete donorFundingData[donorValue];
+
+        // Update UI
+        updateDonorFundingSection();
+        updateSelectedDonorsInput();
+    });
+
+    // Update the hidden select input for form submission
+    function updateSelectedDonorsInput() {
+        const hiddenSelect = $('#selectedDonorsInput');
+        hiddenSelect.empty();
+
+        selectedDonors.forEach(donor => {
+            hiddenSelect.append(`<option value="${donor.value}" selected>${donor.text}</option>`);
+        });
+    }
+
+    // Calculate totals and update displays
+    function calculateDonorTotals() {
+        const budget = parseFloat($('[name="EstimatedBudget"]').val()) || 0;
+        let totalPercentage = 0;
+        let totalAmount = 0;
+
+        // Update individual donor amounts and calculate totals
+        selectedDonors.forEach(donor => {
+            const percentage = donorFundingData[donor.value] || 0;
+            const amount = (budget * percentage) / 100;
+
+            totalPercentage += percentage;
+            totalAmount += amount;
+
+            // Update the display for this donor
+            $(`.donor-amount[data-donor="${donor.value}"]`).text('$' + amount.toFixed(2));
+        });
+
+        // Update total displays
+        $('#totalPercentage').text(totalPercentage.toFixed(1));
+        $('#totalFundingAmount').text(totalAmount.toFixed(2));
+
+        // Update status message
+        const statusElement = $('#percentageStatus');
+        if (totalPercentage > 100) {
+            statusElement.text('Error: Exceeds 100%').removeClass('text-success text-muted text-warning').addClass('text-danger');
+        } else if (totalPercentage === 100) {
+            statusElement.text('Fully funded (100%)').removeClass('text-warning text-danger text-muted').addClass('text-success');
+        } else if (totalPercentage > 0) {
+            statusElement.text(`Partially funded (${totalPercentage.toFixed(1)}%)`).removeClass('text-success text-danger text-muted').addClass('text-warning');
+        } else {
+            statusElement.text('Cannot exceed 100%').removeClass('text-success text-warning text-danger').addClass('text-muted');
+        }
+
+        // Update hidden field with funding data
+        $('#donorFundingData').val(JSON.stringify(donorFundingData));
+    }
+
+    // Update calculations when budget changes
+    $('[name="EstimatedBudget"]').on('input change', function() {
+        calculateDonorTotals();
+    });
 </script>
 @* In the Razor view (Edit.cshtml) *@
 <script type="text/javascript">

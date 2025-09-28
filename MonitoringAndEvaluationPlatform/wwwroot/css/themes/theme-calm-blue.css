@@ -1,0 +1,472 @@
+/* ===== CALM BLUE THEME ===== */
+/* Beautiful blue and gray color scheme */
+
+/* Import Component Styles */
+@import url('../components/components-base.css');
+@import url('../components/components-calm-blue.css');
+@import url('../components/theme-dropdown.css');
+
+:root[data-theme="calm-blue"] {
+    /* Modern Deep Blue Color Scheme */
+    --primary-background-color: #1a365d; /* Deep Blue - Main background, topbar, table headers */
+    --secondary-card-background: #2c5aa0; /* Medium Blue - Cards, main content area, sidebar, table rows */
+    --accent-light-blue: #60a5fa; /* Light Blue - Accents, buttons, active states, important text */
+    --tertiary-background: #3b6b96; /* Slightly lighter blue for cards */
+    
+    /* RGB Values for rgba() usage */
+    --primary-background-rgb: 26, 54, 93;
+    --secondary-card-background-rgb: 44, 90, 160;
+    --accent-light-blue-rgb: 96, 165, 250;
+    
+    /* Primary Colors - Modern Blues */
+    --primary-color: #1a365d;
+    --primary-dark: #0f2a44;
+    --primary-light: #2c5aa0;
+    
+    /* Secondary Colors - Sophisticated Grays */
+    --secondary-color: #475569;
+    --secondary-dark: #334155;
+    --secondary-light: #64748b;
+    
+    /* Success Colors */
+    --success-color: #10b981;
+    --success-dark: #059669;
+    --success-light: #34d399;
+    
+    /* Danger Colors */
+    --danger-color: #ef4444;
+    --danger-dark: #dc2626;
+    --danger-light: #f87171;
+    
+    /* Warning Colors */
+    --warning-color: #f59e0b;
+    --warning-dark: #d97706;
+    --warning-light: #fbbf24;
+    
+    /* Info Colors */
+    --info-color: #3b82f6;
+    --info-dark: #2563eb;
+    --info-light: #60a5fa;
+    
+    /* Background Colors - Modern Blue Palette */
+    --bg-body: #ffffff; /* Keep white for main content areas */
+    --bg-secondary: var(--secondary-card-background); /* Medium blue for secondary backgrounds */
+    --bg-tertiary: var(--tertiary-background); /* Slightly lighter blue for cards */
+    --bg-dark: var(--primary-background-color);
+    
+    /* Text Colors */
+    --text-primary: #1f2937; /* Dark text for light backgrounds */
+    --text-secondary: #6b7280;
+    --text-muted: #9ca3af;
+    --text-white: #ffffff;
+    --text-light: #e5e7eb; /* Light text for dark backgrounds */
+    
+    /* Border Colors - Modern Blue Accent */
+    --border-color: #60a5fa; /* Light blue border */
+    --border-color-translucent: rgba(96, 165, 250, 0.15);
+    
+    /* Shadow - Soft Blue Tints */
+    --box-shadow: 0 .125rem .25rem rgba(44, 62, 80, 0.08);
+    --box-shadow-sm: 0 .125rem .25rem rgba(44, 62, 80, 0.08);
+    --box-shadow-lg: 0 1rem 3rem rgba(44, 62, 80, 0.12);
+    
+    /* Sidebar & Navigation - Modern Blues */
+    --sidebar-bg: var(--primary-background-color);
+    --sidebar-text: var(--text-white);
+    --navbar-bg: var(--primary-background-color);
+    --navbar-text: var(--text-white);
+    
+    /* Cards - Modern Blue Styling */
+    --card-bg: var(--bg-tertiary); /* Slightly lighter blue for cards */
+    --card-border: var(--border-color);
+    --card-cap-bg: var(--primary-background-color); /* Deep blue for headers */
+    
+    /* Buttons - Modern Light Blue Accents */
+    --btn-primary-bg: var(--accent-light-blue);
+    --btn-primary-border: var(--accent-light-blue);
+    --btn-secondary-bg: var(--secondary-color);
+    --btn-secondary-border: var(--secondary-color);
+    
+    /* Form Controls - Modern Blue Styling */
+    --input-bg: var(--primary-background-color); /* Deep blue for form inputs */
+    --input-border: var(--border-color);
+    --input-focus-border: var(--accent-light-blue);
+    --input-text: var(--text-light); /* Light text for dark inputs */
+    
+    /* Tables - Modern Blue Styling */
+    --table-bg: transparent;
+    --table-accent-bg: var(--secondary-card-background); /* Medium blue for striped rows */
+    --table-hover-bg: var(--bg-tertiary); /* Slightly lighter blue on hover */
+    --table-border-color: var(--border-color);
+    --table-header-bg: var(--primary-background-color); /* Deep blue for headers */
+    --table-row-bg: var(--secondary-card-background); /* Medium blue for rows */
+    
+    /* Progress Bars */
+    --progress-bg: var(--bg-secondary);
+    --progress-bar-bg: var(--primary-color);
+}
+
+/* RTL Support for Calm Blue Theme */
+[data-theme="calm-blue"] body.rtl {
+    direction: rtl;
+    text-align: right;
+}
+
+[data-theme="calm-blue"] body.rtl .topbar {
+    flex-direction: row-reverse;
+}
+
+[data-theme="calm-blue"] body.rtl .sidebar {
+    right: 0;
+    left: auto;
+}
+
+[data-theme="calm-blue"] body.rtl .container-full {
+    margin-right: 250px;
+    margin-left: 0;
+}
+
+[data-theme="calm-blue"] body.rtl .sidebar a:hover,
+[data-theme="calm-blue"] body.rtl .sidebar a.active {
+    border-right: none;
+    border-left: 3px solid var(--text-white);
+    padding-right: 1.5rem;
+    padding-left: calc(1.5rem - 3px);
+}
+
+[data-theme="calm-blue"] body.rtl .theme-switcher select {
+    background-position: 0.5rem center;
+    padding-right: 0.8rem;
+    padding-left: 2rem;
+}
+
+[data-theme="calm-blue"] body.rtl .form-control {
+    text-align: right;
+}
+
+[data-theme="calm-blue"] body.rtl .table th,
+[data-theme="calm-blue"] body.rtl .table td {
+    text-align: right;
+}
+
+[data-theme="calm-blue"] body.rtl .dropdown-menu {
+    right: 0;
+    left: auto;
+}
+
+/* Responsive adjustments for RTL */
+@media (max-width: 992px) {
+    [data-theme="calm-blue"] body.rtl .container-full {
+        margin-right: 70px;
+        margin-left: 0;
+    }
+}
+
+@media (max-width: 768px) {
+    [data-theme="calm-blue"] body.rtl .container-full {
+        margin-right: 0;
+        margin-left: 0;
+    }
+}
+
+/* Apply theme-specific styles */
+[data-theme="calm-blue"] .btn-primary {
+    background-color: var(--btn-primary-bg);
+    border-color: var(--btn-primary-border);
+    color: var(--text-white);
+    box-shadow: 0 2px 4px rgba(74, 144, 184, 0.2);
+    transition: all 0.3s ease;
+}
+
+[data-theme="calm-blue"] .btn-primary:hover {
+    background-color: var(--primary-dark);
+    border-color: var(--primary-dark);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(74, 144, 184, 0.25);
+}
+
+[data-theme="calm-blue"] .btn-secondary {
+    background-color: var(--btn-secondary-bg);
+    border-color: var(--btn-secondary-border);
+    color: var(--text-white);
+}
+
+[data-theme="calm-blue"] .btn-secondary:hover {
+    background-color: var(--secondary-dark);
+    border-color: var(--secondary-dark);
+}
+
+[data-theme="calm-blue"] .card {
+    background-color: var(--card-bg);
+    border-color: var(--card-border);
+    box-shadow: 0 2px 12px rgba(44, 62, 80, 0.08);
+    transition: all 0.3s ease;
+}
+
+[data-theme="calm-blue"] .card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 20px rgba(44, 62, 80, 0.12);
+}
+
+[data-theme="calm-blue"] .card-header {
+    background-color: var(--card-cap-bg);
+    border-bottom-color: var(--border-color);
+    color: var(--text-primary);
+    font-weight: 600;
+}
+
+[data-theme="calm-blue"] .form-control {
+    background-color: var(--input-bg);
+    border-color: var(--input-border);
+    color: var(--text-primary);
+    transition: all 0.3s ease;
+}
+
+[data-theme="calm-blue"] .form-control:focus {
+    border-color: var(--input-focus-border);
+    box-shadow: 0 0 0 0.2rem rgba(74, 144, 184, 0.15);
+    background-color: var(--bg-body);
+}
+
+[data-theme="calm-blue"] .table {
+    color: var(--text-primary);
+    border-color: var(--table-border-color);
+}
+
+[data-theme="calm-blue"] .table thead th {
+    background-color: var(--primary-color);
+    color: var(--text-white);
+    border-color: var(--primary-dark);
+    font-weight: 600;
+}
+
+[data-theme="calm-blue"] .table-striped > tbody > tr:nth-of-type(odd) > td {
+    background-color: var(--table-accent-bg);
+}
+
+[data-theme="calm-blue"] .table tbody tr:hover {
+    background-color: var(--table-hover-bg);
+}
+
+[data-theme="calm-blue"] .progress {
+    background-color: #fff !important;
+    border-radius: 0.5rem;
+    overflow: hidden;
+}
+
+[data-theme="calm-blue"] .progress-bar {
+    background-color: var(--progress-bar-bg);
+    background-image: linear-gradient(45deg, rgba(255,255,255,.15) 25%, transparent 25%, transparent 50%, rgba(255,255,255,.15) 50%, rgba(255,255,255,.15) 75%, transparent 75%, transparent);
+    background-size: 1rem 1rem;
+    animation: progress-bar-stripes 1s linear infinite;
+}
+
+/* Navigation specific styles */
+[data-theme="calm-blue"] .topbar {
+    background-color: var(--navbar-bg);
+    color: var(--navbar-text);
+    border-bottom: 1px solid var(--border-color);
+    box-shadow: 0 2px 4px rgba(44, 62, 80, 0.06);
+}
+
+[data-theme="calm-blue"] .sidebar {
+    background: linear-gradient(180deg, var(--sidebar-bg) 0%, var(--primary-dark) 100%);
+    color: var(--sidebar-text);
+    box-shadow: 2px 0 10px rgba(44, 62, 80, 0.1);
+}
+
+[data-theme="calm-blue"] .sidebar a {
+    color: var(--sidebar-text);
+    transition: all 0.3s ease;
+}
+
+[data-theme="calm-blue"] .sidebar a:hover,
+[data-theme="calm-blue"] .sidebar a.active {
+    background-color: rgba(255, 255, 255, 0.15);
+    color: var(--text-white);
+    border-left: 3px solid var(--text-white);
+    padding-left: calc(1.5rem - 3px);
+}
+
+/* Alert variants for calm blue theme */
+[data-theme="calm-blue"] .alert-primary {
+    background-color: rgba(74, 144, 184, 0.1);
+    border-color: rgba(74, 144, 184, 0.2);
+    color: var(--primary-dark);
+}
+
+[data-theme="calm-blue"] .alert-info {
+    background-color: rgba(91, 192, 222, 0.1);
+    border-color: rgba(91, 192, 222, 0.2);
+    color: var(--info-dark);
+}
+
+/* Custom accent colors for calm blue theme */
+[data-theme="calm-blue"] .text-primary {
+    color: var(--primary-color) !important;
+}
+
+[data-theme="calm-blue"] .text-muted {
+    color: var(--text-muted) !important;
+}
+
+[data-theme="calm-blue"] .border-primary {
+    border-color: var(--primary-color) !important;
+}
+
+/* Dropdown styles */
+[data-theme="calm-blue"] .dropdown-menu {
+    background-color: var(--bg-body);
+    border: 1px solid var(--border-color);
+    box-shadow: 0 4px 12px rgba(44, 62, 80, 0.12);
+}
+
+[data-theme="calm-blue"] .dropdown-item {
+    color: var(--text-primary);
+}
+
+[data-theme="calm-blue"] .dropdown-item:hover {
+    background-color: var(--bg-secondary);
+    color: var(--primary-color);
+}
+
+/* Badge styles */
+[data-theme="calm-blue"] .badge-primary {
+    background-color: var(--primary-color);
+    color: var(--text-white);
+}
+
+[data-theme="calm-blue"] .badge-secondary {
+    background-color: var(--secondary-color);
+    color: var(--text-white);
+}
+
+/* ===== MODERN COMPREHENSIVE STYLING ===== */
+
+/* All form controls styling - consistent dark blue backgrounds */
+[data-theme="calm-blue"] .form-control,
+[data-theme="calm-blue"] .form-select,
+[data-theme="calm-blue"] .search-form .form-control,
+[data-theme="calm-blue"] .filter-form .form-control {
+    background-color: var(--input-bg) !important;
+    border-color: var(--input-border) !important;
+    color: var(--input-text) !important;
+}
+
+[data-theme="calm-blue"] .form-control::placeholder,
+[data-theme="calm-blue"] .form-select::placeholder,
+[data-theme="calm-blue"] .search-form .form-control::placeholder {
+    color: rgba(229, 231, 235, 0.7) !important;
+}
+
+[data-theme="calm-blue"] .form-control:focus,
+[data-theme="calm-blue"] .form-select:focus {
+    background-color: var(--input-bg) !important;
+    border-color: var(--input-focus-border) !important;
+    color: var(--input-text) !important;
+    box-shadow: 0 0 0 0.2rem rgba(96, 165, 250, 0.25) !important;
+}
+
+/* Search form styling */
+[data-theme="calm-blue"] .search-form .btn {
+    background-color: var(--accent-light-blue) !important;
+    border-color: var(--accent-light-blue) !important;
+    color: var(--text-primary) !important;
+}
+
+[data-theme="calm-blue"] .search-form .btn:hover {
+    background-color: var(--info-dark) !important;
+    border-color: var(--info-dark) !important;
+}
+
+/* Card styling - modern blue cards */
+[data-theme="calm-blue"] .card {
+    background-color: var(--card-bg) !important;
+    border-color: var(--card-border) !important;
+    color: var(--text-light) !important;
+    box-shadow: 0 4px 16px rgba(26, 54, 93, 0.15) !important;
+}
+
+[data-theme="calm-blue"] .card-header {
+    background-color: var(--card-cap-bg) !important;
+    border-color: var(--card-border) !important;
+    color: var(--text-white) !important;
+}
+
+[data-theme="calm-blue"] .card-body {
+    background-color: var(--card-bg) !important;
+    color: var(--text-light) !important;
+}
+
+/* Table styling - modern blue tables */
+[data-theme="calm-blue"] .table {
+    color: var(--text-light) !important;
+    border-color: var(--table-border-color) !important;
+}
+
+[data-theme="calm-blue"] .table thead th {
+    background-color: var(--table-header-bg) !important;
+    border-color: var(--table-border-color) !important;
+    color: var(--text-white) !important;
+    font-weight: 600 !important;
+}
+
+[data-theme="calm-blue"] .table tbody tr {
+    background-color: var(--table-row-bg) !important;
+    border-color: var(--table-border-color) !important;
+    color: var(--text-light) !important;
+}
+
+[data-theme="calm-blue"] .table tbody tr:nth-of-type(odd) {
+    background-color: var(--table-accent-bg) !important;
+}
+
+[data-theme="calm-blue"] .table tbody tr:hover {
+    background-color: var(--table-hover-bg) !important;
+    color: var(--text-light) !important;
+    transform: translateX(2px) !important;
+    transition: all 0.2s ease !important;
+}
+
+[data-theme="calm-blue"] .table td,
+[data-theme="calm-blue"] .table th {
+    border-color: var(--table-border-color) !important;
+    color: inherit !important;
+}
+
+/* Enhanced topbar styling */
+[data-theme="calm-blue"] .topbar {
+    background-color: var(--navbar-bg) !important;
+    color: var(--navbar-text) !important;
+    border-bottom: 1px solid var(--accent-light-blue) !important;
+    box-shadow: 0 2px 8px rgba(26, 54, 93, 0.15) !important;
+}
+
+[data-theme="calm-blue"] .topbar .title {
+    color: var(--accent-light-blue) !important;
+    font-weight: bold !important;
+}
+
+/* Enhanced sidebar styling */
+[data-theme="calm-blue"] .sidebar {
+    background: linear-gradient(180deg, var(--sidebar-bg) 0%, var(--primary-dark) 100%) !important;
+    color: var(--sidebar-text) !important;
+    box-shadow: 2px 0 12px rgba(26, 54, 93, 0.2) !important;
+}
+
+[data-theme="calm-blue"] .sidebar a:hover {
+    background-color: rgba(96, 165, 250, 0.2) !important;
+}
+
+[data-theme="calm-blue"] .sidebar a.active {
+    background-color: rgba(96, 165, 250, 0.3) !important;
+    border-left: 3px solid var(--accent-light-blue) !important;
+}
+
+/* Enhanced button styling */
+[data-theme="calm-blue"] .btn-primary {
+    background: linear-gradient(135deg, var(--btn-primary-bg), var(--info-dark)) !important;
+    border-color: var(--btn-primary-border) !important;
+    color: var(--text-primary) !important;
+    box-shadow: 0 3px 6px rgba(96, 165, 250, 0.3) !important;
+}

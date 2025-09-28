@@ -1,0 +1,1281 @@
+@using Microsoft.AspNetCore.Identity
+@using Microsoft.AspNetCore.Mvc.Localization
+@inject SignInManager<ApplicationUser> SignInManager
+@inject UserManager<ApplicationUser> UserManager
+@using Microsoft.EntityFrameworkCore
+@using MonitoringAndEvaluationPlatform.Data
+@inject ApplicationDbContext _context
+@inject IViewLocalizer Localizer
+@using Microsoft.AspNetCore.Localization
+
+@{
+    var culture = ViewContext.HttpContext.Features.Get<IRequestCultureFeature>()?.RequestCulture.Culture.Name;
+    var dir = culture == "ar" ? "rtl" : "ltr";
+    var lang = culture == "ar" ? "ar" : "en";
+    var currentCulture = System.Globalization.CultureInfo.CurrentUICulture.Name;
+    var isArabic = currentCulture.StartsWith("ar");
+    var isEnglish = currentCulture.StartsWith("en");
+}
+
+<!DOCTYPE html>
+<html lang="@lang" dir="@dir">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - Monitoring & Evaluation Dashboard</title>
+
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <!-- Custom Dashboard Styles -->
+    <style>
+        :root {
+            /* Blue Theme (Default) */
+            --primary-color: #2196F3;
+            --primary-dark: #1976D2;
+            --primary-light: #42A5F5;
+            --secondary-color: #1E88E5;
+            --accent-color: #64B5F6;
+            --theme-name: 'blue';
+        }
+
+        [data-theme="green"] {
+            /* Green Dark Theme */
+            --primary-color: #1A3B33; /* خلفية أساسية داكنة */
+            --primary-dark: #122822; /* أغمق لتباين النصوص/الهوفر */
+            --primary-light: #2A4C44; /* أفتح قليلاً للـ cards */
+            --secondary-color: #2A4C44; /* كـ secondary card background */
+            --accent-color: #4CAF50; /* لمسات خضراء زاهية للأزرار أو الروابط */
+            --theme-name: 'green';
+        }
+
+        [data-theme="green"] button,
+        [data-theme="green"] .btn,
+        [data-theme="green"] input[type="submit"],
+        [data-theme="green"] input[type="button"] {
+            background-color: #C8A85F !important;
+            border-color: #C8A85F !important;
+        }
+
+        /* Exclude buttons inside btn-group and action-buttons */
+        [data-theme="green"] .btn-group button,
+        [data-theme="green"] .btn-group .btn,
+        [data-theme="green"] .btn-group input[type="submit"],
+        [data-theme="green"] .btn-group input[type="button"],
+        [data-theme="green"] .action-buttons button,
+        [data-theme="green"] .action-buttons .btn,
+        [data-theme="green"] .action-buttons input[type="submit"],
+        [data-theme="green"] .action-buttons input[type="button"] {
+            background-color: initial !important;
+            border-color: initial !important;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-dark) 100%);
+            min-height: 100vh;
+            color: #333;
+            transition: background 0.3s ease;
+        }
+
+        /* Navigation Styles */
+        .topbar {
+            background: rgba(255, 255, 255, 0.98);
+            backdrop-filter: blur(10px);
+            padding: 15px 30px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 70px;
+            z-index: 1100;
+        }
+
+            .topbar .title {
+                font-size: 1.5rem;
+                font-weight: 700;
+                background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+                -webkit-background-clip: text;
+                -webkit-text-fill-color: transparent;
+                background-clip: text;
+            }
+
+        .nav-links .nav {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            list-style: none;
+            margin: 0;
+            padding: 0;
+        }
+
+        .nav-item .nav-link {
+            color: #333;
+            text-decoration: none;
+            padding: 8px 15px;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            font-weight: 500;
+        }
+
+            .nav-item .nav-link:hover {
+                background: color-mix(in srgb, var(--primary-color) 10%, transparent);
+                color: var(--primary-color);
+            }
+
+        .dropdown-menu {
+            background: rgba(255, 255, 255, 0.98);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        }
+
+        .dropdown-item {
+            color: #333;
+            padding: 10px 20px;
+            border-radius: 8px;
+            margin: 2px;
+            transition: all 0.3s ease;
+        }
+
+            .dropdown-item:hover {
+                background: color-mix(in srgb, var(--primary-color) 10%, transparent);
+                color: var(--primary-color);
+            }
+
+        .has-performance {
+            background: linear-gradient(135deg, var(--primary-color), var(--primary-dark)) !important;
+            color: white !important;
+            border-radius: 8px;
+            font-weight: 500;
+        }
+
+        .dropdown-submenu {
+            position: relative;
+        }
+
+            .dropdown-submenu > .dropdown-menu {
+                top: 0;
+                margin-top: -6px;
+                left: 100%;
+            }
+
+        body[dir="rtl"] .dropdown-submenu > .dropdown-menu {
+            left: auto;
+            right: 100%;
+        }
+
+        .dropdown-submenu:hover > .dropdown-menu {
+            display: block;
+        }
+
+        .language-selector select, .theme-selector select {
+            background: rgba(255, 255, 255, 0.9);
+            border: 1px solid color-mix(in srgb, var(--primary-color) 30%, transparent);
+            border-radius: 6px;
+            padding: 5px 10px;
+            color: #333;
+            margin-left: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+            .language-selector select:hover, .theme-selector select:hover {
+                border-color: var(--primary-color);
+            }
+
+        .dashboard-container {
+            min-height: 100vh;
+            padding: 0;
+            display: block;
+        }
+
+        /* Modern Sidebar Styles */
+        .modern-sidebar {
+            width: 280px;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border-radius: 0;
+            padding: 30px 0;
+            position: fixed;
+            top: 70px;
+           /*  height: calc(100vh - 70px - 400px); */
+           height:100%;
+            overflow-y: auto;
+            z-index: 1000;
+            transition: all 0.3s ease;
+            box-sizing: border-box;
+        }
+
+        /* LTR (English) - Sidebar on Left */
+        [dir="ltr"] .modern-sidebar {
+            left: 0;
+            right: auto;
+            box-shadow: 4px 0 20px rgba(0, 0, 0, 0.1);
+            border-right: 1px solid rgba(255, 255, 255, 0.2);
+            border-left: none;
+        }
+
+        /* RTL (Arabic) - Sidebar on Right */
+        [dir="rtl"] .modern-sidebar {
+            right: 0;
+            left: auto;
+            box-shadow: -4px 0 20px rgba(0, 0, 0, 0.1);
+            border-left: 1px solid rgba(255, 255, 255, 0.2);
+            border-right: none;
+        }
+
+        .sidebar-nav {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+            .sidebar-nav li {
+                margin: 0 15px 8px;
+            }
+
+        .sidebar-link {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 15px 20px;
+            color: #666;
+            text-decoration: none;
+            border-radius: 15px;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            font-weight: 500;
+            font-size: 0.95rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+            .sidebar-link::before {
+                content: '';
+                position: absolute;
+                top: 0;
+                left: -100%;
+                width: 100%;
+                height: 100%;
+                background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+                transition: left 0.5s ease;
+            }
+
+            .sidebar-link:hover::before {
+                left: 100%;
+            }
+
+        /* Hover Effects - LTR */
+        [dir="ltr"] .sidebar-link:hover {
+            color: var(--primary-color);
+            background: color-mix(in srgb, var(--primary-color) 10%, transparent);
+            transform: translateX(5px);
+            box-shadow: 0 10px 25px rgba(33, 150, 243, 0.15);
+        }
+
+        /* Hover Effects - RTL */
+        [dir="rtl"] .sidebar-link:hover {
+            color: var(--primary-color);
+            background: color-mix(in srgb, var(--primary-color) 10%, transparent);
+            transform: translateX(-5px);
+            box-shadow: 0 10px 25px rgba(33, 150, 243, 0.15);
+        }
+
+        .sidebar-link.active {
+            color: white;
+            background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+            box-shadow: 0 10px 25px color-mix(in srgb, var(--primary-color) 40%, transparent);
+        }
+
+        /* Active Link Indicator - LTR */
+        [dir="ltr"] .sidebar-link.active::after {
+            content: '';
+            position: absolute;
+            right: -5px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 4px;
+            height: 30px;
+            background: white;
+            border-radius: 2px 0 0 2px;
+        }
+
+        /* Active Link Indicator - RTL */
+        [dir="rtl"] .sidebar-link.active::after {
+            content: '';
+            position: absolute;
+            left: -5px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 4px;
+            height: 30px;
+            background: white;
+            border-radius: 0 2px 2px 0;
+        }
+
+        .sidebar-link i {
+            font-size: 1.1rem;
+            width: 20px;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .sidebar-link:hover i,
+        .sidebar-link.active i {
+            transform: scale(1.1);
+        }
+
+        .sidebar-link span {
+            font-weight: 500;
+            letter-spacing: 0.3px;
+            transition: all 0.3s ease;
+        }
+
+        .sidebar-link:hover span,
+        .sidebar-link.active span {
+            font-weight: 600;
+        }
+
+        /* Main Content Area - RTL/LTR Support */
+        .main-content-with-sidebar {
+            padding: 20px;
+            padding-top: 90px;
+            min-height: 100vh;
+            transition: all 0.3s ease;
+        }
+
+        /* LTR (English) - Content margin from left */
+        [dir="ltr"] .main-content-with-sidebar {
+            margin-left: 280px;
+            margin-right: 0;
+        }
+
+        /* RTL (Arabic) - Content margin from right */
+        [dir="rtl"] .main-content-with-sidebar {
+            margin-right: 280px;
+            margin-left: 0;
+        }
+
+        /* Sidebar Language Selector */
+        .sidebar-language-selector {
+            position: absolute;
+            bottom: 20px;
+            left: 15px;
+            right: 15px;
+        }
+
+        .language-dropdown {
+            display: flex;
+            align-items: center;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 12px;
+            padding: 12px 15px;
+            transition: all 0.3s ease;
+        }
+
+            .language-dropdown:hover {
+                background: rgba(255, 255, 255, 0.15);
+                border-color: var(--primary-color);
+            }
+
+            .language-dropdown i {
+                color: var(--primary-color);
+                font-size: 1rem;
+            }
+
+        .language-select {
+            background: transparent;
+            border: none;
+            color: #666;
+            font-size: 0.9rem;
+            font-weight: 500;
+            cursor: pointer;
+            outline: none;
+            flex: 1;
+        }
+
+            .language-select option {
+                background: white;
+                color: #333;
+                padding: 8px;
+            }
+
+        .dashboard-header {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .dashboard-title {
+            font-size: 2.5rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 10px;
+        }
+
+        .dashboard-subtitle {
+            color: #666;
+            font-size: 1.1rem;
+            font-weight: 400;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 25px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+            .stat-card:hover {
+                transform: translateY(-5px);
+                box-shadow: 0 30px 60px rgba(0, 0, 0, 0.15);
+            }
+
+            .stat-card::before {
+                content: '';
+                position: absolute;
+                top: 0;
+                left: 0;
+                right: 0;
+                height: 4px;
+                background: linear-gradient(90deg, var(--primary-color), var(--primary-dark));
+            }
+
+        .stat-icon {
+            width: 60px;
+            height: 60px;
+            border-radius: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            color: white;
+            margin-bottom: 20px;
+        }
+
+            .stat-icon.primary {
+                background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+            }
+
+            .stat-icon.success {
+                background: linear-gradient(135deg, var(--primary-light), var(--secondary-color));
+            }
+
+            .stat-icon.warning {
+                background: linear-gradient(135deg, var(--accent-color), var(--primary-dark));
+            }
+
+            .stat-icon.info {
+                background: linear-gradient(135deg, var(--accent-color), var(--primary-dark));
+            }
+
+        .stat-number {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: #333;
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            font-size: 0.95rem;
+            color: #666;
+            font-weight: 500;
+        }
+
+        .charts-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
+            gap: 25px;
+            margin-bottom: 30px;
+        }
+
+        .chart-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .chart-title {
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .progress-section {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            margin-bottom: 30px;
+        }
+
+        .progress-item {
+            margin-bottom: 25px;
+        }
+
+        .progress-header {
+            display: flex;
+            justify-content: between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .progress-label {
+            font-weight: 600;
+            color: #333;
+            font-size: 0.95rem;
+        }
+
+        .progress-percentage {
+            font-weight: 600;
+            color: var(--primary-color);
+            font-size: 0.9rem;
+        }
+
+        .progress-bar-custom {
+            height: 8px;
+            background-color: #f0f0f0;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--primary-color), var(--primary-dark));
+            border-radius: 10px;
+            transition: width 1s ease;
+        }
+
+        .recent-activity {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .activity-item {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 15px 0;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+            .activity-item:last-child {
+                border-bottom: none;
+            }
+
+        .activity-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.9rem;
+            color: white;
+            background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+        }
+
+        .activity-content {
+            flex: 1;
+        }
+
+        .activity-title {
+            font-weight: 600;
+            color: #333;
+            font-size: 0.95rem;
+            margin-bottom: 5px;
+        }
+
+        .activity-time {
+            color: #999;
+            font-size: 0.85rem;
+        }
+
+        /* Footer Styles */
+        .dashboard-footer {
+            background: rgba(255, 255, 255, 0.98);
+            backdrop-filter: blur(10px);
+            margin-top: 50px;
+            padding: 40px 30px 20px;
+            border-top: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 -10px 30px rgba(0, 0, 0, 0.1);
+            position: relative;
+            z-index: 1200;
+        }
+
+        .footer-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+
+        .footer-section h4 {
+            color: var(--primary-color);
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .footer-section p, .footer-section li {
+            color: #666;
+            font-size: 0.95rem;
+            line-height: 1.6;
+            margin-bottom: 10px;
+        }
+
+        .footer-section ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        .footer-section a {
+            color: #666;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 5px 0;
+        }
+
+            .footer-section a:hover {
+                color: var(--primary-color);
+                transform: translateX(5px);
+            }
+
+        .footer-logo {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+            .footer-logo img {
+                width: 60px;
+                height: 60px;
+                border-radius: 12px;
+                box-shadow: 0 8px 25px rgba(33, 150, 243, 0.3);
+            }
+
+            .footer-logo .logo-text {
+                font-size: 1.4rem;
+                font-weight: 700;
+                background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+                -webkit-background-clip: text;
+                -webkit-text-fill-color: transparent;
+                background-clip: text;
+            }
+
+        .social-links {
+            display: flex;
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+            .social-links a {
+                width: 40px;
+                height: 40px;
+                border-radius: 10px;
+                background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+                color: white;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                transition: all 0.3s ease;
+                text-decoration: none;
+            }
+
+                .social-links a:hover {
+                    transform: translateY(-3px);
+                    box-shadow: 0 10px 25px color-mix(in srgb, var(--primary-color) 40%, transparent);
+                }
+
+        .footer-bottom {
+            border-top: 1px solid color-mix(in srgb, var(--primary-color) 20%, transparent);
+            padding-top: 20px;
+            text-align: center;
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        .footer-stats {
+            display: flex;
+            justify-content: space-around;
+            margin: 20px 0;
+            text-align: center;
+        }
+
+        .footer-stat {
+            padding: 15px;
+            background: color-mix(in srgb, var(--primary-color) 10%, transparent);
+            border-radius: 12px;
+            min-width: 120px;
+        }
+
+        .footer-stat-number {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--primary-color);
+            display: block;
+        }
+
+        .footer-stat-label {
+            font-size: 0.85rem;
+            color: #666;
+            margin-top: 5px;
+        }
+
+        @@media (max-width: 768px) {
+            .modern-sidebar {
+                width: 100%;
+                position: fixed;
+                top: 70px;
+                height: auto;
+                max-height: none;
+                border-radius: 0;
+                border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+                box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+                padding: 15px 0;
+                z-index: 1050;
+            }
+            /* Mobile - Both LTR and RTL use full width */
+            [dir="ltr"] .modern-sidebar,
+            [dir="rtl"] .modern-sidebar {
+                left: 0;
+                right: 0;
+                border-left: none;
+                border-right: none;
+            }
+
+            .sidebar-nav {
+                display: flex;
+                overflow-x: auto;
+                gap: 10px;
+                padding: 0 10px;
+            }
+
+                .sidebar-nav li {
+                    margin: 0;
+                    flex-shrink: 0;
+                }
+
+            .sidebar-link {
+                padding: 12px 15px;
+                flex-direction: column;
+                text-align: center;
+                gap: 8px;
+                min-width: 80px;
+                border-radius: 12px;
+            }
+
+                .sidebar-link span {
+                    font-size: 0.8rem;
+                }
+            /* Mobile - Content margins reset for both directions */
+            [dir="ltr"] .main-content-with-sidebar,
+            [dir="rtl"] .main-content-with-sidebar {
+                margin-left: 0;
+                margin-right: 0;
+                padding: 15px;
+                padding-top: 160px;
+            }
+
+            .sidebar-language-selector {
+                position: static;
+                margin-top: 15px;
+                padding: 0 10px;
+                width: auto;
+            }
+
+            .language-dropdown {
+                padding: 8px 12px;
+                border-radius: 8px;
+            }
+
+            .language-select {
+                font-size: 0.8rem;
+            }
+
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .charts-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .dashboard-title {
+                font-size: 2rem;
+            }
+
+
+            .footer-content {
+                grid-template-columns: 1fr;
+                gap: 30px;
+            }
+
+            .footer-stats {
+                flex-direction: column;
+                gap: 15px;
+            }
+
+            .social-links {
+                justify-content: center;
+            }
+        }
+    </style>
+
+    @await RenderSectionAsync("Styles", required: false)
+</head>
+<body>
+    <header>
+        <div class="topbar">
+            <div class="title">@Localizer["AppTitle"]</div>
+            <div class="nav-links">
+                <ul class="nav">
+                    <li class="nav-item">
+                        <a class="nav-link" asp-controller="Home" asp-action="Index">
+                            <i class="fas fa-home me-1"></i> @Localizer["Dashboard"]
+                        </a>
+                    </li>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="policiesDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="fas fa-sitemap me-1"></i> @Localizer["National Development Strategy"]
+                        </a>
+                        <ul class="dropdown-menu" aria-labelledby="policiesDropdown">
+                            @foreach (var framework in _context.Frameworks
+                            .OrderByDescending(f => f.IndicatorsPerformance)
+                            .ToList())
+                            {
+                                var hasPerformance = framework.IndicatorsPerformance > 0;
+                                var performanceClass = hasPerformance ? "has-performance" : "";
+
+                                <li class="dropdown-submenu dropend">
+                                    <a class="dropdown-item dropdown-toggle @performanceClass" href="#" id="framework-@framework.Code">
+                                        @framework.Name
+                                    </a>
+                                    <ul class="dropdown-menu" aria-labelledby="framework-@framework.Code">
+                                        <li>
+                                            <a class="dropdown-item" asp-controller="Outcomes" asp-action="Index" asp-route-frameworkCode="@framework.Code">
+                                                <i class="fas fa-bullseye"></i>@Localizer["Outcomes"]
+                                            </a>
+                                        </li>
+                                        <li>
+                                            <a class="dropdown-item" asp-controller="Outputs" asp-action="Index" asp-route-frameworkCode="@framework.Code">
+                                                <i class="fas fa-project-diagram"></i>@Localizer["Outputs"]
+                                            </a>
+                                        </li>
+                                        <li>
+                                            <a class="dropdown-item" asp-controller="Indicators" asp-action="Index" asp-route-frameworkCode="@framework.Code">
+                                                <i class="fas fa-chart-line"></i>@Localizer["Indicators"]
+                                            </a>
+                                        </li>
+                                    </ul>
+                                </li>
+                            }
+                        </ul>
+                    </li>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="MinistriesandAgenciesDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="fas fa-building me-1"></i> @Localizer["Ministries and Agencies"]
+                        </a>
+                        <ul class="dropdown-menu p-2" aria-labelledby="MinistriesandAgenciesDropdown" style="max-height: 300px; overflow-y: auto; min-width: 250px;">
+                            <li class="mb-2">
+                                <input type="text" class="form-control form-control-sm" id="ministrySearch" placeholder="@Localizer["Search"]">
+                            </li>
+                            @foreach (var ministry in _context.Ministries.ToList())
+                            {
+                                <li class="ministry-item">
+                                    <a asp-controller="Ministries" asp-action="ResultIndex" asp-route-ministryCode="@ministry.Code" class="dropdown-item">
+                                        @ministry.MinistryDisplayName
+                                    </a>
+                                </li>
+                            }
+                        </ul>
+                    </li>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="ProjectsDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="fas fa-project-diagram me-1"></i> @Localizer["Projects"]
+                        </a>
+                        <ul class="dropdown-menu" aria-labelledby="ProjectsDropdown">
+                            <li><a class="dropdown-item" asp-controller="Projects" asp-action="Index"><i class="fas fa-list me-2"></i>@Localizer["All Projects"]</a></li>
+                            <li><a class="dropdown-item" asp-controller="Monitoring" asp-action="Projects"><i class="fas fa-chart-line me-2"></i>@Localizer["Project Monitoring"]</a></li>
+                        </ul>
+                    </li>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="fas fa-user me-2"></i>
+                            @if (SignInManager.IsSignedIn(User))
+                            {
+                                var user = await UserManager.GetUserAsync(User);
+                                <span>@user?.UserName</span>
+                            }
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
+                            <li><a class="dropdown-item" href="#"><i class="fas fa-cog me-2"></i>@Localizer["Settings"]</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li>
+                                <form class="form-inline" asp-area="Identity" asp-page="/Account/Logout" asp-route-returnUrl="@Url.Action("Index", "Home", new { area = "" })">
+                                    <button type="submit" class="dropdown-item"><i class="fas fa-sign-out-alt me-2"></i>@Localizer["Logout"]</button>
+                                </form>
+                            </li>
+                        </ul>
+                    </li>
+                    <li>
+                        <form class="language-selector" asp-controller="Frameworks" asp-action="SetLanguage" method="post">
+                            <select name="culture" onchange="this.form.submit();">
+                                <option value="ar" selected="@(isArabic ? "selected" : null)">العربية</option>
+                                <option value="en" selected="@(isEnglish ? "selected" : null)">English</option>
+                            </select>
+                            <input type="hidden" name="returnUrl" value="@ViewContext.HttpContext.Request.Path" />
+                        </form>
+                    </li>
+                    <li>
+                        <div class="theme-selector">
+                            <select id="themeSelector" onchange="changeTheme(this.value)">
+                                <option value="blue">🔵 Blue Theme</option>
+                                <option value="green">🟢 Green Theme</option>
+                            </select>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </header>
+
+    <div class="dashboard-container">
+        <!-- Modern Sidebar -->
+        <div class="modern-sidebar">
+            <ul class="sidebar-nav">
+                <li>
+                    <a href="/Frameworks/Index" class="sidebar-link @(Context.Request.Path.Value.Contains("Frameworks") ? "active" : "")">
+                        <i class="fas fa-sitemap"></i>
+                        <span>@Localizer["Frameworks"]</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="/Ministries/Index" class="sidebar-link @(Context.Request.Path.Value.Contains("Ministries") ? "active" : "")">
+                        <i class="fas fa-building"></i>
+                        <span>@Localizer["Set Up"]</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="/Projects/Index" class="sidebar-link @(Context.Request.Path.Value.Contains("Projects") ? "active" : "")">
+                        <i class="fas fa-project-diagram"></i>
+                        <span>@Localizer["Projects"]</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="/Monitoring/Index" class="sidebar-link @(Context.Request.Path.Value.Contains("Monitoring") ? "active" : "")">
+                        <i class="fas fa-chart-line"></i>
+                        <span>@Localizer["Monitoring"]</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="/Dashboard/Index" class="sidebar-link @(Context.Request.Path.Value.Contains("Dashboard") ? "active" : "")">
+                        <i class="fas fa-tachometer-alt"></i>
+                        <span>@Localizer["Dashboard"]</span>
+                    </a>
+                </li>
+            </ul>
+
+            <!-- Language Selector -->
+            <div class="sidebar-language-selector">
+                <form asp-controller="Frameworks" asp-action="SetLanguage" method="post">
+                    <div class="language-dropdown">
+                        <i class="fas fa-globe me-2"></i>
+                        <select name="culture" onchange="this.form.submit();" class="language-select">
+                            <option value="ar" selected="@(currentCulture.StartsWith("ar") ? "selected" : null)">العربية</option>
+                            <option value="en" selected="@(currentCulture.StartsWith("en") ? "selected" : null)">English</option>
+                        </select>
+                    </div>
+                    <input type="hidden" name="returnUrl" value="@ViewContext.HttpContext.Request.Path" />
+                </form>
+            </div>
+        </div>
+
+        <!-- Main Content with Sidebar -->
+        <div class="main-content-with-sidebar">
+            @RenderBody()
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="dashboard-footer">
+        <div class="footer-content">
+            <!-- About Section -->
+            <div class="footer-section">
+                <div class="footer-logo">
+                    <img src="~/img/logo.png" alt="M&E Logo">
+                    <div class="logo-text">@Localizer["AppTitle"]</div>
+                </div>
+                <p>
+                    @Localizer["Comprehensive monitoring and evaluation platform for tracking development projects, measuring performance indicators, and assessing impact across multiple frameworks."]
+                </p>
+                <div class="social-links">
+                    <a href="#" title="Facebook"><i class="fab fa-facebook-f"></i></a>
+                    <a href="#" title="Twitter"><i class="fab fa-twitter"></i></a>
+                    <a href="#" title="LinkedIn"><i class="fab fa-linkedin-in"></i></a>
+                    <a href="#" title="YouTube"><i class="fab fa-youtube"></i></a>
+                </div>
+            </div>
+
+            <!-- Quick Links -->
+            <div class="footer-section">
+                <h4><i class="fas fa-link"></i>@Localizer["Quick Links"]</h4>
+                <ul>
+                    <li><a href="#"><i class="fas fa-tachometer-alt"></i>@Localizer["Dashboard"]</a></li>
+                    <li><a href="#"><i class="fas fa-project-diagram"></i>@Localizer["Projects"]</a></li>
+                    <li><a href="#"><i class="fas fa-chart-line"></i>@Localizer["Monitoring"]</a></li>
+                    <li><a href="#"><i class="fas fa-bullseye"></i>@Localizer["Frameworks"]</a></li>
+                    <li><a href="#"><i class="fas fa-file-alt"></i>@Localizer["Reports"]</a></li>
+                </ul>
+            </div>
+
+            <!-- Resources -->
+            <div class="footer-section">
+                <h4><i class="fas fa-book"></i>@Localizer["Resources"]</h4>
+                <ul>
+                    <li><a href="#"><i class="fas fa-question-circle"></i>@Localizer["Help Center"]</a></li>
+                    <li><a href="#"><i class="fas fa-file-download"></i>@Localizer["Documentation"]</a></li>
+                    <li><a href="#"><i class="fas fa-graduation-cap"></i>@Localizer["Training"]</a></li>
+                    <li><a href="#"><i class="fas fa-users"></i>@Localizer["Community"]</a></li>
+                    <li><a href="#"><i class="fas fa-headset"></i>@Localizer["Support"]</a></li>
+                </ul>
+            </div>
+
+            <!-- Contact Info -->
+            <div class="footer-section">
+                <h4><i class="fas fa-envelope"></i>@Localizer["Contact Us"]</h4>
+                <ul>
+                    <li><i class="fas fa-map-marker-alt"></i>@Localizer["Ministry Building, Government Quarter"]</li>
+                    <li><i class="fas fa-phone"></i>+1 (555) 123-4567</li>
+                    <li><i class="fas fa-envelope"></i>info@monitoring-platform.gov</li>
+                    <li><i class="fas fa-globe"></i>www.monitoring-platform.gov</li>
+                    <li><i class="fas fa-clock"></i>@Localizer["Mon-Fri: 8:00 AM - 5:00 PM"]</li>
+                </ul>
+            </div>
+
+            <!-- Partners Section -->
+            <div class="footer-section">
+                <h4><i class="fas fa-handshake"></i>@Localizer["Partners"]</h4>
+                <div class="footer-logo" style="background: none; box-shadow: none;">
+                    <img src="~/img/UNDB Logo.png" alt="UNDB Logo" style="width: 50%; height: 50%; background: transparent; border-radius: 0;">
+                </div>
+            </div>
+        </div>
+@* 
+        <!-- Statistics Section -->
+        <div class="footer-stats">
+            <div class="footer-stat">
+                <span class="footer-stat-number" id="footer-projects">@(_context.Projects.Count())</span>
+                <div class="footer-stat-label">@Localizer["Active Projects"]</div>
+            </div>
+            <div class="footer-stat">
+                <span class="footer-stat-number" id="footer-ministries">@(_context.Ministries.Count())</span>
+                <div class="footer-stat-label">@Localizer["Partner Ministries"]</div>
+            </div>
+            <div class="footer-stat">
+                <span class="footer-stat-number" id="footer-locations">@(_context.Governorates.Count())</span>
+                <div class="footer-stat-label">@Localizer["Governorates"]</div>
+            </div>
+            <div class="footer-stat">
+                <span class="footer-stat-number" id="footer-frameworks">@(_context.Frameworks.Count())</span>
+                <div class="footer-stat-label">@Localizer["Active Frameworks"]</div>
+            </div>
+        </div> *@
+
+        <!-- Footer Bottom -->
+        <div class="footer-bottom">
+            <p>
+                &copy; 2024 @Localizer["Monitoring & Evaluation Platform"]. @Localizer["All rights reserved."] |
+                @Localizer["Built with"] <i class="fas fa-heart" style="color: #2196F3;"></i> @Localizer["for better governance"]
+            </p>
+            <p style="margin-top: 10px; font-size: 0.85rem;">
+                <a href="#" style="color: #2196F3; text-decoration: none; margin: 0 10px;">@Localizer["Privacy Policy"]</a> |
+                <a href="#" style="color: #2196F3; text-decoration: none; margin: 0 10px;">@Localizer["Terms of Service"]</a> |
+                <a href="#" style="color: #2196F3; text-decoration: none; margin: 0 10px;">@Localizer["Data Protection"]</a>
+            </p>
+        </div>
+    </footer>
+
+    <!-- jQuery -->
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- Navigation JavaScript -->
+    <script>
+        // Theme switching functionality
+        function changeTheme(theme) {
+            document.documentElement.setAttribute('data-theme', theme);
+            localStorage.setItem('selectedTheme', theme);
+
+            // Recreate charts with new theme colors if createCharts function exists
+            if (typeof createCharts === 'function') {
+                setTimeout(() => {
+                    createCharts();
+                }, 100);
+            }
+        }
+
+        // Load saved theme or default to blue
+        function loadTheme() {
+            const savedTheme = localStorage.getItem('selectedTheme') || 'blue';
+            document.documentElement.setAttribute('data-theme', savedTheme);
+            const themeSelector = document.getElementById('themeSelector');
+            if (themeSelector) {
+                themeSelector.value = savedTheme;
+            }
+        }
+
+        document.addEventListener("DOMContentLoaded", function () {
+            // Load the theme when page loads
+            loadTheme();
+            // Dropdown submenu functionality
+            document.querySelectorAll('.dropdown-submenu').forEach(function(element) {
+                element.addEventListener('mouseenter', function (e) {
+                    let dropdownMenu = this.querySelector('.dropdown-menu');
+                    if (dropdownMenu) {
+                        dropdownMenu.style.display = 'block';
+                    }
+                });
+                element.addEventListener('mouseleave', function (e) {
+                    let dropdownMenu = this.querySelector('.dropdown-menu');
+                    if (dropdownMenu) {
+                        dropdownMenu.style.display = 'none';
+                    }
+                });
+            });
+
+            // Ministry search functionality
+            const ministrySearch = document.getElementById("ministrySearch");
+            if (ministrySearch) {
+                ministrySearch.addEventListener("keyup", function () {
+                    let filter = this.value.toLowerCase();
+                    let items = document.querySelectorAll("ul.dropdown-menu li.ministry-item");
+                    items.forEach(item => {
+                        let anchor = item.querySelector("a.dropdown-item");
+                        if (anchor) {
+                            item.style.display = anchor.textContent.toLowerCase().includes(filter) ? "" : "none";
+                        }
+                    });
+                });
+            }
+
+            // Dropdown submenu click functionality for mobile
+            $('.dropdown-submenu a.dropdown-toggle').on("click", function(e){
+                if (!$(this).next('ul').hasClass('show')) {
+                    $(this).parents('.dropdown-menu').first().find('.show').removeClass("show");
+                }
+                var $subMenu = $(this).next('ul');
+                $subMenu.toggleClass('show');
+
+                $(this).parents('li.nav-item.dropdown.show').on('hidden.bs.dropdown', function(e) {
+                    $('.dropdown-submenu .show').removeClass("show");
+                });
+
+                return false;
+            });
+
+            // Footer counter animation
+            function animateFooterCounter(elementId) {
+                const element = document.getElementById(elementId);
+                if (element) {
+                    const targetNumber = parseInt(element.textContent);
+                    const increment = targetNumber / 30;
+                    let current = 0;
+
+                    const timer = setInterval(() => {
+                        current += increment;
+                        if (current >= targetNumber) {
+                            current = targetNumber;
+                            clearInterval(timer);
+                        }
+                        element.textContent = Math.floor(current);
+                    }, 50);
+                }
+            }
+
+            // Animate footer counters when they come into view
+            const footerStats = document.querySelectorAll('.footer-stat-number');
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        animateFooterCounter(entry.target.id);
+                        observer.unobserve(entry.target);
+                    }
+                });
+            });
+
+            footerStats.forEach(stat => {
+                observer.observe(stat);
+            });
+        });
+    </script>
+
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

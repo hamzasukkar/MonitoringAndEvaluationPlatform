@@ -20,9 +20,9 @@
         @foreach (var sd in Model)
         {
             <tr>
-                <td>@sd.Name</td>
-                <td>@sd.District?.Name</td>
-                <td>@sd.District?.Governorate?.Name</td>
+                <td>@sd.EN_Name</td>
+                <td>@sd.District?.EN_Name</td>
+                <td>@sd.District?.Governorate?.EN_Name</td>
             </tr>
         }
     </tbody>

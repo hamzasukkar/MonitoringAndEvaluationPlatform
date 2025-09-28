@@ -1,0 +1,333 @@
+/* ===== DEFAULT THEME (Current) ===== */
+/* This maintains the original styling */
+
+/* Import Component Styles */
+@import url('../components/components-base.css');
+@import url('../components/components-default.css');
+@import url('../components/theme-dropdown.css');
+
+:root[data-theme="default"] {
+    /* Original Dark Green & Gold Theme Colors */
+    --primary-background-color: #1A3B33; /* Dark Green - Main background, topbar, table headers */
+    --secondary-card-background: #2A4C44; /* Slightly Lighter Dark Green - Cards, main content area, sidebar, table rows */
+    --accent-gold-color: #C8A85F; /* Gold - Accents, buttons, active states, important text */
+    
+    /* RGB Values for rgba() usage */
+    --primary-background-rgb: 26, 59, 51;
+    --secondary-card-background-rgb: 42, 76, 68;
+    --accent-gold-rgb: 200, 168, 95;
+    
+    /* Primary Colors (Based on original theme) */
+    --primary-color: #1A3B33;
+    --primary-dark: #0f2922;
+    --primary-light: #2A4C44;
+    
+    /* Secondary Colors */
+    --secondary-color: #6c757d;
+    --secondary-dark: #5c636a;
+    --secondary-light: #adb5bd;
+    
+    /* Success Colors */
+    --success-color: #198754;
+    --success-dark: #146c43;
+    --success-light: #75b798;
+    
+    /* Danger Colors */
+    --danger-color: #dc3545;
+    --danger-dark: #b02a37;
+    --danger-light: #ea868f;
+    
+    /* Warning Colors */
+    --warning-color: #C8A85F; /* Use gold as warning */
+    --warning-dark: #b8985a;
+    --warning-light: #d4b674;
+    
+    /* Info Colors */
+    --info-color: #0dcaf0;
+    --info-dark: #3dd5f3;
+    --info-light: #6edff6;
+    
+    /* Background Colors - Using original dark green theme */
+    --bg-body: #ffffff; /* Keep white for main content areas */
+    --bg-secondary: var(--secondary-card-background); /* Use dark green for secondary backgrounds */
+    --bg-tertiary: #3A5C54; /* Slightly lighter green for cards */
+    --bg-dark: var(--primary-background-color);
+    
+    /* Text Colors */
+    --text-primary: #212529; /* Dark text for light backgrounds */
+    --text-secondary: #6c757d;
+    --text-muted: #868e96;
+    --text-white: #ffffff;
+    --text-light: #E0E0E0; /* Light text for dark backgrounds */
+    
+    /* Border Colors - Match original theme */
+    --border-color: #4A6E66; /* Original border color */
+    --border-color-translucent: rgba(74, 110, 102, 0.125);
+    
+    /* Shadow */
+    --box-shadow: 0 .125rem .25rem rgba(0, 0, 0, .075);
+    --box-shadow-sm: 0 .125rem .25rem rgba(0, 0, 0, .075);
+    --box-shadow-lg: 0 1rem 3rem rgba(0, 0, 0, .175);
+    
+    /* Sidebar & Navigation */
+    --sidebar-bg: var(--primary-background-color);
+    --sidebar-text: var(--text-white);
+    --navbar-bg: var(--primary-background-color);
+    --navbar-text: var(--text-white);
+    
+    /* Cards - Use original dark green styling */
+    --card-bg: var(--bg-tertiary); /* 3A5C54 - slightly lighter than secondary */
+    --card-border: var(--border-color);
+    --card-cap-bg: var(--primary-background-color); /* Dark green for headers */
+    
+    /* Buttons */
+    --btn-primary-bg: var(--accent-gold-color);
+    --btn-primary-border: var(--accent-gold-color);
+    --btn-secondary-bg: var(--secondary-color);
+    --btn-secondary-border: var(--secondary-color);
+    
+    /* Form Controls - Use original dark green styling */
+    --input-bg: var(--primary-background-color); /* Dark green for form inputs */
+    --input-border: var(--border-color);
+    --input-focus-border: var(--accent-gold-color);
+    --input-text: var(--text-light); /* Light text for dark inputs */
+    
+    /* Tables - Use original dark green styling */
+    --table-bg: transparent;
+    --table-accent-bg: var(--secondary-card-background); /* Dark green for striped rows */
+    --table-hover-bg: var(--bg-tertiary); /* Slightly lighter green on hover */
+    --table-border-color: var(--border-color);
+    --table-header-bg: var(--primary-background-color); /* Dark green for headers */
+    --table-row-bg: var(--secondary-card-background); /* Dark green for rows */
+    
+    /* Progress Bars */
+    --progress-bg: var(--bg-secondary);
+    --progress-bar-bg: var(--accent-gold-color);
+}
+
+/* RTL Support for Default Theme */
+[data-theme="default"] body.rtl {
+    direction: rtl;
+    text-align: right;
+}
+
+[data-theme="default"] body.rtl .topbar {
+    flex-direction: row-reverse;
+}
+
+[data-theme="default"] body.rtl .sidebar {
+    right: 0;
+    left: auto;
+}
+
+[data-theme="default"] body.rtl .container-full {
+    margin-right: var(--sidebar-width);
+    margin-left: 0;
+}
+
+[data-theme="default"] body.rtl .sidebar a:hover,
+[data-theme="default"] body.rtl .sidebar a.active {
+    border-right: none;
+    border-left: 3px solid var(--primary-light);
+    padding-right: 1.5rem;
+    padding-left: calc(1.5rem - 3px);
+}
+
+[data-theme="default"] body.rtl .theme-switcher select {
+    background-position: 0.5rem center;
+    padding-right: 0.8rem;
+    padding-left: 2rem;
+}
+
+[data-theme="default"] body.rtl .form-control {
+    text-align: right;
+}
+
+[data-theme="default"] body.rtl .table th,
+[data-theme="default"] body.rtl .table td {
+    text-align: right;
+}
+
+/* Apply theme-specific styles */
+[data-theme="default"] .btn-primary {
+    background-color: var(--btn-primary-bg);
+    border-color: var(--btn-primary-border);
+}
+
+[data-theme="default"] .btn-secondary {
+    background-color: var(--btn-secondary-bg);
+    border-color: var(--btn-secondary-border);
+}
+
+[data-theme="default"] .card {
+    background-color: var(--card-bg);
+    border-color: var(--card-border);
+}
+
+[data-theme="default"] .card-header {
+    background-color: var(--card-cap-bg);
+}
+
+[data-theme="default"] .form-control {
+    background-color: var(--input-bg);
+    border-color: var(--input-border);
+}
+
+[data-theme="default"] .form-control:focus {
+    border-color: var(--input-focus-border);
+    box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.25);
+}
+
+[data-theme="default"] .table {
+    color: var(--text-primary);
+    border-color: var(--table-border-color);
+}
+
+[data-theme="default"] .table-striped > tbody > tr:nth-of-type(odd) > td {
+    background-color: var(--table-accent-bg);
+}
+
+[data-theme="default"] .progress {
+    background-color: #fff !important;
+}
+
+[data-theme="default"] .progress-bar {
+    background-color: var(--progress-bar-bg);
+}
+
+/* Navigation specific styles */
+[data-theme="default"] .topbar {
+    background-color: var(--navbar-bg);
+    color: var(--navbar-text);
+    border-bottom: 1px solid var(--accent-gold-color);
+}
+
+[data-theme="default"] .sidebar {
+    background-color: var(--sidebar-bg);
+    color: var(--sidebar-text);
+}
+
+[data-theme="default"] .sidebar a {
+    color: var(--sidebar-text);
+}
+
+[data-theme="default"] .sidebar a:hover {
+    background-color: rgba(200, 168, 95, 0.2); /* Gold hover with transparency */
+}
+
+[data-theme="default"] .sidebar a.active {
+    background-color: rgba(200, 168, 95, 0.3); /* Gold active state */
+    border-left: 3px solid var(--accent-gold-color);
+}
+
+/* Topbar title styling */
+[data-theme="default"] .topbar .title {
+    color: var(--accent-gold-color);
+    font-weight: bold;
+}
+
+/* Search form styling */
+[data-theme="default"] .search-form .form-control {
+    background-color: var(--input-bg) !important;
+    border-color: var(--input-border) !important;
+    color: var(--input-text) !important;
+}
+
+[data-theme="default"] .search-form .form-control::placeholder {
+    color: rgba(224, 224, 224, 0.7) !important;
+}
+
+[data-theme="default"] .search-form .btn {
+    background-color: var(--accent-gold-color);
+    border-color: var(--accent-gold-color);
+    color: var(--text-primary);
+}
+
+[data-theme="default"] .search-form .btn:hover {
+    background-color: var(--warning-dark);
+    border-color: var(--warning-dark);
+}
+
+/* All form controls styling */
+[data-theme="default"] .form-control,
+[data-theme="default"] .form-select {
+    background-color: var(--input-bg) !important;
+    border-color: var(--input-border) !important;
+    color: var(--input-text) !important;
+}
+
+[data-theme="default"] .form-control::placeholder,
+[data-theme="default"] .form-select::placeholder {
+    color: rgba(224, 224, 224, 0.7) !important;
+}
+
+[data-theme="default"] .form-control:focus,
+[data-theme="default"] .form-select:focus {
+    background-color: var(--input-bg) !important;
+    border-color: var(--input-focus-border) !important;
+    color: var(--input-text) !important;
+    box-shadow: 0 0 0 0.2rem rgba(200, 168, 95, 0.25) !important;
+}
+
+/* Card styling */
+[data-theme="default"] .card {
+    background-color: var(--card-bg) !important;
+    border-color: var(--card-border) !important;
+    color: var(--text-light) !important;
+}
+
+[data-theme="default"] .card-header {
+    background-color: var(--card-cap-bg) !important;
+    border-color: var(--card-border) !important;
+    color: var(--text-white) !important;
+}
+
+[data-theme="default"] .card-body {
+    background-color: var(--card-bg) !important;
+    color: var(--text-light) !important;
+}
+
+/* Table styling */
+[data-theme="default"] .table {
+    color: var(--text-light) !important;
+    border-color: var(--table-border-color) !important;
+}
+
+[data-theme="default"] .table thead th {
+    background-color: var(--table-header-bg) !important;
+    border-color: var(--table-border-color) !important;
+    color: var(--text-white) !important;
+}
+
+[data-theme="default"] .table tbody tr {
+    background-color: var(--table-row-bg) !important;
+    border-color: var(--table-border-color) !important;
+    color: var(--text-light) !important;
+}
+
+[data-theme="default"] .table tbody tr:nth-of-type(odd) {
+    background-color: var(--table-accent-bg) !important;
+}
+
+[data-theme="default"] .table tbody tr:hover {
+    background-color: var(--table-hover-bg) !important;
+    color: var(--text-light) !important;
+}
+
+[data-theme="default"] .table td,
+[data-theme="default"] .table th {
+    border-color: var(--table-border-color) !important;
+    color: inherit !important;
+}
+
+/* Filter forms and any other forms */
+[data-theme="default"] .filter-form .form-control,
+[data-theme="default"] .filter-form .form-select {
+    background-color: var(--input-bg) !important;
+    border-color: var(--input-border) !important;
+    color: var(--input-text) !important;
+}
+
+[data-theme="default"] .filter-form .form-control::placeholder {
+    color: rgba(224, 224, 224, 0.7) !important;
+}

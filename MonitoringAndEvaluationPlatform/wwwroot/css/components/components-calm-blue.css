@@ -1,0 +1,185 @@
+/* Calm Blue Theme Component Styles */
+
+/* Table Components - Calm Blue Theme */
+.table-hover tbody tr:hover {
+    background-color: rgba(var(--primary-background-rgb), 0.05) !important;
+}
+
+.table-light {
+    background-color: rgba(var(--accent-light-blue-rgb), 0.1) !important;
+    border-color: var(--primary-background-color);
+}
+
+/* Progress Bar Components - Calm Blue Theme */
+.progress {
+    background-color: rgba(var(--secondary-card-background-rgb), 0.2) !important;
+}
+
+/* Filter Components - Calm Blue Theme */
+.filter-options::-webkit-scrollbar-track {
+    background: rgba(var(--accent-light-blue-rgb), 0.1);
+}
+
+.filter-options::-webkit-scrollbar-thumb {
+    background: var(--primary-background-color);
+}
+
+.filter-options::-webkit-scrollbar-thumb:hover {
+    background: var(--secondary-background-color);
+}
+
+/* Card Components - Calm Blue Theme */
+.card {
+    background-color: var(--card-background-color) !important;
+    border-color: rgba(var(--accent-light-blue-rgb), 0.2) !important;
+}
+
+/* Form Components - Calm Blue Theme */
+.form-control {
+    background-color: var(--input-background-color) !important;
+    border-color: rgba(96, 165, 250, 0.3) !important;
+    color: var(--text-color) !important;
+}
+
+.form-control:focus {
+    background-color: var(--input-background-color) !important;
+    border-color: var(--accent-light-blue) !important;
+    box-shadow: 0 0 0 0.2rem rgba(96, 165, 250, 0.25) !important;
+}
+
+.form-check-input:checked {
+    background-color: var(--primary-background-color) !important;
+    border-color: var(--primary-background-color) !important;
+}
+
+/* Navigation Links - Calm Blue Theme */
+.nav-theme-link {
+    color: #fff !important;
+}
+
+.nav-theme-link:hover {
+    color: var(--accent-light-blue) !important;
+}
+
+/* Select2 Components - Calm Blue Theme */
+.select2-container .select2-selection--single {
+    background-color: var(--input-background-color) !important;
+    border-color: rgba(96, 165, 250, 0.3) !important;
+    color: var(--text-color) !important;
+}
+
+.select2-container .select2-selection--single:hover {
+    border-color: var(--accent-light-blue) !important;
+}
+
+.select2-container.select2-container--open .select2-selection--single {
+    border-color: var(--accent-light-blue) !important;
+    box-shadow: 0 0 0 0.2rem rgba(96, 165, 250, 0.25) !important;
+}
+
+.select2-container .select2-selection__rendered {
+    color: var(--text-color) !important;
+}
+
+.select2-container .select2-selection__arrow b {
+    border-top-color: var(--text-color) !important;
+}
+
+.select2-dropdown {
+    background-color: var(--dropdown-background-color) !important;
+    border-color: rgba(96, 165, 250, 0.3) !important;
+}
+
+.select2-results__option {
+    background-color: var(--dropdown-background-color) !important;
+    color: var(--text-color) !important;
+}
+
+.select2-results__option--highlighted {
+    background: linear-gradient(135deg, var(--primary-background-color), var(--secondary-background-color)) !important;
+    color: #fff !important;
+}
+
+.select2-results__option--selected {
+    background-color: rgba(96, 165, 250, 0.2) !important;
+    color: var(--text-color) !important;
+}
+
+/* Search Form Components - Calm Blue Theme */
+.search-form .card {
+    background-color: var(--card-background-color) !important;
+    box-shadow: 0 4px 12px rgba(26, 54, 93, 0.1) !important;
+}
+
+.search-form .card-header {
+    background: linear-gradient(135deg, var(--primary-background-color), var(--secondary-background-color)) !important;
+    color: #fff !important;
+}
+
+.search-form .form-control {
+    background-color: var(--input-background-color) !important;
+    border-color: var(--accent-light-blue) !important;
+}
+
+.search-form .btn-primary {
+    background: linear-gradient(135deg, var(--primary-background-color), var(--secondary-background-color)) !important;
+    border: none !important;
+}
+
+.search-form .btn-primary:hover {
+    background: linear-gradient(135deg, var(--secondary-background-color), var(--primary-background-color)) !important;
+    transform: translateY(-1px) !important;
+}
+
+/* Button Variants - Calm Blue Theme */
+.btn-outline-warning {
+    color: var(--accent-light-blue) !important;
+    border-color: var(--accent-light-blue) !important;
+}
+
+.btn-outline-warning:hover {
+    background-color: var(--accent-light-blue) !important;
+    border-color: var(--accent-light-blue) !important;
+    color: #fff !important;
+}
+
+/* Select2 Multiple Selection - Calm Blue Theme */
+.select2-container--default .select2-selection--multiple {
+    background-color: rgba(44, 90, 160, 0.1) !important;
+    border-color: rgba(96, 165, 250, 0.3) !important;
+}
+
+.select2-container--default .select2-results__option {
+    background-color: rgba(255, 255, 255, 0.9) !important;
+    color: var(--text-color) !important;
+    backdrop-filter: blur(8px);
+}
+
+.select2-container--default .select2-results__option--highlighted {
+    background-color: rgba(96, 165, 250, 0.4) !important;
+    color: var(--primary-background-color) !important;
+}
+
+.select2-container--default .select2-results__option[aria-selected=true] {
+    background-color: var(--primary-background-color) !important;
+    color: #fff !important;
+}
+
+.select2-container--default .select2-selection--multiple .select2-selection__choice {
+    background-color: var(--primary-background-color) !important;
+    color: #fff !important;
+    border-color: var(--secondary-background-color) !important;
+}
+
+/* Theme Color Indicators */
+.theme-calm-blue .color-circle:nth-child(1) {
+    background-color: #4a90b8 !important;
+}
+
+.theme-calm-blue .color-circle:nth-child(2) {
+    background-color: #708090 !important;
+}
+
+.theme-calm-blue .color-circle:nth-child(3) {
+    background-color: #f8fafc !important;
+}

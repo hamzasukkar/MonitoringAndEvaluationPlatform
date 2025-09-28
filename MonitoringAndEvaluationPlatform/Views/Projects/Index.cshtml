@@ -1,48 +1,55 @@
 ﻿@model MonitoringAndEvaluationPlatform.ViewModel.ProgramFilterViewModel
+@using MonitoringAndEvaluationPlatform.Helpers
 @using Microsoft.AspNetCore.Mvc.Localization
 @inject IViewLocalizer Localizer
 @using Microsoft.AspNetCore.Localization
 @{
     ViewData["Title"] = "Projects Dashboard";
-    Layout = "~/Views/Shared/_ProjectsLayout.cshtml";
+    Layout = "~/Views/Shared/_DashboardHomeLayout.cshtml";
 }
-<head>
-    <script src="~/lib/jquery/dist/jquery.min.js"></script>
-</head>
-<div class="container-fluid px-4">
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <div>
-            <h4 class="mb-0">@Localizer["Projects Dashboard"]</h4>
-            <p class="text-muted mb-0">@Localizer["Filter and analyze project performance"]</p>
-        </div>
-        <a asp-action="Create" class="btn btn-primary">
+<!-- Dashboard Header -->
+<div class="dashboard-header">
+    <h1 class="dashboard-title">
+        <i class="fas fa-project-diagram me-3"></i>
+        @Localizer["Projects Dashboard"]
+    </h1>
+    <p class="dashboard-subtitle">
+        @Localizer["Filter and analyze project performance with comprehensive insights"]
+    </p>
+    <div class="dashboard-actions">
+        <a asp-action="Create" class="btn btn-gradient-primary">
             <i class="fas fa-plus me-2"></i>@Localizer["Create New Project"]
         </a>
     </div>
+</div>
+
+<div class="container-fluid">
 
     <div class="row">
         <!-- Filter Sidebar -->
         <div class="col-md-3">
-            <div class="card shadow-sm mb-4">
-                <div class="card-header bg-light">
-                    <h5 class="mb-0">@Localizer["Filters"]</h5>
-                </div>
-                <div class="card-body">
+            <div class="chart-card mb-4">
+                <h3 class="chart-title">
+                    <i class="fas fa-filter"></i>
+                    @Localizer["Filters"]
+                </h3>
+                <div class="chart-content">
                     <form asp-action="Index" method="get">
                         <!-- Ministry Filter -->
                         @if (!Model.IsMinistryUser)
                         {
                             <div class="mb-4">
-                                <h6 class="fw-bold border-bottom pb-2">Ministry</h6>
-                                <div class="filter-options" style="max-height: 200px; overflow-y: auto;">
+                                <h6 class="filter-section-title">@Localizer["Ministry"]</h6>
+                                <div class="filter-options-modern" >
                                     @foreach (var ministry in Model.Ministries)
                                     {
-                                        <div class="form-check">
-                                            <input class="form-check-input" type="checkbox" name="SelectedMinistries"
+                                        <div class="modern-checkbox">
+                                            <input class="modern-checkbox-input" type="checkbox" name="SelectedMinistries"
                                                    value="@ministry.Code" id="ministry-@ministry.Code"
                                             @(Model.SelectedMinistries.Contains(ministry.Code) ? "checked" : "")>
-                                            <label class="form-check-label" for="ministry-@ministry.Code">
-                                                @ministry.MinistryDisplayName
+                                            <label class="modern-checkbox-label" for="ministry-@ministry.Code">
+                                                <span class="checkbox-custom"></span>
+                                                <span class="checkbox-text">@ministry.MinistryDisplayName</span>
                                             </label>
                                         </div>
                                     }
@@ -54,27 +61,28 @@
 
                         <!-- Donor Filter -->
                         <div class="mb-4">
-                            <h6 class="fw-bold border-bottom pb-2">Donor</h6>
-                            <div class="filter-options" style="max-height: 200px; overflow-y: auto;">
+                            <h6 class="filter-section-title">@Localizer["Donor"]</h6>
+                            <div class="filter-options-modern" >
                                 @foreach (var donor in Model.Donors)
                                 {
-                                    <div class="form-check">
-                                        <input class="form-check-input" type="checkbox" name="SelectedDonors"
+                                    <div class="modern-checkbox">
+                                        <input class="modern-checkbox-input" type="checkbox" name="SelectedDonors"
                                                value="@donor.Code" id="donor-@donor.Code"
                                         @(Model.SelectedDonors.Contains(donor.Code) ? "checked" : "")>
-                                        <label class="form-check-label" for="donor-@donor.Code">
-                                            @donor.Partner
+                                        <label class="modern-checkbox-label" for="donor-@donor.Code">
+                                            <span class="checkbox-custom"></span>
+                                            <span class="checkbox-text">@donor.Partner</span>
                                         </label>
                                     </div>
                                 }
                             </div>
                         </div>
 
-                        <div class="d-grid gap-2">
-                            <button type="submit" class="btn btn-primary">
+                        <div class="filter-actions">
+                            <button type="submit" class="btn btn-gradient-primary">
                                 <i class="fas fa-filter me-2"></i>@Localizer["Apply Filters"]
                             </button>
-                            <a asp-action="Index" class="btn btn-outline-secondary">
+                            <a asp-action="Index" class="btn btn-modern-secondary">
                                 <i class="fas fa-sync-alt me-2"></i>@Localizer["Reset"]
                             </a>
                         </div>
@@ -85,90 +93,65 @@
 
         <!-- Projects Table -->
         <div class="col-md-9">
-            <div class="card shadow-sm">
-                <div class="card-body">
-                    <div class="table-responsive">
-                        <table class="table table-hover">
-                            <thead class="table-light">
+            <div class="chart-card">
+                <h3 class="chart-title">
+                    <i class="fas fa-list"></i>
+                    @Localizer["Projects Overview"]
+                </h3>
+                <div class="chart-content">
+                    <div class="modern-table-container">
+                        <table class="modern-table">
+                            <thead class="table-header">
                                 <tr>
-                                    <th>@Localizer["Project Name"]</th>
-                                    <th>@Localizer["Performance"]</th>
-                                    <th>@Localizer["Financial"]</th>
-                                    @* 
-                                    <th>Physical</th>
-                                   <th>Disbursement</th>
-                                    <th>Monitoring</th>
-                                    <th>Impact</th> *@
-                                    <th class="text-end">@Localizer["Actions"]</th>
+                                    <th>
+                                        <i class="fas fa-project-diagram me-2"></i>@Localizer["Project Name"]
+                                    </th>
+                                    <th class="text-center">
+                                        <i class="fas fa-chart-line me-2"></i>@Localizer["Performance"]
+                                    </th>
+                                    <th class="text-center">
+                                        <i class="fas fa-dollar-sign me-2"></i>@Localizer["Disbursement"]
+                                    </th>
+                                    <th class="text-center">
+                                        <i class="fas fa-cogs me-2"></i>@Localizer["Actions"]
+                                    </th>
                                 </tr>
                             </thead>
                             <tbody>
                                 @foreach (var item in Model.Projects)
                                 {
                                     double performance = Math.Round(@item.performance, 0);
+                                    string performanceClass = ProgressBarHelper.GetProgressBarClass(performance);
+                                    string disbursementClass = ProgressBarHelper.GetProgressBarClass(item.DisbursementPerformance);
                                     var rowId = "row_" + item.ProjectID;
-                                    <tr id="row_@item.ProjectID">
-                                        <td class="project-name">@item.ProjectName</td>
-                                        <td>
-                                            @await Html.PartialAsync("_ProgressBar", new Tuple<double, string>(
-                                                     performance,
-                                                     performance >= 80 ? "success" :
-                                                     performance >= 50 ? "info" :
-                                                     performance >= 30 ? "warning" : "danger"
-                                                     ))
-                                        </td>  
-                                        <td>
-                                            @await Html.PartialAsync("_ProgressBar", new Tuple<double, string>(
-                                                     item.Financial,
-                                                     item.Financial >= 80 ? "success" :
-                                                     item.Financial >= 50 ? "info" :
-                                                     item.Financial >= 30 ? "warning" : "danger"
-                                                     ))
+                                    <tr id="row_@item.ProjectID" class="table-row">
+                                        <td class="project-name-cell">
+                                            <div class="d-flex align-items-center">
+                                                <div class="project-icon me-3">
+                                                    <i class="fas fa-project-diagram"></i>
+                                                </div>
+                                                <div>
+                                                    <a href="@Url.Action("Details", "Projects", new { id = item.ProjectID })" class="project-name fw-semibold">@item.ProjectName</a>
+                                                </div>
+                                            </div>
                                         </td>
-                                        @* 
-                                        <td>
-                                            @await Html.PartialAsync("_ProgressBar", new Tuple<double, string>(
-                                                     item.Physical,
-                                                     item.Physical >= 80 ? "success" :
-                                                     item.Physical >= 50 ? "info" :
-                                                     item.Physical >= 30 ? "warning" : "danger"
-                                                     ))
+                                        <td class="text-center" title="@Localizer["Performance"]: @performance%">
+                                            @await Html.PartialAsync("_ProgressBar", Tuple.Create(performance, performanceClass))
                                         </td>
-                                     <td>
-                                            @await Html.PartialAsync("_ProgressBar", new Tuple<double, string>(
-                                                     item.DisbursementPerformance,
-                                                     item.DisbursementPerformance >= 80 ? "success" :
-                                                     item.DisbursementPerformance >= 50 ? "info" :
-                                                     item.DisbursementPerformance >= 30 ? "warning" : "danger"
-                                                     ))
+                                        <td class="text-center" title="@Localizer["Disbursement"]: @Math.Round(item.DisbursementPerformance, 2)%">
+                                            @await Html.PartialAsync("_ProgressBar", Tuple.Create(item.DisbursementPerformance, disbursementClass))
                                         </td>
-                                        <td>
-                                            @await Html.PartialAsync("_ProgressBar", new Tuple<double, string>(
-                                                     item.FieldMonitoring,
-                                                     item.FieldMonitoring >= 80 ? "success" :
-                                                     item.FieldMonitoring >= 50 ? "info" :
-                                                     item.FieldMonitoring >= 30 ? "warning" : "danger"
-                                                     ))
-                                        </td>
-                                        <td>
-                                            @await Html.PartialAsync("_ProgressBar", new Tuple<double, string>(
-                                                     item.ImpactAssessment,
-                                                     item.ImpactAssessment >= 80 ? "success" :
-                                                     item.ImpactAssessment >= 50 ? "info" :
-                                                     item.ImpactAssessment >= 30 ? "warning" : "danger"
-                                                     ))
-                                        </td> *@
-                                        <td class="text-end">
-                                            <div class="btn-group" role="group">
-                                                <a asp-action="Details" asp-route-id="@item.ProjectID" class="btn btn-sm btn-outline-primary" title="View">
+                                        <td class="text-center">
+                                            <div class="btn-group action-buttons" role="group">
+                                                <a asp-action="Details" asp-route-id="@item.ProjectID" class="btn btn-outline-info btn-sm action-btn" title="@Localizer["View Details"]">
                                                     <i class="fas fa-eye"></i>
                                                 </a>
-                                                <button type="button" class="btn btn-sm btn-outline-warning"
-                                                        onclick="editProjectName(@item.ProjectID, '@item.ProjectName.Replace("'", "\\'")')">
+                                                <button type="button" class="btn btn-outline-primary btn-sm action-btn"
+                                                        onclick="editProjectName(@item.ProjectID, '@item.ProjectName.Replace("'", "\\'")')" title="@Localizer["Edit Project"]">
                                                     <i class="fas fa-edit"></i>
                                                 </button>
-                                                <button type="button" class="btn btn-sm btn-outline-danger"
-                                                        onclick="deleteProject(@item.ProjectID)">
+                                                <button type="button" class="btn btn-outline-danger btn-sm action-btn"
+                                                        onclick="deleteProject(@item.ProjectID)" title="@Localizer["Delete Project"]">
                                                     <i class="fas fa-trash-alt"></i>
                                                 </button>
                                             </div>
@@ -186,78 +169,349 @@
 </div>
 
 
+@section Scripts {
+    <!-- SweetAlert2 -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
     <style>
-        .filter-options {
-            scrollbar-width: thin;
+        /* Modern Table Styles */
+        .modern-table {
+            width:100%;
+            background: transparent;
+            border: none;
+            border-radius: 15px;
+            overflow: hidden;
         }
 
-            .filter-options::-webkit-scrollbar {
-                width: 6px;
-            }
-
-            .filter-options::-webkit-scrollbar-track {
-                background: #f1f1f1;
-            }
-
-            .filter-options::-webkit-scrollbar-thumb {
-                background: #888;
-                border-radius: 3px;
-            }
-
-                .filter-options::-webkit-scrollbar-thumb:hover {
-                    background: #555;
-                }
-
-        .form-check-label {
-            cursor: pointer;
+        .table-header {
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-dark) 100%);
+            color: white;
         }
 
-        .progress {
-            border-radius: 4px;
-            background-color: #e9ecef;
+        .table-header th {
+            border: none;
+            padding: 20px 15px;
+            font-weight: 600;
+            font-size: 0.95rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
         }
 
-        .progress-bar {
-            font-size: 0.75rem;
-            font-weight: 500;
+        .table-row {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border: none;
+            transition: all 0.3s ease;
+        }
+
+        .table-row:hover {
+            background: rgba(255, 255, 255, 1);
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+        }
+
+        .table-row td {
+            border: none;
+            padding: 20px 15px;
+            vertical-align: middle;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+        }
+
+        .project-name-cell {
+            min-width: 250px;
+        }
+
+        .project-icon {
+            width: 45px;
+            height: 45px;
+            background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+            border-radius: 12px;
             display: flex;
             align-items: center;
             justify-content: center;
+            color: white;
+            font-size: 1.2rem;
         }
 
-        .table-hover tbody tr:hover {
-            background-color: rgba(13, 110, 253, 0.05);
-        }
-
-        .card-header {
+        .project-name {
+            color: #333;
+            text-decoration: none;
             font-weight: 600;
+            font-size: 1.1rem;
+            transition: all 0.3s ease;
+            cursor: pointer;
         }
 
-        .btn-group .btn {
-            padding: 0.25rem 0.5rem;
+        .project-name:hover {
+            color: var(--primary-color);
+            text-decoration: none;
+            transform: translateX(5px);
         }
 
-    .table-responsive {
-        overflow-x: hidden;
+        .action-buttons {
+            gap: 5px;
+        }
+
+        .action-btn {
+            width: 35px;
+            height: 35px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+            border-width: 1px;
+        }
+
+        .action-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .modern-table-container {
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+        .filter-section-title {
+        font-size: 0.95rem;
+        font-weight: 600;
+        color: var(--text-color);
+        margin-bottom: 1rem;
+        padding-bottom: 0.5rem;
+        border-bottom: 2px solid rgba(255, 255, 255, 0.2);
+        display: flex;
+        align-items: center;
     }
-    </style>
+
+    .filter-section-title::before {
+        content: '';
+        width: 4px;
+        height: 20px;
+        background: linear-gradient(45deg, var(--primary-color), var(--primary-light));
+        border-radius: 2px;
+        margin-right: 0.75rem;
+    }
+
+    .filter-options-modern {
+        max-height: 200px;
+        overflow-y: auto;
+        padding-right: 0.5rem;
+    }
+
+    .modern-checkbox {
+        margin-bottom: 0.75rem;
+        position: relative;
+    }
+
+    .modern-checkbox-input {
+        position: absolute;
+        opacity: 0;
+        cursor: pointer;
+    }
+
+    .modern-checkbox-label {
+        display: flex;
+        align-items: center;
+        cursor: pointer;
+        padding: 0.5rem;
+        border-radius: 8px;
+        transition: all 0.3s ease;
+        color: var(--text-color);
+        font-weight: 500;
+    }
+
+    .modern-checkbox-label:hover {
+        background: rgba(255, 255, 255, 0.1);
+        transform: translateX(5px);
+    }
+
+    .checkbox-custom {
+        width: 18px;
+        height: 18px;
+        border: 2px solid rgba(255, 255, 255, 0.3);
+        border-radius: 4px;
+        margin-right: 0.75rem;
+        position: relative;
+        transition: all 0.3s ease;
+        background: rgba(255, 255, 255, 0.1);
+        backdrop-filter: blur(10px);
+    }
+
+    .modern-checkbox-input:checked + .modern-checkbox-label .checkbox-custom {
+        background: linear-gradient(45deg, var(--primary-color), var(--primary-light));
+        border-color: var(--primary-color);
+        transform: scale(1.1);
+    }
+
+    .modern-checkbox-input:checked + .modern-checkbox-label .checkbox-custom::after {
+        content: '✓';
+        position: absolute;
+        color: white;
+        font-size: 12px;
+        font-weight: bold;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+    }
+
+    .checkbox-text {
+        font-size: 0.9rem;
+        line-height: 1.4;
+    }
+
+    .filter-actions {
+        display: flex;
+        flex-direction: column;
+        gap: 0.75rem;
+        margin-top: 2rem;
+    }
+
+    .project-name-cell {
+        min-width: 250px;
+    }
+
+    .project-name-container {
+        display: flex;
+        align-items: center;
+        padding: 0.5rem 0;
+    }
+
+    .project-icon {
+        color: var(--primary-color);
+        opacity: 0.7;
+    }
+
+    .project-name {
+        font-weight: 600;
+        color: var(--text-color);
+        font-size: 0.95rem;
+    }
+
+    .action-buttons-group {
+        display: flex;
+        gap: 0.5rem;
+        justify-content: flex-end;
+    }
+
+    .btn-action-primary,
+    .btn-action-warning,
+    .btn-action-danger {
+        width: 35px;
+        height: 35px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 8px;
+        border: none;
+        transition: all 0.3s ease;
+        font-size: 0.85rem;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .btn-action-primary {
+        background: linear-gradient(45deg, var(--primary-color), var(--primary-light));
+        color: white;
+    }
+
+    .btn-action-warning {
+        background: linear-gradient(45deg, var(--warning-color), var(--accent-color));
+        color: white;
+    }
+
+    .btn-action-danger {
+        background: linear-gradient(45deg, var(--danger-color), #e74c3c);
+        color: white;
+    }
+
+    .btn-action-primary:hover,
+    .btn-action-warning:hover,
+    .btn-action-danger:hover {
+        transform: translateY(-2px) scale(1.05);
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+    }
+
+    .table-row-success {
+        background: linear-gradient(90deg, rgba(40, 167, 69, 0.1), rgba(40, 167, 69, 0.05)) !important;
+        animation: successPulse 2s ease;
+    }
+
+    @@keyframes successPulse {
+        0%, 100% { background: linear-gradient(90deg, rgba(40, 167, 69, 0.1), rgba(40, 167, 69, 0.05)); }
+        50% { background: linear-gradient(90deg, rgba(40, 167, 69, 0.2), rgba(40, 167, 69, 0.1)); }
+    }
+
+    /* Custom scrollbar for filter options */
+    .filter-options-modern::-webkit-scrollbar {
+        width: 6px;
+    }
+
+    .filter-options-modern::-webkit-scrollbar-track {
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 3px;
+    }
+
+    .filter-options-modern::-webkit-scrollbar-thumb {
+        background: linear-gradient(45deg, var(--primary-color), var(--primary-light));
+        border-radius: 3px;
+    }
+
+    .filter-options-modern::-webkit-scrollbar-thumb:hover {
+        background: linear-gradient(45deg, var(--primary-dark), var(--primary-color));
+    }
+
+    /* Responsive Design */
+    @@media (max-width: 768px) {
+        .action-buttons-group {
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .btn-action-primary,
+        .btn-action-warning,
+        .btn-action-danger {
+            width: 40px;
+            height: 40px;
+        }
+
+        .project-name-container {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+
+        .project-icon {
+            margin-bottom: 0.25rem;
+        }
+    }
+</style>
+
+<script src="~/lib/jquery/dist/jquery.min.js"></script>
 <script>
     const token = $('input[name="__RequestVerificationToken"]').val();
 
     function editProjectName(projectId, currentName) {
-       debugger
         Swal.fire({
-            title: 'Edit Project Name',
+            title: '@Localizer["Edit Project Name"]',
             input: 'text',
-            inputLabel: 'Project Name',
+            inputLabel: '@Localizer["Project Name"]',
             inputValue: currentName,
             showCancelButton: true,
-            confirmButtonText: 'Save',
+            confirmButtonText: '@Localizer["Save"]',
+            cancelButtonText: '@Localizer["Cancel"]',
+            confirmButtonColor: 'var(--primary-color)',
+            cancelButtonColor: 'var(--secondary-color)',
             preConfirm: (newName) => {
                 if (!newName.trim()) {
-                    Swal.showValidationMessage('Project name cannot be empty');
+                    Swal.showValidationMessage('@Localizer["Project name cannot be empty"]');
                 }
                 return newName.trim();
+            },
+            customClass: {
+                popup: 'modern-swal-popup',
+                title: 'modern-swal-title',
+                input: 'modern-swal-input'
             }
         }).then((result) => {
             if (result.isConfirmed) {
@@ -271,29 +525,51 @@
                     },
                     success: function () {
                         $(`#row_${projectId} .project-name`).text(result.value);
-                        Swal.fire('Updated!', 'Project name has been updated.', 'success');
-                            $(`#row_${projectId}`).addClass('table-success');
-
-    setTimeout(() => {
-        $(`#row_${projectId}`).removeClass('table-success');
-    }, 2000);
+                        Swal.fire({
+                            title: '@Localizer["Updated!"]',
+                            text: '@Localizer["Project name has been updated."]',
+                            icon: 'success',
+                            confirmButtonColor: 'var(--primary-color)',
+                            customClass: {
+                                popup: 'modern-swal-popup'
+                            }
+                        });
+                        $(`#row_${projectId}`).addClass('table-row-success');
+                        setTimeout(() => {
+                            $(`#row_${projectId}`).removeClass('table-row-success');
+                        }, 2000);
                     },
                     error: function () {
-                        Swal.fire('Error', 'Failed to update project name.', 'error');
+                        Swal.fire({
+                            title: '@Localizer["Error"]',
+                            text: '@Localizer["Failed to update project name."]',
+                            icon: 'error',
+                            confirmButtonColor: 'var(--danger-color)',
+                            customClass: {
+                                popup: 'modern-swal-popup'
+                            }
+                        });
                     }
                 });
             }
         });
     }
 
-     function deleteProject(projectId) {
+    function deleteProject(projectId) {
         Swal.fire({
-            title: 'Are you sure?',
-            text: 'This will permanently delete the project.',
+            title:'@Localizer["Are you sure?"]',
+            text: '@Localizer["This will delete the project!"]',
             icon: 'warning',
             showCancelButton: true,
-            confirmButtonText: 'Yes, delete it!',
-            reverseButtons: true
+            cancelButtonText: '@Localizer["Cancel"]',
+            confirmButtonText: '@Localizer["Yes, delete it!"]',
+            reverseButtons: true,
+            confirmButtonColor: 'var(--danger-color)',
+            cancelButtonColor: 'var(--secondary-color)',
+            customClass: {
+                popup: 'modern-swal-popup',
+                title: 'modern-swal-title'
+            }
         }).then((result) => {
             if (result.isConfirmed) {
                 $.ajax({
@@ -304,19 +580,60 @@
                         __RequestVerificationToken: token
                     },
                     success: function () {
-                        // Remove the row from the table
-                        $(`#row_${projectId}`).remove();
-                        Swal.fire('Deleted!', 'Project has been deleted.', 'success');
+                        // Animate row removal
+                        $(`#row_${projectId}`).fadeOut(500, function() {
+                            $(this).remove();
+                        });
+                        Swal.fire({
+                            title: '@Localizer["Deleted!"]',
+                            text: '@Localizer["Project has been deleted."]',
+                            icon: 'success',
+                            confirmButtonColor: 'var(--primary-color)',
+                            customClass: {
+                                popup: 'modern-swal-popup'
+                            }
+                        });
                     },
                     error: function () {
-                        Swal.fire('Error', 'Failed to delete project.', 'error');
+                        Swal.fire({
+                            title: '@Localizer["Error"]',
+                            text: '@Localizer["Failed to delete project."]',
+                            icon: 'error',
+                            confirmButtonColor: 'var(--danger-color)',
+                            customClass: {
+                                popup: 'modern-swal-popup'
+                            }
+                        });
                     }
                 });
             }
         });
     }
+
+    // Add loading animation on page load
+    document.addEventListener('DOMContentLoaded', function() {
+        // Animate table rows
+        const tableRows = document.querySelectorAll('.table-row-hover');
+        tableRows.forEach((row, index) => {
+            row.style.opacity = '0';
+            row.style.transform = 'translateY(20px)';
+            row.style.transition = 'all 0.6s ease';
+            
+            setTimeout(() => {
+                row.style.opacity = '1';
+                row.style.transform = 'translateY(0)';
+            }, index * 100);
+        });
+
+        // Animate progress bars
+        const progressBars = document.querySelectorAll('.progress-fill-modern');
+        progressBars.forEach(bar => {
+            const width = bar.style.width;
+            bar.style.width = '0%';
+            setTimeout(() => {
+                bar.style.width = width;
+            }, 500);
+        });
+    });
 </script>
-
-
-
-
+}

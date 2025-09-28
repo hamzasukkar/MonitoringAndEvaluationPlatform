@@ -23,11 +23,26 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             _userManager = userManager;
             _roleManager = roleManager;
         }
-
         // GET: Ministries
         public async Task<IActionResult> Index()
         {
-            return View(await _context.Ministries.ToListAsync());
+            var ministries = await _context.Ministries.ToListAsync();
+            return View(ministries);
+        }
+
+        // GET: Ministries
+        public async Task<IActionResult> ResultIndex(int? ministryCode)
+        {
+            IQueryable<Ministry> query = _context.Ministries;
+
+            if (ministryCode.HasValue)
+            {
+                // Show only the ministry with the given code
+                query = query.Where(m => m.Code == ministryCode.Value);
+            }
+
+            var ministries = await query.ToListAsync();
+            return View(ministries);
         }
 
         // GET: Ministries/Details/5
@@ -187,6 +202,107 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         private bool MinistryExists(int id)
         {
             return _context.Ministries.Any(e => e.Code == id);
+        }
+
+        // Inline Operations
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> CreateInline(string MinistryDisplayName, string MinistryUserName)
+        {
+            if (string.IsNullOrWhiteSpace(MinistryDisplayName))
+            {
+                return Json(new { success = false, message = "Display Name is required." });
+            }
+
+            var ministry = new Ministry
+            {
+                MinistryDisplayName = MinistryDisplayName,
+                MinistryUserName = MinistryUserName ?? MinistryDisplayName.Replace(" ", "").ToLower()
+            };
+
+            try
+            {
+                _context.Ministries.Add(ministry);
+                await _context.SaveChangesAsync();
+                return Json(new { success = true, ministry = new { ministry.Code, ministry.MinistryDisplayName, ministry.MinistryUserName } });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = "Error creating ministry: " + ex.Message });
+            }
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> InlineEdit(int id, string field, string value)
+        {
+            var ministry = await _context.Ministries.FindAsync(id);
+            if (ministry == null)
+                return Json(new { success = false, message = "Ministry not found" });
+
+            switch (field.ToLower())
+            {
+                case "ministrydisplayname":
+                    ministry.MinistryDisplayName = value;
+                    break;
+                case "ministryusername":
+                    ministry.MinistryUserName = value;
+                    break;
+                default:
+                    return Json(new { success = false, message = "Invalid field" });
+            }
+
+            try
+            {
+                await _context.SaveChangesAsync();
+                return Json(new { success = true });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = ex.Message });
+            }
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> QuickUpdate(int id, string displayName, string userName)
+        {
+            var ministry = await _context.Ministries.FindAsync(id);
+            if (ministry == null)
+                return Json(new { success = false, message = "Ministry not found" });
+
+            if (string.IsNullOrWhiteSpace(displayName))
+                return Json(new { success = false, message = "Display Name is required" });
+
+            ministry.MinistryDisplayName = displayName;
+            ministry.MinistryUserName = userName;
+
+            try
+            {
+                await _context.SaveChangesAsync();
+                return Json(new { success = true });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = ex.Message });
+            }
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> InlineDelete(int id)
+        {
+            var ministry = await _context.Ministries.FindAsync(id);
+            if (ministry == null)
+                return Json(new { success = false, message = "Ministry not found" });
+
+            try
+            {
+                _context.Ministries.Remove(ministry);
+                await _context.SaveChangesAsync();
+                return Json(new { success = true });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = ex.Message });
+            }
         }
     }
 }

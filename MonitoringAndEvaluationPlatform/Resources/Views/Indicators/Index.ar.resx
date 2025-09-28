@@ -117,26 +117,23 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="Indicators Performance" xml:space="preserve">
-    <value>مؤشرات الأداء</value>
-  </data>
   <data name="Field Monitoring" xml:space="preserve">
     <value>الرصد الميداني</value>
   </data>
   <data name="Framework Name" xml:space="preserve">
-    <value>اسم الإطار</value>
+    <value>اسم الإستراتيجية</value>
   </data>
   <data name="Disbursement Performance" xml:space="preserve">
     <value>أداء الصرف</value>
   </data>
   <data name="Impact Assessment" xml:space="preserve">
-    <value>تقييم الأثر</value>
+    <value>التقيم</value>
   </data>
   <data name="Actions" xml:space="preserve">
     <value>الإجراءات</value>
   </data>
   <data name="SubOutput" xml:space="preserve">
-    <value>الإخراج الفرعي</value>
+    <value>البرنامج الفرعي</value>
   </data>
   <data name="Search" xml:space="preserve">
     <value>البحث</value>
@@ -154,21 +151,84 @@
     <value>إضافة مؤشر جديد</value>
   </data>
   <data name="Adjust Weights" xml:space="preserve">
-    <value>ضبط الأوزان</value>
+    <value>التثقيل</value>
   </data>
   <data name="View and manage all indicator performance metrics" xml:space="preserve">
-    <value>عرض وإدارة جميع مقاييس أداء المؤشرات</value>
+    <value>عرض وإدارة جميع مقاييس أداء المشاريع</value>
   </data>
   <data name="Indicators Management" xml:space="preserve">
-    <value>إدارة المؤشرات</value>
+    <value>إدارة المشاريع</value>
   </data>
   <data name="Indicator Name" xml:space="preserve">
-    <value>اسم المؤشر</value>
-  </data>
-  <data name="Search by indicator name or suboutput" xml:space="preserve">
-    <value>البحث حسب اسم المؤشر أو الناتج الفرعي...</value>
+    <value>اسم المشروع</value>
   </data>
   <data name="Create New Indicator" xml:space="preserve">
-    <value>إنشاء مؤشر جديد</value>
+    <value>إنشاء مشروع جديد</value>
+  </data>
+  <data name="Weight" xml:space="preserve">
+    <value>الوزن</value>
+  </data>
+  <data name="Deleted!" xml:space="preserve">
+    <value>تم الحذف!</value>
+  </data>
+  <data name="Indicator has been deleted." xml:space="preserve">
+    <value>تم حذف المؤشر بنجاح.</value>
+  </data>
+  <data name="Failed to delete the indicator." xml:space="preserve">
+    <value>فشل في حذف المؤشر.</value>
+  </data>
+  <data name="Are you sure?" xml:space="preserve">
+    <value>هل أنت متأكد؟</value>
+  </data>
+  <data name="You won't be able to revert this!" xml:space="preserve">
+    <value>لن تتمكن من التراجع عن هذا!</value>
+  </data>
+  <data name="Yes, delete it!" xml:space="preserve">
+    <value>نعم احذفه!</value>
+  </data>
+  <data name="Updated!" xml:space="preserve">
+    <value>تم التحديث!</value>
+  </data>
+  <data name="Indicator name updated successfully" xml:space="preserve">
+    <value>تم تحديث اسم المؤشر بنجاح</value>
+  </data>
+  <data name="Could not save changes" xml:space="preserve">
+    <value>لم يتمكن من حفظ التغييرات</value>
+  </data>
+  <data name="earch by indicator name or suboutput..." xml:space="preserve">
+    <value>البحث حسب اسم المؤشر أو الناتج الفرعي...</value>
+  </data>
+  <data name="Search by indicator name or suboutput..." xml:space="preserve">
+    <value>البحث حسب اسم المشروع أو البرنامج الفرعي...</value>
+  </data>
+  <data name="Indicators Performance" xml:space="preserve">
+    <value>الأداء والأنجاز</value>
+  </data>
+  <data name="Add &amp; Create Project" xml:space="preserve">
+    <value>إضافة وإنشاء  استمارة مشروع</value>
+  </data>
+  <data name="Card View" xml:space="preserve">
+    <value>عرض البطاقة</value>
+  </data>
+  <data name="Table View" xml:space="preserve">
+    <value>عرض الجدول</value>
+  </data>
+  <data name="Indicators" xml:space="preserve">
+    <value>المؤشرات</value>
+  </data>
+  <data name="Search Indicators" xml:space="preserve">
+    <value>البحث</value>
+  </data>
+  <data name="View and manage all indicator performance metrics across development frameworks" xml:space="preserve">
+    <value>عرض وإدارة جميع مقاييس أداء المؤشرات عبر أطر التطوير</value>
+  </data>
+  <data name="Enter indicator name" xml:space="preserve">
+    <value>أدخل اسم المؤشر</value>
+  </data>
+  <data name="Enter target value" xml:space="preserve">
+    <value>أدخل قيمة الهدف</value>
+  </data>
+  <data name="Reset" xml:space="preserve">
+    <value>إعادة ضبط</value>
   </data>
 </root>

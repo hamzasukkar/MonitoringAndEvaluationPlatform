@@ -14,6 +14,7 @@
     --warning-color: #ffc107;
     --danger-color: #dc3545;
     --orange-color: #fd7e14; /* For specific progress bars or warnings */
+    --yellow-color: #ffc107; /* A nice shade of yellow */
 
     --sidebar-width: 250px;
     --font-family-sans-serif: 'Inter', sans-serif; /* Using Inter font */
@@ -452,6 +453,10 @@ body.rtl .main {
 /* Specific progress bar colors */
 .progress-bar-orange {
     background-color: var(--orange-color);
+}
+/* Specific progress bar colors if still used */
+.progress-bar-yellow {
+    background-color: var(--yellow-color);
 }
 
 /* Adjust text colors for specific Bootstrap classes if they appear on dark backgrounds */

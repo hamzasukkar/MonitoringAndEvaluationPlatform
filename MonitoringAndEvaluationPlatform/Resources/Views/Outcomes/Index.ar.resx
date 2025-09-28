@@ -118,13 +118,13 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <data name="Indicators Performance" xml:space="preserve">
-    <value>مؤشرات الأداء</value>
+    <value>الأداء والأنجاز</value>
   </data>
   <data name="Field Monitoring" xml:space="preserve">
     <value>الرصد الميداني</value>
   </data>
   <data name="Framework Name" xml:space="preserve">
-    <value>اسم الإطار</value>
+    <value>اسم الإستراتيجية</value>
   </data>
   <data name="Disbursement Performance" xml:space="preserve">
     <value>أداء الصرف</value>
@@ -136,24 +136,57 @@
     <value>الإجراءات</value>
   </data>
   <data name="Outcomes Management" xml:space="preserve">
-    <value>إدارة النتائج</value>
+    <value>إدارة السياسات</value>
   </data>
   <data name="Adjust Weights" xml:space="preserve">
-    <value>ضبط الأوزان</value>
+    <value>التثقيل</value>
   </data>
   <data name="Outcome Name" xml:space="preserve">
-    <value>اسم النتيجة</value>
+    <value>اسم السياسة</value>
   </data>
   <data name="Save Outcome" xml:space="preserve">
-    <value>حفظ النتيجة</value>
+    <value>حفظ السياسة</value>
   </data>
   <data name="Weight" xml:space="preserve">
-    <value>وزن</value>
+    <value>الوزن</value>
   </data>
   <data name="Framework" xml:space="preserve">
-    <value>نطاق</value>
+    <value>الإستراتيجية</value>
   </data>
   <data name="Create New Outcome" xml:space="preserve">
-    <value>إنشاء نتيجة جديدة</value>
+    <value>إنشاء سياسة جديدة</value>
+  </data>
+  <data name="Outcomes" xml:space="preserve">
+    <value>السياسات</value>
+  </data>
+  <data name="Manage and monitor development outcomes and their performance indicators" xml:space="preserve">
+    <value>إدارة ومراقبة نتائج التنمية ومؤشرات أدائها</value>
+  </data>
+  <data name="Enter outcome name" xml:space="preserve">
+    <value>أدخل اسم السياسة</value>
+  </data>
+  <data name="Outcome name updated successfully." xml:space="preserve">
+    <value>تم تحديث اسم النتيجة بنجاح.</value>
+  </data>
+  <data name="Saved!" xml:space="preserve">
+    <value>تم الحفظ!</value>
+  </data>
+  <data name="Are you sure?" xml:space="preserve">
+    <value>هل أنت متأكد؟</value>
+  </data>
+  <data name="This will permanently delete the outcome and all associated data!" xml:space="preserve">
+    <value>سيؤدي هذا إلى حذف النتيجة وجميع البيانات المرتبطة بها بشكل دائم!</value>
+  </data>
+  <data name="Yes, delete it!" xml:space="preserve">
+    <value>نعم احذفه!</value>
+  </data>
+  <data name="Cancel" xml:space="preserve">
+    <value>إلغاء</value>
+  </data>
+  <data name="Outcome has been deleted successfully." xml:space="preserve">
+    <value>تم حذف النتيجة بنجاح.</value>
+  </data>
+  <data name="Deleted!" xml:space="preserve">
+    <value>تم الحذف</value>
   </data>
 </root>

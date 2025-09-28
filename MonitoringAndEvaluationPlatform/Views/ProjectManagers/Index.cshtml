@@ -1,42 +1,590 @@
 ﻿@model IEnumerable<MonitoringAndEvaluationPlatform.Models.ProjectManager>
-
+@using Microsoft.AspNetCore.Mvc.Localization
+@inject IViewLocalizer Localizer
+@using Microsoft.AspNetCore.Localization
 @{
-    ViewData["Title"] = "Index";
-    Layout = "~/Views/Shared/_SetUpLayout.cshtml";
+    ViewData["Title"] = "ProjectManagers";
+    Layout = "~/Views/Shared/_DashboardHomeLayout.cshtml";
 }
 
-<h1>Index</h1>
+<!-- Dashboard Header -->
+<div class="dashboard-header">
+    <div class="header-content">
+        <div class="page-title-section">
+            <div class="page-breadcrumb">
+                <a href="@Url.Action("Index", "Home")" class="breadcrumb-link">
+                    <i class="fas fa-home"></i>
+                    @Localizer["Home"]
+                </a>
+                <i class="fas fa-chevron-right breadcrumb-separator"></i>
+                <span class="current-page">@Localizer["Project Managers"]</span>
+            </div>
+            <h1 class="page-title">@Localizer["Project Manager Management"]</h1>
+            <p class="page-description">@Localizer["Manage project managers and their contact information"]</p>
+        </div>
+    </div>
+</div>
 
-<p>
-    <a asp-action="Create">Create New</a>
-</p>
-<table class="table">
-    <thead>
-        <tr>
-            <th>
-                @Html.DisplayNameFor(model => model.Name)
-            </th>
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-@foreach (var item in Model) {
-        <tr>
-            <td>
-                @Html.DisplayFor(modelItem => item.Name)
-            </td>
-                <td class="text-end">
-                    <div class="btn-group" role="group">
-                        <a asp-action="Edit" asp-route-id="@item.Code" class="btn btn-sm btn-outline-warning" title="Edit">
-                            <i class="fas fa-edit"></i>
-                        </a>
-                        <a asp-action="Delete" asp-route-id="@item.Code" class="btn btn-sm btn-outline-danger" title="Delete">
-                            <i class="fas fa-trash-alt"></i>
-                        </a>
-                    </div>
-                </td>
+@await Html.PartialAsync("_ManagementNavigation")
 
-        </tr>
+<!-- Quick Add Section -->
+<div class="chart-card mb-4">
+    <div class="chart-title">
+        <i class="fas fa-user-tie"></i>
+        @Localizer["Add New Project Manager"]
+    </div>
+    <form id="createProjectManagerForm" class="row g-3">
+        @Html.AntiForgeryToken()
+        <div class="col-md-3">
+            <label for="Name" class="form-label fw-bold">
+                <i class="fas fa-user me-2"></i>@Localizer["Project Manager Name"]
+            </label>
+            <input type="text" name="Name" class="form-control form-control-lg" required
+                   placeholder="@Localizer["Enter project manager name"]" />
+        </div>
+        <div class="col-md-3">
+            <label for="PhoneNumber" class="form-label fw-bold">
+                <i class="fas fa-phone me-2"></i>@Localizer["Phone Number"]
+            </label>
+            <input type="text" name="PhoneNumber" class="form-control form-control-lg"
+                   placeholder="@Localizer["Enter phone number"]" />
+        </div>
+        <div class="col-md-3">
+            <label for="Email" class="form-label fw-bold">
+                <i class="fas fa-envelope me-2"></i>@Localizer["Email"]
+            </label>
+            <input type="email" name="Email" class="form-control form-control-lg"
+                   placeholder="@Localizer["Enter email address"]" />
+        </div>
+        <div class="col-md-3 d-flex align-items-end">
+            <div class="d-grid w-100">
+                <button type="submit" class="btn btn-primary btn-lg">
+                    <i class="fas fa-plus-circle me-2"></i>@Localizer["Create Project Manager"]
+                </button>
+            </div>
+        </div>
+    </form>
+</div>
+
+<!-- ProjectManagers Table -->
+<div class="chart-card">
+    <div class="chart-title">
+        <i class="fas fa-users-cog"></i>
+        @Localizer["Project Managers List"]
+    </div>
+    <div class="table-responsive">
+        <table class="table table-hover modern-table">
+            <thead class="table-header">
+                <tr>
+                    <th>
+                        <i class="fas fa-user me-2"></i>
+                        @Localizer["Project Manager Name"]
+                    </th>
+                    <th>
+                        <i class="fas fa-phone me-2"></i>
+                        @Localizer["Phone Number"]
+                    </th>
+                    <th>
+                        <i class="fas fa-envelope me-2"></i>
+                        @Localizer["Email"]
+                    </th>
+                    <th class="text-center">
+                        <i class="fas fa-cogs me-2"></i>
+                        @Localizer["Actions"]
+                    </th>
+                </tr>
+            </thead>
+            <tbody id="projectManagersTableBody">
+                @foreach (var item in Model)
+                {
+                    <tr id="projectmanager-row-@item.Code" class="table-row">
+                        <td>
+                            <span id="projectmanager-name-@item.Code" class="projectmanager-name-view fw-semibold">
+                                @item.Name
+                            </span>
+                            <input type="text" id="projectmanager-name-input-@item.Code" class="form-control form-control-sm projectmanager-name-edit d-none" value="@item.Name" />
+                        </td>
+                        <td>
+                            <span id="projectmanager-phone-@item.Code" class="projectmanager-phone-view text-muted">
+                                @item.PhoneNumber
+                            </span>
+                            <input type="text" id="projectmanager-phone-input-@item.Code" class="form-control form-control-sm projectmanager-phone-edit d-none" value="@item.PhoneNumber" />
+                        </td>
+                        <td>
+                            <span id="projectmanager-email-@item.Code" class="projectmanager-email-view text-muted">
+                                @item.Email
+                            </span>
+                            <input type="email" id="projectmanager-email-input-@item.Code" class="form-control form-control-sm projectmanager-email-edit d-none" value="@item.Email" />
+                        </td>
+                        <td class="text-center">
+                            <div class="btn-group action-buttons" role="group">
+                                <button class="btn btn-outline-primary btn-sm action-btn"
+                                        id="edit-btn-@item.Code"
+                                        onclick="toggleProjectManagerEdit(@item.Code)" title="@Localizer["Edit"]">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                                <button class="btn btn-outline-danger btn-sm action-btn" title="@Localizer["Delete"]"
+                                        onclick="deleteProjectManager(@item.Code)">
+                                    <i class="fas fa-trash-alt"></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+@section Scripts {
+    <!-- SweetAlert2 -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <style>
+        /* Modern Table Styles */
+        .modern-table {
+            background: transparent;
+            border: none;
+            border-radius: 15px;
+            overflow: hidden;
+        }
+
+        .table-header {
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-dark) 100%);
+            color: white;
+        }
+
+        .table-header th {
+            border: none;
+            padding: 20px 15px;
+            font-weight: 600;
+            font-size: 0.95rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .table-row {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border: none;
+            transition: all 0.3s ease;
+        }
+
+        .table-row:hover {
+            background: rgba(255, 255, 255, 1);
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+        }
+
+        .table-row td {
+            border: none;
+            padding: 20px 15px;
+            vertical-align: middle;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+        }
+
+        .action-buttons {
+            gap: 5px;
+        }
+
+        .action-btn {
+            width: 35px;
+            height: 35px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+            border-width: 1px;
+        }
+
+        .action-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .table-responsive {
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+        /* Form styling */
+        .form-control-lg {
+            border: 2px solid rgba(0, 0, 0, 0.1);
+            border-radius: 10px;
+            transition: all 0.3s ease;
+        }
+
+        .form-control-lg:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 0.2rem color-mix(in srgb, var(--primary-color) 25%, transparent);
+        }
+
+        .fw-semibold {
+            font-weight: 600;
+            color: #333;
+        }
+
+        .text-muted {
+            color: #6c757d !important;
+            font-size: 0.9rem;
+        }
+
+        .form-label {
+            color: #374151;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+
+        .form-label i {
+            color: var(--primary-color);
+        }
+
+        .editable-field {
+            cursor: pointer;
+            padding: 4px 8px;
+            border-radius: 4px;
+            min-width: 100px;
+            display: inline-block;
+        }
+
+        .editable-field:hover {
+            background-color: #f8f9fa;
+            border: 1px solid #dee2e6;
+        }
+
+        .editing .editable-field {
+            background-color: #fff;
+            border: 1px solid #007bff;
+        }
+
+        .edit-input {
+            width: 100%;
+            border: 1px solid #007bff;
+            border-radius: 4px;
+            padding: 4px 8px;
+            font-size: 0.9rem;
+        }
+    </style>
+
+    <script>
+        $(document).ready(function() {
+
+        // Create Project Manager Form Submission
+        $('#createProjectManagerForm').on('submit', function(e) {
+            e.preventDefault();
+            console.log('Form submitted');
+
+            const formData = {
+                'Name': $('input[name="Name"]').val(),
+                'PhoneNumber': $('input[name="PhoneNumber"]').val(),
+                'Email': $('input[name="Email"]').val(),
+                '__RequestVerificationToken': $('input[name="__RequestVerificationToken"]').val()
+            };
+
+            console.log('Form data:', formData);
+
+            $.ajax({
+                url: '@Url.Action("CreateInline")',
+                type: 'POST',
+                data: formData,
+                success: function(response) {
+                    if (response.success) {
+                        // Add new row to table
+                        const newRow = `
+                            <tr id="projectmanager-row-${response.projectManager.code}" class="table-row">
+                                <td>
+                                    <span id="projectmanager-name-${response.projectManager.code}" class="projectmanager-name-view fw-semibold">
+                                        ${response.projectManager.name}
+                                    </span>
+                                    <input type="text" id="projectmanager-name-input-${response.projectManager.code}" class="form-control form-control-sm projectmanager-name-edit d-none" value="${response.projectManager.name}" />
+                                </td>
+                                <td>
+                                    <span id="projectmanager-phone-${response.projectManager.code}" class="projectmanager-phone-view text-muted">
+                                        ${response.projectManager.phoneNumber || ''}
+                                    </span>
+                                    <input type="text" id="projectmanager-phone-input-${response.projectManager.code}" class="form-control form-control-sm projectmanager-phone-edit d-none" value="${response.projectManager.phoneNumber || ''}" />
+                                </td>
+                                <td>
+                                    <span id="projectmanager-email-${response.projectManager.code}" class="projectmanager-email-view text-muted">
+                                        ${response.projectManager.email || ''}
+                                    </span>
+                                    <input type="email" id="projectmanager-email-input-${response.projectManager.code}" class="form-control form-control-sm projectmanager-email-edit d-none" value="${response.projectManager.email || ''}" />
+                                </td>
+                                <td class="text-center">
+                                    <div class="btn-group action-buttons" role="group">
+                                        <button class="btn btn-outline-primary btn-sm action-btn" id="edit-btn-${response.projectManager.code}" onclick="toggleProjectManagerEdit(${response.projectManager.code})" title="@Localizer["Edit"]">
+                                            <i class="fas fa-edit"></i>
+                                        </button>
+                                        <button class="btn btn-outline-danger btn-sm action-btn" title="@Localizer["Delete"]" onclick="deleteProjectManager(${response.projectManager.code})">
+                                            <i class="fas fa-trash-alt"></i>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>`;
+
+                        $('#projectManagersTableBody').append(newRow);
+                        $('#createProjectManagerForm')[0].reset();
+
+                        Swal.fire({
+                            icon: 'success',
+                            title: '@Localizer["Success!"]',
+                            text: '@Localizer["Project Manager created successfully"]',
+                            timer: 2000,
+                            showConfirmButton: false
+                        });
+                    } else {
+                        console.log('Error response:', response);
+                        Swal.fire('Error', response.message, 'error');
+                    }
+                },
+                error: function(xhr, status, error) {
+                    console.error('AJAX error:', xhr, status, error);
+                    Swal.fire('Error', '@Localizer["An error occurred while creating the project manager"]', 'error');
+                }
+            });
+        });
+
+        // Fallback event handler
+        $(document).on('click', 'button[type="submit"]', function(e) {
+            if ($(this).closest('#createProjectManagerForm').length > 0) {
+                console.log('Fallback submit triggered');
+                e.preventDefault();
+                $('#createProjectManagerForm').trigger('submit');
+            }
+        });
+
+        // Inline Editing
+        $(document).on('click', '.editable-field', function() {
+            if ($(this).hasClass('editing')) return;
+
+            const $this = $(this);
+            const originalValue = $this.text().trim();
+            const field = $this.data('field');
+            const id = $this.data('id');
+
+            $this.addClass('editing');
+            $this.html(`<input type="text" class="edit-input" value="${originalValue}" data-original="${originalValue}">`);
+
+            const $input = $this.find('.edit-input');
+            $input.focus().select();
+
+            // Save on Enter or blur
+            $input.on('blur keypress', function(e) {
+                if (e.type === 'keypress' && e.which !== 13) return;
+
+                const newValue = $(this).val().trim();
+                const originalValue = $(this).data('original');
+
+                if (newValue === originalValue) {
+                    $this.removeClass('editing').text(originalValue);
+                    return;
+                }
+
+                if (newValue === '') {
+                    Swal.fire('Error', '@Localizer["Value cannot be empty"]', 'error');
+                    $this.removeClass('editing').text(originalValue);
+                    return;
+                }
+
+                // Save changes
+                $.ajax({
+                    url: '@Url.Action("InlineEdit")',
+                    type: 'POST',
+                    data: {
+                        id: id,
+                        field: field,
+                        value: newValue
+                    },
+                    success: function(response) {
+                        if (response.success) {
+                            $this.removeClass('editing').text(newValue);
+                            Swal.fire({
+                                icon: 'success',
+                                title: '@Localizer["Updated!"]',
+                                text: '@Localizer["Name updated successfully"]',
+                                timer: 1500,
+                                showConfirmButton: false
+                            });
+                        } else {
+                            $this.removeClass('editing').text(originalValue);
+                            Swal.fire('Error', response.message, 'error');
+                        }
+                    },
+                    error: function() {
+                        $this.removeClass('editing').text(originalValue);
+                        Swal.fire('Error', '@Localizer["An error occurred while updating"]', 'error');
+                    }
+                });
+            });
+
+            // Cancel on Escape
+            $input.on('keypress', function(e) {
+                if (e.which === 27) { // Escape key
+                    $this.removeClass('editing').text(originalValue);
+                }
+            });
+        });
+
+    }); // End document ready
+
+    // Delete Project Manager - Global function
+    function deleteProjectManager(id) {
+        console.log('Delete project manager called with id:', id);
+        Swal.fire({
+            title: '@Localizer["Are you sure?"]',
+            text: "@Localizer["You won't be able to revert this!"]",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#d33',
+            cancelButtonColor: '#3085d6',
+            confirmButtonText: '@Localizer["Yes, delete it!"]',
+            cancelButtonText: '@Localizer["Cancel"]'
+        }).then((result) => {
+            console.log('SweetAlert result:', result);
+            if (result.isConfirmed) {
+                console.log('Sending delete request for id:', id);
+                $.ajax({
+                    url: '@Url.Action("InlineDelete")',
+                    type: 'POST',
+                    data: { id: id },
+                    success: function(response) {
+                        console.log('Delete response:', response);
+                        if (response.success) {
+                            $(`#projectmanager-row-${id}`).fadeOut(function() {
+                                $(this).remove();
+                            });
+                            Swal.fire({
+                                icon: 'success',
+                                title: '@Localizer["Deleted!"]',
+                                text: '@Localizer["Project Manager has been deleted."]',
+                                timer: 2000,
+                                showConfirmButton: false
+                            });
+                        } else {
+                            Swal.fire('Error', response.message || 'Unknown error', 'error');
+                        }
+                    },
+                    error: function(xhr, status, error) {
+                        console.error('Delete error:', xhr, status, error);
+                        Swal.fire('Error', '@Localizer["An error occurred while deleting"]', 'error');
+                    }
+                });
+            }
+        });
+    }
+
+    // Toggle Project Manager Inline Edit - Global function
+    function toggleProjectManagerEdit(code) {
+        const nameSpan = $(`#projectmanager-name-${code}`);
+        const nameInput = $(`#projectmanager-name-input-${code}`);
+        const phoneSpan = $(`#projectmanager-phone-${code}`);
+        const phoneInput = $(`#projectmanager-phone-input-${code}`);
+        const emailSpan = $(`#projectmanager-email-${code}`);
+        const emailInput = $(`#projectmanager-email-input-${code}`);
+        const button = $(`#edit-btn-${code}`);
+
+        const isEditing = nameInput.hasClass('d-none') === false;
+
+        if (isEditing) {
+            // Save via AJAX
+            const newName = nameInput.val();
+            const newPhone = phoneInput.val();
+            const newEmail = emailInput.val();
+
+            // Update name
+            $.ajax({
+                url: '@Url.Action("InlineEdit")',
+                type: 'POST',
+                data: {
+                    id: code,
+                    field: 'name',
+                    value: newName
+                },
+                success: function (response) {
+                    if (response.success) {
+                        nameSpan.text(newName);
+                        
+                        // Update phone
+                        $.ajax({
+                            url: '@Url.Action("InlineEdit")',
+                            type: 'POST',
+                            data: {
+                                id: code,
+                                field: 'phonenumber',
+                                value: newPhone
+                            },
+                            success: function (response) {
+                                if (response.success) {
+                                    phoneSpan.text(newPhone);
+                                    
+                                    // Update email
+                                    $.ajax({
+                                        url: '@Url.Action("InlineEdit")',
+                                        type: 'POST',
+                                        data: {
+                                            id: code,
+                                            field: 'email',
+                                            value: newEmail
+                                        },
+                                        success: function (response) {
+                                            if (response.success) {
+                                                emailSpan.text(newEmail);
+                                                
+                                                // Exit edit mode
+                                                nameInput.addClass('d-none');
+                                                nameSpan.removeClass('d-none');
+                                                phoneInput.addClass('d-none');
+                                                phoneSpan.removeClass('d-none');
+                                                emailInput.addClass('d-none');
+                                                emailSpan.removeClass('d-none');
+                                                button.html('<i class="fas fa-edit"></i>');
+                                                button.removeClass('btn-success').addClass('btn-outline-primary action-btn');
+                                                
+                                                Swal.fire({
+                                                    icon: 'success',
+                                                    title: '@Localizer["Updated!"]',
+                                                    text: '@Localizer["Project Manager updated successfully"]',
+                                                    timer: 1500,
+                                                    showConfirmButton: false
+                                                });
+                                            } else {
+                                                Swal.fire('Error', response.message, 'error');
+                                            }
+                                        },
+                                        error: function() {
+                                            Swal.fire('Error', '@Localizer["An error occurred while updating email"]', 'error');
+                                        }
+                                    });
+                                } else {
+                                    Swal.fire('Error', response.message, 'error');
+                                }
+                            },
+                            error: function() {
+                                Swal.fire('Error', '@Localizer["An error occurred while updating phone"]', 'error');
+                            }
+                        });
+                    } else {
+                        Swal.fire('Error', response.message, 'error');
+                    }
+                },
+                error: function() {
+                    Swal.fire('Error', '@Localizer["An error occurred while updating name"]', 'error');
+                }
+            });
+        } else {
+            // Enter edit mode
+            nameInput.removeClass('d-none');
+            nameSpan.addClass('d-none');
+            phoneInput.removeClass('d-none');
+            phoneSpan.addClass('d-none');
+            emailInput.removeClass('d-none');
+            emailSpan.addClass('d-none');
+            button.html('<i class="fas fa-save"></i>');
+            button.removeClass('btn-outline-primary action-btn').addClass('btn-success');
+            nameInput.focus();
+        }
+    }
+    </script>
 }
-    </tbody>
-</table>

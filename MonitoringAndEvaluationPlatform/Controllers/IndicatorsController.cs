@@ -16,18 +16,20 @@ namespace MonitoringAndEvaluationPlatform.Controllers
     public class IndicatorsController : Controller
     {
         private readonly ApplicationDbContext _context;
+        private readonly PlanService _planService;
 
-        public IndicatorsController(ApplicationDbContext context)
+        public IndicatorsController(ApplicationDbContext context, PlanService planService)
         {
             _context = context;
+            _planService = planService;
         }
 
         // GET: Indicators
         public async Task<IActionResult> Index(int? frameworkCode, int? subOutputCode, string searchString)
         {
-            @ViewData["CurrentFilter"] = searchString;
-            @ViewData["subOutputCode"] = subOutputCode;
-            @ViewData["frameworkCode"] = frameworkCode;
+            ViewData["CurrentFilter"] = searchString;
+            ViewData["subOutputCode"] = subOutputCode;
+            ViewData["frameworkCode"] = frameworkCode;
 
             if (frameworkCode == null)
             {
@@ -157,66 +159,137 @@ namespace MonitoringAndEvaluationPlatform.Controllers
 
             return RedirectToAction(nameof(Index), new { frameworkCode = indicator.SubOutput.Output.Outcome.FrameworkCode, subOutputCode = indicator.SubOutputCode });
         }
-
-
-        private async Task UpdateSubOutputPerformance(int subOutputCode)
+        /// <summary>
+        /// This is the NEW action that handles the "Add & Create Project" button.
+        /// It creates the Indicator and then redirects to the Create action in the ProjectsController,
+        /// passing the new Indicator's ID.
+        /// </summary>
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> CreateAndRedirectToProject(string Name, int Target, int SubOutputCode)
         {
-            var subOutput = await _context.SubOutputs.FirstOrDefaultAsync(i => i.Code == subOutputCode);
+            if (string.IsNullOrWhiteSpace(Name) || Target <= 0)
+            {
+                TempData["Error"] = "Name and Target are required and must be valid.";
+                return RedirectToAction("Index", new { subOutputCode = SubOutputCode });
+            }
 
-            if (subOutput == null) return;
+            var indicator = new Indicator
+            {
+                Name = Name,
+                Target = Target,
+                SubOutputCode = SubOutputCode
+            };
 
-            var indicators = await _context.Indicators.Where(i => i.SubOutputCode == subOutput.Code).ToListAsync();
-            subOutput.IndicatorsPerformance = CalculateAveragePerformance(indicators.Select(i => i.IndicatorsPerformance).ToList())* subOutput.Weight;
+            _context.Indicators.Add(indicator);
+            await _context.SaveChangesAsync(); // This saves the indicator and populates its ID
 
+            // Update related entities
+            await UpdateSubOutputPerformance(indicator.SubOutputCode);
+            // Recalculate weights
+            await RedistributeWeights(indicator.SubOutputCode);
+
+            TempData["Success"] = "Indicator created. You can now add project details.";
+
+            // Redirect to the "Create" action in the "Projects" controller.
+            // Pass the newly created indicator's ID so the project can be associated with it.
+            return RedirectToAction("Create", "Projects", new { indicatorId = indicator.IndicatorCode });
+        }
+
+        // تحديث SubOutput بناءً على Indicators
+        public async Task UpdateSubOutputPerformance(int subOutputCode)
+        {
+            var subOutput = await _context.SubOutputs
+                .Include(s => s.Indicators)
+                .FirstOrDefaultAsync(s => s.Code == subOutputCode);
+
+            if (subOutput == null)
+                throw new Exception("SubOutput not found");
+
+            double totalWeight = subOutput.Indicators.Sum(i => i.Weight);
+
+            if (totalWeight <= 0) totalWeight = subOutput.Indicators.Count; // fallback للأوزان المتساوية
+
+            double weightedPerformance = subOutput.Indicators.Sum(i => i.IndicatorsPerformance * i.Weight / totalWeight);
+
+            subOutput.IndicatorsPerformance = Math.Round(weightedPerformance, 2);
+
+            _context.SubOutputs.Update(subOutput);
             await _context.SaveChangesAsync();
 
             await UpdateOutputPerformance(subOutput.OutputCode);
         }
 
-        private async Task UpdateOutputPerformance(int outputCode)
+        // تحديث Output بناءً على SubOutputs
+        public async Task UpdateOutputPerformance(int outputCode)
         {
-            var output = await _context.Outputs.FirstOrDefaultAsync(i => i.Code == outputCode);
+            var output = await _context.Outputs
+                .Include(o => o.SubOutputs)
+                .FirstOrDefaultAsync(o => o.Code == outputCode);
 
-            if (output == null) return;
+            if (output == null)
+                throw new Exception("Output not found");
 
-            var subOutputs = await _context.SubOutputs.Where(i => i.OutputCode == output.Code).ToListAsync();
-            output.IndicatorsPerformance = CalculateAveragePerformance(subOutputs.Select(s => s.IndicatorsPerformance).ToList())* output.Weight;
+            double totalWeight = output.SubOutputs.Sum(s => s.Weight);
 
+            if (totalWeight <= 0) totalWeight = output.SubOutputs.Count;
+
+            double weightedPerformance = output.SubOutputs.Sum(s => s.IndicatorsPerformance * s.Weight / totalWeight);
+
+            output.IndicatorsPerformance = Math.Round(weightedPerformance, 2);
+
+            _context.Outputs.Update(output);
             await _context.SaveChangesAsync();
 
             await UpdateOutcomePerformance(output.OutcomeCode);
         }
 
-        private async Task UpdateOutcomePerformance(int outcomeCode)
+        // تحديث Outcome بناءً على Outputs
+        public async Task UpdateOutcomePerformance(int outcomeCode)
         {
-            var outcome = await _context.Outcomes.FirstOrDefaultAsync(i => i.Code == outcomeCode);
+            var outcome = await _context.Outcomes
+                .Include(o => o.Outputs)
+                .FirstOrDefaultAsync(o => o.Code == outcomeCode);
 
-            if (outcome == null) return;
+            if (outcome == null)
+                throw new Exception("Outcome not found");
 
-            var outputs = await _context.Outputs.Where(i => i.OutcomeCode == outcome.Code).ToListAsync();
-            outcome.IndicatorsPerformance = CalculateAveragePerformance(outputs.Select(o => o.IndicatorsPerformance).ToList())*outcome.Weight;
+            double totalWeight = outcome.Outputs.Sum(o => o.Weight);
 
+            if (totalWeight <= 0) totalWeight = outcome.Outputs.Count;
+
+            double weightedPerformance = outcome.Outputs.Sum(o => o.IndicatorsPerformance * o.Weight / totalWeight);
+
+            outcome.IndicatorsPerformance = Math.Round(weightedPerformance, 2);
+
+            _context.Outcomes.Update(outcome);
             await _context.SaveChangesAsync();
 
             await UpdateFrameworkPerformance(outcome.FrameworkCode);
         }
 
-        private async Task UpdateFrameworkPerformance(int frameworkCode)
+        // تحديث Framework بناءً على Outcomes
+        public async Task UpdateFrameworkPerformance(int frameworkCode)
         {
-            var framework = await _context.Frameworks.FirstOrDefaultAsync(i => i.Code == frameworkCode);
+            var framework = await _context.Frameworks
+                .Include(f => f.Outcomes)
+                .FirstOrDefaultAsync(f => f.Code == frameworkCode);
 
-            if (framework == null) return;
+            if (framework == null)
+                throw new Exception("Framework not found");
 
-            var outcomes = await _context.Outcomes.Where(i => i.FrameworkCode == framework.Code).ToListAsync();
-            framework.IndicatorsPerformance = CalculateAveragePerformance(outcomes.Select(o => o.IndicatorsPerformance).ToList());
+            double totalWeight = framework.Outcomes.Sum(o => o.Weight);
 
+            if (totalWeight <= 0) totalWeight = framework.Outcomes.Count;
+
+            double weightedPerformance = framework.Outcomes.Sum(o => o.IndicatorsPerformance * o.Weight / totalWeight);
+
+            framework.IndicatorsPerformance = Math.Round(weightedPerformance, 2);
+
+            _context.Frameworks.Update(framework);
             await _context.SaveChangesAsync();
         }
 
-        private double CalculateAveragePerformance(List<double> performances)
-        {
-            return performances.Any() ? performances.Sum() / performances.Count : 0;
-        }
         [HttpPost]
         public async Task<IActionResult> InlineEditName(int id, [FromBody] JsonElement data)
         {
@@ -240,6 +313,11 @@ namespace MonitoringAndEvaluationPlatform.Controllers
 
             _context.Indicators.Remove(indicator);
             await _context.SaveChangesAsync();
+            await RedistributeWeights(indicator.SubOutputCode);
+            await UpdateSubOutputPerformance(indicator.SubOutputCode);
+            // Call recalculation BEFORE deleting the indicator
+            await _planService.RecalculatePerformanceAfterIndicatorDeletion(indicator);
+
             return Ok();
         }
 
@@ -391,12 +469,12 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 .Select(m => new { date = m.Date.ToString("yyyy-MM-dd"), value = m.Value })
                 .ToList();
 
-            var target = data
-                .Where(m => m.ValueType == MeasureValueType.Target)
-                .Select(m => new { date = m.Date.ToString("yyyy-MM-dd"), value = m.Value })
-                .ToList();
-
-
+            // Get indicator target as baseline
+            var indicator = await _context.Indicators
+                .FirstOrDefaultAsync(i => i.IndicatorCode == indicatorCode);
+            
+            var targetValue = indicator?.Target ?? 0;
+            var target = new[] { new { date = "baseline", value = targetValue } };
 
             var result = new { Real = real, Target = target };
 
@@ -484,6 +562,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
+
         public async Task<IActionResult> AdjustWeights(List<IndicatorViewModel> model, int frameworkCode, int subOutputCode)
         {
             double totalWeight = model.Sum(i => i.Weight);
@@ -507,7 +586,123 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             }
 
             await _context.SaveChangesAsync();
+
+            // بعد حفظ الأوزان الجديدة، إعادة حساب أداء SubOutput بناء على الأوزان
+            await UpdateSubOutputPerformance(subOutputCode);
+
             return RedirectToAction(nameof(Index), new { frameworkCode = frameworkCode, subOutputCode = subOutputCode });
+        }
+
+        // GET: Indicators/IndicatorAndProject
+        public async Task<IActionResult> IndicatorAndProject(int? projectId, int? frameworkCode, int? subOutputCode, string searchString)
+        {
+            ViewData["CurrentFilter"] = searchString;
+            ViewData["ProjectId"] = projectId;
+            ViewData["FrameworkCode"] = frameworkCode;
+            ViewData["SubOutputCode"] = subOutputCode;
+
+            // Get all projects for the dropdown filter
+            var projects = await _context.Projects
+                .Select(p => new { p.ProjectID, p.ProjectName })
+                .ToListAsync();
+            ViewData["Projects"] = new SelectList(projects, "ProjectID", "ProjectName", projectId);
+
+            // Base query for indicators with their related projects
+            var indicatorsQuery = _context.Indicators
+                .Include(i => i.SubOutput)
+                    .ThenInclude(so => so.Output)
+                    .ThenInclude(o => o.Outcome)
+                    .ThenInclude(oc => oc.Framework)
+                .Include(i => i.ProjectIndicators)
+                    .ThenInclude(pi => pi.Project)
+                .AsQueryable();
+
+            // Apply framework filter if provided
+            if (frameworkCode.HasValue)
+            {
+                indicatorsQuery = indicatorsQuery.Where(i => i.SubOutput.Output.Outcome.FrameworkCode == frameworkCode);
+            }
+
+            // Apply subOutput filter if provided
+            if (subOutputCode.HasValue)
+            {
+                indicatorsQuery = indicatorsQuery.Where(i => i.SubOutputCode == subOutputCode);
+            }
+
+            // Apply project filter if provided
+            if (projectId.HasValue)
+            {
+                indicatorsQuery = indicatorsQuery.Where(i => i.ProjectIndicators.Any(pi => pi.ProjectId == projectId));
+            }
+
+            // Apply search filter if provided
+            if (!string.IsNullOrEmpty(searchString))
+            {
+                indicatorsQuery = indicatorsQuery.Where(i => 
+                    i.Name.Contains(searchString) ||
+                    (i.SubOutput != null && i.SubOutput.Name.Contains(searchString)) ||
+                    i.ProjectIndicators.Any(pi => pi.Project.ProjectName.Contains(searchString)));
+            }
+
+            var indicators = await indicatorsQuery.ToListAsync();
+
+            return View(indicators);
+        }
+
+        // GET: Indicators/IndicatorAndProjectTable
+        public async Task<IActionResult> IndicatorAndProjectTable(int? projectId, int? frameworkCode, int? subOutputCode, string searchString)
+        {
+            ViewData["CurrentFilter"] = searchString;
+            ViewData["ProjectId"] = projectId;
+            ViewData["frameworkCode"] = frameworkCode;
+            ViewData["subOutputCode"] = subOutputCode;
+
+            // Get all projects for the dropdown filter
+            var projects = await _context.Projects
+                .Select(p => new { p.ProjectID, p.ProjectName })
+                .ToListAsync();
+            ViewData["Projects"] = new SelectList(projects, "ProjectID", "ProjectName", projectId);
+
+            // Base query for indicators with their related projects
+            var indicatorsQuery = _context.Indicators
+                .Include(i => i.SubOutput)
+                    .ThenInclude(so => so.Output)
+                    .ThenInclude(o => o.Outcome)
+                    .ThenInclude(oc => oc.Framework)
+                .Include(i => i.ProjectIndicators)
+                    .ThenInclude(pi => pi.Project)
+                .AsQueryable();
+
+            // Apply framework filter if provided
+            if (frameworkCode.HasValue)
+            {
+                indicatorsQuery = indicatorsQuery.Where(i => i.SubOutput.Output.Outcome.FrameworkCode == frameworkCode);
+            }
+
+            // Apply subOutput filter if provided
+            if (subOutputCode.HasValue)
+            {
+                indicatorsQuery = indicatorsQuery.Where(i => i.SubOutputCode == subOutputCode);
+            }
+
+            // Apply project filter if provided
+            if (projectId.HasValue)
+            {
+                indicatorsQuery = indicatorsQuery.Where(i => i.ProjectIndicators.Any(pi => pi.ProjectId == projectId));
+            }
+
+            // Apply search filter if provided
+            if (!string.IsNullOrEmpty(searchString))
+            {
+                indicatorsQuery = indicatorsQuery.Where(i => 
+                    i.Name.Contains(searchString) ||
+                    (i.SubOutput != null && i.SubOutput.Name.Contains(searchString)) ||
+                    i.ProjectIndicators.Any(pi => pi.Project.ProjectName.Contains(searchString)));
+            }
+
+            var indicators = await indicatorsQuery.ToListAsync();
+
+            return View(indicators);
         }
     }
 

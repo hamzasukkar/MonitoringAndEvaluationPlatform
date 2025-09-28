@@ -1,0 +1,2582 @@
+﻿@using Microsoft.AspNetCore.Mvc.Localization
+@inject IViewLocalizer Localizer
+@{
+    ViewData["Title"] = "Create Comprehensive Framework";
+    Layout = "~/Views/Shared/_DashboardHomeLayout.cshtml";
+}
+
+<!-- Dashboard Header -->
+<div class="dashboard-header">
+    <div class="d-flex justify-content-between align-items-center">
+        <div>
+            <h1 class="dashboard-title">
+                <i class="fas fa-magic me-3"></i>
+                @Localizer["Create Comprehensive Framework"]
+            </h1>
+            <p class="dashboard-subtitle">
+                @Localizer["Build your complete monitoring framework with all hierarchical levels"]
+            </p>
+        </div>
+        <a asp-action="Index" class="btn btn-outline-secondary btn-lg">
+            <i class="fas fa-arrow-left me-2"></i>@Localizer["Back to Frameworks"]
+        </a>
+    </div>
+</div>
+
+<!-- Creation Mode Selector -->
+<div class="mode-selector-container">
+    <div class="mode-selector">
+        <h5 class="mode-title">@Localizer["Choose Creation Method"]</h5>
+        <div class="mode-options">
+            <div class="mode-option active" data-mode="wizard" onclick="switchMode('wizard')">
+                <div class="mode-icon">
+                    <i class="fas fa-step-forward"></i>
+                </div>
+                <div class="mode-content">
+                    <h6 class="mode-name">@Localizer["Wizard Mode"]</h6>
+                    <p class="mode-description">@Localizer["Step-by-step guided creation with navigation between sections"]</p>
+                </div>
+            </div>
+            <div class="mode-option" data-mode="single" onclick="switchMode('single')">
+                <div class="mode-icon">
+                    <i class="fas fa-list"></i>
+                </div>
+                <div class="mode-content">
+                    <h6 class="mode-name">@Localizer["Single Page Mode"]</h6>
+                    <p class="mode-description">@Localizer["All sections displayed on one page for quick overview and editing"]</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Wizard Progress -->
+<div class="wizard-progress-container">
+    <div class="wizard-steps">
+        <div class="wizard-step active" data-step="1">
+            <div class="step-icon">
+                <i class="fas fa-sitemap"></i>
+            </div>
+            <div class="step-content">
+                <div class="step-title">@Localizer["Framework"]</div>
+                <div class="step-description">@Localizer["Basic Information"]</div>
+            </div>
+        </div>
+        <div class="wizard-connector"></div>
+        <div class="wizard-step" data-step="2">
+            <div class="step-icon">
+                <i class="fas fa-target"></i>
+            </div>
+            <div class="step-content">
+                <div class="step-title">@Localizer["Outcomes"]</div>
+                <div class="step-description">@Localizer["Strategic Goals"]</div>
+            </div>
+        </div>
+        <div class="wizard-connector"></div>
+        <div class="wizard-step" data-step="3">
+            <div class="step-icon">
+                <i class="fas fa-cubes"></i>
+            </div>
+            <div class="step-content">
+                <div class="step-title">@Localizer["Outputs"]</div>
+                <div class="step-description">@Localizer["Deliverables"]</div>
+            </div>
+        </div>
+        <div class="wizard-connector"></div>
+        <div class="wizard-step" data-step="4">
+            <div class="step-icon">
+                <i class="fas fa-layer-group"></i>
+            </div>
+            <div class="step-content">
+                <div class="step-title">@Localizer["Sub-Outputs"]</div>
+                <div class="step-description">@Localizer["Components"]</div>
+            </div>
+        </div>
+        <div class="wizard-connector"></div>
+        <div class="wizard-step" data-step="5">
+            <div class="step-icon">
+                <i class="fas fa-bullseye"></i>
+            </div>
+            <div class="step-content">
+                <div class="step-title">@Localizer["Indicators"]</div>
+                <div class="step-description">@Localizer["Measurements"]</div>
+            </div>
+        </div>
+        <div class="wizard-connector"></div>
+        <div class="wizard-step" data-step="6">
+            <div class="step-icon">
+                <i class="fas fa-check-circle"></i>
+            </div>
+            <div class="step-content">
+                <div class="step-title">@Localizer["Review"]</div>
+                <div class="step-description">@Localizer["Final Summary"]</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Main Wizard Form -->
+<form id="comprehensiveFrameworkForm" class="wizard-form">
+    @Html.AntiForgeryToken()
+
+    <!-- Step 1: Framework Basic Information -->
+    <div class="wizard-panel active" data-panel="1">
+        <div class="chart-card wizard-card">
+            <div class="wizard-card-header">
+                <div class="card-icon">
+                    <i class="fas fa-sitemap"></i>
+                </div>
+                <div class="card-title-section">
+                    <h3 class="card-title">@Localizer["Framework Information"]</h3>
+                    <p class="card-subtitle">@Localizer["Enter the basic details for your monitoring framework"]</p>
+                </div>
+            </div>
+
+            <div class="wizard-card-content">
+                <div class="row">
+                    <div class="col-12">
+                        <div class="form-floating mb-4">
+                            <input type="text" class="form-control form-control-modern" id="frameworkName" name="FrameworkName" placeholder="@Localizer["Enter framework name"]" required>
+                            <label for="frameworkName">
+                                <i class="fas fa-sitemap me-2"></i>@Localizer["Framework Name"] *
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Step 2: Outcomes -->
+    <div class="wizard-panel" data-panel="2">
+        <div class="chart-card wizard-card">
+            <div class="wizard-card-header">
+                <div class="card-icon">
+                    <i class="fas fa-target"></i>
+                </div>
+                <div class="card-title-section">
+                    <h3 class="card-title">@Localizer["Outcomes"]</h3>
+                    <p class="card-subtitle">@Localizer["Define the strategic outcomes for your framework"]</p>
+                </div>
+                <button type="button" class="btn btn-primary btn-add" onclick="addOutcome()">
+                    <i class="fas fa-plus me-2"></i>@Localizer["Add Outcome"]
+                </button>
+            </div>
+
+            <div class="wizard-card-content">
+                <div id="outcomesContainer" class="dynamic-container">
+                    <!-- Outcomes will be added dynamically -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Step 3: Outputs -->
+    <div class="wizard-panel" data-panel="3">
+        <div class="chart-card wizard-card">
+            <div class="wizard-card-header">
+                <div class="card-icon">
+                    <i class="fas fa-cubes"></i>
+                </div>
+                <div class="card-title-section">
+                    <h3 class="card-title">@Localizer["Outputs"]</h3>
+                    <p class="card-subtitle">@Localizer["Define outputs for each outcome"]</p>
+                </div>
+            </div>
+
+            <div class="wizard-card-content">
+                <div id="outputsContainer" class="dynamic-container">
+                    <!-- Outputs will be populated based on outcomes -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Step 4: Sub-Outputs -->
+    <div class="wizard-panel" data-panel="4">
+        <div class="chart-card wizard-card">
+            <div class="wizard-card-header">
+                <div class="card-icon">
+                    <i class="fas fa-layer-group"></i>
+                </div>
+                <div class="card-title-section">
+                    <h3 class="card-title">@Localizer["Sub-Outputs"]</h3>
+                    <p class="card-subtitle">@Localizer["Define sub-outputs for each output"]</p>
+                </div>
+            </div>
+
+            <div class="wizard-card-content">
+                <div id="subOutputsContainer" class="dynamic-container">
+                    <!-- Sub-outputs will be populated based on outputs -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Step 5: Indicators -->
+    <div class="wizard-panel" data-panel="5">
+        <div class="chart-card wizard-card">
+            <div class="wizard-card-header">
+                <div class="card-icon">
+                    <i class="fas fa-bullseye"></i>
+                </div>
+                <div class="card-title-section">
+                    <h3 class="card-title">@Localizer["Indicators"]</h3>
+                    <p class="card-subtitle">@Localizer["Define measurement indicators for each sub-output"]</p>
+                </div>
+            </div>
+
+            <div class="wizard-card-content">
+                <div id="indicatorsContainer" class="dynamic-container">
+                    <!-- Indicators will be populated based on sub-outputs -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Step 6: Review -->
+    <div class="wizard-panel" data-panel="6">
+        <div class="chart-card wizard-card">
+            <div class="wizard-card-header">
+                <div class="card-icon">
+                    <i class="fas fa-check-circle"></i>
+                </div>
+                <div class="card-title-section">
+                    <h3 class="card-title">@Localizer["Review & Submit"]</h3>
+                    <p class="card-subtitle">@Localizer["Review your complete framework before submission"]</p>
+                </div>
+            </div>
+
+            <div class="wizard-card-content">
+                <div id="reviewContainer" class="review-container">
+                    <!-- Review content will be populated dynamically -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Wizard Navigation -->
+    <div class="wizard-navigation">
+        <button type="button" id="prevBtn" class="btn btn-outline-secondary btn-nav" onclick="previousStep()" disabled>
+            <i class="fas fa-chevron-left me-2"></i>@Localizer["Previous"]
+        </button>
+
+        <div class="nav-center">
+            <span class="step-indicator">
+                <span id="currentStepNum">1</span> / <span id="totalSteps">6</span>
+            </span>
+        </div>
+
+        <button type="button" id="nextBtn" class="btn btn-primary btn-nav" onclick="nextStep()">
+            @Localizer["Next"]<i class="fas fa-chevron-right ms-2"></i>
+        </button>
+
+        <button type="submit" id="submitBtn" class="btn btn-success btn-nav d-none">
+            <i class="fas fa-check me-2"></i>@Localizer["Create Framework"]
+            <div class="btn-spinner d-none">
+                <i class="fas fa-spinner fa-spin"></i>
+            </div>
+        </button>
+    </div>
+</form>
+
+<!-- Single Page Creation Mode -->
+<div id="singlePageContainer" class="single-page-container" style="display: none;">
+    <form id="singlePageForm" class="single-page-form">
+        @Html.AntiForgeryToken()
+
+        <!-- Framework Section -->
+        <div class="creation-section framework-section">
+            <div class="section-header">
+                <div class="section-icon">
+                    <i class="fas fa-sitemap"></i>
+                </div>
+                <div class="section-title">
+                    <h4>@Localizer["Framework Information"]</h4>
+                    <p class="section-subtitle">@Localizer["Basic information about your monitoring framework"]</p>
+                </div>
+            </div>
+            <div class="section-content">
+                <div class="row">
+                    <div class="col-md-8">
+                        <div class="form-floating">
+                            <input type="text" class="form-control form-control-modern" id="singleFrameworkName" name="FrameworkName" placeholder="@Localizer["Enter framework name"]" required>
+                            <label for="singleFrameworkName">
+                                <i class="fas fa-sitemap me-2"></i>@Localizer["Framework Name"] *
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Outcomes Section -->
+        <div class="creation-section outcomes-section">
+            <div class="section-header">
+                <div class="section-icon">
+                    <i class="fas fa-target"></i>
+                </div>
+                <div class="section-title">
+                    <h4>@Localizer["Outcomes"]</h4>
+                    <p class="section-subtitle">@Localizer["Strategic outcomes and goals of your framework"]</p>
+                </div>
+                <button type="button" class="btn btn-primary btn-add" onclick="addSingleOutcome()">
+                    <i class="fas fa-plus me-2"></i>@Localizer["Add Outcome"]
+                </button>
+                <!-- Temporary debug button -->
+                <button type="button" class="btn btn-warning btn-sm ms-2" onclick="debugSinglePage()">
+                    Debug
+                </button>
+                <button type="button" class="btn btn-info btn-sm ms-2" onclick="testUpdate()">
+                    Test Update
+                </button>
+            </div>
+            <div class="section-content">
+                <div id="singleOutcomesContainer" class="single-outcomes-container">
+                    <!-- Outcomes will be added here -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Outputs Section -->
+        <div class="creation-section outputs-section">
+            <div class="section-header">
+                <div class="section-icon">
+                    <i class="fas fa-cubes"></i>
+                </div>
+                <div class="section-title">
+                    <h4>@Localizer["Outputs"]</h4>
+                    <p class="section-subtitle">@Localizer["Deliverables and outputs for each outcome"]</p>
+                </div>
+            </div>
+            <div class="section-content">
+                <div id="singleOutputsContainer" class="single-outputs-container">
+                    <!-- Outputs will be populated here -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Sub-Outputs Section -->
+        <div class="creation-section suboutputs-section">
+            <div class="section-header">
+                <div class="section-icon">
+                    <i class="fas fa-layer-group"></i>
+                </div>
+                <div class="section-title">
+                    <h4>@Localizer["Sub-Outputs"]</h4>
+                    <p class="section-subtitle">@Localizer["Components and sub-deliverables for each output"]</p>
+                </div>
+            </div>
+            <div class="section-content">
+                <div id="singleSubOutputsContainer" class="single-suboutputs-container">
+                    <!-- Sub-outputs will be populated here -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Indicators Section -->
+        <div class="creation-section indicators-section">
+            <div class="section-header">
+                <div class="section-icon">
+                    <i class="fas fa-bullseye"></i>
+                </div>
+                <div class="section-title">
+                    <h4>@Localizer["Indicators"]</h4>
+                    <p class="section-subtitle">@Localizer["Measurement indicators for each sub-output"]</p>
+                </div>
+            </div>
+            <div class="section-content">
+                <div id="singleIndicatorsContainer" class="single-indicators-container">
+                    <!-- Indicators will be populated here -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Submit Section -->
+        <div class="submit-section">
+            <div class="submit-content">
+                <button type="submit" class="btn btn-success btn-lg">
+                    <i class="fas fa-check me-2"></i>@Localizer["Create Framework"]
+                    <div class="btn-spinner d-none">
+                        <i class="fas fa-spinner fa-spin"></i>
+                    </div>
+                </button>
+            </div>
+        </div>
+    </form>
+</div>
+
+@section Scripts {
+    <!-- SweetAlert2 -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <script>
+        let currentStep = 1;
+        let totalSteps = 6;
+        let outcomeCounter = 0;
+        let outputCounter = 0;
+        let subOutputCounter = 0;
+        let indicatorCounter = 0;
+        let currentMode = 'wizard'; // Default mode
+
+        // Single-page mode counters
+        let singleOutcomeCounter = 0;
+        let singleOutputCounter = 0;
+        let singleSubOutputCounter = 0;
+        let singleIndicatorCounter = 0;
+
+        // Framework data structure
+        let frameworkData = {
+            name: '',
+            outcomes: [],
+            outputs: [],
+            subOutputs: [],
+            indicators: []
+        };
+
+        // Initialize wizard
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('DOM loaded, initializing...'); // Debug log
+
+            // Set default mode to wizard
+            document.body.classList.add('wizard-mode');
+
+            updateStepDisplay();
+            addOutcome(); // Add first outcome by default
+
+            // Initialize single page mode with first outcome
+            setTimeout(() => {
+                console.log('Initializing single page mode...'); // Debug log
+                const singleContainer = document.getElementById('singlePageContainer');
+                console.log('Single page container found:', !!singleContainer); // Debug log
+
+                if (singleContainer) {
+                    addSingleOutcome();
+                    console.log('Single page outcome added successfully'); // Debug log
+                }
+            }, 200);
+        });
+
+        // Mode switching function
+        function switchMode(mode) {
+            console.log('Switching to mode:', mode); // Debug log
+            currentMode = mode;
+
+            // Update mode selector UI
+            document.querySelectorAll('.mode-option').forEach(option => {
+                option.classList.remove('active');
+            });
+            document.querySelector(`[data-mode="${mode}"]`).classList.add('active');
+
+            // Show/hide the main containers using CSS classes
+            const body = document.body;
+
+            if (mode === 'wizard') {
+                body.classList.remove('single-page-mode');
+                body.classList.add('wizard-mode');
+            } else {
+                body.classList.remove('wizard-mode');
+                body.classList.add('single-page-mode');
+
+                // Ensure single page has at least one outcome
+                const outcomeContainer = document.getElementById('singleOutcomesContainer');
+                if (outcomeContainer && outcomeContainer.children.length === 0) {
+                    console.log('Adding first outcome to single page mode'); // Debug log
+                    addSingleOutcome();
+                }
+
+                // Update single-page content when switching
+                setTimeout(() => {
+                    updateSinglePageContent();
+
+                    // Force update outputs even if outcomes are empty (for testing)
+                    const outputContainer = document.getElementById('singleOutputsContainer');
+                    if (outputContainer && outputContainer.children.length === 0) {
+                        console.log('No output sections found, creating placeholder...'); // Debug
+                        // This will be filled when outcomes are typed
+                    }
+                }, 100);
+            }
+        }
+
+        // Navigation functions
+        function nextStep() {
+            if (validateCurrentStep()) {
+                if (currentStep < totalSteps) {
+                    currentStep++;
+                    updateStepDisplay();
+
+                    // Populate next step based on previous data
+                    if (currentStep === 3) populateOutputs();
+                    if (currentStep === 4) populateSubOutputs();
+                    if (currentStep === 5) populateIndicators();
+                    if (currentStep === 6) populateReview();
+                }
+            }
+        }
+
+        function previousStep() {
+            if (currentStep > 1) {
+                currentStep--;
+                updateStepDisplay();
+            }
+        }
+
+        function updateStepDisplay() {
+            // Update panels
+            document.querySelectorAll('.wizard-panel').forEach(panel => {
+                panel.classList.remove('active');
+            });
+            document.querySelector(`[data-panel="${currentStep}"]`).classList.add('active');
+
+            // Update progress steps
+            document.querySelectorAll('.wizard-step').forEach((step, index) => {
+                step.classList.remove('active', 'completed');
+                if (index + 1 < currentStep) {
+                    step.classList.add('completed');
+                } else if (index + 1 === currentStep) {
+                    step.classList.add('active');
+                }
+            });
+
+            // Update navigation buttons
+            document.getElementById('prevBtn').disabled = currentStep === 1;
+            document.getElementById('currentStepNum').textContent = currentStep;
+
+            if (currentStep === totalSteps) {
+                document.getElementById('nextBtn').classList.add('d-none');
+                document.getElementById('submitBtn').classList.remove('d-none');
+            } else {
+                document.getElementById('nextBtn').classList.remove('d-none');
+                document.getElementById('submitBtn').classList.add('d-none');
+            }
+
+            // Animate step transition
+            document.querySelector('.wizard-panel.active').style.opacity = '0';
+            setTimeout(() => {
+                document.querySelector('.wizard-panel.active').style.opacity = '1';
+            }, 100);
+        }
+
+        // Validation function
+        function validateCurrentStep() {
+            switch(currentStep) {
+                case 1:
+                    const frameworkName = document.getElementById('frameworkName').value.trim();
+                    if (!frameworkName) {
+                        showError('@Localizer["Please enter a framework name"]');
+                        return false;
+                    }
+                    frameworkData.name = frameworkName;
+                    return true;
+                case 2:
+                    return validateOutcomes();
+                case 3:
+                    return validateOutputs();
+                case 4:
+                    return validateSubOutputs();
+                case 5:
+                    return validateIndicators();
+                default:
+                    return true;
+            }
+        }
+
+        // Add outcome function
+        function addOutcome() {
+            outcomeCounter++;
+            const container = document.getElementById('outcomesContainer');
+            const outcomeHtml = `
+                <div class="dynamic-item outcome-item" data-id="${outcomeCounter}">
+                    <div class="item-header">
+                        <div class="item-icon">
+                            <i class="fas fa-target"></i>
+                        </div>
+                        <div class="item-title">@Localizer["Outcome"] ${outcomeCounter}</div>
+                        <button type="button" class="btn btn-danger btn-sm btn-remove" onclick="removeOutcome(${outcomeCounter})">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                    <div class="item-content">
+                        <div class="form-floating">
+                            <input type="text" class="form-control" id="outcome_${outcomeCounter}" name="outcomes[${outcomeCounter-1}].name" placeholder="@Localizer["Enter outcome name"]" required>
+                            <label for="outcome_${outcomeCounter}">@Localizer["Outcome Name"] *</label>
+                        </div>
+                    </div>
+                </div>
+            `;
+            container.insertAdjacentHTML('beforeend', outcomeHtml);
+
+            // Animate new item
+            const newItem = container.lastElementChild;
+            newItem.style.opacity = '0';
+            newItem.style.transform = 'translateY(20px)';
+            setTimeout(() => {
+                newItem.style.transition = 'all 0.4s ease';
+                newItem.style.opacity = '1';
+                newItem.style.transform = 'translateY(0)';
+            }, 100);
+        }
+
+        function removeOutcome(id) {
+            const item = document.querySelector(`[data-id="${id}"]`);
+            item.style.transition = 'all 0.3s ease';
+            item.style.opacity = '0';
+            item.style.transform = 'translateX(-100%)';
+            setTimeout(() => {
+                item.remove();
+            }, 300);
+        }
+
+        // Validation functions
+        function validateOutcomes() {
+            const outcomes = document.querySelectorAll('.outcome-item input');
+            for (let outcome of outcomes) {
+                if (!outcome.value.trim()) {
+                    showError('@Localizer["Please fill in all outcome names"]');
+                    outcome.focus();
+                    return false;
+                }
+            }
+            return true;
+        }
+
+        function validateOutputs() {
+            const outputs = document.querySelectorAll('.output-item input');
+            if (outputs.length === 0) {
+                showError('@Localizer["Please add at least one output"]');
+                return false;
+            }
+            for (let output of outputs) {
+                if (!output.value.trim()) {
+                    showError('@Localizer["Please fill in all output names"]');
+                    output.focus();
+                    return false;
+                }
+            }
+            return true;
+        }
+
+        function validateSubOutputs() {
+            const subOutputs = document.querySelectorAll('.suboutput-item input');
+            if (subOutputs.length === 0) {
+                showError('@Localizer["Please add at least one sub-output"]');
+                return false;
+            }
+            for (let subOutput of subOutputs) {
+                if (!subOutput.value.trim()) {
+                    showError('@Localizer["Please fill in all sub-output names"]');
+                    subOutput.focus();
+                    return false;
+                }
+            }
+            return true;
+        }
+
+        function validateIndicators() {
+            const indicators = document.querySelectorAll('.indicator-item input[name*="name"]');
+            if (indicators.length === 0) {
+                showError('@Localizer["Please add at least one indicator"]');
+                return false;
+            }
+            for (let indicator of indicators) {
+                if (!indicator.value.trim()) {
+                    showError('@Localizer["Please fill in all indicator names"]');
+                    indicator.focus();
+                    return false;
+                }
+            }
+
+            // Validate weights
+            if (!validateIndicatorWeights()) {
+                showError('@Localizer["Please ensure all indicator weights sum to 100% for each sub-output"]');
+                return false;
+            }
+
+            return true;
+        }
+
+        // Populate functions for dependent steps
+        function populateOutputs() {
+            const outcomes = document.querySelectorAll('.outcome-item input');
+            const container = document.getElementById('outputsContainer');
+            container.innerHTML = '';
+
+            outcomes.forEach((outcome, index) => {
+                if (outcome.value.trim()) {
+                    const outcomeSection = `
+                        <div class="outcome-section">
+                            <div class="section-header">
+                                <h5 class="outcome-title">
+                                    <i class="fas fa-target me-2"></i>${outcome.value}
+                                </h5>
+                                <button type="button" class="btn btn-primary btn-sm" onclick="addOutput(${index})">
+                                    <i class="fas fa-plus me-1"></i>@Localizer["Add Output"]
+                                </button>
+                            </div>
+                            <div id="outputs_${index}" class="outputs-group">
+                                <!-- Outputs will be added here -->
+                            </div>
+                        </div>
+                    `;
+                    container.insertAdjacentHTML('beforeend', outcomeSection);
+                    addOutput(index); // Add first output by default
+                }
+            });
+        }
+
+        function addOutput(outcomeIndex) {
+            outputCounter++;
+            const container = document.getElementById(`outputs_${outcomeIndex}`);
+            const outputHtml = `
+                <div class="dynamic-item output-item" data-id="${outputCounter}" data-outcome="${outcomeIndex}">
+                    <div class="item-header">
+                        <div class="item-icon">
+                            <i class="fas fa-cubes"></i>
+                        </div>
+                        <div class="item-title">@Localizer["Output"] ${container.children.length + 1}</div>
+                        <button type="button" class="btn btn-danger btn-sm btn-remove" onclick="removeOutput(${outputCounter})">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                    <div class="item-content">
+                        <div class="form-floating">
+                            <input type="text" class="form-control" name="outputs[${outputCounter-1}].name" placeholder="@Localizer["Enter output name"]" required>
+                            <input type="hidden" name="outputs[${outputCounter-1}].outcomeIndex" value="${outcomeIndex}">
+                            <label>@Localizer["Output Name"] *</label>
+                        </div>
+                    </div>
+                </div>
+            `;
+            container.insertAdjacentHTML('beforeend', outputHtml);
+            animateNewItem(container.lastElementChild);
+        }
+
+        function removeOutput(id) {
+            const item = document.querySelector(`[data-id="${id}"]`);
+            animateRemoveItem(item);
+        }
+
+        function populateSubOutputs() {
+            const outputs = document.querySelectorAll('.output-item input[name*="name"]');
+            const container = document.getElementById('subOutputsContainer');
+            container.innerHTML = '';
+
+            outputs.forEach((output, index) => {
+                if (output.value.trim()) {
+                    const outputSection = `
+                        <div class="output-section">
+                            <div class="section-header">
+                                <h5 class="output-title">
+                                    <i class="fas fa-cubes me-2"></i>${output.value}
+                                </h5>
+                                <button type="button" class="btn btn-primary btn-sm" onclick="addSubOutput(${index})">
+                                    <i class="fas fa-plus me-1"></i>@Localizer["Add Sub-Output"]
+                                </button>
+                            </div>
+                            <div id="subOutputs_${index}" class="subOutputs-group">
+                                <!-- Sub-outputs will be added here -->
+                            </div>
+                        </div>
+                    `;
+                    container.insertAdjacentHTML('beforeend', outputSection);
+                    addSubOutput(index); // Add first sub-output by default
+                }
+            });
+        }
+
+        function addSubOutput(outputIndex) {
+            subOutputCounter++;
+            const container = document.getElementById(`subOutputs_${outputIndex}`);
+            const subOutputHtml = `
+                <div class="dynamic-item suboutput-item" data-id="${subOutputCounter}" data-output="${outputIndex}">
+                    <div class="item-header">
+                        <div class="item-icon">
+                            <i class="fas fa-layer-group"></i>
+                        </div>
+                        <div class="item-title">@Localizer["Sub-Output"] ${container.children.length + 1}</div>
+                        <button type="button" class="btn btn-danger btn-sm btn-remove" onclick="removeSubOutput(${subOutputCounter})">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                    <div class="item-content">
+                        <div class="form-floating">
+                            <input type="text" class="form-control" name="subOutputs[${subOutputCounter-1}].name" placeholder="@Localizer["Enter sub-output name"]" required>
+                            <input type="hidden" name="subOutputs[${subOutputCounter-1}].outputIndex" value="${outputIndex}">
+                            <label>@Localizer["Sub-Output Name"] *</label>
+                        </div>
+                    </div>
+                </div>
+            `;
+            container.insertAdjacentHTML('beforeend', subOutputHtml);
+            animateNewItem(container.lastElementChild);
+        }
+
+        function removeSubOutput(id) {
+            const item = document.querySelector(`[data-id="${id}"]`);
+            animateRemoveItem(item);
+        }
+
+        function populateIndicators() {
+            const subOutputs = document.querySelectorAll('.suboutput-item input[name*="name"]');
+            const container = document.getElementById('indicatorsContainer');
+            container.innerHTML = '';
+
+            subOutputs.forEach((subOutput, index) => {
+                if (subOutput.value.trim()) {
+                    const subOutputSection = `
+                        <div class="subOutput-section">
+                            <div class="section-header">
+                                <h5 class="subOutput-title">
+                                    <i class="fas fa-layer-group me-2"></i>${subOutput.value}
+                                </h5>
+                                <button type="button" class="btn btn-primary btn-sm" onclick="addIndicator(${index})">
+                                    <i class="fas fa-plus me-1"></i>@Localizer["Add Indicator"]
+                                </button>
+                            </div>
+                            <div id="indicators_${index}" class="indicators-group">
+                                <!-- Indicators will be added here -->
+                            </div>
+                        </div>
+                    `;
+                    container.insertAdjacentHTML('beforeend', subOutputSection);
+                    addIndicator(index); // Add first indicator by default
+                }
+            });
+        }
+
+        function addIndicator(subOutputIndex) {
+            indicatorCounter++;
+            const container = document.getElementById(`indicators_${subOutputIndex}`);
+            const indicatorHtml = `
+                <div class="dynamic-item indicator-item" data-id="${indicatorCounter}" data-suboutput="${subOutputIndex}">
+                    <div class="item-header">
+                        <div class="item-icon">
+                            <i class="fas fa-bullseye"></i>
+                        </div>
+                        <div class="item-title">@Localizer["Indicator"] ${container.children.length + 1}</div>
+                        <button type="button" class="btn btn-danger btn-sm btn-remove" onclick="removeIndicator(${indicatorCounter})">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                    <div class="item-content">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-floating mb-3">
+                                    <input type="text" class="form-control" name="indicators[${indicatorCounter-1}].name" placeholder="@Localizer["Enter indicator name"]" required>
+                                    <input type="hidden" name="indicators[${indicatorCounter-1}].subOutputIndex" value="${subOutputIndex}">
+                                    <label>@Localizer["Indicator Name"] *</label>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="form-floating mb-3">
+                                    <input type="number" class="form-control weight-input" name="indicators[${indicatorCounter-1}].weight" step="0.01" min="0" max="100" value="100" placeholder="100" data-suboutput="${subOutputIndex}">
+                                    <label>@Localizer["Weight"] (%)</label>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="form-floating mb-3">
+                                    <input type="number" class="form-control" name="indicators[${indicatorCounter-1}].target" min="0" placeholder="0">
+                                    <label>@Localizer["Target"]</label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-12">
+                                <div class="form-floating">
+                                    <input type="text" class="form-control" name="indicators[${indicatorCounter-1}].source" placeholder="@Localizer["Enter data source"]">
+                                    <label>@Localizer["Data Source"]</label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            container.insertAdjacentHTML('beforeend', indicatorHtml);
+            animateNewItem(container.lastElementChild);
+
+            // Redistribute weights for this sub-output
+            redistributeWeights(subOutputIndex);
+
+            // Add event listener for weight input changes
+            const newWeightInput = container.lastElementChild.querySelector('.weight-input');
+            newWeightInput.addEventListener('input', function() {
+                updateWeightSummary(subOutputIndex);
+            });
+            newWeightInput.addEventListener('blur', function() {
+                // Auto-correct if total is close to 100
+                const weightInputs = document.querySelectorAll(`input[data-suboutput="${subOutputIndex}"].weight-input`);
+                const total = Array.from(weightInputs).reduce((sum, input) => sum + parseFloat(input.value || 0), 0);
+
+                if (Math.abs(total - 100) > 0.01 && Math.abs(total - 100) < 2) {
+                    // Auto-adjust the last changed input
+                    const currentValue = parseFloat(this.value || 0);
+                    const adjustment = 100 - total;
+                    this.value = Math.max(0, Math.min(100, currentValue + adjustment)).toFixed(2);
+                    updateWeightSummary(subOutputIndex);
+                }
+            });
+        }
+
+        function removeIndicator(id) {
+            const item = document.querySelector(`[data-id="${id}"]`);
+            const subOutputIndex = item.getAttribute('data-suboutput');
+            animateRemoveItem(item);
+
+            // Redistribute weights after removal
+            setTimeout(() => {
+                redistributeWeights(subOutputIndex);
+            }, 300);
+        }
+
+        // Weight management functions
+        function redistributeWeights(subOutputIndex) {
+            const weightInputs = document.querySelectorAll(`input[data-suboutput="${subOutputIndex}"].weight-input`);
+            if (weightInputs.length === 0) return;
+
+            const equalWeight = Math.round((100 / weightInputs.length) * 100) / 100;
+            let total = 0;
+
+            // Distribute equal weights
+            weightInputs.forEach((input, index) => {
+                if (index < weightInputs.length - 1) {
+                    input.value = equalWeight;
+                    total += equalWeight;
+                } else {
+                    // Last input gets the remainder to ensure total = 100
+                    input.value = Math.round((100 - total) * 100) / 100;
+                }
+
+                // Add visual feedback for weight changes
+                input.classList.add('weight-updated');
+                setTimeout(() => {
+                    input.classList.remove('weight-updated');
+                }, 1000);
+            });
+
+            updateWeightSummary(subOutputIndex);
+        }
+
+        function updateWeightSummary(subOutputIndex) {
+            const weightInputs = document.querySelectorAll(`input[data-suboutput="${subOutputIndex}"].weight-input`);
+            const total = Array.from(weightInputs).reduce((sum, input) => sum + parseFloat(input.value || 0), 0);
+
+            // Find or create weight summary element - try both wizard and single-page mode containers
+            let container = document.getElementById(`indicators_${subOutputIndex}`); // Wizard mode
+            if (!container) {
+                container = document.getElementById(`singleIndicators_${subOutputIndex}`); // Single-page mode
+            }
+
+            if (!container) {
+                console.warn(`No container found for subOutputIndex ${subOutputIndex}`);
+                return; // Exit gracefully if no container found
+            }
+
+            let summaryElement = container.querySelector('.weight-summary');
+
+            if (!summaryElement) {
+                summaryElement = document.createElement('div');
+                summaryElement.className = 'weight-summary alert alert-info mt-2';
+                container.appendChild(summaryElement);
+            }
+
+            const isValid = Math.abs(total - 100) < 0.01;
+            summaryElement.className = `weight-summary alert mt-2 ${isValid ? 'alert-success' : 'alert-warning'}`;
+            summaryElement.innerHTML = `
+                <i class="fas ${isValid ? 'fa-check-circle' : 'fa-exclamation-triangle'} me-2"></i>
+                @Localizer["Total Weight"]: <strong>${total.toFixed(2)}%</strong>
+                ${isValid ? '' : '(@Localizer["Must equal 100%"])'}
+            `;
+        }
+
+        function validateIndicatorWeights() {
+            console.log('validateIndicatorWeights called'); // Debug log
+            let allValid = true;
+
+            try {
+                const weightInputs = document.querySelectorAll('.weight-input');
+                console.log('Found weight inputs:', weightInputs.length); // Debug log
+
+                const subOutputIndices = [...new Set(Array.from(weightInputs).map(input => input.dataset.suboutput).filter(Boolean))];
+                console.log('Sub-output indices found:', subOutputIndices); // Debug log
+
+                subOutputIndices.forEach(subOutputIndex => {
+                    const weightInputsForSubOutput = document.querySelectorAll(`input[data-suboutput="${subOutputIndex}"].weight-input`);
+                    const total = Array.from(weightInputsForSubOutput).reduce((sum, input) => sum + parseFloat(input.value || 0), 0);
+
+                    console.log(`Sub-output ${subOutputIndex}: ${weightInputsForSubOutput.length} inputs, total weight: ${total}`); // Debug log
+
+                    if (Math.abs(total - 100) > 0.01) {
+                        allValid = false;
+                        console.log(`Invalid weight total for sub-output ${subOutputIndex}: ${total}%`); // Debug log
+                    }
+
+                    // Only update summary if there are actual inputs
+                    if (weightInputsForSubOutput.length > 0) {
+                        updateWeightSummary(subOutputIndex);
+                    }
+                });
+            } catch (error) {
+                console.error('Error in validateIndicatorWeights:', error);
+                return false; // Return false if validation fails due to error
+            }
+
+            console.log('Weight validation completed, all valid:', allValid); // Debug log
+            return allValid;
+        }
+
+        // Animation helper functions
+        function animateNewItem(item) {
+            item.style.opacity = '0';
+            item.style.transform = 'translateY(20px)';
+            setTimeout(() => {
+                item.style.transition = 'all 0.4s ease';
+                item.style.opacity = '1';
+                item.style.transform = 'translateY(0)';
+            }, 100);
+        }
+
+        function animateRemoveItem(item) {
+            item.style.transition = 'all 0.3s ease';
+            item.style.opacity = '0';
+            item.style.transform = 'translateX(-100%)';
+            setTimeout(() => {
+                item.remove();
+            }, 300);
+        }
+
+        // Populate review
+        function populateReview() {
+            const container = document.getElementById('reviewContainer');
+            const frameworkName = document.getElementById('frameworkName').value || '@Localizer["New Framework"]';
+
+            let reviewHtml = `
+                <div class="review-section">
+                    <h4 class="review-title">
+                        <i class="fas fa-sitemap me-2"></i>@Localizer["Framework"]: ${frameworkName}
+                    </h4>
+            `;
+
+            // Get all outcomes
+            const outcomes = document.querySelectorAll('.outcome-item input[name*="name"]');
+            let hasContent = false;
+
+            outcomes.forEach((outcome, outcomeIndex) => {
+                if (outcome.value.trim()) {
+                    hasContent = true;
+                    reviewHtml += `
+                        <div class="review-level outcome-level">
+                            <h5 class="level-title">
+                                <i class="fas fa-target me-2"></i>@Localizer["Outcome"] ${outcomeIndex + 1}: <span class="fw-bold">${outcome.value}</span>
+                            </h5>
+                            <div class="level-content">
+                    `;
+
+                    // Get outputs for this outcome
+                    const outputs = document.querySelectorAll(`[data-outcome="${outcomeIndex}"] input[name*="name"]`);
+                    let hasOutputs = false;
+
+                    outputs.forEach((output, outputIndex) => {
+                        if (output.value.trim()) {
+                            hasOutputs = true;
+                            const outputElement = output.closest('.output-item');
+                            const actualOutputIndex = Array.from(document.querySelectorAll('.output-item')).indexOf(outputElement);
+
+                            reviewHtml += `
+                                <div class="sublevel output-level">
+                                    <h6 class="sublevel-title">
+                                        <i class="fas fa-cubes me-2"></i>@Localizer["Output"] ${outputIndex + 1}: <span class="fw-bold">${output.value}</span>
+                                    </h6>
+                                    <div class="sublevel-content">
+                            `;
+
+                            // Get sub-outputs for this output
+                            const subOutputs = document.querySelectorAll(`[data-output="${actualOutputIndex}"] input[name*="name"]`);
+                            let hasSubOutputs = false;
+
+                            subOutputs.forEach((subOutput, subOutputIndex) => {
+                                if (subOutput.value.trim()) {
+                                    hasSubOutputs = true;
+                                    const subOutputElement = subOutput.closest('.suboutput-item');
+                                    const actualSubOutputIndex = Array.from(document.querySelectorAll('.suboutput-item')).indexOf(subOutputElement);
+
+                                    reviewHtml += `
+                                        <div class="sublevel suboutput-level">
+                                            <h6 class="sublevel-title">
+                                                <i class="fas fa-layer-group me-2"></i>@Localizer["Sub-Output"] ${subOutputIndex + 1}: <span class="fw-bold">${subOutput.value}</span>
+                                            </h6>
+                                            <div class="sublevel-content">
+                                    `;
+
+                                    // Get indicators for this sub-output
+                                    const indicators = document.querySelectorAll(`[data-suboutput="${actualSubOutputIndex}"] input[name*="name"]`);
+                                    let totalWeight = 0;
+
+                                    if (indicators.length > 0) {
+                                        reviewHtml += `<div class="indicators-list">`;
+
+                                        indicators.forEach((indicator, indicatorIndex) => {
+                                            if (indicator.value.trim()) {
+                                                const indicatorItem = indicator.closest('.indicator-item');
+                                                const weightInput = indicatorItem.querySelector('input[name*="weight"]');
+                                                const targetInput = indicatorItem.querySelector('input[name*="target"]');
+                                                const sourceInput = indicatorItem.querySelector('input[name*="source"]');
+
+                                                const weight = parseFloat(weightInput?.value || 0);
+                                                const target = parseInt(targetInput?.value || 0);
+                                                const source = sourceInput?.value?.trim() || '@Localizer["Not specified"]';
+
+                                                totalWeight += weight;
+
+                                                reviewHtml += `
+                                                    <div class="indicator-item-review">
+                                                        <div class="indicator-header">
+                                                            <i class="fas fa-bullseye me-2 text-primary"></i>
+                                                            <strong>${indicator.value}</strong>
+                                                            <span class="badge bg-primary ms-2">${weight}%</span>
+                                                        </div>
+                                                        <div class="indicator-details">
+                                                            <small class="text-muted">
+                                                                <i class="fas fa-crosshairs me-1"></i>@Localizer["Target"]: ${target}
+                                                                ${source !== '@Localizer["Not specified"]' ? `<span class="ms-3"><i class="fas fa-database me-1"></i>@Localizer["Source"]: ${source}</span>` : ''}
+                                                            </small>
+                                                        </div>
+                                                    </div>
+                                                `;
+                                            }
+                                        });
+
+                                        // Add weight summary
+                                        const isWeightValid = Math.abs(totalWeight - 100) < 0.01;
+                                        reviewHtml += `
+                                            <div class="weight-summary-review ${isWeightValid ? 'valid' : 'invalid'}">
+                                                <i class="fas ${isWeightValid ? 'fa-check-circle text-success' : 'fa-exclamation-triangle text-warning'} me-2"></i>
+                                                @Localizer["Total Weight"]: <strong>${totalWeight.toFixed(2)}%</strong>
+                                                ${!isWeightValid ? ` <span class="text-warning">(@Localizer["Should be 100%"])</span>` : ''}
+                                            </div>
+                                        `;
+
+                                        reviewHtml += `</div>`;
+                                    } else {
+                                        reviewHtml += `<div class="text-muted"><i>@Localizer["No indicators defined"]</i></div>`;
+                                    }
+
+                                    reviewHtml += `</div></div>`;
+                                }
+                            });
+
+                            if (!hasSubOutputs) {
+                                reviewHtml += `<div class="text-muted"><i>@Localizer["No sub-outputs defined"]</i></div>`;
+                            }
+
+                            reviewHtml += `</div></div>`;
+                        }
+                    });
+
+                    if (!hasOutputs) {
+                        reviewHtml += `<div class="text-muted"><i>@Localizer["No outputs defined"]</i></div>`;
+                    }
+
+                    reviewHtml += `</div></div>`;
+                }
+            });
+
+            if (!hasContent) {
+                reviewHtml += `
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle me-2"></i>
+                        @Localizer["No framework structure has been defined yet. Please go back to previous steps to add outcomes, outputs, sub-outputs, and indicators."]
+                    </div>
+                `;
+            }
+
+            reviewHtml += `</div>`;
+            container.innerHTML = reviewHtml;
+        }
+
+        // Single-page mode functions
+        function addSingleOutcome() {
+            singleOutcomeCounter++;
+            const container = document.getElementById('singleOutcomesContainer');
+
+            console.log('Adding single outcome, container found:', !!container); // Debug log
+
+            if (!container) {
+                console.error('singleOutcomesContainer not found!');
+                return;
+            }
+
+            const outcomeHtml = `
+                <div class="single-item outcome-item" data-id="${singleOutcomeCounter}">
+                    <div class="item-header">
+                        <div class="item-icon">
+                            <i class="fas fa-target"></i>
+                        </div>
+                        <div class="item-title">@Localizer["Outcome"] ${singleOutcomeCounter}</div>
+                        <button type="button" class="btn btn-danger btn-sm btn-remove" onclick="removeSingleOutcome(${singleOutcomeCounter})">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                    <div class="item-content">
+                        <div class="form-floating">
+                            <input type="text" class="form-control outcome-name-input" name="outcomes[${singleOutcomeCounter-1}].name" placeholder="@Localizer["Enter outcome name"]" required onblur="debouncedUpdateSinglePageContent()">
+                            <label>@Localizer["Outcome Name"] *</label>
+                        </div>
+                    </div>
+                </div>
+            `;
+            container.insertAdjacentHTML('beforeend', outcomeHtml);
+
+            const newItem = container.lastElementChild;
+            if (newItem) {
+                animateNewItem(newItem);
+            }
+
+            console.log('Outcome added, updating single page content...'); // Debug log
+            updateSinglePageContent();
+        }
+
+        function removeSingleOutcome(id) {
+            const item = document.querySelector(`.single-item[data-id="${id}"]`);
+            animateRemoveItem(item);
+            setTimeout(() => {
+                updateSinglePageContent();
+            }, 300);
+        }
+
+        function updateSinglePageContent() {
+            console.log('updateSinglePageContent called, currentMode:', currentMode); // Debug log
+
+            if (currentMode !== 'single') {
+                console.log('Not in single mode, returning early'); // Debug log
+                return;
+            }
+
+            console.log('Updating single page content...'); // Debug log
+            updateSingleOutputs();
+            updateSingleSubOutputs();
+            updateSingleIndicators();
+        }
+
+        function updateSingleOutputs() {
+            console.log('updateSingleOutputs called'); // Debug log
+            const outcomes = document.querySelectorAll('.outcome-name-input');
+            const container = document.getElementById('singleOutputsContainer');
+
+            console.log('Found outcomes:', outcomes.length); // Debug log
+            console.log('Output container found:', !!container); // Debug log
+
+            if (!container) {
+                console.error('singleOutputsContainer not found!');
+                return;
+            }
+
+            // Don't clear existing content, only add missing sections
+            outcomes.forEach((outcome, index) => {
+                console.log(`Outcome ${index}:`, outcome.value); // Debug log
+                if (outcome.value && outcome.value.trim()) {
+                    // Check if section already exists
+                    const existingSection = container.querySelector(`[data-outcome="${index}"]`);
+                    if (!existingSection) {
+                        console.log(`Adding new outcome section for: ${outcome.value}`); // Debug log
+                        const outcomeSection = `
+                            <div class="outcome-group" data-outcome="${index}">
+                                <div class="group-header">
+                                    <h5 class="group-title">
+                                        <i class="fas fa-target me-2"></i>${outcome.value}
+                                    </h5>
+                                    <button type="button" class="btn btn-primary btn-sm" onclick="addSingleOutput(${index})">
+                                        <i class="fas fa-plus me-1"></i>@Localizer["Add Output"]
+                                    </button>
+                                </div>
+                                <div id="singleOutputs_${index}" class="group-content">
+                                    <!-- Outputs will be added here -->
+                                </div>
+                            </div>
+                        `;
+                        container.insertAdjacentHTML('beforeend', outcomeSection);
+                        console.log(`Outcome section added for index ${index}`); // Debug log
+                    } else {
+                        // Update existing section title if name changed
+                        const titleElement = existingSection.querySelector('.group-title');
+                        if (titleElement) {
+                            titleElement.innerHTML = `<i class="fas fa-target me-2"></i>${outcome.value}`;
+                        }
+                        console.log(`Updated existing outcome section for index ${index}`); // Debug log
+                    }
+                }
+            });
+            console.log('updateSingleOutputs completed'); // Debug log
+        }
+
+        function addSingleOutput(outcomeIndex) {
+            console.log('addSingleOutput called with outcomeIndex:', outcomeIndex); // Debug log
+            singleOutputCounter++;
+            const container = document.getElementById(`singleOutputs_${outcomeIndex}`);
+
+            console.log('Output container found:', !!container); // Debug log
+
+            if (!container) {
+                console.error(`Container singleOutputs_${outcomeIndex} not found!`);
+                return;
+            }
+
+            const outputHtml = `
+                <div class="single-item output-item" data-id="${singleOutputCounter}" data-outcome="${outcomeIndex}">
+                    <div class="item-header">
+                        <div class="item-icon">
+                            <i class="fas fa-cubes"></i>
+                        </div>
+                        <div class="item-title">@Localizer["Output"] ${container.children.length + 1}</div>
+                        <button type="button" class="btn btn-danger btn-sm btn-remove" onclick="removeSingleOutput(${singleOutputCounter})">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                    <div class="item-content">
+                        <div class="form-floating">
+                            <input type="text" class="form-control output-name-input" name="outputs[${singleOutputCounter-1}].name" placeholder="@Localizer["Enter output name"]" required onblur="debouncedUpdateSinglePageContent()">
+                            <input type="hidden" name="outputs[${singleOutputCounter-1}].outcomeIndex" value="${outcomeIndex}">
+                            <label>@Localizer["Output Name"] *</label>
+                        </div>
+                    </div>
+                </div>
+            `;
+            container.insertAdjacentHTML('beforeend', outputHtml);
+
+            const newItem = container.lastElementChild;
+            if (newItem) {
+                animateNewItem(newItem);
+                console.log('Output added successfully'); // Debug log
+            }
+
+            console.log('Output added - update will trigger on blur'); // Debug log
+        }
+
+        function removeSingleOutput(id) {
+            const item = document.querySelector(`.single-item[data-id="${id}"]`);
+            animateRemoveItem(item);
+            setTimeout(() => {
+                updateSinglePageContent();
+            }, 300);
+        }
+
+        function updateSingleSubOutputs() {
+            console.log('updateSingleSubOutputs called'); // Debug log
+            const outputs = document.querySelectorAll('.output-name-input');
+            const container = document.getElementById('singleSubOutputsContainer');
+
+            console.log('Found output inputs:', outputs.length); // Debug log
+            console.log('Sub-output container found:', !!container); // Debug log
+
+            if (!container) {
+                console.error('singleSubOutputsContainer not found!');
+                return;
+            }
+
+            // Don't clear existing content, only add missing sections
+            outputs.forEach((output, index) => {
+                console.log(`Output ${index} value:`, output.value); // Debug log
+                if (output.value && output.value.trim()) {
+                    // Check if section already exists
+                    const existingSection = container.querySelector(`[data-output="${index}"]`);
+                    if (!existingSection) {
+                        console.log(`Adding new sub-output section for output: ${output.value}`); // Debug log
+                        const outputSection = `
+                            <div class="output-group" data-output="${index}">
+                                <div class="group-header">
+                                    <h5 class="group-title">
+                                        <i class="fas fa-cubes me-2"></i>${output.value}
+                                    </h5>
+                                    <button type="button" class="btn btn-primary btn-sm" onclick="addSingleSubOutput(${index})">
+                                        <i class="fas fa-plus me-1"></i>@Localizer["Add Sub-Output"]
+                                    </button>
+                                </div>
+                                <div id="singleSubOutputs_${index}" class="group-content">
+                                    <!-- Sub-outputs will be added here -->
+                                </div>
+                            </div>
+                        `;
+                        container.insertAdjacentHTML('beforeend', outputSection);
+                        console.log(`Sub-output section added for output index ${index}`); // Debug log
+                    } else {
+                        // Update existing section title if name changed
+                        const titleElement = existingSection.querySelector('.group-title');
+                        if (titleElement) {
+                            titleElement.innerHTML = `<i class="fas fa-cubes me-2"></i>${output.value}`;
+                        }
+                        console.log(`Updated existing sub-output section for output index ${index}`); // Debug log
+                    }
+                } else {
+                    console.log(`Skipping output ${index} - no value or empty value`); // Debug log
+                }
+            });
+            console.log('updateSingleSubOutputs completed'); // Debug log
+        }
+
+        function addSingleSubOutput(outputIndex) {
+            singleSubOutputCounter++;
+            const container = document.getElementById(`singleSubOutputs_${outputIndex}`);
+            const subOutputHtml = `
+                <div class="single-item suboutput-item" data-id="${singleSubOutputCounter}" data-output="${outputIndex}">
+                    <div class="item-header">
+                        <div class="item-icon">
+                            <i class="fas fa-layer-group"></i>
+                        </div>
+                        <div class="item-title">@Localizer["Sub-Output"] ${container.children.length + 1}</div>
+                        <button type="button" class="btn btn-danger btn-sm btn-remove" onclick="removeSingleSubOutput(${singleSubOutputCounter})">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                    <div class="item-content">
+                        <div class="form-floating">
+                            <input type="text" class="form-control suboutput-name-input" name="subOutputs[${singleSubOutputCounter-1}].name" placeholder="@Localizer["Enter sub-output name"]" required onblur="debouncedUpdateSinglePageContent()">
+                            <input type="hidden" name="subOutputs[${singleSubOutputCounter-1}].outputIndex" value="${outputIndex}">
+                            <label>@Localizer["Sub-Output Name"] *</label>
+                        </div>
+                    </div>
+                </div>
+            `;
+            container.insertAdjacentHTML('beforeend', subOutputHtml);
+            animateNewItem(container.lastElementChild);
+            console.log('Sub-output added - update will trigger on blur'); // Debug log
+        }
+
+        function removeSingleSubOutput(id) {
+            const item = document.querySelector(`.single-item[data-id="${id}"]`);
+            animateRemoveItem(item);
+            setTimeout(() => {
+                updateSinglePageContent();
+            }, 300);
+        }
+
+        function updateSingleIndicators() {
+            console.log('updateSingleIndicators called'); // Debug log
+            const subOutputs = document.querySelectorAll('.suboutput-name-input');
+            const container = document.getElementById('singleIndicatorsContainer');
+
+            console.log('Found sub-output inputs:', subOutputs.length); // Debug log
+
+            if (!container) {
+                console.error('singleIndicatorsContainer not found!');
+                return;
+            }
+
+            // Don't clear existing content, only add missing sections
+            subOutputs.forEach((subOutput, index) => {
+                console.log(`Sub-output ${index} value:`, subOutput.value); // Debug log
+                if (subOutput.value && subOutput.value.trim()) {
+                    // Check if section already exists
+                    const existingSection = container.querySelector(`[data-suboutput="${index}"]`);
+                    if (!existingSection) {
+                        console.log(`Adding new indicator section for sub-output: ${subOutput.value}`); // Debug log
+                        const subOutputSection = `
+                            <div class="subOutput-group" data-suboutput="${index}">
+                                <div class="group-header">
+                                    <h5 class="group-title">
+                                        <i class="fas fa-layer-group me-2"></i>${subOutput.value}
+                                    </h5>
+                                    <button type="button" class="btn btn-primary btn-sm" onclick="addSingleIndicator(${index})">
+                                        <i class="fas fa-plus me-1"></i>@Localizer["Add Indicator"]
+                                    </button>
+                                </div>
+                                <div id="singleIndicators_${index}" class="group-content">
+                                    <!-- Indicators will be added here -->
+                                </div>
+                            </div>
+                        `;
+                        container.insertAdjacentHTML('beforeend', subOutputSection);
+                        console.log(`Indicator section added for sub-output index ${index}`); // Debug log
+                    } else {
+                        // Update existing section title if name changed
+                        const titleElement = existingSection.querySelector('.group-title');
+                        if (titleElement) {
+                            titleElement.innerHTML = `<i class="fas fa-layer-group me-2"></i>${subOutput.value}`;
+                        }
+                        console.log(`Updated existing indicator section for sub-output index ${index}`); // Debug log
+                    }
+                }
+            });
+            console.log('updateSingleIndicators completed'); // Debug log
+        }
+
+        function addSingleIndicator(subOutputIndex) {
+            singleIndicatorCounter++;
+            const container = document.getElementById(`singleIndicators_${subOutputIndex}`);
+            const indicatorHtml = `
+                <div class="single-item indicator-item" data-id="${singleIndicatorCounter}" data-suboutput="${subOutputIndex}">
+                    <div class="item-header">
+                        <div class="item-icon">
+                            <i class="fas fa-bullseye"></i>
+                        </div>
+                        <div class="item-title">@Localizer["Indicator"] ${container.children.length + 1}</div>
+                        <button type="button" class="btn btn-danger btn-sm btn-remove" onclick="removeSingleIndicator(${singleIndicatorCounter})">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                    <div class="item-content">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-floating mb-3">
+                                    <input type="text" class="form-control" name="indicators[${singleIndicatorCounter-1}].name" placeholder="@Localizer["Enter indicator name"]" required>
+                                    <input type="hidden" name="indicators[${singleIndicatorCounter-1}].subOutputIndex" value="${subOutputIndex}">
+                                    <label>@Localizer["Indicator Name"] *</label>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="form-floating mb-3">
+                                    <input type="number" class="form-control weight-input" name="indicators[${singleIndicatorCounter-1}].weight" step="0.01" min="0" max="100" value="100" placeholder="100" data-suboutput="${subOutputIndex}">
+                                    <label>@Localizer["Weight"] (%)</label>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="form-floating mb-3">
+                                    <input type="number" class="form-control" name="indicators[${singleIndicatorCounter-1}].target" min="0" placeholder="0">
+                                    <label>@Localizer["Target"]</label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-12">
+                                <div class="form-floating">
+                                    <input type="text" class="form-control" name="indicators[${singleIndicatorCounter-1}].source" placeholder="@Localizer["Enter data source"]">
+                                    <label>@Localizer["Data Source"]</label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            container.insertAdjacentHTML('beforeend', indicatorHtml);
+            animateNewItem(container.lastElementChild);
+
+            // Add event listeners for weight management
+            const newWeightInput = container.lastElementChild.querySelector('.weight-input');
+            newWeightInput.addEventListener('input', function() {
+                updateWeightSummary(subOutputIndex);
+            });
+            newWeightInput.addEventListener('blur', function() {
+                const weightInputs = document.querySelectorAll(`input[data-suboutput="${subOutputIndex}"].weight-input`);
+                const total = Array.from(weightInputs).reduce((sum, input) => sum + parseFloat(input.value || 0), 0);
+
+                if (Math.abs(total - 100) > 0.01 && Math.abs(total - 100) < 2) {
+                    const currentValue = parseFloat(this.value || 0);
+                    const adjustment = 100 - total;
+                    this.value = Math.max(0, Math.min(100, currentValue + adjustment)).toFixed(2);
+                    updateWeightSummary(subOutputIndex);
+                }
+            });
+
+            redistributeWeights(subOutputIndex);
+            console.log('Indicator added - weights redistributed'); // Debug log
+        }
+
+        function removeSingleIndicator(id) {
+            const item = document.querySelector(`.single-item[data-id="${id}"]`);
+            const subOutputIndex = item.getAttribute('data-suboutput');
+            animateRemoveItem(item);
+
+            setTimeout(() => {
+                redistributeWeights(subOutputIndex);
+            }, 300);
+        }
+
+        // Form submission for both modes
+        document.getElementById('comprehensiveFrameworkForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            // Temporarily show all panels to make all fields focusable for validation
+            const allPanels = document.querySelectorAll('.wizard-panel');
+            const originalDisplayStates = [];
+
+            allPanels.forEach((panel, index) => {
+                originalDisplayStates[index] = panel.style.display;
+                panel.style.display = 'block';
+                panel.style.visibility = 'hidden';
+                panel.style.position = 'absolute';
+                panel.style.left = '-9999px';
+            });
+
+            // Check HTML5 validation
+            const form = this;
+            let isValid = true;
+            let firstInvalidField = null;
+
+            // Validate all required fields
+            const requiredFields = form.querySelectorAll('input[required], select[required], textarea[required]');
+            requiredFields.forEach(field => {
+                if (!field.checkValidity()) {
+                    isValid = false;
+                    if (!firstInvalidField) {
+                        firstInvalidField = field;
+                    }
+                }
+            });
+
+            // Restore original panel states
+            allPanels.forEach((panel, index) => {
+                panel.style.display = originalDisplayStates[index] || '';
+                panel.style.visibility = '';
+                panel.style.position = '';
+                panel.style.left = '';
+            });
+
+            // If validation failed, show error and navigate to the problematic field
+            if (!isValid && firstInvalidField) {
+                // Find which step the invalid field belongs to
+                let targetStep = 1;
+                const fieldPanel = firstInvalidField.closest('.wizard-panel');
+                if (fieldPanel) {
+                    targetStep = parseInt(fieldPanel.getAttribute('data-panel'));
+                }
+
+                // Navigate to the problematic step
+                currentStep = targetStep;
+                updateStepDisplay();
+
+                // Focus the field and show error
+                setTimeout(() => {
+                    firstInvalidField.focus();
+                    showError('@Localizer["Please fill in all required fields correctly."]');
+                }, 100);
+
+                return;
+            }
+
+            // Show loading state
+            const submitBtn = document.getElementById('submitBtn');
+            const spinner = submitBtn.querySelector('.btn-spinner');
+            submitBtn.disabled = true;
+            spinner.classList.remove('d-none');
+
+            // Collect all form data
+            const formData = new FormData(this);
+
+            // Submit via AJAX
+            $.ajax({
+                url: '@Url.Action("CreateComprehensive", "Frameworks")',
+                type: 'POST',
+                data: formData,
+                processData: false,
+                contentType: false,
+                success: function(response) {
+                    if (response.success) {
+                        Swal.fire({
+                            icon: 'success',
+                            title: '@Localizer["Success!"]',
+                            text: '@Localizer["Framework created successfully!"]',
+                            confirmButtonText: '@Localizer["Go to Frameworks"]'
+                        }).then(() => {
+                            window.location.href = '@Url.Action("Index", "Frameworks")';
+                        });
+                    } else {
+                        throw new Error(response.message || 'Unknown error');
+                    }
+                },
+                error: function(xhr) {
+                    showError('@Localizer["An error occurred while creating the framework. Please try again."]');
+                },
+                complete: function() {
+                    submitBtn.disabled = false;
+                    spinner.classList.add('d-none');
+                }
+            });
+        });
+
+        // Single-page form submission
+        document.getElementById('singlePageForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            // Validate framework name
+            const frameworkName = document.getElementById('singleFrameworkName').value.trim();
+            if (!frameworkName) {
+                showError('@Localizer["Please enter a framework name"]');
+                document.getElementById('singleFrameworkName').focus();
+                return;
+            }
+
+            // Validate that we have at least some content
+            const outcomes = document.querySelectorAll('.outcome-name-input');
+            let hasValidOutcome = false;
+            for (let outcome of outcomes) {
+                if (outcome.value.trim()) {
+                    hasValidOutcome = true;
+                    break;
+                }
+            }
+
+            if (!hasValidOutcome) {
+                showError('@Localizer["Please add at least one outcome"]');
+                return;
+            }
+
+            // Validate indicator weights
+            if (!validateIndicatorWeights()) {
+                showError('@Localizer["Please ensure all indicator weights sum to 100% for each sub-output"]');
+                return;
+            }
+
+            // Show loading state
+            const submitBtn = this.querySelector('button[type="submit"]');
+            const spinner = submitBtn.querySelector('.btn-spinner');
+            submitBtn.disabled = true;
+            spinner.classList.remove('d-none');
+
+            // Collect form data
+            const formData = new FormData(this);
+
+            // Submit via AJAX
+            $.ajax({
+                url: '@Url.Action("CreateComprehensive", "Frameworks")',
+                type: 'POST',
+                data: formData,
+                processData: false,
+                contentType: false,
+                success: function(response) {
+                    if (response.success) {
+                        Swal.fire({
+                            icon: 'success',
+                            title: '@Localizer["Success!"]',
+                            text: '@Localizer["Framework created successfully!"]',
+                            confirmButtonText: '@Localizer["Go to Frameworks"]'
+                        }).then(() => {
+                            window.location.href = '@Url.Action("Index", "Frameworks")';
+                        });
+                    } else {
+                        throw new Error(response.message || 'Unknown error');
+                    }
+                },
+                error: function(xhr) {
+                    showError('@Localizer["An error occurred while creating the framework. Please try again."]');
+                },
+                complete: function() {
+                    submitBtn.disabled = false;
+                    spinner.classList.add('d-none');
+                }
+            });
+        });
+
+        // Debounced update function to prevent infinite loops
+        let updateTimeout;
+        function debouncedUpdateSinglePageContent() {
+            clearTimeout(updateTimeout);
+            updateTimeout = setTimeout(() => {
+                updateSinglePageContent();
+            }, 300);
+        }
+
+        // Test function - temporary
+        function testUpdate() {
+            console.log('=== TEST UPDATE ===');
+            console.log('Manually calling updateSinglePageContent...');
+            updateSinglePageContent();
+            console.log('===================');
+        }
+
+        // Debug function - temporary
+        function debugSinglePage() {
+            console.log('=== DEBUG SINGLE PAGE ===');
+            console.log('Current mode:', currentMode);
+            console.log('Single outcome counter:', singleOutcomeCounter);
+
+            const container = document.getElementById('singleOutcomesContainer');
+            console.log('Outcomes container found:', !!container);
+            console.log('Outcomes container children:', container ? container.children.length : 'N/A');
+
+            const singlePageContainer = document.getElementById('singlePageContainer');
+            console.log('Single page container found:', !!singlePageContainer);
+            console.log('Single page container display:', singlePageContainer ? singlePageContainer.style.display : 'N/A');
+
+            // Check outcome inputs
+            const outcomeInputs = document.querySelectorAll('.outcome-name-input');
+            console.log('Outcome inputs found:', outcomeInputs.length);
+            outcomeInputs.forEach((input, index) => {
+                console.log(`Outcome ${index} value:`, input.value);
+            });
+
+            // Check output sections
+            const outputContainer = document.getElementById('singleOutputsContainer');
+            console.log('Output container found:', !!outputContainer);
+            console.log('Output container children:', outputContainer ? outputContainer.children.length : 'N/A');
+
+            if (container) {
+                console.log('Outcomes Container innerHTML:', container.innerHTML.substring(0, 200) + '...');
+            }
+            if (outputContainer) {
+                console.log('Outputs Container innerHTML:', outputContainer.innerHTML.substring(0, 200) + '...');
+            }
+            console.log('========================');
+        }
+
+        // Helper functions
+        function showError(message) {
+            Swal.fire({
+                icon: 'error',
+                title: '@Localizer["Validation Error"]',
+                text: message
+            });
+        }
+    </script>
+
+    <style>
+        /* Wizard Progress Styles */
+        .wizard-progress-container {
+            background: linear-gradient(135deg, rgba(255,255,255,0.95) 0%, rgba(248,249,250,0.95) 100%);
+            backdrop-filter: blur(15px);
+            border-radius: 20px;
+            padding: 2rem;
+            margin: 2rem 0;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+
+        .wizard-steps {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .wizard-step {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            min-width: 120px;
+            opacity: 0.6;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .wizard-step.active,
+        .wizard-step.completed {
+            opacity: 1;
+        }
+
+        .step-icon {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            margin-bottom: 0.5rem;
+            transition: all 0.3s ease;
+            background: #e5e7eb;
+            color: #6b7280;
+        }
+
+        .wizard-step.active .step-icon {
+            background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+            color: white;
+            box-shadow: 0 4px 15px rgba(var(--primary-color-rgb), 0.3);
+        }
+
+        .wizard-step.completed .step-icon {
+            background: linear-gradient(135deg, #10b981, #059669);
+            color: white;
+        }
+
+        .step-content {
+            text-align: center;
+        }
+
+        .step-title {
+            font-weight: 600;
+            font-size: 0.9rem;
+            color: #374151;
+            margin-bottom: 0.25rem;
+        }
+
+        .step-description {
+            font-size: 0.75rem;
+            color: #6b7280;
+        }
+
+        .wizard-connector {
+            height: 2px;
+            width: 60px;
+            background: #e5e7eb;
+            margin: 0 1rem;
+            flex-shrink: 0;
+        }
+
+        /* Wizard Form Styles */
+        .wizard-form {
+            position: relative;
+        }
+
+        .wizard-panel {
+            display: none;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .wizard-panel.active {
+            display: block;
+            opacity: 1;
+        }
+
+        .wizard-card {
+            margin-bottom: 2rem;
+        }
+
+        .wizard-card-header {
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+            padding-bottom: 1.5rem;
+            border-bottom: 2px solid rgba(0,0,0,0.05);
+        }
+
+        .card-icon {
+            width: 60px;
+            height: 60px;
+            border-radius: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+            color: white;
+            font-size: 1.5rem;
+            box-shadow: 0 4px 15px rgba(var(--primary-color-rgb), 0.3);
+        }
+
+        .card-title-section {
+            flex: 1;
+        }
+
+        .card-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #1f2937;
+            margin-bottom: 0.5rem;
+        }
+
+        .card-subtitle {
+            color: #6b7280;
+            font-size: 0.95rem;
+            margin: 0;
+        }
+
+        .btn-add {
+            border-radius: 12px;
+            padding: 10px 20px;
+            font-weight: 600;
+            box-shadow: 0 4px 15px rgba(var(--primary-color-rgb), 0.3);
+        }
+
+        /* Dynamic Content Styles */
+        .dynamic-container {
+            max-height: 60vh;
+            overflow-y: auto;
+            padding-right: 10px;
+        }
+
+        .dynamic-item {
+            background: rgba(255,255,255,0.8);
+            border: 1px solid rgba(0,0,0,0.1);
+            border-radius: 12px;
+            margin-bottom: 1rem;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .dynamic-item:hover {
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+        }
+
+        .item-header {
+            background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+            padding: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            border-bottom: 1px solid rgba(0,0,0,0.05);
+        }
+
+        .item-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+            color: white;
+            font-size: 1rem;
+        }
+
+        .item-title {
+            flex: 1;
+            font-weight: 600;
+            color: #374151;
+        }
+
+        .btn-remove {
+            border-radius: 8px;
+            width: 32px;
+            height: 32px;
+            padding: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .item-content {
+            padding: 1.5rem;
+        }
+
+        /* Section Styles */
+        .outcome-section,
+        .output-section,
+        .subOutput-section {
+            margin-bottom: 2rem;
+            border: 2px solid rgba(0,0,0,0.05);
+            border-radius: 15px;
+            overflow: hidden;
+        }
+
+        .section-header {
+            background: linear-gradient(135deg, rgba(var(--primary-color-rgb), 0.1), rgba(var(--primary-color-rgb), 0.05));
+            padding: 1.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 1px solid rgba(0,0,0,0.05);
+        }
+
+        .outcome-title,
+        .output-title,
+        .subOutput-title {
+            margin: 0;
+            color: var(--primary-color);
+            font-size: 1.1rem;
+            font-weight: 600;
+        }
+
+        .outputs-group,
+        .subOutputs-group,
+        .indicators-group {
+            padding: 1.5rem;
+            background: rgba(255,255,255,0.5);
+        }
+
+        /* Review Styles */
+        .review-container {
+            max-height: 60vh;
+            overflow-y: auto;
+        }
+
+        .review-section {
+            background: rgba(255,255,255,0.8);
+            border-radius: 15px;
+            padding: 2rem;
+            border: 1px solid rgba(0,0,0,0.05);
+        }
+
+        .review-title {
+            color: var(--primary-color);
+            font-weight: 700;
+            margin-bottom: 2rem;
+            padding-bottom: 1rem;
+            border-bottom: 2px solid rgba(var(--primary-color-rgb), 0.2);
+        }
+
+        .review-level {
+            margin-bottom: 2rem;
+            background: rgba(255,255,255,0.6);
+            border-radius: 12px;
+            padding: 1.5rem;
+            border: 1px solid rgba(0,0,0,0.05);
+        }
+
+        .level-title {
+            color: #374151;
+            font-weight: 600;
+            margin-bottom: 1rem;
+        }
+
+        .sublevel {
+            margin-left: 2rem;
+            margin-bottom: 1rem;
+            padding: 1rem;
+            background: rgba(255,255,255,0.8);
+            border-radius: 8px;
+            border-left: 3px solid var(--secondary-color);
+        }
+
+        .sublevel-title {
+            color: #4b5563;
+            font-weight: 500;
+            margin-bottom: 0.5rem;
+        }
+
+        /* Navigation Styles */
+        .wizard-navigation {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: linear-gradient(135deg, rgba(255,255,255,0.95) 0%, rgba(248,249,250,0.95) 100%);
+            backdrop-filter: blur(15px);
+            border-radius: 15px;
+            padding: 2rem;
+            margin-top: 2rem;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+
+        .btn-nav {
+            min-width: 120px;
+            border-radius: 12px;
+            padding: 12px 24px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .btn-nav:hover {
+            transform: translateY(-2px);
+        }
+
+        .nav-center {
+            text-align: center;
+        }
+
+        .step-indicator {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--primary-color);
+        }
+
+        .form-control-modern {
+            border: 2px solid transparent;
+            border-radius: 12px;
+            padding: 15px 18px;
+            background: rgba(255,255,255,0.8);
+            backdrop-filter: blur(10px);
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+
+        .form-control-modern:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(var(--primary-color-rgb), 0.1);
+            background: rgba(255,255,255,0.95);
+        }
+
+        /* Weight Management Styles */
+        .weight-input.weight-updated {
+            background-color: rgba(40, 167, 69, 0.1);
+            border-color: #28a745;
+            box-shadow: 0 0 0 2px rgba(40, 167, 69, 0.25);
+            transition: all 0.3s ease;
+        }
+
+        .weight-summary {
+            border-radius: 8px;
+            font-size: 0.9rem;
+            margin-bottom: 0;
+            padding: 0.75rem 1rem;
+        }
+
+        .weight-summary i {
+            font-size: 1rem;
+        }
+
+        .alert-success {
+            background-color: rgba(25, 135, 84, 0.1);
+            border-color: rgba(25, 135, 84, 0.2);
+            color: #0f5132;
+        }
+
+        .alert-warning {
+            background-color: rgba(255, 193, 7, 0.1);
+            border-color: rgba(255, 193, 7, 0.2);
+            color: #664d03;
+        }
+
+        /* Enhanced Form Controls for Weights */
+        .weight-input:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 2px rgba(var(--primary-color-rgb), 0.25);
+        }
+
+        /* Enhanced Review Section Styles */
+        .review-level {
+            border-left: 4px solid var(--primary-color);
+            margin-bottom: 1.5rem;
+            padding: 1.5rem;
+            background: linear-gradient(135deg, rgba(255,255,255,0.9) 0%, rgba(248,249,250,0.9) 100%);
+            border-radius: 12px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+
+        .review-level.outcome-level {
+            border-left-color: #dc3545;
+        }
+
+        .level-title {
+            color: #374151;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            font-size: 1.1rem;
+        }
+
+        .sublevel {
+            margin-left: 1.5rem;
+            margin-bottom: 1rem;
+            padding: 1rem;
+            background: rgba(255,255,255,0.8);
+            border-radius: 8px;
+            border-left: 3px solid #6c757d;
+        }
+
+        .sublevel.output-level {
+            border-left-color: #ffc107;
+        }
+
+        .sublevel.suboutput-level {
+            border-left-color: #20c997;
+            margin-left: 2rem;
+        }
+
+        .sublevel-title {
+            color: #4b5563;
+            font-weight: 500;
+            margin-bottom: 0.75rem;
+            font-size: 1rem;
+        }
+
+        .indicators-list {
+            background: rgba(255,255,255,0.6);
+            border-radius: 8px;
+            padding: 1rem;
+            margin-top: 0.5rem;
+        }
+
+        .indicator-item-review {
+            background: white;
+            border-radius: 6px;
+            padding: 0.75rem;
+            margin-bottom: 0.5rem;
+            border: 1px solid rgba(0,0,0,0.1);
+            transition: all 0.2s ease;
+        }
+
+        .indicator-item-review:hover {
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .indicator-item-review:last-child {
+            margin-bottom: 0;
+        }
+
+        .indicator-header {
+            display: flex;
+            align-items: center;
+            justify-content: flex-start;
+            margin-bottom: 0.5rem;
+        }
+
+        .indicator-header strong {
+            flex: 1;
+            color: #1f2937;
+        }
+
+        .indicator-header .badge {
+            font-size: 0.75rem;
+            padding: 0.25rem 0.5rem;
+        }
+
+        .indicator-details {
+            font-size: 0.85rem;
+            padding-left: 1.5rem;
+        }
+
+        .weight-summary-review {
+            margin-top: 1rem;
+            padding: 0.75rem;
+            border-radius: 6px;
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+
+        .weight-summary-review.valid {
+            background-color: rgba(25, 135, 84, 0.1);
+            border: 1px solid rgba(25, 135, 84, 0.2);
+            color: #0f5132;
+        }
+
+        .weight-summary-review.invalid {
+            background-color: rgba(255, 193, 7, 0.1);
+            border: 1px solid rgba(255, 193, 7, 0.2);
+            color: #664d03;
+        }
+
+        .fw-bold {
+            font-weight: 600 !important;
+        }
+
+        /* Mode Selector Styles */
+        .mode-selector-container {
+            margin: 2rem 0;
+        }
+
+        .mode-selector {
+            background: linear-gradient(135deg, rgba(255,255,255,0.95) 0%, rgba(248,249,250,0.95) 100%);
+            backdrop-filter: blur(15px);
+            border-radius: 20px;
+            padding: 2rem;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+
+        .mode-title {
+            text-align: center;
+            color: #374151;
+            font-weight: 600;
+            margin-bottom: 2rem;
+        }
+
+        .mode-options {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+        }
+
+        .mode-option {
+            background: rgba(255,255,255,0.8);
+            border: 2px solid transparent;
+            border-radius: 15px;
+            padding: 2rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .mode-option:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+        }
+
+        .mode-option.active {
+            border-color: var(--primary-color);
+            background: linear-gradient(135deg, rgba(var(--primary-color-rgb), 0.1), rgba(var(--primary-color-rgb), 0.05));
+        }
+
+        .mode-option.active::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, var(--primary-color), var(--primary-dark));
+        }
+
+        .mode-icon {
+            width: 60px;
+            height: 60px;
+            border-radius: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+            color: white;
+            font-size: 1.5rem;
+            flex-shrink: 0;
+        }
+
+        .mode-content {
+            flex: 1;
+        }
+
+        .mode-name {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: #1f2937;
+            margin-bottom: 0.5rem;
+        }
+
+        .mode-description {
+            color: #6b7280;
+            font-size: 0.9rem;
+            margin: 0;
+            line-height: 1.5;
+        }
+
+        /* Single Page Mode Styles */
+        .single-page-container {
+            margin-top: 2rem;
+        }
+
+        .creation-section {
+            background: linear-gradient(135deg, rgba(255,255,255,0.95) 0%, rgba(248,249,250,0.95) 100%);
+            backdrop-filter: blur(15px);
+            border-radius: 20px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+
+        .section-header {
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+            padding-bottom: 1.5rem;
+            border-bottom: 2px solid rgba(0,0,0,0.05);
+        }
+
+        .section-icon {
+            width: 60px;
+            height: 60px;
+            border-radius: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+            color: white;
+            font-size: 1.5rem;
+            box-shadow: 0 4px 15px rgba(var(--primary-color-rgb), 0.3);
+        }
+
+        .section-title {
+            flex: 1;
+        }
+
+        .section-title h4 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #1f2937;
+            margin-bottom: 0.5rem;
+        }
+
+        .section-subtitle {
+            color: #6b7280;
+            font-size: 0.95rem;
+            margin: 0;
+        }
+
+        .single-item {
+            background: rgba(255,255,255,0.8);
+            border: 1px solid rgba(0,0,0,0.1);
+            border-radius: 12px;
+            margin-bottom: 1rem;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .single-item:hover {
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+        }
+
+        .group-header {
+            background: linear-gradient(135deg, rgba(var(--primary-color-rgb), 0.1), rgba(var(--primary-color-rgb), 0.05));
+            padding: 1.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 1px solid rgba(0,0,0,0.05);
+            margin-bottom: 1rem;
+        }
+
+        .group-title {
+            margin: 0;
+            color: var(--primary-color);
+            font-size: 1.1rem;
+            font-weight: 600;
+        }
+
+        .group-content {
+            padding: 0 1.5rem;
+        }
+
+        .submit-section {
+            background: linear-gradient(135deg, rgba(25, 135, 84, 0.1), rgba(25, 135, 84, 0.05));
+            border-radius: 20px;
+            padding: 3rem;
+            text-align: center;
+            margin-top: 3rem;
+        }
+
+        .submit-content button {
+            min-width: 200px;
+            padding: 15px 30px;
+            border-radius: 15px;
+            font-weight: 600;
+            font-size: 1.1rem;
+        }
+
+        /* Mode Control Classes */
+        body.wizard-mode .single-page-container {
+            display: none !important;
+        }
+
+        body.single-page-mode .wizard-progress-container,
+        body.single-page-mode .wizard-form {
+            display: none !important;
+        }
+
+        body.single-page-mode .single-page-container {
+            display: block !important;
+        }
+
+        /* Default state - show wizard mode */
+        body:not(.single-page-mode) .single-page-container {
+            display: none !important;
+        }
+
+        /* Responsive Mode Selector */
+        @@media (max-width: 768px) {
+            .mode-options {
+                grid-template-columns: 1fr;
+                gap: 1rem;
+            }
+
+            .mode-option {
+                flex-direction: column;
+                text-align: center;
+                gap: 1rem;
+            }
+
+            .section-header {
+                flex-direction: column;
+                text-align: center;
+                gap: 1rem;
+            }
+        }
+
+        /* Responsive Design */
+        @@media (max-width: 768px) {
+            .wizard-steps {
+                flex-direction: column;
+                gap: 1rem;
+            }
+
+            .wizard-connector {
+                width: 2px;
+                height: 30px;
+                margin: 0.5rem 0;
+            }
+
+            .wizard-card-header {
+                flex-direction: column;
+                text-align: center;
+                gap: 1rem;
+            }
+
+            .wizard-navigation {
+                flex-direction: column;
+                gap: 1rem;
+            }
+
+            .nav-center {
+                order: -1;
+            }
+        }
+    </style>
+}

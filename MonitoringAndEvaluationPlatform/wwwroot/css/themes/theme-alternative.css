@@ -1,0 +1,239 @@
+/* ===== MODERN DARK VIBRANT THEME ===== */
+/* An evolution of the dark theme with more color diversity and structure. */
+
+/* Import Component Styles */
+@import url('../components/components-base.css');
+@import url('../components/components-alternative.css');
+@import url('../components/theme-dropdown.css');
+
+:root[data-theme="alternative"] {
+    /* Color Palette: Deeper blacks, clearer section distinctions */
+    --primary-background-color: #111827; /* Very Dark Blue/Grey - Main background */
+    --secondary-card-background: #1F2937; /* Lighter Grey/Blue - Cards, components */
+    --accent-teal: #0dcaf0; /* Vibrant Teal - The star of the show */
+    --tertiary-background: #374151; /* Medium Grey - Hover states, borders */
+    /* RGB Values for rgba() usage */
+    --primary-background-rgb: 17, 24, 39;
+    --secondary-card-background-rgb: 31, 41, 55;
+    --accent-teal-rgb: 0, 245, 212;
+    /* Primary Colors (Teal Accent) */
+    --primary-color: var(--accent-teal);
+    --primary-dark: #00c3a9;
+    --primary-light: #66f8e2;
+    /* Secondary Colors (Cool Grey) */
+    --secondary-color: #6B7280;
+    --secondary-dark: #4B5563;
+    --secondary-light: #9CA3AF;
+    /* Status Colors */
+    --success-color: #10B981;
+    --danger-color: #EF4444;
+    --warning-color: #F59E0B;
+    --info-color: #3B82F6;
+    --success-dark: #059669;
+    --danger-dark: #DC2626;
+    --warning-dark: #D97706;
+    --info-dark: #2563EB;
+    /* Background Colors */
+    --bg-body: var(--primary-background-color);
+    --bg-secondary: var(--secondary-card-background);
+    --bg-tertiary: var(--tertiary-background);
+    --bg-dark: #000000;
+    /* Text Colors */
+    --text-primary: #E5E7EB;
+    --text-secondary: #9CA3AF;
+    --text-muted: #6B7280;
+    --text-white: #ffffff;
+    --text-light: var(--text-primary);
+    --text-on-accent: #111827; /* Dark text for bright buttons */
+    /* Border Colors */
+    --border-color: var(--tertiary-background);
+    --border-color-translucent: rgba(55, 65, 81, 0.5);
+    /* Shadow - Soft Glow Effect */
+    --box-shadow: 0 4px 14px 0 rgba(0, 0, 0, 0.2);
+    --box-shadow-sm: 0 2px 6px 0 rgba(0, 0, 0, 0.2);
+    --box-shadow-lg: 0 10px 30px 0 rgba(0, 0, 0, 0.25);
+    --glow-shadow: 0 0 15px rgba(var(--accent-teal-rgb), 0.2);
+    /* Sidebar & Navigation */
+    --sidebar-bg: var(--secondary-card-background);
+    --sidebar-text: var(--text-primary);
+    --navbar-bg: var(--secondary-card-background); /* Differentiated from body */
+    --navbar-text: var(--text-primary);
+    /* Cards */
+    --card-bg: var(--secondary-card-background);
+    --card-border: var(--border-color);
+    --card-cap-bg: transparent; /* Cleaner look */
+    /* Buttons */
+    --btn-primary-bg: var(--accent-teal);
+    --btn-primary-border: var(--accent-teal);
+    --btn-secondary-bg: var(--secondary-dark);
+    --btn-secondary-border: var(--secondary-dark);
+    /* Form Controls */
+    --input-bg: #111827; /* Darker inputs */
+    --input-border: var(--border-color);
+    --input-focus-border: var(--accent-teal);
+    --input-text: var(--text-light);
+    /* Tables */
+    --table-bg: transparent;
+    --table-accent-bg: rgba(17, 24, 39, 0.6); /* Darker odd rows for contrast */
+    --table-hover-bg: var(--tertiary-background);
+    --table-border-color: var(--border-color);
+    --table-header-bg: var(--secondary-card-background);
+    --table-row-bg: transparent;
+    /* Progress Bars */
+    --progress-bg: var(--bg-dark);
+    --progress-bar-bg: var(--primary-color);
+}
+
+
+/* === BASE STYLES FOR THEME === */
+[data-theme="alternative"] body {
+    background-color: var(--bg-body);
+    color: var(--text-primary);
+}
+
+/* === NAVIGATION (ENHANCED) === */
+[data-theme="alternative"] .topbar {
+    background-color: var(--navbar-bg);
+    color: var(--navbar-text);
+    border-bottom: 1px solid var(--accent-teal); /* Clear separation */
+    box-shadow: var(--box-shadow);
+}
+
+[data-theme="alternative"] .sidebar {
+    background: linear-gradient(180deg, var(--sidebar-bg) 0%, #111827 100%); /* Subtle gradient for depth */
+    color: var(--sidebar-text);
+    box-shadow: 3px 0 15px rgba(0,0,0,0.2);
+    border-right: 1px solid var(--border-color);
+}
+
+    [data-theme="alternative"] .sidebar a {
+        color: var(--sidebar-text);
+        transition: all 0.2s ease-in-out;
+        border-left: 3px solid transparent;
+    }
+
+        [data-theme="alternative"] .sidebar a:hover {
+            background-color: var(--tertiary-background);
+            color: var(--text-white);
+        }
+
+        [data-theme="alternative"] .sidebar a.active {
+            background-color: rgba(var(--accent-teal-rgb), 0.1);
+            color: var(--accent-teal);
+            font-weight: bold;
+            border-left: 3px solid var(--accent-teal);
+        }
+
+
+/* === COMPONENT STYLES (ENHANCED) === */
+
+[data-theme="alternative"] .btn-primary {
+    background: var(--btn-primary-bg);
+    border-color: var(--btn-primary-border);
+    color: var(--text-on-accent);
+    font-weight: bold;
+    box-shadow: var(--glow-shadow);
+    transition: all 0.2s ease-in-out;
+}
+
+    [data-theme="alternative"] .btn-primary:hover {
+        background-color: var(--primary-dark);
+        border-color: var(--primary-dark);
+        transform: translateY(-2px);
+        box-shadow: 0 0 20px rgba(var(--accent-teal-rgb), 0.4);
+    }
+
+[data-theme="alternative"] .card {
+    background-color: var(--card-bg);
+    border: 1px solid var(--border-color);
+    box-shadow: var(--box-shadow-lg);
+    border-radius: 12px;
+    transition: all 0.3s ease;
+}
+
+    [data-theme="alternative"] .card:hover {
+        transform: translateY(-5px);
+        border-color: var(--accent-teal);
+    }
+
+[data-theme="alternative"] .card-header {
+    background-color: var(--card-cap-bg);
+    border-bottom: 2px solid var(--accent-teal); /* Highlighted header */
+    color: var(--text-white);
+    font-weight: 600;
+    padding-bottom: 0.75rem;
+}
+
+[data-theme="alternative"] .form-control,
+[data-theme="alternative"] .form-select {
+    background-color: var(--input-bg);
+    border: 1px solid var(--input-border);
+    color: var(--input-text);
+    border-radius: 8px;
+    transition: all 0.2s ease-in-out;
+}
+
+    [data-theme="alternative"] .form-control:focus,
+    [data-theme="alternative"] .form-select:focus {
+        border-color: var(--input-focus-border);
+        background-color: var(--secondary-card-background);
+        box-shadow: 0 0 10px rgba(var(--accent-teal-rgb), 0.25);
+        color: var(--text-white);
+    }
+
+[data-theme="alternative"] .table {
+    color: var(--text-secondary);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    overflow: hidden;
+    width: 100%;
+}
+
+    [data-theme="alternative"] .table thead th {
+        background-color: var(--table-header-bg);
+        color: var(--text-white);
+        border-bottom: 2px solid var(--accent-teal); /* Highlighted header */
+        font-weight: 600;
+    }
+
+[data-theme="alternative"] .table-striped > tbody > tr:nth-of-type(odd) {
+    background-color: var(--table-accent-bg);
+}
+
+[data-theme="alternative"] .table tbody tr:hover {
+    background-color: var(--table-hover-bg);
+    color: var(--text-white);
+}
+
+[data-theme="alternative"] .table td, .table th {
+    border: none;
+    border-bottom: 1px solid var(--border-color);
+}
+
+/* ... (Rest of the styles like Alerts, Modals remain largely the same) ... */
+
+/* ===== RTL Support for Modern Dark Vibrant Theme ===== */
+/* This part is copied and adapted for the new theme name */
+[data-theme="alternative"] body.rtl {
+    direction: rtl;
+    text-align: right;
+}
+
+    [data-theme="alternative"] body.rtl .sidebar {
+        right: 0;
+        left: auto;
+        border-left: none;
+        border-right: 1px solid var(--border-color);
+    }
+
+        [data-theme="alternative"] body.rtl .sidebar a {
+            border-right: 3px solid transparent;
+            border-left: none;
+        }
+
+            [data-theme="alternative"] body.rtl .sidebar a:hover,
+            [data-theme="alternative"] body.rtl .sidebar a.active {
+                border-right: 3px solid var(--accent-teal);
+                border-left: none;
+            }
+/* ... (All other RTL rules should be copied here, just changing the theme name) ... */

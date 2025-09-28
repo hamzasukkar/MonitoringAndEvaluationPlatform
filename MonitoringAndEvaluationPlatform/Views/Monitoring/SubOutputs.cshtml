@@ -5,66 +5,678 @@
 @using Microsoft.AspNetCore.Localization
 @model IEnumerable<MonitoringAndEvaluationPlatform.Models.SubOutput>
 @{
-	ViewData["Title"] = "Monitoring";
-	Layout = "~/Views/Shared/_ResultsFrameworkLayout.cshtml";
+    ViewData["Title"] = "Sub-Outputs Monitoring";
+    Layout = "~/Views/Shared/_DashboardHomeLayout.cshtml";
 }
-<!DOCTYPE html>
-<html lang="en">
-<head>
-	<meta charset="UTF-8">
-	<meta name="viewport" content="width=device-width, initial-scale=1.0">
-	<title>Health Framework Dashboard</title>
-	<link rel="stylesheet" href="~/css/progress-bars.css" />
-</head>
-<body>
-	<div class="framework-container">
-		@foreach (var item in Model)
-		{
-			// Create metrics array for cleaner iteration
-			var metrics = new[]
-			{
-		new { Value = Math.Round(item.IndicatorsPerformance), Label = @Localizer["Assessment"] },
-		new { Value = Math.Round(item.DisbursementPerformance), Label = @Localizer["Disbursement"] },
-		new { Value = Math.Round(item.FieldMonitoring), Label = @Localizer["Monitoring"] },
-		new { Value = Math.Round(item.ImpactAssessment), Label = @Localizer["Assessment"] }
-		};
 
-			<div class="framework-card">
-				<div class="framework-header">
-					<h2>@item.Name</h2>
-					<div class="outcome-badge">@Localizer["Indicators"]: @item.Indicators.Count()</div>
-				</div>
+<!-- Dashboard Header -->
+<div class="dashboard-header">
+    <h1 class="dashboard-title">
+        <i class="fas fa-list-ul me-3"></i>
+        @Localizer["Sub-Outputs Dashboard"]
+    </h1>
+    <p class="dashboard-subtitle">
+        Comprehensive sub-outputs monitoring with real-time performance analytics and progress tracking
+    </p>
+</div>
 
-				@foreach (var metric in metrics)
-				{
-					var progressClass = ProgressHelper.GetProgressClass(metric.Value);
-					<div class="metric">
-						<div class="metric-value @progressClass.Split(' ')[1]">@metric.Value%</div>
-						<div class="metric-label">@metric.Label</div>
-						<div class="progress-container">
-							<div class="progress-bar @progressClass.Split(' ')[0]" style="width: @metric.Value%"></div>
-						</div>
-					</div>
-				}
+<div class="container-fluid">
+    <!-- Sub-Outputs Analytics Grid -->
+    <div class="frameworks-analytics-container">
+        @foreach (var item in Model)
+        {
+            var projectCount = ViewBag.ProjectCounts[item.Code];
 
-				<div class="outcome-stats">
-					<div class="stat-grid">
-						<div class="stat-item">
-							<a asp-controller="Monitoring" asp-action="Indicators" asp-route-subOutputCode="@item.Code">
-								<div class="stat-value">@item.Indicators.Count()</div>
-								<div class="stat-label">@Localizer["Indicators"]</div>
-							</a>
-						</div>
-						<div class="stat-item">
-							<a asp-controller="Monitoring" asp-action="Projects" asp-route-subOutputCode="@item.Code">
-								<div class="stat-value">@ViewBag.ProjectCounts[item.Code]</div>
-								<div class="stat-label">@Localizer["Projects"]</div>
-							</a>
-						</div>
-					</div>
-				</div>
-			</div>
-		}
-	</div>
-</body>
-</html>
+            var metrics = new[]
+            {
+                new { Value = Math.Round(item.IndicatorsPerformance), Label = @Localizer["Indicators Performance"], Icon = "fas fa-bullseye", Color = "primary" },
+                new { Value = Math.Round(item.DisbursementPerformance), Label = @Localizer["Disbursement Performance"], Icon = "fas fa-money-bill-wave", Color = "success" }
+            };
+
+            <div class="modern-framework-card">
+                <div class="framework-card-header">
+                    <div class="framework-title-section">
+                        <h3 class="framework-title">
+                            <i class="fas fa-list-ul me-2"></i>
+                            @item.Name
+                        </h3>
+                        <div class="framework-status-badge">
+                            <i class="fas fa-chart-bar me-1"></i>
+                            @Localizer["Indicators"]: @item.Indicators.Count()
+                        </div>
+                    </div>
+                    <div class="framework-performance-summary">
+                        <div class="performance-circle" data-performance="@Math.Round(item.IndicatorsPerformance)">
+                            <svg class="progress-ring" width="60" height="60">
+                                <circle class="progress-ring-circle"
+                                        cx="30" cy="30" r="25"
+                                        stroke-dasharray="157"
+                                        stroke-dashoffset="@(157 - (157 * item.IndicatorsPerformance / 100))"
+                                        style="--progress-color: @(item.IndicatorsPerformance >= 80 ? "#28a745" : item.IndicatorsPerformance >= 60 ? "#ffc107" : "#dc3545")">
+                                </circle>
+                            </svg>
+                            <div class="performance-text">
+                                <span class="performance-value">@Math.Round(item.IndicatorsPerformance)%</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Performance Metrics Section -->
+                <div class="performance-metrics-grid">
+                    @foreach (var metric in metrics)
+                    {
+                        var performanceLevel = metric.Value >= 80 ? "excellent" : metric.Value >= 60 ? "good" : "critical";
+
+                        <div class="performance-metric-card @performanceLevel">
+                            <div class="metric-icon-container">
+                                <i class="@metric.Icon metric-icon"></i>
+                            </div>
+                            <div class="metric-content">
+                                <div class="metric-value">@metric.Value%</div>
+                                <div class="metric-label">@metric.Label</div>
+                                <div class="metric-progress-bar">
+                                    <div class="progress-fill" style="width: @metric.Value%"></div>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                </div>
+
+                <!-- Navigation Statistics -->
+                <div class="framework-navigation-section">
+                    <h5 class="navigation-title">
+                        <i class="fas fa-compass me-2"></i>
+                        @Localizer["Sub-Output Navigation"]
+                    </h5>
+                    <div class="navigation-grid">
+                        <a asp-controller="Monitoring" asp-action="Indicators" asp-route-subOutputCode="@item.Code" class="nav-stat-card indicators-card">
+                            <div class="nav-stat-icon">
+                                <i class="fas fa-chart-bar"></i>
+                            </div>
+                            <div class="nav-stat-content">
+                                <div class="nav-stat-value">@item.Indicators.Count()</div>
+                                <div class="nav-stat-label">@Localizer["Indicators"]</div>
+                            </div>
+                            <div class="nav-stat-arrow">
+                                <i class="fas fa-chevron-right"></i>
+                            </div>
+                        </a>
+
+                        <a asp-controller="Monitoring" asp-action="Projects" asp-route-subOutputCode="@item.Code" class="nav-stat-card projects-card">
+                            <div class="nav-stat-icon">
+                                <i class="fas fa-project-diagram"></i>
+                            </div>
+                            <div class="nav-stat-content">
+                                <div class="nav-stat-value">@projectCount</div>
+                                <div class="nav-stat-label">@Localizer["Projects"]</div>
+                            </div>
+                            <div class="nav-stat-arrow">
+                                <i class="fas fa-chevron-right"></i>
+                            </div>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+</div>
+
+<style>
+    /* Modern Monitoring Dashboard Styles */
+
+    .frameworks-analytics-container {
+        display: flex;
+        flex-direction: column;
+        gap: 2rem;
+        margin-top: 2rem;
+    }
+
+    .modern-framework-card {
+        background: linear-gradient(135deg, rgba(255,255,255,0.95) 0%, rgba(248,249,250,0.95) 100%);
+        backdrop-filter: blur(15px);
+        -webkit-backdrop-filter: blur(15px);
+        border: 1px solid rgba(255,255,255,0.3);
+        border-radius: 24px;
+        padding: 2rem;
+        box-shadow:
+            0 8px 32px rgba(0,0,0,0.1),
+            0 4px 16px rgba(0,0,0,0.05);
+        transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
+        position: relative;
+        overflow: hidden;
+    }
+
+    .modern-framework-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+        transition: left 0.6s;
+    }
+
+    .modern-framework-card:hover::before {
+        left: 100%;
+    }
+
+    .modern-framework-card:hover {
+        transform: translateY(-8px) scale(1.02);
+        box-shadow:
+            0 20px 40px rgba(0,0,0,0.15),
+            0 8px 24px rgba(0,0,0,0.1);
+        border-color: rgba(255,255,255,0.5);
+    }
+
+    /* Framework Card Header */
+    .framework-card-header {
+        display: grid;
+        grid-template-columns: 1fr auto;
+        gap: 2rem;
+        align-items: center;
+        margin-bottom: 2rem;
+        padding-bottom: 1.5rem;
+        border-bottom: 2px solid rgba(230, 230, 230, 0.5);
+    }
+
+    .framework-title-section {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+    }
+
+    .framework-title {
+        font-size: 1.8rem;
+        font-weight: 700;
+        color: #2d3748;
+        margin: 0;
+        display: flex;
+        align-items: center;
+        background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+    }
+
+    .framework-title i {
+        color: #4facfe;
+        -webkit-text-fill-color: #4facfe;
+    }
+
+    .framework-status-badge {
+        display: inline-flex;
+        align-items: center;
+        padding: 0.5rem 1.25rem;
+        background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+        color: white;
+        border-radius: 20px;
+        font-size: 0.9rem;
+        font-weight: 600;
+        box-shadow: 0 4px 15px rgba(79, 172, 254, 0.3);
+        text-shadow: 0 1px 2px rgba(0,0,0,0.2);
+    }
+
+    /* Performance Circle */
+    .performance-circle {
+        position: relative;
+        width: 60px;
+        height: 60px;
+    }
+
+    .progress-ring {
+        transform: rotate(-90deg);
+        width: 60px;
+        height: 60px;
+    }
+
+    .progress-ring-circle {
+        stroke: var(--progress-color, #4facfe);
+        stroke-width: 4;
+        fill: transparent;
+        stroke-linecap: round;
+        transition: stroke-dashoffset 1s ease-in-out, stroke 0.3s ease;
+        stroke-dasharray: 157;
+        opacity: 0.9;
+        filter: drop-shadow(0 2px 4px rgba(0,0,0,0.1));
+    }
+
+    .performance-text {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        text-align: center;
+    }
+
+    .performance-value {
+        font-size: 0.9rem;
+        font-weight: 700;
+        color: #2d3748;
+        line-height: 1;
+    }
+
+    /* Performance Metrics Grid */
+    .performance-metrics-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 1.5rem;
+        margin-bottom: 2rem;
+    }
+
+    .performance-metric-card {
+        background: linear-gradient(135deg, rgba(255,255,255,0.9) 0%, rgba(248,249,250,0.9) 100%);
+        border: 1px solid rgba(255,255,255,0.5);
+        border-radius: 16px;
+        padding: 1.5rem;
+        display: flex;
+        align-items: center;
+        gap: 1.5rem;
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .performance-metric-card::after {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 4px;
+        height: 100%;
+        transition: all 0.3s ease;
+    }
+
+    .performance-metric-card.excellent::after { background: linear-gradient(135deg, #4CAF50, #45a049); }
+    .performance-metric-card.good::after { background: linear-gradient(135deg, #FF9800, #f57c00); }
+    .performance-metric-card.critical::after { background: linear-gradient(135deg, #F44336, #d32f2f); }
+
+    .performance-metric-card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+        background: linear-gradient(135deg, rgba(255,255,255,0.95) 0%, rgba(248,249,250,0.95) 100%);
+    }
+
+    .metric-icon-container {
+        width: 60px;
+        height: 60px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        position: relative;
+    }
+
+    .performance-metric-card.excellent .metric-icon-container {
+        background: linear-gradient(135deg, #4CAF50, #45a049);
+    }
+
+    .performance-metric-card.good .metric-icon-container {
+        background: linear-gradient(135deg, #FF9800, #f57c00);
+    }
+
+    .performance-metric-card.critical .metric-icon-container {
+        background: linear-gradient(135deg, #F44336, #d32f2f);
+    }
+
+    .metric-icon {
+        color: white;
+        font-size: 1.5rem;
+        text-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    }
+
+    .metric-content {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+
+    .metric-value {
+        font-size: 2rem;
+        font-weight: 700;
+        color: #2d3748;
+        line-height: 1;
+    }
+
+    .metric-label {
+        font-size: 0.9rem;
+        color: #718096;
+        font-weight: 500;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .metric-progress-bar {
+        width: 100%;
+        height: 6px;
+        background: rgba(226, 232, 240, 0.5);
+        border-radius: 3px;
+        overflow: hidden;
+        margin-top: 0.5rem;
+    }
+
+    .progress-fill {
+        height: 100%;
+        border-radius: 3px;
+        transition: width 1s ease;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .performance-metric-card.excellent .progress-fill {
+        background: linear-gradient(90deg, #4CAF50, #45a049);
+    }
+
+    .performance-metric-card.good .progress-fill {
+        background: linear-gradient(90deg, #FF9800, #f57c00);
+    }
+
+    .performance-metric-card.critical .progress-fill {
+        background: linear-gradient(90deg, #F44336, #d32f2f);
+    }
+
+    .progress-fill::after {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
+        animation: shimmer 2s infinite;
+    }
+
+    /* Framework Navigation Section */
+    .framework-navigation-section {
+        margin-top: 1rem;
+    }
+
+    .navigation-title {
+        font-size: 1.2rem;
+        font-weight: 600;
+        color: #4a5568;
+        margin-bottom: 1.5rem;
+        display: flex;
+        align-items: center;
+    }
+
+    .navigation-title i {
+        color: #4facfe;
+    }
+
+    .navigation-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1rem;
+    }
+
+    .nav-stat-card {
+        background: linear-gradient(135deg, rgba(255,255,255,0.8) 0%, rgba(248,249,250,0.8) 100%);
+        border: 1px solid rgba(255,255,255,0.5);
+        border-radius: 12px;
+        padding: 1.25rem;
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        text-decoration: none;
+        color: inherit;
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .nav-stat-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+        transition: left 0.5s;
+    }
+
+    .nav-stat-card:hover::before {
+        left: 100%;
+    }
+
+    .nav-stat-card:hover {
+        transform: translateY(-3px) translateX(3px);
+        box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+        text-decoration: none;
+        color: inherit;
+        background: linear-gradient(135deg, rgba(255,255,255,0.95) 0%, rgba(248,249,250,0.95) 100%);
+    }
+
+    .nav-stat-icon {
+        width: 45px;
+        height: 45px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.25rem;
+        color: white;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+    }
+
+    .indicators-card .nav-stat-icon { background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%); }
+    .projects-card .nav-stat-icon { background: linear-gradient(135deg, #fa709a 0%, #fee140 100%); }
+
+    .nav-stat-content {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        gap: 0.25rem;
+    }
+
+    .nav-stat-value {
+        font-size: 1.8rem;
+        font-weight: 700;
+        color: #2d3748;
+        line-height: 1;
+    }
+
+    .nav-stat-label {
+        font-size: 0.8rem;
+        color: #718096;
+        font-weight: 500;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .nav-stat-arrow {
+        color: #cbd5e0;
+        font-size: 0.9rem;
+        transition: all 0.3s ease;
+    }
+
+    .nav-stat-card:hover .nav-stat-arrow {
+        color: #4facfe;
+        transform: translateX(3px);
+    }
+
+    /* Animations */
+    @@keyframes shimmer {
+        0% { left: -100%; }
+        100% { left: 100%; }
+    }
+
+    @@keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(30px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .modern-framework-card {
+        animation: fadeInUp 0.6s ease-out;
+    }
+
+    .modern-framework-card:nth-child(2) { animation-delay: 0.1s; }
+    .modern-framework-card:nth-child(3) { animation-delay: 0.2s; }
+    .modern-framework-card:nth-child(4) { animation-delay: 0.3s; }
+
+    /* Responsive Design */
+    @@media (max-width: 1024px) {
+        .framework-card-header {
+            grid-template-columns: 1fr;
+            gap: 1.5rem;
+        }
+
+        .framework-performance-summary {
+            justify-self: center;
+        }
+
+        .performance-metrics-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .navigation-grid {
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+        }
+    }
+
+    @@media (max-width: 768px) {
+        .modern-framework-card {
+            padding: 1.5rem;
+        }
+
+        .framework-title {
+            font-size: 1.5rem;
+        }
+
+        .framework-card-header {
+            grid-template-columns: 1fr;
+            text-align: center;
+        }
+
+        .performance-metrics-grid {
+            gap: 1rem;
+        }
+
+        .performance-metric-card {
+            padding: 1.25rem;
+        }
+
+        .navigation-grid {
+            grid-template-columns: 1fr;
+            gap: 0.75rem;
+        }
+    }
+
+    @@media (max-width: 480px) {
+        .modern-framework-card {
+            padding: 1rem;
+        }
+
+        .framework-title {
+            font-size: 1.3rem;
+        }
+
+        .performance-metric-card {
+            flex-direction: column;
+            text-align: center;
+            gap: 1rem;
+        }
+
+        .nav-stat-card {
+            padding: 1rem;
+        }
+
+        .nav-stat-value {
+            font-size: 1.5rem;
+        }
+
+        .metric-value {
+            font-size: 1.5rem;
+        }
+    }
+</style>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Animate progress circles on load
+        const progressCircles = document.querySelectorAll('.progress-ring-circle');
+        progressCircles.forEach((circle, index) => {
+            setTimeout(() => {
+                const dashoffset = circle.style.strokeDashoffset;
+                circle.style.strokeDashoffset = '157';
+                setTimeout(() => {
+                    circle.style.strokeDashoffset = dashoffset;
+                }, 100);
+            }, index * 200);
+        });
+
+        // Animate progress bars on load
+        const progressBars = document.querySelectorAll('.progress-fill');
+        progressBars.forEach((bar, index) => {
+            const width = bar.style.width;
+            bar.style.width = '0%';
+            setTimeout(() => {
+                bar.style.width = width;
+            }, 500 + (index * 100));
+        });
+
+        // Add hover effects for navigation cards
+        const navCards = document.querySelectorAll('.nav-stat-card');
+        navCards.forEach(card => {
+            card.addEventListener('mouseenter', function() {
+                this.style.transform = 'translateY(-3px) translateX(3px)';
+            });
+
+            card.addEventListener('mouseleave', function() {
+                this.style.transform = 'translateY(0) translateX(0)';
+            });
+        });
+
+        // Add ripple effect to performance metric cards
+        const metricCards = document.querySelectorAll('.performance-metric-card');
+        metricCards.forEach(card => {
+            card.addEventListener('click', function(e) {
+                const ripple = document.createElement('span');
+                const rect = this.getBoundingClientRect();
+                const size = Math.max(rect.height, rect.width);
+                const x = e.clientX - rect.left - size / 2;
+                const y = e.clientY - rect.top - size / 2;
+
+                ripple.style.cssText = `
+                    width: ${size}px;
+                    height: ${size}px;
+                    left: ${x}px;
+                    top: ${y}px;
+                    position: absolute;
+                    border-radius: 50%;
+                    background: rgba(255,255,255,0.5);
+                    transform: scale(0);
+                    animation: ripple 0.6s linear;
+                    pointer-events: none;
+                `;
+
+                this.appendChild(ripple);
+
+                setTimeout(() => {
+                    ripple.remove();
+                }, 600);
+            });
+        });
+
+        // Add CSS for ripple animation
+        const style = document.createElement('style');
+        style.textContent = `
+            @@keyframes ripple {
+                to {
+                    transform: scale(4);
+                    opacity: 0;
+                }
+            }
+        `;
+        document.head.appendChild(style);
+    });
+</script>
