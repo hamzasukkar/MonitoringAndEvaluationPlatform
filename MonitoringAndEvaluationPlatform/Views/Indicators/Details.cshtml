@@ -58,14 +58,15 @@
         <div class="stat-label">@Localizer["Total Measures"]</div>
     </div>
 
-    <!-- Latest Value Card -->
+  @*   <!-- Latest Value Card -->
     <div class="stat-card">
         <div class="stat-icon warning">
             <i class="fas fa-clock"></i>
         </div>
         <div class="stat-number">@(Model.Measures.Any() ? Model.Measures.OrderByDescending(m => m.Date).First().Value.ToString() : "N/A")</div>
         <div class="stat-label">@Localizer["Latest Value"]</div>
-    </div>
+    </div> *@
+
 </div>
 <!-- Measures Data Section -->
 <div class="recent-activity">

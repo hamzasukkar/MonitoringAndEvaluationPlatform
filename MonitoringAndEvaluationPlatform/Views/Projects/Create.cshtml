@@ -67,11 +67,11 @@
                                         @Localizer["Project Name"] <span class="text-danger">*</span>
                                     </label>
                                     <input asp-for="ProjectName" class="form-control form-control-lg" placeholder="Enter a descriptive project name (3-200 characters)" />
-                                    <div class="form-text">Choose a clear and meaningful name for your project</div>
+                                    <div class="form-text">@Localizer["Choose a clear and meaningful name for your project"]</div>
                                     <span asp-validation-for="ProjectName" class="invalid-feedback d-block"></span>
                                 </div>
 
-                                <!-- Plans Count calculated from project duration -->
+                             @*    <!-- Plans Count calculated from project duration -->
                                 <div class="mb-4">
                                     <label for="PlansCount" class="form-label fw-bold">
                                         <i class="fas fa-calendar-alt me-2"></i>
@@ -85,7 +85,7 @@
                                            min="1"
                                            readonly />
                                     <div class="form-text">@Localizer["Automatically calculated based on project duration"]</div>
-                                </div>
+                                </div> *@
 
                                 <!-- Location Hierarchy -->
                                 <div class="mb-4">
@@ -156,7 +156,7 @@
                                             @Localizer["Start Date"] <span class="text-danger">*</span>
                                         </label>
                                         <input type="date" asp-for="StartDate" value="@startDate" class="form-control form-control-lg" />
-                                        <div class="form-text">Project implementation start date</div>
+                                    <div class="form-text">@Localizer["Project implementation start date"] </div>
                                         <span asp-validation-for="StartDate" class="invalid-feedback d-block"></span>
                                     </div>
                                     <div class="col-md-6">
@@ -186,7 +186,7 @@
                                         <span class="input-group-text">$</span>
                                         <input asp-for="EstimatedBudget" class="form-control form-control-lg" min="0.01" step="0.01" placeholder="0.00" />
                                     </div>
-                                    <div class="form-text">Enter the total estimated budget for this project (minimum $0.01)</div>
+                                <div class="form-text">@Localizer["Enter the total estimated budget for this project (minimum $0.01)"]</div>
                                     <span asp-validation-for="EstimatedBudget" class="invalid-feedback d-block"></span>
                                 </div>
 
@@ -214,7 +214,7 @@
                                     <select asp-for="ProjectManagerCode" class="form-select form-select-lg" asp-items="ViewBag.ProjectManager">
                                         <option value="">-- Select Project Manager --</option>
                                     </select>
-                                    <div class="form-text">Choose the primary manager responsible for this project</div>
+                                <div class="form-text">@Localizer["Choose the primary manager responsible for this project"]</div>
                                     <span asp-validation-for="ProjectManagerCode" class="invalid-feedback d-block"></span>
                                 </div>
 
@@ -226,7 +226,7 @@
                                     <select asp-for="SuperVisorCode" class="form-select form-select-lg" asp-items="ViewBag.SuperVisor">
                                         <option value="">-- Select Supervisor --</option>
                                     </select>
-                                    <div class="form-text">Choose the supervisor who will oversee this project</div>
+                                <div class="form-text">@Localizer["Choose the supervisor who will oversee this project"]</div>
                                     <span asp-validation-for="SuperVisorCode" class="invalid-feedback d-block"></span>
                                 </div>
 
@@ -352,7 +352,7 @@
                                             }
                                         }
                                     </select>
-                                    <div class="form-text">Choose the key performance indicator for measuring project success</div>
+                            <div class="form-text">@Localizer["Choose the key performance indicator for measuring project success"]</div>
                                     <div id="indicator-validation-error" class="invalid-feedback d-block" style="display: none;"></div>
                                 </div>
 
