@@ -169,10 +169,13 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 // Remove navigation properties from model state FIRST, before any validation
                 RemoveNavigationPropertiesFromModelState();
 
-                // Handle PlansCount - if it's 0 or less, set a default value
+                // Calculate PlansCount automatically based on the difference in months between StartDate and EndDate
+                PlansCount = CalculateMonthsDifference(project.StartDate, project.EndDate);
+
+                // Ensure PlansCount is at least 1 month
                 if (PlansCount <= 0)
                 {
-                    PlansCount = 1; // Default to 1 months if not provided or invalid
+                    PlansCount = 1;
                 }
 
                 // Process location selections
@@ -1134,6 +1137,21 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 isArabic ? "AR_Name" : "EN_Name"
             );
             ViewBag.Indicators = _context.Indicators.OrderBy(i => i.IndicatorCode).ToList();
+        }
+
+        private int CalculateMonthsDifference(DateTime startDate, DateTime endDate)
+        {
+            // Calculate the difference in months between start and end dates
+            int monthsDifference = ((endDate.Year - startDate.Year) * 12) + endDate.Month - startDate.Month;
+
+            // If the end day is before the start day, subtract one month
+            if (endDate.Day < startDate.Day)
+            {
+                monthsDifference--;
+            }
+
+            // Return at least 1 month if the difference is 0 or negative
+            return Math.Max(1, monthsDifference + 1); // +1 to include both start and end months
         }
     }
 }
