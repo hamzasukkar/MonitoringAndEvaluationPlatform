@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Localization;
 using MonitoringAndEvaluationPlatform.Data;
 using MonitoringAndEvaluationPlatform.Enums;
 using MonitoringAndEvaluationPlatform.Models;
@@ -17,18 +18,20 @@ namespace MonitoringAndEvaluationPlatform.Controllers
     {
         private readonly ApplicationDbContext _context;
         private readonly MonitoringService _monitoringService;
+        private readonly IStringLocalizer<MeasuresController> _localizer;
 
-        public MeasuresController(ApplicationDbContext context, MonitoringService monitoringService)
+        public MeasuresController(ApplicationDbContext context, MonitoringService monitoringService, IStringLocalizer<MeasuresController> localizer)
         {
             _context = context;
             _monitoringService = monitoringService;
+            _localizer = localizer;
         }
 
         [HttpPost("add-measure")]
         public async Task<IActionResult> AddMeasure([FromBody] AddMeasureDto dto)
         {
             await _monitoringService.AddMeasureToIndicator(dto.IndicatorId, dto.Value, MeasureValueType.Real);
-            return Ok("Measure added and Indicator Performance updated");
+            return Ok(_localizer["Measure added and Indicator Performance updated"]);
         }
 
         // DTO
@@ -106,11 +109,11 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 
                 // Update indicator performance after adding the measure
                 await _monitoringService.UpdateIndicatorPerformance(measure.IndicatorCode);
-                
-                return Ok(new { message = "Measure added successfully and indicator performance updated" });
+
+                return Ok(new { message = _localizer["Measure added successfully and indicator performance updated"] });
             }
 
-            return BadRequest("Invalid input");
+            return BadRequest(_localizer["Invalid input"]);
         }
 
         // GET: Measures/Create
@@ -163,7 +166,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 // Update indicator performance after adding the measure
                 await _monitoringService.UpdateIndicatorPerformance(measure.IndicatorCode);
                 
-                TempData["SuccessMessage"] = "Measure added successfully and indicator performance has been updated.";
+                TempData["SuccessMessage"] = _localizer["Measure added successfully and indicator performance has been updated."];
                 
                 // Redirect back to Index with indicator filter to show the measures for this indicator
                 return RedirectToAction(nameof(Index), new { indicatorId = measure.IndicatorCode });
@@ -211,7 +214,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                     
                     // Update indicator performance
                     await _monitoringService.UpdateIndicatorPerformance(measure.IndicatorCode);
-                    TempData["SuccessMessage"] = "Measure updated successfully and indicator performance has been updated.";
+                    TempData["SuccessMessage"] = _localizer["Measure updated successfully and indicator performance has been updated."];
                 }
                 catch (DbUpdateConcurrencyException)
                 {
