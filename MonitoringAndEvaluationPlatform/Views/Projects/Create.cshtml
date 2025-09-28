@@ -765,10 +765,10 @@
                                 <h6 class="mb-1">
                                     <i class="fas fa-hand-holding-usd me-2"></i>${donor.text}
                                 </h6>
-                                <small class="text-muted">Funding Contribution</small>
+                                <small class="text-muted">@Localizer["Funding Contribution"]</small>
                             </div>
                             <div class="col-md-4">
-                                <label class="form-label small mb-1">Percentage: <span class="percentage-display" data-donor="${donor.value}">${currentPercentage.toFixed(1)}%</span></label>
+                                <label class="form-label small mb-1">@Localizer["Percentage:"] <span class="percentage-display" data-donor="${donor.value}">${currentPercentage.toFixed(1)}%</span></label>
                                 <input type="range"
                                        class="form-range donor-slider"
                                        data-donor="${donor.value}"
@@ -785,7 +785,7 @@
                                 <div class="text-end">
                                     <strong class="donor-amount" data-donor="${donor.value}">$0.00</strong>
                                     <br>
-                                    <small class="text-muted">Amount</small>
+                                    <small class="text-muted">@Localizer["Amount:"]</small>
                                 </div>
                             </div>
                             <div class="col-md-1">
@@ -872,7 +872,7 @@
         } else if (totalPercentage > 0) {
             statusElement.text(`Partially funded (${totalPercentage.toFixed(1)}%)`).removeClass('text-success text-danger text-muted').addClass('text-warning');
         } else {
-            statusElement.text('Cannot exceed 100%').removeClass('text-success text-warning text-danger').addClass('text-muted');
+            statusElement.text('@Localizer["Cannot exceed 100%"]').removeClass('text-success text-warning text-danger').addClass('text-muted');
         }
 
         // Update hidden field with funding data
