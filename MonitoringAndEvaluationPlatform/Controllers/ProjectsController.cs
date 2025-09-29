@@ -207,7 +207,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
 
                 if (!ModelState.IsValid)
                 {
-                    await PopulateCreateViewBagAsync();
+                    await PopulateCreateViewBagAsync(selectedSectorCodes, selectedDonorCodes, SelectedIndicators, selections, DonorFundingBreakdown);
                     return View(project);
                 }
 
@@ -248,7 +248,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 if (!activitiesCreated)
                 {
                     ModelState.AddModelError("", "Unable to create activities for the new ActionPlan.");
-                    await PopulateCreateViewBagAsync();
+                    await PopulateCreateViewBagAsync(selectedSectorCodes, selectedDonorCodes, SelectedIndicators, selections, DonorFundingBreakdown);
                     return View(project);
                 }
 
@@ -284,7 +284,10 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             catch (Exception ex)
             {
                 ModelState.AddModelError("", $"An error occurred while creating the project: {ex.Message}");
-                await PopulateCreateViewBagAsync();
+                // Get form data for preservation
+                var selectedSectorCodes = Request.Form["Sectors"].ToList();
+                var selectedDonorCodes = Request.Form["Donors"].ToList();
+                await PopulateCreateViewBagAsync(selectedSectorCodes, selectedDonorCodes, SelectedIndicators, selections, DonorFundingBreakdown);
                 return View(project);
             }
         }
@@ -1129,12 +1132,16 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             }
         }
 
-        private async Task PopulateCreateViewBagAsync()
+        private async Task PopulateCreateViewBagAsync(List<string> selectedSectorCodes = null, List<string> selectedDonorCodes = null, List<int> selectedIndicators = null, string locationSelections = null, string donorFundingBreakdown = null)
         {
             var isArabic = CultureInfo.CurrentUICulture.TwoLetterISOLanguageName == "ar";
 
             ViewBag.Governorates = _context.Governorates.ToList();
-            ViewBag.SectorList = new MultiSelectList(_context.Sectors, "Code", "AR_Name");
+
+            // Preserve selected sectors
+            var sectorCodes = selectedSectorCodes?.Select(int.Parse).ToList() ?? new List<int>();
+            ViewBag.SectorList = new MultiSelectList(_context.Sectors, "Code", "AR_Name", sectorCodes);
+
             ViewBag.MinistryList = new SelectList(_context.Ministries, "Code", "MinistryDisplayName");
             ViewBag.ProjectManager = new SelectList(_context.ProjectManagers, "Code", "Name");
             ViewBag.SuperVisor = new SelectList(_context.SuperVisors, "Code", "Name");
@@ -1145,6 +1152,13 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 isArabic ? "AR_Name" : "EN_Name"
             );
             ViewBag.Indicators = _context.Indicators.OrderBy(i => i.IndicatorCode).ToList();
+
+            // Preserve form data
+            ViewBag.SelectedSectorCodes = selectedSectorCodes ?? new List<string>();
+            ViewBag.SelectedDonorCodes = selectedDonorCodes ?? new List<string>();
+            ViewBag.SelectedIndicators = selectedIndicators ?? new List<int>();
+            ViewBag.LocationSelections = locationSelections ?? "";
+            ViewBag.DonorFundingBreakdown = donorFundingBreakdown ?? "";
         }
 
         private int CalculateMonthsDifference(DateTime startDate, DateTime endDate)

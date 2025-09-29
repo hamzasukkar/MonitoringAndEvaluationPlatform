@@ -702,6 +702,9 @@
     // Calculate initial plans count on page load
     $(document).ready(function() {
         calculatePlansCount();
+
+        // Restore preserved form data after validation failure
+        restoreFormData();
     });
 
     let selectedDonors = [];
@@ -868,9 +871,9 @@
         if (totalPercentage > 100) {
             statusElement.text('Error: Exceeds 100%').removeClass('text-success text-muted text-warning').addClass('text-danger');
         } else if (totalPercentage === 100) {
-            statusElement.text('Fully funded (100%)').removeClass('text-warning text-danger text-muted').addClass('text-success');
+            statusElement.text('@Localizer["Fully funded"] (100%)').removeClass('text-warning text-danger text-muted').addClass('text-success');
         } else if (totalPercentage > 0) {
-            statusElement.text(`Partially funded (${totalPercentage.toFixed(1)}%)`).removeClass('text-success text-danger text-muted').addClass('text-warning');
+            statusElement.text(`@Localizer["Partially funded"] (${totalPercentage.toFixed(1)}%)`).removeClass('text-success text-danger text-muted').addClass('text-warning');
         } else {
             statusElement.text('@Localizer["Cannot exceed 100%"]').removeClass('text-success text-warning text-danger').addClass('text-muted');
         }
@@ -913,6 +916,16 @@
             isValid = false;
         } else {
             $('#indicator-validation-error').hide();
+            // Ensure the selected indicator is added to the form for submission
+            if ($('input[name="SelectedIndicators"]').length === 0) {
+                $('<input>').attr({
+                    type: 'hidden',
+                    name: 'SelectedIndicators',
+                    value: selectedIndicator
+                }).appendTo('form');
+            } else {
+                $('input[name="SelectedIndicators"]').val(selectedIndicator);
+            }
         }
 
         // Check if project manager is selected
@@ -969,6 +982,124 @@
             return false;
         }
     });
+
+    // Function to restore form data after validation failure
+    function restoreFormData() {
+        // Get preserved data from ViewBag
+        var selectedSectorCodes = @Html.Raw(Json.Serialize(ViewBag.SelectedSectorCodes ?? new List<string>()));
+        var selectedDonorCodes = @Html.Raw(Json.Serialize(ViewBag.SelectedDonorCodes ?? new List<string>()));
+        var selectedIndicators = @Html.Raw(Json.Serialize(ViewBag.SelectedIndicators ?? new List<int>()));
+        var locationSelections = @Html.Raw(Json.Serialize(ViewBag.LocationSelections ?? ""));
+        var donorFundingBreakdown = @Html.Raw(Json.Serialize(ViewBag.DonorFundingBreakdown ?? ""));
+
+        // Restore selected sectors
+        if (selectedSectorCodes && selectedSectorCodes.length > 0) {
+            selectedSectorCodes.forEach(function(code) {
+                $('select[name="Sectors"] option[value="' + code + '"]').prop('selected', true);
+            });
+        }
+
+        // Restore selected indicators
+        if (selectedIndicators && selectedIndicators.length > 0) {
+            // Add hidden input to preserve the selected indicator for form submission
+            $('<input>').attr({
+                type: 'hidden',
+                name: 'SelectedIndicators',
+                value: selectedIndicators[0]
+            }).appendTo('form');
+
+            $('#indicatorSelect').val(selectedIndicators[0]).trigger('change');
+        }
+
+        // Restore location selections
+        if (locationSelections && locationSelections !== '') {
+            try {
+                if (typeof locationSelections === 'string') {
+                    selections = JSON.parse(locationSelections);
+                } else {
+                    selections = locationSelections;
+                }
+                restoreLocationSelections();
+            } catch (e) {
+                console.log('Error parsing location selections:', e);
+            }
+        }
+
+        // Restore donor selections and funding data
+        if (selectedDonorCodes && selectedDonorCodes.length > 0) {
+            restoreDonorSelections(selectedDonorCodes, donorFundingBreakdown);
+        }
+    }
+
+    // Function to restore location selections in the UI
+    function restoreLocationSelections() {
+        if (selections && selections.length > 0) {
+            selections.forEach(function(item) {
+                // Create list item display
+                const $li = $(`
+                    <li class="list-group-item">
+                        <span>Governorate ${item.GovernorateCode} > District ${item.DistrictCode} > SubDistrict ${item.SubDistrictCode} > Community ${item.CommunityCode}</span>
+                        <button type="button" class="btn btn-sm btn-outline-danger btn-clear">
+                            <i class="fas fa-times"></i> Clear
+                        </button>
+                    </li>
+                `);
+
+                // Attach remove handler
+                $li.find(".btn-clear").click(function () {
+                    selections = selections.filter(x =>
+                        !(x.GovernorateCode === item.GovernorateCode &&
+                          x.DistrictCode === item.DistrictCode &&
+                          x.SubDistrictCode === item.SubDistrictCode &&
+                          x.CommunityCode === item.CommunityCode)
+                    );
+                    $li.remove();
+                    $("#location-data").val(JSON.stringify(selections));
+                });
+
+                $("#selected-locations").append($li);
+            });
+
+            // Update hidden input
+            $("#location-data").val(JSON.stringify(selections));
+        }
+    }
+
+    // Function to restore donor selections
+    function restoreDonorSelections(donorCodes, fundingBreakdown) {
+        selectedDonors = [];
+        donorFundingData = {};
+
+        // Parse funding breakdown if available
+        var fundingData = {};
+        if (fundingBreakdown && fundingBreakdown !== '') {
+            try {
+                if (typeof fundingBreakdown === 'string') {
+                    fundingData = JSON.parse(fundingBreakdown);
+                } else {
+                    fundingData = fundingBreakdown;
+                }
+            } catch (e) {
+                console.log('Error parsing donor funding breakdown:', e);
+            }
+        }
+
+        // Get donor text from select options
+        donorCodes.forEach(function(code) {
+            var donorText = $('#availableDonorSelect option[value="' + code + '"]').text();
+            if (donorText) {
+                selectedDonors.push({
+                    value: code,
+                    text: donorText
+                });
+                donorFundingData[code] = fundingData[code] || 0;
+            }
+        });
+
+        // Update UI
+        updateDonorFundingSection();
+        updateSelectedDonorsInput();
+    }
 
 
 </script>
