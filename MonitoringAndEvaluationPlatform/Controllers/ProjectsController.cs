@@ -46,6 +46,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             // Load dropdown/filter data
             filter.Ministries = await _context.Ministries.ToListAsync();
             filter.Donors = await _context.Donors.ToListAsync();
+            filter.Sectors = await _context.Sectors.ToListAsync();
 
             // Get the logged-in user
             var user = await _userManager.GetUserAsync(User);
@@ -68,6 +69,13 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 projectQuery = projectQuery
                     .Where(p => p.Ministries
                                  .Any(m => filter.SelectedMinistries.Contains(m.Code)));
+            }
+
+            if (filter.SelectedSectors.Any())
+            {
+                projectQuery = projectQuery
+                    .Where(p => p.Sectors
+                                 .Any(s => filter.SelectedSectors.Contains(s.Code)));
             }
 
 
