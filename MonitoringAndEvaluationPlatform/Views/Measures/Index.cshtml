@@ -29,6 +29,36 @@
 </div>
 
 <div class="container-fluid">
+    @if (selectedProject != null)
+    {
+        <!-- Project Navigation Section -->
+        <div class="project-nav-modern mb-4">
+            <nav class="modern-navbar">
+                <div class="navbar-container">
+                    <div class="navbar-collapse" id="projectNavbar">
+                        <ul class="modern-nav-list">
+                            <li class="nav-item-modern">
+                                <a asp-action="Details" asp-controller="Projects" asp-route-id="@ViewBag.SelectedProjectId" class="nav-link-modern">
+                                    <i class="fas fa-project-diagram me-2"></i>@Localizer["Project"]
+                                </a>
+                            </li>
+                            <li class="nav-item-modern">
+                                <a asp-action="Index" asp-controller="Measures" asp-route-indicatorId="@ViewBag.SelectedIndicatorId" class="nav-link-modern active" aria-current="page">
+                                    <i class="fas fa-ruler-combined me-2"></i>@Localizer["Measures"]
+                                </a>
+                            </li>
+                            <li class="nav-item-modern">
+                                <a asp-controller="ActionPlans" asp-action="ActionPlan" asp-route-id="@ViewBag.SelectedProjectId" class="nav-link-modern">
+                                    <i class="fas fa-tasks me-2"></i>@Localizer["Action Plans"]
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </nav>
+        </div>
+    }
+
     @if (selectedProject != null && selectedIndicator != null)
     {
         <div class="chart-card mb-4">
@@ -281,6 +311,68 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
     <style>
+        /* Modern Project Navigation */
+        .project-nav-modern {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            padding: 1rem 1.5rem;
+            margin-bottom: 2rem;
+            border: none;
+        }
+
+        .modern-navbar {
+            background: transparent !important;
+            border: none;
+            padding: 0;
+        }
+
+        .navbar-container {
+            width: 100%;
+        }
+
+        .modern-nav-list {
+            display: flex;
+            list-style: none;
+            margin: 0;
+            padding: 0;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+
+        .nav-item-modern {
+            margin: 0;
+        }
+
+        .nav-link-modern {
+            color: #6c757d;
+            text-decoration: none;
+            font-weight: 500;
+            padding: 12px 20px;
+            border-radius: 12px;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            background: rgba(255, 255, 255, 0.7);
+            border: 1px solid rgba(0, 0, 0, 0.1);
+            white-space: nowrap;
+        }
+
+        .nav-link-modern:hover {
+            background: linear-gradient(45deg, var(--primary-color), var(--primary-light));
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            text-decoration: none;
+        }
+
+        .nav-link-modern.active {
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-dark) 100%);
+            color: white;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
         /* Info Section Styling */
         .info-section {
             background: transparent;
