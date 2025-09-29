@@ -43,7 +43,12 @@ namespace MonitoringAndEvaluationPlatform.Controllers
 
             if (projectActionPlan == null) return NotFound();
 
-            // 2. Map the data to your NEW ViewModel
+            // 2. Get project indicators for navigation
+            var project = _context.Projects
+                .Include(p => p.ProjectIndicators)
+                .FirstOrDefault(p => p.ProjectID == id);
+
+            // 3. Map the data to your NEW ViewModel
             var viewModel = projectActionPlan.Activities
                 .GroupBy(a => a.ActivityType.ToString()) // Group activities by type
                 .Select(group => new ActivityPlanViewModel
@@ -64,6 +69,17 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 }).ToList();
 
             ViewBag.ProjectID = id; // Pass project ID for navigation links
+
+            // Pass first indicator code for navigation
+            if (project?.ProjectIndicators != null && project.ProjectIndicators.Any())
+            {
+                ViewBag.FirstIndicatorCode = project.ProjectIndicators.First().IndicatorCode;
+            }
+            else
+            {
+                ViewBag.FirstIndicatorCode = null;
+            }
+
             return View(viewModel);
         }
 
