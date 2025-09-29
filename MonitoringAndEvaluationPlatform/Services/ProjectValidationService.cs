@@ -66,11 +66,6 @@ namespace MonitoringAndEvaluationPlatform.Services
                 modelState.AddModelError(nameof(project.EndDate), "Project end date must be after the start date.");
             }
 
-            // Validate future dates
-            if (project.StartDate < DateTime.Today.AddDays(-30))
-            {
-                modelState.AddModelError(nameof(project.StartDate), "Project start date cannot be more than 30 days in the past.");
-            }
 
             // Validate project duration (not too long)
             var projectDuration = (project.EndDate - project.StartDate).Days;
