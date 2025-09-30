@@ -280,7 +280,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                     .ThenInclude(so => so.Output) // Include Output
                         .ThenInclude(o => o.Outcome) // Include Outcome
                             .ThenInclude(outc => outc.Framework) // Include Framework
-                .Include(i => i.Measures); // <--- CRUCIAL: Include Measures to count projects via Measures
+                .Include(i => i.ProjectIndicators); // <--- CRUCIAL: Include ProjectIndicators to count projects
 
             if (subOutputCode.HasValue)
             {
