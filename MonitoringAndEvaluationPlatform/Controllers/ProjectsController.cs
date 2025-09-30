@@ -94,19 +94,40 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         // APIs for cascading
         public JsonResult GetDistricts(string governorateCode)
         {
-            var districts = _context.Districts.Where(d => d.GovernorateCode == governorateCode).ToList();
+            var currentCulture = CultureInfo.CurrentUICulture.TwoLetterISOLanguageName;
+            var districts = _context.Districts
+                .Where(d => d.GovernorateCode == governorateCode)
+                .Select(d => new {
+                    code = d.Code,
+                    name = currentCulture == "ar" ? d.AR_Name : d.EN_Name
+                })
+                .ToList();
             return Json(districts);
         }
 
         public JsonResult GetSubDistricts(string districtCode)
         {
-            var subs = _context.SubDistricts.Where(s => s.DistrictCode == districtCode).ToList();
+            var currentCulture = CultureInfo.CurrentUICulture.TwoLetterISOLanguageName;
+            var subs = _context.SubDistricts
+                .Where(s => s.DistrictCode == districtCode)
+                .Select(s => new {
+                    code = s.Code,
+                    name = currentCulture == "ar" ? s.AR_Name : s.EN_Name
+                })
+                .ToList();
             return Json(subs);
         }
 
         public JsonResult GetCommunities(string subDistrictCode)
         {
-            var comms = _context.Communities.Where(c => c.SubDistrictCode == subDistrictCode).ToList();
+            var currentCulture = CultureInfo.CurrentUICulture.TwoLetterISOLanguageName;
+            var comms = _context.Communities
+                .Where(c => c.SubDistrictCode == subDistrictCode)
+                .Select(c => new {
+                    code = c.Code,
+                    name = currentCulture == "ar" ? c.AR_Name : c.EN_Name
+                })
+                .ToList();
             return Json(comms);
         }
 
