@@ -141,6 +141,9 @@
   <data name="DisbursementPerformance" xml:space="preserve">
     <value>أداء الصرف</value>
   </data>
+  <data name="Enter realised value" xml:space="preserve">
+    <value>أدخل القيمة المحققة</value>
+  </data>
   <data name="Estimated Budget" xml:space="preserve">
     <value>الميزانية التقديرية</value>
   </data>
@@ -177,8 +180,20 @@
   <data name="Projects" xml:space="preserve">
     <value>المشاريع</value>
   </data>
+  <data name="Quick Update Realised Values" xml:space="preserve">
+    <value>تحديث سريع للقيم المحققة</value>
+  </data>
   <data name="Realised" xml:space="preserve">
     <value>تم تحقيقها</value>
+  </data>
+  <data name="Realised Value" xml:space="preserve">
+    <value>القيمة المحققة</value>
+  </data>
+  <data name="-- Select Plan --" xml:space="preserve">
+    <value>--اختر الخطة--</value>
+  </data>
+  <data name="Select Plan/Month" xml:space="preserve">
+    <value>القيمة المحققة</value>
   </data>
   <data name="Subtotal Planned" xml:space="preserve">
     <value>المجموع الفرعي المخطط له</value>
@@ -194,5 +209,11 @@
   </data>
   <data name="Total Realised" xml:space="preserve">
     <value>إجمالي المحقق</value>
+  </data>
+  <data name="Update" xml:space="preserve">
+    <value>تحديث</value>
+  </data>
+  <data name="Updating..." xml:space="preserve">
+    <value>جاري التحديث...</value>
   </data>
 </root>
