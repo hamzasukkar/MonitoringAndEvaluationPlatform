@@ -380,13 +380,13 @@ namespace MonitoringAndEvaluationPlatform.Controllers
 
             // Build a list of selection DTOs containing names and codes
             var selectedLocations = project.Communities.Select(c => new {
-                GovernorateName = c.SubDistrict.District.Governorate.EN_Name,
+                GovernorateName = isArabic ? c.SubDistrict.District.Governorate.AR_Name : c.SubDistrict.District.Governorate.EN_Name,
                 GovernorateCode = c.SubDistrict.District.Governorate.Code,
-                DistrictName = c.SubDistrict.District.EN_Name,
+                DistrictName = isArabic ? c.SubDistrict.District.AR_Name : c.SubDistrict.District.EN_Name,
                 DistrictCode = c.SubDistrict.District.Code,
-                SubDistrictName = c.SubDistrict.EN_Name,
+                SubDistrictName = isArabic ? c.SubDistrict.AR_Name : c.SubDistrict.EN_Name,
                 SubDistrictCode = c.SubDistrict.Code,
-                CommunityName = c.EN_Name,
+                CommunityName = isArabic ? c.AR_Name : c.EN_Name,
                 CommunityCode = c.Code
             }).ToList();
 
