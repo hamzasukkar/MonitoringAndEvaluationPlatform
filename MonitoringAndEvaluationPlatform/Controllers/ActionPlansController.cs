@@ -80,6 +80,26 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 ViewBag.FirstIndicatorCode = null;
             }
 
+            // Pass project start and end dates for month calculation
+            if (project != null)
+            {
+                ViewBag.ProjectStartDate = project.StartDate;
+                ViewBag.ProjectEndDate = project.EndDate;
+
+                // Calculate project months for display
+                var months = new List<DateTime>();
+                var currentMonth = new DateTime(project.StartDate.Year, project.StartDate.Month, 1);
+                var endMonth = new DateTime(project.EndDate.Year, project.EndDate.Month, 1);
+
+                while (currentMonth <= endMonth)
+                {
+                    months.Add(currentMonth);
+                    currentMonth = currentMonth.AddMonths(1);
+                }
+
+                ViewBag.ProjectMonths = months;
+            }
+
             return View(viewModel);
         }
 

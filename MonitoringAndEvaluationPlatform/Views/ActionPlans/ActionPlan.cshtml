@@ -128,9 +128,22 @@
                         <tr>
                             <th>@Localizer["Activity"]</th>
                             <th>@Localizer["Framework"]</th>
-                            @for (int i = 1; i <= maxPlans; i++)
+                            @{
+                                var projectMonths = ViewBag.ProjectMonths as List<DateTime>;
+                            }
+                            @if (projectMonths != null && projectMonths.Any())
                             {
-                                <th>@Localizer["Plan"] @i</th>
+                                @foreach (var month in projectMonths)
+                                {
+                                    <th>@month.ToString("MMM yyyy")</th>
+                                }
+                            }
+                            else
+                            {
+                                @for (int i = 1; i <= maxPlans; i++)
+                                {
+                                    <th>@Localizer["Plan"] @i</th>
+                                }
                             }
                             <th>@Localizer["Total"]</th>
                         </tr>
@@ -159,45 +172,99 @@
                                     @displayName
                                 </td>
                                 <td class="framework-label-cell"></td>
-                                @foreach (var plan in activity.Plans)
+                                @if (projectMonths != null && projectMonths.Any())
                                 {
-                                    <td></td>
+                                    @foreach (var month in projectMonths)
+                                    {
+                                        <td></td>
+                                    }
                                 }
-                                @for (int i = activity.Plans.Count; i < maxPlans; i++)
+                                else
                                 {
-                                    <td></td>
+                                    @foreach (var plan in activity.Plans)
+                                    {
+                                        <td></td>
+                                    }
+                                    @for (int i = activity.Plans.Count; i < maxPlans; i++)
+                                    {
+                                        <td></td>
+                                    }
                                 }
                                 <td class="total-cost-cell">-</td>
                             </tr>
                             <tr>
                                 <td class="framework-label-cell">@Localizer["Planned"]</td>
-                                @foreach (var plan in activity.Plans)
+                                @if (projectMonths != null && projectMonths.Any())
                                 {
-                                    <td class="editable-plan-cell" contenteditable="true"
-                                        data-plan-code="@plan.PlanCode"
-                                        data-value-type="Planned">
-                                        @plan.PlannedValue
-                                    </td>
+                                    @for (int i = 0; i < projectMonths.Count; i++)
+                                    {
+                                        @if (i < activity.Plans.Count)
+                                        {
+                                            var plan = activity.Plans[i];
+                                            <td class="editable-plan-cell" contenteditable="true"
+                                                data-plan-code="@plan.PlanCode"
+                                                data-value-type="Planned">
+                                                @plan.PlannedValue
+                                            </td>
+                                        }
+                                        else
+                                        {
+                                            <td class="empty-plan-cell"></td>
+                                        }
+                                    }
                                 }
-                                @for (int i = activity.Plans.Count; i < maxPlans; i++)
+                                else
                                 {
-                                    <td></td>
+                                    @foreach (var plan in activity.Plans)
+                                    {
+                                        <td class="editable-plan-cell" contenteditable="true"
+                                            data-plan-code="@plan.PlanCode"
+                                            data-value-type="Planned">
+                                            @plan.PlannedValue
+                                        </td>
+                                    }
+                                    @for (int i = activity.Plans.Count; i < maxPlans; i++)
+                                    {
+                                        <td></td>
+                                    }
                                 }
                                 <td class="total-cost-cell">@activity.TotalEstimatedCost.ToString("N0")</td>
                             </tr>
                             <tr>
                                 <td class="framework-label-cell">@Localizer["Realised"]</td>
-                                @foreach (var plan in activity.Plans)
+                                @if (projectMonths != null && projectMonths.Any())
                                 {
-                                    <td class="editable-plan-cell" contenteditable="true"
-                                        data-plan-code="@plan.PlanCode"
-                                        data-value-type="Realised">
-                                        @plan.RealisedValue
-                                    </td>
+                                    @for (int i = 0; i < projectMonths.Count; i++)
+                                    {
+                                        @if (i < activity.Plans.Count)
+                                        {
+                                            var plan = activity.Plans[i];
+                                            <td class="editable-plan-cell" contenteditable="true"
+                                                data-plan-code="@plan.PlanCode"
+                                                data-value-type="Realised">
+                                                @plan.RealisedValue
+                                            </td>
+                                        }
+                                        else
+                                        {
+                                            <td class="empty-plan-cell"></td>
+                                        }
+                                    }
                                 }
-                                @for (int i = activity.Plans.Count; i < maxPlans; i++)
+                                else
                                 {
-                                    <td></td>
+                                    @foreach (var plan in activity.Plans)
+                                    {
+                                        <td class="editable-plan-cell" contenteditable="true"
+                                            data-plan-code="@plan.PlanCode"
+                                            data-value-type="Realised">
+                                            @plan.RealisedValue
+                                        </td>
+                                    }
+                                    @for (int i = activity.Plans.Count; i < maxPlans; i++)
+                                    {
+                                        <td></td>
+                                    }
                                 }
                                 <td class="total-cost-cell">@activity.TotalRealisedCost.ToString("N0")</td>
                             </tr>
@@ -206,17 +273,37 @@
                     <tfoot>
                         <tr class="subtotal-row">
                             <td colspan="2">@Localizer["Subtotal Planned"]</td>
-                            @for (int i = 0; i < maxPlans; i++)
+                            @if (projectMonths != null && projectMonths.Any())
                             {
-                                <td>@activityGroup.Activities.Sum(a => a.Plans.Count > i ? a.Plans[i].PlannedValue : 0)</td>
+                                @for (int i = 0; i < projectMonths.Count; i++)
+                                {
+                                    <td>@activityGroup.Activities.Sum(a => a.Plans.Count > i ? a.Plans[i].PlannedValue : 0)</td>
+                                }
+                            }
+                            else
+                            {
+                                @for (int i = 0; i < maxPlans; i++)
+                                {
+                                    <td>@activityGroup.Activities.Sum(a => a.Plans.Count > i ? a.Plans[i].PlannedValue : 0)</td>
+                                }
                             }
                             <td>@activityGroup.Activities.Sum(a => a.TotalEstimatedCost).ToString("N0")</td>
                         </tr>
                         <tr class="subtotal-row">
                             <td colspan="2">@Localizer["Subtotal Realised"]</td>
-                            @for (int i = 0; i < maxPlans; i++)
+                            @if (projectMonths != null && projectMonths.Any())
                             {
-                                <td>@activityGroup.Activities.Sum(a => a.Plans.Count > i ? a.Plans[i].RealisedValue : 0)</td>
+                                @for (int i = 0; i < projectMonths.Count; i++)
+                                {
+                                    <td>@activityGroup.Activities.Sum(a => a.Plans.Count > i ? a.Plans[i].RealisedValue : 0)</td>
+                                }
+                            }
+                            else
+                            {
+                                @for (int i = 0; i < maxPlans; i++)
+                                {
+                                    <td>@activityGroup.Activities.Sum(a => a.Plans.Count > i ? a.Plans[i].RealisedValue : 0)</td>
+                                }
                             }
                             <td>@activityGroup.Activities.Sum(a => a.TotalRealisedCost).ToString("N0")</td>
                         </tr>
@@ -524,6 +611,19 @@
         .editable-plan-cell:focus {
             outline: 2px solid var(--primary-color);
             background: rgba(var(--primary-color-rgb), 0.2);
+        }
+
+        .empty-plan-cell {
+            background: rgba(0, 0, 0, 0.02);
+            border-radius: 8px;
+            text-align: center;
+            min-width: 80px;
+            color: #6c757d;
+            font-style: italic;
+        }
+
+        .empty-plan-cell::after {
+            content: "-";
         }
 
         .total-cost-cell {
