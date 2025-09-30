@@ -217,6 +217,10 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             // Start with a query on ProjectIndicators to get projects based on indicators
             IQueryable<ProjectIndicator> projectIndicatorsQuery = _context.ProjectIndicators
                 .Include(pi => pi.Project) // Eager load the Project
+                .Include(pi => pi.Project.Sectors)
+                .Include(pi => pi.Project.Donors)
+                .Include(pi => pi.Project.Ministries)
+                .Include(pi => pi.Project.Communities)
                 .Include(pi => pi.Indicator) // Eager load the Indicator
                     .ThenInclude(i => i.SubOutput) // Eager load SubOutput from Indicator
                         .ThenInclude(so => so.Output) // Eager load Output from SubOutput

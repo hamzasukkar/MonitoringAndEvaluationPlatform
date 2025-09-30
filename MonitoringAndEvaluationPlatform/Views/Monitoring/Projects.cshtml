@@ -28,7 +28,7 @@
             var metrics = new[]
             {
                 new { Value = Math.Round(item.performance), Label = @Localizer["Performance"], Icon = "fas fa-chart-line", Color = "primary" },
-                new { Value = (double)item.Financial, Label = @Localizer["Financial"], Icon = "fas fa-dollar-sign", Color = "success" }
+        new { Value = Math.Round(item.DisbursementPerformance), Label = @Localizer["Disbursement"], Icon = "fas fa-dollar-sign", Color = "success" }
             };
 
             <div class="modern-framework-card">
@@ -43,7 +43,7 @@
                             @Localizer["Active Project"]
                         </div>
                     </div>
-                    <div class="framework-performance-summary">
+@*                     <div class="framework-performance-summary">
                         <div class="performance-circle" data-performance="@Math.Round(item.performance)">
                             <svg class="progress-ring" width="60" height="60">
                                 <circle class="progress-ring-circle"
@@ -58,7 +58,7 @@
                             </div>
                         </div>
                     </div>
-                </div>
+ *@                </div>
 
                 <!-- Performance Metrics Section -->
                 <div class="performance-metrics-grid">
@@ -94,7 +94,16 @@
                             </div>
                             <div class="detail-content">
                                 <div class="detail-label">@Localizer["Location"]</div>
-                                <div class="detail-value">@(item.Communities?.FirstOrDefault()?.EN_Name ?? "N/A")</div>
+                                <div class="detail-value">
+                                    @{
+                                        var requestCulture = Context.Features.Get<IRequestCultureFeature>();
+                                        var currentCulture = requestCulture?.RequestCulture.Culture.TwoLetterISOLanguageName ?? "ar";
+                                        var communityName = currentCulture == "ar"
+                                            ? item.Communities?.FirstOrDefault()?.AR_Name
+                                            : item.Communities?.FirstOrDefault()?.EN_Name;
+                                    }
+                                    @(communityName ?? "N/A")
+                                </div>
                             </div>
                         </div>
 
