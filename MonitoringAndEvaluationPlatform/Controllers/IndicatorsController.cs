@@ -662,6 +662,12 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             return View(indicators);
         }
 
+        // GET: Demo page for project display options
+        public IActionResult ProjectDisplayOptions()
+        {
+            return View();
+        }
+
         // GET: Indicators/IndicatorAndProjectTable
         public async Task<IActionResult> IndicatorAndProjectTable(int? projectId, int? frameworkCode, int? subOutputCode, string searchString)
         {
