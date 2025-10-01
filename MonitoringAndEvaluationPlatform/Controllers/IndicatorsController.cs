@@ -601,10 +601,23 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             ViewData["FrameworkCode"] = frameworkCode;
             ViewData["SubOutputCode"] = subOutputCode;
 
-            // Get all projects for the dropdown filter
-            var projects = await _context.Projects
+            // Get projects filtered by frameworkCode if provided
+            var projectsQuery = _context.Projects.AsQueryable();
+
+            if (frameworkCode.HasValue)
+            {
+                // Filter projects that are associated with indicators belonging to the specified framework
+                projectsQuery = projectsQuery.Where(p =>
+                    p.ProjectIndicators.Any(pi =>
+                        pi.Indicator.SubOutput.Output.Outcome.FrameworkCode == frameworkCode));
+            }
+
+            var projects = await projectsQuery
                 .Select(p => new { p.ProjectID, p.ProjectName })
+                .Distinct()
+                .OrderBy(p => p.ProjectName)
                 .ToListAsync();
+
             ViewData["Projects"] = new SelectList(projects, "ProjectID", "ProjectName", projectId);
 
             // Base query for indicators with their related projects
@@ -649,6 +662,12 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             return View(indicators);
         }
 
+        // GET: Demo page for project display options
+        public IActionResult ProjectDisplayOptions()
+        {
+            return View();
+        }
+
         // GET: Indicators/IndicatorAndProjectTable
         public async Task<IActionResult> IndicatorAndProjectTable(int? projectId, int? frameworkCode, int? subOutputCode, string searchString)
         {
@@ -657,10 +676,23 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             ViewData["frameworkCode"] = frameworkCode;
             ViewData["subOutputCode"] = subOutputCode;
 
-            // Get all projects for the dropdown filter
-            var projects = await _context.Projects
+            // Get projects filtered by frameworkCode if provided
+            var projectsQuery = _context.Projects.AsQueryable();
+
+            if (frameworkCode.HasValue)
+            {
+                // Filter projects that are associated with indicators belonging to the specified framework
+                projectsQuery = projectsQuery.Where(p =>
+                    p.ProjectIndicators.Any(pi =>
+                        pi.Indicator.SubOutput.Output.Outcome.FrameworkCode == frameworkCode));
+            }
+
+            var projects = await projectsQuery
                 .Select(p => new { p.ProjectID, p.ProjectName })
+                .Distinct()
+                .OrderBy(p => p.ProjectName)
                 .ToListAsync();
+
             ViewData["Projects"] = new SelectList(projects, "ProjectID", "ProjectName", projectId);
 
             // Base query for indicators with their related projects

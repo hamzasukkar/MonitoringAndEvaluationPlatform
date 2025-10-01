@@ -46,6 +46,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             // Load dropdown/filter data
             filter.Ministries = await _context.Ministries.ToListAsync();
             filter.Donors = await _context.Donors.ToListAsync();
+            filter.Sectors = await _context.Sectors.ToListAsync();
 
             // Get the logged-in user
             var user = await _userManager.GetUserAsync(User);
@@ -70,6 +71,13 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                                  .Any(m => filter.SelectedMinistries.Contains(m.Code)));
             }
 
+            if (filter.SelectedSectors.Any())
+            {
+                projectQuery = projectQuery
+                    .Where(p => p.Sectors
+                                 .Any(s => filter.SelectedSectors.Contains(s.Code)));
+            }
+
 
             //To Fix
             //if (filter.SelectedDonors.Any())
@@ -86,19 +94,40 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         // APIs for cascading
         public JsonResult GetDistricts(string governorateCode)
         {
-            var districts = _context.Districts.Where(d => d.GovernorateCode == governorateCode).ToList();
+            var currentCulture = CultureInfo.CurrentUICulture.TwoLetterISOLanguageName;
+            var districts = _context.Districts
+                .Where(d => d.GovernorateCode == governorateCode)
+                .Select(d => new {
+                    code = d.Code,
+                    name = currentCulture == "ar" ? d.AR_Name : d.EN_Name
+                })
+                .ToList();
             return Json(districts);
         }
 
         public JsonResult GetSubDistricts(string districtCode)
         {
-            var subs = _context.SubDistricts.Where(s => s.DistrictCode == districtCode).ToList();
+            var currentCulture = CultureInfo.CurrentUICulture.TwoLetterISOLanguageName;
+            var subs = _context.SubDistricts
+                .Where(s => s.DistrictCode == districtCode)
+                .Select(s => new {
+                    code = s.Code,
+                    name = currentCulture == "ar" ? s.AR_Name : s.EN_Name
+                })
+                .ToList();
             return Json(subs);
         }
 
         public JsonResult GetCommunities(string subDistrictCode)
         {
-            var comms = _context.Communities.Where(c => c.SubDistrictCode == subDistrictCode).ToList();
+            var currentCulture = CultureInfo.CurrentUICulture.TwoLetterISOLanguageName;
+            var comms = _context.Communities
+                .Where(c => c.SubDistrictCode == subDistrictCode)
+                .Select(c => new {
+                    code = c.Code,
+                    name = currentCulture == "ar" ? c.AR_Name : c.EN_Name
+                })
+                .ToList();
             return Json(comms);
         }
 
@@ -169,10 +198,13 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 // Remove navigation properties from model state FIRST, before any validation
                 RemoveNavigationPropertiesFromModelState();
 
-                // Handle PlansCount - if it's 0 or less, set a default value
+                // Calculate PlansCount automatically based on the difference in months between StartDate and EndDate
+                PlansCount = CalculateMonthsDifference(project.StartDate, project.EndDate);
+
+                // Ensure PlansCount is at least 1 month
                 if (PlansCount <= 0)
                 {
-                    PlansCount = 1; // Default to 1 months if not provided or invalid
+                    PlansCount = 1;
                 }
 
                 // Process location selections
@@ -196,7 +228,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
 
                 if (!ModelState.IsValid)
                 {
-                    await PopulateCreateViewBagAsync();
+                    await PopulateCreateViewBagAsync(selectedSectorCodes, selectedDonorCodes, SelectedIndicators, selections, DonorFundingBreakdown);
                     return View(project);
                 }
 
@@ -237,7 +269,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 if (!activitiesCreated)
                 {
                     ModelState.AddModelError("", "Unable to create activities for the new ActionPlan.");
-                    await PopulateCreateViewBagAsync();
+                    await PopulateCreateViewBagAsync(selectedSectorCodes, selectedDonorCodes, SelectedIndicators, selections, DonorFundingBreakdown);
                     return View(project);
                 }
 
@@ -273,7 +305,10 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             catch (Exception ex)
             {
                 ModelState.AddModelError("", $"An error occurred while creating the project: {ex.Message}");
-                await PopulateCreateViewBagAsync();
+                // Get form data for preservation
+                var selectedSectorCodes = Request.Form["Sectors"].ToList();
+                var selectedDonorCodes = Request.Form["Donors"].ToList();
+                await PopulateCreateViewBagAsync(selectedSectorCodes, selectedDonorCodes, SelectedIndicators, selections, DonorFundingBreakdown);
                 return View(project);
             }
         }
@@ -345,13 +380,13 @@ namespace MonitoringAndEvaluationPlatform.Controllers
 
             // Build a list of selection DTOs containing names and codes
             var selectedLocations = project.Communities.Select(c => new {
-                GovernorateName = c.SubDistrict.District.Governorate.EN_Name,
+                GovernorateName = isArabic ? c.SubDistrict.District.Governorate.AR_Name : c.SubDistrict.District.Governorate.EN_Name,
                 GovernorateCode = c.SubDistrict.District.Governorate.Code,
-                DistrictName = c.SubDistrict.District.EN_Name,
+                DistrictName = isArabic ? c.SubDistrict.District.AR_Name : c.SubDistrict.District.EN_Name,
                 DistrictCode = c.SubDistrict.District.Code,
-                SubDistrictName = c.SubDistrict.EN_Name,
+                SubDistrictName = isArabic ? c.SubDistrict.AR_Name : c.SubDistrict.EN_Name,
                 SubDistrictCode = c.SubDistrict.Code,
-                CommunityName = c.EN_Name,
+                CommunityName = isArabic ? c.AR_Name : c.EN_Name,
                 CommunityCode = c.Code
             }).ToList();
 
@@ -1118,12 +1153,16 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             }
         }
 
-        private async Task PopulateCreateViewBagAsync()
+        private async Task PopulateCreateViewBagAsync(List<string> selectedSectorCodes = null, List<string> selectedDonorCodes = null, List<int> selectedIndicators = null, string locationSelections = null, string donorFundingBreakdown = null)
         {
             var isArabic = CultureInfo.CurrentUICulture.TwoLetterISOLanguageName == "ar";
 
             ViewBag.Governorates = _context.Governorates.ToList();
-            ViewBag.SectorList = new MultiSelectList(_context.Sectors, "Code", "AR_Name");
+
+            // Preserve selected sectors
+            var sectorCodes = selectedSectorCodes?.Select(int.Parse).ToList() ?? new List<int>();
+            ViewBag.SectorList = new MultiSelectList(_context.Sectors, "Code", "AR_Name", sectorCodes);
+
             ViewBag.MinistryList = new SelectList(_context.Ministries, "Code", "MinistryDisplayName");
             ViewBag.ProjectManager = new SelectList(_context.ProjectManagers, "Code", "Name");
             ViewBag.SuperVisor = new SelectList(_context.SuperVisors, "Code", "Name");
@@ -1134,6 +1173,28 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 isArabic ? "AR_Name" : "EN_Name"
             );
             ViewBag.Indicators = _context.Indicators.OrderBy(i => i.IndicatorCode).ToList();
+
+            // Preserve form data
+            ViewBag.SelectedSectorCodes = selectedSectorCodes ?? new List<string>();
+            ViewBag.SelectedDonorCodes = selectedDonorCodes ?? new List<string>();
+            ViewBag.SelectedIndicators = selectedIndicators ?? new List<int>();
+            ViewBag.LocationSelections = locationSelections ?? "";
+            ViewBag.DonorFundingBreakdown = donorFundingBreakdown ?? "";
+        }
+
+        private int CalculateMonthsDifference(DateTime startDate, DateTime endDate)
+        {
+            // Calculate the difference in months between start and end dates
+            int monthsDifference = ((endDate.Year - startDate.Year) * 12) + endDate.Month - startDate.Month;
+
+            // If the end day is before the start day, subtract one month
+            if (endDate.Day < startDate.Day)
+            {
+                monthsDifference--;
+            }
+
+            // Return at least 1 month if the difference is 0 or negative
+            return Math.Max(1, monthsDifference + 1); // +1 to include both start and end months
         }
     }
 }

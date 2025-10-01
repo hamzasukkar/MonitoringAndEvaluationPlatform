@@ -141,6 +141,9 @@
   <data name="DisbursementPerformance" xml:space="preserve">
     <value>Disbursement Performance</value>
   </data>
+  <data name="Enter realised value" xml:space="preserve">
+    <value>Enter realised value</value>
+  </data>
   <data name="Estimated Budget" xml:space="preserve">
     <value>Estimated Budget</value>
   </data>
@@ -177,8 +180,20 @@
   <data name="Projects" xml:space="preserve">
     <value>Projects</value>
   </data>
+  <data name="Quick Update Realised Values" xml:space="preserve">
+    <value>Quick Update Realised Values</value>
+  </data>
   <data name="Realised" xml:space="preserve">
     <value>Realised</value>
+  </data>
+  <data name="Realised Value" xml:space="preserve">
+    <value>Realised Value</value>
+  </data>
+  <data name="-- Select Plan --" xml:space="preserve">
+    <value>-- Select Plan --</value>
+  </data>
+  <data name="Select Plan/Month" xml:space="preserve">
+    <value>Select Plan/Month</value>
   </data>
   <data name="Subtotal Planned" xml:space="preserve">
     <value>Subtotal Planned</value>
@@ -194,5 +209,11 @@
   </data>
   <data name="Total Realised" xml:space="preserve">
     <value>Total Realised</value>
+  </data>
+  <data name="Update" xml:space="preserve">
+    <value>Update         </value>
+  </data>
+  <data name="Updating..." xml:space="preserve">
+    <value>Updating...</value>
   </data>
 </root>

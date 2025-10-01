@@ -120,7 +120,7 @@
                                         <i class="fas fa-industry"></i>
                                     </div>
                                     <div>
-                                        <span id="sector-enname-@item.Code" class="sector-enname-view sector-name-text">
+                                        <span id="sector-enname-@item.Code" class="sector-enname-view sector-name-text sector-clickable" onclick="viewSectorProjects(@item.Code, '@item.EN_Name')">
                                             @item.EN_Name
                                         </span>
                                         <input type="text" id="sector-enname-input-@item.Code"
@@ -133,7 +133,7 @@
                             </td>
                             <td class="sector-arabic-cell">
                                 <div class="arabic-text">
-                                    <span id="sector-arname-@item.Code" class="sector-arname-view sector-name-text" dir="rtl">
+                                    <span id="sector-arname-@item.Code" class="sector-arname-view sector-name-text sector-clickable" dir="rtl" onclick="viewSectorProjects(@item.Code, '@item.AR_Name')">
                                         @item.AR_Name
                                     </span>
                                     <input type="text" id="sector-arname-input-@item.Code"
@@ -264,6 +264,17 @@
 
         .sector-name-text:hover {
             color: var(--primary-color);
+        }
+
+        .sector-clickable {
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .sector-clickable:hover {
+            color: var(--primary-color) !important;
+            text-decoration: underline;
+            transform: scale(1.02);
         }
 
         .arabic-text {
@@ -643,5 +654,11 @@
             button.removeClass('btn-outline-primary').addClass('btn-success');
             enNameInput.focus();
         }
+    }
+
+    // Navigate to Projects filtered by Sector - Global function
+    function viewSectorProjects(sectorCode, sectorName) {
+        // Navigate to Projects index with sector filter
+        window.location.href = '@Url.Action("Index", "Projects")?SelectedSectors=' + sectorCode;
     }
 </script>}

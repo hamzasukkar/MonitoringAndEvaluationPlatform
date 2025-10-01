@@ -29,6 +29,36 @@
 </div>
 
 <div class="container-fluid">
+    @if (selectedProject != null)
+    {
+        <!-- Project Navigation Section -->
+        <div class="project-nav-modern mb-4">
+            <nav class="modern-navbar">
+                <div class="navbar-container">
+                    <div class="navbar-collapse" id="projectNavbar">
+                        <ul class="modern-nav-list">
+                            <li class="nav-item-modern">
+                                <a asp-action="Details" asp-controller="Projects" asp-route-id="@ViewBag.SelectedProjectId" class="nav-link-modern">
+                                    <i class="fas fa-project-diagram me-2"></i>@Localizer["Project"]
+                                </a>
+                            </li>
+                            <li class="nav-item-modern">
+                                <a asp-action="Index" asp-controller="Measures" asp-route-indicatorId="@ViewBag.SelectedIndicatorId" class="nav-link-modern active" aria-current="page">
+                                    <i class="fas fa-ruler-combined me-2"></i>@Localizer["Measures"]
+                                </a>
+                            </li>
+                            <li class="nav-item-modern">
+                                <a asp-controller="ActionPlans" asp-action="ActionPlan" asp-route-id="@ViewBag.SelectedProjectId" class="nav-link-modern">
+                                    <i class="fas fa-tasks me-2"></i>@Localizer["Action Plans"]
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </nav>
+        </div>
+    }
+
     @if (selectedProject != null && selectedIndicator != null)
     {
         <div class="chart-card mb-4">
@@ -208,17 +238,19 @@
                         </thead>
                         <tbody>
                         @foreach (var item in Model) {
-                            <tr class="table-row">
+                            <tr class="table-row" id="row-@item.Code">
                                 <td class="measure-date-cell">
                                     <div class="d-flex align-items-center">
                                         <div class="date-icon me-3">
                                             <i class="fas fa-calendar-alt"></i>
                                         </div>
-                                        <span class="fw-semibold">@item.Date.ToString("yyyy-MM-dd")</span>
+                                        <span class="fw-semibold measure-date-display">@item.Date.ToString("yyyy-MM-dd")</span>
+                                        <input type="date" class="form-control form-control-sm measure-date-edit d-none" value="@item.Date.ToString("yyyy-MM-dd")" />
                                     </div>
                                 </td>
                                 <td class="text-center">
-                                    <span class="modern-badge badge-success">@item.Value.ToString("N2")</span>
+                                    <span class="modern-badge badge-success measure-value-display">@item.Value.ToString("N2")</span>
+                                    <input type="number" class="form-control form-control-sm measure-value-edit d-none" value="@item.Value" step="0.01" min="0" />
                                 </td>
                                 @if (ViewBag.SelectedIndicatorId == null)
                                 {
@@ -235,16 +267,40 @@
                                     </td>
                                 }
                                 <td class="text-center">
-                                    <div class="btn-group action-buttons" role="group">
-                                        <a asp-action="Edit" asp-route-id="@item.Code" class="btn btn-outline-primary btn-sm action-btn" title="@Localizer["Edit"]">
+                                    <div class="btn-group action-buttons action-buttons-view" role="group">
+                                        <button type="button" class="btn btn-outline-primary btn-sm action-btn edit-measure-btn"
+                                                data-code="@item.Code" title="@Localizer["Edit"]">
                                             <i class="fas fa-edit"></i>
-                                        </a>
-                                        <a asp-action="Details" asp-route-id="@item.Code" class="btn btn-outline-info btn-sm action-btn" title="@Localizer["Details"]">
+                                        </button>
+                                        <button type="button" class="btn btn-outline-info btn-sm action-btn view-details-btn"
+                                                data-code="@item.Code"
+                                                data-date="@item.Date.ToString("yyyy-MM-dd")"
+                                                data-value="@item.Value.ToString("N2")"
+                                                data-indicator-code="@item.Indicator.IndicatorCode"
+                                                data-indicator-name="@item.Indicator.Name"
+                                                data-indicator-target="@item.Indicator.Target"
+                                                title="@Localizer["View Details"]">
                                             <i class="fas fa-eye"></i>
-                                        </a>
+                                        </button>
+                                        <button type="button" class="btn btn-outline-success btn-sm action-btn view-chart-btn"
+                                                data-indicator-code="@item.Indicator.IndicatorCode"
+                                                data-indicator-name="@item.Indicator.Name"
+                                                title="@Localizer["View Chart"]">
+                                            <i class="fas fa-chart-line"></i>
+                                        </button>
                                         <button type="button" class="btn btn-outline-danger btn-sm action-btn"
                                                onclick="deleteMeasure('@item.Code')" title="@Localizer["Delete"]">
                                             <i class="fas fa-trash-alt"></i>
+                                        </button>
+                                    </div>
+                                    <div class="btn-group action-buttons action-buttons-edit d-none" role="group">
+                                        <button type="button" class="btn btn-outline-success btn-sm action-btn save-measure-btn"
+                                                data-code="@item.Code" title="@Localizer["Save"]">
+                                            <i class="fas fa-check"></i>
+                                        </button>
+                                        <button type="button" class="btn btn-outline-secondary btn-sm action-btn cancel-edit-btn"
+                                                title="@Localizer["Cancel"]">
+                                            <i class="fas fa-times"></i>
                                         </button>
                                     </div>
                                 </td>
@@ -276,11 +332,139 @@
     </div>
 </div>
 
+<!-- Option 2: Quick View Modal -->
+<div class="modal fade" id="detailsModal" tabindex="-1" aria-labelledby="detailsModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content modern-modal">
+            <div class="modal-header">
+                <h5 class="modal-title" id="detailsModalLabel">
+                    <i class="fas fa-info-circle me-2"></i>@Localizer["Measure Details"]
+                </h5>
+                <button type="button" style="margin-left:0" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="detail-item">
+                    <div class="detail-label">
+                        <i class="fas fa-calendar me-2"></i>@Localizer["Date"]
+                    </div>
+                    <div class="detail-value" id="modal-date"></div>
+                </div>
+                <div class="detail-item">
+                    <div class="detail-label">
+                        <i class="fas fa-chart-bar me-2"></i>@Localizer["Achievement Value"]
+                    </div>
+                    <div class="detail-value" id="modal-value"></div>
+                </div>
+                <div class="detail-item">
+                    <div class="detail-label">
+                        <i class="fas fa-code me-2"></i>@Localizer["Indicator Code"]
+                    </div>
+                    <div class="detail-value" id="modal-indicator-code"></div>
+                </div>
+                <div class="detail-item">
+                    <div class="detail-label">
+                        <i class="fas fa-tag me-2"></i>@Localizer["Indicator Name"]
+                    </div>
+                    <div class="detail-value" id="modal-indicator-name"></div>
+                </div>
+                <div class="detail-item">
+                    <div class="detail-label">
+                        <i class="fas fa-target me-2"></i>@Localizer["Target"]
+                    </div>
+                    <div class="detail-value" id="modal-indicator-target"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Option 1: Chart Modal -->
+<div class="modal fade" id="chartModal" tabindex="-1" aria-labelledby="chartModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content modern-modal">
+            <div class="modal-header">
+                <h5 class="modal-title" id="chartModalLabel">
+                    <i class="fas fa-chart-line me-2"></i>@Localizer["Measures Trend"]
+                </h5>
+                <button type="button" class="btn-close" style="margin-left:0" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div id="chart-indicator-info" class="mb-3"></div>
+                <canvas id="measuresChart"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+
 @section Scripts {
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
     <!-- SweetAlert2 -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
     <style>
+        /* Modern Project Navigation */
+        .project-nav-modern {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            padding: 1rem 1.5rem;
+            margin-bottom: 2rem;
+            border: none;
+        }
+
+        .modern-navbar {
+            background: transparent !important;
+            border: none;
+            padding: 0;
+        }
+
+        .navbar-container {
+            width: 100%;
+        }
+
+        .modern-nav-list {
+            display: flex;
+            list-style: none;
+            margin: 0;
+            padding: 0;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+
+        .nav-item-modern {
+            margin: 0;
+        }
+
+        .nav-link-modern {
+            color: #6c757d;
+            text-decoration: none;
+            font-weight: 500;
+            padding: 12px 20px;
+            border-radius: 12px;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            background: rgba(255, 255, 255, 0.7);
+            border: 1px solid rgba(0, 0, 0, 0.1);
+            white-space: nowrap;
+        }
+
+        .nav-link-modern:hover {
+            background: linear-gradient(45deg, var(--primary-color), var(--primary-light));
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            text-decoration: none;
+        }
+
+        .nav-link-modern.active {
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-dark) 100%);
+            color: white;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
         /* Info Section Styling */
         .info-section {
             background: transparent;
@@ -479,6 +663,113 @@
             box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
         }
 
+        .measure-date-edit,
+        .measure-value-edit {
+            max-width: 150px;
+            margin: 0 auto;
+        }
+
+        /* Modern Modal Styling */
+        .modern-modal {
+            border-radius: 20px;
+            border: none;
+            overflow: hidden;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        }
+
+        .modern-modal .modal-header {
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-dark) 100%);
+            color: white;
+            border: none;
+            padding: 1.5rem 2rem;
+        }
+
+        .modern-modal .modal-title {
+            font-weight: 600;
+            font-size: 1.25rem;
+        }
+
+        .modern-modal .btn-close {
+            position: relative;
+            opacity: 1;
+            width: 32px;
+            height: 32px;
+            padding: 0;
+            transition: all 0.3s ease;
+            border: none;
+        }
+
+        .modern-modal .btn-close::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            z-index: -1;
+            transition: all 0.3s ease;
+        }
+
+        .modern-modal .btn-close:hover::before {
+            background-color: rgba(255, 255, 255, 0.5);
+            transform: rotate(90deg);
+        }
+
+        .modern-modal .btn-close svg {
+            filter: brightness(0) invert(1);
+        }
+
+        .modern-modal .modal-body {
+            padding: 2rem;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+        }
+
+        .detail-item {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 12px;
+            padding: 1rem 1.5rem;
+            margin-bottom: 1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        .detail-item:hover {
+            transform: translateX(5px);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+        }
+
+        .detail-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .detail-label {
+            font-weight: 600;
+            color: #6c757d;
+            display: flex;
+            align-items: center;
+            font-size: 0.95rem;
+        }
+
+        .detail-value {
+            font-weight: 600;
+            color: #333;
+            font-size: 1rem;
+        }
+
+        #chart-indicator-info {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 12px;
+            padding: 1rem 1.5rem;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
         .modern-table-container {
             border-radius: 15px;
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
@@ -537,6 +828,220 @@
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script>
         $(document).ready(function() {
+            // Option 2: Handle view details button click
+            $('.view-details-btn').on('click', function() {
+                const btn = $(this);
+                const date = btn.data('date');
+                const value = btn.data('value');
+                const indicatorCode = btn.data('indicator-code');
+                const indicatorName = btn.data('indicator-name');
+                const indicatorTarget = btn.data('indicator-target');
+
+                // Populate modal
+                $('#modal-date').text(date);
+                $('#modal-value').html('<span class="modern-badge badge-success">' + value + '</span>');
+                $('#modal-indicator-code').html('<span class="modern-badge badge-primary">' + indicatorCode + '</span>');
+                $('#modal-indicator-name').text(indicatorName);
+                $('#modal-indicator-target').html('<span class="target-value">' + indicatorTarget + '</span>');
+
+                // Show modal
+                new bootstrap.Modal(document.getElementById('detailsModal')).show();
+            });
+
+            // Option 1: Handle view chart button click
+            $('.view-chart-btn').on('click', function() {
+                const btn = $(this);
+                const indicatorCode = btn.data('indicator-code');
+                const indicatorName = btn.data('indicator-name');
+
+                // Set indicator info
+                $('#chart-indicator-info').html('<strong><i class="fas fa-bullseye me-2"></i>' + indicatorName + '</strong> <span class="modern-badge badge-primary ms-2">' + indicatorCode + '</span>');
+
+                // Fetch measures for this indicator
+                $.ajax({
+                    url: '@Url.Action("GetMeasuresByIndicator", "Measures")',
+                    type: 'GET',
+                    data: { indicatorCode: indicatorCode },
+                    success: function(response) {
+                        // Prepare chart data
+                        const dates = response.map(m => m.date);
+                        const values = response.map(m => m.value);
+
+                        // Show modal
+                        const modal = new bootstrap.Modal(document.getElementById('chartModal'));
+                        modal.show();
+
+                        // Wait for modal to be shown before creating chart
+                        $('#chartModal').on('shown.bs.modal', function () {
+                            const ctx = document.getElementById('measuresChart').getContext('2d');
+
+                            // Destroy existing chart if any
+                            if (window.measuresChartInstance) {
+                                window.measuresChartInstance.destroy();
+                            }
+
+                            // Create new chart
+                            window.measuresChartInstance = new Chart(ctx, {
+                                type: 'line',
+                                data: {
+                                    labels: dates,
+                                    datasets: [{
+                                        label: '@Localizer["Achievement Value"]',
+                                        data: values,
+                                        borderColor: 'rgb(75, 192, 192)',
+                                        backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                                        tension: 0.4,
+                                        fill: true,
+                                        pointRadius: 6,
+                                        pointHoverRadius: 8,
+                                        pointBackgroundColor: 'rgb(75, 192, 192)',
+                                        pointBorderColor: '#fff',
+                                        pointBorderWidth: 2
+                                    }]
+                                },
+                                options: {
+                                    responsive: true,
+                                    maintainAspectRatio: true,
+                                    plugins: {
+                                        legend: {
+                                            display: true,
+                                            position: 'top',
+                                        },
+                                        tooltip: {
+                                            mode: 'index',
+                                            intersect: false,
+                                        }
+                                    },
+                                    scales: {
+                                        y: {
+                                            beginAtZero: true,
+                                            grid: {
+                                                color: 'rgba(0, 0, 0, 0.05)'
+                                            }
+                                        },
+                                        x: {
+                                            grid: {
+                                                color: 'rgba(0, 0, 0, 0.05)'
+                                            }
+                                        }
+                                    }
+                                }
+                            });
+                        });
+                    },
+                    error: function() {
+                        Swal.fire({
+                            icon: 'error',
+                            title: '@Localizer["Error"]',
+                            text: '@Localizer["Failed to load chart data"]',
+                            confirmButtonColor: 'var(--danger-color)'
+                        });
+                    }
+                });
+            });
+
+            // Handle edit button click
+            $('.edit-measure-btn').on('click', function() {
+                const row = $(this).closest('tr');
+
+                // Show edit inputs and hide display values
+                row.find('.measure-date-display').addClass('d-none');
+                row.find('.measure-date-edit').removeClass('d-none');
+                row.find('.measure-value-display').addClass('d-none');
+                row.find('.measure-value-edit').removeClass('d-none');
+
+                // Switch button groups
+                row.find('.action-buttons-view').addClass('d-none');
+                row.find('.action-buttons-edit').removeClass('d-none');
+            });
+
+            // Handle cancel button click
+            $('.cancel-edit-btn').on('click', function() {
+                const row = $(this).closest('tr');
+
+                // Hide edit inputs and show display values
+                row.find('.measure-date-display').removeClass('d-none');
+                row.find('.measure-date-edit').addClass('d-none');
+                row.find('.measure-value-display').removeClass('d-none');
+                row.find('.measure-value-edit').addClass('d-none');
+
+                // Switch button groups
+                row.find('.action-buttons-view').removeClass('d-none');
+                row.find('.action-buttons-edit').addClass('d-none');
+            });
+
+            // Handle save button click
+            $('.save-measure-btn').on('click', function() {
+                const btn = $(this);
+                const measureCode = btn.data('code');
+                const row = btn.closest('tr');
+
+                const formData = {
+                    Code: measureCode,
+                    Date: row.find('.measure-date-edit').val(),
+                    Value: parseFloat(row.find('.measure-value-edit').val()),
+                    __RequestVerificationToken: $('input[name="__RequestVerificationToken"]').val()
+                };
+
+                // Disable button and show loading
+                const originalHtml = btn.html();
+                btn.prop('disabled', true).html('<i class="fas fa-spinner fa-spin"></i>');
+
+                // Send AJAX request
+                $.ajax({
+                    url: '@Url.Action("Edit", "Measures")/' + measureCode,
+                    type: 'POST',
+                    data: formData,
+                    success: function(response) {
+                        // Update display values
+                        const dateValue = formData.Date;
+                        const valueFormatted = parseFloat(formData.Value).toFixed(2);
+
+                        row.find('.measure-date-display').text(dateValue);
+                        row.find('.measure-value-display').text(valueFormatted);
+
+                        // Hide edit inputs and show display values
+                        row.find('.measure-date-display').removeClass('d-none');
+                        row.find('.measure-date-edit').addClass('d-none');
+                        row.find('.measure-value-display').removeClass('d-none');
+                        row.find('.measure-value-edit').addClass('d-none');
+
+                        // Switch button groups
+                        row.find('.action-buttons-view').removeClass('d-none');
+                        row.find('.action-buttons-edit').addClass('d-none');
+
+                        // Show success message
+                        Swal.fire({
+                            icon: 'success',
+                            title: '@Localizer["Success"]',
+                            text: '@Localizer["Measure updated successfully"]',
+                            timer: 2000,
+                            showConfirmButton: false,
+                            confirmButtonColor: 'var(--primary-color)',
+                            customClass: {
+                                popup: 'modern-swal-popup'
+                            }
+                        });
+                    },
+                    error: function(xhr) {
+                        // Show error message
+                        Swal.fire({
+                            icon: 'error',
+                            title: '@Localizer["Error"]',
+                            text: '@Localizer["Failed to update measure. Please try again."]',
+                            confirmButtonColor: 'var(--danger-color)',
+                            customClass: {
+                                popup: 'modern-swal-popup'
+                            }
+                        });
+                    },
+                    complete: function() {
+                        // Re-enable button
+                        btn.prop('disabled', false).html(originalHtml);
+                    }
+                });
+            });
+
             // Handle inline measure form submission
             $('#inlineMeasureForm').on('submit', function(e) {
                 e.preventDefault();
@@ -622,7 +1127,53 @@
                 }
             }).then((result) => {
                 if (result.isConfirmed) {
-                    window.location.href = '@Url.Action("Delete", "Measures")/' + measureCode;
+                    // Send AJAX delete request
+                    $.ajax({
+                        url: '@Url.Action("Delete", "Measures")/' + measureCode,
+                        type: 'POST',
+                        headers: {
+                            'X-Requested-With': 'XMLHttpRequest'
+                        },
+                        data: {
+                            __RequestVerificationToken: $('input[name="__RequestVerificationToken"]').val()
+                        },
+                        success: function(response) {
+                            // Show success message
+                            Swal.fire({
+                                icon: 'success',
+                                title: '@Localizer["Deleted!"]',
+                                text: '@Localizer["Measure has been deleted successfully"]',
+                                timer: 2000,
+                                showConfirmButton: false,
+                                confirmButtonColor: 'var(--primary-color)',
+                                customClass: {
+                                    popup: 'modern-swal-popup'
+                                }
+                            }).then(() => {
+                                // Remove the row from table
+                                $('#row-' + measureCode).fadeOut(400, function() {
+                                    $(this).remove();
+
+                                    // Check if table is empty
+                                    if ($('.table-row').length === 0) {
+                                        location.reload();
+                                    }
+                                });
+                            });
+                        },
+                        error: function(xhr) {
+                            // Show error message
+                            Swal.fire({
+                                icon: 'error',
+                                title: '@Localizer["Error"]',
+                                text: '@Localizer["Failed to delete measure. Please try again."]',
+                                confirmButtonColor: 'var(--danger-color)',
+                                customClass: {
+                                    popup: 'modern-swal-popup'
+                                }
+                            });
+                        }
+                    });
                 }
             });
         }
