@@ -621,7 +621,7 @@
     function fillSelect(selector, data) {
         let select = $(selector);
         select.empty().append(`<option value="">-- Select --</option>`);
-        data.forEach(x => select.append(`<option value="${x.code}">${x.aR_Name}</option>`));
+        data.forEach(x => select.append(`<option value="${x.code}">${x.name}</option>`));
     }
 
     function resetSelect(selector) {
