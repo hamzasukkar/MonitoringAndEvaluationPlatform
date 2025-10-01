@@ -50,7 +50,7 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="outcome-performance-indicator">
+@*                         <div class="outcome-performance-indicator">
                             <div class="performance-gauge" data-value="@Math.Round(item.IndicatorsPerformance)">
                                 <svg class="gauge-svg" viewBox="0 0 100 100">
                                     <circle class="gauge-background" cx="50" cy="50" r="45" stroke="#e2e8f0" stroke-width="8" fill="transparent"></circle>
@@ -68,7 +68,7 @@
                                 </div>
                             </div>
                         </div>
-                    </div>
+ *@                    </div>
                 </div>
 
                 <div class="outcome-card-body">
@@ -116,7 +116,7 @@
                                     <div class="nav-card-info">
                                         <div class="nav-card-value">@outputs.Count()</div>
                                         <div class="nav-card-label">@Localizer["Outputs"]</div>
-                                        <div class="nav-card-description">Measurable results and deliverables</div>
+                                        <div class="nav-card-description">@Localizer["Measurable results and deliverables"]</div>
                                     </div>
                                 </div>
                                 <div class="nav-card-arrow">
@@ -132,7 +132,7 @@
                                     <div class="nav-card-info">
                                         <div class="nav-card-value">@subOutputs.Count()</div>
                                         <div class="nav-card-label">@Localizer["Sub-outputs"]</div>
-                                        <div class="nav-card-description">Detailed output components</div>
+                                        <div class="nav-card-description">@Localizer["Detailed output components"]</div>
                                     </div>
                                 </div>
                                 <div class="nav-card-arrow">
@@ -148,7 +148,7 @@
                                     <div class="nav-card-info">
                                         <div class="nav-card-value">@indicators.Count()</div>
                                         <div class="nav-card-label">@Localizer["Indicators"]</div>
-                                        <div class="nav-card-description">Performance measurement metrics</div>
+                                        <div class="nav-card-description">@Localizer["Performance measurement metrics"]</div>
                                     </div>
                                 </div>
                                 <div class="nav-card-arrow">
@@ -164,7 +164,7 @@
                                     <div class="nav-card-info">
                                         <div class="nav-card-value">@projectCount</div>
                                         <div class="nav-card-label">@Localizer["Projects"]</div>
-                                        <div class="nav-card-description">Implementation projects</div>
+                                        <div class="nav-card-description">@Localizer["Implementation projects"]</div>
                                     </div>
                                 </div>
                                 <div class="nav-card-arrow">

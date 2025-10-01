@@ -1,17 +1,17 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <root>
-  <!-- 
-    Microsoft ResX Schema 
-    
+  <!--
+    Microsoft ResX Schema
+
     Version 2.0
-    
-    The primary goals of this format is to allow a simple XML format 
-    that is mostly human readable. The generation and parsing of the 
-    various data types are done through the TypeConverter classes 
+
+    The primary goals of this format is to allow a simple XML format
+    that is mostly human readable. The generation and parsing of the
+    various data types are done through the TypeConverter classes
     associated with the data types.
-    
+
     Example:
-    
+
     ... ado.net/XML headers & schema ...
     <resheader name="resmimetype">text/microsoft-resx</resheader>
     <resheader name="version">2.0</resheader>
@@ -26,36 +26,36 @@
         <value>[base64 mime encoded string representing a byte array form of the .NET Framework object]</value>
         <comment>This is a comment</comment>
     </data>
-                
-    There are any number of "resheader" rows that contain simple 
+
+    There are any number of "resheader" rows that contain simple
     name/value pairs.
-    
-    Each data row contains a name, and value. The row also contains a 
-    type or mimetype. Type corresponds to a .NET class that support 
-    text/value conversion through the TypeConverter architecture. 
-    Classes that don't support this are serialized and stored with the 
+
+    Each data row contains a name, and value. The row also contains a
+    type or mimetype. Type corresponds to a .NET class that support
+    text/value conversion through the TypeConverter architecture.
+    Classes that don't support this are serialized and stored with the
     mimetype set.
-    
-    The mimetype is used for serialized objects, and tells the 
-    ResXResourceReader how to depersist the object. This is currently not 
+
+    The mimetype is used for serialized objects, and tells the
+    ResXResourceReader how to depersist the object. This is currently not
     extensible. For a given mimetype the value must be set accordingly:
-    
-    Note - application/x-microsoft.net.object.binary.base64 is the format 
-    that the ResXResourceWriter will generate, however the reader can 
+
+    Note - application/x-microsoft.net.object.binary.base64 is the format
+    that the ResXResourceWriter will generate, however the reader can
     read any of the formats listed below.
-    
+
     mimetype: application/x-microsoft.net.object.binary.base64
-    value   : The object must be serialized with 
+    value   : The object must be serialized with
             : System.Runtime.Serialization.Formatters.Binary.BinaryFormatter
             : and then encoded with base64 encoding.
-    
+
     mimetype: application/x-microsoft.net.object.soap.base64
-    value   : The object must be serialized with 
+    value   : The object must be serialized with
             : System.Runtime.Serialization.Formatters.Soap.SoapFormatter
             : and then encoded with base64 encoding.
 
     mimetype: application/x-microsoft.net.object.bytearray.base64
-    value   : The object must be serialized into a byte array 
+    value   : The object must be serialized into a byte array
             : using a System.ComponentModel.TypeConverter
             : and then encoded with base64 encoding.
     -->
@@ -117,91 +117,19 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="Actions" xml:space="preserve">
-    <value>Actions</value>
+  <data name="Measure added and Indicator Performance updated" xml:space="preserve">
+    <value>تم إضافة القياس وتحديث أداء المؤشر</value>
   </data>
-  <data name="Add New Sector" xml:space="preserve">
-    <value>Add New Sector</value>
+  <data name="Measure added successfully and indicator performance updated" xml:space="preserve">
+    <value>تم إضافة القياس بنجاح وتحديث أداء المؤشر</value>
   </data>
-  <data name="An error occurred while creating the sector" xml:space="preserve">
-    <value>An error occurred while creating the sector</value>
+  <data name="Invalid input" xml:space="preserve">
+    <value>مدخل غير صحيح</value>
   </data>
-  <data name="An error occurred while deleting" xml:space="preserve">
-    <value>An error occurred while deleting</value>
+  <data name="Measure added successfully and indicator performance has been updated." xml:space="preserve">
+    <value>تم إضافة القياس بنجاح وتم تحديث أداء المؤشر.</value>
   </data>
-  <data name="An error occurred while updating" xml:space="preserve">
-    <value>An error occurred while updating</value>
-  </data>
-  <data name="Arabic Name" xml:space="preserve">
-    <value>Arabic Name </value>
-  </data>
-  <data name="Are you sure?" xml:space="preserve">
-    <value>Are you sure?</value>
-  </data>
-  <data name="Cancel" xml:space="preserve">
-    <value>Cancel</value>
-  </data>
-  <data name="Create a New Entity" xml:space="preserve">
-    <value>Create a New Entity</value>
-  </data>
-  <data name="Delete sector called with id:" xml:space="preserve">
-    <value>Delete sector called with id:</value>
-  </data>
-  <data name="Deleted!" xml:space="preserve">
-    <value>Deleted!</value>
-  </data>
-  <data name="Disbursement Performance" xml:space="preserve">
-    <value>Disbursement Performance</value>
-  </data>
-  <data name="English Name" xml:space="preserve">
-    <value>English Name</value>
-  </data>
-  <data name="Enter Arabic name" xml:space="preserve">
-    <value>Enter Arabic name</value>
-  </data>
-  <data name="Enter English name" xml:space="preserve">
-    <value>Enter English name</value>
-  </data>
-  <data name="Field updated successfully" xml:space="preserve">
-    <value>Field updated successfully</value>
-  </data>
-  <data name="Home" xml:space="preserve">
-    <value>Home</value>
-  </data>
-  <data name="Indicators Performance" xml:space="preserve">
-    <value>Indicators Performance</value>
-  </data>
-  <data name="Manage project sectors and track their performance" xml:space="preserve">
-    <value>Manage project sectors and track their performance</value>
-  </data>
-  <data name="Name" xml:space="preserve">
-    <value>Name</value>
-  </data>
-  <data name="Sector created successfully" xml:space="preserve">
-    <value>Sector created successfully</value>
-  </data>
-  <data name="Sector has been deleted." xml:space="preserve">
-    <value>Sector has been deleted.</value>
-  </data>
-  <data name="Sector Management" xml:space="preserve">
-    <value>Sector Management</value>
-  </data>
-  <data name="Sector updated successfully" xml:space="preserve">
-    <value>Sector updated successfully</value>
-  </data>
-  <data name="Sectors" xml:space="preserve">
-    <value>Sectors </value>
-  </data>
-  <data name="Updated!" xml:space="preserve">
-    <value>Updated!</value>
-  </data>
-  <data name="Value cannot be empty" xml:space="preserve">
-    <value>Value cannot be empty</value>
-  </data>
-  <data name="Yes, delete it!" xml:space="preserve">
-    <value>Yes, delete it!</value>
-  </data>
-  <data name="You won't be able to revert this!" xml:space="preserve">
-    <value>You won't be able to revert this!</value>
+  <data name="Measure updated successfully and indicator performance has been updated." xml:space="preserve">
+    <value>تم تحديث القياس بنجاح وتم تحديث أداء المؤشر.</value>
   </data>
 </root>

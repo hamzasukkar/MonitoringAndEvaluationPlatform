@@ -36,7 +36,39 @@
 </div>
 
 <!-- Project Navigation Section -->
-<div class="chart-card">
+<div class="project-nav-modern mb-4">
+    <nav class="modern-navbar">
+        <div class="navbar-container">
+            <div class="navbar-collapse" id="projectNavbar">
+                <ul class="modern-nav-list">
+                    <li class="nav-item-modern">
+                        <a asp-action="Details" asp-controller="Projects" asp-route-id="@ViewBag.ProjectID" class="nav-link-modern">
+                            <i class="fas fa-project-diagram me-2"></i>@Localizer["Project"]
+                        </a>
+                    </li>
+                    <li class="nav-item-modern">
+                        @if (ViewBag.FirstIndicatorCode != null)
+                        {
+                            <a asp-action="Index" asp-controller="Measures" asp-route-indicatorId="@ViewBag.FirstIndicatorCode" class="nav-link-modern" title="@Localizer["View measures for indicator"]">
+                                <i class="fas fa-ruler-combined me-2"></i>@Localizer["Measures"]
+                            </a>
+                        }
+                        else
+                        {
+                            <a asp-action="Index" asp-controller="Measures" class="nav-link-modern" title="@Localizer["No indicators linked to this project yet"]">
+                                <i class="fas fa-ruler-combined me-2"></i>@Localizer["Measures"]
+                            </a>
+                        }
+                    </li>
+                    <li class="nav-item-modern">
+                        <a asp-controller="ActionPlans" asp-action="ActionPlan" asp-route-id="@ViewBag.ProjectID" class="nav-link-modern active" aria-current="page">
+                            <i class="fas fa-tasks me-2"></i>@Localizer["Action Plans"]
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
 </div>
 
 <!-- Totals Section -->
@@ -55,7 +87,7 @@
             @projectTotalPlannedCost.ToString("C0")
         </div>
     </div>
-    
+
     <div class="total-metric-card">
         <div class="metric-header">
             <div class="metric-icon realised">
@@ -68,6 +100,97 @@
         </div>
         <div class="metric-value">
             @projectTotalRealisedCost.ToString("C0")
+        </div>
+    </div>
+</div>
+
+<!-- Quick Update Realised Values Section -->
+<div class="quick-update-section">
+    <div class="quick-update-card">
+        <div class="quick-update-header">
+            <div class="quick-update-title">
+                <i class="fas fa-pencil-alt"></i>
+                @Localizer["Quick Update Realised Values"]
+            </div>
+            <button type="button" class="toggle-quick-update" id="toggleQuickUpdate">
+                <i class="fas fa-chevron-down"></i>
+            </button>
+        </div>
+        <div class="quick-update-body" id="quickUpdateBody" style="display: none;">
+            <div class="quick-update-form">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="planSelect" class="form-label">
+                            <i class="fas fa-calendar-alt me-1"></i>@Localizer["Select Plan/Month"]
+                        </label>
+                        <select class="form-select" id="planSelect">
+                            <option value="">@Localizer["-- Select Plan --"]</option>
+                            @{
+                                var projectMonthsList = ViewBag.ProjectMonths as List<DateTime>;
+                            }
+                            @foreach (var activityGroup in Model)
+                            {
+                                @if (@activityGroup.ActivityType == "DisbursementPerformance")
+                                {
+                                    @foreach (var activity in activityGroup.Activities)
+                                    {
+                                        var activityName = activity.ActivityName;
+                                        string displayName = activityName;
+
+                                        if (activityName.Contains("-"))
+                                        {
+                                            var parts = activityName.Split(new[] { '-' }, 2);
+                                            if (parts.Length == 2)
+                                            {
+                                                var prefix = parts[0];
+                                                var keyToLocalize = parts[1];
+                                                var localizedValue = @Localizer[keyToLocalize];
+                                                displayName = $"{prefix}-{localizedValue.Value}";
+                                            }
+                                        }
+
+                                        <optgroup label="@displayName">
+                                            @for (int i = 0; i < activity.Plans.Count; i++)
+                                            {
+                                                var plan = activity.Plans[i];
+                                                string planLabel = "";
+                                                if (projectMonthsList != null && projectMonthsList.Count > i)
+                                                {
+                                                    planLabel = projectMonthsList[i].ToString("MMM yyyy");
+                                                }
+                                                else
+                                                {
+                                                    planLabel = $"{Localizer["Plan"]} {i + 1}";
+                                                }
+                                                <option value="@plan.PlanCode"
+                                                        data-planned="@plan.PlannedValue"
+                                                        data-realised="@plan.RealisedValue"
+                                                        data-activity="@displayName">
+                                                    @planLabel
+                                                </option>
+                                            }
+                                        </optgroup>
+                                    }
+                                }
+                            }
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="realisedValueInput" class="form-label">
+                            <i class="fas fa-dollar-sign me-1"></i>@Localizer["Realised Value"]
+                        </label>
+                        <input type="number" class="form-control" id="realisedValueInput" placeholder="@Localizer["Enter realised value"]" disabled>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label opacity-0">@Localizer["Action"]</label>
+                        <button type="button" class="btn btn-primary w-100" id="quickUpdateBtn" disabled>
+                            <i class="fas fa-save me-2"></i>@Localizer["Update"]
+                        </button>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 </div>
@@ -96,9 +219,22 @@
                         <tr>
                             <th>@Localizer["Activity"]</th>
                             <th>@Localizer["Framework"]</th>
-                            @for (int i = 1; i <= maxPlans; i++)
+                            @{
+                                var projectMonths = ViewBag.ProjectMonths as List<DateTime>;
+                            }
+                            @if (projectMonths != null && projectMonths.Any())
                             {
-                                <th>@Localizer["Plan"] @i</th>
+                                @foreach (var month in projectMonths)
+                                {
+                                    <th>@month.ToString("MMM yyyy")</th>
+                                }
+                            }
+                            else
+                            {
+                                @for (int i = 1; i <= maxPlans; i++)
+                                {
+                                    <th>@Localizer["Plan"] @i</th>
+                                }
                             }
                             <th>@Localizer["Total"]</th>
                         </tr>
@@ -127,45 +263,99 @@
                                     @displayName
                                 </td>
                                 <td class="framework-label-cell"></td>
-                                @foreach (var plan in activity.Plans)
+                                @if (projectMonths != null && projectMonths.Any())
                                 {
-                                    <td></td>
+                                    @foreach (var month in projectMonths)
+                                    {
+                                        <td></td>
+                                    }
                                 }
-                                @for (int i = activity.Plans.Count; i < maxPlans; i++)
+                                else
                                 {
-                                    <td></td>
+                                    @foreach (var plan in activity.Plans)
+                                    {
+                                        <td></td>
+                                    }
+                                    @for (int i = activity.Plans.Count; i < maxPlans; i++)
+                                    {
+                                        <td></td>
+                                    }
                                 }
                                 <td class="total-cost-cell">-</td>
                             </tr>
                             <tr>
                                 <td class="framework-label-cell">@Localizer["Planned"]</td>
-                                @foreach (var plan in activity.Plans)
+                                @if (projectMonths != null && projectMonths.Any())
                                 {
-                                    <td class="editable-plan-cell" contenteditable="true"
-                                        data-plan-code="@plan.PlanCode"
-                                        data-value-type="Planned">
-                                        @plan.PlannedValue
-                                    </td>
+                                    @for (int i = 0; i < projectMonths.Count; i++)
+                                    {
+                                        @if (i < activity.Plans.Count)
+                                        {
+                                            var plan = activity.Plans[i];
+                                            <td class="editable-plan-cell" contenteditable="true"
+                                                data-plan-code="@plan.PlanCode"
+                                                data-value-type="Planned">
+                                                @plan.PlannedValue
+                                            </td>
+                                        }
+                                        else
+                                        {
+                                            <td class="empty-plan-cell"></td>
+                                        }
+                                    }
                                 }
-                                @for (int i = activity.Plans.Count; i < maxPlans; i++)
+                                else
                                 {
-                                    <td></td>
+                                    @foreach (var plan in activity.Plans)
+                                    {
+                                        <td class="editable-plan-cell" contenteditable="true"
+                                            data-plan-code="@plan.PlanCode"
+                                            data-value-type="Planned">
+                                            @plan.PlannedValue
+                                        </td>
+                                    }
+                                    @for (int i = activity.Plans.Count; i < maxPlans; i++)
+                                    {
+                                        <td></td>
+                                    }
                                 }
                                 <td class="total-cost-cell">@activity.TotalEstimatedCost.ToString("N0")</td>
                             </tr>
                             <tr>
                                 <td class="framework-label-cell">@Localizer["Realised"]</td>
-                                @foreach (var plan in activity.Plans)
+                                @if (projectMonths != null && projectMonths.Any())
                                 {
-                                    <td class="editable-plan-cell" contenteditable="true"
-                                        data-plan-code="@plan.PlanCode"
-                                        data-value-type="Realised">
-                                        @plan.RealisedValue
-                                    </td>
+                                    @for (int i = 0; i < projectMonths.Count; i++)
+                                    {
+                                        @if (i < activity.Plans.Count)
+                                        {
+                                            var plan = activity.Plans[i];
+                                            <td class="editable-plan-cell" contenteditable="true"
+                                                data-plan-code="@plan.PlanCode"
+                                                data-value-type="Realised">
+                                                @plan.RealisedValue
+                                            </td>
+                                        }
+                                        else
+                                        {
+                                            <td class="empty-plan-cell"></td>
+                                        }
+                                    }
                                 }
-                                @for (int i = activity.Plans.Count; i < maxPlans; i++)
+                                else
                                 {
-                                    <td></td>
+                                    @foreach (var plan in activity.Plans)
+                                    {
+                                        <td class="editable-plan-cell" contenteditable="true"
+                                            data-plan-code="@plan.PlanCode"
+                                            data-value-type="Realised">
+                                            @plan.RealisedValue
+                                        </td>
+                                    }
+                                    @for (int i = activity.Plans.Count; i < maxPlans; i++)
+                                    {
+                                        <td></td>
+                                    }
                                 }
                                 <td class="total-cost-cell">@activity.TotalRealisedCost.ToString("N0")</td>
                             </tr>
@@ -174,17 +364,37 @@
                     <tfoot>
                         <tr class="subtotal-row">
                             <td colspan="2">@Localizer["Subtotal Planned"]</td>
-                            @for (int i = 0; i < maxPlans; i++)
+                            @if (projectMonths != null && projectMonths.Any())
                             {
-                                <td>@activityGroup.Activities.Sum(a => a.Plans.Count > i ? a.Plans[i].PlannedValue : 0)</td>
+                                @for (int i = 0; i < projectMonths.Count; i++)
+                                {
+                                    <td>@activityGroup.Activities.Sum(a => a.Plans.Count > i ? a.Plans[i].PlannedValue : 0)</td>
+                                }
+                            }
+                            else
+                            {
+                                @for (int i = 0; i < maxPlans; i++)
+                                {
+                                    <td>@activityGroup.Activities.Sum(a => a.Plans.Count > i ? a.Plans[i].PlannedValue : 0)</td>
+                                }
                             }
                             <td>@activityGroup.Activities.Sum(a => a.TotalEstimatedCost).ToString("N0")</td>
                         </tr>
                         <tr class="subtotal-row">
                             <td colspan="2">@Localizer["Subtotal Realised"]</td>
-                            @for (int i = 0; i < maxPlans; i++)
+                            @if (projectMonths != null && projectMonths.Any())
                             {
-                                <td>@activityGroup.Activities.Sum(a => a.Plans.Count > i ? a.Plans[i].RealisedValue : 0)</td>
+                                @for (int i = 0; i < projectMonths.Count; i++)
+                                {
+                                    <td>@activityGroup.Activities.Sum(a => a.Plans.Count > i ? a.Plans[i].RealisedValue : 0)</td>
+                                }
+                            }
+                            else
+                            {
+                                @for (int i = 0; i < maxPlans; i++)
+                                {
+                                    <td>@activityGroup.Activities.Sum(a => a.Plans.Count > i ? a.Plans[i].RealisedValue : 0)</td>
+                                }
                             }
                             <td>@activityGroup.Activities.Sum(a => a.TotalRealisedCost).ToString("N0")</td>
                         </tr>
@@ -213,43 +423,63 @@
 @section Scripts {
     <style>
         /* Modern Action Plan Styles */
-        .chart-card {
+        /* Modern Project Navigation */
+        .project-nav-modern {
             background: rgba(255, 255, 255, 0.95);
             backdrop-filter: blur(10px);
             border-radius: 15px;
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-            padding: 1.5rem;
+            padding: 1rem 1.5rem;
             margin-bottom: 2rem;
             border: none;
         }
 
-        .project-nav .navbar {
+        .modern-navbar {
             background: transparent !important;
             border: none;
             padding: 0;
         }
 
-        .project-nav .nav-link {
+        .navbar-container {
+            width: 100%;
+        }
+
+        .modern-nav-list {
+            display: flex;
+            list-style: none;
+            margin: 0;
+            padding: 0;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+
+        .nav-item-modern {
+            margin: 0;
+        }
+
+        .nav-link-modern {
             color: #6c757d;
+            text-decoration: none;
             font-weight: 500;
             padding: 12px 20px;
             border-radius: 12px;
-            margin: 0 5px;
             transition: all 0.3s ease;
             display: flex;
             align-items: center;
             background: rgba(255, 255, 255, 0.7);
             border: 1px solid rgba(0, 0, 0, 0.1);
+            white-space: nowrap;
         }
 
-        .project-nav .nav-link:hover {
+        .nav-link-modern:hover {
             background: linear-gradient(45deg, var(--primary-color), var(--primary-light));
             color: white;
             transform: translateY(-2px);
             box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            text-decoration: none;
         }
 
-        .project-nav .nav-link.active {
+        .nav-link-modern.active {
             background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-dark) 100%);
             color: white;
             box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
@@ -474,6 +704,19 @@
             background: rgba(var(--primary-color-rgb), 0.2);
         }
 
+        .empty-plan-cell {
+            background: rgba(0, 0, 0, 0.02);
+            border-radius: 8px;
+            text-align: center;
+            min-width: 80px;
+            color: #6c757d;
+            font-style: italic;
+        }
+
+        .empty-plan-cell::after {
+            content: "-";
+        }
+
         .total-cost-cell {
             font-weight: 700;
             color: #333;
@@ -561,6 +804,153 @@
                 font-size: 2rem;
             }
         }
+
+        /* Quick Update Section Styles */
+        .quick-update-section {
+            margin-bottom: 2rem;
+        }
+
+        .quick-update-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            border: none;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .quick-update-header {
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-dark) 100%);
+            padding: 1.2rem 1.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .quick-update-header:hover {
+            background: linear-gradient(135deg, var(--primary-dark) 0%, var(--primary-color) 100%);
+        }
+
+        .quick-update-title {
+            color: white;
+            font-weight: 600;
+            font-size: 1.1rem;
+            display: flex;
+            align-items: center;
+        }
+
+        .quick-update-title i {
+            margin-right: 0.75rem;
+        }
+
+        .toggle-quick-update {
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            color: white;
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .toggle-quick-update:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: scale(1.1);
+        }
+
+        .toggle-quick-update i {
+            transition: transform 0.3s ease;
+        }
+
+        .toggle-quick-update.active i {
+            transform: rotate(180deg);
+        }
+
+        .quick-update-body {
+            padding: 2rem;
+            background: white;
+        }
+
+        .quick-update-form {
+            width: 100%;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            align-items: end;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .form-label {
+            font-weight: 600;
+            color: #495057;
+            margin-bottom: 0.5rem;
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+        }
+
+        .form-select, .form-control {
+            border-radius: 10px;
+            border: 2px solid #e0e0e0;
+            padding: 0.75rem 1rem;
+            font-size: 0.95rem;
+            transition: all 0.3s ease;
+        }
+
+        .form-select:focus, .form-control:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 0.2rem rgba(var(--primary-color-rgb), 0.15);
+            outline: none;
+        }
+
+        .form-select:disabled, .form-control:disabled {
+            background-color: #f8f9fa;
+            cursor: not-allowed;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-dark) 100%);
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 10px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            color: white;
+        }
+
+        .btn-primary:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .btn-primary:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .opacity-0 {
+            opacity: 0;
+        }
+
+        @@media (max-width: 768px) {
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+        }
     </style>
 
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
@@ -631,6 +1021,87 @@
                 if (e.key === 'Enter') {
                     e.preventDefault();
                     $(this).blur();
+                }
+            });
+
+            // Quick Update Section - Toggle
+            $('#toggleQuickUpdate, .quick-update-header').on('click', function() {
+                var body = $('#quickUpdateBody');
+                var toggle = $('#toggleQuickUpdate');
+
+                if (body.is(':visible')) {
+                    body.slideUp(300);
+                    toggle.removeClass('active');
+                } else {
+                    body.slideDown(300);
+                    toggle.addClass('active');
+                }
+            });
+
+            // When plan is selected
+            $('#planSelect').on('change', function() {
+                var selectedOption = $(this).find('option:selected');
+                var realisedValue = selectedOption.data('realised');
+
+                if ($(this).val()) {
+                    $('#realisedValueInput').val(realisedValue || '').prop('disabled', false).focus();
+                    $('#quickUpdateBtn').prop('disabled', false);
+                } else {
+                    $('#realisedValueInput').val('').prop('disabled', true);
+                    $('#quickUpdateBtn').prop('disabled', true);
+                }
+            });
+
+            // Quick Update Button
+            $('#quickUpdateBtn').on('click', function() {
+                var planCode = $('#planSelect').val();
+                var newValue = $('#realisedValueInput').val().trim();
+
+                // Validate
+                if (!planCode) {
+                    alert('@Localizer["Please select a plan"]');
+                    return;
+                }
+
+                if (newValue === '' || isNaN(newValue)) {
+                    alert('@Localizer["Please enter a valid number"]');
+                    return;
+                }
+
+                // Show loading
+                var btn = $(this);
+                var originalHtml = btn.html();
+                btn.prop('disabled', true).html('<i class="fas fa-spinner fa-spin me-2"></i>@Localizer["Updating..."]');
+
+                // Send update
+                $.ajax({
+                    url: '@Url.Action("UpdatePlanValue", "Plans")',
+                    type: 'POST',
+                    data: {
+                        planCode: planCode,
+                        valueType: 'Realised',
+                        newValue: newValue
+                    },
+                    success: function(response) {
+                        if (response.success) {
+                            location.reload();
+                        } else {
+                            alert('@Localizer["Error"]: ' + response.message);
+                            btn.prop('disabled', false).html(originalHtml);
+                        }
+                    },
+                    error: function(jqXHR, textStatus, errorThrown) {
+                        alert('@Localizer["A server error occurred"]: ' + textStatus);
+                        btn.prop('disabled', false).html(originalHtml);
+                    }
+                });
+            });
+
+            // Allow Enter key in the input to trigger update
+            $('#realisedValueInput').on('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    $('#quickUpdateBtn').click();
                 }
             });
         });

@@ -78,6 +78,25 @@
                             </div>
                         </div>
 
+                        <!-- Sector Filter -->
+                        <div class="mb-4">
+                            <h6 class="filter-section-title">@Localizer["Sector"]</h6>
+                            <div class="filter-options-modern">
+                                @foreach (var sector in Model.Sectors)
+                                {
+                                    <div class="modern-checkbox">
+                                        <input class="modern-checkbox-input" type="checkbox" name="SelectedSectors"
+                                               value="@sector.Code" id="sector-@sector.Code"
+                                        @(Model.SelectedSectors.Contains(sector.Code) ? "checked" : "")>
+                                        <label class="modern-checkbox-label" for="sector-@sector.Code">
+                                            <span class="checkbox-custom"></span>
+                                            <span class="checkbox-text">@sector.EN_Name</span>
+                                        </label>
+                                    </div>
+                                }
+                            </div>
+                        </div>
+
                         <div class="filter-actions">
                             <button type="submit" class="btn btn-gradient-primary">
                                 <i class="fas fa-filter me-2"></i>@Localizer["Apply Filters"]
