@@ -1,64 +1,944 @@
 ﻿@model MonitoringAndEvaluationPlatform.ViewModel.ProjectProgressFilterViewModel
 @{
     ViewData["Title"] = "ProjectProgress";
-    Layout = "~/Views/Shared/_DashboardLayout.cshtml";
+    Layout = "~/Views/Shared/_DashboardHomeLayout.cshtml";
 }
 
+<!-- Dashboard Header -->
+<div class="dashboard-header">
+    <h1 class="dashboard-title">
+        <i class="fas fa-chart-line me-3"></i>
+        Project Progress Analytics
+    </h1>
+    <p class="dashboard-subtitle">
+        Real-time project tracking with advanced filtering and progress visualization
+    </p>
+</div>
 
-<h4 class="mb-4">📈 Project Progress</h4>
-
-<form method="get" class="row g-3 mb-4">
-    <div class="col-md-3">
-        <label class="form-label">Region</label>
-        @Html.DropDownListFor(m => m.RegionId, new SelectList(Model.Regions, "Value", "Text", Model.RegionId), "All", new { @class = "form-select" })
-    </div>
-    <div class="col-md-3">
-        <label class="form-label">Sector</label>
-        @Html.DropDownListFor(m => m.SectorId, new SelectList(Model.Sectors, "Value", "Text", Model.SectorId), "All", new { @class = "form-select" })
-    </div>
-    <div class="col-md-3">
-        <label class="form-label">Donor</label>
-        @Html.DropDownListFor(m => m.DonorId, new SelectList(Model.Donors, "Value", "Text", Model.DonorId), "All", new { @class = "form-select" })
-    </div>
-    <div class="col-md-3 align-self-end d-flex gap-2">
-        <button type="submit" class="btn btn-primary w-50">Apply</button>
-        <a href="@Url.Action("ProjectProgress", "Dashboard")" class="btn btn-outline-secondary w-50">Reset</a>
-    </div>
-</form>
-
-<div class="row g-4">
-    @foreach (var project in Model.Projects)
-    {
-        var tooltip = $"Project: {project.ProjectName}\n" +
-                      $"Indicators: {project.TotalIndicators}\n" +
-                      $"Target: {project.TotalTarget}\n" +
-                      $"Achieved: {project.TotalAchieved}";
-
-        <div class="col-md-6 col-lg-4">
-            <div class="card shadow-sm border-0 p-3" title="@tooltip">
-                <h6 class="fw-bold">@project.ProjectName</h6>
-                <div class="progress" style="height: 20px;">
-                    <div class="progress-bar 
-                        @(project.CompletionRate >= 85 ? "bg-success" :
-                          project.CompletionRate >= 60 ? "bg-warning" : "bg-danger")"
-                         role="progressbar"
-                         style="width: @project.CompletionRate%" 
-                         aria-valuenow="@project.CompletionRate" 
-                         aria-valuemin="0" aria-valuemax="100">
-                        @project.CompletionRate.ToString("0.0")%
+<div class="container-fluid">
+    <!-- Advanced Filter Card -->
+    <div class="filter-card mb-4">
+        <div class="filter-header">
+            <h5 class="filter-title">
+                <i class="fas fa-filter me-2"></i>
+                Advanced Filters
+            </h5>
+            <div class="filter-toggle">
+                <i class="fas fa-chevron-down"></i>
+            </div>
+        </div>
+        <div class="filter-content">
+            <form method="get" class="filter-form">
+                <div class="filter-grid">
+                    <div class="filter-group">
+                        <label class="filter-label">
+                            <i class="fas fa-map-marker-alt me-2"></i>Region
+                        </label>
+                        @Html.DropDownListFor(m => m.RegionId, new SelectList(Model.Regions, "Value", "Text", Model.RegionId), "All Regions", new { @class = "modern-select" })
                     </div>
+                    
+                    <div class="filter-group">
+                        <label class="filter-label">
+                            <i class="fas fa-industry me-2"></i>Sector
+                        </label>
+                        @Html.DropDownListFor(m => m.SectorId, new SelectList(Model.Sectors, "Value", "Text", Model.SectorId), "All Sectors", new { @class = "modern-select" })
+                    </div>
+                    
+                    <div class="filter-group">
+                        <label class="filter-label">
+                            <i class="fas fa-handshake me-2"></i>Donor
+                        </label>
+                        @Html.DropDownListFor(m => m.DonorId, new SelectList(Model.Donors, "Value", "Text", Model.DonorId), "All Donors", new { @class = "modern-select" })
+                    </div>
+                    
+                    <div class="filter-actions">
+                        <button type="submit" class="btn-modern-primary">
+                            <i class="fas fa-search me-2"></i>Apply Filters
+                        </button>
+                        <a href="@Url.Action("ProjectProgress", "Dashboard")" class="btn-modern-secondary">
+                            <i class="fas fa-undo me-2"></i>Reset
+                        </a>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Project Progress Grid -->
+    <div class="projects-analytics-container">
+        <div class="section-header mb-4">
+            <h3 class="section-title">
+                <i class="fas fa-project-diagram me-2"></i>
+                Project Portfolio (@Model.Projects.Count() Projects)
+            </h3>
+            <div class="progress-legend">
+                <div class="legend-item excellent">
+                    <span class="legend-color"></span>
+                    <span class="legend-text">Excellent (≥85%)</span>
+                </div>
+                <div class="legend-item good">
+                    <span class="legend-color"></span>
+                    <span class="legend-text">Good (≥60%)</span>
+                </div>
+                <div class="legend-item critical">
+                    <span class="legend-color"></span>
+                    <span class="legend-text">Needs Attention (<60%)</span>
                 </div>
             </div>
         </div>
-    }
+
+        <div class="projects-grid">
+            @foreach (var project in Model.Projects)
+            {
+                var performanceStatus = project.CompletionRate >= 85 ? "excellent" 
+                                      : project.CompletionRate >= 60 ? "good" 
+                                      : "critical";
+                
+                var statusIcon = project.CompletionRate >= 85 ? "fa-check-circle" 
+                               : project.CompletionRate >= 60 ? "fa-clock" 
+                               : "fa-exclamation-triangle";
+
+                <div class="project-progress-card @performanceStatus">
+                    <div class="card-header">
+                        <div class="project-info">
+                            <h5 class="project-title">@project.ProjectName</h5>
+                            <div class="project-status">
+                                <i class="fas @statusIcon status-icon"></i>
+                                <span class="status-text">@(project.CompletionRate >= 85 ? "On Track" : project.CompletionRate >= 60 ? "In Progress" : "At Risk")</span>
+                            </div>
+                        </div>
+                        <div class="completion-badge">
+                            @project.CompletionRate.ToString("0.0")%
+                        </div>
+                    </div>
+                    
+                    <div class="card-body">
+                        <div class="progress-visualization">
+                            <div class="progress-circle" data-progress="@project.CompletionRate">
+                                <div class="progress-track">
+                                    <div class="progress-fill" style="--progress: @project.CompletionRate"></div>
+                                </div>
+                                <div class="progress-center">
+                                    <span class="progress-percentage">@project.CompletionRate.ToString("0")%</span>
+                                    <span class="progress-label">Complete</span>
+                                </div>
+                            </div>
+                            
+                            <div class="project-metrics">
+                                <div class="metric-item">
+                                    <div class="metric-icon">
+                                        <i class="fas fa-bullseye"></i>
+                                    </div>
+                                    <div class="metric-info">
+                                        <span class="metric-value">@project.TotalIndicators</span>
+                                        <span class="metric-label">Indicators</span>
+                                    </div>
+                                </div>
+                                
+                                <div class="metric-item">
+                                    <div class="metric-icon">
+                                        <i class="fas fa-target"></i>
+                                    </div>
+                                    <div class="metric-info">
+                                        <span class="metric-value">@project.TotalTarget</span>
+                                        <span class="metric-label">Target</span>
+                                    </div>
+                                </div>
+                                
+                                <div class="metric-item">
+                                    <div class="metric-icon">
+                                        <i class="fas fa-trophy"></i>
+                                    </div>
+                                    <div class="metric-info">
+                                        <span class="metric-value">@project.TotalAchieved</span>
+                                        <span class="metric-label">Achieved</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="progress-bar-modern">
+                            <div class="progress-track-linear">
+                                <div class="progress-fill-linear @performanceStatus" style="width: @project.CompletionRate%"></div>
+                            </div>
+                            <div class="progress-milestones">
+                                <div class="milestone @(project.CompletionRate >= 25 ? "completed" : "")" style="left: 25%">25%</div>
+                                <div class="milestone @(project.CompletionRate >= 50 ? "completed" : "")" style="left: 50%">50%</div>
+                                <div class="milestone @(project.CompletionRate >= 75 ? "completed" : "")" style="left: 75%">75%</div>
+                                <div class="milestone @(project.CompletionRate >= 100 ? "completed" : "")" style="left: 100%">100%</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="card-footer">
+                        <div class="performance-indicator @performanceStatus">
+                            <span class="indicator-text">
+                                @(project.CompletionRate >= 85 ? "Exceeding Expectations" 
+                                : project.CompletionRate >= 60 ? "Meeting Expectations" 
+                                : "Below Expectations")
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
 </div>
 
+<style>
+    /* Modern Project Progress Styles */
+    
+    /* Filter Card Styles */
+    .filter-card {
+        background: linear-gradient(135deg, rgba(255,255,255,0.95) 0%, rgba(248,249,250,0.95) 100%);
+        backdrop-filter: blur(15px);
+        -webkit-backdrop-filter: blur(15px);
+        border: 1px solid rgba(255,255,255,0.3);
+        border-radius: 20px;
+        overflow: hidden;
+        box-shadow: 
+            0 8px 32px rgba(0,0,0,0.1),
+            0 4px 16px rgba(0,0,0,0.05);
+        transition: all 0.3s ease;
+    }
+
+    .filter-header {
+        padding: 1.5rem 2rem 1rem 2rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        cursor: pointer;
+        border-bottom: 1px solid rgba(230, 230, 230, 0.5);
+    }
+
+    .filter-title {
+        font-size: 1.2rem;
+        font-weight: 600;
+        color: #2d3748;
+        margin: 0;
+        display: flex;
+        align-items: center;
+    }
+
+    .filter-title i {
+        color: #667eea;
+    }
+
+    .filter-toggle {
+        color: #718096;
+        font-size: 1rem;
+        transition: transform 0.3s ease;
+    }
+
+    .filter-toggle.active {
+        transform: rotate(180deg);
+    }
+
+    .filter-content {
+        padding: 2rem;
+    }
+
+    .filter-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 1.5rem;
+        align-items: end;
+    }
+
+    .filter-group {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+
+    .filter-label {
+        font-size: 0.9rem;
+        font-weight: 600;
+        color: #4a5568;
+        display: flex;
+        align-items: center;
+    }
+
+    .filter-label i {
+        color: #667eea;
+        font-size: 0.8rem;
+    }
+
+    .modern-select {
+        padding: 0.75rem 1rem;
+        border: 2px solid #e2e8f0;
+        border-radius: 12px;
+        background: rgba(255,255,255,0.9);
+        font-size: 0.9rem;
+        color: #2d3748;
+        transition: all 0.3s ease;
+        backdrop-filter: blur(5px);
+    }
+
+    .modern-select:focus {
+        outline: none;
+        border-color: #667eea;
+        box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        transform: translateY(-1px);
+    }
+
+    .filter-actions {
+        display: flex;
+        gap: 1rem;
+    }
+
+    .btn-modern-primary, .btn-modern-secondary {
+        padding: 0.75rem 1.5rem;
+        border-radius: 12px;
+        font-weight: 600;
+        font-size: 0.9rem;
+        transition: all 0.3s ease;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        border: none;
+        cursor: pointer;
+    }
+
+    .btn-modern-primary {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+    }
+
+    .btn-modern-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+        color: white;
+    }
+
+    .btn-modern-secondary {
+        background: linear-gradient(135deg, #f7fafc 0%, #edf2f7 100%);
+        color: #4a5568;
+        border: 2px solid #e2e8f0;
+    }
+
+    .btn-modern-secondary:hover {
+        background: linear-gradient(135deg, #edf2f7 0%, #e2e8f0 100%);
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+        color: #2d3748;
+        text-decoration: none;
+    }
+
+    /* Analytics Container */
+    .projects-analytics-container {
+        margin-top: 2rem;
+    }
+
+    .section-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 1rem;
+    }
+
+    .section-title {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: #2d3748;
+        display: flex;
+        align-items: center;
+        margin: 0;
+    }
+
+    .section-title i {
+        color: #667eea;
+    }
+
+    .progress-legend {
+        display: flex;
+        gap: 1.5rem;
+        flex-wrap: wrap;
+    }
+
+    .legend-item {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .legend-color {
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    }
+
+    .legend-item.excellent .legend-color { background: #4CAF50; }
+    .legend-item.good .legend-color { background: #FF9800; }
+    .legend-item.critical .legend-color { background: #F44336; }
+
+    .legend-text {
+        font-size: 0.85rem;
+        color: #718096;
+        font-weight: 500;
+    }
+
+    /* Projects Grid */
+    .projects-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+        gap: 2rem;
+        margin-top: 2rem;
+    }
+
+    /* Project Progress Cards */
+    .project-progress-card {
+        background: linear-gradient(135deg, rgba(255,255,255,0.95) 0%, rgba(248,249,250,0.95) 100%);
+        backdrop-filter: blur(15px);
+        -webkit-backdrop-filter: blur(15px);
+        border: 2px solid rgba(255,255,255,0.3);
+        border-radius: 24px;
+        overflow: hidden;
+        transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
+        position: relative;
+        box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+    }
+
+    .project-progress-card:hover {
+        transform: translateY(-8px) scale(1.02);
+        box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+    }
+
+    .project-progress-card.excellent {
+        border-left: 5px solid #4CAF50;
+    }
+
+    .project-progress-card.good {
+        border-left: 5px solid #FF9800;
+    }
+
+    .project-progress-card.critical {
+        border-left: 5px solid #F44336;
+    }
+
+    .project-progress-card .card-header {
+        padding: 1.5rem 2rem 1rem 2rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        border-bottom: 1px solid rgba(230, 230, 230, 0.5);
+    }
+
+    .project-info {
+        flex: 1;
+    }
+
+    .project-title {
+        font-size: 1.2rem;
+        font-weight: 700;
+        color: #2d3748;
+        margin: 0 0 0.5rem 0;
+        line-height: 1.3;
+    }
+
+    .project-status {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .status-icon {
+        font-size: 0.9rem;
+    }
+
+    .project-progress-card.excellent .status-icon { color: #4CAF50; }
+    .project-progress-card.good .status-icon { color: #FF9800; }
+    .project-progress-card.critical .status-icon { color: #F44336; }
+
+    .status-text {
+        font-size: 0.85rem;
+        font-weight: 600;
+        color: #718096;
+    }
+
+    .completion-badge {
+        padding: 0.5rem 1rem;
+        border-radius: 20px;
+        font-size: 1rem;
+        font-weight: 700;
+        color: white;
+        text-align: center;
+        min-width: 70px;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+    }
+
+    .project-progress-card.excellent .completion-badge { 
+        background: linear-gradient(135deg, #4CAF50, #45a049); 
+    }
+    .project-progress-card.good .completion-badge { 
+        background: linear-gradient(135deg, #FF9800, #f57c00); 
+    }
+    .project-progress-card.critical .completion-badge { 
+        background: linear-gradient(135deg, #F44336, #d32f2f); 
+    }
+
+    .project-progress-card .card-body {
+        padding: 1.5rem 2rem;
+    }
+
+    /* Progress Visualization */
+    .progress-visualization {
+        display: grid;
+        grid-template-columns: auto 1fr;
+        gap: 2rem;
+        align-items: center;
+        margin-bottom: 1.5rem;
+    }
+
+    .progress-circle {
+        width: 100px;
+        height: 100px;
+        position: relative;
+    }
+
+    .progress-track {
+        width: 100%;
+        height: 100%;
+        border-radius: 50%;
+        position: relative;
+        background: conic-gradient(
+            from 0deg,
+            transparent calc(var(--progress) * 1%),
+            #e2e8f0 calc(var(--progress) * 1%)
+        );
+        padding: 8px;
+    }
+
+    .progress-fill {
+        width: 100%;
+        height: 100%;
+        border-radius: 50%;
+        background: #f8f9fa;
+        position: relative;
+    }
+
+    .progress-center {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        text-align: center;
+    }
+
+    .progress-percentage {
+        display: block;
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: #2d3748;
+        line-height: 1;
+    }
+
+    .progress-label {
+        display: block;
+        font-size: 0.7rem;
+        color: #718096;
+        font-weight: 500;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    /* Project Metrics */
+    .project-metrics {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+    }
+
+    .metric-item {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        background: rgba(255,255,255,0.8);
+        padding: 1rem;
+        border-radius: 12px;
+        border: 1px solid rgba(255,255,255,0.5);
+        transition: all 0.3s ease;
+    }
+
+    .metric-item:hover {
+        background: rgba(255,255,255,0.95);
+        transform: translateX(3px);
+        box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
+
+    .metric-icon {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 1rem;
+        box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+    }
+
+    .metric-info {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .metric-value {
+        font-size: 1.3rem;
+        font-weight: 700;
+        color: #2d3748;
+        line-height: 1;
+    }
+
+    .metric-label {
+        font-size: 0.75rem;
+        color: #718096;
+        font-weight: 500;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    /* Linear Progress Bar */
+    .progress-bar-modern {
+        margin-top: 1rem;
+        position: relative;
+    }
+
+    .progress-track-linear {
+        width: 100%;
+        height: 8px;
+        background: rgba(226, 232, 240, 0.5);
+        border-radius: 4px;
+        overflow: hidden;
+        position: relative;
+    }
+
+    .progress-fill-linear {
+        height: 100%;
+        border-radius: 4px;
+        transition: width 1s ease;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .progress-fill-linear::after {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
+        animation: shimmer 2s infinite;
+    }
+
+    .progress-fill-linear.excellent { 
+        background: linear-gradient(90deg, #4CAF50, #45a049); 
+    }
+    .progress-fill-linear.good { 
+        background: linear-gradient(90deg, #FF9800, #f57c00); 
+    }
+    .progress-fill-linear.critical { 
+        background: linear-gradient(90deg, #F44336, #d32f2f); 
+    }
+
+    .progress-milestones {
+        position: absolute;
+        top: -25px;
+        width: 100%;
+        height: 20px;
+        display: flex;
+        align-items: center;
+    }
+
+    .milestone {
+        position: absolute;
+        transform: translateX(-50%);
+        font-size: 0.7rem;
+        color: #718096;
+        font-weight: 600;
+        background: rgba(255,255,255,0.9);
+        padding: 2px 6px;
+        border-radius: 8px;
+        border: 1px solid #e2e8f0;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+
+    .milestone.completed {
+        color: #4CAF50;
+        border-color: #4CAF50;
+        background: rgba(76, 175, 80, 0.1);
+    }
+
+    /* Card Footer */
+    .project-progress-card .card-footer {
+        padding: 1rem 2rem 1.5rem 2rem;
+        background: rgba(248, 249, 250, 0.5);
+    }
+
+    .performance-indicator {
+        text-align: center;
+        padding: 0.5rem 1rem;
+        border-radius: 12px;
+        font-weight: 600;
+        font-size: 0.85rem;
+    }
+
+    .performance-indicator.excellent {
+        background: rgba(76, 175, 80, 0.1);
+        color: #2e7d32;
+        border: 1px solid rgba(76, 175, 80, 0.3);
+    }
+
+    .performance-indicator.good {
+        background: rgba(255, 152, 0, 0.1);
+        color: #e65100;
+        border: 1px solid rgba(255, 152, 0, 0.3);
+    }
+
+    .performance-indicator.critical {
+        background: rgba(244, 67, 54, 0.1);
+        color: #c62828;
+        border: 1px solid rgba(244, 67, 54, 0.3);
+    }
+
+    /* Animations */
+    @@keyframes shimmer {
+        0% { left: -100%; }
+        100% { left: 100%; }
+    }
+
+    @@keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(30px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .project-progress-card {
+        animation: fadeInUp 0.6s ease-out;
+    }
+
+    /* Responsive Design */
+    @@media (max-width: 1024px) {
+        .projects-grid {
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+        }
+
+        .progress-visualization {
+            grid-template-columns: 1fr;
+            gap: 1.5rem;
+        }
+
+        .progress-circle {
+            margin: 0 auto;
+        }
+    }
+
+    @@media (max-width: 768px) {
+        .filter-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .filter-actions {
+            grid-column: 1;
+        }
+
+        .section-header {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+
+        .progress-legend {
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .projects-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .project-progress-card .card-header {
+            padding: 1rem 1.5rem 0.5rem 1.5rem;
+        }
+
+        .project-progress-card .card-body {
+            padding: 1rem 1.5rem;
+        }
+
+        .project-progress-card .card-footer {
+            padding: 0.75rem 1.5rem 1rem 1.5rem;
+        }
+
+        .project-title {
+            font-size: 1.1rem;
+        }
+
+        .progress-circle {
+            width: 80px;
+            height: 80px;
+        }
+
+        .progress-percentage {
+            font-size: 1.2rem;
+        }
+    }
+
+    @@media (max-width: 480px) {
+        .filter-content {
+            padding: 1.5rem;
+        }
+
+        .filter-header {
+            padding: 1rem 1.5rem 0.75rem 1.5rem;
+        }
+
+        .metric-item {
+            padding: 0.75rem;
+        }
+
+        .metric-icon {
+            width: 35px;
+            height: 35px;
+            font-size: 0.9rem;
+        }
+
+        .metric-value {
+            font-size: 1.1rem;
+        }
+    }
+</style>
 
 <script>
     document.addEventListener("DOMContentLoaded", function () {
-        var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+        // Initialize tooltips
+        var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
         tooltipTriggerList.map(function (tooltipTriggerEl) {
-            return new bootstrap.Tooltip(tooltipTriggerEl)
-        })
+            return new bootstrap.Tooltip(tooltipTriggerEl);
+        });
+
+        // Filter toggle functionality
+        const filterHeader = document.querySelector('.filter-header');
+        const filterContent = document.querySelector('.filter-content');
+        const filterToggle = document.querySelector('.filter-toggle');
+        
+        if (filterHeader && filterContent && filterToggle) {
+            filterHeader.addEventListener('click', function() {
+                filterContent.classList.toggle('d-none');
+                filterToggle.classList.toggle('active');
+            });
+        }
+
+        // Progress circle animations
+        const progressCircles = document.querySelectorAll('.progress-circle');
+        progressCircles.forEach(circle => {
+            const progress = circle.getAttribute('data-progress');
+            const progressTrack = circle.querySelector('.progress-track');
+            
+            if (progressTrack && progress) {
+                // Set CSS variable for conic gradient
+                const color = progress >= 85 ? '#4CAF50' : progress >= 60 ? '#FF9800' : '#F44336';
+                progressTrack.style.background = `conic-gradient(
+                    from 0deg,
+                    ${color} 0% ${progress}%,
+                    #e2e8f0 ${progress}% 100%
+                )`;
+            }
+        });
+
+        // Animate progress bars on load
+        const progressBars = document.querySelectorAll('.progress-fill-linear');
+        progressBars.forEach(bar => {
+            const width = bar.style.width;
+            bar.style.width = '0%';
+            setTimeout(() => {
+                bar.style.width = width;
+            }, 500);
+        });
+
+        // Animate metric values
+        const metricValues = document.querySelectorAll('.metric-value');
+        metricValues.forEach(metric => {
+            const finalValue = parseInt(metric.textContent);
+            let currentValue = 0;
+            const increment = finalValue / 30; // 30 steps animation
+            
+            const counter = setInterval(() => {
+                currentValue += increment;
+                if (currentValue >= finalValue) {
+                    currentValue = finalValue;
+                    clearInterval(counter);
+                }
+                metric.textContent = Math.floor(currentValue);
+            }, 50);
+        });
+
+        // Card hover effects
+        const projectCards = document.querySelectorAll('.project-progress-card');
+        projectCards.forEach(card => {
+            card.addEventListener('mouseenter', function() {
+                this.style.transform = 'translateY(-8px) scale(1.02)';
+            });
+            
+            card.addEventListener('mouseleave', function() {
+                this.style.transform = 'translateY(0) scale(1)';
+            });
+        });
+
+        // Staggered animation for cards
+        projectCards.forEach((card, index) => {
+            card.style.animationDelay = `${index * 0.1}s`;
+        });
+
+        // Add interactive tooltips for progress indicators
+        const performanceIndicators = document.querySelectorAll('.performance-indicator');
+        performanceIndicators.forEach(indicator => {
+            const card = indicator.closest('.project-progress-card');
+            const projectTitle = card.querySelector('.project-title').textContent;
+            const completion = card.querySelector('.completion-badge').textContent;
+            
+            indicator.setAttribute('title', `${projectTitle}: ${completion} completion rate`);
+            indicator.setAttribute('data-bs-toggle', 'tooltip');
+            indicator.setAttribute('data-bs-placement', 'top');
+        });
+
+        // Reinitialize tooltips for dynamically created elements
+        var newTooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+        newTooltipTriggerList.map(function (tooltipTriggerEl) {
+            return new bootstrap.Tooltip(tooltipTriggerEl);
+        });
+
+        // Add smooth scrolling to filtered results
+        const filterForm = document.querySelector('.filter-form');
+        if (filterForm) {
+            filterForm.addEventListener('submit', function() {
+                setTimeout(() => {
+                    const projectsContainer = document.querySelector('.projects-analytics-container');
+                    if (projectsContainer) {
+                        projectsContainer.scrollIntoView({ 
+                            behavior: 'smooth',
+                            block: 'start'
+                        });
+                    }
+                }, 100);
+            });
+        }
+
+        // Add loading state for form submissions
+        const submitBtn = document.querySelector('.btn-modern-primary');
+        if (submitBtn && filterForm) {
+            filterForm.addEventListener('submit', function() {
+                submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Loading...';
+                submitBtn.disabled = true;
+            });
+        }
     });
 </script>

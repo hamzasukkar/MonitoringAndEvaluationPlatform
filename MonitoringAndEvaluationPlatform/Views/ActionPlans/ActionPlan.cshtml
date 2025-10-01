@@ -4,877 +4,954 @@
 @using Microsoft.AspNetCore.Localization
 @{
     ViewData["Title"] = "Project Action Plan";
-    Layout = "~/Views/Shared/_ProjectsLayout.cshtml";
+    Layout = "~/Views/Shared/_DashboardHomeLayout.cshtml";
     int projectTotalPlannedCost = Model.Sum(ag => ag.Activities.Sum(a => a.TotalEstimatedCost));
     int projectTotalRealisedCost = Model.Sum(ag => ag.Activities.Sum(a => a.TotalRealisedCost));
     int maxPlans = Model.Any() ? Model.Max(m => m.PlansCount) : 0;
 }
 
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>@ViewData["Title"]</title>
-
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
-
-    <style>
-        :root {
-            /* New Syrian Visual Identity Colors (from previous segments) */
-            --primary-background-color: #1A3B33; /* Dark Green - Main background, topbar, table headers (if applicable) */
-            --secondary-card-background: #2A4C44; /* Slightly Lighter Dark Green - Cards, main content area, sidebar, table rows (if applicable) */
-            --accent-gold-color: #C8A85F; /* Gold - Accents, buttons, active states, important text */
-            --text-light-color: #E0E0E0; /* Light text on dark backgrounds */
-            --text-dark-contrast: #333333; /* Dark text for contrast on light elements (if any) */
-            --border-color: #4A6E66; /* Border color for inputs/elements */
-            --hover-gold-color: #DDAA66; /* Slightly lighter gold for hover states */
-            --light-element-bg: #3A5C54; /* Even lighter green for elements like card backgrounds */
-            /* Standard Bootstrap-like colors, adjusted for harmony (from previous segments) */
-            --success-color: #28a745;
-            --info-color: #17a2b8;
-            --warning-color: #ffc107;
-            --danger-color: #dc3545;
-            --orange-color: #fd7e14; /* For specific progress bars or warnings */
-
-            --sidebar-width: 250px;
-            --font-family-sans-serif: 'Inter', sans-serif; /* Using Inter font */
-            /* Basic Bootstrap-like colors (from new snippet) */
-            --primary-color: #007bff;
-            --secondary-color: #6c757d;
-            --warning-color: #ffc107; /* Redefined, ensure consistency if different intent */
-            --danger-color: #dc3545; /* Redefined, ensure consistency if different intent */
-            --light-color: #f8f9fa;
-            --dark-color: #343a40;
-            --border-radius: 0.375rem;
-            /* LTR Specific Properties (Defaults) */
-            --text-align-start: left;
-            --text-align-end: right;
-            /* Logical property values for margins/borders/positions */
-            --sidebar-inset-inline-start: 0; /* Sidebar starts from the left */
-            --sidebar-inset-inline-end: auto;
-            --content-margin-inline-start: var(--sidebar-width); /* Content pushes right by sidebar width */
-            --content-margin-inline-end: 0; /* Default for LTR */
-
-            --sidebar-link-border-inline-end: 3px solid var(--accent-gold-color); /* Active link border on the right */
-            --sidebar-link-border-inline-start: none;
-            --sidebar-img-margin-inline-end: 1rem; /* Image margin on the right */
-            --sidebar-img-margin-inline-start: 0;
-            --dropdown-menu-inset-inline-start: auto; /* Aligns dropdown to the end (right) of parent */
-            --dropdown-menu-inset-inline-end: 0;
-            /* Card header border-radius (top-start, top-end, bottom-end, bottom-start) */
-            --card-header-border-radius-top-start: 10px;
-            --card-header-border-radius-top-end: 10px;
-            --card-header-border-radius-bottom-end: 0;
-            --card-header-border-radius-bottom-start: 0;
-            /* Table hover transform */
-            --table-hover-transform-x: 2px; /* LTR: move right */
-            /* Custom select arrow position (for language dropdown) */
-            --select-arrow-bg-position-inline-end: calc(100% - 0.75rem); /* For LTR, arrow on the right */
-            --select-arrow-bg-position-inline-start: 0.75rem; /* For RTL, arrow on the left */
-            /* New variables for this snippet */
-            --nav-item-margin-inline: 0 0.25rem; /* Horizontal margin for project nav items */
-            --table-cell-text-align: left; /* Table cell text alignment */
-            --framework-label-padding-inline-start: 2rem; /* Padding for framework label */
-        }
-
-        /* RTL Specific Properties (Override defaults when .rtl class is present) */
-        body.rtl {
-            --text-align-start: right;
-            --text-align-end: left;
-            --sidebar-inset-inline-start: auto; /* Sidebar is on the right in RTL */
-            --sidebar-inset-inline-end: 0;
-            --content-margin-inline-start: 0; /* Content starts at 0 */
-            --content-margin-inline-end: var(--sidebar-width); /* Content pushes left by sidebar width */
-
-            --sidebar-link-border-inline-end: none; /* No border-right in RTL */
-            --sidebar-link-border-inline-start: 3px solid var(--accent-gold-color); /* Border-left in RTL */
-
-            --sidebar-img-margin-inline-end: 0; /* No margin-right for image */
-            --sidebar-img-margin-inline-start: 1rem; /* Margin-left for image */
-
-            --dropdown-menu-inset-inline-start: 0; /* Aligns dropdown to the start (left) of parent */
-            --dropdown-menu-inset-inline-end: auto;
-            /* Card header border-radius for RTL (logical mapping) */
-            --card-header-border-radius-top-start: 10px; /* Logical top-start (still visually top-right from LTR perspective) */
-            --card-header-border-radius-top-end: 10px; /* Logical top-end (still visually top-left from LTR perspective) */
-            --card-header-border-radius-bottom-end: 0;
-            --card-header-border-radius-bottom-start: 0;
-            /* Table hover transform in RTL */
-            --table-hover-transform-x: -2px; /* RTL: move left */
-            /* Custom select arrow position in RTL */
-            --select-arrow-bg-position-inline-end: 0.75rem; /* For RTL, arrow on the left */
-            --select-arrow-bg-position-inline-start: calc(100% - 0.75rem); /* For LTR, arrow on the right */
-            /* New overrides for this snippet */
-            --nav-item-margin-inline: 0 0.25rem; /* Same values, but declared for consistency */
-            --table-cell-text-align: right; /* Table cell text alignment for RTL */
-            --framework-label-padding-inline-start: 2rem; /* Same value, but logical property will reverse */
-        }
-
-        body {
-            font-family: var(--font-family-sans-serif);
-            background-color: #f4f7f9; /* Light background for this specific snippet */
-            margin: 0;
-            padding: 0;
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-            color: var(--dark-color); /* Default text color for body based on new snippet */
-            text-align: var(--text-align-start); /* Default text alignment based on direction */
-        }
-
-        /* Header Styles */
-        .topbar {
-            background-color: var(--primary-background-color); /* Dark Green */
-            color: var(--text-light-color);
-            padding: 0.75rem 2rem;
-            display: flex;
-            justify-content: space-between; /* Adapts automatically with flex-direction */
-            align-items: center;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2); /* Stronger shadow for dark background */
-            position: fixed;
-            width: 100%;
-            z-index: 1000;
-            height: 60px;
-            flex-direction: row; /* Default LTR flow */
-        }
-
-        body.rtl .topbar {
-            flex-direction: row-reverse; /* Reverse direction for RTL */
-        }
-
-        .title {
-            font-size: 1.5rem;
-            font-weight: 600;
-            color: var(--accent-gold-color); /* Gold for the title */
-        }
-
-        .nav-links .nav {
-            display: flex;
-            list-style: none;
-            margin: 0;
-            padding: 0;
-            align-items: center;
-        }
-
-        .nav-item {
-            margin-inline: var(--nav-item-margin-inline); /* Logical horizontal margin */
-        }
-
-        .nav-link {
-            color: rgba(255, 255, 255, 0.85); /* Slightly transparent white */
-            text-decoration: none;
-            padding: 0.5rem 1rem;
-            border-radius: 4px;
-            transition: all 0.3s ease;
-            font-weight: 500;
-        }
-
-            .nav-link:hover, .nav-link.active {
-                color: var(--accent-gold-color); /* Gold on hover/active */
-                background-color: rgba(255, 255, 255, 0.08); /* Subtle highlight */
-            }
-
-        .dropdown-menu {
-            border: none;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2); /* Stronger shadow */
-            border-radius: 8px;
-            padding: 0.5rem 0;
-            background-color: var(--secondary-card-background); /* Darker background for dropdown */
-            /* Positioning adjustments using logical properties and variables */
-            position: absolute;
-            inset-inline-start: var(--dropdown-menu-inset-inline-start);
-            inset-inline-end: var(--dropdown-menu-inset-inline-end);
-            transform: translate(0, 10px); /* Adjust vertical positioning */
-            opacity: 0;
-            visibility: hidden;
-            transition: opacity 0.15s, transform 0.15s, visibility 0.15s;
-            z-index: 1000; /* Ensure it's above other content */
-            min-width: 10rem; /* Give it a reasonable minimum width */
-        }
-
-            .dropdown-menu.show {
-                opacity: 1;
-                visibility: visible;
-                transform: translate(0, 0);
-            }
-
-        .dropdown-item {
-            padding: 0.5rem 1.5rem;
-            transition: all 0.2s;
-            color: var(--text-light-color); /* Light text for dropdown items */
-            text-align: var(--text-align-start); /* Ensure dropdown items align correctly */
-        }
-
-            .dropdown-item:hover {
-                background-color: rgba(200, 168, 95, 0.15); /* Light gold tint on hover */
-                color: var(--accent-gold-color); /* Gold text on hover */
-            }
-
-        /* Styling for the Language Select inside the Dropdown */
-        .dropdown-menu form select {
-            width: calc(100% - 2rem); /* Take full width minus padding on each side */
-            padding: 0.5rem 1rem;
-            margin: 0.5rem 1rem; /* Center it with surrounding dropdown items */
-            background-color: var(--primary-background-color); /* Darker background like topbar */
-            color: var(--text-light-color); /* Light text */
-            border: 1px solid var(--border-color); /* Subtle border */
-            border-radius: 6px; /* Slightly rounded corners */
-            appearance: none; /* Remove default browser styling for select */
-            -webkit-appearance: none;
-            -moz-appearance: none;
-            cursor: pointer;
-            font-size: 0.95rem; /* Slightly smaller font than regular text */
-            transition: all 0.2s ease;
-            text-align: var(--text-align-start); /* Align text based on direction */
-            /* Custom Dropdown Arrow */
-            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath fill='%23C8A85F' d='M7.247 11.14 2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592c.859 0 1.319 1.013.753 1.658L8.753 11.14a1.86 1.86 0 0 1-1.506 0z'/%3E%3C/svg%3E");
-            background-repeat: no-repeat;
-            background-size: 1rem;
-            background-position: var(--select-arrow-bg-position-inline-end) center;
-        }
-
-            .dropdown-menu form select:focus {
-                outline: none;
-                border-color: var(--accent-gold-color); /* Gold border on focus */
-                box-shadow: 0 0 0 0.2rem rgba(200, 168, 95, 0.25); /* Subtle gold glow */
-            }
-
-            .dropdown-menu form select option {
-                background-color: var(--primary-background-color); /* Match select background */
-                color: var(--text-light-color);
-                padding: 0.5rem 1rem; /* Add some padding to options */
-            }
-
-        /* Main Content Layout */
-        .main {
-            display: flex;
-            margin-top: 60px; /* Offset for fixed header */
-            min-height: calc(100vh - 60px);
-            flex-direction: row; /* Default LTR flow */
-        }
-
-        body.rtl .main {
-            flex-direction: row-reverse; /* Reverse direction for RTL */
-        }
-
-        /* Sidebar Styles */
-        .sidebar {
-            width: var(--sidebar-width);
-            background-color: var(--secondary-card-background); /* Slightly Lighter Dark Green */
-            box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1); /* Subtle shadow */
-            padding: 1.5rem 0;
-            position: fixed;
-            height: calc(100vh - 60px);
-            overflow-y: auto;
-            z-index: 900;
-            /* Position sidebar based on direction using logical property and variables */
-            inset-inline-start: var(--sidebar-inset-inline-start);
-            inset-inline-end: var(--sidebar-inset-inline-end);
-        }
-
-            .sidebar ul {
-                list-style: none;
-                padding: 0;
-                margin: 0;
-            }
-
-            .sidebar li {
-                margin-bottom: 0.5rem;
-            }
-
-            .sidebar a {
-                display: flex;
-                align-items: center;
-                padding: 0.75rem 1.5rem;
-                color: var(--text-light-color); /* Light text for sidebar links */
-                text-decoration: none;
-                transition: all 0.2s;
-                font-weight: 500;
-            }
-
-                .sidebar a:hover, .sidebar a.active {
-                    color: var(--accent-gold-color); /* Gold on hover/active */
-                    background-color: rgba(200, 168, 95, 0.1); /* Light gold tint for background */
-                    /* Use logical properties for border and variables for its value */
-                    border-inline-end: var(--sidebar-link-border-inline-end);
-                    border-inline-start: var(--sidebar-link-border-inline-start);
-                }
-
-            .sidebar img {
-                /* Use logical property for margin and variables for its value */
-                margin-inline-end: var(--sidebar-img-margin-inline-end);
-                margin-inline-start: var(--sidebar-img-margin-inline-start);
-                opacity: 0.8; /* Slightly less opaque on default */
-            }
-
-            .sidebar a:hover img {
-                opacity: 1; /* Full opacity on hover */
-            }
-
-        /* Content Area */
-        .container-full {
-            flex: 1;
-            padding: 2rem;
-            /* Use logical property for margin and variables for its value */
-            margin-inline-start: var(--content-margin-inline-start);
-            margin-inline-end: var(--content-margin-inline-end);
-            background-color: var(--secondary-card-background); /* Slightly Lighter Dark Green */
-            min-height: calc(100vh - 60px);
-            color: var(--text-light-color); /* Default text color for content area */
-            /* New: Background Image for .container-full */
-            background-image: url('/img/Emblem_of_Syria.png'); /* Path to your image */
-            background-repeat: no-repeat; /* Prevents the image from repeating */
-            background-position: center center; /* Centers the image */
-            background-size: 70%; /* Adjust this value to make the emblem smaller or larger */
-            background-blend-mode: multiply; /* Blends the image with the background color */
-        }
-
-        /* --- New Snippet Styles Integrated Below --- */
-
-        /* Project Navigation */
-        .project-nav .navbar {
-            border-radius: var(--border-radius);
-            border: 1px solid #dee2e6; /* Using a fixed color here, consider making it a variable if it aligns with theme */
-        }
-
-        .project-nav .nav-link {
-            color: var(--secondary-color);
-            font-weight: 600;
-            transition: color 0.3s ease, background-color 0.3s ease;
-            padding: 0.75rem 1rem;
-            border-radius: var(--border-radius);
-            margin-inline: var(--nav-item-margin-inline); /* Logical horizontal margin */
-        }
-
-            .project-nav .nav-link:hover {
-                color: var(--primary-color);
-            }
-
-            .project-nav .nav-link.active {
-                color: #fff;
-                background-color: var(--primary-color);
-            }
-
-        /* Page Header */
-        .page-header {
-            display: flex;
-            justify-content: space-between; /* Adapts automatically with flex-direction */
-            align-items: center;
-            margin-bottom: 2rem;
-            flex-direction: row; /* Default LTR flow */
-        }
-
-        body.rtl .page-header {
-            flex-direction: row-reverse; /* Reverse for RTL */
-        }
-
-        .page-header h1 {
-            font-weight: 700;
-            color: var(--dark-color);
-        }
-
-        /* Totals Section */
-        .totals-card {
-            background-color: #fff; /* Consider using a theme variable like --light-color */
-            padding: 1.5rem;
-            border-radius: var(--border-radius);
-            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
-            display: flex;
-            gap: 1.5rem; /* Adapts automatically */
-            flex-direction: row; /* Default LTR flow */
-        }
-
-        body.rtl .totals-card {
-            flex-direction: row-reverse; /* Reverse for RTL if order matters */
-        }
-
-
-        .total-item {
-            flex: 1;
-            text-align: center; /* Symmetric, no change needed */
-        }
-
-            .total-item .value {
-                font-size: 2rem;
-                font-weight: 700;
-                color: var(--primary-color);
-            }
-
-                .total-item .value.realised {
-                    color: var(--success-color);
-                }
-
-            .total-item .label {
-                font-size: 0.9rem;
-                color: var(--secondary-color);
-                text-transform: uppercase;
-                font-weight: 600;
-            }
-
-        /* Activity Group Card */
-        .activity-group-card {
-            background-color: #fff; /* Consider using a theme variable like --light-color */
-            margin-bottom: 2rem;
-            border-radius: var(--border-radius);
-            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
-            overflow: hidden; /* To keep rounded corners with the table */
-        }
-
-        .activity-group-header {
-            background-color: var(--dark-color); /* Uses theme variable */
-            color: #fff;
-            padding: 1rem 1.5rem;
-            font-size: 1.2rem;
-            font-weight: 600;
-            text-align: var(--text-align-start); /* Align text based on direction */
-        }
-
-        /* Table Styling */
-        .action-plan-table {
-            width: 100%;
-            border-collapse: collapse;
-        }
-
-            .action-plan-table th, .action-plan-table td {
-                padding: 1rem;
-                text-align: var(--table-cell-text-align); /* Dynamic text alignment */
-                border-bottom: 1px solid #e9ecef; /* Consider making this a variable */
-                vertical-align: middle;
-            }
-
-            .action-plan-table thead th {
-                background-color: var(--light-color); /* Uses theme variable */
-                color: var(--secondary-color);
-                font-weight: 600;
-                text-transform: uppercase;
-                font-size: 0.85rem;
-                border-top: none;
-                border-bottom: 2px solid #dee2e6; /* Consider making this a variable */
-                text-align: var(--table-cell-text-align); /* Ensure consistent header alignment */
-            }
-
-            .action-plan-table tbody tr:last-child td {
-                border-bottom: none;
-            }
-
-            .action-plan-table tbody tr:hover {
-                background-color: #f1f3f5; /* Consider making this a variable */
-            }
-
-        .activity-name {
-            font-weight: 600;
-            color: var(--dark-color);
-        }
-
-        .framework-label {
-            font-size: 0.9rem;
-            font-weight: 500;
-            padding-inline-start: var(--framework-label-padding-inline-start); /* Logical padding */
-        }
-
-        .plan-date {
-            font-size: 0.9rem;
-            color: var(--secondary-color);
-        }
-
-        .subtotal-row td {
-            font-weight: 700;
-            background-color: var(--light-color); /* Uses theme variable */
-        }
-
-        .total-cost {
-            font-weight: 700;
-        }
-
-        /* Editable Cell Styling */
-        .editable-cell {
-            cursor: pointer;
-            transition: background-color 0.3s ease;
-            border-radius: 4px;
-        }
-
-            .editable-cell:hover {
-                background-color: #e9ecef; /* Consider making this a variable */
-            }
-
-            .editable-cell[contenteditable="true"]:focus {
-                background-color: #fff3cd; /* Light yellow, consider making this a variable */
-                outline: 2px solid var(--warning-color);
-                box-shadow: 0 0 5px rgba(255,193,7,0.5);
-            }
-
-        td.saving {
-            background-color: #fff3cd !important; /* Light yellow, consider making this a variable */
-            color: #856404; /* Dark yellow/brown, consider making this a variable */
-            animation: pulse 1.5s infinite;
-        }
-
-        td.success {
-            background-color: #d4edda !important; /* Light green, consider making this a variable */
-            transition: background-color 1s ease-out;
-        }
-
-        td.error {
-            background-color: #f8d7da !important; /* Light red, consider making this a variable */
-        }
-
-        /* --- End New Snippet Styles --- */
-
-
-        /* Responsive Adjustments (from previous segments) */
-        @@media (max-width: 992px) {
-            .sidebar
-
-        {
-            width: 70px;
-            overflow: hidden;
-        }
-
-        .sidebar a span {
-            display: none;
-        }
-
-        .sidebar img {
-            margin-inline-end: 0; /* Reset margin for collapsed sidebar icons */
-            margin-inline-start: 0; /* Also reset logical start margin */
-        }
-
-        .container-full {
-            /* Adjust margin for collapsed sidebar using logical property */
-            margin-inline-start: 70px;
-            margin-inline-end: 0; /* Default LTR positioning for collapsed sidebar */
-        }
-
-        body.rtl .container-full {
-            margin-inline-start: 0; /* In RTL, content starts at 0 */
-            margin-inline-end: 70px; /* And has a margin-right of 70px */
-        }
-
-        }
-
-        @@media (max-width: 768px) {
-            .sidebar
-
-        {
-            display: none;
-        }
-
-        .container-full {
-            /* Reset margin when sidebar is hidden using logical property */
-            margin-inline-start: 0;
-            margin-inline-end: 0;
-            padding: 1rem; /* Apply padding for smaller screens */
-        }
-
-        .topbar .title {
-            font-size: 1.2rem;
-        }
-
-        .nav-links .nav-item:not(:last-child) {
-            display: none;
-        }
-
-        }
-
-        /* General Card Styling (ensuring consistency from previous snippets) */
-        /* Note: If .dashboard-card is your primary card style, you might consider consolidating. */
-        /* Keeping it separate as per your provided code, but ensures its RTL/LTR compliance. */
-        .card {
-            border: none;
-            border-radius: 10px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15); /* Stronger shadow */
-            transition: transform 0.2s, box-shadow 0.2s;
-            margin-bottom: 1.5rem;
-            background-color: var(--light-element-bg); /* Consistent card background */
-            color: var(--text-light-color); /* Consistent card text color */
-        }
-
-            .card:hover {
-                transform: translateY(-2px);
-                box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
-            }
-
-        .card-header {
-            background-color: var(--primary-background-color); /* Consistent card header background */
-            border-bottom: 1px solid var(--border-color);
-            font-weight: 600;
-            padding: 1rem 1.5rem;
-            /* Use logical properties for border-radius */
-            border-top-left-radius: var(--card-header-border-radius-top-start) !important;
-            border-top-right-radius: var(--card-header-border-radius-top-end) !important;
-            border-bottom-left-radius: var(--card-header-border-radius-bottom-start) !important;
-            border-bottom-right-radius: var(--card-header-border-radius-bottom-end) !important;
-            color: var(--accent-gold-color); /* Consistent card header text color */
-            text-align: var(--text-align-start); /* Align card header text */
-        }
-
-        /* Button Styling (from previous snippets) */
-        .btn-primary {
-            background-color: var(--accent-gold-color); /* Gold button */
-            border-color: var(--accent-gold-color);
-            color: var(--primary-background-color); /* Dark text on gold button */
-        }
-
-            .btn-primary:hover {
-                background-color: var(--hover-gold-color); /* Lighter gold on hover */
-                border-color: var(--hover-gold-color);
-                color: var(--primary-background-color);
-            }
-
-        .btn-outline-primary {
-            color: var(--accent-gold-color); /* Gold outline button */
-            border-color: var(--accent-gold-color);
-        }
-
-            .btn-outline-primary:hover {
-                background-color: var(--accent-gold-color);
-                color: var(--primary-background-color);
-            }
-
-        /* Table Styling (from previous snippets) */
-        .table {
-            border-collapse: separate;
-            border-spacing: 0;
-            color: var(--text-light-color); /* Default table text color */
-        }
-
-            .table thead th {
-                background-color: var(--primary-background-color); /* Dark Green for table header */
-                border: none;
-                font-weight: 600;
-                padding: 1rem;
-                color: var(--accent-gold-color); /* Gold text for table headers */
-                text-align: var(--text-align-start); /* Align table headers */
-            }
-
-            .table tbody tr {
-                background-color: var(--secondary-card-background); /* Slightly Lighter Dark Green for table rows */
-                transition: all 0.2s;
-            }
-
-                .table tbody tr:hover {
-                    background-color: #3A5C54; /* Even lighter green on hover */
-                    transform: translateX(var(--table-hover-transform-x)); /* Controlled by CSS variable */
-                }
-
-            .table tbody td {
-                border-color: var(--border-color); /* Border color for table cells */
-                text-align: var(--text-align-start); /* Align table cells */
-            }
-
-        /* Specific progress bar colors (from previous snippets) */
-        .progress-bar-orange {
-            background-color: var(--orange-color);
-        }
-
-        /* Adjust text colors for specific Bootstrap classes if they appear on dark backgrounds (from previous snippets) */
-        .text-muted {
-            color: rgba(255, 255, 255, 0.6) !important; /* Lighter muted text for dark backgrounds */
-        }
-
-        .text-danger {
-            color: var(--danger-color) !important; /* Ensure danger text is visible */
-        }
-
-        .text-info {
-            color: var(--info-color) !important;
-        }
-
-        .text-success {
-            color: var(--success-color) !important;
-        }
-
-        .text-warning {
-            color: var(--warning-color) !important;
-        }
-
-        @@keyframes pulse {
-            0%
-
-        {
-            opacity: 1;
-        }
-
-        50% {
-            opacity: 0.6;
-        }
-
-        100% {
-            opacity: 1;
-        }
-
-        }
-    </style>
-</head>
-
-<body>
-    <div class="project-nav mb-4">
-        <nav class="navbar navbar-expand-lg navbar-light bg-white">
-            <div class="container-fluid">
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#projectNavbar">
-                    <span class="navbar-toggler-icon"></span>
-                </button>
-                <div class="collapse navbar-collapse" id="projectNavbar">
-                    <ul class="navbar-nav nav-fill w-100">
-                        <li class="nav-item">
-                            <a asp-controller="Projects" asp-action="Details" asp-route-id="@ViewBag.ProjectID" class="nav-link">
-                                <i class="fas fa-project-diagram me-2"></i>@Localizer["Project"]
-                            </a>
-                        </li>
-                        @*    <li class="nav-item">
-                            <a asp-action="LinkProjectToIndicators" asp-route-projectId="@ViewBag.ProjectID" class="nav-link">
-                                <i class="fas fa-link me-2"></i>Alignment
-                            </a>
-                        </li> *@
-                   @*      <li class="nav-item">
-                            <a asp-action="Create" asp-controller="LogicalFrameworks" asp-route-projectId="@ViewBag.ProjectID" class="nav-link">
-                                <i class="fas fa-sitemap me-2"></i>Logical Framework
-                            </a>
-                        </li> *@
-                        <li class="nav-item">
-                            <a asp-action="ProjectMeasures" asp-controller="Measures" asp-route-id="@ViewBag.ProjectID" class="nav-link">
+<!-- Dashboard Header -->
+<div class="dashboard-header">
+    <div class="header-content">
+        <div class="page-title-section">
+            <div class="page-breadcrumb">
+                <a href="@Url.Action("Index", "Projects")" class="breadcrumb-link">
+                    <i class="fas fa-project-diagram"></i>
+                    @Localizer["Projects"]
+                </a>
+                <i class="fas fa-chevron-right breadcrumb-separator"></i>
+                <span class="current-page">@Localizer["Action Plan"]</span>
+            </div>
+            <h1 class="page-title">@Localizer["Project Action Plan"]</h1>
+            <p class="page-description">@Localizer["Detailed planning and execution tracking"]</p>
+        </div>
+        
+        <div class="header-actions">
+            <a href="@Url.Action("Details", "Projects", new { id = ViewBag.ProjectID })" class="action-btn secondary">
+                <i class="fas fa-arrow-left"></i>
+                @Localizer["Back to Project"]
+            </a>
+        </div>
+    </div>
+</div>
+
+<!-- Project Navigation Section -->
+<div class="project-nav-modern mb-4">
+    <nav class="modern-navbar">
+        <div class="navbar-container">
+            <div class="navbar-collapse" id="projectNavbar">
+                <ul class="modern-nav-list">
+                    <li class="nav-item-modern">
+                        <a asp-action="Details" asp-controller="Projects" asp-route-id="@ViewBag.ProjectID" class="nav-link-modern">
+                            <i class="fas fa-project-diagram me-2"></i>@Localizer["Project"]
+                        </a>
+                    </li>
+                    <li class="nav-item-modern">
+                        @if (ViewBag.FirstIndicatorCode != null)
+                        {
+                            <a asp-action="Index" asp-controller="Measures" asp-route-indicatorId="@ViewBag.FirstIndicatorCode" class="nav-link-modern" title="@Localizer["View measures for indicator"]">
                                 <i class="fas fa-ruler-combined me-2"></i>@Localizer["Measures"]
                             </a>
-                        </li>
-                        @*     <li class="nav-item">
-                            <a asp-controller="Plans" asp-action="ProjectPlans" asp-route-id="@ViewBag.ProjectID" class="nav-link">
-                                <i class="fas fa-calendar-alt me-2"></i>Plans
+                        }
+                        else
+                        {
+                            <a asp-action="Index" asp-controller="Measures" class="nav-link-modern" title="@Localizer["No indicators linked to this project yet"]">
+                                <i class="fas fa-ruler-combined me-2"></i>@Localizer["Measures"]
                             </a>
-                        </li> *@
-                        <li class="nav-item">
-                            <a class="nav-link active" aria-current="page">
-                                <i class="fas fa-tasks me-2"></i>@Localizer["Action Plans"]
-                            </a>
-                        </li>
-                @*         <li class="nav-item">
-                            <a asp-action="Index" asp-controller="Activities" asp-route-id="@ViewBag.ProjectID" class="nav-link">
-                                <i class="fas fa-running me-2"></i>Activities
-                            </a>
-                        </li> *@
-                    </ul>
-                </div>
-            </div>
-        </nav>
-    </div>
-
-    <div class="page-header">
-        <h1>@Localizer["Action Plans"]</h1>
-        @*         <div class="totals-card">
-            <div class="total-item">
-                <div class="value">@projectTotalPlannedCost.ToString("C0")</div>
-                <div class="label">Project Total Estimated Cost</div>
-            </div>
-            <div class="total-item">
-                <div class="value realised">@projectTotalRealisedCost.ToString("C0")</div>
-                <div class="label">Project Total Financial Cost</div>
+                        }
+                    </li>
+                    <li class="nav-item-modern">
+                        <a asp-controller="ActionPlans" asp-action="ActionPlan" asp-route-id="@ViewBag.ProjectID" class="nav-link-modern active" aria-current="page">
+                            <i class="fas fa-tasks me-2"></i>@Localizer["Action Plans"]
+                        </a>
+                    </li>
+                </ul>
             </div>
         </div>
- *@    </div>
+    </nav>
+</div>
 
-    @foreach (var activityGroup in Model)
+<!-- Totals Section -->
+<div class="totals-section">
+    <div class="total-metric-card">
+        <div class="metric-header">
+            <div class="metric-icon planned">
+                <i class="fas fa-chart-line"></i>
+            </div>
+            <div>
+                <div class="metric-title">@Localizer["Total Planned"]</div>
+                <div class="metric-subtitle">@Localizer["Estimated Budget"]</div>
+            </div>
+        </div>
+        <div class="metric-value">
+            @projectTotalPlannedCost.ToString("C0")
+        </div>
+    </div>
+
+    <div class="total-metric-card">
+        <div class="metric-header">
+            <div class="metric-icon realised">
+                <i class="fas fa-dollar-sign"></i>
+            </div>
+            <div>
+                <div class="metric-title">@Localizer["Total Realised"]</div>
+                <div class="metric-subtitle">@Localizer["Actual Spending"]</div>
+            </div>
+        </div>
+        <div class="metric-value">
+            @projectTotalRealisedCost.ToString("C0")
+        </div>
+    </div>
+</div>
+
+<!-- Quick Update Realised Values Section -->
+<div class="quick-update-section">
+    <div class="quick-update-card">
+        <div class="quick-update-header">
+            <div class="quick-update-title">
+                <i class="fas fa-pencil-alt"></i>
+                @Localizer["Quick Update Realised Values"]
+            </div>
+            <button type="button" class="toggle-quick-update" id="toggleQuickUpdate">
+                <i class="fas fa-chevron-down"></i>
+            </button>
+        </div>
+        <div class="quick-update-body" id="quickUpdateBody" style="display: none;">
+            <div class="quick-update-form">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="planSelect" class="form-label">
+                            <i class="fas fa-calendar-alt me-1"></i>@Localizer["Select Plan/Month"]
+                        </label>
+                        <select class="form-select" id="planSelect">
+                            <option value="">@Localizer["-- Select Plan --"]</option>
+                            @{
+                                var projectMonthsList = ViewBag.ProjectMonths as List<DateTime>;
+                            }
+                            @foreach (var activityGroup in Model)
+                            {
+                                @if (@activityGroup.ActivityType == "DisbursementPerformance")
+                                {
+                                    @foreach (var activity in activityGroup.Activities)
+                                    {
+                                        var activityName = activity.ActivityName;
+                                        string displayName = activityName;
+
+                                        if (activityName.Contains("-"))
+                                        {
+                                            var parts = activityName.Split(new[] { '-' }, 2);
+                                            if (parts.Length == 2)
+                                            {
+                                                var prefix = parts[0];
+                                                var keyToLocalize = parts[1];
+                                                var localizedValue = @Localizer[keyToLocalize];
+                                                displayName = $"{prefix}-{localizedValue.Value}";
+                                            }
+                                        }
+
+                                        <optgroup label="@displayName">
+                                            @for (int i = 0; i < activity.Plans.Count; i++)
+                                            {
+                                                var plan = activity.Plans[i];
+                                                string planLabel = "";
+                                                if (projectMonthsList != null && projectMonthsList.Count > i)
+                                                {
+                                                    planLabel = projectMonthsList[i].ToString("MMM yyyy");
+                                                }
+                                                else
+                                                {
+                                                    planLabel = $"{Localizer["Plan"]} {i + 1}";
+                                                }
+                                                <option value="@plan.PlanCode"
+                                                        data-planned="@plan.PlannedValue"
+                                                        data-realised="@plan.RealisedValue"
+                                                        data-activity="@displayName">
+                                                    @planLabel
+                                                </option>
+                                            }
+                                        </optgroup>
+                                    }
+                                }
+                            }
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="realisedValueInput" class="form-label">
+                            <i class="fas fa-dollar-sign me-1"></i>@Localizer["Realised Value"]
+                        </label>
+                        <input type="number" class="form-control" id="realisedValueInput" placeholder="@Localizer["Enter realised value"]" disabled>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label opacity-0">@Localizer["Action"]</label>
+                        <button type="button" class="btn btn-primary w-100" id="quickUpdateBtn" disabled>
+                            <i class="fas fa-save me-2"></i>@Localizer["Update"]
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Activity Plans Section -->
+<div class="modern-activity-section">
+
+@foreach (var activityGroup in Model)
+{
+    @if (@activityGroup.ActivityType == "DisbursementPerformance")
     {
-       @*  @if (@activityGroup.ActivityType != "Physical")
-        { *@
-            <div class="activity-group-card">
-            <div class="activity-group-header">@Localizer[@activityGroup.ActivityType]</div>
-                <table class="action-plan-table">
+        <div class="modern-activity-card">
+            <div class="activity-header">
+                <div class="activity-title">
+                    <i class="fas fa-wallet"></i>
+                    @Localizer[@activityGroup.ActivityType]
+                </div>
+                <div class="activity-badge">
+                    @activityGroup.Activities.Count @Localizer["Activities"]
+                </div>
+            </div>
+            
+            <div class="modern-table-container">
+                <table class="modern-action-table">
                     <thead>
                         <tr>
-                        <th>@Localizer["Activity"]</th>
-                        <th>@Localizer["Framework"]</th>
-                            @for (int i = 1; i <= maxPlans; i++)
-                            {
-                            <th class="text-center">@Localizer["Plan"] @i</th>
+                            <th>@Localizer["Activity"]</th>
+                            <th>@Localizer["Framework"]</th>
+                            @{
+                                var projectMonths = ViewBag.ProjectMonths as List<DateTime>;
                             }
-                        <th class="text-end">@Localizer["Total"]</th>
+                            @if (projectMonths != null && projectMonths.Any())
+                            {
+                                @foreach (var month in projectMonths)
+                                {
+                                    <th>@month.ToString("MMM yyyy")</th>
+                                }
+                            }
+                            else
+                            {
+                                @for (int i = 1; i <= maxPlans; i++)
+                                {
+                                    <th>@Localizer["Plan"] @i</th>
+                                }
+                            }
+                            <th>@Localizer["Total"]</th>
                         </tr>
                     </thead>
                     <tbody>
                         @foreach (var activity in activityGroup.Activities)
                         {
                             <tr>
-                                <td rowspan="3" class="activity-name align-middle">@activity.ActivityName</td>
-                                @*    <td class="framework-label">Date</td> *@
-                                <td class="framework-label"></td>
-                                @foreach (var plan in activity.Plans)
+                                <td rowspan="3" class="activity-name-cell align-middle">
+                                    @{
+                                        var activityName = activity.ActivityName;
+                                        string displayName = activityName;
+
+                                        if (activityName.Contains("-"))
+                                        {
+                                            var parts = activityName.Split(new[] { '-' }, 2);
+                                            if (parts.Length == 2)
+                                            {
+                                                var prefix = parts[0];
+                                                var keyToLocalize = parts[1];
+                                                var localizedValue = @Localizer[keyToLocalize];
+                                                displayName = $"{prefix}-{localizedValue.Value}";
+                                            }
+                                        }
+                                    }
+                                    @displayName
+                                </td>
+                                <td class="framework-label-cell"></td>
+                                @if (projectMonths != null && projectMonths.Any())
                                 {
-                                    @*  <td class="text-center plan-date">@plan.Date.ToString("yyyy-MM-dd")</td> *@
-                                    <td class="text-center plan-date"></td>
+                                    @foreach (var month in projectMonths)
+                                    {
+                                        <td></td>
+                                    }
                                 }
-                                @for (int i = activity.Plans.Count; i < maxPlans; i++)
+                                else
                                 {
-                                    <td></td>
+                                    @foreach (var plan in activity.Plans)
+                                    {
+                                        <td></td>
+                                    }
+                                    @for (int i = activity.Plans.Count; i < maxPlans; i++)
+                                    {
+                                        <td></td>
+                                    }
                                 }
-                                <td class="text-end">-</td>
+                                <td class="total-cost-cell">-</td>
                             </tr>
                             <tr>
-                            <td class="framework-label">@Localizer["Planned"]</td>
-                                @foreach (var plan in activity.Plans)
+                                <td class="framework-label-cell">@Localizer["Planned"]</td>
+                                @if (projectMonths != null && projectMonths.Any())
                                 {
-                                    <td class="editable-cell text-center" contenteditable="true"
-                                        data-plan-code="@plan.PlanCode"
-                                        data-value-type="Planned">
-                                        @plan.PlannedValue
-                                    </td>
+                                    @for (int i = 0; i < projectMonths.Count; i++)
+                                    {
+                                        @if (i < activity.Plans.Count)
+                                        {
+                                            var plan = activity.Plans[i];
+                                            <td class="editable-plan-cell" contenteditable="true"
+                                                data-plan-code="@plan.PlanCode"
+                                                data-value-type="Planned">
+                                                @plan.PlannedValue
+                                            </td>
+                                        }
+                                        else
+                                        {
+                                            <td class="empty-plan-cell"></td>
+                                        }
+                                    }
                                 }
-                                @for (int i = activity.Plans.Count; i < maxPlans; i++)
+                                else
                                 {
-                                    <td></td>
+                                    @foreach (var plan in activity.Plans)
+                                    {
+                                        <td class="editable-plan-cell" contenteditable="true"
+                                            data-plan-code="@plan.PlanCode"
+                                            data-value-type="Planned">
+                                            @plan.PlannedValue
+                                        </td>
+                                    }
+                                    @for (int i = activity.Plans.Count; i < maxPlans; i++)
+                                    {
+                                        <td></td>
+                                    }
                                 }
-                                <td class="total-cost text-end">@activity.TotalEstimatedCost.ToString("N0")</td>
+                                <td class="total-cost-cell">@activity.TotalEstimatedCost.ToString("N0")</td>
                             </tr>
                             <tr>
-                            <td class="framework-label">@Localizer["Realised"]</td>
-                                @foreach (var plan in activity.Plans)
+                                <td class="framework-label-cell">@Localizer["Realised"]</td>
+                                @if (projectMonths != null && projectMonths.Any())
                                 {
-                                    <td class="editable-cell text-center" contenteditable="true"
-                                        data-plan-code="@plan.PlanCode"
-                                        data-value-type="Realised">
-                                        @plan.RealisedValue
-                                    </td>
+                                    @for (int i = 0; i < projectMonths.Count; i++)
+                                    {
+                                        @if (i < activity.Plans.Count)
+                                        {
+                                            var plan = activity.Plans[i];
+                                            <td class="editable-plan-cell" contenteditable="true"
+                                                data-plan-code="@plan.PlanCode"
+                                                data-value-type="Realised">
+                                                @plan.RealisedValue
+                                            </td>
+                                        }
+                                        else
+                                        {
+                                            <td class="empty-plan-cell"></td>
+                                        }
+                                    }
                                 }
-                                @for (int i = activity.Plans.Count; i < maxPlans; i++)
+                                else
                                 {
-                                    <td></td>
+                                    @foreach (var plan in activity.Plans)
+                                    {
+                                        <td class="editable-plan-cell" contenteditable="true"
+                                            data-plan-code="@plan.PlanCode"
+                                            data-value-type="Realised">
+                                            @plan.RealisedValue
+                                        </td>
+                                    }
+                                    @for (int i = activity.Plans.Count; i < maxPlans; i++)
+                                    {
+                                        <td></td>
+                                    }
                                 }
-                                <td class="total-cost text-end">@activity.TotalRealisedCost.ToString("N0")</td>
+                                <td class="total-cost-cell">@activity.TotalRealisedCost.ToString("N0")</td>
                             </tr>
                         }
-                    </tbody>
+                    
                     <tfoot>
                         <tr class="subtotal-row">
-                            @for (int i = 0; i < maxPlans; i++)
+                            <td colspan="2">@Localizer["Subtotal Planned"]</td>
+                            @if (projectMonths != null && projectMonths.Any())
                             {
-                                <td class="text-center">@activityGroup.Activities.Sum(a => a.Plans.Count > i ? a.Plans[i].PlannedValue : 0)</td>
+                                @for (int i = 0; i < projectMonths.Count; i++)
+                                {
+                                    <td>@activityGroup.Activities.Sum(a => a.Plans.Count > i ? a.Plans[i].PlannedValue : 0)</td>
+                                }
                             }
-                            <td class="text-end">@activityGroup.Activities.Sum(a => a.TotalEstimatedCost).ToString("N0")</td>
+                            else
+                            {
+                                @for (int i = 0; i < maxPlans; i++)
+                                {
+                                    <td>@activityGroup.Activities.Sum(a => a.Plans.Count > i ? a.Plans[i].PlannedValue : 0)</td>
+                                }
+                            }
+                            <td>@activityGroup.Activities.Sum(a => a.TotalEstimatedCost).ToString("N0")</td>
                         </tr>
                         <tr class="subtotal-row">
-                        <td colspan="2">@Localizer["Subtotal Realised"]</td>
-                            @for (int i = 0; i < maxPlans; i++)
+                            <td colspan="2">@Localizer["Subtotal Realised"]</td>
+                            @if (projectMonths != null && projectMonths.Any())
                             {
-                                <td class="text-center">@activityGroup.Activities.Sum(a => a.Plans.Count > i ? a.Plans[i].RealisedValue : 0)</td>
+                                @for (int i = 0; i < projectMonths.Count; i++)
+                                {
+                                    <td>@activityGroup.Activities.Sum(a => a.Plans.Count > i ? a.Plans[i].RealisedValue : 0)</td>
+                                }
                             }
-                            <td class="text-end">@activityGroup.Activities.Sum(a => a.TotalRealisedCost).ToString("N0")</td>
+                            else
+                            {
+                                @for (int i = 0; i < maxPlans; i++)
+                                {
+                                    <td>@activityGroup.Activities.Sum(a => a.Plans.Count > i ? a.Plans[i].RealisedValue : 0)</td>
+                                }
+                            }
+                            <td>@activityGroup.Activities.Sum(a => a.TotalRealisedCost).ToString("N0")</td>
                         </tr>
                     </tfoot>
                 </table>
             </div>
-
-        @* } *@
-    }
-
-    @if (!Model.Any())
-    {
-        <div class="card">
-            <div class="card-body text-center">
-                <p class="text-muted">No action plans have been created for this project yet.</p>
-            </div>
         </div>
     }
+}
+
+</div>
+
+@if (!Model.Any())
+{
+    <div class="empty-state-card">
+        <div class="empty-state-icon">
+            <i class="fas fa-clipboard-list"></i>
+        </div>
+        <h3 class="empty-state-title">@Localizer["No Action Plans"]</h3>
+        <p class="empty-state-text">
+            @Localizer["No action plans have been created for this project yet. Start by creating your first action plan to track project activities."]
+        </p>
+    </div>
+}
+
+@section Scripts {
+    <style>
+        /* Modern Action Plan Styles */
+        /* Modern Project Navigation */
+        .project-nav-modern {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            padding: 1rem 1.5rem;
+            margin-bottom: 2rem;
+            border: none;
+        }
+
+        .modern-navbar {
+            background: transparent !important;
+            border: none;
+            padding: 0;
+        }
+
+        .navbar-container {
+            width: 100%;
+        }
+
+        .modern-nav-list {
+            display: flex;
+            list-style: none;
+            margin: 0;
+            padding: 0;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+
+        .nav-item-modern {
+            margin: 0;
+        }
+
+        .nav-link-modern {
+            color: #6c757d;
+            text-decoration: none;
+            font-weight: 500;
+            padding: 12px 20px;
+            border-radius: 12px;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            background: rgba(255, 255, 255, 0.7);
+            border: 1px solid rgba(0, 0, 0, 0.1);
+            white-space: nowrap;
+        }
+
+        .nav-link-modern:hover {
+            background: linear-gradient(45deg, var(--primary-color), var(--primary-light));
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            text-decoration: none;
+        }
+
+        .nav-link-modern.active {
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-dark) 100%);
+            color: white;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        /* Modern Totals Card */
+        .totals-section {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .total-metric-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            padding: 2rem;
+            border: none;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .total-metric-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(0, 0, 0, 0.05), transparent);
+            transition: left 0.5s;
+        }
+
+        .total-metric-card:hover::before {
+            left: 100%;
+        }
+
+        .total-metric-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+        }
+
+        .metric-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .metric-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 1rem;
+            font-size: 1.5rem;
+        }
+
+        .metric-icon.planned {
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-dark) 100%);
+            color: white;
+        }
+
+        .metric-icon.realised {
+            background: linear-gradient(135deg, var(--accent-color) 0%, var(--warning-color) 100%);
+            color: white;
+        }
+
+        .metric-title {
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: #6c757d;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .metric-value {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: #333;
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+        }
+
+        .metric-subtitle {
+            color: #6c757d;
+            font-size: 0.85rem;
+        }
+
+        /* Modern Activity Group Card */
+        .modern-activity-section {
+            margin: 2rem 0;
+        }
+
+        .modern-activity-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            border: none;
+            margin-bottom: 2rem;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .modern-activity-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+        }
+
+        .activity-header {
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-dark) 100%);
+            padding: 1.5rem 2rem;
+            color: #fff;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .activity-title {
+            font-size: 1.3rem;
+            font-weight: 600;
+            margin: 0;
+            display: flex;
+            align-items: center;
+        }
+
+        .activity-title i {
+            margin-right: 0.75rem;
+            opacity: 0.9;
+        }
+
+        .activity-badge {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 500;
+        }
+
+        /* Modern Table Styling */
+        .modern-table-container {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 0 0 15px 15px;
+            overflow: hidden;
+        }
+
+        .modern-action-table {
+            width: 100%;
+            border-collapse: collapse;
+            background: transparent;
+        }
+
+        .modern-action-table thead {
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-dark) 100%);
+        }
+
+        .modern-action-table th {
+            padding: 1.2rem;
+            font-weight: 600;
+            color: white;
+            text-transform: uppercase;
+            font-size: 0.85rem;
+            letter-spacing: 0.5px;
+            border: none;
+            text-align: center;
+        }
+
+        .modern-action-table th:first-child {
+            text-align: left;
+        }
+
+        .modern-action-table th:last-child {
+            text-align: right;
+        }
+
+        .modern-action-table td {
+            padding: 1rem 1.2rem;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+            color: #333;
+            transition: all 0.3s ease;
+        }
+
+        .modern-action-table tbody tr:hover {
+            background: rgba(0, 0, 0, 0.05);
+        }
+
+        .activity-name-cell {
+            font-weight: 600;
+            font-size: 1rem;
+            color: #333;
+        }
+
+        .framework-label-cell {
+            font-weight: 500;
+            color: #6c757d;
+            font-size: 0.9rem;
+        }
+
+        .editable-plan-cell {
+            background: rgba(0, 0, 0, 0.05);
+            border-radius: 8px;
+            text-align: center;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            min-width: 80px;
+        }
+
+        .editable-plan-cell:hover {
+            background: rgba(0, 0, 0, 0.1);
+            transform: scale(1.05);
+        }
+
+        .editable-plan-cell:focus {
+            outline: 2px solid var(--primary-color);
+            background: rgba(var(--primary-color-rgb), 0.2);
+        }
+
+        .empty-plan-cell {
+            background: rgba(0, 0, 0, 0.02);
+            border-radius: 8px;
+            text-align: center;
+            min-width: 80px;
+            color: #6c757d;
+            font-style: italic;
+        }
+
+        .empty-plan-cell::after {
+            content: "-";
+        }
+
+        .total-cost-cell {
+            font-weight: 700;
+            color: #333;
+            text-align: right;
+        }
+
+        .subtotal-row {
+            background: rgba(0, 0, 0, 0.1);
+            font-weight: 600;
+        }
+
+        .subtotal-row td {
+            padding: 1.2rem;
+            border-top: 2px solid rgba(0, 0, 0, 0.2);
+        }
+
+        /* Empty State Styling */
+        .empty-state-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            padding: 3rem;
+            text-align: center;
+            border: none;
+        }
+
+        .empty-state-icon {
+            font-size: 4rem;
+            color: #6c757d;
+            opacity: 0.5;
+            margin-bottom: 1rem;
+        }
+
+        .empty-state-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: #495057;
+            margin-bottom: 1rem;
+        }
+
+        .empty-state-text {
+            color: #6c757d;
+            font-size: 1rem;
+            max-width: 400px;
+            margin: 0 auto;
+        }
+
+        /* Status Animations */
+        .saving {
+            background: rgba(255, 193, 7, 0.3) !important;
+            animation: pulse 1.5s infinite;
+        }
+
+        .success {
+            background: rgba(40, 167, 69, 0.3) !important;
+            transition: background-color 1s ease-out;
+        }
+
+        .error {
+            background: rgba(220, 53, 69, 0.3) !important;
+        }
+
+        @@keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.6; }
+        }
+
+        /* Responsive Design */
+        @@media (max-width: 768px) {
+            .totals-section {
+                grid-template-columns: 1fr;
+            }
+
+            .modern-action-table {
+                font-size: 0.85rem;
+            }
+
+            .modern-action-table th,
+            .modern-action-table td {
+                padding: 0.75rem 0.5rem;
+            }
+
+            .metric-value {
+                font-size: 2rem;
+            }
+        }
+
+        /* Quick Update Section Styles */
+        .quick-update-section {
+            margin-bottom: 2rem;
+        }
+
+        .quick-update-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            border: none;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .quick-update-header {
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-dark) 100%);
+            padding: 1.2rem 1.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .quick-update-header:hover {
+            background: linear-gradient(135deg, var(--primary-dark) 0%, var(--primary-color) 100%);
+        }
+
+        .quick-update-title {
+            color: white;
+            font-weight: 600;
+            font-size: 1.1rem;
+            display: flex;
+            align-items: center;
+        }
+
+        .quick-update-title i {
+            margin-right: 0.75rem;
+        }
+
+        .toggle-quick-update {
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            color: white;
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .toggle-quick-update:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: scale(1.1);
+        }
+
+        .toggle-quick-update i {
+            transition: transform 0.3s ease;
+        }
+
+        .toggle-quick-update.active i {
+            transform: rotate(180deg);
+        }
+
+        .quick-update-body {
+            padding: 2rem;
+            background: white;
+        }
+
+        .quick-update-form {
+            width: 100%;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            align-items: end;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .form-label {
+            font-weight: 600;
+            color: #495057;
+            margin-bottom: 0.5rem;
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+        }
+
+        .form-select, .form-control {
+            border-radius: 10px;
+            border: 2px solid #e0e0e0;
+            padding: 0.75rem 1rem;
+            font-size: 0.95rem;
+            transition: all 0.3s ease;
+        }
+
+        .form-select:focus, .form-control:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 0.2rem rgba(var(--primary-color-rgb), 0.15);
+            outline: none;
+        }
+
+        .form-select:disabled, .form-control:disabled {
+            background-color: #f8f9fa;
+            cursor: not-allowed;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-dark) 100%);
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 10px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            color: white;
+        }
+
+        .btn-primary:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .btn-primary:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .opacity-0 {
+            opacity: 0;
+        }
+
+        @@media (max-width: 768px) {
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
 
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
     <script>
@@ -882,13 +959,13 @@
             let originalValue;
 
             // Use event delegation for dynamically added content if needed in the future
-            $('body').on('focus', '.editable-cell', function () {
+            $('body').on('focus', '.editable-plan-cell', function () {
                 originalValue = $(this).text().trim();
                 // Select all text in the cell for easy editing
                 //document.execCommand('selectAll', false, null);
             });
 
-            $('body').on('blur', '.editable-cell', function () {
+            $('body').on('blur', '.editable-plan-cell', function () {
                 var cell = $(this);
                 var newValue = cell.text().trim();
 
@@ -940,12 +1017,93 @@
             });
 
             // Allow Enter key to function like Tab (blur)
-            $('body').on('keydown', '.editable-cell', function(e) {
+            $('body').on('keydown', '.editable-plan-cell', function(e) {
                 if (e.key === 'Enter') {
                     e.preventDefault();
                     $(this).blur();
                 }
             });
+
+            // Quick Update Section - Toggle
+            $('#toggleQuickUpdate, .quick-update-header').on('click', function() {
+                var body = $('#quickUpdateBody');
+                var toggle = $('#toggleQuickUpdate');
+
+                if (body.is(':visible')) {
+                    body.slideUp(300);
+                    toggle.removeClass('active');
+                } else {
+                    body.slideDown(300);
+                    toggle.addClass('active');
+                }
+            });
+
+            // When plan is selected
+            $('#planSelect').on('change', function() {
+                var selectedOption = $(this).find('option:selected');
+                var realisedValue = selectedOption.data('realised');
+
+                if ($(this).val()) {
+                    $('#realisedValueInput').val(realisedValue || '').prop('disabled', false).focus();
+                    $('#quickUpdateBtn').prop('disabled', false);
+                } else {
+                    $('#realisedValueInput').val('').prop('disabled', true);
+                    $('#quickUpdateBtn').prop('disabled', true);
+                }
+            });
+
+            // Quick Update Button
+            $('#quickUpdateBtn').on('click', function() {
+                var planCode = $('#planSelect').val();
+                var newValue = $('#realisedValueInput').val().trim();
+
+                // Validate
+                if (!planCode) {
+                    alert('@Localizer["Please select a plan"]');
+                    return;
+                }
+
+                if (newValue === '' || isNaN(newValue)) {
+                    alert('@Localizer["Please enter a valid number"]');
+                    return;
+                }
+
+                // Show loading
+                var btn = $(this);
+                var originalHtml = btn.html();
+                btn.prop('disabled', true).html('<i class="fas fa-spinner fa-spin me-2"></i>@Localizer["Updating..."]');
+
+                // Send update
+                $.ajax({
+                    url: '@Url.Action("UpdatePlanValue", "Plans")',
+                    type: 'POST',
+                    data: {
+                        planCode: planCode,
+                        valueType: 'Realised',
+                        newValue: newValue
+                    },
+                    success: function(response) {
+                        if (response.success) {
+                            location.reload();
+                        } else {
+                            alert('@Localizer["Error"]: ' + response.message);
+                            btn.prop('disabled', false).html(originalHtml);
+                        }
+                    },
+                    error: function(jqXHR, textStatus, errorThrown) {
+                        alert('@Localizer["A server error occurred"]: ' + textStatus);
+                        btn.prop('disabled', false).html(originalHtml);
+                    }
+                });
+            });
+
+            // Allow Enter key in the input to trigger update
+            $('#realisedValueInput').on('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    $('#quickUpdateBtn').click();
+                }
+            });
         });
     </script>
-</body>
+}

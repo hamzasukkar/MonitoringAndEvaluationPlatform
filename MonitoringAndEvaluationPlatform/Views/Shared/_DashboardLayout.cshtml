@@ -21,6 +21,10 @@
     <link rel="stylesheet" href="~/css/DashboardLayout.css" />
     <link rel="stylesheet" href="~/css/all.min.css" />
     <link href="~/css/bootstrap-icons.css" rel="stylesheet">
+    <link rel="stylesheet" href="~/css/themes/theme-default.css" />
+    <link rel="stylesheet" href="~/css/themes/theme-calm-blue.css" />
+    <link rel="stylesheet" href="~/css/themes/theme-alternative.css" />
+    <link rel="stylesheet" href="~/css/themes/theme-modern-glass.css" />
     <!-- Add to your _Layout.cshtml or page head -->
     <link href="~/css/select2.min.css" rel="stylesheet" />
 
@@ -29,6 +33,7 @@
     <script src="~/js/site.js" asp-append-version="true"></script>
     <script src="~/js/select2.min.js"></script>
     <script src="~/js/chart.js"></script>
+    <script src="~/js/theme-switcher.js" asp-append-version="true"></script>
     @*<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-doughnutlabel@1.0.3"></script>*@ 
    <script src="~/js/chartjs-plugin-datalabels@2.js"></script>
 
@@ -37,13 +42,14 @@
     <header>
         <div class="topbar">
             <div class="title">@Localizer["Monitoring & Evaluation System"]</div>
+            @await Html.PartialAsync("_ThemeDropdown")
             <div class="nav-links">
                 <ul class="nav">
-                    <li class="nav-item">
+                 @*    <li class="nav-item">
                         <a class="nav-link @(Context.Request.Path.Value.Contains("Index") ? "active" : "")" href="/Dashboard/Index">
                             <i class="fas fa-chart-pie me-1"></i> Index
                         </a>
-                    </li>
+                    </li> *@
 @*                     <li class="nav-item">
                         <a class="nav-link @(Context.Request.Path.Value.Contains("Gauge") ? "active" : "")" href="/Dashboard/Gauge">
                             <i class="fas fa-tachometer-alt me-1"></i> Gauge
@@ -94,31 +100,31 @@
             <ul class="list-unstyled">
                 <li>
                     <a class="d-flex align-items-center" href="/Frameworks/Index">
-                        <img src="~/img/results.png" alt="Results Icon" class="me-2" width="24" height="24">
+                        <i class="fas fa-sitemap me-2"></i>
                         <span>@Localizer["Results Framework"]</span>
                     </a>
                 </li>
                 <li>
                     <a class="d-flex align-items-center" href="/Ministries/Index">
-                        <img src="~/img/setup.png" alt="Setup Icon" class="me-2" width="24" height="24">
+                        <i class="fas fa-building me-2"></i>
                         <span>@Localizer["Set Up"]</span>
                     </a>
                 </li>
                 <li>
                     <a class="d-flex align-items-center" href="/Projects/Index">
-                        <img src="~/img/programs.png" alt="Programs Icon" class="me-2" width="24" height="24">
+                        <i class="fas fa-project-diagram me-2"></i>
                         <span>@Localizer["Projects"]</span>
                     </a>
                 </li>
                 <li>
-                    <a class="d-flex align-items-center active" href="/Monitoring/Index">
-                        <img src="~/img/monitor.png" alt="Monitoring Icon" class="me-2" width="24" height="24">
+                    <a class="d-flex align-items-center" href="/Monitoring/Index">
+                        <i class="fas fa-chart-line me-2"></i>
                         <span>@Localizer["Monitoring"]</span>
                     </a>
                 </li>
                 <li>
-                    <a class="d-flex align-items-center" href="/Dashboard/Index">
-                        <img src="~/img/dashboard.png" alt="Dashboard Icon" class="me-2" width="24" height="24">
+                    <a class="d-flex align-items-center active" href="/Dashboard/Index">
+                        <i class="fas fa-tachometer-alt me-2"></i>
                         <span>@Localizer["Dashboard"]</span>
                     </a>
                 </li>
@@ -138,6 +144,7 @@
             </main>
         </div>
     </div>
-    @*     @await RenderSectionAsync("Scripts", required: false) *@
+
+    @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>

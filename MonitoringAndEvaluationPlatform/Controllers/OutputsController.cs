@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using MonitoringAndEvaluationPlatform.Data;
 using MonitoringAndEvaluationPlatform.Models;
+using MonitoringAndEvaluationPlatform.Services;
 using MonitoringAndEvaluationPlatform.ViewModel;
 
 namespace MonitoringAndEvaluationPlatform.Controllers
@@ -16,10 +17,12 @@ namespace MonitoringAndEvaluationPlatform.Controllers
     public class OutputsController : Controller
     {
         private readonly ApplicationDbContext _context;
+        private readonly IPerformanceService _performanceService;
 
-        public OutputsController(ApplicationDbContext context)
+        public OutputsController(ApplicationDbContext context, IPerformanceService performanceService)
         {
             _context = context;
+            _performanceService = performanceService;
         }
 
         // GET: Outputs
@@ -47,6 +50,10 @@ namespace MonitoringAndEvaluationPlatform.Controllers
 
             // Execute the query
             var outputs = await query.ToListAsync();
+
+            // Set ViewData for breadcrumb
+            ViewData["frameworkCode"] = frameworkCode;
+            ViewData["outcomeCode"] = outcomeCode;
 
             return View(outputs);
         }
@@ -283,6 +290,9 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             }
 
             await _context.SaveChangesAsync();
+
+            await _performanceService.UpdateOutcomePerformance(outcomeCode);
+
             return RedirectToAction(nameof(Index), new { outcomeCode = outcomeCode });
         }
     }

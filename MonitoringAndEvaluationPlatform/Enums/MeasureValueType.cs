@@ -2,7 +2,6 @@
 {
     public enum MeasureValueType
     {
-        Real=1,
-        Target=2
+        Real=1
     }
 }

@@ -1,0 +1,781 @@
+@model IEnumerable<MonitoringAndEvaluationPlatform.Models.Indicator>
+@using MonitoringAndEvaluationPlatform.Helpers
+@using Microsoft.AspNetCore.Mvc.Localization
+@inject IViewLocalizer Localizer
+@using Microsoft.AspNetCore.Localization
+
+@{
+    ViewData["Title"] = "Indicators and Projects";
+    Layout = "~/Views/Shared/_DashboardHomeLayout.cshtml";
+}
+
+<!-- Dashboard Header -->
+<div class="dashboard-header">
+    <h1 class="dashboard-title">
+        <i class="fas fa-project-diagram me-3"></i>
+        @Localizer["Indicators and Projects"]
+    </h1>
+    <p class="dashboard-subtitle">
+        @Localizer["View indicators and their related projects with comprehensive filtering capabilities"]
+    </p>
+    <div class="dashboard-actions">
+        <a asp-action="Index" asp-route-frameworkCode="@ViewData["frameworkCode"]"
+           asp-route-subOutputCode="@ViewData["subOutputCode"]" class="btn btn-outline-light me-2">
+            <i class="fas fa-list me-2"></i>@Localizer["Regular View"]
+        </a>
+        <a asp-action="IndicatorAndProjectTable" asp-route-frameworkCode="@ViewData["frameworkCode"]"
+           asp-route-subOutputCode="@ViewData["subOutputCode"]" class="btn btn-light">
+            <i class="fas fa-table me-2"></i>@Localizer["Table View"]
+        </a>
+    </div>
+</div>
+
+<div class="container-fluid">
+
+    <!-- Filter Form -->
+    <div class="chart-card mb-4">
+        <h3 class="chart-title">
+            <i class="fas fa-filter"></i>
+            @Localizer["Filter Options"]
+        </h3>
+        <div class="chart-content">
+            <form asp-action="IndicatorAndProject" method="get" class="row g-3">
+                <div class="col-md-4">
+                    <label for="projectId" class="form-label fw-semibold">@Localizer["Filter by Project"]</label>
+                    @Html.DropDownList("projectId", ViewData["Projects"] as SelectList, 
+                        Localizer["-- All Projects --"].Value, new { @class = "form-select modern-select" })
+                </div>
+                <div class="col-md-4">
+                    <label for="searchString" class="form-label fw-semibold">@Localizer["Search"]</label>
+                    <input type="text" name="searchString" class="form-control modern-input"
+                           placeholder="@Localizer["Search by indicator or project name..."]"
+                           value="@ViewData["CurrentFilter"]">
+                </div>
+                <div class="col-md-4 d-flex align-items-end">
+                    <button type="submit" class="btn btn-gradient-primary me-2">
+                        <i class="fas fa-search me-1"></i> @Localizer["Apply Filters"]
+                    </button>
+                    <a asp-action="IndicatorAndProject" class="btn btn-modern-secondary">
+                        <i class="fas fa-times me-1"></i> @Localizer["Clear"]
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Results -->
+    <div class="chart-card">
+        <h3 class="chart-title">
+            <i class="fas fa-chart-line"></i>
+            @Localizer["Indicators and Related Projects"]
+        </h3>
+        <div class="chart-content">
+            @if (Model.Any())
+            {
+                <div class="modern-accordion" id="indicatorAccordion">
+                    @{
+                        int index = 0;
+                    }
+                    @foreach (var indicator in Model)
+                    {
+                        string indicatorsClass = ProgressBarHelper.GetProgressBarClass(indicator.IndicatorsPerformance);
+                        string disbursementClass = ProgressBarHelper.GetProgressBarClass(indicator.DisbursementPerformance);
+                        double IndicatorsPerformance = Math.Round(indicator.IndicatorsPerformance, 0);
+                        string accordionId = $"collapse{index}";
+                        
+                        <div class="modern-accordion-item mb-4">
+                            <h2 class="modern-accordion-header" id="heading@(index)">
+                                <button class="modern-accordion-button @(index == 0 ? "" : "collapsed")" type="button" 
+                                        data-bs-toggle="collapse" data-bs-target="#@accordionId" 
+                                        aria-expanded="@(index == 0 ? "true" : "false")" aria-controls="@accordionId">
+                                    <div class="w-100 d-flex justify-content-between align-items-center me-3">
+                                        <div class="indicator-info">
+                                            <div class="indicator-name">@indicator.Name</div>
+                                            <div class="indicator-meta">
+                                                @Localizer["SubOutput"]: 
+                                                <span class="modern-badge badge-info">@indicator.SubOutput?.Name</span>
+                                                @Localizer["Framework"]: 
+                                                <span class="modern-badge badge-primary">@indicator.SubOutput?.Output?.Outcome?.Framework?.Name</span>
+                                            </div>
+                                        </div>
+                                        <div class="d-flex align-items-center performance-section">
+                                            <div class="me-3 performance-container">
+                                                <div class="performance-label">@Localizer["Performance"]</div>
+                                                <div class="progress-bar-modern">
+                                                    <div class="progress-fill-modern shimmer" style="width: @IndicatorsPerformance%; background: linear-gradient(90deg, var(--primary-color), var(--primary-dark));"></div>
+                                                    <span class="progress-text">@IndicatorsPerformance%</span>
+                                                </div>
+                                            </div>
+                                            <div class="project-count">
+                                                <i class="fas fa-project-diagram me-1"></i>
+                                                @indicator.ProjectIndicators.Count()
+                                            </div>
+                                        </div>
+                                    </div>
+                                </button>
+                            </h2>
+                            <div id="@accordionId" class="modern-accordion-collapse collapse @(index == 0 ? "show" : "")" 
+                                 aria-labelledby="heading@(index)" data-bs-parent="#indicatorAccordion">
+                                <div class="modern-accordion-body">
+                                    <div class="row g-4">
+                                        <!-- Indicator Details Column -->
+                                        <div class="col-md-4">
+                                            <div class="detail-card">
+                                                <div class="detail-card-header">
+                                                    <i class="fas fa-info-circle me-2"></i>
+                                                    @Localizer["Indicator Details"]
+                                                </div>
+                                                <div class="detail-card-body">
+                                                    <div class="detail-row">
+                                                        <span class="detail-label">@Localizer["Target"]:</span>
+                                                        <span class="detail-value">@indicator.Target</span>
+                                                    </div>
+                                                    <div class="detail-row">
+                                                        <span class="detail-label">@Localizer["Weight"]:</span>
+                                                        <span class="detail-value">@indicator.Weight</span>
+                                                    </div>
+                                                    <div class="detail-row">
+                                                        <span class="detail-label">@Localizer["Performance"]:</span>
+                                                        <span class="detail-value performance-value">@IndicatorsPerformance%</span>
+                                                    </div>
+                                                    <div class="detail-row">
+                                                        <span class="detail-label">@Localizer["Disbursement"]:</span>
+                                                        <span class="detail-value disbursement-value">@Math.Round(indicator.DisbursementPerformance, 1)%</span>
+                                                    </div>
+                                                    <div class="detail-actions">
+                                                        <a asp-action="Details" asp-route-id="@indicator.IndicatorCode" 
+                                                           class="btn btn-modern-primary">
+                                                            <i class="fas fa-eye me-1"></i> @Localizer["View Details"]
+                                                        </a>
+                                                        <a asp-action="Edit" asp-route-id="@indicator.IndicatorCode" 
+                                                           class="btn btn-modern-warning">
+                                                            <i class="fas fa-edit me-1"></i> @Localizer["Edit Indicator"]
+                                                        </a>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <!-- Related Projects Column -->
+                                        <div class="col-md-8">
+                                            <div class="detail-card projects-card">
+                                                <div class="detail-card-header d-flex justify-content-between align-items-center">
+                                                    <div>
+                                                        <i class="fas fa-project-diagram me-2"></i>
+                                                        @Localizer["Related Projects"] (@indicator.ProjectIndicators.Count())
+                                                    </div>
+                                                    @if (!indicator.ProjectIndicators.Any())
+                                                    {
+                                                        <a asp-action="Create" asp-controller="Projects" 
+                                                           asp-route-indicatorId="@indicator.IndicatorCode"
+                                                           class="btn btn-modern-success btn-sm">
+                                                            <i class="fas fa-plus me-1"></i> @Localizer["Add Project"]
+                                                        </a>
+                                                    }
+                                                </div>
+                                                <div class="detail-card-body">
+                                                    @if (indicator.ProjectIndicators.Any())
+                                                    {
+                                                        <div class="modern-table-container">
+                                                            <table class="modern-table">
+                                                                <thead class="table-header">
+                                                                    <tr>
+                                                                        <th><i class="fas fa-project-diagram me-2"></i>@Localizer["Project Name"]</th>
+                                                                        <th><i class="fas fa-dollar-sign me-2"></i>@Localizer["Budget"]</th>
+                                                                        <th><i class="fas fa-chart-line me-2"></i>@Localizer["Performance"]</th>
+                                                                        <th><i class="fas fa-calendar me-2"></i>@Localizer["Start Date"]</th>
+                                                                        <th><i class="fas fa-cogs me-2"></i>@Localizer["Actions"]</th>
+                                                                    </tr>
+                                                                </thead>
+                                                                <tbody>
+                                                                    @foreach (var projectIndicator in indicator.ProjectIndicators)
+                                                                    {
+                                                                        var project = projectIndicator.Project;
+                                                                        string projectPerformanceClass = ProgressBarHelper.GetProgressBarClass(project.performance);
+                                                                        
+                                                                        <tr class="table-row-hover">
+                                                                            <td>
+                                                                                <a asp-action="Details" asp-controller="Projects" 
+                                                                                   asp-route-id="@project.ProjectID" 
+                                                                                   class="project-link">
+                                                                                    @project.ProjectName
+                                                                                </a>
+                                                                            </td>
+                                                                            <td class="budget-cell">@project.EstimatedBudget.ToString("C")</td>
+                                                                            <td>
+                                                                                <div class="performance-container-small">
+                                                                                    <div class="progress-bar-modern small">
+                                                                                        <div class="progress-fill-modern" style="width: @project.performance%; background: linear-gradient(90deg, @(project.performance > 75 ? "var(--success-color)" : project.performance > 50 ? "var(--warning-color)" : "var(--danger-color)"), var(--primary-dark));"></div>
+                                                                                        <span class="progress-text">@Math.Round(project.performance, 1)%</span>
+                                                                                    </div>
+                                                                                </div>
+                                                                            </td>
+                                                                            <td class="date-cell">@project.StartDate.ToString("MMM yyyy")</td>
+                                                                            <td>
+                                                                                <div class="action-buttons">
+                                                                                    <a asp-action="Details" asp-controller="Projects" 
+                                                                                       asp-route-id="@project.ProjectID" 
+                                                                                       class="btn btn-action-primary" title="@Localizer["View Project"]">
+                                                                                        <i class="fas fa-eye"></i>
+                                                                                    </a>
+                                                                                    <a asp-action="Edit" asp-controller="Projects" 
+                                                                                       asp-route-id="@project.ProjectID" 
+                                                                                       class="btn btn-action-warning" title="@Localizer["Edit Project"]">
+                                                                                        <i class="fas fa-edit"></i>
+                                                                                    </a>
+                                                                                </div>
+                                                                            </td>
+                                                                        </tr>
+                                                                    }
+                                                                </tbody>
+                                                            </table>
+                                                        </div>
+                                                    }
+                                                    else
+                                                    {
+                                                        <div class="empty-state">
+                                                            <div class="empty-icon">
+                                                                <i class="fas fa-project-diagram"></i>
+                                                            </div>
+                                                            <div class="empty-title">@Localizer["No Projects Found"]</div>
+                                                            <div class="empty-message">@Localizer["No projects are currently associated with this indicator."]</div>
+                                                            <a asp-action="Create" asp-controller="Projects" 
+                                                               asp-route-indicatorId="@indicator.IndicatorCode"
+                                                               class="btn btn-gradient-primary mt-3">
+                                                                <i class="fas fa-plus me-2"></i> @Localizer["Create First Project"]
+                                                            </a>
+                                                        </div>
+                                                    }
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        index++;
+                    }
+                </div>
+            }
+            else
+            {
+                <div class="empty-state-main">
+                    <div class="empty-icon-main">
+                        <i class="fas fa-search"></i>
+                    </div>
+                    <div class="empty-title-main">@Localizer["No Results Found"]</div>
+                    <div class="empty-message-main">@Localizer["Try adjusting your filters or search criteria."]</div>
+                    <a asp-action="IndicatorAndProject" class="btn btn-gradient-primary mt-4">
+                        <i class="fas fa-refresh me-2"></i> @Localizer["View All"]
+                    </a>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+<!-- Modern Styles -->
+<style>
+    .dashboard-actions {
+        margin-top: 1rem;
+    }
+
+    .modern-select,
+    .modern-input {
+        border: 2px solid transparent;
+        border-radius: 10px;
+        padding: 0.75rem 1rem;
+        background: rgba(255, 255, 255, 0.1);
+        backdrop-filter: blur(10px);
+        transition: all 0.3s ease;
+    }
+
+    .modern-select:focus,
+    .modern-input:focus {
+        border-color: var(--primary-color);
+        box-shadow: 0 0 20px rgba(var(--primary-color-rgb), 0.3);
+        background: rgba(255, 255, 255, 0.15);
+    }
+
+    .modern-accordion {
+        background: transparent;
+    }
+
+    .modern-accordion-item {
+        background: rgba(255, 255, 255, 0.1);
+        backdrop-filter: blur(15px);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        border-radius: 15px;
+        margin-bottom: 1rem;
+        overflow: hidden;
+        transition: all 0.3s ease;
+    }
+
+    .modern-accordion-item:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    }
+
+    .modern-accordion-button {
+        background: linear-gradient(135deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.05));
+        border: none;
+        padding: 1.5rem;
+        color: var(--text-color);
+        font-weight: 600;
+        border-radius: 15px 15px 0 0;
+        transition: all 0.3s ease;
+    }
+
+    .modern-accordion-button:not(.collapsed) {
+        background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+        color: white;
+        box-shadow: 0 5px 15px rgba(var(--primary-color-rgb), 0.4);
+    }
+
+    .modern-accordion-button:focus {
+        box-shadow: 0 0 20px rgba(var(--primary-color-rgb), 0.5);
+    }
+
+    .indicator-name {
+        font-size: 1.1rem;
+        font-weight: 700;
+        margin-bottom: 0.5rem;
+        color: inherit;
+    }
+
+    .indicator-meta {
+        font-size: 0.85rem;
+        opacity: 0.9;
+    }
+
+    .modern-badge {
+        padding: 0.25rem 0.75rem;
+        border-radius: 20px;
+        font-size: 0.75rem;
+        font-weight: 600;
+        margin: 0 0.25rem;
+        display: inline-block;
+    }
+
+    .badge-info {
+        background: linear-gradient(45deg, var(--info-color), var(--primary-light));
+        color: white;
+    }
+
+    .badge-primary {
+        background: linear-gradient(45deg, var(--primary-color), var(--primary-dark));
+        color: white;
+    }
+
+    .performance-section {
+        min-width: 250px;
+    }
+
+    .performance-container {
+        min-width: 150px;
+    }
+
+    .performance-label {
+        font-size: 0.75rem;
+        color: rgba(255, 255, 255, 0.8);
+        margin-bottom: 0.25rem;
+        font-weight: 600;
+    }
+
+    .project-count {
+        background: rgba(255, 255, 255, 0.2);
+        border-radius: 20px;
+        padding: 0.5rem 1rem;
+        font-weight: 600;
+        font-size: 0.9rem;
+    }
+
+    .modern-accordion-body {
+        background: rgba(255, 255, 255, 0.05);
+        padding: 2rem;
+        border-top: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .detail-card {
+        background: rgba(255, 255, 255, 0.1);
+        backdrop-filter: blur(15px);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        border-radius: 15px;
+        overflow: hidden;
+        height: 100%;
+        transition: all 0.3s ease;
+    }
+
+    .detail-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+    }
+
+    .detail-card-header {
+        background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+        color: white;
+        padding: 1rem;
+        font-weight: 600;
+        font-size: 1rem;
+    }
+
+    .detail-card-body {
+        padding: 1.5rem;
+    }
+
+    .detail-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 0.75rem 0;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .detail-row:last-child {
+        border-bottom: none;
+    }
+
+    .detail-label {
+        font-weight: 600;
+        color: var(--text-color);
+        opacity: 0.8;
+    }
+
+    .detail-value {
+        font-weight: 700;
+        color: var(--text-color);
+    }
+
+    .performance-value {
+        color: var(--success-color);
+    }
+
+    .disbursement-value {
+        color: var(--info-color);
+    }
+
+    .detail-actions {
+        display: flex;
+        gap: 0.75rem;
+        margin-top: 1.5rem;
+    }
+
+    .projects-card .detail-card-header {
+        background: linear-gradient(135deg, var(--secondary-color), var(--primary-color));
+    }
+
+    .modern-table-container {
+        border-radius: 10px;
+        overflow: hidden;
+        background: rgba(255, 255, 255, 0.05);
+    }
+
+    .modern-table {
+        width: 100%;
+        margin: 0;
+        background: transparent;
+        border-collapse: separate;
+        border-spacing: 0;
+    }
+
+    .table-header {
+        background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+        color: white;
+    }
+
+    .table-header th {
+        padding: 1rem 0.75rem;
+        font-weight: 600;
+        font-size: 0.9rem;
+        border: none;
+        text-align: left;
+    }
+
+    .table-row-hover {
+        transition: all 0.3s ease;
+        background: rgba(255, 255, 255, 0.02);
+    }
+
+    .table-row-hover:hover {
+        background: rgba(255, 255, 255, 0.1);
+        transform: translateX(5px);
+    }
+
+    .table-row-hover td {
+        padding: 1rem 0.75rem;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        vertical-align: middle;
+    }
+
+    .project-link {
+        color: var(--primary-color);
+        text-decoration: none;
+        font-weight: 600;
+        transition: all 0.3s ease;
+    }
+
+    .project-link:hover {
+        color: var(--primary-light);
+        text-decoration: underline;
+    }
+
+    .budget-cell {
+        font-weight: 700;
+        color: var(--success-color);
+    }
+
+    .date-cell {
+        font-weight: 600;
+        color: var(--info-color);
+    }
+
+    .performance-container-small {
+        min-width: 100px;
+    }
+
+    .progress-bar-modern.small {
+        height: 20px;
+        font-size: 0.75rem;
+    }
+
+    .action-buttons {
+        display: flex;
+        gap: 0.5rem;
+    }
+
+    .btn-action-primary,
+    .btn-action-warning {
+        width: 35px;
+        height: 35px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 8px;
+        border: none;
+        transition: all 0.3s ease;
+        font-size: 0.85rem;
+    }
+
+    .btn-action-primary {
+        background: linear-gradient(45deg, var(--primary-color), var(--primary-light));
+        color: white;
+    }
+
+    .btn-action-warning {
+        background: linear-gradient(45deg, var(--warning-color), var(--accent-color));
+        color: white;
+    }
+
+    .btn-action-primary:hover,
+    .btn-action-warning:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+    }
+
+    .empty-state {
+        text-align: center;
+        padding: 3rem 1rem;
+        color: var(--text-color);
+    }
+
+    .empty-icon {
+        font-size: 4rem;
+        opacity: 0.5;
+        margin-bottom: 1rem;
+        color: var(--primary-color);
+    }
+
+    .empty-title {
+        font-size: 1.2rem;
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+    }
+
+    .empty-message {
+        opacity: 0.8;
+        margin-bottom: 1.5rem;
+    }
+
+    .empty-state-main {
+        text-align: center;
+        padding: 4rem 1rem;
+        color: var(--text-color);
+    }
+
+    .empty-icon-main {
+        font-size: 5rem;
+        opacity: 0.4;
+        margin-bottom: 1.5rem;
+        color: var(--primary-color);
+    }
+
+    .empty-title-main {
+        font-size: 1.5rem;
+        font-weight: 700;
+        margin-bottom: 1rem;
+    }
+
+    .empty-message-main {
+        font-size: 1.1rem;
+        opacity: 0.8;
+        margin-bottom: 2rem;
+    }
+
+    /* Responsive Design */
+    @@media (max-width: 768px) {
+        .modern-accordion-button .d-flex {
+            flex-direction: column;
+            align-items: flex-start !important;
+        }
+        
+        .performance-section {
+            margin-top: 1rem;
+            width: 100%;
+            min-width: auto;
+        }
+
+        .performance-section .d-flex {
+            justify-content: space-between;
+            width: 100%;
+        }
+
+        .dashboard-actions {
+            text-align: center;
+        }
+
+        .dashboard-actions .btn {
+            margin: 0.25rem;
+            width: 100%;
+            max-width: 200px;
+        }
+
+        .detail-actions {
+            flex-direction: column;
+        }
+
+        .modern-table-container {
+            overflow-x: auto;
+        }
+
+        .action-buttons {
+            flex-direction: column;
+        }
+    }
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Auto-submit form when project dropdown changes
+    const projectSelect = document.getElementById('projectId');
+    if (projectSelect) {
+        projectSelect.addEventListener('change', function() {
+            this.form.submit();
+        });
+    }
+
+    // Add loading animation to accordion items
+    const accordionItems = document.querySelectorAll('.modern-accordion-item');
+    accordionItems.forEach((item, index) => {
+        item.style.opacity = '0';
+        item.style.transform = 'translateY(20px)';
+        item.style.transition = 'all 0.6s ease';
+        
+        setTimeout(() => {
+            item.style.opacity = '1';
+            item.style.transform = 'translateY(0)';
+        }, index * 150);
+    });
+
+    // Smooth collapse transitions
+    const accordionButtons = document.querySelectorAll('.modern-accordion-button');
+    accordionButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            const isExpanded = !this.classList.contains('collapsed');
+            
+            // Add subtle animation to the button
+            this.style.transform = 'scale(0.98)';
+            setTimeout(() => {
+                this.style.transform = 'scale(1)';
+            }, 150);
+        });
+    });
+
+    // Animate progress bars when accordion opens
+    const accordionCollapses = document.querySelectorAll('.modern-accordion-collapse');
+    accordionCollapses.forEach(collapse => {
+        collapse.addEventListener('shown.bs.collapse', function() {
+            const progressBars = this.querySelectorAll('.progress-fill-modern');
+            progressBars.forEach(bar => {
+                const width = bar.style.width;
+                bar.style.width = '0%';
+                setTimeout(() => {
+                    bar.style.width = width;
+                }, 100);
+            });
+        });
+    });
+
+    // Hover effects for table rows
+    const tableRows = document.querySelectorAll('.table-row-hover');
+    tableRows.forEach(row => {
+        row.addEventListener('mouseenter', function() {
+            this.style.background = 'rgba(255, 255, 255, 0.1)';
+            this.style.transform = 'translateX(5px)';
+        });
+        
+        row.addEventListener('mouseleave', function() {
+            this.style.background = 'rgba(255, 255, 255, 0.02)';
+            this.style.transform = 'translateX(0)';
+        });
+    });
+
+    // Add click animation to buttons
+    const actionButtons = document.querySelectorAll('.btn-action-primary, .btn-action-warning');
+    actionButtons.forEach(button => {
+        button.addEventListener('click', function(e) {
+            const ripple = document.createElement('span');
+            ripple.classList.add('ripple');
+            this.appendChild(ripple);
+            
+            const rect = this.getBoundingClientRect();
+            const size = Math.max(rect.width, rect.height);
+            const x = e.clientX - rect.left - size / 2;
+            const y = e.clientY - rect.top - size / 2;
+            
+            ripple.style.width = ripple.style.height = size + 'px';
+            ripple.style.left = x + 'px';
+            ripple.style.top = y + 'px';
+            
+            setTimeout(() => {
+                ripple.remove();
+            }, 600);
+        });
+    });
+});
+</script>
+
+<style>
+/* Ripple effect for buttons */
+.ripple {
+    position: absolute;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.6);
+    transform: scale(0);
+    animation: ripple-animation 0.6s linear;
+    pointer-events: none;
+}
+
+@@keyframes ripple-animation {
+    to {
+        transform: scale(4);
+        opacity: 0;
+    }
+}
+
+.btn-action-primary,
+.btn-action-warning {
+    position: relative;
+    overflow: hidden;
+}
+</style>

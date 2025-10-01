@@ -20,20 +20,21 @@ namespace MonitoringAndEvaluationPlatform.Data
         public DbSet<Sector> Sectors { get; set; } = default!;
         public DbSet<Donor> Donors { get; set; } = default!;
         public DbSet<Measure> Measures { get; set; } = default!;
-        public DbSet<LogicalMeasure> logicalMeasures { get; set; } = default!;
         public DbSet<SuperVisor> SuperVisors { get; set; } = default!;
         public DbSet<ProjectManager> ProjectManagers { get; set; } = default!;
         public DbSet<Activity> Activities { get; set; } = default!;
         public DbSet<Plan> Plans { get; set; } = default!;
         public DbSet<ActionPlan> ActionPlans { get; set; } = default!;
         public DbSet<ProjectIndicator> ProjectIndicators { get; set; } = default!;
-        public DbSet<LogicalFramework> logicalFrameworks { get; set; } = default!;
-        public DbSet<LogicalFrameworkIndicator> logicalFrameworkIndicators { get; set; } = default!;
+        public DbSet<ProjectDonor> ProjectDonors { get; set; } = default!;
         public DbSet<ProjectFile> ProjectFiles { get; set; }
         public DbSet<Governorate> Governorates { get; set; }
         public DbSet<District> Districts { get; set; }
         public DbSet<SubDistrict> SubDistricts { get; set; }
         public DbSet<Community> Communities { get; set; }
+        public DbSet<Goal> Goals { get; set; }
+        public DbSet<Target> Targets { get; set; }
+        public DbSet<SDGIndicator> sDGIndicators { get; set; }
 
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -43,11 +44,6 @@ namespace MonitoringAndEvaluationPlatform.Data
             // Ensure Code is used as the primary key
             modelBuilder.Entity<Measure>()
                 .HasKey(m => m.Code);
-
-            modelBuilder.Entity<Measure>()
-                .HasOne(m => m.Project)
-                .WithMany(p => p.Measures)
-                .HasForeignKey(m => m.ProjectID);
 
             modelBuilder.Entity<Measure>()
                 .HasOne(m => m.Indicator)
@@ -69,15 +65,37 @@ namespace MonitoringAndEvaluationPlatform.Data
                 .WithMany(r => r.Projects)
                 .UsingEntity(j => j.ToTable("ProjectSectors")); // optional table name
 
-            modelBuilder.Entity<Project>()
-            .HasMany(p => p.Donors)
-            .WithMany(r => r.Projects)
-            .UsingEntity(j => j.ToTable("ProjectDonors")); // optional table name
+            // Configure explicit ProjectDonor relationship
+            modelBuilder.Entity<ProjectDonor>()
+                .HasOne(pd => pd.Project)
+                .WithMany(p => p.ProjectDonors)
+                .HasForeignKey(pd => pd.ProjectId);
+
+            modelBuilder.Entity<ProjectDonor>()
+                .HasOne(pd => pd.Donor)
+                .WithMany(d => d.ProjectDonors)
+                .HasForeignKey(pd => pd.DonorCode);
+
+            // Configure decimal precision for ProjectDonor
+            modelBuilder.Entity<ProjectDonor>()
+                .Property(pd => pd.FundingPercentage)
+                .HasPrecision(5, 2); // 5 digits total, 2 decimal places (e.g., 100.00)
+
+            modelBuilder.Entity<ProjectDonor>()
+                .Property(pd => pd.FundingAmount)
+                .HasPrecision(18, 2); // 18 digits total, 2 decimal places for currency
 
             modelBuilder.Entity<Project>()
             .HasMany(p => p.Ministries)
             .WithMany(r => r.Projects)
             .UsingEntity(j => j.ToTable("ProjectMinistries")); // optional table name
+
+            // Configure single Ministry relationship
+            modelBuilder.Entity<Project>()
+                .HasOne(p => p.Ministry)
+                .WithMany()
+                .HasForeignKey(p => p.MinistryCode)
+                .IsRequired(false);
 
             // Project <-> Governorate
             modelBuilder.Entity<Project>()

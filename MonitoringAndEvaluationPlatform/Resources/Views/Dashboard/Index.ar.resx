@@ -121,16 +121,25 @@
     <value>تم تحقيقه</value>
   </data>
   <data name="Clear Filters" xml:space="preserve">
-    <value>مسح المرشحات</value>
+    <value>مسح الفلاتر</value>
   </data>
   <data name="Community" xml:space="preserve">
     <value>مجتمع</value>
   </data>
+  <data name="Comprehensive overview with interactive filtering and real-time performance metrics" xml:space="preserve">
+    <value>نظرة عامة شاملة مع التصفية التفاعلية ومقاييس الأداء في الوقت الفعلي</value>
+  </data>
+  <data name="Dashboard Summary" xml:space="preserve">
+    <value>ملخص لوحة المعلومات</value>
+  </data>
   <data name="District" xml:space="preserve">
     <value>المنطقة</value>
   </data>
+  <data name="Framework Performance Overview" xml:space="preserve">
+    <value>نظرة عامة على أداء الاستراتيجية</value>
+  </data>
   <data name="Indicators" xml:space="preserve">
-    <value>المؤشرات</value>
+    <value>المشاريع</value>
   </data>
   <data name="Overall Progress" xml:space="preserve">
     <value>التقدم العام</value>
@@ -144,6 +153,24 @@
   <data name="Select District" xml:space="preserve">
     <value>اختر المنطقة</value>
   </data>
+  <data name="Select Framework" xml:space="preserve">
+    <value>اختر الاستراتيجية</value>
+  </data>
+  <data name="Select Governorate" xml:space="preserve">
+    <value>اختر المحافظة</value>
+  </data>
+  <data name="Select Ministry" xml:space="preserve">
+    <value>اختر الوزارة</value>
+  </data>
+  <data name="Select Project" xml:space="preserve">
+    <value>اختر المشروع</value>
+  </data>
+  <data name="Select Sub District" xml:space="preserve">
+    <value>اختر المنطقة الفرعية</value>
+  </data>
+  <data name="Select Sub-District" xml:space="preserve">
+    <value>اختر المنطقة الفرعية</value>
+  </data>
   <data name="Sub-District" xml:space="preserve">
     <value>المنطقة الفرعية</value>
   </data>
@@ -154,7 +181,7 @@
     <value>إجمالي الدوائر</value>
   </data>
   <data name="Total Frameworks" xml:space="preserve">
-    <value>مجموع الأطر</value>
+    <value>مجموع الاستراتيجيات</value>
   </data>
   <data name="Total Governorates" xml:space="preserve">
     <value>إجمالي المحافظات</value>
@@ -167,5 +194,8 @@
   </data>
   <data name="Total SubDistrict" xml:space="preserve">
     <value>إجمالي المنطقة الفرعية</value>
+  </data>
+  <data name="Total SubDistricts" xml:space="preserve">
+    <value>إجمالي المناطق الفرعية</value>
   </data>
 </root>

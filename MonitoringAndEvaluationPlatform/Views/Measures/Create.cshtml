@@ -1,51 +1,801 @@
 ﻿@model MonitoringAndEvaluationPlatform.Models.Measure
-@using static MonitoringAndEvaluationPlatform.Enums.MeasureValueType;
+@using MonitoringAndEvaluationPlatform.Enums
+@using Microsoft.AspNetCore.Mvc.Localization
+@inject IViewLocalizer Localizer
 
 @{
-    ViewData["Title"] = "Create";
-    Layout = "~/Views/Shared/_ProjectsLayout.cshtml";
-    var TargetDate = DateTime.Today.ToString("yyyy-MM-dd");
+    ViewData["Title"] = "Create Measure";
+    Layout = "~/Views/Shared/_DashboardHomeLayout.cshtml";
+    var targetDate = DateTime.Today.ToString("yyyy-MM-dd");
+    var selectedIndicator = ViewBag.SelectedIndicator as MonitoringAndEvaluationPlatform.Models.Indicator;
+    var preSelectedIndicatorId = ViewBag.PreSelectedIndicatorId as int?;
 }
 
-<h1>Create</h1>
-
-<h4>Measure</h4>
-<hr />
-<div class="row">
-    <div class="col-md-12">
-        <form asp-action="Create">
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-            <div class="form-group">
-                <label asp-for="Date" class="control-label"></label>
-                <input asp-for="Date" type="date" value="@TargetDate" class="form-control" />
-                <span asp-validation-for="Date" class="text-danger"></span>
+<!-- Dashboard Header -->
+<div class="dashboard-header">
+    <div class="header-content">
+        <div class="page-title-section">
+            <div class="page-breadcrumb">
+                <a href="@Url.Action("Index", "Measures")" class="breadcrumb-link">
+                    <i class="fas fa-chart-bar"></i>
+                    @Localizer["Measures"]
+                </a>
+                <i class="fas fa-chevron-right breadcrumb-separator"></i>
+                <span class="current-page">@Localizer["Create"]</span>
             </div>
-            <div class="form-group">
-                <label asp-for="Value" class="control-label"></label>
-                <input asp-for="Value" class="form-control" />
-                <span asp-validation-for="Value" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="ValueType" class="control-label"></label>
-                <select asp-for="ValueType" class="form-control" asp-items="Html.GetEnumSelectList<MonitoringAndEvaluationPlatform.Enums.MeasureValueType>()"></select>
-                <span asp-validation-for="ValueType" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="IndicatorCode" class="control-label"></label>
-                <select asp-for="IndicatorCode" class="form-control" asp-items="ViewBag.Indicators"></select>
-            </div>
-            <div class="form-group">
-                <label asp-for="ProjectID" class="control-label"></label>
-                <select asp-for="ProjectID" class="form-control" asp-items="ViewBag.Projects"></select>
-            </div>
-            <div class="form-group">
-                <input type="submit" value="Create" class="btn btn-primary" />
-            </div>
-        </form>
+            <h1 class="page-title">@Localizer["Create New Measure"]</h1>
+            <p class="page-description">Add a new achieved value to track indicator progress</p>
+        </div>
+        
+        <div class="header-actions">
+            <a asp-action="Index" class="action-btn secondary">
+                <i class="fas fa-arrow-left"></i>
+                @Localizer["Back to List"]
+            </a>
+        </div>
     </div>
 </div>
 
-<div>
-    <a asp-action="Index">Back to List</a>
+<!-- Success/Error Messages -->
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="notification-card success">
+        <div class="notification-icon">
+            <i class="fas fa-check-circle"></i>
+        </div>
+        <div class="notification-content">
+            <h4>@Localizer["Success"]</h4>
+            <p>@TempData["SuccessMessage"]</p>
+        </div>
+        <button class="notification-close">
+            <i class="fas fa-times"></i>
+        </button>
+    </div>
+}
+@if (TempData["ErrorMessage"] != null)
+{
+    <div class="notification-card error">
+        <div class="notification-icon">
+            <i class="fas fa-exclamation-triangle"></i>
+        </div>
+        <div class="notification-content">
+            <h4>@Localizer["Error"]</h4>
+            <p>@TempData["ErrorMessage"]</p>
+        </div>
+        <button class="notification-close">
+            <i class="fas fa-times"></i>
+        </button>
+    </div>
+}
+
+@if (selectedIndicator != null)
+{
+    <!-- Pre-selected Indicator Info -->
+    <div class="indicator-info-section">
+        <div class="indicator-info-card">
+            <div class="info-header">
+                <div class="info-icon">
+                    <i class="fas fa-bullseye"></i>
+                </div>
+                <div class="info-content">
+                    <h3 class="info-title">@Localizer["Creating Measure for Selected Indicator"]</h3>
+                    <p class="info-subtitle">[@selectedIndicator.IndicatorCode] @selectedIndicator.Name</p>
+                </div>
+            </div>
+            @if (selectedIndicator.Target > 0)
+            {
+                <div class="info-metrics">
+                    <div class="metric-item">
+                        <span class="metric-label">@Localizer["Target"]</span>
+                        <span class="metric-value">@selectedIndicator.Target.ToString("N2")</span>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+}
+
+<!-- Main Form Card -->
+<div class="create-form-section">
+    <div class="create-form-card">
+        <div class="form-header">
+            <div class="form-icon">
+                <i class="fas fa-plus-circle"></i>
+            </div>
+            <div>
+                <h3 class="form-title">@Localizer["Record Achievement"]</h3>
+                <p class="form-subtitle">Enter the details of the new measure</p>
+            </div>
+        </div>
+        
+        <div class="form-content">
+            <form asp-action="Create" method="post" id="measureForm" class="modern-form">
+                <div asp-validation-summary="ModelOnly" class="validation-summary"></div>
+
+                <div class="form-grid">
+                    <!-- Indicator Selection -->
+                    <div class="form-group full-width">
+                        <label asp-for="IndicatorCode" class="modern-label">
+                            <i class="fas fa-bullseye"></i>
+                            @Localizer["Indicator"] *
+                        </label>
+                        @if (preSelectedIndicatorId.HasValue)
+                        {
+                            <!-- Read-only display of pre-selected indicator -->
+                            <input type="text" class="modern-input readonly" value="[@selectedIndicator.IndicatorCode] @selectedIndicator.Name" readonly />
+                            <input asp-for="IndicatorCode" type="hidden" value="@preSelectedIndicatorId.Value" />
+                            <div class="field-info success">
+                                <i class="fas fa-info-circle"></i>
+                                @Localizer["This indicator was automatically selected from the project"]
+                            </div>
+                        }
+                        else
+                        {
+                            <select asp-for="IndicatorCode" class="modern-select" asp-items="ViewBag.Indicators" id="indicatorSelect" required>
+                                <option value="">@Localizer["Select an Indicator"]</option>
+                            </select>
+                            <span asp-validation-for="IndicatorCode" class="field-error"></span>
+                            <div class="field-info">
+                                @Localizer["Choose the indicator for which you are recording progress"]
+                            </div>
+                        }
+                    </div>
+
+                    <!-- Date and Value Row -->
+                    <div class="form-group">
+                        <label asp-for="Date" class="modern-label">
+                            <i class="fas fa-calendar"></i>
+                            @Localizer["Achievement Date"] *
+                        </label>
+                        <input asp-for="Date" type="date" value="@targetDate" class="modern-input" required />
+                        <span asp-validation-for="Date" class="field-error"></span>
+                        <div class="field-info">
+                            @Localizer["Date when this progress was achieved"]
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label asp-for="Value" class="modern-label">
+                            <i class="fas fa-chart-line"></i>
+                            @Localizer["Achievement Value"] *
+                        </label>
+                        <div class="input-with-icon">
+                            <input asp-for="Value" type="number" step="0.01" min="0" class="modern-input" placeholder="0.00" required />
+                            <div class="input-icon">
+                                <i class="fas fa-trophy"></i>
+                            </div>
+                        </div>
+                        <span asp-validation-for="Value" class="field-error"></span>
+                        <div class="field-info">
+                            @Localizer["Enter the achieved value for this indicator"]
+                        </div>
+                    </div>
+
+                    <!-- Hidden ValueType field since it's always Real now -->
+                    <input asp-for="ValueType" type="hidden" value="@MeasureValueType.Real" />
+
+                    <!-- Indicator Target Info Display -->
+                    @if (preSelectedIndicatorId.HasValue && selectedIndicator.Target > 0)
+                    {
+                        <div class="form-group full-width">
+                            <div class="info-card">
+                                <div class="info-icon-sm">
+                                    <i class="fas fa-info-circle"></i>
+                                </div>
+                                <div class="info-text">
+                                    <strong>@Localizer["Indicator Target"]: @selectedIndicator.Target.ToString("N2")</strong>
+                                    <br>
+                                    <small>@Localizer["Your achievement will be measured against this target"]</small>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                    else if (!preSelectedIndicatorId.HasValue)
+                    {
+                        <div class="form-group full-width" id="indicatorInfo" style="display: none;">
+                            <div class="info-card">
+                                <div class="info-icon-sm">
+                                    <i class="fas fa-info-circle"></i>
+                                </div>
+                                <div class="info-text">
+                                    <strong>@Localizer["Indicator Target"]: <span id="indicatorTarget">-</span></strong>
+                                    <br>
+                                    <small>@Localizer["Your achievement will be measured against this target"]</small>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="form-actions">
+                    <a asp-action="Index" class="modern-btn secondary">
+                        <i class="fas fa-times me-2"></i>@Localizer["Cancel"]
+                    </a>
+                    <button type="submit" class="modern-btn primary" id="submitBtn">
+                        <i class="fas fa-save me-2"></i>@Localizer["Record Achievement"]
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
 </div>
 
+<!-- Information Card -->
+<div class="help-section">
+    <div class="help-card">
+        <div class="help-header">
+            <div class="help-icon">
+                <i class="fas fa-lightbulb"></i>
+            </div>
+            <h3 class="help-title">@Localizer["How It Works"]</h3>
+        </div>
+        <div class="help-content">
+            <ul class="help-list">
+                <li>@Localizer["Each measure records actual progress toward an indicator's target"]</li>
+                <li>@Localizer["Multiple measures can be added to track cumulative progress over time"]</li>
+                <li>@Localizer["Indicator performance is calculated as: (Total Achievements ÷ Indicator Target) × 100%"]</li>
+                <li>@Localizer["Performance automatically updates throughout the project hierarchy"]</li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+<style>
+/* Modern Create Measure Styles */
+
+/* Notification Cards */
+.notification-card {
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(20px);
+    border-radius: 15px;
+    padding: 1.5rem;
+    margin-bottom: 2rem;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    display: flex;
+    align-items: flex-start;
+    gap: 1rem;
+    position: relative;
+    animation: slideIn 0.3s ease-out;
+}
+
+.notification-card.success {
+    border-left: 4px solid #28a745;
+}
+
+.notification-card.error {
+    border-left: 4px solid #dc3545;
+}
+
+.notification-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    font-size: 1.1rem;
+}
+
+.notification-card.success .notification-icon {
+    background: rgba(40, 167, 69, 0.2);
+    color: #28a745;
+}
+
+.notification-card.error .notification-icon {
+    background: rgba(220, 53, 69, 0.2);
+    color: #dc3545;
+}
+
+.notification-content h4 {
+    color: #fff;
+    margin: 0 0 0.5rem 0;
+    font-size: 1rem;
+    font-weight: 600;
+}
+
+.notification-content p {
+    color: rgba(255, 255, 255, 0.8);
+    margin: 0;
+    font-size: 0.9rem;
+}
+
+.notification-close {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    background: none;
+    border: none;
+    color: rgba(255, 255, 255, 0.6);
+    font-size: 0.9rem;
+    cursor: pointer;
+    padding: 0.25rem;
+    border-radius: 5px;
+    transition: all 0.2s ease;
+}
+
+.notification-close:hover {
+    background: rgba(255, 255, 255, 0.1);
+    color: #fff;
+}
+
+/* Indicator Info Section */
+.indicator-info-section {
+    margin-bottom: 2rem;
+}
+
+.indicator-info-card {
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(20px);
+    border-radius: 20px;
+    padding: 2rem;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.info-header {
+    display: flex;
+    align-items: flex-start;
+    margin-bottom: 1rem;
+}
+
+.info-icon {
+    width: 50px;
+    height: 50px;
+    border-radius: 15px;
+    background: linear-gradient(135deg, #17a2b8 0%, #138496 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 1rem;
+    color: #fff;
+    font-size: 1.25rem;
+    flex-shrink: 0;
+}
+
+.info-content h3 {
+    color: #fff;
+    margin: 0 0 0.5rem 0;
+    font-size: 1.25rem;
+    font-weight: 600;
+}
+
+.info-content p {
+    color: rgba(255, 255, 255, 0.8);
+    margin: 0;
+    font-size: 1rem;
+}
+
+.info-metrics {
+    display: flex;
+    gap: 2rem;
+    margin-top: 1rem;
+}
+
+.metric-item {
+    display: flex;
+    flex-direction: column;
+}
+
+.metric-label {
+    color: rgba(255, 255, 255, 0.6);
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 0.25rem;
+}
+
+.metric-value {
+    color: #fff;
+    font-size: 1.25rem;
+    font-weight: 600;
+}
+
+/* Create Form Section */
+.create-form-section {
+    margin-bottom: 2rem;
+    display: flex;
+    justify-content: center;
+}
+
+.create-form-card {
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(20px);
+    border-radius: 20px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    overflow: hidden;
+    width: 100%;
+    max-width: 600px;
+}
+
+.form-header {
+    background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+    padding: 2rem;
+    color: #fff;
+    display: flex;
+    align-items: center;
+}
+
+.form-icon {
+    width: 60px;
+    height: 60px;
+    border-radius: 15px;
+    background: rgba(255, 255, 255, 0.2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 1.5rem;
+    font-size: 1.5rem;
+}
+
+.form-title {
+    margin: 0 0 0.5rem 0;
+    font-size: 1.5rem;
+    font-weight: 600;
+}
+
+.form-subtitle {
+    margin: 0;
+    opacity: 0.9;
+    font-size: 1rem;
+}
+
+.form-content {
+    padding: 2rem;
+}
+
+.modern-form {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.validation-summary {
+    background: rgba(220, 53, 69, 0.1);
+    border: 1px solid rgba(220, 53, 69, 0.3);
+    border-radius: 10px;
+    padding: 1rem;
+    color: #dc3545;
+    margin-bottom: 1rem;
+    display: none;
+}
+
+.form-grid {
+    display: grid;
+    gap: 1.5rem;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+}
+
+.form-group.full-width {
+    grid-column: 1 / -1;
+}
+
+.modern-label {
+    color: rgba(255, 255, 255, 0.9);
+    font-weight: 500;
+    margin-bottom: 0.5rem;
+    display: flex;
+    align-items: center;
+    font-size: 0.95rem;
+}
+
+.modern-label i {
+    margin-right: 0.5rem;
+    opacity: 0.8;
+}
+
+.modern-input,
+.modern-select {
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 10px;
+    padding: 0.75rem 1rem;
+    color: #fff;
+    font-size: 0.95rem;
+    transition: all 0.3s ease;
+}
+
+.modern-input:focus,
+.modern-select:focus {
+    outline: none;
+    border-color: #28a745;
+    background: rgba(255, 255, 255, 0.15);
+    box-shadow: 0 0 0 3px rgba(40, 167, 69, 0.2);
+}
+
+.modern-input::placeholder {
+    color: rgba(255, 255, 255, 0.5);
+}
+
+.modern-input.readonly {
+    background: rgba(255, 255, 255, 0.05);
+    color: rgba(255, 255, 255, 0.7);
+    cursor: not-allowed;
+}
+
+.modern-select option {
+    background: #2d3748;
+    color: #fff;
+}
+
+.input-with-icon {
+    position: relative;
+}
+
+.input-icon {
+    position: absolute;
+    right: 1rem;
+    top: 50%;
+    transform: translateY(-50%);
+    color: rgba(255, 255, 255, 0.5);
+    font-size: 0.9rem;
+}
+
+.field-error {
+    color: #dc3545;
+    font-size: 0.85rem;
+    margin-top: 0.25rem;
+}
+
+.field-info {
+    color: rgba(255, 255, 255, 0.6);
+    font-size: 0.85rem;
+    margin-top: 0.25rem;
+}
+
+.field-info.success {
+    color: #28a745;
+    display: flex;
+    align-items: center;
+}
+
+.field-info.success i {
+    margin-right: 0.5rem;
+}
+
+.info-card {
+    background: rgba(23, 162, 184, 0.1);
+    border: 1px solid rgba(23, 162, 184, 0.3);
+    border-radius: 10px;
+    padding: 1rem;
+    display: flex;
+    align-items: flex-start;
+    gap: 0.75rem;
+}
+
+.info-icon-sm {
+    width: 24px;
+    height: 24px;
+    border-radius: 6px;
+    background: rgba(23, 162, 184, 0.2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #17a2b8;
+    font-size: 0.8rem;
+    flex-shrink: 0;
+    margin-top: 2px;
+}
+
+.info-text {
+    color: rgba(255, 255, 255, 0.8);
+    font-size: 0.9rem;
+    line-height: 1.4;
+}
+
+.info-text strong {
+    color: #17a2b8;
+}
+
+.form-actions {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1rem;
+    padding-top: 1rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.modern-btn {
+    border: none;
+    border-radius: 10px;
+    padding: 0.75rem 2rem;
+    font-weight: 500;
+    font-size: 0.95rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
+    min-width: 140px;
+}
+
+.modern-btn.primary {
+    background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+    color: #fff;
+}
+
+.modern-btn.secondary {
+    background: rgba(255, 255, 255, 0.1);
+    color: rgba(255, 255, 255, 0.8);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.modern-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+}
+
+.modern-btn.secondary:hover {
+    background: rgba(255, 255, 255, 0.15);
+    color: #fff;
+    text-decoration: none;
+}
+
+/* Help Section */
+.help-section {
+    margin-top: 2rem;
+    display: flex;
+    justify-content: center;
+}
+
+.help-card {
+    background: rgba(255, 255, 255, 0.05);
+    backdrop-filter: blur(20px);
+    border-radius: 20px;
+    border: 1px solid rgba(40, 167, 69, 0.3);
+    padding: 2rem;
+    width: 100%;
+    max-width: 600px;
+}
+
+.help-header {
+    display: flex;
+    align-items: center;
+    margin-bottom: 1.5rem;
+}
+
+.help-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
+    background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 1rem;
+    color: #fff;
+    font-size: 1rem;
+}
+
+.help-title {
+    color: #28a745;
+    margin: 0;
+    font-size: 1.1rem;
+    font-weight: 600;
+}
+
+.help-content {
+    color: rgba(255, 255, 255, 0.8);
+}
+
+.help-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.help-list li {
+    padding: 0.5rem 0;
+    padding-left: 2rem;
+    position: relative;
+    line-height: 1.5;
+}
+
+.help-list li:before {
+    content: '✓';
+    position: absolute;
+    left: 0;
+    top: 0.5rem;
+    color: #28a745;
+    font-weight: bold;
+    font-size: 1rem;
+}
+
+/* Animations */
+@@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Responsive Design */
+@@media (max-width: 768px) {
+    .create-form-card,
+    .help-card {
+        margin: 0 1rem;
+    }
+    
+    .form-actions {
+        flex-direction: column;
+    }
+    
+    .modern-btn {
+        width: 100%;
+    }
+    
+    .info-header {
+        flex-direction: column;
+        text-align: center;
+    }
+    
+    .info-icon {
+        margin-right: 0;
+        margin-bottom: 1rem;
+    }
+}
+</style>
+
+<!-- Custom JavaScript -->
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Form validation feedback
+        const form = document.getElementById('measureForm');
+        const submitBtn = document.getElementById('submitBtn');
+        const indicatorSelect = document.getElementById('indicatorSelect');
+        const indicatorInfo = document.getElementById('indicatorInfo');
+        const indicatorTarget = document.getElementById('indicatorTarget');
+        
+        // Indicator targets would be loaded from server in real implementation
+        const indicatorTargets = {};
+        
+        // Indicator selection handler
+        indicatorSelect.addEventListener('change', function() {
+            const selectedValue = this.value;
+            if (selectedValue && indicatorTargets[selectedValue]) {
+                indicatorTarget.textContent = indicatorTargets[selectedValue];
+                indicatorInfo.style.display = 'block';
+            } else {
+                indicatorInfo.style.display = 'none';
+            }
+        });
+        
+        // Form submission handler
+        form.addEventListener('submit', function(e) {
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>@Localizer["Recording..."]';
+        });
+        
+        // Auto-dismiss notifications after 5 seconds
+        setTimeout(function() {
+            const notifications = document.querySelectorAll('.notification-card');
+            notifications.forEach(function(notification) {
+                notification.style.animation = 'slideOut 0.3s ease-in';
+                setTimeout(() => notification.remove(), 300);
+            });
+        }, 5000);
+        
+        // Close notification on click
+        document.querySelectorAll('.notification-close').forEach(function(btn) {
+            btn.addEventListener('click', function() {
+                const notification = this.closest('.notification-card');
+                notification.style.animation = 'slideOut 0.3s ease-in';
+                setTimeout(() => notification.remove(), 300);
+            });
+        });
+    });
+</script>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

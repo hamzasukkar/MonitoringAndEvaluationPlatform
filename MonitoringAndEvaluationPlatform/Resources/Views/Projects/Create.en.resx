@@ -180,9 +180,6 @@
   <data name="Measures" xml:space="preserve">
     <value>Measures</value>
   </data>
-  <data name="LogicalFramework" xml:space="preserve">
-    <value>LogicalFramework</value>
-  </data>
   <data name="Alignement" xml:space="preserve">
     <value>Alignement</value>
   </data>
@@ -222,6 +219,15 @@
   <data name="Select Governorate" xml:space="preserve">
     <value>Select Governorate</value>
   </data>
+  <data name="Select Subdistrict" xml:space="preserve">
+    <value>Select Subdistrict</value>
+  </data>
+  <data name="Select Community" xml:space="preserve">
+    <value>Select Community</value>
+  </data>
+  <data name="Select District" xml:space="preserve">
+    <value>Select District</value>
+  </data>
   <data name="Budget Information" xml:space="preserve">
     <value>Budget Information</value>
   </data>
@@ -248,5 +254,149 @@
   </data>
   <data name="Uploaded Files" xml:space="preserve">
     <value>Uploaded Files</value>
+  </data>
+  <data name="SDGs" xml:space="preserve">
+    <value>SDGs</value>
+  </data>
+  <data name="Create Project" xml:space="preserve">
+    <value>Create Project</value>
+  </data>
+  <data name="Cancel" xml:space="preserve">
+    <value>Cancel</value>
+  </data>
+  <data name="Target Measures" xml:space="preserve">
+    <value>Target Measures</value>
+  </data>
+  <data name="Add Measure" xml:space="preserve">
+    <value>Add Measure</value>
+  </data>
+  <data name="Indicator" xml:space="preserve">
+    <value>Indicator</value>
+  </data>
+  <data name="Value" xml:space="preserve">
+    <value>Value</value>
+  </data>
+  <data name="Date" xml:space="preserve">
+    <value>Date</value>
+  </data>
+  <data name="Select Indicator" xml:space="preserve">
+    <value>Select Indicator</value>
+  </data>
+  <data name="Project Indicators" xml:space="preserve">
+    <value>Project Indicators</value>
+  </data>
+  <data name="Select an indicator" xml:space="preserve">
+    <value>Select an indicator</value>
+  </data>
+  <data name="Project Information" xml:space="preserve">
+    <value>Project Information</value>
+  </data>
+  <data name="Enter project name" xml:space="preserve">
+    <value>Enter project name</value>
+  </data>
+  <data name="Project Timeline" xml:space="preserve">
+    <value>Project Timeline</value>
+  </data>
+  <data name="Sectors" xml:space="preserve">
+    <value>Sectors</value>
+  </data>
+  <data name="Ministries" xml:space="preserve">
+    <value>Ministries</value>
+  </data>
+  <data name="Hold Ctrl/Cmd to select multiple donor" xml:space="preserve">
+    <value>Hold Ctrl/Cmd to select multiple donor</value>
+  </data>
+  <data name="Add Donor" xml:space="preserve">
+    <value>Add Donor</value>
+  </data>
+  <data name="Available Donors" xml:space="preserve">
+    <value>Available Donors</value>
+  </data>
+  <data name="Project implementation start date" xml:space="preserve">
+    <value>Project implementation start date</value>
+  </data>
+  <data name="Enter the total estimated budget for this project (minimum $0.01)" xml:space="preserve">
+    <value>Enter the total estimated budget for this project (minimum $0.01)</value>
+  </data>
+  <data name="Hold Ctrl/Cmd to select multiple sectors" xml:space="preserve">
+    <value>Hold Ctrl/Cmd to select multiple sectors</value>
+  </data>
+  <data name="Choose the primary manager responsible for this project" xml:space="preserve">
+    <value>Choose the primary manager responsible for this project</value>
+  </data>
+  <data name="Choose the supervisor who will oversee this project" xml:space="preserve">
+    <value>Choose the supervisor who will oversee this project</value>
+  </data>
+  <data name="Select donors one by one and specify their funding percentages" xml:space="preserve">
+    <value>Select donors one by one and specify their funding percentages</value>
+  </data>
+  <data name="Choose the key performance indicator for measuring project success" xml:space="preserve">
+    <value>Choose the key performance indicator for measuring project success</value>
+  </data>
+  <data name="Choose a clear and meaningful name for your project" xml:space="preserve">
+    <value>Choose a clear and meaningful name for your project</value>
+  </data>
+  <data name="Project completion deadline" xml:space="preserve">
+    <value>Project completion deadline</value>
+  </data>
+  <data name="Fill in the project details below to create a comprehensive project plan" xml:space="preserve">
+    <value>Fill in the project details below to create a comprehensive project plan</value>
+  </data>
+  <data name="Select a donor to add" xml:space="preserve">
+    <value>Select a donor to add</value>
+  </data>
+  <data name="Select Ministry" xml:space="preserve">
+    <value>Select Ministry</value>
+  </data>
+  <data name="Select one or more sectors" xml:space="preserve">
+    <value>Select one or more sectors</value>
+  </data>
+  <data name="Enter a descriptive project name (3-200 characters)" xml:space="preserve">
+    <value>Enter a descriptive project name (3-200 characters)</value>
+  </data>
+  <data name="Donor Funding Breakdown" xml:space="preserve">
+    <value>Donor Funding Breakdown</value>
+  </data>
+  <data name="Use sliders to specify the funding percentage for each donor. Total cannot exceed 100%." xml:space="preserve">
+    <value>Use sliders to specify the funding percentage for each donor. Total cannot exceed 100%.</value>
+  </data>
+  <data name="Percentage:" xml:space="preserve">
+    <value>Percentage:</value>
+  </data>
+  <data name="Amount:" xml:space="preserve">
+    <value>Amount:</value>
+  </data>
+  <data name="Funding Contribution" xml:space="preserve">
+    <value>Funding Contribution</value>
+  </data>
+  <data name="Total Funding Amount" xml:space="preserve">
+    <value>Total Funding Amount</value>
+  </data>
+  <data name="Based on estimated budget" xml:space="preserve">
+    <value>Based on estimated budget</value>
+  </data>
+  <data name="Total Percentage" xml:space="preserve">
+    <value>Total Percentage</value>
+  </data>
+  <data name="Cannot exceed 100%" xml:space="preserve">
+    <value>Cannot exceed 100%</value>
+  </data>
+  <data name="Partially funded" xml:space="preserve">
+    <value>Partially funded</value>
+  </data>
+  <data name="Please fix the following issues:" xml:space="preserve">
+    <value>Please fix the following issues:</value>
+  </data>
+  <data name="End date must be after start date." xml:space="preserve">
+    <value>End date must be after start date.</value>
+  </data>
+  <data name="Clear" xml:space="preserve">
+    <value>Clear</value>
+  </data>
+  <data name="At least one project location must be selected." xml:space="preserve">
+    <value>At least one project location must be selected.</value>
+  </data>
+  <data name="Fully funded" xml:space="preserve">
+    <value>Fully funded</value>
   </data>
 </root>

@@ -36,8 +36,8 @@ namespace MonitoringAndEvaluationPlatform.ViewModels
     public class ChartItem
     {
         public int ID { get; set; }
-        public string Label { get; set; }
-        public string Title { get; set; }
+        public string Label { get; set; } = string.Empty;
+        public string Title { get; set; } = string.Empty;
         public double Actual { get; set; }
         public double Target { get; set; }
         public string Unit { get; set; } = "";

@@ -1,0 +1,184 @@
+/* Default Theme Component Styles */
+
+/* Table Components - Default Theme */
+.table-hover tbody tr:hover {
+    background-color: rgba(var(--primary-background-rgb), 0.05) !important;
+}
+
+.table-light {
+    background-color: rgba(var(--accent-gold-rgb), 0.1) !important;
+    border-color: var(--primary-background-color);
+}
+
+/* Progress Bar Components - Default Theme */
+.progress {
+    background-color: rgba(var(--secondary-card-background-rgb), 0.2) !important;
+}
+
+/* Filter Components - Default Theme */
+.filter-options::-webkit-scrollbar-track {
+    background: rgba(var(--accent-gold-rgb), 0.1);
+}
+
+.filter-options::-webkit-scrollbar-thumb {
+    background: var(--primary-background-color);
+}
+
+.filter-options::-webkit-scrollbar-thumb:hover {
+    background: var(--secondary-background-color);
+}
+
+/* Card Components - Default Theme */
+.card {
+    background-color: var(--card-background-color) !important;
+    border-color: rgba(var(--accent-gold-rgb), 0.2) !important;
+}
+
+/* Form Components - Default Theme */
+.form-control {
+    background-color: var(--input-background-color) !important;
+    border-color: rgba(200, 168, 95, 0.3) !important;
+    color: var(--text-color) !important;
+}
+
+.form-control:focus {
+    background-color: var(--input-background-color) !important;
+    border-color: var(--accent-gold-color) !important;
+    box-shadow: 0 0 0 0.2rem rgba(200, 168, 95, 0.25) !important;
+}
+
+.form-check-input:checked {
+    background-color: var(--primary-background-color) !important;
+    border-color: var(--primary-background-color) !important;
+}
+
+/* Navigation Links - Default Theme */
+.nav-theme-link {
+    color: #fff !important;
+}
+
+.nav-theme-link:hover {
+    color: var(--accent-gold-color) !important;
+}
+
+/* Select2 Components - Default Theme */
+.select2-container .select2-selection--single {
+    background-color: var(--input-background-color) !important;
+    border-color: rgba(200, 168, 95, 0.3) !important;
+    color: var(--text-color) !important;
+}
+
+.select2-container .select2-selection--single:hover {
+    border-color: var(--accent-gold-color) !important;
+}
+
+.select2-container.select2-container--open .select2-selection--single {
+    border-color: var(--accent-gold-color) !important;
+    box-shadow: 0 0 0 0.2rem rgba(200, 168, 95, 0.25) !important;
+}
+
+.select2-container .select2-selection__rendered {
+    color: var(--text-color) !important;
+}
+
+.select2-container .select2-selection__arrow b {
+    border-top-color: var(--text-color) !important;
+}
+
+.select2-dropdown {
+    background-color: var(--dropdown-background-color) !important;
+    border-color: rgba(200, 168, 95, 0.3) !important;
+}
+
+.select2-results__option {
+    background-color: var(--dropdown-background-color) !important;
+    color: var(--text-color) !important;
+}
+
+.select2-results__option--highlighted {
+    background-color: var(--primary-background-color) !important;
+    color: #fff !important;
+}
+
+.select2-results__option--selected {
+    background-color: rgba(200, 168, 95, 0.2) !important;
+    color: var(--text-color) !important;
+}
+
+/* Search Form Components - Default Theme */
+.search-form .card {
+    background-color: var(--card-background-color) !important;
+}
+
+.search-form .card-header {
+    background-color: var(--primary-background-color) !important;
+    color: #fff !important;
+}
+
+.search-form .form-control {
+    background-color: var(--input-background-color) !important;
+    border-color: var(--accent-gold-color) !important;
+}
+
+.search-form .btn-primary {
+    background-color: var(--primary-background-color) !important;
+    border-color: var(--primary-background-color) !important;
+}
+
+.search-form .btn-primary:hover {
+    background-color: var(--secondary-background-color) !important;
+    border-color: var(--secondary-background-color) !important;
+}
+
+/* Button Variants - Default Theme */
+.btn-outline-warning {
+    color: var(--accent-gold-color) !important;
+    border-color: var(--accent-gold-color) !important;
+}
+
+.btn-outline-warning:hover {
+    background-color: var(--accent-gold-color) !important;
+    border-color: var(--accent-gold-color) !important;
+    color: #fff !important;
+}
+
+/* Select2 Multiple Selection - Default Theme */
+.select2-container--default .select2-selection--multiple {
+    background-color: rgba(42, 76, 68, 0.1) !important;
+    border-color: rgba(200, 168, 95, 0.3) !important;
+}
+
+.select2-container--default .select2-results__option {
+    background-color: rgba(255, 255, 255, 0.9) !important;
+    color: var(--text-color) !important;
+    backdrop-filter: blur(8px);
+}
+
+.select2-container--default .select2-results__option--highlighted {
+    background-color: rgba(200, 168, 95, 0.4) !important;
+    color: var(--primary-background-color) !important;
+}
+
+.select2-container--default .select2-results__option[aria-selected=true] {
+    background-color: var(--primary-background-color) !important;
+    color: #fff !important;
+}
+
+.select2-container--default .select2-selection--multiple .select2-selection__choice {
+    background-color: var(--primary-background-color) !important;
+    color: #fff !important;
+    border-color: var(--secondary-background-color) !important;
+}
+
+/* Theme Color Indicators */
+.theme-default .color-circle:nth-child(1) {
+    background-color: #1A3B33 !important;
+}
+
+.theme-default .color-circle:nth-child(2) {
+    background-color: #C8A85F !important;
+}
+
+.theme-default .color-circle:nth-child(3) {
+    background-color: #2A4C44 !important;
+}

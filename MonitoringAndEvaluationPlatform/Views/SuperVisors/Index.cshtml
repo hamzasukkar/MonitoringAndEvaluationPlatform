@@ -1,42 +1,722 @@
 ﻿@model IEnumerable<MonitoringAndEvaluationPlatform.Models.SuperVisor>
-
+@using Microsoft.AspNetCore.Mvc.Localization
+@inject IViewLocalizer Localizer
+@using Microsoft.AspNetCore.Localization
 @{
-	ViewData["Title"] = "Index";
-	Layout = "~/Views/Shared/_SetUpLayout.cshtml";
+	ViewData["Title"] = "SuperVisors";
+	Layout = "~/Views/Shared/_DashboardHomeLayout.cshtml";
 }
+<!-- Dashboard Header -->
+<div class="dashboard-header">
+    <div class="header-content">
+        <div class="page-title-section">
+            <div class="page-breadcrumb">
+                <a href="@Url.Action("Index", "Home")" class="breadcrumb-link">
+                    <i class="fas fa-home"></i>
+                    @Localizer["Home"]
+                </a>
+                <i class="fas fa-chevron-right breadcrumb-separator"></i>
+                <span class="current-page">@Localizer["Supervisors"]</span>
+            </div>
+            <h1 class="page-title">@Localizer["Supervisor Management"]</h1>
+            <p class="page-description">@Localizer["Manage project supervisors and their contact information"]</p>
+        </div>
+    </div>
+</div>
 
-<h1>Index</h1>
+@await Html.PartialAsync("_ManagementNavigation")
 
-<p>
-	<a asp-action="Create">Create New</a>
-</p>
-<table class="table">
-	<thead>
-		<tr>
-			<th>
-				@Html.DisplayNameFor(model => model.Name)
-			</th>
-			<th></th>
-		</tr>
-	</thead>
-	<tbody>
-		@foreach (var item in Model)
-		{
-			<tr>
-				<td>
-					@Html.DisplayFor(modelItem => item.Name)
-				</td>
-				<td class="text-end">
-					<div class="btn-group" role="group">
-						<a asp-action="Edit" asp-route-id="@item.Code" class="btn btn-sm btn-outline-warning" title="Edit">
-							<i class="fas fa-edit"></i>
-						</a>
-						<a asp-action="Delete" asp-route-id="@item.Code" class="btn btn-sm btn-outline-danger" title="Delete">
-							<i class="fas fa-trash-alt"></i>
-						</a>
-					</div>
-				</td>
-			</tr>
-		}
-	</tbody>
-</table>
+<!-- Quick Add Section -->
+<div class="chart-card mb-4">
+    <div class="chart-title">
+        <i class="fas fa-user-check"></i>
+        @Localizer["Add New SuperVisor"]
+    </div>
+    <form id="createSuperVisorForm" class="row g-3">
+        @Html.AntiForgeryToken()
+        <div class="col-md-3">
+            <label for="Name" class="form-label fw-bold">
+                <i class="fas fa-user me-2"></i>@Localizer["SuperVisor Name"]
+            </label>
+            <input type="text" name="Name" id="Name" class="form-control form-control-lg" required
+                   placeholder="@Localizer["Enter supervisor name"]" />
+        </div>
+        <div class="col-md-3">
+            <label for="PhoneNumber" class="form-label fw-bold">
+                <i class="fas fa-phone me-2"></i>@Localizer["Phone Number"]
+            </label>
+            <input type="text" name="PhoneNumber" id="PhoneNumber" class="form-control form-control-lg"
+                   placeholder="@Localizer["Enter phone number"]" />
+        </div>
+        <div class="col-md-3">
+            <label for="Email" class="form-label fw-bold">
+                <i class="fas fa-envelope me-2"></i>@Localizer["Email"]
+            </label>
+            <input type="email" name="Email" id="Email" class="form-control form-control-lg"
+                   placeholder="@Localizer["Enter email address"]" />
+        </div>
+        <div class="col-md-3 d-flex align-items-end">
+            <div class="d-grid w-100">
+                <button type="submit" id="createSupervisorBtn" class="btn btn-primary btn-lg">
+                    <i class="fas fa-plus-circle me-2"></i>@Localizer["Create SuperVisor"]
+                </button>
+            </div>
+        </div>
+    </form>
+</div>
+
+<!-- SuperVisors Table -->
+<div class="chart-card">
+    <div class="chart-title">
+        <i class="fas fa-users-cog"></i>
+        @Localizer["Supervisors List"]
+    </div>
+    <div class="table-responsive">
+        <table class="table table-hover modern-table">
+            <thead class="table-header">
+                <tr>
+                    <th>
+                        <i class="fas fa-user me-2"></i>
+                        @Localizer["SuperVisor Name"]
+                    </th>
+                    <th>
+                        <i class="fas fa-phone me-2"></i>
+                        @Localizer["Phone Number"]
+                    </th>
+                    <th>
+                        <i class="fas fa-envelope me-2"></i>
+                        @Localizer["Email"]
+                    </th>
+                    <th class="text-center">
+                        <i class="fas fa-cogs me-2"></i>
+                        @Localizer["Actions"]
+                    </th>
+                </tr>
+            </thead>
+            <tbody id="supervisorsTableBody">
+                @foreach (var item in Model)
+                {
+                    <tr id="supervisor-row-@item.Code" class="table-row">
+                        <td>
+                            <span id="supervisor-name-@item.Code" class="supervisor-name-view fw-semibold">
+                                @item.Name
+                            </span>
+                            <input type="text" id="supervisor-name-input-@item.Code" class="form-control form-control-sm supervisor-name-edit d-none" value="@item.Name" />
+                        </td>
+                        <td>
+                            <span id="supervisor-phone-@item.Code" class="supervisor-phone-view text-muted">
+                                @item.PhoneNumber
+                            </span>
+                            <input type="text" id="supervisor-phone-input-@item.Code" class="form-control form-control-sm supervisor-phone-edit d-none" value="@item.PhoneNumber" />
+                        </td>
+                        <td>
+                            <span id="supervisor-email-@item.Code" class="supervisor-email-view text-muted">
+                                @item.Email
+                            </span>
+                            <input type="email" id="supervisor-email-input-@item.Code" class="form-control form-control-sm supervisor-email-edit d-none" value="@item.Email" />
+                        </td>
+                        <td class="text-center">
+                            <div class="btn-group action-buttons" role="group">
+                                <button class="btn btn-outline-primary btn-sm action-btn"
+                                        id="edit-btn-@item.Code"
+                                        onclick="toggleSuperVisorEdit(@item.Code)" title="@Localizer["Edit"]">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                                <button class="btn btn-outline-danger btn-sm action-btn" title="@Localizer["Delete"]"
+                                        onclick="deleteSuperVisor(@item.Code)">
+                                    <i class="fas fa-trash-alt"></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+@section Scripts {
+    <!-- SweetAlert2 -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <style>
+    /* Modern Table Styles */
+    .modern-table {
+        background: transparent;
+        border: none;
+        border-radius: 15px;
+        overflow: hidden;
+    }
+
+    .table-header {
+        background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-dark) 100%);
+        color: white;
+    }
+
+    .table-header th {
+        border: none;
+        padding: 20px 15px;
+        font-weight: 600;
+        font-size: 0.95rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .header-link {
+        /* color: white !important; */
+        text-decoration: none !important;
+        display: flex;
+        align-items: center;
+        justify-content: flex-start;
+        transition: all 0.3s ease;
+    }
+
+    .header-link:hover {
+        color: rgba(255, 255, 255, 0.9) !important;
+        transform: translateY(-1px);
+    }
+
+    .table-row {
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(10px);
+        border: none;
+        transition: all 0.3s ease;
+    }
+
+    .table-row:hover {
+        background: rgba(255, 255, 255, 1);
+        transform: translateY(-2px);
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+    }
+
+    .table-row td {
+        border: none;
+        padding: 20px 15px;
+        vertical-align: middle;
+        border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+    }
+
+    .action-buttons {
+        gap: 5px;
+    }
+
+    .action-btn {
+        width: 35px;
+        height: 35px;
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.3s ease;
+        border-width: 1px;
+    }
+
+    .action-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+    }
+
+    .table-responsive {
+        border-radius: 15px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        overflow: hidden;
+    }
+
+    /* Form styling */
+    .form-control-lg {
+        border: 2px solid rgba(0, 0, 0, 0.1);
+        border-radius: 10px;
+        transition: all 0.3s ease;
+    }
+
+    .form-control-lg:focus {
+        border-color: var(--primary-color);
+        box-shadow: 0 0 0 0.2rem color-mix(in srgb, var(--primary-color) 25%, transparent);
+    }
+
+    .fw-semibold {
+        font-weight: 600;
+        color: #333;
+    }
+
+    .text-muted {
+        color: #6c757d !important;
+        font-size: 0.9rem;
+    }
+
+    .form-label {
+        color: #374151;
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+    }
+
+    .form-label i {
+        color: var(--primary-color);
+    }
+
+    .editable-field {
+        cursor: pointer;
+        padding: 4px 8px;
+        border-radius: 4px;
+        min-width: 100px;
+        display: inline-block;
+    }
+
+    .editable-field:hover {
+        background-color: #f8f9fa;
+        border: 1px solid #dee2e6;
+    }
+
+    .editing .editable-field {
+        background-color: #fff;
+        border: 1px solid #007bff;
+    }
+
+    .edit-input {
+        width: 100%;
+        border: 1px solid #007bff;
+        border-radius: 4px;
+        padding: 4px 8px;
+        font-size: 0.9rem;
+    }
+
+    .btn-loading {
+        position: relative;
+        pointer-events: none;
+    }
+
+    .btn-loading::after {
+        content: "";
+        position: absolute;
+        width: 16px;
+        height: 16px;
+        margin: auto;
+        border: 2px solid transparent;
+        border-top-color: #ffffff;
+        border-radius: 50%;
+        animation: button-loading-spinner 1s ease infinite;
+    }
+
+    @@keyframes button-loading-spinner {
+        from {
+            transform: rotate(0turn);
+        }
+        to {
+            transform: rotate(1turn);
+        }
+    }
+    </style>
+
+    <script>
+        $(document).ready(function() {
+            console.log('Document ready, initializing supervisor management...');
+
+            // Get anti-forgery token
+            function getAntiForgeryToken() {
+                return $('input[name="__RequestVerificationToken"]').val();
+            }
+
+            // Set up AJAX to include anti-forgery token in headers
+            $.ajaxSetup({
+                beforeSend: function(xhr, settings) {
+                    if (settings.type !== 'GET' && settings.type !== 'HEAD') {
+                        xhr.setRequestHeader("RequestVerificationToken", getAntiForgeryToken());
+                    }
+                }
+            });
+
+            // Create SuperVisor Form Validation
+            function validateForm() {
+                const name = $('#Name').val().trim();
+                const email = $('#Email').val().trim();
+                
+                if (!name) {
+                    Swal.fire('Error', '@Localizer["Supervisor name is required"]', 'error');
+                    return false;
+                }
+                
+                if (email && !isValidEmail(email)) {
+                    Swal.fire('Error', '@Localizer["Please enter a valid email address"]', 'error');
+                    return false;
+                }
+                
+                return true;
+            }
+
+            function isValidEmail(email) {
+                const emailRegex = /^[^\s@@]+@@[^\s@@]+\.[^\s@@]+$/;
+                return emailRegex.test(email);
+            }
+
+            // Create SuperVisor Form Submission
+            $('#createSuperVisorForm').on('submit', function(e) {
+                e.preventDefault();
+                console.log('Form submission triggered');
+
+                if (!validateForm()) {
+                    return false;
+                }
+
+                const $submitBtn = $('#createSupervisorBtn');
+                const originalBtnText = $submitBtn.html();
+                
+                // Show loading state
+                $submitBtn.addClass('btn-loading').prop('disabled', true).html('<i class="fas fa-spinner fa-spin me-2"></i>Creating...');
+
+                const formData = new FormData(this);
+                
+                // Convert FormData to regular object for logging
+                const formDataObj = {};
+                for (let [key, value] of formData.entries()) {
+                    formDataObj[key] = value;
+                }
+                console.log('Form data:', formDataObj);
+
+                $.ajax({
+                    url: '@Url.Action("CreateInline", "SuperVisors")', // Specify controller name
+                    type: 'POST',
+                    data: formData,
+                    processData: false,
+                    contentType: false,
+                    timeout: 30000, // 30 second timeout
+                    success: function(response) {
+                        console.log('Success response:', response);
+                        
+                        if (response && response.success) {
+                            // Add new row to table
+                            const supervisor = response.supervisor;
+                            const newRow = `
+                                <tr id="supervisor-row-${supervisor.code}" class="table-row">
+                                    <td>
+                                        <span id="supervisor-name-${supervisor.code}" class="supervisor-name-view fw-semibold">
+                                            ${supervisor.name || ''}
+                                        </span>
+                                        <input type="text" id="supervisor-name-input-${supervisor.code}" class="form-control form-control-sm supervisor-name-edit d-none" value="${supervisor.name || ''}" />
+                                    </td>
+                                    <td>
+                                        <span id="supervisor-phone-${supervisor.code}" class="supervisor-phone-view text-muted">
+                                            ${supervisor.phoneNumber || ''}
+                                        </span>
+                                        <input type="text" id="supervisor-phone-input-${supervisor.code}" class="form-control form-control-sm supervisor-phone-edit d-none" value="${supervisor.phoneNumber || ''}" />
+                                    </td>
+                                    <td>
+                                        <span id="supervisor-email-${supervisor.code}" class="supervisor-email-view text-muted">
+                                            ${supervisor.email || ''}
+                                        </span>
+                                        <input type="email" id="supervisor-email-input-${supervisor.code}" class="form-control form-control-sm supervisor-email-edit d-none" value="${supervisor.email || ''}" />
+                                    </td>
+                                    <td class="text-center">
+                                        <div class="btn-group action-buttons" role="group">
+                                            <button class="btn btn-outline-primary btn-sm action-btn" id="edit-btn-${supervisor.code}" onclick="toggleSuperVisorEdit(${supervisor.code})" title="@Localizer["Edit"]">
+                                                <i class="fas fa-edit"></i>
+                                            </button>
+                                            <button class="btn btn-outline-danger btn-sm action-btn" title="@Localizer["Delete"]" onclick="deleteSuperVisor(${supervisor.code})">
+                                                <i class="fas fa-trash-alt"></i>
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>`;
+
+                            $('#supervisorsTableBody').append(newRow);
+                            
+                            // Reset form
+                            $('#createSuperVisorForm')[0].reset();
+
+                            Swal.fire({
+                                icon: 'success',
+                                title: '@Localizer["Success!"]',
+                                text: '@Localizer["SuperVisor created successfully"]',
+                                timer: 2000,
+                                showConfirmButton: false
+                            });
+                        } else {
+                            console.error('Unexpected response format:', response);
+                            const errorMessage = response && response.message ? response.message : '@Localizer["An unexpected error occurred"]';
+                            Swal.fire('Error', errorMessage, 'error');
+                        }
+                    },
+                    error: function(xhr, status, error) {
+                        console.error('AJAX error:', {
+                            status: status,
+                            error: error,
+                            responseText: xhr.responseText,
+                            statusCode: xhr.status
+                        });
+                        
+                        let errorMessage = '@Localizer["An error occurred while creating the supervisor"]';
+                        
+                        if (xhr.status === 400) {
+                            errorMessage = '@Localizer["Invalid data provided"]';
+                        } else if (xhr.status === 401) {
+                            errorMessage = '@Localizer["Unauthorized access"]';
+                        } else if (xhr.status === 404) {
+                            errorMessage = '@Localizer["Controller action not found"]';
+                        } else if (xhr.status === 500) {
+                            errorMessage = '@Localizer["Server error occurred"]';
+                        }
+                        
+                        try {
+                            const response = JSON.parse(xhr.responseText);
+                            if (response && response.message) {
+                                errorMessage = response.message;
+                            }
+                        } catch (e) {
+                            // Response is not JSON, use default message
+                        }
+                        
+                        Swal.fire('Error', errorMessage, 'error');
+                    },
+                    complete: function() {
+                        // Reset button state
+                        $submitBtn.removeClass('btn-loading').prop('disabled', false).html(originalBtnText);
+                    }
+                });
+
+                return false;
+            });
+
+            // Inline Editing functionality (existing code remains the same)
+            $(document).on('click', '.editable-field', function() {
+                if ($(this).hasClass('editing')) return;
+
+                const $this = $(this);
+                const originalValue = $this.text().trim();
+                const field = $this.data('field');
+                const id = $this.data('id');
+
+                $this.addClass('editing');
+                $this.html(`<input type="text" class="edit-input" value="${originalValue}" data-original="${originalValue}">`);
+
+                const $input = $this.find('.edit-input');
+                $input.focus().select();
+
+                // Save on Enter or blur
+                $input.on('blur keypress', function(e) {
+                    if (e.type === 'keypress' && e.which !== 13) return;
+
+                    const newValue = $(this).val().trim();
+                    const originalValue = $(this).data('original');
+
+                    if (newValue === originalValue) {
+                        $this.removeClass('editing').text(originalValue);
+                        return;
+                    }
+
+                    if (newValue === '') {
+                        Swal.fire('Error', '@Localizer["Value cannot be empty"]', 'error');
+                        $this.removeClass('editing').text(originalValue);
+                        return;
+                    }
+
+                    // Save changes
+                    $.ajax({
+                        url: '@Url.Action("InlineEdit", "SuperVisor")',
+                        type: 'POST',
+                        data: {
+                            id: id,
+                            field: field,
+                            value: newValue,
+                            __RequestVerificationToken: getAntiForgeryToken()
+                        },
+                        success: function(response) {
+                            if (response.success) {
+                                $this.removeClass('editing').text(newValue);
+                                Swal.fire({
+                                    icon: 'success',
+                                    title: '@Localizer["Updated!"]',
+                                    text: '@Localizer["Field updated successfully"]',
+                                    timer: 1500,
+                                    showConfirmButton: false
+                                });
+                            } else {
+                                $this.removeClass('editing').text(originalValue);
+                                Swal.fire('Error', response.message, 'error');
+                            }
+                        },
+                        error: function(xhr, status, error) {
+                            console.error('Update error:', xhr, status, error);
+                            $this.removeClass('editing').text(originalValue);
+                            Swal.fire('Error', '@Localizer["An error occurred while updating"]', 'error');
+                        }
+                    });
+                });
+
+                // Cancel on Escape
+                $input.on('keydown', function(e) {
+                    if (e.which === 27) { // Escape key
+                        $this.removeClass('editing').text(originalValue);
+                    }
+                });
+            });
+
+        }); // End document ready
+
+        // Delete SuperVisor - Global function
+        function deleteSuperVisor(id) {
+            console.log('Delete supervisor called with id:', id);
+            Swal.fire({
+                title: '@Localizer["Are you sure?"]',
+                text: "@Localizer["You won't be able to revert this!"]",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                cancelButtonColor: '#3085d6',
+                confirmButtonText: '@Localizer["Yes, delete it!"]',
+                cancelButtonText: '@Localizer["Cancel"]'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    $.ajax({
+                        url: '@Url.Action("InlineDelete", "SuperVisor")',
+                        type: 'POST',
+                        data: { 
+                            id: id,
+                            __RequestVerificationToken: $('input[name="__RequestVerificationToken"]').val()
+                        },
+                        success: function(response) {
+                            if (response.success) {
+                                $(`#supervisor-row-${id}`).fadeOut(function() {
+                                    $(this).remove();
+                                });
+                                Swal.fire({
+                                    icon: 'success',
+                                    title: '@Localizer["Deleted!"]',
+                                    text: '@Localizer["SuperVisor has been deleted."]',
+                                    timer: 2000,
+                                    showConfirmButton: false
+                                });
+                            } else {
+                                Swal.fire('Error', response.message || 'Unknown error', 'error');
+                            }
+                        },
+                        error: function(xhr, status, error) {
+                            console.error('Delete error:', xhr, status, error);
+                            Swal.fire('Error', '@Localizer["An error occurred while deleting"]', 'error');
+                        }
+                    });
+                }
+            });
+        }
+
+        // Toggle SuperVisor Inline Edit - Global function
+        function toggleSuperVisorEdit(code) {
+            const nameSpan = $(`#supervisor-name-${code}`);
+            const nameInput = $(`#supervisor-name-input-${code}`);
+            const phoneSpan = $(`#supervisor-phone-${code}`);
+            const phoneInput = $(`#supervisor-phone-input-${code}`);
+            const emailSpan = $(`#supervisor-email-${code}`);
+            const emailInput = $(`#supervisor-email-input-${code}`);
+            const button = $(`#edit-btn-${code}`);
+
+            const isEditing = nameInput.hasClass('d-none') === false;
+
+            if (isEditing) {
+                // Save via AJAX
+                const newName = nameInput.val();
+                const newPhone = phoneInput.val();
+                const newEmail = emailInput.val();
+
+                const updatePromises = [];
+
+                // Update name
+                if (nameSpan.text() !== newName) {
+                    updatePromises.push(
+                        $.ajax({
+                            url: '@Url.Action("InlineEdit", "SuperVisor")',
+                            type: 'POST',
+                            data: {
+                                id: code,
+                                field: 'name',
+                                value: newName,
+                                __RequestVerificationToken: $('input[name="__RequestVerificationToken"]').val()
+                            }
+                        })
+                    );
+                }
+
+                // Update phone
+                if (phoneSpan.text() !== newPhone) {
+                    updatePromises.push(
+                        $.ajax({
+                            url: '@Url.Action("InlineEdit", "SuperVisor")',
+                            type: 'POST',
+                            data: {
+                                id: code,
+                                field: 'phonenumber',
+                                value: newPhone,
+                                __RequestVerificationToken: $('input[name="__RequestVerificationToken"]').val()
+                            }
+                        })
+                    );
+                }
+
+                // Update email
+                if (emailSpan.text() !== newEmail) {
+                    updatePromises.push(
+                        $.ajax({
+                            url: '@Url.Action("InlineEdit", "SuperVisor")',
+                            type: 'POST',
+                            data: {
+                                id: code,
+                                field: 'email',
+                                value: newEmail,
+                                __RequestVerificationToken: $('input[name="__RequestVerificationToken"]').val()
+                            }
+                        })
+                    );
+                }
+
+                if (updatePromises.length === 0) {
+                    // No changes, just exit edit mode
+                    exitEditMode();
+                } else {
+                    // Wait for all updates to complete
+                    Promise.all(updatePromises)
+                        .then(function(responses) {
+                            const allSuccessful = responses.every(response => response.success);
+                            if (allSuccessful) {
+                                nameSpan.text(newName);
+                                phoneSpan.text(newPhone);
+                                emailSpan.text(newEmail);
+                                exitEditMode();
+                                Swal.fire({
+                                    icon: 'success',
+                                    title: '@Localizer["Updated!"]',
+                                    text: '@Localizer["SuperVisor updated successfully"]',
+                                    timer: 1500,
+                                    showConfirmButton: false
+                                });
+                            } else {
+                                Swal.fire('Error', '@Localizer["Some updates failed"]', 'error');
+                            }
+                        })
+                        .catch(function(error) {
+                            console.error('Update error:', error);
+                            Swal.fire('Error', '@Localizer["An error occurred while updating"]', 'error');
+                        });
+                }
+
+                function exitEditMode() {
+                    nameInput.addClass('d-none');
+                    nameSpan.removeClass('d-none');
+                    phoneInput.addClass('d-none');
+                    phoneSpan.removeClass('d-none');
+                    emailInput.addClass('d-none');
+                    emailSpan.removeClass('d-none');
+                    button.html('<i class="fas fa-edit"></i>');
+                    button.removeClass('btn-success').addClass('btn-outline-primary action-btn');
+                }
+            } else {
+                // Enter edit mode
+                nameInput.removeClass('d-none');
+                nameSpan.addClass('d-none');
+                phoneInput.removeClass('d-none');
+                phoneSpan.addClass('d-none');
+                emailInput.removeClass('d-none');
+                emailSpan.addClass('d-none');
+                button.html('<i class="fas fa-save"></i>');
+                button.removeClass('btn-outline-primary action-btn').addClass('btn-success');
+                nameInput.focus();
+            }
+        }
+    </script>
+}

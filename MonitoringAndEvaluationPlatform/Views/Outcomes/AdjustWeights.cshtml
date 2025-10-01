@@ -1,50 +1,593 @@
 ﻿@using MonitoringAndEvaluationPlatform.ViewModel
+@using Microsoft.AspNetCore.Mvc.Localization
+@inject IViewLocalizer Localizer
+@using Microsoft.AspNetCore.Localization
 @model List<OutcomesViewModel>
 @{
     ViewData["Title"] = "Adjust Weights";
     var frameworkCode = (int)ViewBag.FrameworkCode;
-    Layout = "~/Views/Shared/_ResultsFrameworkLayout.cshtml";
+    Layout = "~/Views/Shared/_DashboardHomeLayout.cshtml";
 }
 
-<h2>Adjust Weights</h2>
+<!-- Dashboard Header -->
+<div class="dashboard-header">
+    <div class="d-flex justify-content-between align-items-center">
+        <div>
+            <h1 class="dashboard-title">
+                <i class="fas fa-balance-scale me-3"></i>
+                @Localizer["Adjust Outcome Weights"]
+            </h1>
+            <p class="dashboard-subtitle">
+                @Localizer["Configure outcome weights to determine their impact on framework performance calculations"]
+            </p>
+        </div>
+        <div class="d-flex gap-2 flex-wrap">
+            <a asp-action="Index" asp-route-frameworkCode="@frameworkCode"
+               class="btn btn-outline-secondary btn-lg shadow-sm">
+                <i class="fas fa-arrow-left me-2"></i>@Localizer["Back to Outcomes"]
+            </a>
+        </div>
+    </div>
+</div>
 
-<form asp-action="AdjustWeights" method="post">
-    <input type="hidden" name="frameworkCode" value="@frameworkCode" />
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        <i class="fas fa-exclamation-circle me-2"></i>@TempData["Error"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
 
-    <table class="table table-bordered">
-        <thead>
-            <tr>
-                <th>Outcome</th>
-                <th>Weight (%)</th>
-            </tr>
-        </thead>
-        <tbody>
-            @for (int i = 0; i < Model.Count; i++)
-            {
-                <tr>
-                    <td>
-                        @Html.DisplayFor(m => m[i].Name)
-                        <input type="hidden" asp-for="@Model[i].Code" />
-                        <input type="hidden" asp-for="@Model[i].Name" />
-                    </td>
-                    <td>
-                        <input asp-for="@Model[i].Weight" class="form-control" />
-                        <span asp-validation-for="@Model[i].Weight" class="text-danger"></span>
-                    </td>
-                </tr>
-            }
-        </tbody>
-    </table>
+@if (TempData["Success"] != null)
+{
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        <i class="fas fa-check-circle me-2"></i>@TempData["Success"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
 
-    <div class="text-danger">
-        @Html.ValidationSummary()
+<!-- Weights Adjustment Form -->
+<div class="chart-card">
+    <div class="chart-title">
+        <i class="fas fa-weight"></i>
+        @Localizer["Outcome Weights Configuration"] (@Model.Count @Localizer["outcomes"])
     </div>
 
-    <button type="submit" class="btn btn-success">Save Weights</button>
-</form>
+    <form asp-action="AdjustWeights" method="post" id="weightsForm">
+        @Html.AntiForgeryToken()
+        <input type="hidden" name="frameworkCode" value="@frameworkCode" />
+
+        @if (Model.Any())
+        {
+            <div class="table-responsive">
+                <table class="table table-hover modern-table">
+                    <thead>
+                        <tr>
+                            <th class="text-start">
+                                <i class="fas fa-bullseye me-2"></i>@Localizer["Outcome Name"]
+                            </th>
+                            <th class="text-center">
+                                <i class="fas fa-percentage me-2"></i>@Localizer["Weight"] (%)
+                            </th>
+                            <th class="text-center">
+                                <i class="fas fa-info-circle me-2"></i>@Localizer["Status"]
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @for (int i = 0; i < Model.Count; i++)
+                        {
+                            <tr class="weight-row" data-index="@i">
+                                <td class="indicator-name-cell">
+                                    <div class="d-flex align-items-center">
+                                        <div class="indicator-icon me-3">
+                                            <i class="fas fa-bullseye"></i>
+                                        </div>
+                                        <div>
+                                            <span class="indicator-name-link">
+                                                @Model[i].Name
+                                            </span>
+                                            <small class="text-muted d-block">
+                                                <i class="fas fa-hashtag me-1"></i>ID: @Model[i].Code
+                                            </small>
+                                        </div>
+                                    </div>
+                                    <input type="hidden" asp-for="@Model[i].Code" />
+                                    <input type="hidden" asp-for="@Model[i].Name" />
+                                </td>
+                                <td class="text-center">
+                                    <div class="weight-input-container">
+                                        <div class="input-group justify-content-center" style="max-width: 150px; margin: 0 auto;">
+                                            <input asp-for="@Model[i].Weight"
+                                                   class="form-control form-control-lg text-center weight-input"
+                                                   type="number"
+                                                   min="0"
+                                                   max="100"
+                                                   step="0.01"
+                                                   data-index="@i" />
+                                            <span class="input-group-text">%</span>
+                                        </div>
+                                        <span asp-validation-for="@Model[i].Weight" class="text-danger small d-block mt-1"></span>
+                                    </div>
+                                </td>
+                                <td class="text-center">
+                                    <div class="weight-status" id="status-@i">
+                                        <span class="badge bg-secondary">
+                                            <i class="fas fa-clock me-1"></i>@Localizer["Pending"]
+                                        </span>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                    <tfoot>
+                        <tr>
+                            <td class="text-end fw-bold">
+                                <i class="fas fa-calculator me-2"></i>@Localizer["Total Weight"]:
+                            </td>
+                            <td class="text-center">
+                                <span id="totalWeight" class="badge bg-info fs-5 px-3 py-2">0%</span>
+                            </td>
+                            <td class="text-center">
+                                <span id="totalStatus" class="badge bg-warning fs-6 px-2 py-1">
+                                    <i class="fas fa-exclamation-triangle me-1"></i>@Localizer["Incomplete"]
+                                </span>
+                            </td>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+
+            @if (!ViewData.ModelState.IsValid)
+            {
+                <div class="validation-summary mt-3">
+                    @Html.ValidationSummary(false, "", new { @class = "alert alert-danger" })
+                </div>
+            }
+
+            <div class="d-flex justify-content-between align-items-center mt-4">
+                <div class="weight-info">
+                    <small class="text-muted">
+                        <i class="fas fa-info-circle me-1"></i>
+                        @Localizer["Tip: Total weights should equal 100% for accurate framework performance calculations"]
+                    </small>
+                </div>
+                <div class="action-buttons">
+                    <button type="button" id="resetBtn" class="btn btn-outline-warning btn-lg me-2">
+                        <i class="fas fa-undo me-2"></i>@Localizer["Reset"]
+                    </button>
+                    <button type="button" id="distributeBtn" class="btn btn-outline-info btn-lg me-2">
+                        <i class="fas fa-distribute me-2"></i>@Localizer["Distribute Evenly"]
+                    </button>
+                    <button type="submit" id="saveBtn" class="btn btn-success btn-lg px-4" disabled>
+                        <i class="fas fa-save me-2"></i>@Localizer["Save Weights"]
+                    </button>
+                </div>
+            </div>
+        }
+        else
+        {
+            <div class="text-center py-5">
+                <div class="stat-icon warning mx-auto mb-3" style="width: 80px; height: 80px; font-size: 2rem;">
+                    <i class="fas fa-balance-scale"></i>
+                </div>
+                <h4 class="text-muted">@Localizer["No outcomes found"]</h4>
+                <p class="text-muted">@Localizer["Add outcomes to this framework to configure their weights"]</p>
+                <a asp-action="Index" asp-route-frameworkCode="@frameworkCode"
+                   class="btn btn-primary btn-lg">
+                    <i class="fas fa-plus me-2"></i>@Localizer["Add Outcomes"]
+                </a>
+            </div>
+        }
+    </form>
+</div>
 
 @section Scripts {
     @{
         await Html.RenderPartialAsync("_ValidationScriptsPartial");
     }
+
+    <!-- SweetAlert2 -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <script>
+        let originalWeights = {};
+
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeWeights();
+            bindEvents();
+            calculateTotalWeight();
+
+            // Initialize page animations
+            animatePageElements();
+        });
+
+        function initializeWeights() {
+            const weightInputs = document.querySelectorAll('.weight-input');
+            weightInputs.forEach(input => {
+                originalWeights[input.dataset.index] = parseFloat(input.value) || 0;
+                updateWeightStatus(input.dataset.index, parseFloat(input.value) || 0);
+            });
+        }
+
+        function bindEvents() {
+            // Weight input change events
+            document.querySelectorAll('.weight-input').forEach(input => {
+                input.addEventListener('input', function() {
+                    const value = parseFloat(this.value) || 0;
+                    const index = this.dataset.index;
+
+                    updateWeightStatus(index, value);
+                    calculateTotalWeight();
+                    validateForm();
+                });
+
+                input.addEventListener('blur', function() {
+                    const value = parseFloat(this.value);
+                    if (value < 0) this.value = 0;
+                    if (value > 100) this.value = 100;
+                });
+            });
+
+            // Reset button
+            document.getElementById('resetBtn').addEventListener('click', function() {
+                Swal.fire({
+                    title: '@Localizer["Reset Weights?"]',
+                    text: '@Localizer["This will restore all weights to their original values"]',
+                    icon: 'question',
+                    showCancelButton: true,
+                    confirmButtonColor: '#ffc107',
+                    cancelButtonColor: '#6c757d',
+                    confirmButtonText: '@Localizer["Yes, Reset"]',
+                    cancelButtonText: '@Localizer["Cancel"]'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        resetWeights();
+                        Swal.fire({
+                            icon: 'success',
+                            title: '@Localizer["Reset Complete"]',
+                            text: '@Localizer["Weights have been restored to original values"]',
+                            timer: 2000,
+                            showConfirmButton: false
+                        });
+                    }
+                });
+            });
+
+            // Distribute evenly button
+            document.getElementById('distributeBtn').addEventListener('click', function() {
+                const weightInputs = document.querySelectorAll('.weight-input');
+                const count = weightInputs.length;
+                const equalWeight = (100 / count).toFixed(2);
+
+                Swal.fire({
+                    title: '@Localizer["Distribute Evenly?"]',
+                    text: `@Localizer["This will set each outcome weight to"] ${equalWeight}%`,
+                    icon: 'question',
+                    showCancelButton: true,
+                    confirmButtonColor: '#17a2b8',
+                    cancelButtonColor: '#6c757d',
+                    confirmButtonText: '@Localizer["Yes, Distribute"]',
+                    cancelButtonText: '@Localizer["Cancel"]'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        distributeEvenly();
+                        Swal.fire({
+                            icon: 'success',
+                            title: '@Localizer["Distribution Complete"]',
+                            text: '@Localizer["Weights have been distributed evenly"]',
+                            timer: 2000,
+                            showConfirmButton: false
+                        });
+                    }
+                });
+            });
+
+            // Form submission
+            document.getElementById('weightsForm').addEventListener('submit', function(e) {
+                const totalWeight = getTotalWeight();
+                if (Math.abs(totalWeight - 100) > 0.01) {
+                    e.preventDefault();
+                    Swal.fire({
+                        icon: 'warning',
+                        title: '@Localizer["Invalid Total Weight"]',
+                        text: `@Localizer["Total weight is"] ${totalWeight.toFixed(2)}%. @Localizer["It should equal 100%."]`,
+                        confirmButtonText: '@Localizer["OK"]'
+                    });
+                    return false;
+                }
+            });
+        }
+
+        function updateWeightStatus(index, weight) {
+            const statusElement = document.getElementById(`status-${index}`);
+            let statusClass, statusIcon, statusText;
+
+            if (weight === 0) {
+                statusClass = 'bg-secondary';
+                statusIcon = 'fas fa-clock';
+                statusText = '@Localizer["Pending"]';
+            } else if (weight > 0 && weight <= 100) {
+                statusClass = 'bg-success';
+                statusIcon = 'fas fa-check';
+                statusText = '@Localizer["Valid"]';
+            } else {
+                statusClass = 'bg-danger';
+                statusIcon = 'fas fa-exclamation-triangle';
+                statusText = '@Localizer["Invalid"]';
+            }
+
+            statusElement.innerHTML = `<span class="badge ${statusClass}"><i class="${statusIcon} me-1"></i>${statusText}</span>`;
+        }
+
+        function calculateTotalWeight() {
+            const totalWeight = getTotalWeight();
+            const totalElement = document.getElementById('totalWeight');
+            const statusElement = document.getElementById('totalStatus');
+
+            totalElement.textContent = totalWeight.toFixed(2) + '%';
+
+            let statusClass, statusIcon, statusText;
+            if (Math.abs(totalWeight - 100) < 0.01) {
+                statusClass = 'bg-success';
+                statusIcon = 'fas fa-check-circle';
+                statusText = '@Localizer["Complete"]';
+                totalElement.className = 'badge bg-success fs-5 px-3 py-2';
+            } else if (totalWeight > 100) {
+                statusClass = 'bg-danger';
+                statusIcon = 'fas fa-exclamation-triangle';
+                statusText = '@Localizer["Exceeds 100%"]';
+                totalElement.className = 'badge bg-danger fs-5 px-3 py-2';
+            } else {
+                statusClass = 'bg-warning';
+                statusIcon = 'fas fa-exclamation-triangle';
+                statusText = '@Localizer["Incomplete"]';
+                totalElement.className = 'badge bg-warning fs-5 px-3 py-2';
+            }
+
+            statusElement.innerHTML = `<span class="badge ${statusClass} fs-6 px-2 py-1"><i class="${statusIcon} me-1"></i>${statusText}</span>`;
+        }
+
+        function getTotalWeight() {
+            let total = 0;
+            document.querySelectorAll('.weight-input').forEach(input => {
+                total += parseFloat(input.value) || 0;
+            });
+            return total;
+        }
+
+        function validateForm() {
+            const saveBtn = document.getElementById('saveBtn');
+            const totalWeight = getTotalWeight();
+            const isValid = Math.abs(totalWeight - 100) < 0.01;
+
+            saveBtn.disabled = !isValid;
+        }
+
+        function resetWeights() {
+            document.querySelectorAll('.weight-input').forEach(input => {
+                const index = input.dataset.index;
+                const originalValue = originalWeights[index] || 0;
+                input.value = originalValue;
+                updateWeightStatus(index, originalValue);
+
+                // Add animation
+                input.style.background = '#fff3cd';
+                setTimeout(() => {
+                    input.style.background = '';
+                    input.style.transition = 'background-color 0.3s ease';
+                }, 500);
+            });
+
+            calculateTotalWeight();
+            validateForm();
+        }
+
+        function distributeEvenly() {
+            const weightInputs = document.querySelectorAll('.weight-input');
+            const count = weightInputs.length;
+            const equalWeight = (100 / count).toFixed(2);
+
+            weightInputs.forEach((input, index) => {
+                // Adjust last item to ensure total equals exactly 100%
+                const value = index === count - 1
+                    ? (100 - (equalWeight * (count - 1))).toFixed(2)
+                    : equalWeight;
+
+                input.value = value;
+                updateWeightStatus(input.dataset.index, parseFloat(value));
+
+                // Add animation
+                input.style.background = '#d1ecf1';
+                setTimeout(() => {
+                    input.style.background = '';
+                    input.style.transition = 'background-color 0.3s ease';
+                }, 500);
+            });
+
+            calculateTotalWeight();
+            validateForm();
+        }
+
+        function animatePageElements() {
+            // Animate table rows on load
+            const tableRows = document.querySelectorAll('.weight-row');
+            tableRows.forEach((row, index) => {
+                row.style.opacity = '0';
+                row.style.transform = 'translateX(-20px)';
+                setTimeout(() => {
+                    row.style.transition = 'all 0.6s ease';
+                    row.style.opacity = '1';
+                    row.style.transform = 'translateX(0)';
+                }, index * 100);
+            });
+        }
+    </script>
+
+    <style>
+        /* Weight-specific Styles that extend the existing design system */
+        .weight-input-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .weight-input {
+            font-weight: 600;
+            font-size: 1.1rem;
+            transition: all 0.3s ease;
+            border: 2px solid rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+        }
+
+        .weight-input:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 0.2rem color-mix(in srgb, var(--primary-color) 25%, transparent);
+            background: rgba(255, 255, 255, 1);
+        }
+
+        .input-group-text {
+            background: linear-gradient(135deg, var(--accent-color), var(--primary-color));
+            color: white;
+            border: 2px solid rgba(0, 0, 0, 0.1);
+            border-left: none;
+            font-weight: 600;
+            border-radius: 0 8px 8px 0;
+        }
+
+        .indicator-name-cell {
+            min-width: 300px;
+        }
+
+        .indicator-icon {
+            width: 45px;
+            height: 45px;
+            background: linear-gradient(135deg, var(--accent-color), var(--primary-color));
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.2rem;
+        }
+
+        .indicator-name-link {
+            color: #333;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 1.1rem;
+        }
+
+        .weight-info {
+            background: rgba(23, 162, 184, 0.1);
+            padding: 15px 20px;
+            border-radius: 12px;
+            border-left: 4px solid var(--accent-color);
+            margin-bottom: 20px;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .weight-row:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+        }
+
+        .table-responsive {
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+        }
+
+        .modern-table {
+            margin-bottom: 0;
+        }
+
+        .modern-table thead {
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-dark) 100%);
+            color: white;
+        }
+
+        .modern-table th {
+            border: none;
+            padding: 20px 15px;
+            font-weight: 600;
+            font-size: 0.95rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .modern-table td {
+            border: none;
+            padding: 20px 15px;
+            vertical-align: middle;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+        }
+
+        .modern-table tbody tr {
+            background: rgba(255, 255, 255, 0.95);
+            transition: all 0.3s ease;
+        }
+
+        .modern-table tbody tr:hover {
+            background: rgba(255, 255, 255, 1);
+        }
+
+        .modern-table tfoot {
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-dark) 100%);
+            color: white;
+        }
+
+        /* Responsive Design */
+        @@media (max-width: 768px) {
+            .action-buttons {
+                flex-direction: column;
+                width: 100%;
+            }
+
+            .action-buttons .btn {
+                width: 100%;
+            }
+
+            .d-flex.justify-content-between {
+                flex-direction: column;
+                gap: 20px;
+            }
+
+            .weight-info {
+                text-align: center;
+            }
+
+            .indicator-name-cell {
+                min-width: auto;
+            }
+        }
+
+        /* Button transitions */
+        .btn {
+            transition: all 0.3s ease;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        /* Animation for weight inputs */
+        .weight-input {
+            transition: all 0.3s ease, background-color 0.5s ease;
+        }
+    </style>
 }

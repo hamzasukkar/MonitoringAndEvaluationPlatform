@@ -20,9 +20,9 @@
         @foreach (var comm in Model)
         {
             <tr>
-                <td>@comm.Name</td>
-                <td>@comm.SubDistrict?.Name</td>
-                <td>@comm.SubDistrict?.District?.Name</td>
+                <td>@comm.EN_Name</td>
+                <td>@comm.SubDistrict?.EN_Name</td>
+                <td>@comm.SubDistrict?.District?.EN_Name</td>
             </tr>
         }
     </tbody>

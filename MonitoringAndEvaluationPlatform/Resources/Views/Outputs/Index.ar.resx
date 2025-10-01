@@ -118,7 +118,7 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <data name="Indicators Performance" xml:space="preserve">
-    <value>مؤشرات الأداء</value>
+    <value>الأداء والأنجاز</value>
   </data>
   <data name="Field Monitoring" xml:space="preserve">
     <value>الرصد الميداني</value>
@@ -139,27 +139,69 @@
     <value>حفظ الناتج</value>
   </data>
   <data name="Outputs Management" xml:space="preserve">
-    <value>إدارة المخرجات</value>
+    <value>إدارة البرامج</value>
   </data>
   <data name="Add new outputs and monitor performance" xml:space="preserve">
-    <value>إضافة مخرجات جديدة ومراقبة الأداء</value>
+    <value>إضافة برامج جديدة ومراقبة الأداء</value>
   </data>
   <data name="New Output" xml:space="preserve">
-    <value>إنتاج جديد</value>
+    <value>إنتاج برنامج جديد</value>
   </data>
   <data name="Create New Output" xml:space="preserve">
-    <value>إنشاء إخراج جديد</value>
+    <value>إنشاء برنامج جديد</value>
   </data>
   <data name="Output Name" xml:space="preserve">
-    <value>اسم الإخراج</value>
+    <value>اسم البرنامج</value>
   </data>
   <data name="Impact Assessment" xml:space="preserve">
     <value>تقييم الأثر</value>
   </data>
   <data name="Adjust Weights" xml:space="preserve">
-    <value>ضبط الأوزان</value>
+    <value>التثقيل</value>
   </data>
   <data name="Outcome Name" xml:space="preserve">
-    <value>اسم النتيجة</value>
+    <value>اسم السياسة</value>
+  </data>
+  <data name="Add new outputs and monitor performance across development outcomes" xml:space="preserve">
+    <value>إضافة مخرجات جديدة ومراقبة الأداء عبر نتائج التطوير</value>
+  </data>
+  <data name="Outputs" xml:space="preserve">
+    <value>البرامج</value>
+  </data>
+  <data name="Outcome" xml:space="preserve">
+    <value>السياسة</value>
+  </data>
+  <data name="Enter output name" xml:space="preserve">
+    <value>أدخل اسم البرنامج</value>
+  </data>
+  <data name="Output has been deleted successfully." xml:space="preserve">
+    <value>تم حذف البرنامج بنجاح.</value>
+  </data>
+  <data name="Are you sure?" xml:space="preserve">
+    <value>هل أنت متأكد؟</value>
+  </data>
+  <data name="This will permanently delete the output and all associated data!" xml:space="preserve">
+    <value>سيؤدي هذا إلى حذف الإخراج وجميع البيانات المرتبطة به بشكل دائم!</value>
+  </data>
+  <data name="Output name updated successfully." xml:space="preserve">
+    <value>تم تحديث اسم البرنامج بنجاح.</value>
+  </data>
+  <data name="success" xml:space="preserve">
+    <value>نجاح</value>
+  </data>
+  <data name="Saved!" xml:space="preserve">
+    <value>تم الحفظ</value>
+  </data>
+  <data name="Yes, delete it!" xml:space="preserve">
+    <value>نعم احذفه!</value>
+  </data>
+  <data name="Cancel" xml:space="preserve">
+    <value>إلغاء</value>
+  </data>
+  <data name="No outputs found" xml:space="preserve">
+    <value>لم يتم العثور على أي برامج</value>
+  </data>
+  <data name="Create your first output to get started" xml:space="preserve">
+    <value>لم يتم العثور على أي برامج</value>
   </data>
 </root>

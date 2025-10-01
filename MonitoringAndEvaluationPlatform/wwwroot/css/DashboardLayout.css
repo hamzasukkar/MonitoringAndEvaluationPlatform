@@ -1,19 +1,24 @@
 ﻿:root {
-    /* New Syrian Visual Identity Colors */
-    --primary-background-color: #1A3B33; /* Dark Green - Main background, topbar, table headers (if applicable) */
-    --secondary-card-background: #2A4C44; /* Slightly Lighter Dark Green - Cards, main content area, sidebar, table rows (if applicable) */
-    --accent-gold-color: #C8A85F; /* Gold - Accents, buttons, active states, important text */
-    --text-light-color: #E0E0E0; /* Light text on dark backgrounds */
-    --text-dark-contrast: #333333; /* Dark text for contrast on light elements (if any) */
-    --border-color: #4A6E66; /* Border color for inputs/elements */
-    --hover-gold-color: #DDAA66; /* Slightly lighter gold for hover states */
-    --light-element-bg: #3A5C54; /* Even lighter green for elements like card backgrounds */
-    /* Standard Bootstrap-like colors, adjusted for harmony */
-    --success-color: #28a745;
-    --info-color: #17a2b8;
-    --warning-color: #ffc107;
-    --danger-color: #dc3545;
-    --orange-color: #fd7e14; /* For specific progress bars or warnings */
+    /* Modern Beautiful Color Palette */
+    --primary-background-color: #1a1d3a; /* Deep Navy Blue - Main background, topbar, table headers */
+    --secondary-card-background: #252965; /* Royal Blue - Cards, main content area, sidebar, table rows */
+    --accent-primary-color: #667eea; /* Soft Purple-Blue - Primary accents, buttons, active states */
+    --accent-secondary-color: #764ba2; /* Rich Purple - Secondary accents */
+    --gradient-start: #667eea; /* Gradient start color */
+    --gradient-end: #764ba2; /* Gradient end color */
+    --text-light-color: #f8fafc; /* Pure white text on dark backgrounds */
+    --text-muted-color: #cbd5e0; /* Light gray for muted text */
+    --text-dark-contrast: #2d3748; /* Dark text for contrast on light elements */
+    --border-color: #4a5568; /* Subtle border color for inputs/elements */
+    --hover-primary-color: #7c3aed; /* Vibrant purple for hover states */
+    --light-element-bg: #3c4575; /* Lighter blue for card backgrounds */
+    --success-color: #48bb78; /* Fresh green for success */
+    --info-color: #4299e1; /* Sky blue for info */
+    --warning-color: #ed8936; /* Warm orange for warnings */
+    --danger-color: #f56565; /* Soft red for danger */
+    --highlight-color: #ffd89b; /* Warm yellow highlight */
+    --glass-bg: rgba(255, 255, 255, 0.1); /* Glass morphism background */
+    --glass-border: rgba(255, 255, 255, 0.2); /* Glass morphism border */
 
     --sidebar-width: 250px;
     --font-family-sans-serif: 'Inter', sans-serif; /* Using Inter font */
@@ -26,7 +31,7 @@
     --content-margin-inline-start: var(--sidebar-width); /* Content pushes right by sidebar width */
     --content-margin-inline-end: 0; /* Default for LTR */
 
-    --sidebar-link-border-inline-end: 3px solid var(--accent-gold-color); /* Active link border on the right */
+    --sidebar-link-border-inline-end: 3px solid var(--accent-primary-color); /* Active link border on the right */
     --sidebar-link-border-inline-start: none;
     --sidebar-img-margin-inline-end: 1rem; /* Image margin on the right */
     --sidebar-img-margin-inline-start: 0;
@@ -54,7 +59,7 @@ body.rtl {
     --content-margin-inline-end: var(--sidebar-width); /* Content pushes left by sidebar width */
 
     --sidebar-link-border-inline-end: none; /* No border-right in RTL */
-    --sidebar-link-border-inline-start: 3px solid var(--accent-gold-color); /* Border-left in RTL */
+    --sidebar-link-border-inline-start: 3px solid var(--accent-primary-color); /* Border-left in RTL */
 
     --sidebar-img-margin-inline-end: 0; /* No margin-right for image */
     --sidebar-img-margin-inline-start: 1rem; /* Margin-left for image */
@@ -87,18 +92,21 @@ body {
 
 /* Header Styles */
 .topbar {
-    background-color: var(--primary-background-color); /* Dark Green */
+    background: linear-gradient(135deg, var(--gradient-start), var(--gradient-end)); /* Beautiful gradient background */
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
     color: var(--text-light-color);
     padding: 0.75rem 2rem;
     display: flex;
-    justify-content: space-between; /* Adapts automatically with flex-direction */
+    justify-content: space-between;
     align-items: center;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2); /* Stronger shadow for dark background */
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3), 0 2px 8px rgba(0, 0, 0, 0.1); /* Enhanced shadow with depth */
     position: fixed;
     width: 100%;
     z-index: 1000;
     height: 60px;
-    flex-direction: row; /* Default LTR flow */
+    flex-direction: row;
+    border-bottom: 1px solid var(--glass-border);
 }
 
 body.rtl .topbar {
@@ -107,8 +115,12 @@ body.rtl .topbar {
 
 .title {
     font-size: 1.5rem;
-    font-weight: 600;
-    color: var(--accent-gold-color); /* Gold for the title */
+    font-weight: 700;
+    background: linear-gradient(135deg, #ffffff, var(--highlight-color));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
 }
 
 .nav-links .nav {
@@ -124,17 +136,40 @@ body.rtl .topbar {
 }
 
 .nav-link {
-    color: rgba(255, 255, 255, 0.85); /* Slightly transparent white */
+    color: rgba(248, 250, 252, 0.9);
     text-decoration: none;
     padding: 0.5rem 1rem;
-    border-radius: 4px;
-    transition: all 0.3s ease;
+    border-radius: 12px;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     font-weight: 500;
+    position: relative;
+    overflow: hidden;
 }
 
+    .nav-link::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: var(--glass-bg);
+        backdrop-filter: blur(10px);
+        border-radius: 12px;
+        opacity: 0;
+        transition: opacity 0.3s ease;
+        z-index: -1;
+    }
+
+    .nav-link:hover::before,
+    .nav-link.active::before {
+        opacity: 1;
+    }
+
     .nav-link:hover, .nav-link.active {
-        color: var(--accent-gold-color); /* Gold on hover/active */
-        background-color: rgba(255, 255, 255, 0.08); /* Subtle highlight */
+        color: var(--text-light-color);
+        text-shadow: 0 2px 8px rgba(255, 255, 255, 0.3);
+        transform: translateY(-2px);
     }
 
 .dropdown-menu {
@@ -223,14 +258,16 @@ body.rtl .main {
 /* Sidebar Styles */
 .sidebar {
     width: var(--sidebar-width);
-    background-color: var(--secondary-card-background); /* Slightly Lighter Dark Green */
-    box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1); /* Subtle shadow */
+    background: linear-gradient(180deg, rgba(37, 41, 101, 0.95), rgba(26, 29, 58, 0.95));
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border-right: 1px solid var(--glass-border);
+    box-shadow: 4px 0 24px rgba(0, 0, 0, 0.2), inset 1px 0 0 var(--glass-border);
     padding: 1.5rem 0;
     position: fixed;
     height: calc(100vh - 60px);
     overflow-y: auto;
     z-index: 900;
-    /* Position sidebar based on direction using logical property and variables */
     inset-inline-start: var(--sidebar-inset-inline-start);
     inset-inline-end: var(--sidebar-inset-inline-end);
 }
@@ -249,16 +286,41 @@ body.rtl .main {
         display: flex;
         align-items: center;
         padding: 0.75rem 1.5rem;
-        color: var(--text-light-color); /* Light text for sidebar links */
+        color: var(--text-light-color);
         text-decoration: none;
-        transition: all 0.2s;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         font-weight: 500;
+        margin: 0 0.75rem;
+        border-radius: 12px;
+        position: relative;
+        overflow: hidden;
     }
 
+        .sidebar a::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, var(--accent-primary-color), var(--accent-secondary-color));
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            border-radius: 12px;
+            z-index: -1;
+        }
+
+        .sidebar a:hover::before,
+        .sidebar a.active::before {
+            opacity: 0.15;
+        }
+
         .sidebar a:hover, .sidebar a.active {
-            color: var(--accent-gold-color); /* Gold on hover/active */
-            background-color: rgba(200, 168, 95, 0.1); /* Light gold tint for background */
-            /* Use logical properties for border and variables for its value */
+            color: var(--text-light-color);
+            background: var(--glass-bg);
+            backdrop-filter: blur(10px);
+            transform: translateX(8px);
+            box-shadow: 0 4px 16px rgba(102, 126, 234, 0.3);
             border-inline-end: var(--sidebar-link-border-inline-end);
             border-inline-start: var(--sidebar-link-border-inline-start);
         }
@@ -278,50 +340,99 @@ body.rtl .main {
 .container-full {
     flex: 1;
     padding: 2rem;
-    /* Use logical property for margin and variables for its value */
     margin-inline-start: var(--content-margin-inline-start);
     margin-inline-end: var(--content-margin-inline-end);
-    background-color: var(--secondary-card-background); /* Slightly Lighter Dark Green */
+    background: radial-gradient(ellipse at top, rgba(102, 126, 234, 0.05), transparent 50%), 
+                radial-gradient(ellipse at bottom, rgba(118, 75, 162, 0.05), transparent 50%),
+                var(--secondary-card-background);
     min-height: calc(100vh - 60px);
-    color: var(--text-light-color); /* Default text color for content area */
-    /* New: Background Image for .container-full */
-    background-image: url('/img/Emblem_of_Syria.png'); /* Path to your image */
-    background-repeat: no-repeat; /* Prevents the image from repeating */
-    background-position: center center; /* Centers the image */
-    background-size: 70%; /* Adjust this value to make the emblem smaller or larger */
-    background-blend-mode: multiply; /* Blends the image with the background color */
+    color: var(--text-light-color);
+    position: relative;
+    overflow-x: hidden;
 }
+
+    .container-full::before {
+        content: '';
+        position: fixed;
+        top: -50vh;
+        left: -50vw;
+        width: 200vw;
+        height: 200vh;
+        background: radial-gradient(circle, rgba(102, 126, 234, 0.03) 0%, transparent 50%);
+        pointer-events: none;
+        z-index: -1;
+        animation: float 20s ease-in-out infinite;
+    }
+
+    @keyframes float {
+        0%, 100% { transform: translate(0, 0) rotate(0deg); }
+        50% { transform: translate(-20px, -20px) rotate(1deg); }
+    }
 
 /* Dashboard Card Styles */
 .dashboard-card {
-    border: none;
-    border-radius: 10px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15); /* Stronger shadow */
-    transition: transform 0.2s, box-shadow 0.2s;
+    border: 1px solid var(--glass-border);
+    border-radius: 20px;
+    background: linear-gradient(135deg, var(--glass-bg), rgba(255, 255, 255, 0.05));
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3), 0 2px 16px rgba(102, 126, 234, 0.1);
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
     margin-bottom: 1.5rem;
     height: 100%;
-    background-color: var(--light-element-bg); /* Use lighter green for dashboard cards */
-    color: var(--text-light-color); /* Text inside cards */
+    color: var(--text-light-color);
+    overflow: hidden;
+    position: relative;
 }
 
+    .dashboard-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 2px;
+        background: linear-gradient(90deg, var(--accent-primary-color), var(--accent-secondary-color));
+        opacity: 0;
+        transition: opacity 0.3s ease;
+    }
+
+    .dashboard-card:hover::before {
+        opacity: 1;
+    }
+
     .dashboard-card:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
+        transform: translateY(-8px) scale(1.02);
+        box-shadow: 0 16px 48px rgba(0, 0, 0, 0.4), 0 8px 32px rgba(102, 126, 234, 0.2);
+        border-color: var(--accent-primary-color);
     }
 
 .dashboard-card-header {
-    background-color: var(--primary-background-color); /* Dark Green for card headers */
-    border-bottom: 1px solid var(--border-color); /* Border color from new palette */
-    font-weight: 600;
-    padding: 1rem 1.5rem;
-    /* Use logical properties for border-radius */
-    border-top-left-radius: var(--card-header-border-radius-top-start) !important;
-    border-top-right-radius: var(--card-header-border-radius-top-end) !important;
-    border-bottom-left-radius: var(--card-header-border-radius-bottom-start) !important;
-    border-bottom-right-radius: var(--card-header-border-radius-bottom-end) !important;
-    color: var(--accent-gold-color); /* Gold text for card headers */
-    text-align: var(--text-align-start); /* Align card header text */
+    background: linear-gradient(135deg, rgba(102, 126, 234, 0.2), rgba(118, 75, 162, 0.1));
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    font-weight: 700;
+    padding: 1.25rem 1.5rem;
+    border-top-left-radius: 20px;
+    border-top-right-radius: 20px;
+    border-bottom-left-radius: 0;
+    border-bottom-right-radius: 0;
+    color: var(--text-light-color);
+    text-align: var(--text-align-start);
+    position: relative;
+    overflow: hidden;
 }
+
+    .dashboard-card-header::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: linear-gradient(135deg, var(--accent-primary-color), var(--accent-secondary-color));
+        opacity: 0.1;
+        z-index: -1;
+    }
 
 .dashboard-card-body {
     padding: 1.5rem;
@@ -410,25 +521,56 @@ body.rtl .main {
 
 /* Button Styling */
 .btn-primary {
-    background-color: var(--accent-gold-color); /* Gold button */
-    border-color: var(--accent-gold-color);
-    color: var(--primary-background-color); /* Dark text on gold button */
+    background: linear-gradient(135deg, var(--accent-primary-color), var(--accent-secondary-color));
+    border: none;
+    color: var(--text-light-color);
+    border-radius: 12px;
+    padding: 0.75rem 1.5rem;
+    font-weight: 600;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 4px 16px rgba(102, 126, 234, 0.3);
+    position: relative;
+    overflow: hidden;
 }
 
+    .btn-primary::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(135deg, var(--hover-primary-color), var(--accent-primary-color));
+        opacity: 0;
+        transition: opacity 0.3s ease;
+        border-radius: 12px;
+    }
+
+    .btn-primary:hover::before {
+        opacity: 1;
+    }
+
     .btn-primary:hover {
-        background-color: var(--hover-gold-color); /* Lighter gold on hover */
-        border-color: var(--hover-gold-color);
-        color: var(--primary-background-color);
+        transform: translateY(-2px);
+        box-shadow: 0 8px 32px rgba(102, 126, 234, 0.4);
     }
 
 .btn-outline-primary {
-    color: var(--accent-gold-color); /* Gold outline button */
-    border-color: var(--accent-gold-color);
+    color: var(--accent-primary-color);
+    border: 2px solid var(--accent-primary-color);
+    background: transparent;
+    border-radius: 12px;
+    padding: 0.75rem 1.5rem;
+    font-weight: 600;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
     .btn-outline-primary:hover {
-        background-color: var(--accent-gold-color);
-        color: var(--primary-background-color);
+        background: linear-gradient(135deg, var(--accent-primary-color), var(--accent-secondary-color));
+        color: var(--text-light-color);
+        border-color: transparent;
+        transform: translateY(-2px);
+        box-shadow: 0 8px 32px rgba(102, 126, 234, 0.4);
     }
 
 /* Table Styling */
@@ -439,22 +581,26 @@ body.rtl .main {
 }
 
     .table thead th {
-        background-color: var(--primary-background-color); /* Dark Green for table header */
+        background: linear-gradient(135deg, var(--accent-primary-color), var(--accent-secondary-color));
         border: none;
-        font-weight: 600;
+        font-weight: 700;
         padding: 1rem;
-        color: var(--accent-gold-color); /* Gold text for table headers */
-        text-align: var(--text-align-start); /* Align table headers */
+        color: var(--text-light-color);
+        text-align: var(--text-align-start);
+        border-radius: 12px 12px 0 0;
     }
 
     .table tbody tr {
-        background-color: var(--secondary-card-background); /* Slightly Lighter Dark Green for table rows */
-        transition: all 0.2s;
+        background: var(--glass-bg);
+        backdrop-filter: blur(10px);
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        border: 1px solid rgba(255, 255, 255, 0.1);
     }
 
         .table tbody tr:hover {
-            background-color: var(--light-element-bg); /* Even lighter green on hover */
-            transform: translateX(var(--table-hover-transform-x)); /* Controlled by CSS variable */
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.1), rgba(118, 75, 162, 0.05));
+            transform: translateX(var(--table-hover-transform-x));
+            box-shadow: 0 4px 16px rgba(102, 126, 234, 0.2);
         }
 
     .table tbody td {
@@ -465,6 +611,11 @@ body.rtl .main {
 /* Specific progress bar colors if still used */
 .progress-bar-orange {
     background-color: var(--orange-color);
+}
+
+/* Specific progress bar colors if still used */
+.progress-bar-yellow {
+    background-color: var(--yellow-color);
 }
 
 /* Adjust text colors for specific Bootstrap classes if they appear on dark backgrounds */
@@ -486,4 +637,97 @@ body.rtl .main {
 
 .text-warning {
     color: var(--warning-color) !important;
+}
+
+/* Modern Scrollbar Styling */
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: var(--secondary-card-background);
+    border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb {
+    background: linear-gradient(135deg, var(--accent-primary-color), var(--accent-secondary-color));
+    border-radius: 10px;
+    transition: all 0.3s ease;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: linear-gradient(135deg, var(--hover-primary-color), var(--accent-primary-color));
+    box-shadow: 0 0 10px rgba(102, 126, 234, 0.5);
+}
+
+/* Firefox scrollbar */
+* {
+    scrollbar-width: thin;
+    scrollbar-color: var(--accent-primary-color) var(--secondary-card-background);
+}
+
+/* Enhanced Form Input Styling */
+.form-control, .form-select {
+    background: var(--glass-bg);
+    backdrop-filter: blur(10px);
+    border: 1px solid var(--glass-border);
+    border-radius: 12px;
+    color: var(--text-light-color);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    padding: 0.75rem 1rem;
+}
+
+.form-control:focus, .form-select:focus {
+    background: rgba(255, 255, 255, 0.15);
+    border-color: var(--accent-primary-color);
+    box-shadow: 0 0 0 0.25rem rgba(102, 126, 234, 0.25);
+    color: var(--text-light-color);
+}
+
+/* Enhanced Modal Styling */
+.modal-content {
+    background: linear-gradient(135deg, var(--glass-bg), rgba(255, 255, 255, 0.05));
+    backdrop-filter: blur(20px);
+    border: 1px solid var(--glass-border);
+    border-radius: 20px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+}
+
+.modal-header {
+    border-bottom: 1px solid var(--glass-border);
+    background: linear-gradient(135deg, rgba(102, 126, 234, 0.1), rgba(118, 75, 162, 0.05));
+}
+
+/* Alert Styling */
+.alert {
+    border: none;
+    border-radius: 12px;
+    backdrop-filter: blur(10px);
+    background: var(--glass-bg);
+    border-left: 4px solid var(--accent-primary-color);
+}
+
+.alert-success {
+    background: rgba(72, 187, 120, 0.1);
+    border-left-color: var(--success-color);
+    color: var(--text-light-color);
+}
+
+.alert-danger {
+    background: rgba(245, 101, 101, 0.1);
+    border-left-color: var(--danger-color);
+    color: var(--text-light-color);
+}
+
+.alert-warning {
+    background: rgba(237, 137, 54, 0.1);
+    border-left-color: var(--warning-color);
+    color: var(--text-light-color);
+}
+
+.alert-info {
+    background: rgba(66, 153, 225, 0.1);
+    border-left-color: var(--info-color);
+    color: var(--text-light-color);
 }

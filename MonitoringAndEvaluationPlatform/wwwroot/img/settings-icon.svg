@@ -1,0 +1,43 @@
+<svg class="svg-icon" style="width: 1em; height: 1em; vertical-align: middle; fill: currentColor; overflow: hidden;" viewBox="0 0 24 24" version="1.1" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="settingsGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#764ba2;stop-opacity:1" />
+      <stop offset="50%" style="stop-color:#667eea;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#4299e1;stop-opacity:1" />
+    </linearGradient>
+    <filter id="settingsGlow">
+      <feGaussianBlur stdDeviation="1" result="coloredBlur"/>
+      <feMerge> 
+        <feMergeNode in="coloredBlur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+  
+  <!-- Outer gear -->
+  <path d="M 12 2 L 13.5 4.5 L 16.5 4 L 17.5 6.8 L 20.5 8 L 19.5 10.8 L 22 12 L 19.5 13.2 L 20.5 16 L 17.5 17.2 L 16.5 20 L 13.5 19.5 L 12 22 L 10.5 19.5 L 7.5 20 L 6.5 17.2 L 3.5 16 L 4.5 13.2 L 2 12 L 4.5 10.8 L 3.5 8 L 6.5 6.8 L 7.5 4 L 10.5 4.5 Z" fill="url(#settingsGradient)" opacity="0.3" stroke="url(#settingsGradient)" stroke-width="1"/>
+  
+  <!-- Inner gear circle -->
+  <circle cx="12" cy="12" r="4" fill="url(#settingsGradient)" opacity="0.6" stroke="url(#settingsGradient)" stroke-width="1" filter="url(#settingsGlow)"/>
+  
+  <!-- Center circle -->
+  <circle cx="12" cy="12" r="2" fill="#ffffff" opacity="0.9"/>
+  
+  <!-- Gear teeth details -->
+  <rect x="11.5" y="1" width="1" height="2" fill="url(#settingsGradient)" opacity="0.8"/>
+  <rect x="21" y="11.5" width="2" height="1" fill="url(#settingsGradient)" opacity="0.8"/>
+  <rect x="11.5" y="21" width="1" height="2" fill="url(#settingsGradient)" opacity="0.8"/>
+  <rect x="1" y="11.5" width="2" height="1" fill="url(#settingsGradient)" opacity="0.8"/>
+  
+  <!-- Diagonal teeth -->
+  <rect x="17.5" y="4.5" width="1.5" height="1.5" fill="url(#settingsGradient)" opacity="0.7" transform="rotate(45 18.25 5.25)"/>
+  <rect x="17.5" y="18" width="1.5" height="1.5" fill="url(#settingsGradient)" opacity="0.7" transform="rotate(45 18.25 18.75)"/>
+  <rect x="5" y="18" width="1.5" height="1.5" fill="url(#settingsGradient)" opacity="0.7" transform="rotate(45 5.75 18.75)"/>
+  <rect x="5" y="4.5" width="1.5" height="1.5" fill="url(#settingsGradient)" opacity="0.7" transform="rotate(45 5.75 5.25)"/>
+  
+  <!-- Inner details -->
+  <circle cx="12" cy="12" r="1" fill="url(#settingsGradient)" opacity="0.8"/>
+  
+  <!-- Rotation effect -->
+  <animateTransform attributeName="transform" attributeType="XML" type="rotate" from="0 12 12" to="360 12 12" dur="20s" repeatCount="indefinite"/>
+</svg>

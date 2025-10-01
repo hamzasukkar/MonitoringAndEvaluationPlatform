@@ -118,7 +118,7 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <data name="Indicators Performance" xml:space="preserve">
-    <value>مؤشرات الأداء</value>
+    <value>الأداء والأنجاز</value>
   </data>
   <data name="Field Monitoring" xml:space="preserve">
     <value>الرصد الميداني</value>
@@ -139,9 +139,93 @@
     <value>إنشاء استراتيجية جديدة</value>
   </data>
   <data name="Results Frameworks" xml:space="preserve">
-    <value>الإستراتيجيات</value>
+    <value>الاستراتيجيات</value>
   </data>
   <data name="Search by framework name" xml:space="preserve">
-    <value>البحث حسب اسم الإطار...</value>
+    <value>البحث حسب اسم الاستراتيجية...</value>
+  </data>
+  <data name="SDGs" xml:space="preserve">
+    <value>أهاداف التنمية المستدامة</value>
+  </data>
+  <data name="Sector" xml:space="preserve">
+    <value>القطاع</value>
+  </data>
+  <data name="Ministry" xml:space="preserve">
+    <value>الوزارة</value>
+  </data>
+  <data name="Donor" xml:space="preserve">
+    <value>المانح</value>
+  </data>
+  <data name="Apply Filters" xml:space="preserve">
+    <value>تطبيق الفلاتر</value>
+  </data>
+  <data name="Reset" xml:space="preserve">
+    <value>مسح الفلاتر</value>
+  </data>
+  <data name="Yes, delete it!?" xml:space="preserve">
+    <value>نعم احذفه!؟</value>
+  </data>
+  <data name="Are you sure?" xml:space="preserve">
+    <value>هل أنت متأكد؟</value>
+  </data>
+  <data name="This will delete the framework!" xml:space="preserve">
+    <value>سيؤدي هذا إلى حذف الإطار!</value>
+  </data>
+  <data name="Cancel" xml:space="preserve">
+    <value>إلغاء</value>
+  </data>
+  <data name="Filters" xml:space="preserve">
+    <value>الفلاتر</value>
+  </data>
+  <data name="Comprehensive overview of monitoring frameworks and their performance metrics" xml:space="preserve">
+    <value>نظرة عامة شاملة على أطر المراقبة ومقاييس أدائها</value>
+  </data>
+  <data name="Search &amp; Filter Frameworks" xml:space="preserve">
+    <value>بحث وتصفية الاستراتيجيات</value>
+  </data>
+  <data name="Search" xml:space="preserve">
+    <value>البحث</value>
+  </data>
+  <data name="Quick Create" xml:space="preserve">
+    <value>إنشاء سريع</value>
+  </data>
+  <data name="Comprehensive Builder" xml:space="preserve">
+    <value>البناء الشامل</value>
+  </data>
+  <data name="Create" xml:space="preserve">
+    <value>إنشاء</value>
+  </data>
+  <data name="Framework created successfully!" xml:space="preserve">
+    <value>تم إنشاء الإستراتيجية بنجاح!</value>
+  </data>
+  <data name="Success!" xml:space="preserve">
+    <value>نجاح!</value>
+  </data>
+  <data name="Could not create framework. Please try again." xml:space="preserve">
+    <value>تعذر إنشاء الإستراتيجية . يُرجى المحاولة مرة أخرى.</value>
+  </data>
+  <data name="Framework name updated successfully." xml:space="preserve">
+    <value>تم تحديث اسم الإستراتيجية بنجاح.</value>
+  </data>
+  <data name="Could not update framework name." xml:space="preserve">
+    <value>لم يتمكن من تحديث اسم الإستراتيجية .</value>
+  </data>
+  <data name="Are you sure" xml:space="preserve">
+    <value>هل أنت متأكد</value>
+  </data>
+  <data name="This will permanently delete the framework and all associated data!" xml:space="preserve">
+    <value>سيؤدي هذا إلى حذف الاستراتيجية وجميع البيانات المرتبطة به بشكل دائم!</value>
+  </data>
+  <data name="Framework has been deleted successfully." xml:space="preserve">
+    <value>تم حذف الإستراتيجية بنجاح.</value>
+  </data>
+  <data name="Could not delete framework. Please try again." xml:space="preserve">
+    <value>تعذّر حذف الإستراتيجية . يُرجى المحاولة مجددًا.</value>
+  </data>
+  <data name="No frameworks found" xml:space="preserve">
+    <value>لم يتم العثور على أي إستراتيجية </value>
+  </data>
+  <data name="Try adjusting your search criteria or filters" xml:space="preserve">
+    <value>حاول تعديل معايير البحث أو الفلاتر الخاصة بك</value>
   </data>
 </root>

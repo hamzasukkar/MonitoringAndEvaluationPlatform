@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Localization;
 using MonitoringAndEvaluationPlatform.Data;
 using MonitoringAndEvaluationPlatform.Enums;
 using MonitoringAndEvaluationPlatform.Models;
@@ -17,58 +18,78 @@ namespace MonitoringAndEvaluationPlatform.Controllers
     {
         private readonly ApplicationDbContext _context;
         private readonly MonitoringService _monitoringService;
+        private readonly IStringLocalizer<MeasuresController> _localizer;
 
-        public MeasuresController(ApplicationDbContext context, MonitoringService monitoringService)
+        public MeasuresController(ApplicationDbContext context, MonitoringService monitoringService, IStringLocalizer<MeasuresController> localizer)
         {
             _context = context;
             _monitoringService = monitoringService;
+            _localizer = localizer;
         }
 
         [HttpPost("add-measure")]
         public async Task<IActionResult> AddMeasure([FromBody] AddMeasureDto dto)
         {
-            await _monitoringService.AddMeasureToProject(dto.ProjectId, dto.IndicatorId, dto.Value, dto.ValueType);
-            return Ok("Measure added and Indicator Performance updated");
+            await _monitoringService.AddMeasureToIndicator(dto.IndicatorId, dto.Value, MeasureValueType.Real);
+            return Ok(_localizer["Measure added and Indicator Performance updated"]);
+        }
+
+        // GET: Measures by Indicator (for chart)
+        [HttpGet]
+        public async Task<IActionResult> GetMeasuresByIndicator(int indicatorCode)
+        {
+            var measures = await _context.Measures
+                .Where(m => m.IndicatorCode == indicatorCode)
+                .OrderBy(m => m.Date)
+                .Select(m => new
+                {
+                    date = m.Date.ToString("yyyy-MM-dd"),
+                    value = m.Value
+                })
+                .ToListAsync();
+
+            return Ok(measures);
         }
 
         // DTO
         public class AddMeasureDto
         {
-            public int ProjectId { get; set; }
             public int IndicatorId { get; set; }
             public double Value { get; set; }
-            public MeasureValueType ValueType { get; set; }
         }
 
         // GET: Measures
-        public async Task<IActionResult> Index(int? id)
+        public async Task<IActionResult> Index(int? indicatorId)
         {
-            if (id == null)
+            var query = _context.Measures.Include(m => m.Indicator).AsQueryable();
+            
+            // Filter by indicator if provided
+            if (indicatorId.HasValue)
             {
-                var applicationDbContext = _context.Measures.Include(m => m.Indicator);
-                return View(await applicationDbContext.ToListAsync());
+                query = query.Where(m => m.IndicatorCode == indicatorId.Value);
+                
+                // Pass indicator info to view for creating new measures
+                var indicator = await _context.Indicators.FindAsync(indicatorId.Value);
+                ViewBag.SelectedIndicator = indicator;
+                ViewBag.SelectedIndicatorId = indicatorId.Value;
+                
+                // Find project associated with this indicator
+                var projectIndicator = await _context.ProjectIndicators
+                    .Include(pi => pi.Project)
+                    .FirstOrDefaultAsync(pi => pi.IndicatorCode == indicatorId.Value);
+                
+                if (projectIndicator != null)
+                {
+                    ViewBag.SelectedProject = projectIndicator.Project;
+                    ViewBag.SelectedProjectId = projectIndicator.ProjectId;
+                }
             }
-            var measures = _context.Measures.Where(m => m.ProjectID == id).Include(m => m.Indicator).ToListAsync();
-
-            return View(await measures);
+            
+            ViewData["IndicatorCode"] = new SelectList(_context.Indicators, "IndicatorCode", "Name");
+            
+            return View(await query.ToListAsync());
         }
 
-        public async Task<IActionResult> ProjectMeasures(int? id)
-        {
-            if (id == null)
-            {
-                var applicationDbContext = _context.Measures.Include(m => m.Indicator);
-                return View(await applicationDbContext.ToListAsync());
-            }
-
-            ViewBag.ProjectId = id;
-            ViewBag.Indicators = await _context.Indicators
-            .Where(i => /* Filter to project-related indicators, if needed */ true)
-            .ToListAsync();
-            var measures = _context.Measures.Where(m => m.ProjectID == id).Include(m => m.Indicator).ToListAsync();
-
-            return View(await measures);
-        }
 
         // GET: Measures/Details/5
         public async Task<IActionResult> Details(int? id)
@@ -90,84 +111,85 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> CreateFromDetails(Measure measure)
         {
             ModelState.Remove(nameof(measure.Indicator));
+            
+            // Set the measure as Real (only type available now)
+            measure.ValueType = MeasureValueType.Real;
+            
             if (ModelState.IsValid)
             {
                 _context.Add(measure);
                 await _context.SaveChangesAsync();
-                return Ok(); // for AJAX
+                
+                // Update indicator performance after adding the measure
+                await _monitoringService.UpdateIndicatorPerformance(measure.IndicatorCode);
+
+                return Ok(new { message = _localizer["Measure added successfully and indicator performance updated"] });
             }
 
-            return BadRequest("Invalid input");
+            return BadRequest(_localizer["Invalid input"]);
         }
 
         // GET: Measures/Create
-        public IActionResult Create()
+        public async Task<IActionResult> Create(int? indicatorId)
         {
-            ViewData["Indicators"] = new SelectList(_context.Indicators, "IndicatorCode", "Name");
-            ViewData["Projects"] = new SelectList(_context.Projects, "ProjectID", "ProjectName");
+            if (indicatorId.HasValue)
+            {
+                // Pre-populate the form with the selected indicator
+                var indicator = await _context.Indicators.FindAsync(indicatorId.Value);
+                ViewBag.SelectedIndicator = indicator;
+                ViewBag.PreSelectedIndicatorId = indicatorId.Value;
+                
+                // Set dropdown with the selected indicator highlighted
+                ViewData["Indicators"] = new SelectList(_context.Indicators, "IndicatorCode", "Name", indicatorId.Value);
+                
+                // Find associated project for breadcrumb/navigation context
+                var projectIndicator = await _context.ProjectIndicators
+                    .Include(pi => pi.Project)
+                    .FirstOrDefaultAsync(pi => pi.IndicatorCode == indicatorId.Value);
+                
+                if (projectIndicator != null)
+                {
+                    ViewBag.SelectedProject = projectIndicator.Project;
+                    ViewBag.SelectedProjectId = projectIndicator.ProjectId;
+                }
+            }
+            else
+            {
+                ViewData["Indicators"] = new SelectList(_context.Indicators, "IndicatorCode", "Name");
+            }
+            
             return View();
         }
 
         // POST: Measures/Create
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Code,Date,Value,ValueType,IndicatorCode,ProjectID")] Measure measure)
+        public async Task<IActionResult> Create([Bind("Code,Date,Value,IndicatorCode")] Measure measure)
         {
             ModelState.Remove(nameof(measure.Indicator));
-            ModelState.Remove(nameof(measure.Project));
 
-            bool targetExists = await _context.Measures
-                    .AnyAsync(m => m.ProjectID == measure.ProjectID
-                        && m.IndicatorCode == measure.IndicatorCode
-                        && m.ValueType == MeasureValueType.Target);
-
-            // Validate Target uniqueness
-            if (measure.ValueType == MeasureValueType.Target)
-            {
-
-                if (targetExists)
-                {
-                    ModelState.AddModelError(
-                        nameof(measure.ValueType),
-                        "Only one Target measure is allowed per Project and Indicator.");
-                }
-            }
-            else if (measure.ValueType == MeasureValueType.Real)
-            {
-                if (!targetExists)
-                {
-                    ModelState.AddModelError(
-                        nameof(measure.ValueType),
-                        "Add Target before Value");
-                }
-            }
+            // Set the measure as Real (only type available now)
+            measure.ValueType = MeasureValueType.Real;
 
             if (ModelState.IsValid)
             {
-               
                 _context.Measures.Add(measure);
                 await _context.SaveChangesAsync();
 
-                // Update IndicatorPerformance only if it's a "Real" measure
-                if (measure.ValueType == MeasureValueType.Real)
-                {
-                    var monitoringService = new MonitoringService(_context);
-                    await monitoringService.UpdateIndicatorPerformance(measure.IndicatorCode);
-                    await monitoringService.UpdateMinistryPerformance(measure.ProjectID);
-                    await monitoringService.UpdateProjectPerformance(measure.ProjectID);
-                }
-
-                return RedirectToAction("ProjectMeasures", new { id = measure.ProjectID });
+                // Update indicator performance after adding the measure
+                await _monitoringService.UpdateIndicatorPerformance(measure.IndicatorCode);
+                
+                TempData["SuccessMessage"] = _localizer["Measure added successfully and indicator performance has been updated."];
+                
+                // Redirect back to Index with indicator filter to show the measures for this indicator
+                return RedirectToAction(nameof(Index), new { indicatorId = measure.IndicatorCode });
             }
 
-            ViewData["Indicators"] = new SelectList(_context.Indicators, "IndicatorCode", "Name", measure.IndicatorCode);
-            ViewData["Projects"] = new SelectList(_context.Projects, "ProjectID", "ProjectName", measure.ProjectID);
-
+            ViewData["IndicatorCode"] = new SelectList(_context.Indicators, "IndicatorCode", "Name", measure.IndicatorCode);
             return View(measure);
         }
 
@@ -185,34 +207,69 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             {
                 return NotFound();
             }
-            ViewData["Indicators"] = new SelectList(_context.Indicators, "IndicatorCode", "Name");
-            ViewData["Projects"] = new SelectList(_context.Projects, "ProjectID", "ProjectName");
+            ViewData["IndicatorCode"] = new SelectList(_context.Indicators, "IndicatorCode", "Name", measure.IndicatorCode);
             return View(measure);
         }
 
         // POST: Measures/Edit/5
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id,Measure measure)
+        public async Task<IActionResult> Edit(int id, Measure measure)
         {
+            // Check if this is an AJAX request (inline edit)
+            if (Request.Headers["X-Requested-With"] == "XMLHttpRequest" || Request.ContentType?.Contains("application/x-www-form-urlencoded") == true)
+            {
+                // Get the existing measure from database
+                var existingMeasure = await _context.Measures.FindAsync(id);
+                if (existingMeasure == null)
+                {
+                    return NotFound();
+                }
+
+                // Update only the editable fields
+                existingMeasure.Date = measure.Date;
+                existingMeasure.Value = measure.Value;
+
+                try
+                {
+                    _context.Update(existingMeasure);
+                    await _context.SaveChangesAsync();
+
+                    // Update indicator performance
+                    await _monitoringService.UpdateIndicatorPerformance(existingMeasure.IndicatorCode);
+
+                    return Ok(new { message = _localizer["Measure updated successfully"] });
+                }
+                catch (DbUpdateConcurrencyException)
+                {
+                    if (!MeasureExists(id))
+                    {
+                        return NotFound();
+                    }
+                    else
+                    {
+                        throw;
+                    }
+                }
+            }
+
+            // Regular form POST (from Edit view)
             if (id != measure.Code)
             {
                 return NotFound();
             }
             ModelState.Remove(nameof(measure.Indicator));
-            ModelState.Remove(nameof(measure.Project));
+
             if (ModelState.IsValid)
             {
                 try
                 {
                     _context.Update(measure);
                     await _context.SaveChangesAsync();
-                    var monitoringService = new MonitoringService(_context);
-                    await monitoringService.UpdateIndicatorPerformance(measure.IndicatorCode);
-                    await monitoringService.UpdateMinistryPerformance(measure.ProjectID);
-                    await monitoringService.UpdateProjectPerformance(measure.ProjectID);
+
+                    // Update indicator performance
+                    await _monitoringService.UpdateIndicatorPerformance(measure.IndicatorCode);
+                    TempData["SuccessMessage"] = _localizer["Measure updated successfully and indicator performance has been updated."];
                 }
                 catch (DbUpdateConcurrencyException)
                 {
@@ -227,47 +284,11 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["IndicatorCode"] = new SelectList(_context.Indicators, "Code", "Code", measure.IndicatorCode);
+            ViewData["IndicatorCode"] = new SelectList(_context.Indicators, "IndicatorCode", "Name", measure.IndicatorCode);
             return View(measure);
         }
 
-        [HttpPost]
-        public async Task<IActionResult> EditInline([FromBody] Measure updated)
-        {
-            var existing = await _context.Measures.FindAsync(updated.Code);
-            if (existing == null)
-                return NotFound();
 
-            existing.Date = updated.Date;
-            existing.Value = updated.Value;
-
-            await _context.SaveChangesAsync();
-            var monitoringService = new MonitoringService(_context);
-            await monitoringService.UpdateIndicatorPerformance(updated.IndicatorCode);
-            await monitoringService.UpdateMinistryPerformance(updated.ProjectID);
-            await monitoringService.UpdateProjectPerformance(updated.ProjectID);
-
-            return Ok();
-        }
-
-        [HttpDelete]
-        public async Task<IActionResult> DeleteInline(int id, int projectId, int indicatorCode)
-        {
-            var measure = await _context.Measures
-                .FirstOrDefaultAsync(m => m.Code == id && m.ProjectID == projectId && m.IndicatorCode == indicatorCode);
-
-            if (measure == null)
-                return NotFound();
-
-            _context.Measures.Remove(measure);
-            await _context.SaveChangesAsync();
-            var monitoringService = new MonitoringService(_context);
-            await monitoringService.UpdateIndicatorPerformance(indicatorCode);
-            await monitoringService.UpdateMinistryPerformance(projectId);
-            await monitoringService.UpdateProjectPerformance(projectId);
-
-            return Ok();
-        }
 
 
         // GET: Measures/Delete/5
@@ -275,7 +296,6 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         {
             var measure = await _context.Measures
                 .Include(m => m.Indicator)
-                .Include(m => m.Project)
                 .FirstOrDefaultAsync(m => m.Code == id);
             if (measure == null)
                 return NotFound();
@@ -292,9 +312,19 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             try
             {
                 await monitoringService.DeleteMeasureAndRecalculateAsync(id);
+
+                // Check if this is an AJAX request
+                if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
+                {
+                    return Ok(new { message = _localizer["Measure deleted successfully"] });
+                }
             }
             catch (InvalidOperationException ex)
             {
+                if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
+                {
+                    return NotFound(new { message = ex.Message });
+                }
                 return NotFound(ex.Message);
             }
 

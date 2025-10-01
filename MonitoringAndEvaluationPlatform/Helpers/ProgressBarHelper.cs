@@ -6,11 +6,11 @@
         {
             return value switch
             {
-                > 80 => "bg-success",
-                > 60 => "bg-info",
-                > 40 => "bg-warning",
-                > 20 => "progress-bar-orange",
-                _ => "bg-danger"
+                >= 80 => "bg-success",        // Green for excellent (80%+)
+                >= 60 => "bg-warning",        // Yellow for good (60-79%)
+                >= 40 => "progress-bar-orange", // Orange for fair (40-59%)
+                >= 20 => "bg-danger",         // Red for poor (20-39%)
+                _ => "bg-danger"              // Red for very poor (<20%)
             };
         }
 

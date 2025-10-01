@@ -5,53 +5,127 @@
 
 @model MonitoringAndEvaluationPlatform.ViewModel.IndicatorDetailsViewModel
 @{
-    ViewData["Title"] = "Details";
-    Layout = "~/Views/Shared/_ResultsFrameworkLayout.cshtml";
+    ViewData["Title"] = "Indicator Details";
+    Layout = "~/Views/Shared/_DashboardHomeLayout.cshtml";
 }
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns"></script>
 
-<div>
-    <h4>@Localizer["Indicator"]</h4>
-    <hr />
-    <dl class="row">
-        <dt class="col-sm-2">@Localizer["Name"]</dt>
-        <dd class="col-sm-4">@Model.Indicator.Name</dd>
-
-        <dt class="col-sm-1">@Localizer["Target"]</dt>
-        <dd class="col-sm-1">@Model.Indicator.Target</dd>
-    </dl>
+<!-- Modern Dashboard Header -->
+<div class="dashboard-header">
+    <div class="d-flex justify-content-between align-items-center">
+        <div>
+            <h1 class="dashboard-title">@Localizer["Indicator Details"]</h1>
+            <p class="dashboard-subtitle">@Localizer["Performance tracking and analysis"]</p>
+        </div>
+        <div class="action-buttons">
+            <a href="javascript:history.back()" class="btn btn-outline-primary me-2">
+                <i class="fas fa-arrow-left me-2"></i>@Localizer["Back to List"]
+            </a>
+            <a href="#" class="btn btn-primary">
+                <i class="fas fa-edit me-2"></i>@Localizer["Edit Indicator"]
+            </a>
+        </div>
+    </div>
 </div>
-<table class="table">
-    <thead>
-        <tr>
-            <th>@Localizer["Date"]</th>
-            <th>@Localizer["Value"]</th>
-            <th>@Localizer["Value Type"]</th>
-        </tr>
-    </thead>
-    <tbody>
+
+<!-- Stats Grid -->
+<div class="stats-grid">
+    <!-- Indicator Info Card -->
+    <div class="stat-card">
+        <div class="stat-icon primary">
+            <i class="fas fa-bullseye"></i>
+        </div>
+        <div class="stat-number">@Model.Indicator.Name</div>
+        <div class="stat-label">@Localizer["Indicator Name"]</div>
+    </div>
+
+    <!-- Target Card -->
+    <div class="stat-card">
+        <div class="stat-icon success">
+            <i class="fas fa-target"></i>
+        </div>
+        <div class="stat-number">@Model.Indicator.Target</div>
+        <div class="stat-label">@Localizer["Target Value"]</div>
+    </div>
+
+    <!-- Total Measures Card -->
+    <div class="stat-card">
+        <div class="stat-icon info">
+            <i class="fas fa-chart-bar"></i>
+        </div>
+        <div class="stat-number">@Model.Measures.Count()</div>
+        <div class="stat-label">@Localizer["Total Measures"]</div>
+    </div>
+
+  @*   <!-- Latest Value Card -->
+    <div class="stat-card">
+        <div class="stat-icon warning">
+            <i class="fas fa-clock"></i>
+        </div>
+        <div class="stat-number">@(Model.Measures.Any() ? Model.Measures.OrderByDescending(m => m.Date).First().Value.ToString() : "N/A")</div>
+        <div class="stat-label">@Localizer["Latest Value"]</div>
+    </div> *@
+
+</div>
+<!-- Measures Data Section -->
+<div class="recent-activity">
+    <h3 class="chart-title">
+        <i class="fas fa-table"></i>
+        @Localizer["Measurement Data"]
+    </h3>
+
+    @if (Model.Measures.Any())
+    {
         @foreach (var item in Model.Measures)
         {
-            <tr>
-                <td>
-                    @item.Date.ToString("yyyy-MM-dd")
-                </td>
-
-                <td>
-                    @item.Value
-                </td>
-                <td>
-                    @item.ValueType
-                </td>
-            </tr>
+            <div class="activity-item">
+                <div class="activity-icon">
+                    <i class="fas fa-chart-bar"></i>
+                </div>
+                <div class="activity-content">
+                    <div class="activity-title">
+                        @Localizer["Value"]: <span class="fw-bold text-primary">@item.Value</span>
+                    </div>
+                    <div class="activity-time">
+                        <i class="fas fa-calendar me-1"></i>@item.Date.ToString("MMM dd, yyyy")
+                        <span class="ms-3">
+                            <i class="fas fa-tag me-1"></i>
+                            <span class="badge" style="background: linear-gradient(135deg, var(--primary-color), var(--primary-dark)); color: white; padding: 4px 8px; font-size: 0.75rem;">
+                                @item.ValueType
+                            </span>
+                        </span>
+                    </div>
+                </div>
+                <div class="ms-auto">
+                    <span class="stat-number" style="font-size: 1.5rem; color: var(--primary-color);">
+                        @item.Value
+                    </span>
+                </div>
+            </div>
         }
-    </tbody>
-</table>
+    }
+    else
+    {
+        <div class="text-center py-5">
+            <i class="fas fa-chart-bar fa-3x text-muted mb-3"></i>
+            <h5 class="text-muted">@Localizer["No measurement data available"]</h5>
+            <p class="text-muted">@Localizer["Measurements will appear here once data is recorded"]</p>
+        </div>
+    }
+</div>
 
-<div class="card shadow-sm p-4 mb-4">
-    <h5 class="mb-3">@Localizer["Indicator Performance Over Time"]</h5>
-    <canvas id="MeasureChart" height="500"></canvas>
+<!-- Performance Chart Section -->
+<div class="charts-grid">
+    <div class="chart-card">
+        <h3 class="chart-title">
+            <i class="fas fa-chart-line"></i>
+            @Localizer["Indicator Performance Over Time"]
+        </h3>
+        <div style="position: relative; height: 400px; width: 100%;">
+            <canvas id="MeasureChart"></canvas>
+        </div>
+    </div>
 </div>
 
 @* <div>
@@ -97,50 +171,148 @@
             }
         }
 
+        // Get CSS custom properties for consistent theming
+        const rootStyles = getComputedStyle(document.documentElement);
+        const primaryColor = rootStyles.getPropertyValue('--primary-color') || '#2196F3';
+        const primaryDark = rootStyles.getPropertyValue('--primary-dark') || '#1976D2';
+        const primaryLight = rootStyles.getPropertyValue('--primary-light') || '#42A5F5';
+
         new Chart(ctx, {
             type: 'line',
             data: {
                 datasets: [
                     {
-                        label: 'Real',
+                        label: '@Localizer["Real Values"]',
                         data: realData,
-                        borderColor: 'blue',
-                        backgroundColor: 'rgba(0, 0, 255, 0.1)',
+                        borderColor: primaryColor,
+                        backgroundColor: primaryColor + '20',
                         tension: 0.4,
-                        fill: true
+                        fill: true,
+                        pointRadius: 5,
+                        pointHoverRadius: 8,
+                        pointBackgroundColor: primaryColor,
+                        pointBorderColor: '#fff',
+                        pointBorderWidth: 2
                     },
                     {
-                        label: 'Cumulative Real',
+                        label: '@Localizer["Cumulative Real"]',
                         data: cumulativeRealData,
-                        borderColor: 'green',
-                        backgroundColor: 'rgba(0, 128, 0, 0.1)',
+                        borderColor: primaryDark,
+                        backgroundColor: primaryDark + '20',
                         tension: 0.4,
                         fill: false,
-                        borderDash: [4, 2]
+                        borderDash: [8, 4],
+                        pointRadius: 5,
+                        pointHoverRadius: 8,
+                        pointBackgroundColor: primaryDark,
+                        pointBorderColor: '#fff',
+                        pointBorderWidth: 2
                     },
                     {
-                        label: 'Target',
+                        label: '@Localizer["Target"]',
                         data: logicalTargetData,
-                        borderColor: 'deeppink',
-                        backgroundColor: 'rgba(255,20,147,0.1)',
-                        borderDash: [6, 0],
+                        borderColor: primaryLight,
+                        backgroundColor: primaryLight + '20',
+                        borderDash: [12, 6],
                         pointRadius: 0,
                         tension: 0.4,
-                        fill: false
+                        fill: false,
+                        borderWidth: 3
                     }
                 ]
             },
             options: {
                 responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: true,
+                        position: 'top',
+                        labels: {
+                            usePointStyle: true,
+                            padding: 25,
+                            font: {
+                                size: 13,
+                                family: 'Inter, sans-serif',
+                                weight: '500'
+                            }
+                        }
+                    },
+                    tooltip: {
+                        mode: 'index',
+                        intersect: false,
+                        backgroundColor: 'rgba(255, 255, 255, 0.95)',
+                        titleColor: '#333',
+                        bodyColor: '#666',
+                        borderColor: primaryColor,
+                        borderWidth: 2,
+                        cornerRadius: 12,
+                        padding: 15,
+                        titleFont: {
+                            size: 14,
+                            weight: 'bold'
+                        },
+                        bodyFont: {
+                            size: 13
+                        },
+                        displayColors: true,
+                        usePointStyle: true
+                    }
+                },
                 scales: {
                     x: {
                         type: 'time',
                         time: { unit: 'month', tooltipFormat: 'MMM dd, yyyy' },
-                        title: { display: true, text: 'Date' }
+                        title: {
+                            display: true,
+                            text: '@Localizer["Date"]',
+                            font: {
+                                size: 14,
+                                weight: 'bold',
+                                family: 'Inter, sans-serif'
+                            },
+                            color: '#666'
+                        },
+                        grid: {
+                            color: 'rgba(0, 0, 0, 0.08)',
+                            drawBorder: false
+                        },
+                        ticks: {
+                            font: {
+                                size: 12,
+                                family: 'Inter, sans-serif'
+                            },
+                            color: '#999'
+                        }
                     },
                     y: {
-                        title: { display: true, text: 'Value' }
+                        title: {
+                            display: true,
+                            text: '@Localizer["Value"]',
+                            font: {
+                                size: 14,
+                                weight: 'bold',
+                                family: 'Inter, sans-serif'
+                            },
+                            color: '#666'
+                        },
+                        grid: {
+                            color: 'rgba(0, 0, 0, 0.08)',
+                            drawBorder: false
+                        },
+                        ticks: {
+                            font: {
+                                size: 12,
+                                family: 'Inter, sans-serif'
+                            },
+                            color: '#999'
+                        }
                     }
+                },
+                interaction: {
+                    mode: 'nearest',
+                    axis: 'x',
+                    intersect: false
                 }
             }
         });

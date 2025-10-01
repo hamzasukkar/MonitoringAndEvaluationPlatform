@@ -3,109 +3,620 @@
 @using Microsoft.AspNetCore.Mvc.Localization
 @inject IViewLocalizer Localizer
 @using Microsoft.AspNetCore.Localization
-
 @{
     ViewData["Title"] = "Ministries";
-    Layout = "~/Views/Shared/_SetUpLayout.cshtml";
+    Layout = "~/Views/Shared/_DashboardHomeLayout.cshtml";
+    var culture = Context.Features.Get<IRequestCultureFeature>().RequestCulture.Culture.Name;
 }
+<head>
+    <!-- jQuery -->
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+</head>
 
-<div class="container-fluid">
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <div>
-            <h4 class="mb-0">@Localizer["Ministries Management"]</h4>
-            <p class="text-muted mb-0">@Localizer["View and manage all ministry performance metrics"]</p>
-        </div>
-        <a asp-action="Create" class="btn btn-primary">
-            <i class="fas fa-plus me-2"></i>@Localizer["Create New Ministry"]
-        </a>
-    </div>
-
-    <div class="card shadow-sm">
-        <div class="card-body">
-            <div class="table-responsive">
-                <table class="table table-hover">
-                    <thead class="table-light">
-                        <tr>
-                            <th>@Localizer["Ministry Name"]</th>
-                            <th>@Localizer["Indicators Performance"]</th>
-                            <th>@Localizer["Disbursement Performance"]</th>
-                            <th>@Localizer["Field Monitoring"]</th>
-                            <th>@Localizer["Impact Assessment"]</th>
-                            <th class="text-end">@Localizer["Actions"]</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @foreach (var item in Model)
-                        {
-                            string indicatorsClass = ProgressBarHelper.GetProgressBarClass(item.IndicatorsPerformance);
-                            string disbursementClass = ProgressBarHelper.GetProgressBarClass(item.DisbursementPerformance);
-                            string fieldMonitoringClass = ProgressBarHelper.GetProgressBarClass(item.FieldMonitoring);
-                            string impactAssessmentClass = ProgressBarHelper.GetProgressBarClass(item.ImpactAssessment);
-                            double IndicatorsPerformance = Math.Round(item.IndicatorsPerformance, 0);
-
-                            <tr>
-                                <td>
-                                    <strong>@Html.DisplayFor(modelItem => item.MinistryDisplayName)</strong>
-                                </td>
-                                <td>
-                                    @await Html.PartialAsync("_ProgressBar", Tuple.Create(IndicatorsPerformance, indicatorsClass))
-                                </td>
-                                <td>
-                                    @await Html.PartialAsync("_ProgressBar", Tuple.Create(item.DisbursementPerformance, disbursementClass))
-                                </td>
-                                <td>
-                                    @await Html.PartialAsync("_ProgressBar", Tuple.Create(item.FieldMonitoring, fieldMonitoringClass))
-                                </td>
-                                <td>
-                                    @await Html.PartialAsync("_ProgressBar", Tuple.Create(item.ImpactAssessment, impactAssessmentClass))
-                                </td>
-                                <td class="text-end">
-                                    <div class="btn-group" role="group">
-                                        <a asp-action="Edit" asp-route-id="@item.Code" class="btn btn-sm btn-outline-warning" title="Edit">
-                                            <i class="fas fa-edit"></i>
-                                        </a>
-                                        <a asp-action="Delete" asp-route-id="@item.Code" class="btn btn-sm btn-outline-danger" title="Delete">
-                                            <i class="fas fa-trash-alt"></i>
-                                        </a>
-                                    </div>
-                                </td>
-                            </tr>
-                        }
-                    </tbody>
-                </table>
+<!-- Dashboard Header -->
+<div class="dashboard-header">
+    <div class="header-content">
+        <div class="page-title-section">
+            <div class="page-breadcrumb">
+                <a href="@Url.Action("Index", "Home")" class="breadcrumb-link">
+                    <i class="fas fa-home"></i>
+                    @Localizer["Home"]
+                </a>
+                <i class="fas fa-chevron-right breadcrumb-separator"></i>
+                <span class="current-page">@Localizer["Ministries"]</span>
             </div>
+            <h1 class="page-title">@Localizer["Ministry Management"]</h1>
+            <p class="page-description">@Localizer["Manage government ministries and track their performance"]</p>
         </div>
     </div>
 </div>
 
+@await Html.PartialAsync("_ManagementNavigation")
+
+<!-- Quick Add Section -->
+<div class="chart-card mb-4">
+    <div class="chart-title">
+        <i class="fas fa-university"></i>
+        @Localizer["Add New Ministry"]
+    </div>
+    <form id="createMinistryForm" class="row g-3">
+        @Html.AntiForgeryToken()
+        <div class="col-md-4">
+            <label for="MinistryDisplayName" class="form-label fw-bold">
+                <i class="fas fa-building me-2"></i>@Localizer["Ministry Display Name"]
+            </label>
+            <input type="text" name="MinistryDisplayName" class="form-control form-control-lg" required
+                   placeholder="@Localizer["Enter ministry name"]" />
+        </div>
+        <div class="col-md-4">
+            <label for="MinistryUserName" class="form-label fw-bold">
+                <i class="fas fa-user me-2"></i>@Localizer["Ministry User Name"]
+            </label>
+            <input type="text" name="MinistryUserName" class="form-control form-control-lg"
+                   placeholder="@Localizer["Enter username"]" />
+        </div>
+        <div class="col-md-4 d-flex align-items-end">
+            <div class="d-grid w-100">
+                <button type="submit" class="btn btn-primary btn-lg">
+                    <i class="fas fa-plus-circle me-2"></i>@Localizer["Create a New Entity"]
+                </button>
+            </div>
+        </div>
+    </form>
+</div>
+
+<!-- Ministries Table -->
+<div class="chart-card">
+    <div class="chart-title">
+        <i class="fas fa-university"></i>
+        @Localizer["Ministries"] (@Model.Count())
+    </div>
+
+    @if (Model.Any())
+    {
+        <div class="table-responsive">
+            <table class="table table-hover modern-table">
+                <thead class="table-header">
+                    <tr>
+                        <th class="sortable-header">
+                            <div class="header-link">
+                                <i class="fas fa-building me-2"></i>@Localizer["Ministry Display Name"]
+                            </div>
+                        </th>
+                        <th class="sortable-header">
+                            <div class="header-link">
+                                <i class="fas fa-user me-2"></i>@Localizer["Ministry User Name"]
+                            </div>
+                        </th>
+                        <th class="text-center">
+                            <div class="header-link">
+                                <i class="fas fa-chart-line me-2"></i>@Localizer["Indicators Performance"]
+                            </div>
+                        </th>
+                        <th class="text-center">
+                            <div class="header-link">
+                                <i class="fas fa-money-bill-wave me-2"></i>@Localizer["Disbursement Performance"]
+                            </div>
+                        </th>
+                        <th class="text-center">
+                            <div class="header-link">
+                                <i class="fas fa-cogs me-2"></i>@Localizer["Actions"]
+                            </div>
+                        </th>
+                    </tr>
+                </thead>
+                <tbody id="ministriesTableBody">
+                    @foreach (var item in Model)
+                    {
+                        string indicatorsClass = ProgressBarHelper.GetProgressBarClass(item.IndicatorsPerformance);
+                        string disbursementClass = ProgressBarHelper.GetProgressBarClass(item.DisbursementPerformance);
+                        double IndicatorsPerformance = Math.Round(item.IndicatorsPerformance, 2);
+                        double DisbursementPerformance = Math.Round(item.DisbursementPerformance, 2);
+
+                        <tr id="ministry-row-@item.Code" class="table-row">
+                            <td class="ministry-name-cell">
+                                <div class="d-flex align-items-center">
+                                    <div class="ministry-icon me-3">
+                                        <i class="fas fa-university"></i>
+                                    </div>
+                                    <div>
+                                        <span id="ministry-displayname-@item.Code" class="ministry-displayname-view ministry-name-text ministry-clickable" onclick="viewMinistryProjects(@item.Code, '@item.MinistryDisplayName')">
+                                            @item.MinistryDisplayName
+                                        </span>
+                                        <input type="text" id="ministry-displayname-input-@item.Code"
+                                               class="form-control ministry-displayname-edit d-none" value="@item.MinistryDisplayName" />
+                                    </div>
+                                </div>
+                            </td>
+                            <td class="ministry-username-cell">
+                                <span id="ministry-username-@item.Code" class="ministry-username-view">
+                                    @item.MinistryUserName
+                                </span>
+                                <input type="text" id="ministry-username-input-@item.Code"
+                                       class="form-control ministry-username-edit d-none" value="@item.MinistryUserName" />
+                            </td>
+                            <td class="text-center" title="@Localizer["Indicators Performance"]: @IndicatorsPerformance%">
+                                @await Html.PartialAsync("_ProgressBar", Tuple.Create(IndicatorsPerformance, indicatorsClass))
+                            </td>
+                            <td class="text-center" title="@Localizer["Disbursement Performance"]: @DisbursementPerformance%">
+                                @await Html.PartialAsync("_ProgressBar", Tuple.Create(DisbursementPerformance, disbursementClass))
+                            </td>
+                            <td class="text-center">
+                                <div class="btn-group action-buttons" role="group">
+                                    <button class="btn btn-outline-primary btn-sm action-btn"
+                                            id="edit-btn-@item.Code"
+                                            onclick="toggleMinistryEdit(@item.Code)" title="@Localizer["Edit"]">
+                                        <i class="fas fa-edit"></i>
+                                    </button>
+                                    <button class="btn btn-outline-danger btn-sm action-btn" title="@Localizer["Delete"]"
+                                            onclick="deleteMinistry(@item.Code)">
+                                        <i class="fas fa-trash-alt"></i>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+    else
+    {
+        <div class="text-center py-5">
+            <div class="stat-icon warning mx-auto mb-3" style="width: 80px; height: 80px; font-size: 2rem;">
+                <i class="fas fa-university"></i>
+            </div>
+            <h4 class="text-muted">@Localizer["No ministries found"]</h4>
+            <p class="text-muted">@Localizer["Create your first ministry to get started"]</p>
+        </div>
+    }
+</div>
+
+@section Scripts {
+    <!-- SweetAlert2 -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
     <style>
-        .table-hover tbody tr:hover {
-            background-color: rgba(13, 110, 253, 0.05);
+        /* Modern Table Styles */
+        .modern-table {
+            background: transparent;
+            border: none;
+            border-radius: 15px;
+            overflow: hidden;
         }
 
-        .progress {
-            height: 24px;
-            border-radius: 4px;
+        .table-header {
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-dark) 100%);
+            color: white;
         }
 
-        .progress-bar {
+        .table-header th {
+            border: none;
+            padding: 20px 15px;
+            font-weight: 600;
+            font-size: 0.95rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .header-link {
+            /* color: white !important; */
+            text-decoration: none !important;
+            display: flex;
+            align-items: center;
+            justify-content: flex-start;
+            transition: all 0.3s ease;
+        }
+
+        .header-link:hover {
+            color: rgba(255, 255, 255, 0.9) !important;
+            transform: translateY(-1px);
+        }
+
+        .table-row {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border: none;
+            transition: all 0.3s ease;
+        }
+
+        .table-row:hover {
+            background: rgba(255, 255, 255, 1);
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+        }
+
+        .table-row td {
+            border: none;
+            padding: 20px 15px;
+            vertical-align: middle;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+        }
+
+        .ministry-name-cell {
+            min-width: 250px;
+        }
+
+        .ministry-icon {
+            width: 45px;
+            height: 45px;
+            background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+            border-radius: 12px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 0.75rem;
-            font-weight: 500;
+            color: white;
+            font-size: 1.2rem;
         }
 
-        .btn-group .btn {
-            padding: 0.25rem 0.5rem;
-        }
-
-        .card-header {
+        .ministry-name-text {
+            color: #333;
+            text-decoration: none;
             font-weight: 600;
+            font-size: 1.1rem;
+            transition: color 0.3s ease;
         }
 
-    .table-responsive {
-        overflow-x: hidden;
-    }
+        .ministry-name-text:hover {
+            color: var(--primary-color);
+        }
+
+        .ministry-clickable {
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .ministry-clickable:hover {
+            color: var(--primary-color) !important;
+            text-decoration: underline;
+            transform: scale(1.02);
+        }
+
+        .action-buttons {
+            gap: 5px;
+        }
+
+        .action-btn {
+            width: 35px;
+            height: 35px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+            border-width: 1px;
+        }
+
+        .action-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .table-responsive {
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+        /* Form styling */
+        .form-control-lg {
+            border: 2px solid rgba(0, 0, 0, 0.1);
+            border-radius: 10px;
+            transition: all 0.3s ease;
+        }
+
+        .form-control-lg:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 0.2rem color-mix(in srgb, var(--primary-color) 25%, transparent);
+        }
     </style>
+    }
+<script>
+    $(document).ready(function() {
+
+        // Auto-generate username from display name
+        $('input[name="MinistryDisplayName"]').on('input', function() {
+            const displayName = $(this).val();
+            const username = displayName.replace(/\s+/g, '').toLowerCase();
+            $('input[name="MinistryUserName"]').val(username);
+        });
+
+        // Create Ministry Form Submission
+        $('#createMinistryForm').on('submit', function(e) {
+            e.preventDefault();
+            console.log('Form submitted!');
+
+            const displayName = $('input[name="MinistryDisplayName"]').val().trim();
+            const userName = $('input[name="MinistryUserName"]').val().trim();
+
+            if (!displayName) {
+                Swal.fire('Error', '@Localizer["Ministry Display Name is required"]', 'error');
+                return;
+            }
+
+            $.ajax({
+                url: '@Url.Action("CreateInline")',
+                type: 'POST',
+                data: {
+                    MinistryDisplayName: displayName,
+                    MinistryUserName: userName,
+                    __RequestVerificationToken: $('input[name="__RequestVerificationToken"]').val()
+                },
+                success: function(response) {
+                    console.log('Response:', response);
+                    if (response.success) {
+                        // Add new row with modern design
+                        const newRow = `
+                            <tr id="ministry-row-${response.ministry.code}" class="table-row">
+                                <td class="ministry-name-cell">
+                                    <div class="d-flex align-items-center">
+                                        <div class="ministry-icon me-3">
+                                            <i class="fas fa-university"></i>
+                                        </div>
+                                        <div>
+                                            <span id="ministry-displayname-${response.ministry.code}" class="ministry-displayname-view ministry-name-text">
+                                                ${response.ministry.ministryDisplayName}
+                                            </span>
+                                            <input type="text" id="ministry-displayname-input-${response.ministry.code}"
+                                                   class="form-control ministry-displayname-edit d-none" value="${response.ministry.ministryDisplayName}" />
+                                            <small class="text-muted d-block">
+                                                <i class="fas fa-hashtag me-1"></i>ID: ${response.ministry.code}
+                                            </small>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td class="ministry-username-cell">
+                                    <span id="ministry-username-${response.ministry.code}" class="ministry-username-view">
+                                        ${response.ministry.ministryUserName}
+                                    </span>
+                                    <input type="text" id="ministry-username-input-${response.ministry.code}"
+                                           class="form-control ministry-username-edit d-none" value="${response.ministry.ministryUserName}" />
+                                </td>
+                                <td class="text-center">
+                                    <div class="progress-container">
+                                        <div class="progress modern-progress-bar">
+                                            <div class="progress-bar bg-danger progress-bar-striped" role="progressbar"
+                                                 aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"
+                                                 style="width: 0%" title="0% Performance">
+                                            </div>
+                                        </div>
+                                        <div class="progress-value-display">
+                                            <span class="progress-percentage bg-danger-text">0%</span>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td class="text-center">
+                                    <div class="progress-container">
+                                        <div class="progress modern-progress-bar">
+                                            <div class="progress-bar bg-danger progress-bar-striped" role="progressbar"
+                                                 aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"
+                                                 style="width: 0%" title="0% Performance">
+                                            </div>
+                                        </div>
+                                        <div class="progress-value-display">
+                                            <span class="progress-percentage bg-danger-text">0%</span>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td class="text-center">
+                                    <div class="btn-group action-buttons" role="group">
+                                        <button class="btn btn-outline-primary btn-sm action-btn"
+                                                id="edit-btn-${response.ministry.code}"
+                                                onclick="toggleMinistryEdit(${response.ministry.code})" title="@Localizer["Edit"]">
+                                            <i class="fas fa-edit"></i>
+                                        </button>
+                                        <button class="btn btn-outline-danger btn-sm action-btn" title="@Localizer["Delete"]"
+                                                onclick="deleteMinistry(${response.ministry.code})">
+                                            <i class="fas fa-trash-alt"></i>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>`;
+
+                        $('#ministriesTableBody').append(newRow);
+                        $('#createMinistryForm')[0].reset();
+
+                        Swal.fire({
+                            icon: 'success',
+                            title: '@Localizer["Success!"]',
+                            text: '@Localizer["Ministry created successfully"]',
+                            timer: 2000,
+                            showConfirmButton: false
+                        });
+                    } else {
+                        Swal.fire('Error', response.message, 'error');
+                    }
+                },
+                error: function() {
+                    Swal.fire('Error', '@Localizer["An error occurred while creating the ministry"]', 'error');
+                }
+            });
+        });
+
+        // Inline Editing
+        $(document).on('click', '.editable-field', function() {
+            if ($(this).hasClass('editing')) return;
+
+            const $this = $(this);
+            const originalValue = $this.text().trim();
+            const field = $this.data('field');
+            const id = $this.data('id');
+
+            $this.addClass('editing');
+            $this.html(`<input type="text" class="edit-input" value="${originalValue}" data-original="${originalValue}">`);
+
+            const $input = $this.find('.edit-input');
+            $input.focus().select();
+
+            // Save on Enter or blur
+            $input.on('blur keypress', function(e) {
+                if (e.type === 'keypress' && e.which !== 13) return;
+
+                const newValue = $(this).val().trim();
+                const originalValue = $(this).data('original');
+
+                if (newValue === originalValue) {
+                    // No change
+                    $this.removeClass('editing').text(originalValue);
+                    return;
+                }
+
+                if (newValue === '') {
+                    Swal.fire('Error', '@Localizer["Value cannot be empty"]', 'error');
+                    $this.removeClass('editing').text(originalValue);
+                    return;
+                }
+
+                // Save changes
+                $.ajax({
+                    url: '@Url.Action("InlineEdit")',
+                    type: 'POST',
+                    data: {
+                        id: id,
+                        field: field,
+                        value: newValue
+                    },
+                    success: function(response) {
+                        if (response.success) {
+                            $this.removeClass('editing').text(newValue);
+                            Swal.fire({
+                                icon: 'success',
+                                title: '@Localizer["Updated!"]',
+                                text: '@Localizer["Field updated successfully"]',
+                                timer: 1500,
+                                showConfirmButton: false
+                            });
+                        } else {
+                            $this.removeClass('editing').text(originalValue);
+                            Swal.fire('Error', response.message, 'error');
+                        }
+                    },
+                    error: function() {
+                        $this.removeClass('editing').text(originalValue);
+                        Swal.fire('Error', '@Localizer["An error occurred while updating"]', 'error');
+                    }
+                });
+            });
+
+            // Cancel on Escape
+            $input.on('keypress', function(e) {
+                if (e.which === 27) { // Escape key
+                    $this.removeClass('editing').text(originalValue);
+                }
+            });
+        });
+
+    }); // Closing brace for $(document).ready
+
+    // Delete Ministry - Global function
+    function deleteMinistry(id) {
+        console.log('Delete ministry called with id:', id);
+        Swal.fire({
+            title: '@Localizer["Are you sure?"]',
+            text: "@Localizer["You won't be able to revert this!"]",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#d33',
+            cancelButtonColor: '#3085d6',
+            confirmButtonText: '@Localizer["Yes, delete it!"]',
+            cancelButtonText: '@Localizer["Cancel"]'
+        }).then((result) => {
+            console.log('SweetAlert result:', result);
+            if (result.isConfirmed) {
+                console.log('Sending delete request for id:', id);
+                $.ajax({
+                    url: '@Url.Action("InlineDelete")',
+                    type: 'POST',
+                    data: { id: id },
+                    success: function(response) {
+                        console.log('Delete response:', response);
+                        if (response.success) {
+                            $(`#ministry-row-${id}`).fadeOut(function() {
+                                $(this).remove();
+                            });
+                            Swal.fire({
+                                icon: 'success',
+                                title: '@Localizer["Deleted!"]',
+                                text: '@Localizer["Ministry has been deleted."]',
+                                timer: 2000,
+                                showConfirmButton: false
+                            });
+                        } else {
+                            Swal.fire('Error', response.message || 'Unknown error', 'error');
+                        }
+                    },
+                    error: function(xhr, status, error) {
+                        console.error('Delete error:', xhr, status, error);
+                        Swal.fire('Error', '@Localizer["An error occurred while deleting"]', 'error');
+                    }
+                });
+            }
+        });
+    }
+
+    // Toggle Ministry Inline Edit - Global function
+    function toggleMinistryEdit(code) {
+        const displayNameSpan = $(`#ministry-displayname-${code}`);
+        const displayNameInput = $(`#ministry-displayname-input-${code}`);
+        const userNameSpan = $(`#ministry-username-${code}`);
+        const userNameInput = $(`#ministry-username-input-${code}`);
+        const button = $(`#edit-btn-${code}`);
+
+        const isEditing = displayNameInput.hasClass('d-none') === false;
+
+        if (isEditing) {
+            // Save via AJAX
+            const newDisplayName = displayNameInput.val();
+            const newUserName = userNameInput.val();
+
+            $.ajax({
+                url: '@Url.Action("QuickUpdate")',
+                type: 'POST',
+                data: {
+                    id: code,
+                    displayName: newDisplayName,
+                    userName: newUserName
+                },
+                success: function (response) {
+                    if (response.success) {
+                        displayNameSpan.text(newDisplayName);
+                        userNameSpan.text(newUserName);
+                        displayNameInput.addClass('d-none');
+                        userNameInput.addClass('d-none');
+                        displayNameSpan.removeClass('d-none');
+                        userNameSpan.removeClass('d-none');
+                        button.html('<i class="fas fa-edit"></i>');
+                        button.removeClass('btn-success').addClass('btn-outline-warning');
+                        Swal.fire({
+                            icon: 'success',
+                            title: '@Localizer["Updated!"]',
+                            text: '@Localizer["Ministry updated successfully"]',
+                            timer: 1500,
+                            showConfirmButton: false
+                        });
+                    } else {
+                        Swal.fire('Error', response.message, 'error');
+                    }
+                },
+                error: function() {
+                    Swal.fire('Error', '@Localizer["An error occurred while updating"]', 'error');
+                }
+            });
+        } else {
+            // Enter edit mode
+            displayNameInput.removeClass('d-none');
+            userNameInput.removeClass('d-none');
+            displayNameSpan.addClass('d-none');
+            userNameSpan.addClass('d-none');
+            button.html('<i class="fas fa-save"></i>');
+            button.removeClass('btn-outline-warning').addClass('btn-success');
+            displayNameInput.focus();
+        }
+    }
+
+    // Navigate to Projects filtered by Ministry - Global function
+    function viewMinistryProjects(ministryCode, ministryName) {
+        // Navigate to Projects index with ministry filter
+        window.location.href = '@Url.Action("Index", "Projects")?SelectedMinistries=' + ministryCode;
+    }
+</script>
