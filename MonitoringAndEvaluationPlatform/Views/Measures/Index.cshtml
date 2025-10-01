@@ -835,7 +835,53 @@
                 }
             }).then((result) => {
                 if (result.isConfirmed) {
-                    window.location.href = '@Url.Action("Delete", "Measures")/' + measureCode;
+                    // Send AJAX delete request
+                    $.ajax({
+                        url: '@Url.Action("Delete", "Measures")/' + measureCode,
+                        type: 'POST',
+                        headers: {
+                            'X-Requested-With': 'XMLHttpRequest'
+                        },
+                        data: {
+                            __RequestVerificationToken: $('input[name="__RequestVerificationToken"]').val()
+                        },
+                        success: function(response) {
+                            // Show success message
+                            Swal.fire({
+                                icon: 'success',
+                                title: '@Localizer["Deleted!"]',
+                                text: '@Localizer["Measure has been deleted successfully"]',
+                                timer: 2000,
+                                showConfirmButton: false,
+                                confirmButtonColor: 'var(--primary-color)',
+                                customClass: {
+                                    popup: 'modern-swal-popup'
+                                }
+                            }).then(() => {
+                                // Remove the row from table
+                                $('#row-' + measureCode).fadeOut(400, function() {
+                                    $(this).remove();
+
+                                    // Check if table is empty
+                                    if ($('.table-row').length === 0) {
+                                        location.reload();
+                                    }
+                                });
+                            });
+                        },
+                        error: function(xhr) {
+                            // Show error message
+                            Swal.fire({
+                                icon: 'error',
+                                title: '@Localizer["Error"]',
+                                text: '@Localizer["Failed to delete measure. Please try again."]',
+                                confirmButtonColor: 'var(--danger-color)',
+                                customClass: {
+                                    popup: 'modern-swal-popup'
+                                }
+                            });
+                        }
+                    });
                 }
             });
         }

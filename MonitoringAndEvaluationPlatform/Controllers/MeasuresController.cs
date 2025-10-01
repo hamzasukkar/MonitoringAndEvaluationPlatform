@@ -295,9 +295,19 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             try
             {
                 await monitoringService.DeleteMeasureAndRecalculateAsync(id);
+
+                // Check if this is an AJAX request
+                if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
+                {
+                    return Ok(new { message = _localizer["Measure deleted successfully"] });
+                }
             }
             catch (InvalidOperationException ex)
             {
+                if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
+                {
+                    return NotFound(new { message = ex.Message });
+                }
                 return NotFound(ex.Message);
             }
 
