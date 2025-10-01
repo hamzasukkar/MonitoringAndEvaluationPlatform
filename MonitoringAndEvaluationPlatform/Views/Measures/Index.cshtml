@@ -272,9 +272,22 @@
                                                 data-code="@item.Code" title="@Localizer["Edit"]">
                                             <i class="fas fa-edit"></i>
                                         </button>
-                                        <a asp-action="Details" asp-route-id="@item.Code" class="btn btn-outline-info btn-sm action-btn" title="@Localizer["Details"]">
+                                        <button type="button" class="btn btn-outline-info btn-sm action-btn view-details-btn"
+                                                data-code="@item.Code"
+                                                data-date="@item.Date.ToString("yyyy-MM-dd")"
+                                                data-value="@item.Value.ToString("N2")"
+                                                data-indicator-code="@item.Indicator.IndicatorCode"
+                                                data-indicator-name="@item.Indicator.Name"
+                                                data-indicator-target="@item.Indicator.Target"
+                                                title="@Localizer["View Details"]">
                                             <i class="fas fa-eye"></i>
-                                        </a>
+                                        </button>
+                                        <button type="button" class="btn btn-outline-success btn-sm action-btn view-chart-btn"
+                                                data-indicator-code="@item.Indicator.IndicatorCode"
+                                                data-indicator-name="@item.Indicator.Name"
+                                                title="@Localizer["View Chart"]">
+                                            <i class="fas fa-chart-line"></i>
+                                        </button>
                                         <button type="button" class="btn btn-outline-danger btn-sm action-btn"
                                                onclick="deleteMeasure('@item.Code')" title="@Localizer["Delete"]">
                                             <i class="fas fa-trash-alt"></i>
@@ -319,7 +332,73 @@
     </div>
 </div>
 
+<!-- Option 2: Quick View Modal -->
+<div class="modal fade" id="detailsModal" tabindex="-1" aria-labelledby="detailsModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content modern-modal">
+            <div class="modal-header">
+                <h5 class="modal-title" id="detailsModalLabel">
+                    <i class="fas fa-info-circle me-2"></i>@Localizer["Measure Details"]
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="detail-item">
+                    <div class="detail-label">
+                        <i class="fas fa-calendar me-2"></i>@Localizer["Date"]
+                    </div>
+                    <div class="detail-value" id="modal-date"></div>
+                </div>
+                <div class="detail-item">
+                    <div class="detail-label">
+                        <i class="fas fa-chart-bar me-2"></i>@Localizer["Achievement Value"]
+                    </div>
+                    <div class="detail-value" id="modal-value"></div>
+                </div>
+                <div class="detail-item">
+                    <div class="detail-label">
+                        <i class="fas fa-code me-2"></i>@Localizer["Indicator Code"]
+                    </div>
+                    <div class="detail-value" id="modal-indicator-code"></div>
+                </div>
+                <div class="detail-item">
+                    <div class="detail-label">
+                        <i class="fas fa-tag me-2"></i>@Localizer["Indicator Name"]
+                    </div>
+                    <div class="detail-value" id="modal-indicator-name"></div>
+                </div>
+                <div class="detail-item">
+                    <div class="detail-label">
+                        <i class="fas fa-target me-2"></i>@Localizer["Target"]
+                    </div>
+                    <div class="detail-value" id="modal-indicator-target"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Option 1: Chart Modal -->
+<div class="modal fade" id="chartModal" tabindex="-1" aria-labelledby="chartModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content modern-modal">
+            <div class="modal-header">
+                <h5 class="modal-title" id="chartModalLabel">
+                    <i class="fas fa-chart-line me-2"></i>@Localizer["Measures Trend"]
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div id="chart-indicator-info" class="mb-3"></div>
+                <canvas id="measuresChart"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+
 @section Scripts {
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
     <!-- SweetAlert2 -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
@@ -590,6 +669,80 @@
             margin: 0 auto;
         }
 
+        /* Modern Modal Styling */
+        .modern-modal {
+            border-radius: 20px;
+            border: none;
+            overflow: hidden;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        }
+
+        .modern-modal .modal-header {
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-dark) 100%);
+            color: white;
+            border: none;
+            padding: 1.5rem 2rem;
+        }
+
+        .modern-modal .modal-title {
+            font-weight: 600;
+            font-size: 1.25rem;
+        }
+
+        .modern-modal .btn-close {
+            filter: brightness(0) invert(1);
+            opacity: 1;
+        }
+
+        .modern-modal .modal-body {
+            padding: 2rem;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+        }
+
+        .detail-item {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 12px;
+            padding: 1rem 1.5rem;
+            margin-bottom: 1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        .detail-item:hover {
+            transform: translateX(5px);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+        }
+
+        .detail-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .detail-label {
+            font-weight: 600;
+            color: #6c757d;
+            display: flex;
+            align-items: center;
+            font-size: 0.95rem;
+        }
+
+        .detail-value {
+            font-weight: 600;
+            color: #333;
+            font-size: 1rem;
+        }
+
+        #chart-indicator-info {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 12px;
+            padding: 1rem 1.5rem;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
         .modern-table-container {
             border-radius: 15px;
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
@@ -648,6 +801,118 @@
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script>
         $(document).ready(function() {
+            // Option 2: Handle view details button click
+            $('.view-details-btn').on('click', function() {
+                const btn = $(this);
+                const date = btn.data('date');
+                const value = btn.data('value');
+                const indicatorCode = btn.data('indicator-code');
+                const indicatorName = btn.data('indicator-name');
+                const indicatorTarget = btn.data('indicator-target');
+
+                // Populate modal
+                $('#modal-date').text(date);
+                $('#modal-value').html('<span class="modern-badge badge-success">' + value + '</span>');
+                $('#modal-indicator-code').html('<span class="modern-badge badge-primary">' + indicatorCode + '</span>');
+                $('#modal-indicator-name').text(indicatorName);
+                $('#modal-indicator-target').html('<span class="target-value">' + indicatorTarget + '</span>');
+
+                // Show modal
+                new bootstrap.Modal(document.getElementById('detailsModal')).show();
+            });
+
+            // Option 1: Handle view chart button click
+            $('.view-chart-btn').on('click', function() {
+                const btn = $(this);
+                const indicatorCode = btn.data('indicator-code');
+                const indicatorName = btn.data('indicator-name');
+
+                // Set indicator info
+                $('#chart-indicator-info').html('<strong><i class="fas fa-bullseye me-2"></i>' + indicatorName + '</strong> <span class="modern-badge badge-primary ms-2">' + indicatorCode + '</span>');
+
+                // Fetch measures for this indicator
+                $.ajax({
+                    url: '@Url.Action("GetMeasuresByIndicator", "Measures")',
+                    type: 'GET',
+                    data: { indicatorCode: indicatorCode },
+                    success: function(response) {
+                        // Prepare chart data
+                        const dates = response.map(m => m.date);
+                        const values = response.map(m => m.value);
+
+                        // Show modal
+                        const modal = new bootstrap.Modal(document.getElementById('chartModal'));
+                        modal.show();
+
+                        // Wait for modal to be shown before creating chart
+                        $('#chartModal').on('shown.bs.modal', function () {
+                            const ctx = document.getElementById('measuresChart').getContext('2d');
+
+                            // Destroy existing chart if any
+                            if (window.measuresChartInstance) {
+                                window.measuresChartInstance.destroy();
+                            }
+
+                            // Create new chart
+                            window.measuresChartInstance = new Chart(ctx, {
+                                type: 'line',
+                                data: {
+                                    labels: dates,
+                                    datasets: [{
+                                        label: '@Localizer["Achievement Value"]',
+                                        data: values,
+                                        borderColor: 'rgb(75, 192, 192)',
+                                        backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                                        tension: 0.4,
+                                        fill: true,
+                                        pointRadius: 6,
+                                        pointHoverRadius: 8,
+                                        pointBackgroundColor: 'rgb(75, 192, 192)',
+                                        pointBorderColor: '#fff',
+                                        pointBorderWidth: 2
+                                    }]
+                                },
+                                options: {
+                                    responsive: true,
+                                    maintainAspectRatio: true,
+                                    plugins: {
+                                        legend: {
+                                            display: true,
+                                            position: 'top',
+                                        },
+                                        tooltip: {
+                                            mode: 'index',
+                                            intersect: false,
+                                        }
+                                    },
+                                    scales: {
+                                        y: {
+                                            beginAtZero: true,
+                                            grid: {
+                                                color: 'rgba(0, 0, 0, 0.05)'
+                                            }
+                                        },
+                                        x: {
+                                            grid: {
+                                                color: 'rgba(0, 0, 0, 0.05)'
+                                            }
+                                        }
+                                    }
+                                }
+                            });
+                        });
+                    },
+                    error: function() {
+                        Swal.fire({
+                            icon: 'error',
+                            title: '@Localizer["Error"]',
+                            text: '@Localizer["Failed to load chart data"]',
+                            confirmButtonColor: 'var(--danger-color)'
+                        });
+                    }
+                });
+            });
+
             // Handle edit button click
             $('.edit-measure-btn').on('click', function() {
                 const row = $(this).closest('tr');

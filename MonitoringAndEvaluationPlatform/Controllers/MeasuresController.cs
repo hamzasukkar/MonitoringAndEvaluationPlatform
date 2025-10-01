@@ -34,6 +34,23 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             return Ok(_localizer["Measure added and Indicator Performance updated"]);
         }
 
+        // GET: Measures by Indicator (for chart)
+        [HttpGet]
+        public async Task<IActionResult> GetMeasuresByIndicator(int indicatorCode)
+        {
+            var measures = await _context.Measures
+                .Where(m => m.IndicatorCode == indicatorCode)
+                .OrderBy(m => m.Date)
+                .Select(m => new
+                {
+                    date = m.Date.ToString("yyyy-MM-dd"),
+                    value = m.Value
+                })
+                .ToListAsync();
+
+            return Ok(measures);
+        }
+
         // DTO
         public class AddMeasureDto
         {
