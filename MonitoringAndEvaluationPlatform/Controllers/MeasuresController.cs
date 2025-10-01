@@ -199,19 +199,57 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, Measure measure)
         {
+            // Check if this is an AJAX request (inline edit)
+            if (Request.Headers["X-Requested-With"] == "XMLHttpRequest" || Request.ContentType?.Contains("application/x-www-form-urlencoded") == true)
+            {
+                // Get the existing measure from database
+                var existingMeasure = await _context.Measures.FindAsync(id);
+                if (existingMeasure == null)
+                {
+                    return NotFound();
+                }
+
+                // Update only the editable fields
+                existingMeasure.Date = measure.Date;
+                existingMeasure.Value = measure.Value;
+
+                try
+                {
+                    _context.Update(existingMeasure);
+                    await _context.SaveChangesAsync();
+
+                    // Update indicator performance
+                    await _monitoringService.UpdateIndicatorPerformance(existingMeasure.IndicatorCode);
+
+                    return Ok(new { message = _localizer["Measure updated successfully"] });
+                }
+                catch (DbUpdateConcurrencyException)
+                {
+                    if (!MeasureExists(id))
+                    {
+                        return NotFound();
+                    }
+                    else
+                    {
+                        throw;
+                    }
+                }
+            }
+
+            // Regular form POST (from Edit view)
             if (id != measure.Code)
             {
                 return NotFound();
             }
             ModelState.Remove(nameof(measure.Indicator));
-            
+
             if (ModelState.IsValid)
             {
                 try
                 {
                     _context.Update(measure);
                     await _context.SaveChangesAsync();
-                    
+
                     // Update indicator performance
                     await _monitoringService.UpdateIndicatorPerformance(measure.IndicatorCode);
                     TempData["SuccessMessage"] = _localizer["Measure updated successfully and indicator performance has been updated."];

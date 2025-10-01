@@ -403,7 +403,8 @@
         </div>
     </div>
     @{
-        double performance = Math.Round(@Model.performance, 0);
+        double performance = Math.Round(@Model.performance, 2);
+        double disbursementPerformance = Math.Round(@Model.DisbursementPerformance, 2);
     }
     <!-- Performance Metrics -->
     <div class="row mb-4">
@@ -423,7 +424,7 @@
                 <div class="card-body text-center">
                     <h6 class="card-title text-muted">@Localizer["Disbursement"]</h6>
                     <div class="progress-circle progress-@((int)Model.DisbursementPerformance)" data-value="@Model.DisbursementPerformance">
-                        <span class="progress-circle-value">@Model.DisbursementPerformance%</span>
+                        <span class="progress-circle-value">@disbursementPerformance%</span>
                     </div>
                     <p class="text-muted mt-2 mb-0">@Localizer["Budget utilization"]</p>
                 </div>
