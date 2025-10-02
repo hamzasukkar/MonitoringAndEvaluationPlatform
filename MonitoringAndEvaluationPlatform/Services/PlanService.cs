@@ -153,14 +153,16 @@ public class PlanService
                 indicator.DisbursementPerformance = (int)linkedProjects.Average(p => p.DisbursementPerformance);
                 indicator.FieldMonitoring = (int)linkedProjects.Average(p => p.FieldMonitoring);
                 indicator.ImpactAssessment = (int)linkedProjects.Average(p => p.ImpactAssessment);
+                _context.Indicators.Update(indicator);
             }
             else
             {
+                // Indicator has no projects - don't update it (will be excluded from parent calculations)
                 indicator.DisbursementPerformance = 0;
                 indicator.FieldMonitoring = 0;
                 indicator.ImpactAssessment = 0;
+                _context.Indicators.Update(indicator);
             }
-            _context.Indicators.Update(indicator);
         }
 
         // C. Calculate DisbursementPerformance for SubOutputs
@@ -172,19 +174,26 @@ public class PlanService
 
         foreach (var subOutput in subOutputsToUpdate)
         {
-            if (subOutput.Indicators.Any())
+            // Only include indicators that have projects
+            var indicatorsWithProjects = subOutput.Indicators
+                .Where(i => _context.ProjectIndicators.Any(pi => pi.IndicatorCode == i.IndicatorCode))
+                .ToList();
+
+            if (indicatorsWithProjects.Any())
             {
-                subOutput.DisbursementPerformance = (int)subOutput.Indicators.Average(i => i.DisbursementPerformance);
-                subOutput.FieldMonitoring = (int)subOutput.Indicators.Average(i => i.FieldMonitoring);
-                subOutput.ImpactAssessment = (int)subOutput.Indicators.Average(i => i.ImpactAssessment);
+                subOutput.DisbursementPerformance = (int)indicatorsWithProjects.Average(i => i.DisbursementPerformance);
+                subOutput.FieldMonitoring = (int)indicatorsWithProjects.Average(i => i.FieldMonitoring);
+                subOutput.ImpactAssessment = (int)indicatorsWithProjects.Average(i => i.ImpactAssessment);
+                _context.SubOutputs.Update(subOutput);
             }
             else
             {
+                // SubOutput has no indicators with projects - don't update it
                 subOutput.DisbursementPerformance = 0;
                 subOutput.FieldMonitoring = 0;
                 subOutput.ImpactAssessment = 0;
+                _context.SubOutputs.Update(subOutput);
             }
-            _context.SubOutputs.Update(subOutput);
         }
 
         // D. Calculate DisbursementPerformance for Outputs
@@ -192,23 +201,31 @@ public class PlanService
         var outputsToUpdate = await _context.Outputs
             .Where(o => affectedOutputIds.Contains(o.Code))
             .Include(o => o.SubOutputs)
+                .ThenInclude(so => so.Indicators)
             .ToListAsync();
 
         foreach (var output in outputsToUpdate)
         {
-            if (output.SubOutputs.Any())
+            // Only include subOutputs that have indicators with projects
+            var subOutputsWithProjects = output.SubOutputs
+                .Where(so => so.Indicators.Any(i => _context.ProjectIndicators.Any(pi => pi.IndicatorCode == i.IndicatorCode)))
+                .ToList();
+
+            if (subOutputsWithProjects.Any())
             {
-                output.DisbursementPerformance = (int)output.SubOutputs.Average(so => so.DisbursementPerformance);
-                output.FieldMonitoring = (int)output.SubOutputs.Average(so => so.FieldMonitoring);
-                output.ImpactAssessment = (int)output.SubOutputs.Average(so => so.ImpactAssessment);
+                output.DisbursementPerformance = (int)subOutputsWithProjects.Average(so => so.DisbursementPerformance);
+                output.FieldMonitoring = (int)subOutputsWithProjects.Average(so => so.FieldMonitoring);
+                output.ImpactAssessment = (int)subOutputsWithProjects.Average(so => so.ImpactAssessment);
+                _context.Outputs.Update(output);
             }
             else
             {
+                // Output has no subOutputs with projects - don't update it
                 output.DisbursementPerformance = 0;
                 output.FieldMonitoring = 0;
                 output.ImpactAssessment = 0;
+                _context.Outputs.Update(output);
             }
-            _context.Outputs.Update(output);
         }
 
         // E. Calculate DisbursementPerformance for Outcomes
@@ -216,23 +233,32 @@ public class PlanService
         var outcomesToUpdate = await _context.Outcomes
             .Where(oc => affectedOutcomeIds.Contains(oc.Code))
             .Include(oc => oc.Outputs)
+                .ThenInclude(o => o.SubOutputs)
+                    .ThenInclude(so => so.Indicators)
             .ToListAsync();
 
         foreach (var outcome in outcomesToUpdate)
         {
-            if (outcome.Outputs.Any())
+            // Only include outputs that have subOutputs with indicators with projects
+            var outputsWithProjects = outcome.Outputs
+                .Where(o => o.SubOutputs.Any(so => so.Indicators.Any(i => _context.ProjectIndicators.Any(pi => pi.IndicatorCode == i.IndicatorCode))))
+                .ToList();
+
+            if (outputsWithProjects.Any())
             {
-                outcome.DisbursementPerformance = (int)outcome.Outputs.Average(o => o.DisbursementPerformance);
-                outcome.FieldMonitoring = (int)outcome.Outputs.Average(o => o.FieldMonitoring);
-                outcome.ImpactAssessment = (int)outcome.Outputs.Average(o => o.ImpactAssessment);
+                outcome.DisbursementPerformance = (int)outputsWithProjects.Average(o => o.DisbursementPerformance);
+                outcome.FieldMonitoring = (int)outputsWithProjects.Average(o => o.FieldMonitoring);
+                outcome.ImpactAssessment = (int)outputsWithProjects.Average(o => o.ImpactAssessment);
+                _context.Outcomes.Update(outcome);
             }
             else
             {
+                // Outcome has no outputs with projects - don't update it
                 outcome.DisbursementPerformance = 0;
                 outcome.FieldMonitoring = 0;
                 outcome.ImpactAssessment = 0;
+                _context.Outcomes.Update(outcome);
             }
-            _context.Outcomes.Update(outcome);
         }
 
         // F. Calculate DisbursementPerformance for Frameworks
@@ -240,17 +266,33 @@ public class PlanService
         var frameworksToUpdate = await _context.Frameworks
             .Where(f => affectedFrameworkIds.Contains(f.Code))
             .Include(f => f.Outcomes)
+                .ThenInclude(oc => oc.Outputs)
+                    .ThenInclude(o => o.SubOutputs)
+                        .ThenInclude(so => so.Indicators)
             .ToListAsync();
 
         foreach (var framework in frameworksToUpdate)
         {
-            if (framework.Outcomes.Any())
+            // Only include outcomes that have outputs with subOutputs with indicators with projects
+            var outcomesWithProjects = framework.Outcomes
+                .Where(oc => oc.Outputs.Any(o => o.SubOutputs.Any(so => so.Indicators.Any(i => _context.ProjectIndicators.Any(pi => pi.IndicatorCode == i.IndicatorCode)))))
+                .ToList();
+
+            if (outcomesWithProjects.Any())
             {
-                framework.DisbursementPerformance = (int)framework.Outcomes.Average(oc => oc.DisbursementPerformance);
-                framework.FieldMonitoring = (int)framework.Outcomes.Average(oc => oc.FieldMonitoring);
-                framework.ImpactAssessment = (int)framework.Outcomes.Average(oc => oc.ImpactAssessment);
+                framework.DisbursementPerformance = (int)outcomesWithProjects.Average(oc => oc.DisbursementPerformance);
+                framework.FieldMonitoring = (int)outcomesWithProjects.Average(oc => oc.FieldMonitoring);
+                framework.ImpactAssessment = (int)outcomesWithProjects.Average(oc => oc.ImpactAssessment);
+                _context.Frameworks.Update(framework);
             }
-            _context.Frameworks.Update(framework);
+            else
+            {
+                // Framework has no outcomes with projects - don't update it
+                framework.DisbursementPerformance = 0;
+                framework.FieldMonitoring = 0;
+                framework.ImpactAssessment = 0;
+                _context.Frameworks.Update(framework);
+            }
         }
 
         // H. Calculate DisbursementPerformance for Donors (cross-cutting entity)
@@ -376,6 +418,7 @@ public class PlanService
                 indicator.DisbursementPerformance = (int)linkedProjects.Average(p => p.DisbursementPerformance);
                 indicator.FieldMonitoring = (int)linkedProjects.Average(p => p.FieldMonitoring);
                 indicator.ImpactAssessment = (int)linkedProjects.Average(p => p.ImpactAssessment);
+                _context.Indicators.Update(indicator);
             }
             else
             {
@@ -383,10 +426,8 @@ public class PlanService
                 indicator.DisbursementPerformance = 0;
                 indicator.FieldMonitoring = 0;
                 indicator.ImpactAssessment = 0;
+                _context.Indicators.Update(indicator);
             }
-
-            // ✅ Mark entity as modified
-            _context.Indicators.Update(indicator);
         }
 
         // C. Calculate DisbursementPerformance for SubOutputs
@@ -398,21 +439,25 @@ public class PlanService
 
         foreach (var subOutput in subOutputsToUpdate)
         {
-            if (subOutput.Indicators.Any())
+            // Only include indicators that have projects
+            var indicatorsWithProjects = subOutput.Indicators
+                .Where(i => _context.ProjectIndicators.Any(pi => pi.IndicatorCode == i.IndicatorCode))
+                .ToList();
+
+            if (indicatorsWithProjects.Any())
             {
-                subOutput.DisbursementPerformance = (int)subOutput.Indicators.Average(i => i.DisbursementPerformance);
-                subOutput.FieldMonitoring = (int)subOutput.Indicators.Average(i => i.FieldMonitoring);
-                subOutput.ImpactAssessment = (int)subOutput.Indicators.Average(i => i.ImpactAssessment);
+                subOutput.DisbursementPerformance = (int)indicatorsWithProjects.Average(i => i.DisbursementPerformance);
+                subOutput.FieldMonitoring = (int)indicatorsWithProjects.Average(i => i.FieldMonitoring);
+                subOutput.ImpactAssessment = (int)indicatorsWithProjects.Average(i => i.ImpactAssessment);
+                _context.SubOutputs.Update(subOutput);
             }
             else
             {
                 subOutput.DisbursementPerformance = 0;
                 subOutput.FieldMonitoring = 0;
                 subOutput.ImpactAssessment = 0;
+                _context.SubOutputs.Update(subOutput);
             }
-
-            // ✅ Mark entity as modified
-            _context.SubOutputs.Update(subOutput);
         }
 
         // D. Calculate DisbursementPerformance for Outputs
@@ -420,25 +465,30 @@ public class PlanService
         var outputsToUpdate = await _context.Outputs
             .Where(o => affectedOutputIds.Contains(o.Code))
             .Include(o => o.SubOutputs)
+                .ThenInclude(so => so.Indicators)
             .ToListAsync();
 
         foreach (var output in outputsToUpdate)
         {
-            if (output.SubOutputs.Any())
+            // Only include subOutputs that have indicators with projects
+            var subOutputsWithProjects = output.SubOutputs
+                .Where(so => so.Indicators.Any(i => _context.ProjectIndicators.Any(pi => pi.IndicatorCode == i.IndicatorCode)))
+                .ToList();
+
+            if (subOutputsWithProjects.Any())
             {
-                output.DisbursementPerformance = (int)output.SubOutputs.Average(so => so.DisbursementPerformance);
-                output.FieldMonitoring = (int)output.SubOutputs.Average(so => so.FieldMonitoring);
-                output.ImpactAssessment = (int)output.SubOutputs.Average(so => so.ImpactAssessment);
+                output.DisbursementPerformance = (int)subOutputsWithProjects.Average(so => so.DisbursementPerformance);
+                output.FieldMonitoring = (int)subOutputsWithProjects.Average(so => so.FieldMonitoring);
+                output.ImpactAssessment = (int)subOutputsWithProjects.Average(so => so.ImpactAssessment);
+                _context.Outputs.Update(output);
             }
             else
             {
                 output.DisbursementPerformance = 0;
                 output.FieldMonitoring = 0;
                 output.ImpactAssessment = 0;
+                _context.Outputs.Update(output);
             }
-
-            // ✅ Mark entity as modified
-            _context.Outputs.Update(output);
         }
 
         // E. Calculate DisbursementPerformance for Outcomes
@@ -446,25 +496,31 @@ public class PlanService
         var outcomesToUpdate = await _context.Outcomes
             .Where(oc => affectedOutcomeIds.Contains(oc.Code))
             .Include(oc => oc.Outputs)
+                .ThenInclude(o => o.SubOutputs)
+                    .ThenInclude(so => so.Indicators)
             .ToListAsync();
 
         foreach (var outcome in outcomesToUpdate)
         {
-            if (outcome.Outputs.Any())
+            // Only include outputs that have subOutputs with indicators with projects
+            var outputsWithProjects = outcome.Outputs
+                .Where(o => o.SubOutputs.Any(so => so.Indicators.Any(i => _context.ProjectIndicators.Any(pi => pi.IndicatorCode == i.IndicatorCode))))
+                .ToList();
+
+            if (outputsWithProjects.Any())
             {
-                outcome.DisbursementPerformance = (int)outcome.Outputs.Average(o => o.DisbursementPerformance);
-                outcome.FieldMonitoring = (int)outcome.Outputs.Average(o => o.FieldMonitoring);
-                outcome.ImpactAssessment = (int)outcome.Outputs.Average(o => o.ImpactAssessment);
+                outcome.DisbursementPerformance = (int)outputsWithProjects.Average(o => o.DisbursementPerformance);
+                outcome.FieldMonitoring = (int)outputsWithProjects.Average(o => o.FieldMonitoring);
+                outcome.ImpactAssessment = (int)outputsWithProjects.Average(o => o.ImpactAssessment);
+                _context.Outcomes.Update(outcome);
             }
             else
             {
                 outcome.DisbursementPerformance = 0;
                 outcome.FieldMonitoring = 0;
                 outcome.ImpactAssessment = 0;
+                _context.Outcomes.Update(outcome);
             }
-
-            // ✅ Mark entity as modified
-            _context.Outcomes.Update(outcome);
         }
 
         // F. Calculate DisbursementPerformance for Frameworks
@@ -472,25 +528,32 @@ public class PlanService
         var frameworksToUpdate = await _context.Frameworks
             .Where(f => affectedFrameworkIds.Contains(f.Code))
             .Include(f => f.Outcomes)
+                .ThenInclude(oc => oc.Outputs)
+                    .ThenInclude(o => o.SubOutputs)
+                        .ThenInclude(so => so.Indicators)
             .ToListAsync();
 
         foreach (var framework in frameworksToUpdate)
         {
-            if (framework.Outcomes.Any())
+            // Only include outcomes that have outputs with subOutputs with indicators with projects
+            var outcomesWithProjects = framework.Outcomes
+                .Where(oc => oc.Outputs.Any(o => o.SubOutputs.Any(so => so.Indicators.Any(i => _context.ProjectIndicators.Any(pi => pi.IndicatorCode == i.IndicatorCode)))))
+                .ToList();
+
+            if (outcomesWithProjects.Any())
             {
-                framework.DisbursementPerformance = (int)framework.Outcomes.Average(oc => oc.DisbursementPerformance);
-                framework.FieldMonitoring = (int)framework.Outcomes.Average(oc => oc.FieldMonitoring);
-                framework.ImpactAssessment = (int)framework.Outcomes.Average(oc => oc.ImpactAssessment);
+                framework.DisbursementPerformance = (int)outcomesWithProjects.Average(oc => oc.DisbursementPerformance);
+                framework.FieldMonitoring = (int)outcomesWithProjects.Average(oc => oc.FieldMonitoring);
+                framework.ImpactAssessment = (int)outcomesWithProjects.Average(oc => oc.ImpactAssessment);
+                _context.Frameworks.Update(framework);
             }
             else
             {
                 framework.DisbursementPerformance = 0;
                 framework.FieldMonitoring = 0;
                 framework.ImpactAssessment = 0;
+                _context.Frameworks.Update(framework);
             }
-
-            // ✅ Mark entity as modified
-            _context.Frameworks.Update(framework);
         }
 
         // H. Calculate DisbursementPerformance for Donors (cross-cutting entity)
@@ -575,15 +638,20 @@ public class PlanService
 
         if (subOutputToUpdate != null)
         {
-            if (subOutputToUpdate.Indicators.Any())
+            // Only include indicators that have projects
+            var indicatorsWithProjects = subOutputToUpdate.Indicators
+                .Where(i => _context.ProjectIndicators.Any(pi => pi.IndicatorCode == i.IndicatorCode))
+                .ToList();
+
+            if (indicatorsWithProjects.Any())
             {
-                subOutputToUpdate.DisbursementPerformance = (int)subOutputToUpdate.Indicators.Average(i => i.DisbursementPerformance);
-                subOutputToUpdate.FieldMonitoring = (int)subOutputToUpdate.Indicators.Average(i => i.FieldMonitoring);
-                subOutputToUpdate.ImpactAssessment = (int)subOutputToUpdate.Indicators.Average(i => i.ImpactAssessment);
+                subOutputToUpdate.DisbursementPerformance = (int)indicatorsWithProjects.Average(i => i.DisbursementPerformance);
+                subOutputToUpdate.FieldMonitoring = (int)indicatorsWithProjects.Average(i => i.FieldMonitoring);
+                subOutputToUpdate.ImpactAssessment = (int)indicatorsWithProjects.Average(i => i.ImpactAssessment);
             }
             else
             {
-                // No indicators left, reset to 0
+                // No indicators with projects left, reset to 0
                 subOutputToUpdate.DisbursementPerformance = 0;
                 subOutputToUpdate.FieldMonitoring = 0;
                 subOutputToUpdate.ImpactAssessment = 0;
@@ -596,15 +664,21 @@ public class PlanService
                 var outputToUpdate = await _context.Outputs
                     .Where(o => o.Code == outputCode)
                     .Include(o => o.SubOutputs)
+                        .ThenInclude(so => so.Indicators)
                     .FirstOrDefaultAsync();
 
                 if (outputToUpdate != null)
                 {
-                    if (outputToUpdate.SubOutputs.Any())
+                    // Only include subOutputs that have indicators with projects
+                    var subOutputsWithProjects = outputToUpdate.SubOutputs
+                        .Where(so => so.Indicators.Any(i => _context.ProjectIndicators.Any(pi => pi.IndicatorCode == i.IndicatorCode)))
+                        .ToList();
+
+                    if (subOutputsWithProjects.Any())
                     {
-                        outputToUpdate.DisbursementPerformance = (int)outputToUpdate.SubOutputs.Average(so => so.DisbursementPerformance);
-                        outputToUpdate.FieldMonitoring = (int)outputToUpdate.SubOutputs.Average(so => so.FieldMonitoring);
-                        outputToUpdate.ImpactAssessment = (int)outputToUpdate.SubOutputs.Average(so => so.ImpactAssessment);
+                        outputToUpdate.DisbursementPerformance = (int)subOutputsWithProjects.Average(so => so.DisbursementPerformance);
+                        outputToUpdate.FieldMonitoring = (int)subOutputsWithProjects.Average(so => so.FieldMonitoring);
+                        outputToUpdate.ImpactAssessment = (int)subOutputsWithProjects.Average(so => so.ImpactAssessment);
                     }
                     else
                     {
@@ -620,15 +694,22 @@ public class PlanService
                         var outcomeToUpdate = await _context.Outcomes
                             .Where(oc => oc.Code == outcomeCode)
                             .Include(oc => oc.Outputs)
+                                .ThenInclude(o => o.SubOutputs)
+                                    .ThenInclude(so => so.Indicators)
                             .FirstOrDefaultAsync();
 
                         if (outcomeToUpdate != null)
                         {
-                            if (outcomeToUpdate.Outputs.Any())
+                            // Only include outputs that have subOutputs with indicators with projects
+                            var outputsWithProjects = outcomeToUpdate.Outputs
+                                .Where(o => o.SubOutputs.Any(so => so.Indicators.Any(i => _context.ProjectIndicators.Any(pi => pi.IndicatorCode == i.IndicatorCode))))
+                                .ToList();
+
+                            if (outputsWithProjects.Any())
                             {
-                                outcomeToUpdate.DisbursementPerformance = (int)outcomeToUpdate.Outputs.Average(o => o.DisbursementPerformance);
-                                outcomeToUpdate.FieldMonitoring = (int)outcomeToUpdate.Outputs.Average(o => o.FieldMonitoring);
-                                outcomeToUpdate.ImpactAssessment = (int)outcomeToUpdate.Outputs.Average(o => o.ImpactAssessment);
+                                outcomeToUpdate.DisbursementPerformance = (int)outputsWithProjects.Average(o => o.DisbursementPerformance);
+                                outcomeToUpdate.FieldMonitoring = (int)outputsWithProjects.Average(o => o.FieldMonitoring);
+                                outcomeToUpdate.ImpactAssessment = (int)outputsWithProjects.Average(o => o.ImpactAssessment);
                             }
                             else
                             {
@@ -644,15 +725,23 @@ public class PlanService
                                 var frameworkToUpdate = await _context.Frameworks
                                     .Where(f => f.Code == frameworkCode)
                                     .Include(f => f.Outcomes)
+                                        .ThenInclude(oc => oc.Outputs)
+                                            .ThenInclude(o => o.SubOutputs)
+                                                .ThenInclude(so => so.Indicators)
                                     .FirstOrDefaultAsync();
 
                                 if (frameworkToUpdate != null)
                                 {
-                                    if (frameworkToUpdate.Outcomes.Any())
+                                    // Only include outcomes that have outputs with subOutputs with indicators with projects
+                                    var outcomesWithProjects = frameworkToUpdate.Outcomes
+                                        .Where(oc => oc.Outputs.Any(o => o.SubOutputs.Any(so => so.Indicators.Any(i => _context.ProjectIndicators.Any(pi => pi.IndicatorCode == i.IndicatorCode)))))
+                                        .ToList();
+
+                                    if (outcomesWithProjects.Any())
                                     {
-                                        frameworkToUpdate.DisbursementPerformance = (int)frameworkToUpdate.Outcomes.Average(oc => oc.DisbursementPerformance);
-                                        frameworkToUpdate.FieldMonitoring = (int)frameworkToUpdate.Outcomes.Average(oc => oc.FieldMonitoring);
-                                        frameworkToUpdate.ImpactAssessment = (int)frameworkToUpdate.Outcomes.Average(oc => oc.ImpactAssessment);
+                                        frameworkToUpdate.DisbursementPerformance = (int)outcomesWithProjects.Average(oc => oc.DisbursementPerformance);
+                                        frameworkToUpdate.FieldMonitoring = (int)outcomesWithProjects.Average(oc => oc.FieldMonitoring);
+                                        frameworkToUpdate.ImpactAssessment = (int)outcomesWithProjects.Average(oc => oc.ImpactAssessment);
                                     }
                                     else
                                     {
