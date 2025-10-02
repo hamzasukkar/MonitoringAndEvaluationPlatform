@@ -407,6 +407,7 @@
 </style>
 
 <script>
+$(document).ready(function() {
 	async function loadGauges(frameworkCode = '', ministryCode = '', projectCode = '',governorateCode='',districtCode='',subDistrictCode='',communityCode='') {
 		const urlParams = new URLSearchParams();
 		if (frameworkCode) urlParams.append('frameworkCode', frameworkCode);
@@ -908,7 +909,9 @@
 		resetDropdown('districtFilter');
 		resetDropdown('subDistrictFilter');
 		resetDropdown('communityFilter');
-		$('#districtCount').text('@Localizer["Total Districts"]: 0');
+		$('#districtCount').text('0');
+		$('#subDistrictCount').text('0');
+		$('#communityCount').text('0');
 		return;
 	  }
 
@@ -925,7 +928,7 @@
 		  populateDropdown('districtFilter', districts, /*preserveSelection=*/ true);
 
 		  // 7. update UI pieces
-		  $('#districtCount').text(`@Localizer["Total Districts"]: ${districts.length}`);
+		  $('#districtCount').text(districts.length);
 		  $('#districtFilter').prop('disabled', districts.length === 0);
 		})
 		.catch((err) => console.error(err));
@@ -949,7 +952,8 @@
 	  if (!selectedDistCodes.length) {
 		resetDropdown('subDistrictFilter');
 		resetDropdown('communityFilter');
-		$('#subDistrictCount').text('@Localizer["Total SubDistrict"] : 0');
+		$('#subDistrictCount').text('0');
+		$('#communityCount').text('0');
 		$('#subDistrictFilter').prop('disabled', true);
 		return;
 	  }
@@ -968,28 +972,32 @@
 		  );
 
 		  // 6. Update count & disable state
-		  $('#subDistrictCount').text(`@Localizer["Total SubDistrict"]: ${subDistricts.length}`);
+		  $('#subDistrictCount').text(subDistricts.length);
 		  $('#subDistrictFilter').prop('disabled', !subDistricts.length);
 		})
 		.catch(console.error);
 	});
 
 	$('#subDistrictFilter').on('change', function () {
-			const filters = getFilters();
+		const filters = getFilters();
 		loadGauges(filters.frameworkCode, filters.ministryCode, filters.projectCode, filters.governorateCode, filters.districtCode, filters.subDistrictCode);
 
-	   const selectedsubDistCodes = $(this).val() || [];
+		const selectedsubDistCodes = $(this).val() || [];
 
-		resetDropdown('communityFilter');
-		document.getElementById('communityCount').innerText = 'Total Communities: 0';
+		if (!selectedsubDistCodes.length) {
+			resetDropdown('communityFilter');
+			$('#communityCount').text('0');
+			return;
+		}
+
 		fetch(`/Dashboard/GetCommunitiesBySubDistrict?subDistrictCodes=${selectedsubDistCodes}`)
 			.then((r) => r.json())
 			.then((list) => {
 				populateDropdown('communityFilter', list);
-				document.getElementById('communityCount').innerText = `@Localizer["Total Communities"] : ${list.length}`;
+				$('#communityCount').text(list.length);
 			})
 			.catch((e) => console.error(e));
-		});
+	});
 
 	$('#communityFilter').on('change', function () {
 		debugger;
@@ -1070,23 +1078,38 @@
 	});
 	// Helpers
 	function resetDropdown(id) {
-		const dd = document.getElementById(id);
-		dd.innerHTML = `<option disabled selected value="">-- Select --</option>`;
-		dd.disabled = true;
+		const dd = $(`#${id}`);
+		dd.empty().append('<option disabled selected value="">-- Select --</option>');
+		dd.val(null).trigger('change');
+		dd.prop('disabled', true);
 	}
 
-	function populateDropdown(id, items) {
-		const dd = document.getElementById(id);
+	function populateDropdown(id, items, preserveSelection = false) {
+		const dd = $(`#${id}`);
+		const currentValues = preserveSelection ? dd.val() : null;
+
+		// Clear existing options except the placeholder
+		dd.empty().append('<option disabled selected value="">-- Select --</option>');
+
+		// Add new options
 		items.forEach(i => {
 			const opt = document.createElement('option');
 			opt.value = i.code;
-			opt.textContent = i.aR_Name;
-			dd.appendChild(opt);
+			opt.textContent = i.aR_Name || i.name;
+			dd.append(opt);
 		});
-		dd.disabled = false;
+
+		// Restore selection if preserving
+		if (preserveSelection && currentValues) {
+			dd.val(currentValues);
+		}
+
+		// Enable dropdown and refresh Select2
+		dd.prop('disabled', false);
+		dd.trigger('change.select2');
 	}
 
-		function getFilters() {
+	function getFilters() {
 		return {
 			frameworkCode: document.getElementById('frameworkFilter').value,
 			ministryCode: document.getElementById('ministryFilter').value,
@@ -1098,5 +1121,8 @@
 		};
 	}
 
+	// Initialize the page
+	loadGauges();
 
+}); // End document.ready
 </script>
