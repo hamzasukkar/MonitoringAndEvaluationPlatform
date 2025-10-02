@@ -126,11 +126,20 @@
   <data name="Back to Outcomes" xml:space="preserve">
     <value>الرجو إلى السياسات</value>
   </data>
+  <data name="Cancel" xml:space="preserve">
+    <value>إلغاء</value>
+  </data>
+  <data name="Complete" xml:space="preserve">
+    <value>مكتمل</value>
+  </data>
   <data name="Configure outcome weights to determine their impact on framework performance calculations" xml:space="preserve">
     <value>تكوين أوزان النتائج لتحديد تأثيرها على حسابات أداء الاستراتيجيات </value>
   </data>
   <data name="Distribute Evenly" xml:space="preserve">
     <value>توزيع بالتساوي</value>
+  </data>
+  <data name="Distribute Evenly?" xml:space="preserve">
+    <value>توزيع بالتساوي؟</value>
   </data>
   <data name="Incomplete" xml:space="preserve">
     <value>غير مكتمل</value>
@@ -150,11 +159,20 @@
   <data name="Reset" xml:space="preserve">
     <value>إعادة ضبط</value>
   </data>
+  <data name="Reset Weights?" xml:space="preserve">
+    <value>إعادة ضبط الأوزان؟</value>
+  </data>
   <data name="Save Weights" xml:space="preserve">
     <value>حفظ الوزن</value>
   </data>
   <data name="Status" xml:space="preserve">
     <value>الحالة</value>
+  </data>
+  <data name="This will restore all weights to their original values" xml:space="preserve">
+    <value>سيؤدي هذا إلى استعادة جميع الأوزان إلى قيمها الأصلية</value>
+  </data>
+  <data name="This will set each outcome weight to" xml:space="preserve">
+    <value>سيؤدي هذا إلى تعيين وزن كل سياسة إلى</value>
   </data>
   <data name="Tip: Total weights should equal 100% for accurate framework performance calculations" xml:space="preserve">
     <value>نصيحة: يجب أن يساوي إجمالي الأوزان 100% للحصول على حسابات أداء الاستراتيجيات العمل الدقيق</value>
@@ -167,5 +185,11 @@
   </data>
   <data name="Weight" xml:space="preserve">
     <value>الوزن</value>
+  </data>
+  <data name="Yes, Distribute" xml:space="preserve">
+    <value>نعم، توزيع</value>
+  </data>
+  <data name="Yes, Reset" xml:space="preserve">
+    <value>نعم، إعادة تعيين</value>
   </data>
 </root>

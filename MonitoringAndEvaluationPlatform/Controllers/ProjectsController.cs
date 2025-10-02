@@ -78,12 +78,12 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                                  .Any(s => filter.SelectedSectors.Contains(s.Code)));
             }
 
-
-            //To Fix
-            //if (filter.SelectedDonors.Any())
-            //{
-            //    projectQuery = projectQuery.Where(p => filter.SelectedDonors.Contains(p.DonorCode));
-            //}
+            if (filter.SelectedDonors.Any())
+            {
+                projectQuery = projectQuery
+                    .Where(p => p.Donors
+                                 .Any(d => filter.SelectedDonors.Contains(d.Code)));
+            }
 
             // Finalize and assign filtered results
             filter.Projects = await projectQuery.ToListAsync();
