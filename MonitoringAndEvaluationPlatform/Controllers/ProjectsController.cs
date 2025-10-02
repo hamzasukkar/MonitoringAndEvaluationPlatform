@@ -798,15 +798,29 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             var service = new MonitoringService(_context);
             try
             {
-                // Call the recalculation method BEFORE deleting the project
-                var project = await _context.Projects.FindAsync(id);
+                // Get project info before deletion for DisbursementPerformance recalculation
+                var project = await _context.Projects
+                    .Include(p => p.ProjectIndicators)
+                    .FirstOrDefaultAsync(p => p.ProjectID == id);
 
                 if (project != null)
                 {
-                    await _planService.RecalculatePerformanceAfterProjectDeletion(project);
-                }
-                await service.DeleteProjectAndRecalculateAsync(id);
+                    // Capture affected indicator IDs before deletion
+                    var affectedIndicatorIds = project.ProjectIndicators
+                        .Select(pi => pi.IndicatorCode)
+                        .Distinct()
+                        .ToList();
 
+                    // Delete the project and recalculate IndicatorsPerformance (from measures)
+                    await service.DeleteProjectAndRecalculateAsync(id);
+
+                    // Recalculate DisbursementPerformance for all affected levels
+                    if (affectedIndicatorIds.Any())
+                    {
+                        var planService = new PlanService(_context);
+                        await planService.RecalculateIndicatorsPerformance(affectedIndicatorIds);
+                    }
+                }
             }
             catch (InvalidOperationException ex)
             {

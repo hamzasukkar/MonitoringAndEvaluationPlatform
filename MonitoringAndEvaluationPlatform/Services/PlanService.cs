@@ -399,7 +399,7 @@ public class PlanService
         await RecalculateParentEntitiesPerformance(subOutputCode);
     }
 
-    private async Task RecalculateIndicatorsPerformance(List<int> indicatorIds)
+    public async Task RecalculateIndicatorsPerformance(List<int> indicatorIds)
     {
         // B. Calculate DisbursementPerformance for each affected Indicator
         var indicatorsToUpdate = await _context.Indicators
