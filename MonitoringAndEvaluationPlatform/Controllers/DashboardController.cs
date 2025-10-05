@@ -97,7 +97,6 @@ public class DashboardController : Controller
             .ToList();
 
         var real = measures
-            .Where(m => m.ValueType == MeasureValueType.Real)
             .Select(m => new { date = m.Date.ToString("yyyy-MM-dd"), value = m.Value })
             .ToList();
 
@@ -144,7 +143,6 @@ public class DashboardController : Controller
 
             var totalTarget = indicators.Sum(i => i.Target);
             var totalAchieved = indicators.SelectMany(i => i.Measures)
-                .Where(m => m.ValueType == MeasureValueType.Real)
                 .Sum(m => m.Value);
             var achievementRate = totalTarget > 0 ? (totalAchieved / totalTarget) * 100 : 0;
 
@@ -185,7 +183,6 @@ public class DashboardController : Controller
 
             var totalTarget = indicators.Sum(i => i.Target);
             var totalAchieved = indicators.SelectMany(i => i.Measures)
-                .Where(m => m.ValueType == MeasureValueType.Real)
                 .Sum(m => m.Value);
             var rate = totalTarget > 0 ? (totalAchieved / totalTarget) * 100 : 0;
 
@@ -213,7 +210,6 @@ public class DashboardController : Controller
 
             var totalTarget = indicators.Sum(i => i.Target);
             var totalAchieved = indicators.SelectMany(i => i.Measures)
-                .Where(m => m.ValueType == MeasureValueType.Real)
                 .Sum(m => m.Value);
             var rate = totalTarget > 0 ? (totalAchieved / totalTarget) * 100 : 0;
 
@@ -266,7 +262,6 @@ public class DashboardController : Controller
 
             var totalTarget = indicators.Sum(i => i.Target);
             var totalAchieved = indicators.SelectMany(i => i.Measures)
-                .Where(m => m.ValueType == MeasureValueType.Real)
                 .Sum(m => m.Value);
             var achievementRate = totalTarget > 0 ? (totalAchieved / totalTarget) * 100 : 0;
 
@@ -494,11 +489,9 @@ public class DashboardController : Controller
             TotalIndicators = p.ProjectIndicators.Select(pi => pi.IndicatorCode).Distinct().Count(),
             TotalTarget = p.ProjectIndicators.Sum(pi => pi.Indicator.Target),
             TotalAchieved = p.ProjectIndicators.SelectMany(pi => pi.Indicator.Measures)
-                .Where(m => m.ValueType == MeasureValueType.Real)
                 .Sum(m => m.Value),
             CompletionRate = p.ProjectIndicators.Sum(pi => pi.Indicator.Target) > 0
                 ? (p.ProjectIndicators.SelectMany(pi => pi.Indicator.Measures)
-                    .Where(m => m.ValueType == MeasureValueType.Real)
                     .Sum(m => m.Value) / p.ProjectIndicators.Sum(pi => pi.Indicator.Target)) * 100
                 : 0
         })
@@ -548,7 +541,7 @@ public class DashboardController : Controller
             var indicators = p.ProjectIndicators.Select(pi => pi.Indicator).Distinct().ToList();
 
             double totalTarget = indicators.Sum(i => i?.Target ?? 0);
-            double totalAchieved = allMeasures.Where(m => m.ValueType == MeasureValueType.Real).Sum(m => m.Value);
+            double totalAchieved = allMeasures.Sum(m => m.Value);
             double rate = totalTarget == 0 ? 0 : (totalAchieved / totalTarget) * 100;
             rate = Math.Min(rate, 100);
 
@@ -605,7 +598,7 @@ public class DashboardController : Controller
             .ToList();
 
         double totalTarget = indicators.Sum(i => i.Target);
-        //double totalAchieved = indicators.Sum(i => i.Measures.OrderByDescending(m => m.Date).FirstOrDefault(m=>m.ValueType==MeasureValueType.Real)?.Value ?? 0);
+        //double totalAchieved = indicators.Sum(i => i.Measures.OrderByDescending(m => m.Date).FirstOrDefault()?.Value ?? 0);
         double totalAchieved = indicators.Sum(i => i.IndicatorsPerformance);
 
         double achievementRate = totalTarget == 0 ? 0 : (totalAchieved / totalTarget) * 100;

@@ -30,7 +30,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         [HttpPost("add-measure")]
         public async Task<IActionResult> AddMeasure([FromBody] AddMeasureDto dto)
         {
-            await _monitoringService.AddMeasureToIndicator(dto.IndicatorId, dto.Value, MeasureValueType.Real);
+            await _monitoringService.AddMeasureToIndicator(dto.IndicatorId, dto.Value);
             return Ok(_localizer["Measure added and Indicator Performance updated"]);
         }
 
@@ -115,15 +115,12 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         public async Task<IActionResult> CreateFromDetails(Measure measure)
         {
             ModelState.Remove(nameof(measure.Indicator));
-            
-            // Set the measure as Real (only type available now)
-            measure.ValueType = MeasureValueType.Real;
-            
+
             if (ModelState.IsValid)
             {
                 _context.Add(measure);
                 await _context.SaveChangesAsync();
-                
+
                 // Update indicator performance after adding the measure
                 await _monitoringService.UpdateIndicatorPerformance(measure.IndicatorCode);
 
@@ -172,9 +169,6 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         {
             ModelState.Remove(nameof(measure.Indicator));
 
-            // Set the measure as Real (only type available now)
-            measure.ValueType = MeasureValueType.Real;
-
             if (ModelState.IsValid)
             {
                 _context.Measures.Add(measure);
@@ -182,9 +176,9 @@ namespace MonitoringAndEvaluationPlatform.Controllers
 
                 // Update indicator performance after adding the measure
                 await _monitoringService.UpdateIndicatorPerformance(measure.IndicatorCode);
-                
+
                 TempData["SuccessMessage"] = _localizer["Measure added successfully and indicator performance has been updated."];
-                
+
                 // Redirect back to Index with indicator filter to show the measures for this indicator
                 return RedirectToAction(nameof(Index), new { indicatorId = measure.IndicatorCode });
             }

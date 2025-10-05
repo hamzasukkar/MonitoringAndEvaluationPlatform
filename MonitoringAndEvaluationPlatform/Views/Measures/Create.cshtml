@@ -171,9 +171,6 @@
                         </div>
                     </div>
 
-                    <!-- Hidden ValueType field since it's always Real now -->
-                    <input asp-for="ValueType" type="hidden" value="@MeasureValueType.Real" />
-
                     <!-- Indicator Target Info Display -->
                     @if (preSelectedIndicatorId.HasValue && selectedIndicator.Target > 0)
                     {
