@@ -117,11 +117,17 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
+  <data name="achieved" xml:space="preserve">
+    <value>تم تحقيقه</value>
+  </data>
   <data name="Back to List" xml:space="preserve">
     <value>العودة إلى القائمة</value>
   </data>
   <data name="Cumulative Real" xml:space="preserve">
     <value>المجموع التراكمي</value>
+  </data>
+  <data name="Current Achievement" xml:space="preserve">
+    <value>الإنجاز الحالي</value>
   </data>
   <data name="Date" xml:space="preserve">
     <value>التاريخ</value>
@@ -161,6 +167,9 @@
   </data>
   <data name="Real Values" xml:space="preserve">
     <value>القيم الفعلية</value>
+  </data>
+  <data name="Remaining to Target" xml:space="preserve">
+    <value>المبقي للهدف</value>
   </data>
   <data name="Target" xml:space="preserve">
     <value>هدف</value>

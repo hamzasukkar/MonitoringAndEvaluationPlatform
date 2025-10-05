@@ -49,10 +49,41 @@
         <div class="stat-label">@Localizer["Target Value"]</div>
     </div>
 
-    <!-- Total Measures Card -->
+    <!-- Current Achievement Card -->
+    @{
+        var currentAchievement = Model.Measures.Sum(m => m.Value);
+        var remainingToTarget = Model.Indicator.Target - currentAchievement;
+    }
     <div class="stat-card">
         <div class="stat-icon info">
             <i class="fas fa-chart-bar"></i>
+        </div>
+        <div class="stat-number">@currentAchievement.ToString("N2")</div>
+        <div class="stat-label">@Localizer["Current Achievement"]</div>
+    </div>
+
+    <!-- Remaining to Target Card -->
+    <div class="stat-card">
+        <div class="stat-icon @(remainingToTarget > 0 ? "warning" : "success")">
+            <i class="fas @(remainingToTarget > 0 ? "fa-road" : "fa-check-circle")"></i>
+        </div>
+        @if (remainingToTarget > 0)
+        {
+            <div class="stat-number">@remainingToTarget.ToString("N2")</div>
+            <div class="stat-label">@Localizer["Remaining to Target"]</div>
+            <small class="text-muted">(@((currentAchievement / Model.Indicator.Target * 100).ToString("N1"))% @Localizer["achieved"])</small>
+        }
+        else
+        {
+            <div class="stat-number"><i class="fas fa-trophy"></i></div>
+            <div class="stat-label">@Localizer["Target Reached"]</div>
+        }
+    </div>
+
+    <!-- Total Measures Card -->
+    <div class="stat-card">
+        <div class="stat-icon primary">
+            <i class="fas fa-list"></i>
         </div>
         <div class="stat-number">@Model.Measures.Count()</div>
         <div class="stat-label">@Localizer["Total Measures"]</div>
