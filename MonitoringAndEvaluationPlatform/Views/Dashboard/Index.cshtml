@@ -777,14 +777,14 @@ $(document).ready(function() {
 		const projectCode = this.value;
 		const filters = getFilters();
 		filters.projectCode = projectCode;
-		const governorateDropdown = document.getElementById('governorateFilter');
-		governorateDropdown.innerHTML = '';
 
 		// Load gauges with the new filter
 		loadGauges(filters.frameworkCode, filters.ministryCode, filters.projectCode, filters.governorateCode, filters.districtCode, filters.subDistrictCode, filters.communityCode);
 
-		// ------------------- Save current ministry selection -------------------
+		// ------------------- Save current selections -------------------
 		const currentMinistryCode = document.getElementById('ministryFilter').value;
+		const currentFrameworkCode = document.getElementById('frameworkFilter').value;
+		const currentGovernorateCodes = $('#governorateFilter').val() || [];
 
 		// Clear and reset the Frameworks dropdown and count
 		const frameworkDropdown = document.getElementById('frameworkFilter');
@@ -797,6 +797,12 @@ $(document).ready(function() {
 
 		// Reset ministry count
 		document.getElementById('totalMinistries').textContent = 0;
+
+		// Clear governorates
+		const governorateDropdown = document.getElementById('governorateFilter');
+		governorateDropdown.innerHTML = '';
+		$('#governorateFilter').val(null).trigger('change.select2');
+		document.getElementById('totalGovernorates').textContent = 0;
 
 		if (projectCode) {
 			// Fetch ministries for the selected project
@@ -829,39 +835,66 @@ $(document).ready(function() {
 				})
 				.catch(error => console.error('Error fetching ministries:', error));
 
-					// Fetch frameworks for the selected project
+			// Fetch frameworks for the selected project
 			fetch(`/Dashboard/GetFrameworksByProject?projectCode=${projectCode}`)
 				.then(response => {
 					if (!response.ok) throw new Error("Network response was not ok for frameworks by project");
 					return response.json();
 				})
 				.then(frameworks => {
+					let foundCurrentFramework = false;
 					frameworks.forEach(framework => {
 						const option = document.createElement('option');
 						option.value = framework.code;
 						option.textContent = framework.name;
 						frameworkDropdown.appendChild(option);
+
+						// Check if current selection exists in new data
+						if (currentFrameworkCode && framework.code == currentFrameworkCode) {
+							foundCurrentFramework = true;
+						}
 					});
+
+					// Restore selection if it exists in new data
+					if (foundCurrentFramework) {
+						frameworkDropdown.value = currentFrameworkCode;
+					}
+
 					const totalFrameworks = frameworks.length;
 					document.getElementById('totalFrameworks').textContent = totalFrameworks;
 				})
 				.catch(error => console.error('Error fetching frameworks:', error));
 
-				fetch(`/Dashboard/GetGovernoratesByProject?projectCode=${projectCode}`)
+			// Fetch governorates for the selected project
+			fetch(`/Dashboard/GetGovernoratesByProject?projectCode=${projectCode}`)
 				.then(res => res.json())
 				.then(governorates => {
+					const newGovernorateCodes = [];
 					governorates.forEach(gov => {
 						const opt = document.createElement('option');
 						opt.value = gov.code;
 						opt.textContent = gov.name;
 						governorateDropdown.appendChild(opt);
+						newGovernorateCodes.push(gov.code);
 					});
+
+					// Find which of the current selections still exist in new data
+					const preservedSelections = currentGovernorateCodes.filter(code =>
+						newGovernorateCodes.includes(code)
+					);
+
+					// Restore selections that still exist
+					if (preservedSelections.length > 0) {
+						$('#governorateFilter').val(preservedSelections).trigger('change.select2');
+					} else {
+						$('#governorateFilter').trigger('change.select2');
+					}
+
 					document.getElementById('totalGovernorates').textContent = governorates.length;
-					$('#governorateFilter').trigger('change.select2');
 				})
 				.catch(console.error);
 
-				document.getElementById('totalProjects').textContent = 1;
+			document.getElementById('totalProjects').textContent = 1;
 		} 
 		else {
 			document.getElementById('totalGovernorates').textContent = 0;
