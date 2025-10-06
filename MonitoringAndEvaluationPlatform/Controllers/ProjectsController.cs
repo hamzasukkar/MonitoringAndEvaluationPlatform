@@ -82,12 +82,12 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                                  .Any(s => filter.SelectedSectors.Contains(s.Code)));
             }
 
-
-            //To Fix
-            //if (filter.SelectedDonors.Any())
-            //{
-            //    projectQuery = projectQuery.Where(p => filter.SelectedDonors.Contains(p.DonorCode));
-            //}
+            if (filter.SelectedDonors.Any())
+            {
+                projectQuery = projectQuery
+                    .Where(p => p.Donors
+                                 .Any(d => filter.SelectedDonors.Contains(d.Code)));
+            }
 
             // Finalize and assign filtered results
             filter.Projects = await projectQuery.ToListAsync();
@@ -195,14 +195,31 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             Project project,
             List<IFormFile> UploadedFiles,
             int PlansCount,
-            string selections,
-            List<int> SelectedIndicators,
-            string DonorFundingBreakdown)
+            string? selections,
+            List<int>? SelectedIndicators,
+            string? DonorFundingBreakdown)
         {
             try
             {
                 // Remove navigation properties from model state FIRST, before any validation
                 RemoveNavigationPropertiesFromModelState();
+
+                // Remove form parameters from ModelState (they're not part of the Project model)
+                ModelState.Remove("selections");
+                ModelState.Remove("SelectedIndicators");
+                ModelState.Remove("DonorFundingBreakdown");
+                ModelState.Remove("PlansCount");
+                ModelState.Remove("IsEntireCountry");
+
+                // Explicitly read IsEntireCountry from form (checkbox sends "true" if checked, nothing if unchecked)
+                var isEntireCountryValue = Request.Form["IsEntireCountry"].ToString();
+                bool IsEntireCountry = isEntireCountryValue.Contains("true", StringComparison.OrdinalIgnoreCase);
+
+                // Set IsEntireCountry on project
+                project.IsEntireCountry = IsEntireCountry;
+
+                // Ensure SelectedIndicators is not null
+                SelectedIndicators = SelectedIndicators ?? new List<int>();
 
                 // Calculate PlansCount automatically based on the difference in months between StartDate and EndDate
                 PlansCount = CalculateMonthsDifference(project.StartDate, project.EndDate);
@@ -213,8 +230,11 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                     PlansCount = 1;
                 }
 
-                // Process location selections
-                await ProcessProjectLocationsAsync(project, selections);
+                // Process location selections (skip if entire country)
+                if (!IsEntireCountry)
+                {
+                    await ProcessProjectLocationsAsync(project, selections);
+                }
 
                 // Get form data
                 var selectedSectorCodes = Request.Form["Sectors"].ToList();
@@ -230,7 +250,8 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                     selectedSectorCodes,
                     SelectedIndicators,
                     PlansCount,
-                    ModelState);
+                    ModelState,
+                    IsEntireCountry);
 
                 if (!ModelState.IsValid)
                 {
@@ -810,15 +831,29 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             var service = new MonitoringService(_context);
             try
             {
-                // Call the recalculation method BEFORE deleting the project
-                var project = await _context.Projects.FindAsync(id);
+                // Get project info before deletion for DisbursementPerformance recalculation
+                var project = await _context.Projects
+                    .Include(p => p.ProjectIndicators)
+                    .FirstOrDefaultAsync(p => p.ProjectID == id);
 
                 if (project != null)
                 {
-                    await _planService.RecalculatePerformanceAfterProjectDeletion(project);
-                }
-                await service.DeleteProjectAndRecalculateAsync(id);
+                    // Capture affected indicator IDs before deletion
+                    var affectedIndicatorIds = project.ProjectIndicators
+                        .Select(pi => pi.IndicatorCode)
+                        .Distinct()
+                        .ToList();
 
+                    // Delete the project and recalculate IndicatorsPerformance (from measures)
+                    await service.DeleteProjectAndRecalculateAsync(id);
+
+                    // Recalculate DisbursementPerformance for all affected levels
+                    if (affectedIndicatorIds.Any())
+                    {
+                        var planService = new PlanService(_context);
+                        await planService.RecalculateIndicatorsPerformance(affectedIndicatorIds);
+                    }
+                }
             }
             catch (InvalidOperationException ex)
             {

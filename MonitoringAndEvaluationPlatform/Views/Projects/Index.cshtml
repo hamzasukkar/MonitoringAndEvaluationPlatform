@@ -6,6 +6,7 @@
 @{
     ViewData["Title"] = "Projects Dashboard";
     Layout = "~/Views/Shared/_DashboardHomeLayout.cshtml";
+    var culture = Context.Features.Get<IRequestCultureFeature>().RequestCulture.Culture.Name;
 }
 <!-- Dashboard Header -->
 <div class="dashboard-header">
@@ -90,7 +91,14 @@
                                         @(Model.SelectedSectors.Contains(sector.Code) ? "checked" : "")>
                                         <label class="modern-checkbox-label" for="sector-@sector.Code">
                                             <span class="checkbox-custom"></span>
-                                            <span class="checkbox-text">@sector.EN_Name</span>
+                                            @if (culture.StartsWith("ar"))
+                                            {
+                                                @sector.AR_Name
+                                            }
+                                            else
+                                            {
+                                                @sector.EN_Name
+                                            }
                                         </label>
                                     </div>
                                 }

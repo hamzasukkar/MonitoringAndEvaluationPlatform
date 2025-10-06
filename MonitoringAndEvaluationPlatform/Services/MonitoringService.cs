@@ -673,13 +673,12 @@ public class MonitoringService
     }
 
 
-    public async Task AddMeasureToIndicator(int indicatorId, double value, MeasureValueType valueType)
+    public async Task AddMeasureToIndicator(int indicatorId, double value)
     {
         var measure = new Measure
         {
             IndicatorCode = indicatorId,
             Value = value,
-            ValueType = valueType,
             Date = DateTime.UtcNow
         };
 

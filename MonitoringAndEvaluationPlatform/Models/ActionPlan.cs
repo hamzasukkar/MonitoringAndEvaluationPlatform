@@ -30,13 +30,21 @@ namespace MonitoringAndEvaluationPlatform.Models
         {
             if (Project?.EstimatedBudget > 0)
             {
-                var allPlans = Activities.SelectMany(a => a.Plans).ToList();
+                var allPlans = Activities.Where(a=>a.ActivityType==Enums.ActivityType.DisbursementPerformance).SelectMany(a => a.Plans).ToList();
                 if (allPlans.Count > 0)
                 {
                     int equalPlannedValue = (int)(Project.EstimatedBudget / allPlans.Count);
-                    foreach (var plan in allPlans)
+                    int remainder = (int)(Project.EstimatedBudget % allPlans.Count);
+
+                    for (int i = 0; i < allPlans.Count; i++)
                     {
-                        plan.Planned = equalPlannedValue;
+                        allPlans[i].Planned = equalPlannedValue;
+
+                        // Add 1 to the first 'remainder' plans to distribute the remainder
+                        if (i < remainder)
+                        {
+                            allPlans[i].Planned += 1;
+                        }
                     }
                 }
             }

@@ -92,6 +92,9 @@
                             </div>
                             @if (selectedIndicator.Target > 0)
                             {
+                                var currentValue = selectedIndicator.Measures.Sum(m => m.Value);
+                                var remaining = selectedIndicator.Target - currentValue;
+
                                 <div class="info-row">
                                     <div class="info-label">
                                         <i class="fas fa-target me-2"></i>
@@ -99,6 +102,34 @@
                                     </div>
                                     <div class="info-value">
                                         <span class="target-value">@selectedIndicator.Target.ToString("N2")</span>
+                                    </div>
+                                </div>
+                                <div class="info-row">
+                                    <div class="info-label">
+                                        <i class="fas fa-chart-bar me-2"></i>
+                                        @Localizer["Current Achievement"]
+                                    </div>
+                                    <div class="info-value">
+                                        <span class="modern-badge badge-success">@currentValue.ToString("N2")</span>
+                                    </div>
+                                </div>
+                                <div class="info-row">
+                                    <div class="info-label">
+                                        <i class="fas fa-road me-2"></i>
+                                        @Localizer["Remaining to Target"]
+                                    </div>
+                                    <div class="info-value">
+                                        @if (remaining > 0)
+                                        {
+                                            <span class="remaining-value">@remaining.ToString("N2")</span>
+                                            <small class="text-muted ms-2">(@((currentValue / selectedIndicator.Target * 100).ToString("N1"))% @Localizer["achieved"])</small>
+                                        }
+                                        else
+                                        {
+                                            <span class="modern-badge badge-success">
+                                                <i class="fas fa-check-circle me-1"></i>@Localizer["Target Reached"]
+                                            </span>
+                                        }
                                     </div>
                                 </div>
                             }
@@ -147,6 +178,9 @@
                             </div>
                             @if (selectedIndicator.Target > 0)
                             {
+                                var currentValue2 = selectedIndicator.Measures.Sum(m => m.Value);
+                                var remaining2 = selectedIndicator.Target - currentValue2;
+
                                 <div class="info-row">
                                     <div class="info-label">
                                         <i class="fas fa-target me-2"></i>
@@ -154,6 +188,34 @@
                                     </div>
                                     <div class="info-value">
                                         <span class="target-value">@selectedIndicator.Target.ToString("N2")</span>
+                                    </div>
+                                </div>
+                                <div class="info-row">
+                                    <div class="info-label">
+                                        <i class="fas fa-chart-bar me-2"></i>
+                                        @Localizer["Current Achievement"]
+                                    </div>
+                                    <div class="info-value">
+                                        <span class="modern-badge badge-success">@currentValue2.ToString("N2")</span>
+                                    </div>
+                                </div>
+                                <div class="info-row">
+                                    <div class="info-label">
+                                        <i class="fas fa-road me-2"></i>
+                                        @Localizer["Remaining to Target"]
+                                    </div>
+                                    <div class="info-value">
+                                        @if (remaining2 > 0)
+                                        {
+                                            <span class="remaining-value">@remaining2.ToString("N2")</span>
+                                            <small class="text-muted ms-2">(@((currentValue2 / selectedIndicator.Target * 100).ToString("N1"))% @Localizer["achieved"])</small>
+                                        }
+                                        else
+                                        {
+                                            <span class="modern-badge badge-success">
+                                                <i class="fas fa-check-circle me-1"></i>@Localizer["Target Reached"]
+                                            </span>
+                                        }
                                     </div>
                                 </div>
                             }
@@ -316,7 +378,7 @@
                     <div class="empty-icon">
                         <i class="fas fa-chart-line"></i>
                     </div>
-                    <h5 class="empty-title">@Localizer["No Measures Found"]</h5>
+                    <h5 class="empty-title">@Localizer["No measures found"]</h5>
                     <p class="empty-text">
                         @if (ViewBag.SelectedIndicatorId != null)
                         {
@@ -355,12 +417,12 @@
                     </div>
                     <div class="detail-value" id="modal-value"></div>
                 </div>
-                <div class="detail-item">
+           @*      <div class="detail-item">
                     <div class="detail-label">
                         <i class="fas fa-code me-2"></i>@Localizer["Indicator Code"]
                     </div>
                     <div class="detail-value" id="modal-indicator-code"></div>
-                </div>
+                </div> *@
                 <div class="detail-item">
                     <div class="detail-label">
                         <i class="fas fa-tag me-2"></i>@Localizer["Indicator Name"]
@@ -558,6 +620,12 @@
             font-size: 1.1rem;
             font-weight: 700;
             color: var(--primary-color);
+        }
+
+        .remaining-value {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: #fd7e14;
         }
 
         /* Modern Table Styling */
@@ -1049,8 +1117,7 @@
                 const formData = {
                     Date: $('#measureDate').val(),
                     Value: parseFloat($('#measureValue').val()),
-                    IndicatorCode: parseInt($('#indicatorCode').val()),
-                    ValueType: 'Real' // Always Real as per your requirement
+                    IndicatorCode: parseInt($('#indicatorCode').val())
                 };
 
                 // Disable button and show loading

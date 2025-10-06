@@ -477,21 +477,17 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             var data = await _context.Measures
                 .Where(m => m.IndicatorCode == indicatorCode)
                 .OrderBy(m => m.Date)
-                .ToListAsync();
-
-            var real = data
-                .Where(m => m.ValueType == MeasureValueType.Real)
                 .Select(m => new { date = m.Date.ToString("yyyy-MM-dd"), value = m.Value })
-                .ToList();
+                .ToListAsync();
 
             // Get indicator target as baseline
             var indicator = await _context.Indicators
                 .FirstOrDefaultAsync(i => i.IndicatorCode == indicatorCode);
-            
+
             var targetValue = indicator?.Target ?? 0;
             var target = new[] { new { date = "baseline", value = targetValue } };
 
-            var result = new { Real = real, Target = target };
+            var result = new { Real = data, Target = target };
 
             return Json(result);
         }
