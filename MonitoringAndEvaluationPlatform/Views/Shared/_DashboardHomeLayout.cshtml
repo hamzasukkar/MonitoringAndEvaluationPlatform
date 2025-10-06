@@ -135,6 +135,8 @@
                 -webkit-background-clip: text;
                 -webkit-text-fill-color: transparent;
                 background-clip: text;
+                display: flex;
+                align-items: center;
             }
 
         .nav-links .nav {
@@ -908,7 +910,10 @@
 <body>
     <header>
         <div class="topbar">
-            <div class="title">@Localizer["AppTitle"]</div>
+            <div class="title">
+                <img src="~/img/Emblem_of_Syria.png" alt="Logo" style="width: 40px; height: 40px; margin-right: 10px; border-radius: 8px;">
+                @Localizer["AppTitle"]
+            </div>
             <div class="nav-links">
                 <ul class="nav">
                     <li class="nav-item">
