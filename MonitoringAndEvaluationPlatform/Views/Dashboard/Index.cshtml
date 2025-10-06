@@ -911,6 +911,10 @@ $(document).ready(function() {
 		const selectedGovCodes = $(this).val() || [];
 		const governorateCode = selectedGovCodes.join(',');
 
+		// Save current selections
+		const currentFrameworkCode = document.getElementById('frameworkFilter').value;
+		const currentProjectCode = document.getElementById('projectFilter').value;
+
 		// 2. Load gauges based on the new filters
 		const filters = getFilters();
 		loadGauges(
@@ -933,12 +937,24 @@ $(document).ready(function() {
 					return response.json();
 				})
 				.then(projects => {
+					let foundCurrentProject = false;
 					projects.forEach(project => {
 						const option = document.createElement('option');
 						option.value = project.id;
 						option.textContent = project.name;
 						projectDropdown.appendChild(option);
+
+						// Check if current selection exists in new data
+						if (currentProjectCode && project.id == currentProjectCode) {
+							foundCurrentProject = true;
+						}
 					});
+
+					// Restore selection if it exists in new data
+					if (foundCurrentProject) {
+						projectDropdown.value = currentProjectCode;
+					}
+
 					// Update the total projects count
 					const totalProjects = projects.length;
 					document.getElementById('totalProjects').textContent = totalProjects;
@@ -1010,12 +1026,24 @@ $(document).ready(function() {
 					return response.json();
 				})
 				.then(frameworks => {
+					let foundCurrentFramework = false;
 					frameworks.forEach(framework => {
 						const option = document.createElement('option');
 						option.value = framework.code;
 						option.textContent = framework.name;
 						frameworkDropdown.appendChild(option);
+
+						// Check if current selection exists in new data
+						if (currentFrameworkCode && framework.code == currentFrameworkCode) {
+							foundCurrentFramework = true;
+						}
 					});
+
+					// Restore selection if it exists in new data
+					if (foundCurrentFramework) {
+						frameworkDropdown.value = currentFrameworkCode;
+					}
+
 					// Update the total frameworks count
 					const totalFrameworks = frameworks.length;
 					document.getElementById('totalFrameworks').textContent = totalFrameworks;
