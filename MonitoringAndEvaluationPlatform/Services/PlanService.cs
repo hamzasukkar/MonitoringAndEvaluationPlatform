@@ -146,13 +146,49 @@ public class PlanService
 
         foreach (var indicator in indicatorsToUpdate)
         {
-            // Calculate average DisbursementPerformance from all projects linked to this indicator via ProjectIndicators
+            // Calculate DisbursementPerformance using weighted sum method (sum of realized / sum of planned)
             var linkedProjects = indicator.ProjectIndicators.Select(pi => pi.Project).Where(p => p != null).ToList();
             if (linkedProjects.Any())
             {
-                indicator.DisbursementPerformance = (int)linkedProjects.Average(p => p.DisbursementPerformance);
-                indicator.FieldMonitoring = (int)linkedProjects.Average(p => p.FieldMonitoring);
-                indicator.ImpactAssessment = (int)linkedProjects.Average(p => p.ImpactAssessment);
+                // Get all DisbursementPerformance plans for projects linked to this indicator
+                var projectIds = linkedProjects.Select(p => p.ProjectID).ToList();
+
+                var disbursementPlans = await _context.Plans
+                    .Include(p => p.Activity)
+                        .ThenInclude(a => a.ActionPlan)
+                    .Where(p => p.Activity.ActivityType == ActivityType.DisbursementPerformance
+                                && projectIds.Contains(p.Activity.ActionPlan.ProjectID))
+                    .ToListAsync();
+
+                var fieldMonitoringPlans = await _context.Plans
+                    .Include(p => p.Activity)
+                        .ThenInclude(a => a.ActionPlan)
+                    .Where(p => p.Activity.ActivityType == ActivityType.FieldMonitoring
+                                && projectIds.Contains(p.Activity.ActionPlan.ProjectID))
+                    .ToListAsync();
+
+                var impactAssessmentPlans = await _context.Plans
+                    .Include(p => p.Activity)
+                        .ThenInclude(a => a.ActionPlan)
+                    .Where(p => p.Activity.ActivityType == ActivityType.ImpactAssessment
+                                && projectIds.Contains(p.Activity.ActionPlan.ProjectID))
+                    .ToListAsync();
+
+                // Calculate DisbursementPerformance
+                double totalPlannedDisb = disbursementPlans.Sum(p => p.Planned);
+                double totalRealisedDisb = disbursementPlans.Sum(p => p.Realised);
+                indicator.DisbursementPerformance = totalPlannedDisb > 0 ? (int)((totalRealisedDisb / totalPlannedDisb) * 100) : 0;
+
+                // Calculate FieldMonitoring
+                double totalPlannedField = fieldMonitoringPlans.Sum(p => p.Planned);
+                double totalRealisedField = fieldMonitoringPlans.Sum(p => p.Realised);
+                indicator.FieldMonitoring = totalPlannedField > 0 ? (int)((totalRealisedField / totalPlannedField) * 100) : 0;
+
+                // Calculate ImpactAssessment
+                double totalPlannedImpact = impactAssessmentPlans.Sum(p => p.Planned);
+                double totalRealisedImpact = impactAssessmentPlans.Sum(p => p.Realised);
+                indicator.ImpactAssessment = totalPlannedImpact > 0 ? (int)((totalRealisedImpact / totalPlannedImpact) * 100) : 0;
+
                 _context.Indicators.Update(indicator);
             }
             else
@@ -181,9 +217,49 @@ public class PlanService
 
             if (indicatorsWithProjects.Any())
             {
-                subOutput.DisbursementPerformance = (int)indicatorsWithProjects.Average(i => i.DisbursementPerformance);
-                subOutput.FieldMonitoring = (int)indicatorsWithProjects.Average(i => i.FieldMonitoring);
-                subOutput.ImpactAssessment = (int)indicatorsWithProjects.Average(i => i.ImpactAssessment);
+                // Get all project IDs for this subOutput
+                var indicatorCodes = indicatorsWithProjects.Select(i => i.IndicatorCode).ToList();
+                var projectIds = await _context.ProjectIndicators
+                    .Where(pi => indicatorCodes.Contains(pi.IndicatorCode))
+                    .Select(pi => pi.ProjectId)
+                    .Distinct()
+                    .ToListAsync();
+
+                // Get all plans for these projects
+                var disbursementPlans = await _context.Plans
+                    .Include(p => p.Activity)
+                        .ThenInclude(a => a.ActionPlan)
+                    .Where(p => p.Activity.ActivityType == ActivityType.DisbursementPerformance
+                                && projectIds.Contains(p.Activity.ActionPlan.ProjectID))
+                    .ToListAsync();
+
+                var fieldMonitoringPlans = await _context.Plans
+                    .Include(p => p.Activity)
+                        .ThenInclude(a => a.ActionPlan)
+                    .Where(p => p.Activity.ActivityType == ActivityType.FieldMonitoring
+                                && projectIds.Contains(p.Activity.ActionPlan.ProjectID))
+                    .ToListAsync();
+
+                var impactAssessmentPlans = await _context.Plans
+                    .Include(p => p.Activity)
+                        .ThenInclude(a => a.ActionPlan)
+                    .Where(p => p.Activity.ActivityType == ActivityType.ImpactAssessment
+                                && projectIds.Contains(p.Activity.ActionPlan.ProjectID))
+                    .ToListAsync();
+
+                // Calculate using sum method
+                double totalPlannedDisb = disbursementPlans.Sum(p => p.Planned);
+                double totalRealisedDisb = disbursementPlans.Sum(p => p.Realised);
+                subOutput.DisbursementPerformance = totalPlannedDisb > 0 ? (int)((totalRealisedDisb / totalPlannedDisb) * 100) : 0;
+
+                double totalPlannedField = fieldMonitoringPlans.Sum(p => p.Planned);
+                double totalRealisedField = fieldMonitoringPlans.Sum(p => p.Realised);
+                subOutput.FieldMonitoring = totalPlannedField > 0 ? (int)((totalRealisedField / totalPlannedField) * 100) : 0;
+
+                double totalPlannedImpact = impactAssessmentPlans.Sum(p => p.Planned);
+                double totalRealisedImpact = impactAssessmentPlans.Sum(p => p.Realised);
+                subOutput.ImpactAssessment = totalPlannedImpact > 0 ? (int)((totalRealisedImpact / totalPlannedImpact) * 100) : 0;
+
                 _context.SubOutputs.Update(subOutput);
             }
             else
@@ -213,9 +289,54 @@ public class PlanService
 
             if (subOutputsWithProjects.Any())
             {
-                output.DisbursementPerformance = (int)subOutputsWithProjects.Average(so => so.DisbursementPerformance);
-                output.FieldMonitoring = (int)subOutputsWithProjects.Average(so => so.FieldMonitoring);
-                output.ImpactAssessment = (int)subOutputsWithProjects.Average(so => so.ImpactAssessment);
+                // Get all project IDs for this output
+                var indicatorCodes = subOutputsWithProjects
+                    .SelectMany(so => so.Indicators)
+                    .Select(i => i.IndicatorCode)
+                    .Distinct()
+                    .ToList();
+
+                var projectIds = await _context.ProjectIndicators
+                    .Where(pi => indicatorCodes.Contains(pi.IndicatorCode))
+                    .Select(pi => pi.ProjectId)
+                    .Distinct()
+                    .ToListAsync();
+
+                // Get all plans for these projects
+                var disbursementPlans = await _context.Plans
+                    .Include(p => p.Activity)
+                        .ThenInclude(a => a.ActionPlan)
+                    .Where(p => p.Activity.ActivityType == ActivityType.DisbursementPerformance
+                                && projectIds.Contains(p.Activity.ActionPlan.ProjectID))
+                    .ToListAsync();
+
+                var fieldMonitoringPlans = await _context.Plans
+                    .Include(p => p.Activity)
+                        .ThenInclude(a => a.ActionPlan)
+                    .Where(p => p.Activity.ActivityType == ActivityType.FieldMonitoring
+                                && projectIds.Contains(p.Activity.ActionPlan.ProjectID))
+                    .ToListAsync();
+
+                var impactAssessmentPlans = await _context.Plans
+                    .Include(p => p.Activity)
+                        .ThenInclude(a => a.ActionPlan)
+                    .Where(p => p.Activity.ActivityType == ActivityType.ImpactAssessment
+                                && projectIds.Contains(p.Activity.ActionPlan.ProjectID))
+                    .ToListAsync();
+
+                // Calculate using sum method
+                double totalPlannedDisb = disbursementPlans.Sum(p => p.Planned);
+                double totalRealisedDisb = disbursementPlans.Sum(p => p.Realised);
+                output.DisbursementPerformance = totalPlannedDisb > 0 ? (int)((totalRealisedDisb / totalPlannedDisb) * 100) : 0;
+
+                double totalPlannedField = fieldMonitoringPlans.Sum(p => p.Planned);
+                double totalRealisedField = fieldMonitoringPlans.Sum(p => p.Realised);
+                output.FieldMonitoring = totalPlannedField > 0 ? (int)((totalRealisedField / totalPlannedField) * 100) : 0;
+
+                double totalPlannedImpact = impactAssessmentPlans.Sum(p => p.Planned);
+                double totalRealisedImpact = impactAssessmentPlans.Sum(p => p.Realised);
+                output.ImpactAssessment = totalPlannedImpact > 0 ? (int)((totalRealisedImpact / totalPlannedImpact) * 100) : 0;
+
                 _context.Outputs.Update(output);
             }
             else
@@ -246,9 +367,55 @@ public class PlanService
 
             if (outputsWithProjects.Any())
             {
-                outcome.DisbursementPerformance = (int)outputsWithProjects.Average(o => o.DisbursementPerformance);
-                outcome.FieldMonitoring = (int)outputsWithProjects.Average(o => o.FieldMonitoring);
-                outcome.ImpactAssessment = (int)outputsWithProjects.Average(o => o.ImpactAssessment);
+                // Get all project IDs for this outcome
+                var indicatorCodes = outputsWithProjects
+                    .SelectMany(o => o.SubOutputs)
+                    .SelectMany(so => so.Indicators)
+                    .Select(i => i.IndicatorCode)
+                    .Distinct()
+                    .ToList();
+
+                var projectIds = await _context.ProjectIndicators
+                    .Where(pi => indicatorCodes.Contains(pi.IndicatorCode))
+                    .Select(pi => pi.ProjectId)
+                    .Distinct()
+                    .ToListAsync();
+
+                // Get all plans for these projects
+                var disbursementPlans = await _context.Plans
+                    .Include(p => p.Activity)
+                        .ThenInclude(a => a.ActionPlan)
+                    .Where(p => p.Activity.ActivityType == ActivityType.DisbursementPerformance
+                                && projectIds.Contains(p.Activity.ActionPlan.ProjectID))
+                    .ToListAsync();
+
+                var fieldMonitoringPlans = await _context.Plans
+                    .Include(p => p.Activity)
+                        .ThenInclude(a => a.ActionPlan)
+                    .Where(p => p.Activity.ActivityType == ActivityType.FieldMonitoring
+                                && projectIds.Contains(p.Activity.ActionPlan.ProjectID))
+                    .ToListAsync();
+
+                var impactAssessmentPlans = await _context.Plans
+                    .Include(p => p.Activity)
+                        .ThenInclude(a => a.ActionPlan)
+                    .Where(p => p.Activity.ActivityType == ActivityType.ImpactAssessment
+                                && projectIds.Contains(p.Activity.ActionPlan.ProjectID))
+                    .ToListAsync();
+
+                // Calculate using sum method
+                double totalPlannedDisb = disbursementPlans.Sum(p => p.Planned);
+                double totalRealisedDisb = disbursementPlans.Sum(p => p.Realised);
+                outcome.DisbursementPerformance = totalPlannedDisb > 0 ? (int)((totalRealisedDisb / totalPlannedDisb) * 100) : 0;
+
+                double totalPlannedField = fieldMonitoringPlans.Sum(p => p.Planned);
+                double totalRealisedField = fieldMonitoringPlans.Sum(p => p.Realised);
+                outcome.FieldMonitoring = totalPlannedField > 0 ? (int)((totalRealisedField / totalPlannedField) * 100) : 0;
+
+                double totalPlannedImpact = impactAssessmentPlans.Sum(p => p.Planned);
+                double totalRealisedImpact = impactAssessmentPlans.Sum(p => p.Realised);
+                outcome.ImpactAssessment = totalPlannedImpact > 0 ? (int)((totalRealisedImpact / totalPlannedImpact) * 100) : 0;
+
                 _context.Outcomes.Update(outcome);
             }
             else
@@ -280,9 +447,56 @@ public class PlanService
 
             if (outcomesWithProjects.Any())
             {
-                framework.DisbursementPerformance = (int)outcomesWithProjects.Average(oc => oc.DisbursementPerformance);
-                framework.FieldMonitoring = (int)outcomesWithProjects.Average(oc => oc.FieldMonitoring);
-                framework.ImpactAssessment = (int)outcomesWithProjects.Average(oc => oc.ImpactAssessment);
+                // Get all project IDs for this framework
+                var indicatorCodes = outcomesWithProjects
+                    .SelectMany(oc => oc.Outputs)
+                    .SelectMany(o => o.SubOutputs)
+                    .SelectMany(so => so.Indicators)
+                    .Select(i => i.IndicatorCode)
+                    .Distinct()
+                    .ToList();
+
+                var projectIds = await _context.ProjectIndicators
+                    .Where(pi => indicatorCodes.Contains(pi.IndicatorCode))
+                    .Select(pi => pi.ProjectId)
+                    .Distinct()
+                    .ToListAsync();
+
+                // Get all plans for these projects
+                var disbursementPlans = await _context.Plans
+                    .Include(p => p.Activity)
+                        .ThenInclude(a => a.ActionPlan)
+                    .Where(p => p.Activity.ActivityType == ActivityType.DisbursementPerformance
+                                && projectIds.Contains(p.Activity.ActionPlan.ProjectID))
+                    .ToListAsync();
+
+                var fieldMonitoringPlans = await _context.Plans
+                    .Include(p => p.Activity)
+                        .ThenInclude(a => a.ActionPlan)
+                    .Where(p => p.Activity.ActivityType == ActivityType.FieldMonitoring
+                                && projectIds.Contains(p.Activity.ActionPlan.ProjectID))
+                    .ToListAsync();
+
+                var impactAssessmentPlans = await _context.Plans
+                    .Include(p => p.Activity)
+                        .ThenInclude(a => a.ActionPlan)
+                    .Where(p => p.Activity.ActivityType == ActivityType.ImpactAssessment
+                                && projectIds.Contains(p.Activity.ActionPlan.ProjectID))
+                    .ToListAsync();
+
+                // Calculate using sum method
+                double totalPlannedDisb = disbursementPlans.Sum(p => p.Planned);
+                double totalRealisedDisb = disbursementPlans.Sum(p => p.Realised);
+                framework.DisbursementPerformance = totalPlannedDisb > 0 ? (int)((totalRealisedDisb / totalPlannedDisb) * 100) : 0;
+
+                double totalPlannedField = fieldMonitoringPlans.Sum(p => p.Planned);
+                double totalRealisedField = fieldMonitoringPlans.Sum(p => p.Realised);
+                framework.FieldMonitoring = totalPlannedField > 0 ? (int)((totalRealisedField / totalPlannedField) * 100) : 0;
+
+                double totalPlannedImpact = impactAssessmentPlans.Sum(p => p.Planned);
+                double totalRealisedImpact = impactAssessmentPlans.Sum(p => p.Realised);
+                framework.ImpactAssessment = totalPlannedImpact > 0 ? (int)((totalRealisedImpact / totalPlannedImpact) * 100) : 0;
+
                 _context.Frameworks.Update(framework);
             }
             else
@@ -306,9 +520,42 @@ public class PlanService
         {
             if (donor.Projects.Any())
             {
-                donor.DisbursementPerformance = (int)donor.Projects.Average(p => p.DisbursementPerformance);
-                donor.FieldMonitoring = (int)donor.Projects.Average(p => p.FieldMonitoring);
-                donor.ImpactAssessment = (int)donor.Projects.Average(p => p.ImpactAssessment);
+                var projectIds = donor.Projects.Select(p => p.ProjectID).ToList();
+
+                // Get all plans for these projects
+                var disbursementPlans = await _context.Plans
+                    .Include(p => p.Activity)
+                        .ThenInclude(a => a.ActionPlan)
+                    .Where(p => p.Activity.ActivityType == ActivityType.DisbursementPerformance
+                                && projectIds.Contains(p.Activity.ActionPlan.ProjectID))
+                    .ToListAsync();
+
+                var fieldMonitoringPlans = await _context.Plans
+                    .Include(p => p.Activity)
+                        .ThenInclude(a => a.ActionPlan)
+                    .Where(p => p.Activity.ActivityType == ActivityType.FieldMonitoring
+                                && projectIds.Contains(p.Activity.ActionPlan.ProjectID))
+                    .ToListAsync();
+
+                var impactAssessmentPlans = await _context.Plans
+                    .Include(p => p.Activity)
+                        .ThenInclude(a => a.ActionPlan)
+                    .Where(p => p.Activity.ActivityType == ActivityType.ImpactAssessment
+                                && projectIds.Contains(p.Activity.ActionPlan.ProjectID))
+                    .ToListAsync();
+
+                // Calculate using sum method
+                double totalPlannedDisb = disbursementPlans.Sum(p => p.Planned);
+                double totalRealisedDisb = disbursementPlans.Sum(p => p.Realised);
+                donor.DisbursementPerformance = totalPlannedDisb > 0 ? (int)((totalRealisedDisb / totalPlannedDisb) * 100) : 0;
+
+                double totalPlannedField = fieldMonitoringPlans.Sum(p => p.Planned);
+                double totalRealisedField = fieldMonitoringPlans.Sum(p => p.Realised);
+                donor.FieldMonitoring = totalPlannedField > 0 ? (int)((totalRealisedField / totalPlannedField) * 100) : 0;
+
+                double totalPlannedImpact = impactAssessmentPlans.Sum(p => p.Planned);
+                double totalRealisedImpact = impactAssessmentPlans.Sum(p => p.Realised);
+                donor.ImpactAssessment = totalPlannedImpact > 0 ? (int)((totalRealisedImpact / totalPlannedImpact) * 100) : 0;
             }
             else
             {
@@ -330,9 +577,42 @@ public class PlanService
         {
             if (sector.Projects.Any())
             {
-                sector.DisbursementPerformance = (int)sector.Projects.Average(p => p.DisbursementPerformance);
-                sector.FieldMonitoring = (int)sector.Projects.Average(p => p.FieldMonitoring);
-                sector.ImpactAssessment = (int)sector.Projects.Average(p => p.ImpactAssessment);
+                var projectIds = sector.Projects.Select(p => p.ProjectID).ToList();
+
+                // Get all plans for these projects
+                var disbursementPlans = await _context.Plans
+                    .Include(p => p.Activity)
+                        .ThenInclude(a => a.ActionPlan)
+                    .Where(p => p.Activity.ActivityType == ActivityType.DisbursementPerformance
+                                && projectIds.Contains(p.Activity.ActionPlan.ProjectID))
+                    .ToListAsync();
+
+                var fieldMonitoringPlans = await _context.Plans
+                    .Include(p => p.Activity)
+                        .ThenInclude(a => a.ActionPlan)
+                    .Where(p => p.Activity.ActivityType == ActivityType.FieldMonitoring
+                                && projectIds.Contains(p.Activity.ActionPlan.ProjectID))
+                    .ToListAsync();
+
+                var impactAssessmentPlans = await _context.Plans
+                    .Include(p => p.Activity)
+                        .ThenInclude(a => a.ActionPlan)
+                    .Where(p => p.Activity.ActivityType == ActivityType.ImpactAssessment
+                                && projectIds.Contains(p.Activity.ActionPlan.ProjectID))
+                    .ToListAsync();
+
+                // Calculate using sum method
+                double totalPlannedDisb = disbursementPlans.Sum(p => p.Planned);
+                double totalRealisedDisb = disbursementPlans.Sum(p => p.Realised);
+                sector.DisbursementPerformance = totalPlannedDisb > 0 ? (int)((totalRealisedDisb / totalPlannedDisb) * 100) : 0;
+
+                double totalPlannedField = fieldMonitoringPlans.Sum(p => p.Planned);
+                double totalRealisedField = fieldMonitoringPlans.Sum(p => p.Realised);
+                sector.FieldMonitoring = totalPlannedField > 0 ? (int)((totalRealisedField / totalPlannedField) * 100) : 0;
+
+                double totalPlannedImpact = impactAssessmentPlans.Sum(p => p.Planned);
+                double totalRealisedImpact = impactAssessmentPlans.Sum(p => p.Realised);
+                sector.ImpactAssessment = totalPlannedImpact > 0 ? (int)((totalRealisedImpact / totalPlannedImpact) * 100) : 0;
             }
             else
             {
@@ -354,9 +634,42 @@ public class PlanService
         {
             if (ministry.Projects.Any())
             {
-                ministry.DisbursementPerformance = (int)ministry.Projects.Average(p => p.DisbursementPerformance);
-                ministry.FieldMonitoring = (int)ministry.Projects.Average(p => p.FieldMonitoring);
-                ministry.ImpactAssessment = (int)ministry.Projects.Average(p => p.ImpactAssessment);
+                var projectIds = ministry.Projects.Select(p => p.ProjectID).ToList();
+
+                // Get all plans for these projects
+                var disbursementPlans = await _context.Plans
+                    .Include(p => p.Activity)
+                        .ThenInclude(a => a.ActionPlan)
+                    .Where(p => p.Activity.ActivityType == ActivityType.DisbursementPerformance
+                                && projectIds.Contains(p.Activity.ActionPlan.ProjectID))
+                    .ToListAsync();
+
+                var fieldMonitoringPlans = await _context.Plans
+                    .Include(p => p.Activity)
+                        .ThenInclude(a => a.ActionPlan)
+                    .Where(p => p.Activity.ActivityType == ActivityType.FieldMonitoring
+                                && projectIds.Contains(p.Activity.ActionPlan.ProjectID))
+                    .ToListAsync();
+
+                var impactAssessmentPlans = await _context.Plans
+                    .Include(p => p.Activity)
+                        .ThenInclude(a => a.ActionPlan)
+                    .Where(p => p.Activity.ActivityType == ActivityType.ImpactAssessment
+                                && projectIds.Contains(p.Activity.ActionPlan.ProjectID))
+                    .ToListAsync();
+
+                // Calculate using sum method
+                double totalPlannedDisb = disbursementPlans.Sum(p => p.Planned);
+                double totalRealisedDisb = disbursementPlans.Sum(p => p.Realised);
+                ministry.DisbursementPerformance = totalPlannedDisb > 0 ? (int)((totalRealisedDisb / totalPlannedDisb) * 100) : 0;
+
+                double totalPlannedField = fieldMonitoringPlans.Sum(p => p.Planned);
+                double totalRealisedField = fieldMonitoringPlans.Sum(p => p.Realised);
+                ministry.FieldMonitoring = totalPlannedField > 0 ? (int)((totalRealisedField / totalPlannedField) * 100) : 0;
+
+                double totalPlannedImpact = impactAssessmentPlans.Sum(p => p.Planned);
+                double totalRealisedImpact = impactAssessmentPlans.Sum(p => p.Realised);
+                ministry.ImpactAssessment = totalPlannedImpact > 0 ? (int)((totalRealisedImpact / totalPlannedImpact) * 100) : 0;
             }
             else
             {
@@ -411,13 +724,49 @@ public class PlanService
 
         foreach (var indicator in indicatorsToUpdate)
         {
-            // Calculate average DisbursementPerformance from all projects linked to this indicator via ProjectIndicators
+            // Calculate DisbursementPerformance using weighted sum method (sum of realized / sum of planned)
             var linkedProjects = indicator.ProjectIndicators.Select(pi => pi.Project).Where(p => p != null).ToList();
             if (linkedProjects.Any())
             {
-                indicator.DisbursementPerformance = (int)linkedProjects.Average(p => p.DisbursementPerformance);
-                indicator.FieldMonitoring = (int)linkedProjects.Average(p => p.FieldMonitoring);
-                indicator.ImpactAssessment = (int)linkedProjects.Average(p => p.ImpactAssessment);
+                // Get all DisbursementPerformance plans for projects linked to this indicator
+                var projectIds = linkedProjects.Select(p => p.ProjectID).ToList();
+
+                var disbursementPlans = await _context.Plans
+                    .Include(p => p.Activity)
+                        .ThenInclude(a => a.ActionPlan)
+                    .Where(p => p.Activity.ActivityType == ActivityType.DisbursementPerformance
+                                && projectIds.Contains(p.Activity.ActionPlan.ProjectID))
+                    .ToListAsync();
+
+                var fieldMonitoringPlans = await _context.Plans
+                    .Include(p => p.Activity)
+                        .ThenInclude(a => a.ActionPlan)
+                    .Where(p => p.Activity.ActivityType == ActivityType.FieldMonitoring
+                                && projectIds.Contains(p.Activity.ActionPlan.ProjectID))
+                    .ToListAsync();
+
+                var impactAssessmentPlans = await _context.Plans
+                    .Include(p => p.Activity)
+                        .ThenInclude(a => a.ActionPlan)
+                    .Where(p => p.Activity.ActivityType == ActivityType.ImpactAssessment
+                                && projectIds.Contains(p.Activity.ActionPlan.ProjectID))
+                    .ToListAsync();
+
+                // Calculate DisbursementPerformance
+                double totalPlannedDisb = disbursementPlans.Sum(p => p.Planned);
+                double totalRealisedDisb = disbursementPlans.Sum(p => p.Realised);
+                indicator.DisbursementPerformance = totalPlannedDisb > 0 ? (int)((totalRealisedDisb / totalPlannedDisb) * 100) : 0;
+
+                // Calculate FieldMonitoring
+                double totalPlannedField = fieldMonitoringPlans.Sum(p => p.Planned);
+                double totalRealisedField = fieldMonitoringPlans.Sum(p => p.Realised);
+                indicator.FieldMonitoring = totalPlannedField > 0 ? (int)((totalRealisedField / totalPlannedField) * 100) : 0;
+
+                // Calculate ImpactAssessment
+                double totalPlannedImpact = impactAssessmentPlans.Sum(p => p.Planned);
+                double totalRealisedImpact = impactAssessmentPlans.Sum(p => p.Realised);
+                indicator.ImpactAssessment = totalPlannedImpact > 0 ? (int)((totalRealisedImpact / totalPlannedImpact) * 100) : 0;
+
                 _context.Indicators.Update(indicator);
             }
             else
@@ -446,9 +795,49 @@ public class PlanService
 
             if (indicatorsWithProjects.Any())
             {
-                subOutput.DisbursementPerformance = (int)indicatorsWithProjects.Average(i => i.DisbursementPerformance);
-                subOutput.FieldMonitoring = (int)indicatorsWithProjects.Average(i => i.FieldMonitoring);
-                subOutput.ImpactAssessment = (int)indicatorsWithProjects.Average(i => i.ImpactAssessment);
+                // Get all project IDs for this subOutput
+                var indicatorCodes = indicatorsWithProjects.Select(i => i.IndicatorCode).ToList();
+                var projectIds = await _context.ProjectIndicators
+                    .Where(pi => indicatorCodes.Contains(pi.IndicatorCode))
+                    .Select(pi => pi.ProjectId)
+                    .Distinct()
+                    .ToListAsync();
+
+                // Get all plans for these projects
+                var disbursementPlans = await _context.Plans
+                    .Include(p => p.Activity)
+                        .ThenInclude(a => a.ActionPlan)
+                    .Where(p => p.Activity.ActivityType == ActivityType.DisbursementPerformance
+                                && projectIds.Contains(p.Activity.ActionPlan.ProjectID))
+                    .ToListAsync();
+
+                var fieldMonitoringPlans = await _context.Plans
+                    .Include(p => p.Activity)
+                        .ThenInclude(a => a.ActionPlan)
+                    .Where(p => p.Activity.ActivityType == ActivityType.FieldMonitoring
+                                && projectIds.Contains(p.Activity.ActionPlan.ProjectID))
+                    .ToListAsync();
+
+                var impactAssessmentPlans = await _context.Plans
+                    .Include(p => p.Activity)
+                        .ThenInclude(a => a.ActionPlan)
+                    .Where(p => p.Activity.ActivityType == ActivityType.ImpactAssessment
+                                && projectIds.Contains(p.Activity.ActionPlan.ProjectID))
+                    .ToListAsync();
+
+                // Calculate using sum method
+                double totalPlannedDisb = disbursementPlans.Sum(p => p.Planned);
+                double totalRealisedDisb = disbursementPlans.Sum(p => p.Realised);
+                subOutput.DisbursementPerformance = totalPlannedDisb > 0 ? (int)((totalRealisedDisb / totalPlannedDisb) * 100) : 0;
+
+                double totalPlannedField = fieldMonitoringPlans.Sum(p => p.Planned);
+                double totalRealisedField = fieldMonitoringPlans.Sum(p => p.Realised);
+                subOutput.FieldMonitoring = totalPlannedField > 0 ? (int)((totalRealisedField / totalPlannedField) * 100) : 0;
+
+                double totalPlannedImpact = impactAssessmentPlans.Sum(p => p.Planned);
+                double totalRealisedImpact = impactAssessmentPlans.Sum(p => p.Realised);
+                subOutput.ImpactAssessment = totalPlannedImpact > 0 ? (int)((totalRealisedImpact / totalPlannedImpact) * 100) : 0;
+
                 _context.SubOutputs.Update(subOutput);
             }
             else
