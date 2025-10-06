@@ -1157,8 +1157,10 @@ $(document).ready(function() {
 
 		loadGauges(filters.frameworkCode, filters.ministryCode, filters.projectCode, filters.governorateCode, filters.districtCode, filters.subDistrictCode, communityCodeString);
 
-		// ------------------- Save current ministry selection -------------------
+		// ------------------- Save current selections -------------------
+		const currentFrameworkCode = document.getElementById('frameworkFilter').value;
 		const currentMinistryCode = document.getElementById('ministryFilter').value;
+		const currentProjectCode = document.getElementById('projectFilter').value;
 
 		// Clear and reset the Framework, Ministry, and Project dropdowns
 		const frameworkDropdown = document.getElementById('frameworkFilter');
@@ -1178,12 +1180,24 @@ $(document).ready(function() {
 			fetch(`/Dashboard/GetFrameworksByCommunities?communityCodes=${communityCodeString}`)
 				.then(r => r.json())
 				.then(list => {
+					let foundCurrentFramework = false;
 					list.forEach(item => {
 						const opt = document.createElement('option');
 						opt.value = item.code;
 						opt.textContent = item.name;
 						frameworkDropdown.appendChild(opt);
+
+						// Check if current selection exists in new data
+						if (currentFrameworkCode && item.code == currentFrameworkCode) {
+							foundCurrentFramework = true;
+						}
 					});
+
+					// Restore selection if it exists in new data
+					if (foundCurrentFramework) {
+						frameworkDropdown.value = currentFrameworkCode;
+					}
+
 					document.getElementById('totalFrameworks').textContent = list.length;
 				})
 				.catch(e => console.error(e));
@@ -1218,12 +1232,24 @@ $(document).ready(function() {
 			fetch(`/Dashboard/GetProjectsByCommunities?communityCodes=${communityCodeString}`)
 				.then(r => r.json())
 				.then(list => {
+					let foundCurrentProject = false;
 					list.forEach(item => {
 						const opt = document.createElement('option');
 						opt.value = item.id;
 						opt.textContent = item.name;
 						projectDropdown.appendChild(opt);
+
+						// Check if current selection exists in new data
+						if (currentProjectCode && item.id == currentProjectCode) {
+							foundCurrentProject = true;
+						}
 					});
+
+					// Restore selection if it exists in new data
+					if (foundCurrentProject) {
+						projectDropdown.value = currentProjectCode;
+					}
+
 					document.getElementById('totalProjects').textContent = list.length;
 				})
 				.catch(e => console.error(e));
