@@ -24,12 +24,12 @@
             </p>
         </div>
         <div class="d-flex gap-2">
-            @if (ViewBag.SelectedFrameworkCode != null)
+            @if (ViewBag.SelectedFrameworkCode != null && User.IsInRole(UserRoles.SystemAdministrator))
             {
                 <button class="btn btn-success btn-lg shadow-sm" type="button" id="toggleCreateForm">
                     <i class="fas fa-plus me-2"></i>@Localizer["Create New Outcome"]
                 </button>
-                <a asp-action="AdjustWeights" asp-route-frameworkCode="@ViewBag.SelectedFrameworkCode" 
+                <a asp-action="AdjustWeights" asp-route-frameworkCode="@ViewBag.SelectedFrameworkCode"
                    class="btn btn-warning btn-lg shadow-sm">
                     <i class="fas fa-balance-scale me-2"></i>@Localizer["Adjust Weights"]
                 </a>
