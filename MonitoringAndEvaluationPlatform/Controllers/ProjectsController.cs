@@ -189,14 +189,31 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             Project project,
             List<IFormFile> UploadedFiles,
             int PlansCount,
-            string selections,
-            List<int> SelectedIndicators,
-            string DonorFundingBreakdown)
+            string? selections,
+            List<int>? SelectedIndicators,
+            string? DonorFundingBreakdown)
         {
             try
             {
                 // Remove navigation properties from model state FIRST, before any validation
                 RemoveNavigationPropertiesFromModelState();
+
+                // Remove form parameters from ModelState (they're not part of the Project model)
+                ModelState.Remove("selections");
+                ModelState.Remove("SelectedIndicators");
+                ModelState.Remove("DonorFundingBreakdown");
+                ModelState.Remove("PlansCount");
+                ModelState.Remove("IsEntireCountry");
+
+                // Explicitly read IsEntireCountry from form (checkbox sends "true" if checked, nothing if unchecked)
+                var isEntireCountryValue = Request.Form["IsEntireCountry"].ToString();
+                bool IsEntireCountry = isEntireCountryValue.Contains("true", StringComparison.OrdinalIgnoreCase);
+
+                // Set IsEntireCountry on project
+                project.IsEntireCountry = IsEntireCountry;
+
+                // Ensure SelectedIndicators is not null
+                SelectedIndicators = SelectedIndicators ?? new List<int>();
 
                 // Calculate PlansCount automatically based on the difference in months between StartDate and EndDate
                 PlansCount = CalculateMonthsDifference(project.StartDate, project.EndDate);
@@ -207,8 +224,11 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                     PlansCount = 1;
                 }
 
-                // Process location selections
-                await ProcessProjectLocationsAsync(project, selections);
+                // Process location selections (skip if entire country)
+                if (!IsEntireCountry)
+                {
+                    await ProcessProjectLocationsAsync(project, selections);
+                }
 
                 // Get form data
                 var selectedSectorCodes = Request.Form["Sectors"].ToList();
@@ -224,7 +244,8 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                     selectedSectorCodes,
                     SelectedIndicators,
                     PlansCount,
-                    ModelState);
+                    ModelState,
+                    IsEntireCountry);
 
                 if (!ModelState.IsValid)
                 {

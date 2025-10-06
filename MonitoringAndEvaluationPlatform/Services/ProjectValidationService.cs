@@ -12,7 +12,8 @@ namespace MonitoringAndEvaluationPlatform.Services
             List<string> selectedSectorCodes,
             List<int>? selectedIndicators,
             int plansCount,
-            ModelStateDictionary modelState);
+            ModelStateDictionary modelState,
+            bool isEntireCountry = false);
     }
 
     public class ProjectValidationService : IProjectValidationService
@@ -23,7 +24,8 @@ namespace MonitoringAndEvaluationPlatform.Services
             List<string> selectedSectorCodes,
             List<int>? selectedIndicators,
             int plansCount,
-            ModelStateDictionary modelState)
+            ModelStateDictionary modelState,
+            bool isEntireCountry = false)
         {
             // Validate Plans Count
             if (plansCount < 1)
@@ -31,8 +33,8 @@ namespace MonitoringAndEvaluationPlatform.Services
                 modelState.AddModelError("PlansCount", "Plans count must be at least 1 month.");
             }
 
-            // Validate location selection
-            if (selectedLocations == null || !selectedLocations.Any())
+            // Validate location selection (skip if project covers entire country)
+            if (!isEntireCountry && (selectedLocations == null || !selectedLocations.Any()))
             {
                 modelState.AddModelError("", "At least one project location must be selected. Please use the location selector to add project locations.");
             }

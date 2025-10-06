@@ -77,7 +77,9 @@ namespace MonitoringAndEvaluationPlatform.Models
         public ICollection<District> Districts { get; set; } = new List<District>();
         public ICollection<SubDistrict> SubDistricts { get; set; } = new List<SubDistrict>();
         public ICollection<Community> Communities { get; set; } = new List<Community>();
-        
+
+        [Display(Name = "Entire Country")]
+        public bool IsEntireCountry { get; set; } = false;
 
 
         public void UpdatePerformance(double totalPlanned, double totalRealised)
