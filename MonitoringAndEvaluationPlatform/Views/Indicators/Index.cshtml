@@ -30,19 +30,19 @@
         </div>
         <div class="d-flex gap-2 flex-wrap">
             <a asp-action="IndicatorAndProject" asp-route-frameworkCode="@ViewData["frameworkCode"]"
-               asp-route-subOutputCode="@ViewData["subOutputCode"]" 
+               asp-route-subOutputCode="@ViewData["subOutputCode"]"
                class="btn btn-info btn-lg shadow-sm">
                 <i class="fas fa-th-large me-2"></i>@Localizer["Card View"]
             </a>
             <a asp-action="IndicatorAndProjectTable" asp-route-frameworkCode="@ViewData["frameworkCode"]"
-               asp-route-subOutputCode="@ViewData["subOutputCode"]" 
+               asp-route-subOutputCode="@ViewData["subOutputCode"]"
                class="btn btn-outline-info btn-lg shadow-sm">
                 <i class="fas fa-table me-2"></i>@Localizer["Table View"]
             </a>
-            @if (@ViewData["subOutputCode"] != null)
+            @if (@ViewData["subOutputCode"] != null && User.IsInRole(UserRoles.SystemAdministrator))
             {
                 <a asp-action="AdjustWeights" asp-route-frameworkCode="@ViewData["frameworkCode"]"
-                   asp-route-subOutputCode="@ViewData["subOutputCode"]" 
+                   asp-route-subOutputCode="@ViewData["subOutputCode"]"
                    class="btn btn-warning btn-lg shadow-sm">
                     <i class="fas fa-balance-scale me-2"></i>@Localizer["Adjust Weights"]
                 </a>
@@ -59,7 +59,7 @@
     </div>
 }
 
-@if (@ViewData["subOutputCode"] != null)
+@if (@ViewData["subOutputCode"] != null && User.IsInRole(UserRoles.SystemAdministrator))
 {
     <!-- Inline Create Form -->
     <div class="chart-card mb-4">
@@ -75,7 +75,7 @@
                 <label for="Name" class="form-label fw-bold">
                     <i class="fas fa-tag me-2"></i>@Localizer["Name"]
                 </label>
-                <input type="text" name="Name" class="form-control form-control-lg" required 
+                <input type="text" name="Name" class="form-control form-control-lg" required
                        placeholder="@Localizer["Enter indicator name"]" />
             </div>
 
@@ -83,7 +83,7 @@
                 <label for="Target" class="form-label fw-bold">
                     <i class="fas fa-bullseye me-2"></i>@Localizer["Target"]
                 </label>
-                <input type="number" step="1" name="Target" class="form-control form-control-lg" required 
+                <input type="number" step="1" name="Target" class="form-control form-control-lg" required
                        placeholder="@Localizer["Enter target value"]" />
             </div>
 
