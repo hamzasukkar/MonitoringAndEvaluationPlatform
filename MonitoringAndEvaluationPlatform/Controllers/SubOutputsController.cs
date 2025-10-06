@@ -64,6 +64,55 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
+        [Permission(Permissions.AddSubOutput)]
+        public async Task<IActionResult> CreateInline(string name, int outputCode)
+        {
+            try
+            {
+                if (string.IsNullOrWhiteSpace(name))
+                {
+                    return Json(new { success = false, message = "SubOutput name is required." });
+                }
+
+                var subOutput = new SubOutput
+                {
+                    Name = name.Trim(),
+                    OutputCode = outputCode,
+                    IndicatorsPerformance = 0,
+                    DisbursementPerformance = 0,
+                    FieldMonitoring = 0,
+                    ImpactAssessment = 0
+                };
+
+                _context.Add(subOutput);
+                await _context.SaveChangesAsync();
+
+                // Recalculate weights
+                await RedistributeWeights(outputCode);
+
+                return Json(new
+                {
+                    success = true,
+                    subOutput = new
+                    {
+                        code = subOutput.Code,
+                        name = subOutput.Name,
+                        weight = Math.Round(subOutput.Weight, 2),
+                        indicatorsPerformance = Math.Round(subOutput.IndicatorsPerformance, 2),
+                        disbursementPerformance = Math.Round(subOutput.DisbursementPerformance, 2),
+                        outputName = subOutput.Output?.Name ?? ""
+                    },
+                    message = "SubOutput created successfully!"
+                });
+            }
+            catch (Exception)
+            {
+                return Json(new { success = false, message = "An error occurred while creating the suboutput." });
+            }
+        }
+
+        [HttpPost]
         [Permission(Permissions.ModifySubOutput)]
         public async Task<IActionResult> UpdateName(int id, string name)
         {

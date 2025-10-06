@@ -52,6 +52,55 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
+        [Permission(Permissions.AddOutcome)]
+        public async Task<IActionResult> CreateInline(string name, int frameworkCode)
+        {
+            try
+            {
+                if (string.IsNullOrWhiteSpace(name))
+                {
+                    return Json(new { success = false, message = "Outcome name is required." });
+                }
+
+                var outcome = new Outcome
+                {
+                    Name = name.Trim(),
+                    FrameworkCode = frameworkCode,
+                    IndicatorsPerformance = 0,
+                    DisbursementPerformance = 0,
+                    FieldMonitoring = 0,
+                    ImpactAssessment = 0
+                };
+
+                _context.Add(outcome);
+                await _context.SaveChangesAsync();
+
+                // Recalculate weights
+                await RedistributeWeights(frameworkCode);
+
+                return Json(new
+                {
+                    success = true,
+                    outcome = new
+                    {
+                        code = outcome.Code,
+                        name = outcome.Name,
+                        weight = Math.Round(outcome.Weight, 2),
+                        indicatorsPerformance = Math.Round(outcome.IndicatorsPerformance, 2),
+                        disbursementPerformance = Math.Round(outcome.DisbursementPerformance, 2),
+                        frameworkName = outcome.Framework?.Name ?? ""
+                    },
+                    message = "Outcome created successfully!"
+                });
+            }
+            catch (Exception)
+            {
+                return Json(new { success = false, message = "An error occurred while creating the outcome." });
+            }
+        }
+
+        [HttpPost]
         [Permission(Permissions.ModifyOutcome)]
         public async Task<IActionResult> UpdateName(int id, string name)
         {

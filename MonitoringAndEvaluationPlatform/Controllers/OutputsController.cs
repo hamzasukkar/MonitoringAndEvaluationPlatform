@@ -61,6 +61,55 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
+        [Permission(Permissions.AddOutput)]
+        public async Task<IActionResult> CreateInline(string name, int outcomeCode)
+        {
+            try
+            {
+                if (string.IsNullOrWhiteSpace(name))
+                {
+                    return Json(new { success = false, message = "Output name is required." });
+                }
+
+                var output = new Output
+                {
+                    Name = name.Trim(),
+                    OutcomeCode = outcomeCode,
+                    IndicatorsPerformance = 0,
+                    DisbursementPerformance = 0,
+                    FieldMonitoring = 0,
+                    ImpactAssessment = 0
+                };
+
+                _context.Add(output);
+                await _context.SaveChangesAsync();
+
+                // Recalculate weights
+                await RedistributeWeights(outcomeCode);
+
+                return Json(new
+                {
+                    success = true,
+                    output = new
+                    {
+                        code = output.Code,
+                        name = output.Name,
+                        weight = Math.Round(output.Weight, 2),
+                        indicatorsPerformance = Math.Round(output.IndicatorsPerformance, 2),
+                        disbursementPerformance = Math.Round(output.DisbursementPerformance, 2),
+                        outcomeName = output.Outcome?.Name ?? ""
+                    },
+                    message = "Output created successfully!"
+                });
+            }
+            catch (Exception)
+            {
+                return Json(new { success = false, message = "An error occurred while creating the output." });
+            }
+        }
+
+        [HttpPost]
         [Permission(Permissions.ModifyOutput)]
         public async Task<IActionResult> UpdateName(int id, string name)
         {
