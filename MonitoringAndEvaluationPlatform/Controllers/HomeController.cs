@@ -125,6 +125,22 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 });
             }
 
+            // Get all projects performance data (top 10 for chart display)
+            var allProjects = await _context.Projects.ToListAsync();
+            var projectsPerformance = allProjects
+                .OrderByDescending(p => p.performance)
+                .Take(10)
+                .Select(p => new ProjectPerformanceViewModel
+                {
+                    ProjectID = p.ProjectID,
+                    ProjectName = p.ProjectName,
+                    Performance = p.performance,
+                    DisbursementPerformance = p.DisbursementPerformance,
+                    FieldMonitoring = p.FieldMonitoring,
+                    ImpactAssessment = p.ImpactAssessment
+                })
+                .ToList();
+
             // Get recent activities based on recent projects
             var recentActivities = new List<RecentActivityViewModel>();
             var recentProjects = await _context.Projects
@@ -169,7 +185,8 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 ProjectsByDonor = projectsByDonor,
                 DonorsPerformance = donorsPerformance,
                 ProjectsBySector = projectsBySector,
-                SectorsPerformance = sectorsPerformance
+                SectorsPerformance = sectorsPerformance,
+                ProjectsPerformance = projectsPerformance
             };
 
             return View(viewModel);

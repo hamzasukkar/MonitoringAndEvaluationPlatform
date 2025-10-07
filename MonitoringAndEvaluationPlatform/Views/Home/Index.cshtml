@@ -142,6 +142,28 @@
             <canvas id="sectorPerformanceChart"></canvas>
         </div>
     </div>
+
+    <!-- Top Projects Overall Performance Chart -->
+    <div class="chart-card">
+        <h3 class="chart-title">
+            <i class="fas fa-trophy"></i>
+            Top 10 Projects - Overall Performance
+        </h3>
+        <div style="height: 300px;">
+            <canvas id="projectsOverallPerformanceChart"></canvas>
+        </div>
+    </div>
+
+    <!-- Projects Disbursement Performance Chart -->
+    <div class="chart-card">
+        <h3 class="chart-title">
+            <i class="fas fa-dollar-sign"></i>
+            Top 10 Projects - Disbursement Performance
+        </h3>
+        <div style="height: 300px;">
+            <canvas id="projectsDisbursementChart"></canvas>
+        </div>
+    </div>
 </div>
 
 <!-- Progress Section -->
@@ -535,6 +557,70 @@ document.addEventListener('DOMContentLoaded', function() {
             },
             scales: {
                 y: {
+                    beginAtZero: true,
+                    max: 100
+                }
+            }
+        }
+    });
+
+        // Top Projects Overall Performance Chart (Horizontal Bar Chart)
+        const projectsOverallCtx = document.getElementById('projectsOverallPerformanceChart').getContext('2d');
+        chartInstances.projectsOverall = new Chart(projectsOverallCtx, {
+        type: 'bar',
+        data: {
+            labels: @Html.Raw(Json.Serialize(Model.ProjectsPerformance.Select(p => p.ProjectName).ToList())),
+            datasets: [{
+                label: 'Overall Performance %',
+                data: @Html.Raw(Json.Serialize(Model.ProjectsPerformance.Select(p => p.Performance).ToList())),
+                backgroundColor: getCSSVariableValue('--primary-color') + 'CC',
+                borderColor: getCSSVariableValue('--primary-color'),
+                borderWidth: 1
+            }]
+        },
+        options: {
+            indexAxis: 'y',
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    display: false
+                }
+            },
+            scales: {
+                x: {
+                    beginAtZero: true,
+                    max: 100
+                }
+            }
+        }
+    });
+
+        // Projects Disbursement Performance Chart (Horizontal Bar Chart)
+        const projectsDisbursementCtx = document.getElementById('projectsDisbursementChart').getContext('2d');
+        chartInstances.projectsDisbursement = new Chart(projectsDisbursementCtx, {
+        type: 'bar',
+        data: {
+            labels: @Html.Raw(Json.Serialize(Model.ProjectsPerformance.Select(p => p.ProjectName).ToList())),
+            datasets: [{
+                label: 'Disbursement Performance %',
+                data: @Html.Raw(Json.Serialize(Model.ProjectsPerformance.Select(p => p.DisbursementPerformance).ToList())),
+                backgroundColor: getCSSVariableValue('--secondary-color') + 'CC',
+                borderColor: getCSSVariableValue('--secondary-color'),
+                borderWidth: 1
+            }]
+        },
+        options: {
+            indexAxis: 'y',
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    display: false
+                }
+            },
+            scales: {
+                x: {
                     beginAtZero: true,
                     max: 100
                 }

@@ -24,6 +24,7 @@ namespace MonitoringAndEvaluationPlatform.ViewModel
         public List<DonorPerformanceViewModel> DonorsPerformance { get; set; } = new();
         public Dictionary<string, int> ProjectsBySector { get; set; } = new();
         public List<SectorPerformanceViewModel> SectorsPerformance { get; set; } = new();
+        public List<ProjectPerformanceViewModel> ProjectsPerformance { get; set; } = new();
     }
 
     public class MonthlyPerformanceViewModel
@@ -58,6 +59,16 @@ namespace MonitoringAndEvaluationPlatform.ViewModel
         public string Name { get; set; }
         public double OverallPerformance { get; set; }
         public double IndicatorsPerformance { get; set; }
+        public double DisbursementPerformance { get; set; }
+        public double FieldMonitoring { get; set; }
+        public double ImpactAssessment { get; set; }
+    }
+
+    public class ProjectPerformanceViewModel
+    {
+        public int ProjectID { get; set; }
+        public string ProjectName { get; set; }
+        public double Performance { get; set; }
         public double DisbursementPerformance { get; set; }
         public double FieldMonitoring { get; set; }
         public double ImpactAssessment { get; set; }
