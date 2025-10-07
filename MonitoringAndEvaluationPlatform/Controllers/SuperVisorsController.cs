@@ -42,6 +42,23 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 return NotFound();
             }
 
+            // Get associated projects
+            var projects = await _context.Projects
+                .Include(p => p.Sectors)
+                .Include(p => p.Donors)
+                .Include(p => p.ProjectManager)
+                .Include(p => p.Ministries)
+                .Include(p => p.Governorates)
+                .Where(p => p.SuperVisorCode == id)
+                .ToListAsync();
+
+            // Calculate statistics
+            ViewBag.TotalProjects = projects.Count;
+            ViewBag.ActiveProjects = projects.Count(p => p.EndDate >= DateTime.Now);
+            ViewBag.CompletedProjects = projects.Count(p => p.EndDate < DateTime.Now);
+            ViewBag.TotalBudget = projects.Sum(p => p.EstimatedBudget);
+            ViewBag.Projects = projects;
+
             return View(superVisor);
         }
 

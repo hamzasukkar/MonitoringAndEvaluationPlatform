@@ -46,11 +46,33 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             }
 
             var donor = await _context.Donors
+                .Include(d => d.ProjectDonors)
+                    .ThenInclude(pd => pd.Project)
+                        .ThenInclude(p => p.ProjectManager)
+                .Include(d => d.ProjectDonors)
+                    .ThenInclude(pd => pd.Project)
+                        .ThenInclude(p => p.SuperVisor)
+                .Include(d => d.ProjectDonors)
+                    .ThenInclude(pd => pd.Project)
+                        .ThenInclude(p => p.Ministries)
+                .Include(d => d.ProjectDonors)
+                    .ThenInclude(pd => pd.Project)
+                        .ThenInclude(p => p.Governorates)
                 .FirstOrDefaultAsync(m => m.Code == id);
             if (donor == null)
             {
                 return NotFound();
             }
+
+            // Get projects list
+            var projects = donor.ProjectDonors.Select(pd => pd.Project).ToList();
+
+            // Calculate statistics
+            ViewBag.TotalProjects = projects.Count;
+            ViewBag.ActiveProjects = projects.Count(p => p.EndDate >= DateTime.Now);
+            ViewBag.CompletedProjects = projects.Count(p => p.EndDate < DateTime.Now);
+            ViewBag.TotalBudget = projects.Sum(p => p.EstimatedBudget);
+            ViewBag.Projects = projects;
 
             return View(donor);
         }

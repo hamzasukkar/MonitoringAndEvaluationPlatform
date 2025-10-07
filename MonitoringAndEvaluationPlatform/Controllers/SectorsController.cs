@@ -46,11 +46,25 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             }
 
             var sector = await _context.Sectors
+                .Include(s => s.Projects)
+                    .ThenInclude(p => p.ProjectManager)
+                .Include(s => s.Projects)
+                    .ThenInclude(p => p.SuperVisor)
+                .Include(s => s.Projects)
+                    .ThenInclude(p => p.Ministries)
+                .Include(s => s.Projects)
+                    .ThenInclude(p => p.Governorates)
                 .FirstOrDefaultAsync(m => m.Code == id);
             if (sector == null)
             {
                 return NotFound();
             }
+
+            // Calculate statistics
+            ViewBag.TotalProjects = sector.Projects.Count;
+            ViewBag.ActiveProjects = sector.Projects.Count(p => p.EndDate >= DateTime.Now);
+            ViewBag.CompletedProjects = sector.Projects.Count(p => p.EndDate < DateTime.Now);
+            ViewBag.TotalBudget = sector.Projects.Sum(p => p.EstimatedBudget);
 
             return View(sector);
         }
