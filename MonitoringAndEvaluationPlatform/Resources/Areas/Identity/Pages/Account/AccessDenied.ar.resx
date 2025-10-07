@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" use="preserve" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+
+  <data name="Access Denied" xml:space="preserve">
+    <value>تم رفض الوصول</value>
+  </data>
+
+  <data name="You don't have permission to access this resource" xml:space="preserve">
+    <value>ليس لديك صلاحية للوصول إلى هذا المورد</value>
+  </data>
+
+  <data name="You do not have the required permissions to access this resource." xml:space="preserve">
+    <value>ليس لديك الصلاحيات المطلوبة للوصول إلى هذا المورد.</value>
+  </data>
+
+  <data name="Why am I seeing this?" xml:space="preserve">
+    <value>لماذا أرى هذا؟</value>
+  </data>
+
+  <data name="Your account may not have the necessary role or permissions" xml:space="preserve">
+    <value>قد لا يحتوي حسابك على الدور أو الصلاحيات اللازمة</value>
+  </data>
+
+  <data name="This resource may be restricted to specific users" xml:space="preserve">
+    <value>قد يكون هذا المورد مقتصراً على مستخدمين محددين</value>
+  </data>
+
+  <data name="Your session may have expired" xml:space="preserve">
+    <value>ربما انتهت صلاحية جلستك</value>
+  </data>
+
+  <data name="Go to Home" xml:space="preserve">
+    <value>الذهاب إلى الصفحة الرئيسية</value>
+  </data>
+
+  <data name="Go Back" xml:space="preserve">
+    <value>العودة</value>
+  </data>
+
+  <data name="Need help or believe this is an error?" xml:space="preserve">
+    <value>تحتاج مساعدة أو تعتقد أن هذا خطأ؟</value>
+  </data>
+
+  <data name="Contact System Administrator" xml:space="preserve">
+    <value>اتصل بمسؤول النظام</value>
+  </data>
+</root>
