@@ -98,6 +98,50 @@
             <canvas id="trendChart"></canvas>
         </div>
     </div>
+
+    <!-- Projects by Donor Chart -->
+    <div class="chart-card">
+        <h3 class="chart-title">
+            <i class="fas fa-handshake"></i>
+            Projects by Donor
+        </h3>
+        <div style="height: 300px;">
+            <canvas id="projectsDonorChart"></canvas>
+        </div>
+    </div>
+
+    <!-- Donor Performance Chart -->
+    <div class="chart-card">
+        <h3 class="chart-title">
+            <i class="fas fa-chart-bar"></i>
+            Donor Performance
+        </h3>
+        <div style="height: 300px;">
+            <canvas id="donorPerformanceChart"></canvas>
+        </div>
+    </div>
+
+    <!-- Projects by Sector Chart -->
+    <div class="chart-card">
+        <h3 class="chart-title">
+            <i class="fas fa-industry"></i>
+            Projects by Sector
+        </h3>
+        <div style="height: 300px;">
+            <canvas id="projectsSectorChart"></canvas>
+        </div>
+    </div>
+
+    <!-- Sector Performance Chart -->
+    <div class="chart-card">
+        <h3 class="chart-title">
+            <i class="fas fa-chart-bar"></i>
+            Sector Performance
+        </h3>
+        <div style="height: 300px;">
+            <canvas id="sectorPerformanceChart"></canvas>
+        </div>
+    </div>
 </div>
 
 <!-- Progress Section -->
@@ -381,8 +425,124 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         }
     });
+
+        // Projects by Donor Chart (Doughnut Chart)
+        const donorCtx = document.getElementById('projectsDonorChart').getContext('2d');
+        chartInstances.donor = new Chart(donorCtx, {
+        type: 'doughnut',
+        data: {
+            labels: @Html.Raw(Json.Serialize(Model.ProjectsByDonor.Keys.ToList())),
+            datasets: [{
+                data: @Html.Raw(Json.Serialize(Model.ProjectsByDonor.Values.ToList())),
+                backgroundColor: chartColors.background,
+                borderWidth: 0
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'bottom',
+                    labels: {
+                        padding: 20,
+                        usePointStyle: true
+                    }
+                }
+            }
+        }
+    });
+
+        // Donor Performance Chart (Bar Chart)
+        const donorPerformanceCtx = document.getElementById('donorPerformanceChart').getContext('2d');
+        chartInstances.donorPerformance = new Chart(donorPerformanceCtx, {
+        type: 'bar',
+        data: {
+            labels: @Html.Raw(Json.Serialize(Model.DonorsPerformance.Select(d => d.Partner).ToList())),
+            datasets: [{
+                label: 'Performance %',
+                data: @Html.Raw(Json.Serialize(Model.DonorsPerformance.Select(d => d.OverallPerformance).ToList())),
+                backgroundColor: getCSSVariableValue('--secondary-color') + 'CC',
+                borderColor: getCSSVariableValue('--secondary-color'),
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    display: false
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    max: 100
+                }
+            }
+        }
+    });
+
+        // Projects by Sector Chart (Doughnut Chart)
+        const sectorCtx = document.getElementById('projectsSectorChart').getContext('2d');
+        chartInstances.sector = new Chart(sectorCtx, {
+        type: 'doughnut',
+        data: {
+            labels: @Html.Raw(Json.Serialize(Model.ProjectsBySector.Keys.ToList())),
+            datasets: [{
+                data: @Html.Raw(Json.Serialize(Model.ProjectsBySector.Values.ToList())),
+                backgroundColor: chartColors.background,
+                borderWidth: 0
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'bottom',
+                    labels: {
+                        padding: 20,
+                        usePointStyle: true
+                    }
+                }
+            }
+        }
+    });
+
+        // Sector Performance Chart (Bar Chart)
+        const sectorPerformanceCtx = document.getElementById('sectorPerformanceChart').getContext('2d');
+        chartInstances.sectorPerformance = new Chart(sectorPerformanceCtx, {
+        type: 'bar',
+        data: {
+            labels: @Html.Raw(Json.Serialize(Model.SectorsPerformance.Select(s => s.Name).ToList())),
+            datasets: [{
+                label: 'Performance %',
+                data: @Html.Raw(Json.Serialize(Model.SectorsPerformance.Select(s => s.OverallPerformance).ToList())),
+                backgroundColor: getCSSVariableValue('--accent-color') + 'CC',
+                borderColor: getCSSVariableValue('--accent-color'),
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    display: false
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    max: 100
+                }
+            }
+        }
+    });
     }
-    
+
     // Initial chart creation
     createCharts();
     

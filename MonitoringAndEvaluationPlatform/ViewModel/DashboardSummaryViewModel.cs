@@ -20,6 +20,10 @@ namespace MonitoringAndEvaluationPlatform.ViewModel
         public List<Community> Communities { get; set; } = new();
         public List<MonthlyPerformanceViewModel> MonthlyPerformance { get; set; } = new();
         public List<RecentActivityViewModel> RecentActivities { get; set; } = new();
+        public Dictionary<string, int> ProjectsByDonor { get; set; } = new();
+        public List<DonorPerformanceViewModel> DonorsPerformance { get; set; } = new();
+        public Dictionary<string, int> ProjectsBySector { get; set; } = new();
+        public List<SectorPerformanceViewModel> SectorsPerformance { get; set; } = new();
     }
 
     public class MonthlyPerformanceViewModel
@@ -35,6 +39,28 @@ namespace MonitoringAndEvaluationPlatform.ViewModel
         public string ActivityTitle { get; set; }
         public DateTime ActivityDate { get; set; }
         public string Icon { get; set; }
+    }
+
+    public class DonorPerformanceViewModel
+    {
+        public int Code { get; set; }
+        public string Partner { get; set; }
+        public double OverallPerformance { get; set; }
+        public double IndicatorsPerformance { get; set; }
+        public double DisbursementPerformance { get; set; }
+        public double FieldMonitoring { get; set; }
+        public double ImpactAssessment { get; set; }
+    }
+
+    public class SectorPerformanceViewModel
+    {
+        public int Code { get; set; }
+        public string Name { get; set; }
+        public double OverallPerformance { get; set; }
+        public double IndicatorsPerformance { get; set; }
+        public double DisbursementPerformance { get; set; }
+        public double FieldMonitoring { get; set; }
+        public double ImpactAssessment { get; set; }
     }
 
 }

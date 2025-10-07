@@ -23,6 +23,8 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             var frameworks = await _context.Frameworks.ToListAsync();
             var ministries = await _context.Ministries.ToListAsync();
             var governorates = await _context.Governorates.ToListAsync();
+            var donors = await _context.Donors.ToListAsync();
+            var sectors = await _context.Sectors.ToListAsync();
 
             var frameworksPerformance = frameworks.Select(f => new FrameworkPerformanceViewModel
             {
@@ -35,6 +37,32 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 // Calculate overall performance as average of all performance metrics
                 OverallPerformance = (f.IndicatorsPerformance + f.DisbursementPerformance +
                                      f.FieldMonitoring + f.ImpactAssessment) / 4.0
+            }).ToList();
+
+            var donorsPerformance = donors.Select(d => new DonorPerformanceViewModel
+            {
+                Code = d.Code,
+                Partner = d.Partner,
+                IndicatorsPerformance = d.IndicatorsPerformance,
+                DisbursementPerformance = d.DisbursementPerformance,
+                FieldMonitoring = d.FieldMonitoring,
+                ImpactAssessment = d.ImpactAssessment,
+                // Calculate overall performance as average of all performance metrics
+                OverallPerformance = (d.IndicatorsPerformance + d.DisbursementPerformance +
+                                     d.FieldMonitoring + d.ImpactAssessment) / 4.0
+            }).ToList();
+
+            var sectorsPerformance = sectors.Select(s => new SectorPerformanceViewModel
+            {
+                Code = s.Code,
+                Name = s.EN_Name ?? s.AR_Name,
+                IndicatorsPerformance = s.IndicatorsPerformance,
+                DisbursementPerformance = s.DisbursementPerformance,
+                FieldMonitoring = s.FieldMonitoring,
+                ImpactAssessment = s.ImpactAssessment,
+                // Calculate overall performance as average of all performance metrics
+                OverallPerformance = (s.IndicatorsPerformance + s.DisbursementPerformance +
+                                     s.FieldMonitoring + s.ImpactAssessment) / 4.0
             }).ToList();
 
             // Get projects by ministry count
@@ -52,6 +80,22 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 .GroupBy(x => x.Governorate.EN_Name ?? x.Governorate.AR_Name)
                 .Select(g => new { Governorate = g.Key, Count = g.Count() })
                 .ToDictionaryAsync(x => x.Governorate, x => x.Count);
+
+            // Get projects by donor count
+            var projectsByDonor = await _context.Projects
+                .Include(p => p.Donors)
+                .SelectMany(p => p.Donors.Select(d => new { Donor = d }))
+                .GroupBy(x => x.Donor.Partner)
+                .Select(g => new { Donor = g.Key, Count = g.Count() })
+                .ToDictionaryAsync(x => x.Donor, x => x.Count);
+
+            // Get projects by sector count
+            var projectsBySector = await _context.Projects
+                .Include(p => p.Sectors)
+                .SelectMany(p => p.Sectors.Select(s => new { Sector = s }))
+                .GroupBy(x => x.Sector.EN_Name ?? x.Sector.AR_Name)
+                .Select(g => new { Sector = g.Key, Count = g.Count() })
+                .ToDictionaryAsync(x => x.Sector, x => x.Count);
 
             // Calculate monthly performance (based on project completion over the year)
             var currentYear = DateTime.Now.Year;
@@ -121,7 +165,11 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 SubDistricts = await _context.SubDistricts.Take(10).ToListAsync(),
                 Communities = await _context.Communities.Take(10).ToListAsync(),
                 MonthlyPerformance = monthlyPerformance,
-                RecentActivities = recentActivities.OrderByDescending(a => a.ActivityDate).ToList()
+                RecentActivities = recentActivities.OrderByDescending(a => a.ActivityDate).ToList(),
+                ProjectsByDonor = projectsByDonor,
+                DonorsPerformance = donorsPerformance,
+                ProjectsBySector = projectsBySector,
+                SectorsPerformance = sectorsPerformance
             };
 
             return View(viewModel);
