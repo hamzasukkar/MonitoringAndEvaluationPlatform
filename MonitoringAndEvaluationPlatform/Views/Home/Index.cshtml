@@ -1,5 +1,6 @@
 ﻿@model MonitoringAndEvaluationPlatform.ViewModel.DashboardSummaryViewModel
 @using Microsoft.AspNetCore.Mvc.Localization
+@using System.Text.Json
 @inject IViewLocalizer Localizer
 @{
     Layout = "~/Views/Shared/_DashboardHomeLayout.cshtml";
@@ -105,18 +106,18 @@
         <i class="fas fa-tasks"></i>
         @Localizer["PROGRESS_OVERVIEW_TITLE"]
     </h3>
-    
-    @if (Model.Frameworks.Any())
+
+    @if (Model.FrameworksPerformance.Any())
     {
-        @foreach (var framework in Model.Frameworks)
+        @foreach (var framework in Model.FrameworksPerformance)
         {
             <div class="progress-item">
                 <div class="progress-header">
                     <span class="progress-label">@framework.Name</span>
-                    <span class="progress-percentage">@(new Random().Next(65, 95))%</span>
+                    <span class="progress-percentage">@framework.OverallPerformance.ToString("F1")%</span>
                 </div>
                 <div class="progress-bar-custom">
-                    <div class="progress-fill" style="width: @(new Random().Next(65, 95))%"></div>
+                    <div class="progress-fill" style="width: @framework.OverallPerformance.ToString("F1")%"></div>
                 </div>
             </div>
         }
@@ -126,30 +127,10 @@
         <div class="progress-item">
             <div class="progress-header">
                 <span class="progress-label">@Localizer["PROGRESS_SDG_FRAMEWORK"]</span>
-                <span class="progress-percentage">78%</span>
+                <span class="progress-percentage">0%</span>
             </div>
             <div class="progress-bar-custom">
-                <div class="progress-fill" style="width: 78%"></div>
-            </div>
-        </div>
-
-        <div class="progress-item">
-            <div class="progress-header">
-                <span class="progress-label">@Localizer["PROGRESS_NATIONAL_DEVELOPMENT_PLAN"]</span>
-                <span class="progress-percentage">85%</span>
-            </div>
-            <div class="progress-bar-custom">
-                <div class="progress-fill" style="width: 85%"></div>
-            </div>
-        </div>
-
-        <div class="progress-item">
-            <div class="progress-header">
-                <span class="progress-label">@Localizer["PROGRESS_MONITORING_EVALUATION_SYSTEM"]</span>
-                <span class="progress-percentage">92%</span>
-            </div>
-            <div class="progress-bar-custom">
-                <div class="progress-fill" style="width: 92%"></div>
+                <div class="progress-fill" style="width: 0%"></div>
             </div>
         </div>
     }
@@ -162,55 +143,55 @@
         @Localizer["ACTIVITY_RECENT_TITLE"]
     </h3>
 
-    <div class="activity-item">
-        <div class="activity-icon">
-            <i class="fas fa-plus"></i>
-        </div>
-        <div class="activity-content">
-            <div class="activity-title">@Localizer["ACTIVITY_NEW_PROJECT_ADDED"]</div>
-            <div class="activity-time">@Localizer["TIME_2_HOURS_AGO"]</div>
-        </div>
-    </div>
-
-    <div class="activity-item">
-        <div class="activity-icon">
-            <i class="fas fa-edit"></i>
-        </div>
-        <div class="activity-content">
-            <div class="activity-title">@Localizer["ACTIVITY_PERFORMANCE_INDICATORS_UPDATED"]</div>
-            <div class="activity-time">@Localizer["TIME_5_HOURS_AGO"]</div>
-        </div>
-    </div>
-
-    <div class="activity-item">
-        <div class="activity-icon">
-            <i class="fas fa-check"></i>
-        </div>
-        <div class="activity-content">
-            <div class="activity-title">@Localizer["ACTIVITY_MONTHLY_REPORT_GENERATED"]</div>
-            <div class="activity-time">@Localizer["TIME_1_DAY_AGO"]</div>
-        </div>
-    </div>
-
-    <div class="activity-item">
-        <div class="activity-icon">
-            <i class="fas fa-users"></i>
-        </div>
-        <div class="activity-content">
-            <div class="activity-title">@Localizer["ACTIVITY_NEW_STAKEHOLDERS_ADDED"]</div>
-            <div class="activity-time">@Localizer["TIME_2_DAYS_AGO"]</div>
-        </div>
-    </div>
-
-    <div class="activity-item">
-        <div class="activity-icon">
-            <i class="fas fa-chart-bar"></i>
-        </div>
-        <div class="activity-content">
-            <div class="activity-title">@Localizer["ACTIVITY_DASHBOARD_UPDATED"]</div>
-            <div class="activity-time">@Localizer["TIME_3_DAYS_AGO"]</div>
-        </div>
-    </div>
+    @if (Model.RecentActivities.Any())
+    {
+        @foreach (var activity in Model.RecentActivities)
+        {
+            <div class="activity-item">
+                <div class="activity-icon">
+                    <i class="fas @activity.Icon"></i>
+                </div>
+                <div class="activity-content">
+                    <div class="activity-title">@activity.ActivityTitle</div>
+                    <div class="activity-time">
+                        @{
+                            var timeSpan = DateTime.Now - activity.ActivityDate;
+                            string timeAgo;
+                            if (timeSpan.TotalDays >= 365)
+                            {
+                                timeAgo = $"{(int)(timeSpan.TotalDays / 365)} year(s) ago";
+                            }
+                            else if (timeSpan.TotalDays >= 30)
+                            {
+                                timeAgo = $"{(int)(timeSpan.TotalDays / 30)} month(s) ago";
+                            }
+                            else if (timeSpan.TotalDays >= 1)
+                            {
+                                timeAgo = $"{(int)timeSpan.TotalDays} day(s) ago";
+                            }
+                            else if (timeSpan.TotalHours >= 1)
+                            {
+                                timeAgo = $"{(int)timeSpan.TotalHours} hour(s) ago";
+                            }
+                            else if (timeSpan.TotalMinutes >= 1)
+                            {
+                                timeAgo = $"{(int)timeSpan.TotalMinutes} minute(s) ago";
+                            }
+                            else
+                            {
+                                timeAgo = "Just now";
+                            }
+                        }
+                        @timeAgo
+                    </div>
+                </div>
+            </div>
+        }
+    }
+    else
+    {
+        <p>@Localizer["NO_RECENT_ACTIVITY"]</p>
+    }
 </div>
 
 @section Scripts {
@@ -276,9 +257,9 @@ document.addEventListener('DOMContentLoaded', function() {
         chartInstances.ministry = new Chart(ministryCtx, {
         type: 'doughnut',
         data: {
-            labels: [@Html.Raw(string.Join(",", Model.Ministries.Select(m => $"'{m.MinistryDisplayName ?? m.MinistryUserName}'")))],
+            labels: @Html.Raw(Json.Serialize(Model.ProjectsByMinistry.Keys.ToList())),
             datasets: [{
-                data: [@Html.Raw(string.Join(",", Model.Ministries.Select(m => new Random().Next(5, 25))))],
+                data: @Html.Raw(Json.Serialize(Model.ProjectsByMinistry.Values.ToList())),
                 backgroundColor: chartColors.background,
                 borderWidth: 0
             }]
@@ -303,10 +284,10 @@ document.addEventListener('DOMContentLoaded', function() {
         chartInstances.performance = new Chart(performanceCtx, {
         type: 'bar',
         data: {
-            labels: [@Html.Raw(string.Join(",", Model.Frameworks.Select(f => $"'{f.Name}'")))],
+            labels: @Html.Raw(Json.Serialize(Model.FrameworksPerformance.Select(f => f.Name).ToList())),
             datasets: [{
                 label: '@Localizer["CHART_PERFORMANCE_PERCENTAGE"]',
-                data: [@Html.Raw(string.Join(",", Model.Frameworks.Select(f => new Random().Next(60, 95))))],
+                data: @Html.Raw(Json.Serialize(Model.FrameworksPerformance.Select(f => f.OverallPerformance).ToList())),
                 backgroundColor: getCSSVariableValue('--primary-color') + 'CC',
                 borderColor: getCSSVariableValue('--primary-color'),
                 borderWidth: 1
@@ -334,9 +315,9 @@ document.addEventListener('DOMContentLoaded', function() {
         chartInstances.location = new Chart(locationCtx, {
         type: 'polarArea',
         data: {
-            labels: [@Html.Raw(string.Join(",", Model.Governorates.Select(g => $"'{g.EN_Name ?? g.AR_Name}'")))],
+            labels: @Html.Raw(Json.Serialize(Model.ProjectsByGovernorate.Keys.ToList())),
             datasets: [{
-                data: [@Html.Raw(string.Join(",", Model.Governorates.Select(g => new Random().Next(10, 50))))],
+                data: @Html.Raw(Json.Serialize(Model.ProjectsByGovernorate.Values.ToList())),
                 backgroundColor: chartColors.background
             }]
         },
@@ -364,7 +345,7 @@ document.addEventListener('DOMContentLoaded', function() {
             datasets: [
                 {
                     label: '@Localizer["CHART_PROJECT_IMPLEMENTATION"]',
-                    data: [45, 52, 58, 65, 70, 75, 78, 82, 85, 88, 91, 94],
+                    data: @Html.Raw(Json.Serialize(Model.MonthlyPerformance.Select(m => m.ProjectImplementation).ToList())),
                     borderColor: getCSSVariableValue('--primary-color'),
                     backgroundColor: getCSSVariableValue('--primary-color') + '1A',
                     tension: 0.4,
@@ -372,7 +353,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 },
                 {
                     label: '@Localizer["CHART_PERFORMANCE_INDICATORS"]',
-                    data: [40, 48, 55, 62, 68, 72, 76, 80, 83, 86, 89, 92],
+                    data: @Html.Raw(Json.Serialize(Model.MonthlyPerformance.Select(m => m.PerformanceIndicators).ToList())),
                     borderColor: getCSSVariableValue('--primary-dark'),
                     backgroundColor: getCSSVariableValue('--primary-dark') + '1A',
                     tension: 0.4,
