@@ -38,10 +38,10 @@
                class="btn btn-info btn-lg shadow-sm">
                 <i class="fas fa-th-large me-2"></i>@Localizer["Card View"]
             </a>
-            @if (@ViewData["subOutputCode"] != null)
+            @if (@ViewData["subOutputCode"] != null && User.IsInRole(UserRoles.SystemAdministrator))
             {
                 <a asp-action="AdjustWeights" asp-route-frameworkCode="@ViewData["frameworkCode"]"
-                   asp-route-subOutputCode="@ViewData["subOutputCode"]" 
+                   asp-route-subOutputCode="@ViewData["subOutputCode"]"
                    class="btn btn-warning btn-lg shadow-sm">
                     <i class="fas fa-balance-scale me-2"></i>@Localizer["Adjust Weights"]
                 </a>
@@ -58,7 +58,7 @@
     </div>
 }
 
-@if (@ViewData["subOutputCode"] != null)
+@if (@ViewData["subOutputCode"] != null && User.IsInRole(UserRoles.SystemAdministrator))
 {
     <!-- Inline Create Form -->
     <div class="chart-card mb-4">
@@ -74,7 +74,7 @@
                 <label for="Name" class="form-label fw-bold">
                     <i class="fas fa-tag me-2"></i>@Localizer["Name"]
                 </label>
-                <input type="text" name="Name" class="form-control form-control-lg" required 
+                <input type="text" name="Name" class="form-control form-control-lg" required
                        placeholder="@Localizer["Enter indicator name"]" />
             </div>
 
@@ -82,7 +82,7 @@
                 <label for="Target" class="form-label fw-bold">
                     <i class="fas fa-bullseye me-2"></i>@Localizer["Target"]
                 </label>
-                <input type="number" step="1" name="Target" class="form-control form-control-lg" required 
+                <input type="number" step="1" name="Target" class="form-control form-control-lg" required
                        placeholder="@Localizer["Enter target value"]" />
             </div>
 
@@ -272,30 +272,36 @@
                                                 <i class="fas fa-folder-open fa-2x opacity-50"></i>
                                                 <div class="small">@Localizer["No Projects"]</div>
                                             </div>
-                                            <a asp-action="Create" asp-controller="Projects"
-                                               asp-route-indicatorId="@item.IndicatorCode"
-                                               class="btn btn-outline-success btn-sm">
-                                                <i class="fas fa-plus me-1"></i>@Localizer["Add Project"]
-                                            </a>
+                                            @if (User.IsInRole(UserRoles.SystemAdministrator))
+                                            {
+                                                <a asp-action="Create" asp-controller="Projects"
+                                                   asp-route-indicatorId="@item.IndicatorCode"
+                                                   class="btn btn-outline-success btn-sm">
+                                                    <i class="fas fa-plus me-1"></i>@Localizer["Add Project"]
+                                                </a>
+                                            }
                                         </div>
                                     }
                                 </div>
                             </td>
                             <td class="text-center">
                                 <div class="btn-group action-buttons" role="group">
-                                    <a asp-action="Details" asp-route-id="@item.IndicatorCode" 
+                                    <a asp-action="Details" asp-route-id="@item.IndicatorCode"
                                        class="btn btn-outline-info btn-sm action-btn" title="View Details">
                                         <i class="fas fa-eye"></i>
                                     </a>
-                                    <button type="button" class="btn btn-outline-primary btn-sm action-btn" title="Edit Name"
-                                            onclick="toggleEdit('@item.IndicatorCode')"
-                                            id="edit-btn-@item.IndicatorCode">
-                                        <i class="fas fa-edit"></i>
-                                    </button>
-                                    <button type="button" class="btn btn-outline-danger btn-sm action-btn" title="Delete"
-                                            onclick="confirmDelete(@item.IndicatorCode)">
-                                        <i class="fas fa-trash-alt"></i>
-                                    </button>
+                                    @if (User.IsInRole(UserRoles.SystemAdministrator))
+                                    {
+                                        <button type="button" class="btn btn-outline-primary btn-sm action-btn" title="Edit Name"
+                                                onclick="toggleEdit('@item.IndicatorCode')"
+                                                id="edit-btn-@item.IndicatorCode">
+                                            <i class="fas fa-edit"></i>
+                                        </button>
+                                        <button type="button" class="btn btn-outline-danger btn-sm action-btn" title="Delete"
+                                                onclick="confirmDelete(@item.IndicatorCode)">
+                                            <i class="fas fa-trash-alt"></i>
+                                        </button>
+                                    }
                                 </div>
                             </td>
                         </tr>
@@ -338,12 +344,15 @@
                                                 </div>
                                             }
                                         </div>
-                                        <div class="projects-footer">
-                                            <a asp-action="Create" asp-controller="Projects" asp-route-indicatorId="@item.IndicatorCode"
-                                               class="btn btn-success">
-                                                <i class="fas fa-plus me-2"></i>@Localizer["Add New Project"]
-                                            </a>
-                                        </div>
+                                        @if (User.IsInRole(UserRoles.SystemAdministrator))
+                                        {
+                                            <div class="projects-footer">
+                                                <a asp-action="Create" asp-controller="Projects" asp-route-indicatorId="@item.IndicatorCode"
+                                                   class="btn btn-success">
+                                                    <i class="fas fa-plus me-2"></i>@Localizer["Add New Project"]
+                                                </a>
+                                            </div>
+                                        }
                                     </div>
                                 </td>
                             </tr>
