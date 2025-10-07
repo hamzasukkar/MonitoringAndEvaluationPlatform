@@ -1,0 +1,204 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" use="preserve" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+
+  <!-- Page Title and Header -->
+  <data name="Ministry Overview and Performance Dashboard" xml:space="preserve">
+    <value>لوحة معلومات الوزارة والأداء</value>
+  </data>
+
+  <data name="Back to Ministries" xml:space="preserve">
+    <value>العودة إلى الوزارات</value>
+  </data>
+
+  <!-- Statistics Cards -->
+  <data name="Total Projects" xml:space="preserve">
+    <value>إجمالي المشاريع</value>
+  </data>
+
+  <data name="Active Projects" xml:space="preserve">
+    <value>المشاريع النشطة</value>
+  </data>
+
+  <data name="Completed Projects" xml:space="preserve">
+    <value>المشاريع المكتملة</value>
+  </data>
+
+  <data name="Total Budget" xml:space="preserve">
+    <value>إجمالي الميزانية</value>
+  </data>
+
+  <!-- Ministry Information -->
+  <data name="Ministry Information" xml:space="preserve">
+    <value>معلومات الوزارة</value>
+  </data>
+
+  <data name="Ministry Name" xml:space="preserve">
+    <value>اسم الوزارة</value>
+  </data>
+
+  <data name="Username" xml:space="preserve">
+    <value>اسم المستخدم</value>
+  </data>
+
+  <data name="Ministry Code" xml:space="preserve">
+    <value>رمز الوزارة</value>
+  </data>
+
+  <data name="Associated Users" xml:space="preserve">
+    <value>المستخدمون المرتبطون</value>
+  </data>
+
+  <data name="user(s)" xml:space="preserve">
+    <value>مستخدم</value>
+  </data>
+
+  <!-- Performance Metrics -->
+  <data name="Performance Metrics" xml:space="preserve">
+    <value>مقاييس الأداء</value>
+  </data>
+
+  <data name="Disbursement Performance" xml:space="preserve">
+    <value>أداء الصرف</value>
+  </data>
+
+  <data name="Field Monitoring" xml:space="preserve">
+    <value>المراقبة الميدانية</value>
+  </data>
+
+  <data name="Impact Assessment" xml:space="preserve">
+    <value>تقييم الأثر</value>
+  </data>
+
+  <!-- Associated Users Table -->
+  <data name="Email" xml:space="preserve">
+    <value>البريد الإلكتروني</value>
+  </data>
+
+  <data name="Email Confirmed" xml:space="preserve">
+    <value>تأكيد البريد الإلكتروني</value>
+  </data>
+
+  <data name="Confirmed" xml:space="preserve">
+    <value>مؤكد</value>
+  </data>
+
+  <data name="Pending" xml:space="preserve">
+    <value>قيد الانتظار</value>
+  </data>
+
+  <!-- Associated Projects -->
+  <data name="Associated Projects" xml:space="preserve">
+    <value>المشاريع المرتبطة</value>
+  </data>
+
+  <data name="Project Name" xml:space="preserve">
+    <value>اسم المشروع</value>
+  </data>
+
+  <data name="Manager" xml:space="preserve">
+    <value>المدير</value>
+  </data>
+
+  <data name="Supervisor" xml:space="preserve">
+    <value>المشرف</value>
+  </data>
+
+  <data name="Budget" xml:space="preserve">
+    <value>الميزانية</value>
+  </data>
+
+  <data name="Timeline" xml:space="preserve">
+    <value>الجدول الزمني</value>
+  </data>
+
+  <data name="Status" xml:space="preserve">
+    <value>الحالة</value>
+  </data>
+
+  <data name="Actions" xml:space="preserve">
+    <value>الإجراءات</value>
+  </data>
+
+  <data name="more" xml:space="preserve">
+    <value>المزيد</value>
+  </data>
+
+  <data name="Active" xml:space="preserve">
+    <value>نشط</value>
+  </data>
+
+  <data name="Completed" xml:space="preserve">
+    <value>مكتمل</value>
+  </data>
+
+  <data name="days left" xml:space="preserve">
+    <value>يوم متبقي</value>
+  </data>
+
+  <!-- Empty State -->
+  <data name="No Projects Found" xml:space="preserve">
+    <value>لم يتم العثور على مشاريع</value>
+  </data>
+
+  <data name="This ministry has no associated projects yet." xml:space="preserve">
+    <value>هذه الوزارة ليس لديها مشاريع مرتبطة بعد.</value>
+  </data>
+</root>
