@@ -245,7 +245,7 @@
                                         <i class="fas fa-building me-2"></i>
                                         @Localizer["Ministry"]
                                     </label>
-                                    <select asp-for="MinistryCode" class="form-select form-select-lg" asp-items="ViewBag.MinistryList">
+                                    <select asp-for="MinistryCode" class="form-select form-select-lg" asp-items="ViewBag.MinistryList" id="ministrySelect">
                                         <option value="">@Localizer["Select Ministry"]</option>
                                     </select>
                                 </div>
@@ -791,6 +791,12 @@
 
         // Restore preserved form data after validation failure
         restoreFormData();
+
+        // Disable ministry dropdown for ministry users
+        var isMinistryUser = @Html.Raw(Json.Serialize(ViewBag.IsMinistryUser ?? false));
+        if (isMinistryUser) {
+            $('#ministrySelect').prop('disabled', true);
+        }
     });
 
     let selectedDonors = [];

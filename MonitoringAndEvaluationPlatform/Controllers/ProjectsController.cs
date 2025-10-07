@@ -137,7 +137,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
 
         // GET: Programs/Create
         [Permission(Permissions.AddProject)]
-        public IActionResult Create()
+        public async Task<IActionResult> Create()
         {
             // Retrieve related data
             var donors = _context.Donors.ToList();
@@ -152,6 +152,22 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             ViewBag.Governorates = _context.Governorates.ToList();
             ViewBag.Indicators = indicators;
 
+            // Get the logged-in user
+            var user = await _userManager.GetUserAsync(User);
+            int? userMinistryCode = null;
+            bool isMinistryUser = false;
+
+            // Check if the user is associated with a Ministry (and not SystemAdministrator)
+            if (user?.MinistryName != null && !User.IsInRole(UserRoles.SystemAdministrator))
+            {
+                var userMinistry = ministries.FirstOrDefault(m => m.MinistryDisplayName == user.MinistryName);
+                if (userMinistry != null)
+                {
+                    userMinistryCode = userMinistry.Code;
+                    isMinistryUser = true;
+                }
+            }
+
             // Initialize project with defaults
             var project = new Project
             {
@@ -160,7 +176,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 StartDate = DateTime.Today,
                 EndDate = DateTime.Today.AddYears(1),
                 //DonorCode = donors.FirstOrDefault()?.Code ?? 0,//To Check
-                //MinistryCode = ministries.FirstOrDefault()?.Code ?? 0,
+                MinistryCode = userMinistryCode, // Set ministry for ministry users
                 SuperVisorCode = supervisors.FirstOrDefault()?.Code ?? 0,
                 ProjectManagerCode = projectManagers.FirstOrDefault()?.Code ?? 0,
                 Sectors = sectors.Take(1).ToList(),
@@ -168,13 +184,16 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             };
 
             var firstSectorCode = sectors.FirstOrDefault()?.Code;
-            var firstMinistryCode = ministries.FirstOrDefault()?.Code;
 
             // Prepare dropdown and multiselect data
             ViewBag.Donor = new SelectList(donors, "Code", "Partner");
             ViewBag.SectorList = new MultiSelectList(sectors, "Code", "AR_Name", firstSectorCode.HasValue ? new List<int> { firstSectorCode.Value } : new List<int>());
-            ViewBag.MinistryList = new SelectList(ministries, "Code", "MinistryDisplayName");
+            ViewBag.MinistryList = new SelectList(ministries, "Code", "MinistryDisplayName", userMinistryCode);
             ViewBag.SuperVisor = new SelectList(supervisors, "Code", "Name");
+
+            // Pass ministry user info to the view
+            ViewBag.IsMinistryUser = isMinistryUser;
+            ViewBag.UserMinistryCode = userMinistryCode;
 
             // Initialize empty donor funding data for create form
             ViewBag.DonorFundingData = JsonConvert.SerializeObject(new Dictionary<string, decimal>());
@@ -422,14 +441,14 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             ViewBag.Governorates = _context.Governorates.ToList();
             ViewBag.SelectedLocations = selectedLocations;
 
-            // Build the Sectors MultiSelectList, marking the project’s existing sector codes as “selected”:
+            // Build the Sectors MultiSelectList, marking the project's existing sector codes as "selected":
             var allSectors = await _context.Sectors.ToListAsync();
             // Grab an array of strings (or ints) that represent the already‐assigned sectors:
             var selectedSectorCodes = project.Sectors
                                         .Select(s => s.Code)      // a collection of int
                                         .ToList();
 
-            // When you construct the MultiSelectList, pass in that “selected” list:
+            // When you construct the MultiSelectList, pass in that "selected" list:
             ViewBag.SectorList = new MultiSelectList(
                 allSectors,
                 "Code",      // value field
@@ -438,7 +457,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             );
 
 
-            // Build the Donors MultiSelectList, marking the project’s existing donor codes as “selected”:
+            // Build the Donors MultiSelectList, marking the project's existing donor codes as "selected":
             var allDonors = await _context.Donors.ToListAsync();
             // Grab an array of strings (or ints) that represent the already‐assigned donors:
             var selectedDonorCodes = project.Donors
@@ -467,12 +486,32 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             // Set the MinistryCode property for binding
             project.MinistryCode = selectedMinistryCode;
 
+            // Get the logged-in user for ministry check
+            var user = await _userManager.GetUserAsync(User);
+            bool isMinistryUser = false;
+
+            // Check if the user is associated with a Ministry (and not SystemAdministrator)
+            if (user?.MinistryName != null && !User.IsInRole(UserRoles.SystemAdministrator))
+            {
+                var userMinistry = allMinistries.FirstOrDefault(m => m.MinistryDisplayName == user.MinistryName);
+                if (userMinistry != null)
+                {
+                    isMinistryUser = true;
+                    // For ministry users, ensure the ministry code is set to their ministry
+                    selectedMinistryCode = userMinistry.Code;
+                    project.MinistryCode = selectedMinistryCode;
+                }
+            }
+
             ViewBag.MinistryList = new SelectList(
                 allMinistries,
                 "Code",      // value field
                 "MinistryDisplayName",      // text field
                 selectedMinistryCode  // selected value
             );
+
+            // Pass ministry user info to the view
+            ViewBag.IsMinistryUser = isMinistryUser;
 
             // Stakeholders
 
@@ -1214,7 +1253,27 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             var sectorCodes = selectedSectorCodes?.Select(int.Parse).ToList() ?? new List<int>();
             ViewBag.SectorList = new MultiSelectList(_context.Sectors, "Code", "AR_Name", sectorCodes);
 
-            ViewBag.MinistryList = new SelectList(_context.Ministries, "Code", "MinistryDisplayName");
+            // Get the logged-in user for ministry check
+            var user = await _userManager.GetUserAsync(User);
+            int? userMinistryCode = null;
+            bool isMinistryUser = false;
+
+            // Check if the user is associated with a Ministry (and not SystemAdministrator)
+            if (user?.MinistryName != null && !User.IsInRole(UserRoles.SystemAdministrator))
+            {
+                var ministries = _context.Ministries.ToList();
+                var userMinistry = ministries.FirstOrDefault(m => m.MinistryDisplayName == user.MinistryName);
+                if (userMinistry != null)
+                {
+                    userMinistryCode = userMinistry.Code;
+                    isMinistryUser = true;
+                }
+            }
+
+            ViewBag.MinistryList = new SelectList(_context.Ministries, "Code", "MinistryDisplayName", userMinistryCode);
+            ViewBag.IsMinistryUser = isMinistryUser;
+            ViewBag.UserMinistryCode = userMinistryCode;
+
             ViewBag.ProjectManager = new SelectList(_context.ProjectManagers, "Code", "Name");
             ViewBag.SuperVisor = new SelectList(_context.SuperVisors, "Code", "Name");
             ViewBag.Donor = new SelectList(_context.Donors, "Code", "Partner");
