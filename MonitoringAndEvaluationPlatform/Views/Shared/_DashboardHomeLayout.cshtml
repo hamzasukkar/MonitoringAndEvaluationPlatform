@@ -1113,12 +1113,15 @@
                         <span>@Localizer["Frameworks"]</span>
                     </a>
                 </li>
-                <li>
-                    <a href="/Ministries/Index" class="sidebar-link @(Context.Request.Path.Value.Contains("Ministries") ? "active" : "")">
-                        <i class="fas fa-building"></i>
-                        <span>@Localizer["Set Up"]</span>
-                    </a>
-                </li>
+                @if (User.IsInRole("SystemAdministrator"))
+                {
+                    <li>
+                        <a href="/Ministries/Index" class="sidebar-link @(Context.Request.Path.Value.Contains("Ministries") ? "active" : "")">
+                            <i class="fas fa-building"></i>
+                            <span>@Localizer["Set Up"]</span>
+                        </a>
+                    </li>
+                }
                 <li>
                     <a href="/Projects/Index" class="sidebar-link @(Context.Request.Path.Value.Contains("Projects") ? "active" : "")">
                         <i class="fas fa-project-diagram"></i>
