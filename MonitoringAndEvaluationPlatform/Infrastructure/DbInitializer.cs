@@ -51,6 +51,12 @@ namespace MonitoringAndEvaluationPlatform.Infrastructure
                     };
                     context.Ministries.AddRange(ministries);
                     await context.SaveChangesAsync(); // Ensure ministries are saved before creating users
+                }
+
+                // Create users for all ministries (runs independently of ministry seeding)
+                if (context.Ministries.Any())
+                {
+                    var ministries = context.Ministries.ToList();
 
                     // Ensure MinistriesUser role exists
                     string ministriesRoleName = "MinistriesUser";
@@ -59,13 +65,20 @@ namespace MonitoringAndEvaluationPlatform.Infrastructure
                         await roleManager.CreateAsync(new IdentityRole(ministriesRoleName));
                     }
 
+                    // Ensure DataEntry role exists
+                    string dataEntryRoleName = "DataEntry";
+                    if (!await roleManager.RoleExistsAsync(dataEntryRoleName))
+                    {
+                        await roleManager.CreateAsync(new IdentityRole(dataEntryRoleName));
+                    }
+
                     foreach (var ministry in ministries)
                     {
                         string userName = ministry.MinistryUserName;
                         string email = $"{userName.ToLower()}@example.com";
                         string defaultPassword = "Ministry@123";
 
-                        // Create user if it doesn't exist
+                        // Create Ministry user if it doesn't exist
                         var existingUser = await userManager.FindByNameAsync(userName);
                         if (existingUser == null)
                         {
@@ -93,6 +106,40 @@ namespace MonitoringAndEvaluationPlatform.Infrastructure
                             if (!await userManager.IsInRoleAsync(existingUser, ministriesRoleName))
                             {
                                 await userManager.AddToRoleAsync(existingUser, ministriesRoleName);
+                            }
+                        }
+
+                        // Create Data Entry user for each ministry
+                        string dataEntryUserName = $"{ministry.MinistryUserName}_DE";
+                        string dataEntryEmail = $"{dataEntryUserName.ToLower()}@example.com";
+
+                        var existingDataEntryUser = await userManager.FindByNameAsync(dataEntryUserName);
+                        if (existingDataEntryUser == null)
+                        {
+                            var dataEntryUser = new ApplicationUser
+                            {
+                                UserName = dataEntryUserName,
+                                Email = dataEntryEmail,
+                                EmailConfirmed = true,
+                                MinistryName = ministry.MinistryDisplayName
+                            };
+
+                            var result = await userManager.CreateAsync(dataEntryUser, defaultPassword);
+                            if (result.Succeeded)
+                            {
+                                await userManager.AddToRoleAsync(dataEntryUser, dataEntryRoleName);
+                            }
+                            else
+                            {
+                                Console.WriteLine($"⚠️ Failed to create data entry user {dataEntryUserName}: {string.Join(", ", result.Errors.Select(e => e.Description))}");
+                            }
+                        }
+                        else
+                        {
+                            // Ensure existing data entry user has the correct role
+                            if (!await userManager.IsInRoleAsync(existingDataEntryUser, dataEntryRoleName))
+                            {
+                                await userManager.AddToRoleAsync(existingDataEntryUser, dataEntryRoleName);
                             }
                         }
                     }
