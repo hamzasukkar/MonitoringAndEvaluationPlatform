@@ -39,7 +39,7 @@
                class="btn btn-outline-info btn-lg shadow-sm">
                 <i class="fas fa-table me-2"></i>@Localizer["Table View"]
             </a>
-            @if (@ViewData["subOutputCode"] != null && User.IsInRole(UserRoles.SystemAdministrator))
+            @if (@ViewData["subOutputCode"] != null && (User.IsInRole(UserRoles.SystemAdministrator) || User.IsInRole(UserRoles.MinistriesUser) || User.IsInRole(UserRoles.DataEntry)))
             {
                 <a asp-action="AdjustWeights" asp-route-frameworkCode="@ViewData["frameworkCode"]"
                    asp-route-subOutputCode="@ViewData["subOutputCode"]"
@@ -59,7 +59,7 @@
     </div>
 }
 
-@if (@ViewData["subOutputCode"] != null && User.IsInRole(UserRoles.SystemAdministrator))
+@if (@ViewData["subOutputCode"] != null && (User.IsInRole(UserRoles.SystemAdministrator) || User.IsInRole(UserRoles.MinistriesUser) || User.IsInRole(UserRoles.DataEntry)))
 {
     <!-- Inline Create Form -->
     <div class="chart-card mb-4">
@@ -223,7 +223,7 @@
                                        class="btn btn-outline-info btn-sm action-btn" title="View Details">
                                         <i class="fas fa-eye"></i>
                                     </a>
-                                    @if (User.IsInRole(UserRoles.SystemAdministrator))
+                                    @if (User.IsInRole(UserRoles.SystemAdministrator) || User.IsInRole(UserRoles.MinistriesUser) || User.IsInRole(UserRoles.DataEntry))
                                     {
                                         <button type="button" class="btn btn-outline-primary btn-sm action-btn" title="Edit Name"
                                                 onclick="toggleEdit('@item.IndicatorCode')"

@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text.Json;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
@@ -20,11 +21,13 @@ namespace MonitoringAndEvaluationPlatform.Controllers
     {
         private readonly ApplicationDbContext _context;
         private readonly PlanService _planService;
+        private readonly UserManager<ApplicationUser> _userManager;
 
-        public IndicatorsController(ApplicationDbContext context, PlanService planService)
+        public IndicatorsController(ApplicationDbContext context, PlanService planService, UserManager<ApplicationUser> userManager)
         {
             _context = context;
             _planService = planService;
+            _userManager = userManager;
         }
 
         // GET: Indicators
@@ -35,10 +38,27 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             ViewData["subOutputCode"] = subOutputCode;
             ViewData["frameworkCode"] = frameworkCode;
 
+            // Get current user and check if they are a ministry user
+            var currentUser = await _userManager.GetUserAsync(User);
+            var isMinistryUser = User.IsInRole(UserRoles.MinistriesUser) || User.IsInRole(UserRoles.DataEntry);
+            var userMinistryName = currentUser?.MinistryName;
+
             if (frameworkCode == null)
             {
                 // Include the SubOutput navigation property
-                var indicators = _context.Indicators.Include(i => i.SubOutput).AsQueryable();
+                var indicators = _context.Indicators
+                    .Include(i => i.SubOutput)
+                    .Include(i => i.ProjectIndicators)
+                        .ThenInclude(pi => pi.Project)
+                            .ThenInclude(p => p.Ministry)
+                    .AsQueryable();
+
+                // Filter by ministry if user is a ministry user
+                if (isMinistryUser && !string.IsNullOrEmpty(userMinistryName))
+                {
+                    indicators = indicators.Where(i =>
+                        i.ProjectIndicators.Any(pi => pi.Project.Ministry != null && pi.Project.Ministry.MinistryDisplayName == userMinistryName));
+                }
 
                 // Filter results if searchString is provided
                 if (!string.IsNullOrEmpty(searchString))
@@ -53,7 +73,17 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             var frameworkIndicators = _context.Indicators
                 .Where(i => i.SubOutput.Output.Outcome.FrameworkCode == frameworkCode)
                 .Include(i => i.SubOutput)
+                .Include(i => i.ProjectIndicators)
+                    .ThenInclude(pi => pi.Project)
+                        .ThenInclude(p => p.Ministry)
                 .AsQueryable();
+
+            // Filter by ministry if user is a ministry user
+            if (isMinistryUser && !string.IsNullOrEmpty(userMinistryName))
+            {
+                frameworkIndicators = frameworkIndicators.Where(i =>
+                    i.ProjectIndicators.Any(pi => pi.Project.Ministry != null && pi.Project.Ministry.MinistryDisplayName == userMinistryName));
+            }
 
             // Add subOutputCode filter if it's provided
             if (subOutputCode != null)
