@@ -6,95 +6,672 @@
 
 @{
     ViewData["Title"] = "Ministries";
-    Layout = "~/Views/Shared/_ResultsFrameworkLayout.cshtml";
+    Layout = "~/Views/Shared/_DashboardHomeLayout.cshtml";
+    var culture = Context.Features.Get<IRequestCultureFeature>().RequestCulture.Culture.Name;
 }
 
-<div class="container-fluid">
-   @*  <div class="d-flex justify-content-between align-items-center mb-4">
+<!-- Dashboard Header -->
+<div class="dashboard-header">
+    <div class="d-flex justify-content-between align-items-center">
         <div>
-            <h4 class="mb-0">@Localizer["Ministries Management"]</h4>
-            <p class="text-muted mb-0">@Localizer["View and manage all ministry performance metrics"]</p>
-        </div>
-    </div> *@
-
-    <div class="card shadow-sm">
-        <div class="card-body">
-            <div class="table-responsive">
-                <table class="table table-hover">
-                    <thead class="table-light">
-                        <tr>
-                            <th>@Localizer["Ministry Name"]</th>
-                            <th>@Localizer["Indicators Performance"]</th>
-                            <th>@Localizer["Disbursement Performance"]</th>
-                            <th class="text-end">@Localizer["Actions"]</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @foreach (var item in Model)
-                        {
-                            string indicatorsClass = ProgressBarHelper.GetProgressBarClass(item.IndicatorsPerformance);
-                            string disbursementClass = ProgressBarHelper.GetProgressBarClass(item.DisbursementPerformance);
-                            string fieldMonitoringClass = ProgressBarHelper.GetProgressBarClass(item.FieldMonitoring);
-                            string impactAssessmentClass = ProgressBarHelper.GetProgressBarClass(item.ImpactAssessment);
-                            double IndicatorsPerformance = Math.Round(item.IndicatorsPerformance, 0);
-
-                            <tr>
-                                <td>
-                                    <strong>@Html.DisplayFor(modelItem => item.MinistryDisplayName)</strong>
-                                </td>
-                                <td>
-                                    @await Html.PartialAsync("_ProgressBar", Tuple.Create(IndicatorsPerformance, indicatorsClass))
-                                </td>
-                                <td>
-                                    @await Html.PartialAsync("_ProgressBar", Tuple.Create(item.DisbursementPerformance, disbursementClass))
-                                </td>
-                                <td class="text-end">
-                                    <div class="btn-group" role="group">
-                                        <a asp-action="Edit" asp-route-id="@item.Code" class="btn btn-sm btn-outline-warning" title="Edit">
-                                            <i class="fas fa-edit"></i>
-                                        </a>
-                                        <a asp-action="Delete" asp-route-id="@item.Code" class="btn btn-sm btn-outline-danger" title="Delete">
-                                            <i class="fas fa-trash-alt"></i>
-                                        </a>
-                                    </div>
-                                </td>
-                            </tr>
-                        }
-                    </tbody>
-                </table>
-            </div>
+            <h1 class="dashboard-title">
+                <i class="fas fa-university me-3"></i>
+                @Localizer["Ministries Management"]
+            </h1>
+            <p class="dashboard-subtitle">
+                @Localizer["View and manage all ministry performance metrics"]
+            </p>
         </div>
     </div>
 </div>
 
+<!-- Statistics Cards -->
+@{
+    var totalProjects = ViewBag.TotalProjects ?? 0;
+    var activeProjects = ViewBag.ActiveProjects ?? 0;
+    var completedProjects = ViewBag.CompletedProjects ?? 0;
+    var totalBudget = ViewBag.TotalBudget ?? 0m;
+}
 
+@if (totalProjects > 0)
+{
+    <div class="row mb-4">
+        <div class="col-xl-3 col-md-6 mb-3">
+            <div class="stat-card stat-card-primary">
+                <div class="stat-icon">
+                    <i class="fas fa-project-diagram"></i>
+                </div>
+                <div class="stat-content">
+                    <div class="stat-label">@Localizer["Total Projects"]</div>
+                    <div class="stat-value">@totalProjects</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-3 col-md-6 mb-3">
+            <div class="stat-card stat-card-success">
+                <div class="stat-icon success">
+                    <i class="fas fa-tasks"></i>
+                </div>
+                <div class="stat-content">
+                    <div class="stat-label">@Localizer["Active Projects"]</div>
+                    <div class="stat-value">@activeProjects</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-3 col-md-6 mb-3">
+            <div class="stat-card stat-card-info">
+                <div class="stat-icon info">
+                    <i class="fas fa-check-circle"></i>
+                </div>
+                <div class="stat-content">
+                    <div class="stat-label">@Localizer["Completed Projects"]</div>
+                    <div class="stat-value">@completedProjects</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-3 col-md-6 mb-3">
+            <div class="stat-card stat-card-warning">
+                <div class="stat-icon warning">
+                    <i class="fas fa-dollar-sign"></i>
+                </div>
+                <div class="stat-content">
+                    <div class="stat-label">@Localizer["Total Budget"]</div>
+                    <div class="stat-value">$@totalBudget.ToString("N0")</div>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+<!-- Ministries Table -->
+<div class="chart-card">
+    <div class="chart-title">
+        <i class="fas fa-university"></i>
+        @Localizer["Ministries"] (@Model.Count())
+    </div>
+
+    @if (Model.Any())
+    {
+        <div class="table-responsive">
+            <table class="table table-hover modern-table">
+                <thead class="table-header">
+                    <tr>
+                        <th style="width: 50px;"></th>
+                        <th class="sortable-header">
+                            <div class="header-link">
+                                <i class="fas fa-building me-2"></i>@Localizer["Ministry Name"]
+                            </div>
+                        </th>
+                        <th class="sortable-header text-center">
+                            <div class="header-link">
+                                <i class="fas fa-chart-line me-2"></i>@Localizer["Indicators Performance"]
+                            </div>
+                        </th>
+                        <th class="sortable-header text-center">
+                            <div class="header-link">
+                                <i class="fas fa-money-bill-wave me-2"></i>@Localizer["Disbursement Performance"]
+                            </div>
+                        </th>
+                        <th class="text-center">
+                            <div class="header-link">
+                                <i class="fas fa-project-diagram me-2"></i>@Localizer["Projects"]
+                            </div>
+                        </th>
+                        <th class="text-center">
+                            <div class="header-link">
+                                <i class="fas fa-cogs me-2"></i>@Localizer["Actions"]
+                            </div>
+                        </th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model)
+                    {
+                        string indicatorsClass = ProgressBarHelper.GetProgressBarClass(item.IndicatorsPerformance);
+                        string disbursementClass = ProgressBarHelper.GetProgressBarClass(item.DisbursementPerformance);
+                        double IndicatorsPerformance = Math.Round(item.IndicatorsPerformance, 2);
+                        double DisbursementPerformance = Math.Round(item.DisbursementPerformance, 2);
+                        var ministryProjects = item.Projects?.ToList() ?? new List<Project>();
+                        var hasProjects = ministryProjects.Any();
+
+                        <tr id="ministry-row-@item.Code" class="table-row @(hasProjects ? "has-projects" : "")">
+                            <td class="text-center expand-cell">
+                                @if (hasProjects)
+                                {
+                                    <button class="btn btn-sm btn-link expand-btn" onclick="toggleProjects(@item.Code)" title="@Localizer["View Projects"]">
+                                        <i class="fas fa-chevron-right" id="icon-@item.Code"></i>
+                                    </button>
+                                }
+                            </td>
+                            <td class="ministry-name-cell">
+                                <div class="d-flex align-items-center">
+                                    <div class="ministry-icon me-3">
+                                        <i class="fas fa-university"></i>
+                                    </div>
+                                    <div>
+                                        <span class="ministry-name-text">
+                                            @item.MinistryDisplayName
+                                        </span>
+                                    </div>
+                                </div>
+                            </td>
+                            <td class="text-center" title="@Localizer["Indicators Performance"]: @IndicatorsPerformance%">
+                                @await Html.PartialAsync("_ProgressBar", Tuple.Create(IndicatorsPerformance, indicatorsClass))
+                            </td>
+                            <td class="text-center" title="@Localizer["Disbursement Performance"]: @DisbursementPerformance%">
+                                @await Html.PartialAsync("_ProgressBar", Tuple.Create(DisbursementPerformance, disbursementClass))
+                            </td>
+                            <td class="text-center">
+                                @if (hasProjects)
+                                {
+                                    <span class="badge bg-primary" style="font-size: 0.9rem; padding: 0.5em 0.75em;">
+                                        <i class="fas fa-project-diagram me-1"></i>@ministryProjects.Count
+                                    </span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-secondary" style="font-size: 0.8rem;">
+                                        @Localizer["No Projects"]
+                                    </span>
+                                }
+                            </td>
+                            <td class="text-center">
+                                <div class="btn-group action-buttons" role="group">
+                                    <a asp-action="Edit" asp-route-id="@item.Code" class="btn btn-outline-primary btn-sm action-btn" title="@Localizer["Edit"]">
+                                        <i class="fas fa-edit"></i>
+                                    </a>
+                                    <a asp-action="Delete" asp-route-id="@item.Code" class="btn btn-outline-danger btn-sm action-btn" title="@Localizer["Delete"]">
+                                        <i class="fas fa-trash-alt"></i>
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+
+                        @if (hasProjects)
+                        {
+                            <tr id="projects-row-@item.Code" class="projects-row" style="display: none;">
+                                <td colspan="6" class="projects-cell">
+                                    <div class="projects-container">
+                                        <div class="projects-header">
+                                            <h5 class="mb-3">
+                                                <i class="fas fa-project-diagram me-2"></i>
+                                                @Localizer["Projects for"] @item.MinistryDisplayName (@ministryProjects.Count)
+                                            </h5>
+                                        </div>
+                                        <div class="table-responsive">
+                                            <table class="table table-sm projects-table">
+                                                <thead>
+                                                    <tr>
+                                                        <th>@Localizer["Project Name"]</th>
+                                                        <th>@Localizer["Manager"]</th>
+                                                        <th>@Localizer["Supervisor"]</th>
+                                                        <th class="text-center">@Localizer["Budget"]</th>
+                                                        <th class="text-center">@Localizer["Timeline"]</th>
+                                                        <th class="text-center">@Localizer["Status"]</th>
+                                                        <th class="text-center">@Localizer["Actions"]</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    @foreach (var project in ministryProjects)
+                                                    {
+                                                        var isActive = project.EndDate >= DateTime.Now;
+                                                        var daysRemaining = (project.EndDate - DateTime.Now).Days;
+
+                                                        <tr>
+                                                            <td>
+                                                                <strong>@project.ProjectName</strong>
+                                                                @if (project.Sectors?.Any() == true)
+                                                                {
+                                                                    <br>
+                                                                    <small class="text-muted">
+                                                                        <i class="fas fa-industry me-1"></i>
+                                                                        @string.Join(", ", project.Sectors.Take(2).Select(s => s.AR_Name))
+                                                                        @if (project.Sectors.Count > 2)
+                                                                        {
+                                                                            <span>+@(project.Sectors.Count - 2) @Localizer["more"]</span>
+                                                                        }
+                                                                    </small>
+                                                                }
+                                                            </td>
+                                                            <td>@(project.ProjectManager?.Name ?? "-")</td>
+                                                            <td>@(project.SuperVisor?.Name ?? "-")</td>
+                                                            <td class="text-center">
+                                                                <strong>$@project.EstimatedBudget.ToString("N0")</strong>
+                                                            </td>
+                                                            <td class="text-center">
+                                                                <small>
+                                                                    @project.StartDate.ToString("dd/MM/yyyy")
+                                                                    <br>
+                                                                    @project.EndDate.ToString("dd/MM/yyyy")
+                                                                </small>
+                                                            </td>
+                                                            <td class="text-center">
+                                                                @if (isActive)
+                                                                {
+                                                                    <span class="badge bg-success">
+                                                                        <i class="fas fa-play me-1"></i>@Localizer["Active"]
+                                                                    </span>
+                                                                    @if (daysRemaining > 0 && daysRemaining <= 30)
+                                                                    {
+                                                                        <br><small class="text-warning fw-bold">@daysRemaining @Localizer["days left"]</small>
+                                                                    }
+                                                                }
+                                                                else
+                                                                {
+                                                                    <span class="badge bg-secondary">
+                                                                        <i class="fas fa-check me-1"></i>@Localizer["Completed"]
+                                                                    </span>
+                                                                }
+                                                            </td>
+                                                            <td class="text-center">
+                                                                <a asp-controller="Projects" asp-action="Details" asp-route-id="@project.ProjectID"
+                                                                   class="btn btn-sm btn-outline-primary action-btn" title="@Localizer["View Details"]">
+                                                                    <i class="fas fa-eye"></i>
+                                                                </a>
+                                                            </td>
+                                                        </tr>
+                                                    }
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+    else
+    {
+        <div class="text-center py-5">
+            <div class="stat-icon warning mx-auto mb-3" style="width: 80px; height: 80px; font-size: 2rem;">
+                <i class="fas fa-university"></i>
+            </div>
+            <h4 class="text-muted">@Localizer["No ministries found"]</h4>
+            <p class="text-muted">@Localizer["Create your first ministry to get started"]</p>
+        </div>
+    }
+</div>
+
+@section Scripts {
     <style>
-        .table-hover tbody tr:hover {
-            background-color: rgba(13, 110, 253, 0.05);
+        /* Statistics Cards */
+        .stat-card {
+            background: white;
+            border-radius: 15px;
+            padding: 1.5rem;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+            transition: all 0.3s ease;
+            border-left: 4px solid var(--primary-color);
         }
 
-        .progress {
-            height: 24px;
-            border-radius: 4px;
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
         }
 
-        .progress-bar {
+        .stat-card-primary {
+            border-left-color: #4e73df;
+        }
+
+        .stat-card-success {
+            border-left-color: #1cc88a;
+        }
+
+        .stat-card-info {
+            border-left-color: #36b9cc;
+        }
+
+        .stat-card-warning {
+            border-left-color: #f6c23e;
+        }
+
+        .stat-icon {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, #4e73df, #224abe);
+            border-radius: 12px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 0.75rem;
-            font-weight: 500;
+            color: white;
+            font-size: 1.5rem;
         }
 
-        .btn-group .btn {
-            padding: 0.25rem 0.5rem;
+        .stat-icon.success {
+            background: linear-gradient(135deg, #1cc88a, #13855c);
         }
 
-        .card-header {
+        .stat-icon.info {
+            background: linear-gradient(135deg, #36b9cc, #258391);
+        }
+
+        .stat-icon.warning {
+            background: linear-gradient(135deg, #f6c23e, #dda20a);
+        }
+
+        .stat-content {
+            flex: 1;
+        }
+
+        .stat-label {
+            font-size: 0.85rem;
+            color: #858796;
             font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 0.5rem;
         }
 
-    .table-responsive {
-        overflow-x: hidden;
-    }
+        .stat-value {
+            font-size: 1.75rem;
+            font-weight: 700;
+            color: #2d3748;
+        }
+
+        /* Modern Table Styles */
+        .modern-table {
+            background: transparent;
+            border: none;
+            border-radius: 15px;
+            overflow: hidden;
+        }
+
+        .table-header {
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-dark) 100%);
+            color: white;
+        }
+
+        .table-header th {
+            border: none;
+            padding: 20px 15px;
+            font-weight: 600;
+            font-size: 0.95rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .header-link {
+            text-decoration: none !important;
+            display: flex;
+            align-items: center;
+            justify-content: flex-start;
+            transition: all 0.3s ease;
+        }
+
+        .header-link:hover {
+            color: rgba(255, 255, 255, 0.9) !important;
+            transform: translateY(-1px);
+        }
+
+        .table-row {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border: none;
+            transition: all 0.3s ease;
+        }
+
+        .table-row:hover {
+            background: rgba(255, 255, 255, 1);
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+        }
+
+        .table-row.expanded {
+            background: rgba(var(--primary-color-rgb, 79, 115, 223), 0.05);
+        }
+
+        .table-row td {
+            border: none;
+            padding: 20px 15px;
+            vertical-align: middle;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+        }
+
+        .expand-cell {
+            width: 50px;
+            padding: 10px !important;
+        }
+
+        .expand-btn {
+            color: var(--primary-color);
+            padding: 0;
+            transition: all 0.3s ease;
+        }
+
+        .expand-btn:hover {
+            color: var(--primary-dark);
+            transform: scale(1.2);
+        }
+
+        .expand-btn i {
+            transition: transform 0.3s ease;
+        }
+
+        .expand-btn.expanded i {
+            transform: rotate(90deg);
+        }
+
+        .ministry-name-cell {
+            min-width: 250px;
+        }
+
+        .ministry-icon {
+            width: 45px;
+            height: 45px;
+            background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.2rem;
+        }
+
+        .ministry-name-text {
+            color: #333;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 1.1rem;
+            transition: color 0.3s ease;
+        }
+
+        .ministry-name-text:hover {
+            color: var(--primary-color);
+        }
+
+        .action-buttons {
+            gap: 5px;
+        }
+
+        .action-btn {
+            width: 35px;
+            height: 35px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+            border-width: 1px;
+        }
+
+        .action-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        /* Projects Row Styles */
+        .projects-row {
+            background: #f8f9fc;
+        }
+
+        .projects-cell {
+            padding: 0 !important;
+        }
+
+        .projects-container {
+            padding: 2rem;
+            animation: slideDown 0.3s ease;
+        }
+
+        @@keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .projects-header {
+            border-bottom: 2px solid #e3e6f0;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+        }
+
+        .projects-header h5 {
+            color: #2d3748;
+            font-weight: 700;
+        }
+
+        .projects-table {
+            margin: 0;
+        }
+
+        .projects-table thead {
+            background: linear-gradient(135deg, #5a67d8, #4c51bf);
+            color: white;
+        }
+
+        .projects-table thead th {
+            padding: 15px;
+            font-weight: 600;
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            border: none;
+        }
+
+        .projects-table tbody tr {
+            transition: all 0.2s ease;
+        }
+
+        .projects-table tbody tr:hover {
+            background: rgba(79, 115, 223, 0.05);
+            transform: scale(1.01);
+        }
+
+        .projects-table tbody td {
+            padding: 15px;
+            vertical-align: middle;
+            border-bottom: 1px solid #e3e6f0;
+        }
+
+        .table-responsive {
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+        /* Dashboard Header Styles */
+        .dashboard-header {
+            margin-bottom: 2rem;
+        }
+
+        .dashboard-title {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #2d3748;
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+        }
+
+        .dashboard-subtitle {
+            color: #718096;
+            font-size: 1rem;
+            margin-bottom: 0;
+        }
+
+        /* Responsive Design */
+        @@media (max-width: 768px) {
+            .dashboard-title {
+                font-size: 1.5rem;
+            }
+
+            .stat-card {
+                padding: 1rem;
+                gap: 1rem;
+            }
+
+            .stat-icon {
+                width: 50px;
+                height: 50px;
+                font-size: 1.2rem;
+            }
+
+            .stat-value {
+                font-size: 1.5rem;
+            }
+
+            .ministry-name-cell {
+                min-width: auto;
+            }
+
+            .table-header th {
+                padding: 15px 10px;
+                font-size: 0.85rem;
+            }
+
+            .table-row td {
+                padding: 15px 10px;
+            }
+
+            .action-buttons {
+                flex-direction: column;
+                gap: 3px;
+            }
+
+            .projects-container {
+                padding: 1rem;
+            }
+        }
+
+        @@media (max-width: 576px) {
+            .header-link {
+                flex-direction: column;
+                text-align: center;
+            }
+
+            .header-link i:first-child {
+                margin-bottom: 5px;
+                margin-right: 0 !important;
+            }
+        }
     </style>
+
+    <script>
+        function toggleProjects(ministryCode) {
+            const projectsRow = document.getElementById('projects-row-' + ministryCode);
+            const icon = document.getElementById('icon-' + ministryCode);
+            const button = icon.closest('.expand-btn');
+            const mainRow = document.getElementById('ministry-row-' + ministryCode);
+
+            if (projectsRow.style.display === 'none' || projectsRow.style.display === '') {
+                projectsRow.style.display = 'table-row';
+                button.classList.add('expanded');
+                mainRow.classList.add('expanded');
+            } else {
+                projectsRow.style.display = 'none';
+                button.classList.remove('expanded');
+                mainRow.classList.remove('expanded');
+            }
+        }
+    </script>
+}

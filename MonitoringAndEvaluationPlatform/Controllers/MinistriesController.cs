@@ -37,7 +37,15 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         // GET: Ministries
         public async Task<IActionResult> ResultIndex(int? ministryCode)
         {
-            IQueryable<Ministry> query = _context.Ministries;
+            IQueryable<Ministry> query = _context.Ministries
+                .Include(m => m.Projects)
+                    .ThenInclude(p => p.Sectors)
+                .Include(m => m.Projects)
+                    .ThenInclude(p => p.Donors)
+                .Include(m => m.Projects)
+                    .ThenInclude(p => p.ProjectManager)
+                .Include(m => m.Projects)
+                    .ThenInclude(p => p.SuperVisor);
 
             if (ministryCode.HasValue)
             {
@@ -46,6 +54,14 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             }
 
             var ministries = await query.ToListAsync();
+
+            // Calculate overall statistics
+            var allProjects = ministries.SelectMany(m => m.Projects).Distinct().ToList();
+            ViewBag.TotalProjects = allProjects.Count;
+            ViewBag.ActiveProjects = allProjects.Count(p => p.EndDate >= DateTime.Now);
+            ViewBag.CompletedProjects = allProjects.Count(p => p.EndDate < DateTime.Now);
+            ViewBag.TotalBudget = allProjects.Sum(p => p.EstimatedBudget);
+
             return View(ministries);
         }
 

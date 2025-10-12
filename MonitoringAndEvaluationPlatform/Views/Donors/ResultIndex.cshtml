@@ -5,49 +5,282 @@
 @using Microsoft.AspNetCore.Localization
 
 @{
-	ViewData["Title"] = "Index";
-    Layout = "~/Views/Shared/_ResultsFrameworkLayout.cshtml";
+    ViewData["Title"] = "International Cooperation Partners";
+    Layout = "~/Views/Shared/_DashboardHomeLayout.cshtml";
+    var culture = Context.Features.Get<IRequestCultureFeature>().RequestCulture.Culture.Name;
 }
 
-<table class="table">
-	<thead>
-		<tr>
-            <th> @Localizer["Partner"]</th>
-            <th>@Localizer["Indicators Performance"]</th>
-            <th>@Localizer["Disbursement Performance"]</th>
-			<th></th>
-		</tr>
-	</thead>
-    <tbody>
-        @foreach (var item in Model)
-        {
-            string indicatorsClass = ProgressBarHelper.GetProgressBarClass(item.IndicatorsPerformance);
-            string disbursementClass = ProgressBarHelper.GetProgressBarClass(item.DisbursementPerformance);
-            string fieldMonitoringClass = ProgressBarHelper.GetProgressBarClass(item.FieldMonitoring);
-            string impactAssessmentClass = ProgressBarHelper.GetProgressBarClass(item.ImpactAssessment);
-            double IndicatorsPerformance = Math.Round(item.IndicatorsPerformance, 0);
+<!-- Dashboard Header -->
+<div class="dashboard-header">
+    <div class="d-flex justify-content-between align-items-center">
+        <div>
+            <h1 class="dashboard-title">
+                <i class="fas fa-handshake me-3"></i>
+                @Localizer["International Cooperation Partners"]
+            </h1>
+            <p class="dashboard-subtitle">
+                @Localizer["View and manage international cooperation partners performance metrics"]
+            </p>
+        </div>
+    </div>
+</div>
 
-            <tr>
-                <td>
-                    <strong>@Html.DisplayFor(modelItem => item.Partner)</strong>
-                </td>
-                <td>
-                    @await Html.PartialAsync("_ProgressBar", Tuple.Create(IndicatorsPerformance, indicatorsClass))
-                </td>
-                <td>
-                    @await Html.PartialAsync("_ProgressBar", Tuple.Create(item.DisbursementPerformance, disbursementClass))
-                </td>
-                <td class="text-end">
-                    <div class="btn-group" role="group">
-                        <a asp-action="Edit" asp-route-id="@item.Code" class="btn btn-sm btn-outline-warning" title="Edit">
-                            <i class="fas fa-edit"></i>
-                        </a>
-                        <a asp-action="Delete" asp-route-id="@item.Code" class="btn btn-sm btn-outline-danger" title="Delete">
-                            <i class="fas fa-trash-alt"></i>
-                        </a>
-                    </div>
-                </td>
-            </tr>
+<!-- Partners Table -->
+<div class="chart-card">
+    <div class="chart-title">
+        <i class="fas fa-handshake"></i>
+        @Localizer["Partners"] (@Model.Count())
+    </div>
+
+    @if (Model.Any())
+    {
+        <div class="table-responsive">
+            <table class="table table-hover modern-table">
+                <thead class="table-header">
+                    <tr>
+                        <th class="sortable-header">
+                            <div class="header-link">
+                                <i class="fas fa-building me-2"></i>@Localizer["Partner"]
+                            </div>
+                        </th>
+                        <th class="sortable-header text-center">
+                            <div class="header-link">
+                                <i class="fas fa-chart-line me-2"></i>@Localizer["Indicators Performance"]
+                            </div>
+                        </th>
+                        <th class="sortable-header text-center">
+                            <div class="header-link">
+                                <i class="fas fa-money-bill-wave me-2"></i>@Localizer["Disbursement Performance"]
+                            </div>
+                        </th>
+                        <th class="text-center">
+                            <div class="header-link">
+                                <i class="fas fa-cogs me-2"></i>@Localizer["Actions"]
+                            </div>
+                        </th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model)
+                    {
+                        string indicatorsClass = ProgressBarHelper.GetProgressBarClass(item.IndicatorsPerformance);
+                        string disbursementClass = ProgressBarHelper.GetProgressBarClass(item.DisbursementPerformance);
+                        double IndicatorsPerformance = Math.Round(item.IndicatorsPerformance, 2);
+                        double DisbursementPerformance = Math.Round(item.DisbursementPerformance, 2);
+
+                        <tr id="donor-row-@item.Code" class="table-row">
+                            <td class="donor-name-cell">
+                                <div class="d-flex align-items-center">
+                                    <div class="donor-icon me-3">
+                                        <i class="fas fa-handshake"></i>
+                                    </div>
+                                    <div>
+                                        <span class="donor-name-text">
+                                            @item.Partner
+                                        </span>
+                                    </div>
+                                </div>
+                            </td>
+                            <td class="text-center" title="@Localizer["Indicators Performance"]: @IndicatorsPerformance%">
+                                @await Html.PartialAsync("_ProgressBar", Tuple.Create(IndicatorsPerformance, indicatorsClass))
+                            </td>
+                            <td class="text-center" title="@Localizer["Disbursement Performance"]: @DisbursementPerformance%">
+                                @await Html.PartialAsync("_ProgressBar", Tuple.Create(DisbursementPerformance, disbursementClass))
+                            </td>
+                            <td class="text-center">
+                                <div class="btn-group action-buttons" role="group">
+                                    <a asp-action="Edit" asp-route-id="@item.Code" class="btn btn-outline-primary btn-sm action-btn" title="@Localizer["Edit"]">
+                                        <i class="fas fa-edit"></i>
+                                    </a>
+                                    <a asp-action="Delete" asp-route-id="@item.Code" class="btn btn-outline-danger btn-sm action-btn" title="@Localizer["Delete"]">
+                                        <i class="fas fa-trash-alt"></i>
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+    else
+    {
+        <div class="text-center py-5">
+            <div class="stat-icon warning mx-auto mb-3" style="width: 80px; height: 80px; font-size: 2rem;">
+                <i class="fas fa-handshake"></i>
+            </div>
+            <h4 class="text-muted">@Localizer["No partners found"]</h4>
+            <p class="text-muted">@Localizer["No international cooperation partners available"]</p>
+        </div>
+    }
+</div>
+
+@section Scripts {
+    <style>
+        /* Modern Table Styles */
+        .modern-table {
+            background: transparent;
+            border: none;
+            border-radius: 15px;
+            overflow: hidden;
         }
-    </tbody>
-</table>
+
+        .table-header {
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-dark) 100%);
+            color: white;
+        }
+
+        .table-header th {
+            border: none;
+            padding: 20px 15px;
+            font-weight: 600;
+            font-size: 0.95rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .header-link {
+            text-decoration: none !important;
+            display: flex;
+            align-items: center;
+            justify-content: flex-start;
+            transition: all 0.3s ease;
+        }
+
+        .header-link:hover {
+            color: rgba(255, 255, 255, 0.9) !important;
+            transform: translateY(-1px);
+        }
+
+        .table-row {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border: none;
+            transition: all 0.3s ease;
+        }
+
+        .table-row:hover {
+            background: rgba(255, 255, 255, 1);
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+        }
+
+        .table-row td {
+            border: none;
+            padding: 20px 15px;
+            vertical-align: middle;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+        }
+
+        .donor-name-cell {
+            min-width: 250px;
+        }
+
+        .donor-icon {
+            width: 45px;
+            height: 45px;
+            background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.2rem;
+        }
+
+        .donor-name-text {
+            color: #333;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 1.1rem;
+            transition: color 0.3s ease;
+        }
+
+        .donor-name-text:hover {
+            color: var(--primary-color);
+        }
+
+        .action-buttons {
+            gap: 5px;
+        }
+
+        .action-btn {
+            width: 35px;
+            height: 35px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+            border-width: 1px;
+        }
+
+        .action-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .table-responsive {
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+        /* Dashboard Header Styles */
+        .dashboard-header {
+            margin-bottom: 2rem;
+        }
+
+        .dashboard-title {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #2d3748;
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+        }
+
+        .dashboard-subtitle {
+            color: #718096;
+            font-size: 1rem;
+            margin-bottom: 0;
+        }
+
+        /* Responsive Design */
+        @@media (max-width: 768px) {
+            .dashboard-title {
+                font-size: 1.5rem;
+            }
+
+            .donor-name-cell {
+                min-width: auto;
+            }
+
+            .table-header th {
+                padding: 15px 10px;
+                font-size: 0.85rem;
+            }
+
+            .table-row td {
+                padding: 15px 10px;
+            }
+
+            .action-buttons {
+                flex-direction: column;
+                gap: 3px;
+            }
+        }
+
+        @@media (max-width: 576px) {
+            .header-link {
+                flex-direction: column;
+                text-align: center;
+            }
+
+            .header-link i:first-child {
+                margin-bottom: 5px;
+                margin-right: 0 !important;
+            }
+        }
+    </style>
+}
