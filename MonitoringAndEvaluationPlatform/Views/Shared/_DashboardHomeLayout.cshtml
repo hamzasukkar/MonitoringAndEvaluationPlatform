@@ -918,7 +918,7 @@
                 <ul class="nav">
                     <li class="nav-item">
                         <a class="nav-link" asp-controller="Home" asp-action="Index">
-                            <i class="fas fa-home me-1"></i> @Localizer["Dashboard"]
+                            <i class="fas fa-home me-1"></i> @Localizer["Home"]
                         </a>
                     </li>
                     <li class="nav-item dropdown">
@@ -980,7 +980,11 @@
                             {
                                 <li class="ministry-item">
                                     <a asp-controller="Ministries" asp-action="ResultIndex" asp-route-ministryCode="@ministry.Code" class="dropdown-item">
-                                        @ministry.MinistryDisplayName
+                                        @if (!string.IsNullOrEmpty(ministry.Logo))
+                                        {
+                                            <span class="ministry-logo me-1">@ministry.Logo</span>
+                                        }
+                                        @(System.Globalization.CultureInfo.CurrentUICulture.TwoLetterISOLanguageName == "ar" ? ministry.MinistryDisplayName_AR : ministry.MinistryDisplayName_EN)
                                     </a>
                                 </li>
                             }

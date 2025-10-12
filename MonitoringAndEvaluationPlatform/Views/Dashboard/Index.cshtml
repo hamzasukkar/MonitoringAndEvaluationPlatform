@@ -68,7 +68,7 @@
 					<option disabled selected value="">@Localizer["Select Ministry"]</option>
 					@foreach (var min in Model.Ministries)
 					{
-						<option value="@min.Code">@min.MinistryDisplayName</option>
+						<option value="@min.Code">@(!string.IsNullOrEmpty(min.Logo) ? min.Logo + " " : "")@(System.Globalization.CultureInfo.CurrentUICulture.TwoLetterISOLanguageName == "ar" ? min.MinistryDisplayName_AR : min.MinistryDisplayName_EN)</option>
 					}
 				</select>
 			</div>

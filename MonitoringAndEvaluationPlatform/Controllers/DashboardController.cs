@@ -5,6 +5,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using MonitoringAndEvaluationPlatform.ViewModel;
 using MonitoringAndEvaluationPlatform.Enums;
+using System.Globalization;
 using System.Linq;
 using Microsoft.AspNetCore.Authorization;
 using MonitoringAndEvaluationPlatform.Attributes;
@@ -413,7 +414,7 @@ public class DashboardController : Controller
                .ToListAsync(),
 
             Ministries = await _context.Ministries
-               .Select(m => new SelectListItem { Value = m.Code.ToString(), Text = m.MinistryDisplayName })
+               .Select(m => new SelectListItem { Value = m.Code.ToString(), Text = CultureInfo.CurrentUICulture.TwoLetterISOLanguageName == "ar" ? m.MinistryDisplayName_AR : m.MinistryDisplayName_EN })
                .ToListAsync(),
             Sectors = await _context.Sectors
                .Select(s => new SelectListItem { Value = s.Code.ToString(), Text = s.AR_Name })
@@ -770,6 +771,7 @@ public class DashboardController : Controller
         if (framework == null)
             return Json(new List<object>());
 
+        var currentCulture = CultureInfo.CurrentUICulture.TwoLetterISOLanguageName;
         var ministries = framework.Outcomes
              .SelectMany(o => o.Outputs)
              .SelectMany(op => op.SubOutputs)
@@ -782,7 +784,7 @@ public class DashboardController : Controller
              .Select(mn => new
              {
                  id = mn.Code,         // your Ministry primary key
-                 name = mn.MinistryDisplayName
+                 name = currentCulture == "ar" ? mn.MinistryDisplayName_AR : mn.MinistryDisplayName_EN
              })
              .ToList();
 
@@ -854,12 +856,13 @@ public class DashboardController : Controller
         var codes = governorateCodes.Split(',')
                                     .ToList();
 
+        var currentCulture = CultureInfo.CurrentUICulture.TwoLetterISOLanguageName;
         var ministries = await _context.Ministries
             .Where(m => m.Projects.Any(p => p.IsEntireCountry || p.Governorates.Any(g => codes.Contains(g.Code))))
             .Select(m => new
             {
                 id = m.Code,
-                name = m.MinistryDisplayName
+                name = currentCulture == "ar" ? m.MinistryDisplayName_AR : m.MinistryDisplayName_EN
             })
             .Distinct()
             .ToListAsync();
@@ -939,12 +942,13 @@ public class DashboardController : Controller
     [HttpGet]
     public async Task<IActionResult> GetMinistriesByProject(int projectCode)
     {
+        var currentCulture = CultureInfo.CurrentUICulture.TwoLetterISOLanguageName;
         var ministries = await _context.Ministries
             .Where(m => m.Projects.Any(p => p.ProjectID == projectCode))
             .Select(m => new
             {
                 id = m.Code,
-                name = m.MinistryDisplayName
+                name = currentCulture == "ar" ? m.MinistryDisplayName_AR : m.MinistryDisplayName_EN
             })
             .Distinct()
             .ToListAsync();
@@ -1030,9 +1034,10 @@ public class DashboardController : Controller
         if (codes == null || !codes.Any())
             return Json(new List<object>());
 
+        var currentCulture = CultureInfo.CurrentUICulture.TwoLetterISOLanguageName;
         var ministries = await _context.Ministries
             .Where(m => m.Projects.Any(p => p.IsEntireCountry || p.Communities.Any(c => codes.Contains(c.Code))))
-            .Select(m => new { id = m.Code, name = m.MinistryDisplayName })
+            .Select(m => new { id = m.Code, name = currentCulture == "ar" ? m.MinistryDisplayName_AR : m.MinistryDisplayName_EN })
             .Distinct()
             .ToListAsync();
 
