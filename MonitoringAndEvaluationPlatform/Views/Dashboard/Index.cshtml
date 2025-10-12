@@ -10,10 +10,10 @@
 <div class="dashboard-header">
 	<h1 class="dashboard-title">
 		<i class="fas fa-chart-pie me-3"></i>
-		Dashboard Summary
+		>@Localizer["Dashboard Summary"]
 	</h1>
 	<p class="dashboard-subtitle">
-		Comprehensive overview with interactive filtering and real-time performance metrics
+		@Localizer["Comprehensive overview with interactive filtering and real-time performance metrics"]
 	</p>
 </div>
 
@@ -147,7 +147,7 @@
 	<div class="chart-card">
 		<h3 class="chart-title">
 			<i class="fas fa-chart-pie"></i>
-			Framework Performance Overview
+			@Localizer["Framework Performance Overview"]
 		</h3>
 		<div class="chart-content">
 			<div id="gaugesContainer" class="performance-charts-grid"></div>
@@ -407,6 +407,7 @@
 </style>
 
 <script>
+$(document).ready(function() {
 	async function loadGauges(frameworkCode = '', ministryCode = '', projectCode = '',governorateCode='',districtCode='',subDistrictCode='',communityCode='') {
 		const urlParams = new URLSearchParams();
 		if (frameworkCode) urlParams.append('frameworkCode', frameworkCode);
@@ -571,6 +572,9 @@
 		// reset counts
 		document.getElementById('totalFrameworks').textContent = 1;
 
+		// ------------------- Save current ministry selection -------------------
+		const currentMinistryCode = document.getElementById('ministryFilter').value;
+
 		// reset projects
 		const projectDropdown = document.getElementById('projectFilter');
 		projectDropdown.innerHTML = '<option value="">@Localizer["Select Project"]</option>';
@@ -604,12 +608,24 @@
 			fetch(`/Dashboard/GetMinistriesByFramework?frameworkCode=${frameworkCode}`)
 				.then(res => res.json())
 				.then(ministries => {
+					let foundCurrentMinistry = false;
 					ministries.forEach(mn => {
 						const opt = document.createElement('option');
 						opt.value = mn.id;
 						opt.textContent = mn.name;
 						ministryDropdown.appendChild(opt);
+
+						// Check if current selection exists in new data
+						if (currentMinistryCode && mn.id == currentMinistryCode) {
+							foundCurrentMinistry = true;
+						}
 					});
+
+					// Restore selection if it exists in new data
+					if (foundCurrentMinistry) {
+						ministryDropdown.value = currentMinistryCode;
+					}
+
 					document.getElementById('totalMinistries').textContent = ministries.length;
 				})
 				.catch(console.error);
@@ -642,6 +658,11 @@
 		// Load gauges with the new filter
 		loadGauges(filters.frameworkCode, filters.ministryCode, filters.projectCode, filters.governorateCode);
 
+		// ------------------- Save current selections -------------------
+		const currentFrameworkCode = document.getElementById('frameworkFilter').value;
+		const currentProjectCode = document.getElementById('projectFilter').value;
+		const currentGovernorateCodes = $('#governorateFilter').val() || [];
+
 		// ------------------- Clear and reset dropdowns -------------------
 		const frameworkDropdown = document.getElementById('frameworkFilter');
 		frameworkDropdown.innerHTML = '<option disabled selected value="">-- @Localizer["Select Framework"] --</option>';
@@ -652,7 +673,8 @@
 		document.getElementById('totalProjects').textContent = 0;
 
 		const governorateDropdown = document.getElementById('governorateFilter');
-		governorateDropdown.innerHTML = '<option value="">@Localizer["Select Governorate"]</option>';
+		governorateDropdown.innerHTML = '';
+		$('#governorateFilter').val(null).trigger('change.select2');
 		document.getElementById('totalGovernorates').textContent = 0;
 
 		if (!ministryCode) return;
@@ -664,12 +686,24 @@
 				return response.json();
 			})
 			.then(projects => {
+				let foundCurrentProject = false;
 				projects.forEach(project => {
 					const option = document.createElement('option');
 					option.value = project.id;
 					option.textContent = project.name;
 					projectDropdown.appendChild(option);
+
+					// Check if current selection exists in new data
+					if (currentProjectCode && project.id == currentProjectCode) {
+						foundCurrentProject = true;
+					}
 				});
+
+				// Restore selection if it exists in new data
+				if (foundCurrentProject) {
+					projectDropdown.value = currentProjectCode;
+				}
+
 				document.getElementById('totalProjects').textContent = projects.length;
 			})
 			.catch(error => console.error('Error fetching projects:', error));
@@ -681,12 +715,24 @@
 				return response.json();
 			})
 			.then(frameworks => {
+				let foundCurrentFramework = false;
 				frameworks.forEach(framework => {
 					const option = document.createElement('option');
 					option.value = framework.code;
 					option.textContent = framework.name;
 					frameworkDropdown.appendChild(option);
+
+					// Check if current selection exists in new data
+					if (currentFrameworkCode && framework.code == currentFrameworkCode) {
+						foundCurrentFramework = true;
+					}
 				});
+
+				// Restore selection if it exists in new data
+				if (foundCurrentFramework) {
+					frameworkDropdown.value = currentFrameworkCode;
+				}
+
 				document.getElementById('totalFrameworks').textContent = frameworks.length;
 			})
 			.catch(error => console.error('Error fetching frameworks:', error));
@@ -698,12 +744,27 @@
 				return response.json();
 			})
 			.then(governorates => {
+				const newGovernorateCodes = [];
 				governorates.forEach(gov => {
 					const option = document.createElement('option');
 					option.value = gov.code;
 					option.textContent = gov.name;
 					governorateDropdown.appendChild(option);
+					newGovernorateCodes.push(gov.code);
 				});
+
+				// Find which of the current selections still exist in new data
+				const preservedSelections = currentGovernorateCodes.filter(code =>
+					newGovernorateCodes.includes(code)
+				);
+
+				// Restore selections that still exist
+				if (preservedSelections.length > 0) {
+					$('#governorateFilter').val(preservedSelections).trigger('change.select2');
+				} else {
+					$('#governorateFilter').trigger('change.select2');
+				}
+
 				document.getElementById('totalGovernorates').textContent = governorates.length;
 			})
 			.catch(error => console.error('Error fetching governorates:', error));
@@ -716,12 +777,14 @@
 		const projectCode = this.value;
 		const filters = getFilters();
 		filters.projectCode = projectCode;
-		const governorateDropdown = document.getElementById('governorateFilter');
-		governorateDropdown.innerHTML = '';
 
 		// Load gauges with the new filter
 		loadGauges(filters.frameworkCode, filters.ministryCode, filters.projectCode, filters.governorateCode, filters.districtCode, filters.subDistrictCode, filters.communityCode);
 
+		// ------------------- Save current selections -------------------
+		const currentMinistryCode = document.getElementById('ministryFilter').value;
+		const currentFrameworkCode = document.getElementById('frameworkFilter').value;
+		const currentGovernorateCodes = $('#governorateFilter').val() || [];
 
 		// Clear and reset the Frameworks dropdown and count
 		const frameworkDropdown = document.getElementById('frameworkFilter');
@@ -735,6 +798,12 @@
 		// Reset ministry count
 		document.getElementById('totalMinistries').textContent = 0;
 
+		// Clear governorates
+		const governorateDropdown = document.getElementById('governorateFilter');
+		governorateDropdown.innerHTML = '';
+		$('#governorateFilter').val(null).trigger('change.select2');
+		document.getElementById('totalGovernorates').textContent = 0;
+
 		if (projectCode) {
 			// Fetch ministries for the selected project
 			fetch(`/Dashboard/GetMinistriesByProject?projectCode=${projectCode}`)
@@ -743,50 +812,89 @@
 					return response.json();
 				})
 				.then(ministries => {
+					let foundCurrentMinistry = false;
 					ministries.forEach(ministry => {
 						const option = document.createElement('option');
 						option.value = ministry.id;
 						option.textContent = ministry.name;
 						ministryDropdown.appendChild(option);
+
+						// Check if current selection exists in new data
+						if (currentMinistryCode && ministry.id == currentMinistryCode) {
+							foundCurrentMinistry = true;
+						}
 					});
+
+					// Restore selection if it exists in new data
+					if (foundCurrentMinistry) {
+						ministryDropdown.value = currentMinistryCode;
+					}
+
 					const totalMinistries = ministries.length;
 					document.getElementById('totalMinistries').textContent = totalMinistries;
 				})
 				.catch(error => console.error('Error fetching ministries:', error));
 
-					// Fetch frameworks for the selected project
+			// Fetch frameworks for the selected project
 			fetch(`/Dashboard/GetFrameworksByProject?projectCode=${projectCode}`)
 				.then(response => {
 					if (!response.ok) throw new Error("Network response was not ok for frameworks by project");
 					return response.json();
 				})
 				.then(frameworks => {
+					let foundCurrentFramework = false;
 					frameworks.forEach(framework => {
 						const option = document.createElement('option');
 						option.value = framework.code;
 						option.textContent = framework.name;
 						frameworkDropdown.appendChild(option);
+
+						// Check if current selection exists in new data
+						if (currentFrameworkCode && framework.code == currentFrameworkCode) {
+							foundCurrentFramework = true;
+						}
 					});
+
+					// Restore selection if it exists in new data
+					if (foundCurrentFramework) {
+						frameworkDropdown.value = currentFrameworkCode;
+					}
+
 					const totalFrameworks = frameworks.length;
 					document.getElementById('totalFrameworks').textContent = totalFrameworks;
 				})
 				.catch(error => console.error('Error fetching frameworks:', error));
 
-				fetch(`/Dashboard/GetGovernoratesByProject?projectCode=${projectCode}`)
+			// Fetch governorates for the selected project
+			fetch(`/Dashboard/GetGovernoratesByProject?projectCode=${projectCode}`)
 				.then(res => res.json())
 				.then(governorates => {
+					const newGovernorateCodes = [];
 					governorates.forEach(gov => {
 						const opt = document.createElement('option');
 						opt.value = gov.code;
 						opt.textContent = gov.name;
 						governorateDropdown.appendChild(opt);
+						newGovernorateCodes.push(gov.code);
 					});
+
+					// Find which of the current selections still exist in new data
+					const preservedSelections = currentGovernorateCodes.filter(code =>
+						newGovernorateCodes.includes(code)
+					);
+
+					// Restore selections that still exist
+					if (preservedSelections.length > 0) {
+						$('#governorateFilter').val(preservedSelections).trigger('change.select2');
+					} else {
+						$('#governorateFilter').trigger('change.select2');
+					}
+
 					document.getElementById('totalGovernorates').textContent = governorates.length;
-					$('#governorateFilter').trigger('change.select2');
 				})
 				.catch(console.error);
 
-				document.getElementById('totalProjects').textContent = 1;
+			document.getElementById('totalProjects').textContent = 1;
 		} 
 		else {
 			document.getElementById('totalGovernorates').textContent = 0;
@@ -802,6 +910,10 @@
 		// 1. Get the selected governorate codes
 		const selectedGovCodes = $(this).val() || [];
 		const governorateCode = selectedGovCodes.join(',');
+
+		// Save current selections
+		const currentFrameworkCode = document.getElementById('frameworkFilter').value;
+		const currentProjectCode = document.getElementById('projectFilter').value;
 
 		// 2. Load gauges based on the new filters
 		const filters = getFilters();
@@ -825,12 +937,24 @@
 					return response.json();
 				})
 				.then(projects => {
+					let foundCurrentProject = false;
 					projects.forEach(project => {
 						const option = document.createElement('option');
 						option.value = project.id;
 						option.textContent = project.name;
 						projectDropdown.appendChild(option);
+
+						// Check if current selection exists in new data
+						if (currentProjectCode && project.id == currentProjectCode) {
+							foundCurrentProject = true;
+						}
 					});
+
+					// Restore selection if it exists in new data
+					if (foundCurrentProject) {
+						projectDropdown.value = currentProjectCode;
+					}
+
 					// Update the total projects count
 					const totalProjects = projects.length;
 					document.getElementById('totalProjects').textContent = totalProjects;
@@ -846,6 +970,9 @@
 	// ... [Existing code for updating gauges and projects] ...
 
 	// New section to update the Ministries dropdown
+	// ------------------- Save current ministry selection -------------------
+	const currentMinistryCode = document.getElementById('ministryFilter').value;
+
 	const ministryDropdown = document.getElementById('ministryFilter');
 	ministryDropdown.innerHTML = '<option disabled selected value="">-- @Localizer["Select Ministry"] --</option>';
 
@@ -856,12 +983,24 @@
 				return response.json();
 			})
 			.then(ministries => {
+				let foundCurrentMinistry = false;
 				ministries.forEach(ministry => {
 					const option = document.createElement('option');
 					option.value = ministry.id;
 					option.textContent = ministry.name;
 					ministryDropdown.appendChild(option);
+
+					// Check if current selection exists in new data
+					if (currentMinistryCode && ministry.id == currentMinistryCode) {
+						foundCurrentMinistry = true;
+					}
 				});
+
+				// Restore selection if it exists in new data
+				if (foundCurrentMinistry) {
+					ministryDropdown.value = currentMinistryCode;
+				}
+
 				// Update the total ministries count
 				const totalMinistries = ministries.length;
 				document.getElementById('totalMinistries').textContent = totalMinistries;
@@ -887,12 +1026,24 @@
 					return response.json();
 				})
 				.then(frameworks => {
+					let foundCurrentFramework = false;
 					frameworks.forEach(framework => {
 						const option = document.createElement('option');
 						option.value = framework.code;
 						option.textContent = framework.name;
 						frameworkDropdown.appendChild(option);
+
+						// Check if current selection exists in new data
+						if (currentFrameworkCode && framework.code == currentFrameworkCode) {
+							foundCurrentFramework = true;
+						}
 					});
+
+					// Restore selection if it exists in new data
+					if (foundCurrentFramework) {
+						frameworkDropdown.value = currentFrameworkCode;
+					}
+
 					// Update the total frameworks count
 					const totalFrameworks = frameworks.length;
 					document.getElementById('totalFrameworks').textContent = totalFrameworks;
@@ -908,7 +1059,9 @@
 		resetDropdown('districtFilter');
 		resetDropdown('subDistrictFilter');
 		resetDropdown('communityFilter');
-		$('#districtCount').text('@Localizer["Total Districts"]: 0');
+		$('#districtCount').text('0');
+		$('#subDistrictCount').text('0');
+		$('#communityCount').text('0');
 		return;
 	  }
 
@@ -925,7 +1078,7 @@
 		  populateDropdown('districtFilter', districts, /*preserveSelection=*/ true);
 
 		  // 7. update UI pieces
-		  $('#districtCount').text(`@Localizer["Total Districts"]: ${districts.length}`);
+		  $('#districtCount').text(districts.length);
 		  $('#districtFilter').prop('disabled', districts.length === 0);
 		})
 		.catch((err) => console.error(err));
@@ -949,7 +1102,8 @@
 	  if (!selectedDistCodes.length) {
 		resetDropdown('subDistrictFilter');
 		resetDropdown('communityFilter');
-		$('#subDistrictCount').text('@Localizer["Total SubDistrict"] : 0');
+		$('#subDistrictCount').text('0');
+		$('#communityCount').text('0');
 		$('#subDistrictFilter').prop('disabled', true);
 		return;
 	  }
@@ -968,28 +1122,32 @@
 		  );
 
 		  // 6. Update count & disable state
-		  $('#subDistrictCount').text(`@Localizer["Total SubDistrict"]: ${subDistricts.length}`);
+		  $('#subDistrictCount').text(subDistricts.length);
 		  $('#subDistrictFilter').prop('disabled', !subDistricts.length);
 		})
 		.catch(console.error);
 	});
 
 	$('#subDistrictFilter').on('change', function () {
-			const filters = getFilters();
+		const filters = getFilters();
 		loadGauges(filters.frameworkCode, filters.ministryCode, filters.projectCode, filters.governorateCode, filters.districtCode, filters.subDistrictCode);
 
-	   const selectedsubDistCodes = $(this).val() || [];
+		const selectedsubDistCodes = $(this).val() || [];
 
-		resetDropdown('communityFilter');
-		document.getElementById('communityCount').innerText = 'Total Communities: 0';
+		if (!selectedsubDistCodes.length) {
+			resetDropdown('communityFilter');
+			$('#communityCount').text('0');
+			return;
+		}
+
 		fetch(`/Dashboard/GetCommunitiesBySubDistrict?subDistrictCodes=${selectedsubDistCodes}`)
 			.then((r) => r.json())
 			.then((list) => {
 				populateDropdown('communityFilter', list);
-				document.getElementById('communityCount').innerText = `@Localizer["Total Communities"] : ${list.length}`;
+				$('#communityCount').text(list.length);
 			})
 			.catch((e) => console.error(e));
-		});
+	});
 
 	$('#communityFilter').on('change', function () {
 		debugger;
@@ -998,6 +1156,11 @@
 		const communityCodeString = selectedCommunityCodes.join(',');
 
 		loadGauges(filters.frameworkCode, filters.ministryCode, filters.projectCode, filters.governorateCode, filters.districtCode, filters.subDistrictCode, communityCodeString);
+
+		// ------------------- Save current selections -------------------
+		const currentFrameworkCode = document.getElementById('frameworkFilter').value;
+		const currentMinistryCode = document.getElementById('ministryFilter').value;
+		const currentProjectCode = document.getElementById('projectFilter').value;
 
 		// Clear and reset the Framework, Ministry, and Project dropdowns
 		const frameworkDropdown = document.getElementById('frameworkFilter');
@@ -1017,12 +1180,24 @@
 			fetch(`/Dashboard/GetFrameworksByCommunities?communityCodes=${communityCodeString}`)
 				.then(r => r.json())
 				.then(list => {
+					let foundCurrentFramework = false;
 					list.forEach(item => {
 						const opt = document.createElement('option');
 						opt.value = item.code;
 						opt.textContent = item.name;
 						frameworkDropdown.appendChild(opt);
+
+						// Check if current selection exists in new data
+						if (currentFrameworkCode && item.code == currentFrameworkCode) {
+							foundCurrentFramework = true;
+						}
 					});
+
+					// Restore selection if it exists in new data
+					if (foundCurrentFramework) {
+						frameworkDropdown.value = currentFrameworkCode;
+					}
+
 					document.getElementById('totalFrameworks').textContent = list.length;
 				})
 				.catch(e => console.error(e));
@@ -1031,12 +1206,24 @@
 			fetch(`/Dashboard/GetMinistriesByCommunities?communityCodes=${communityCodeString}`)
 				.then(r => r.json())
 				.then(list => {
+					let foundCurrentMinistry = false;
 					list.forEach(item => {
 						const opt = document.createElement('option');
 						opt.value = item.id;
 						opt.textContent = item.name;
 						ministryDropdown.appendChild(opt);
+
+						// Check if current selection exists in new data
+						if (currentMinistryCode && item.id == currentMinistryCode) {
+							foundCurrentMinistry = true;
+						}
 					});
+
+					// Restore selection if it exists in new data
+					if (foundCurrentMinistry) {
+						ministryDropdown.value = currentMinistryCode;
+					}
+
 					document.getElementById('totalMinistries').textContent = list.length;
 				})
 				.catch(e => console.error(e));
@@ -1045,12 +1232,24 @@
 			fetch(`/Dashboard/GetProjectsByCommunities?communityCodes=${communityCodeString}`)
 				.then(r => r.json())
 				.then(list => {
+					let foundCurrentProject = false;
 					list.forEach(item => {
 						const opt = document.createElement('option');
 						opt.value = item.id;
 						opt.textContent = item.name;
 						projectDropdown.appendChild(opt);
+
+						// Check if current selection exists in new data
+						if (currentProjectCode && item.id == currentProjectCode) {
+							foundCurrentProject = true;
+						}
 					});
+
+					// Restore selection if it exists in new data
+					if (foundCurrentProject) {
+						projectDropdown.value = currentProjectCode;
+					}
+
 					document.getElementById('totalProjects').textContent = list.length;
 				})
 				.catch(e => console.error(e));
@@ -1070,23 +1269,38 @@
 	});
 	// Helpers
 	function resetDropdown(id) {
-		const dd = document.getElementById(id);
-		dd.innerHTML = `<option disabled selected value="">-- Select --</option>`;
-		dd.disabled = true;
+		const dd = $(`#${id}`);
+		dd.empty().append('<option disabled selected value="">-- Select --</option>');
+		dd.val(null).trigger('change');
+		dd.prop('disabled', true);
 	}
 
-	function populateDropdown(id, items) {
-		const dd = document.getElementById(id);
+	function populateDropdown(id, items, preserveSelection = false) {
+		const dd = $(`#${id}`);
+		const currentValues = preserveSelection ? dd.val() : null;
+
+		// Clear existing options except the placeholder
+		dd.empty().append('<option disabled selected value="">-- Select --</option>');
+
+		// Add new options
 		items.forEach(i => {
 			const opt = document.createElement('option');
 			opt.value = i.code;
-			opt.textContent = i.aR_Name;
-			dd.appendChild(opt);
+			opt.textContent = i.aR_Name || i.name;
+			dd.append(opt);
 		});
-		dd.disabled = false;
+
+		// Restore selection if preserving
+		if (preserveSelection && currentValues) {
+			dd.val(currentValues);
+		}
+
+		// Enable dropdown and refresh Select2
+		dd.prop('disabled', false);
+		dd.trigger('change.select2');
 	}
 
-		function getFilters() {
+	function getFilters() {
 		return {
 			frameworkCode: document.getElementById('frameworkFilter').value,
 			ministryCode: document.getElementById('ministryFilter').value,
@@ -1098,5 +1312,8 @@
 		};
 	}
 
+	// Initialize the page
+	loadGauges();
 
+}); // End document.ready
 </script>

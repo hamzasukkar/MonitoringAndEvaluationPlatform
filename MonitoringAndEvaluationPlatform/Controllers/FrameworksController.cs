@@ -123,51 +123,6 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             return View(filter);
         }
 
-        // GET: Frameworks/Details/5
-        [Permission(Permissions.ReadStrategies)]
-        public async Task<IActionResult> Details(int? id)
-        {
-            if (id == null)
-            {
-                return NotFound();
-            }
-
-            var framework = await _context.Frameworks
-                .FirstOrDefaultAsync(m => m.Code == id);
-            if (framework == null)
-            {
-                return NotFound();
-            }
-
-            return View(framework);
-        }
-
-        // GET: Frameworks/Create
-        [Permission(Permissions.AddStrategy)]
-        public IActionResult Create()
-        {
-            return View();
-        }
-
-        // POST: Frameworks/Create
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        [Permission(Permissions.AddStrategy)]
-        public async Task<IActionResult> Create([Bind("Code,Name")] Framework framework)
-        {
-            ModelState.Remove(nameof(framework.Outcomes));
-
-            if (ModelState.IsValid)
-            {
-                _context.Add(framework);
-                await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
-            }
-            return View(framework);
-        }
-
         // POST: Frameworks/CreateInline - AJAX endpoint for inline creation
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -222,61 +177,6 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             }
         }
 
-        // GET: Frameworks/Edit/5
-        [Permission(Permissions.ModifyStrategy)]
-        public async Task<IActionResult> Edit(int? id)
-        {
-            if (id == null)
-            {
-                return NotFound();
-            }
-
-            var framework = await _context.Frameworks.FindAsync(id);
-            if (framework == null)
-            {
-                return NotFound();
-            }
-            return View(framework);
-        }
-
-        // POST: Frameworks/Edit/5
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        [Permission(Permissions.ModifyStrategy)]
-        public async Task<IActionResult> Edit(int id, [Bind("Code,Name,Trend,IndicatorsPerformance,DisbursementPerformance,FieldMonitoring,ImpactAssessment")] Framework framework)
-        {
-            ModelState.Remove(nameof(framework.Outcomes));
-
-            if (id != framework.Code)
-            {
-                return NotFound();
-            }
-
-            if (ModelState.IsValid)
-            {
-                try
-                {
-                    _context.Update(framework);
-                    await _context.SaveChangesAsync();
-                }
-                catch (DbUpdateConcurrencyException)
-                {
-                    if (!FrameworkExists(framework.Code))
-                    {
-                        return NotFound();
-                    }
-                    else
-                    {
-                        throw;
-                    }
-                }
-                return RedirectToAction(nameof(Index));
-            }
-            return View(framework);
-        }
-
         [HttpPost]
         [Permission(Permissions.ModifyStrategy)]
         public async Task<IActionResult> UpdateName(int id, string name)
@@ -290,6 +190,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
 
             return Ok();
         }
+
         [HttpPost]
         [Permission(Permissions.DeleteStrategy)]
         public async Task<IActionResult> DeleteConfirmed(int id)
@@ -304,27 +205,6 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         }
 
 
-
-        // GET: Frameworks/Delete/5
-        [Permission(Permissions.DeleteStrategy)]
-        public async Task<IActionResult> Delete(int? id)
-        {
-            if (id == null)
-            {
-                return NotFound();
-            }
-
-            var framework = await _context.Frameworks
-                .FirstOrDefaultAsync(m => m.Code == id);
-            if (framework == null)
-            {
-                return NotFound();
-            }
-
-            return View(framework);
-        }
-
-      
         private bool FrameworkExists(int id)
         {
             return _context.Frameworks.Any(e => e.Code == id);

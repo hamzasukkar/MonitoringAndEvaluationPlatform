@@ -1,10 +1,126 @@
-﻿@page
+@page
 @model AccessDeniedModel
+@using Microsoft.AspNetCore.Mvc.Localization
+@inject IViewLocalizer Localizer
 @{
-    ViewData["Title"] = "Access denied";
+    ViewData["Title"] = "Access Denied";
+    Layout = "~/Views/Shared/_DashboardHomeLayout.cshtml";
 }
 
-<header>
-    <h1 class="text-danger">@ViewData["Title"]</h1>
-    <p class="text-danger">You do not have access to this resource.</p>
-</header>
+<!-- Dashboard Header -->
+<div class="dashboard-header">
+    <div class="d-flex justify-content-between align-items-center">
+        <div>
+            <h1 class="dashboard-title">
+                <i class="fas fa-lock me-3 text-danger"></i>
+                @Localizer["Access Denied"]
+            </h1>
+            <p class="dashboard-subtitle">
+                @Localizer["You don't have permission to access this resource"]
+            </p>
+        </div>
+    </div>
+</div>
+
+<div class="container-fluid">
+    <div class="row justify-content-center">
+        <div class="col-lg-8 col-md-10">
+            <div class="card shadow-sm border-0">
+                <div class="card-body text-center py-5">
+                    <!-- Large Icon -->
+                    <div class="mb-4">
+                        <i class="fas fa-ban text-danger" style="font-size: 5rem; opacity: 0.8;"></i>
+                    </div>
+
+                    <!-- Main Message -->
+                    <h2 class="h3 mb-3 text-danger">
+                        @Localizer["Access Denied"]
+                    </h2>
+                    <p class="text-muted mb-4 fs-5">
+                        @Localizer["You do not have the required permissions to access this resource."]
+                    </p>
+
+                    <!-- Information Box -->
+                    <div class="alert alert-warning d-inline-block text-start mx-auto" style="max-width: 600px;">
+                        <h6 class="alert-heading mb-2">
+                            <i class="fas fa-info-circle me-2"></i>
+                            @Localizer["Why am I seeing this?"]
+                        </h6>
+                        <ul class="mb-0 ps-3">
+                            <li>@Localizer["Your account may not have the necessary role or permissions"]</li>
+                            <li>@Localizer["This resource may be restricted to specific users"]</li>
+                            <li>@Localizer["Your session may have expired"]</li>
+                        </ul>
+                    </div>
+
+                    <!-- Action Buttons -->
+                    <div class="mt-4 d-flex gap-3 justify-content-center flex-wrap">
+                        <a href="@Url.Action("Index", "Home")" class="btn btn-primary btn-lg px-4">
+                            <i class="fas fa-home me-2"></i>
+                            @Localizer["Go to Home"]
+                        </a>
+                        <button onclick="history.back()" class="btn btn-outline-secondary btn-lg px-4">
+                            <i class="fas fa-arrow-left me-2"></i>
+                            @Localizer["Go Back"]
+                        </button>
+                    </div>
+
+                    <!-- Contact Support -->
+                    <div class="mt-5 pt-4 border-top">
+                        <p class="text-muted mb-2">
+                            <i class="fas fa-question-circle me-2"></i>
+                            @Localizer["Need help or believe this is an error?"]
+                        </p>
+                        <p class="mb-0">
+                            <a href="mailto:support@example.com" class="text-primary text-decoration-none">
+                                <i class="fas fa-envelope me-2"></i>
+                                @Localizer["Contact System Administrator"]
+                            </a>
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .card {
+        border-radius: 0.75rem;
+        transition: all 0.3s ease;
+    }
+
+    .card:hover {
+        box-shadow: 0 0.5rem 1.5rem rgba(0, 0, 0, 0.15) !important;
+    }
+
+    .btn-lg {
+        padding: 0.75rem 2rem;
+        font-size: 1rem;
+        border-radius: 0.5rem;
+    }
+
+    .alert {
+        border-radius: 0.5rem;
+    }
+
+    @@media (max-width: 768px) {
+        .dashboard-title {
+            font-size: 1.5rem;
+        }
+
+        .fa-ban {
+            font-size: 3.5rem !important;
+        }
+
+        .btn-lg {
+            width: 100%;
+            margin-bottom: 0.5rem;
+        }
+
+        .d-flex.gap-3 {
+            flex-direction: column;
+            gap: 0.5rem !important;
+        }
+    }
+</style>

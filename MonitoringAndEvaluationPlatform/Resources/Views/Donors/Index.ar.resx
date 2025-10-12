@@ -123,8 +123,29 @@
   <data name="Add New Donor" xml:space="preserve">
     <value>إضافة مانح جديد</value>
   </data>
+  <data name="An error occurred while creating the donor" xml:space="preserve">
+    <value>حدث خطأ أثناء إنشاء المانح</value>
+  </data>
+  <data name="An error occurred while deleting" xml:space="preserve">
+    <value>حدث خطأ أثناء الحذف</value>
+  </data>
+  <data name="An error occurred while updating" xml:space="preserve">
+    <value>حدث خطأ أثناء التحديث</value>
+  </data>
+  <data name="Are you sure?" xml:space="preserve">
+    <value>هل أنت متأكد؟</value>
+  </data>
+  <data name="Cancel" xml:space="preserve">
+    <value>إلغاء</value>
+  </data>
   <data name="Category" xml:space="preserve">
     <value>الفئة</value>
+  </data>
+  <data name="Category updated successfully" xml:space="preserve">
+    <value>تم تحديث الفئة بنجاح</value>
+  </data>
+  <data name="Countries" xml:space="preserve">
+    <value>دول</value>
   </data>
   <data name="Create a New Entity" xml:space="preserve">
     <value>إنشاء جهة جديدة</value>
@@ -132,14 +153,29 @@
   <data name="Create Donor" xml:space="preserve">
     <value>إضافة مانح جديد</value>
   </data>
+  <data name="Delete donor called with id:" xml:space="preserve">
+    <value>حذف المتبرع الذي تم استدعاؤه بالمعرف:</value>
+  </data>
+  <data name="Deleted!" xml:space="preserve">
+    <value>تم الحذف!</value>
+  </data>
   <data name="Disbursement Performance" xml:space="preserve">
     <value>أداء الصرف</value>
   </data>
   <data name="Donor Category" xml:space="preserve">
     <value>التصنيف</value>
   </data>
+  <data name="Donor created successfully" xml:space="preserve">
+    <value>تم إنشاء المانح بنجاح</value>
+  </data>
+  <data name="Donor has been deleted." xml:space="preserve">
+    <value>تم حذف المانح.</value>
+  </data>
   <data name="Donor Management" xml:space="preserve">
     <value>إدارة قوائم الجهات المانحة</value>
+  </data>
+  <data name="Donor updated successfully" xml:space="preserve">
+    <value>تم تحديث المانح بنجاح</value>
   </data>
   <data name="Donors" xml:space="preserve">
     <value>المانحون</value>
@@ -156,6 +192,12 @@
   <data name="Indicators Performance" xml:space="preserve">
     <value>الأداء والأنجاز</value>
   </data>
+  <data name="International NGOs" xml:space="preserve">
+    <value>منظمات دولية</value>
+  </data>
+  <data name="Local" xml:space="preserve">
+    <value>تمويل محلي</value>
+  </data>
   <data name="Manage funding partners and track their performance" xml:space="preserve">
     <value>إدارة شركاء التمويل وتتبع أدائهم</value>
   </data>
@@ -171,7 +213,25 @@
   <data name="Select Category" xml:space="preserve">
     <value>اختر الفئة</value>
   </data>
+  <data name="Success!" xml:space="preserve">
+    <value>نجاح!</value>
+  </data>
   <data name="Supervisor Management" xml:space="preserve">
     <value>إدارة قوائم المشرفين</value>
+  </data>
+  <data name="UN Organizations" xml:space="preserve">
+    <value>منظمات الأمم المتحدة</value>
+  </data>
+  <data name="Updated!" xml:space="preserve">
+    <value>تم التحديث</value>
+  </data>
+  <data name="Value cannot be empty" xml:space="preserve">
+    <value>لا يمكن أن تكون القيمة فارغة</value>
+  </data>
+  <data name="Yes, delete it!" xml:space="preserve">
+    <value>نعم احذفه!</value>
+  </data>
+  <data name="You won't be able to revert this!" xml:space="preserve">
+    <value>لن تتمكن من التراجع عن هذا!</value>
   </data>
 </root>

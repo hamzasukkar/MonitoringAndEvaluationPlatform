@@ -30,22 +30,26 @@
             </p>
         </div>
         <div class="d-flex gap-2">
-            @if (selectedOutcomeCode != null)
+            @if (User.IsInRole(UserRoles.SystemAdministrator))
             {
-                <button class="btn btn-primary btn-lg shadow-sm" type="button" data-bs-toggle="collapse" 
-                        data-bs-target="#createOutputForm" aria-expanded="false" aria-controls="createOutputForm">
-                    <i class="fas fa-plus me-2"></i>@Localizer["New Output"]
-                </button>
-                <a asp-action="AdjustWeights" asp-route-outcomeCode="@ViewBag.SelectedOutcomeCode" 
-                   class="btn btn-warning btn-lg shadow-sm">
-                    <i class="fas fa-balance-scale me-2"></i>@Localizer["Adjust Weights"]
-                </a>
-            }
-            else
-            {
-                <a asp-action="Create" class="btn btn-success btn-lg shadow-sm">
-                    <i class="fas fa-plus me-2"></i>@Localizer["Create New Output"]
-                </a>
+                @if (selectedOutcomeCode != null)
+                {
+                    <button class="btn btn-primary btn-lg shadow-sm" type="button" data-bs-toggle="collapse"
+                            data-bs-target="#createOutputForm" aria-expanded="false" aria-controls="createOutputForm">
+                        <i class="fas fa-plus me-2"></i>@Localizer["New Output"]
+                    </button>
+                    <a asp-action="AdjustWeights" asp-route-outcomeCode="@ViewBag.SelectedOutcomeCode"
+                       class="btn btn-warning btn-lg shadow-sm">
+                        <i class="fas fa-balance-scale me-2"></i>@Localizer["Adjust Weights"]
+                    </a>
+                }
+                else
+                {
+                    <button class="btn btn-primary btn-lg shadow-sm" type="button" data-bs-toggle="collapse"
+                            data-bs-target="#createOutputForm" aria-expanded="false" aria-controls="createOutputForm">
+                        <i class="fas fa-plus me-2"></i>@Localizer["Create New Output"]
+                    </button>
+                }
             }
         </div>
     </div>
@@ -58,14 +62,15 @@
             <i class="fas fa-plus"></i>
             @Localizer["Create New Output"]
         </div>
-        <form asp-action="Create" method="post" class="row g-3">
-            <input type="hidden" name="OutcomeCode" value="@selectedOutcomeCode" />
+        <form id="outputForm" class="row g-3">
+            @Html.AntiForgeryToken()
+            <input type="hidden" id="outcomeCode" value="@selectedOutcomeCode" />
             <div class="col-md-8">
                 <div class="mb-3">
                     <label class="form-label fw-bold">
                         <i class="fas fa-tag me-2"></i>@Localizer["Output Name"]
                     </label>
-                    <input name="Name" class="form-control form-control-lg" required 
+                    <input id="outputName" class="form-control form-control-lg" required
                            placeholder="@Localizer["Enter output name"]" />
                 </div>
             </div>
@@ -213,7 +218,7 @@
         const outputForm = document.getElementById('createOutputForm');
 
         outputForm?.addEventListener('shown.bs.collapse', () => {
-            const nameInput = outputForm.querySelector('input[name="Name"]');
+            const nameInput = document.getElementById('outputName');
             if (nameInput) {
                 nameInput.focus();
                 outputForm.style.opacity = '0';
@@ -224,6 +229,53 @@
                     outputForm.style.transform = 'translateY(0)';
                 }, 10);
             }
+        });
+
+        // Handle inline output creation
+        $('#outputForm').on('submit', function (e) {
+            e.preventDefault();
+
+            const name = $('#outputName').val().trim();
+            const outcomeCode = $('#outcomeCode').val();
+            const token = $('input[name="__RequestVerificationToken"]').val();
+
+            if (!name) {
+                Swal.fire({
+                    icon: 'warning',
+                    title: '@Localizer["Warning"]',
+                    text: '@Localizer["Please enter an output name"]'
+                });
+                return;
+            }
+
+            $.ajax({
+                url: '/Outputs/CreateInline',
+                type: 'POST',
+                data: {
+                    name: name,
+                    outcomeCode: outcomeCode,
+                    __RequestVerificationToken: token
+                },
+                success: function (response) {
+                    if (response.success) {
+                        // Reload the page to show the new output
+                        location.reload();
+                    } else {
+                        Swal.fire({
+                            icon: 'error',
+                            title: '@Localizer["Error"]',
+                            text: response.message
+                        });
+                    }
+                },
+                error: function () {
+                    Swal.fire({
+                        icon: 'error',
+                        title: '@Localizer["Error"]',
+                        text: '@Localizer["Could not create output. Please try again."]'
+                    });
+                }
+            });
         });
 
         function toggleOutputEdit(code) {

@@ -132,6 +132,9 @@
   <data name="An error occurred while deleting" xml:space="preserve">
     <value>حدث خطأ أثناء الحذف</value>
   </data>
+  <data name="An error occurred while updating" xml:space="preserve">
+    <value>حدث خطأ أثناء التحديث</value>
+  </data>
   <data name="An error occurred while updating email" xml:space="preserve">
     <value>حدث خطأ أثناء تحديث البريد الإلكتروني</value>
   </data>
@@ -144,13 +147,22 @@
   <data name="Are you sure?" xml:space="preserve">
     <value>هل أنت متأكد؟</value>
   </data>
+  <data name="Cancel" xml:space="preserve">
+    <value>إلغاء</value>
+  </data>
   <data name="Create a New Entity" xml:space="preserve">
     <value>إنشاء جهة جديدة</value>
   </data>
   <data name="Create Project Manager" xml:space="preserve">
     <value>إضافة مدير مشروع جديد</value>
   </data>
+  <data name="Delete project manager called with id:" xml:space="preserve">
+    <value>حذف مدير المشروع الذي تم استدعاؤه بالمعرف:</value>
+  </data>
   <data name="Deleted" xml:space="preserve">
+    <value>تم الحذف</value>
+  </data>
+  <data name="Deleted!" xml:space="preserve">
     <value>تم الحذف</value>
   </data>
   <data name="Email" xml:space="preserve">
@@ -180,6 +192,9 @@
   <data name="Phone Number" xml:space="preserve">
     <value>رقم الهاتف</value>
   </data>
+  <data name="Project Manager created successfully" xml:space="preserve">
+    <value>تم إنشاء مدير المشروع بنجاح</value>
+  </data>
   <data name="Project Manager has been deleted." xml:space="preserve">
     <value>تم حذف مدير المشروع.</value>
   </data>
@@ -189,17 +204,26 @@
   <data name="Project Manager Name" xml:space="preserve">
     <value>اسم مدير المشروع</value>
   </data>
+  <data name="Project Manager updated successfully" xml:space="preserve">
+    <value>تم تحديث مدير المشروع بنجاح</value>
+  </data>
   <data name="Project Managers" xml:space="preserve">
     <value>مدراء المشاريع</value>
   </data>
   <data name="Project Managers List" xml:space="preserve">
     <value>قائمة مدراء المشاريع</value>
   </data>
+  <data name="Success!" xml:space="preserve">
+    <value>نجاح!</value>
+  </data>
   <data name="Updated!" xml:space="preserve">
     <value>تم التحديث!</value>
   </data>
   <data name="Value cannot be empty" xml:space="preserve">
     <value>لا يمكن أن تكون القيمة فارغة</value>
+  </data>
+  <data name="Yes, delete it!" xml:space="preserve">
+    <value>نعم احذفه!</value>
   </data>
   <data name="You won't be able to revert this!" xml:space="preserve">
     <value>لن تتمكن من التراجع عن هذا!</value>

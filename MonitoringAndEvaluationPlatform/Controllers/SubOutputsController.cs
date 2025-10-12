@@ -63,63 +63,53 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             return View(subOutputs);
         }
 
-        // GET: SubOutputs/Details/5
-        [Permission(Permissions.ReadSubOutputs)]
-        public async Task<IActionResult> Details(int? id)
-        {
-            if (id == null)
-            {
-                return NotFound();
-            }
-
-            var subOutput = await _context.SubOutputs
-                .Include(s => s.Output)
-                .Include(s => s.Indicators)
-                .FirstOrDefaultAsync(m => m.Code == id);
-            if (subOutput == null)
-            {
-                return NotFound();
-            }
-
-            return View(subOutput);
-        }
-
-        // GET: SubOutputs/Create
-        [Permission(Permissions.AddSubOutput)]
-        public IActionResult Create(int? id)
-        {
-
-            var outputs = _context.Outputs.ToList();
-
-            // Populate dropdown only if no framework is preselected
-            ViewData["OutputCode"] = id == null
-                ? new SelectList(outputs, "Code", "Name")
-                : new SelectList(outputs, "Code", "Name", id);
-
-            // Pass the selected framework code to the view
-            ViewBag.SelectedOutputCode = id;
-            return View();
-        }
-
-        // POST: SubOutputs/Create
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
         [Permission(Permissions.AddSubOutput)]
-        public async Task<IActionResult> Create([Bind("Code,Name,Trend,OutputCode")] SubOutput subOutput)
+        public async Task<IActionResult> CreateInline(string name, int outputCode)
         {
-            ModelState.Remove(nameof(subOutput.Output));
-
-            if (ModelState.IsValid)
+            try
             {
+                if (string.IsNullOrWhiteSpace(name))
+                {
+                    return Json(new { success = false, message = "SubOutput name is required." });
+                }
+
+                var subOutput = new SubOutput
+                {
+                    Name = name.Trim(),
+                    OutputCode = outputCode,
+                    IndicatorsPerformance = 0,
+                    DisbursementPerformance = 0,
+                    FieldMonitoring = 0,
+                    ImpactAssessment = 0
+                };
+
                 _context.Add(subOutput);
                 await _context.SaveChangesAsync();
-                await RedistributeWeights(subOutput.OutputCode);
-                return RedirectToAction("Index", new { outputCode = subOutput.OutputCode });
+
+                // Recalculate weights
+                await RedistributeWeights(outputCode);
+
+                return Json(new
+                {
+                    success = true,
+                    subOutput = new
+                    {
+                        code = subOutput.Code,
+                        name = subOutput.Name,
+                        weight = Math.Round(subOutput.Weight, 2),
+                        indicatorsPerformance = Math.Round(subOutput.IndicatorsPerformance, 2),
+                        disbursementPerformance = Math.Round(subOutput.DisbursementPerformance, 2),
+                        outputName = subOutput.Output?.Name ?? ""
+                    },
+                    message = "SubOutput created successfully!"
+                });
             }
-            ViewData["OutputCode"] = new SelectList(_context.Outputs, "Code", "Name", subOutput.OutputCode);
-            return View(subOutput);
+            catch (Exception)
+            {
+                return Json(new { success = false, message = "An error occurred while creating the suboutput." });
+            }
         }
 
         [HttpPost]
@@ -135,83 +125,6 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             await _context.SaveChangesAsync();
 
             return Ok();
-        }
-        // GET: SubOutputs/Edit/5
-        [Permission(Permissions.ModifySubOutput)]
-        public async Task<IActionResult> Edit(int? id)
-        {
-            if (id == null)
-            {
-                return NotFound();
-            }
-
-            var subOutput = await _context.SubOutputs.FindAsync(id);
-            if (subOutput == null)
-            {
-                return NotFound();
-            }
-            ViewData["OutputCode"] = new SelectList(_context.Outputs, "Code", "Name", subOutput.OutputCode);
-            return View(subOutput);
-        }
-
-        // POST: SubOutputs/Edit/5
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        [Permission(Permissions.ModifySubOutput)]
-        public async Task<IActionResult> Edit(int id, [Bind("Code,Name,Trend,IndicatorsPerformance,DisbursementPerformance,FieldMonitoring,ImpactAssessment,OutputCode")] SubOutput subOutput)
-        {
-            if (id != subOutput.Code)
-            {
-                return NotFound();
-            }
-
-            ModelState.Remove(nameof(subOutput.Output));
-
-            if (ModelState.IsValid)
-            {
-                try
-                {
-                    _context.Update(subOutput);
-
-                    await _context.SaveChangesAsync();
-                }
-                catch (DbUpdateConcurrencyException)
-                {
-                    if (!SubOutputExists(subOutput.Code))
-                    {
-                        return NotFound();
-                    }
-                    else
-                    {
-                        throw;
-                    }
-                }
-                return RedirectToAction(nameof(Index));
-            }
-            ViewData["OutputCode"] = new SelectList(_context.Outputs, "Code", "Name", subOutput.OutputCode);
-            return View(subOutput);
-        }
-
-        // GET: SubOutputs/Delete/5
-        [Permission(Permissions.DeleteSubOutput)]
-        public async Task<IActionResult> Delete(int? id)
-        {
-            if (id == null)
-            {
-                return NotFound();
-            }
-
-            var subOutput = await _context.SubOutputs
-                .Include(s => s.Output)
-                .FirstOrDefaultAsync(m => m.Code == id);
-            if (subOutput == null)
-            {
-                return NotFound();
-            }
-
-            return View(subOutput);
         }
 
         // POST: SubOutputs/Delete/5

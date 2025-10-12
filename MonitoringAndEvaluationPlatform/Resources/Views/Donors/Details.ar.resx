@@ -1,0 +1,169 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" use="preserve" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+
+  <data name="Donor Overview and Performance Dashboard" xml:space="preserve">
+    <value>لوحة معلومات المانح والأداء</value>
+  </data>
+
+  <data name="Back to Donors" xml:space="preserve">
+    <value>العودة إلى المانحين</value>
+  </data>
+
+  <data name="Total Projects" xml:space="preserve">
+    <value>إجمالي المشاريع</value>
+  </data>
+
+  <data name="Active Projects" xml:space="preserve">
+    <value>المشاريع النشطة</value>
+  </data>
+
+  <data name="Completed Projects" xml:space="preserve">
+    <value>المشاريع المكتملة</value>
+  </data>
+
+  <data name="Total Budget" xml:space="preserve">
+    <value>إجمالي الميزانية</value>
+  </data>
+
+  <data name="Donor Information" xml:space="preserve">
+    <value>معلومات المانح</value>
+  </data>
+
+  <data name="Donor Code" xml:space="preserve">
+    <value>رمز المانح</value>
+  </data>
+
+  <data name="Partner Name" xml:space="preserve">
+    <value>اسم الشريك</value>
+  </data>
+
+  <data name="Donor Category" xml:space="preserve">
+    <value>فئة المانح</value>
+  </data>
+
+  <data name="Donor Projects" xml:space="preserve">
+    <value>مشاريع المانح</value>
+  </data>
+
+  <data name="Project Name" xml:space="preserve">
+    <value>اسم المشروع</value>
+  </data>
+
+  <data name="Manager" xml:space="preserve">
+    <value>المدير</value>
+  </data>
+
+  <data name="Supervisor" xml:space="preserve">
+    <value>المشرف</value>
+  </data>
+
+  <data name="Ministry" xml:space="preserve">
+    <value>الوزارة</value>
+  </data>
+
+  <data name="Location" xml:space="preserve">
+    <value>الموقع</value>
+  </data>
+
+  <data name="Budget" xml:space="preserve">
+    <value>الميزانية</value>
+  </data>
+
+  <data name="Timeline" xml:space="preserve">
+    <value>الجدول الزمني</value>
+  </data>
+
+  <data name="Status" xml:space="preserve">
+    <value>الحالة</value>
+  </data>
+
+  <data name="Actions" xml:space="preserve">
+    <value>الإجراءات</value>
+  </data>
+
+  <data name="more" xml:space="preserve">
+    <value>المزيد</value>
+  </data>
+
+  <data name="Active" xml:space="preserve">
+    <value>نشط</value>
+  </data>
+
+  <data name="Completed" xml:space="preserve">
+    <value>مكتمل</value>
+  </data>
+
+  <data name="days left" xml:space="preserve">
+    <value>يوم متبقي</value>
+  </data>
+
+  <data name="Details" xml:space="preserve">
+    <value>التفاصيل</value>
+  </data>
+
+  <data name="No Projects Found" xml:space="preserve">
+    <value>لم يتم العثور على مشاريع</value>
+  </data>
+
+  <data name="This donor has no associated projects yet." xml:space="preserve">
+    <value>لا يوجد لدى هذا المانح مشاريع مرتبطة بعد.</value>
+  </data>
+</root>

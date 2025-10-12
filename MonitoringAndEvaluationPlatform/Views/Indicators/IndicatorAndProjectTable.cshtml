@@ -38,10 +38,10 @@
                class="btn btn-info btn-lg shadow-sm">
                 <i class="fas fa-th-large me-2"></i>@Localizer["Card View"]
             </a>
-            @if (@ViewData["subOutputCode"] != null)
+            @if (@ViewData["subOutputCode"] != null && User.IsInRole(UserRoles.SystemAdministrator))
             {
                 <a asp-action="AdjustWeights" asp-route-frameworkCode="@ViewData["frameworkCode"]"
-                   asp-route-subOutputCode="@ViewData["subOutputCode"]" 
+                   asp-route-subOutputCode="@ViewData["subOutputCode"]"
                    class="btn btn-warning btn-lg shadow-sm">
                     <i class="fas fa-balance-scale me-2"></i>@Localizer["Adjust Weights"]
                 </a>
@@ -58,7 +58,7 @@
     </div>
 }
 
-@if (@ViewData["subOutputCode"] != null)
+@if (@ViewData["subOutputCode"] != null && User.IsInRole(UserRoles.SystemAdministrator))
 {
     <!-- Inline Create Form -->
     <div class="chart-card mb-4">
@@ -74,7 +74,7 @@
                 <label for="Name" class="form-label fw-bold">
                     <i class="fas fa-tag me-2"></i>@Localizer["Name"]
                 </label>
-                <input type="text" name="Name" class="form-control form-control-lg" required 
+                <input type="text" name="Name" class="form-control form-control-lg" required
                        placeholder="@Localizer["Enter indicator name"]" />
             </div>
 
@@ -82,7 +82,7 @@
                 <label for="Target" class="form-label fw-bold">
                     <i class="fas fa-bullseye me-2"></i>@Localizer["Target"]
                 </label>
-                <input type="number" step="1" name="Target" class="form-control form-control-lg" required 
+                <input type="number" step="1" name="Target" class="form-control form-control-lg" required
                        placeholder="@Localizer["Enter target value"]" />
             </div>
 
@@ -257,46 +257,13 @@
                                 <div class="projects-column">
                                     @if (item.ProjectIndicators.Any())
                                     {
-                                        <div class="dropdown">
-                                            <button class="btn btn-outline-info btn-sm dropdown-toggle modern-dropdown-btn" type="button" 
-                                                    data-bs-toggle="dropdown" aria-expanded="false">
-                                                <i class="fas fa-project-diagram me-1"></i>
-                                                @item.ProjectIndicators.Count() @Localizer["Projects"]
-                                            </button>
-                                            <ul class="dropdown-menu dropdown-menu-modern">
-                                                <li class="dropdown-header">
-                                                    <i class="fas fa-folder me-2"></i>@Localizer["Related Projects"]
-                                                </li>
-                                                @foreach (var projectIndicator in item.ProjectIndicators)
-                                                {
-                                                    var project = projectIndicator.Project;
-                                                    <li>
-                                                        <a class="dropdown-item project-item" asp-action="Details" asp-controller="Projects" 
-                                                           asp-route-id="@project.ProjectID">
-                                                            <div class="d-flex justify-content-between align-items-center">
-                                                                <div>
-                                                                    <i class="fas fa-folder-open me-2 text-primary"></i>
-                                                                    <strong>@project.ProjectName</strong>
-                                                                    <small class="text-muted d-block ms-4">
-                                                                        <i class="fas fa-dollar-sign me-1"></i>@project.EstimatedBudget.ToString("C")
-                                                                        <span class="ms-2">
-                                                                            <i class="fas fa-calendar me-1"></i>@project.StartDate.ToString("MMM yyyy")
-                                                                        </span>
-                                                                    </small>
-                                                                </div>
-                                                            </div>
-                                                        </a>
-                                                    </li>
-                                                }
-                                                <li><hr class="dropdown-divider"></li>
-                                                <li>
-                                                    <a class="dropdown-item text-success" asp-action="Create" asp-controller="Projects" 
-                                                       asp-route-indicatorId="@item.IndicatorCode">
-                                                        <i class="fas fa-plus me-2"></i>@Localizer["Add New Project"]
-                                                    </a>
-                                                </li>
-                                            </ul>
-                                        </div>
+                                        <button class="btn expand-projects-btn" type="button"
+                                                onclick="toggleProjects(@item.IndicatorCode)">
+                                            <i class="fas fa-folder-open me-2"></i>
+                                            <span class="badge bg-light text-dark">@item.ProjectIndicators.Count()</span>
+                                            @Localizer["Projects"]
+                                            <i class="fas fa-chevron-down ms-2 chevron-icon" id="chevron-@item.IndicatorCode"></i>
+                                        </button>
                                     }
                                     else
                                     {
@@ -305,33 +272,91 @@
                                                 <i class="fas fa-folder-open fa-2x opacity-50"></i>
                                                 <div class="small">@Localizer["No Projects"]</div>
                                             </div>
-                                            <a asp-action="Create" asp-controller="Projects" 
-                                               asp-route-indicatorId="@item.IndicatorCode"
-                                               class="btn btn-outline-success btn-sm">
-                                                <i class="fas fa-plus me-1"></i>@Localizer["Add Project"]
-                                            </a>
+                                            @if (User.IsInRole(UserRoles.SystemAdministrator))
+                                            {
+                                                <a asp-action="Create" asp-controller="Projects"
+                                                   asp-route-indicatorId="@item.IndicatorCode"
+                                                   class="btn btn-outline-success btn-sm">
+                                                    <i class="fas fa-plus me-1"></i>@Localizer["Add Project"]
+                                                </a>
+                                            }
                                         </div>
                                     }
                                 </div>
                             </td>
                             <td class="text-center">
                                 <div class="btn-group action-buttons" role="group">
-                                    <a asp-action="Details" asp-route-id="@item.IndicatorCode" 
+                                    <a asp-action="Details" asp-route-id="@item.IndicatorCode"
                                        class="btn btn-outline-info btn-sm action-btn" title="View Details">
                                         <i class="fas fa-eye"></i>
                                     </a>
-                                    <button type="button" class="btn btn-outline-primary btn-sm action-btn" title="Edit Name"
-                                            onclick="toggleEdit('@item.IndicatorCode')"
-                                            id="edit-btn-@item.IndicatorCode">
-                                        <i class="fas fa-edit"></i>
-                                    </button>
-                                    <button type="button" class="btn btn-outline-danger btn-sm action-btn" title="Delete"
-                                            onclick="confirmDelete(@item.IndicatorCode)">
-                                        <i class="fas fa-trash-alt"></i>
-                                    </button>
+                                    @if (User.IsInRole(UserRoles.SystemAdministrator))
+                                    {
+                                        <button type="button" class="btn btn-outline-primary btn-sm action-btn" title="Edit Name"
+                                                onclick="toggleEdit('@item.IndicatorCode')"
+                                                id="edit-btn-@item.IndicatorCode">
+                                            <i class="fas fa-edit"></i>
+                                        </button>
+                                        <button type="button" class="btn btn-outline-danger btn-sm action-btn" title="Delete"
+                                                onclick="confirmDelete(@item.IndicatorCode)">
+                                            <i class="fas fa-trash-alt"></i>
+                                        </button>
+                                    }
                                 </div>
                             </td>
                         </tr>
+
+                        @* Expandable Projects Row *@
+                        @if (item.ProjectIndicators.Any())
+                        {
+                            <tr class="expandable-row" id="projects-row-@item.IndicatorCode" style="display: none;">
+                                <td colspan="7">
+                                    <div class="projects-expanded-content">
+                                        <div class="projects-grid">
+                                            @foreach (var projectIndicator in item.ProjectIndicators)
+                                            {
+                                                var project = projectIndicator.Project;
+                                                <div class="project-mini-card">
+                                                    <div class="project-mini-header">
+                                                        <i class="fas fa-folder-open"></i>
+                                                        <h6>@project.ProjectName</h6>
+                                                    </div>
+                                                    <div class="project-mini-body">
+                                                        <div class="mini-info">
+                                                            <i class="fas fa-dollar-sign text-success"></i>
+                                                            <span>@project.EstimatedBudget.ToString("C")</span>
+                                                        </div>
+                                                        <div class="mini-info">
+                                                            <i class="fas fa-calendar text-primary"></i>
+                                                            <span>@project.StartDate.ToString("MMM yyyy")</span>
+                                                        </div>
+                                                        <div class="mini-info">
+                                                            <i class="fas fa-calendar-check text-danger"></i>
+                                                            <span>@project.EndDate.ToString("MMM yyyy")</span>
+                                                        </div>
+                                                    </div>
+                                                    <div class="project-mini-footer">
+                                                        <a asp-action="Details" asp-controller="Projects" asp-route-id="@project.ProjectID"
+                                                           class="btn btn-sm btn-primary w-100">
+                                                            <i class="fas fa-eye me-1"></i>@Localizer["View"]
+                                                        </a>
+                                                    </div>
+                                                </div>
+                                            }
+                                        </div>
+                                        @if (User.IsInRole(UserRoles.SystemAdministrator))
+                                        {
+                                            <div class="projects-footer">
+                                                <a asp-action="Create" asp-controller="Projects" asp-route-indicatorId="@item.IndicatorCode"
+                                                   class="btn btn-success">
+                                                    <i class="fas fa-plus me-2"></i>@Localizer["Add New Project"]
+                                                </a>
+                                            </div>
+                                        }
+                                    </div>
+                                </td>
+                            </tr>
+                        }
                     }
                 </tbody>
             </table>
@@ -362,6 +387,27 @@
         document.getElementById('projectId')?.addEventListener('change', function() {
             this.form.submit();
         });
+
+        function toggleProjects(indicatorCode) {
+            const row = document.getElementById(`projects-row-${indicatorCode}`);
+            const chevron = document.getElementById(`chevron-${indicatorCode}`);
+
+            if (row.style.display === 'none') {
+                // Show the row with animation
+                row.style.display = 'table-row';
+                setTimeout(() => {
+                    row.classList.add('expanded');
+                }, 10);
+                chevron.style.transform = 'rotate(180deg)';
+            } else {
+                // Hide the row with animation
+                row.classList.remove('expanded');
+                setTimeout(() => {
+                    row.style.display = 'none';
+                }, 300);
+                chevron.style.transform = 'rotate(0deg)';
+            }
+        }
 
         function toggleEdit(id) {
             const nameDisplay = document.getElementById(`name-display-${id}`);
@@ -613,46 +659,154 @@
         }
         
         .projects-column {
-            min-width: 150px;
+            min-width: 180px;
         }
-        
-        .modern-dropdown-btn {
+
+        /* Expand Projects Button */
+        .expand-projects-btn {
             border-radius: 10px;
             transition: all 0.3s ease;
-            font-weight: 500;
-        }
-        
-        .modern-dropdown-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
-        }
-        
-        .dropdown-menu-modern {
-            border: none;
-            border-radius: 12px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
-            overflow: hidden;
-        }
-        
-        .dropdown-header {
-            background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
-            color: white;
             font-weight: 600;
-            padding: 12px 16px;
-            margin: 0;
-            border: none;
+            padding: 0.5rem 1rem;
+            background: linear-gradient(135deg, #17a2b8, #138496);
+            color: white;
+            border: 2px solid #17a2b8;
+            box-shadow: 0 2px 8px rgba(23, 162, 184, 0.3);
         }
-        
-        .project-item {
-            padding: 12px 16px;
+
+        .expand-projects-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(23, 162, 184, 0.5);
+            background: linear-gradient(135deg, #138496, #117a8b);
+            border-color: #138496;
+            color: white;
+        }
+
+        .expand-projects-btn .badge {
+            margin: 0 0.25rem;
+        }
+
+        .chevron-icon {
+            transition: transform 0.3s ease;
+        }
+
+        /* Expandable Row */
+        .expandable-row {
+            background: rgba(255, 255, 255, 0.95);
             transition: all 0.3s ease;
         }
-        
-        .project-item:hover {
-            background: linear-gradient(135deg, var(--primary-color)15, var(--primary-light)15);
-            transform: translateX(5px);
+
+        .expandable-row.expanded {
+            animation: slideDown 0.3s ease-out;
         }
-        
+
+        @@keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .projects-expanded-content {
+            padding: 2rem;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+        }
+
+        .projects-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .project-mini-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .project-mini-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+        }
+
+        .project-mini-header {
+            background: linear-gradient(135deg, #17a2b8, #138496);
+            color: white;
+            padding: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .project-mini-header i {
+            font-size: 1.5rem;
+        }
+
+        .project-mini-header h6 {
+            margin: 0;
+            font-weight: 600;
+            font-size: 1rem;
+        }
+
+        .project-mini-body {
+            padding: 1rem;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .mini-info {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.4rem 0.6rem;
+            background: rgba(0, 0, 0, 0.03);
+            border-radius: 6px;
+            font-size: 0.85rem;
+        }
+
+        .mini-info i {
+            width: 16px;
+            text-align: center;
+        }
+
+        .mini-info span {
+            color: #495057;
+            font-weight: 500;
+        }
+
+        .project-mini-footer {
+            padding: 0.75rem;
+            background: rgba(0, 0, 0, 0.02);
+            border-top: 1px solid rgba(0, 0, 0, 0.05);
+        }
+
+        .project-mini-footer .btn {
+            transition: all 0.3s ease;
+        }
+
+        .project-mini-footer .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 123, 255, 0.3);
+        }
+
+        .projects-footer {
+            text-align: center;
+            padding-top: 1rem;
+            border-top: 2px solid rgba(0, 0, 0, 0.1);
+        }
+
         .no-projects-state {
             display: flex;
             flex-direction: column;

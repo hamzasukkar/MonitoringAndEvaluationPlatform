@@ -24,12 +24,12 @@
             </p>
         </div>
         <div class="d-flex gap-2">
-            @if (ViewBag.SelectedFrameworkCode != null)
+            @if (ViewBag.SelectedFrameworkCode != null && User.IsInRole(UserRoles.SystemAdministrator))
             {
                 <button class="btn btn-success btn-lg shadow-sm" type="button" id="toggleCreateForm">
                     <i class="fas fa-plus me-2"></i>@Localizer["Create New Outcome"]
                 </button>
-                <a asp-action="AdjustWeights" asp-route-frameworkCode="@ViewBag.SelectedFrameworkCode" 
+                <a asp-action="AdjustWeights" asp-route-frameworkCode="@ViewBag.SelectedFrameworkCode"
                    class="btn btn-warning btn-lg shadow-sm">
                     <i class="fas fa-balance-scale me-2"></i>@Localizer["Adjust Weights"]
                 </a>
@@ -44,15 +44,16 @@
         <i class="fas fa-plus"></i>
         @Localizer["Create New Outcome"]
     </div>
-    <form asp-action="Create" method="post">
-        <input type="hidden" name="FrameworkCode" value="@ViewBag.SelectedFrameworkCode" />
+    <form id="outcomeForm">
+        @Html.AntiForgeryToken()
+        <input type="hidden" id="frameworkCode" value="@ViewBag.SelectedFrameworkCode" />
         <div class="row">
             <div class="col-md-8">
                 <div class="mb-3">
-                    <label for="Name" class="form-label fw-bold">
+                    <label for="outcomeName" class="form-label fw-bold">
                         <i class="fas fa-tag me-2"></i>@Localizer["Outcome Name"]
                     </label>
-                    <input type="text" class="form-control form-control-lg" id="Name" name="Name" required 
+                    <input type="text" class="form-control form-control-lg" id="outcomeName" required
                            placeholder="@Localizer["Enter outcome name"]" />
                 </div>
             </div>
@@ -200,7 +201,7 @@
             if (form) {
                 const isHidden = form.style.display === 'none';
                 form.style.display = isHidden ? 'block' : 'none';
-                
+
                 if (isHidden) {
                     form.style.opacity = '0';
                     form.style.transform = 'translateY(-20px)';
@@ -208,9 +209,57 @@
                         form.style.transition = 'all 0.4s ease';
                         form.style.opacity = '1';
                         form.style.transform = 'translateY(0)';
+                        document.getElementById('outcomeName')?.focus();
                     }, 10);
                 }
             }
+        });
+
+        // Handle inline outcome creation
+        $('#outcomeForm').on('submit', function (e) {
+            e.preventDefault();
+
+            const name = $('#outcomeName').val().trim();
+            const frameworkCode = $('#frameworkCode').val();
+            const token = $('input[name="__RequestVerificationToken"]').val();
+
+            if (!name) {
+                Swal.fire({
+                    icon: 'warning',
+                    title: '@Localizer["Warning"]',
+                    text: '@Localizer["Please enter an outcome name"]'
+                });
+                return;
+            }
+
+            $.ajax({
+                url: '/Outcomes/CreateInline',
+                type: 'POST',
+                data: {
+                    name: name,
+                    frameworkCode: frameworkCode,
+                    __RequestVerificationToken: token
+                },
+                success: function (response) {
+                    if (response.success) {
+                        // Reload the page to show the new outcome
+                        location.reload();
+                    } else {
+                        Swal.fire({
+                            icon: 'error',
+                            title: '@Localizer["Error"]',
+                            text: response.message
+                        });
+                    }
+                },
+                error: function () {
+                    Swal.fire({
+                        icon: 'error',
+                        title: '@Localizer["Error"]',
+                        text: '@Localizer["Could not create outcome. Please try again."]'
+                    });
+                }
+            });
         });
 
         function toggleOutcomeEdit(code) {

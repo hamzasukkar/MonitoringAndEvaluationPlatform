@@ -197,7 +197,7 @@
                                         <i class="fas fa-building me-2"></i>
                                         @Localizer["Ministry"]
                                     </label>
-                                    <select asp-for="MinistryCode" class="form-select form-select-lg" asp-items="ViewBag.MinistryList">
+                                    <select asp-for="MinistryCode" class="form-select form-select-lg" asp-items="ViewBag.MinistryList" id="ministrySelect">
                                         <option value="">@Localizer["Select Ministry"]</option>
                                     </select>
                                 </div>
@@ -614,6 +614,12 @@
     // Initialize donor management on page load
     $(document).ready(function() {
         initializeSelectedDonors();
+
+        // Disable ministry dropdown for ministry users
+        var isMinistryUser = @Html.Raw(Json.Serialize(ViewBag.IsMinistryUser ?? false));
+        if (isMinistryUser) {
+            $('#ministrySelect').prop('disabled', true);
+        }
     });
 
     // Initialize donors from the existing project data
@@ -723,7 +729,7 @@
                                 <h6 class="mb-1">
                                     <i class="fas fa-hand-holding-usd me-2"></i>${donor.text}
                                 </h6>
-                                <small class="text-muted">Funding Contribution</small>
+                                        <small class="text-muted">@Localizer["Funding Contribution"]</small>
                             </div>
                             <div class="col-md-4">
                                 <label class="form-label small mb-1">Percentage: <span class="percentage-display" data-donor="${donor.value}">${currentPercentage.toFixed(1)}%</span></label>
@@ -826,11 +832,11 @@
         if (totalPercentage > 100) {
             statusElement.text('Error: Exceeds 100%').removeClass('text-success text-muted text-warning').addClass('text-danger');
         } else if (totalPercentage === 100) {
-            statusElement.text('Fully funded (100%)').removeClass('text-warning text-danger text-muted').addClass('text-success');
+                            statusElement.text('@Localizer["Fully funded"] (100%)').removeClass('text-warning text-danger text-muted').addClass('text-success');
         } else if (totalPercentage > 0) {
-            statusElement.text(`Partially funded (${totalPercentage.toFixed(1)}%)`).removeClass('text-success text-danger text-muted').addClass('text-warning');
+                    statusElement.text(`@Localizer["Partially funded"] (${totalPercentage.toFixed(1)}%)`).removeClass('text-success text-danger text-muted').addClass('text-warning');
         } else {
-            statusElement.text('Cannot exceed 100%').removeClass('text-success text-warning text-danger').addClass('text-muted');
+                            statusElement.text('@Localizer["Cannot exceed 100%"]').removeClass('text-success text-warning text-danger').addClass('text-muted');
         }
 
         // Update hidden field with funding data

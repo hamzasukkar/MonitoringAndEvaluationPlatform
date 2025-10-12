@@ -162,4 +162,40 @@
   <data name="View and manage all suboutput performance metrics across development outputs" xml:space="preserve">
     <value>عرض وإدارة جميع مقاييس أداء المخرجات الفرعية عبر مخرجات التطوير</value>
   </data>
+  <data name="Could not delete suboutput. Please try again." xml:space="preserve">
+    <value>تعذّر حذف البرنامج الفرعي. يُرجى المحاولة مجددًا.</value>
+  </data>
+  <data name="SubOutput has been deleted successfully." xml:space="preserve">
+    <value>تم حذف البرنامج الفرعي بنجاح.</value>
+  </data>
+  <data name="This will permanently delete the suboutput and all associated data!" xml:space="preserve">
+    <value>سيؤدي هذا إلى حذف البرنامج الفرعي وجميع البيانات المرتبطة به بشكل دائم!</value>
+  </data>
+  <data name="Are you sure?" xml:space="preserve">
+    <value>هل أنت متأكد؟</value>
+  </data>
+  <data name="Could not update suboutput name." xml:space="preserve">
+    <value>لم يتمكن من تحديث اسم البرامج الفرعية.</value>
+  </data>
+  <data name="SubOutput name updated successfully." xml:space="preserve">
+    <value>تم تحديث اسم البرنامج الفرعي بنجاح.</value>
+  </data>
+  <data name="Create your first suboutput to get started" xml:space="preserve">
+    <value>قم بإنشاء أول إخراج برنامج فرعي للبدء</value>
+  </data>
+  <data name="No suboutputs found" xml:space="preserve">
+    <value>لم يتم العثور على برامج فرعية</value>
+  </data>
+  <data name="SubOutputs Management" xml:space="preserve">
+    <value>إدارة البرامج الفرعية</value>
+  </data>
+  <data name="Enter suboutput name" xml:space="preserve">
+    <value>أدخل اسم البرنامج الفرعي</value>
+  </data>
+  <data name="Yes, delete it!" xml:space="preserve">
+    <value>نعم احذفه!</value>
+  </data>
+  <data name="Cancel" xml:space="preserve">
+    <value>إلغاء</value>
+  </data>
 </root>

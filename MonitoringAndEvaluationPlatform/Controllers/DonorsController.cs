@@ -46,119 +46,35 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             }
 
             var donor = await _context.Donors
+                .Include(d => d.ProjectDonors)
+                    .ThenInclude(pd => pd.Project)
+                        .ThenInclude(p => p.ProjectManager)
+                .Include(d => d.ProjectDonors)
+                    .ThenInclude(pd => pd.Project)
+                        .ThenInclude(p => p.SuperVisor)
+                .Include(d => d.ProjectDonors)
+                    .ThenInclude(pd => pd.Project)
+                        .ThenInclude(p => p.Ministries)
+                .Include(d => d.ProjectDonors)
+                    .ThenInclude(pd => pd.Project)
+                        .ThenInclude(p => p.Governorates)
                 .FirstOrDefaultAsync(m => m.Code == id);
             if (donor == null)
             {
                 return NotFound();
             }
 
-            return View(donor);
-        }
+            // Get projects list
+            var projects = donor.ProjectDonors.Select(pd => pd.Project).ToList();
 
-        // GET: Donors/Create
-        public IActionResult Create()
-        {
-            return View();
-        }
-
-        // POST: Donors/Create
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Code,Partner,DisbursementPerformance,FieldMonitoring,ImpactAssessment")] Donor donor)
-        {
-            if (ModelState.IsValid)
-            {
-                _context.Add(donor);
-                await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
-            }
-            return View(donor);
-        }
-
-        // GET: Donors/Edit/5
-        public async Task<IActionResult> Edit(int? id)
-        {
-            if (id == null)
-            {
-                return NotFound();
-            }
-
-            var donor = await _context.Donors.FindAsync(id);
-            if (donor == null)
-            {
-                return NotFound();
-            }
-            return View(donor);
-        }
-
-        // POST: Donors/Edit/5
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Code,Partner,DisbursementPerformance,FieldMonitoring,ImpactAssessment")] Donor donor)
-        {
-            if (id != donor.Code)
-            {
-                return NotFound();
-            }
-
-            if (ModelState.IsValid)
-            {
-                try
-                {
-                    _context.Update(donor);
-                    await _context.SaveChangesAsync();
-                }
-                catch (DbUpdateConcurrencyException)
-                {
-                    if (!DonorExists(donor.Code))
-                    {
-                        return NotFound();
-                    }
-                    else
-                    {
-                        throw;
-                    }
-                }
-                return RedirectToAction(nameof(Index));
-            }
-            return View(donor);
-        }
-
-        // GET: Donors/Delete/5
-        public async Task<IActionResult> Delete(int? id)
-        {
-            if (id == null)
-            {
-                return NotFound();
-            }
-
-            var donor = await _context.Donors
-                .FirstOrDefaultAsync(m => m.Code == id);
-            if (donor == null)
-            {
-                return NotFound();
-            }
+            // Calculate statistics
+            ViewBag.TotalProjects = projects.Count;
+            ViewBag.ActiveProjects = projects.Count(p => p.EndDate >= DateTime.Now);
+            ViewBag.CompletedProjects = projects.Count(p => p.EndDate < DateTime.Now);
+            ViewBag.TotalBudget = projects.Sum(p => p.EstimatedBudget);
+            ViewBag.Projects = projects;
 
             return View(donor);
-        }
-
-        // POST: Donors/Delete/5
-        [HttpPost, ActionName("Delete")]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DeleteConfirmed(int id)
-        {
-            var donor = await _context.Donors.FindAsync(id);
-            if (donor != null)
-            {
-                _context.Donors.Remove(donor);
-            }
-
-            await _context.SaveChangesAsync();
-            return RedirectToAction(nameof(Index));
         }
 
         private bool DonorExists(int id)
@@ -272,6 +188,31 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             {
                 return Json(new { success = false, message = ex.Message });
             }
+        }
+
+        // GET: Donors/GetDonorProjects/5
+        [HttpGet]
+        public async Task<IActionResult> GetDonorProjects(int id)
+        {
+            var donor = await _context.Donors
+                .Include(d => d.ProjectDonors)
+                    .ThenInclude(pd => pd.Project)
+                        .ThenInclude(p => p.Governorates)
+                .FirstOrDefaultAsync(d => d.Code == id);
+
+            if (donor == null)
+                return Json(new { success = false, message = "Donor not found" });
+
+            var projects = donor.ProjectDonors.Select(pd => new
+            {
+                code = pd.Project.ProjectID,
+                name = pd.Project.ProjectName,
+                location = pd.Project.Governorates.FirstOrDefault() != null ? pd.Project.Governorates.First().AR_Name : "N/A",
+                indicatorsPerformance = Math.Round(pd.Project.performance, 2),
+                disbursementPerformance = Math.Round(pd.Project.DisbursementPerformance, 2)
+            }).ToList();
+
+            return Json(new { success = true, donorName = donor.Partner, projects });
         }
     }
 }

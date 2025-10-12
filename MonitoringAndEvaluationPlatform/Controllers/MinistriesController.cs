@@ -57,20 +57,36 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 return NotFound();
             }
 
-            var Ministry = await _context.Ministries
+            var ministry = await _context.Ministries
                 .FirstOrDefaultAsync(m => m.Code == id);
-            if (Ministry == null)
+            if (ministry == null)
             {
                 return NotFound();
             }
 
-            return View(Ministry);
-        }
+            // Get associated projects
+            var projects = await _context.Projects
+                .Include(p => p.Sectors)
+                .Include(p => p.Donors)
+                .Include(p => p.ProjectManager)
+                .Include(p => p.SuperVisor)
+                .Where(p => p.Ministries.Any(m => m.Code == id))
+                .ToListAsync();
 
-        // GET: Ministries/Create
-        public IActionResult Create()
-        {
-            return View();
+            // Calculate statistics
+            ViewBag.TotalProjects = projects.Count;
+            ViewBag.ActiveProjects = projects.Count(p => p.EndDate >= DateTime.Now);
+            ViewBag.CompletedProjects = projects.Count(p => p.EndDate < DateTime.Now);
+            ViewBag.TotalBudget = projects.Sum(p => p.EstimatedBudget);
+            ViewBag.Projects = projects;
+
+            // Get ministry users
+            var ministryUsers = await _userManager.Users
+                .Where(u => u.MinistryName == ministry.MinistryUserName)
+                .ToListAsync();
+            ViewBag.MinistryUsers = ministryUsers;
+
+            return View(ministry);
         }
 
         // 🔹 Create Ministry (Automatically Creates User & Role)
@@ -116,91 +132,6 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             }
 
             return View(ministry);
-        }
-
-     
-        // GET: Ministries/Edit/5
-        public async Task<IActionResult> Edit(int? id)
-        {
-            if (id == null)
-            {
-                return NotFound();
-            }
-
-            var Ministry = await _context.Ministries.FindAsync(id);
-            if (Ministry == null)
-            {
-                return NotFound();
-            }
-            return View(Ministry);
-        }
-
-        // POST: Ministries/Edit/5
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id,Ministry Ministry)
-        {
-            if (id != Ministry.Code)
-            {
-                return NotFound();
-            }
-
-            if (ModelState.IsValid)
-            {
-                try
-                {
-                    _context.Update(Ministry);
-                    await _context.SaveChangesAsync();
-                }
-                catch (DbUpdateConcurrencyException)
-                {
-                    if (!MinistryExists(Ministry.Code))
-                    {
-                        return NotFound();
-                    }
-                    else
-                    {
-                        throw;
-                    }
-                }
-                return RedirectToAction(nameof(Index));
-            }
-            return View(Ministry);
-        }
-
-        // GET: Ministries/Delete/5
-        public async Task<IActionResult> Delete(int? id)
-        {
-            if (id == null)
-            {
-                return NotFound();
-            }
-
-            var Ministry = await _context.Ministries
-                .FirstOrDefaultAsync(m => m.Code == id);
-            if (Ministry == null)
-            {
-                return NotFound();
-            }
-
-            return View(Ministry);
-        }
-
-        // POST: Ministries/Delete/5
-        [HttpPost, ActionName("Delete")]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DeleteConfirmed(int id)
-        {
-            var Ministry = await _context.Ministries.FindAsync(id);
-            if (Ministry != null)
-            {
-                _context.Ministries.Remove(Ministry);
-            }
-
-            await _context.SaveChangesAsync();
-            return RedirectToAction(nameof(Index));
         }
 
         private bool MinistryExists(int id)

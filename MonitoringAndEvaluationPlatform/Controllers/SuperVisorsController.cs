@@ -42,113 +42,24 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 return NotFound();
             }
 
-            return View(superVisor);
-        }
+            // Get associated projects
+            var projects = await _context.Projects
+                .Include(p => p.Sectors)
+                .Include(p => p.Donors)
+                .Include(p => p.ProjectManager)
+                .Include(p => p.Ministries)
+                .Include(p => p.Governorates)
+                .Where(p => p.SuperVisorCode == id)
+                .ToListAsync();
 
-        // GET: SuperVisors/Create
-        public IActionResult Create()
-        {
-            return View();
-        }
-
-        // POST: SuperVisors/Create
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Code,Name,PhoneNumber,Email")] SuperVisor superVisor)
-        {
-            if (ModelState.IsValid)
-            {
-                _context.Add(superVisor);
-                await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
-            }
-            return View(superVisor);
-        }
-
-        // GET: SuperVisors/Edit/5
-        public async Task<IActionResult> Edit(int? id)
-        {
-            if (id == null)
-            {
-                return NotFound();
-            }
-
-            var superVisor = await _context.SuperVisors.FindAsync(id);
-            if (superVisor == null)
-            {
-                return NotFound();
-            }
-            return View(superVisor);
-        }
-
-        // POST: SuperVisors/Edit/5
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Code,Name,PhoneNumber,Email")] SuperVisor superVisor)
-        {
-            if (id != superVisor.Code)
-            {
-                return NotFound();
-            }
-
-            if (ModelState.IsValid)
-            {
-                try
-                {
-                    _context.Update(superVisor);
-                    await _context.SaveChangesAsync();
-                }
-                catch (DbUpdateConcurrencyException)
-                {
-                    if (!SuperVisorExists(superVisor.Code))
-                    {
-                        return NotFound();
-                    }
-                    else
-                    {
-                        throw;
-                    }
-                }
-                return RedirectToAction(nameof(Index));
-            }
-            return View(superVisor);
-        }
-
-        // GET: SuperVisors/Delete/5
-        public async Task<IActionResult> Delete(int? id)
-        {
-            if (id == null)
-            {
-                return NotFound();
-            }
-
-            var superVisor = await _context.SuperVisors
-                .FirstOrDefaultAsync(m => m.Code == id);
-            if (superVisor == null)
-            {
-                return NotFound();
-            }
+            // Calculate statistics
+            ViewBag.TotalProjects = projects.Count;
+            ViewBag.ActiveProjects = projects.Count(p => p.EndDate >= DateTime.Now);
+            ViewBag.CompletedProjects = projects.Count(p => p.EndDate < DateTime.Now);
+            ViewBag.TotalBudget = projects.Sum(p => p.EstimatedBudget);
+            ViewBag.Projects = projects;
 
             return View(superVisor);
-        }
-
-        // POST: SuperVisors/Delete/5
-        [HttpPost, ActionName("Delete")]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DeleteConfirmed(int id)
-        {
-            var superVisor = await _context.SuperVisors.FindAsync(id);
-            if (superVisor != null)
-            {
-                _context.SuperVisors.Remove(superVisor);
-            }
-
-            await _context.SaveChangesAsync();
-            return RedirectToAction(nameof(Index));
         }
 
         private bool SuperVisorExists(int id)

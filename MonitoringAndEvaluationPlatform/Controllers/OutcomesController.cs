@@ -51,72 +51,55 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             return View(outcomes);
         }
 
-        // GET: Outcomes/Details/5
-        [Permission(Permissions.ReadOutcomes)]
-        public async Task<IActionResult> Details(int? id)
-        {
-            if (id == null)
-            {
-                return NotFound();
-            }
-
-            var outcome = await _context.Outcomes
-                .Include(o => o.Framework).Include(x => x.Outputs)
-                .FirstOrDefaultAsync(m => m.Code == id);
-            if (outcome == null)
-            {
-                return NotFound();
-            }
-
-            return View(outcome);
-        }
-
-        // GET: Outcomes/Create
-        [Permission(Permissions.AddOutcome)]
-        public IActionResult Create(int? frameworkCode)
-        {
-            var frameworks = _context.Frameworks.ToList();
-
-            // Populate dropdown only if no framework is preselected
-            ViewData["FrameworkCode"] = frameworkCode == null
-                ? new SelectList(frameworks, "Code", "Name")
-                : new SelectList(frameworks, "Code", "Name", frameworkCode);
-
-            // Pass the selected framework code to the view
-            ViewBag.SelectedFrameworkCode = frameworkCode;
-
-            return View();
-        }
-
-
-
-        // POST: Outcomes/Create
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
         [Permission(Permissions.AddOutcome)]
-        public async Task<IActionResult> Create(Outcome outcome)
+        public async Task<IActionResult> CreateInline(string name, int frameworkCode)
         {
-            ModelState.Remove(nameof(outcome.Framework));
-
-
-            if (ModelState.IsValid)
+            try
             {
+                if (string.IsNullOrWhiteSpace(name))
+                {
+                    return Json(new { success = false, message = "Outcome name is required." });
+                }
+
+                var outcome = new Outcome
+                {
+                    Name = name.Trim(),
+                    FrameworkCode = frameworkCode,
+                    IndicatorsPerformance = 0,
+                    DisbursementPerformance = 0,
+                    FieldMonitoring = 0,
+                    ImpactAssessment = 0
+                };
+
                 _context.Add(outcome);
                 await _context.SaveChangesAsync();
 
                 // Recalculate weights
-                await RedistributeWeights(outcome.FrameworkCode);
+                await RedistributeWeights(frameworkCode);
 
-                // Redirect to Index with FrameworkCode after creating the Outcome
-                return RedirectToAction("Index", new { frameworkCode = outcome.FrameworkCode });
+                return Json(new
+                {
+                    success = true,
+                    outcome = new
+                    {
+                        code = outcome.Code,
+                        name = outcome.Name,
+                        weight = Math.Round(outcome.Weight, 2),
+                        indicatorsPerformance = Math.Round(outcome.IndicatorsPerformance, 2),
+                        disbursementPerformance = Math.Round(outcome.DisbursementPerformance, 2),
+                        frameworkName = outcome.Framework?.Name ?? ""
+                    },
+                    message = "Outcome created successfully!"
+                });
             }
-
-            // If ModelState is invalid, reload Framework dropdown
-            ViewData["FrameworkCode"] = new SelectList(_context.Frameworks, "Code", "Name", outcome.FrameworkCode);
-            return View(outcome);
+            catch (Exception)
+            {
+                return Json(new { success = false, message = "An error occurred while creating the outcome." });
+            }
         }
+
         [HttpPost]
         [Permission(Permissions.ModifyOutcome)]
         public async Task<IActionResult> UpdateName(int id, string name)
@@ -129,81 +112,6 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             await _context.SaveChangesAsync();
 
             return Ok();
-        }
-
-        // GET: Outcomes/Edit/5
-        [Permission(Permissions.ModifyOutcome)]
-        public async Task<IActionResult> Edit(int? id)
-        {
-            if (id == null)
-            {
-                return NotFound();
-            }
-
-            var outcome = await _context.Outcomes.FindAsync(id);
-            if (outcome == null)
-            {
-                return NotFound();
-            }
-            ViewData["FrameworkCode"] = new SelectList(_context.Frameworks, "Code", "Name", outcome.FrameworkCode);
-            return View(outcome);
-        }
-
-        // POST: Outcomes/Edit/5
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        [Permission(Permissions.ModifyOutcome)]
-        public async Task<IActionResult> Edit(int id, [Bind("Code,Name,Trend,IndicatorsPerformance,DisbursementPerformance,FieldMonitoring,ImpactAssessment,FrameworkCode")] Outcome outcome)
-        {
-            if (id != outcome.Code)
-            {
-                return NotFound();
-            }
-
-            if (ModelState.IsValid ||true)
-            {
-                try
-                {
-                    _context.Update(outcome);
-                    await _context.SaveChangesAsync();
-                }
-                catch (DbUpdateConcurrencyException)
-                {
-                    if (!OutcomeExists(outcome.Code))
-                    {
-                        return NotFound();
-                    }
-                    else
-                    {
-                        throw;
-                    }
-                }
-                return RedirectToAction(nameof(Index));
-            }
-            ViewData["FrameworkCode"] = new SelectList(_context.Frameworks, "Code", "Name", outcome.FrameworkCode);
-            return View(outcome);
-        }
-
-        // GET: Outcomes/Delete/5
-        [Permission(Permissions.DeleteOutcome)]
-        public async Task<IActionResult> Delete(int? id)
-        {
-            if (id == null)
-            {
-                return NotFound();
-            }
-
-            var outcome = await _context.Outcomes
-                .Include(o => o.Framework)
-                .FirstOrDefaultAsync(m => m.Code == id);
-            if (outcome == null)
-            {
-                return NotFound();
-            }
-
-            return View(outcome);
         }
 
         // POST: Outcomes/Delete/5

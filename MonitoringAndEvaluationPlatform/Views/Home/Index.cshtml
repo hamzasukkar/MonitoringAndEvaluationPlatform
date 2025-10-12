@@ -1,4 +1,6 @@
 ﻿@model MonitoringAndEvaluationPlatform.ViewModel.DashboardSummaryViewModel
+@using Microsoft.AspNetCore.Mvc.Localization
+@inject IViewLocalizer Localizer
 @{
     Layout = "~/Views/Shared/_DashboardHomeLayout.cshtml";
     ViewData["Title"] = "Dashboard";
@@ -8,10 +10,10 @@
 <div class="dashboard-header">
     <h1 class="dashboard-title">
         <i class="fas fa-chart-line me-3"></i>
-        Monitoring & Evaluation Dashboard
+        @Localizer["HEADER_TITLE"]
     </h1>
     <p class="dashboard-subtitle">
-        Comprehensive overview of development projects, performance metrics, and impact assessment
+        @Localizer["HEADER_SUBTITLE"]
     </p>
 </div>
 
@@ -22,31 +24,31 @@
             <i class="fas fa-project-diagram"></i>
         </div>
         <div class="stat-number" id="projects-counter">@Model.TotalProjects</div>
-        <div class="stat-label">Active Projects</div>
+        <div class="stat-label">@Localizer["STATS_ACTIVE_PROJECTS"]</div>
     </div>
-    
+
     <div class="stat-card">
         <div class="stat-icon success">
             <i class="fas fa-building"></i>
         </div>
         <div class="stat-number" id="ministries-counter">@Model.TotlalMinistries</div>
-        <div class="stat-label">Partner Ministries</div>
+        <div class="stat-label">@Localizer["STATS_PARTNER_MINISTRIES"]</div>
     </div>
-    
+
     <div class="stat-card">
         <div class="stat-icon warning">
             <i class="fas fa-map-marked-alt"></i>
         </div>
         <div class="stat-number" id="locations-counter">@Model.TotalGovernorate</div>
-        <div class="stat-label">Governorates</div>
+        <div class="stat-label">@Localizer["STATS_GOVERNORATES"]</div>
     </div>
-    
+
     <div class="stat-card">
         <div class="stat-icon info">
             <i class="fas fa-tasks"></i>
         </div>
         <div class="stat-number" id="frameworks-counter">@Model.TotalFrameworks</div>
-        <div class="stat-label">Frameworks</div>
+        <div class="stat-label">@Localizer["STATS_FRAMEWORKS"]</div>
     </div>
 </div>
 
@@ -56,40 +58,40 @@
     <div class="chart-card">
         <h3 class="chart-title">
             <i class="fas fa-chart-pie"></i>
-            Projects by Ministry
+            @Localizer["CHART_PROJECTS_BY_MINISTRY"]
         </h3>
         <div style="height: 300px;">
             <canvas id="projectsMinistryChart"></canvas>
         </div>
     </div>
-    
+
     <!-- Performance Overview Chart -->
     <div class="chart-card">
         <h3 class="chart-title">
             <i class="fas fa-chart-bar"></i>
-            Framework Performance
+            @Localizer["CHART_FRAMEWORK_PERFORMANCE"]
         </h3>
         <div style="height: 300px;">
             <canvas id="performanceChart"></canvas>
         </div>
     </div>
-    
+
     <!-- Project Status Distribution -->
     <div class="chart-card">
         <h3 class="chart-title">
             <i class="fas fa-chart-donut"></i>
-            Project Distribution by Location
+            @Localizer["CHART_PROJECT_DISTRIBUTION_LOCATION"]
         </h3>
         <div style="height: 300px;">
             <canvas id="locationChart"></canvas>
         </div>
     </div>
-    
+
     <!-- Trend Analysis -->
     <div class="chart-card">
         <h3 class="chart-title">
             <i class="fas fa-chart-line"></i>
-            Implementation Progress Trend
+            @Localizer["CHART_IMPLEMENTATION_PROGRESS_TREND"]
         </h3>
         <div style="height: 300px;">
             <canvas id="trendChart"></canvas>
@@ -101,7 +103,7 @@
 <div class="progress-section">
     <h3 class="chart-title">
         <i class="fas fa-tasks"></i>
-        Implementation Progress Overview
+        @Localizer["PROGRESS_OVERVIEW_TITLE"]
     </h3>
     
     @if (Model.Frameworks.Any())
@@ -123,27 +125,27 @@
     {
         <div class="progress-item">
             <div class="progress-header">
-                <span class="progress-label">SDG Framework Implementation</span>
+                <span class="progress-label">@Localizer["PROGRESS_SDG_FRAMEWORK"]</span>
                 <span class="progress-percentage">78%</span>
             </div>
             <div class="progress-bar-custom">
                 <div class="progress-fill" style="width: 78%"></div>
             </div>
         </div>
-        
+
         <div class="progress-item">
             <div class="progress-header">
-                <span class="progress-label">National Development Plan</span>
+                <span class="progress-label">@Localizer["PROGRESS_NATIONAL_DEVELOPMENT_PLAN"]</span>
                 <span class="progress-percentage">85%</span>
             </div>
             <div class="progress-bar-custom">
                 <div class="progress-fill" style="width: 85%"></div>
             </div>
         </div>
-        
+
         <div class="progress-item">
             <div class="progress-header">
-                <span class="progress-label">Monitoring & Evaluation System</span>
+                <span class="progress-label">@Localizer["PROGRESS_MONITORING_EVALUATION_SYSTEM"]</span>
                 <span class="progress-percentage">92%</span>
             </div>
             <div class="progress-bar-custom">
@@ -157,56 +159,56 @@
 <div class="recent-activity">
     <h3 class="chart-title">
         <i class="fas fa-clock"></i>
-        Recent System Activity
+        @Localizer["ACTIVITY_RECENT_TITLE"]
     </h3>
-    
+
     <div class="activity-item">
         <div class="activity-icon">
             <i class="fas fa-plus"></i>
         </div>
         <div class="activity-content">
-            <div class="activity-title">New project "Education Infrastructure Development" added</div>
-            <div class="activity-time">2 hours ago</div>
+            <div class="activity-title">@Localizer["ACTIVITY_NEW_PROJECT_ADDED"]</div>
+            <div class="activity-time">@Localizer["TIME_2_HOURS_AGO"]</div>
         </div>
     </div>
-    
+
     <div class="activity-item">
         <div class="activity-icon">
             <i class="fas fa-edit"></i>
         </div>
         <div class="activity-content">
-            <div class="activity-title">Performance indicators updated for Health Sector</div>
-            <div class="activity-time">5 hours ago</div>
+            <div class="activity-title">@Localizer["ACTIVITY_PERFORMANCE_INDICATORS_UPDATED"]</div>
+            <div class="activity-time">@Localizer["TIME_5_HOURS_AGO"]</div>
         </div>
     </div>
-    
+
     <div class="activity-item">
         <div class="activity-icon">
             <i class="fas fa-check"></i>
         </div>
         <div class="activity-content">
-            <div class="activity-title">Monthly monitoring report generated successfully</div>
-            <div class="activity-time">1 day ago</div>
+            <div class="activity-title">@Localizer["ACTIVITY_MONTHLY_REPORT_GENERATED"]</div>
+            <div class="activity-time">@Localizer["TIME_1_DAY_AGO"]</div>
         </div>
     </div>
-    
+
     <div class="activity-item">
         <div class="activity-icon">
             <i class="fas fa-users"></i>
         </div>
         <div class="activity-content">
-            <div class="activity-title">3 new stakeholders added to Water and Sanitation project</div>
-            <div class="activity-time">2 days ago</div>
+            <div class="activity-title">@Localizer["ACTIVITY_NEW_STAKEHOLDERS_ADDED"]</div>
+            <div class="activity-time">@Localizer["TIME_2_DAYS_AGO"]</div>
         </div>
     </div>
-    
+
     <div class="activity-item">
         <div class="activity-icon">
             <i class="fas fa-chart-bar"></i>
         </div>
         <div class="activity-content">
-            <div class="activity-title">Q3 performance dashboard updated</div>
-            <div class="activity-time">3 days ago</div>
+            <div class="activity-title">@Localizer["ACTIVITY_DASHBOARD_UPDATED"]</div>
+            <div class="activity-time">@Localizer["TIME_3_DAYS_AGO"]</div>
         </div>
     </div>
 </div>
@@ -303,7 +305,7 @@ document.addEventListener('DOMContentLoaded', function() {
         data: {
             labels: [@Html.Raw(string.Join(",", Model.Frameworks.Select(f => $"'{f.Name}'")))],
             datasets: [{
-                label: 'Performance %',
+                label: '@Localizer["CHART_PERFORMANCE_PERCENTAGE"]',
                 data: [@Html.Raw(string.Join(",", Model.Frameworks.Select(f => new Random().Next(60, 95))))],
                 backgroundColor: getCSSVariableValue('--primary-color') + 'CC',
                 borderColor: getCSSVariableValue('--primary-color'),
@@ -358,10 +360,10 @@ document.addEventListener('DOMContentLoaded', function() {
         chartInstances.trend = new Chart(trendCtx, {
         type: 'line',
         data: {
-            labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+            labels: ['@Localizer["MONTH_JAN"]', '@Localizer["MONTH_FEB"]', '@Localizer["MONTH_MAR"]', '@Localizer["MONTH_APR"]', '@Localizer["MONTH_MAY"]', '@Localizer["MONTH_JUN"]', '@Localizer["MONTH_JUL"]', '@Localizer["MONTH_AUG"]', '@Localizer["MONTH_SEP"]', '@Localizer["MONTH_OCT"]', '@Localizer["MONTH_NOV"]', '@Localizer["MONTH_DEC"]'],
             datasets: [
                 {
-                    label: 'Project Implementation',
+                    label: '@Localizer["CHART_PROJECT_IMPLEMENTATION"]',
                     data: [45, 52, 58, 65, 70, 75, 78, 82, 85, 88, 91, 94],
                     borderColor: getCSSVariableValue('--primary-color'),
                     backgroundColor: getCSSVariableValue('--primary-color') + '1A',
@@ -369,7 +371,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     fill: true
                 },
                 {
-                    label: 'Performance Indicators',
+                    label: '@Localizer["CHART_PERFORMANCE_INDICATORS"]',
                     data: [40, 48, 55, 62, 68, 72, 76, 80, 83, 86, 89, 92],
                     borderColor: getCSSVariableValue('--primary-dark'),
                     backgroundColor: getCSSVariableValue('--primary-dark') + '1A',

@@ -603,9 +603,6 @@ namespace MonitoringAndEvaluationPlatform.Migrations
                     b.Property<double>("Value")
                         .HasColumnType("float");
 
-                    b.Property<int>("ValueType")
-                        .HasColumnType("int");
-
                     b.HasKey("Code");
 
                     b.HasIndex("IndicatorCode");
@@ -780,6 +777,9 @@ namespace MonitoringAndEvaluationPlatform.Migrations
                     b.Property<double>("ImpactAssessment")
                         .HasColumnType("float");
 
+                    b.Property<bool>("IsEntireCountry")
+                        .HasColumnType("bit");
+
                     b.Property<int?>("MinistryCode")
                         .HasColumnType("int");
 
@@ -791,7 +791,8 @@ namespace MonitoringAndEvaluationPlatform.Migrations
 
                     b.Property<string>("ProjectName")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
 
                     b.Property<double>("RealBudget")
                         .HasColumnType("float");

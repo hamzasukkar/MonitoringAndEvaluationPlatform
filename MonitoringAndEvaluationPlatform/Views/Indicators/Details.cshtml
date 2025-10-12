@@ -10,6 +10,7 @@
 }
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
 <!-- Modern Dashboard Header -->
 <div class="dashboard-header">
@@ -49,24 +50,84 @@
         <div class="stat-label">@Localizer["Target Value"]</div>
     </div>
 
-    <!-- Total Measures Card -->
+    <!-- Current Achievement Card -->
+    @{
+        var currentAchievement = Model.Measures.Sum(m => m.Value);
+        var remainingToTarget = Model.Indicator.Target - currentAchievement;
+    }
     <div class="stat-card">
         <div class="stat-icon info">
             <i class="fas fa-chart-bar"></i>
+        </div>
+        <div class="stat-number">@currentAchievement.ToString("N2")</div>
+        <div class="stat-label">@Localizer["Current Achievement"]</div>
+    </div>
+
+    <!-- Remaining to Target Card -->
+    <div class="stat-card">
+        <div class="stat-icon @(remainingToTarget > 0 ? "warning" : "success")">
+            <i class="fas @(remainingToTarget > 0 ? "fa-road" : "fa-check-circle")"></i>
+        </div>
+        @if (remainingToTarget > 0)
+        {
+            <div class="stat-number">@remainingToTarget.ToString("N2")</div>
+            <div class="stat-label">@Localizer["Remaining to Target"]</div>
+            <small class="text-muted">(@((currentAchievement / Model.Indicator.Target * 100).ToString("N1"))% @Localizer["achieved"])</small>
+        }
+        else
+        {
+            <div class="stat-number"><i class="fas fa-trophy"></i></div>
+            <div class="stat-label">@Localizer["Target Reached"]</div>
+        }
+    </div>
+
+    <!-- Total Measures Card -->
+    <div class="stat-card">
+        <div class="stat-icon primary">
+            <i class="fas fa-list"></i>
         </div>
         <div class="stat-number">@Model.Measures.Count()</div>
         <div class="stat-label">@Localizer["Total Measures"]</div>
     </div>
 
-    <!-- Latest Value Card -->
+  @*   <!-- Latest Value Card -->
     <div class="stat-card">
         <div class="stat-icon warning">
             <i class="fas fa-clock"></i>
         </div>
         <div class="stat-number">@(Model.Measures.Any() ? Model.Measures.OrderByDescending(m => m.Date).First().Value.ToString() : "N/A")</div>
         <div class="stat-label">@Localizer["Latest Value"]</div>
+    </div> *@
+
+</div>
+
+<!-- Inline Create Form -->
+<div class="chart-card mb-4">
+    <h3 class="chart-title">
+        <i class="fas fa-plus-circle"></i>
+        @Localizer["Add New Measure"]
+    </h3>
+    <div class="chart-content">
+        <form id="inlineMeasureForm" class="row g-3">
+            @Html.AntiForgeryToken()
+            <div class="col-md-4">
+                <label for="measureDate" class="form-label">@Localizer["Date"] *</label>
+                <input type="date" id="measureDate" name="Date" class="form-control" value="@DateTime.Today.ToString("yyyy-MM-dd")" required />
+            </div>
+            <div class="col-md-4">
+                <label for="measureValue" class="form-label">@Localizer["Achievement Value"] *</label>
+                <input type="number" id="measureValue" name="Value" step="0.01" min="0" class="form-control" placeholder="0.00" required />
+            </div>
+            <div class="col-md-4 d-flex align-items-end">
+                <button type="submit" class="btn btn-gradient-primary w-100" id="addMeasureBtn">
+                    <i class="fas fa-save me-2"></i>@Localizer["Add Measure"]
+                </button>
+            </div>
+            <input type="hidden" id="indicatorCode" name="IndicatorCode" value="@Model.Indicator.IndicatorCode" />
+        </form>
     </div>
 </div>
+
 <!-- Measures Data Section -->
 <div class="recent-activity">
     <h3 class="chart-title">
@@ -88,12 +149,6 @@
                     </div>
                     <div class="activity-time">
                         <i class="fas fa-calendar me-1"></i>@item.Date.ToString("MMM dd, yyyy")
-                        <span class="ms-3">
-                            <i class="fas fa-tag me-1"></i>
-                            <span class="badge" style="background: linear-gradient(135deg, var(--primary-color), var(--primary-dark)); color: white; padding: 4px 8px; font-size: 0.75rem;">
-                                @item.ValueType
-                            </span>
-                        </span>
                     </div>
                 </div>
                 <div class="ms-auto">
@@ -318,4 +373,78 @@
     }
 
     loadChart(@Model.Indicator.IndicatorCode);
+
+    // Handle inline measure form submission
+    document.getElementById('inlineMeasureForm').addEventListener('submit', async function(e) {
+        e.preventDefault();
+
+        const formData = {
+            Date: document.getElementById('measureDate').value,
+            Value: parseFloat(document.getElementById('measureValue').value),
+            IndicatorCode: parseInt(document.getElementById('indicatorCode').value)
+        };
+
+        // Disable button and show loading
+        const btn = document.getElementById('addMeasureBtn');
+        const originalText = btn.innerHTML;
+        btn.disabled = true;
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>@Localizer["Adding..."]';
+
+        // Add anti-forgery token to form data
+        const token = document.querySelector('input[name="__RequestVerificationToken"]').value;
+
+        try {
+            const response = await fetch('/Measures/CreateFromDetails', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: new URLSearchParams({
+                    ...formData,
+                    __RequestVerificationToken: token
+                })
+            });
+
+            if (response.ok) {
+                // Show success message using SweetAlert2 if available, otherwise alert
+                if (typeof Swal !== 'undefined') {
+                    Swal.fire({
+                        icon: 'success',
+                        title: '@Localizer["Success"]',
+                        text: '@Localizer["Measure added successfully and indicator performance updated"]',
+                        timer: 2000,
+                        showConfirmButton: false
+                    });
+                } else {
+                    alert('@Localizer["Measure added successfully and indicator performance updated"]');
+                }
+
+                // Reset form
+                document.getElementById('measureValue').value = '';
+                document.getElementById('measureDate').value = '@DateTime.Today.ToString("yyyy-MM-dd")';
+
+                // Reload page to show new measure
+                setTimeout(function() {
+                    location.reload();
+                }, 2000);
+            } else {
+                throw new Error('Failed to add measure');
+            }
+        } catch (error) {
+            // Show error message
+            if (typeof Swal !== 'undefined') {
+                Swal.fire({
+                    icon: 'error',
+                    title: '@Localizer["Error"]',
+                    text: '@Localizer["Failed to add measure. Please try again."]'
+                });
+            } else {
+                alert('@Localizer["Failed to add measure. Please try again."]');
+            }
+        } finally {
+            // Re-enable button
+            btn.disabled = false;
+            btn.innerHTML = originalText;
+        }
+    });
 </script>

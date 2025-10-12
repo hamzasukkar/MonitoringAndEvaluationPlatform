@@ -12,7 +12,8 @@ namespace MonitoringAndEvaluationPlatform.Services
             List<string> selectedSectorCodes,
             List<int>? selectedIndicators,
             int plansCount,
-            ModelStateDictionary modelState);
+            ModelStateDictionary modelState,
+            bool isEntireCountry = false);
     }
 
     public class ProjectValidationService : IProjectValidationService
@@ -23,7 +24,8 @@ namespace MonitoringAndEvaluationPlatform.Services
             List<string> selectedSectorCodes,
             List<int>? selectedIndicators,
             int plansCount,
-            ModelStateDictionary modelState)
+            ModelStateDictionary modelState,
+            bool isEntireCountry = false)
         {
             // Validate Plans Count
             if (plansCount < 1)
@@ -31,8 +33,8 @@ namespace MonitoringAndEvaluationPlatform.Services
                 modelState.AddModelError("PlansCount", "Plans count must be at least 1 month.");
             }
 
-            // Validate location selection
-            if (selectedLocations == null || !selectedLocations.Any())
+            // Validate location selection (skip if project covers entire country)
+            if (!isEntireCountry && (selectedLocations == null || !selectedLocations.Any()))
             {
                 modelState.AddModelError("", "At least one project location must be selected. Please use the location selector to add project locations.");
             }
@@ -66,11 +68,6 @@ namespace MonitoringAndEvaluationPlatform.Services
                 modelState.AddModelError(nameof(project.EndDate), "Project end date must be after the start date.");
             }
 
-            // Validate future dates
-            if (project.StartDate < DateTime.Today.AddDays(-30))
-            {
-                modelState.AddModelError(nameof(project.StartDate), "Project start date cannot be more than 30 days in the past.");
-            }
 
             // Validate project duration (not too long)
             var projectDuration = (project.EndDate - project.StartDate).Days;

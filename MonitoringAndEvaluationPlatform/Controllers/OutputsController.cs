@@ -60,66 +60,53 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             return View(outputs);
         }
 
-        // GET: Outputs/Details/5
-        [Permission(Permissions.ReadOutputs)]
-        public async Task<IActionResult> Details(int? id)
-        {
-            if (id == null)
-            {
-                return NotFound();
-            }
-
-            var output = await _context.Outputs
-                .Include(o => o.Outcome)
-                .Include(o => o.SubOutputs)
-                .FirstOrDefaultAsync(m => m.Code == id);
-            if (output == null)
-            {
-                return NotFound();
-            }
-
-            return View(output);
-        }
-
-        // GET: Outputs/Create
-        [Permission(Permissions.AddOutput)]
-        public IActionResult Create(int? outcomeCode,int? frameworkCode)
-        {
-            ViewData["OutcomeCode"] = new SelectList(_context.Outcomes, "Code", "Name");
-
-            var outcomes = _context.Outcomes.ToList();
-
-            // Populate dropdown only if no framework is preselected
-            ViewData["OutcomeCode"] = outcomeCode == null
-                ? new SelectList(outcomes, "Code", "Name")
-                : new SelectList(outcomes, "Code", "Name", outcomeCode);
-
-            // Pass the selected framework code to the view
-            ViewBag.SelectedOutcomeCode = outcomeCode;
-            ViewBag.SelectedFrameworkCode = frameworkCode;
-
-            return View();
-        }
-
-        // POST: Outputs/Create
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
         [Permission(Permissions.AddOutput)]
-        public async Task<IActionResult> Create([Bind("Code,Name,OutcomeCode")] Output output)
+        public async Task<IActionResult> CreateInline(string name, int outcomeCode)
         {
-            ModelState.Remove(nameof(output.Outcome));
-
-            if (ModelState.IsValid)
+            try
             {
+                if (string.IsNullOrWhiteSpace(name))
+                {
+                    return Json(new { success = false, message = "Output name is required." });
+                }
+
+                var output = new Output
+                {
+                    Name = name.Trim(),
+                    OutcomeCode = outcomeCode,
+                    IndicatorsPerformance = 0,
+                    DisbursementPerformance = 0,
+                    FieldMonitoring = 0,
+                    ImpactAssessment = 0
+                };
+
                 _context.Add(output);
                 await _context.SaveChangesAsync();
-                await RedistributeWeights(output.OutcomeCode);
-                return RedirectToAction("Index", new { outcomeCode = output.OutcomeCode });
+
+                // Recalculate weights
+                await RedistributeWeights(outcomeCode);
+
+                return Json(new
+                {
+                    success = true,
+                    output = new
+                    {
+                        code = output.Code,
+                        name = output.Name,
+                        weight = Math.Round(output.Weight, 2),
+                        indicatorsPerformance = Math.Round(output.IndicatorsPerformance, 2),
+                        disbursementPerformance = Math.Round(output.DisbursementPerformance, 2),
+                        outcomeName = output.Outcome?.Name ?? ""
+                    },
+                    message = "Output created successfully!"
+                });
             }
-            ViewData["OutcomeCode"] = new SelectList(_context.Outcomes, "Code", "Name", output.OutcomeCode);
-            return View(output);
+            catch (Exception)
+            {
+                return Json(new { success = false, message = "An error occurred while creating the output." });
+            }
         }
 
         [HttpPost]
@@ -134,83 +121,6 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             await _context.SaveChangesAsync();
 
             return Ok();
-        }
-
-        // GET: Outputs/Edit/5
-        [Permission(Permissions.ModifyOutput)]
-        public async Task<IActionResult> Edit(int? id)
-        {
-            if (id == null)
-            {
-                return NotFound();
-            }
-
-            var output = await _context.Outputs.FindAsync(id);
-            if (output == null)
-            {
-                return NotFound();
-            }
-            ViewData["OutcomeCode"] = new SelectList(_context.Outcomes, "Code", "Name", output.OutcomeCode);
-            return View(output);
-        }
-
-        // POST: Outputs/Edit/5
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        [Permission(Permissions.ModifyOutput)]
-        public async Task<IActionResult> Edit(int id, [Bind("Code,Name,Trend,IndicatorsPerformance,DisbursementPerformance,FieldMonitoring,ImpactAssessment,OutcomeCode")] Output output)
-        {
-            if (id != output.Code)
-            {
-                return NotFound();
-            }
-
-            ModelState.Remove(nameof(output.Outcome));
-
-            if (ModelState.IsValid)
-            {
-                try
-                {
-                    _context.Update(output);
-                    await _context.SaveChangesAsync();
-                }
-                catch (DbUpdateConcurrencyException)
-                {
-                    if (!OutputExists(output.Code))
-                    {
-                        return NotFound();
-                    }
-                    else
-                    {
-                        throw;
-                    }
-                }
-                return RedirectToAction(nameof(Index));
-            }
-            ViewData["OutcomeCode"] = new SelectList(_context.Outcomes, "Code", "Name", output.OutcomeCode);
-            return View(output);
-        }
-
-        // GET: Outputs/Delete/5
-        [Permission(Permissions.DeleteOutput)]
-        public async Task<IActionResult> Delete(int? id)
-        {
-            if (id == null)
-            {
-                return NotFound();
-            }
-
-            var output = await _context.Outputs
-                .Include(o => o.Outcome)
-                .FirstOrDefaultAsync(m => m.Code == id);
-            if (output == null)
-            {
-                return NotFound();
-            }
-
-            return View(output);
         }
 
         [HttpPost]

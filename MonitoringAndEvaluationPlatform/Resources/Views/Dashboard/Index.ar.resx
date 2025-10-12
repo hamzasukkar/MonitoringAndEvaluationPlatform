@@ -126,8 +126,17 @@
   <data name="Community" xml:space="preserve">
     <value>مجتمع</value>
   </data>
+  <data name="Comprehensive overview with interactive filtering and real-time performance metrics" xml:space="preserve">
+    <value>نظرة عامة شاملة مع التصفية التفاعلية ومقاييس الأداء في الوقت الفعلي</value>
+  </data>
+  <data name="Dashboard Summary" xml:space="preserve">
+    <value>ملخص لوحة المعلومات</value>
+  </data>
   <data name="District" xml:space="preserve">
     <value>المنطقة</value>
+  </data>
+  <data name="Framework Performance Overview" xml:space="preserve">
+    <value>نظرة عامة على أداء الاستراتيجية</value>
   </data>
   <data name="Indicators" xml:space="preserve">
     <value>المشاريع</value>
@@ -145,7 +154,7 @@
     <value>اختر المنطقة</value>
   </data>
   <data name="Select Framework" xml:space="preserve">
-    <value>اختر الإستراتيجية</value>
+    <value>اختر الاستراتيجية</value>
   </data>
   <data name="Select Governorate" xml:space="preserve">
     <value>اختر المحافظة</value>
@@ -157,6 +166,9 @@
     <value>اختر المشروع</value>
   </data>
   <data name="Select Sub District" xml:space="preserve">
+    <value>اختر المنطقة الفرعية</value>
+  </data>
+  <data name="Select Sub-District" xml:space="preserve">
     <value>اختر المنطقة الفرعية</value>
   </data>
   <data name="Sub-District" xml:space="preserve">
@@ -182,5 +194,8 @@
   </data>
   <data name="Total SubDistrict" xml:space="preserve">
     <value>إجمالي المنطقة الفرعية</value>
+  </data>
+  <data name="Total SubDistricts" xml:space="preserve">
+    <value>إجمالي المناطق الفرعية</value>
   </data>
 </root>

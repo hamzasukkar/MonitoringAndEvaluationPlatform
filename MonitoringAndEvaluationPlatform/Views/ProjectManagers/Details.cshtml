@@ -1,37 +1,364 @@
-﻿@model MonitoringAndEvaluationPlatform.Models.ProjectManager
+@model MonitoringAndEvaluationPlatform.Models.ProjectManager
+@using Microsoft.AspNetCore.Mvc.Localization
+@inject IViewLocalizer Localizer
 
 @{
-    ViewData["Title"] = "Details";
-    Layout = "~/Views/Shared/_ProjectsLayout.cshtml";
+    ViewData["Title"] = Localizer["Project Manager Overview and Performance Dashboard"];
+    Layout = "~/Views/Shared/_DashboardHomeLayout.cshtml";
 }
 
-<h1>Details</h1>
+<style>
+    .dashboard-header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 2rem;
+        border-radius: 15px;
+        margin-bottom: 2rem;
+        box-shadow: 0 10px 30px rgba(102, 126, 234, 0.3);
+    }
 
-<div>
-    <h4>ProjectManager</h4>
-    <hr />
-    <dl class="row">
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Name)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Name)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.PhoneNumber)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.PhoneNumber)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Email)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Email)
-        </dd>
-    </dl>
+    .stat-card {
+        background: white;
+        border-radius: 15px;
+        padding: 1.5rem;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        border-left: 4px solid;
+        height: 100%;
+    }
+
+    .stat-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+    }
+
+    .stat-card.total { border-left-color: #667eea; }
+    .stat-card.active { border-left-color: #28a745; }
+    .stat-card.completed { border-left-color: #6c757d; }
+    .stat-card.budget { border-left-color: #ffc107; }
+
+    .stat-icon {
+        font-size: 2.5rem;
+        opacity: 0.2;
+        position: absolute;
+        right: 1rem;
+        top: 50%;
+        transform: translateY(-50%);
+    }
+
+    .stat-value {
+        font-size: 2rem;
+        font-weight: bold;
+        margin: 0.5rem 0;
+    }
+
+    .stat-label {
+        color: #6c757d;
+        font-size: 0.9rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .info-card {
+        background: white;
+        border-radius: 15px;
+        padding: 2rem;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+        margin-bottom: 2rem;
+    }
+
+    .info-card h3 {
+        color: #667eea;
+        margin-bottom: 1.5rem;
+        padding-bottom: 0.5rem;
+        border-bottom: 2px solid #f0f0f0;
+    }
+
+    .info-row {
+        display: flex;
+        padding: 1rem 0;
+        border-bottom: 1px solid #f5f5f5;
+    }
+
+    .info-row:last-child {
+        border-bottom: none;
+    }
+
+    .info-label {
+        font-weight: 600;
+        color: #495057;
+        width: 200px;
+        flex-shrink: 0;
+    }
+
+    .info-value {
+        color: #6c757d;
+        flex-grow: 1;
+    }
+
+    .project-table {
+        background: white;
+        border-radius: 15px;
+        overflow: hidden;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+    }
+
+    .project-table thead {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+    }
+
+    .project-table th {
+        font-weight: 600;
+        padding: 1rem;
+        border: none;
+    }
+
+    .project-table td {
+        padding: 1rem;
+        vertical-align: middle;
+    }
+
+    .project-table tbody tr {
+        transition: background-color 0.2s ease;
+    }
+
+    .project-table tbody tr:hover {
+        background-color: #f8f9fa;
+    }
+
+    .status-badge {
+        padding: 0.5rem 1rem;
+        border-radius: 20px;
+        font-size: 0.85rem;
+        font-weight: 600;
+        display: inline-block;
+    }
+
+    .status-active {
+        background-color: #d4edda;
+        color: #155724;
+    }
+
+    .status-completed {
+        background-color: #d6d8db;
+        color: #383d41;
+    }
+
+    .btn-details {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border: none;
+        padding: 0.5rem 1.5rem;
+        border-radius: 20px;
+        transition: transform 0.2s ease;
+    }
+
+    .btn-details:hover {
+        transform: scale(1.05);
+        color: white;
+    }
+
+    .contact-info {
+        display: flex;
+        align-items: center;
+        margin-bottom: 1rem;
+    }
+
+    .contact-info i {
+        font-size: 1.2rem;
+        color: #667eea;
+        margin-right: 1rem;
+        width: 30px;
+        text-align: center;
+    }
+
+    .empty-state {
+        text-align: center;
+        padding: 3rem;
+        color: #6c757d;
+    }
+
+    .empty-state i {
+        font-size: 4rem;
+        color: #dee2e6;
+        margin-bottom: 1rem;
+    }
+</style>
+
+<div class="dashboard-header">
+    <div class="d-flex justify-content-between align-items-center">
+        <div>
+            <h1 class="dashboard-title mb-3">
+                <i class="fas fa-user-cog me-3"></i>
+                @Localizer["Project Manager Overview and Performance Dashboard"]
+            </h1>
+            <p class="mb-0 opacity-75">@Model.Name</p>
+        </div>
+        <a asp-action="Index" class="btn btn-light">
+            <i class="fas fa-arrow-left me-2"></i>@Localizer["Back to Project Managers"]
+        </a>
+    </div>
 </div>
-<div>
-    <a asp-action="Edit" asp-route-id="@Model?.Code">Edit</a> |
-    <a asp-action="Index">Back to List</a>
+
+<!-- Statistics Cards -->
+<div class="row mb-4">
+    <div class="col-md-3 mb-3">
+        <div class="stat-card total position-relative">
+            <i class="fas fa-project-diagram stat-icon"></i>
+            <div class="stat-label">@Localizer["Total Projects"]</div>
+            <div class="stat-value text-primary">@ViewBag.TotalProjects</div>
+        </div>
+    </div>
+    <div class="col-md-3 mb-3">
+        <div class="stat-card active position-relative">
+            <i class="fas fa-tasks stat-icon"></i>
+            <div class="stat-label">@Localizer["Active Projects"]</div>
+            <div class="stat-value text-success">@ViewBag.ActiveProjects</div>
+        </div>
+    </div>
+    <div class="col-md-3 mb-3">
+        <div class="stat-card completed position-relative">
+            <i class="fas fa-check-circle stat-icon"></i>
+            <div class="stat-label">@Localizer["Completed Projects"]</div>
+            <div class="stat-value text-secondary">@ViewBag.CompletedProjects</div>
+        </div>
+    </div>
+    <div class="col-md-3 mb-3">
+        <div class="stat-card budget position-relative">
+            <i class="fas fa-dollar-sign stat-icon"></i>
+            <div class="stat-label">@Localizer["Total Budget"]</div>
+            <div class="stat-value text-warning">@ViewBag.TotalBudget.ToString("N0")</div>
+        </div>
+    </div>
+</div>
+
+<!-- Project Manager Information -->
+<div class="info-card">
+    <h3><i class="fas fa-info-circle me-2"></i>@Localizer["Project Manager Information"]</h3>
+    <div class="info-row">
+        <div class="info-label">@Localizer["Manager Code"]</div>
+        <div class="info-value">@Model.Code</div>
+    </div>
+    <div class="info-row">
+        <div class="info-label">@Localizer["Name"]</div>
+        <div class="info-value">@Model.Name</div>
+    </div>
+    @if (!string.IsNullOrEmpty(Model.PhoneNumber))
+    {
+        <div class="info-row">
+            <div class="info-label">@Localizer["Phone Number"]</div>
+            <div class="info-value">
+                <div class="contact-info">
+                    <i class="fas fa-phone"></i>
+                    <span>@Model.PhoneNumber</span>
+                </div>
+            </div>
+        </div>
+    }
+    @if (!string.IsNullOrEmpty(Model.Email))
+    {
+        <div class="info-row">
+            <div class="info-label">@Localizer["Email"]</div>
+            <div class="info-value">
+                <div class="contact-info">
+                    <i class="fas fa-envelope"></i>
+                    <a href="mailto:@Model.Email">@Model.Email</a>
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
+<!-- Associated Projects -->
+<div class="info-card">
+    <h3><i class="fas fa-project-diagram me-2"></i>@Localizer["Managed Projects"]</h3>
+
+    @if (ViewBag.Projects != null && ((List<MonitoringAndEvaluationPlatform.Models.Project>)ViewBag.Projects).Any())
+    {
+        <div class="project-table">
+            <table class="table table-hover mb-0">
+                <thead>
+                    <tr>
+                        <th>@Localizer["Project Name"]</th>
+                        <th>@Localizer["Supervisor"]</th>
+                        <th>@Localizer["Ministry"]</th>
+                        <th>@Localizer["Location"]</th>
+                        <th>@Localizer["Budget"]</th>
+                        <th>@Localizer["Timeline"]</th>
+                        <th>@Localizer["Status"]</th>
+                        <th>@Localizer["Actions"]</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var project in (List<MonitoringAndEvaluationPlatform.Models.Project>)ViewBag.Projects)
+                    {
+                        <tr>
+                            <td><strong>@project.ProjectName</strong></td>
+                            <td>@(project.SuperVisor?.Name ?? "N/A")</td>
+                            <td>
+                                @if (project.Ministries.Any())
+                                {
+                                    <span>@project.Ministries.First().MinistryDisplayName</span>
+                                    @if (project.Ministries.Count > 1)
+                                    {
+                                        <span class="badge bg-secondary ms-1">+@(project.Ministries.Count - 1) @Localizer["more"]</span>
+                                    }
+                                }
+                                else
+                                {
+                                    <span>N/A</span>
+                                }
+                            </td>
+                            <td>
+                                @if (project.Governorates.Any())
+                                {
+                                    <span>@project.Governorates.First().AR_Name</span>
+                                    @if (project.Governorates.Count > 1)
+                                    {
+                                        <span class="badge bg-secondary ms-1">+@(project.Governorates.Count - 1) @Localizer["more"]</span>
+                                    }
+                                }
+                                else
+                                {
+                                    <span>N/A</span>
+                                }
+                            </td>
+                            <td>@project.EstimatedBudget.ToString("N0")</td>
+                            <td>
+                                <small>@project.StartDate.ToString("yyyy-MM-dd") - @project.EndDate.ToString("yyyy-MM-dd")</small>
+                                @if (project.EndDate >= DateTime.Now)
+                                {
+                                    <br /><small class="text-success">@((project.EndDate - DateTime.Now).Days) @Localizer["days left"]</small>
+                                }
+                            </td>
+                            <td>
+                                @if (project.EndDate >= DateTime.Now)
+                                {
+                                    <span class="status-badge status-active">@Localizer["Active"]</span>
+                                }
+                                else
+                                {
+                                    <span class="status-badge status-completed">@Localizer["Completed"]</span>
+                                }
+                            </td>
+                            <td>
+                                <a asp-controller="Projects" asp-action="Details" asp-route-id="@project.ProjectID" class="btn btn-sm btn-details">
+                                    <i class="fas fa-eye me-1"></i>@Localizer["Details"]
+                                </a>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+    else
+    {
+        <div class="empty-state">
+            <i class="fas fa-folder-open"></i>
+            <h4>@Localizer["No Projects Found"]</h4>
+            <p>@Localizer["This project manager has no associated projects yet."]</p>
+        </div>
+    }
 </div>

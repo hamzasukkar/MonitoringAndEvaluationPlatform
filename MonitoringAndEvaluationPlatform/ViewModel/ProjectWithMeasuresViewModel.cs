@@ -1,5 +1,4 @@
 using MonitoringAndEvaluationPlatform.Models;
-using MonitoringAndEvaluationPlatform.Enums;
 using System.ComponentModel.DataAnnotations;
 
 namespace MonitoringAndEvaluationPlatform.ViewModel
@@ -15,17 +14,14 @@ namespace MonitoringAndEvaluationPlatform.ViewModel
     {
         [Required]
         public DateTime Date { get; set; } = DateTime.Now;
-        
+
         [Required]
         [Range(0.01, double.MaxValue, ErrorMessage = "Value must be greater than 0")]
         public double Value { get; set; }
-        
+
         [Required]
         public int IndicatorCode { get; set; }
-        
+
         public string IndicatorName { get; set; } = string.Empty;
-        
-        // Always Real for actual achievements
-        public MeasureValueType ValueType { get; set; } = MeasureValueType.Real;
     }
 }

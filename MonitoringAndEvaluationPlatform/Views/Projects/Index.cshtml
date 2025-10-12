@@ -6,6 +6,7 @@
 @{
     ViewData["Title"] = "Projects Dashboard";
     Layout = "~/Views/Shared/_DashboardHomeLayout.cshtml";
+    var culture = Context.Features.Get<IRequestCultureFeature>().RequestCulture.Culture.Name;
 }
 <!-- Dashboard Header -->
 <div class="dashboard-header">
@@ -72,6 +73,32 @@
                                         <label class="modern-checkbox-label" for="donor-@donor.Code">
                                             <span class="checkbox-custom"></span>
                                             <span class="checkbox-text">@donor.Partner</span>
+                                        </label>
+                                    </div>
+                                }
+                            </div>
+                        </div>
+
+                        <!-- Sector Filter -->
+                        <div class="mb-4">
+                            <h6 class="filter-section-title">@Localizer["Sector"]</h6>
+                            <div class="filter-options-modern">
+                                @foreach (var sector in Model.Sectors)
+                                {
+                                    <div class="modern-checkbox">
+                                        <input class="modern-checkbox-input" type="checkbox" name="SelectedSectors"
+                                               value="@sector.Code" id="sector-@sector.Code"
+                                        @(Model.SelectedSectors.Contains(sector.Code) ? "checked" : "")>
+                                        <label class="modern-checkbox-label" for="sector-@sector.Code">
+                                            <span class="checkbox-custom"></span>
+                                            @if (culture.StartsWith("ar"))
+                                            {
+                                                @sector.AR_Name
+                                            }
+                                            else
+                                            {
+                                                @sector.EN_Name
+                                            }
                                         </label>
                                     </div>
                                 }

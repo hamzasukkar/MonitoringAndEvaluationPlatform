@@ -1,43 +1,408 @@
-﻿@model MonitoringAndEvaluationPlatform.Models.Ministry
+@model MonitoringAndEvaluationPlatform.Models.Ministry
+@using Microsoft.AspNetCore.Mvc.Localization
+@inject IViewLocalizer Localizer
 
 @{
-    ViewData["Title"] = "Details";
-    Layout = "~/Views/Shared/_SetUpLayout.cshtml";
+    ViewData["Title"] = "Ministry Details";
+    Layout = "~/Views/Shared/_DashboardHomeLayout.cshtml";
+
+    var totalProjects = ViewBag.TotalProjects ?? 0;
+    var activeProjects = ViewBag.ActiveProjects ?? 0;
+    var completedProjects = ViewBag.CompletedProjects ?? 0;
+    var totalBudget = ViewBag.TotalBudget ?? 0m;
+    var projects = ViewBag.Projects as List<Project> ?? new List<Project>();
+    var ministryUsers = ViewBag.MinistryUsers as List<ApplicationUser> ?? new List<ApplicationUser>();
 }
 
-<h1>Details</h1>
+<!-- Dashboard Header -->
+<div class="dashboard-header">
+    <div class="d-flex justify-content-between align-items-center">
+        <div>
+            <h1 class="dashboard-title">
+                <i class="fas fa-building me-3"></i>
+                @Model.MinistryDisplayName
+            </h1>
+            <p class="dashboard-subtitle">
+                @Localizer["Ministry Overview and Performance Dashboard"]
+            </p>
+        </div>
+        <a asp-action="Index" class="btn btn-outline-secondary btn-lg">
+            <i class="fas fa-arrow-left me-2"></i>@Localizer["Back to Ministries"]
+        </a>
+    </div>
+</div>
 
-<div>
-    <h4>Ministry</h4>
-    <hr />
-    <dl class="row">
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.MinistryDisplayName)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.MinistryDisplayName)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.DisbursementPerformance)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.DisbursementPerformance)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.FieldMonitoring)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.FieldMonitoring)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.ImpactAssessment)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.ImpactAssessment)
-        </dd>
-    </dl>
+<div class="container-fluid">
+    <!-- Statistics Cards -->
+    <div class="row mb-4">
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-primary shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+                                @Localizer["Total Projects"]
+                            </div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">@totalProjects</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-project-diagram fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-success shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
+                                @Localizer["Active Projects"]
+                            </div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">@activeProjects</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-tasks fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-info shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
+                                @Localizer["Completed Projects"]
+                            </div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">@completedProjects</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-check-circle fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-warning shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
+                                @Localizer["Total Budget"]
+                            </div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">$@totalBudget.ToString("N0")</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-dollar-sign fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Ministry Information and Performance -->
+    <div class="row mb-4">
+        <!-- Ministry Information -->
+        <div class="col-lg-6 mb-4">
+            <div class="card shadow-sm h-100">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">
+                        <i class="fas fa-info-circle me-2"></i>
+                        @Localizer["Ministry Information"]
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <table class="table table-borderless">
+                        <tbody>
+                            <tr>
+                                <td class="fw-bold text-muted" style="width: 40%;">
+                                    <i class="fas fa-building me-2"></i>@Localizer["Ministry Name"]
+                                </td>
+                                <td>@Model.MinistryDisplayName</td>
+                            </tr>
+                            <tr>
+                                <td class="fw-bold text-muted">
+                                    <i class="fas fa-user me-2"></i>@Localizer["Username"]
+                                </td>
+                                <td>@Model.MinistryUserName</td>
+                            </tr>
+                            <tr>
+                                <td class="fw-bold text-muted">
+                                    <i class="fas fa-hashtag me-2"></i>@Localizer["Ministry Code"]
+                                </td>
+                                <td>@Model.Code</td>
+                            </tr>
+                            <tr>
+                                <td class="fw-bold text-muted">
+                                    <i class="fas fa-users me-2"></i>@Localizer["Associated Users"]
+                                </td>
+                                <td>@ministryUsers.Count @Localizer["user(s)"]</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Performance Metrics -->
+        <div class="col-lg-6 mb-4">
+            <div class="card shadow-sm h-100">
+                <div class="card-header bg-success text-white">
+                    <h5 class="mb-0">
+                        <i class="fas fa-chart-line me-2"></i>
+                        @Localizer["Performance Metrics"]
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <div class="d-flex justify-content-between mb-2">
+                            <span class="fw-bold">@Localizer["Disbursement Performance"]</span>
+                            <span class="badge bg-primary">@Model.DisbursementPerformance.ToString("N2")%</span>
+                        </div>
+                        <div class="progress" style="height: 25px;">
+                            <div class="progress-bar bg-primary" role="progressbar" style="width: @Model.DisbursementPerformance%" aria-valuenow="@Model.DisbursementPerformance" aria-valuemin="0" aria-valuemax="100">
+                                @Model.DisbursementPerformance.ToString("N1")%
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <div class="d-flex justify-content-between mb-2">
+                            <span class="fw-bold">@Localizer["Field Monitoring"]</span>
+                            <span class="badge bg-success">@Model.FieldMonitoring.ToString("N2")%</span>
+                        </div>
+                        <div class="progress" style="height: 25px;">
+                            <div class="progress-bar bg-success" role="progressbar" style="width: @Model.FieldMonitoring%" aria-valuenow="@Model.FieldMonitoring" aria-valuemin="0" aria-valuemax="100">
+                                @Model.FieldMonitoring.ToString("N1")%
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mb-0">
+                        <div class="d-flex justify-content-between mb-2">
+                            <span class="fw-bold">@Localizer["Impact Assessment"]</span>
+                            <span class="badge bg-info">@Model.ImpactAssessment.ToString("N2")%</span>
+                        </div>
+                        <div class="progress" style="height: 25px;">
+                            <div class="progress-bar bg-info" role="progressbar" style="width: @Model.ImpactAssessment%" aria-valuenow="@Model.ImpactAssessment" aria-valuemin="0" aria-valuemax="100">
+                                @Model.ImpactAssessment.ToString("N1")%
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Associated Users -->
+    @if (ministryUsers.Any())
+    {
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="card shadow-sm">
+                    <div class="card-header bg-info text-white">
+                        <h5 class="mb-0">
+                            <i class="fas fa-users me-2"></i>
+                            @Localizer["Associated Users"]
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th><i class="fas fa-user me-2"></i>@Localizer["Username"]</th>
+                                        <th><i class="fas fa-envelope me-2"></i>@Localizer["Email"]</th>
+                                        <th><i class="fas fa-check-circle me-2"></i>@Localizer["Email Confirmed"]</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var user in ministryUsers)
+                                    {
+                                        <tr>
+                                            <td>@user.UserName</td>
+                                            <td>@user.Email</td>
+                                            <td>
+                                                @if (user.EmailConfirmed)
+                                                {
+                                                    <span class="badge bg-success"><i class="fas fa-check"></i> @Localizer["Confirmed"]</span>
+                                                }
+                                                else
+                                                {
+                                                    <span class="badge bg-warning"><i class="fas fa-exclamation-triangle"></i> @Localizer["Pending"]</span>
+                                                }
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+
+    <!-- Associated Projects -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card shadow-sm">
+                <div class="card-header bg-dark text-white">
+                    <h5 class="mb-0">
+                        <i class="fas fa-project-diagram me-2"></i>
+                        @Localizer["Associated Projects"] (@projects.Count)
+                    </h5>
+                </div>
+                <div class="card-body">
+                    @if (projects.Any())
+                    {
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>@Localizer["Project Name"]</th>
+                                        <th>@Localizer["Manager"]</th>
+                                        <th>@Localizer["Supervisor"]</th>
+                                        <th>@Localizer["Budget"]</th>
+                                        <th>@Localizer["Timeline"]</th>
+                                        <th>@Localizer["Status"]</th>
+                                        <th>@Localizer["Actions"]</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var project in projects)
+                                    {
+                                        var isActive = project.EndDate >= DateTime.Now;
+                                        var daysRemaining = (project.EndDate - DateTime.Now).Days;
+
+                                        <tr>
+                                            <td>
+                                                <strong>@project.ProjectName</strong>
+                                                <br>
+                                                <small class="text-muted">
+                                                    @if (project.Sectors.Any())
+                                                    {
+                                                        <i class="fas fa-industry me-1"></i>
+                                                        @string.Join(", ", project.Sectors.Take(2).Select(s => s.AR_Name))
+                                                        @if (project.Sectors.Count > 2)
+                                                        {
+                                                            <span>+@(project.Sectors.Count - 2) @Localizer["more"]</span>
+                                                        }
+                                                    }
+                                                </small>
+                                            </td>
+                                            <td>@project.ProjectManager?.Name</td>
+                                            <td>@project.SuperVisor?.Name</td>
+                                            <td>
+                                                <strong>$@project.EstimatedBudget.ToString("N0")</strong>
+                                            </td>
+                                            <td>
+                                                <small>
+                                                    @project.StartDate.ToString("dd/MM/yyyy")
+                                                    <br>
+                                                    @project.EndDate.ToString("dd/MM/yyyy")
+                                                </small>
+                                            </td>
+                                            <td>
+                                                @if (isActive)
+                                                {
+                                                    <span class="badge bg-success">
+                                                        <i class="fas fa-play me-1"></i>@Localizer["Active"]
+                                                    </span>
+                                                    @if (daysRemaining > 0 && daysRemaining <= 30)
+                                                    {
+                                                        <br><small class="text-warning">@daysRemaining @Localizer["days left"]</small>
+                                                    }
+                                                }
+                                                else
+                                                {
+                                                    <span class="badge bg-secondary">
+                                                        <i class="fas fa-check me-1"></i>@Localizer["Completed"]
+                                                    </span>
+                                                }
+                                            </td>
+                                            <td>
+                                                <a asp-controller="Projects" asp-action="Details" asp-route-id="@project.ProjectID" class="btn btn-sm btn-outline-primary">
+                                                    <i class="fas fa-eye"></i>
+                                                </a>
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="alert alert-info text-center py-4">
+                            <i class="fas fa-info-circle fa-2x mb-3"></i>
+                            <h5>@Localizer["No Projects Found"]</h5>
+                            <p class="mb-0">@Localizer["This ministry has no associated projects yet."]</p>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
-<div>
-    <a asp-action="Edit" asp-route-id="@Model?.Code">Edit</a> |
-    <a asp-action="Index">Back to List</a>
-</div>
+
+<style>
+    .border-left-primary {
+        border-left: 0.25rem solid #4e73df !important;
+    }
+
+    .border-left-success {
+        border-left: 0.25rem solid #1cc88a !important;
+    }
+
+    .border-left-info {
+        border-left: 0.25rem solid #36b9cc !important;
+    }
+
+    .border-left-warning {
+        border-left: 0.25rem solid #f6c23e !important;
+    }
+
+    .text-gray-300 {
+        color: #dddfeb !important;
+    }
+
+    .text-gray-800 {
+        color: #5a5c69 !important;
+    }
+
+    .card {
+        border-radius: 0.5rem;
+    }
+
+    .progress {
+        border-radius: 0.5rem;
+    }
+
+    .table-hover tbody tr:hover {
+        background-color: rgba(0, 123, 255, 0.05);
+    }
+
+    .badge {
+        padding: 0.35em 0.65em;
+        font-size: 0.875rem;
+    }
+
+    @@media (max-width: 768px) {
+        .dashboard-title {
+            font-size: 1.5rem;
+        }
+
+        .table {
+            font-size: 0.875rem;
+        }
+    }
+</style>

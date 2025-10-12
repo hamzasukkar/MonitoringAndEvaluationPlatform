@@ -66,12 +66,12 @@
                                         <i class="fas fa-project-diagram me-2"></i>
                                         @Localizer["Project Name"] <span class="text-danger">*</span>
                                     </label>
-                                    <input asp-for="ProjectName" class="form-control form-control-lg" placeholder="Enter a descriptive project name (3-200 characters)" />
-                                    <div class="form-text">Choose a clear and meaningful name for your project</div>
+                                    <input asp-for="ProjectName" class="form-control form-control-lg" placeholder="@Localizer["Enter a descriptive project name (3-200 characters)"]" />
+                                    <div class="form-text">@Localizer["Choose a clear and meaningful name for your project"]</div>
                                     <span asp-validation-for="ProjectName" class="invalid-feedback d-block"></span>
                                 </div>
 
-                                <!-- Plans Count calculated from project duration -->
+                             @*    <!-- Plans Count calculated from project duration -->
                                 <div class="mb-4">
                                     <label for="PlansCount" class="form-label fw-bold">
                                         <i class="fas fa-calendar-alt me-2"></i>
@@ -85,13 +85,23 @@
                                            min="1"
                                            readonly />
                                     <div class="form-text">@Localizer["Automatically calculated based on project duration"]</div>
-                                </div>
+                                </div> *@
 
                                 <!-- Location Hierarchy -->
                                 <div class="mb-4">
                                     <h6 class="text-primary mb-3">
                                         <i class="fas fa-map-marker-alt me-2"></i>@Localizer["Project Location"]
                                     </h6>
+                                    <!-- Entire Country Checkbox -->
+                                    <div class="mb-3">
+                                        <div class="form-check form-switch">
+                                            <input class="form-check-input" type="checkbox" id="entireCountryCheckbox" name="IsEntireCountry" value="true">
+                                            <label class="form-check-label fw-bold" for="entireCountryCheckbox">
+                                                <i class="fas fa-flag me-2"></i>@Localizer["This project covers the entire country"]
+                                            </label>
+                                        </div>
+                                        <div class="form-text">@Localizer["Check this if the project is nationwide and not limited to specific locations"]</div>
+                                    </div>
                                     <div id="location-selector" class="row g-3 mb-3">
                                         <div class="col-md-6">
                                             <select id="governorate" class="form-select">
@@ -156,7 +166,7 @@
                                             @Localizer["Start Date"] <span class="text-danger">*</span>
                                         </label>
                                         <input type="date" asp-for="StartDate" value="@startDate" class="form-control form-control-lg" />
-                                        <div class="form-text">Project implementation start date</div>
+                                    <div class="form-text">@Localizer["Project implementation start date"] </div>
                                         <span asp-validation-for="StartDate" class="invalid-feedback d-block"></span>
                                     </div>
                                     <div class="col-md-6">
@@ -165,7 +175,7 @@
                                             @Localizer["End Date"] <span class="text-danger">*</span>
                                         </label>
                                         <input type="date" asp-for="EndDate" value="@endDate" class="form-control form-control-lg" />
-                                        <div class="form-text">Project completion deadline</div>
+                                        <div class="form-text">@Localizer["Project completion deadline"]</div>
                                         <span asp-validation-for="EndDate" class="invalid-feedback d-block"></span>
                                     </div>
                                 </div>
@@ -186,7 +196,7 @@
                                         <span class="input-group-text">$</span>
                                         <input asp-for="EstimatedBudget" class="form-control form-control-lg" min="0.01" step="0.01" placeholder="0.00" />
                                     </div>
-                                    <div class="form-text">Enter the total estimated budget for this project (minimum $0.01)</div>
+                                <div class="form-text">@Localizer["Enter the total estimated budget for this project (minimum $0.01)"]</div>
                                     <span asp-validation-for="EstimatedBudget" class="invalid-feedback d-block"></span>
                                 </div>
 
@@ -214,7 +224,7 @@
                                     <select asp-for="ProjectManagerCode" class="form-select form-select-lg" asp-items="ViewBag.ProjectManager">
                                         <option value="">-- Select Project Manager --</option>
                                     </select>
-                                    <div class="form-text">Choose the primary manager responsible for this project</div>
+                                <div class="form-text">@Localizer["Choose the primary manager responsible for this project"]</div>
                                     <span asp-validation-for="ProjectManagerCode" class="invalid-feedback d-block"></span>
                                 </div>
 
@@ -226,7 +236,7 @@
                                     <select asp-for="SuperVisorCode" class="form-select form-select-lg" asp-items="ViewBag.SuperVisor">
                                         <option value="">-- Select Supervisor --</option>
                                     </select>
-                                    <div class="form-text">Choose the supervisor who will oversee this project</div>
+                                <div class="form-text">@Localizer["Choose the supervisor who will oversee this project"]</div>
                                     <span asp-validation-for="SuperVisorCode" class="invalid-feedback d-block"></span>
                                 </div>
 
@@ -235,7 +245,7 @@
                                         <i class="fas fa-building me-2"></i>
                                         @Localizer["Ministry"]
                                     </label>
-                                    <select asp-for="MinistryCode" class="form-select form-select-lg" asp-items="ViewBag.MinistryList">
+                                    <select asp-for="MinistryCode" class="form-select form-select-lg" asp-items="ViewBag.MinistryList" id="ministrySelect">
                                         <option value="">@Localizer["Select Ministry"]</option>
                                     </select>
                                 </div>
@@ -352,7 +362,7 @@
                                             }
                                         }
                                     </select>
-                                    <div class="form-text">Choose the key performance indicator for measuring project success</div>
+                            <div class="form-text">@Localizer["Choose the key performance indicator for measuring project success"]</div>
                                     <div id="indicator-validation-error" class="invalid-feedback d-block" style="display: none;"></div>
                                 </div>
 
@@ -519,13 +529,53 @@
 <script>
     let selections = [];
 
+    // Handle Entire Country checkbox
+    $("#entireCountryCheckbox").change(function() {
+        const isChecked = $(this).is(':checked');
+
+        if (isChecked) {
+            // Disable location selectors
+            $("#location-selector select").prop('disabled', true).val('');
+            $("#add-location, #reset-dropdowns").prop('disabled', true);
+
+            // Clear any selected locations
+            selections = [];
+            $("#selected-locations").empty();
+            $("#location-data").val('');
+
+            // Show info message
+            if ($("#entire-country-info").length === 0) {
+                $("#location-selector").before(`
+                    <div id="entire-country-info" class="alert alert-info">
+                        <i class="fas fa-info-circle me-2"></i>@Localizer["This project will cover all locations in the country. Specific location selection is disabled."]
+                    </div>
+                `);
+            }
+        } else {
+            // Enable location selectors
+            $("#location-selector select").prop('disabled', false);
+            $("#add-location, #reset-dropdowns").prop('disabled', false);
+
+            // Remove info message
+            $("#entire-country-info").remove();
+        }
+    });
+
     // Cascading dropdowns
     $("#governorate").change(function () {
-        $.get("/Projects/GetDistricts", { governorateCode: $(this).val() }, function (data) {
-            fillSelect("#district", data);
+        const selectedValue = $(this).val();
+
+        if (selectedValue) {
+            $.get("/Projects/GetDistricts", { governorateCode: selectedValue }, function (data) {
+                fillSelect("#district", data);
+                resetSelect("#subdistrict");
+                resetSelect("#community");
+            });
+        } else {
+            resetSelect("#district");
             resetSelect("#subdistrict");
             resetSelect("#community");
-        });
+        }
     });
 
     $("#district").change(function () {
@@ -621,7 +671,7 @@
     function fillSelect(selector, data) {
         let select = $(selector);
         select.empty().append(`<option value="">-- Select --</option>`);
-        data.forEach(x => select.append(`<option value="${x.code}">${x.aR_Name}</option>`));
+        data.forEach(x => select.append(`<option value="${x.code}">${x.name}</option>`));
     }
 
     function resetSelect(selector) {
@@ -636,7 +686,43 @@
     }
 
     // Validation message display
-    function showValidationMessage(message) {
+    function showValidationMessage(message, type = 'warning') {
+        const alertBox = $("#location-validation-alert");
+        let iconClass, alertClass;
+
+        switch(type) {
+            case 'success':
+                iconClass = 'fa-check-circle';
+                alertClass = 'alert-success';
+                break;
+            case 'info':
+                iconClass = 'fa-info-circle';
+                alertClass = 'alert-info';
+                break;
+            default:
+                iconClass = 'fa-exclamation-triangle';
+                alertClass = 'alert-warning';
+        }
+
+        if (alertBox.length === 0) {
+            $("#location-selector").after(`
+                <div id="location-validation-alert" class="alert ${alertClass} mt-3">
+                    <i class="fas ${iconClass} me-2"></i>${message}
+                </div>
+            `);
+        } else {
+            alertBox.removeClass('alert-warning alert-success alert-info').addClass(alertClass);
+            alertBox.html(`<i class="fas ${iconClass} me-2"></i>${message}`).show();
+        }
+
+        // Don't auto-hide info messages (processing messages)
+        if (type !== 'info') {
+            setTimeout(() => $("#location-validation-alert").fadeOut(), 3000);
+        }
+    }
+
+    // Old validation message display (keeping for compatibility)
+    function showValidationMessage_old(message) {
         const alertBox = $("#location-validation-alert");
 
         if (alertBox.length === 0) {
@@ -702,6 +788,15 @@
     // Calculate initial plans count on page load
     $(document).ready(function() {
         calculatePlansCount();
+
+        // Restore preserved form data after validation failure
+        restoreFormData();
+
+        // Disable ministry dropdown for ministry users
+        var isMinistryUser = @Html.Raw(Json.Serialize(ViewBag.IsMinistryUser ?? false));
+        if (isMinistryUser) {
+            $('#ministrySelect').prop('disabled', true);
+        }
     });
 
     let selectedDonors = [];
@@ -765,10 +860,10 @@
                                 <h6 class="mb-1">
                                     <i class="fas fa-hand-holding-usd me-2"></i>${donor.text}
                                 </h6>
-                                <small class="text-muted">Funding Contribution</small>
+                                <small class="text-muted">@Localizer["Funding Contribution"]</small>
                             </div>
                             <div class="col-md-4">
-                                <label class="form-label small mb-1">Percentage: <span class="percentage-display" data-donor="${donor.value}">${currentPercentage.toFixed(1)}%</span></label>
+                                <label class="form-label small mb-1">@Localizer["Percentage:"] <span class="percentage-display" data-donor="${donor.value}">${currentPercentage.toFixed(1)}%</span></label>
                                 <input type="range"
                                        class="form-range donor-slider"
                                        data-donor="${donor.value}"
@@ -785,7 +880,7 @@
                                 <div class="text-end">
                                     <strong class="donor-amount" data-donor="${donor.value}">$0.00</strong>
                                     <br>
-                                    <small class="text-muted">Amount</small>
+                                    <small class="text-muted">@Localizer["Amount:"]</small>
                                 </div>
                             </div>
                             <div class="col-md-1">
@@ -868,11 +963,11 @@
         if (totalPercentage > 100) {
             statusElement.text('Error: Exceeds 100%').removeClass('text-success text-muted text-warning').addClass('text-danger');
         } else if (totalPercentage === 100) {
-            statusElement.text('Fully funded (100%)').removeClass('text-warning text-danger text-muted').addClass('text-success');
+            statusElement.text('@Localizer["Fully funded"] (100%)').removeClass('text-warning text-danger text-muted').addClass('text-success');
         } else if (totalPercentage > 0) {
-            statusElement.text(`Partially funded (${totalPercentage.toFixed(1)}%)`).removeClass('text-success text-danger text-muted').addClass('text-warning');
+            statusElement.text(`@Localizer["Partially funded"] (${totalPercentage.toFixed(1)}%)`).removeClass('text-success text-danger text-muted').addClass('text-warning');
         } else {
-            statusElement.text('Cannot exceed 100%').removeClass('text-success text-warning text-danger').addClass('text-muted');
+            statusElement.text('@Localizer["Cannot exceed 100%"]').removeClass('text-success text-warning text-danger').addClass('text-muted');
         }
 
         // Update hidden field with funding data
@@ -889,9 +984,10 @@
         let isValid = true;
         let errorMessages = [];
 
-        // Check if locations are selected
-        if (selections.length === 0) {
-            errorMessages.push("At least one project location must be selected.");
+        // Check if locations are selected (unless "Entire Country" is checked)
+        const isEntireCountry = $("#entireCountryCheckbox").is(':checked');
+        if (!isEntireCountry && selections.length === 0) {
+            errorMessages.push("At least one project location must be selected, or check 'Entire Country' option.");
             isValid = false;
         }
 
@@ -913,6 +1009,16 @@
             isValid = false;
         } else {
             $('#indicator-validation-error').hide();
+            // Ensure the selected indicator is added to the form for submission
+            if ($('input[name="SelectedIndicators"]').length === 0) {
+                $('<input>').attr({
+                    type: 'hidden',
+                    name: 'SelectedIndicators',
+                    value: selectedIndicator
+                }).appendTo('form');
+            } else {
+                $('input[name="SelectedIndicators"]').val(selectedIndicator);
+            }
         }
 
         // Check if project manager is selected
@@ -969,6 +1075,124 @@
             return false;
         }
     });
+
+    // Function to restore form data after validation failure
+    function restoreFormData() {
+        // Get preserved data from ViewBag
+        var selectedSectorCodes = @Html.Raw(Json.Serialize(ViewBag.SelectedSectorCodes ?? new List<string>()));
+        var selectedDonorCodes = @Html.Raw(Json.Serialize(ViewBag.SelectedDonorCodes ?? new List<string>()));
+        var selectedIndicators = @Html.Raw(Json.Serialize(ViewBag.SelectedIndicators ?? new List<int>()));
+        var locationSelections = @Html.Raw(Json.Serialize(ViewBag.LocationSelections ?? ""));
+        var donorFundingBreakdown = @Html.Raw(Json.Serialize(ViewBag.DonorFundingBreakdown ?? ""));
+
+        // Restore selected sectors
+        if (selectedSectorCodes && selectedSectorCodes.length > 0) {
+            selectedSectorCodes.forEach(function(code) {
+                $('select[name="Sectors"] option[value="' + code + '"]').prop('selected', true);
+            });
+        }
+
+        // Restore selected indicators
+        if (selectedIndicators && selectedIndicators.length > 0) {
+            // Add hidden input to preserve the selected indicator for form submission
+            $('<input>').attr({
+                type: 'hidden',
+                name: 'SelectedIndicators',
+                value: selectedIndicators[0]
+            }).appendTo('form');
+
+            $('#indicatorSelect').val(selectedIndicators[0]).trigger('change');
+        }
+
+        // Restore location selections
+        if (locationSelections && locationSelections !== '') {
+            try {
+                if (typeof locationSelections === 'string') {
+                    selections = JSON.parse(locationSelections);
+                } else {
+                    selections = locationSelections;
+                }
+                restoreLocationSelections();
+            } catch (e) {
+                console.log('Error parsing location selections:', e);
+            }
+        }
+
+        // Restore donor selections and funding data
+        if (selectedDonorCodes && selectedDonorCodes.length > 0) {
+            restoreDonorSelections(selectedDonorCodes, donorFundingBreakdown);
+        }
+    }
+
+    // Function to restore location selections in the UI
+    function restoreLocationSelections() {
+        if (selections && selections.length > 0) {
+            selections.forEach(function(item) {
+                // Create list item display
+                const $li = $(`
+                    <li class="list-group-item">
+                        <span>Governorate ${item.GovernorateCode} > District ${item.DistrictCode} > SubDistrict ${item.SubDistrictCode} > Community ${item.CommunityCode}</span>
+                        <button type="button" class="btn btn-sm btn-outline-danger btn-clear">
+                            <i class="fas fa-times"></i> Clear
+                        </button>
+                    </li>
+                `);
+
+                // Attach remove handler
+                $li.find(".btn-clear").click(function () {
+                    selections = selections.filter(x =>
+                        !(x.GovernorateCode === item.GovernorateCode &&
+                          x.DistrictCode === item.DistrictCode &&
+                          x.SubDistrictCode === item.SubDistrictCode &&
+                          x.CommunityCode === item.CommunityCode)
+                    );
+                    $li.remove();
+                    $("#location-data").val(JSON.stringify(selections));
+                });
+
+                $("#selected-locations").append($li);
+            });
+
+            // Update hidden input
+            $("#location-data").val(JSON.stringify(selections));
+        }
+    }
+
+    // Function to restore donor selections
+    function restoreDonorSelections(donorCodes, fundingBreakdown) {
+        selectedDonors = [];
+        donorFundingData = {};
+
+        // Parse funding breakdown if available
+        var fundingData = {};
+        if (fundingBreakdown && fundingBreakdown !== '') {
+            try {
+                if (typeof fundingBreakdown === 'string') {
+                    fundingData = JSON.parse(fundingBreakdown);
+                } else {
+                    fundingData = fundingBreakdown;
+                }
+            } catch (e) {
+                console.log('Error parsing donor funding breakdown:', e);
+            }
+        }
+
+        // Get donor text from select options
+        donorCodes.forEach(function(code) {
+            var donorText = $('#availableDonorSelect option[value="' + code + '"]').text();
+            if (donorText) {
+                selectedDonors.push({
+                    value: code,
+                    text: donorText
+                });
+                donorFundingData[code] = fundingData[code] || 0;
+            }
+        });
+
+        // Update UI
+        updateDonorFundingSection();
+        updateSelectedDonorsInput();
+    }
 
 
 </script>
