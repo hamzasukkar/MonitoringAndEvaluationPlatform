@@ -117,11 +117,32 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
+  <data name="achieved" xml:space="preserve">
+    <value>تم تحقيقه</value>
+  </data>
+  <data name="Achievement Value" xml:space="preserve">
+    <value>قيمة الإنجاز</value>
+  </data>
+  <data name="Add Measure" xml:space="preserve">
+    <value>إضافة إنجاز</value>
+  </data>
+  <data name="Add New Measure" xml:space="preserve">
+    <value>إضافة إنجاز جديد</value>
+  </data>
+  <data name="Back to List" xml:space="preserve">
+    <value>العودة إلى القائمة</value>
+  </data>
   <data name="Cumulative Real" xml:space="preserve">
     <value>المجموع التراكمي</value>
   </data>
+  <data name="Current Achievement" xml:space="preserve">
+    <value>الإنجاز الحالي</value>
+  </data>
   <data name="Date" xml:space="preserve">
     <value>التاريخ</value>
+  </data>
+  <data name="Edit Indicator" xml:space="preserve">
+    <value>تعديل المؤشر</value>
   </data>
   <data name="Indicator" xml:space="preserve">
     <value>المشروع</value>
@@ -129,11 +150,20 @@
   <data name="Indicator Details" xml:space="preserve">
     <value>تفاصيل المؤشر</value>
   </data>
+  <data name="Indicator Name" xml:space="preserve">
+    <value>اسم المؤشر</value>
+  </data>
   <data name="Indicator Performance Over Time" xml:space="preserve">
     <value>أداء المشروع بمرور الوقت</value>
   </data>
   <data name="Latest Value" xml:space="preserve">
     <value>أحدث قيمة</value>
+  </data>
+  <data name="Measure added successfully and indicator performance updated" xml:space="preserve">
+    <value>تمت إضافة الإنجاز بنجاح وتم تحديث أداء المؤشر</value>
+  </data>
+  <data name="Measurement Data" xml:space="preserve">
+    <value>بيانات الإنجازات</value>
   </data>
   <data name="Measurements will appear here once data is recorded" xml:space="preserve">
     <value>ستظهر الإنجازات هنا بمجرد تسجيل البيانات</value>
@@ -150,8 +180,17 @@
   <data name="Real Values" xml:space="preserve">
     <value>القيم الفعلية</value>
   </data>
+  <data name="Remaining to Target" xml:space="preserve">
+    <value>المبقي للهدف</value>
+  </data>
+  <data name="Success" xml:space="preserve">
+    <value>نجاح</value>
+  </data>
   <data name="Target" xml:space="preserve">
     <value>هدف</value>
+  </data>
+  <data name="Target Reached" xml:space="preserve">
+    <value>تم الوصول إلى الهدف</value>
   </data>
   <data name="Target Value" xml:space="preserve">
     <value>القيمة الهدف</value>

@@ -107,7 +107,7 @@
                         string disbursementClass = ProgressBarHelper.GetProgressBarClass(item.DisbursementPerformance);
                         double IndicatorsPerformance = Math.Round(item.IndicatorsPerformance, 0);
 
-                        <tr id="donor-row-@item.Code" class="table-row">
+                        <tr id="donor-row-@item.Code" class="table-row donor-row-clickable" data-donor-id="@item.Code" style="cursor: pointer;">
                             <td>
                                 <span id="donor-partner-@item.Code" class="donor-partner-view fw-semibold">
                                     @item.Partner
@@ -161,6 +161,10 @@
                             </td>
                             <td class="text-center">
                                 <div class="btn-group action-buttons" role="group">
+                                    <button class="btn btn-outline-info btn-sm action-btn"
+                                            onclick="showDonorProjectsModal(@item.Code)" title="@Localizer["View Projects"]">
+                                        <i class="fas fa-project-diagram"></i>
+                                    </button>
                                     <button class="btn btn-outline-primary btn-sm action-btn"
                                             id="edit-btn-@item.Code"
                                             onclick="toggleDonorEdit(@item.Code)" title="@Localizer["Edit"]">
@@ -188,6 +192,54 @@
             <p class="text-muted">@Localizer["Create your first donor to get started"]</p>
         </div>
     }
+</div>
+
+<!-- Projects Modal -->
+<div class="modal fade" id="donorProjectsModal" tabindex="-1" aria-labelledby="donorProjectsModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
+        <div class="modal-content" style="border-radius: 15px; border: none; box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);">
+            <div class="modal-header" style="background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-dark) 100%); color: white; border-radius: 15px 15px 0 0;">
+                <h5 class="modal-title" id="donorProjectsModalLabel">
+                    <i class="fas fa-project-diagram me-2"></i>
+                    <span id="donorNameLabel">@Localizer["Projects"]</span>
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body" style="padding: 2rem;">
+                <div id="projectsLoadingSpinner" class="text-center py-5">
+                    <div class="spinner-border text-primary" role="status" style="width: 3rem; height: 3rem;">
+                        <span class="visually-hidden">@Localizer["Loading..."]</span>
+                    </div>
+                    <p class="mt-3 text-muted">@Localizer["Loading projects..."]</p>
+                </div>
+                <div id="projectsContent" class="d-none">
+                    <div class="table-responsive">
+                        <table class="table table-hover modern-table">
+                            <thead class="table-header">
+                                <tr>
+                                    <th><i class="fas fa-hashtag me-2"></i>@Localizer["Code"]</th>
+                                    <th><i class="fas fa-project-diagram me-2"></i>@Localizer["Project Name"]</th>
+                                    <th><i class="fas fa-map-marker-alt me-2"></i>@Localizer["Location"]</th>
+                                    <th class="text-center"><i class="fas fa-chart-line me-2"></i>@Localizer["Indicators"]</th>
+                                    <th class="text-center"><i class="fas fa-dollar-sign me-2"></i>@Localizer["Disbursement"]</th>
+                                </tr>
+                            </thead>
+                            <tbody id="projectsTableBody">
+                                <!-- Projects will be loaded here via AJAX -->
+                            </tbody>
+                        </table>
+                    </div>
+                    <div id="noProjectsMessage" class="text-center py-5 d-none">
+                        <div class="stat-icon warning mx-auto mb-3" style="width: 80px; height: 80px; font-size: 2rem;">
+                            <i class="fas fa-project-diagram"></i>
+                        </div>
+                        <h4 class="text-muted">@Localizer["No projects found"]</h4>
+                        <p class="text-muted">@Localizer["This donor has no associated projects"]</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
 
 @section Scripts {
@@ -529,7 +581,98 @@
             });
         });
 
+        // Click handler for donor rows to navigate to Projects page
+        $(document).on('click', '.donor-row-clickable', function(e) {
+            // Don't trigger if clicking on action buttons or edit fields
+            if ($(e.target).closest('.action-buttons').length > 0 ||
+                $(e.target).closest('.donor-partner-edit').length > 0 ||
+                $(e.target).closest('.donor-category-edit').length > 0) {
+                return;
+            }
+
+            const donorId = $(this).data('donor-id');
+            // Navigate to Projects Index page with donor filter
+            window.location.href = '@Url.Action("Index", "Projects")?SelectedDonors=' + donorId;
+        });
+
     }); // End document ready
+
+    // Show Donor Projects Modal - Global function
+    function showDonorProjectsModal(donorId) {
+        // Show modal
+        const modal = new bootstrap.Modal(document.getElementById('donorProjectsModal'));
+        modal.show();
+
+        // Show loading spinner
+        $('#projectsLoadingSpinner').removeClass('d-none');
+        $('#projectsContent').addClass('d-none');
+
+        // Fetch projects via AJAX
+        $.ajax({
+            url: '@Url.Action("GetDonorProjects")',
+            type: 'GET',
+            data: { id: donorId },
+            success: function(response) {
+                if (response.success) {
+                    $('#donorNameLabel').text(response.donorName + ' - @Localizer["Projects"]');
+
+                    if (response.projects && response.projects.length > 0) {
+                        let rows = '';
+                        response.projects.forEach(function(project) {
+                            const indicatorsClass = getProgressBarClass(project.indicatorsPerformance);
+                            const disbursementClass = getProgressBarClass(project.disbursementPerformance);
+
+                            rows += `
+                                <tr class="table-row">
+                                    <td>${project.code}</td>
+                                    <td>${project.name}</td>
+                                    <td>${project.location}</td>
+                                    <td class="text-center">
+                                        <div class="progress-container">
+                                            <div class="progress modern-progress-bar">
+                                                <div class="progress-bar ${indicatorsClass} progress-bar-striped" role="progressbar" style="width: ${project.indicatorsPerformance}%;">${project.indicatorsPerformance}%</div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="text-center">
+                                        <div class="progress-container">
+                                            <div class="progress modern-progress-bar">
+                                                <div class="progress-bar ${disbursementClass} progress-bar-striped" role="progressbar" style="width: ${project.disbursementPerformance}%;">${project.disbursementPerformance}%</div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                </tr>
+                            `;
+                        });
+
+                        $('#projectsTableBody').html(rows);
+                        $('#noProjectsMessage').addClass('d-none');
+                    } else {
+                        $('#projectsTableBody').html('');
+                        $('#noProjectsMessage').removeClass('d-none');
+                    }
+
+                    $('#projectsLoadingSpinner').addClass('d-none');
+                    $('#projectsContent').removeClass('d-none');
+                } else {
+                    Swal.fire('Error', response.message, 'error');
+                    modal.hide();
+                }
+            },
+            error: function() {
+                Swal.fire('Error', '@Localizer["An error occurred while loading projects"]', 'error');
+                modal.hide();
+            }
+        });
+    }
+
+    // Helper function to get progress bar class
+    function getProgressBarClass(percentage) {
+        if (percentage >= 75) return 'bg-success';
+        if (percentage >= 50) return 'bg-info';
+        if (percentage >= 25) return 'bg-warning';
+        return 'bg-danger';
+    }
 
     // Delete Donor - Global function
     function deleteDonor(id) {

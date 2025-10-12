@@ -120,7 +120,7 @@
                                         <i class="fas fa-university"></i>
                                     </div>
                                     <div>
-                                        <span id="ministry-displayname-@item.Code" class="ministry-displayname-view ministry-name-text">
+                                        <span id="ministry-displayname-@item.Code" class="ministry-displayname-view ministry-name-text ministry-clickable" onclick="viewMinistryProjects(@item.Code, '@item.MinistryDisplayName')">
                                             @item.MinistryDisplayName
                                         </span>
                                         <input type="text" id="ministry-displayname-input-@item.Code"
@@ -259,6 +259,17 @@
 
         .ministry-name-text:hover {
             color: var(--primary-color);
+        }
+
+        .ministry-clickable {
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .ministry-clickable:hover {
+            color: var(--primary-color) !important;
+            text-decoration: underline;
+            transform: scale(1.02);
         }
 
         .action-buttons {
@@ -601,5 +612,11 @@
             button.removeClass('btn-outline-warning').addClass('btn-success');
             displayNameInput.focus();
         }
+    }
+
+    // Navigate to Projects filtered by Ministry - Global function
+    function viewMinistryProjects(ministryCode, ministryName) {
+        // Navigate to Projects index with ministry filter
+        window.location.href = '@Url.Action("Index", "Projects")?SelectedMinistries=' + ministryCode;
     }
 </script>

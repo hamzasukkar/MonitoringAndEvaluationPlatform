@@ -462,21 +462,17 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             var data = await _context.Measures
                 .Where(m => m.IndicatorCode == indicatorCode)
                 .OrderBy(m => m.Date)
-                .ToListAsync();
-
-            var real = data
-                .Where(m => m.ValueType == MeasureValueType.Real)
                 .Select(m => new { date = m.Date.ToString("yyyy-MM-dd"), value = m.Value })
-                .ToList();
+                .ToListAsync();
 
             // Get indicator target as baseline
             var indicator = await _context.Indicators
                 .FirstOrDefaultAsync(i => i.IndicatorCode == indicatorCode);
-            
+
             var targetValue = indicator?.Target ?? 0;
             var target = new[] { new { date = "baseline", value = targetValue } };
 
-            var result = new { Real = real, Target = target };
+            var result = new { Real = data, Target = target };
 
             return Json(result);
         }
@@ -601,10 +597,23 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             ViewData["FrameworkCode"] = frameworkCode;
             ViewData["SubOutputCode"] = subOutputCode;
 
-            // Get all projects for the dropdown filter
-            var projects = await _context.Projects
+            // Get projects filtered by frameworkCode if provided
+            var projectsQuery = _context.Projects.AsQueryable();
+
+            if (frameworkCode.HasValue)
+            {
+                // Filter projects that are associated with indicators belonging to the specified framework
+                projectsQuery = projectsQuery.Where(p =>
+                    p.ProjectIndicators.Any(pi =>
+                        pi.Indicator.SubOutput.Output.Outcome.FrameworkCode == frameworkCode));
+            }
+
+            var projects = await projectsQuery
                 .Select(p => new { p.ProjectID, p.ProjectName })
+                .Distinct()
+                .OrderBy(p => p.ProjectName)
                 .ToListAsync();
+
             ViewData["Projects"] = new SelectList(projects, "ProjectID", "ProjectName", projectId);
 
             // Base query for indicators with their related projects
@@ -649,6 +658,12 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             return View(indicators);
         }
 
+        // GET: Demo page for project display options
+        public IActionResult ProjectDisplayOptions()
+        {
+            return View();
+        }
+
         // GET: Indicators/IndicatorAndProjectTable
         public async Task<IActionResult> IndicatorAndProjectTable(int? projectId, int? frameworkCode, int? subOutputCode, string searchString)
         {
@@ -657,10 +672,23 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             ViewData["frameworkCode"] = frameworkCode;
             ViewData["subOutputCode"] = subOutputCode;
 
-            // Get all projects for the dropdown filter
-            var projects = await _context.Projects
+            // Get projects filtered by frameworkCode if provided
+            var projectsQuery = _context.Projects.AsQueryable();
+
+            if (frameworkCode.HasValue)
+            {
+                // Filter projects that are associated with indicators belonging to the specified framework
+                projectsQuery = projectsQuery.Where(p =>
+                    p.ProjectIndicators.Any(pi =>
+                        pi.Indicator.SubOutput.Output.Outcome.FrameworkCode == frameworkCode));
+            }
+
+            var projects = await projectsQuery
                 .Select(p => new { p.ProjectID, p.ProjectName })
+                .Distinct()
+                .OrderBy(p => p.ProjectName)
                 .ToListAsync();
+
             ViewData["Projects"] = new SelectList(projects, "ProjectID", "ProjectName", projectId);
 
             // Base query for indicators with their related projects

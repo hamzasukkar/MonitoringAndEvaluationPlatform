@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Localization;
 using MonitoringAndEvaluationPlatform.Data;
 using MonitoringAndEvaluationPlatform.Enums;
 using MonitoringAndEvaluationPlatform.Models;
@@ -17,18 +18,37 @@ namespace MonitoringAndEvaluationPlatform.Controllers
     {
         private readonly ApplicationDbContext _context;
         private readonly MonitoringService _monitoringService;
+        private readonly IStringLocalizer<MeasuresController> _localizer;
 
-        public MeasuresController(ApplicationDbContext context, MonitoringService monitoringService)
+        public MeasuresController(ApplicationDbContext context, MonitoringService monitoringService, IStringLocalizer<MeasuresController> localizer)
         {
             _context = context;
             _monitoringService = monitoringService;
+            _localizer = localizer;
         }
 
         [HttpPost("add-measure")]
         public async Task<IActionResult> AddMeasure([FromBody] AddMeasureDto dto)
         {
-            await _monitoringService.AddMeasureToIndicator(dto.IndicatorId, dto.Value, MeasureValueType.Real);
-            return Ok("Measure added and Indicator Performance updated");
+            await _monitoringService.AddMeasureToIndicator(dto.IndicatorId, dto.Value);
+            return Ok(_localizer["Measure added and Indicator Performance updated"]);
+        }
+
+        // GET: Measures by Indicator (for chart)
+        [HttpGet]
+        public async Task<IActionResult> GetMeasuresByIndicator(int indicatorCode)
+        {
+            var measures = await _context.Measures
+                .Where(m => m.IndicatorCode == indicatorCode)
+                .OrderBy(m => m.Date)
+                .Select(m => new
+                {
+                    date = m.Date.ToString("yyyy-MM-dd"),
+                    value = m.Value
+                })
+                .ToListAsync();
+
+            return Ok(measures);
         }
 
         // DTO
@@ -95,22 +115,19 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         public async Task<IActionResult> CreateFromDetails(Measure measure)
         {
             ModelState.Remove(nameof(measure.Indicator));
-            
-            // Set the measure as Real (only type available now)
-            measure.ValueType = MeasureValueType.Real;
-            
+
             if (ModelState.IsValid)
             {
                 _context.Add(measure);
                 await _context.SaveChangesAsync();
-                
+
                 // Update indicator performance after adding the measure
                 await _monitoringService.UpdateIndicatorPerformance(measure.IndicatorCode);
-                
-                return Ok(new { message = "Measure added successfully and indicator performance updated" });
+
+                return Ok(new { message = _localizer["Measure added successfully and indicator performance updated"] });
             }
 
-            return BadRequest("Invalid input");
+            return BadRequest(_localizer["Invalid input"]);
         }
 
         // GET: Measures/Create
@@ -152,9 +169,6 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         {
             ModelState.Remove(nameof(measure.Indicator));
 
-            // Set the measure as Real (only type available now)
-            measure.ValueType = MeasureValueType.Real;
-
             if (ModelState.IsValid)
             {
                 _context.Measures.Add(measure);
@@ -162,9 +176,9 @@ namespace MonitoringAndEvaluationPlatform.Controllers
 
                 // Update indicator performance after adding the measure
                 await _monitoringService.UpdateIndicatorPerformance(measure.IndicatorCode);
-                
-                TempData["SuccessMessage"] = "Measure added successfully and indicator performance has been updated.";
-                
+
+                TempData["SuccessMessage"] = _localizer["Measure added successfully and indicator performance has been updated."];
+
                 // Redirect back to Index with indicator filter to show the measures for this indicator
                 return RedirectToAction(nameof(Index), new { indicatorId = measure.IndicatorCode });
             }
@@ -196,22 +210,60 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, Measure measure)
         {
+            // Check if this is an AJAX request (inline edit)
+            if (Request.Headers["X-Requested-With"] == "XMLHttpRequest" || Request.ContentType?.Contains("application/x-www-form-urlencoded") == true)
+            {
+                // Get the existing measure from database
+                var existingMeasure = await _context.Measures.FindAsync(id);
+                if (existingMeasure == null)
+                {
+                    return NotFound();
+                }
+
+                // Update only the editable fields
+                existingMeasure.Date = measure.Date;
+                existingMeasure.Value = measure.Value;
+
+                try
+                {
+                    _context.Update(existingMeasure);
+                    await _context.SaveChangesAsync();
+
+                    // Update indicator performance
+                    await _monitoringService.UpdateIndicatorPerformance(existingMeasure.IndicatorCode);
+
+                    return Ok(new { message = _localizer["Measure updated successfully"] });
+                }
+                catch (DbUpdateConcurrencyException)
+                {
+                    if (!MeasureExists(id))
+                    {
+                        return NotFound();
+                    }
+                    else
+                    {
+                        throw;
+                    }
+                }
+            }
+
+            // Regular form POST (from Edit view)
             if (id != measure.Code)
             {
                 return NotFound();
             }
             ModelState.Remove(nameof(measure.Indicator));
-            
+
             if (ModelState.IsValid)
             {
                 try
                 {
                     _context.Update(measure);
                     await _context.SaveChangesAsync();
-                    
+
                     // Update indicator performance
                     await _monitoringService.UpdateIndicatorPerformance(measure.IndicatorCode);
-                    TempData["SuccessMessage"] = "Measure updated successfully and indicator performance has been updated.";
+                    TempData["SuccessMessage"] = _localizer["Measure updated successfully and indicator performance has been updated."];
                 }
                 catch (DbUpdateConcurrencyException)
                 {
@@ -254,9 +306,19 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             try
             {
                 await monitoringService.DeleteMeasureAndRecalculateAsync(id);
+
+                // Check if this is an AJAX request
+                if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
+                {
+                    return Ok(new { message = _localizer["Measure deleted successfully"] });
+                }
             }
             catch (InvalidOperationException ex)
             {
+                if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
+                {
+                    return NotFound(new { message = ex.Message });
+                }
                 return NotFound(ex.Message);
             }
 

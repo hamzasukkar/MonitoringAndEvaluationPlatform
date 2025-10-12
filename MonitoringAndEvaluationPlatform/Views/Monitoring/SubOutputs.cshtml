@@ -16,7 +16,7 @@
         @Localizer["Sub-Outputs Dashboard"]
     </h1>
     <p class="dashboard-subtitle">
-        Comprehensive sub-outputs monitoring with real-time performance analytics and progress tracking
+        @Localizer["Comprehensive sub-outputs monitoring with real-time performance analytics and progress tracking"]
     </p>
 </div>
 
@@ -46,7 +46,7 @@
                         </div>
                     </div>
                     <div class="framework-performance-summary">
-                        <div class="performance-circle" data-performance="@Math.Round(item.IndicatorsPerformance)">
+@*                         <div class="performance-circle" data-performance="@Math.Round(item.IndicatorsPerformance)">
                             <svg class="progress-ring" width="60" height="60">
                                 <circle class="progress-ring-circle"
                                         cx="30" cy="30" r="25"
@@ -59,7 +59,7 @@
                                 <span class="performance-value">@Math.Round(item.IndicatorsPerformance)%</span>
                             </div>
                         </div>
-                    </div>
+ *@                    </div>
                 </div>
 
                 <!-- Performance Metrics Section -->

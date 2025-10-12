@@ -34,10 +34,7 @@
     <div class="project-nav-modern mb-4">
         <nav class="modern-navbar">
             <div class="navbar-container">
-                <button class="navbar-toggle" type="button" data-bs-toggle="collapse" data-bs-target="#projectNavbar">
-                    <i class="fas fa-bars"></i>
-                </button>
-                <div class="collapse navbar-collapse" id="projectNavbar">
+                <div class="navbar-collapse" id="projectNavbar">
                     <ul class="modern-nav-list">
                         <li class="nav-item-modern">
                             <a class="nav-link-modern active" aria-current="page">
@@ -250,19 +247,29 @@
                                     @Localizer["Governorate"]
                                 </div>
                                 <div class="info-value">
-                                    @foreach (var governorate in Model.Governorates)
+                                    @if (Model.IsEntireCountry)
                                     {
-                                        <span class="modern-badge badge-info me-1">
-                                            
-                                            @if (culture.StartsWith("ar"))
-                                            {
-                                                @governorate.AR_Name
-                                            }
-                                            else
-                                            {
-                                                @governorate.EN_Name
-                                            }
+                                        <span class="modern-badge badge-success me-1">
+                                            <i class="fas fa-flag me-1"></i>
+                                            @Localizer["Entire Country"]
                                         </span>
+                                    }
+                                    else
+                                    {
+                                        @foreach (var governorate in Model.Governorates)
+                                        {
+                                            <span class="modern-badge badge-info me-1">
+
+                                                @if (culture.StartsWith("ar"))
+                                                {
+                                                    @governorate.AR_Name
+                                                }
+                                                else
+                                                {
+                                                    @governorate.EN_Name
+                                                }
+                                            </span>
+                                        }
                                     }
                                 </div>
                             </div>
@@ -406,11 +413,12 @@
         </div>
     </div>
     @{
-        double performance = Math.Round(@Model.performance, 0);
+        double performance = Math.Round(@Model.performance, 2);
+        double disbursementPerformance = Math.Round(@Model.DisbursementPerformance, 2);
     }
     <!-- Performance Metrics -->
     <div class="row mb-4">
-        <div class="col-md-3">
+        <div class="col-md-6">
             <div class="card shadow-sm h-100">
                 <div class="card-body text-center">
                     <h6 class="card-title text-muted">@Localizer["Performance"]</h6>
@@ -421,18 +429,18 @@
                 </div>
             </div>
         </div>
-        <div class="col-md-3">
+        <div class="col-md-6">
             <div class="card shadow-sm h-100">
                 <div class="card-body text-center">
                     <h6 class="card-title text-muted">@Localizer["Disbursement"]</h6>
                     <div class="progress-circle progress-@((int)Model.DisbursementPerformance)" data-value="@Model.DisbursementPerformance">
-                        <span class="progress-circle-value">@Model.DisbursementPerformance%</span>
+                        <span class="progress-circle-value">@disbursementPerformance%</span>
                     </div>
                     <p class="text-muted mt-2 mb-0">@Localizer["Budget utilization"]</p>
                 </div>
             </div>
         </div>
-        <div class="col-md-3">
+     @*    <div class="col-md-3">
             <div class="card shadow-sm h-100">
                 <div class="card-body text-center">
                     <h6 class="card-title text-muted">@Localizer["Field Monitoring"]</h6>
@@ -453,7 +461,7 @@
                     <p class="text-muted mt-2 mb-0">@Localizer["Impact measurement"]</p>
                 </div>
             </div>
-        </div>
+        </div> *@
     </div>
 
     <!-- Project Files Section -->

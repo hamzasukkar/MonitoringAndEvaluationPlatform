@@ -273,5 +273,30 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 return Json(new { success = false, message = ex.Message });
             }
         }
+
+        // GET: Donors/GetDonorProjects/5
+        [HttpGet]
+        public async Task<IActionResult> GetDonorProjects(int id)
+        {
+            var donor = await _context.Donors
+                .Include(d => d.ProjectDonors)
+                    .ThenInclude(pd => pd.Project)
+                        .ThenInclude(p => p.Governorates)
+                .FirstOrDefaultAsync(d => d.Code == id);
+
+            if (donor == null)
+                return Json(new { success = false, message = "Donor not found" });
+
+            var projects = donor.ProjectDonors.Select(pd => new
+            {
+                code = pd.Project.ProjectID,
+                name = pd.Project.ProjectName,
+                location = pd.Project.Governorates.FirstOrDefault() != null ? pd.Project.Governorates.First().AR_Name : "N/A",
+                indicatorsPerformance = Math.Round(pd.Project.performance, 2),
+                disbursementPerformance = Math.Round(pd.Project.DisbursementPerformance, 2)
+            }).ToList();
+
+            return Json(new { success = true, donorName = donor.Partner, projects });
+        }
     }
 }
