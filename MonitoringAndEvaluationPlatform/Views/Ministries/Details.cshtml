@@ -20,7 +20,7 @@
         <div>
             <h1 class="dashboard-title">
                 <i class="fas fa-building me-3"></i>
-                @Model.MinistryDisplayName
+                @(System.Globalization.CultureInfo.CurrentUICulture.TwoLetterISOLanguageName == "ar" ? Model.MinistryDisplayName_AR : Model.MinistryDisplayName_EN)
             </h1>
             <p class="dashboard-subtitle">
                 @Localizer["Ministry Overview and Performance Dashboard"]
@@ -126,7 +126,7 @@
                                 <td class="fw-bold text-muted" style="width: 40%;">
                                     <i class="fas fa-building me-2"></i>@Localizer["Ministry Name"]
                                 </td>
-                                <td>@Model.MinistryDisplayName</td>
+                                <td>@(System.Globalization.CultureInfo.CurrentUICulture.TwoLetterISOLanguageName == "ar" ? Model.MinistryDisplayName_AR : Model.MinistryDisplayName_EN)</td>
                             </tr>
                             <tr>
                                 <td class="fw-bold text-muted">

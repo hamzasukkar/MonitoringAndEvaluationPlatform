@@ -267,7 +267,7 @@
                             <td>
                                 @if (project.Ministries.Any())
                                 {
-                                    <span>@project.Ministries.First().MinistryDisplayName</span>
+                                    <span>@(System.Globalization.CultureInfo.CurrentUICulture.TwoLetterISOLanguageName == "ar" ? project.Ministries.First().MinistryDisplayName_AR : project.Ministries.First().MinistryDisplayName_EN)</span>
                                     @if (project.Ministries.Count > 1)
                                     {
                                         <span class="badge bg-secondary ms-1">+@(project.Ministries.Count - 1) @Localizer["more"]</span>

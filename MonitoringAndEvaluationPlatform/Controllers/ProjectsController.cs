@@ -160,7 +160,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             // Check if the user is associated with a Ministry (and not SystemAdministrator)
             if (user?.MinistryName != null && !User.IsInRole(UserRoles.SystemAdministrator))
             {
-                var userMinistry = ministries.FirstOrDefault(m => m.MinistryDisplayName == user.MinistryName);
+                var userMinistry = ministries.FirstOrDefault(m => m.MinistryDisplayName_AR == user.MinistryName || m.MinistryDisplayName_EN == user.MinistryName || m.MinistryUserName == user.MinistryName);
                 if (userMinistry != null)
                 {
                     userMinistryCode = userMinistry.Code;
@@ -493,7 +493,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             // Check if the user is associated with a Ministry (and not SystemAdministrator)
             if (user?.MinistryName != null && !User.IsInRole(UserRoles.SystemAdministrator))
             {
-                var userMinistry = allMinistries.FirstOrDefault(m => m.MinistryDisplayName == user.MinistryName);
+                var userMinistry = allMinistries.FirstOrDefault(m => m.MinistryDisplayName_AR == user.MinistryName || m.MinistryDisplayName_EN == user.MinistryName || m.MinistryUserName == user.MinistryName);
                 if (userMinistry != null)
                 {
                     isMinistryUser = true;
@@ -1263,7 +1263,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             if (user?.MinistryName != null && !User.IsInRole(UserRoles.SystemAdministrator))
             {
                 var ministries = _context.Ministries.ToList();
-                var userMinistry = ministries.FirstOrDefault(m => m.MinistryDisplayName == user.MinistryName);
+                var userMinistry = ministries.FirstOrDefault(m => m.MinistryDisplayName_AR == user.MinistryName || m.MinistryDisplayName_EN == user.MinistryName || m.MinistryUserName == user.MinistryName);
                 if (userMinistry != null)
                 {
                     userMinistryCode = userMinistry.Code;

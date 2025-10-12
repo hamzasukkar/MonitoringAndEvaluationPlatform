@@ -87,7 +87,7 @@ namespace MonitoringAndEvaluationPlatform.Infrastructure
                                 UserName = userName,
                                 Email = email,
                                 EmailConfirmed = true,
-                                MinistryName = ministry.MinistryDisplayName
+                                MinistryName = ministry.MinistryDisplayName_EN
                             };
 
                             var result = await userManager.CreateAsync(user, defaultPassword);
@@ -121,7 +121,7 @@ namespace MonitoringAndEvaluationPlatform.Infrastructure
                                 UserName = dataEntryUserName,
                                 Email = dataEntryEmail,
                                 EmailConfirmed = true,
-                                MinistryName = ministry.MinistryDisplayName
+                                MinistryName = ministry.MinistryDisplayName_EN
                             };
 
                             var result = await userManager.CreateAsync(dataEntryUser, defaultPassword);

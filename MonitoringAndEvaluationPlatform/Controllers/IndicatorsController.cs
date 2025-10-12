@@ -57,7 +57,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 if (isMinistryUser && !string.IsNullOrEmpty(userMinistryName))
                 {
                     indicators = indicators.Where(i =>
-                        i.ProjectIndicators.Any(pi => pi.Project.Ministry != null && pi.Project.Ministry.MinistryDisplayName == userMinistryName));
+                        i.ProjectIndicators.Any(pi => pi.Project.Ministry != null && (pi.Project.Ministry.MinistryDisplayName_AR == userMinistryName || pi.Project.Ministry.MinistryDisplayName_EN == userMinistryName || pi.Project.Ministry.MinistryUserName == userMinistryName)));
                 }
 
                 // Filter results if searchString is provided
@@ -82,7 +82,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             if (isMinistryUser && !string.IsNullOrEmpty(userMinistryName))
             {
                 frameworkIndicators = frameworkIndicators.Where(i =>
-                    i.ProjectIndicators.Any(pi => pi.Project.Ministry != null && pi.Project.Ministry.MinistryDisplayName == userMinistryName));
+                    i.ProjectIndicators.Any(pi => pi.Project.Ministry != null && (pi.Project.Ministry.MinistryDisplayName_AR == userMinistryName || pi.Project.Ministry.MinistryDisplayName_EN == userMinistryName || pi.Project.Ministry.MinistryUserName == userMinistryName)));
             }
 
             // Add subOutputCode filter if it's provided
