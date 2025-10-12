@@ -8,7 +8,9 @@ namespace MonitoringAndEvaluationPlatform.Models
         [Key]
         public int Code { get; set; }
         public string MinistryUserName { get; set; }
-        public string MinistryDisplayName { get; set; }
+        public string MinistryDisplayName_AR { get; set; }
+        public string MinistryDisplayName_EN { get; set; }
+        public string Logo { get; set; }
         public double IndicatorsPerformance { get; set; } = 0;
         public double DisbursementPerformance { get; set; } = 0;
         public double FieldMonitoring { get; set; } = 0;

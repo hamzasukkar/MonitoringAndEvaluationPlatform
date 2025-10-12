@@ -23,6 +23,7 @@
                 <table class="table table-hover">
                     <thead class="table-light">
                         <tr>
+                            <th style="width: 80px;">@Localizer["Logo"]</th>
                             <th>@Localizer["Ministry Name"]</th>
                             <th>@Localizer["Indicators Performance"]</th>
                             <th>@Localizer["Disbursement Performance"]</th>
@@ -39,8 +40,11 @@
                             double IndicatorsPerformance = Math.Round(item.IndicatorsPerformance, 0);
 
                             <tr>
+                                <td class="text-center">
+                                    <span style="font-size: 2rem;">@(string.IsNullOrEmpty(item.Logo) ? "🏛️" : item.Logo)</span>
+                                </td>
                                 <td>
-                                    <strong>@Html.DisplayFor(modelItem => item.MinistryDisplayName)</strong>
+                                    <strong>@(System.Globalization.CultureInfo.CurrentUICulture.TwoLetterISOLanguageName == "ar" ? item.MinistryDisplayName_AR : item.MinistryDisplayName_EN)</strong>
                                 </td>
                                 <td>
                                     @await Html.PartialAsync("_ProgressBar", Tuple.Create(IndicatorsPerformance, indicatorsClass))

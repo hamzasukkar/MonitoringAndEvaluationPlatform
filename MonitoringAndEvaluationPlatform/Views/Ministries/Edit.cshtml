@@ -15,9 +15,19 @@
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
             <input type="hidden" asp-for="Code" />
             <div class="form-group">
-                <label asp-for="MinistryDisplayName" class="control-label"></label>
-                <input asp-for="MinistryDisplayName" class="form-control" />
-                <span asp-validation-for="MinistryDisplayName" class="text-danger"></span>
+                <label asp-for="Logo" class="control-label"></label>
+                <input asp-for="Logo" class="form-control" maxlength="10" placeholder="Enter emoji (e.g., 🏥 🏛️ ⚖️)" />
+                <span asp-validation-for="Logo" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="MinistryDisplayName_AR" class="control-label"></label>
+                <input asp-for="MinistryDisplayName_AR" class="form-control" />
+                <span asp-validation-for="MinistryDisplayName_AR" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="MinistryDisplayName_EN" class="control-label"></label>
+                <input asp-for="MinistryDisplayName_EN" class="form-control" />
+                <span asp-validation-for="MinistryDisplayName_EN" class="text-danger"></span>
             </div>
             <div class="form-group">
                 <input type="submit" value="Save" class="btn btn-primary" />

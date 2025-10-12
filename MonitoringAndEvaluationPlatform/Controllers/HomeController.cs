@@ -1,4 +1,5 @@
 using System.Diagnostics;
+using System.Globalization;
 using Microsoft.AspNetCore.Mvc;
 using MonitoringAndEvaluationPlatform.Models;
 using MonitoringAndEvaluationPlatform.Data;
@@ -66,10 +67,13 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             }).ToList();
 
             // Get projects by ministry count
+            var currentCulture = CultureInfo.CurrentUICulture.TwoLetterISOLanguageName;
             var projectsByMinistry = await _context.Projects
                 .Include(p => p.Ministries)
                 .SelectMany(p => p.Ministries.Select(m => new { Ministry = m }))
-                .GroupBy(x => x.Ministry.MinistryDisplayName ?? x.Ministry.MinistryUserName)
+                .GroupBy(x => currentCulture == "ar"
+                    ? (x.Ministry.MinistryDisplayName_AR ?? x.Ministry.MinistryUserName)
+                    : (x.Ministry.MinistryDisplayName_EN ?? x.Ministry.MinistryUserName))
                 .Select(g => new { Ministry = g.Key, Count = g.Count() })
                 .ToDictionaryAsync(x => x.Ministry, x => x.Count);
 
@@ -141,6 +145,29 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 })
                 .ToList();
 
+            // Prepare governorate map data with project statistics
+            var governoratesMapData = new List<GovernorateMapDataViewModel>();
+            foreach (var governorate in governorates)
+            {
+                var governorateProjects = await _context.Projects
+                    .Include(p => p.Governorates)
+                    .Where(p => p.Governorates.Any(g => g.Code == governorate.Code))
+                    .ToListAsync();
+
+                governoratesMapData.Add(new GovernorateMapDataViewModel
+                {
+                    Code = governorate.Code,
+                    Name = governorate.EN_Name ?? governorate.AR_Name,
+                    EN_Name = governorate.EN_Name,
+                    AR_Name = governorate.AR_Name,
+                    ProjectCount = governorateProjects.Count,
+                    AveragePerformance = governorateProjects.Any()
+                        ? Math.Round(governorateProjects.Average(p => p.performance), 2)
+                        : 0,
+                    TotalBudget = governorateProjects.Sum(p => p.EstimatedBudget)
+                });
+            }
+
             // Get recent activities based on recent projects
             var recentActivities = new List<RecentActivityViewModel>();
             var recentProjects = await _context.Projects
@@ -186,7 +213,8 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 DonorsPerformance = donorsPerformance,
                 ProjectsBySector = projectsBySector,
                 SectorsPerformance = sectorsPerformance,
-                ProjectsPerformance = projectsPerformance
+                ProjectsPerformance = projectsPerformance,
+                GovernoratesMapData = governoratesMapData
             };
 
             return View(viewModel);

@@ -980,7 +980,11 @@
                             {
                                 <li class="ministry-item">
                                     <a asp-controller="Ministries" asp-action="ResultIndex" asp-route-ministryCode="@ministry.Code" class="dropdown-item">
-                                        @ministry.MinistryDisplayName
+                                        @if (!string.IsNullOrEmpty(ministry.Logo))
+                                        {
+                                            <span class="ministry-logo me-1">@ministry.Logo</span>
+                                        }
+                                        @(System.Globalization.CultureInfo.CurrentUICulture.TwoLetterISOLanguageName == "ar" ? ministry.MinistryDisplayName_AR : ministry.MinistryDisplayName_EN)
                                     </a>
                                 </li>
                             }

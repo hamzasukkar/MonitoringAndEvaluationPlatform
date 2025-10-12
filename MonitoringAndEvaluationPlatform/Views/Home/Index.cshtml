@@ -103,7 +103,7 @@
     <div class="chart-card">
         <h3 class="chart-title">
             <i class="fas fa-handshake"></i>
-            Projects by Donor
+            @Localizer["CHART_PROJECTS_BY_DONOR"]
         </h3>
         <div style="height: 300px;">
             <canvas id="projectsDonorChart"></canvas>
@@ -114,7 +114,7 @@
     <div class="chart-card">
         <h3 class="chart-title">
             <i class="fas fa-chart-bar"></i>
-            Donor Performance
+            @Localizer["CHART_DONOR_PERFORMANCE"]
         </h3>
         <div style="height: 300px;">
             <canvas id="donorPerformanceChart"></canvas>
@@ -125,7 +125,7 @@
     <div class="chart-card">
         <h3 class="chart-title">
             <i class="fas fa-industry"></i>
-            Projects by Sector
+            @Localizer["CHART_PROJECTS_BY_SECTOR"]
         </h3>
         <div style="height: 300px;">
             <canvas id="projectsSectorChart"></canvas>
@@ -136,7 +136,7 @@
     <div class="chart-card">
         <h3 class="chart-title">
             <i class="fas fa-chart-bar"></i>
-            Sector Performance
+            @Localizer["CHART_SECTOR_PERFORMANCE"]
         </h3>
         <div style="height: 300px;">
             <canvas id="sectorPerformanceChart"></canvas>
@@ -147,7 +147,7 @@
     <div class="chart-card">
         <h3 class="chart-title">
             <i class="fas fa-trophy"></i>
-            Top 10 Projects - Overall Performance
+            @Localizer["CHART_TOP_PROJECTS_OVERALL"]
         </h3>
         <div style="height: 300px;">
             <canvas id="projectsOverallPerformanceChart"></canvas>
@@ -158,10 +158,39 @@
     <div class="chart-card">
         <h3 class="chart-title">
             <i class="fas fa-dollar-sign"></i>
-            Top 10 Projects - Disbursement Performance
+            @Localizer["CHART_TOP_PROJECTS_DISBURSEMENT"]
         </h3>
         <div style="height: 300px;">
             <canvas id="projectsDisbursementChart"></canvas>
+        </div>
+    </div>
+
+    <!-- Syria Governorates Map -->
+    <div class="chart-card" style="grid-column: span 2;">
+        <h3 class="chart-title">
+            <i class="fas fa-map-marked-alt"></i>
+            @Localizer["CHART_SYRIA_MAP_TITLE"]
+            <span style="font-size: 0.8rem; font-weight: normal; margin-left: 10px;">@Localizer["CHART_SYRIA_MAP_SUBTITLE"]</span>
+        </h3>
+        <div style="height: 400px; position: relative;">
+            <canvas id="syriaMapChart"></canvas>
+        </div>
+        <div id="governorateDetails" style="margin-top: 15px; padding: 15px; background: rgba(0,0,0,0.05); border-radius: 8px; display: none;">
+            <h4 id="selectedGovernorateName" style="margin: 0 0 10px 0;"></h4>
+            <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px;">
+                <div>
+                    <strong>@Localizer["MAP_PROJECTS_LABEL"]:</strong>
+                    <div id="selectedProjectCount" style="font-size: 1.5rem; color: var(--primary-color);"></div>
+                </div>
+                <div>
+                    <strong>@Localizer["MAP_AVG_PERFORMANCE_LABEL"]:</strong>
+                    <div id="selectedPerformance" style="font-size: 1.5rem; color: var(--secondary-color);"></div>
+                </div>
+                <div>
+                    <strong>@Localizer["MAP_TOTAL_BUDGET_LABEL"]:</strong>
+                    <div id="selectedBudget" style="font-size: 1.5rem; color: var(--accent-color);"></div>
+                </div>
+            </div>
         </div>
     </div>
 </div>
@@ -482,7 +511,7 @@ document.addEventListener('DOMContentLoaded', function() {
         data: {
             labels: @Html.Raw(Json.Serialize(Model.DonorsPerformance.Select(d => d.Partner).ToList())),
             datasets: [{
-                label: 'Performance %',
+                label: '@Localizer["CHART_LABEL_PERFORMANCE"]',
                 data: @Html.Raw(Json.Serialize(Model.DonorsPerformance.Select(d => d.OverallPerformance).ToList())),
                 backgroundColor: getCSSVariableValue('--secondary-color') + 'CC',
                 borderColor: getCSSVariableValue('--secondary-color'),
@@ -540,7 +569,7 @@ document.addEventListener('DOMContentLoaded', function() {
         data: {
             labels: @Html.Raw(Json.Serialize(Model.SectorsPerformance.Select(s => s.Name).ToList())),
             datasets: [{
-                label: 'Performance %',
+                label: '@Localizer["CHART_LABEL_PERFORMANCE"]',
                 data: @Html.Raw(Json.Serialize(Model.SectorsPerformance.Select(s => s.OverallPerformance).ToList())),
                 backgroundColor: getCSSVariableValue('--accent-color') + 'CC',
                 borderColor: getCSSVariableValue('--accent-color'),
@@ -571,7 +600,7 @@ document.addEventListener('DOMContentLoaded', function() {
         data: {
             labels: @Html.Raw(Json.Serialize(Model.ProjectsPerformance.Select(p => p.ProjectName).ToList())),
             datasets: [{
-                label: 'Overall Performance %',
+                label: '@Localizer["CHART_LABEL_OVERALL_PERFORMANCE"]',
                 data: @Html.Raw(Json.Serialize(Model.ProjectsPerformance.Select(p => p.Performance).ToList())),
                 backgroundColor: getCSSVariableValue('--primary-color') + 'CC',
                 borderColor: getCSSVariableValue('--primary-color'),
@@ -603,7 +632,7 @@ document.addEventListener('DOMContentLoaded', function() {
         data: {
             labels: @Html.Raw(Json.Serialize(Model.ProjectsPerformance.Select(p => p.ProjectName).ToList())),
             datasets: [{
-                label: 'Disbursement Performance %',
+                label: '@Localizer["CHART_LABEL_DISBURSEMENT_PERFORMANCE"]',
                 data: @Html.Raw(Json.Serialize(Model.ProjectsPerformance.Select(p => p.DisbursementPerformance).ToList())),
                 backgroundColor: getCSSVariableValue('--secondary-color') + 'CC',
                 borderColor: getCSSVariableValue('--secondary-color'),
@@ -627,10 +656,130 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         }
     });
+
+
+        // Syria Governorates Interactive Map (Bubble Chart)
+        const governoratesData = @Html.Raw(Json.Serialize(Model.GovernoratesMapData));
+        console.log('Governorates Data:', governoratesData);
+        console.log('Data length:', governoratesData ? governoratesData.length : 0);
+        console.log('First governorate object:', governoratesData[0]);
+
+        if (governoratesData && governoratesData.length > 0) {
+            const syriaMapCanvas = document.getElementById('syriaMapChart');
+            console.log('Canvas element found:', syriaMapCanvas);
+
+            if (syriaMapCanvas) {
+                const syriaMapCtx = syriaMapCanvas.getContext('2d');
+                console.log('Canvas context:', syriaMapCtx);
+
+                // Create bubble chart data for Syrian governorates
+                const mapBubbleData = governoratesData.map((gov, index) => {
+                    const bubble = {
+                        x: (index % 7) * 100 + 50, // Simple grid layout
+                        y: Math.floor(index / 7) * 100 + 50,
+                        r: Math.max(20, gov.projectCount > 0 ? gov.projectCount * 3 + 20 : 20), // Bubble size based on project count
+                        governorate: gov
+                    };
+                    console.log(`Governorate ${gov.name}: x=${bubble.x}, y=${bubble.y}, r=${bubble.r}, projects=${gov.projectCount}`);
+                    return bubble;
+                });
+
+                console.log('Bubble data created:', mapBubbleData);
+
+                chartInstances.syriaMap = new Chart(syriaMapCtx, {
+            type: 'bubble',
+            data: {
+                datasets: [{
+                    label: 'Governorates',
+                    data: mapBubbleData,
+                    backgroundColor: mapBubbleData.map(d => {
+                        const performance = d.governorate.averagePerformance;
+                        const alpha = 'CC';
+                        if (performance >= 75) return getCSSVariableValue('--primary-color') + alpha;
+                        if (performance >= 50) return getCSSVariableValue('--secondary-color') + alpha;
+                        if (performance >= 25) return getCSSVariableValue('--accent-color') + alpha;
+                        return '#999999' + alpha;
+                    }),
+                    borderColor: getCSSVariableValue('--primary-dark'),
+                    borderWidth: 2,
+                    hoverBackgroundColor: mapBubbleData.map(d => {
+                        const performance = d.governorate.averagePerformance;
+                        if (performance >= 75) return getCSSVariableValue('--primary-color');
+                        if (performance >= 50) return getCSSVariableValue('--secondary-color');
+                        if (performance >= 25) return getCSSVariableValue('--accent-color');
+                        return '#999999';
+                    })
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                onClick: (event, elements) => {
+                    if (elements.length > 0) {
+                        const index = elements[0].index;
+                        const governorate = mapBubbleData[index].governorate;
+                        showGovernorateDetails(governorate);
+                    }
+                },
+                plugins: {
+                    legend: {
+                        display: false
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                const gov = context.raw.governorate;
+                                return [
+                                    `${gov.name}`,
+                                    `@Localizer["TOOLTIP_PROJECTS"]: ${gov.projectCount}`,
+                                    `@Localizer["TOOLTIP_AVG_PERFORMANCE"]: ${gov.averagePerformance}%`,
+                                    `@Localizer["TOOLTIP_BUDGET"]: $${gov.totalBudget.toLocaleString()}`
+                                ];
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    x: {
+                        display: true,
+                        min: 0,
+                        max: 700,
+                        grid: {
+                            display: true
+                        }
+                    },
+                    y: {
+                        display: true,
+                        min: 0,
+                        max: 300,
+                        grid: {
+                            display: true
+                        }
+                    }
+                }
+            }
+        });
+
+                console.log('Syria map chart created successfully!');
+            } else {
+                console.error('Canvas element not found!');
+            }
+        } else {
+            console.error('No governorates data available!');
+        }
     }
 
     // Initial chart creation
     createCharts();
+
+    // Function to show governorate details when clicked
+    function showGovernorateDetails(governorate) {
+        document.getElementById('governorateDetails').style.display = 'block';
+        document.getElementById('selectedGovernorateName').textContent = governorate.name;
+        document.getElementById('selectedProjectCount').textContent = governorate.projectCount;
+        document.getElementById('selectedPerformance').textContent = governorate.averagePerformance + '%';
+        document.getElementById('selectedBudget').textContent = '$' + governorate.totalBudget.toLocaleString();
+    }
     
     // Add hover effects to stat cards
     const statCards = document.querySelectorAll('.stat-card');

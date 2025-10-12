@@ -41,21 +41,36 @@
     </div>
     <form id="createMinistryForm" class="row g-3">
         @Html.AntiForgeryToken()
-        <div class="col-md-4">
-            <label for="MinistryDisplayName" class="form-label fw-bold">
-                <i class="fas fa-building me-2"></i>@Localizer["Ministry Display Name"]
+        <div class="col-md-2">
+            <label for="Logo" class="form-label fw-bold">
+                <i class="fas fa-icons me-2"></i>@Localizer["Logo"]
             </label>
-            <input type="text" name="MinistryDisplayName" class="form-control form-control-lg" required
-                   placeholder="@Localizer["Enter ministry name"]" />
+            <input type="text" name="Logo" class="form-control form-control-lg"
+                   placeholder="@Localizer["Enter emoji"]" maxlength="10" />
+            <small class="text-muted">@Localizer["e.g., 🏥 🏛️ ⚖️"]</small>
         </div>
-        <div class="col-md-4">
+        <div class="col-md-3">
+            <label for="MinistryDisplayName_AR" class="form-label fw-bold">
+                <i class="fas fa-building me-2"></i>@Localizer["Ministry Display Name (Arabic)"]
+            </label>
+            <input type="text" name="MinistryDisplayName_AR" class="form-control form-control-lg" required
+                   placeholder="@Localizer["Enter ministry name in Arabic"]" />
+        </div>
+        <div class="col-md-3">
+            <label for="MinistryDisplayName_EN" class="form-label fw-bold">
+                <i class="fas fa-building me-2"></i>@Localizer["Ministry Display Name (English)"]
+            </label>
+            <input type="text" name="MinistryDisplayName_EN" class="form-control form-control-lg" required
+                   placeholder="@Localizer["Enter ministry name in English"]" />
+        </div>
+        <div class="col-md-2">
             <label for="MinistryUserName" class="form-label fw-bold">
                 <i class="fas fa-user me-2"></i>@Localizer["Ministry User Name"]
             </label>
             <input type="text" name="MinistryUserName" class="form-control form-control-lg"
                    placeholder="@Localizer["Enter username"]" />
         </div>
-        <div class="col-md-4 d-flex align-items-end">
+        <div class="col-md-2 d-flex align-items-end">
             <div class="d-grid w-100">
                 <button type="submit" class="btn btn-primary btn-lg">
                     <i class="fas fa-plus-circle me-2"></i>@Localizer["Create a New Entity"]
@@ -78,6 +93,11 @@
             <table class="table table-hover modern-table">
                 <thead class="table-header">
                     <tr>
+                        <th class="sortable-header" style="width: 80px;">
+                            <div class="header-link">
+                                <i class="fas fa-icons me-2"></i>@Localizer["Logo"]
+                            </div>
+                        </th>
                         <th class="sortable-header">
                             <div class="header-link">
                                 <i class="fas fa-building me-2"></i>@Localizer["Ministry Display Name"]
@@ -114,17 +134,23 @@
                         double DisbursementPerformance = Math.Round(item.DisbursementPerformance, 2);
 
                         <tr id="ministry-row-@item.Code" class="table-row">
+                            <td class="text-center ministry-logo-cell">
+                                <span id="ministry-logo-@item.Code" class="ministry-logo-view" style="font-size: 2rem;">
+                                    @(string.IsNullOrEmpty(item.Logo) ? "🏛️" : item.Logo)
+                                </span>
+                                <input type="text" id="ministry-logo-input-@item.Code"
+                                       class="form-control ministry-logo-edit d-none text-center" value="@item.Logo" placeholder="Logo" maxlength="10" style="font-size: 1.5rem;" />
+                            </td>
                             <td class="ministry-name-cell">
                                 <div class="d-flex align-items-center">
-                                    <div class="ministry-icon me-3">
-                                        <i class="fas fa-university"></i>
-                                    </div>
                                     <div>
-                                        <span id="ministry-displayname-@item.Code" class="ministry-displayname-view ministry-name-text ministry-clickable" onclick="viewMinistryProjects(@item.Code, '@item.MinistryDisplayName')">
-                                            @item.MinistryDisplayName
+                                        <span id="ministry-displayname-@item.Code" class="ministry-displayname-view ministry-name-text ministry-clickable" onclick="viewMinistryProjects(@item.Code, '@(System.Globalization.CultureInfo.CurrentUICulture.TwoLetterISOLanguageName == "ar" ? item.MinistryDisplayName_AR : item.MinistryDisplayName_EN)')">
+                                            @(System.Globalization.CultureInfo.CurrentUICulture.TwoLetterISOLanguageName == "ar" ? item.MinistryDisplayName_AR : item.MinistryDisplayName_EN)
                                         </span>
-                                        <input type="text" id="ministry-displayname-input-@item.Code"
-                                               class="form-control ministry-displayname-edit d-none" value="@item.MinistryDisplayName" />
+                                        <input type="text" id="ministry-displayname-ar-input-@item.Code"
+                                               class="form-control ministry-displayname-edit d-none" value="@item.MinistryDisplayName_AR" placeholder="Arabic Name" />
+                                        <input type="text" id="ministry-displayname-en-input-@item.Code"
+                                               class="form-control ministry-displayname-edit d-none mt-1" value="@item.MinistryDisplayName_EN" placeholder="English Name" />
                                     </div>
                                 </div>
                             </td>
@@ -314,8 +340,8 @@
 <script>
     $(document).ready(function() {
 
-        // Auto-generate username from display name
-        $('input[name="MinistryDisplayName"]').on('input', function() {
+        // Auto-generate username from English display name
+        $('input[name="MinistryDisplayName_EN"]').on('input', function() {
             const displayName = $(this).val();
             const username = displayName.replace(/\s+/g, '').toLowerCase();
             $('input[name="MinistryUserName"]').val(username);
@@ -326,11 +352,13 @@
             e.preventDefault();
             console.log('Form submitted!');
 
-            const displayName = $('input[name="MinistryDisplayName"]').val().trim();
+            const logo = $('input[name="Logo"]').val().trim();
+            const displayNameAR = $('input[name="MinistryDisplayName_AR"]').val().trim();
+            const displayNameEN = $('input[name="MinistryDisplayName_EN"]').val().trim();
             const userName = $('input[name="MinistryUserName"]').val().trim();
 
-            if (!displayName) {
-                Swal.fire('Error', '@Localizer["Ministry Display Name is required"]', 'error');
+            if (!displayNameAR && !displayNameEN) {
+                Swal.fire('Error', '@Localizer["Ministry Display Name (Arabic or English) is required"]', 'error');
                 return;
             }
 
@@ -338,7 +366,9 @@
                 url: '@Url.Action("CreateInline")',
                 type: 'POST',
                 data: {
-                    MinistryDisplayName: displayName,
+                    Logo: logo,
+                    MinistryDisplayName_AR: displayNameAR,
+                    MinistryDisplayName_EN: displayNameEN,
                     MinistryUserName: userName,
                     __RequestVerificationToken: $('input[name="__RequestVerificationToken"]').val()
                 },
@@ -346,22 +376,26 @@
                     console.log('Response:', response);
                     if (response.success) {
                         // Add new row with modern design
+                        const logo = response.ministry.logo || '🏛️';
                         const newRow = `
                             <tr id="ministry-row-${response.ministry.code}" class="table-row">
+                                <td class="text-center ministry-logo-cell">
+                                    <span id="ministry-logo-${response.ministry.code}" class="ministry-logo-view" style="font-size: 2rem;">
+                                        ${logo}
+                                    </span>
+                                    <input type="text" id="ministry-logo-input-${response.ministry.code}"
+                                           class="form-control ministry-logo-edit d-none text-center" value="${response.ministry.logo || ''}" placeholder="Logo" maxlength="10" style="font-size: 1.5rem;" />
+                                </td>
                                 <td class="ministry-name-cell">
                                     <div class="d-flex align-items-center">
-                                        <div class="ministry-icon me-3">
-                                            <i class="fas fa-university"></i>
-                                        </div>
                                         <div>
                                             <span id="ministry-displayname-${response.ministry.code}" class="ministry-displayname-view ministry-name-text">
-                                                ${response.ministry.ministryDisplayName}
+                                                ${response.ministry.ministryDisplayName_AR || response.ministry.ministryDisplayName_EN}
                                             </span>
-                                            <input type="text" id="ministry-displayname-input-${response.ministry.code}"
-                                                   class="form-control ministry-displayname-edit d-none" value="${response.ministry.ministryDisplayName}" />
-                                            <small class="text-muted d-block">
-                                                <i class="fas fa-hashtag me-1"></i>ID: ${response.ministry.code}
-                                            </small>
+                                            <input type="text" id="ministry-displayname-ar-input-${response.ministry.code}"
+                                                   class="form-control ministry-displayname-edit d-none" value="${response.ministry.ministryDisplayName_AR || ''}" placeholder="Arabic Name" />
+                                            <input type="text" id="ministry-displayname-en-input-${response.ministry.code}"
+                                                   class="form-control ministry-displayname-edit d-none mt-1" value="${response.ministry.ministryDisplayName_EN || ''}" placeholder="English Name" />
                                         </div>
                                     </div>
                                 </td>
@@ -556,17 +590,22 @@
 
     // Toggle Ministry Inline Edit - Global function
     function toggleMinistryEdit(code) {
+        const logoSpan = $(`#ministry-logo-${code}`);
+        const logoInput = $(`#ministry-logo-input-${code}`);
         const displayNameSpan = $(`#ministry-displayname-${code}`);
-        const displayNameInput = $(`#ministry-displayname-input-${code}`);
+        const displayNameARInput = $(`#ministry-displayname-ar-input-${code}`);
+        const displayNameENInput = $(`#ministry-displayname-en-input-${code}`);
         const userNameSpan = $(`#ministry-username-${code}`);
         const userNameInput = $(`#ministry-username-input-${code}`);
         const button = $(`#edit-btn-${code}`);
 
-        const isEditing = displayNameInput.hasClass('d-none') === false;
+        const isEditing = displayNameARInput.hasClass('d-none') === false;
 
         if (isEditing) {
             // Save via AJAX
-            const newDisplayName = displayNameInput.val();
+            const newLogo = logoInput.val();
+            const newDisplayNameAR = displayNameARInput.val();
+            const newDisplayNameEN = displayNameENInput.val();
             const newUserName = userNameInput.val();
 
             $.ajax({
@@ -574,19 +613,25 @@
                 type: 'POST',
                 data: {
                     id: code,
-                    displayName: newDisplayName,
+                    logo: newLogo,
+                    displayNameAR: newDisplayNameAR,
+                    displayNameEN: newDisplayNameEN,
                     userName: newUserName
                 },
                 success: function (response) {
                     if (response.success) {
-                        displayNameSpan.text(newDisplayName);
+                        logoSpan.text(newLogo || '🏛️');
+                        displayNameSpan.text(newDisplayNameAR || newDisplayNameEN);
                         userNameSpan.text(newUserName);
-                        displayNameInput.addClass('d-none');
+                        logoInput.addClass('d-none');
+                        displayNameARInput.addClass('d-none');
+                        displayNameENInput.addClass('d-none');
                         userNameInput.addClass('d-none');
+                        logoSpan.removeClass('d-none');
                         displayNameSpan.removeClass('d-none');
                         userNameSpan.removeClass('d-none');
                         button.html('<i class="fas fa-edit"></i>');
-                        button.removeClass('btn-success').addClass('btn-outline-warning');
+                        button.removeClass('btn-success').addClass('btn-outline-primary');
                         Swal.fire({
                             icon: 'success',
                             title: '@Localizer["Updated!"]',
@@ -604,13 +649,16 @@
             });
         } else {
             // Enter edit mode
-            displayNameInput.removeClass('d-none');
+            logoInput.removeClass('d-none');
+            displayNameARInput.removeClass('d-none');
+            displayNameENInput.removeClass('d-none');
             userNameInput.removeClass('d-none');
+            logoSpan.addClass('d-none');
             displayNameSpan.addClass('d-none');
             userNameSpan.addClass('d-none');
             button.html('<i class="fas fa-save"></i>');
-            button.removeClass('btn-outline-warning').addClass('btn-success');
-            displayNameInput.focus();
+            button.removeClass('btn-outline-primary').addClass('btn-success');
+            logoInput.focus();
         }
     }
 

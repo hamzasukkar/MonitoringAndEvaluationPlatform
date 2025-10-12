@@ -25,6 +25,7 @@ namespace MonitoringAndEvaluationPlatform.ViewModel
         public Dictionary<string, int> ProjectsBySector { get; set; } = new();
         public List<SectorPerformanceViewModel> SectorsPerformance { get; set; } = new();
         public List<ProjectPerformanceViewModel> ProjectsPerformance { get; set; } = new();
+        public List<GovernorateMapDataViewModel> GovernoratesMapData { get; set; } = new();
     }
 
     public class MonthlyPerformanceViewModel
@@ -72,6 +73,17 @@ namespace MonitoringAndEvaluationPlatform.ViewModel
         public double DisbursementPerformance { get; set; }
         public double FieldMonitoring { get; set; }
         public double ImpactAssessment { get; set; }
+    }
+
+    public class GovernorateMapDataViewModel
+    {
+        public string Code { get; set; }
+        public string Name { get; set; }
+        public string EN_Name { get; set; }
+        public string AR_Name { get; set; }
+        public int ProjectCount { get; set; }
+        public double AveragePerformance { get; set; }
+        public double TotalBudget { get; set; }
     }
 
 }

@@ -207,24 +207,26 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         // Inline Operations
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> CreateInline(string MinistryDisplayName, string MinistryUserName)
+        public async Task<IActionResult> CreateInline(string MinistryDisplayName_AR, string MinistryDisplayName_EN, string MinistryUserName, string Logo)
         {
-            if (string.IsNullOrWhiteSpace(MinistryDisplayName))
+            if (string.IsNullOrWhiteSpace(MinistryDisplayName_AR) && string.IsNullOrWhiteSpace(MinistryDisplayName_EN))
             {
-                return Json(new { success = false, message = "Display Name is required." });
+                return Json(new { success = false, message = "Display Name (Arabic or English) is required." });
             }
 
             var ministry = new Ministry
             {
-                MinistryDisplayName = MinistryDisplayName,
-                MinistryUserName = MinistryUserName ?? MinistryDisplayName.Replace(" ", "").ToLower()
+                MinistryDisplayName_AR = MinistryDisplayName_AR,
+                MinistryDisplayName_EN = MinistryDisplayName_EN,
+                MinistryUserName = MinistryUserName ?? (MinistryDisplayName_EN ?? MinistryDisplayName_AR).Replace(" ", "").ToLower(),
+                Logo = Logo
             };
 
             try
             {
                 _context.Ministries.Add(ministry);
                 await _context.SaveChangesAsync();
-                return Json(new { success = true, ministry = new { ministry.Code, ministry.MinistryDisplayName, ministry.MinistryUserName } });
+                return Json(new { success = true, ministry = new { ministry.Code, ministry.MinistryDisplayName_AR, ministry.MinistryDisplayName_EN, ministry.MinistryUserName, ministry.Logo } });
             }
             catch (Exception ex)
             {
@@ -241,11 +243,17 @@ namespace MonitoringAndEvaluationPlatform.Controllers
 
             switch (field.ToLower())
             {
-                case "ministrydisplayname":
-                    ministry.MinistryDisplayName = value;
+                case "ministrydisplayname_ar":
+                    ministry.MinistryDisplayName_AR = value;
+                    break;
+                case "ministrydisplayname_en":
+                    ministry.MinistryDisplayName_EN = value;
                     break;
                 case "ministryusername":
                     ministry.MinistryUserName = value;
+                    break;
+                case "logo":
+                    ministry.Logo = value;
                     break;
                 default:
                     return Json(new { success = false, message = "Invalid field" });
@@ -263,17 +271,19 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> QuickUpdate(int id, string displayName, string userName)
+        public async Task<IActionResult> QuickUpdate(int id, string displayNameAR, string displayNameEN, string userName, string logo)
         {
             var ministry = await _context.Ministries.FindAsync(id);
             if (ministry == null)
                 return Json(new { success = false, message = "Ministry not found" });
 
-            if (string.IsNullOrWhiteSpace(displayName))
-                return Json(new { success = false, message = "Display Name is required" });
+            if (string.IsNullOrWhiteSpace(displayNameAR) && string.IsNullOrWhiteSpace(displayNameEN))
+                return Json(new { success = false, message = "Display Name (Arabic or English) is required" });
 
-            ministry.MinistryDisplayName = displayName;
+            ministry.MinistryDisplayName_AR = displayNameAR;
+            ministry.MinistryDisplayName_EN = displayNameEN;
             ministry.MinistryUserName = userName;
+            ministry.Logo = logo;
 
             try
             {

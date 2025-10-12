@@ -113,7 +113,7 @@
                             </div>
                             <div class="detail-content">
                                 <div class="detail-label">@Localizer["Ministry"]</div>
-                                <div class="detail-value">@(item.Ministries?.FirstOrDefault()?.MinistryDisplayName ?? "N/A")</div>
+                                <div class="detail-value">@(System.Globalization.CultureInfo.CurrentUICulture.TwoLetterISOLanguageName == "ar" ? (item.Ministries?.FirstOrDefault()?.MinistryDisplayName_AR ?? "N/A") : (item.Ministries?.FirstOrDefault()?.MinistryDisplayName_EN ?? "N/A"))</div>
                             </div>
                         </div>
 

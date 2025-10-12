@@ -59,7 +59,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             {
                 projectQuery = projectQuery
                     .Where(p => p.Ministries
-                                 .Any(m => m.MinistryDisplayName == user.MinistryName));
+                                 .Any(m => m.MinistryDisplayName_AR == user.MinistryName || m.MinistryDisplayName_EN == user.MinistryName || m.MinistryUserName == user.MinistryName));
                 filter.IsMinistryUser = true;
             }
 
@@ -168,7 +168,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             // Prepare dropdown and multiselect data
             ViewBag.Donor = new SelectList(donors, "Code", "Partner");
             ViewBag.SectorList = new MultiSelectList(sectors, "Code", "AR_Name", firstSectorCode.HasValue ? new List<int> { firstSectorCode.Value } : new List<int>());
-            ViewBag.MinistryList = new SelectList(ministries, "Code", "MinistryDisplayName");
+            ViewBag.MinistryList = new SelectList(ministries, "Code", isArabic ? "MinistryDisplayName_AR" : "MinistryDisplayName_EN");
             ViewBag.SuperVisor = new SelectList(supervisors, "Code", "Name");
 
             // Initialize empty donor funding data for create form
@@ -462,7 +462,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             ViewBag.MinistryList = new SelectList(
                 allMinistries,
                 "Code",      // value field
-                "MinistryDisplayName",      // text field
+                isArabic ? "MinistryDisplayName_AR" : "MinistryDisplayName_EN",      // text field
                 selectedMinistryCode  // selected value
             );
 
@@ -780,10 +780,11 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             );
 
             var allMinistries = await _context.Ministries.ToListAsync();
+            var isArabic = CultureInfo.CurrentUICulture.TwoLetterISOLanguageName == "ar";
             ViewBag.MinistryList = new SelectList(
                 allMinistries,
                 "Code",
-                "MinistryDisplayName",
+                isArabic ? "MinistryDisplayName_AR" : "MinistryDisplayName_EN",
                 project.MinistryCode
             );
 
@@ -1198,7 +1199,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             var sectorCodes = selectedSectorCodes?.Select(int.Parse).ToList() ?? new List<int>();
             ViewBag.SectorList = new MultiSelectList(_context.Sectors, "Code", "AR_Name", sectorCodes);
 
-            ViewBag.MinistryList = new SelectList(_context.Ministries, "Code", "MinistryDisplayName");
+            ViewBag.MinistryList = new SelectList(_context.Ministries, "Code", isArabic ? "MinistryDisplayName_AR" : "MinistryDisplayName_EN");
             ViewBag.ProjectManager = new SelectList(_context.ProjectManagers, "Code", "Name");
             ViewBag.SuperVisor = new SelectList(_context.SuperVisors, "Code", "Name");
             ViewBag.Donor = new SelectList(_context.Donors, "Code", "Partner");
