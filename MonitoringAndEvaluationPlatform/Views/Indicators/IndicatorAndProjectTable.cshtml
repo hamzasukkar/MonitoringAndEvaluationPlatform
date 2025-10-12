@@ -255,12 +255,18 @@
                             </td>
                             <td class="text-center">
                                 <div class="projects-column">
-                                    @if (item.ProjectIndicators.Any())
+                                    @{
+                                        var distinctProjects = item.ProjectIndicators
+                                            .GroupBy(pi => pi.ProjectId)
+                                            .Select(g => g.First())
+                                            .ToList();
+                                    }
+                                    @if (distinctProjects.Any())
                                     {
                                         <button class="btn expand-projects-btn" type="button"
                                                 onclick="toggleProjects(@item.IndicatorCode)">
                                             <i class="fas fa-folder-open me-2"></i>
-                                            <span class="badge bg-light text-dark">@item.ProjectIndicators.Count()</span>
+                                            <span class="badge bg-light text-dark">@distinctProjects.Count()</span>
                                             @Localizer["Projects"]
                                             <i class="fas fa-chevron-down ms-2 chevron-icon" id="chevron-@item.IndicatorCode"></i>
                                         </button>
@@ -309,11 +315,15 @@
                         @* Expandable Projects Row *@
                         @if (item.ProjectIndicators.Any())
                         {
+                            var uniqueProjects = item.ProjectIndicators
+                                .GroupBy(pi => pi.ProjectId)
+                                .Select(g => g.First())
+                                .ToList();
                             <tr class="expandable-row" id="projects-row-@item.IndicatorCode" style="display: none;">
                                 <td colspan="7">
                                     <div class="projects-expanded-content">
                                         <div class="projects-grid">
-                                            @foreach (var projectIndicator in item.ProjectIndicators)
+                                            @foreach (var projectIndicator in uniqueProjects)
                                             {
                                                 var project = projectIndicator.Project;
                                                 <div class="project-mini-card">
