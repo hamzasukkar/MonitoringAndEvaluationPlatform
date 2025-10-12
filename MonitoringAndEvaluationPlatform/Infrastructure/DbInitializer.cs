@@ -229,23 +229,55 @@ namespace MonitoringAndEvaluationPlatform.Infrastructure
                 {
                     var superVisors = new List<SuperVisor>
                     {
-                        new SuperVisor { Name = "SuperVisor 1" }, // Remove explicit Code if using auto-increment
-                        new SuperVisor { Name = "SuperVisor 2" },
-                        new SuperVisor { Name = "SuperVisor 3" }
+                        new SuperVisor
+                        {
+                            Name = "أحمد محمود السيد",
+                            PhoneNumber = "+963-11-2345678",
+                            Email = "ahmed.mahmoud@supervision.gov.sy"
+                        },
+                        new SuperVisor
+                        {
+                            Name = "فاطمة علي الحسن",
+                            PhoneNumber = "+963-21-3456789",
+                            Email = "fatima.ali@supervision.gov.sy"
+                        },
+                        new SuperVisor
+                        {
+                            Name = "محمد خالد الأحمد",
+                            PhoneNumber = "+963-31-4567890",
+                            Email = "mohammed.khaled@supervision.gov.sy"
+                        }
                     };
 
                     context.SuperVisors.AddRange(superVisors);
+                    await context.SaveChangesAsync();
                 }
                 if (!context.ProjectManagers.Any())
                 {
                     var projectManagers = new List<ProjectManager>
                     {
-                        new ProjectManager { Name = "ProjectManager 1" }, // Remove explicit Code if using auto-increment
-                        new ProjectManager { Name = "ProjectManager 2" },
-                        new ProjectManager { Name = "ProjectManager 3" }
+                        new ProjectManager
+                        {
+                            Name = "سامر يوسف العمر",
+                            PhoneNumber = "+963-11-9876543",
+                            Email = "samer.yousef@projects.gov.sy"
+                        },
+                        new ProjectManager
+                        {
+                            Name = "ليلى حسن الخطيب",
+                            PhoneNumber = "+963-21-8765432",
+                            Email = "layla.hassan@projects.gov.sy"
+                        },
+                        new ProjectManager
+                        {
+                            Name = "عمر صالح الديري",
+                            PhoneNumber = "+963-31-7654321",
+                            Email = "omar.saleh@projects.gov.sy"
+                        }
                     };
 
                     context.ProjectManagers.AddRange(projectManagers);
+                    await context.SaveChangesAsync();
                 }
        
                 if (!context.Frameworks.Include(f => f.Outcomes).Any())
@@ -315,7 +347,7 @@ namespace MonitoringAndEvaluationPlatform.Infrastructure
                 };
 
                     context.Frameworks.AddRange(frameworks);
-                    context.SaveChanges();
+                    await context.SaveChangesAsync();
                 }
 
                 // Seed Governorates (Syria regions) if they don't exist
