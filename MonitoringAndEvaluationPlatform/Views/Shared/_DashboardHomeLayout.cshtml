@@ -987,6 +987,48 @@
                         </ul>
                     </li>
                     <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="SectorsDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="fas fa-industry me-1"></i> @Localizer["Sectors"]
+                        </a>
+                        <ul class="dropdown-menu p-2" aria-labelledby="SectorsDropdown" style="max-height: 300px; overflow-y: auto; min-width: 250px;">
+                            <li class="ministry-item">
+                                <a class="dropdown-item" asp-controller="Ministries" asp-action="ResultIndex">
+                                    @Localizer["Public"]
+                                </a>
+                                <a class="dropdown-item" asp-controller="Sectors" asp-action="ResultIndex" asp-route-code="2">
+                                    @Localizer["private"]
+                                </a>
+                                <a class="dropdown-item" asp-controller="Sectors" asp-action="ResultIndex" asp-route-code="3">
+                                    @Localizer["Common"]
+                                </a>
+                                <a class="dropdown-item" asp-controller="Sectors" asp-action="ResultIndex" asp-route-code="4">
+                                    @Localizer["Domestic"]
+                                </a>
+                            </li>
+                        </ul>
+                    </li>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="InternationalCooperationPartnersDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="fas fa-handshake me-1"></i> @Localizer["International Cooperation Partners"]
+                        </a>
+                        <ul class="dropdown-menu p-2" aria-labelledby="InternationalCooperationPartnersDropdown" style="max-height: 300px; overflow-y: auto; min-width: 250px;">
+                            <li class="ministry-item">
+                                <a class="dropdown-item" asp-action="ResultIndex" asp-controller="Donors" asp-route-donorCategory="1">
+                                    @Localizer["United Nations organizations"]
+                                </a>
+                                <a class="dropdown-item" asp-action="ResultIndex" asp-controller="Donors" asp-route-donorCategory="2">
+                                    @Localizer["International non-governmental organizations"]
+                                </a>
+                                <a class="dropdown-item" asp-action="ResultIndex" asp-controller="Donors" asp-route-donorCategory="3">
+                                    @Localizer["Countries"]
+                                </a>
+                                <a class="dropdown-item" asp-action="ResultIndex" asp-controller="Donors" asp-route-donorCategory="4">
+                                    @Localizer["Local"]
+                                </a>
+                            </li>
+                        </ul>
+                    </li>
+                    <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle" href="#" id="ProjectsDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                             <i class="fas fa-project-diagram me-1"></i> @Localizer["Projects"]
                         </a>
