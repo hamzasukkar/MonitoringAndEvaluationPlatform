@@ -792,10 +792,20 @@
         // Restore preserved form data after validation failure
         restoreFormData();
 
-        // Disable ministry dropdown for ministry users
+        // Make ministry dropdown readonly for ministry users
         var isMinistryUser = @Html.Raw(Json.Serialize(ViewBag.IsMinistryUser ?? false));
         if (isMinistryUser) {
-            $('#ministrySelect').prop('disabled', true);
+            // Add readonly styling and prevent changes
+            $('#ministrySelect').css({
+                'background-color': '#e9ecef',
+                'cursor': 'not-allowed',
+                'pointer-events': 'none'
+            }).addClass('readonly-select');
+
+            // Also add a visual indicator
+            $('#ministrySelect').closest('.mb-4').append(
+                '<small class="form-text text-muted"><i class="fas fa-lock me-1"></i>@Localizer["Ministry is automatically assigned based on your account"]</small>'
+            );
         }
     });
 
