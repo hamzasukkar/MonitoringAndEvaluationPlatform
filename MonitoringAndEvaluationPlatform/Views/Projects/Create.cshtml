@@ -243,11 +243,12 @@
                                 <div class="mb-4">
                                     <label asp-for="MinistryCode" class="form-label fw-bold">
                                         <i class="fas fa-building me-2"></i>
-                                        @Localizer["Ministry"]
+                                        @Localizer["Ministry"] <span class="text-danger">*</span>
                                     </label>
-                                    <select asp-for="MinistryCode" class="form-select form-select-lg" asp-items="ViewBag.MinistryList" id="ministrySelect">
+                                    <select asp-for="MinistryCode" class="form-select form-select-lg" asp-items="ViewBag.MinistryList" id="ministrySelect" required>
                                         <option value="">@Localizer["Select Ministry"]</option>
                                     </select>
+                                    <span asp-validation-for="MinistryCode" class="invalid-feedback d-block"></span>
                                 </div>
 
                                 <div class="mb-4">
@@ -1042,6 +1043,13 @@
         const supervisor = $('select[name="SuperVisorCode"]').val();
         if (!supervisor) {
             errorMessages.push("A supervisor must be selected.");
+            isValid = false;
+        }
+
+        // Check if ministry is selected
+        const ministry = $('select[name="MinistryCode"]').val();
+        if (!ministry) {
+            errorMessages.push("@Localizer["A ministry must be selected."]");
             isValid = false;
         }
 

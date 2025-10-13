@@ -96,13 +96,22 @@
                                 <div class="detail-label">@Localizer["Location"]</div>
                                 <div class="detail-value">
                                     @{
-                                        var requestCulture = Context.Features.Get<IRequestCultureFeature>();
-                                        var currentCulture = requestCulture?.RequestCulture.Culture.TwoLetterISOLanguageName ?? "ar";
-                                        var communityName = currentCulture == "ar"
-                                            ? item.Communities?.FirstOrDefault()?.AR_Name
-                                            : item.Communities?.FirstOrDefault()?.EN_Name;
+                                        string locationDisplay;
+                                        if (item.IsEntireCountry)
+                                        {
+                                            locationDisplay = Localizer["Entire Country"].Value;
+                                        }
+                                        else
+                                        {
+                                            var requestCulture = Context.Features.Get<IRequestCultureFeature>();
+                                            var currentCulture = requestCulture?.RequestCulture.Culture.TwoLetterISOLanguageName ?? "ar";
+                                            var communityName = currentCulture == "ar"
+                                                ? item.Communities?.FirstOrDefault()?.AR_Name
+                                                : item.Communities?.FirstOrDefault()?.EN_Name;
+                                            locationDisplay = communityName ?? "N/A";
+                                        }
                                     }
-                                    @(communityName ?? "N/A")
+                                    @locationDisplay
                                 </div>
                             </div>
                         </div>
