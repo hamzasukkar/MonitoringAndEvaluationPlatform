@@ -34,52 +34,6 @@
 
 @await Html.PartialAsync("_ManagementNavigation")
 
-<!-- Quick Add Section -->
-<div class="chart-card mb-4">
-    <div class="chart-title">
-        <i class="fas fa-university"></i>
-        @Localizer["Add New Ministry"]
-    </div>
-    <form id="createMinistryForm" class="row g-3">
-        @Html.AntiForgeryToken()
-        <div class="col-md-2">
-            <label for="Logo" class="form-label fw-bold">
-                <i class="fas fa-icons me-2"></i>@Localizer["Logo"]
-            </label>
-            <input type="text" name="Logo" class="form-control form-control-lg"
-                   placeholder="@Localizer["Enter emoji"]" maxlength="10" />
-            <small class="text-muted">@Localizer["e.g., 🏥 🏛️ ⚖️"]</small>
-        </div>
-        <div class="col-md-3">
-            <label for="MinistryDisplayName_AR" class="form-label fw-bold">
-                <i class="fas fa-building me-2"></i>@Localizer["Ministry Display Name (Arabic)"]
-            </label>
-            <input type="text" name="MinistryDisplayName_AR" class="form-control form-control-lg" required
-                   placeholder="@Localizer["Enter ministry name in Arabic"]" />
-        </div>
-        <div class="col-md-3">
-            <label for="MinistryDisplayName_EN" class="form-label fw-bold">
-                <i class="fas fa-building me-2"></i>@Localizer["Ministry Display Name (English)"]
-            </label>
-            <input type="text" name="MinistryDisplayName_EN" class="form-control form-control-lg" required
-                   placeholder="@Localizer["Enter ministry name in English"]" />
-        </div>
-        <div class="col-md-2">
-            <label for="MinistryUserName" class="form-label fw-bold">
-                <i class="fas fa-user me-2"></i>@Localizer["Ministry User Name"]
-            </label>
-            <input type="text" name="MinistryUserName" class="form-control form-control-lg"
-                   placeholder="@Localizer["Enter username"]" />
-        </div>
-        <div class="col-md-2 d-flex align-items-end">
-            <div class="d-grid w-100">
-                <button type="submit" class="btn btn-primary btn-lg">
-                    <i class="fas fa-plus-circle me-2"></i>@Localizer["Create a New Entity"]
-                </button>
-            </div>
-        </div>
-    </form>
-</div>
 @if (User.IsInRole(UserRoles.SystemAdministrator))
 {
     <!-- Quick Add Section -->
@@ -90,21 +44,36 @@
         </div>
         <form id="createMinistryForm" class="row g-3">
             @Html.AntiForgeryToken()
-            <div class="col-md-4">
-                <label for="MinistryDisplayName" class="form-label fw-bold">
-                    <i class="fas fa-building me-2"></i>@Localizer["Ministry Display Name"]
+            <div class="col-md-2">
+                <label for="Logo" class="form-label fw-bold">
+                    <i class="fas fa-icons me-2"></i>@Localizer["Logo"]
                 </label>
-                <input type="text" name="MinistryDisplayName" class="form-control form-control-lg" required
-                       placeholder="@Localizer["Enter ministry name"]" />
+                <input type="text" name="Logo" class="form-control form-control-lg"
+                       placeholder="@Localizer["Enter emoji"]" maxlength="10" />
+                <small class="text-muted">@Localizer["e.g., 🏥 🏛️ ⚖️"]</small>
             </div>
-            <div class="col-md-4">
+            <div class="col-md-3">
+                <label for="MinistryDisplayName_AR" class="form-label fw-bold">
+                    <i class="fas fa-building me-2"></i>@Localizer["Ministry Display Name (Arabic)"]
+                </label>
+                <input type="text" name="MinistryDisplayName_AR" class="form-control form-control-lg" required
+                       placeholder="@Localizer["Enter ministry name in Arabic"]" />
+            </div>
+            <div class="col-md-3">
+                <label for="MinistryDisplayName_EN" class="form-label fw-bold">
+                    <i class="fas fa-building me-2"></i>@Localizer["Ministry Display Name (English)"]
+                </label>
+                <input type="text" name="MinistryDisplayName_EN" class="form-control form-control-lg" required
+                       placeholder="@Localizer["Enter ministry name in English"]" />
+            </div>
+            <div class="col-md-2">
                 <label for="MinistryUserName" class="form-label fw-bold">
                     <i class="fas fa-user me-2"></i>@Localizer["Ministry User Name"]
                 </label>
                 <input type="text" name="MinistryUserName" class="form-control form-control-lg"
                        placeholder="@Localizer["Enter username"]" />
             </div>
-            <div class="col-md-4 d-flex align-items-end">
+            <div class="col-md-2 d-flex align-items-end">
                 <div class="d-grid w-100">
                     <button type="submit" class="btn btn-primary btn-lg">
                         <i class="fas fa-plus-circle me-2"></i>@Localizer["Create a New Entity"]
@@ -113,6 +82,8 @@
             </div>
         </form>
     </div>
+
+   
 }
 
 <!-- Ministries Table -->
