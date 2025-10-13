@@ -343,7 +343,7 @@
                                                     var roles = await UserManager.GetRolesAsync(user);
                                                     if (roles.Contains("Admin"))
                                                     {
-                                                        <form asp-controller="Tree" asp-action="Index" asp-route-id="@item.Code" method="post" class="d-inline">
+                                                        <form asp-controller="Tree" asp-action="Index2" asp-route-id="@item.Code" method="post" class="d-inline">
                                                             <button class="btn btn-outline-success btn-sm action-btn" title="Tree View">
                                                                 <i class="fas fa-project-diagram"></i>
                                                             </button>

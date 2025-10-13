@@ -423,6 +423,19 @@ document.addEventListener('DOMContentLoaded', function() {
     const collapseAllBtn = document.getElementById('collapseAll');
     const exportBtn = document.getElementById('exportChart');
 
+    // Localization map for node types
+    const typeTranslations = {
+        'Framework': '@Localizer["Framework"]',
+        'Outcome': '@Localizer["Outcome"]',
+        'Output': '@Localizer["Output"]',
+        'SubOutput': '@Localizer["Sub-Output"]',
+        'Sub-Output': '@Localizer["Sub-Output"]',
+        'Indicator': '@Localizer["Indicator"]'
+    };
+
+    // Localized "Weight" label
+    const weightLabel = '@Localizer["Weight"]';
+
     loadHierarchyData();
 
     function loadHierarchyData() {
@@ -489,12 +502,14 @@ document.addEventListener('DOMContentLoaded', function() {
 
         const hasChildren = node.children && node.children.length > 0;
 
+        const translatedType = typeTranslations[node.type] || node.type;
+
         nodeDiv.innerHTML = `
             <div class="node-title">${node.name}</div>
-            <div class="node-type">${node.type}</div>
+            <div class="node-type">${translatedType}</div>
             <div class="node-metrics">
                 <div class="performance-badge">${node.indicatorsPerformance}</div>
-                <div class="weight-badge">Weight: ${node.weight}</div>
+                <div class="weight-badge">${weightLabel}: ${node.weight}</div>
             </div>
             ${hasChildren ? '<div class="expand-icon collapsed"></div>' : ''}
         `;
