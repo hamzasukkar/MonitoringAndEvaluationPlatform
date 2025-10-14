@@ -189,6 +189,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             ViewBag.Donor = new SelectList(donors, "Code", "Partner");
             ViewBag.SectorList = new MultiSelectList(sectors, "Code", "AR_Name", firstSectorCode.HasValue ? new List<int> { firstSectorCode.Value } : new List<int>());
             ViewBag.MinistryList = new SelectList(ministries, "Code", isArabic ? "MinistryDisplayName_AR" : "MinistryDisplayName_EN", userMinistryCode);
+            ViewBag.Ministries = ministries; // Pass full ministry list with Logo property
             ViewBag.SuperVisor = new SelectList(supervisors, "Code", "Name");
 
             // Pass ministry user info to the view
@@ -509,6 +510,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 isArabic ? "MinistryDisplayName_AR" : "MinistryDisplayName_EN",      // text field
                 selectedMinistryCode  // selected value
             );
+            ViewBag.Ministries = allMinistries; // Pass full ministry list with Logo property
 
             // Pass ministry user info to the view
             ViewBag.IsMinistryUser = isMinistryUser;

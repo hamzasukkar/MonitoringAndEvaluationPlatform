@@ -245,9 +245,38 @@
                                         <i class="fas fa-building me-2"></i>
                                         @Localizer["Ministry"] <span class="text-danger">*</span>
                                     </label>
-                                    <select asp-for="MinistryCode" class="form-select form-select-lg" asp-items="ViewBag.MinistryList" id="ministrySelect" required>
-                                        <option value="">@Localizer["Select Ministry"]</option>
-                                    </select>
+                                    <div class="dropdown ministry-dropdown">
+                                        <button class="btn btn-outline-secondary dropdown-toggle form-control form-control-lg text-start d-flex align-items-center justify-content-between" type="button" id="ministryDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                                            <span id="selectedMinistryDisplay" class="text-muted">@Localizer["Select Ministry"]</span>
+                                        </button>
+                                        <ul class="dropdown-menu dropdown-menu-lg w-100" aria-labelledby="ministryDropdown" style="max-height: 400px; overflow-y: auto;">
+                                            @if (ViewBag.Ministries != null)
+                                            {
+                                                var isArabic = System.Threading.Thread.CurrentThread.CurrentUICulture.TwoLetterISOLanguageName == "ar";
+                                                var ministries = ViewBag.Ministries as List<Ministry>;
+                                                @foreach (var ministry in ministries)
+                                                {
+                                                    var ministryName = isArabic ? ministry.MinistryDisplayName_AR : ministry.MinistryDisplayName_EN;
+                                                    <li>
+                                                        <a class="dropdown-item ministry-item d-flex align-items-center py-2" href="#" data-ministry-code="@ministry.Code" data-ministry-name="@ministryName" data-ministry-logo="@ministry.Logo">
+                                                            @if (!string.IsNullOrEmpty(ministry.Logo))
+                                                            {
+                                                                <span class="ministry-logo me-2 d-flex align-items-center justify-content-center" style="width: 30px; height: 30px; font-size: 1.5rem;">@ministry.Logo</span>
+                                                            }
+                                                            else
+                                                            {
+                                                                <div class="ministry-logo-placeholder me-2 bg-light border rounded d-flex align-items-center justify-content-center" style="width: 30px; height: 30px;">
+                                                                    <i class="fas fa-building text-muted" style="font-size: 0.8rem;"></i>
+                                                                </div>
+                                                            }
+                                                            <span>@ministryName</span>
+                                                        </a>
+                                                    </li>
+                                                }
+                                            }
+                                        </ul>
+                                    </div>
+                                    <input type="hidden" asp-for="MinistryCode" id="ministrySelect" />
                                     <span asp-validation-for="MinistryCode" class="invalid-feedback d-block"></span>
                                 </div>
 
@@ -793,6 +822,29 @@
         // Restore preserved form data after validation failure
         restoreFormData();
 
+        // Handle ministry dropdown selection
+        $('.ministry-item').click(function(e) {
+            e.preventDefault();
+            const ministryCode = $(this).data('ministry-code');
+            const ministryName = $(this).data('ministry-name');
+            const ministryLogo = $(this).data('ministry-logo');
+
+            // Update hidden input
+            $('#ministrySelect').val(ministryCode);
+
+            // Update display button
+            $('#selectedMinistryDisplay').html('').removeClass('text-muted');
+            if (ministryLogo && ministryLogo.trim() !== '') {
+                $('#selectedMinistryDisplay').append('<span class="me-2" style="font-size: 1.5rem;">' + ministryLogo + '</span>');
+            } else {
+                $('#selectedMinistryDisplay').append('<span class="me-2 bg-light border rounded d-flex align-items-center justify-content-center" style="width: 24px; height: 24px; display: inline-flex;"><i class="fas fa-building text-muted" style="font-size: 0.7rem;"></i></span>');
+            }
+            $('#selectedMinistryDisplay').append('<span>' + ministryName + '</span>');
+
+            // Close dropdown
+            $('#ministryDropdown').dropdown('hide');
+        });
+
         // Make ministry dropdown readonly for ministry users
         var isMinistryUser = @Html.Raw(Json.Serialize(ViewBag.IsMinistryUser ?? false));
         if (isMinistryUser) {
@@ -1047,7 +1099,7 @@
         }
 
         // Check if ministry is selected
-        const ministry = $('select[name="MinistryCode"]').val();
+        const ministry = $('input[name="MinistryCode"]').val();
         if (!ministry) {
             errorMessages.push("@Localizer["A ministry must be selected."]");
             isValid = false;
