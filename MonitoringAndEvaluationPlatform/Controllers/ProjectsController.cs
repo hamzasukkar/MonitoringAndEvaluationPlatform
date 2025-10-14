@@ -548,13 +548,17 @@ namespace MonitoringAndEvaluationPlatform.Controllers
           int id,
           Project project,
           List<IFormFile> UploadedFiles,
-          List<int> SelectedSectorCodes,
-          List<int> SelectedDonorCodes,
-          string selections,
-          string DonorFundingBreakdown)
+          List<int>? SelectedSectorCodes,
+          List<int>? SelectedDonorCodes,
+          string? selections,
+          string? DonorFundingBreakdown)
         {
             if (id != project.ProjectID)
                 return NotFound();
+
+            // Initialize to empty lists if null to prevent null reference exceptions
+            SelectedSectorCodes = SelectedSectorCodes ?? new List<int>();
+            SelectedDonorCodes = SelectedDonorCodes ?? new List<int>();
 
             // Explicitly read IsEntireCountry from form (checkbox sends "true" if checked, nothing if unchecked)
             var isEntireCountryValue = Request.Form["IsEntireCountry"].ToString();
@@ -662,39 +666,63 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             // Clear existing project donors
             dbProject.ProjectDonors.Clear();
 
-            // Process donor funding breakdown if provided
-            if (!string.IsNullOrEmpty(DonorFundingBreakdown))
+            // Only process donors if any are selected
+            if (SelectedDonorCodes.Any())
             {
-                try
+                // Process donor funding breakdown if provided
+                if (!string.IsNullOrEmpty(DonorFundingBreakdown))
                 {
-                    var fundingData = JsonConvert.DeserializeObject<Dictionary<string, decimal>>(DonorFundingBreakdown);
-
-                    foreach (var donorCode in SelectedDonorCodes)
+                    try
                     {
-                        var donor = await _context.Donors.FindAsync(donorCode);
-                        if (donor != null)
+                        var fundingData = JsonConvert.DeserializeObject<Dictionary<string, decimal>>(DonorFundingBreakdown);
+
+                        foreach (var donorCode in SelectedDonorCodes)
                         {
-                            var fundingPercentage = fundingData.ContainsKey(donorCode.ToString())
-                                ? fundingData[donorCode.ToString()]
-                                : 0;
-
-                            var fundingAmount = (decimal)dbProject.EstimatedBudget * (fundingPercentage / 100);
-
-                            var projectDonor = new ProjectDonor
+                            var donor = await _context.Donors.FindAsync(donorCode);
+                            if (donor != null)
                             {
-                                ProjectId = dbProject.ProjectID,
-                                DonorCode = donorCode,
-                                FundingPercentage = fundingPercentage,
-                                FundingAmount = fundingAmount
-                            };
+                                var fundingPercentage = fundingData.ContainsKey(donorCode.ToString())
+                                    ? fundingData[donorCode.ToString()]
+                                    : 0;
 
-                            dbProject.ProjectDonors.Add(projectDonor);
+                                var fundingAmount = (decimal)dbProject.EstimatedBudget * (fundingPercentage / 100);
+
+                                var projectDonor = new ProjectDonor
+                                {
+                                    ProjectId = dbProject.ProjectID,
+                                    DonorCode = donorCode,
+                                    FundingPercentage = fundingPercentage,
+                                    FundingAmount = fundingAmount
+                                };
+
+                                dbProject.ProjectDonors.Add(projectDonor);
+                            }
+                        }
+                    }
+                    catch (JsonException)
+                    {
+                        // If JSON parsing fails, fall back to creating ProjectDonor records with 0% funding
+                        foreach (var donorCode in SelectedDonorCodes)
+                        {
+                            var donor = await _context.Donors.FindAsync(donorCode);
+                            if (donor != null)
+                            {
+                                var projectDonor = new ProjectDonor
+                                {
+                                    ProjectId = dbProject.ProjectID,
+                                    DonorCode = donorCode,
+                                    FundingPercentage = 0,
+                                    FundingAmount = 0
+                                };
+
+                                dbProject.ProjectDonors.Add(projectDonor);
+                            }
                         }
                     }
                 }
-                catch (JsonException)
+                else
                 {
-                    // If JSON parsing fails, fall back to creating ProjectDonor records with 0% funding
+                    // No funding breakdown provided, create ProjectDonor records with 0% funding
                     foreach (var donorCode in SelectedDonorCodes)
                     {
                         var donor = await _context.Donors.FindAsync(donorCode);
@@ -712,36 +740,21 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                         }
                     }
                 }
+
+                // Also maintain the legacy Donors collection for backward compatibility
+                var donors = await _context.Donors
+                    .Where(d => SelectedDonorCodes.Contains(d.Code))
+                    .ToListAsync();
+
+                dbProject.Donors.Clear();
+                foreach (var d in donors)
+                    dbProject.Donors.Add(d);
             }
             else
             {
-                // No funding breakdown provided, create ProjectDonor records with 0% funding
-                foreach (var donorCode in SelectedDonorCodes)
-                {
-                    var donor = await _context.Donors.FindAsync(donorCode);
-                    if (donor != null)
-                    {
-                        var projectDonor = new ProjectDonor
-                        {
-                            ProjectId = dbProject.ProjectID,
-                            DonorCode = donorCode,
-                            FundingPercentage = 0,
-                            FundingAmount = 0
-                        };
-
-                        dbProject.ProjectDonors.Add(projectDonor);
-                    }
-                }
+                // No donors selected, clear the legacy Donors collection
+                dbProject.Donors.Clear();
             }
-
-            // Also maintain the legacy Donors collection for backward compatibility
-            var donors = await _context.Donors
-                .Where(d => SelectedDonorCodes.Contains(d.Code))
-                .ToListAsync();
-
-            dbProject.Donors.Clear();
-            foreach (var d in donors)
-                dbProject.Donors.Add(d);
 
 
 
