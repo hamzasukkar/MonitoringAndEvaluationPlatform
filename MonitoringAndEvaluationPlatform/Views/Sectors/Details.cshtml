@@ -262,8 +262,8 @@
                     {
                         <tr>
                             <td><strong>@project.ProjectName</strong></td>
-                            <td>@(project.ProjectManager?.Name ?? "N/A")</td>
-                            <td>@(project.SuperVisor?.Name ?? "N/A")</td>
+                            <td>@(project.ProjectManager?.Name ?? Localizer["unavailable"].Value)</td>
+                            <td>@(project.SuperVisor?.Name ?? Localizer["unavailable"].Value)</td>
                             <td>
                                 @if (project.Ministries.Any())
                                 {
@@ -275,7 +275,7 @@
                                 }
                                 else
                                 {
-                                    <span>N/A</span>
+                                    <span>@Localizer["unavailable"]</span>
                                 }
                             </td>
                             <td>
@@ -289,7 +289,7 @@
                                 }
                                 else
                                 {
-                                    <span>N/A</span>
+                                    <span>@Localizer["unavailable"]</span>
                                 }
                             </td>
                             <td>@project.EstimatedBudget.ToString("N0")</td>

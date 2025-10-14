@@ -8,16 +8,19 @@ using Microsoft.EntityFrameworkCore;
 using MonitoringAndEvaluationPlatform.Data;
 using MonitoringAndEvaluationPlatform.Enums;
 using MonitoringAndEvaluationPlatform.Models;
+using Microsoft.Extensions.Localization;
 
 namespace MonitoringAndEvaluationPlatform.Controllers
 {
     public class DonorsController : Controller
     {
         private readonly ApplicationDbContext _context;
+        private readonly IStringLocalizer<DonorsController> _localizer;
 
-        public DonorsController(ApplicationDbContext context)
+        public DonorsController(ApplicationDbContext context, IStringLocalizer<DonorsController> localizer)
         {
             _context = context;
+            _localizer = localizer;
         }
 
         // GET: Donors
@@ -207,7 +210,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             {
                 code = pd.Project.ProjectID,
                 name = pd.Project.ProjectName,
-                location = pd.Project.Governorates.FirstOrDefault() != null ? pd.Project.Governorates.First().AR_Name : "N/A",
+                location = pd.Project.Governorates.FirstOrDefault() != null ? pd.Project.Governorates.First().AR_Name : _localizer["unavailable"].Value,
                 indicatorsPerformance = Math.Round(pd.Project.performance, 2),
                 disbursementPerformance = Math.Round(pd.Project.DisbursementPerformance, 2)
             }).ToList();

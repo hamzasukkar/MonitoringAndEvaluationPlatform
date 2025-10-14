@@ -95,7 +95,7 @@
         <div class="stat-icon warning">
             <i class="fas fa-clock"></i>
         </div>
-        <div class="stat-number">@(Model.Measures.Any() ? Model.Measures.OrderByDescending(m => m.Date).First().Value.ToString() : "N/A")</div>
+        <div class="stat-number">@(Model.Measures.Any() ? Model.Measures.OrderByDescending(m => m.Date).First().Value.ToString() : @Localizer["unavailable"])</div>
         <div class="stat-label">@Localizer["Latest Value"]</div>
     </div> *@
 

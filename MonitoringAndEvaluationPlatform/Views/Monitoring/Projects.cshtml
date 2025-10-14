@@ -108,7 +108,7 @@
                                             var communityName = currentCulture == "ar"
                                                 ? item.Communities?.FirstOrDefault()?.AR_Name
                                                 : item.Communities?.FirstOrDefault()?.EN_Name;
-                                            locationDisplay = communityName ?? "N/A";
+                                            locationDisplay = communityName ?? Localizer["unavailable"].Value;
                                         }
                                     }
                                     @locationDisplay
@@ -122,7 +122,7 @@
                             </div>
                             <div class="detail-content">
                                 <div class="detail-label">@Localizer["Ministry"]</div>
-                                <div class="detail-value">@(System.Globalization.CultureInfo.CurrentUICulture.TwoLetterISOLanguageName == "ar" ? (item.Ministries?.FirstOrDefault()?.MinistryDisplayName_AR ?? "N/A") : (item.Ministries?.FirstOrDefault()?.MinistryDisplayName_EN ?? "N/A"))</div>
+                                <div class="detail-value">@(System.Globalization.CultureInfo.CurrentUICulture.TwoLetterISOLanguageName == "ar" ? (item.Ministries?.FirstOrDefault()?.MinistryDisplayName_AR ?? Localizer["unavailable"].Value) : (item.Ministries?.FirstOrDefault()?.MinistryDisplayName_EN ?? Localizer["unavailable"].Value))</div>
                             </div>
                         </div>
 
@@ -132,7 +132,7 @@
                             </div>
                             <div class="detail-content">
                                 <div class="detail-label">@Localizer["Donor"]</div>
-                                <div class="detail-value">@(item.Donors?.FirstOrDefault()?.Partner ?? "N/A")</div>
+                                <div class="detail-value">@(item.Donors?.FirstOrDefault()?.Partner ?? Localizer["unavailable"].Value)</div>
                             </div>
                         </div>
 
@@ -142,7 +142,7 @@
                             </div>
                             <div class="detail-content">
                                 <div class="detail-label">@Localizer["Sector"]</div>
-                                <div class="detail-value">@(item.Sectors?.FirstOrDefault()?.EN_Name ?? "N/A")</div>
+                                <div class="detail-value">@(item.Sectors?.FirstOrDefault()?.EN_Name ?? Localizer["unavailable"].Value)</div>
                             </div>
                         </div>
                     </div>
