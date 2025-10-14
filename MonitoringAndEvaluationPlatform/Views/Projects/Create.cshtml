@@ -49,8 +49,8 @@
                     {
                         <!-- Improved validation summary with better styling -->
                         <div id="server-validation-summary" asp-validation-summary="ModelOnly" class="alert alert-danger alert-dismissible fade show" role="alert">
-                            <strong><i class="fas fa-exclamation-triangle me-2"></i>Please correct the following errors:</strong>
-                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                            <strong><i class="fas fa-exclamation-triangle me-2"></i>@Localizer["Please correct the following errors:"]</strong>
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="@Localizer["Close"]"></button>
                         </div>
 
                         <div class="row">
@@ -222,7 +222,7 @@
                                         @Localizer["Project Manager"] <span class="text-danger">*</span>
                                     </label>
                                     <select asp-for="ProjectManagerCode" class="form-select form-select-lg" asp-items="ViewBag.ProjectManager">
-                                        <option value="">-- Select Project Manager --</option>
+                                        <option value="">-- @Localizer["Select Project Manager"] --</option>
                                     </select>
                                 <div class="form-text">@Localizer["Choose the primary manager responsible for this project"]</div>
                                     <span asp-validation-for="ProjectManagerCode" class="invalid-feedback d-block"></span>
@@ -234,7 +234,7 @@
                                         @Localizer["Supervisor"] <span class="text-danger">*</span>
                                     </label>
                                     <select asp-for="SuperVisorCode" class="form-select form-select-lg" asp-items="ViewBag.SuperVisor">
-                                        <option value="">-- Select Supervisor --</option>
+                                        <option value="">-- @Localizer["Select Supervisor"] --</option>
                                     </select>
                                 <div class="form-text">@Localizer["Choose the supervisor who will oversee this project"]</div>
                                     <span asp-validation-for="SuperVisorCode" class="invalid-feedback d-block"></span>
@@ -403,7 +403,7 @@
                                 <div class="mb-4">
                                     <label class="form-label fw-bold">@Localizer["Upload Files"]</label>
                                     <input type="file" name="UploadedFiles" multiple class="form-control form-control-lg" />
-                                    <div class="form-text">Maximum file size: 10MB. Allowed types: PDF, DOC, XLS, JPG, PNG</div>
+                                    <div class="form-text">@Localizer["Maximum file size: 10MB. Allowed types: PDF, DOC, XLS, JPG, PNG"]</div>
                                 </div>
                         <!-- Form Actions -->
                         <div class="d-grid gap-2 d-md-flex justify-content-md-end mt-4 pt-4 border-top">
@@ -636,7 +636,7 @@
         const commName = $("#community option:selected").text();
 
         if (!govCode || !distCode || !subCode || !commCode) {
-            showValidationMessage("Please select all location levels.");
+            showValidationMessage("@Localizer["Please select all location levels."]");
             return;
         }
 
@@ -649,7 +649,7 @@
         );
 
         if (exists) {
-            showValidationMessage("This location has already been added.");
+            showValidationMessage("@Localizer["This location has already been added."]");
             return;
         }
 
@@ -668,7 +668,7 @@
             <li class="list-group-item">
                 <span>${govName} > ${distName} > ${subName} > ${commName}</span>
                 <button type="button" class="btn btn-sm btn-outline-danger btn-clear">
-                    <i class="fas fa-times"></i> Clear
+                    <i class="fas fa-times"></i> @Localizer["Clear"]
                 </button>
             </li>
         `);
@@ -700,12 +700,12 @@
     // Utility functions
     function fillSelect(selector, data) {
         let select = $(selector);
-        select.empty().append(`<option value="">-- Select --</option>`);
+        select.empty().append(`<option value="">-- @Localizer["Select"] --</option>`);
         data.forEach(x => select.append(`<option value="${x.code}">${x.name}</option>`));
     }
 
     function resetSelect(selector) {
-        $(selector).empty().append(`<option value="">-- Select --</option>`);
+        $(selector).empty().append(`<option value="">-- @Localizer["Select"] --</option>`);
     }
 
     function resetDropdowns() {
@@ -871,13 +871,13 @@
         const donorText = $('#availableDonorSelect option:selected').text();
 
         if (!donorValue || donorValue === '') {
-            alert('Please select a donor first.');
+            alert('@Localizer["Please select a donor first."]');
             return;
         }
 
         // Check if donor is already added
         if (selectedDonors.some(d => d.value === donorValue)) {
-            alert('This donor has already been added.');
+            alert('@Localizer["This donor has already been added."]');
             return;
         }
 
@@ -1050,15 +1050,15 @@
         // Check if locations are selected (unless "Entire Country" is checked)
         const isEntireCountry = $("#entireCountryCheckbox").is(':checked');
         if (!isEntireCountry && selections.length === 0) {
-            errorMessages.push("At least one project location must be selected, or check 'Entire Country' option.");
+            errorMessages.push("@Localizer["At least one project location must be selected, or check 'Entire Country' option."]");
             isValid = false;
         }
 
         // Check if sectors are selected
         const selectedSectors = $('select[name="Sectors"]').val();
         if (!selectedSectors || selectedSectors.length === 0) {
-            errorMessages.push("At least one sector must be selected.");
-            $('#sectors-validation-error').text("At least one sector must be selected.").show();
+            errorMessages.push("@Localizer["At least one sector must be selected."]");
+            $('#sectors-validation-error').text("@Localizer["At least one sector must be selected."]").show();
             isValid = false;
         } else {
             $('#sectors-validation-error').hide();
@@ -1067,8 +1067,8 @@
         // Check if indicator is selected
         const selectedIndicator = $('#indicatorSelect').val();
         if (!selectedIndicator) {
-            errorMessages.push("An indicator must be selected.");
-            $('#indicator-validation-error').text("An indicator must be selected.").show();
+            errorMessages.push("@Localizer["An indicator must be selected."]");
+            $('#indicator-validation-error').text("@Localizer["An indicator must be selected."]").show();
             isValid = false;
         } else {
             $('#indicator-validation-error').hide();
@@ -1079,14 +1079,14 @@
         // Check if project manager is selected
         const projectManager = $('select[name="ProjectManagerCode"]').val();
         if (!projectManager) {
-            errorMessages.push("A project manager must be selected.");
+            errorMessages.push("@Localizer["A project manager must be selected."]");
             isValid = false;
         }
 
         // Check if supervisor is selected
         const supervisor = $('select[name="SuperVisorCode"]').val();
         if (!supervisor) {
-            errorMessages.push("A supervisor must be selected.");
+            errorMessages.push("@Localizer["A supervisor must be selected."]");
             isValid = false;
         }
 
@@ -1101,7 +1101,7 @@
         const startDate = new Date($('input[name="StartDate"]').val());
         const endDate = new Date($('input[name="EndDate"]').val());
         if (startDate && endDate && endDate <= startDate) {
-            errorMessages.push("End date must be after start date.");
+            errorMessages.push("@Localizer["End date must be after start date."]");
             isValid = false;
         }
 
@@ -1109,7 +1109,7 @@
         if (selectedDonors.length > 0) {
             const totalPercentage = parseFloat($('#totalPercentage').text());
             if (totalPercentage > 100) {
-                errorMessages.push("Total donor funding percentage cannot exceed 100%.");
+                errorMessages.push("@Localizer["Total donor funding percentage cannot exceed 100%."]");
                 isValid = false;
             }
         }
@@ -1118,11 +1118,11 @@
             e.preventDefault();
             // Show all error messages
             const errorHtml = '<div id="form-validation-alert" class="alert alert-danger alert-dismissible fade show mt-3" role="alert">' +
-                '<strong><i class="fas fa-exclamation-triangle me-2"></i>Please fix the following issues:</strong>' +
+                '<strong><i class="fas fa-exclamation-triangle me-2"></i>@Localizer["Please fix the following issues:"]</strong>' +
                 '<ul class="mb-0 mt-2">' +
                 errorMessages.map(msg => `<li>${msg}</li>`).join('') +
                 '</ul>' +
-                '<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>' +
+                '<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="@Localizer["Close"]"></button>' +
                 '</div>';
 
             // Remove existing form validation alert and add new one
@@ -1189,7 +1189,7 @@
                     <li class="list-group-item">
                         <span>Governorate ${item.GovernorateCode} > District ${item.DistrictCode} > SubDistrict ${item.SubDistrictCode} > Community ${item.CommunityCode}</span>
                         <button type="button" class="btn btn-sm btn-outline-danger btn-clear">
-                            <i class="fas fa-times"></i> Clear
+                            <i class="fas fa-times"></i> @Localizer["Clear"]
                         </button>
                     </li>
                 `);
