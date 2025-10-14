@@ -556,8 +556,12 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             if (id != project.ProjectID)
                 return NotFound();
 
-            // Deserialize JSON string into a list of location selection objects
-            var selectedLocations = JsonConvert.DeserializeObject<List<LocationSelectionViewModel>>(selections);
+            // Explicitly read IsEntireCountry from form (checkbox sends "true" if checked, nothing if unchecked)
+            var isEntireCountryValue = Request.Form["IsEntireCountry"].ToString();
+            bool IsEntireCountry = isEntireCountryValue.Contains("true", StringComparison.OrdinalIgnoreCase);
+
+            // Set IsEntireCountry on project
+            project.IsEntireCountry = IsEntireCountry;
 
             // Initialize navigation collections if necessary
             project.Governorates = new List<Governorate>();
@@ -565,22 +569,29 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             project.SubDistricts = new List<SubDistrict>();
             project.Communities = new List<Community>();
 
-            // Loop through each selection and add entities to the project
-            foreach (var sel in selectedLocations)
+            // Process location selections only if not entire country
+            if (!IsEntireCountry && !string.IsNullOrEmpty(selections))
             {
-                var governorate = await _context.Governorates.FindAsync(sel.GovernorateCode);
-                var district = await _context.Districts.FindAsync(sel.DistrictCode);
-                var subDistrict = await _context.SubDistricts.FindAsync(sel.SubDistrictCode);
-                var community = await _context.Communities.FindAsync(sel.CommunityCode);
+                // Deserialize JSON string into a list of location selection objects
+                var selectedLocations = JsonConvert.DeserializeObject<List<LocationSelectionViewModel>>(selections);
 
-                if (governorate != null && !project.Governorates.Contains(governorate))
-                    project.Governorates.Add(governorate);
-                if (district != null && !project.Districts.Contains(district))
-                    project.Districts.Add(district);
-                if (subDistrict != null && !project.SubDistricts.Contains(subDistrict))
-                    project.SubDistricts.Add(subDistrict);
-                if (community != null && !project.Communities.Contains(community))
-                    project.Communities.Add(community);
+                // Loop through each selection and add entities to the project
+                foreach (var sel in selectedLocations)
+                {
+                    var governorate = await _context.Governorates.FindAsync(sel.GovernorateCode);
+                    var district = await _context.Districts.FindAsync(sel.DistrictCode);
+                    var subDistrict = await _context.SubDistricts.FindAsync(sel.SubDistrictCode);
+                    var community = await _context.Communities.FindAsync(sel.CommunityCode);
+
+                    if (governorate != null && !project.Governorates.Contains(governorate))
+                        project.Governorates.Add(governorate);
+                    if (district != null && !project.Districts.Contains(district))
+                        project.Districts.Add(district);
+                    if (subDistrict != null && !project.SubDistricts.Contains(subDistrict))
+                        project.SubDistricts.Add(subDistrict);
+                    if (community != null && !project.Communities.Contains(community))
+                        project.Communities.Add(community);
+                }
             }
 
             // Remove nav-props so EF Core won't demand them at bind time
@@ -626,6 +637,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             dbProject.EndDate = project.EndDate;
             dbProject.EstimatedBudget = project.EstimatedBudget;
             dbProject.RealBudget = project.RealBudget;
+            dbProject.IsEntireCountry = project.IsEntireCountry;
 
             dbProject.Governorates = project.Governorates;
             dbProject.Districts = project.Districts;

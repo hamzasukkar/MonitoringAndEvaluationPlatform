@@ -107,6 +107,16 @@
                                 <h6 class="text-primary mb-3">
                                     <i class="fas fa-map-marker-alt me-2"></i>@Localizer["Project Location"]
                                 </h6>
+                                <!-- Entire Country Checkbox -->
+                                <div class="mb-3">
+                                    <div class="form-check form-switch">
+                                        <input class="form-check-input" type="checkbox" id="entireCountryCheckbox" name="IsEntireCountry" value="true" @(Model.IsEntireCountry ? "checked" : "")>
+                                        <label class="form-check-label fw-bold" for="entireCountryCheckbox">
+                                            <i class="fas fa-flag me-2"></i>@Localizer["This project covers the entire country"]
+                                        </label>
+                                    </div>
+                                    <div class="form-text">@Localizer["Check this if the project is nationwide and not limited to specific locations"]</div>
+                                </div>
                                 <div id="location-selector" class="row g-3 mb-3">
                                     <div class="col-md-6">
                                         <select id="governorate" class="form-select">
@@ -310,7 +320,7 @@
                                            multiple
                                            class="form-control" />
                                     <small class="text-muted">
-                                        You can add more files here. Max size: 10 MB.
+                                    @Localizer["You can add more files here. Max size: 10 MB."]
                                     </small>
                                 </div>
                             </div>
@@ -464,6 +474,38 @@
 <script>
     let selections = [];
 
+    // Handle Entire Country checkbox
+    $("#entireCountryCheckbox").change(function() {
+        const isChecked = $(this).is(':checked');
+
+        if (isChecked) {
+            // Disable location selectors
+            $("#location-selector select").prop('disabled', true).val('');
+            $("#add-location, #reset-dropdowns").prop('disabled', true);
+
+            // Clear any selected locations
+            selections = [];
+            $("#selected-locations").empty();
+            $("#location-data").val('');
+
+            // Show info message
+            if ($("#entire-country-info").length === 0) {
+                $("#location-selector").before(`
+                    <div id="entire-country-info" class="alert alert-info">
+                        <i class="fas fa-info-circle me-2"></i>@Localizer["This project will cover all locations in the country. Specific location selection is disabled."]
+                    </div>
+                `);
+            }
+        } else {
+            // Enable location selectors
+            $("#location-selector select").prop('disabled', false);
+            $("#add-location, #reset-dropdowns").prop('disabled', false);
+
+            // Remove info message
+            $("#entire-country-info").remove();
+        }
+    });
+
     // Cascading dropdowns
     $("#governorate").change(function () {
         $.get("/Projects/GetDistricts", { governorateCode: $(this).val() }, function (data) {
@@ -595,11 +637,12 @@
         setTimeout(() => $("#location-validation-alert").fadeOut(), 3000);
     }
 
-    // Prevent submitting if no locations have been added
+    // Prevent submitting if no locations have been added (unless entire country is checked)
     $('form.needs-validation').on('submit', function (e) {
-        if (selections.length === 0) {
+        const isEntireCountry = $("#entireCountryCheckbox").is(':checked');
+        if (!isEntireCountry && selections.length === 0) {
             e.preventDefault();
-            showValidationMessage("You must add at least one location before saving the project.");
+            showValidationMessage("You must add at least one location or check 'Entire Country' before saving the project.");
             return false;
         }
     });
@@ -614,6 +657,11 @@
     // Initialize donor management on page load
     $(document).ready(function() {
         initializeSelectedDonors();
+
+        // Trigger the entire country checkbox change event if it's already checked
+        if ($("#entireCountryCheckbox").is(':checked')) {
+            $("#entireCountryCheckbox").trigger('change');
+        }
 
         // Disable ministry dropdown for ministry users
         var isMinistryUser = @Html.Raw(Json.Serialize(ViewBag.IsMinistryUser ?? false));
