@@ -60,7 +60,7 @@
                                         <i class="fas fa-project-diagram me-2"></i>
                                         @Localizer["Project Name"]
                                     </label>
-                                    <input asp-for="ProjectName" class="form-control form-control-lg" placeholder="Enter project name" required />
+                                    <input asp-for="ProjectName" class="form-control form-control-lg" placeholder="@Localizer["Enter project name"]" required />
                                     <span asp-validation-for="ProjectName" class="text-danger small"></span>
                                 </div>
 
@@ -295,7 +295,7 @@
                                            name="UploadedFiles"
                                            multiple
                                            class="form-control form-control-lg" />
-                                    <div class="form-text">Maximum file size: 10MB. Allowed types: PDF, DOC, XLS, JPG, PNG</div>
+                                    <div class="form-text">@Localizer["Maximum file size: 10MB. Allowed types: PDF, DOC, XLS, JPG, PNG"]</div>
                                 </div>
                             </div>
                         </div>
@@ -830,7 +830,7 @@
         // Update status message
         const statusElement = $('#percentageStatus');
         if (totalPercentage > 100) {
-            statusElement.text('Error: Exceeds 100%').removeClass('text-success text-muted text-warning').addClass('text-danger');
+            statusElement.text('@Localizer["Error: Exceeds 100%"]').removeClass('text-success text-muted text-warning').addClass('text-danger');
         } else if (totalPercentage === 100) {
                             statusElement.text('@Localizer["Fully funded"] (100%)').removeClass('text-warning text-danger text-muted').addClass('text-success');
         } else if (totalPercentage > 0) {
