@@ -327,6 +327,50 @@
                                     <input type="hidden" id="donorFundingData" name="DonorFundingBreakdown" />
                                 </div>
 
+                                <!-- Indicators -->
+                                <h6 class="text-primary mb-3">
+                                    <i class="fas fa-bullseye me-2"></i>@Localizer["Project Indicators"]
+                                </h6>
+                                <div class="mb-4">
+                                    <label class="form-label fw-bold">
+                                        <i class="fas fa-chart-line me-2"></i>
+                                        @Localizer["Select Indicator"] <span class="text-danger">*</span>
+                                    </label>
+                                    <select name="SelectedIndicators" class="form-select form-select-lg" id="indicatorSelect">
+                                        <option value="">-- @Localizer["Select an indicator"] --</option>
+                                        @if (ViewBag.Indicators != null)
+                                        {
+                                            var selectedIndicatorCodes = Model.ProjectIndicators?.Select(pi => pi.IndicatorCode).ToList() ?? new List<int>();
+                                            @foreach (var indicator in ViewBag.Indicators as List<Indicator>)
+                                            {
+                                                var isSelected = selectedIndicatorCodes.Contains(indicator.IndicatorCode);
+                                                if (isSelected)
+                                                {
+                                                    <option value="@indicator.IndicatorCode" data-target="@indicator.Target" selected="selected">
+                                                        [@indicator.IndicatorCode] @indicator.Name
+                                                        @if (indicator.Target > 0)
+                                                        {
+                                                            <text> (Target: @indicator.Target.ToString("N2"))</text>
+                                                        }
+                                                    </option>
+                                                }
+                                                else
+                                                {
+                                                    <option value="@indicator.IndicatorCode" data-target="@indicator.Target">
+                                                        [@indicator.IndicatorCode] @indicator.Name
+                                                        @if (indicator.Target > 0)
+                                                        {
+                                                            <text> (Target: @indicator.Target.ToString("N2"))</text>
+                                                        }
+                                                    </option>
+                                                }
+                                            }
+                                        }
+                                    </select>
+                                    <div class="form-text">@Localizer["Choose the key performance indicator for measuring project success"]</div>
+                                    <div id="indicator-validation-error" class="invalid-feedback d-block" style="display: none;"></div>
+                                </div>
+
                                 <!-- Files Upload -->
                                 <h6 class="text-primary mb-3">
                                     <i class="fas fa-file-upload me-2"></i>@Localizer["Project Documents"]
@@ -671,10 +715,29 @@
 
     // Prevent submitting if no locations have been added (unless entire country is checked)
     $('form.needs-validation').on('submit', function (e) {
+        let isValid = true;
+        let errorMessages = [];
+
+        // Check locations
         const isEntireCountry = $("#entireCountryCheckbox").is(':checked');
         if (!isEntireCountry && selections.length === 0) {
+            errorMessages.push("You must add at least one location or check 'Entire Country' before saving the project.");
+            isValid = false;
+        }
+
+        // Check if indicator is selected
+        const selectedIndicator = $('#indicatorSelect').val();
+        if (!selectedIndicator) {
+            errorMessages.push("An indicator must be selected.");
+            $('#indicator-validation-error').text("An indicator must be selected.").show();
+            isValid = false;
+        } else {
+            $('#indicator-validation-error').hide();
+        }
+
+        if (!isValid) {
             e.preventDefault();
-            showValidationMessage("You must add at least one location or check 'Entire Country' before saving the project.");
+            alert(errorMessages.join("\n"));
             return false;
         }
     });

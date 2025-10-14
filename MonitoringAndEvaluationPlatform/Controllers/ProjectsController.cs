@@ -411,6 +411,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 .Include(p => p.ProjectManager)
                 .Include(p => p.SuperVisor)
                 .Include(p => p.Goal)
+                .Include(p => p.ProjectIndicators)
                 .FirstOrDefaultAsync(p => p.ProjectID == id.Value);
 
 
@@ -524,6 +525,10 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 "Code",
                 isArabic ? "AR_Name" : "EN_Name"
             );
+
+            // Load indicators for selection
+            ViewBag.Indicators = await _context.Indicators.OrderBy(i => i.IndicatorCode).ToListAsync();
+
             return View(project);
         }
         [HttpPost]
@@ -552,15 +557,17 @@ namespace MonitoringAndEvaluationPlatform.Controllers
           List<IFormFile> UploadedFiles,
           List<int>? SelectedSectorCodes,
           List<int>? SelectedDonorCodes,
+          List<int>? SelectedIndicators,
           string? selections,
           string? DonorFundingBreakdown)
         {
             if (id != project.ProjectID)
                 return NotFound();
 
-            // Initialize to empty lists if null to prevent null reference exceptions
+            // Initialize to empty lists if null to prevent null reference exceptions and remove duplicates
             SelectedSectorCodes = SelectedSectorCodes ?? new List<int>();
             SelectedDonorCodes = SelectedDonorCodes ?? new List<int>();
+            SelectedIndicators = SelectedIndicators?.Distinct().ToList() ?? new List<int>();
 
             // Explicitly read IsEntireCountry from form (checkbox sends "true" if checked, nothing if unchecked)
             var isEntireCountryValue = Request.Form["IsEntireCountry"].ToString();
@@ -621,7 +628,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 return View(project);
             }
 
-            // --- Include Regions, Sectors, and Donors so Clear() will delete old join rows ---
+            // --- Include Regions, Sectors, Donors, and ProjectIndicators so Clear() will delete old join rows ---
             var dbProject = await _context.Projects
                 .Include(p => p.Sectors)
                 .Include(p => p.Donors)
@@ -632,6 +639,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 .Include(p => p.SubDistricts)
                 .Include(p => p.Communities)
                 .Include(p => p.Goal)
+                .Include(p => p.ProjectIndicators)
                 .FirstOrDefaultAsync(p => p.ProjectID == id);
 
             if (dbProject == null)
@@ -776,6 +784,26 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 dbProject.MinistryCode = null;
             }
 
+            // --- Update Project Indicators ---
+            // Clear existing indicators
+            dbProject.ProjectIndicators.Clear();
+
+            // Add selected indicators (with duplicate prevention)
+            if (SelectedIndicators != null && SelectedIndicators.Any())
+            {
+                foreach (var indicatorCode in SelectedIndicators)
+                {
+                    var indicator = await _context.Indicators.FindAsync(indicatorCode);
+                    if (indicator != null)
+                    {
+                        dbProject.ProjectIndicators.Add(new ProjectIndicator
+                        {
+                            ProjectId = dbProject.ProjectID,
+                            IndicatorCode = indicatorCode
+                        });
+                    }
+                }
+            }
 
             // --- Handle file uploads (unchanged) ---
             if (UploadedFiles != null && UploadedFiles.Count > 0)
