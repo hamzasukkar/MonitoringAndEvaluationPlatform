@@ -114,14 +114,16 @@
                                 <i class="fas fa-user me-2"></i>@Localizer["Ministry User Name"]
                             </div>
                         </th>
-                        <th class="text-center">
+                        <th class="text-center sortable-header" onclick="sortTable('indicators')" style="cursor: pointer;">
                             <div class="header-link">
                                 <i class="fas fa-chart-line me-2"></i>@Localizer["Indicators Performance"]
+                                <i class="fas fa-sort ms-2" id="indicators-sort-icon"></i>
                             </div>
                         </th>
-                        <th class="text-center">
+                        <th class="text-center sortable-header" onclick="sortTable('disbursement')" style="cursor: pointer;">
                             <div class="header-link">
                                 <i class="fas fa-money-bill-wave me-2"></i>@Localizer["Disbursement Performance"]
+                                <i class="fas fa-sort ms-2" id="disbursement-sort-icon"></i>
                             </div>
                         </th>
                         <th class="text-center">
@@ -139,7 +141,7 @@
                         double IndicatorsPerformance = Math.Round(item.IndicatorsPerformance, 2);
                         double DisbursementPerformance = Math.Round(item.DisbursementPerformance, 2);
 
-                        <tr id="ministry-row-@item.Code" class="table-row">
+                        <tr id="ministry-row-@item.Code" class="table-row" data-indicators="@IndicatorsPerformance" data-disbursement="@DisbursementPerformance">
                             <td class="text-center ministry-logo-cell">
                                 <span id="ministry-logo-@item.Code" class="ministry-logo-view" style="font-size: 2rem;">
                                     @(string.IsNullOrEmpty(item.Logo) ? "🏛️" : item.Logo)
@@ -343,6 +345,34 @@
         .form-control-lg:focus {
             border-color: var(--primary-color);
             box-shadow: 0 0 0 0.2rem color-mix(in srgb, var(--primary-color) 25%, transparent);
+        }
+
+        /* Sortable header styling */
+        .sortable-header {
+            user-select: none;
+            transition: all 0.3s ease;
+        }
+
+        .sortable-header:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .sortable-header .header-link {
+            cursor: pointer;
+            justify-content: center;
+        }
+
+        .sortable-header i.fa-sort,
+        .sortable-header i.fa-sort-up,
+        .sortable-header i.fa-sort-down {
+            opacity: 0.7;
+            transition: opacity 0.3s ease;
+        }
+
+        .sortable-header:hover i.fa-sort,
+        .sortable-header:hover i.fa-sort-up,
+        .sortable-header:hover i.fa-sort-down {
+            opacity: 1;
         }
     </style>
     }
@@ -676,4 +706,66 @@
         // Navigate to Projects index with ministry filter
         window.location.href = '@Url.Action("Index", "Projects")?SelectedMinistries=' + ministryCode;
     }
+
+    // Sorting functionality
+    let currentSort = {
+        column: null,
+        direction: 'desc' // Start with descending (highest to lowest)
+    };
+
+    function sortTable(column) {
+        const tbody = document.getElementById('ministriesTableBody');
+        const rows = Array.from(tbody.querySelectorAll('tr'));
+
+        // Determine sort direction
+        if (currentSort.column === column) {
+            // Toggle direction if clicking the same column
+            currentSort.direction = currentSort.direction === 'desc' ? 'asc' : 'desc';
+        } else {
+            // Default to descending (highest to lowest) for new column
+            currentSort.direction = 'desc';
+            currentSort.column = column;
+        }
+
+        // Sort rows
+        rows.sort((a, b) => {
+            const aValue = parseFloat(a.getAttribute(`data-${column}`)) || 0;
+            const bValue = parseFloat(b.getAttribute(`data-${column}`)) || 0;
+
+            if (currentSort.direction === 'desc') {
+                return bValue - aValue; // Highest to lowest
+            } else {
+                return aValue - bValue; // Lowest to highest
+            }
+        });
+
+        // Clear tbody and append sorted rows
+        tbody.innerHTML = '';
+        rows.forEach(row => tbody.appendChild(row));
+
+        // Update sort icons
+        updateSortIcons(column);
+    }
+
+    function updateSortIcons(activeColumn) {
+        // Reset all icons
+        document.getElementById('indicators-sort-icon').className = 'fas fa-sort ms-2';
+        document.getElementById('disbursement-sort-icon').className = 'fas fa-sort ms-2';
+
+        // Set active icon
+        const iconId = `${activeColumn}-sort-icon`;
+        const icon = document.getElementById(iconId);
+        if (currentSort.direction === 'desc') {
+            icon.className = 'fas fa-sort-down ms-2';
+        } else {
+            icon.className = 'fas fa-sort-up ms-2';
+        }
+    }
+
+    // Auto-sort by Indicators Performance (highest to lowest) on page load
+    $(document).ready(function() {
+        if ($('#ministriesTableBody tr').length > 0) {
+            sortTable('indicators');
+        }
+    });
 </script>

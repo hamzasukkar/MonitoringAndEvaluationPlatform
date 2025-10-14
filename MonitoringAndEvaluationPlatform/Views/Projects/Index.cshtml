@@ -139,25 +139,28 @@
                                     <th>
                                         <i class="fas fa-project-diagram me-2"></i>@Localizer["Project Name"]
                                     </th>
-                                    <th class="text-center">
+                                    <th class="text-center sortable-header" onclick="sortProjectsTable('performance')" style="cursor: pointer;">
                                         <i class="fas fa-chart-line me-2"></i>@Localizer["Performance"]
+                                        <i class="fas fa-sort ms-2" id="performance-sort-icon"></i>
                                     </th>
-                                    <th class="text-center">
+                                    <th class="text-center sortable-header" onclick="sortProjectsTable('disbursement')" style="cursor: pointer;">
                                         <i class="fas fa-dollar-sign me-2"></i>@Localizer["Disbursement"]
+                                        <i class="fas fa-sort ms-2" id="disbursement-sort-icon"></i>
                                     </th>
                                     <th class="text-center">
                                         <i class="fas fa-cogs me-2"></i>@Localizer["Actions"]
                                     </th>
                                 </tr>
                             </thead>
-                            <tbody>
+                            <tbody id="projectsTableBody">
                                 @foreach (var item in Model.Projects)
                                 {
-                                    double performance = Math.Round(@item.performance, 0);
+                                    double performance = Math.Round(@item.performance, 2);
+                                    double disbursement = Math.Round(item.DisbursementPerformance, 2);
                                     string performanceClass = ProgressBarHelper.GetProgressBarClass(performance);
                                     string disbursementClass = ProgressBarHelper.GetProgressBarClass(item.DisbursementPerformance);
                                     var rowId = "row_" + item.ProjectID;
-                                    <tr id="row_@item.ProjectID" class="table-row">
+                                    <tr id="row_@item.ProjectID" class="table-row" data-performance="@performance" data-disbursement="@disbursement">
                                         <td class="project-name-cell">
                                             <div class="d-flex align-items-center">
                                                 <div class="project-icon me-3">
@@ -495,6 +498,29 @@
         background: linear-gradient(45deg, var(--primary-dark), var(--primary-color));
     }
 
+    /* Sortable header styling */
+    .sortable-header {
+        user-select: none;
+        transition: all 0.3s ease;
+    }
+
+    .sortable-header:hover {
+        background: rgba(255, 255, 255, 0.1);
+    }
+
+    .sortable-header i.fa-sort,
+    .sortable-header i.fa-sort-up,
+    .sortable-header i.fa-sort-down {
+        opacity: 0.7;
+        transition: opacity 0.3s ease;
+    }
+
+    .sortable-header:hover i.fa-sort,
+    .sortable-header:hover i.fa-sort-up,
+    .sortable-header:hover i.fa-sort-down {
+        opacity: 1;
+    }
+
     /* Responsive Design */
     @@media (max-width: 768px) {
         .action-buttons-group {
@@ -651,7 +677,7 @@
             row.style.opacity = '0';
             row.style.transform = 'translateY(20px)';
             row.style.transition = 'all 0.6s ease';
-            
+
             setTimeout(() => {
                 row.style.opacity = '1';
                 row.style.transform = 'translateY(0)';
@@ -667,6 +693,66 @@
                 bar.style.width = width;
             }, 500);
         });
+
+        // Auto-sort by Performance (highest to lowest) on page load
+        if ($('#projectsTableBody tr').length > 0) {
+            sortProjectsTable('performance');
+        }
     });
+
+    // Sorting functionality for Projects
+    let currentProjectSort = {
+        column: null,
+        direction: 'desc' // Start with descending (highest to lowest)
+    };
+
+    function sortProjectsTable(column) {
+        const tbody = document.getElementById('projectsTableBody');
+        const rows = Array.from(tbody.querySelectorAll('tr'));
+
+        // Determine sort direction
+        if (currentProjectSort.column === column) {
+            // Toggle direction if clicking the same column
+            currentProjectSort.direction = currentProjectSort.direction === 'desc' ? 'asc' : 'desc';
+        } else {
+            // Default to descending (highest to lowest) for new column
+            currentProjectSort.direction = 'desc';
+            currentProjectSort.column = column;
+        }
+
+        // Sort rows
+        rows.sort((a, b) => {
+            const aValue = parseFloat(a.getAttribute(`data-${column}`)) || 0;
+            const bValue = parseFloat(b.getAttribute(`data-${column}`)) || 0;
+
+            if (currentProjectSort.direction === 'desc') {
+                return bValue - aValue; // Highest to lowest
+            } else {
+                return aValue - bValue; // Lowest to highest
+            }
+        });
+
+        // Clear tbody and append sorted rows
+        tbody.innerHTML = '';
+        rows.forEach(row => tbody.appendChild(row));
+
+        // Update sort icons
+        updateProjectSortIcons(column);
+    }
+
+    function updateProjectSortIcons(activeColumn) {
+        // Reset all icons
+        document.getElementById('performance-sort-icon').className = 'fas fa-sort ms-2';
+        document.getElementById('disbursement-sort-icon').className = 'fas fa-sort ms-2';
+
+        // Set active icon
+        const iconId = `${activeColumn}-sort-icon`;
+        const icon = document.getElementById(iconId);
+        if (currentProjectSort.direction === 'desc') {
+            icon.className = 'fas fa-sort-down ms-2';
+        } else {
+            icon.className = 'fas fa-sort-up ms-2';
+        }
+    }
 </script>
 }
