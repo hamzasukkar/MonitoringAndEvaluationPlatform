@@ -238,8 +238,8 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 // Set IsEntireCountry on project
                 project.IsEntireCountry = IsEntireCountry;
 
-                // Ensure SelectedIndicators is not null
-                SelectedIndicators = SelectedIndicators ?? new List<int>();
+                // Ensure SelectedIndicators is not null and remove duplicates
+                SelectedIndicators = SelectedIndicators?.Distinct().ToList() ?? new List<int>();
 
                 // Calculate PlansCount automatically based on the difference in months between StartDate and EndDate
                 PlansCount = CalculateMonthsDifference(project.StartDate, project.EndDate);

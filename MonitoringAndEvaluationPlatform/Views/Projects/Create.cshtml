@@ -1072,16 +1072,8 @@
             isValid = false;
         } else {
             $('#indicator-validation-error').hide();
-            // Ensure the selected indicator is added to the form for submission
-            if ($('input[name="SelectedIndicators"]').length === 0) {
-                $('<input>').attr({
-                    type: 'hidden',
-                    name: 'SelectedIndicators',
-                    value: selectedIndicator
-                }).appendTo('form');
-            } else {
-                $('input[name="SelectedIndicators"]').val(selectedIndicator);
-            }
+            // No need to create hidden input - the select dropdown already has name="SelectedIndicators"
+            // The dropdown value will be submitted with the form
         }
 
         // Check if project manager is selected
@@ -1164,13 +1156,7 @@
 
         // Restore selected indicators
         if (selectedIndicators && selectedIndicators.length > 0) {
-            // Add hidden input to preserve the selected indicator for form submission
-            $('<input>').attr({
-                type: 'hidden',
-                name: 'SelectedIndicators',
-                value: selectedIndicators[0]
-            }).appendTo('form');
-
+            // Just set the dropdown value - no need for hidden input
             $('#indicatorSelect').val(selectedIndicators[0]).trigger('change');
         }
 
