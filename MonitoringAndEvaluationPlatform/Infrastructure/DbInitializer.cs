@@ -430,9 +430,283 @@ namespace MonitoringAndEvaluationPlatform.Infrastructure
                     context.SaveChanges();
                 }
 
+                // Seed example projects with indicators and measures
+               // await SeedExampleProjectsAsync(context);
+
                 context.SaveChanges();
 
             } // Context is disposed here when the scope ends
+        }
+
+        private static async Task SeedExampleProjectsAsync(ApplicationDbContext context)
+        {
+            // Check if we already have projects
+            if (context.Projects.Any())
+            {
+                return;
+            }
+
+            // Get required reference data
+            var ministry = await context.Ministries.FirstOrDefaultAsync();
+            if (ministry == null) return;
+
+            var sector = await context.Sectors.FirstOrDefaultAsync();
+            if (sector == null) return;
+
+            var donor = await context.Donors.FirstOrDefaultAsync();
+            if (donor == null) return;
+
+            var supervisor = await context.SuperVisors.FirstOrDefaultAsync();
+            if (supervisor == null) return;
+
+            var projectManager = await context.ProjectManagers.FirstOrDefaultAsync();
+            if (projectManager == null) return;
+
+            var governorate = await context.Governorates.FirstOrDefaultAsync();
+
+            // Create 10 example projects
+            var projects = new List<Project>
+            {
+                new Project
+                {
+                    ProjectName = "Healthcare Infrastructure Development",
+                    EstimatedBudget = 5000000,
+                    StartDate = new DateTime(2024, 1, 1),
+                    EndDate = new DateTime(2025, 12, 31),
+                    MinistryCode = ministry.Code,
+                    SuperVisorCode = supervisor.Code,
+                    ProjectManagerCode = projectManager.Code,
+                    IsEntireCountry = governorate == null
+                },
+                new Project
+                {
+                    ProjectName = "Education Quality Enhancement Program",
+                    EstimatedBudget = 3500000,
+                    StartDate = new DateTime(2024, 2, 1),
+                    EndDate = new DateTime(2025, 11, 30),
+                    MinistryCode = ministry.Code,
+                    SuperVisorCode = supervisor.Code,
+                    ProjectManagerCode = projectManager.Code,
+                    IsEntireCountry = governorate == null
+                },
+                new Project
+                {
+                    ProjectName = "Water and Sanitation Infrastructure",
+                    EstimatedBudget = 4200000,
+                    StartDate = new DateTime(2024, 3, 1),
+                    EndDate = new DateTime(2025, 10, 31),
+                    MinistryCode = ministry.Code,
+                    SuperVisorCode = supervisor.Code,
+                    ProjectManagerCode = projectManager.Code,
+                    IsEntireCountry = governorate == null
+                },
+                new Project
+                {
+                    ProjectName = "Agricultural Productivity Enhancement",
+                    EstimatedBudget = 2800000,
+                    StartDate = new DateTime(2024, 1, 15),
+                    EndDate = new DateTime(2025, 12, 15),
+                    MinistryCode = ministry.Code,
+                    SuperVisorCode = supervisor.Code,
+                    ProjectManagerCode = projectManager.Code,
+                    IsEntireCountry = governorate == null
+                },
+                new Project
+                {
+                    ProjectName = "Renewable Energy Development",
+                    EstimatedBudget = 6000000,
+                    StartDate = new DateTime(2024, 4, 1),
+                    EndDate = new DateTime(2026, 3, 31),
+                    MinistryCode = ministry.Code,
+                    SuperVisorCode = supervisor.Code,
+                    ProjectManagerCode = projectManager.Code,
+                    IsEntireCountry = governorate == null
+                },
+                new Project
+                {
+                    ProjectName = "Youth Employment and Skills Training",
+                    EstimatedBudget = 1500000,
+                    StartDate = new DateTime(2024, 5, 1),
+                    EndDate = new DateTime(2025, 8, 31),
+                    MinistryCode = ministry.Code,
+                    SuperVisorCode = supervisor.Code,
+                    ProjectManagerCode = projectManager.Code,
+                    IsEntireCountry = governorate == null
+                },
+                new Project
+                {
+                    ProjectName = "Road Infrastructure Rehabilitation",
+                    EstimatedBudget = 8000000,
+                    StartDate = new DateTime(2024, 2, 15),
+                    EndDate = new DateTime(2026, 2, 15),
+                    MinistryCode = ministry.Code,
+                    SuperVisorCode = supervisor.Code,
+                    ProjectManagerCode = projectManager.Code,
+                    IsEntireCountry = governorate == null
+                },
+                new Project
+                {
+                    ProjectName = "Community Health Centers Expansion",
+                    EstimatedBudget = 3000000,
+                    StartDate = new DateTime(2024, 6, 1),
+                    EndDate = new DateTime(2025, 12, 31),
+                    MinistryCode = ministry.Code,
+                    SuperVisorCode = supervisor.Code,
+                    ProjectManagerCode = projectManager.Code,
+                    IsEntireCountry = governorate == null
+                },
+                new Project
+                {
+                    ProjectName = "Digital Literacy and Technology Access",
+                    EstimatedBudget = 2000000,
+                    StartDate = new DateTime(2024, 3, 15),
+                    EndDate = new DateTime(2025, 9, 30),
+                    MinistryCode = ministry.Code,
+                    SuperVisorCode = supervisor.Code,
+                    ProjectManagerCode = projectManager.Code,
+                    IsEntireCountry = governorate == null
+                },
+                new Project
+                {
+                    ProjectName = "Environmental Conservation Initiative",
+                    EstimatedBudget = 2500000,
+                    StartDate = new DateTime(2024, 7, 1),
+                    EndDate = new DateTime(2026, 6, 30),
+                    MinistryCode = ministry.Code,
+                    SuperVisorCode = supervisor.Code,
+                    ProjectManagerCode = projectManager.Code,
+                    IsEntireCountry = governorate == null
+                }
+            };
+
+            context.Projects.AddRange(projects);
+            await context.SaveChangesAsync();
+
+            // Create indicators for each project
+            var indicatorsList = new List<Indicator>();
+
+            foreach (var project in projects)
+            {
+                // Create 2-3 indicators per project with varying weights
+                var projectIndicators = new List<Indicator>
+                {
+                    new Indicator
+                    {
+                        Name = $"{project.ProjectName} - Primary Outcome Indicator",
+                        Target = 100,
+                        Weight = 3,
+                        IndicatorsPerformance = 0,
+                        Concept = "Main performance metric",
+                        Description = "Primary indicator measuring project success"
+                    },
+                    new Indicator
+                    {
+                        Name = $"{project.ProjectName} - Quality Indicator",
+                        Target = 80,
+                        Weight = 2,
+                        IndicatorsPerformance = 0,
+                        Concept = "Quality measurement",
+                        Description = "Indicator measuring quality of deliverables"
+                    },
+                    new Indicator
+                    {
+                        Name = $"{project.ProjectName} - Reach Indicator",
+                        Target = 50,
+                        Weight = 1,
+                        IndicatorsPerformance = 0,
+                        Concept = "Coverage measurement",
+                        Description = "Indicator measuring project reach and coverage"
+                    }
+                };
+
+                indicatorsList.AddRange(projectIndicators);
+            }
+
+            context.Indicators.AddRange(indicatorsList);
+            await context.SaveChangesAsync();
+
+            // Now link indicators to projects after they have IDs
+            int indicatorIndex = 0;
+            foreach (var project in projects)
+            {
+                // Get the 3 indicators for this project
+                for (int i = 0; i < 3; i++)
+                {
+                    if (indicatorIndex < indicatorsList.Count)
+                    {
+                        var indicator = indicatorsList[indicatorIndex];
+                        context.ProjectIndicators.Add(new ProjectIndicator
+                        {
+                            ProjectId = project.ProjectID,
+                            IndicatorCode = indicator.IndicatorCode
+                        });
+                        indicatorIndex++;
+                    }
+                }
+            }
+            await context.SaveChangesAsync();
+
+            // Create measures for each indicator
+            var random = new Random(42); // Fixed seed for reproducible data
+            var measuresList = new List<Measure>();
+
+            foreach (var indicator in indicatorsList)
+            {
+                // Create 3-5 measures per indicator spread over time
+                int numberOfMeasures = random.Next(3, 6);
+                double totalAchieved = 0;
+
+                for (int i = 0; i < numberOfMeasures; i++)
+                {
+                    // Generate realistic achieved values (between 60-110% of proportional target)
+                    double proportionalTarget = indicator.Target / numberOfMeasures;
+                    double variance = random.NextDouble() * 0.5 + 0.6; // 60-110% range
+                    double achievedValue = proportionalTarget * variance;
+                    totalAchieved += achievedValue;
+
+                    var measure = new Measure
+                    {
+                        IndicatorCode = indicator.IndicatorCode,
+                        Value = Math.Round(achievedValue, 2),
+                        Date = DateTime.Now.AddMonths(-numberOfMeasures + i)
+                    };
+
+                    measuresList.Add(measure);
+                }
+
+                // Update indicator performance
+                indicator.IndicatorsPerformance = indicator.Target > 0
+                    ? (totalAchieved / indicator.Target) * 100
+                    : 0;
+            }
+
+            context.Measures.AddRange(measuresList);
+            await context.SaveChangesAsync();
+
+            // Link projects to ministries (many-to-many)
+            foreach (var project in projects)
+            {
+                project.Ministries = new List<Ministry> { ministry };
+            }
+
+            // Link projects to sectors
+            foreach (var project in projects)
+            {
+                project.Sectors = new List<Sector> { sector };
+            }
+
+            // Link projects to governorates if available
+            if (governorate != null)
+            {
+                foreach (var project in projects)
+                {
+                    project.Governorates = new List<Governorate> { governorate };
+                }
+            }
+
+            await context.SaveChangesAsync();
+
+            Console.WriteLine("✅ Successfully seeded 10 example projects with indicators and measures");
         }
     }
 }

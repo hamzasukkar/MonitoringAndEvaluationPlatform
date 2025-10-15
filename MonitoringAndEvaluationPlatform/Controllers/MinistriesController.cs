@@ -265,5 +265,79 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 return Json(new { success = false, message = ex.Message });
             }
         }
+
+        // GET: Ministries/PerformanceBreakdown/5
+        public async Task<IActionResult> PerformanceBreakdown(int? id)
+        {
+            if (id == null)
+            {
+                return NotFound();
+            }
+
+            var ministry = await _context.Ministries
+                .Include(m => m.Projects)
+                    .ThenInclude(p => p.ProjectIndicators)
+                        .ThenInclude(pi => pi.Indicator)
+                            .ThenInclude(i => i.Measures)
+                .FirstOrDefaultAsync(m => m.Code == id);
+
+            if (ministry == null)
+            {
+                return NotFound();
+            }
+
+            // Calculate the performance breakdown
+            var breakdown = new List<dynamic>();
+            double totalWeightedTarget = 0.0;
+            double totalWeightedAchieved = 0.0;
+
+            foreach (var project in ministry.Projects)
+            {
+                var projectBreakdown = new
+                {
+                    ProjectId = project.ProjectID,
+                    ProjectName = project.ProjectName,
+                    Indicators = project.ProjectIndicators.Select(pi => new
+                    {
+                        IndicatorCode = pi.Indicator.IndicatorCode,
+                        IndicatorName = pi.Indicator.Name,
+                        Weight = pi.Indicator.Weight > 0 ? pi.Indicator.Weight : 1,
+                        Target = pi.Indicator.Target,
+                        Achieved = pi.Indicator.Measures.Sum(m => m.Value),
+                        WeightedTarget = pi.Indicator.Target * (pi.Indicator.Weight > 0 ? pi.Indicator.Weight : 1),
+                        WeightedAchieved = pi.Indicator.Measures.Sum(m => m.Value) * (pi.Indicator.Weight > 0 ? pi.Indicator.Weight : 1),
+                        Performance = pi.Indicator.Target > 0
+                            ? (pi.Indicator.Measures.Sum(m => m.Value) / pi.Indicator.Target) * 100
+                            : 0,
+                        Measures = pi.Indicator.Measures.Select(m => new
+                        {
+                            MeasureCode = m.Code,
+                            Value = m.Value,
+                            Date = m.Date
+                        }).ToList()
+                    }).ToList()
+                };
+
+                breakdown.Add(projectBreakdown);
+
+                // Aggregate totals
+                foreach (var indicator in projectBreakdown.Indicators)
+                {
+                    totalWeightedTarget += indicator.WeightedTarget;
+                    totalWeightedAchieved += indicator.WeightedAchieved;
+                }
+            }
+
+            double calculatedPerformance = totalWeightedTarget > 0
+                ? (totalWeightedAchieved / totalWeightedTarget) * 100
+                : 0;
+
+            ViewBag.Breakdown = breakdown;
+            ViewBag.TotalWeightedTarget = totalWeightedTarget;
+            ViewBag.TotalWeightedAchieved = totalWeightedAchieved;
+            ViewBag.CalculatedPerformance = Math.Round(calculatedPerformance, 2);
+
+            return View(ministry);
+        }
     }
 }

@@ -1,0 +1,163 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="Performance Calculation Breakdown" xml:space="preserve">
+    <value>تفصيل حساب الأداء</value>
+  </data>
+  <data name="Ministries" xml:space="preserve">
+    <value>الوزارات</value>
+  </data>
+  <data name="Performance Breakdown" xml:space="preserve">
+    <value>تفصيل الأداء</value>
+  </data>
+  <data name="Ministry:" xml:space="preserve">
+    <value>الوزارة:</value>
+  </data>
+  <data name="How Performance is Calculated" xml:space="preserve">
+    <value>كيف يتم حساب الأداء</value>
+  </data>
+  <data name="Ministry performance is calculated by aggregating all indicators from all projects associated with the ministry, weighted by their importance:" xml:space="preserve">
+    <value>يتم حساب أداء الوزارة من خلال تجميع جميع المؤشرات من جميع المشاريع المرتبطة بالوزارة، مع مراعاة أوزانها حسب الأهمية:</value>
+  </data>
+  <data name="Each indicator has a weight (default = 1) and a target value" xml:space="preserve">
+    <value>كل مؤشر له وزن (افتراضي = 1) وقيمة مستهدفة</value>
+  </data>
+  <data name="Achieved values come from measures entered for each indicator" xml:space="preserve">
+    <value>القيم المحققة تأتي من القياسات المدخلة لكل مؤشر</value>
+  </data>
+  <data name="Weighted Target = Target × Weight" xml:space="preserve">
+    <value>الهدف الموزون = الهدف × الوزن</value>
+  </data>
+  <data name="Weighted Achieved = Sum of Measures × Weight" xml:space="preserve">
+    <value>الإنجاز الموزون = مجموع القياسات × الوزن</value>
+  </data>
+  <data name="Performance % = (Total Weighted Achieved / Total Weighted Target) × 100" xml:space="preserve">
+    <value>نسبة الأداء % = (إجمالي الإنجاز الموزون / إجمالي الهدف الموزون) × 100</value>
+  </data>
+  <data name="Total Weighted Target" xml:space="preserve">
+    <value>إجمالي الهدف الموزون</value>
+  </data>
+  <data name="Total Weighted Achieved" xml:space="preserve">
+    <value>إجمالي الإنجاز الموزون</value>
+  </data>
+  <data name="Final Performance" xml:space="preserve">
+    <value>الأداء النهائي</value>
+  </data>
+  <data name="Calculation Formula" xml:space="preserve">
+    <value>معادلة الحساب</value>
+  </data>
+  <data name="Performance" xml:space="preserve">
+    <value>الأداء</value>
+  </data>
+  <data name="Projects Breakdown" xml:space="preserve">
+    <value>تفصيل المشاريع</value>
+  </data>
+  <data name="Project ID:" xml:space="preserve">
+    <value>رقم المشروع:</value>
+  </data>
+  <data name="Indicator" xml:space="preserve">
+    <value>المؤشر</value>
+  </data>
+  <data name="Weight" xml:space="preserve">
+    <value>الوزن</value>
+  </data>
+  <data name="Target" xml:space="preserve">
+    <value>الهدف</value>
+  </data>
+  <data name="Achieved" xml:space="preserve">
+    <value>المحقق</value>
+  </data>
+  <data name="Weighted Target" xml:space="preserve">
+    <value>الهدف الموزون</value>
+  </data>
+  <data name="Weighted Achieved" xml:space="preserve">
+    <value>الإنجاز الموزون</value>
+  </data>
+  <data name="Measures" xml:space="preserve">
+    <value>القياسات</value>
+  </data>
+  <data name="Code:" xml:space="preserve">
+    <value>الرمز:</value>
+  </data>
+  <data name="measures" xml:space="preserve">
+    <value>قياسات</value>
+  </data>
+  <data name="Date" xml:space="preserve">
+    <value>التاريخ</value>
+  </data>
+  <data name="Value" xml:space="preserve">
+    <value>القيمة</value>
+  </data>
+  <data name="Total" xml:space="preserve">
+    <value>المجموع</value>
+  </data>
+  <data name="No measures" xml:space="preserve">
+    <value>لا توجد قياسات</value>
+  </data>
+  <data name="Project Contribution:" xml:space="preserve">
+    <value>مساهمة المشروع:</value>
+  </data>
+  <data name="No projects found for this ministry." xml:space="preserve">
+    <value>لم يتم العثور على مشاريع لهذه الوزارة.</value>
+  </data>
+  <data name="Back to Ministries" xml:space="preserve">
+    <value>العودة إلى الوزارات</value>
+  </data>
+</root>

@@ -177,6 +177,11 @@
                             </td>
                             <td class="text-center">
                                 <div class="btn-group action-buttons" role="group">
+                                    <a href="@Url.Action("PerformanceBreakdown", "Ministries", new { id = item.Code })"
+                                       class="btn btn-outline-info btn-sm action-btn"
+                                       title="@Localizer["Performance Breakdown"]">
+                                        <i class="fas fa-chart-pie"></i>
+                                    </a>
                                     @if (User.IsInRole(UserRoles.SystemAdministrator))
                                     {
                                         <button class="btn btn-outline-primary btn-sm action-btn"
