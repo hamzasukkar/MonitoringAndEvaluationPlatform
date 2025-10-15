@@ -22,7 +22,12 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         // GET: Sectors
         public async Task<IActionResult> Index()
         {
-            return View(await _context.Sectors.ToListAsync());
+            // Get sectors sorted by IndicatorsPerformance in descending order (large to small)
+            var sectors = await _context.Sectors
+                .OrderByDescending(s => s.IndicatorsPerformance)
+                .ToListAsync();
+
+            return View(sectors);
         }
 
         public async Task<IActionResult> ResultIndex(int code)

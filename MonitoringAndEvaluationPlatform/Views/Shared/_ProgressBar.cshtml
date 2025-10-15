@@ -3,13 +3,14 @@
 @{
     var percentage = Math.Round(Model.Item1, 2);
     var showTextInside = percentage >= 15; // Show text inside bar only if >= 15%
+    var widthValue = Math.Max(percentage, 0).ToString("0.##", System.Globalization.CultureInfo.InvariantCulture);
 }
 
 <div class="progress-container">
     <div class="progress modern-progress-bar">
         <div class="progress-bar @Model.Item2 progress-bar-striped" role="progressbar"
              aria-valuenow="@percentage" aria-valuemin="0" aria-valuemax="100"
-             style="width: @Math.Max(percentage, 0)%" title="@percentage% Performance">
+             style="width: @widthValue%" title="@percentage% Performance">
             @if (showTextInside)
             {
                 <span class="progress-text-inside">@percentage%</span>

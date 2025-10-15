@@ -25,11 +25,13 @@ namespace MonitoringAndEvaluationPlatform.Controllers
 
         // GET: Donors
         public async Task<IActionResult> Index()
-
         {
+            // Get donors sorted by IndicatorsPerformance in descending order (large to small)
+            var donors = await _context.Donors
+                .OrderByDescending(d => d.IndicatorsPerformance)
+                .ToListAsync();
 
-            return View(await _context.Donors.ToListAsync());
-
+            return View(donors);
         }
 
         // GET: Donors
