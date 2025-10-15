@@ -457,7 +457,9 @@ $(document).ready(function() {
 							</div>
 							<div class="mt-3">
 								<strong class="text-muted">@Localizer["Projects"]:</strong>
-									${framework.projects.map(p => {
+									${framework.projects
+										.sort((a, b) => b.performance - a.performance)
+										.map(p => {
 									// Round p.performance to the nearest whole number
 									const roundedPerformance = Math.round(p.performance);
 
