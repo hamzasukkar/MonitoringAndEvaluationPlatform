@@ -237,15 +237,22 @@
             <div class="chart-content">
                 <form id="inlineMeasureForm" class="row g-3">
                     @Html.AntiForgeryToken()
-                    <div class="col-md-4">
+                    <div class="col-md-3">
                         <label for="measureDate" class="form-label">@Localizer["Date"] *</label>
                         <input type="date" id="measureDate" name="Date" class="form-control" value="@DateTime.Today.ToString("yyyy-MM-dd")" required />
                     </div>
-                    <div class="col-md-4">
+                    <div class="col-md-3">
                         <label for="measureValue" class="form-label">@Localizer["Achievement Value"] *</label>
                         <input type="number" id="measureValue" name="Value" step="0.01" min="0" class="form-control" placeholder="0.00" required />
                     </div>
-                    <div class="col-md-4 d-flex align-items-end">
+                    <div class="col-md-3">
+                        <label for="measureValueType" class="form-label">@Localizer["Value Type"] *</label>
+                        <select id="measureValueType" name="ValueType" class="form-control" required>
+                            <option value="1">@Localizer["Real"]</option>
+                            <option value="2">@Localizer["Provisional"]</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3 d-flex align-items-end">
                         <button type="submit" class="btn btn-gradient-primary w-100" id="addMeasureBtn">
                             <i class="fas fa-save me-2"></i>@Localizer["Add Measure"]
                         </button>
@@ -287,6 +294,9 @@
                                 <th class="text-center">
                                     <i class="fas fa-chart-line me-2"></i>@Localizer["Value"]
                                 </th>
+                                <th class="text-center">
+                                    <i class="fas fa-tag me-2"></i>@Localizer["Type"]
+                                </th>
                                 @if (ViewBag.SelectedIndicatorId == null)
                                 {
                                     <th>
@@ -313,6 +323,16 @@
                                 <td class="text-center">
                                     <span class="modern-badge badge-success measure-value-display">@item.Value.ToString("N2")</span>
                                     <input type="number" class="form-control form-control-sm measure-value-edit d-none" value="@item.Value" step="0.01" min="0" />
+                                </td>
+                                <td class="text-center">
+                                    @if (item.ValueType == MonitoringAndEvaluationPlatform.Enums.MeasureValueType.Real)
+                                    {
+                                        <span class="modern-badge badge-primary">@Localizer["Real"]</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="modern-badge" style="background: linear-gradient(45deg, #ff9800, #ff5722); color: white;">@Localizer["Provisional"]</span>
+                                    }
                                 </td>
                                 @if (ViewBag.SelectedIndicatorId == null)
                                 {
@@ -1117,6 +1137,7 @@
                 const formData = {
                     Date: $('#measureDate').val(),
                     Value: parseFloat($('#measureValue').val()),
+                    ValueType: parseInt($('#measureValueType').val()),
                     IndicatorCode: parseInt($('#indicatorCode').val())
                 };
 

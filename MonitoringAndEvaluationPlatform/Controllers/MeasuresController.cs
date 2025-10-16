@@ -165,7 +165,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         // POST: Measures/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Code,Date,Value,IndicatorCode")] Measure measure)
+        public async Task<IActionResult> Create([Bind("Code,Date,Value,ValueType,IndicatorCode")] Measure measure)
         {
             ModelState.Remove(nameof(measure.Indicator));
 

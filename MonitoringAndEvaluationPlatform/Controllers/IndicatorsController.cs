@@ -504,21 +504,58 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         [Permission(Permissions.ReadIndicators)]
         public async Task<IActionResult> GetMeasureChartData(int indicatorCode)
         {
-            var data = await _context.Measures
-                .Where(m => m.IndicatorCode == indicatorCode)
-                .OrderBy(m => m.Date)
-                .Select(m => new { date = m.Date.ToString("yyyy-MM-dd"), value = m.Value })
-                .ToListAsync();
-
-            // Get indicator target as baseline
+            // Get indicator with all measures
             var indicator = await _context.Indicators
+                .Include(i => i.Measures)
                 .FirstOrDefaultAsync(i => i.IndicatorCode == indicatorCode);
 
-            var targetValue = indicator?.Target ?? 0;
-            var target = new[] { new { date = "baseline", value = targetValue } };
+            if (indicator == null)
+                return Json(new { real = new object[] { }, historical = new object[] { }, required = new object[] { } });
 
-            var result = new { Real = data, Target = target };
+            // Real values - only Real ValueType measures
+            var realMeasures = indicator.Measures
+                .Where(m => m.ValueType == Enums.MeasureValueType.Real)
+                .OrderBy(m => m.Date)
+                .Select(m => new { date = m.Date.ToString("yyyy-MM-dd"), value = m.Value })
+                .ToList();
 
+            // Historical - cumulative of Real values
+            var historical = new List<object>();
+            double cumulative = 0;
+            foreach (var measure in realMeasures)
+            {
+                cumulative += measure.value;
+                historical.Add(new { date = measure.date, value = Math.Round(cumulative, 2) });
+            }
+
+            // Required - linear projection from baseline to target
+            var required = new List<object>();
+            if (realMeasures.Any() && indicator.Target > 0 && indicator.TargetYear.HasValue)
+            {
+                var startDate = realMeasures.First().date;
+                var endDate = indicator.TargetYear.Value.ToString("yyyy-MM-dd");
+                var baselineValue = realMeasures.First().value;
+                var targetValue = indicator.Target;
+
+                // Calculate required monthly growth
+                var start = DateTime.Parse(startDate);
+                var end = DateTime.Parse(endDate);
+                var months = (end.Year - start.Year) * 12 + (end.Month - start.Month);
+
+                if (months > 0)
+                {
+                    var increment = (targetValue - baselineValue) / (double)months;
+
+                    for (int i = 0; i <= months; i++)
+                    {
+                        var date = start.AddMonths(i);
+                        var value = baselineValue + (increment * i);
+                        required.Add(new { date = date.ToString("yyyy-MM-dd"), value = Math.Round(value, 2) });
+                    }
+                }
+            }
+
+            var result = new { real = realMeasures, historical = historical, required = required };
             return Json(result);
         }
 

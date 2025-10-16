@@ -90,6 +90,67 @@
         <div class="stat-label">@Localizer["Total Measures"]</div>
     </div>
 
+    <!-- Unit Card -->
+    @if (!string.IsNullOrEmpty(Model.Indicator.Unit))
+    {
+        <div class="stat-card">
+            <div class="stat-icon info">
+                <i class="fas fa-ruler"></i>
+            </div>
+            <div class="stat-number">@Model.Indicator.Unit</div>
+            <div class="stat-label">@Localizer["Unit of Measurement"]</div>
+        </div>
+    }
+
+    <!-- Indicator Impact Card -->
+    <div class="stat-card">
+        <div class="stat-icon @(Model.Indicator.IndicatorImpact == "+" ? "success" : "warning")">
+            <i class="fas fa-@(Model.Indicator.IndicatorImpact == "+" ? "arrow-up" : "arrow-down")"></i>
+        </div>
+        <div class="stat-number">@Model.Indicator.IndicatorImpact</div>
+        <div class="stat-label">@Localizer["Impact Direction"]</div>
+        <small class="text-muted">@(Model.Indicator.IndicatorImpact == "+" ? Localizer["Higher is better"] : Localizer["Lower is better"])</small>
+    </div>
+
+    <!-- GAGRA Card -->
+    @if (Model.Indicator.GAGRA != 0)
+    {
+        <div class="stat-card">
+            <div class="stat-icon primary">
+                <i class="fas fa-chart-line"></i>
+            </div>
+            <div class="stat-number">@Model.Indicator.GAGRA.ToString("N2")</div>
+            <div class="stat-label">@Localizer["GAGRA"]</div>
+            <small class="text-muted">@Localizer["Required Growth Rate"]</small>
+        </div>
+    }
+
+    <!-- GAGRR Card -->
+    @if (Model.Indicator.GAGRR != 0)
+    {
+        <div class="stat-card">
+            <div class="stat-icon success">
+                <i class="fas fa-chart-area"></i>
+            </div>
+            <div class="stat-number">@Model.Indicator.GAGRR.ToString("N2")</div>
+            <div class="stat-label">@Localizer["GAGRR"]</div>
+            <small class="text-muted">@Localizer["Actual Growth Rate"]</small>
+        </div>
+    }
+
+    <!-- Trend Card -->
+    @if (Model.Indicator.Trend != 0)
+    {
+        <div class="stat-card">
+            <div class="stat-icon @(Model.Indicator.Trend >= 1 ? "success" : "warning")">
+                <i class="fas fa-@(Model.Indicator.Trend >= 1 ? "check-circle" : "exclamation-triangle")"></i>
+            </div>
+            <div class="stat-number">@Model.Indicator.Trend.ToString("N2")</div>
+            <div class="stat-label">@Localizer["Trend"]</div>
+            <small class="text-muted">@(Model.Indicator.Trend >= 1 ? Localizer["On Track"] : Localizer["Below Target"])</small>
+        </div>
+    }
+
   @*   <!-- Latest Value Card -->
     <div class="stat-card">
         <div class="stat-icon warning">
@@ -110,15 +171,22 @@
     <div class="chart-content">
         <form id="inlineMeasureForm" class="row g-3">
             @Html.AntiForgeryToken()
-            <div class="col-md-4">
+            <div class="col-md-3">
                 <label for="measureDate" class="form-label">@Localizer["Date"] *</label>
                 <input type="date" id="measureDate" name="Date" class="form-control" value="@DateTime.Today.ToString("yyyy-MM-dd")" required />
             </div>
-            <div class="col-md-4">
+            <div class="col-md-3">
                 <label for="measureValue" class="form-label">@Localizer["Achievement Value"] *</label>
                 <input type="number" id="measureValue" name="Value" step="0.01" min="0" class="form-control" placeholder="0.00" required />
             </div>
-            <div class="col-md-4 d-flex align-items-end">
+            <div class="col-md-3">
+                <label for="measureValueType" class="form-label">@Localizer["Value Type"] *</label>
+                <select id="measureValueType" name="ValueType" class="form-control" required>
+                    <option value="1">@Localizer["Real"]</option>
+                    <option value="2">@Localizer["Provisional"]</option>
+                </select>
+            </div>
+            <div class="col-md-3 d-flex align-items-end">
                 <button type="submit" class="btn btn-gradient-primary w-100" id="addMeasureBtn">
                     <i class="fas fa-save me-2"></i>@Localizer["Add Measure"]
                 </button>
@@ -193,85 +261,64 @@
         const data = await response.json();
         const ctx = document.getElementById('MeasureChart').getContext('2d');
 
-        const sortedReal = data.real.sort((a, b) => new Date(a.date) - new Date(b.date));
-        const realData = sortedReal.map(p => ({ x: p.date, y: p.value }));
-
-        let cumulative = 0;
-        const cumulativeRealData = sortedReal.map(p => {
-            cumulative += p.value;
-            return { x: p.date, y: +(cumulative.toFixed(2)) };
-        });
-
-        const targetPoint = data.target.length > 0 ? data.target[0] : null;
-
-        let logicalTargetData = [];
-        if (realData.length > 0 && targetPoint) {
-            const startDate = new Date(Math.min(...realData.map(p => new Date(p.x))));
-            const endDate = new Date(targetPoint.date);
-            const targetValue = targetPoint.value;
-            let months = (endDate.getFullYear() - startDate.getFullYear()) * 12 + (endDate.getMonth() - startDate.getMonth());
-            if (months < 1) months = 1;
-
-            const minRealValue = Math.min(...realData.map(p => p.y));
-            const increment = (targetValue - minRealValue) / months;
-
-            for (let i = 0; i <= months; i++) {
-                const date = new Date(startDate);
-                date.setMonth(date.getMonth() + i);
-                logicalTargetData.push({
-                    x: date.toISOString().split('T')[0],
-                    y: +(minRealValue + increment * i).toFixed(2)
-                });
-            }
-        }
+        // Map the three datasets from the API
+        const realData = data.real.map(p => ({ x: p.date, y: p.value }));
+        const historicalData = data.historical.map(p => ({ x: p.date, y: p.value }));
+        const requiredData = data.required.map(p => ({ x: p.date, y: p.value }));
 
         // Get CSS custom properties for consistent theming
         const rootStyles = getComputedStyle(document.documentElement);
         const primaryColor = rootStyles.getPropertyValue('--primary-color') || '#2196F3';
-        const primaryDark = rootStyles.getPropertyValue('--primary-dark') || '#1976D2';
-        const primaryLight = rootStyles.getPropertyValue('--primary-light') || '#42A5F5';
+        const successColor = '#28a745'; // Green for Historical
+        const warningColor = '#ffc107'; // Yellow/Orange for Required
 
         new Chart(ctx, {
             type: 'line',
             data: {
                 datasets: [
                     {
-                        label: '@Localizer["Real Values"]',
+                        label: '@Localizer["Real"]',
                         data: realData,
                         borderColor: primaryColor,
                         backgroundColor: primaryColor + '20',
                         tension: 0.4,
-                        fill: true,
-                        pointRadius: 5,
+                        fill: false,
+                        pointRadius: 6,
                         pointHoverRadius: 8,
                         pointBackgroundColor: primaryColor,
                         pointBorderColor: '#fff',
-                        pointBorderWidth: 2
+                        pointBorderWidth: 2,
+                        borderWidth: 3
                     },
                     {
-                        label: '@Localizer["Cumulative Real"]',
-                        data: cumulativeRealData,
-                        borderColor: primaryDark,
-                        backgroundColor: primaryDark + '20',
+                        label: '@Localizer["Historical"]',
+                        data: historicalData,
+                        borderColor: successColor,
+                        backgroundColor: successColor + '20',
                         tension: 0.4,
                         fill: false,
                         borderDash: [8, 4],
                         pointRadius: 5,
                         pointHoverRadius: 8,
-                        pointBackgroundColor: primaryDark,
+                        pointBackgroundColor: successColor,
                         pointBorderColor: '#fff',
-                        pointBorderWidth: 2
+                        pointBorderWidth: 2,
+                        borderWidth: 2
                     },
                     {
-                        label: '@Localizer["Target"]',
-                        data: logicalTargetData,
-                        borderColor: primaryLight,
-                        backgroundColor: primaryLight + '20',
+                        label: '@Localizer["Required"]',
+                        data: requiredData,
+                        borderColor: warningColor,
+                        backgroundColor: warningColor + '20',
                         borderDash: [12, 6],
-                        pointRadius: 0,
+                        pointRadius: 4,
+                        pointHoverRadius: 7,
+                        pointBackgroundColor: warningColor,
+                        pointBorderColor: '#fff',
+                        pointBorderWidth: 2,
                         tension: 0.4,
                         fill: false,
-                        borderWidth: 3
+                        borderWidth: 2
                     }
                 ]
             },
@@ -381,6 +428,7 @@
         const formData = {
             Date: document.getElementById('measureDate').value,
             Value: parseFloat(document.getElementById('measureValue').value),
+            ValueType: parseInt(document.getElementById('measureValueType').value),
             IndicatorCode: parseInt(document.getElementById('indicatorCode').value)
         };
 

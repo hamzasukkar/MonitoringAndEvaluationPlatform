@@ -2,7 +2,7 @@
 
 @{
     ViewData["Title"] = "Create New Indicator";
-    Layout = "~/Views/Shared/_ResultsFrameworkLayout.cshtml";
+    Layout = "~/Views/Shared/_DashboardHomeLayout.cshtml";
     var isSubOutputLocked = ViewBag.SelectedSubOutputCode != null;
 }
 
@@ -47,6 +47,30 @@
                             <div class="form-text">Provide a clear, measurable name for this indicator.</div>
                         </div>
 
+                        <div class="form-group mb-4">
+                            <label asp-for="Unit" class="form-label fw-bold"></label>
+                            <input asp-for="Unit" class="form-control form-control-lg" placeholder="e.g., %, persons, USD, etc." />
+                            <span asp-validation-for="Unit" class="text-danger small"></span>
+                            <div class="form-text">Enter the unit of measurement for this indicator.</div>
+                        </div>
+
+                        <div class="form-group mb-4">
+                            <label asp-for="IndicatorImpact" class="form-label fw-bold"></label>
+                            <select asp-for="IndicatorImpact" class="form-select form-select-lg">
+                                <option value="+">+ (Positive - Higher is better)</option>
+                                <option value="-">- (Negative - Lower is better)</option>
+                            </select>
+                            <span asp-validation-for="IndicatorImpact" class="text-danger small"></span>
+                            <div class="form-text">Select whether higher or lower values represent better performance.</div>
+                        </div>
+
+                        <div class="form-group mb-4">
+                            <label asp-for="Atif" class="form-label fw-bold"></label>
+                            <input asp-for="Atif" class="form-control form-control-lg" placeholder="Enter Atif value" />
+                            <span asp-validation-for="Atif" class="text-danger small"></span>
+                            <div class="form-text">Enter the Atif classification for this indicator.</div>
+                        </div>
+
                         @if (isSubOutputLocked)
                         {
                             <div class="alert alert-info mb-4">
@@ -69,12 +93,70 @@
 
                         <div class="form-group mb-4">
                             <label asp-for="Target" class="form-label fw-bold"></label>
-                            <div class="input-group">
-                                <input asp-for="Target" class="form-control form-control-lg" placeholder="Enter target value" required />
-                                <span class="input-group-text">%</span>
-                            </div>
+                            <input asp-for="Target" type="number" class="form-control form-control-lg" placeholder="Enter target value" />
                             <span asp-validation-for="Target" class="text-danger small"></span>
-                            <div class="form-text">Enter the target value for this indicator (percentage).</div>
+                            <div class="form-text">Enter the target value for this indicator.</div>
+                        </div>
+
+                        <div class="form-group mb-4">
+                            <label asp-for="TargetYear" class="form-label fw-bold"></label>
+                            <input asp-for="TargetYear" type="date" class="form-control form-control-lg" />
+                            <span asp-validation-for="TargetYear" class="text-danger small"></span>
+                            <div class="form-text">Select the target year for achieving this indicator.</div>
+                        </div>
+
+                        <div class="form-group mb-4">
+                            <label asp-for="Source" class="form-label fw-bold"></label>
+                            <input asp-for="Source" class="form-control form-control-lg" placeholder="Enter data source" />
+                            <span asp-validation-for="Source" class="text-danger small"></span>
+                            <div class="form-text">Specify the source of data for this indicator.</div>
+                        </div>
+
+                        <div class="form-group mb-4">
+                            <label asp-for="Weight" class="form-label fw-bold"></label>
+                            <input asp-for="Weight" type="number" step="0.01" min="0.01" max="1" class="form-control form-control-lg" placeholder="Enter weight (0.01 to 1.0)" />
+                            <span asp-validation-for="Weight" class="text-danger small"></span>
+                            <div class="form-text">Enter the weight for this indicator (between 0.01 and 1.0). Default is 1.</div>
+                        </div>
+
+                        <div class="form-group mb-4">
+                            <label asp-for="Concept" class="form-label fw-bold"></label>
+                            <textarea asp-for="Concept" class="form-control form-control-lg" rows="3" placeholder="Enter indicator concept"></textarea>
+                            <span asp-validation-for="Concept" class="text-danger small"></span>
+                            <div class="form-text">Define the concept or definition of this indicator.</div>
+                        </div>
+
+                        <div class="form-group mb-4">
+                            <label asp-for="Description" class="form-label fw-bold"></label>
+                            <textarea asp-for="Description" class="form-control form-control-lg" rows="3" placeholder="Enter indicator description"></textarea>
+                            <span asp-validation-for="Description" class="text-danger small"></span>
+                            <div class="form-text">Provide a detailed description of this indicator.</div>
+                        </div>
+
+                        <div class="form-group mb-4">
+                            <label asp-for="MethodOfComputation" class="form-label fw-bold"></label>
+                            <textarea asp-for="MethodOfComputation" class="form-control form-control-lg" rows="3" placeholder="Enter method of computation"></textarea>
+                            <span asp-validation-for="MethodOfComputation" class="text-danger small"></span>
+                            <div class="form-text">Explain how this indicator is calculated.</div>
+                        </div>
+
+                        <div class="form-group mb-4">
+                            <label asp-for="Comment" class="form-label fw-bold"></label>
+                            <textarea asp-for="Comment" class="form-control form-control-lg" rows="2" placeholder="Enter any additional comments"></textarea>
+                            <span asp-validation-for="Comment" class="text-danger small"></span>
+                            <div class="form-text">Add any additional notes or comments about this indicator.</div>
+                        </div>
+
+                        <div class="form-check mb-4">
+                            <input asp-for="IsCommon" class="form-check-input" type="checkbox" />
+                            <label asp-for="IsCommon" class="form-check-label fw-bold"></label>
+                            <div class="form-text">Check if this is a common indicator used across multiple projects.</div>
+                        </div>
+
+                        <div class="form-check mb-4">
+                            <input asp-for="Active" class="form-check-input" type="checkbox" checked />
+                            <label asp-for="Active" class="form-check-label fw-bold"></label>
+                            <div class="form-text">Check to make this indicator active.</div>
                         </div>
 
                         <div class="d-grid gap-2 d-md-flex justify-content-md-end mt-4">

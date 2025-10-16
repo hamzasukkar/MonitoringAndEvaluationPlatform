@@ -64,6 +64,9 @@ public class MonitoringService
         // Calculate performance using the static helper method
         indicator.IndicatorsPerformance = CalculateIndicatorPerformanceFromMeasures(indicator);
 
+        // Perform automatic calculations (Target, GAGRA, GAGRR, Trend)
+        indicator.PerformAutomaticCalculations();
+
         _context.Indicators.Update(indicator);
         
         // Update SubOutput performance (existing functionality)

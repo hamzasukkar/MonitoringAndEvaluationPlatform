@@ -171,6 +171,23 @@
                         </div>
                     </div>
 
+                    <!-- Value Type Selection -->
+                    <div class="form-group full-width">
+                        <label asp-for="ValueType" class="modern-label">
+                            <i class="fas fa-tag"></i>
+                            @Localizer["Value Type"] *
+                        </label>
+                        <select asp-for="ValueType" class="modern-select" required>
+                            <option value="">@Localizer["Select Value Type"]</option>
+                            <option value="@((int)MeasureValueType.Real)">@Localizer["Real (Actual Achievement)"]</option>
+                            <option value="@((int)MeasureValueType.Provisional)">@Localizer["Provisional (Forecast/Target)"]</option>
+                        </select>
+                        <span asp-validation-for="ValueType" class="field-error"></span>
+                        <div class="field-info">
+                            @Localizer["Real values are actual achievements; Provisional values are forecasts or planned targets"]
+                        </div>
+                    </div>
+
                     <!-- Indicator Target Info Display -->
                     @if (preSelectedIndicatorId.HasValue && selectedIndicator.Target > 0)
                     {

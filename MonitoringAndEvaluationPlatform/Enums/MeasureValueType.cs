@@ -2,6 +2,7 @@
 {
     public enum MeasureValueType
     {
-        Real=1
+        Real = 1,
+        Provisional = 2
     }
 }
