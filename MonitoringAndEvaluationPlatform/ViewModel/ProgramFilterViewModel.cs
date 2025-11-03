@@ -16,6 +16,10 @@ namespace MonitoringAndEvaluationPlatform.ViewModel
         public List<Goal> Goals { get; set; } = new List<Goal>();
 
         public bool IsMinistryUser { get; set; } = false;
+
+        // SubOutput filtering
+        public int? SubOutputCode { get; set; }
+        public string? SubOutputName { get; set; }
     }
 
 }

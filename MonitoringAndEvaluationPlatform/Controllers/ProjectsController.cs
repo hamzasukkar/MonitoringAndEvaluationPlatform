@@ -67,6 +67,22 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 filter.IsMinistryUser = true;
             }
 
+            // Apply SubOutput filter if provided
+            if (filter.SubOutputCode.HasValue)
+            {
+                // Get the SubOutput name for display
+                var subOutput = await _context.SubOutputs.FindAsync(filter.SubOutputCode.Value);
+                if (subOutput != null)
+                {
+                    filter.SubOutputName = subOutput.Name;
+                }
+
+                // Filter projects that have indicators belonging to the specified SubOutput
+                projectQuery = projectQuery
+                    .Where(p => p.ProjectIndicators
+                                 .Any(pi => pi.Indicator.SubOutputCode == filter.SubOutputCode.Value));
+            }
+
             // Apply additional filters
             if (filter.SelectedMinistries.Any())
             {

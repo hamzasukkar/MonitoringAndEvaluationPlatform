@@ -130,6 +130,12 @@
                 <h3 class="chart-title">
                     <i class="fas fa-list"></i>
                     @Localizer["Projects Overview"]
+                    @if (Model.SubOutputCode.HasValue && !string.IsNullOrEmpty(Model.SubOutputName))
+                    {
+                        <span class="badge bg-info ms-3">
+                            <i class="fas fa-filter me-2"></i>@Localizer["Filtered by SubOutput"]: @Model.SubOutputName
+                        </span>
+                    }
                 </h3>
                 <div class="chart-content">
                     <div class="modern-table-container">

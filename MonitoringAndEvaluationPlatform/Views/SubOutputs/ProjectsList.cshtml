@@ -1,4 +1,4 @@
-﻿@model IEnumerable<MonitoringAndEvaluationPlatform.Models.SubOutput>
+@model IEnumerable<MonitoringAndEvaluationPlatform.Models.SubOutput>
 @using MonitoringAndEvaluationPlatform.Helpers
 @using MonitoringAndEvaluationPlatform.Models
 @using Microsoft.AspNetCore.Mvc.Localization
@@ -6,7 +6,7 @@
 @using Microsoft.AspNetCore.Localization
 
 @{
-    ViewData["Title"] = "SubOutputs";
+    ViewData["Title"] = "SubOutputs - Projects View";
     Layout = "~/Views/Shared/_DashboardHomeLayout.cshtml";
     var culture = Context.Features.Get<IRequestCultureFeature>().RequestCulture.Culture.Name;
 }
@@ -21,59 +21,20 @@
     <div class="d-flex justify-content-between align-items-center">
         <div>
             <h1 class="dashboard-title">
-                <i class="fas fa-list-ul me-3"></i>
-                @Localizer["SubOutputs Management"]
+                <i class="fas fa-project-diagram me-3"></i>
+                @Localizer["SubOutputs - Projects View"]
             </h1>
-            <p class="dashboard-subtitle">
-                @Localizer["View and manage all suboutput performance metrics across development outputs"]
-            </p>
+            @* <p class="dashboard-subtitle">
+                @Localizer["Click on a suboutput to view related projects"]
+            </p> *@
         </div>
-        <div class="d-flex gap-2">
-            @if (User.IsInRole(UserRoles.SystemAdministrator))
-            {
-                <button class="btn btn-success btn-lg shadow-sm" type="button" id="toggleCreateForm">
-                    <i class="fas fa-plus me-2"></i>@Localizer["Create New SubOutput"]
-                </button>
-                @if (ViewBag.SelectedOutputCode != null)
-                {
-                    <a asp-action="AdjustWeights" asp-route-outputCode="@ViewBag.SelectedOutputCode"
-                       class="btn btn-warning btn-lg shadow-sm">
-                        <i class="fas fa-balance-scale me-2"></i>@Localizer["Adjust Weights"]
-                    </a>
-                }
-            }
+        <div>
+            <a asp-controller="Projects" asp-action="Create" class="btn btn-primary btn-lg">
+                <i class="fas fa-plus me-2"></i>
+                @Localizer["Add New Project"]
+            </a>
         </div>
     </div>
-</div>
-
-<!-- Collapsible SubOutput Creation Form -->
-<div id="createSubOutcomeForm" class="chart-card mb-4" style="display:none;">
-    <div class="chart-title">
-        <i class="fas fa-plus"></i>
-        @Localizer["Create New SubOutput"]
-    </div>
-    <form id="subOutputForm">
-        @Html.AntiForgeryToken()
-        <input type="hidden" id="outputCode" value="@ViewBag.SelectedOutputCode" />
-        <div class="row">
-            <div class="col-md-8">
-                <div class="mb-3">
-                    <label for="subOutputName" class="form-label fw-bold">
-                        <i class="fas fa-tag me-2"></i>@Localizer["SubOutput Name"]
-                    </label>
-                    <input type="text" class="form-control form-control-lg" id="subOutputName" required
-                           placeholder="@Localizer["Enter suboutput name"]" />
-                </div>
-            </div>
-            <div class="col-md-4 d-flex align-items-end">
-                <div class="d-grid w-100">
-                    <button type="submit" class="btn btn-primary btn-lg">
-                        <i class="fas fa-save me-2"></i>@Localizer["Save SubOutput"]
-                    </button>
-                </div>
-            </div>
-        </div>
-    </form>
 </div>
 
 <!-- SubOutputs Table -->
@@ -82,7 +43,7 @@
         <i class="fas fa-list-ul"></i>
         @Localizer["SubOutputs"] (@Model.Count())
     </div>
-    
+
     @if (Model.Any())
     {
         <div class="table-responsive">
@@ -94,11 +55,11 @@
                                 <i class="fas fa-list-ul me-2"></i>@Localizer["SubOutput Name"]
                             </div>
                         </th>
-                        <th class="text-center">
+                      @*   <th class="text-center">
                             <div class="header-link">
                                 <i class="fas fa-weight me-2"></i>@Localizer["Weight"]
                             </div>
-                        </th>
+                        </th> *@
                         <th class="text-center">
                             <div class="header-link">
                                 <i class="fas fa-chart-line me-2"></i>@Localizer["Indicators Performance"]
@@ -128,32 +89,27 @@
                         string disbursementClass = ProgressBarHelper.GetProgressBarClass(item.DisbursementPerformance);
                         double IndicatorsPerformance = Math.Round(item.IndicatorsPerformance, 2);
                         double DisbursementPerformance = Math.Round(item.DisbursementPerformance, 2);
-                        
+
                         <tr id="subOutput-row-@item.Code" class="table-row">
                             <td class="suboutput-name-cell">
                                 <div class="d-flex align-items-center">
                                     <div class="suboutput-icon me-3">
-                                        <i class="fas fa-list-ul"></i>
+                                        <i class="fas fa-project-diagram"></i>
                                     </div>
                                     <div>
-                                        <span id="fw-name-@item.Code" class="fw-name-view">
-                                            <a asp-controller="Indicators" asp-action="Index"
-                                               asp-route-frameworkCode="@item.Output.Outcome.FrameworkCode"
-                                               asp-route-subOutputCode="@item.Code"
-                                               class="suboutput-name-link">
-                                                @item.Name
-                                            </a>
-                                        </span>
-                                        <input type="text" id="fw-name-input-@item.Code"
-                                               class="form-control fw-name-edit d-none" value="@item.Name" />
+                                        <a asp-controller="Projects" asp-action="Index"
+                                           asp-route-subOutputCode="@item.Code"
+                                           class="suboutput-name-link">
+                                            @item.Name
+                                        </a>
                                     </div>
                                 </div>
                             </td>
-                            <td class="text-center">
+                          @*   <td class="text-center">
                                 <div class="weight-badge">
                                     <span class="badge bg-info fs-6">@item.Weight%</span>
                                 </div>
-                            </td>
+                            </td> *@
                             <td class="text-center">
                                 @await Html.PartialAsync("_ProgressBar", Tuple.Create(IndicatorsPerformance, indicatorsClass))
                             </td>
@@ -170,17 +126,16 @@
                             </td>
                             <td class="text-center">
                                 <div class="btn-group action-buttons" role="group">
-                                    @if (User.IsInRole(UserRoles.SystemAdministrator))
-                                    {
-                                        <button class="btn btn-outline-primary btn-sm action-btn"
-                                                onclick="toggleSubOutputEdit(@item.Code,@item.Output.Outcome.FrameworkCode)" title="Edit Name">
-                                            <i class="fas fa-edit"></i>
-                                        </button>
-                                        <button class="btn btn-outline-danger btn-sm action-btn"
-                                                onclick="confirmSubOutputDelete(@item.Code)" title="Delete">
-                                            <i class="fas fa-trash-alt"></i>
-                                        </button>
-                                    }
+                                    <a asp-controller="Projects" asp-action="Index" asp-route-subOutputCode="@item.Code"
+                                       class="btn btn-outline-success btn-sm action-btn" title="View Projects">
+                                        <i class="fas fa-project-diagram"></i>
+                                    </a>
+                                    <a asp-controller="Indicators" asp-action="Index"
+                                       asp-route-frameworkCode="@item.Output.Outcome.FrameworkCode"
+                                       asp-route-subOutputCode="@item.Code"
+                                       class="btn btn-outline-info btn-sm action-btn" title="View Indicators">
+                                        <i class="fas fa-chart-bar"></i>
+                                    </a>
                                 </div>
                             </td>
                         </tr>
@@ -196,169 +151,13 @@
                 <i class="fas fa-list-ul"></i>
             </div>
             <h4 class="text-muted">@Localizer["No suboutputs found"]</h4>
-            <p class="text-muted">@Localizer["Create your first suboutput to get started"]</p>
+            <p class="text-muted">@Localizer["No suboutputs available to display"]</p>
         </div>
     }
 </div>
 
 @section Scripts {
-    <!-- SweetAlert2 -->
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    
     <script>
-        // Toggle create form
-        document.getElementById('toggleCreateForm')?.addEventListener('click', function () {
-            const form = document.getElementById('createSubOutcomeForm');
-            if (form) {
-                const isHidden = form.style.display === 'none';
-                form.style.display = isHidden ? 'block' : 'none';
-
-                if (isHidden) {
-                    form.style.opacity = '0';
-                    form.style.transform = 'translateY(-20px)';
-                    setTimeout(() => {
-                        form.style.transition = 'all 0.4s ease';
-                        form.style.opacity = '1';
-                        form.style.transform = 'translateY(0)';
-                        document.getElementById('subOutputName')?.focus();
-                    }, 10);
-                }
-            }
-        });
-
-        // Handle inline suboutput creation
-        $('#subOutputForm').on('submit', function (e) {
-            e.preventDefault();
-
-            const name = $('#subOutputName').val().trim();
-            const outputCode = $('#outputCode').val();
-            const token = $('input[name="__RequestVerificationToken"]').val();
-
-            if (!name) {
-                Swal.fire({
-                    icon: 'warning',
-                    title: '@Localizer["Warning"]',
-                    text: '@Localizer["Please enter a suboutput name"]'
-                });
-                return;
-            }
-
-            $.ajax({
-                url: '/SubOutputs/CreateInline',
-                type: 'POST',
-                data: {
-                    name: name,
-                    outputCode: outputCode,
-                    __RequestVerificationToken: token
-                },
-                success: function (response) {
-                    if (response.success) {
-                        // Reload the page to show the new suboutput
-                        location.reload();
-                    } else {
-                        Swal.fire({
-                            icon: 'error',
-                            title: '@Localizer["Error"]',
-                            text: response.message
-                        });
-                    }
-                },
-                error: function () {
-                    Swal.fire({
-                        icon: 'error',
-                        title: '@Localizer["Error"]',
-                        text: '@Localizer["Could not create suboutput. Please try again."]'
-                    });
-                }
-            });
-        });
-
-        function toggleSubOutputEdit(code, frameworkCode) {
-            const viewSpan = $(`#fw-name-${code}`);
-            const input = $(`#fw-name-input-${code}`);
-            
-            const isEditing = !input.hasClass('d-none');
-
-            if (isEditing) {
-                // Save via AJAX
-                const newName = input.val();
-
-                $.ajax({
-                    url: `/SubOutputs/UpdateName`,
-                    type: 'POST',
-                    data: { id: code, name: newName },
-                    success: function () {
-                        viewSpan.html(`<a href="/Indicators?subOutputCode=${code}&frameworkCode=${frameworkCode}" class="suboutput-name-link">${newName}</a>`);
-                        input.addClass('d-none');
-                        viewSpan.removeClass('d-none');
-                        Swal.fire({
-                            icon: 'success',
-                            title: 'Saved!',
-                            text: 'SubOutput name updated successfully.',
-                            timer: 2000,
-                            showConfirmButton: false
-                        });
-                    },
-                    error: function () {
-                        Swal.fire({
-                            icon: 'error',
-                            title: 'Error',
-                            text: 'Could not update suboutput name.'
-                        });
-                    }
-                });
-            } else {
-                // Enter edit mode
-                input.removeClass('d-none');
-                viewSpan.addClass('d-none');
-                input.focus();
-            }
-        }
-
-        function confirmSubOutputDelete(code) {
-            Swal.fire({
-                title: '@Localizer["Are you sure?"]',
-                text: '@Localizer["This will permanently delete the suboutput and all associated data!"]',
-                icon: 'warning',
-                showCancelButton: true,
-                confirmButtonColor: '#d33',
-                cancelButtonColor: '#6c757d',
-                confirmButtonText: '@Localizer["Yes, delete it!"]',
-                cancelButtonText: '@Localizer["Cancel"]',
-                customClass: {
-                    popup: 'swal2-modern',
-                    confirmButton: 'btn btn-danger',
-                    cancelButton: 'btn btn-secondary'
-                }
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    $.ajax({
-                        url: `/SubOutputs/DeleteConfirmed/${code}`,
-                        type: 'POST',
-                        success: function () {
-                            $(`#subOutput-row-${code}`).fadeOut(400, function() {
-                                $(this).remove();
-                            });
-                            Swal.fire({
-                                icon: 'success',
-                                title: 'Deleted!',
-                                text: '@Localizer["SubOutput has been deleted successfully."]',
-                                timer: 2000,
-                                showConfirmButton: false
-                            });
-                        },
-                        error: function () {
-                            Swal.fire({
-                                icon: 'error',
-                                title: 'Error',
-                                text: '@Localizer["Could not delete suboutput. Please try again."]'
-                            });
-                        }
-                    });
-                }
-            });
-        }
-        
         // Initialize page animations
         document.addEventListener('DOMContentLoaded', function() {
             // Animate table rows on load
@@ -372,7 +171,7 @@
                     row.style.transform = 'translateX(0)';
                 }, index * 100);
             });
-            
+
             // Progress bar animation
             const progressBars = document.querySelectorAll('.progress-fill-modern');
             progressBars.forEach((bar, index) => {
@@ -396,12 +195,12 @@
             border-radius: 15px;
             overflow: hidden;
         }
-        
+
         .table-header {
             background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-dark) 100%);
             color: white;
         }
-        
+
         .table-header th {
             border: none;
             padding: 20px 15px;
@@ -410,49 +209,48 @@
             text-transform: uppercase;
             letter-spacing: 0.5px;
         }
-        
+
         .header-link {
-            /* color: white !important; */
             text-decoration: none !important;
             display: flex;
             align-items: center;
             justify-content: flex-start;
             transition: all 0.3s ease;
         }
-        
+
         .header-link:hover {
             color: rgba(255, 255, 255, 0.9) !important;
             transform: translateY(-1px);
         }
-        
+
         .table-row {
             background: rgba(255, 255, 255, 0.95);
             backdrop-filter: blur(10px);
             border: none;
             transition: all 0.3s ease;
         }
-        
+
         .table-row:hover {
             background: rgba(255, 255, 255, 1);
             transform: translateY(-2px);
             box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
         }
-        
+
         .table-row td {
             border: none;
             padding: 20px 15px;
             vertical-align: middle;
             border-bottom: 1px solid rgba(0, 0, 0, 0.05);
         }
-        
+
         .suboutput-name-cell {
             min-width: 300px;
         }
-        
+
         .suboutput-icon {
             width: 45px;
             height: 45px;
-            background: linear-gradient(135deg, var(--secondary-color), var(--primary-light));
+            background: linear-gradient(135deg, #28a745, #20c997);
             border-radius: 12px;
             display: flex;
             align-items: center;
@@ -460,7 +258,7 @@
             color: white;
             font-size: 1.2rem;
         }
-        
+
         .suboutput-name-link {
             color: #333;
             text-decoration: none;
@@ -468,15 +266,15 @@
             font-size: 1.1rem;
             transition: color 0.3s ease;
         }
-        
+
         .suboutput-name-link:hover {
             color: var(--primary-color);
         }
-        
+
         .performance-metric {
             min-width: 120px;
         }
-        
+
         .progress-bar-modern {
             height: 8px;
             background: rgba(0, 0, 0, 0.1);
@@ -484,14 +282,14 @@
             overflow: hidden;
             position: relative;
         }
-        
+
         .progress-fill-modern {
             height: 100%;
             border-radius: 10px;
             transition: width 1.5s ease-out;
             position: relative;
         }
-        
+
         .progress-fill-modern::after {
             content: '';
             position: absolute;
@@ -502,21 +300,21 @@
             background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
             animation: shimmer 2s infinite;
         }
-        
+
         @@keyframes shimmer {
             0% { transform: translateX(-100%); }
             100% { transform: translateX(100%); }
         }
-        
+
         .weight-badge, .output-badge {
             display: flex;
             justify-content: center;
         }
-        
+
         .action-buttons {
             gap: 5px;
         }
-        
+
         .action-btn {
             width: 35px;
             height: 35px;
@@ -527,52 +325,36 @@
             transition: all 0.3s ease;
             border-width: 1px;
         }
-        
+
         .action-btn:hover {
             transform: translateY(-2px);
             box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
         }
-        
+
         .table-responsive {
             border-radius: 15px;
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
             overflow: hidden;
         }
-        
-        .swal2-modern {
-            border-radius: 15px;
-        }
-        
+
         /* Badge styling */
         .badge.bg-primary {
             background: linear-gradient(135deg, var(--primary-color), var(--primary-dark)) !important;
         }
-        
+
         .badge.bg-success {
             background: linear-gradient(135deg, var(--secondary-color), var(--primary-light)) !important;
         }
-        
+
         .badge.bg-info {
             background: linear-gradient(135deg, var(--accent-color), var(--primary-color)) !important;
         }
-        
+
         .badge.bg-secondary {
             background: linear-gradient(135deg, #6c757d, #495057) !important;
             color: white !important;
         }
-        
-        /* Form styling */
-        .form-control-lg {
-            border: 2px solid rgba(0, 0, 0, 0.1);
-            border-radius: 10px;
-            transition: all 0.3s ease;
-        }
-        
-        .form-control-lg:focus {
-            border-color: var(--primary-color);
-            box-shadow: 0 0 0 0.2rem color-mix(in srgb, var(--primary-color) 25%, transparent);
-        }
-        
+
         /* Responsive Design */
         @@media (max-width: 768px) {
             .dashboard-header .d-flex {
@@ -580,38 +362,38 @@
                 align-items: stretch;
                 gap: 20px;
             }
-            
+
             .dashboard-header .d-flex > div:last-child {
                 align-self: center;
             }
-            
+
             .suboutput-name-cell {
                 min-width: auto;
             }
-            
+
             .performance-metric {
                 min-width: auto;
             }
-            
+
             .action-buttons {
                 flex-direction: column;
                 gap: 3px;
             }
-            
+
             .table-header th {
                 padding: 15px 10px;
                 font-size: 0.85rem;
             }
-            
+
             .table-row td {
                 padding: 15px 10px;
             }
-            
+
             .header-link {
                 flex-direction: column;
                 text-align: center;
             }
-            
+
             .header-link i {
                 margin-bottom: 5px;
                 margin-right: 0 !important;

@@ -227,7 +227,44 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             return RedirectToAction(nameof(Index), new { outputCode = outputCode });
         }
 
-       
+        // GET: SubOutputs/ProjectsList
+        [Permission(Permissions.ReadSubOutputs)]
+        public async Task<IActionResult> ProjectsList(int? frameworkCode, int? outputCode)
+        {
+            IQueryable<SubOutput> query = _context.SubOutputs
+                .Include(s => s.Output)
+                .Include(s => s.Indicators)
+                .Include(s => s.Output.Outcome.Framework);
+
+            if (frameworkCode != null)
+            {
+                // Filter by frameworkCode
+                query = query.Where(s => s.Output.Outcome.FrameworkCode == frameworkCode);
+                ViewBag.SelectedFrameworkCode = frameworkCode; // Store for view
+            }
+            else if (outputCode != null)
+            {
+                // Filter by outputCode
+                query = query.Where(s => s.OutputCode == outputCode);
+                ViewBag.SelectedOutputCode = outputCode; // Store for view
+            }
+            // If both are null, we'll return all records
+
+            var subOutputs = await query
+                .OrderByDescending(s => s.IndicatorsPerformance)
+                .ToListAsync();
+
+            if (subOutputs == null)
+            {
+                return NotFound();
+            }
+
+            // Set ViewData for breadcrumb
+            ViewData["frameworkCode"] = frameworkCode;
+            ViewData["outputCode"] = outputCode;
+
+            return View(subOutputs);
+        }
 
 
     }
