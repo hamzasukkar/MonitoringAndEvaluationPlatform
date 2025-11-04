@@ -35,6 +35,7 @@ namespace MonitoringAndEvaluationPlatform.Data
         public DbSet<Goal> Goals { get; set; }
         public DbSet<Target> Targets { get; set; }
         public DbSet<SDGIndicator> sDGIndicators { get; set; }
+        public DbSet<FrameworkGoal> FrameworkGoals { get; set; }
 
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -120,6 +121,13 @@ namespace MonitoringAndEvaluationPlatform.Data
                 .HasMany(p => p.Communities)
                 .WithMany(c => c.projects)
                 .UsingEntity(j => j.ToTable("ProjectCommunities"));
+
+            // Framework <-> FrameworkGoal (one-to-many)
+            modelBuilder.Entity<FrameworkGoal>()
+                .HasOne(fg => fg.Framework)
+                .WithMany(f => f.Goals)
+                .HasForeignKey(fg => fg.FrameworkCode)
+                .OnDelete(DeleteBehavior.Cascade);
 
 
 

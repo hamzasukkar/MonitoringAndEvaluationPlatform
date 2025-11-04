@@ -1,0 +1,364 @@
+@model IEnumerable<MonitoringAndEvaluationPlatform.Models.FrameworkGoal>
+
+@using MonitoringAndEvaluationPlatform.Helpers
+@using Microsoft.AspNetCore.Identity
+@inject UserManager<ApplicationUser> UserManager
+@inject SignInManager<ApplicationUser> SignInManager
+@using Microsoft.AspNetCore.Mvc.Localization
+@inject IViewLocalizer Localizer
+@using Microsoft.AspNetCore.Localization
+
+@{
+    ViewData["Title"] = "Framework Goals";
+    Layout = "~/Views/Shared/_DashboardHomeLayout.cshtml";
+    var culture = Context.Features.Get<IRequestCultureFeature>().RequestCulture.Culture.Name;
+}
+
+<!-- Dashboard Header -->
+<div class="dashboard-header">
+    <div class="d-flex justify-content-between align-items-center">
+        <div>
+            <h1 class="dashboard-title">
+                <i class="fas fa-bullseye me-3"></i>
+                @Localizer["Framework Goals"]
+            </h1>
+            <p class="dashboard-subtitle">
+                @Localizer["Manage goals and targets for monitoring frameworks"]
+            </p>
+        </div>
+        @if (SignInManager.IsSignedIn(User))
+        {
+            var user = await UserManager.GetUserAsync(User);
+            if (user != null)
+            {
+                var roles = await UserManager.GetRolesAsync(user);
+                if (roles.Contains("SystemAdministrator"))
+                {
+                    <div>
+                        <button onclick="toggleInlineCreate()" class="btn btn-primary btn-lg shadow-sm" id="createGoalBtn">
+                            <i class="fas fa-plus me-2"></i>@Localizer["Add New Goal"]
+                        </button>
+                    </div>
+                }
+            }
+        }
+    </div>
+</div>
+
+<!-- Filter Section -->
+<div class="card shadow-sm mb-4">
+    <div class="card-body">
+        <form method="get" asp-action="Index">
+            <div class="row">
+                <div class="col-md-4">
+                    <label class="form-label">@Localizer["Filter by Framework"]</label>
+                    <select name="frameworkCode" class="form-select" onchange="this.form.submit()">
+                        <option value="">@Localizer["All Frameworks"]</option>
+                        @foreach (var framework in ViewBag.Frameworks)
+                        {
+                            <option value="@framework.Code" selected="@(ViewBag.SelectedFrameworkCode == framework.Code)">
+                                @framework.Name
+                            </option>
+                        }
+                    </select>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Inline Create Form (Initially Hidden) -->
+<div id="inlineCreateForm" class="card shadow-sm mb-4" style="display: none;">
+    <div class="card-header bg-primary text-white">
+        <h5 class="mb-0">
+            <i class="fas fa-plus-circle me-2"></i>@Localizer["Create New Framework Goal"]
+        </h5>
+    </div>
+    <div class="card-body">
+        <form id="createGoalForm">
+            @Html.AntiForgeryToken()
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">@Localizer["Goal Name"] <span class="text-danger">*</span></label>
+                    <input type="text" class="form-control" id="goalName" name="Name" required />
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">@Localizer["Framework"] <span class="text-danger">*</span></label>
+                    <select class="form-select" id="frameworkCode" name="FrameworkCode" required>
+                        <option value="">@Localizer["Select Framework"]</option>
+                        @foreach (var framework in ViewBag.Frameworks)
+                        {
+                            <option value="@framework.Code">@framework.Name</option>
+                        }
+                    </select>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-4 mb-3">
+                    <label class="form-label">@Localizer["Starting Year"] <span class="text-danger">*</span></label>
+                    <input type="number" class="form-control" id="startingYear" name="StartingYear" required />
+                </div>
+                <div class="col-md-4 mb-3">
+                    <label class="form-label">@Localizer["Base Value (Starting)"] <span class="text-danger">*</span></label>
+                    <input type="number" step="0.01" class="form-control" id="baseValueStarting" name="BaseValueForStartingYear" required />
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-4 mb-3">
+                    <label class="form-label">@Localizer["Current Year"] <span class="text-danger">*</span></label>
+                    <input type="number" class="form-control" id="currentYear" name="CurrentYear" required />
+                </div>
+                <div class="col-md-4 mb-3">
+                    <label class="form-label">@Localizer["Base Value (Current)"] <span class="text-danger">*</span></label>
+                    <input type="number" step="0.01" class="form-control" id="baseValueCurrent" name="BaseValueForCurrentYear" required />
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-4 mb-3">
+                    <label class="form-label">@Localizer["Target Year"] <span class="text-danger">*</span></label>
+                    <input type="number" class="form-control" id="targetYear" name="TargetYear" required />
+                </div>
+                <div class="col-md-4 mb-3">
+                    <label class="form-label">@Localizer["Target Value"] <span class="text-danger">*</span></label>
+                    <input type="number" step="0.01" class="form-control" id="targetValue" name="TargetValue" required />
+                </div>
+            </div>
+            <div class="d-flex gap-2">
+                <button type="submit" class="btn btn-success">
+                    <i class="fas fa-save me-2"></i>@Localizer["Save Goal"]
+                </button>
+                <button type="button" class="btn btn-secondary" onclick="toggleInlineCreate()">
+                    <i class="fas fa-times me-2"></i>@Localizer["Cancel"]
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Goals Table -->
+<div class="card shadow-sm">
+    <div class="card-header bg-light">
+        <h5 class="mb-0">@Localizer["Framework Goals List"]</h5>
+    </div>
+    <div class="card-body">
+        @if (Model.Any())
+        {
+            <div class="table-responsive">
+                <table class="table table-hover" id="goalsTable">
+                    <thead class="table-light">
+                        <tr>
+                            <th>@Localizer["Goal Name"]</th>
+                            <th>@Localizer["Framework"]</th>
+                            <th>@Localizer["Starting Year"]</th>
+                            <th>@Localizer["Base Value (Starting)"]</th>
+                            <th>@Localizer["Current Year"]</th>
+                            <th>@Localizer["Base Value (Current)"]</th>
+                            <th>@Localizer["Target Year"]</th>
+                            <th>@Localizer["Target Value"]</th>
+                            @if (SignInManager.IsSignedIn(User))
+                            {
+                                var user = await UserManager.GetUserAsync(User);
+                                if (user != null)
+                                {
+                                    var roles = await UserManager.GetRolesAsync(user);
+                                    if (roles.Contains("SystemAdministrator"))
+                                    {
+                                        <th class="text-center">@Localizer["Actions"]</th>
+                                    }
+                                }
+                            }
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var goal in Model)
+                        {
+                            <tr id="goal-row-@goal.ID">
+                                <td><strong>@goal.Name</strong></td>
+                                <td>
+                                    <span class="badge bg-info">@goal.Framework.Name</span>
+                                </td>
+                                <td>@goal.StartingYear</td>
+                                <td>@goal.BaseValueForStartingYear.ToString("N2")</td>
+                                <td>@goal.CurrentYear</td>
+                                <td>@goal.BaseValueForCurrentYear.ToString("N2")</td>
+                                <td>@goal.TargetYear</td>
+                                <td><strong>@goal.TargetValue.ToString("N2")</strong></td>
+                                @if (SignInManager.IsSignedIn(User))
+                                {
+                                    var user = await UserManager.GetUserAsync(User);
+                                    if (user != null)
+                                    {
+                                        var roles = await UserManager.GetRolesAsync(user);
+                                        if (roles.Contains("SystemAdministrator"))
+                                        {
+                                            <td class="text-center">
+                                                <button onclick="deleteGoal(@goal.ID)" class="btn btn-sm btn-danger">
+                                                    <i class="fas fa-trash"></i>
+                                                </button>
+                                            </td>
+                                        }
+                                    }
+                                }
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+        else
+        {
+            <div class="text-center py-5">
+                <i class="fas fa-inbox fa-3x text-muted mb-3"></i>
+                <p class="text-muted">@Localizer["No goals found. Create your first goal to get started!"]</p>
+            </div>
+        }
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        // Toggle inline create form
+        function toggleInlineCreate() {
+            const form = document.getElementById('inlineCreateForm');
+            const btn = document.getElementById('createGoalBtn');
+
+            if (form.style.display === 'none') {
+                form.style.display = 'block';
+                btn.innerHTML = '<i class="fas fa-times me-2"></i>@Localizer["Cancel"]';
+                form.scrollIntoView({ behavior: 'smooth' });
+            } else {
+                form.style.display = 'none';
+                btn.innerHTML = '<i class="fas fa-plus me-2"></i>@Localizer["Add New Goal"]';
+                document.getElementById('createGoalForm').reset();
+            }
+        }
+
+        // Handle form submission
+        document.getElementById('createGoalForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+
+            const formData = {
+                Name: document.getElementById('goalName').value,
+                FrameworkCode: parseInt(document.getElementById('frameworkCode').value),
+                StartingYear: parseInt(document.getElementById('startingYear').value),
+                BaseValueForStartingYear: parseFloat(document.getElementById('baseValueStarting').value),
+                CurrentYear: parseInt(document.getElementById('currentYear').value),
+                BaseValueForCurrentYear: parseFloat(document.getElementById('baseValueCurrent').value),
+                TargetYear: parseInt(document.getElementById('targetYear').value),
+                TargetValue: parseFloat(document.getElementById('targetValue').value)
+            };
+
+            const token = document.querySelector('input[name="__RequestVerificationToken"]').value;
+
+            try {
+                const response = await fetch('@Url.Action("CreateInline", "FrameworkGoals")', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'RequestVerificationToken': token
+                    },
+                    body: JSON.stringify(formData)
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    // Show success message
+                    alert(result.message);
+
+                    // Reload the page to show the new goal
+                    location.reload();
+                } else {
+                    alert(result.message);
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('@Localizer["An error occurred. Please try again."]');
+            }
+        });
+
+        // Delete goal
+        async function deleteGoal(id) {
+            if (!confirm('@Localizer["Are you sure you want to delete this goal?"]')) {
+                return;
+            }
+
+            const token = document.querySelector('input[name="__RequestVerificationToken"]').value;
+
+            try {
+                const response = await fetch('@Url.Action("Delete", "FrameworkGoals")', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    },
+                    body: `id=${id}&__RequestVerificationToken=${encodeURIComponent(token)}`
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    // Remove the row from the table
+                    document.getElementById(`goal-row-${id}`).remove();
+                    alert(result.message);
+
+                    // Reload if no more goals
+                    if (document.querySelectorAll('#goalsTable tbody tr').length === 0) {
+                        location.reload();
+                    }
+                } else {
+                    alert(result.message);
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('@Localizer["An error occurred. Please try again."]');
+            }
+        }
+    </script>
+}
+
+<style>
+    .dashboard-header {
+        margin-bottom: 2rem;
+        padding-bottom: 1rem;
+        border-bottom: 2px solid #e9ecef;
+    }
+
+    .dashboard-title {
+        font-size: 2rem;
+        font-weight: 600;
+        color: #2c3e50;
+        margin-bottom: 0.5rem;
+    }
+
+    .dashboard-subtitle {
+        color: #6c757d;
+        font-size: 1rem;
+        margin-bottom: 0;
+    }
+
+    .card {
+        border: none;
+        border-radius: 10px;
+    }
+
+    .card-header {
+        border-radius: 10px 10px 0 0 !important;
+    }
+
+    .table th {
+        font-weight: 600;
+        text-transform: uppercase;
+        font-size: 0.85rem;
+        color: #495057;
+    }
+
+    .badge {
+        padding: 0.5rem 0.75rem;
+        font-weight: 500;
+    }
+
+    .btn-lg {
+        padding: 0.75rem 1.5rem;
+        font-size: 1rem;
+    }
+</style>

@@ -17,5 +17,8 @@ namespace MonitoringAndEvaluationPlatform.Models
         // Navigation property for related Outcomes
         public ICollection<Outcome> Outcomes { get; set; } = new List<Outcome>();
 
+        // Navigation property for related Goals
+        public ICollection<FrameworkGoal> Goals { get; set; } = new List<FrameworkGoal>();
+
     }
 }
