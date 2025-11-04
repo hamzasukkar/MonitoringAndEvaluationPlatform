@@ -1,0 +1,164 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" use="preserve" msdata:Ordinal="5" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+
+  <!-- Page Title and Headers -->
+  <data name="Framework Goals" xml:space="preserve">
+    <value>أهداف الإطار</value>
+  </data>
+  <data name="Manage goals and targets for monitoring frameworks" xml:space="preserve">
+    <value>إدارة الأهداف والغايات لأطر المراقبة</value>
+  </data>
+  <data name="Add New Goal" xml:space="preserve">
+    <value>إضافة هدف جديد</value>
+  </data>
+  <data name="Cancel" xml:space="preserve">
+    <value>إلغاء</value>
+  </data>
+
+  <!-- Filter Section -->
+  <data name="Filter by Framework" xml:space="preserve">
+    <value>تصفية حسب الإطار</value>
+  </data>
+  <data name="All Frameworks" xml:space="preserve">
+    <value>جميع الأطر</value>
+  </data>
+
+  <!-- Create Form -->
+  <data name="Create New Framework Goal" xml:space="preserve">
+    <value>إنشاء هدف إطار جديد</value>
+  </data>
+  <data name="Goal Name" xml:space="preserve">
+    <value>اسم الهدف</value>
+  </data>
+  <data name="Framework" xml:space="preserve">
+    <value>الإطار</value>
+  </data>
+  <data name="Select Framework" xml:space="preserve">
+    <value>اختر الإطار</value>
+  </data>
+  <data name="Starting Year" xml:space="preserve">
+    <value>سنة البداية</value>
+  </data>
+  <data name="Base Value (Starting)" xml:space="preserve">
+    <value>القيمة الأساسية (البداية)</value>
+  </data>
+  <data name="Current Year" xml:space="preserve">
+    <value>السنة الحالية</value>
+  </data>
+  <data name="Base Value (Current)" xml:space="preserve">
+    <value>القيمة الأساسية (الحالية)</value>
+  </data>
+  <data name="Target Year" xml:space="preserve">
+    <value>السنة المستهدفة</value>
+  </data>
+  <data name="Target Value" xml:space="preserve">
+    <value>القيمة المستهدفة</value>
+  </data>
+  <data name="Save Goal" xml:space="preserve">
+    <value>حفظ الهدف</value>
+  </data>
+
+  <!-- Table -->
+  <data name="Framework Goals List" xml:space="preserve">
+    <value>قائمة أهداف الإطار</value>
+  </data>
+  <data name="Actions" xml:space="preserve">
+    <value>الإجراءات</value>
+  </data>
+  <data name="No goals found. Create your first goal to get started!" xml:space="preserve">
+    <value>لم يتم العثور على أهداف. قم بإنشاء هدفك الأول للبدء!</value>
+  </data>
+
+  <!-- Messages -->
+  <data name="Goal created successfully!" xml:space="preserve">
+    <value>تم إنشاء الهدف بنجاح!</value>
+  </data>
+  <data name="An error occurred. Please try again." xml:space="preserve">
+    <value>حدث خطأ. يرجى المحاولة مرة أخرى.</value>
+  </data>
+  <data name="Are you sure you want to delete this goal?" xml:space="preserve">
+    <value>هل أنت متأكد أنك تريد حذف هذا الهدف؟</value>
+  </data>
+  <data name="Goal deleted successfully!" xml:space="preserve">
+    <value>تم حذف الهدف بنجاح!</value>
+  </data>
+  <data name="Please fill in all required fields." xml:space="preserve">
+    <value>يرجى ملء جميع الحقول المطلوبة.</value>
+  </data>
+  <data name="Invalid framework selected." xml:space="preserve">
+    <value>تم تحديد إطار غير صالح.</value>
+  </data>
+  <data name="Years must be in ascending order: Starting Year &lt; Current Year &lt; Target Year." xml:space="preserve">
+    <value>يجب أن تكون السنوات بترتيب تصاعدي: سنة البداية &lt; السنة الحالية &lt; السنة المستهدفة.</value>
+  </data>
+  <data name="Framework Goal created successfully!" xml:space="preserve">
+    <value>تم إنشاء هدف الإطار بنجاح!</value>
+  </data>
+  <data name="An error occurred while creating the framework goal. Please try again." xml:space="preserve">
+    <value>حدث خطأ أثناء إنشاء هدف الإطار. يرجى المحاولة مرة أخرى.</value>
+  </data>
+  <data name="Goal not found." xml:space="preserve">
+    <value>الهدف غير موجود.</value>
+  </data>
+  <data name="An error occurred while deleting the goal." xml:space="preserve">
+    <value>حدث خطأ أثناء حذف الهدف.</value>
+  </data>
+</root>
