@@ -35,5 +35,61 @@ namespace MonitoringAndEvaluationPlatform.Models
         // Navigation property
         [ForeignKey("FrameworkCode")]
         public Framework Framework { get; set; }
+
+        // Calculated Properties (Not Mapped to Database)
+
+        /// <summary>
+        /// Annual Discount Rate = (Target Value - Base Value for Starting Year) / (Target Year - Starting Year)
+        /// </summary>
+        [NotMapped]
+        public double AnnualDiscountRate
+        {
+            get
+            {
+                var yearDifference = TargetYear - StartingYear;
+                if (yearDifference == 0) return 0;
+                return (TargetValue - BaseValueForStartingYear) / yearDifference;
+            }
+        }
+
+        /// <summary>
+        /// Amount of Reduction = Base Value for Current Year - Base Value for Starting Year
+        /// </summary>
+        [NotMapped]
+        public double AmountOfReduction
+        {
+            get
+            {
+                return BaseValueForCurrentYear - BaseValueForStartingYear;
+            }
+        }
+
+        /// <summary>
+        /// Expected Value for Current Year = Base Value for Starting Year + (Annual Discount Rate × (Current Year - Starting Year))
+        /// </summary>
+        [NotMapped]
+        public double ExpectedValueForCurrentYear
+        {
+            get
+            {
+                var yearsPassed = CurrentYear - StartingYear;
+                return BaseValueForStartingYear + (AnnualDiscountRate * yearsPassed);
+            }
+        }
+
+        /// <summary>
+        /// Progress Rate = ((Base Value for Current Year - Base Value for Starting Year) / (Target Value - Base Value for Starting Year)) × 100
+        /// </summary>
+        [NotMapped]
+        public double ProgressRate
+        {
+            get
+            {
+                var totalChange = TargetValue - BaseValueForStartingYear;
+                if (totalChange == 0) return 0;
+                var actualChange = BaseValueForCurrentYear - BaseValueForStartingYear;
+                return (actualChange / totalChange) * 100;
+            }
+        }
     }
 }

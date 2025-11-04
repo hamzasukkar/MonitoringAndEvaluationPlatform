@@ -155,6 +155,10 @@
                             <th>@Localizer["Base Value (Current)"]</th>
                             <th>@Localizer["Target Year"]</th>
                             <th>@Localizer["Target Value"]</th>
+                            <th>@Localizer["Annual Discount Rate"]</th>
+                            <th>@Localizer["Amount of Reduction"]</th>
+                            <th>@Localizer["Expected Value"]</th>
+                            <th>@Localizer["Progress Rate"]</th>
                             @if (SignInManager.IsSignedIn(User))
                             {
                                 var user = await UserManager.GetUserAsync(User);
@@ -183,6 +187,25 @@
                                 <td>@goal.BaseValueForCurrentYear.ToString("N2")</td>
                                 <td>@goal.TargetYear</td>
                                 <td><strong>@goal.TargetValue.ToString("N2")</strong></td>
+                                <td class="text-primary"><strong>@goal.AnnualDiscountRate.ToString("N2")</strong></td>
+                                <td class="@(goal.AmountOfReduction >= 0 ? "text-success" : "text-danger")">
+                                    @goal.AmountOfReduction.ToString("N2")
+                                </td>
+                                <td class="text-info">@goal.ExpectedValueForCurrentYear.ToString("N2")</td>
+                                <td>
+                                    <div class="d-flex align-items-center">
+                                        <div class="progress flex-grow-1 me-2" style="height: 20px; min-width: 80px;">
+                                            <div class="progress-bar @(goal.ProgressRate >= 100 ? "bg-success" : goal.ProgressRate >= 50 ? "bg-primary" : "bg-warning")"
+                                                 role="progressbar"
+                                                 style="width: @Math.Min(goal.ProgressRate, 100)%"
+                                                 aria-valuenow="@goal.ProgressRate"
+                                                 aria-valuemin="0"
+                                                 aria-valuemax="100">
+                                                @goal.ProgressRate.ToString("N1")%
+                                            </div>
+                                        </div>
+                                    </div>
+                                </td>
                                 @if (SignInManager.IsSignedIn(User))
                                 {
                                     var user = await UserManager.GetUserAsync(User);
