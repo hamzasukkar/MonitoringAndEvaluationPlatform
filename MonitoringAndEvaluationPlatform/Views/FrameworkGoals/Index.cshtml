@@ -237,39 +237,48 @@
         document.getElementById('createGoalForm').addEventListener('submit', async function(e) {
             e.preventDefault();
 
-            const formData = {
-                Name: document.getElementById('goalName').value,
-                FrameworkCode: parseInt(document.getElementById('frameworkCode').value),
-                StartingYear: parseInt(document.getElementById('startingYear').value),
-                BaseValueForStartingYear: parseFloat(document.getElementById('baseValueStarting').value),
-                CurrentYear: parseInt(document.getElementById('currentYear').value),
-                BaseValueForCurrentYear: parseFloat(document.getElementById('baseValueCurrent').value),
-                TargetYear: parseInt(document.getElementById('targetYear').value),
-                TargetValue: parseFloat(document.getElementById('targetValue').value)
-            };
-
             const token = document.querySelector('input[name="__RequestVerificationToken"]').value;
+
+            // Create FormData for form-encoded submission
+            const formData = new FormData();
+            formData.append('Name', document.getElementById('goalName').value);
+            formData.append('FrameworkCode', document.getElementById('frameworkCode').value);
+            formData.append('StartingYear', document.getElementById('startingYear').value);
+            formData.append('BaseValueForStartingYear', document.getElementById('baseValueStarting').value);
+            formData.append('CurrentYear', document.getElementById('currentYear').value);
+            formData.append('BaseValueForCurrentYear', document.getElementById('baseValueCurrent').value);
+            formData.append('TargetYear', document.getElementById('targetYear').value);
+            formData.append('TargetValue', document.getElementById('targetValue').value);
+            formData.append('__RequestVerificationToken', token);
 
             try {
                 const response = await fetch('@Url.Action("CreateInline", "FrameworkGoals")', {
                     method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'RequestVerificationToken': token
-                    },
-                    body: JSON.stringify(formData)
+                    body: formData
                 });
 
                 const result = await response.json();
+                console.log('Server response:', result);
 
                 if (result.success) {
                     // Show success message
-                    alert(result.message);
+                    if (typeof result.message === 'string') {
+                        alert(result.message);
+                    } else {
+                        alert('@Localizer["Goal created successfully!"]');
+                    }
 
                     // Reload the page to show the new goal
                     location.reload();
                 } else {
-                    alert(result.message);
+                    // Handle error message
+                    let errorMessage = '@Localizer["An error occurred. Please try again."]';
+                    if (typeof result.message === 'string') {
+                        errorMessage = result.message;
+                    } else if (result.message && typeof result.message === 'object') {
+                        errorMessage = JSON.stringify(result.message);
+                    }
+                    alert(errorMessage);
                 }
             } catch (error) {
                 console.error('Error:', error);

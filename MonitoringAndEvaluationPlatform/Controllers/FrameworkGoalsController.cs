@@ -48,7 +48,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
         [Permission(Permissions.AddStrategy)]
-        public async Task<IActionResult> CreateInline([FromBody] FrameworkGoalCreateModel model)
+        public async Task<IActionResult> CreateInline(FrameworkGoalCreateModel model)
         {
             try
             {
