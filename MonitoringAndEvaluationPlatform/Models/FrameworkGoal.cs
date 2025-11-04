@@ -53,14 +53,15 @@ namespace MonitoringAndEvaluationPlatform.Models
         }
 
         /// <summary>
-        /// Amount of Reduction = Base Value for Current Year - Base Value for Starting Year
+        /// Amount of Reduction = Annual Discount Rate × (Current Year - Starting Year)
         /// </summary>
         [NotMapped]
         public double AmountOfReduction
         {
             get
             {
-                return BaseValueForCurrentYear - BaseValueForStartingYear;
+                var yearsPassed = CurrentYear - StartingYear;
+                return AnnualDiscountRate * yearsPassed;
             }
         }
 
@@ -78,17 +79,15 @@ namespace MonitoringAndEvaluationPlatform.Models
         }
 
         /// <summary>
-        /// Progress Rate = ((Base Value for Current Year - Base Value for Starting Year) / (Target Value - Base Value for Starting Year)) × 100
+        /// Progress Rate = Expected Value for Current Year / Base Value for Starting Year
         /// </summary>
         [NotMapped]
         public double ProgressRate
         {
             get
             {
-                var totalChange = TargetValue - BaseValueForStartingYear;
-                if (totalChange == 0) return 0;
-                var actualChange = BaseValueForCurrentYear - BaseValueForStartingYear;
-                return (actualChange / totalChange) * 100;
+                if (BaseValueForStartingYear == 0) return 0;
+                return ExpectedValueForCurrentYear / BaseValueForStartingYear;
             }
         }
     }

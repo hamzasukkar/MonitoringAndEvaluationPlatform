@@ -192,19 +192,10 @@
                                     @goal.AmountOfReduction.ToString("N2")
                                 </td>
                                 <td class="text-info">@goal.ExpectedValueForCurrentYear.ToString("N2")</td>
-                                <td>
-                                    <div class="d-flex align-items-center">
-                                        <div class="progress flex-grow-1 me-2" style="height: 20px; min-width: 80px;">
-                                            <div class="progress-bar @(goal.ProgressRate >= 100 ? "bg-success" : goal.ProgressRate >= 50 ? "bg-primary" : "bg-warning")"
-                                                 role="progressbar"
-                                                 style="width: @Math.Min(goal.ProgressRate, 100)%"
-                                                 aria-valuenow="@goal.ProgressRate"
-                                                 aria-valuemin="0"
-                                                 aria-valuemax="100">
-                                                @goal.ProgressRate.ToString("N1")%
-                                            </div>
-                                        </div>
-                                    </div>
+                                <td class="text-center">
+                                    <span class="badge @(goal.ProgressRate >= 1 ? "bg-success" : "bg-warning") fs-6">
+                                        @goal.ProgressRate.ToString("N2")
+                                    </span>
                                 </td>
                                 @if (SignInManager.IsSignedIn(User))
                                 {
