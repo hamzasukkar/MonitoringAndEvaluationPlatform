@@ -159,18 +159,7 @@
                             <th>@Localizer["Amount of Reduction"]</th>
                             <th>@Localizer["Expected Value"]</th>
                             <th>@Localizer["Progress Rate"]</th>
-                            @if (SignInManager.IsSignedIn(User))
-                            {
-                                var user = await UserManager.GetUserAsync(User);
-                                if (user != null)
-                                {
-                                    var roles = await UserManager.GetRolesAsync(user);
-                                    if (roles.Contains("SystemAdministrator"))
-                                    {
-                                        <th class="text-center">@Localizer["Actions"]</th>
-                                    }
-                                }
-                            }
+                            <th class="text-center">@Localizer["Actions"]</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -197,22 +186,27 @@
                                         @goal.ProgressRate.ToString("N2")
                                     </span>
                                 </td>
-                                @if (SignInManager.IsSignedIn(User))
-                                {
-                                    var user = await UserManager.GetUserAsync(User);
-                                    if (user != null)
+                                <td class="text-center">
+                                    <a href="@Url.Action("FrameworkGoalsTimeline", "Dashboard", new { goalId = goal.ID, frameworkCode = goal.FrameworkCode })"
+                                       class="btn btn-sm btn-info text-white me-2"
+                                       title="@Localizer["View Timeline Chart"]">
+                                        <i class="fas fa-chart-line"></i>
+                                    </a>
+                                    @if (SignInManager.IsSignedIn(User))
                                     {
-                                        var roles = await UserManager.GetRolesAsync(user);
-                                        if (roles.Contains("SystemAdministrator"))
+                                        var user = await UserManager.GetUserAsync(User);
+                                        if (user != null)
                                         {
-                                            <td class="text-center">
+                                            var roles = await UserManager.GetRolesAsync(user);
+                                            if (roles.Contains("SystemAdministrator"))
+                                            {
                                                 <button onclick="deleteGoal(@goal.ID)" class="btn btn-sm btn-danger">
                                                     <i class="fas fa-trash"></i>
                                                 </button>
-                                            </td>
+                                            }
                                         }
                                     }
-                                }
+                                </td>
                             </tr>
                         }
                     </tbody>

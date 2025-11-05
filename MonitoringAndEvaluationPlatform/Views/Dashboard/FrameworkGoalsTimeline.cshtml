@@ -1,0 +1,610 @@
+@{
+    ViewData["Title"] = "Framework Goals Timeline";
+    Layout = "~/Views/Shared/_DashboardHomeLayout.cshtml";
+}
+
+<!-- Dashboard Header -->
+<div class="dashboard-header">
+    <h1 class="dashboard-title">
+        <i class="fas fa-chart-line me-3"></i>
+        Goal Timeline Analysis
+    </h1>
+    <p class="dashboard-subtitle">
+        Track Annual Discount Rate, Amount of Reduction, and Expected Value over time for a specific goal
+    </p>
+</div>
+
+<div class="container-fluid">
+    <!-- Selectors Card -->
+    <div class="selector-card mb-4">
+        <div class="row g-3">
+            <div class="col-md-6">
+                <div class="selector-header">
+                    <i class="fas fa-layer-group me-2"></i>
+                    <h5 class="selector-title">Select Framework</h5>
+                </div>
+                <div class="selector-content">
+                    <select id="frameworkSelect" class="modern-select-primary">
+                        <option value="">-- Select Framework --</option>
+                        @foreach (var fw in ViewBag.Frameworks as List<Framework>)
+                        {
+                            <option value="@fw.Code">@fw.Name</option>
+                        }
+                    </select>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="selector-header">
+                    <i class="fas fa-bullseye me-2"></i>
+                    <h5 class="selector-title">Select Goal</h5>
+                </div>
+                <div class="selector-content">
+                    <select id="goalSelect" class="modern-select-primary" disabled>
+                        <option value="">-- Select a framework first --</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Chart Container -->
+    <div id="chartContainerCard" class="chart-container-card" style="display: none;">
+        <div class="chart-header">
+            <h5 class="chart-title">
+                <i class="fas fa-chart-area me-2"></i>
+                <span id="chartTitleText">Timeline Analysis</span>
+            </h5>
+        </div>
+        <div class="chart-wrapper">
+            <canvas id="timelineChart"></canvas>
+        </div>
+    </div>
+
+    <!-- Goal Details Card -->
+    <div id="goalDetailsCard" class="goal-details-card mt-4" style="display: none;">
+        <div class="details-grid">
+            <div class="detail-item">
+                <i class="fas fa-flag-checkered detail-icon"></i>
+                <div class="detail-content">
+                    <span class="detail-label">Framework</span>
+                    <span class="detail-value" id="detailFramework">-</span>
+                </div>
+            </div>
+            <div class="detail-item">
+                <i class="fas fa-calendar-alt detail-icon"></i>
+                <div class="detail-content">
+                    <span class="detail-label">Starting Year</span>
+                    <span class="detail-value" id="detailStartYear">-</span>
+                </div>
+            </div>
+            <div class="detail-item">
+                <i class="fas fa-calendar-check detail-icon"></i>
+                <div class="detail-content">
+                    <span class="detail-label">Current Year</span>
+                    <span class="detail-value" id="detailCurrentYear">-</span>
+                </div>
+            </div>
+            <div class="detail-item">
+                <i class="fas fa-calendar-star detail-icon"></i>
+                <div class="detail-content">
+                    <span class="detail-label">Target Year</span>
+                    <span class="detail-value" id="detailTargetYear">-</span>
+                </div>
+            </div>
+            <div class="detail-item">
+                <i class="fas fa-arrow-up detail-icon"></i>
+                <div class="detail-content">
+                    <span class="detail-label">Base Value</span>
+                    <span class="detail-value" id="detailBaseValue">-</span>
+                </div>
+            </div>
+            <div class="detail-item">
+                <i class="fas fa-chart-line detail-icon"></i>
+                <div class="detail-content">
+                    <span class="detail-label">Current Value</span>
+                    <span class="detail-value" id="detailCurrentValue">-</span>
+                </div>
+            </div>
+            <div class="detail-item">
+                <i class="fas fa-bullseye detail-icon"></i>
+                <div class="detail-content">
+                    <span class="detail-label">Target Value</span>
+                    <span class="detail-value" id="detailTargetValue">-</span>
+                </div>
+            </div>
+            <div class="detail-item">
+                <i class="fas fa-percent detail-icon"></i>
+                <div class="detail-content">
+                    <span class="detail-label">Annual Discount Rate</span>
+                    <span class="detail-value" id="detailAnnualRate">-</span>
+                </div>
+            </div>
+            <div class="detail-item">
+                <i class="fas fa-chart-bar detail-icon"></i>
+                <div class="detail-content">
+                    <span class="detail-label">Current Reduction</span>
+                    <span class="detail-value" id="detailCurrentReduction">-</span>
+                </div>
+            </div>
+            <div class="detail-item">
+                <i class="fas fa-calculator detail-icon"></i>
+                <div class="detail-content">
+                    <span class="detail-label">Expected Current Value</span>
+                    <span class="detail-value" id="detailExpectedValue">-</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .dashboard-header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 2rem;
+        border-radius: 20px;
+        margin-bottom: 2rem;
+        box-shadow: 0 8px 32px rgba(102, 126, 234, 0.3);
+    }
+
+    .dashboard-title {
+        font-size: 2rem;
+        font-weight: 700;
+        margin: 0;
+        display: flex;
+        align-items: center;
+    }
+
+    .dashboard-subtitle {
+        margin: 0.5rem 0 0 0;
+        font-size: 1rem;
+        opacity: 0.95;
+    }
+
+    .selector-card {
+        background: linear-gradient(135deg, rgba(255,255,255,0.95) 0%, rgba(248,249,250,0.95) 100%);
+        backdrop-filter: blur(15px);
+        border: 1px solid rgba(255,255,255,0.3);
+        border-radius: 20px;
+        padding: 1.5rem;
+        box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+        transition: all 0.3s ease;
+    }
+
+    .selector-header {
+        display: flex;
+        align-items: center;
+        margin-bottom: 1rem;
+    }
+
+    .selector-title {
+        font-size: 1.1rem;
+        font-weight: 600;
+        color: #2d3748;
+        margin: 0;
+    }
+
+    .selector-header i {
+        color: #667eea;
+        font-size: 1rem;
+    }
+
+    .modern-select-primary {
+        width: 100%;
+        padding: 1rem 1.5rem;
+        border: 2px solid #e2e8f0;
+        border-radius: 15px;
+        background: linear-gradient(135deg, rgba(255,255,255,0.9) 0%, rgba(248,249,250,0.9) 100%);
+        font-size: 1rem;
+        font-weight: 500;
+        color: #2d3748;
+        transition: all 0.3s ease;
+    }
+
+    .modern-select-primary:focus {
+        outline: none;
+        border-color: #667eea;
+        box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    }
+
+    .chart-container-card {
+        background: linear-gradient(135deg, rgba(255,255,255,0.95) 0%, rgba(248,249,250,0.95) 100%);
+        backdrop-filter: blur(15px);
+        border: 1px solid rgba(255,255,255,0.3);
+        border-radius: 24px;
+        padding: 2rem;
+        box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+    }
+
+    .chart-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 2rem;
+        flex-wrap: wrap;
+        gap: 1rem;
+    }
+
+    .chart-title {
+        font-size: 1.3rem;
+        font-weight: 700;
+        color: #2d3748;
+        margin: 0;
+        display: flex;
+        align-items: center;
+    }
+
+    .chart-title i {
+        color: #667eea;
+    }
+
+    .legend-container {
+        display: flex;
+        gap: 1.5rem;
+        flex-wrap: wrap;
+    }
+
+    .legend-item {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-size: 0.9rem;
+        font-weight: 500;
+        color: #4a5568;
+    }
+
+    .legend-color {
+        width: 20px;
+        height: 3px;
+        border-radius: 2px;
+    }
+
+    .chart-wrapper {
+        position: relative;
+        height: 500px;
+    }
+
+    .goal-details-card {
+        background: linear-gradient(135deg, rgba(255,255,255,0.95) 0%, rgba(248,249,250,0.95) 100%);
+        backdrop-filter: blur(15px);
+        border: 1px solid rgba(255,255,255,0.3);
+        border-radius: 24px;
+        padding: 2rem;
+        box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+    }
+
+    .details-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 1.5rem;
+    }
+
+    .detail-item {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        padding: 1.25rem;
+        background: linear-gradient(135deg, #f7fafc 0%, #edf2f7 100%);
+        border: 1px solid rgba(226, 232, 240, 0.8);
+        border-radius: 16px;
+        transition: all 0.3s ease;
+    }
+
+    .detail-item:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+    }
+
+    .detail-icon {
+        width: 50px;
+        height: 50px;
+        min-width: 50px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 1.25rem;
+        box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+    }
+
+    .detail-content {
+        display: flex;
+        flex-direction: column;
+        flex: 1;
+    }
+
+    .detail-label {
+        font-size: 0.75rem;
+        color: #718096;
+        font-weight: 500;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        margin-bottom: 0.25rem;
+    }
+
+    .detail-value {
+        font-size: 1.3rem;
+        font-weight: 700;
+        color: #2d3748;
+    }
+
+    @@media (max-width: 768px) {
+        .chart-wrapper {
+            height: 350px;
+        }
+
+        .details-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .chart-header {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+    }
+</style>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        let timelineChart = null;
+        const selectedGoalId = @(ViewBag.SelectedGoalId ?? 0);
+        const selectedFrameworkCode = @(ViewBag.SelectedFrameworkCode ?? 0);
+
+        // Load goals when framework is selected
+        document.getElementById('frameworkSelect').addEventListener('change', async function() {
+            const frameworkCode = this.value;
+            const goalSelect = document.getElementById('goalSelect');
+
+            // Reset goal selector
+            goalSelect.innerHTML = '<option value="">-- Select a goal --</option>';
+            goalSelect.disabled = true;
+
+            // Hide chart and details
+            document.getElementById('chartContainerCard').style.display = 'none';
+            document.getElementById('goalDetailsCard').style.display = 'none';
+
+            if (!frameworkCode) {
+                return;
+            }
+
+            // Fetch goals for selected framework
+            const response = await fetch(`/Dashboard/GetGoalsByFramework?frameworkCode=${frameworkCode}`);
+            const goals = await response.json();
+
+            if (goals.length > 0) {
+                goals.forEach(goal => {
+                    const option = document.createElement('option');
+                    option.value = goal.id;
+                    option.textContent = goal.name;
+                    goalSelect.appendChild(option);
+                });
+                goalSelect.disabled = false;
+            } else {
+                goalSelect.innerHTML = '<option value="">-- No goals found --</option>';
+            }
+        });
+
+        // Load chart when goal is selected
+        document.getElementById('goalSelect').addEventListener('change', async function() {
+            const goalId = this.value;
+
+            if (!goalId) {
+                document.getElementById('chartContainerCard').style.display = 'none';
+                document.getElementById('goalDetailsCard').style.display = 'none';
+                return;
+            }
+
+            // Fetch goal timeline data
+            const response = await fetch(`/Dashboard/GetGoalTimelineData?goalId=${goalId}`);
+            const goalData = await response.json();
+
+            // Update chart title
+            document.getElementById('chartTitleText').textContent = goalData.goalName;
+
+            // Show containers
+            document.getElementById('chartContainerCard').style.display = 'block';
+            document.getElementById('goalDetailsCard').style.display = 'block';
+
+            // Update goal details
+            document.getElementById('detailFramework').textContent = goalData.frameworkName;
+            document.getElementById('detailStartYear').textContent = goalData.startingYear;
+            document.getElementById('detailCurrentYear').textContent = goalData.currentYear;
+            document.getElementById('detailTargetYear').textContent = goalData.targetYear;
+            document.getElementById('detailBaseValue').textContent = goalData.baseValue.toFixed(2);
+            document.getElementById('detailCurrentValue').textContent = goalData.currentValue.toFixed(2);
+            document.getElementById('detailTargetValue').textContent = goalData.targetValue.toFixed(2);
+            document.getElementById('detailAnnualRate').textContent = goalData.annualDiscountRate.toFixed(2);
+            document.getElementById('detailCurrentReduction').textContent = goalData.currentReduction.toFixed(2);
+            document.getElementById('detailExpectedValue').textContent = goalData.expectedCurrentValue.toFixed(2);
+
+            // Prepare chart data
+            const years = goalData.timeSeries.map(ts => ts.year);
+            const annualRates = goalData.timeSeries.map(ts => ts.annualDiscountRate);
+            const reductions = goalData.timeSeries.map(ts => ts.amountOfReduction);
+            const expectedValues = goalData.timeSeries.map(ts => ts.expectedValue);
+
+            // Destroy existing chart if it exists
+            if (timelineChart) {
+                timelineChart.destroy();
+            }
+
+            // Create the chart
+            const ctx = document.getElementById('timelineChart').getContext('2d');
+            timelineChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: years,
+                    datasets: [
+                        {
+                            label: 'Annual Discount Rate',
+                            data: annualRates,
+                            borderColor: 'rgba(255, 99, 132, 1)',
+                            backgroundColor: 'rgba(255, 99, 132, 0.1)',
+                            borderWidth: 3,
+                            tension: 0.4,
+                            fill: false,
+                            pointRadius: 5,
+                            pointHoverRadius: 8,
+                            pointBackgroundColor: 'rgba(255, 99, 132, 1)',
+                            pointBorderColor: '#fff',
+                            pointBorderWidth: 2
+                        },
+                        {
+                            label: 'Amount of Reduction',
+                            data: reductions,
+                            borderColor: 'rgba(54, 162, 235, 1)',
+                            backgroundColor: 'rgba(54, 162, 235, 0.1)',
+                            borderWidth: 3,
+                            tension: 0.4,
+                            fill: false,
+                            pointRadius: 5,
+                            pointHoverRadius: 8,
+                            pointBackgroundColor: 'rgba(54, 162, 235, 1)',
+                            pointBorderColor: '#fff',
+                            pointBorderWidth: 2
+                        },
+                        {
+                            label: 'Expected Value',
+                            data: expectedValues,
+                            borderColor: 'rgba(75, 192, 192, 1)',
+                            backgroundColor: 'rgba(75, 192, 192, 0.1)',
+                            borderWidth: 3,
+                            tension: 0.4,
+                            fill: false,
+                            pointRadius: 5,
+                            pointHoverRadius: 8,
+                            pointBackgroundColor: 'rgba(75, 192, 192, 1)',
+                            pointBorderColor: '#fff',
+                            pointBorderWidth: 2
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    interaction: {
+                        mode: 'index',
+                        intersect: false
+                    },
+                    plugins: {
+                        legend: {
+                            display: true,
+                            position: 'bottom',
+                            labels: {
+                                padding: 20,
+                                font: {
+                                    size: 13,
+                                    weight: 600
+                                },
+                                usePointStyle: true,
+                                pointStyle: 'circle',
+                                boxWidth: 10,
+                                boxHeight: 10
+                            }
+                        },
+                        tooltip: {
+                            backgroundColor: 'rgba(0, 0, 0, 0.9)',
+                            titleColor: '#fff',
+                            bodyColor: '#fff',
+                            borderColor: '#667eea',
+                            borderWidth: 2,
+                            padding: 15,
+                            displayColors: true,
+                            titleFont: {
+                                size: 14,
+                                weight: 'bold'
+                            },
+                            bodyFont: {
+                                size: 13
+                            },
+                            callbacks: {
+                                label: function(context) {
+                                    return `${context.dataset.label}: ${context.parsed.y.toFixed(2)}`;
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'Year',
+                                font: {
+                                    size: 16,
+                                    weight: 700
+                                },
+                                color: '#2d3748'
+                            },
+                            grid: {
+                                display: true,
+                                color: 'rgba(0, 0, 0, 0.05)',
+                                drawBorder: false
+                            },
+                            ticks: {
+                                font: {
+                                    size: 13,
+                                    weight: 600
+                                },
+                                color: '#4a5568'
+                            }
+                        },
+                        y: {
+                            title: {
+                                display: true,
+                                text: 'Value',
+                                font: {
+                                    size: 16,
+                                    weight: 700
+                                },
+                                color: '#2d3748'
+                            },
+                            grid: {
+                                color: 'rgba(0, 0, 0, 0.05)',
+                                drawBorder: false
+                            },
+                            ticks: {
+                                font: {
+                                    size: 13,
+                                    weight: 600
+                                },
+                                color: '#4a5568'
+                            }
+                        }
+                    },
+                    animation: {
+                        duration: 1500,
+                        easing: 'easeInOutQuart'
+                    }
+                }
+            });
+        });
+
+        // Auto-select framework and goal if provided in URL
+        window.addEventListener('DOMContentLoaded', async function() {
+            if (selectedFrameworkCode > 0) {
+                // Set the framework dropdown
+                document.getElementById('frameworkSelect').value = selectedFrameworkCode;
+
+                // Trigger change event to load goals
+                const frameworkSelect = document.getElementById('frameworkSelect');
+                const event = new Event('change');
+                await frameworkSelect.dispatchEvent(event);
+
+                // Wait a bit for goals to load, then select the goal
+                if (selectedGoalId > 0) {
+                    setTimeout(async () => {
+                        const goalSelect = document.getElementById('goalSelect');
+                        goalSelect.value = selectedGoalId;
+
+                        // Trigger change event to load the chart
+                        const goalEvent = new Event('change');
+                        await goalSelect.dispatchEvent(goalEvent);
+                    }, 500);
+                }
+            }
+        });
+    </script>
+}

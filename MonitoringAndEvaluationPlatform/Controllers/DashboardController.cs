@@ -1060,6 +1060,86 @@ public class DashboardController : Controller
         return Json(projects);
     }
 
+    // GET: Dashboard/FrameworkGoalsTimeline
+    [HttpGet]
+    public async Task<IActionResult> FrameworkGoalsTimeline(int? goalId, int? frameworkCode)
+    {
+        var frameworks = await _context.Frameworks.ToListAsync();
+        ViewBag.Frameworks = frameworks;
+        ViewBag.SelectedGoalId = goalId;
+        ViewBag.SelectedFrameworkCode = frameworkCode;
+        return View();
+    }
+
+    // GET: Dashboard/GetGoalsByFramework
+    [HttpGet]
+    public async Task<IActionResult> GetGoalsByFramework(int frameworkCode)
+    {
+        var goals = await _context.FrameworkGoals
+            .Where(fg => fg.FrameworkCode == frameworkCode)
+            .Select(fg => new
+            {
+                id = fg.ID,
+                name = fg.Name
+            })
+            .ToListAsync();
+
+        return Json(goals);
+    }
+
+    // GET: Dashboard/GetGoalTimelineData
+    [HttpGet]
+    public async Task<IActionResult> GetGoalTimelineData(int goalId)
+    {
+        var goal = await _context.FrameworkGoals
+            .Include(fg => fg.Framework)
+            .FirstOrDefaultAsync(fg => fg.ID == goalId);
+
+        if (goal == null)
+        {
+            return NotFound();
+        }
+
+        // Generate time series data from StartingYear to TargetYear
+        var timeSeriesData = new List<object>();
+
+        for (int year = goal.StartingYear; year <= goal.TargetYear; year++)
+        {
+            var yearsPassed = year - goal.StartingYear;
+            var annualRate = goal.AnnualDiscountRate;
+            var reduction = annualRate * yearsPassed;
+            var expectedValue = goal.BaseValueForStartingYear + reduction;
+
+            timeSeriesData.Add(new
+            {
+                year = year,
+                annualDiscountRate = Math.Round(annualRate, 2),
+                amountOfReduction = Math.Round(reduction, 2),
+                expectedValue = Math.Round(expectedValue, 2)
+            });
+        }
+
+        var result = new
+        {
+            goalId = goal.ID,
+            goalName = goal.Name,
+            frameworkCode = goal.FrameworkCode,
+            frameworkName = goal.Framework?.Name ?? "Unknown",
+            startingYear = goal.StartingYear,
+            currentYear = goal.CurrentYear,
+            targetYear = goal.TargetYear,
+            baseValue = goal.BaseValueForStartingYear,
+            currentValue = goal.BaseValueForCurrentYear,
+            targetValue = goal.TargetValue,
+            annualDiscountRate = Math.Round(goal.AnnualDiscountRate, 2),
+            currentReduction = Math.Round(goal.AmountOfReduction, 2),
+            expectedCurrentValue = Math.Round(goal.ExpectedValueForCurrentYear, 2),
+            timeSeries = timeSeriesData
+        };
+
+        return Json(result);
+    }
+
 
 }
 //totalTarget = Math.Round(totalTarget, 2),
