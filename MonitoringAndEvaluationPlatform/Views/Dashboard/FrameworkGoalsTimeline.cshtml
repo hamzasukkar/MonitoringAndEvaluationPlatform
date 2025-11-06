@@ -1,5 +1,8 @@
+@using Microsoft.AspNetCore.Mvc.Localization
+@inject IViewLocalizer Localizer
+
 @{
-    ViewData["Title"] = "Framework Goals Timeline";
+    ViewData["Title"] = Localizer["PageTitle"];
     Layout = "~/Views/Shared/_DashboardHomeLayout.cshtml";
 }
 
@@ -7,10 +10,10 @@
 <div class="dashboard-header">
     <h1 class="dashboard-title">
         <i class="fas fa-chart-line me-3"></i>
-        Goal Timeline Analysis
+        @Localizer["GoalTimelineAnalysis"]
     </h1>
     <p class="dashboard-subtitle">
-        Track Annual Discount Rate, Amount of Reduction, and Expected Value over time for a specific goal
+        @Localizer["TrackMetricsSubtitle"]
     </p>
 </div>
 
@@ -21,11 +24,11 @@
             <div class="col-md-6">
                 <div class="selector-header">
                     <i class="fas fa-layer-group me-2"></i>
-                    <h5 class="selector-title">Select Framework</h5>
+                    <h5 class="selector-title">@Localizer["SelectFramework"]</h5>
                 </div>
                 <div class="selector-content">
                     <select id="frameworkSelect" class="modern-select-primary">
-                        <option value="">-- Select Framework --</option>
+                        <option value="">@Localizer["SelectFrameworkOption"]</option>
                         @foreach (var fw in ViewBag.Frameworks as List<Framework>)
                         {
                             <option value="@fw.Code">@fw.Name</option>
@@ -36,11 +39,11 @@
             <div class="col-md-6">
                 <div class="selector-header">
                     <i class="fas fa-bullseye me-2"></i>
-                    <h5 class="selector-title">Select Goal</h5>
+                    <h5 class="selector-title">@Localizer["SelectGoal"]</h5>
                 </div>
                 <div class="selector-content">
                     <select id="goalSelect" class="modern-select-primary" disabled>
-                        <option value="">-- Select a framework first --</option>
+                        <option value="">@Localizer["SelectFrameworkFirst"]</option>
                     </select>
                 </div>
             </div>
@@ -52,7 +55,7 @@
         <div class="chart-header">
             <h5 class="chart-title">
                 <i class="fas fa-chart-area me-2"></i>
-                <span id="chartTitleText">Timeline Analysis</span>
+                <span id="chartTitleText">@Localizer["TimelineAnalysis"]</span>
             </h5>
         </div>
         <div class="chart-wrapper">
@@ -66,70 +69,70 @@
             <div class="detail-item">
                 <i class="fas fa-flag-checkered detail-icon"></i>
                 <div class="detail-content">
-                    <span class="detail-label">Framework</span>
+                    <span class="detail-label">@Localizer["Framework"]</span>
                     <span class="detail-value" id="detailFramework">-</span>
                 </div>
             </div>
             <div class="detail-item">
                 <i class="fas fa-calendar-alt detail-icon"></i>
                 <div class="detail-content">
-                    <span class="detail-label">Starting Year</span>
+                    <span class="detail-label">@Localizer["StartingYear"]</span>
                     <span class="detail-value" id="detailStartYear">-</span>
                 </div>
             </div>
             <div class="detail-item">
                 <i class="fas fa-calendar-check detail-icon"></i>
                 <div class="detail-content">
-                    <span class="detail-label">Current Year</span>
+                    <span class="detail-label">@Localizer["CurrentYear"]</span>
                     <span class="detail-value" id="detailCurrentYear">-</span>
                 </div>
             </div>
             <div class="detail-item">
                 <i class="fas fa-calendar-star detail-icon"></i>
                 <div class="detail-content">
-                    <span class="detail-label">Target Year</span>
+                    <span class="detail-label">@Localizer["TargetYear"]</span>
                     <span class="detail-value" id="detailTargetYear">-</span>
                 </div>
             </div>
             <div class="detail-item">
                 <i class="fas fa-arrow-up detail-icon"></i>
                 <div class="detail-content">
-                    <span class="detail-label">Base Value</span>
+                    <span class="detail-label">@Localizer["BaseValue"]</span>
                     <span class="detail-value" id="detailBaseValue">-</span>
                 </div>
             </div>
             <div class="detail-item">
                 <i class="fas fa-chart-line detail-icon"></i>
                 <div class="detail-content">
-                    <span class="detail-label">Current Value</span>
+                    <span class="detail-label">@Localizer["CurrentValue"]</span>
                     <span class="detail-value" id="detailCurrentValue">-</span>
                 </div>
             </div>
             <div class="detail-item">
                 <i class="fas fa-bullseye detail-icon"></i>
                 <div class="detail-content">
-                    <span class="detail-label">Target Value</span>
+                    <span class="detail-label">@Localizer["TargetValue"]</span>
                     <span class="detail-value" id="detailTargetValue">-</span>
                 </div>
             </div>
             <div class="detail-item">
                 <i class="fas fa-percent detail-icon"></i>
                 <div class="detail-content">
-                    <span class="detail-label">Annual Discount Rate</span>
+                    <span class="detail-label">@Localizer["AnnualDiscountRate"]</span>
                     <span class="detail-value" id="detailAnnualRate">-</span>
                 </div>
             </div>
             <div class="detail-item">
                 <i class="fas fa-chart-bar detail-icon"></i>
                 <div class="detail-content">
-                    <span class="detail-label">Current Reduction</span>
+                    <span class="detail-label">@Localizer["CurrentReduction"]</span>
                     <span class="detail-value" id="detailCurrentReduction">-</span>
                 </div>
             </div>
             <div class="detail-item">
                 <i class="fas fa-calculator detail-icon"></i>
                 <div class="detail-content">
-                    <span class="detail-label">Expected Current Value</span>
+                    <span class="detail-label">@Localizer["ExpectedCurrentValue"]</span>
                     <span class="detail-value" id="detailExpectedValue">-</span>
                 </div>
             </div>
@@ -353,13 +356,23 @@
         const selectedGoalId = @(ViewBag.SelectedGoalId ?? 0);
         const selectedFrameworkCode = @(ViewBag.SelectedFrameworkCode ?? 0);
 
+        // Localized strings
+        const localizedStrings = {
+            selectGoalOption: '@Localizer["SelectGoalOption"]',
+            annualDiscountRate: '@Localizer["AnnualDiscountRate"]',
+            amountOfReduction: '@Localizer["AmountOfReduction"]',
+            expectedValue: '@Localizer["ExpectedValue"]',
+            year: '@Localizer["Year"]',
+            value: '@Localizer["Value"]'
+        };
+
         // Load goals when framework is selected
         document.getElementById('frameworkSelect').addEventListener('change', async function() {
             const frameworkCode = this.value;
             const goalSelect = document.getElementById('goalSelect');
 
             // Reset goal selector
-            goalSelect.innerHTML = '<option value="">-- Select a goal --</option>';
+            goalSelect.innerHTML = `<option value="">${localizedStrings.selectGoalOption}</option>`;
             goalSelect.disabled = true;
 
             // Hide chart and details
@@ -439,7 +452,7 @@
                     labels: years,
                     datasets: [
                         {
-                            label: 'Annual Discount Rate',
+                            label: localizedStrings.annualDiscountRate,
                             data: annualRates,
                             borderColor: 'rgba(255, 99, 132, 1)',
                             backgroundColor: 'rgba(255, 99, 132, 0.1)',
@@ -453,7 +466,7 @@
                             pointBorderWidth: 2
                         },
                         {
-                            label: 'Amount of Reduction',
+                            label: localizedStrings.amountOfReduction,
                             data: reductions,
                             borderColor: 'rgba(54, 162, 235, 1)',
                             backgroundColor: 'rgba(54, 162, 235, 0.1)',
@@ -467,7 +480,7 @@
                             pointBorderWidth: 2
                         },
                         {
-                            label: 'Expected Value',
+                            label: localizedStrings.expectedValue,
                             data: expectedValues,
                             borderColor: 'rgba(75, 192, 192, 1)',
                             backgroundColor: 'rgba(75, 192, 192, 0.1)',
@@ -531,7 +544,7 @@
                         x: {
                             title: {
                                 display: true,
-                                text: 'Year',
+                                text: localizedStrings.year,
                                 font: {
                                     size: 16,
                                     weight: 700
@@ -554,7 +567,7 @@
                         y: {
                             title: {
                                 display: true,
-                                text: 'Value',
+                                text: localizedStrings.value,
                                 font: {
                                     size: 16,
                                     weight: 700

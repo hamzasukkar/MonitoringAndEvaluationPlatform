@@ -48,7 +48,7 @@ namespace MonitoringAndEvaluationPlatform.Models
             {
                 var yearDifference = TargetYear - StartingYear;
                 if (yearDifference == 0) return 0;
-                return (TargetValue - BaseValueForStartingYear) / yearDifference;
+                return Math.Abs((TargetValue - BaseValueForStartingYear) / yearDifference);
             }
         }
 
@@ -61,7 +61,7 @@ namespace MonitoringAndEvaluationPlatform.Models
             get
             {
                 var yearsPassed = CurrentYear - StartingYear;
-                return AnnualDiscountRate * yearsPassed;
+                return Math.Abs(AnnualDiscountRate * yearsPassed);
             }
         }
 
@@ -74,7 +74,7 @@ namespace MonitoringAndEvaluationPlatform.Models
             get
             {
                 var yearsPassed = CurrentYear - StartingYear;
-                return BaseValueForStartingYear + (AnnualDiscountRate * yearsPassed);
+                return BaseValueForStartingYear - (AnnualDiscountRate * yearsPassed);
             }
         }
 
