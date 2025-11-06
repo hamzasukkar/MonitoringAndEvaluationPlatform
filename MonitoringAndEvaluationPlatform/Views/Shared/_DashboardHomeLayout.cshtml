@@ -943,6 +943,11 @@
                                     </a>
                                     <ul class="dropdown-menu" aria-labelledby="framework-@framework.Code">
                                         <li>
+                                            <a class="dropdown-item" asp-controller="FrameworkGoals" asp-action="Index" asp-route-frameworkCode="@framework.Code">
+                                                <i class="fas fa-flag-checkered"></i>@Localizer["FrameworkGoals"]
+                                            </a>
+                                        </li>
+                                        <li>
                                             <a class="dropdown-item" asp-controller="Outcomes" asp-action="Index" asp-route-frameworkCode="@framework.Code">
                                                 <i class="fas fa-bullseye"></i>@Localizer["Outcomes"]
                                             </a>
