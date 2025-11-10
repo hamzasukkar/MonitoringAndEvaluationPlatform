@@ -44,6 +44,24 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             return View(goals);
         }
 
+        // GET: FrameworkGoals/ProgressView
+        public async Task<IActionResult> ProgressView(int? frameworkCode)
+        {
+            ViewBag.Frameworks = await _context.Frameworks.ToListAsync();
+
+            IQueryable<FrameworkGoal> goalsQuery = _context.FrameworkGoals
+                .Include(fg => fg.Framework);
+
+            if (frameworkCode.HasValue)
+            {
+                goalsQuery = goalsQuery.Where(fg => fg.FrameworkCode == frameworkCode.Value);
+                ViewBag.SelectedFrameworkCode = frameworkCode.Value;
+            }
+
+            var goals = await goalsQuery.OrderByDescending(fg => fg.ID).ToListAsync();
+            return View(goals);
+        }
+
         // POST: FrameworkGoals/CreateInline - AJAX endpoint for inline creation
         [HttpPost]
         [ValidateAntiForgeryToken]

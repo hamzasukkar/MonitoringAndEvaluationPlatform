@@ -126,6 +126,32 @@
   <data name="No goals found. Create your first goal to get started!" xml:space="preserve">
     <value>No goals found. Create your first goal to get started!</value>
   </data>
+  <data name="No goals found" xml:space="preserve">
+    <value>No goals found</value>
+  </data>
+
+  <!-- Progress Indicators -->
+  <data name="Achievement" xml:space="preserve">
+    <value>Achievement</value>
+  </data>
+  <data name="Completed" xml:space="preserve">
+    <value>Completed</value>
+  </data>
+  <data name="On Track" xml:space="preserve">
+    <value>On Track</value>
+  </data>
+  <data name="Behind Schedule" xml:space="preserve">
+    <value>Behind Schedule</value>
+  </data>
+  <data name="years" xml:space="preserve">
+    <value>years</value>
+  </data>
+  <data name="Value Progress" xml:space="preserve">
+    <value>Value Progress</value>
+  </data>
+  <data name="View Timeline Chart" xml:space="preserve">
+    <value>View Timeline Chart</value>
+  </data>
 
   <!-- Messages -->
   <data name="Goal created successfully!" xml:space="preserve">
@@ -174,5 +200,19 @@
   </data>
   <data name="Progress Rate" xml:space="preserve">
     <value>Progress Rate</value>
+  </data>
+
+  <!-- Progress View Page -->
+  <data name="Goals Progress View" xml:space="preserve">
+    <value>Goals Progress View</value>
+  </data>
+  <data name="Visual progress indicators for framework goals" xml:space="preserve">
+    <value>Visual progress indicators for framework goals</value>
+  </data>
+  <data name="Table View" xml:space="preserve">
+    <value>Table View</value>
+  </data>
+  <data name="Progress View" xml:space="preserve">
+    <value>Progress View</value>
   </data>
 </root>

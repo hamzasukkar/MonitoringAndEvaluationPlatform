@@ -126,6 +126,32 @@
   <data name="No goals found. Create your first goal to get started!" xml:space="preserve">
     <value>لم يتم العثور على أهداف. قم بإنشاء هدفك الأول للبدء!</value>
   </data>
+  <data name="No goals found" xml:space="preserve">
+    <value>لم يتم العثور على أهداف</value>
+  </data>
+
+  <!-- Progress Indicators -->
+  <data name="Achievement" xml:space="preserve">
+    <value>الإنجاز</value>
+  </data>
+  <data name="Completed" xml:space="preserve">
+    <value>مكتمل</value>
+  </data>
+  <data name="On Track" xml:space="preserve">
+    <value>في المسار الصحيح</value>
+  </data>
+  <data name="Behind Schedule" xml:space="preserve">
+    <value>متأخر عن الجدول</value>
+  </data>
+  <data name="years" xml:space="preserve">
+    <value>سنوات</value>
+  </data>
+  <data name="Value Progress" xml:space="preserve">
+    <value>تقدم القيمة</value>
+  </data>
+  <data name="View Timeline Chart" xml:space="preserve">
+    <value>عرض مخطط الجدول الزمني</value>
+  </data>
 
   <!-- Messages -->
   <data name="Goal created successfully!" xml:space="preserve">
@@ -174,5 +200,19 @@
   </data>
   <data name="Progress Rate" xml:space="preserve">
     <value>معدل التقدم</value>
+  </data>
+
+  <!-- Progress View Page -->
+  <data name="Goals Progress View" xml:space="preserve">
+    <value>عرض تقدم الأهداف</value>
+  </data>
+  <data name="Visual progress indicators for framework goals" xml:space="preserve">
+    <value>مؤشرات التقدم المرئية لأهداف الإطار</value>
+  </data>
+  <data name="Table View" xml:space="preserve">
+    <value>عرض الجدول</value>
+  </data>
+  <data name="Progress View" xml:space="preserve">
+    <value>عرض التقدم</value>
   </data>
 </root>

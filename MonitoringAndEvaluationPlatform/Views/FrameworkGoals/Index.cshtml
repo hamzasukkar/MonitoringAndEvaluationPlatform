@@ -26,22 +26,25 @@
                 @Localizer["Manage goals and targets for monitoring frameworks"]
             </p>
         </div>
-        @if (SignInManager.IsSignedIn(User))
-        {
-            var user = await UserManager.GetUserAsync(User);
-            if (user != null)
+        <div class="d-flex gap-2">
+            <a asp-action="ProgressView" asp-route-frameworkCode="@ViewBag.SelectedFrameworkCode" class="btn btn-success btn-lg shadow-sm">
+                <i class="fas fa-chart-pie me-2"></i>@Localizer["Progress View"]
+            </a>
+            @if (SignInManager.IsSignedIn(User))
             {
-                var roles = await UserManager.GetRolesAsync(user);
-                if (roles.Contains("SystemAdministrator"))
+                var user = await UserManager.GetUserAsync(User);
+                if (user != null)
                 {
-                    <div>
+                    var roles = await UserManager.GetRolesAsync(user);
+                    if (roles.Contains("SystemAdministrator"))
+                    {
                         <button onclick="toggleInlineCreate()" class="btn btn-primary btn-lg shadow-sm" id="createGoalBtn">
                             <i class="fas fa-plus me-2"></i>@Localizer["Add New Goal"]
                         </button>
-                    </div>
+                    }
                 }
             }
-        }
+        </div>
     </div>
 </div>
 
