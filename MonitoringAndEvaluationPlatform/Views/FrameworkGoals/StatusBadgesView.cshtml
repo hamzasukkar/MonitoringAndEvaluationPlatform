@@ -1,0 +1,603 @@
+@model IEnumerable<MonitoringAndEvaluationPlatform.Models.FrameworkGoal>
+
+@using MonitoringAndEvaluationPlatform.Helpers
+@using Microsoft.AspNetCore.Identity
+@inject UserManager<ApplicationUser> UserManager
+@inject SignInManager<ApplicationUser> SignInManager
+@using Microsoft.AspNetCore.Mvc.Localization
+@inject IViewLocalizer Localizer
+@using Microsoft.AspNetCore.Localization
+
+@{
+    ViewData["Title"] = Localizer["Status Badges View"];
+    Layout = "~/Views/Shared/_DashboardHomeLayout.cshtml";
+    var culture = Context.Features.Get<IRequestCultureFeature>().RequestCulture.Culture.Name;
+
+    // Calculate summary statistics
+    var allGoals = Model.ToList();
+    var completedCount = 0;
+    var onTrackCount = 0;
+    var behindCount = 0;
+    var criticalCount = 0;
+
+    foreach (var g in allGoals)
+    {
+        var totalChange = g.TargetValue - g.BaseValueForStartingYear;
+        var currentChange = g.BaseValueForCurrentYear - g.BaseValueForStartingYear;
+        var achievementProgress = totalChange != 0 ? (currentChange / totalChange * 100) : 0;
+
+        var totalYears = g.TargetYear - g.StartingYear;
+        var yearsPassed = g.CurrentYear - g.StartingYear;
+        var timeProgress = totalYears > 0 ? ((double)yearsPassed / totalYears * 100) : 0;
+
+        if (achievementProgress >= 100) completedCount++;
+        else if (achievementProgress >= timeProgress) onTrackCount++;
+        else if (achievementProgress >= 50) behindCount++;
+        else criticalCount++;
+    }
+}
+
+<!-- Dashboard Header -->
+<div class="dashboard-header">
+    <div class="d-flex justify-content-between align-items-center">
+        <div>
+            <h1 class="dashboard-title">
+                <i class="fas fa-tags me-3"></i>
+                @Localizer["Status Badges View"]
+            </h1>
+            <p class="dashboard-subtitle">
+                @Localizer["Quick status overview with color-coded badges"]
+            </p>
+        </div>
+        <div class="d-flex gap-2">
+            <a asp-action="Index" asp-route-frameworkCode="@ViewBag.SelectedFrameworkCode" class="btn btn-secondary btn-lg shadow-sm">
+                <i class="fas fa-table me-2"></i>@Localizer["Table View"]
+            </a>
+        </div>
+    </div>
+</div>
+
+<!-- Summary Statistics -->
+<div class="summary-stats-container">
+    <div class="stat-card completed-card">
+        <div class="stat-icon">
+            <i class="fas fa-check-circle"></i>
+        </div>
+        <div class="stat-content">
+            <div class="stat-count">@completedCount</div>
+            <div class="stat-label">@Localizer["Completed"]</div>
+        </div>
+    </div>
+    <div class="stat-card on-track-card">
+        <div class="stat-icon">
+            <i class="fas fa-thumbs-up"></i>
+        </div>
+        <div class="stat-content">
+            <div class="stat-count">@onTrackCount</div>
+            <div class="stat-label">@Localizer["On Track"]</div>
+        </div>
+    </div>
+    <div class="stat-card behind-card">
+        <div class="stat-icon">
+            <i class="fas fa-exclamation-triangle"></i>
+        </div>
+        <div class="stat-content">
+            <div class="stat-count">@behindCount</div>
+            <div class="stat-label">@Localizer["Behind Schedule"]</div>
+        </div>
+    </div>
+    <div class="stat-card critical-card">
+        <div class="stat-icon">
+            <i class="fas fa-times-circle"></i>
+        </div>
+        <div class="stat-content">
+            <div class="stat-count">@criticalCount</div>
+            <div class="stat-label">@Localizer["Critical"]</div>
+        </div>
+    </div>
+</div>
+
+<!-- Filter Section -->
+<div class="card shadow-sm mb-4">
+    <div class="card-body">
+        <form method="get" asp-action="StatusBadgesView">
+            <div class="row">
+                <div class="col-md-4">
+                    <label class="form-label">@Localizer["Filter by Framework"]</label>
+                    <select name="frameworkCode" class="form-select" onchange="this.form.submit()">
+                        <option value="">@Localizer["All Frameworks"]</option>
+                        @foreach (var framework in ViewBag.Frameworks)
+                        {
+                            <option value="@framework.Code" selected="@(ViewBag.SelectedFrameworkCode == framework.Code)">
+                                @framework.Name
+                            </option>
+                        }
+                    </select>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Status Badges Grid -->
+@if (Model.Any())
+{
+    <div class="badges-grid">
+        @foreach (var goal in Model)
+        {
+            var totalChange = goal.TargetValue - goal.BaseValueForStartingYear;
+            var currentChange = goal.BaseValueForCurrentYear - goal.BaseValueForStartingYear;
+            var achievementProgress = totalChange != 0 ? (currentChange / totalChange * 100) : 0;
+
+            var totalYears = goal.TargetYear - goal.StartingYear;
+            var yearsPassed = goal.CurrentYear - goal.StartingYear;
+            var timeProgress = totalYears > 0 ? ((double)yearsPassed / totalYears * 100) : 0;
+
+            string statusClass, statusIcon, statusText;
+            if (achievementProgress >= 100)
+            {
+                statusClass = "completed";
+                statusIcon = "fa-check-circle";
+                statusText = Localizer["Completed"].Value;
+            }
+            else if (achievementProgress >= timeProgress)
+            {
+                statusClass = "on-track";
+                statusIcon = "fa-thumbs-up";
+                statusText = Localizer["On Track"].Value;
+            }
+            else if (achievementProgress >= 50)
+            {
+                statusClass = "behind";
+                statusIcon = "fa-exclamation-triangle";
+                statusText = Localizer["Behind Schedule"].Value;
+            }
+            else
+            {
+                statusClass = "critical";
+                statusIcon = "fa-times-circle";
+                statusText = Localizer["Critical"].Value;
+            }
+
+            <div class="badge-card @statusClass">
+                <!-- Large Status Badge -->
+                <div class="large-status-badge">
+                    <i class="fas @statusIcon"></i>
+                    <span class="status-text">@statusText</span>
+                </div>
+
+                <!-- Goal Name -->
+                <h3 class="badge-goal-name">@goal.Name</h3>
+
+                <!-- Framework Tag -->
+                <div class="badge-framework">
+                    <i class="fas fa-layer-group"></i>
+                    @goal.Framework.Name
+                </div>
+
+                <!-- Progress Percentage -->
+                <div class="badge-percentage">
+                    <div class="percentage-circle">
+                        <span class="percentage-value">@achievementProgress.ToString("F0")%</span>
+                    </div>
+                </div>
+
+                <!-- Key Metrics -->
+                <div class="badge-metrics">
+                    <div class="metric-row">
+                        <span class="metric-label">@Localizer["Current"]:</span>
+                        <span class="metric-value">@goal.BaseValueForCurrentYear.ToString("N2")</span>
+                    </div>
+                    <div class="metric-row">
+                        <span class="metric-label">@Localizer["Target"]:</span>
+                        <span class="metric-value">@goal.TargetValue.ToString("N2")</span>
+                    </div>
+                    <div class="metric-row">
+                        <span class="metric-label">@Localizer["Progress Rate"]:</span>
+                        <span class="metric-value highlight">@goal.ProgressRate.ToString("N2")</span>
+                    </div>
+                </div>
+
+                <!-- Timeline Info -->
+                <div class="badge-timeline">
+                    <div class="timeline-bar-mini">
+                        <div class="timeline-fill" style="width: @timeProgress%"></div>
+                    </div>
+                    <div class="timeline-text">
+                        <span>@goal.StartingYear</span>
+                        <span class="current-year">@goal.CurrentYear</span>
+                        <span>@goal.TargetYear</span>
+                    </div>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="badge-actions">
+                    <a href="@Url.Action("FrameworkGoalsTimeline", "Dashboard", new { goalId = goal.ID, frameworkCode = goal.FrameworkCode })"
+                       class="btn btn-sm btn-light">
+                        <i class="fas fa-chart-line"></i>
+                    </a>
+                    @if (SignInManager.IsSignedIn(User))
+                    {
+                        var user = await UserManager.GetUserAsync(User);
+                        if (user != null)
+                        {
+                            var roles = await UserManager.GetRolesAsync(user);
+                            if (roles.Contains("SystemAdministrator"))
+                            {
+                                <button onclick="deleteGoal(@goal.ID)" class="btn btn-sm btn-light">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            }
+                        }
+                    }
+                </div>
+            </div>
+        }
+    </div>
+}
+else
+{
+    <div class="empty-state">
+        <i class="fas fa-tags fa-5x text-muted mb-4"></i>
+        <h3 class="text-muted">@Localizer["No goals found"]</h3>
+        <p class="text-muted">@Localizer["Create your first goal to get started!"]</p>
+    </div>
+}
+
+@section Scripts {
+    <script>
+        async function deleteGoal(id) {
+            if (!confirm('@Localizer["Are you sure you want to delete this goal?"]')) {
+                return;
+            }
+
+            const token = document.querySelector('input[name="__RequestVerificationToken"]').value;
+
+            try {
+                const response = await fetch('@Url.Action("Delete", "FrameworkGoals")', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    },
+                    body: `id=${id}&__RequestVerificationToken=${encodeURIComponent(token)}`
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    location.reload();
+                } else {
+                    alert(result.message);
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('@Localizer["An error occurred. Please try again."]');
+            }
+        }
+    </script>
+}
+
+<style>
+    .dashboard-header {
+        margin-bottom: 2rem;
+        padding-bottom: 1rem;
+        border-bottom: 2px solid #e9ecef;
+    }
+
+    .dashboard-title {
+        font-size: 2rem;
+        font-weight: 600;
+        color: #2c3e50;
+        margin-bottom: 0.5rem;
+    }
+
+    .dashboard-subtitle {
+        color: #6c757d;
+        font-size: 1rem;
+        margin-bottom: 0;
+    }
+
+    .card {
+        border: none;
+        border-radius: 10px;
+    }
+
+    .btn-lg {
+        padding: 0.75rem 1.5rem;
+        font-size: 1rem;
+    }
+
+    /* Summary Stats */
+    .summary-stats-container {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+        gap: 1.5rem;
+        margin-bottom: 2rem;
+    }
+
+    .stat-card {
+        display: flex;
+        align-items: center;
+        gap: 1.5rem;
+        padding: 1.5rem;
+        border-radius: 15px;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        transition: all 0.3s ease;
+    }
+
+    .stat-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+    }
+
+    .stat-card.completed-card {
+        background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+        color: white;
+    }
+
+    .stat-card.on-track-card {
+        background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+        color: white;
+    }
+
+    .stat-card.behind-card {
+        background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+        color: white;
+    }
+
+    .stat-card.critical-card {
+        background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+        color: white;
+    }
+
+    .stat-icon {
+        width: 60px;
+        height: 60px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: rgba(255,255,255,0.2);
+        border-radius: 15px;
+        font-size: 2rem;
+    }
+
+    .stat-content {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .stat-count {
+        font-size: 2.5rem;
+        font-weight: 800;
+        line-height: 1;
+    }
+
+    .stat-label {
+        font-size: 1rem;
+        font-weight: 600;
+        opacity: 0.9;
+    }
+
+    /* Badges Grid */
+    .badges-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+        gap: 2rem;
+        margin-top: 1.5rem;
+    }
+
+    /* Badge Card */
+    .badge-card {
+        background: white;
+        border-radius: 20px;
+        padding: 2rem;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+        transition: all 0.3s ease;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+        border: 3px solid transparent;
+    }
+
+    .badge-card:hover {
+        transform: translateY(-8px);
+        box-shadow: 0 12px 40px rgba(0,0,0,0.15);
+    }
+
+    .badge-card.completed {
+        border-color: #10b981;
+    }
+
+    .badge-card.on-track {
+        border-color: #3b82f6;
+    }
+
+    .badge-card.behind {
+        border-color: #f59e0b;
+    }
+
+    .badge-card.critical {
+        border-color: #ef4444;
+    }
+
+    /* Large Status Badge */
+    .large-status-badge {
+        width: 100%;
+        padding: 1.5rem;
+        border-radius: 15px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 1rem;
+        font-size: 1.2rem;
+        font-weight: 700;
+        margin-bottom: 1.5rem;
+        color: white;
+    }
+
+    .completed .large-status-badge {
+        background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+    }
+
+    .on-track .large-status-badge {
+        background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+    }
+
+    .behind .large-status-badge {
+        background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+    }
+
+    .critical .large-status-badge {
+        background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+    }
+
+    .large-status-badge i {
+        font-size: 2rem;
+    }
+
+    /* Goal Name */
+    .badge-goal-name {
+        font-size: 1.3rem;
+        font-weight: 700;
+        color: #1f2937;
+        margin: 0 0 1rem 0;
+    }
+
+    /* Framework Badge */
+    .badge-framework {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.5rem 1rem;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border-radius: 20px;
+        font-size: 0.85rem;
+        font-weight: 600;
+        margin-bottom: 1.5rem;
+    }
+
+    /* Percentage Circle */
+    .badge-percentage {
+        margin-bottom: 1.5rem;
+    }
+
+    .percentage-circle {
+        width: 100px;
+        height: 100px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border: 5px solid #e5e7eb;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    }
+
+    .percentage-value {
+        font-size: 1.5rem;
+        font-weight: 800;
+        color: #1f2937;
+    }
+
+    /* Badge Metrics */
+    .badge-metrics {
+        width: 100%;
+        padding: 1rem;
+        background: #f9fafb;
+        border-radius: 12px;
+        margin-bottom: 1rem;
+    }
+
+    .metric-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 0.5rem 0;
+        border-bottom: 1px solid #e5e7eb;
+    }
+
+    .metric-row:last-child {
+        border-bottom: none;
+    }
+
+    .metric-label {
+        font-size: 0.85rem;
+        color: #6b7280;
+        font-weight: 600;
+    }
+
+    .metric-value {
+        font-size: 0.9rem;
+        color: #1f2937;
+        font-weight: 700;
+    }
+
+    .metric-value.highlight {
+        color: #8b5cf6;
+    }
+
+    /* Timeline Mini */
+    .badge-timeline {
+        width: 100%;
+        margin-bottom: 1rem;
+    }
+
+    .timeline-bar-mini {
+        height: 8px;
+        background: #e5e7eb;
+        border-radius: 4px;
+        overflow: hidden;
+        margin-bottom: 0.5rem;
+    }
+
+    .timeline-fill {
+        height: 100%;
+        background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+        transition: width 1.5s ease;
+    }
+
+    .timeline-text {
+        display: flex;
+        justify-content: space-between;
+        font-size: 0.75rem;
+        color: #6b7280;
+        font-weight: 600;
+    }
+
+    .timeline-text .current-year {
+        color: #ef4444;
+        font-weight: 700;
+    }
+
+    /* Badge Actions */
+    .badge-actions {
+        display: flex;
+        gap: 0.5rem;
+        width: 100%;
+        justify-content: center;
+        padding-top: 1rem;
+        border-top: 2px solid #f3f4f6;
+    }
+
+    /* Empty State */
+    .empty-state {
+        text-align: center;
+        padding: 4rem 2rem;
+        background: white;
+        border-radius: 20px;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+    }
+
+    /* Responsive */
+    @@media (max-width: 768px) {
+        .summary-stats-container {
+            grid-template-columns: 1fr;
+        }
+
+        .badges-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>

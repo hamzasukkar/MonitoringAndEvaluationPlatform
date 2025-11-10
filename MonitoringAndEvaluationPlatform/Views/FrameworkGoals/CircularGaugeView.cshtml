@@ -1,0 +1,539 @@
+@model IEnumerable<MonitoringAndEvaluationPlatform.Models.FrameworkGoal>
+
+@using MonitoringAndEvaluationPlatform.Helpers
+@using Microsoft.AspNetCore.Identity
+@inject UserManager<ApplicationUser> UserManager
+@inject SignInManager<ApplicationUser> SignInManager
+@using Microsoft.AspNetCore.Mvc.Localization
+@inject IViewLocalizer Localizer
+@using Microsoft.AspNetCore.Localization
+
+@{
+    ViewData["Title"] = Localizer["Circular Progress Gauges"];
+    Layout = "~/Views/Shared/_DashboardHomeLayout.cshtml";
+    var culture = Context.Features.Get<IRequestCultureFeature>().RequestCulture.Culture.Name;
+}
+
+<!-- Dashboard Header -->
+<div class="dashboard-header">
+    <div class="d-flex justify-content-between align-items-center">
+        <div>
+            <h1 class="dashboard-title">
+                <i class="fas fa-chart-pie me-3"></i>
+                @Localizer["Circular Progress Gauges"]
+            </h1>
+            <p class="dashboard-subtitle">
+                @Localizer["Visual circular progress indicators for framework goals"]
+            </p>
+        </div>
+        <div class="d-flex gap-2">
+            <a asp-action="Index" asp-route-frameworkCode="@ViewBag.SelectedFrameworkCode" class="btn btn-secondary btn-lg shadow-sm">
+                <i class="fas fa-table me-2"></i>@Localizer["Table View"]
+            </a>
+            <a asp-action="ProgressView" asp-route-frameworkCode="@ViewBag.SelectedFrameworkCode" class="btn btn-info btn-lg shadow-sm">
+                <i class="fas fa-chart-bar me-2"></i>@Localizer["Progress View"]
+            </a>
+        </div>
+    </div>
+</div>
+
+<!-- Filter Section -->
+<div class="card shadow-sm mb-4">
+    <div class="card-body">
+        <form method="get" asp-action="CircularGaugeView">
+            <div class="row">
+                <div class="col-md-4">
+                    <label class="form-label">@Localizer["Filter by Framework"]</label>
+                    <select name="frameworkCode" class="form-select" onchange="this.form.submit()">
+                        <option value="">@Localizer["All Frameworks"]</option>
+                        @foreach (var framework in ViewBag.Frameworks)
+                        {
+                            <option value="@framework.Code" selected="@(ViewBag.SelectedFrameworkCode == framework.Code)">
+                                @framework.Name
+                            </option>
+                        }
+                    </select>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Circular Gauges Grid -->
+@if (Model.Any())
+{
+    <div class="gauges-grid">
+        @foreach (var goal in Model)
+        {
+            // Calculate progress metrics
+            var totalYears = goal.TargetYear - goal.StartingYear;
+            var yearsPassed = goal.CurrentYear - goal.StartingYear;
+            var timeProgress = totalYears > 0 ? (double)yearsPassed / totalYears * 100 : 0;
+
+            var totalChange = goal.TargetValue - goal.BaseValueForStartingYear;
+            var currentChange = goal.BaseValueForCurrentYear - goal.BaseValueForStartingYear;
+            var achievementProgress = totalChange != 0 ? (currentChange / totalChange * 100) : 0;
+
+            var isOnTrack = achievementProgress >= timeProgress;
+            var progressStatus = achievementProgress >= 100 ? "completed" : (isOnTrack ? "on-track" : "behind");
+
+            <div class="gauge-card" id="goal-gauge-@goal.ID">
+                <!-- Goal Header -->
+                <div class="gauge-card-header">
+                    <h3 class="goal-name">@goal.Name</h3>
+                    <span class="framework-tag">
+                        <i class="fas fa-layer-group"></i>
+                        @goal.Framework.Name
+                    </span>
+                </div>
+
+                <!-- Main Circular Gauge -->
+                <div class="circular-gauge-container">
+                    <svg class="circular-gauge" viewBox="0 0 200 200">
+                        <!-- Background circle -->
+                        <circle class="gauge-bg" cx="100" cy="100" r="85" />
+
+                        <!-- Time progress (outer ring) -->
+                        <circle class="gauge-time" cx="100" cy="100" r="85"
+                                style="stroke-dasharray: @(534.07 * timeProgress / 100) 534.07" />
+
+                        <!-- Achievement progress (inner ring) -->
+                        <circle class="gauge-achievement @progressStatus" cx="100" cy="100" r="70"
+                                style="stroke-dasharray: @(439.82 * achievementProgress / 100) 439.82" />
+
+                        <!-- Center content -->
+                        <g class="gauge-center">
+                            <text x="100" y="90" class="gauge-percentage">@achievementProgress.ToString("F1")%</text>
+                            <text x="100" y="110" class="gauge-label">@Localizer["Achievement"]</text>
+                        </g>
+                    </svg>
+
+                    <!-- Gauge Legend -->
+                    <div class="gauge-legend">
+                        <div class="legend-item">
+                            <span class="legend-color time-color"></span>
+                            <span class="legend-text">@Localizer["Time Progress"]: @timeProgress.ToString("F1")%</span>
+                        </div>
+                        <div class="legend-item">
+                            <span class="legend-color achievement-color @progressStatus"></span>
+                            <span class="legend-text">@Localizer["Value Progress"]: @achievementProgress.ToString("F1")%</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Status Badge -->
+                <div class="status-badge-center status-@progressStatus">
+                    @if (progressStatus == "completed")
+                    {
+                        <i class="fas fa-check-circle"></i>
+                        <span>@Localizer["Completed"]</span>
+                    }
+                    else if (progressStatus == "on-track")
+                    {
+                        <i class="fas fa-thumbs-up"></i>
+                        <span>@Localizer["On Track"]</span>
+                    }
+                    else
+                    {
+                        <i class="fas fa-exclamation-triangle"></i>
+                        <span>@Localizer["Behind Schedule"]</span>
+                    }
+                </div>
+
+                <!-- Goal Metrics -->
+                <div class="goal-metrics">
+                    <div class="metric-row">
+                        <span class="metric-label">@Localizer["Starting Year"]:</span>
+                        <span class="metric-value">@goal.StartingYear (@goal.BaseValueForStartingYear.ToString("N2"))</span>
+                    </div>
+                    <div class="metric-row">
+                        <span class="metric-label">@Localizer["Current Year"]:</span>
+                        <span class="metric-value current">@goal.CurrentYear (@goal.BaseValueForCurrentYear.ToString("N2"))</span>
+                    </div>
+                    <div class="metric-row">
+                        <span class="metric-label">@Localizer["Target Year"]:</span>
+                        <span class="metric-value">@goal.TargetYear (@goal.TargetValue.ToString("N2"))</span>
+                    </div>
+                    <div class="metric-row">
+                        <span class="metric-label">@Localizer["Progress Rate"]:</span>
+                        <span class="metric-value highlight">@goal.ProgressRate.ToString("N2")</span>
+                    </div>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="gauge-actions">
+                    <a href="@Url.Action("FrameworkGoalsTimeline", "Dashboard", new { goalId = goal.ID, frameworkCode = goal.FrameworkCode })"
+                       class="btn btn-sm btn-primary">
+                        <i class="fas fa-chart-line"></i> @Localizer["Timeline"]
+                    </a>
+                    @if (SignInManager.IsSignedIn(User))
+                    {
+                        var user = await UserManager.GetUserAsync(User);
+                        if (user != null)
+                        {
+                            var roles = await UserManager.GetRolesAsync(user);
+                            if (roles.Contains("SystemAdministrator"))
+                            {
+                                <button onclick="deleteGoal(@goal.ID)" class="btn btn-sm btn-danger">
+                                    <i class="fas fa-trash"></i> @Localizer["Delete"]
+                                </button>
+                            }
+                        }
+                    }
+                </div>
+            </div>
+        }
+    </div>
+}
+else
+{
+    <div class="empty-state">
+        <i class="fas fa-chart-pie fa-5x text-muted mb-4"></i>
+        <h3 class="text-muted">@Localizer["No goals found"]</h3>
+        <p class="text-muted">@Localizer["Create your first goal to get started!"]</p>
+    </div>
+}
+
+@section Scripts {
+    <script>
+        // Delete goal
+        async function deleteGoal(id) {
+            if (!confirm('@Localizer["Are you sure you want to delete this goal?"]')) {
+                return;
+            }
+
+            const token = document.querySelector('input[name="__RequestVerificationToken"]').value;
+
+            try {
+                const response = await fetch('@Url.Action("Delete", "FrameworkGoals")', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    },
+                    body: `id=${id}&__RequestVerificationToken=${encodeURIComponent(token)}`
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    // Remove the card
+                    document.getElementById(`goal-gauge-${id}`).remove();
+                    alert(result.message);
+
+                    // Reload if no more goals
+                    if (document.querySelectorAll('.gauge-card').length === 0) {
+                        location.reload();
+                    }
+                } else {
+                    alert(result.message);
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('@Localizer["An error occurred. Please try again."]');
+            }
+        }
+    </script>
+}
+
+<style>
+    .dashboard-header {
+        margin-bottom: 2rem;
+        padding-bottom: 1rem;
+        border-bottom: 2px solid #e9ecef;
+    }
+
+    .dashboard-title {
+        font-size: 2rem;
+        font-weight: 600;
+        color: #2c3e50;
+        margin-bottom: 0.5rem;
+    }
+
+    .dashboard-subtitle {
+        color: #6c757d;
+        font-size: 1rem;
+        margin-bottom: 0;
+    }
+
+    .card {
+        border: none;
+        border-radius: 10px;
+    }
+
+    .btn-lg {
+        padding: 0.75rem 1.5rem;
+        font-size: 1rem;
+    }
+
+    /* Gauges Grid Layout */
+    .gauges-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
+        gap: 2rem;
+        margin-top: 1.5rem;
+    }
+
+    /* Gauge Card */
+    .gauge-card {
+        background: white;
+        border-radius: 20px;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+        padding: 2rem;
+        transition: all 0.3s ease;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .gauge-card:hover {
+        transform: translateY(-8px);
+        box-shadow: 0 12px 40px rgba(0,0,0,0.15);
+    }
+
+    /* Gauge Card Header */
+    .gauge-card-header {
+        text-align: center;
+        margin-bottom: 1.5rem;
+        width: 100%;
+    }
+
+    .goal-name {
+        font-size: 1.3rem;
+        font-weight: 700;
+        color: #1f2937;
+        margin: 0 0 0.75rem 0;
+    }
+
+    .framework-tag {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.4rem 1rem;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border-radius: 20px;
+        font-size: 0.85rem;
+        font-weight: 600;
+    }
+
+    /* Circular Gauge Container */
+    .circular-gauge-container {
+        position: relative;
+        width: 250px;
+        height: 250px;
+        margin-bottom: 1rem;
+    }
+
+    .circular-gauge {
+        width: 100%;
+        height: 100%;
+        transform: rotate(-90deg);
+    }
+
+    /* Gauge Circles */
+    .gauge-bg {
+        fill: none;
+        stroke: #f3f4f6;
+        stroke-width: 12;
+    }
+
+    .gauge-time {
+        fill: none;
+        stroke: #94a3b8;
+        stroke-width: 12;
+        stroke-linecap: round;
+        transition: stroke-dasharray 1.5s ease;
+        opacity: 0.6;
+    }
+
+    .gauge-achievement {
+        fill: none;
+        stroke-width: 15;
+        stroke-linecap: round;
+        transition: stroke-dasharray 1.5s ease;
+    }
+
+    .gauge-achievement.completed {
+        stroke: #10b981;
+    }
+
+    .gauge-achievement.on-track {
+        stroke: #3b82f6;
+    }
+
+    .gauge-achievement.behind {
+        stroke: #f59e0b;
+    }
+
+    /* Gauge Center Text */
+    .gauge-center {
+        transform: rotate(90deg);
+        transform-origin: 100px 100px;
+    }
+
+    .gauge-percentage {
+        font-size: 2rem;
+        font-weight: 700;
+        fill: #1f2937;
+        text-anchor: middle;
+    }
+
+    .gauge-label {
+        font-size: 0.85rem;
+        fill: #6b7280;
+        text-anchor: middle;
+        text-transform: uppercase;
+        font-weight: 600;
+    }
+
+    /* Gauge Legend */
+    .gauge-legend {
+        position: absolute;
+        bottom: 10px;
+        left: 50%;
+        transform: translateX(-50%);
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+        background: rgba(255, 255, 255, 0.95);
+        padding: 0.75rem 1rem;
+        border-radius: 10px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+
+    .legend-item {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .legend-color {
+        width: 20px;
+        height: 4px;
+        border-radius: 2px;
+    }
+
+    .legend-color.time-color {
+        background: #94a3b8;
+    }
+
+    .legend-color.achievement-color.completed {
+        background: #10b981;
+    }
+
+    .legend-color.achievement-color.on-track {
+        background: #3b82f6;
+    }
+
+    .legend-color.achievement-color.behind {
+        background: #f59e0b;
+    }
+
+    .legend-text {
+        font-size: 0.75rem;
+        color: #4b5563;
+        font-weight: 600;
+    }
+
+    /* Status Badge */
+    .status-badge-center {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.6rem 1.2rem;
+        border-radius: 25px;
+        font-size: 0.9rem;
+        font-weight: 600;
+        margin-bottom: 1.5rem;
+    }
+
+    .status-badge-center.status-completed {
+        background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+        color: white;
+    }
+
+    .status-badge-center.status-on-track {
+        background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+        color: white;
+    }
+
+    .status-badge-center.status-behind {
+        background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+        color: white;
+    }
+
+    /* Goal Metrics */
+    .goal-metrics {
+        width: 100%;
+        margin-bottom: 1rem;
+        padding: 1rem;
+        background: #f9fafb;
+        border-radius: 12px;
+    }
+
+    .metric-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 0.5rem 0;
+        border-bottom: 1px solid #e5e7eb;
+    }
+
+    .metric-row:last-child {
+        border-bottom: none;
+    }
+
+    .metric-label {
+        font-size: 0.85rem;
+        color: #6b7280;
+        font-weight: 600;
+    }
+
+    .metric-value {
+        font-size: 0.9rem;
+        color: #1f2937;
+        font-weight: 600;
+    }
+
+    .metric-value.current {
+        color: #3b82f6;
+    }
+
+    .metric-value.highlight {
+        color: #8b5cf6;
+        font-size: 1rem;
+    }
+
+    /* Action Buttons */
+    .gauge-actions {
+        display: flex;
+        gap: 0.5rem;
+        width: 100%;
+        justify-content: center;
+    }
+
+    /* Empty State */
+    .empty-state {
+        text-align: center;
+        padding: 4rem 2rem;
+        background: white;
+        border-radius: 20px;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+    }
+
+    /* Responsive */
+    @@media (max-width: 768px) {
+        .gauges-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .circular-gauge-container {
+            width: 200px;
+            height: 200px;
+        }
+
+        .gauge-percentage {
+            font-size: 1.5rem;
+        }
+    }
+</style>

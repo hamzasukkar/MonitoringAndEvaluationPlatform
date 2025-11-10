@@ -26,9 +26,24 @@
                 @Localizer["Manage goals and targets for monitoring frameworks"]
             </p>
         </div>
-        <div class="d-flex gap-2">
-            <a asp-action="ProgressView" asp-route-frameworkCode="@ViewBag.SelectedFrameworkCode" class="btn btn-success btn-lg shadow-sm">
-                <i class="fas fa-chart-pie me-2"></i>@Localizer["Progress View"]
+        <div class="d-flex gap-2 flex-wrap">
+            <a asp-action="ValueProgressView" asp-route-frameworkCode="@ViewBag.SelectedFrameworkCode" class="btn btn-primary btn-lg shadow-sm">
+                <i class="fas fa-chart-bar me-2"></i>@Localizer["Value Progress"]
+            </a>
+            <a asp-action="StatusBadgesView" asp-route-frameworkCode="@ViewBag.SelectedFrameworkCode" class="btn btn-success btn-lg shadow-sm">
+                <i class="fas fa-tags me-2"></i>@Localizer["Status Badges"]
+            </a>
+            <a asp-action="MetricsGridView" asp-route-frameworkCode="@ViewBag.SelectedFrameworkCode" class="btn btn-info btn-lg shadow-sm">
+                <i class="fas fa-th me-2"></i>@Localizer["Metrics Grid"]
+            </a>
+            <a asp-action="TimelineView" asp-route-frameworkCode="@ViewBag.SelectedFrameworkCode" class="btn btn-warning btn-lg shadow-sm">
+                <i class="fas fa-project-diagram me-2"></i>@Localizer["Timeline View"]
+            </a>
+            <a asp-action="CircularGaugeView" asp-route-frameworkCode="@ViewBag.SelectedFrameworkCode" class="btn btn-secondary btn-lg shadow-sm">
+                <i class="fas fa-tachometer-alt me-2"></i>@Localizer["Circular Gauges"]
+            </a>
+            <a asp-action="ProgressView" asp-route-frameworkCode="@ViewBag.SelectedFrameworkCode" class="btn btn-dark btn-lg shadow-sm">
+                <i class="fas fa-chart-pie me-2"></i>@Localizer["Cards View"]
             </a>
             @if (SignInManager.IsSignedIn(User))
             {

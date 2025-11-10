@@ -1,0 +1,612 @@
+@model IEnumerable<MonitoringAndEvaluationPlatform.Models.FrameworkGoal>
+
+@using MonitoringAndEvaluationPlatform.Helpers
+@using Microsoft.AspNetCore.Identity
+@inject UserManager<ApplicationUser> UserManager
+@inject SignInManager<ApplicationUser> SignInManager
+@using Microsoft.AspNetCore.Mvc.Localization
+@inject IViewLocalizer Localizer
+@using Microsoft.AspNetCore.Localization
+
+@{
+    ViewData["Title"] = Localizer["Metrics Grid View"];
+    Layout = "~/Views/Shared/_DashboardHomeLayout.cshtml";
+    var culture = Context.Features.Get<IRequestCultureFeature>().RequestCulture.Culture.Name;
+}
+
+<!-- Dashboard Header -->
+<div class="dashboard-header">
+    <div class="d-flex justify-content-between align-items-center">
+        <div>
+            <h1 class="dashboard-title">
+                <i class="fas fa-th me-3"></i>
+                @Localizer["Metrics Grid View"]
+            </h1>
+            <p class="dashboard-subtitle">
+                @Localizer["Comprehensive metrics overview in grid format"]
+            </p>
+        </div>
+        <div class="d-flex gap-2">
+            <a asp-action="Index" asp-route-frameworkCode="@ViewBag.SelectedFrameworkCode" class="btn btn-secondary btn-lg shadow-sm">
+                <i class="fas fa-table me-2"></i>@Localizer["Table View"]
+            </a>
+        </div>
+    </div>
+</div>
+
+<!-- Filter Section -->
+<div class="card shadow-sm mb-4">
+    <div class="card-body">
+        <form method="get" asp-action="MetricsGridView">
+            <div class="row">
+                <div class="col-md-4">
+                    <label class="form-label">@Localizer["Filter by Framework"]</label>
+                    <select name="frameworkCode" class="form-select" onchange="this.form.submit()">
+                        <option value="">@Localizer["All Frameworks"]</option>
+                        @foreach (var framework in ViewBag.Frameworks)
+                        {
+                            <option value="@framework.Code" selected="@(ViewBag.SelectedFrameworkCode == framework.Code)">
+                                @framework.Name
+                            </option>
+                        }
+                    </select>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Metrics Grid -->
+@if (Model.Any())
+{
+    foreach (var goal in Model)
+    {
+        var totalChange = goal.TargetValue - goal.BaseValueForStartingYear;
+        var currentChange = goal.BaseValueForCurrentYear - goal.BaseValueForStartingYear;
+        var achievementProgress = totalChange != 0 ? (currentChange / totalChange * 100) : 0;
+
+        var totalYears = goal.TargetYear - goal.StartingYear;
+        var yearsPassed = goal.CurrentYear - goal.StartingYear;
+        var yearsRemaining = goal.TargetYear - goal.CurrentYear;
+        var timeProgress = totalYears > 0 ? ((double)yearsPassed / totalYears * 100) : 0;
+
+        var progressStatus = achievementProgress >= 100 ? "completed" : (achievementProgress >= timeProgress ? "on-track" : "behind");
+
+        <div class="metrics-grid-card">
+            <!-- Card Header -->
+            <div class="grid-card-header">
+                <div class="header-left">
+                    <h3 class="grid-goal-name">@goal.Name</h3>
+                    <span class="grid-framework-badge">
+                        <i class="fas fa-layer-group"></i>
+                        @goal.Framework.Name
+                    </span>
+                </div>
+                <div class="header-right">
+                    <div class="status-indicator @progressStatus">
+                        @achievementProgress.ToString("F1")%
+                    </div>
+                </div>
+            </div>
+
+            <!-- Metrics Grid -->
+            <div class="metrics-grid-container">
+                <!-- Time Metrics -->
+                <div class="metric-section time-section">
+                    <div class="section-title">
+                        <i class="fas fa-clock"></i>
+                        @Localizer["Time Metrics"]
+                    </div>
+                    <div class="metrics-row">
+                        <div class="metric-box">
+                            <div class="metric-icon blue">
+                                <i class="fas fa-calendar-check"></i>
+                            </div>
+                            <div class="metric-details">
+                                <div class="metric-label">@Localizer["Starting Year"]</div>
+                                <div class="metric-value">@goal.StartingYear</div>
+                            </div>
+                        </div>
+                        <div class="metric-box">
+                            <div class="metric-icon orange">
+                                <i class="fas fa-calendar-day"></i>
+                            </div>
+                            <div class="metric-details">
+                                <div class="metric-label">@Localizer["Current Year"]</div>
+                                <div class="metric-value highlight">@goal.CurrentYear</div>
+                            </div>
+                        </div>
+                        <div class="metric-box">
+                            <div class="metric-icon green">
+                                <i class="fas fa-calendar-alt"></i>
+                            </div>
+                            <div class="metric-details">
+                                <div class="metric-label">@Localizer["Target Year"]</div>
+                                <div class="metric-value">@goal.TargetYear</div>
+                            </div>
+                        </div>
+                        <div class="metric-box">
+                            <div class="metric-icon purple">
+                                <i class="fas fa-hourglass-half"></i>
+                            </div>
+                            <div class="metric-details">
+                                <div class="metric-label">@Localizer["Years Remaining"]</div>
+                                <div class="metric-value">@yearsRemaining</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Value Metrics -->
+                <div class="metric-section value-section">
+                    <div class="section-title">
+                        <i class="fas fa-chart-line"></i>
+                        @Localizer["Value Metrics"]
+                    </div>
+                    <div class="metrics-row">
+                        <div class="metric-box">
+                            <div class="metric-icon blue">
+                                <i class="fas fa-flag"></i>
+                            </div>
+                            <div class="metric-details">
+                                <div class="metric-label">@Localizer["Base Value (Starting)"]</div>
+                                <div class="metric-value">@goal.BaseValueForStartingYear.ToString("N2")</div>
+                            </div>
+                        </div>
+                        <div class="metric-box">
+                            <div class="metric-icon orange">
+                                <i class="fas fa-chart-area"></i>
+                            </div>
+                            <div class="metric-details">
+                                <div class="metric-label">@Localizer["Base Value (Current)"]</div>
+                                <div class="metric-value highlight">@goal.BaseValueForCurrentYear.ToString("N2")</div>
+                            </div>
+                        </div>
+                        <div class="metric-box">
+                            <div class="metric-icon green">
+                                <i class="fas fa-bullseye"></i>
+                            </div>
+                            <div class="metric-details">
+                                <div class="metric-label">@Localizer["Target Value"]</div>
+                                <div class="metric-value">@goal.TargetValue.ToString("N2")</div>
+                            </div>
+                        </div>
+                        <div class="metric-box">
+                            <div class="metric-icon purple">
+                                <i class="fas fa-delta"></i>
+                            </div>
+                            <div class="metric-details">
+                                <div class="metric-label">@Localizer["Total Change Required"]</div>
+                                <div class="metric-value">@totalChange.ToString("N2")</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Progress Metrics -->
+                <div class="metric-section progress-section">
+                    <div class="section-title">
+                        <i class="fas fa-tasks"></i>
+                        @Localizer["Progress Metrics"]
+                    </div>
+                    <div class="metrics-row">
+                        <div class="metric-box">
+                            <div class="metric-icon blue">
+                                <i class="fas fa-percentage"></i>
+                            </div>
+                            <div class="metric-details">
+                                <div class="metric-label">@Localizer["Time Progress"]</div>
+                                <div class="metric-value">@timeProgress.ToString("F1")%</div>
+                            </div>
+                        </div>
+                        <div class="metric-box">
+                            <div class="metric-icon green">
+                                <i class="fas fa-trophy"></i>
+                            </div>
+                            <div class="metric-details">
+                                <div class="metric-label">@Localizer["Achievement"]</div>
+                                <div class="metric-value highlight">@achievementProgress.ToString("F1")%</div>
+                            </div>
+                        </div>
+                        <div class="metric-box">
+                            <div class="metric-icon orange">
+                                <i class="fas fa-tachometer-alt"></i>
+                            </div>
+                            <div class="metric-details">
+                                <div class="metric-label">@Localizer["Progress Rate"]</div>
+                                <div class="metric-value">@goal.ProgressRate.ToString("N2")</div>
+                            </div>
+                        </div>
+                        <div class="metric-box">
+                            <div class="metric-icon purple">
+                                <i class="fas fa-balance-scale"></i>
+                            </div>
+                            <div class="metric-details">
+                                <div class="metric-label">@Localizer["Status"]</div>
+                                <div class="metric-value status-@progressStatus">
+                                    @if (progressStatus == "completed")
+                                    {
+                                        @Localizer["Completed"]
+                                    }
+                                    else if (progressStatus == "on-track")
+                                    {
+                                        @Localizer["On Track"]
+                                    }
+                                    else
+                                    {
+                                        @Localizer["Behind Schedule"]
+                                    }
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Rate Metrics -->
+                <div class="metric-section rate-section">
+                    <div class="section-title">
+                        <i class="fas fa-calculator"></i>
+                        @Localizer["Calculated Metrics"]
+                    </div>
+                    <div class="metrics-row">
+                        <div class="metric-box">
+                            <div class="metric-icon blue">
+                                <i class="fas fa-percent"></i>
+                            </div>
+                            <div class="metric-details">
+                                <div class="metric-label">@Localizer["Annual Discount Rate"]</div>
+                                <div class="metric-value">@goal.AnnualDiscountRate.ToString("N2")</div>
+                            </div>
+                        </div>
+                        <div class="metric-box">
+                            <div class="metric-icon orange">
+                                <i class="fas fa-minus-circle"></i>
+                            </div>
+                            <div class="metric-details">
+                                <div class="metric-label">@Localizer["Amount of Reduction"]</div>
+                                <div class="metric-value">@goal.AmountOfReduction.ToString("N2")</div>
+                            </div>
+                        </div>
+                        <div class="metric-box">
+                            <div class="metric-icon green">
+                                <i class="fas fa-crosshairs"></i>
+                            </div>
+                            <div class="metric-details">
+                                <div class="metric-label">@Localizer["Expected Value"]</div>
+                                <div class="metric-value">@goal.ExpectedValueForCurrentYear.ToString("N2")</div>
+                            </div>
+                        </div>
+                        <div class="metric-box">
+                            <div class="metric-icon purple">
+                                <i class="fas fa-chart-pie"></i>
+                            </div>
+                            <div class="metric-details">
+                                <div class="metric-label">@Localizer["Years Passed"]</div>
+                                <div class="metric-value">@yearsPassed / @totalYears</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Card Actions -->
+            <div class="grid-card-actions">
+                <a href="@Url.Action("FrameworkGoalsTimeline", "Dashboard", new { goalId = goal.ID, frameworkCode = goal.FrameworkCode })"
+                   class="btn btn-sm btn-primary">
+                    <i class="fas fa-chart-line"></i> @Localizer["Detailed Chart"]
+                </a>
+                @if (SignInManager.IsSignedIn(User))
+                {
+                    var user = await UserManager.GetUserAsync(User);
+                    if (user != null)
+                    {
+                        var roles = await UserManager.GetRolesAsync(user);
+                        if (roles.Contains("SystemAdministrator"))
+                        {
+                            <button onclick="deleteGoal(@goal.ID)" class="btn btn-sm btn-danger">
+                                <i class="fas fa-trash"></i> @Localizer["Delete"]
+                            </button>
+                        }
+                    }
+                }
+            </div>
+        </div>
+    }
+}
+else
+{
+    <div class="empty-state">
+        <i class="fas fa-th fa-5x text-muted mb-4"></i>
+        <h3 class="text-muted">@Localizer["No goals found"]</h3>
+        <p class="text-muted">@Localizer["Create your first goal to get started!"]</p>
+    </div>
+}
+
+@section Scripts {
+    <script>
+        async function deleteGoal(id) {
+            if (!confirm('@Localizer["Are you sure you want to delete this goal?"]')) {
+                return;
+            }
+
+            const token = document.querySelector('input[name="__RequestVerificationToken"]').value;
+
+            try {
+                const response = await fetch('@Url.Action("Delete", "FrameworkGoals")', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    },
+                    body: `id=${id}&__RequestVerificationToken=${encodeURIComponent(token)}`
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    location.reload();
+                } else {
+                    alert(result.message);
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('@Localizer["An error occurred. Please try again."]');
+            }
+        }
+    </script>
+}
+
+<style>
+    .dashboard-header {
+        margin-bottom: 2rem;
+        padding-bottom: 1rem;
+        border-bottom: 2px solid #e9ecef;
+    }
+
+    .dashboard-title {
+        font-size: 2rem;
+        font-weight: 600;
+        color: #2c3e50;
+        margin-bottom: 0.5rem;
+    }
+
+    .dashboard-subtitle {
+        color: #6c757d;
+        font-size: 1rem;
+        margin-bottom: 0;
+    }
+
+    .card {
+        border: none;
+        border-radius: 10px;
+    }
+
+    .btn-lg {
+        padding: 0.75rem 1.5rem;
+        font-size: 1rem;
+    }
+
+    /* Metrics Grid Card */
+    .metrics-grid-card {
+        background: white;
+        border-radius: 20px;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+        padding: 2rem;
+        margin-bottom: 2rem;
+        transition: all 0.3s ease;
+    }
+
+    .metrics-grid-card:hover {
+        box-shadow: 0 8px 30px rgba(0,0,0,0.15);
+    }
+
+    /* Grid Card Header */
+    .grid-card-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 2rem;
+        padding-bottom: 1rem;
+        border-bottom: 3px solid #f3f4f6;
+    }
+
+    .header-left {
+        flex: 1;
+    }
+
+    .grid-goal-name {
+        font-size: 1.8rem;
+        font-weight: 700;
+        color: #1f2937;
+        margin: 0 0 0.75rem 0;
+    }
+
+    .grid-framework-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.5rem 1rem;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border-radius: 20px;
+        font-size: 0.9rem;
+        font-weight: 600;
+    }
+
+    .status-indicator {
+        font-size: 2.5rem;
+        font-weight: 800;
+        padding: 1rem 1.5rem;
+        border-radius: 15px;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    }
+
+    .status-indicator.completed {
+        background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+        color: white;
+    }
+
+    .status-indicator.on-track {
+        background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+        color: white;
+    }
+
+    .status-indicator.behind {
+        background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+        color: white;
+    }
+
+    /* Metrics Grid Container */
+    .metrics-grid-container {
+        display: flex;
+        flex-direction: column;
+        gap: 2rem;
+    }
+
+    /* Metric Section */
+    .metric-section {
+        background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+        border-radius: 15px;
+        padding: 1.5rem;
+    }
+
+    .section-title {
+        font-size: 1.2rem;
+        font-weight: 700;
+        color: #1f2937;
+        margin-bottom: 1.5rem;
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+    }
+
+    .section-title i {
+        color: #667eea;
+    }
+
+    /* Metrics Row */
+    .metrics-row {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+        gap: 1rem;
+    }
+
+    /* Metric Box */
+    .metric-box {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        background: white;
+        padding: 1.25rem;
+        border-radius: 12px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        transition: all 0.3s ease;
+    }
+
+    .metric-box:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+    }
+
+    .metric-icon {
+        width: 50px;
+        height: 50px;
+        min-width: 50px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 12px;
+        font-size: 1.3rem;
+        color: white;
+    }
+
+    .metric-icon.blue {
+        background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+    }
+
+    .metric-icon.green {
+        background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+    }
+
+    .metric-icon.orange {
+        background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+    }
+
+    .metric-icon.purple {
+        background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
+    }
+
+    .metric-details {
+        display: flex;
+        flex-direction: column;
+        flex: 1;
+    }
+
+    .metric-label {
+        font-size: 0.75rem;
+        color: #6b7280;
+        text-transform: uppercase;
+        font-weight: 600;
+        margin-bottom: 0.25rem;
+    }
+
+    .metric-value {
+        font-size: 1.2rem;
+        font-weight: 700;
+        color: #1f2937;
+    }
+
+    .metric-value.highlight {
+        color: #3b82f6;
+        font-size: 1.3rem;
+    }
+
+    .metric-value.status-completed {
+        color: #10b981;
+    }
+
+    .metric-value.status-on-track {
+        color: #3b82f6;
+    }
+
+    .metric-value.status-behind {
+        color: #f59e0b;
+    }
+
+    /* Card Actions */
+    .grid-card-actions {
+        display: flex;
+        gap: 0.5rem;
+        justify-content: center;
+        margin-top: 2rem;
+        padding-top: 1.5rem;
+        border-top: 3px solid #f3f4f6;
+    }
+
+    /* Empty State */
+    .empty-state {
+        text-align: center;
+        padding: 4rem 2rem;
+        background: white;
+        border-radius: 20px;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+    }
+
+    /* Responsive */
+    @@media (max-width: 992px) {
+        .metrics-row {
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+        }
+
+        .grid-card-header {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 1rem;
+        }
+    }
+
+    @@media (max-width: 768px) {
+        .metrics-row {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>

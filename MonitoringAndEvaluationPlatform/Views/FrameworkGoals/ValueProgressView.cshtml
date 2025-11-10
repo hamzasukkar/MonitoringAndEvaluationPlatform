@@ -1,0 +1,700 @@
+@model IEnumerable<MonitoringAndEvaluationPlatform.Models.FrameworkGoal>
+
+@using MonitoringAndEvaluationPlatform.Helpers
+@using Microsoft.AspNetCore.Identity
+@inject UserManager<ApplicationUser> UserManager
+@inject SignInManager<ApplicationUser> SignInManager
+@using Microsoft.AspNetCore.Mvc.Localization
+@inject IViewLocalizer Localizer
+@using Microsoft.AspNetCore.Localization
+
+@{
+    ViewData["Title"] = Localizer["Value Progress Bars"];
+    Layout = "~/Views/Shared/_DashboardHomeLayout.cshtml";
+    var culture = Context.Features.Get<IRequestCultureFeature>().RequestCulture.Culture.Name;
+}
+
+<!-- Dashboard Header -->
+<div class="dashboard-header">
+    <div class="d-flex justify-content-between align-items-center">
+        <div>
+            <h1 class="dashboard-title">
+                <i class="fas fa-chart-bar me-3"></i>
+                @Localizer["Value Progress Bars"]
+            </h1>
+            <p class="dashboard-subtitle">
+                @Localizer["Visual value progress tracking with detailed breakdowns"]
+            </p>
+        </div>
+        <div class="d-flex gap-2">
+            <a asp-action="Index" asp-route-frameworkCode="@ViewBag.SelectedFrameworkCode" class="btn btn-secondary btn-lg shadow-sm">
+                <i class="fas fa-table me-2"></i>@Localizer["Table View"]
+            </a>
+        </div>
+    </div>
+</div>
+
+<!-- Filter Section -->
+<div class="card shadow-sm mb-4">
+    <div class="card-body">
+        <form method="get" asp-action="ValueProgressView">
+            <div class="row">
+                <div class="col-md-4">
+                    <label class="form-label">@Localizer["Filter by Framework"]</label>
+                    <select name="frameworkCode" class="form-select" onchange="this.form.submit()">
+                        <option value="">@Localizer["All Frameworks"]</option>
+                        @foreach (var framework in ViewBag.Frameworks)
+                        {
+                            <option value="@framework.Code" selected="@(ViewBag.SelectedFrameworkCode == framework.Code)">
+                                @framework.Name
+                            </option>
+                        }
+                    </select>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Value Progress Cards -->
+@if (Model.Any())
+{
+    <div class="progress-container">
+        @foreach (var goal in Model)
+        {
+            var totalChange = goal.TargetValue - goal.BaseValueForStartingYear;
+            var currentChange = goal.BaseValueForCurrentYear - goal.BaseValueForStartingYear;
+            var remainingChange = goal.TargetValue - goal.BaseValueForCurrentYear;
+            var achievementProgress = totalChange != 0 ? (currentChange / totalChange * 100) : 0;
+            var progressStatus = achievementProgress >= 100 ? "completed" : (achievementProgress >= 75 ? "excellent" : (achievementProgress >= 50 ? "good" : "needs-attention"));
+
+            <div class="value-progress-card">
+                <!-- Card Header -->
+                <div class="card-header-section">
+                    <div class="goal-info">
+                        <h3 class="goal-title">@goal.Name</h3>
+                        <span class="framework-label">
+                            <i class="fas fa-layer-group"></i>
+                            @goal.Framework.Name
+                        </span>
+                    </div>
+                    <div class="progress-badge @progressStatus">
+                        @achievementProgress.ToString("F1")%
+                    </div>
+                </div>
+
+                <!-- Main Progress Bar -->
+                <div class="main-progress-section">
+                    <div class="progress-header">
+                        <span class="progress-title">@Localizer["Overall Progress"]</span>
+                        <span class="progress-values">
+                            <strong>@goal.BaseValueForCurrentYear.ToString("N2")</strong> / @goal.TargetValue.ToString("N2")
+                        </span>
+                    </div>
+                    <div class="progress-bar-wrapper">
+                        <div class="progress-bar-track">
+                            <div class="progress-bar-fill @progressStatus" style="width: @Math.Min(achievementProgress, 100)%">
+                                <div class="progress-bar-shine"></div>
+                            </div>
+                            <div class="progress-marker" style="left: @Math.Min(achievementProgress, 100)%">
+                                <div class="marker-dot"></div>
+                                <div class="marker-label">@achievementProgress.ToString("F1")%</div>
+                            </div>
+                        </div>
+                        <div class="progress-labels">
+                            <span class="label-start">
+                                <i class="fas fa-flag"></i>
+                                @goal.BaseValueForStartingYear.ToString("N2")
+                            </span>
+                            <span class="label-end">
+                                <i class="fas fa-bullseye"></i>
+                                @goal.TargetValue.ToString("N2")
+                            </span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Progress Breakdown -->
+                <div class="progress-breakdown">
+                    <div class="breakdown-title">@Localizer["Progress Breakdown"]</div>
+                    <div class="breakdown-bars">
+                        <!-- Achieved -->
+                        <div class="breakdown-item">
+                            <div class="breakdown-header">
+                                <span class="breakdown-label">
+                                    <i class="fas fa-check-circle"></i>
+                                    @Localizer["Achieved"]
+                                </span>
+                                <span class="breakdown-value achieved">@currentChange.ToString("N2")</span>
+                            </div>
+                            <div class="breakdown-bar">
+                                <div class="breakdown-fill achieved" style="width: @(totalChange != 0 ? Math.Abs(currentChange / totalChange * 100) : 0)%"></div>
+                            </div>
+                        </div>
+
+                        <!-- Remaining -->
+                        <div class="breakdown-item">
+                            <div class="breakdown-header">
+                                <span class="breakdown-label">
+                                    <i class="fas fa-hourglass-half"></i>
+                                    @Localizer["Remaining"]
+                                </span>
+                                <span class="breakdown-value remaining">@remainingChange.ToString("N2")</span>
+                            </div>
+                            <div class="breakdown-bar">
+                                <div class="breakdown-fill remaining" style="width: @(totalChange != 0 ? Math.Abs(remainingChange / totalChange * 100) : 0)%"></div>
+                            </div>
+                        </div>
+
+                        <!-- Total Change -->
+                        <div class="breakdown-item">
+                            <div class="breakdown-header">
+                                <span class="breakdown-label">
+                                    <i class="fas fa-arrows-alt-h"></i>
+                                    @Localizer["Total Change Required"]
+                                </span>
+                                <span class="breakdown-value total">@totalChange.ToString("N2")</span>
+                            </div>
+                            <div class="breakdown-bar">
+                                <div class="breakdown-fill total" style="width: 100%"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Yearly Progress Rate -->
+                <div class="yearly-progress-section">
+                    <div class="yearly-header">
+                        <i class="fas fa-calendar-alt"></i>
+                        @Localizer["Annual Performance"]
+                    </div>
+                    <div class="yearly-stats">
+                        <div class="yearly-stat">
+                            <div class="stat-icon">
+                                <i class="fas fa-chart-line"></i>
+                            </div>
+                            <div class="stat-details">
+                                <span class="stat-label">@Localizer["Annual Discount Rate"]</span>
+                                <span class="stat-value">@goal.AnnualDiscountRate.ToString("N2")</span>
+                            </div>
+                        </div>
+                        <div class="yearly-stat">
+                            <div class="stat-icon">
+                                <i class="fas fa-minus-circle"></i>
+                            </div>
+                            <div class="stat-details">
+                                <span class="stat-label">@Localizer["Amount of Reduction"]</span>
+                                <span class="stat-value">@goal.AmountOfReduction.ToString("N2")</span>
+                            </div>
+                        </div>
+                        <div class="yearly-stat">
+                            <div class="stat-icon">
+                                <i class="fas fa-crosshairs"></i>
+                            </div>
+                            <div class="stat-details">
+                                <span class="stat-label">@Localizer["Expected Value"]</span>
+                                <span class="stat-value">@goal.ExpectedValueForCurrentYear.ToString("N2")</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="card-actions">
+                    <a href="@Url.Action("FrameworkGoalsTimeline", "Dashboard", new { goalId = goal.ID, frameworkCode = goal.FrameworkCode })"
+                       class="btn btn-sm btn-primary">
+                        <i class="fas fa-chart-line"></i> @Localizer["Detailed Chart"]
+                    </a>
+                    @if (SignInManager.IsSignedIn(User))
+                    {
+                        var user = await UserManager.GetUserAsync(User);
+                        if (user != null)
+                        {
+                            var roles = await UserManager.GetRolesAsync(user);
+                            if (roles.Contains("SystemAdministrator"))
+                            {
+                                <button onclick="deleteGoal(@goal.ID)" class="btn btn-sm btn-danger">
+                                    <i class="fas fa-trash"></i> @Localizer["Delete"]
+                                </button>
+                            }
+                        }
+                    }
+                </div>
+            </div>
+        }
+    </div>
+}
+else
+{
+    <div class="empty-state">
+        <i class="fas fa-chart-bar fa-5x text-muted mb-4"></i>
+        <h3 class="text-muted">@Localizer["No goals found"]</h3>
+        <p class="text-muted">@Localizer["Create your first goal to get started!"]</p>
+    </div>
+}
+
+@section Scripts {
+    <script>
+        // Delete goal
+        async function deleteGoal(id) {
+            if (!confirm('@Localizer["Are you sure you want to delete this goal?"]')) {
+                return;
+            }
+
+            const token = document.querySelector('input[name="__RequestVerificationToken"]').value;
+
+            try {
+                const response = await fetch('@Url.Action("Delete", "FrameworkGoals")', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    },
+                    body: `id=${id}&__RequestVerificationToken=${encodeURIComponent(token)}`
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    location.reload();
+                } else {
+                    alert(result.message);
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('@Localizer["An error occurred. Please try again."]');
+            }
+        }
+    </script>
+}
+
+<style>
+    .dashboard-header {
+        margin-bottom: 2rem;
+        padding-bottom: 1rem;
+        border-bottom: 2px solid #e9ecef;
+    }
+
+    .dashboard-title {
+        font-size: 2rem;
+        font-weight: 600;
+        color: #2c3e50;
+        margin-bottom: 0.5rem;
+    }
+
+    .dashboard-subtitle {
+        color: #6c757d;
+        font-size: 1rem;
+        margin-bottom: 0;
+    }
+
+    .card {
+        border: none;
+        border-radius: 10px;
+    }
+
+    .btn-lg {
+        padding: 0.75rem 1.5rem;
+        font-size: 1rem;
+    }
+
+    /* Progress Container */
+    .progress-container {
+        display: flex;
+        flex-direction: column;
+        gap: 2rem;
+    }
+
+    /* Value Progress Card */
+    .value-progress-card {
+        background: white;
+        border-radius: 20px;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+        padding: 2rem;
+        transition: all 0.3s ease;
+    }
+
+    .value-progress-card:hover {
+        box-shadow: 0 8px 30px rgba(0,0,0,0.15);
+        transform: translateY(-3px);
+    }
+
+    /* Card Header */
+    .card-header-section {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 2rem;
+        padding-bottom: 1rem;
+        border-bottom: 2px solid #f3f4f6;
+    }
+
+    .goal-info {
+        flex: 1;
+    }
+
+    .goal-title {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: #1f2937;
+        margin: 0 0 0.75rem 0;
+    }
+
+    .framework-label {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.5rem 1rem;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border-radius: 20px;
+        font-size: 0.9rem;
+        font-weight: 600;
+    }
+
+    .progress-badge {
+        font-size: 2rem;
+        font-weight: 800;
+        padding: 1rem 1.5rem;
+        border-radius: 15px;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    }
+
+    .progress-badge.completed {
+        background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+        color: white;
+    }
+
+    .progress-badge.excellent {
+        background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+        color: white;
+    }
+
+    .progress-badge.good {
+        background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+        color: white;
+    }
+
+    .progress-badge.needs-attention {
+        background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+        color: white;
+    }
+
+    /* Main Progress Section */
+    .main-progress-section {
+        margin-bottom: 2rem;
+        padding: 1.5rem;
+        background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+        border-radius: 15px;
+    }
+
+    .progress-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1rem;
+    }
+
+    .progress-title {
+        font-size: 1.1rem;
+        font-weight: 700;
+        color: #1f2937;
+    }
+
+    .progress-values {
+        font-size: 1rem;
+        color: #6b7280;
+    }
+
+    .progress-values strong {
+        color: #3b82f6;
+        font-size: 1.2rem;
+    }
+
+    .progress-bar-wrapper {
+        margin-bottom: 0.5rem;
+    }
+
+    .progress-bar-track {
+        position: relative;
+        height: 40px;
+        background: #e5e7eb;
+        border-radius: 20px;
+        overflow: hidden;
+        box-shadow: inset 0 2px 4px rgba(0,0,0,0.1);
+    }
+
+    .progress-bar-fill {
+        height: 100%;
+        border-radius: 20px;
+        position: relative;
+        transition: width 2s ease;
+        overflow: hidden;
+    }
+
+    .progress-bar-fill.completed {
+        background: linear-gradient(90deg, #10b981 0%, #059669 100%);
+    }
+
+    .progress-bar-fill.excellent {
+        background: linear-gradient(90deg, #3b82f6 0%, #2563eb 100%);
+    }
+
+    .progress-bar-fill.good {
+        background: linear-gradient(90deg, #f59e0b 0%, #d97706 100%);
+    }
+
+    .progress-bar-fill.needs-attention {
+        background: linear-gradient(90deg, #ef4444 0%, #dc2626 100%);
+    }
+
+    .progress-bar-shine {
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+        animation: shine 3s infinite;
+    }
+
+    @@keyframes shine {
+        100% {
+            left: 200%;
+        }
+    }
+
+    .progress-marker {
+        position: absolute;
+        top: -10px;
+        transform: translateX(-50%);
+        z-index: 2;
+    }
+
+    .marker-dot {
+        width: 20px;
+        height: 20px;
+        background: white;
+        border: 4px solid #1f2937;
+        border-radius: 50%;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+        animation: pulse-marker 2s infinite;
+    }
+
+    @@keyframes pulse-marker {
+        0%, 100% {
+            transform: scale(1);
+        }
+        50% {
+            transform: scale(1.2);
+        }
+    }
+
+    .marker-label {
+        position: absolute;
+        top: 30px;
+        left: 50%;
+        transform: translateX(-50%);
+        background: #1f2937;
+        color: white;
+        padding: 0.4rem 0.8rem;
+        border-radius: 8px;
+        font-size: 0.85rem;
+        font-weight: 700;
+        white-space: nowrap;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+    }
+
+    .progress-labels {
+        display: flex;
+        justify-content: space-between;
+        margin-top: 0.5rem;
+        font-size: 0.9rem;
+        font-weight: 600;
+        color: #6b7280;
+    }
+
+    /* Progress Breakdown */
+    .progress-breakdown {
+        margin-bottom: 2rem;
+        padding: 1.5rem;
+        background: white;
+        border: 2px solid #f3f4f6;
+        border-radius: 15px;
+    }
+
+    .breakdown-title {
+        font-size: 1.1rem;
+        font-weight: 700;
+        color: #1f2937;
+        margin-bottom: 1rem;
+    }
+
+    .breakdown-bars {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+    }
+
+    .breakdown-item {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+
+    .breakdown-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .breakdown-label {
+        font-size: 0.9rem;
+        font-weight: 600;
+        color: #6b7280;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .breakdown-value {
+        font-size: 1rem;
+        font-weight: 700;
+    }
+
+    .breakdown-value.achieved {
+        color: #10b981;
+    }
+
+    .breakdown-value.remaining {
+        color: #f59e0b;
+    }
+
+    .breakdown-value.total {
+        color: #6366f1;
+    }
+
+    .breakdown-bar {
+        height: 20px;
+        background: #f3f4f6;
+        border-radius: 10px;
+        overflow: hidden;
+    }
+
+    .breakdown-fill {
+        height: 100%;
+        border-radius: 10px;
+        transition: width 1.5s ease;
+    }
+
+    .breakdown-fill.achieved {
+        background: linear-gradient(90deg, #10b981 0%, #059669 100%);
+    }
+
+    .breakdown-fill.remaining {
+        background: linear-gradient(90deg, #f59e0b 0%, #d97706 100%);
+    }
+
+    .breakdown-fill.total {
+        background: linear-gradient(90deg, #6366f1 0%, #4f46e5 100%);
+    }
+
+    /* Yearly Progress Section */
+    .yearly-progress-section {
+        margin-bottom: 1.5rem;
+        padding: 1.5rem;
+        background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+        border-radius: 15px;
+    }
+
+    .yearly-header {
+        font-size: 1.1rem;
+        font-weight: 700;
+        color: #1f2937;
+        margin-bottom: 1rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .yearly-stats {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1rem;
+    }
+
+    .yearly-stat {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        padding: 1rem;
+        background: white;
+        border-radius: 12px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+    }
+
+    .stat-icon {
+        width: 50px;
+        height: 50px;
+        min-width: 50px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border-radius: 12px;
+        font-size: 1.3rem;
+    }
+
+    .stat-details {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .stat-label {
+        font-size: 0.75rem;
+        color: #6b7280;
+        text-transform: uppercase;
+        font-weight: 600;
+    }
+
+    .stat-value {
+        font-size: 1.2rem;
+        font-weight: 700;
+        color: #1f2937;
+    }
+
+    /* Card Actions */
+    .card-actions {
+        display: flex;
+        gap: 0.5rem;
+        justify-content: center;
+        padding-top: 1rem;
+        border-top: 2px solid #f3f4f6;
+    }
+
+    /* Empty State */
+    .empty-state {
+        text-align: center;
+        padding: 4rem 2rem;
+        background: white;
+        border-radius: 20px;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+    }
+
+    /* Responsive */
+    @@media (max-width: 768px) {
+        .card-header-section {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 1rem;
+        }
+
+        .yearly-stats {
+            grid-template-columns: 1fr;
+        }
+
+        .progress-values strong {
+            font-size: 1rem;
+        }
+    }
+</style>

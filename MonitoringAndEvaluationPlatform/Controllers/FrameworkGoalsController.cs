@@ -62,6 +62,96 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             return View(goals);
         }
 
+        // GET: FrameworkGoals/CircularGaugeView
+        public async Task<IActionResult> CircularGaugeView(int? frameworkCode)
+        {
+            ViewBag.Frameworks = await _context.Frameworks.ToListAsync();
+
+            IQueryable<FrameworkGoal> goalsQuery = _context.FrameworkGoals
+                .Include(fg => fg.Framework);
+
+            if (frameworkCode.HasValue)
+            {
+                goalsQuery = goalsQuery.Where(fg => fg.FrameworkCode == frameworkCode.Value);
+                ViewBag.SelectedFrameworkCode = frameworkCode.Value;
+            }
+
+            var goals = await goalsQuery.OrderByDescending(fg => fg.ID).ToListAsync();
+            return View(goals);
+        }
+
+        // GET: FrameworkGoals/TimelineView
+        public async Task<IActionResult> TimelineView(int? frameworkCode)
+        {
+            ViewBag.Frameworks = await _context.Frameworks.ToListAsync();
+
+            IQueryable<FrameworkGoal> goalsQuery = _context.FrameworkGoals
+                .Include(fg => fg.Framework);
+
+            if (frameworkCode.HasValue)
+            {
+                goalsQuery = goalsQuery.Where(fg => fg.FrameworkCode == frameworkCode.Value);
+                ViewBag.SelectedFrameworkCode = frameworkCode.Value;
+            }
+
+            var goals = await goalsQuery.OrderByDescending(fg => fg.ID).ToListAsync();
+            return View(goals);
+        }
+
+        // GET: FrameworkGoals/ValueProgressView
+        public async Task<IActionResult> ValueProgressView(int? frameworkCode)
+        {
+            ViewBag.Frameworks = await _context.Frameworks.ToListAsync();
+
+            IQueryable<FrameworkGoal> goalsQuery = _context.FrameworkGoals
+                .Include(fg => fg.Framework);
+
+            if (frameworkCode.HasValue)
+            {
+                goalsQuery = goalsQuery.Where(fg => fg.FrameworkCode == frameworkCode.Value);
+                ViewBag.SelectedFrameworkCode = frameworkCode.Value;
+            }
+
+            var goals = await goalsQuery.OrderByDescending(fg => fg.ID).ToListAsync();
+            return View(goals);
+        }
+
+        // GET: FrameworkGoals/StatusBadgesView
+        public async Task<IActionResult> StatusBadgesView(int? frameworkCode)
+        {
+            ViewBag.Frameworks = await _context.Frameworks.ToListAsync();
+
+            IQueryable<FrameworkGoal> goalsQuery = _context.FrameworkGoals
+                .Include(fg => fg.Framework);
+
+            if (frameworkCode.HasValue)
+            {
+                goalsQuery = goalsQuery.Where(fg => fg.FrameworkCode == frameworkCode.Value);
+                ViewBag.SelectedFrameworkCode = frameworkCode.Value;
+            }
+
+            var goals = await goalsQuery.OrderByDescending(fg => fg.ID).ToListAsync();
+            return View(goals);
+        }
+
+        // GET: FrameworkGoals/MetricsGridView
+        public async Task<IActionResult> MetricsGridView(int? frameworkCode)
+        {
+            ViewBag.Frameworks = await _context.Frameworks.ToListAsync();
+
+            IQueryable<FrameworkGoal> goalsQuery = _context.FrameworkGoals
+                .Include(fg => fg.Framework);
+
+            if (frameworkCode.HasValue)
+            {
+                goalsQuery = goalsQuery.Where(fg => fg.FrameworkCode == frameworkCode.Value);
+                ViewBag.SelectedFrameworkCode = frameworkCode.Value;
+            }
+
+            var goals = await goalsQuery.OrderByDescending(fg => fg.ID).ToListAsync();
+            return View(goals);
+        }
+
         // POST: FrameworkGoals/CreateInline - AJAX endpoint for inline creation
         [HttpPost]
         [ValidateAntiForgeryToken]

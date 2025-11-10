@@ -1,0 +1,779 @@
+@model IEnumerable<MonitoringAndEvaluationPlatform.Models.FrameworkGoal>
+
+@using MonitoringAndEvaluationPlatform.Helpers
+@using Microsoft.AspNetCore.Identity
+@inject UserManager<ApplicationUser> UserManager
+@inject SignInManager<ApplicationUser> SignInManager
+@using Microsoft.AspNetCore.Mvc.Localization
+@inject IViewLocalizer Localizer
+@using Microsoft.AspNetCore.Localization
+
+@{
+    ViewData["Title"] = Localizer["Timeline Visualization"];
+    Layout = "~/Views/Shared/_DashboardHomeLayout.cshtml";
+    var culture = Context.Features.Get<IRequestCultureFeature>().RequestCulture.Culture.Name;
+}
+
+<!-- Dashboard Header -->
+<div class="dashboard-header">
+    <div class="d-flex justify-content-between align-items-center">
+        <div>
+            <h1 class="dashboard-title">
+                <i class="fas fa-project-diagram me-3"></i>
+                @Localizer["Timeline Visualization"]
+            </h1>
+            <p class="dashboard-subtitle">
+                @Localizer["Visual timeline tracking for framework goals progress"]
+            </p>
+        </div>
+        <div class="d-flex gap-2">
+            <a asp-action="Index" asp-route-frameworkCode="@ViewBag.SelectedFrameworkCode" class="btn btn-secondary btn-lg shadow-sm">
+                <i class="fas fa-table me-2"></i>@Localizer["Table View"]
+            </a>
+            <a asp-action="CircularGaugeView" asp-route-frameworkCode="@ViewBag.SelectedFrameworkCode" class="btn btn-info btn-lg shadow-sm">
+                <i class="fas fa-tachometer-alt me-2"></i>@Localizer["Circular Gauges"]
+            </a>
+            <a asp-action="ProgressView" asp-route-frameworkCode="@ViewBag.SelectedFrameworkCode" class="btn btn-success btn-lg shadow-sm">
+                <i class="fas fa-chart-bar me-2"></i>@Localizer["Progress View"]
+            </a>
+        </div>
+    </div>
+</div>
+
+<!-- Filter Section -->
+<div class="card shadow-sm mb-4">
+    <div class="card-body">
+        <form method="get" asp-action="TimelineView">
+            <div class="row">
+                <div class="col-md-4">
+                    <label class="form-label">@Localizer["Filter by Framework"]</label>
+                    <select name="frameworkCode" class="form-select" onchange="this.form.submit()">
+                        <option value="">@Localizer["All Frameworks"]</option>
+                        @foreach (var framework in ViewBag.Frameworks)
+                        {
+                            <option value="@framework.Code" selected="@(ViewBag.SelectedFrameworkCode == framework.Code)">
+                                @framework.Name
+                            </option>
+                        }
+                    </select>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Timeline Grid -->
+@if (Model.Any())
+{
+    <div class="timelines-container">
+        @foreach (var goal in Model)
+        {
+            // Calculate progress metrics
+            var totalYears = goal.TargetYear - goal.StartingYear;
+            var yearsPassed = goal.CurrentYear - goal.StartingYear;
+            var yearsRemaining = goal.TargetYear - goal.CurrentYear;
+            var timeProgress = totalYears > 0 ? (double)yearsPassed / totalYears * 100 : 0;
+
+            var totalChange = goal.TargetValue - goal.BaseValueForStartingYear;
+            var currentChange = goal.BaseValueForCurrentYear - goal.BaseValueForStartingYear;
+            var achievementProgress = totalChange != 0 ? (currentChange / totalChange * 100) : 0;
+
+            var isOnTrack = achievementProgress >= timeProgress;
+            var progressStatus = achievementProgress >= 100 ? "completed" : (isOnTrack ? "on-track" : "behind");
+
+            <div class="timeline-card" id="goal-timeline-@goal.ID">
+                <!-- Timeline Header -->
+                <div class="timeline-card-header">
+                    <div class="header-content">
+                        <h3 class="timeline-goal-name">@goal.Name</h3>
+                        <span class="timeline-framework-badge">
+                            <i class="fas fa-layer-group"></i>
+                            @goal.Framework.Name
+                        </span>
+                    </div>
+                    <div class="timeline-status-badge status-@progressStatus">
+                        @if (progressStatus == "completed")
+                        {
+                            <i class="fas fa-check-circle"></i>
+                            <span>@Localizer["Completed"]</span>
+                        }
+                        else if (progressStatus == "on-track")
+                        {
+                            <i class="fas fa-thumbs-up"></i>
+                            <span>@Localizer["On Track"]</span>
+                        }
+                        else
+                        {
+                            <i class="fas fa-exclamation-triangle"></i>
+                            <span>@Localizer["Behind Schedule"]</span>
+                        }
+                    </div>
+                </div>
+
+                <!-- Main Timeline Visualization -->
+                <div class="timeline-visualization">
+                    <!-- Starting Point -->
+                    <div class="timeline-milestone milestone-start">
+                        <div class="milestone-icon">
+                            <i class="fas fa-flag"></i>
+                        </div>
+                        <div class="milestone-label">@Localizer["Start"]</div>
+                        <div class="milestone-year">@goal.StartingYear</div>
+                        <div class="milestone-value">@goal.BaseValueForStartingYear.ToString("N2")</div>
+                    </div>
+
+                    <!-- Timeline Bar with Progress -->
+                    <div class="timeline-bar-container">
+                        <!-- Full timeline bar -->
+                        <div class="timeline-bar-background"></div>
+
+                        <!-- Completed progress -->
+                        <div class="timeline-bar-progress @progressStatus" style="width: @timeProgress%"></div>
+
+                        <!-- Year markers -->
+                        <div class="timeline-markers">
+                            @for (int year = goal.StartingYear; year <= goal.TargetYear; year++)
+                            {
+                                var yearPosition = totalYears > 0 ? ((double)(year - goal.StartingYear) / totalYears * 100) : 0;
+                                var isCurrentYear = year == goal.CurrentYear;
+
+                                <div class="timeline-marker @(isCurrentYear ? "current-marker" : "")"
+                                     style="left: @yearPosition%"
+                                     title="@year">
+                                    @if (isCurrentYear)
+                                    {
+                                        <div class="marker-pin current"></div>
+                                        <div class="marker-label">
+                                            <strong>@year</strong>
+                                            <span>@Localizer["Current"]</span>
+                                        </div>
+                                    }
+                                    else
+                                    {
+                                        <div class="marker-pin"></div>
+                                    }
+                                </div>
+                            }
+                        </div>
+
+                        <!-- Current position indicator -->
+                        <div class="current-position-indicator" style="left: @timeProgress%">
+                            <div class="position-marker">
+                                <i class="fas fa-map-marker-alt"></i>
+                            </div>
+                            <div class="position-info">
+                                <div class="position-year">@goal.CurrentYear</div>
+                                <div class="position-value">@goal.BaseValueForCurrentYear.ToString("N2")</div>
+                                <div class="position-progress">@achievementProgress.ToString("F1")%</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Target Point -->
+                    <div class="timeline-milestone milestone-target">
+                        <div class="milestone-icon">
+                            <i class="fas fa-bullseye"></i>
+                        </div>
+                        <div class="milestone-label">@Localizer["Target"]</div>
+                        <div class="milestone-year">@goal.TargetYear</div>
+                        <div class="milestone-value">@goal.TargetValue.ToString("N2")</div>
+                    </div>
+                </div>
+
+                <!-- Timeline Statistics -->
+                <div class="timeline-statistics">
+                    <div class="stat-group">
+                        <div class="stat-item">
+                            <i class="fas fa-calendar-check stat-icon"></i>
+                            <div class="stat-content">
+                                <span class="stat-label">@Localizer["Years Passed"]</span>
+                                <span class="stat-value">@yearsPassed / @totalYears</span>
+                            </div>
+                        </div>
+                        <div class="stat-item">
+                            <i class="fas fa-calendar-alt stat-icon"></i>
+                            <div class="stat-content">
+                                <span class="stat-label">@Localizer["Years Remaining"]</span>
+                                <span class="stat-value remaining">@yearsRemaining @Localizer["years"]</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="stat-group">
+                        <div class="stat-item">
+                            <i class="fas fa-percentage stat-icon"></i>
+                            <div class="stat-content">
+                                <span class="stat-label">@Localizer["Time Progress"]</span>
+                                <span class="stat-value">@timeProgress.ToString("F1")%</span>
+                            </div>
+                        </div>
+                        <div class="stat-item">
+                            <i class="fas fa-chart-line stat-icon"></i>
+                            <div class="stat-content">
+                                <span class="stat-label">@Localizer["Achievement"]</span>
+                                <span class="stat-value achievement">@achievementProgress.ToString("F1")%</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="stat-group">
+                        <div class="stat-item">
+                            <i class="fas fa-tachometer-alt stat-icon"></i>
+                            <div class="stat-content">
+                                <span class="stat-label">@Localizer["Annual Discount Rate"]</span>
+                                <span class="stat-value">@goal.AnnualDiscountRate.ToString("N2")</span>
+                            </div>
+                        </div>
+                        <div class="stat-item">
+                            <i class="fas fa-chart-bar stat-icon"></i>
+                            <div class="stat-content">
+                                <span class="stat-label">@Localizer["Progress Rate"]</span>
+                                <span class="stat-value highlight">@goal.ProgressRate.ToString("N2")</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="timeline-actions">
+                    <a href="@Url.Action("FrameworkGoalsTimeline", "Dashboard", new { goalId = goal.ID, frameworkCode = goal.FrameworkCode })"
+                       class="btn btn-sm btn-primary">
+                        <i class="fas fa-chart-line"></i> @Localizer["Detailed Chart"]
+                    </a>
+                    @if (SignInManager.IsSignedIn(User))
+                    {
+                        var user = await UserManager.GetUserAsync(User);
+                        if (user != null)
+                        {
+                            var roles = await UserManager.GetRolesAsync(user);
+                            if (roles.Contains("SystemAdministrator"))
+                            {
+                                <button onclick="deleteGoal(@goal.ID)" class="btn btn-sm btn-danger">
+                                    <i class="fas fa-trash"></i> @Localizer["Delete"]
+                                </button>
+                            }
+                        }
+                    }
+                </div>
+            </div>
+        }
+    </div>
+}
+else
+{
+    <div class="empty-state">
+        <i class="fas fa-project-diagram fa-5x text-muted mb-4"></i>
+        <h3 class="text-muted">@Localizer["No goals found"]</h3>
+        <p class="text-muted">@Localizer["Create your first goal to get started!"]</p>
+    </div>
+}
+
+@section Scripts {
+    <script>
+        // Delete goal
+        async function deleteGoal(id) {
+            if (!confirm('@Localizer["Are you sure you want to delete this goal?"]')) {
+                return;
+            }
+
+            const token = document.querySelector('input[name="__RequestVerificationToken"]').value;
+
+            try {
+                const response = await fetch('@Url.Action("Delete", "FrameworkGoals")', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    },
+                    body: `id=${id}&__RequestVerificationToken=${encodeURIComponent(token)}`
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    // Remove the card
+                    document.getElementById(`goal-timeline-${id}`).remove();
+                    alert(result.message);
+
+                    // Reload if no more goals
+                    if (document.querySelectorAll('.timeline-card').length === 0) {
+                        location.reload();
+                    }
+                } else {
+                    alert(result.message);
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('@Localizer["An error occurred. Please try again."]');
+            }
+        }
+    </script>
+}
+
+<style>
+    .dashboard-header {
+        margin-bottom: 2rem;
+        padding-bottom: 1rem;
+        border-bottom: 2px solid #e9ecef;
+    }
+
+    .dashboard-title {
+        font-size: 2rem;
+        font-weight: 600;
+        color: #2c3e50;
+        margin-bottom: 0.5rem;
+    }
+
+    .dashboard-subtitle {
+        color: #6c757d;
+        font-size: 1rem;
+        margin-bottom: 0;
+    }
+
+    .card {
+        border: none;
+        border-radius: 10px;
+    }
+
+    .btn-lg {
+        padding: 0.75rem 1.5rem;
+        font-size: 1rem;
+    }
+
+    /* Timeline Container */
+    .timelines-container {
+        display: flex;
+        flex-direction: column;
+        gap: 2rem;
+        margin-top: 1.5rem;
+    }
+
+    /* Timeline Card */
+    .timeline-card {
+        background: white;
+        border-radius: 20px;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+        padding: 2rem;
+        transition: all 0.3s ease;
+    }
+
+    .timeline-card:hover {
+        box-shadow: 0 8px 30px rgba(0,0,0,0.15);
+    }
+
+    /* Timeline Card Header */
+    .timeline-card-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 2rem;
+        padding-bottom: 1rem;
+        border-bottom: 2px solid #f3f4f6;
+    }
+
+    .header-content {
+        flex: 1;
+    }
+
+    .timeline-goal-name {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: #1f2937;
+        margin: 0 0 0.75rem 0;
+    }
+
+    .timeline-framework-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.5rem 1rem;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border-radius: 20px;
+        font-size: 0.9rem;
+        font-weight: 600;
+    }
+
+    .timeline-status-badge {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.6rem 1.2rem;
+        border-radius: 25px;
+        font-size: 0.9rem;
+        font-weight: 600;
+    }
+
+    .timeline-status-badge.status-completed {
+        background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+        color: white;
+    }
+
+    .timeline-status-badge.status-on-track {
+        background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+        color: white;
+    }
+
+    .timeline-status-badge.status-behind {
+        background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+        color: white;
+    }
+
+    /* Timeline Visualization */
+    .timeline-visualization {
+        display: flex;
+        align-items: center;
+        gap: 1.5rem;
+        margin-bottom: 2rem;
+        padding: 2rem;
+        background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+        border-radius: 15px;
+        position: relative;
+    }
+
+    /* Timeline Milestones */
+    .timeline-milestone {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 0.5rem;
+        min-width: 100px;
+        z-index: 2;
+    }
+
+    .milestone-icon {
+        width: 60px;
+        height: 60px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+        color: white;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+    }
+
+    .milestone-start .milestone-icon {
+        background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+    }
+
+    .milestone-target .milestone-icon {
+        background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+    }
+
+    .milestone-label {
+        font-size: 0.75rem;
+        color: #6b7280;
+        text-transform: uppercase;
+        font-weight: 700;
+    }
+
+    .milestone-year {
+        font-size: 1.2rem;
+        font-weight: 700;
+        color: #1f2937;
+    }
+
+    .milestone-value {
+        font-size: 0.9rem;
+        color: #3b82f6;
+        font-weight: 600;
+    }
+
+    /* Timeline Bar Container */
+    .timeline-bar-container {
+        flex: 1;
+        position: relative;
+        height: 80px;
+        display: flex;
+        align-items: center;
+    }
+
+    .timeline-bar-background {
+        position: absolute;
+        top: 50%;
+        transform: translateY(-50%);
+        width: 100%;
+        height: 20px;
+        background: #e5e7eb;
+        border-radius: 10px;
+    }
+
+    .timeline-bar-progress {
+        position: absolute;
+        top: 50%;
+        transform: translateY(-50%);
+        height: 20px;
+        border-radius: 10px;
+        transition: width 1.5s ease;
+        z-index: 1;
+    }
+
+    .timeline-bar-progress.completed {
+        background: linear-gradient(90deg, #10b981 0%, #059669 100%);
+    }
+
+    .timeline-bar-progress.on-track {
+        background: linear-gradient(90deg, #3b82f6 0%, #2563eb 100%);
+    }
+
+    .timeline-bar-progress.behind {
+        background: linear-gradient(90deg, #f59e0b 0%, #d97706 100%);
+    }
+
+    /* Timeline Markers */
+    .timeline-markers {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+    }
+
+    .timeline-marker {
+        position: absolute;
+        top: 50%;
+        transform: translate(-50%, -50%);
+        z-index: 2;
+    }
+
+    .marker-pin {
+        width: 12px;
+        height: 12px;
+        background: #9ca3af;
+        border: 3px solid white;
+        border-radius: 50%;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    }
+
+    .marker-pin.current {
+        width: 20px;
+        height: 20px;
+        background: #ef4444;
+        animation: pulse 2s infinite;
+    }
+
+    @@keyframes pulse {
+        0%, 100% {
+            box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7);
+        }
+        50% {
+            box-shadow: 0 0 0 10px rgba(239, 68, 68, 0);
+        }
+    }
+
+    .marker-label {
+        position: absolute;
+        top: -45px;
+        left: 50%;
+        transform: translateX(-50%);
+        background: #1f2937;
+        color: white;
+        padding: 0.4rem 0.8rem;
+        border-radius: 8px;
+        font-size: 0.75rem;
+        white-space: nowrap;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+    }
+
+    .marker-label::after {
+        content: '';
+        position: absolute;
+        bottom: -5px;
+        width: 0;
+        height: 0;
+        border-left: 5px solid transparent;
+        border-right: 5px solid transparent;
+        border-top: 5px solid #1f2937;
+    }
+
+    /* Current Position Indicator */
+    .current-position-indicator {
+        position: absolute;
+        top: -40px;
+        transform: translateX(-50%);
+        z-index: 3;
+    }
+
+    .position-marker {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        width: 40px;
+        height: 40px;
+        background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+        border-radius: 50% 50% 50% 0;
+        transform: rotate(-45deg);
+        box-shadow: 0 4px 15px rgba(239, 68, 68, 0.4);
+        animation: bounce 2s infinite;
+    }
+
+    .position-marker i {
+        transform: rotate(45deg);
+        color: white;
+        font-size: 1.2rem;
+    }
+
+    @@keyframes bounce {
+        0%, 100% {
+            transform: rotate(-45deg) translateY(0);
+        }
+        50% {
+            transform: rotate(-45deg) translateY(-10px);
+        }
+    }
+
+    .position-info {
+        position: absolute;
+        top: 50px;
+        left: 50%;
+        transform: translateX(-50%);
+        background: white;
+        padding: 0.75rem 1rem;
+        border-radius: 10px;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+        text-align: center;
+        min-width: 120px;
+        border: 2px solid #ef4444;
+    }
+
+    .position-year {
+        font-size: 1rem;
+        font-weight: 700;
+        color: #1f2937;
+    }
+
+    .position-value {
+        font-size: 0.85rem;
+        color: #3b82f6;
+        font-weight: 600;
+    }
+
+    .position-progress {
+        font-size: 0.9rem;
+        color: #10b981;
+        font-weight: 700;
+        margin-top: 0.25rem;
+    }
+
+    /* Timeline Statistics */
+    .timeline-statistics {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 1rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .stat-group {
+        display: flex;
+        flex-direction: column;
+        gap: 0.75rem;
+    }
+
+    .stat-item {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        padding: 1rem;
+        background: #f9fafb;
+        border-radius: 12px;
+        transition: all 0.3s ease;
+    }
+
+    .stat-item:hover {
+        background: #f3f4f6;
+        transform: translateX(5px);
+    }
+
+    .stat-icon {
+        width: 40px;
+        height: 40px;
+        min-width: 40px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border-radius: 10px;
+        font-size: 1.1rem;
+    }
+
+    .stat-content {
+        display: flex;
+        flex-direction: column;
+        flex: 1;
+    }
+
+    .stat-label {
+        font-size: 0.75rem;
+        color: #6b7280;
+        text-transform: uppercase;
+        font-weight: 600;
+    }
+
+    .stat-value {
+        font-size: 1.1rem;
+        font-weight: 700;
+        color: #1f2937;
+    }
+
+    .stat-value.remaining {
+        color: #f59e0b;
+    }
+
+    .stat-value.achievement {
+        color: #10b981;
+    }
+
+    .stat-value.highlight {
+        color: #8b5cf6;
+    }
+
+    /* Action Buttons */
+    .timeline-actions {
+        display: flex;
+        gap: 0.5rem;
+        justify-content: center;
+        padding-top: 1rem;
+        border-top: 2px solid #f3f4f6;
+    }
+
+    /* Empty State */
+    .empty-state {
+        text-align: center;
+        padding: 4rem 2rem;
+        background: white;
+        border-radius: 20px;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+    }
+
+    /* Responsive */
+    @@media (max-width: 992px) {
+        .timeline-visualization {
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .timeline-bar-container {
+            width: 100%;
+            height: 150px;
+        }
+
+        .timeline-statistics {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    @@media (max-width: 768px) {
+        .timeline-card-header {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 1rem;
+        }
+
+        .position-info {
+            font-size: 0.85rem;
+            min-width: 100px;
+        }
+    }
+</style>
