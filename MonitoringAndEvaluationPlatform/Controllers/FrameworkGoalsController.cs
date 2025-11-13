@@ -219,6 +219,54 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             }
         }
 
+        // POST: FrameworkGoals/UpdateCurrentYear - Update current year and its value
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        [Permission(Permissions.ModifyStrategy)]
+        public async Task<IActionResult> UpdateCurrentYear(int id, int currentYear, double baseValueForCurrentYear)
+        {
+            try
+            {
+                var goal = await _context.FrameworkGoals.FindAsync(id);
+                if (goal == null)
+                {
+                    return Json(new { success = false, message = _localizer["Goal not found."] });
+                }
+
+                // Validate year order
+                if (currentYear <= goal.StartingYear || currentYear >= goal.TargetYear)
+                {
+                    return Json(new { success = false, message = _localizer["Current year must be between starting year and target year."] });
+                }
+
+                // Update values
+                goal.CurrentYear = currentYear;
+                goal.BaseValueForCurrentYear = baseValueForCurrentYear;
+
+                _context.Update(goal);
+                await _context.SaveChangesAsync();
+
+                return Json(new {
+                    success = true,
+                    message = _localizer["Current year updated successfully!"],
+                    goal = new
+                    {
+                        id = goal.ID,
+                        currentYear = goal.CurrentYear,
+                        baseValueForCurrentYear = goal.BaseValueForCurrentYear,
+                        annualDiscountRate = goal.AnnualDiscountRate,
+                        amountOfReduction = goal.AmountOfReduction,
+                        expectedValue = goal.ExpectedValueForCurrentYear,
+                        progressRate = goal.ProgressRate
+                    }
+                });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = _localizer["An error occurred while updating the goal."] });
+            }
+        }
+
         // POST: FrameworkGoals/Delete
         [HttpPost]
         [Permission(Permissions.DeleteStrategy)]

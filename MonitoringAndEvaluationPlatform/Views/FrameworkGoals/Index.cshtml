@@ -218,6 +218,11 @@
                                             var roles = await UserManager.GetRolesAsync(user);
                                             if (roles.Contains("SystemAdministrator"))
                                             {
+                                                <button onclick="showEditModal(@goal.ID, @goal.CurrentYear, @goal.BaseValueForCurrentYear, @goal.StartingYear, @goal.TargetYear)"
+                                                        class="btn btn-sm btn-warning me-2"
+                                                        title="@Localizer["Update Current Year"]">
+                                                    <i class="fas fa-edit"></i>
+                                                </button>
                                                 <button onclick="deleteGoal(@goal.ID)" class="btn btn-sm btn-danger">
                                                     <i class="fas fa-trash"></i>
                                                 </button>
@@ -238,6 +243,48 @@
                 <p class="text-muted">@Localizer["No goals found. Create your first goal to get started!"]</p>
             </div>
         }
+    </div>
+</div>
+
+<!-- Edit Modal -->
+<div class="modal fade" id="editModal" tabindex="-1" aria-labelledby="editModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="editModalLabel">
+                    <i class="fas fa-edit me-2"></i>@Localizer["Update Current Year"]
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="editForm">
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" id="editGoalId" />
+                    <input type="hidden" id="editStartingYear" />
+                    <input type="hidden" id="editTargetYear" />
+
+                    <div class="mb-3">
+                        <label class="form-label">@Localizer["Current Year"] <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control year-picker" id="editCurrentYear" required readonly placeholder="@Localizer["Select Year"]" />
+                        <small class="form-text text-muted">@Localizer["Update this when the year changes"]</small>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">@Localizer["Base Value (Current)"] <span class="text-danger">*</span></label>
+                        <input type="number" step="0.01" class="form-control" id="editBaseValue" required />
+                        <small class="form-text text-muted">@Localizer["Enter the actual achieved value for the current year"]</small>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    <i class="fas fa-times me-2"></i>@Localizer["Cancel"]
+                </button>
+                <button type="button" class="btn btn-primary" onclick="submitEdit()">
+                    <i class="fas fa-save me-2"></i>@Localizer["Update"]
+                </button>
+            </div>
+        </div>
     </div>
 </div>
 
@@ -450,6 +497,64 @@
                 alert('@Localizer["An error occurred. Please try again."]');
             }
         });
+
+        // Show edit modal
+        function showEditModal(goalId, currentYear, baseValue, startingYear, targetYear) {
+            // Set hidden fields
+            document.getElementById('editGoalId').value = goalId;
+            document.getElementById('editStartingYear').value = startingYear;
+            document.getElementById('editTargetYear').value = targetYear;
+
+            // Set form values
+            document.getElementById('editCurrentYear').value = currentYear;
+            document.getElementById('editBaseValue').value = baseValue;
+
+            // Show modal
+            const modal = new bootstrap.Modal(document.getElementById('editModal'));
+            modal.show();
+        }
+
+        // Submit edit form
+        async function submitEdit() {
+            const goalId = document.getElementById('editGoalId').value;
+            const currentYear = document.getElementById('editCurrentYear').value;
+            const baseValue = document.getElementById('editBaseValue').value;
+
+            if (!currentYear || !baseValue) {
+                alert('@Localizer["Please fill in all required fields."]');
+                return;
+            }
+
+            const token = document.querySelector('#editForm input[name="__RequestVerificationToken"]').value;
+
+            const formData = new FormData();
+            formData.append('id', goalId);
+            formData.append('currentYear', currentYear);
+            formData.append('baseValueForCurrentYear', baseValue);
+            formData.append('__RequestVerificationToken', token);
+
+            try {
+                const response = await fetch('@Url.Action("UpdateCurrentYear", "FrameworkGoals")', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    alert(result.message);
+                    // Close modal
+                    bootstrap.Modal.getInstance(document.getElementById('editModal')).hide();
+                    // Reload page to show updated values
+                    location.reload();
+                } else {
+                    alert(result.message);
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('@Localizer["An error occurred. Please try again."]');
+            }
+        }
 
         // Delete goal
         async function deleteGoal(id) {

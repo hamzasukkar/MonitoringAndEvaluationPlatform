@@ -366,4 +366,27 @@
   <data name="Next" xml:space="preserve">
     <value>التالي</value>
   </data>
+
+  <!-- Edit Functionality -->
+  <data name="Update Current Year" xml:space="preserve">
+    <value>تحديث السنة الحالية</value>
+  </data>
+  <data name="Update this when the year changes" xml:space="preserve">
+    <value>قم بتحديث هذا عندما تتغير السنة</value>
+  </data>
+  <data name="Enter the actual achieved value for the current year" xml:space="preserve">
+    <value>أدخل القيمة الفعلية المحققة للسنة الحالية</value>
+  </data>
+  <data name="Update" xml:space="preserve">
+    <value>تحديث</value>
+  </data>
+  <data name="Current year must be between starting year and target year." xml:space="preserve">
+    <value>يجب أن تكون السنة الحالية بين سنة البداية والسنة المستهدفة.</value>
+  </data>
+  <data name="Current year updated successfully!" xml:space="preserve">
+    <value>تم تحديث السنة الحالية بنجاح!</value>
+  </data>
+  <data name="An error occurred while updating the goal." xml:space="preserve">
+    <value>حدث خطأ أثناء تحديث الهدف.</value>
+  </data>
 </root>

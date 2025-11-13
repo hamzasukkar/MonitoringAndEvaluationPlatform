@@ -366,4 +366,27 @@
   <data name="Next" xml:space="preserve">
     <value>Next</value>
   </data>
+
+  <!-- Edit Functionality -->
+  <data name="Update Current Year" xml:space="preserve">
+    <value>Update Current Year</value>
+  </data>
+  <data name="Update this when the year changes" xml:space="preserve">
+    <value>Update this when the year changes</value>
+  </data>
+  <data name="Enter the actual achieved value for the current year" xml:space="preserve">
+    <value>Enter the actual achieved value for the current year</value>
+  </data>
+  <data name="Update" xml:space="preserve">
+    <value>Update</value>
+  </data>
+  <data name="Current year must be between starting year and target year." xml:space="preserve">
+    <value>Current year must be between starting year and target year.</value>
+  </data>
+  <data name="Current year updated successfully!" xml:space="preserve">
+    <value>Current year updated successfully!</value>
+  </data>
+  <data name="An error occurred while updating the goal." xml:space="preserve">
+    <value>An error occurred while updating the goal.</value>
+  </data>
 </root>
