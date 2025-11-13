@@ -136,6 +136,20 @@
                     <span class="detail-value" id="detailExpectedValue">-</span>
                 </div>
             </div>
+            <div class="detail-item">
+                <i class="fas fa-chart-line detail-icon"></i>
+                <div class="detail-content">
+                    <span class="detail-label">@Localizer["Progress Rate"]</span>
+                    <span class="detail-value" id="detailProgressRate">-</span>
+                </div>
+            </div>
+            <div class="detail-item">
+                <i class="fas fa-trophy detail-icon"></i>
+                <div class="detail-content">
+                    <span class="detail-label">@Localizer["Progress Rate 2"]</span>
+                    <span class="detail-value" id="detailProgressRate2">-</span>
+                </div>
+            </div>
         </div>
     </div>
 </div>
@@ -431,6 +445,8 @@
             document.getElementById('detailAnnualRate').textContent = goalData.annualDiscountRate.toFixed(2);
             document.getElementById('detailCurrentReduction').textContent = goalData.currentReduction.toFixed(2);
             document.getElementById('detailExpectedValue').textContent = goalData.expectedCurrentValue.toFixed(2);
+            document.getElementById('detailProgressRate').textContent = goalData.progressRate.toFixed(2);
+            document.getElementById('detailProgressRate2').textContent = goalData.progressRate2.toFixed(2);
 
             // Prepare chart data
             const years = goalData.timeSeries.map(ts => ts.year);

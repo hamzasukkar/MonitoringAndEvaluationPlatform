@@ -1146,6 +1146,8 @@ public class DashboardController : Controller
             annualDiscountRate = Math.Round(goal.AnnualDiscountRate, 2),
             currentReduction = Math.Round(goal.AmountOfReduction, 2),
             expectedCurrentValue = Math.Round(goal.ExpectedValueForCurrentYear, 2),
+            progressRate = Math.Round(goal.ProgressRate, 2),
+            progressRate2 = Math.Round(goal.ProgressRate2, 2),
             timeSeries = timeSeriesData,
             yearlyValues = yearlyValues
         };

@@ -93,5 +93,23 @@ namespace MonitoringAndEvaluationPlatform.Models
                 return ExpectedValueForCurrentYear / BaseValueForStartingYear;
             }
         }
+
+        /// <summary>
+        /// Progress Rate 2 = (Base Value - Current Year Value) / (Base Value - Target Value)
+        /// This measures the progress from base value to current year as a proportion of the total goal
+        /// </summary>
+        [NotMapped]
+        public double ProgressRate2
+        {
+            get
+            {
+                var denominator = BaseValueForStartingYear - TargetValue;
+                if (denominator == 0) return 0;
+
+                var numerator = BaseValueForStartingYear - BaseValueForCurrentYear;
+
+                return numerator / denominator;
+            }
+        }
     }
 }

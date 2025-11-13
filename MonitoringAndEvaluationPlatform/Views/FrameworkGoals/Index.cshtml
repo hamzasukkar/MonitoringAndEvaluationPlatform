@@ -177,6 +177,7 @@
                             <th>@Localizer["Amount of Reduction"]</th>
                             <th>@Localizer["Expected Value"]</th>
                             <th>@Localizer["Progress Rate"]</th>
+                            <th>@Localizer["Progress Rate 2"]</th>
                             <th class="text-center">@Localizer["Actions"]</th>
                         </tr>
                     </thead>
@@ -202,6 +203,16 @@
                                 <td class="text-center">
                                     <span class="badge @(goal.ProgressRate >= 1 ? "bg-success" : "bg-warning") fs-6">
                                         @goal.ProgressRate.ToString("N2")
+                                    </span>
+                                </td>
+                                <td class="text-center">
+                                    @{
+                                        var actualReduction = goal.BaseValueForStartingYear - goal.BaseValueForCurrentYear;
+                                        var isOnTrack = actualReduction >= goal.AmountOfReduction;
+                                        var badgeClass = isOnTrack ? "bg-success" : "bg-danger";
+                                    }
+                                    <span class="badge @badgeClass fs-6">
+                                        @goal.ProgressRate2.ToString("N2")
                                     </span>
                                 </td>
                                 <td class="text-center">
