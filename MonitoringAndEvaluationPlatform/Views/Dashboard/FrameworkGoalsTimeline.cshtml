@@ -360,6 +360,7 @@
             annualDiscountRate: '@Localizer["AnnualDiscountRate"]',
             amountOfReduction: '@Localizer["AmountOfReduction"]',
             expectedValue: '@Localizer["ExpectedValue"]',
+            actualAchievement: '@Localizer["ActualAchievement"]',
             year: '@Localizer["Year"]',
             value: '@Localizer["Value"]'
         };
@@ -437,6 +438,19 @@
             const reductions = goalData.timeSeries.map(ts => ts.amountOfReduction);
             const expectedValues = goalData.timeSeries.map(ts => ts.expectedValue);
 
+            // Prepare actual achievement data (Starting Year -> Current Year -> Target Year)
+            const actualAchievementData = years.map(year => {
+                if (year == goalData.startingYear) {
+                    return goalData.baseValue;
+                } else if (year == goalData.currentYear) {
+                    return goalData.currentValue;
+                } else if (year == goalData.targetYear) {
+                    return goalData.targetValue;
+                } else {
+                    return null;
+                }
+            });
+
             // Destroy existing chart if it exists
             if (timelineChart) {
                 timelineChart.destroy();
@@ -490,6 +504,22 @@
                             pointBackgroundColor: 'rgba(75, 192, 192, 1)',
                             pointBorderColor: '#fff',
                             pointBorderWidth: 2
+                        },
+                        {
+                            label: localizedStrings.actualAchievement,
+                            data: actualAchievementData,
+                            borderColor: 'rgba(255, 159, 64, 1)',
+                            backgroundColor: 'rgba(255, 159, 64, 0.1)',
+                            borderWidth: 4,
+                            borderDash: [10, 5],
+                            tension: 0,
+                            fill: false,
+                            pointRadius: 8,
+                            pointHoverRadius: 11,
+                            pointBackgroundColor: 'rgba(255, 159, 64, 1)',
+                            pointBorderColor: '#fff',
+                            pointBorderWidth: 3,
+                            spanGaps: true
                         }
                     ]
                 },
