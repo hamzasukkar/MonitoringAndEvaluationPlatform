@@ -275,6 +275,18 @@
                         <small class="form-text text-muted">@Localizer["Enter the actual achieved value for the current year"]</small>
                     </div>
                 </form>
+
+                <!-- Historical Values Section -->
+                <div class="mt-4">
+                    <h6 class="mb-3">
+                        <i class="fas fa-history me-2"></i>@Localizer["Historical Values"]
+                    </h6>
+                    <div id="historicalValuesContainer">
+                        <div class="text-center text-muted py-3">
+                            <i class="fas fa-spinner fa-spin me-2"></i>@Localizer["Loading..."]
+                        </div>
+                    </div>
+                </div>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
@@ -499,7 +511,7 @@
         });
 
         // Show edit modal
-        function showEditModal(goalId, currentYear, baseValue, startingYear, targetYear) {
+        async function showEditModal(goalId, currentYear, baseValue, startingYear, targetYear) {
             // Set hidden fields
             document.getElementById('editGoalId').value = goalId;
             document.getElementById('editStartingYear').value = startingYear;
@@ -509,9 +521,80 @@
             document.getElementById('editCurrentYear').value = currentYear;
             document.getElementById('editBaseValue').value = baseValue;
 
+            // Load historical values
+            await loadHistoricalValues(goalId);
+
             // Show modal
             const modal = new bootstrap.Modal(document.getElementById('editModal'));
             modal.show();
+        }
+
+        // Load historical values for the goal
+        async function loadHistoricalValues(goalId) {
+            try {
+                const response = await fetch(`@Url.Action("GetYearlyValues", "FrameworkGoals")?goalId=${goalId}`);
+                const result = await response.json();
+
+                if (result.success) {
+                    displayHistoricalValues(result.yearlyValues, result.startingYear, result.currentYear, result.targetYear, goalId);
+                } else {
+                    document.getElementById('historicalValuesContainer').innerHTML = `
+                        <div class="alert alert-warning">
+                            <i class="fas fa-exclamation-triangle me-2"></i>${result.message}
+                        </div>
+                    `;
+                }
+            } catch (error) {
+                console.error('Error loading historical values:', error);
+                document.getElementById('historicalValuesContainer').innerHTML = `
+                    <div class="alert alert-danger">
+                        <i class="fas fa-times-circle me-2"></i>@Localizer["An error occurred while loading historical values."]
+                    </div>
+                `;
+            }
+        }
+
+        // Display historical values table
+        function displayHistoricalValues(yearlyValues, startingYear, currentYear, targetYear, goalId) {
+            if (yearlyValues.length === 0) {
+                document.getElementById('historicalValuesContainer').innerHTML = `
+                    <div class="text-center text-muted py-3">
+                        <i class="fas fa-info-circle me-2"></i>@Localizer["No historical values recorded yet."]
+                    </div>
+                `;
+                return;
+            }
+
+            let tableHtml = `
+                <div class="table-responsive">
+                    <table class="table table-sm table-hover">
+                        <thead class="table-light">
+                            <tr>
+                                <th>@Localizer["Year"]</th>
+                                <th>@Localizer["Actual Value"]</th>
+                                <th>@Localizer["Date Recorded"]</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+            `;
+
+            yearlyValues.forEach(yv => {
+                tableHtml += `
+                    <tr>
+                        <td><strong>${yv.year}</strong></td>
+                        <td>${yv.value.toFixed(2)}</td>
+                        <td><small class="text-muted">${yv.dateRecorded}</small></td>
+                    </tr>
+                `;
+            });
+
+            tableHtml += `
+                        </tbody>
+                    </table>
+                </div>
+            `;
+
+            document.getElementById('historicalValuesContainer').innerHTML = tableHtml;
         }
 
         // Submit edit form

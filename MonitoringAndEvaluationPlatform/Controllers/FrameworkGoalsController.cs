@@ -32,7 +32,8 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             ViewBag.Frameworks = await _context.Frameworks.ToListAsync();
 
             IQueryable<FrameworkGoal> goalsQuery = _context.FrameworkGoals
-                .Include(fg => fg.Framework);
+                .Include(fg => fg.Framework)
+                .Include(fg => fg.YearlyValues);
 
             if (frameworkCode.HasValue)
             {
@@ -227,7 +228,10 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         {
             try
             {
-                var goal = await _context.FrameworkGoals.FindAsync(id);
+                var goal = await _context.FrameworkGoals
+                    .Include(g => g.YearlyValues)
+                    .FirstOrDefaultAsync(g => g.ID == id);
+
                 if (goal == null)
                 {
                     return Json(new { success = false, message = _localizer["Goal not found."] });
@@ -237,6 +241,25 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 if (currentYear <= goal.StartingYear || currentYear >= goal.TargetYear)
                 {
                     return Json(new { success = false, message = _localizer["Current year must be between starting year and target year."] });
+                }
+
+                // If current year is changing, save the old current year value as historical data
+                if (currentYear != goal.CurrentYear)
+                {
+                    // Check if historical value already exists for the old current year
+                    var existingValue = goal.YearlyValues.FirstOrDefault(yv => yv.Year == goal.CurrentYear);
+                    if (existingValue == null)
+                    {
+                        // Save the old current year value as historical data
+                        var historicalValue = new FrameworkGoalYearlyValue
+                        {
+                            FrameworkGoalID = goal.ID,
+                            Year = goal.CurrentYear,
+                            ActualValue = goal.BaseValueForCurrentYear,
+                            DateRecorded = DateTime.Now
+                        };
+                        _context.FrameworkGoalYearlyValues.Add(historicalValue);
+                    }
                 }
 
                 // Update values
@@ -264,6 +287,101 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             catch (Exception ex)
             {
                 return Json(new { success = false, message = _localizer["An error occurred while updating the goal."] });
+            }
+        }
+
+        // GET: FrameworkGoals/GetYearlyValues - Get all historical yearly values for a goal
+        [HttpGet]
+        public async Task<IActionResult> GetYearlyValues(int goalId)
+        {
+            try
+            {
+                var goal = await _context.FrameworkGoals
+                    .Include(g => g.YearlyValues)
+                    .FirstOrDefaultAsync(g => g.ID == goalId);
+
+                if (goal == null)
+                {
+                    return Json(new { success = false, message = _localizer["Goal not found."] });
+                }
+
+                var yearlyValues = goal.YearlyValues
+                    .OrderBy(yv => yv.Year)
+                    .Select(yv => new
+                    {
+                        year = yv.Year,
+                        value = yv.ActualValue,
+                        dateRecorded = yv.DateRecorded.ToString("yyyy-MM-dd")
+                    })
+                    .ToList();
+
+                return Json(new
+                {
+                    success = true,
+                    yearlyValues = yearlyValues,
+                    startingYear = goal.StartingYear,
+                    currentYear = goal.CurrentYear,
+                    targetYear = goal.TargetYear
+                });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = _localizer["An error occurred."] });
+            }
+        }
+
+        // POST: FrameworkGoals/SaveYearlyValue - Add or update a yearly value
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        [Permission(Permissions.ModifyStrategy)]
+        public async Task<IActionResult> SaveYearlyValue(int goalId, int year, double value)
+        {
+            try
+            {
+                var goal = await _context.FrameworkGoals
+                    .Include(g => g.YearlyValues)
+                    .FirstOrDefaultAsync(g => g.ID == goalId);
+
+                if (goal == null)
+                {
+                    return Json(new { success = false, message = _localizer["Goal not found."] });
+                }
+
+                // Validate year is within range
+                if (year <= goal.StartingYear || year >= goal.TargetYear)
+                {
+                    return Json(new { success = false, message = _localizer["Year must be between starting year and target year."] });
+                }
+
+                // Check if value already exists for this year
+                var existingValue = goal.YearlyValues.FirstOrDefault(yv => yv.Year == year);
+                if (existingValue != null)
+                {
+                    // Update existing value
+                    existingValue.ActualValue = value;
+                    existingValue.DateRecorded = DateTime.Now;
+                    _context.Update(existingValue);
+                }
+                else
+                {
+                    // Add new value
+                    var yearlyValue = new FrameworkGoalYearlyValue
+                    {
+                        FrameworkGoalID = goalId,
+                        Year = year,
+                        ActualValue = value,
+                        DateRecorded = DateTime.Now
+                    };
+                    _context.FrameworkGoalYearlyValues.Add(yearlyValue);
+                }
+
+                await _context.SaveChangesAsync();
+
+                return Json(new { success = true, message = _localizer["Yearly value saved successfully!"] });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = _localizer["An error occurred while saving the value."] });
             }
         }
 

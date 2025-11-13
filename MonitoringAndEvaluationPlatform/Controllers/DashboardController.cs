@@ -1093,6 +1093,7 @@ public class DashboardController : Controller
     {
         var goal = await _context.FrameworkGoals
             .Include(fg => fg.Framework)
+            .Include(fg => fg.YearlyValues)
             .FirstOrDefaultAsync(fg => fg.ID == goalId);
 
         if (goal == null)
@@ -1119,6 +1120,17 @@ public class DashboardController : Controller
             });
         }
 
+        // Get historical yearly values
+        var yearlyValues = goal.YearlyValues
+            .OrderBy(yv => yv.Year)
+            .Select(yv => new
+            {
+                year = yv.Year,
+                actualValue = Math.Round(yv.ActualValue, 2),
+                dateRecorded = yv.DateRecorded.ToString("yyyy-MM-dd")
+            })
+            .ToList();
+
         var result = new
         {
             goalId = goal.ID,
@@ -1134,7 +1146,8 @@ public class DashboardController : Controller
             annualDiscountRate = Math.Round(goal.AnnualDiscountRate, 2),
             currentReduction = Math.Round(goal.AmountOfReduction, 2),
             expectedCurrentValue = Math.Round(goal.ExpectedValueForCurrentYear, 2),
-            timeSeries = timeSeriesData
+            timeSeries = timeSeriesData,
+            yearlyValues = yearlyValues
         };
 
         return Json(result);

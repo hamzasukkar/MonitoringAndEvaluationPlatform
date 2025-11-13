@@ -438,16 +438,24 @@
             const reductions = goalData.timeSeries.map(ts => ts.amountOfReduction);
             const expectedValues = goalData.timeSeries.map(ts => ts.expectedValue);
 
-            // Prepare actual achievement data (Starting Year -> Current Year -> Target Year)
+            // Prepare actual achievement data (Starting Year + Historical Values + Current Year + Target Year)
             const actualAchievementData = years.map(year => {
+                // Check if it's the starting year
                 if (year == goalData.startingYear) {
                     return goalData.baseValue;
-                } else if (year == goalData.currentYear) {
-                    return goalData.currentValue;
-                } else if (year == goalData.targetYear) {
+                }
+                // Check if it's the target year
+                else if (year == goalData.targetYear) {
                     return goalData.targetValue;
-                } else {
-                    return null;
+                }
+                // Check if it's the current year
+                else if (year == goalData.currentYear) {
+                    return goalData.currentValue;
+                }
+                // Check if there's a historical value for this year
+                else {
+                    const historicalValue = goalData.yearlyValues?.find(yv => yv.year == year);
+                    return historicalValue ? historicalValue.actualValue : null;
                 }
             });
 

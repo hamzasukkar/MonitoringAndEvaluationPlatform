@@ -36,6 +36,9 @@ namespace MonitoringAndEvaluationPlatform.Models
         [ForeignKey("FrameworkCode")]
         public Framework Framework { get; set; }
 
+        // Collection of historical yearly values
+        public ICollection<FrameworkGoalYearlyValue> YearlyValues { get; set; } = new List<FrameworkGoalYearlyValue>();
+
         // Calculated Properties (Not Mapped to Database)
 
         /// <summary>
