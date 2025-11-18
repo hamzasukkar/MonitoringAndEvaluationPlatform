@@ -165,21 +165,41 @@
                 <table class="table table-hover" id="goalsTable">
                     <thead class="table-light">
                         <tr>
-                            <th>@Localizer["Goal Name"]</th>
-                            <th>@Localizer["Framework"]</th>
-                            <th>@Localizer["Starting Year"]</th>
-                            <th>@Localizer["Base Value (Starting)"]</th>
-                            <th>@Localizer["Current Year"]</th>
-                            <th>@Localizer["Base Value (Current)"]</th>
-                            <th>@Localizer["Target Year"]</th>
-                            <th>@Localizer["Target Value"]</th>
-                            <th>@Localizer["Expected Target (Current Year)"]</th>
-                            <th>@Localizer["Annual Discount Rate"]</th>
-                            <th>@Localizer["Amount of Reduction"]</th>
-                            <th>@Localizer["Expected Value"]</th>
-                            <th>@Localizer["Progress Rate"]</th>
-                            <th>@Localizer["Progress Rate 2"]</th>
-                            <th class="text-center">@Localizer["Actions"]</th>
+                            <th rowspan="2" class="align-middle">@Localizer["Goal Name"]</th>
+                            <th rowspan="2" class="align-middle">@Localizer["Framework"]</th>
+                            @{
+                                // Get the first goal to determine year range for header
+                                var firstGoal = Model.FirstOrDefault();
+                                if (firstGoal != null)
+                                {
+                                    for (int year = firstGoal.StartingYear; year <= firstGoal.TargetYear; year++)
+                                    {
+                                        <th colspan="2" class="text-center year-header">@year</th>
+                                    }
+                                }
+                            }
+                            <th rowspan="2" class="align-middle">@Localizer["Annual Discount Rate"]</th>
+                            <th rowspan="2" class="align-middle">@Localizer["Progress Rate"]</th>
+                            <th rowspan="2" class="align-middle text-center">@Localizer["Actions"]</th>
+                        </tr>
+                        <tr>
+                            @{
+                                if (firstGoal != null)
+                                {
+                                    for (int year = firstGoal.StartingYear; year <= firstGoal.TargetYear; year++)
+                                    {
+                                        <th class="text-center sub-header">@Localizer["Base Value"]</th>
+                                        if (year == firstGoal.TargetYear)
+                                        {
+                                            <th class="text-center sub-header">@Localizer["Target Value"]</th>
+                                        }
+                                        else
+                                        {
+                                            <th class="text-center sub-header">@Localizer["Expected Target"]</th>
+                                        }
+                                    }
+                                }
+                            }
                         </tr>
                     </thead>
                     <tbody>
@@ -190,22 +210,51 @@
                                 <td>
                                     <span class="badge bg-info">@goal.Framework.Name</span>
                                 </td>
-                                <td>@goal.StartingYear</td>
-                                <td>@goal.BaseValueForStartingYear.ToString("N2")</td>
-                                <td>@goal.CurrentYear</td>
-                                <td>@goal.BaseValueForCurrentYear.ToString("N2")</td>
-                                <td>@goal.TargetYear</td>
-                                <td><strong>@goal.TargetValue.ToString("N2")</strong></td>
-                                <td class="text-success"><strong>@goal.ExpectedTargetValueForCurrentYear.ToString("N2")</strong></td>
-                                <td class="text-primary"><strong>@goal.AnnualDiscountRate.ToString("N2")</strong></td>
-                                <td class="@(goal.AmountOfReduction >= 0 ? "text-success" : "text-danger")">
-                                    @goal.AmountOfReduction.ToString("N2")
-                                </td>
-                                <td class="text-info">@goal.ExpectedValueForCurrentYear.ToString("N2")</td>
+                                @{
+                                    // Generate data cells for each year
+                                    for (int year = goal.StartingYear; year <= goal.TargetYear; year++)
+                                    {
+                                        var baseValue = goal.GetBaseValueForYear(year);
+                                        var expectedTarget = goal.GetExpectedTargetValueForYear(year);
+                                        var isCurrentYear = year == goal.CurrentYear;
+                                        var isStartingYear = year == goal.StartingYear;
+                                        var isTargetYear = year == goal.TargetYear;
+
+                                        // Base Value cell
+                                        <td class="text-center @(isCurrentYear ? "bg-light-current" : "")">
+                                            @if (isStartingYear)
+                                            {
+                                                <strong class="text-primary">@baseValue.ToString("N2")</strong>
+                                            }
+                                            else if (isCurrentYear)
+                                            {
+                                                <strong class="text-success">@baseValue.ToString("N2")</strong>
+                                            }
+                                            else if (baseValue > 0)
+                                            {
+                                                @baseValue.ToString("N2")
+                                            }
+                                            else
+                                            {
+                                                <span class="text-muted">-</span>
+                                            }
+                                        </td>
+
+                                        // Expected Target / Target Value cell
+                                        <td class="text-center @(isCurrentYear ? "bg-light-current" : "")">
+                                            @if (isTargetYear)
+                                            {
+                                                <strong class="text-danger">@goal.TargetValue.ToString("N2")</strong>
+                                            }
+                                            else
+                                            {
+                                                <span class="text-info">@expectedTarget.ToString("N2")</span>
+                                            }
+                                        </td>
+                                    }
+                                }
                                 <td class="text-center">
-                                    <span class="badge @(goal.ProgressRate >= 1 ? "bg-success" : "bg-warning") fs-6">
-                                        @goal.ProgressRate.ToString("N2")
-                                    </span>
+                                    <strong class="text-primary">@goal.AnnualDiscountRate.ToString("N2")</strong>
                                 </td>
                                 <td class="text-center">
                                     @{
@@ -214,7 +263,7 @@
                                         var badgeClass = isOnTrack ? "bg-success" : "bg-danger";
                                     }
                                     <span class="badge @badgeClass fs-6">
-                                        @goal.ProgressRate2.ToString("N2")
+                                        @goal.ProgressRate.ToString("N2")
                                     </span>
                                 </td>
                                 <td class="text-center">
@@ -735,6 +784,51 @@
     .btn-lg {
         padding: 0.75rem 1.5rem;
         font-size: 1rem;
+    }
+
+    /* Dynamic Year Column Styles */
+    .year-header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white !important;
+        font-weight: 700;
+        font-size: 0.95rem;
+        padding: 0.75rem !important;
+        border: 2px solid white;
+    }
+
+    .sub-header {
+        background-color: #f8f9fa;
+        font-weight: 600;
+        font-size: 0.75rem;
+        color: #6c757d;
+        padding: 0.5rem !important;
+        border: 1px solid #dee2e6;
+    }
+
+    .bg-light-current {
+        background-color: #fff3cd !important;
+    }
+
+    .table-responsive {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    #goalsTable {
+        min-width: 100%;
+        white-space: nowrap;
+    }
+
+    #goalsTable td {
+        padding: 0.75rem 0.5rem;
+        vertical-align: middle;
+    }
+
+    #goalsTable th {
+        position: sticky;
+        top: 0;
+        z-index: 10;
+        background-color: #f8f9fa;
     }
 
     /* Year Picker Styles */

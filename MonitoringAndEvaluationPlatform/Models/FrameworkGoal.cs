@@ -82,24 +82,11 @@ namespace MonitoringAndEvaluationPlatform.Models
         }
 
         /// <summary>
-        /// Progress Rate = Expected Value for Current Year / Base Value for Starting Year
-        /// </summary>
-        [NotMapped]
-        public double ProgressRate
-        {
-            get
-            {
-                if (BaseValueForStartingYear == 0) return 0;
-                return ExpectedValueForCurrentYear / BaseValueForStartingYear;
-            }
-        }
-
-        /// <summary>
-        /// Progress Rate 2 = (Base Value - Current Year Value) / (Base Value - Target Value)
+        /// Progress Rate = (Base Value - Current Year Value) / (Base Value - Target Value)
         /// This measures the progress from base value to current year as a proportion of the total goal
         /// </summary>
         [NotMapped]
-        public double ProgressRate2
+        public double ProgressRate
         {
             get
             {
@@ -124,6 +111,42 @@ namespace MonitoringAndEvaluationPlatform.Models
                 var yearsPassed = CurrentYear - StartingYear;
                 return BaseValueForStartingYear - (AnnualDiscountRate * yearsPassed);
             }
+        }
+
+        /// <summary>
+        /// Calculate the expected target value for any given year
+        /// </summary>
+        /// <param name="year">The year to calculate the expected target for</param>
+        /// <returns>The expected target value for the specified year</returns>
+        public double GetExpectedTargetValueForYear(int year)
+        {
+            if (year < StartingYear || year > TargetYear)
+                return 0;
+
+            var yearsPassed = year - StartingYear;
+            return BaseValueForStartingYear - (AnnualDiscountRate * yearsPassed);
+        }
+
+        /// <summary>
+        /// Get the actual/base value for a specific year
+        /// Returns the stored yearly value if it exists, otherwise returns 0
+        /// </summary>
+        /// <param name="year">The year to get the base value for</param>
+        /// <returns>The base value for the specified year</returns>
+        public double GetBaseValueForYear(int year)
+        {
+            if (year == StartingYear)
+                return BaseValueForStartingYear;
+
+            if (year == CurrentYear)
+                return BaseValueForCurrentYear;
+
+            if (year == TargetYear)
+                return 0; // We don't store a base value for target year, only the target value
+
+            // Check if there's a yearly value recorded for this year
+            var yearlyValue = YearlyValues?.FirstOrDefault(yv => yv.Year == year);
+            return yearlyValue?.ActualValue ?? 0;
         }
     }
 }
