@@ -442,9 +442,6 @@
 
             // Prepare chart data
             const years = goalData.timeSeries.map(ts => ts.year);
-            const annualRates = goalData.timeSeries.map(ts => ts.annualDiscountRate);
-            const reductions = goalData.timeSeries.map(ts => ts.amountOfReduction);
-            const expectedValues = goalData.timeSeries.map(ts => ts.expectedValue);
 
             // Prepare actual achievement data (Starting Year + Historical Values + Current Year + Target Year)
             const actualAchievementData = years.map(year => {
@@ -480,59 +477,16 @@
                     labels: years,
                     datasets: [
                         {
-                            label: localizedStrings.annualDiscountRate,
-                            data: annualRates,
-                            borderColor: 'rgba(255, 99, 132, 1)',
-                            backgroundColor: 'rgba(255, 99, 132, 0.1)',
-                            borderWidth: 3,
-                            tension: 0.4,
-                            fill: false,
-                            pointRadius: 5,
-                            pointHoverRadius: 8,
-                            pointBackgroundColor: 'rgba(255, 99, 132, 1)',
-                            pointBorderColor: '#fff',
-                            pointBorderWidth: 2
-                        },
-                        {
-                            label: localizedStrings.amountOfReduction,
-                            data: reductions,
-                            borderColor: 'rgba(54, 162, 235, 1)',
-                            backgroundColor: 'rgba(54, 162, 235, 0.1)',
-                            borderWidth: 3,
-                            tension: 0.4,
-                            fill: false,
-                            pointRadius: 5,
-                            pointHoverRadius: 8,
-                            pointBackgroundColor: 'rgba(54, 162, 235, 1)',
-                            pointBorderColor: '#fff',
-                            pointBorderWidth: 2
-                        },
-                        {
-                            label: localizedStrings.expectedValue,
-                            data: expectedValues,
-                            borderColor: 'rgba(75, 192, 192, 1)',
-                            backgroundColor: 'rgba(75, 192, 192, 0.1)',
-                            borderWidth: 3,
-                            tension: 0.4,
-                            fill: false,
-                            pointRadius: 5,
-                            pointHoverRadius: 8,
-                            pointBackgroundColor: 'rgba(75, 192, 192, 1)',
-                            pointBorderColor: '#fff',
-                            pointBorderWidth: 2
-                        },
-                        {
                             label: localizedStrings.actualAchievement,
                             data: actualAchievementData,
-                            borderColor: 'rgba(255, 159, 64, 1)',
-                            backgroundColor: 'rgba(255, 159, 64, 0.1)',
+                            borderColor: 'rgba(102, 126, 234, 1)',
+                            backgroundColor: 'rgba(102, 126, 234, 0.1)',
                             borderWidth: 4,
-                            borderDash: [10, 5],
-                            tension: 0,
-                            fill: false,
+                            tension: 0.3,
+                            fill: true,
                             pointRadius: 8,
                             pointHoverRadius: 11,
-                            pointBackgroundColor: 'rgba(255, 159, 64, 1)',
+                            pointBackgroundColor: 'rgba(102, 126, 234, 1)',
                             pointBorderColor: '#fff',
                             pointBorderWidth: 3,
                             spanGaps: true
