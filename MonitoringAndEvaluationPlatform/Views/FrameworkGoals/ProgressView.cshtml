@@ -183,6 +183,13 @@
                 <!-- Metrics Grid -->
                 <div class="metrics-grid">
                     <div class="metric-item">
+                        <i class="fas fa-bullseye metric-icon"></i>
+                        <div class="metric-content">
+                            <span class="metric-label">@Localizer["Expected Target (Current Year)"]</span>
+                            <span class="metric-value">@goal.ExpectedTargetValueForCurrentYear.ToString("N2")</span>
+                        </div>
+                    </div>
+                    <div class="metric-item">
                         <i class="fas fa-percent metric-icon"></i>
                         <div class="metric-content">
                             <span class="metric-label">@Localizer["Annual Discount Rate"]</span>
@@ -197,7 +204,7 @@
                         </div>
                     </div>
                     <div class="metric-item">
-                        <i class="fas fa-bullseye metric-icon"></i>
+                        <i class="fas fa-crosshairs metric-icon"></i>
                         <div class="metric-content">
                             <span class="metric-label">@Localizer["Expected Value"]</span>
                             <span class="metric-value">@goal.ExpectedValueForCurrentYear.ToString("N2")</span>
@@ -626,7 +633,7 @@ else
     /* Metrics Grid */
     .metrics-grid {
         display: grid;
-        grid-template-columns: repeat(2, 1fr);
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
         gap: 1rem;
     }
 

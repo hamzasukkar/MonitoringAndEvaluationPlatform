@@ -173,6 +173,7 @@
                             <th>@Localizer["Base Value (Current)"]</th>
                             <th>@Localizer["Target Year"]</th>
                             <th>@Localizer["Target Value"]</th>
+                            <th>@Localizer["Expected Target (Current Year)"]</th>
                             <th>@Localizer["Annual Discount Rate"]</th>
                             <th>@Localizer["Amount of Reduction"]</th>
                             <th>@Localizer["Expected Value"]</th>
@@ -195,6 +196,7 @@
                                 <td>@goal.BaseValueForCurrentYear.ToString("N2")</td>
                                 <td>@goal.TargetYear</td>
                                 <td><strong>@goal.TargetValue.ToString("N2")</strong></td>
+                                <td class="text-success"><strong>@goal.ExpectedTargetValueForCurrentYear.ToString("N2")</strong></td>
                                 <td class="text-primary"><strong>@goal.AnnualDiscountRate.ToString("N2")</strong></td>
                                 <td class="@(goal.AmountOfReduction >= 0 ? "text-success" : "text-danger")">
                                     @goal.AmountOfReduction.ToString("N2")

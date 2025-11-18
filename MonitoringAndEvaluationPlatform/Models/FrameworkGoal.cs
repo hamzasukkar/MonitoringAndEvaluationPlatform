@@ -111,5 +111,19 @@ namespace MonitoringAndEvaluationPlatform.Models
                 return numerator / denominator;
             }
         }
+
+        /// <summary>
+        /// Expected Target Value for Current Year = Base Value for Starting Year - (Annual Discount Rate × (Current Year - Starting Year))
+        /// This calculates what the target value should be for the current year based on the annual discount rate
+        /// </summary>
+        [NotMapped]
+        public double ExpectedTargetValueForCurrentYear
+        {
+            get
+            {
+                var yearsPassed = CurrentYear - StartingYear;
+                return BaseValueForStartingYear - (AnnualDiscountRate * yearsPassed);
+            }
+        }
     }
 }
