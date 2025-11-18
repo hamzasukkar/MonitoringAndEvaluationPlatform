@@ -168,14 +168,13 @@
                             <th rowspan="2" class="align-middle">@Localizer["Goal Name"]</th>
                             <th rowspan="2" class="align-middle">@Localizer["Framework"]</th>
                             @{
-                                // Get the first goal to determine year range for header
-                                var firstGoal = Model.FirstOrDefault();
-                                if (firstGoal != null)
+                                // Calculate the full year range across ALL goals
+                                int minYear = Model.Any() ? Model.Min(g => g.StartingYear) : DateTime.Now.Year;
+                                int maxYear = Model.Any() ? Model.Max(g => g.TargetYear) : DateTime.Now.Year;
+
+                                for (int year = minYear; year <= maxYear; year++)
                                 {
-                                    for (int year = firstGoal.StartingYear; year <= firstGoal.TargetYear; year++)
-                                    {
-                                        <th colspan="2" class="text-center year-header">@year</th>
-                                    }
+                                    <th colspan="2" class="text-center year-header">@year</th>
                                 }
                             }
                             <th rowspan="2" class="align-middle">@Localizer["Annual Discount Rate"]</th>
@@ -184,20 +183,10 @@
                         </tr>
                         <tr>
                             @{
-                                if (firstGoal != null)
+                                for (int year = minYear; year <= maxYear; year++)
                                 {
-                                    for (int year = firstGoal.StartingYear; year <= firstGoal.TargetYear; year++)
-                                    {
-                                        <th class="text-center sub-header">@Localizer["Base Value"]</th>
-                                        if (year == firstGoal.TargetYear)
-                                        {
-                                            <th class="text-center sub-header">@Localizer["Target Value"]</th>
-                                        }
-                                        else
-                                        {
-                                            <th class="text-center sub-header">@Localizer["Expected Target"]</th>
-                                        }
-                                    }
+                                    <th class="text-center sub-header">@Localizer["Base Value"]</th>
+                                    <th class="text-center sub-header">@Localizer["Expected Target"]</th>
                                 }
                             }
                         </tr>
@@ -211,46 +200,62 @@
                                     <span class="badge bg-info">@goal.Framework.Name</span>
                                 </td>
                                 @{
-                                    // Generate data cells for each year
-                                    for (int year = goal.StartingYear; year <= goal.TargetYear; year++)
+                                    // Generate data cells for each year in the full range
+                                    for (int year = minYear; year <= maxYear; year++)
                                     {
-                                        var baseValue = goal.GetBaseValueForYear(year);
-                                        var expectedTarget = goal.GetExpectedTargetValueForYear(year);
-                                        var isCurrentYear = year == goal.CurrentYear;
-                                        var isStartingYear = year == goal.StartingYear;
-                                        var isTargetYear = year == goal.TargetYear;
+                                        // Check if this year is within this goal's range
+                                        bool isInGoalRange = year >= goal.StartingYear && year <= goal.TargetYear;
 
-                                        // Base Value cell
-                                        <td class="text-center @(isCurrentYear ? "bg-light-current" : "")">
-                                            @if (isStartingYear)
-                                            {
-                                                <strong class="text-primary">@baseValue.ToString("N2")</strong>
-                                            }
-                                            else if (isCurrentYear)
-                                            {
-                                                <strong class="text-success">@baseValue.ToString("N2")</strong>
-                                            }
-                                            else if (baseValue > 0)
-                                            {
-                                                @baseValue.ToString("N2")
-                                            }
-                                            else
-                                            {
+                                        if (isInGoalRange)
+                                        {
+                                            var baseValue = goal.GetBaseValueForYear(year);
+                                            var expectedTarget = goal.GetExpectedTargetValueForYear(year);
+                                            var isCurrentYear = year == goal.CurrentYear;
+                                            var isStartingYear = year == goal.StartingYear;
+                                            var isTargetYear = year == goal.TargetYear;
+
+                                            // Base Value cell
+                                            <td class="text-center @(isCurrentYear ? "bg-light-current" : "")">
+                                                @if (isStartingYear)
+                                                {
+                                                    <strong class="text-primary">@baseValue.ToString("N2")</strong>
+                                                }
+                                                else if (isCurrentYear)
+                                                {
+                                                    <strong class="text-success">@baseValue.ToString("N2")</strong>
+                                                }
+                                                else if (baseValue > 0)
+                                                {
+                                                    @baseValue.ToString("N2")
+                                                }
+                                                else
+                                                {
+                                                    <span class="text-muted">-</span>
+                                                }
+                                            </td>
+
+                                            // Expected Target / Target Value cell
+                                            <td class="text-center @(isCurrentYear ? "bg-light-current" : "")">
+                                                @if (isTargetYear)
+                                                {
+                                                    <strong class="text-danger">@goal.TargetValue.ToString("N2")</strong>
+                                                }
+                                                else
+                                                {
+                                                    <span class="text-info">@expectedTarget.ToString("N2")</span>
+                                                }
+                                            </td>
+                                        }
+                                        else
+                                        {
+                                            // Year is outside this goal's range - show empty cells
+                                            <td class="text-center bg-light">
                                                 <span class="text-muted">-</span>
-                                            }
-                                        </td>
-
-                                        // Expected Target / Target Value cell
-                                        <td class="text-center @(isCurrentYear ? "bg-light-current" : "")">
-                                            @if (isTargetYear)
-                                            {
-                                                <strong class="text-danger">@goal.TargetValue.ToString("N2")</strong>
-                                            }
-                                            else
-                                            {
-                                                <span class="text-info">@expectedTarget.ToString("N2")</span>
-                                            }
-                                        </td>
+                                            </td>
+                                            <td class="text-center bg-light">
+                                                <span class="text-muted">-</span>
+                                            </td>
+                                        }
                                     }
                                 }
                                 <td class="text-center">
