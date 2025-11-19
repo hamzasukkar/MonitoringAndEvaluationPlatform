@@ -367,6 +367,7 @@
             annualDiscountRate: '@Localizer["AnnualDiscountRate"]',
             amountOfReduction: '@Localizer["AmountOfReduction"]',
             expectedValue: '@Localizer["ExpectedValue"]',
+            expectedTarget: '@Localizer["Expected Target"]',
             actualAchievement: '@Localizer["ActualAchievement"]',
             year: '@Localizer["Year"]',
             value: '@Localizer["Value"]'
@@ -464,6 +465,13 @@
                 }
             });
 
+            // Prepare expected target data
+            // Formula: BaseValueForStartingYear - (AnnualDiscountRate × (Year - StartingYear))
+            const expectedTargetData = years.map(year => {
+                const yearsPassed = year - goalData.startingYear;
+                return goalData.baseValue - (goalData.annualDiscountRate * yearsPassed);
+            });
+
             // Destroy existing chart if it exists
             if (timelineChart) {
                 timelineChart.destroy();
@@ -490,6 +498,22 @@
                             pointBorderColor: '#fff',
                             pointBorderWidth: 3,
                             spanGaps: true
+                        },
+                        {
+                            label: localizedStrings.expectedTarget,
+                            data: expectedTargetData,
+                            borderColor: 'rgba(239, 68, 68, 1)',
+                            backgroundColor: 'rgba(239, 68, 68, 0.1)',
+                            borderWidth: 3,
+                            borderDash: [8, 4],
+                            tension: 0.2,
+                            fill: false,
+                            pointRadius: 6,
+                            pointHoverRadius: 9,
+                            pointBackgroundColor: 'rgba(239, 68, 68, 1)',
+                            pointBorderColor: '#fff',
+                            pointBorderWidth: 2,
+                            spanGaps: false
                         }
                     ]
                 },
