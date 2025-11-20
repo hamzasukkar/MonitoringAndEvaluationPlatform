@@ -1,5 +1,64 @@
 <?xml version="1.0" encoding="utf-8"?>
 <root>
+  <!-- 
+    Microsoft ResX Schema 
+    
+    Version 2.0
+    
+    The primary goals of this format is to allow a simple XML format 
+    that is mostly human readable. The generation and parsing of the 
+    various data types are done through the TypeConverter classes 
+    associated with the data types.
+    
+    Example:
+    
+    ... ado.net/XML headers & schema ...
+    <resheader name="resmimetype">text/microsoft-resx</resheader>
+    <resheader name="version">2.0</resheader>
+    <resheader name="reader">System.Resources.ResXResourceReader, System.Windows.Forms, ...</resheader>
+    <resheader name="writer">System.Resources.ResXResourceWriter, System.Windows.Forms, ...</resheader>
+    <data name="Name1"><value>this is my long string</value><comment>this is a comment</comment></data>
+    <data name="Color1" type="System.Drawing.Color, System.Drawing">Blue</data>
+    <data name="Bitmap1" mimetype="application/x-microsoft.net.object.binary.base64">
+        <value>[base64 mime encoded serialized .NET Framework object]</value>
+    </data>
+    <data name="Icon1" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+        <value>[base64 mime encoded string representing a byte array form of the .NET Framework object]</value>
+        <comment>This is a comment</comment>
+    </data>
+                
+    There are any number of "resheader" rows that contain simple 
+    name/value pairs.
+    
+    Each data row contains a name, and value. The row also contains a 
+    type or mimetype. Type corresponds to a .NET class that support 
+    text/value conversion through the TypeConverter architecture. 
+    Classes that don't support this are serialized and stored with the 
+    mimetype set.
+    
+    The mimetype is used for serialized objects, and tells the 
+    ResXResourceReader how to depersist the object. This is currently not 
+    extensible. For a given mimetype the value must be set accordingly:
+    
+    Note - application/x-microsoft.net.object.binary.base64 is the format 
+    that the ResXResourceWriter will generate, however the reader can 
+    read any of the formats listed below.
+    
+    mimetype: application/x-microsoft.net.object.binary.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Binary.BinaryFormatter
+            : and then encoded with base64 encoding.
+    
+    mimetype: application/x-microsoft.net.object.soap.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Soap.SoapFormatter
+            : and then encoded with base64 encoding.
+
+    mimetype: application/x-microsoft.net.object.bytearray.base64
+    value   : The object must be serialized into a byte array 
+            : using a System.ComponentModel.TypeConverter
+            : and then encoded with base64 encoding.
+    -->
   <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
     <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
     <xsd:element name="root" msdata:IsDataSet="true">
@@ -31,7 +90,7 @@
               <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
               <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
               <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
-              <xsd:attribute ref="xml:space" use="preserve" msdata:Ordinal="5" />
+              <xsd:attribute ref="xml:space" />
             </xsd:complexType>
           </xsd:element>
           <xsd:element name="resheader">
@@ -58,8 +117,6 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-
-  <!-- Page Title and Headers -->
   <data name="Framework Goals" xml:space="preserve">
     <value>Framework Goals</value>
   </data>
@@ -72,16 +129,12 @@
   <data name="Cancel" xml:space="preserve">
     <value>Cancel</value>
   </data>
-
-  <!-- Filter Section -->
   <data name="Filter by Framework" xml:space="preserve">
     <value>Filter by Framework</value>
   </data>
   <data name="All Frameworks" xml:space="preserve">
     <value>All Frameworks</value>
   </data>
-
-  <!-- Create Form -->
   <data name="Create New Framework Goal" xml:space="preserve">
     <value>Create New Framework Goal</value>
   </data>
@@ -115,8 +168,6 @@
   <data name="Save Goal" xml:space="preserve">
     <value>Save Goal</value>
   </data>
-
-  <!-- Table -->
   <data name="Framework Goals List" xml:space="preserve">
     <value>Framework Goals List</value>
   </data>
@@ -129,8 +180,6 @@
   <data name="No goals found" xml:space="preserve">
     <value>No goals found</value>
   </data>
-
-  <!-- Progress Indicators -->
   <data name="Achievement" xml:space="preserve">
     <value>Achievement</value>
   </data>
@@ -152,8 +201,6 @@
   <data name="View Timeline Chart" xml:space="preserve">
     <value>View Timeline Chart</value>
   </data>
-
-  <!-- Messages -->
   <data name="Goal created successfully!" xml:space="preserve">
     <value>Goal created successfully!</value>
   </data>
@@ -162,6 +209,9 @@
   </data>
   <data name="Are you sure you want to delete this goal?" xml:space="preserve">
     <value>Are you sure you want to delete this goal?</value>
+  </data>
+  <data name="This action cannot be undone." xml:space="preserve">
+    <value>This action cannot be undone.</value>
   </data>
   <data name="Goal deleted successfully!" xml:space="preserve">
     <value>Goal deleted successfully!</value>
@@ -187,8 +237,6 @@
   <data name="An error occurred while deleting the goal." xml:space="preserve">
     <value>An error occurred while deleting the goal.</value>
   </data>
-
-  <!-- Calculated Fields -->
   <data name="Expected Target" xml:space="preserve">
     <value>Expected Target</value>
   </data>
@@ -207,8 +255,6 @@
   <data name="Progress Rate" xml:space="preserve">
     <value>Progress Rate</value>
   </data>
-
-  <!-- Progress View Page -->
   <data name="Goals Progress View" xml:space="preserve">
     <value>Goals Progress View</value>
   </data>
@@ -221,8 +267,6 @@
   <data name="Progress View" xml:space="preserve">
     <value>Progress View</value>
   </data>
-
-  <!-- Circular Gauge View Page -->
   <data name="Circular Gauges" xml:space="preserve">
     <value>Circular Gauges</value>
   </data>
@@ -241,8 +285,6 @@
   <data name="Delete" xml:space="preserve">
     <value>Delete</value>
   </data>
-
-  <!-- Timeline View Page -->
   <data name="Timeline View" xml:space="preserve">
     <value>Timeline View</value>
   </data>
@@ -267,8 +309,6 @@
   <data name="Detailed Chart" xml:space="preserve">
     <value>Detailed Chart</value>
   </data>
-
-  <!-- Value Progress View Page -->
   <data name="Value Progress Bars" xml:space="preserve">
     <value>Value Progress Bars</value>
   </data>
@@ -302,8 +342,6 @@
   <data name="Required Annual Rate" xml:space="preserve">
     <value>Required Annual Rate</value>
   </data>
-
-  <!-- Status Badges View Page -->
   <data name="Status Badges" xml:space="preserve">
     <value>Status Badges</value>
   </data>
@@ -319,8 +357,6 @@
   <data name="Goals Summary" xml:space="preserve">
     <value>Goals Summary</value>
   </data>
-
-  <!-- Metrics Grid View Page -->
   <data name="Metrics Grid" xml:space="preserve">
     <value>Metrics Grid</value>
   </data>
@@ -341,9 +377,6 @@
   </data>
   <data name="Calculated Metrics" xml:space="preserve">
     <value>Calculated Metrics</value>
-  </data>
-  <data name="Base Value" xml:space="preserve">
-    <value>Base Value</value>
   </data>
   <data name="Total Duration" xml:space="preserve">
     <value>Total Duration</value>
@@ -372,8 +405,6 @@
   <data name="Next" xml:space="preserve">
     <value>Next</value>
   </data>
-
-  <!-- Edit Functionality -->
   <data name="Update Current Year" xml:space="preserve">
     <value>Update Current Year</value>
   </data>
@@ -394,5 +425,8 @@
   </data>
   <data name="An error occurred while updating the goal." xml:space="preserve">
     <value>An error occurred while updating the goal.</value>
+  </data>
+  <data name="Base Value" xml:space="preserve">
+    <value>Actual Value</value>
   </data>
 </root>
