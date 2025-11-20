@@ -290,6 +290,131 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             }
         }
 
+        // POST: FrameworkGoals/UpdateGoalValues - Update current year and historical values
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        [Permission(Permissions.ModifyStrategy)]
+        public async Task<IActionResult> UpdateGoalValues([FromBody] UpdateGoalValuesModel model)
+        {
+            try
+            {
+                var goal = await _context.FrameworkGoals
+                    .Include(g => g.YearlyValues)
+                    .FirstOrDefaultAsync(g => g.ID == model.Id);
+
+                if (goal == null)
+                {
+                    return Json(new { success = false, message = _localizer["Goal not found."] });
+                }
+
+                // Validate current year is within range
+                if (model.CurrentYear <= goal.StartingYear || model.CurrentYear >= goal.TargetYear)
+                {
+                    return Json(new { success = false, message = _localizer["Current year must be between starting year and target year."] });
+                }
+
+                // If current year is changing, save the old current year value as historical data
+                if (model.CurrentYear != goal.CurrentYear)
+                {
+                    var existingValue = goal.YearlyValues.FirstOrDefault(yv => yv.Year == goal.CurrentYear);
+                    if (existingValue == null)
+                    {
+                        var historicalValue = new FrameworkGoalYearlyValue
+                        {
+                            FrameworkGoalID = goal.ID,
+                            Year = goal.CurrentYear,
+                            ActualValue = goal.BaseValueForCurrentYear,
+                            DateRecorded = DateTime.Now
+                        };
+                        _context.FrameworkGoalYearlyValues.Add(historicalValue);
+                    }
+                }
+
+                // Update current year and value
+                goal.CurrentYear = model.CurrentYear;
+                goal.BaseValueForCurrentYear = model.BaseValueForCurrentYear;
+
+                // Update historical yearly values
+                if (model.YearlyValues != null && model.YearlyValues.Any())
+                {
+                    foreach (var yearlyValue in model.YearlyValues)
+                    {
+                        // Skip current year (already handled above)
+                        if (yearlyValue.Year == model.CurrentYear)
+                        {
+                            continue;
+                        }
+
+                        // Validate year is within range
+                        if (yearlyValue.Year < goal.StartingYear || yearlyValue.Year >= goal.TargetYear)
+                        {
+                            continue; // Skip invalid years
+                        }
+
+                        // Special handling for Starting Year - update the main FrameworkGoal property
+                        if (yearlyValue.Year == goal.StartingYear)
+                        {
+                            goal.BaseValueForStartingYear = yearlyValue.Value;
+                            continue; // Don't store starting year in YearlyValues table
+                        }
+
+                        // For all other years (between starting and current), store in YearlyValues table
+                        var existingYearlyValue = goal.YearlyValues.FirstOrDefault(yv => yv.Year == yearlyValue.Year);
+                        if (existingYearlyValue != null)
+                        {
+                            // Update existing value
+                            existingYearlyValue.ActualValue = yearlyValue.Value;
+                            existingYearlyValue.DateRecorded = DateTime.Now;
+                            _context.Update(existingYearlyValue);
+                        }
+                        else
+                        {
+                            // Add new value
+                            var newYearlyValue = new FrameworkGoalYearlyValue
+                            {
+                                FrameworkGoalID = goal.ID,
+                                Year = yearlyValue.Year,
+                                ActualValue = yearlyValue.Value,
+                                DateRecorded = DateTime.Now
+                            };
+                            _context.FrameworkGoalYearlyValues.Add(newYearlyValue);
+                        }
+                    }
+                }
+
+                _context.Update(goal);
+                await _context.SaveChangesAsync();
+
+                // Reload yearly values to get updated data
+                await _context.Entry(goal).Collection(g => g.YearlyValues).LoadAsync();
+
+                return Json(new
+                {
+                    success = true,
+                    message = _localizer["Goal values updated successfully!"],
+                    goal = new
+                    {
+                        id = goal.ID,
+                        startingYear = goal.StartingYear,
+                        baseValueForStartingYear = goal.BaseValueForStartingYear,
+                        currentYear = goal.CurrentYear,
+                        baseValueForCurrentYear = goal.BaseValueForCurrentYear,
+                        targetYear = goal.TargetYear,
+                        targetValue = goal.TargetValue,
+                        annualDiscountRate = goal.AnnualDiscountRate,
+                        amountOfReduction = goal.AmountOfReduction,
+                        expectedValue = goal.ExpectedValueForCurrentYear,
+                        expectedTargetValueForCurrentYear = goal.ExpectedTargetValueForCurrentYear,
+                        progressRate = goal.ProgressRate
+                    }
+                });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = _localizer["An error occurred while updating the goal values."] });
+            }
+        }
+
         // GET: FrameworkGoals/GetYearlyValues - Get all historical yearly values for a goal
         [HttpGet]
         public async Task<IActionResult> GetYearlyValues(int goalId)
@@ -320,6 +445,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                     success = true,
                     yearlyValues = yearlyValues,
                     startingYear = goal.StartingYear,
+                    baseValueForStartingYear = goal.BaseValueForStartingYear,
                     currentYear = goal.CurrentYear,
                     targetYear = goal.TargetYear
                 });
@@ -426,5 +552,21 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         public int TargetYear { get; set; }
         public double TargetValue { get; set; }
         public int FrameworkCode { get; set; }
+    }
+
+    // Model for updating goal values (current and historical)
+    public class UpdateGoalValuesModel
+    {
+        public int Id { get; set; }
+        public int CurrentYear { get; set; }
+        public double BaseValueForCurrentYear { get; set; }
+        public List<YearlyValueModel>? YearlyValues { get; set; }
+    }
+
+    // Model for yearly value
+    public class YearlyValueModel
+    {
+        public int Year { get; set; }
+        public double Value { get; set; }
     }
 }

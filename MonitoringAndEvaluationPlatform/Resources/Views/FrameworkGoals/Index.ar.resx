@@ -423,10 +423,28 @@
   <data name="Current year updated successfully!" xml:space="preserve">
     <value>تم تحديث السنة الحالية بنجاح!</value>
   </data>
+  <data name="Goal values updated successfully!" xml:space="preserve">
+    <value>تم تحديث قيم الهدف بنجاح!</value>
+  </data>
   <data name="An error occurred while updating the goal." xml:space="preserve">
     <value>حدث خطأ أثناء تحديث الهدف.</value>
   </data>
+  <data name="An error occurred while updating the goal values." xml:space="preserve">
+    <value>حدث خطأ أثناء تحديث قيم الهدف.</value>
+  </data>
   <data name="Base Value" xml:space="preserve">
     <value>القيمة الفعلية</value>
+  </data>
+  <data name="Update Goal Values" xml:space="preserve">
+    <value>تحديث قيم الهدف</value>
+  </data>
+  <data name="Historical Values" xml:space="preserve">
+    <value>القيم التاريخية</value>
+  </data>
+  <data name="Enter value" xml:space="preserve">
+    <value>أدخل القيمة</value>
+  </data>
+  <data name="Update historical values to recalculate all associated metrics automatically." xml:space="preserve">
+    <value>قم بتحديث القيم التاريخية لإعادة حساب جميع المقاييس المرتبطة تلقائياً.</value>
   </data>
 </root>

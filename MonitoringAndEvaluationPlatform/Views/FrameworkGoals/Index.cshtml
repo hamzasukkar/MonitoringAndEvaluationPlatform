@@ -163,7 +163,7 @@
         {
             <div class="table-responsive">
                 <table class="table table-hover" id="goalsTable">
-                    <thead class="table-light">
+                    <thead class="table-primary bg-opacity-25">
                         <tr>
                             <th rowspan="2" class="align-middle">@Localizer["Goal Name"]</th>
                             <th rowspan="2" class="align-middle">@Localizer["Framework"]</th>
@@ -317,11 +317,11 @@
 <div class="modal fade" id="editModal" tabindex="-1" aria-labelledby="editModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
-            <div class="modal-header">
+            <div class="modal-header bg-primary text-white">
                 <h5 class="modal-title" id="editModalLabel">
-                    <i class="fas fa-edit me-2"></i>@Localizer["Update Current Year"]
+                    <i class="fas fa-edit me-2"></i>@Localizer["Update Goal Values"]
                 </h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
                 <form id="editForm">
@@ -633,7 +633,7 @@
                 const result = await response.json();
 
                 if (result.success) {
-                    displayHistoricalValues(result.yearlyValues, result.startingYear, result.currentYear, result.targetYear, goalId);
+                    displayHistoricalValues(result.yearlyValues, result.startingYear, result.baseValueForStartingYear, result.currentYear, result.targetYear, goalId);
                 } else {
                     document.getElementById('historicalValuesContainer').innerHTML = `
                         <div class="alert alert-warning">
@@ -651,43 +651,76 @@
             }
         }
 
-        // Display historical values table
-        function displayHistoricalValues(yearlyValues, startingYear, currentYear, targetYear, goalId) {
-            if (yearlyValues.length === 0) {
-                document.getElementById('historicalValuesContainer').innerHTML = `
-                    <div class="text-center text-muted py-3">
-                        <i class="fas fa-info-circle me-2"></i>@Localizer["No historical values recorded yet."]
-                    </div>
-                `;
-                return;
-            }
-
+        // Display historical values table with editable fields
+        function displayHistoricalValues(yearlyValues, startingYear, baseValueForStartingYear, currentYear, targetYear, goalId) {
             let tableHtml = `
                 <div class="table-responsive">
-                    <table class="table table-sm table-hover">
+                    <table class="table table-sm">
                         <thead class="table-light">
                             <tr>
-                                <th>@Localizer["Year"]</th>
-                                <th>@Localizer["Actual Value"]</th>
-                                <th>@Localizer["Date Recorded"]</th>
+                                <th style="width: 30%;">@Localizer["Year"]</th>
+                                <th style="width: 50%;">@Localizer["Actual Value"]</th>
+                                <th style="width: 20%;" class="text-center">@Localizer["Actions"]</th>
                             </tr>
                         </thead>
                         <tbody>
             `;
 
-            yearlyValues.forEach(yv => {
+            // Generate rows for all years between starting and current year (excluding current year which is above)
+            for (let year = startingYear; year < currentYear; year++) {
+                const isStartingYear = year === startingYear;
+
+                // For starting year, use the baseValueForStartingYear; for others, look in yearlyValues
+                let value = '';
+                let dateRecorded = '-';
+
+                if (isStartingYear) {
+                    value = baseValueForStartingYear ? baseValueForStartingYear.toFixed(2) : '';
+                } else {
+                    const existingValue = yearlyValues.find(yv => yv.year === year);
+                    value = existingValue ? existingValue.value.toFixed(2) : '';
+                    dateRecorded = existingValue ? existingValue.dateRecorded : '-';
+                }
+
                 tableHtml += `
                     <tr>
-                        <td><strong>${yv.year}</strong></td>
-                        <td>${yv.value.toFixed(2)}</td>
-                        <td><small class="text-muted">${yv.dateRecorded}</small></td>
+                        <td class="align-middle">
+                            <strong class="${isStartingYear ? 'text-primary' : ''}">${year}</strong>
+                            ${isStartingYear ? '<small class="text-muted d-block">(@Localizer["Starting Year"])</small>' : ''}
+                        </td>
+                        <td>
+                            <input type="number"
+                                   step="0.01"
+                                   class="form-control form-control-sm historical-value-input"
+                                   data-year="${year}"
+                                   value="${value}"
+                                   placeholder="@Localizer["Enter value"]"
+                                   ${isStartingYear ? '' : ''}>
+                        </td>
+                        <td class="text-center align-middle">
+                            <small class="text-muted">${dateRecorded}</small>
+                        </td>
                     </tr>
                 `;
-            });
+            }
+
+            if (startingYear >= currentYear) {
+                tableHtml += `
+                    <tr>
+                        <td colspan="3" class="text-center text-muted py-3">
+                            <i class="fas fa-info-circle me-2"></i>@Localizer["No previous years to update."]
+                        </td>
+                    </tr>
+                `;
+            }
 
             tableHtml += `
                         </tbody>
                     </table>
+                </div>
+                <div class="alert alert-info mt-3">
+                    <i class="fas fa-info-circle me-2"></i>
+                    @Localizer["Update historical values to recalculate all associated metrics automatically."]
                 </div>
             `;
 
@@ -701,38 +734,58 @@
             const baseValue = document.getElementById('editBaseValue').value;
 
             if (!currentYear || !baseValue) {
-                alert('@Localizer["Please fill in all required fields."]');
+                showErrorMessage('@Localizer["Please fill in all required fields."]');
                 return;
             }
 
             const token = document.querySelector('#editForm input[name="__RequestVerificationToken"]').value;
 
-            const formData = new FormData();
-            formData.append('id', goalId);
-            formData.append('currentYear', currentYear);
-            formData.append('baseValueForCurrentYear', baseValue);
-            formData.append('__RequestVerificationToken', token);
+            // Collect all historical values
+            const historicalValues = [];
+            document.querySelectorAll('.historical-value-input').forEach(input => {
+                const year = parseInt(input.getAttribute('data-year'));
+                const value = parseFloat(input.value);
+                if (!isNaN(value) && value !== '') {
+                    historicalValues.push({ year, value });
+                }
+            });
+
+            // Prepare data to send
+            const data = {
+                id: goalId,
+                currentYear: parseInt(currentYear),
+                baseValueForCurrentYear: parseFloat(baseValue),
+                yearlyValues: historicalValues
+            };
 
             try {
-                const response = await fetch('@Url.Action("UpdateCurrentYear", "FrameworkGoals")', {
+                const response = await fetch('@Url.Action("UpdateGoalValues", "FrameworkGoals")', {
                     method: 'POST',
-                    body: formData
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'RequestVerificationToken': token
+                    },
+                    body: JSON.stringify(data)
                 });
 
                 const result = await response.json();
 
                 if (result.success) {
-                    alert(result.message);
                     // Close modal
-                    bootstrap.Modal.getInstance(document.getElementById('editModal')).hide();
+                    const modal = bootstrap.Modal.getInstance(document.getElementById('editModal'));
+                    modal.hide();
+
+                    // Show success message
+                    showSuccessMessage(result.message);
+
                     // Reload page to show updated values
-                    location.reload();
+                    setTimeout(() => location.reload(), 1500);
                 } else {
-                    alert(result.message);
+                    showErrorMessage(result.message);
                 }
             } catch (error) {
                 console.error('Error:', error);
-                alert('@Localizer["An error occurred. Please try again."]');
+                showErrorMessage('@Localizer["An error occurred. Please try again."]');
             }
         }
 
@@ -865,7 +918,7 @@
 
     /* Dynamic Year Column Styles */
     .year-header {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        background: linear-gradient(135deg, #0d6efd 0%, #0a58ca 100%);
         color: white !important;
         font-weight: 700;
         font-size: 0.95rem;
@@ -905,7 +958,7 @@
         position: sticky;
         top: 0;
         z-index: 10;
-        background-color: #f8f9fa;
+        background-color: #cfe2ff;
     }
 
     /* Year Picker Styles */
