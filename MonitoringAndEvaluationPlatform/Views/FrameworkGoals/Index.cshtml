@@ -263,8 +263,23 @@
                                 </td>
                                 <td class="text-center">
                                     @{
-                                        var actualReduction = goal.BaseValueForStartingYear - goal.BaseValueForCurrentYear;
-                                        var isOnTrack = actualReduction >= goal.AmountOfReduction;
+                                        // Determine if this is an increase or decrease goal
+                                        var isIncreaseGoal = goal.TargetValue > goal.BaseValueForStartingYear;
+                                        var actualChange = goal.BaseValueForCurrentYear - goal.BaseValueForStartingYear;
+
+                                        bool isOnTrack;
+                                        if (isIncreaseGoal)
+                                        {
+                                            // For increase goals: green if actual increase >= expected increase
+                                            isOnTrack = actualChange >= goal.AmountOfReduction;
+                                        }
+                                        else
+                                        {
+                                            // For decrease goals: green if actual reduction >= expected reduction
+                                            var actualReduction = goal.BaseValueForStartingYear - goal.BaseValueForCurrentYear;
+                                            isOnTrack = actualReduction >= goal.AmountOfReduction;
+                                        }
+
                                         var badgeClass = isOnTrack ? "bg-success" : "bg-danger";
                                     }
                                     <span class="badge @badgeClass fs-6">
