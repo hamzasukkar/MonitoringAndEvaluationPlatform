@@ -42,21 +42,35 @@ namespace MonitoringAndEvaluationPlatform.Models
         // Calculated Properties (Not Mapped to Database)
 
         /// <summary>
-        /// Annual Discount Rate = (Target Value - Base Value for Starting Year) / (Target Year - Starting Year)
+        /// Determines if this is an increase goal (target > base) or decrease goal (target < base)
         /// </summary>
         [NotMapped]
-        public double AnnualDiscountRate
+        public bool IsIncreaseGoal => TargetValue > BaseValueForStartingYear;
+
+        /// <summary>
+        /// Annual Change Rate = (Target Value - Base Value for Starting Year) / (Target Year - Starting Year)
+        /// Positive for increase goals, negative for decrease goals
+        /// </summary>
+        [NotMapped]
+        public double AnnualChangeRate
         {
             get
             {
                 var yearDifference = TargetYear - StartingYear;
                 if (yearDifference == 0) return 0;
-                return Math.Abs((TargetValue - BaseValueForStartingYear) / yearDifference);
+                return (TargetValue - BaseValueForStartingYear) / yearDifference;
             }
         }
 
         /// <summary>
-        /// Amount of Reduction = Annual Discount Rate × (Current Year - Starting Year)
+        /// Annual Discount Rate = Absolute value of Annual Change Rate (for backward compatibility)
+        /// </summary>
+        [NotMapped]
+        public double AnnualDiscountRate => Math.Abs(AnnualChangeRate);
+
+        /// <summary>
+        /// Amount of Change = |Annual Change Rate| × (Current Year - Starting Year)
+        /// Always returns positive value representing the magnitude of expected change
         /// </summary>
         [NotMapped]
         public double AmountOfReduction
@@ -64,12 +78,13 @@ namespace MonitoringAndEvaluationPlatform.Models
             get
             {
                 var yearsPassed = CurrentYear - StartingYear;
-                return Math.Abs(AnnualDiscountRate * yearsPassed);
+                return Math.Abs(AnnualChangeRate * yearsPassed);
             }
         }
 
         /// <summary>
-        /// Expected Value for Current Year = Base Value for Starting Year + (Annual Discount Rate × (Current Year - Starting Year))
+        /// Expected Value for Current Year = Base Value + (Annual Change Rate × Years Passed)
+        /// Works correctly for both increase and decrease goals
         /// </summary>
         [NotMapped]
         public double ExpectedValueForCurrentYear
@@ -77,31 +92,32 @@ namespace MonitoringAndEvaluationPlatform.Models
             get
             {
                 var yearsPassed = CurrentYear - StartingYear;
-                return BaseValueForStartingYear - (AnnualDiscountRate * yearsPassed);
+                return BaseValueForStartingYear + (AnnualChangeRate * yearsPassed);
             }
         }
 
         /// <summary>
-        /// Progress Rate = (Base Value - Current Year Value) / (Base Value - Target Value)
+        /// Progress Rate = (Current Value - Base Value) / (Target Value - Base Value)
         /// This measures the progress from base value to current year as a proportion of the total goal
+        /// Works correctly for both increase and decrease goals
         /// </summary>
         [NotMapped]
         public double ProgressRate
         {
             get
             {
-                var denominator = BaseValueForStartingYear - TargetValue;
+                var denominator = TargetValue - BaseValueForStartingYear;
                 if (denominator == 0) return 0;
 
-                var numerator = BaseValueForStartingYear - BaseValueForCurrentYear;
+                var numerator = BaseValueForCurrentYear - BaseValueForStartingYear;
 
                 return numerator / denominator;
             }
         }
 
         /// <summary>
-        /// Expected Target Value for Current Year = Base Value for Starting Year - (Annual Discount Rate × (Current Year - Starting Year))
-        /// This calculates what the target value should be for the current year based on the annual discount rate
+        /// Expected Target Value for Current Year = Base Value + (Annual Change Rate × Years Passed)
+        /// Works correctly for both increase and decrease goals
         /// </summary>
         [NotMapped]
         public double ExpectedTargetValueForCurrentYear
@@ -109,12 +125,13 @@ namespace MonitoringAndEvaluationPlatform.Models
             get
             {
                 var yearsPassed = CurrentYear - StartingYear;
-                return BaseValueForStartingYear - (AnnualDiscountRate * yearsPassed);
+                return BaseValueForStartingYear + (AnnualChangeRate * yearsPassed);
             }
         }
 
         /// <summary>
         /// Calculate the expected target value for any given year
+        /// Works correctly for both increase and decrease goals
         /// </summary>
         /// <param name="year">The year to calculate the expected target for</param>
         /// <returns>The expected target value for the specified year</returns>
@@ -124,7 +141,7 @@ namespace MonitoringAndEvaluationPlatform.Models
                 return 0;
 
             var yearsPassed = year - StartingYear;
-            return BaseValueForStartingYear - (AnnualDiscountRate * yearsPassed);
+            return BaseValueForStartingYear + (AnnualChangeRate * yearsPassed);
         }
 
         /// <summary>

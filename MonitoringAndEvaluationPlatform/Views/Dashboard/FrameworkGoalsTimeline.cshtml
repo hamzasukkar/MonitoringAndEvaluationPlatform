@@ -468,10 +468,11 @@
             });
 
             // Prepare expected target data
-            // Formula: BaseValueForStartingYear - (AnnualDiscountRate × (Year - StartingYear))
+            // Formula: BaseValueForStartingYear + (AnnualChangeRate × (Year - StartingYear))
+            // Works correctly for both increase goals (positive rate) and decrease goals (negative rate)
             const expectedTargetData = years.map(year => {
                 const yearsPassed = year - goalData.startingYear;
-                return goalData.baseValue - (goalData.annualDiscountRate * yearsPassed);
+                return goalData.baseValue + (goalData.annualChangeRate * yearsPassed);
             });
 
             // Destroy existing chart if it exists

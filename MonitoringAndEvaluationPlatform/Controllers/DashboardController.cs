@@ -1102,20 +1102,21 @@ public class DashboardController : Controller
         }
 
         // Generate time series data from StartingYear to TargetYear
+        // Use AnnualChangeRate (signed) for correct calculation of both increase and decrease goals
         var timeSeriesData = new List<object>();
 
         for (int year = goal.StartingYear; year <= goal.TargetYear; year++)
         {
             var yearsPassed = year - goal.StartingYear;
-            var annualRate = goal.AnnualDiscountRate;
-            var reduction = annualRate * yearsPassed;
-            var expectedValue = goal.BaseValueForStartingYear + reduction;
+            var annualChangeRate = goal.AnnualChangeRate;
+            var change = annualChangeRate * yearsPassed;
+            var expectedValue = goal.BaseValueForStartingYear + change;
 
             timeSeriesData.Add(new
             {
                 year = year,
-                annualDiscountRate = Math.Round(annualRate, 2),
-                amountOfReduction = Math.Round(reduction, 2),
+                annualChangeRate = Math.Round(annualChangeRate, 2),
+                amountOfChange = Math.Round(Math.Abs(change), 2),
                 expectedValue = Math.Round(expectedValue, 2)
             });
         }
@@ -1143,6 +1144,8 @@ public class DashboardController : Controller
             baseValue = goal.BaseValueForStartingYear,
             currentValue = goal.BaseValueForCurrentYear,
             targetValue = goal.TargetValue,
+            isIncreaseGoal = goal.IsIncreaseGoal,
+            annualChangeRate = Math.Round(goal.AnnualChangeRate, 2),
             annualDiscountRate = Math.Round(goal.AnnualDiscountRate, 2),
             currentReduction = Math.Round(goal.AmountOfReduction, 2),
             expectedCurrentValue = Math.Round(goal.ExpectedValueForCurrentYear, 2),
