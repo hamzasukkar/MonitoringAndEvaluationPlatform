@@ -250,10 +250,10 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                     return Json(new { success = false, message = _localizer["Goal not found."] });
                 }
 
-                // Validate year order
-                if (currentYear <= goal.StartingYear || currentYear >= goal.TargetYear)
+                // Validate year order (current year must be after starting year and up to target year)
+                if (currentYear <= goal.StartingYear || currentYear > goal.TargetYear)
                 {
-                    return Json(new { success = false, message = _localizer["Current year must be between starting year and target year."] });
+                    return Json(new { success = false, message = _localizer["Current year must be between starting year and target year."].Value });
                 }
 
                 // If current year is changing, save the old current year value as historical data
@@ -320,10 +320,10 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                     return Json(new { success = false, message = _localizer["Goal not found."] });
                 }
 
-                // Validate current year is within range
-                if (model.CurrentYear <= goal.StartingYear || model.CurrentYear >= goal.TargetYear)
+                // Validate current year is within range (current year must be after starting year and up to target year)
+                if (model.CurrentYear <= goal.StartingYear || model.CurrentYear > goal.TargetYear)
                 {
-                    return Json(new { success = false, message = _localizer["Current year must be between starting year and target year."] });
+                    return Json(new { success = false, message = _localizer["Current year must be between starting year and target year."].Value });
                 }
 
                 // If current year is changing, save the old current year value as historical data
