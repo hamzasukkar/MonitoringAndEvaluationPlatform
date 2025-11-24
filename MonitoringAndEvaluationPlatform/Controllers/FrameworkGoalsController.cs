@@ -161,22 +161,35 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         {
             try
             {
-                if (!ModelState.IsValid)
+                // Manual validation since we're using string types for decimal values
+                if (string.IsNullOrWhiteSpace(model.Name))
                 {
-                    return Json(new { success = false, message = _localizer["Please fill in all required fields."] });
+                    return Json(new { success = false, message = _localizer["Please enter a goal name."].Value });
                 }
+
+                if (string.IsNullOrWhiteSpace(model.BaseValueForStartingYear) ||
+                    string.IsNullOrWhiteSpace(model.BaseValueForCurrentYear) ||
+                    string.IsNullOrWhiteSpace(model.TargetValue))
+                {
+                    return Json(new { success = false, message = _localizer["Please fill in all required fields."].Value });
+                }
+
+                // Parse decimal values
+                var baseValueStart = model.GetBaseValueForStartingYear();
+                var baseValueCurrent = model.GetBaseValueForCurrentYear();
+                var targetValue = model.GetTargetValue();
 
                 // Validate framework exists
                 var framework = await _context.Frameworks.FindAsync(model.FrameworkCode);
                 if (framework == null)
                 {
-                    return Json(new { success = false, message = _localizer["Invalid framework selected."] });
+                    return Json(new { success = false, message = _localizer["Invalid framework selected."].Value });
                 }
 
                 // Validate year order
                 if (model.StartingYear >= model.CurrentYear || model.CurrentYear >= model.TargetYear)
                 {
-                    return Json(new { success = false, message = _localizer["Years must be in ascending order: Starting Year < Current Year < Target Year."] });
+                    return Json(new { success = false, message = _localizer["Years must be in ascending order: Starting Year < Current Year < Target Year."].Value });
                 }
 
                 // Create new framework goal
@@ -184,11 +197,11 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 {
                     Name = model.Name.Trim(),
                     StartingYear = model.StartingYear,
-                    BaseValueForStartingYear = model.BaseValueForStartingYear,
+                    BaseValueForStartingYear = baseValueStart,
                     CurrentYear = model.CurrentYear,
-                    BaseValueForCurrentYear = model.BaseValueForCurrentYear,
+                    BaseValueForCurrentYear = baseValueCurrent,
                     TargetYear = model.TargetYear,
-                    TargetValue = model.TargetValue,
+                    TargetValue = targetValue,
                     FrameworkCode = model.FrameworkCode
                 };
 
@@ -211,12 +224,12 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                         targetYear = frameworkGoal.TargetYear,
                         targetValue = frameworkGoal.TargetValue
                     },
-                    message = _localizer["Framework Goal created successfully!"]
+                    message = _localizer["Framework Goal created successfully!"].Value
                 });
             }
             catch (Exception ex)
             {
-                return Json(new { success = false, message = _localizer["An error occurred while creating the framework goal. Please try again."] });
+                return Json(new { success = false, message = _localizer["An error occurred while creating the framework goal. Please try again."].Value });
             }
         }
 
@@ -546,12 +559,29 @@ namespace MonitoringAndEvaluationPlatform.Controllers
     {
         public string Name { get; set; } = string.Empty;
         public int StartingYear { get; set; }
-        public double BaseValueForStartingYear { get; set; }
+        public string BaseValueForStartingYear { get; set; } = string.Empty;
         public int CurrentYear { get; set; }
-        public double BaseValueForCurrentYear { get; set; }
+        public string BaseValueForCurrentYear { get; set; } = string.Empty;
         public int TargetYear { get; set; }
-        public double TargetValue { get; set; }
+        public string TargetValue { get; set; } = string.Empty;
         public int FrameworkCode { get; set; }
+
+        // Helper method to parse decimal values (handles both comma and period)
+        public double GetBaseValueForStartingYear() => ParseDecimal(BaseValueForStartingYear);
+        public double GetBaseValueForCurrentYear() => ParseDecimal(BaseValueForCurrentYear);
+        public double GetTargetValue() => ParseDecimal(TargetValue);
+
+        private static double ParseDecimal(string value)
+        {
+            if (string.IsNullOrWhiteSpace(value)) return 0;
+            // Replace comma with period and parse using invariant culture
+            var normalized = value.Replace(',', '.');
+            if (double.TryParse(normalized, System.Globalization.NumberStyles.Any, System.Globalization.CultureInfo.InvariantCulture, out var result))
+            {
+                return result;
+            }
+            return 0;
+        }
     }
 
     // Model for updating goal values (current and historical)

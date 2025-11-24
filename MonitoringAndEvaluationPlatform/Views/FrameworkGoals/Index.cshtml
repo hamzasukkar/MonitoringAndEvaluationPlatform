@@ -118,7 +118,7 @@
                 </div>
                 <div class="col-md-4 mb-3">
                     <label class="form-label">@Localizer["Base Value (Starting)"] <span class="text-danger">*</span></label>
-                    <input type="number" step="0.01" class="form-control" id="baseValueStarting" name="BaseValueForStartingYear" required />
+                    <input type="text" inputmode="decimal" class="form-control decimal-input" id="baseValueStarting" name="BaseValueForStartingYear" required placeholder="0.00" />
                 </div>
             </div>
             <div class="row">
@@ -128,7 +128,7 @@
                 </div>
                 <div class="col-md-4 mb-3">
                     <label class="form-label">@Localizer["Base Value (Current)"] <span class="text-danger">*</span></label>
-                    <input type="number" step="0.01" class="form-control" id="baseValueCurrent" name="BaseValueForCurrentYear" required />
+                    <input type="text" inputmode="decimal" class="form-control decimal-input" id="baseValueCurrent" name="BaseValueForCurrentYear" required placeholder="0.00" />
                 </div>
             </div>
             <div class="row">
@@ -138,7 +138,7 @@
                 </div>
                 <div class="col-md-4 mb-3">
                     <label class="form-label">@Localizer["Target Value"] <span class="text-danger">*</span></label>
-                    <input type="number" step="0.01" class="form-control" id="targetValue" name="TargetValue" required />
+                    <input type="text" inputmode="decimal" class="form-control decimal-input" id="targetValue" name="TargetValue" required placeholder="0.00" />
                 </div>
             </div>
             <div class="d-flex gap-2">
@@ -353,7 +353,7 @@
 
                     <div class="mb-3">
                         <label class="form-label">@Localizer["Base Value (Current)"] <span class="text-danger">*</span></label>
-                        <input type="number" step="0.01" class="form-control" id="editBaseValue" required />
+                        <input type="text" inputmode="decimal" class="form-control decimal-input" id="editBaseValue" required placeholder="0.00" />
                         <small class="form-text text-muted">@Localizer["Enter the actual achieved value for the current year"]</small>
                     </div>
                 </form>
@@ -425,7 +425,24 @@
 
             // Initialize year pickers
             initializeYearPickers();
+
+            // Initialize decimal input handling
+            initializeDecimalInputs();
         });
+
+        // Initialize decimal inputs to allow both comma and period as decimal separators
+        function initializeDecimalInputs() {
+            document.querySelectorAll('.decimal-input').forEach(input => {
+                // Allow only numbers, comma, period, and minus sign
+                input.addEventListener('input', function(e) {
+                    // Replace comma with period for consistent display
+                    let value = this.value;
+                    // Allow digits, one decimal separator (comma or period), and optional minus at start
+                    value = value.replace(/[^0-9.,-]/g, '');
+                    this.value = value;
+                });
+            });
+        }
 
         // Year picker functionality
         function initializeYearPickers() {
@@ -569,23 +586,59 @@
             }
         }
 
+        // Helper function to normalize decimal values (convert comma to period)
+        function normalizeDecimal(value) {
+            if (typeof value === 'string') {
+                return value.replace(',', '.');
+            }
+            return value;
+        }
+
         // Handle form submission
         document.getElementById('createGoalForm').addEventListener('submit', async function(e) {
             e.preventDefault();
 
             const token = document.querySelector('input[name="__RequestVerificationToken"]').value;
 
+            // Get and normalize values
+            const name = document.getElementById('goalName').value.trim();
+            const frameworkCode = document.getElementById('frameworkCode').value;
+            const startingYear = document.getElementById('startingYear').value;
+            const baseValueStarting = normalizeDecimal(document.getElementById('baseValueStarting').value);
+            const currentYear = document.getElementById('currentYear').value;
+            const baseValueCurrent = normalizeDecimal(document.getElementById('baseValueCurrent').value);
+            const targetYear = document.getElementById('targetYear').value;
+            const targetValue = normalizeDecimal(document.getElementById('targetValue').value);
+
+            // Client-side validation
+            if (!name || !frameworkCode || !startingYear || !baseValueStarting || !currentYear || !baseValueCurrent || !targetYear || !targetValue) {
+                showErrorMessage('@Localizer["Please fill in all required fields."]');
+                return;
+            }
+
+            // Validate decimal values
+            if (isNaN(parseFloat(baseValueStarting)) || isNaN(parseFloat(baseValueCurrent)) || isNaN(parseFloat(targetValue))) {
+                showErrorMessage('@Localizer["Please enter valid numeric values."]');
+                return;
+            }
+
             // Create FormData for form-encoded submission
             const formData = new FormData();
-            formData.append('Name', document.getElementById('goalName').value);
-            formData.append('FrameworkCode', document.getElementById('frameworkCode').value);
-            formData.append('StartingYear', document.getElementById('startingYear').value);
-            formData.append('BaseValueForStartingYear', document.getElementById('baseValueStarting').value);
-            formData.append('CurrentYear', document.getElementById('currentYear').value);
-            formData.append('BaseValueForCurrentYear', document.getElementById('baseValueCurrent').value);
-            formData.append('TargetYear', document.getElementById('targetYear').value);
-            formData.append('TargetValue', document.getElementById('targetValue').value);
+            formData.append('Name', name);
+            formData.append('FrameworkCode', frameworkCode);
+            formData.append('StartingYear', startingYear);
+            formData.append('BaseValueForStartingYear', baseValueStarting);
+            formData.append('CurrentYear', currentYear);
+            formData.append('BaseValueForCurrentYear', baseValueCurrent);
+            formData.append('TargetYear', targetYear);
+            formData.append('TargetValue', targetValue);
             formData.append('__RequestVerificationToken', token);
+
+            // Debug logging
+            console.log('Submitting form with values:', {
+                name, frameworkCode, startingYear, baseValueStarting,
+                currentYear, baseValueCurrent, targetYear, targetValue
+            });
 
             try {
                 const response = await fetch('@Url.Action("CreateInline", "FrameworkGoals")', {
@@ -598,27 +651,23 @@
 
                 if (result.success) {
                     // Show success message
-                    if (typeof result.message === 'string') {
-                        alert(result.message);
-                    } else {
-                        alert('@Localizer["Goal created successfully!"]');
-                    }
+                    showSuccessMessage(result.message || '@Localizer["Goal created successfully!"]');
 
                     // Reload the page to show the new goal
-                    location.reload();
+                    setTimeout(() => location.reload(), 1500);
                 } else {
-                    // Handle error message
-                    let errorMessage = '@Localizer["An error occurred. Please try again."]';
-                    if (typeof result.message === 'string') {
-                        errorMessage = result.message;
-                    } else if (result.message && typeof result.message === 'object') {
-                        errorMessage = JSON.stringify(result.message);
+                    // Log validation errors if present
+                    if (result.validationErrors) {
+                        console.log('Validation errors:', result.validationErrors);
                     }
-                    alert(errorMessage);
+
+                    // Handle error message
+                    let errorMessage = result.message || '@Localizer["An error occurred. Please try again."]';
+                    showErrorMessage(errorMessage);
                 }
             } catch (error) {
                 console.error('Error:', error);
-                alert('@Localizer["An error occurred. Please try again."]');
+                showErrorMessage('@Localizer["An error occurred. Please try again."]');
             }
         });
 
@@ -704,9 +753,9 @@
                             ${isStartingYear ? '<small class="text-muted d-block">(@Localizer["Starting Year"])</small>' : ''}
                         </td>
                         <td>
-                            <input type="number"
-                                   step="0.01"
-                                   class="form-control form-control-sm historical-value-input"
+                            <input type="text"
+                                   inputmode="decimal"
+                                   class="form-control form-control-sm historical-value-input decimal-input"
                                    data-year="${year}"
                                    value="${value}"
                                    placeholder="@Localizer["Enter value"]"
@@ -746,7 +795,7 @@
         async function submitEdit() {
             const goalId = document.getElementById('editGoalId').value;
             const currentYear = document.getElementById('editCurrentYear').value;
-            const baseValue = document.getElementById('editBaseValue').value;
+            const baseValue = normalizeDecimal(document.getElementById('editBaseValue').value);
 
             if (!currentYear || !baseValue) {
                 showErrorMessage('@Localizer["Please fill in all required fields."]');
@@ -755,12 +804,13 @@
 
             const token = document.querySelector('#editForm input[name="__RequestVerificationToken"]').value;
 
-            // Collect all historical values
+            // Collect all historical values (normalize decimal values)
             const historicalValues = [];
             document.querySelectorAll('.historical-value-input').forEach(input => {
                 const year = parseInt(input.getAttribute('data-year'));
-                const value = parseFloat(input.value);
-                if (!isNaN(value) && value !== '') {
+                const normalizedValue = normalizeDecimal(input.value);
+                const value = parseFloat(normalizedValue);
+                if (!isNaN(value) && normalizedValue !== '') {
                     historicalValues.push({ year, value });
                 }
             });
