@@ -300,7 +300,7 @@
                                             var roles = await UserManager.GetRolesAsync(user);
                                             if (roles.Contains("SystemAdministrator"))
                                             {
-                                                <button onclick="showEditModal(@goal.ID, @goal.CurrentYear, @goal.BaseValueForCurrentYear, @goal.StartingYear, @goal.TargetYear)"
+                                                <button onclick="showEditModal(@goal.ID, @goal.CurrentYear, @goal.BaseValueForCurrentYear.ToString(System.Globalization.CultureInfo.InvariantCulture), @goal.StartingYear, @goal.TargetYear)"
                                                         class="btn btn-sm btn-warning me-2"
                                                         title="@Localizer["Update Current Year"]">
                                                     <i class="fas fa-edit"></i>
