@@ -444,15 +444,17 @@
             // Prepare chart data
             const years = goalData.timeSeries.map(ts => ts.year);
 
-            // Prepare actual achievement data (Starting Year + Historical Values + Current Year + Target Year)
+            // Prepare actual achievement data (Starting Year + Historical Values + Current Year)
+            // Note: Target year should NOT show actual value unless current year equals target year
+            // Only show actual values for years up to and including current year
             const actualAchievementData = years.map(year => {
+                // Don't show actual values for future years (years after current year)
+                if (year > goalData.currentYear) {
+                    return null;
+                }
                 // Check if it's the starting year
                 if (year == goalData.startingYear) {
                     return goalData.baseValue;
-                }
-                // Check if it's the target year
-                else if (year == goalData.targetYear) {
-                    return goalData.targetValue;
                 }
                 // Check if it's the current year
                 else if (year == goalData.currentYear) {
