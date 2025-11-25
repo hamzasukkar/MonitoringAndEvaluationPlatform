@@ -97,8 +97,8 @@ namespace MonitoringAndEvaluationPlatform.Models
         }
 
         /// <summary>
-        /// Progress Rate = (Current Value - Base Value) / (Target Value - Base Value)
-        /// This measures the progress from base value to current year as a proportion of the total goal
+        /// Progress Rate = ((Current Value - Base Value) / (Target Value - Base Value)) × 100
+        /// Returns progress as a percentage (0-100)
         /// Works correctly for both increase and decrease goals
         /// </summary>
         [NotMapped]
@@ -111,7 +111,7 @@ namespace MonitoringAndEvaluationPlatform.Models
 
                 var numerator = BaseValueForCurrentYear - BaseValueForStartingYear;
 
-                return numerator / denominator;
+                return (numerator / denominator) * 100;
             }
         }
 

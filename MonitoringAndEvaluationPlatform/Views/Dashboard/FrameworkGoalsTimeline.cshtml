@@ -439,7 +439,7 @@
             document.getElementById('detailAnnualRate').textContent = goalData.annualDiscountRate.toFixed(2);
             document.getElementById('detailCurrentReduction').textContent = goalData.currentReduction.toFixed(2);
             document.getElementById('detailExpectedValue').textContent = goalData.expectedCurrentValue.toFixed(2);
-            document.getElementById('detailProgressRate').textContent = goalData.progressRate.toFixed(2);
+            document.getElementById('detailProgressRate').textContent = goalData.progressRate.toFixed(2) + '%';
 
             // Prepare chart data
             const years = goalData.timeSeries.map(ts => ts.year);
