@@ -85,6 +85,116 @@
     </div>
 </div>
 
+<!-- Dashboard Summary Cards -->
+@if (Model.Any())
+{
+    var currentYear = DateTime.Now.Year;
+    var totalGoals = Model.Count();
+
+    // Calculate on-track vs off-track
+    var onTrackCount = 0;
+    var offTrackCount = 0;
+    var totalProgressRate = 0.0;
+
+    foreach (var goal in Model)
+    {
+        var isIncreaseGoal = goal.TargetValue > goal.BaseValueForStartingYear;
+        var actualChange = goal.BaseValueForCurrentYear - goal.BaseValueForStartingYear;
+
+        bool isOnTrack;
+        if (isIncreaseGoal)
+        {
+            isOnTrack = actualChange >= goal.AmountOfReduction;
+        }
+        else
+        {
+            var actualReduction = goal.BaseValueForStartingYear - goal.BaseValueForCurrentYear;
+            isOnTrack = actualReduction >= goal.AmountOfReduction;
+        }
+
+        if (isOnTrack)
+        {
+            onTrackCount++;
+        }
+        else
+        {
+            offTrackCount++;
+        }
+
+        totalProgressRate += goal.ProgressRate;
+    }
+
+    var onTrackPercentage = totalGoals > 0 ? (onTrackCount * 100.0 / totalGoals) : 0;
+    var offTrackPercentage = totalGoals > 0 ? (offTrackCount * 100.0 / totalGoals) : 0;
+    var averageProgressRate = totalGoals > 0 ? (totalProgressRate / totalGoals) : 0;
+
+    // Calculate goals expiring soon (within 1 year)
+    var goalsExpiringSoon = Model.Count(g => g.TargetYear - currentYear <= 1 && g.TargetYear >= currentYear);
+
+    <div class="row g-3 mb-4">
+        <!-- Total Goals Card -->
+        <div class="col-md-3 col-sm-6">
+            <div class="summary-card summary-card-primary">
+                <div class="summary-card-icon">
+                    <i class="fas fa-bullseye"></i>
+                </div>
+                <div class="summary-card-content">
+                    <h3 class="summary-card-value">@totalGoals</h3>
+                    <p class="summary-card-label">@Localizer["Total Goals"]</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- On-Track vs Off-Track Card -->
+        <div class="col-md-3 col-sm-6">
+            <div class="summary-card summary-card-success">
+                <div class="summary-card-icon">
+                    <i class="fas fa-chart-line"></i>
+                </div>
+                <div class="summary-card-content">
+                    <h3 class="summary-card-value">@onTrackCount / @offTrackCount</h3>
+                    <p class="summary-card-label">@Localizer["On-Track / Off-Track"]</p>
+                    <div class="progress mt-2" style="height: 8px;">
+                        <div class="progress-bar bg-success" role="progressbar" style="width: @onTrackPercentage.ToString("F0")%" aria-valuenow="@onTrackPercentage" aria-valuemin="0" aria-valuemax="100"></div>
+                        <div class="progress-bar bg-danger" role="progressbar" style="width: @offTrackPercentage.ToString("F0")%" aria-valuenow="@offTrackPercentage" aria-valuemin="0" aria-valuemax="100"></div>
+                    </div>
+                    <small class="text-muted">@onTrackPercentage.ToString("F1")% on track</small>
+                </div>
+            </div>
+        </div>
+
+        <!-- Average Progress Rate Card -->
+        <div class="col-md-3 col-sm-6">
+            <div class="summary-card summary-card-info">
+                <div class="summary-card-icon">
+                    <i class="fas fa-percentage"></i>
+                </div>
+                <div class="summary-card-content">
+                    <h3 class="summary-card-value">@averageProgressRate.ToString("F1")%</h3>
+                    <p class="summary-card-label">@Localizer["Average Progress"]</p>
+                    <div class="progress mt-2" style="height: 8px;">
+                        <div class="progress-bar bg-info" role="progressbar" style="width: @Math.Min(averageProgressRate, 100)%" aria-valuenow="@averageProgressRate" aria-valuemin="0" aria-valuemax="100"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Goals Expiring Soon Card -->
+        <div class="col-md-3 col-sm-6">
+            <div class="summary-card summary-card-warning">
+                <div class="summary-card-icon">
+                    <i class="fas fa-clock"></i>
+                </div>
+                <div class="summary-card-content">
+                    <h3 class="summary-card-value">@goalsExpiringSoon</h3>
+                    <p class="summary-card-label">@Localizer["Expiring Soon"]</p>
+                    <small class="text-muted">@Localizer["Within 1 year"]</small>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
 <!-- Inline Create Form (Initially Hidden) -->
 <div id="inlineCreateForm" class="card shadow-sm mb-4" style="display: none;">
     <div class="card-header bg-primary text-white">
@@ -936,6 +1046,127 @@
 }
 
 <style>
+    /* Summary Cards Styles */
+    .summary-card {
+        background: white;
+        border-radius: 12px;
+        padding: 1.5rem;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        border-left: 4px solid transparent;
+        height: 100%;
+    }
+
+    .summary-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+    }
+
+    .summary-card-primary {
+        border-left-color: #0d6efd;
+        background: linear-gradient(135deg, #ffffff 0%, #f0f7ff 100%);
+    }
+
+    .summary-card-success {
+        border-left-color: #198754;
+        background: linear-gradient(135deg, #ffffff 0%, #f0fff4 100%);
+    }
+
+    .summary-card-info {
+        border-left-color: #0dcaf0;
+        background: linear-gradient(135deg, #ffffff 0%, #f0fcff 100%);
+    }
+
+    .summary-card-warning {
+        border-left-color: #ffc107;
+        background: linear-gradient(135deg, #ffffff 0%, #fffcf0 100%);
+    }
+
+    .summary-card-icon {
+        font-size: 2.5rem;
+        width: 70px;
+        height: 70px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 12px;
+        flex-shrink: 0;
+    }
+
+    .summary-card-primary .summary-card-icon {
+        color: #0d6efd;
+        background: rgba(13, 110, 253, 0.1);
+    }
+
+    .summary-card-success .summary-card-icon {
+        color: #198754;
+        background: rgba(25, 135, 84, 0.1);
+    }
+
+    .summary-card-info .summary-card-icon {
+        color: #0dcaf0;
+        background: rgba(13, 202, 240, 0.1);
+    }
+
+    .summary-card-warning .summary-card-icon {
+        color: #ffc107;
+        background: rgba(255, 193, 7, 0.1);
+    }
+
+    .summary-card-content {
+        flex: 1;
+    }
+
+    .summary-card-value {
+        font-size: 2rem;
+        font-weight: 700;
+        margin: 0;
+        color: #2c3e50;
+        line-height: 1;
+    }
+
+    .summary-card-label {
+        font-size: 0.9rem;
+        color: #6c757d;
+        margin: 0.5rem 0 0 0;
+        font-weight: 500;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .summary-card .progress {
+        background-color: rgba(0, 0, 0, 0.05);
+        border-radius: 10px;
+        overflow: hidden;
+    }
+
+    .summary-card .progress-bar {
+        transition: width 0.6s ease;
+    }
+
+    @@media (max-width: 768px) {
+        .summary-card {
+            padding: 1rem;
+        }
+
+        .summary-card-icon {
+            font-size: 2rem;
+            width: 60px;
+            height: 60px;
+        }
+
+        .summary-card-value {
+            font-size: 1.5rem;
+        }
+
+        .summary-card-label {
+            font-size: 0.8rem;
+        }
+    }
+
     .dashboard-header {
         margin-bottom: 2rem;
         padding-bottom: 1rem;
