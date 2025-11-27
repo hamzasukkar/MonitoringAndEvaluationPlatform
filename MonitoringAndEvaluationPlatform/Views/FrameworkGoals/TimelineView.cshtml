@@ -78,8 +78,31 @@
             var currentChange = goal.BaseValueForCurrentYear - goal.BaseValueForStartingYear;
             var achievementProgress = totalChange != 0 ? (currentChange / totalChange * 100) : 0;
 
-            var isOnTrack = achievementProgress >= timeProgress;
-            var progressStatus = achievementProgress >= 100 ? "completed" : (isOnTrack ? "on-track" : "behind");
+            // Determine if this is an increase or decrease goal
+            var isIncreaseGoal = goal.TargetValue > goal.BaseValueForStartingYear;
+            var actualChange = goal.BaseValueForCurrentYear - goal.BaseValueForStartingYear;
+
+            bool isOnTrack;
+            bool isExceeded = false;
+            bool isCompleted = false;
+
+            if (isIncreaseGoal)
+            {
+                // For increase goals
+                isExceeded = goal.BaseValueForCurrentYear > goal.TargetValue;
+                isCompleted = goal.BaseValueForCurrentYear >= goal.TargetValue;
+                isOnTrack = !isCompleted && (actualChange >= goal.AmountOfReduction);
+            }
+            else
+            {
+                // For decrease goals
+                isExceeded = goal.BaseValueForCurrentYear < goal.TargetValue;
+                isCompleted = goal.BaseValueForCurrentYear <= goal.TargetValue;
+                var actualReduction = goal.BaseValueForStartingYear - goal.BaseValueForCurrentYear;
+                isOnTrack = !isCompleted && (actualReduction >= goal.AmountOfReduction);
+            }
+
+            var progressStatus = isExceeded ? "exceeded" : (isCompleted ? "completed" : (isOnTrack ? "on-track" : "behind"));
 
             <div class="timeline-card" id="goal-timeline-@goal.ID">
                 <!-- Timeline Header -->
@@ -92,7 +115,12 @@
                         </span>
                     </div>
                     <div class="timeline-status-badge status-@progressStatus">
-                        @if (progressStatus == "completed")
+                        @if (progressStatus == "exceeded")
+                        {
+                            <i class="fas fa-star"></i>
+                            <span>@Localizer["Goal Exceeded!"]</span>
+                        }
+                        else if (progressStatus == "completed")
                         {
                             <i class="fas fa-check-circle"></i>
                             <span>@Localizer["Completed"]</span>
@@ -396,6 +424,22 @@ else
         font-weight: 600;
     }
 
+    .timeline-status-badge.status-exceeded {
+        background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+        color: white;
+        box-shadow: 0 4px 15px rgba(251, 191, 36, 0.4);
+        animation: glow 2s infinite;
+    }
+
+    @@keyframes glow {
+        0%, 100% {
+            box-shadow: 0 4px 15px rgba(251, 191, 36, 0.4);
+        }
+        50% {
+            box-shadow: 0 4px 25px rgba(251, 191, 36, 0.6);
+        }
+    }
+
     .timeline-status-badge.status-completed {
         background: linear-gradient(135deg, #10b981 0%, #059669 100%);
         color: white;
@@ -499,6 +543,10 @@ else
         border-radius: 10px;
         transition: width 1.5s ease;
         z-index: 1;
+    }
+
+    .timeline-bar-progress.exceeded {
+        background: linear-gradient(90deg, #fbbf24 0%, #f59e0b 100%);
     }
 
     .timeline-bar-progress.completed {

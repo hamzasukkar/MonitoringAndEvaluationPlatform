@@ -53,10 +53,13 @@
     <!-- Chart Container -->
     <div id="chartContainerCard" class="chart-container-card" style="display: none;">
         <div class="chart-header">
-            <h5 class="chart-title">
-                <i class="fas fa-chart-area me-2"></i>
-                <span id="chartTitleText">@Localizer["TimelineAnalysis"]</span>
-            </h5>
+            <div class="chart-header-left">
+                <h5 class="chart-title">
+                    <i class="fas fa-chart-area me-2"></i>
+                    <span id="chartTitleText">@Localizer["TimelineAnalysis"]</span>
+                </h5>
+            </div>
+            <div id="statusBadgeContainer" class="status-badge-container"></div>
         </div>
         <div class="chart-wrapper">
             <canvas id="timelineChart"></canvas>
@@ -233,6 +236,10 @@
         gap: 1rem;
     }
 
+    .chart-header-left {
+        flex: 1;
+    }
+
     .chart-title {
         font-size: 1.3rem;
         font-weight: 700;
@@ -244,6 +251,55 @@
 
     .chart-title i {
         color: #667eea;
+    }
+
+    .status-badge-container {
+        display: flex;
+        align-items: center;
+    }
+
+    .goal-status-badge {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.75rem 1.5rem;
+        border-radius: 25px;
+        font-size: 1rem;
+        font-weight: 700;
+        color: white;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+        transition: all 0.3s ease;
+    }
+
+    .goal-status-badge i {
+        font-size: 1.2rem;
+    }
+
+    .goal-status-badge.status-exceeded {
+        background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+        box-shadow: 0 4px 15px rgba(251, 191, 36, 0.4);
+        animation: glow 2s infinite;
+    }
+
+    @@keyframes glow {
+        0%, 100% {
+            box-shadow: 0 4px 15px rgba(251, 191, 36, 0.4);
+        }
+        50% {
+            box-shadow: 0 4px 25px rgba(251, 191, 36, 0.6);
+        }
+    }
+
+    .goal-status-badge.status-completed {
+        background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+    }
+
+    .goal-status-badge.status-on-track {
+        background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+    }
+
+    .goal-status-badge.status-behind {
+        background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
     }
 
     .legend-container {
@@ -351,6 +407,21 @@
             flex-direction: column;
             align-items: flex-start;
         }
+
+        .chart-header-left {
+            width: 100%;
+        }
+
+        .status-badge-container {
+            width: 100%;
+            justify-content: flex-start;
+            margin-top: 1rem;
+        }
+
+        .goal-status-badge {
+            font-size: 0.9rem;
+            padding: 0.6rem 1.2rem;
+        }
     }
 </style>
 
@@ -370,7 +441,11 @@
             expectedTarget: '@Localizer["Expected Target"]',
             actualAchievement: '@Localizer["ActualAchievement"]',
             year: '@Localizer["Year"]',
-            value: '@Localizer["Value"]'
+            value: '@Localizer["Value"]',
+            goalExceeded: '@Localizer["Goal Exceeded!"]',
+            completed: '@Localizer["Completed"]',
+            onTrack: '@Localizer["On Track"]',
+            behindSchedule: '@Localizer["Behind Schedule"]'
         };
 
         // Load goals when framework is selected
@@ -440,6 +515,57 @@
             document.getElementById('detailCurrentReduction').textContent = goalData.currentReduction.toFixed(2);
             document.getElementById('detailExpectedValue').textContent = goalData.expectedCurrentValue.toFixed(2);
             document.getElementById('detailProgressRate').textContent = goalData.progressRate.toFixed(2) + '%';
+
+            // Calculate and display status badge
+            const isIncreaseGoal = goalData.targetValue > goalData.baseValue;
+            const actualChange = goalData.currentValue - goalData.baseValue;
+
+            let isOnTrack;
+            let isExceeded = false;
+            let isCompleted = false;
+            let statusClass = '';
+            let statusIcon = '';
+            let statusText = '';
+
+            if (isIncreaseGoal) {
+                // For increase goals
+                isExceeded = goalData.currentValue > goalData.targetValue;
+                isCompleted = goalData.currentValue >= goalData.targetValue;
+                isOnTrack = !isCompleted && (actualChange >= goalData.currentReduction);
+            } else {
+                // For decrease goals
+                isExceeded = goalData.currentValue < goalData.targetValue;
+                isCompleted = goalData.currentValue <= goalData.targetValue;
+                const actualReduction = goalData.baseValue - goalData.currentValue;
+                isOnTrack = !isCompleted && (actualReduction >= goalData.currentReduction);
+            }
+
+            if (isExceeded) {
+                statusClass = 'status-exceeded';
+                statusIcon = 'fas fa-star';
+                statusText = localizedStrings.goalExceeded;
+            } else if (isCompleted) {
+                statusClass = 'status-completed';
+                statusIcon = 'fas fa-check-circle';
+                statusText = localizedStrings.completed;
+            } else if (isOnTrack) {
+                statusClass = 'status-on-track';
+                statusIcon = 'fas fa-thumbs-up';
+                statusText = localizedStrings.onTrack;
+            } else {
+                statusClass = 'status-behind';
+                statusIcon = 'fas fa-exclamation-triangle';
+                statusText = localizedStrings.behindSchedule;
+            }
+
+            // Update status badge
+            const statusBadgeContainer = document.getElementById('statusBadgeContainer');
+            statusBadgeContainer.innerHTML = `
+                <div class="goal-status-badge ${statusClass}">
+                    <i class="${statusIcon}"></i>
+                    <span>${statusText}</span>
+                </div>
+            `;
 
             // Prepare chart data
             const years = goalData.timeSeries.map(ts => ts.year);
