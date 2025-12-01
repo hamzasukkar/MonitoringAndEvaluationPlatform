@@ -244,6 +244,178 @@
             </div>
         </div>
     </div>
+
+    <!-- Smart Alerts Section -->
+    // Calculate alerts
+    var goalsFallingBehind = new List<dynamic>();
+    var goalsNeedingUpdate = new List<dynamic>();
+    var goalsReachingTarget = new List<dynamic>();
+
+    foreach (var goal in Model)
+        {
+            var isIncreaseGoal = goal.TargetValue > goal.BaseValueForStartingYear;
+            var actualChange = goal.BaseValueForCurrentYear - goal.BaseValueForStartingYear;
+
+            // Calculate expected trajectory
+            var expectedSlope = (goal.TargetValue - goal.BaseValueForStartingYear) / (goal.TargetYear - goal.StartingYear);
+            var expectedCurrentValue = goal.BaseValueForStartingYear + (expectedSlope * (goal.CurrentYear - goal.StartingYear));
+
+            // Check if falling behind
+            bool isFallingBehind;
+            if (isIncreaseGoal)
+            {
+                var expectedChange = expectedCurrentValue - goal.BaseValueForStartingYear;
+                isFallingBehind = actualChange < expectedChange * 0.7;
+            }
+            else
+            {
+                var actualReduction = goal.BaseValueForStartingYear - goal.BaseValueForCurrentYear;
+                var expectedReduction = goal.BaseValueForStartingYear - expectedCurrentValue;
+                isFallingBehind = actualReduction < expectedReduction * 0.7;
+            }
+
+            if (isFallingBehind)
+            {
+                goalsFallingBehind.Add(new { Goal = goal, ProgressRate = goal.ProgressRate });
+            }
+
+            // Check if current year is outdated (more than 1 year old)
+            if (goal.CurrentYear < currentYear)
+            {
+                goalsNeedingUpdate.Add(new { Goal = goal, YearsOutdated = currentYear - goal.CurrentYear });
+            }
+
+            // Check if reaching target soon (within 1 year)
+            if (goal.TargetYear - currentYear <= 1 && goal.TargetYear >= currentYear)
+            {
+                goalsReachingTarget.Add(new { Goal = goal, YearsRemaining = goal.TargetYear - currentYear });
+            }
+        }
+
+    var totalAlerts = goalsFallingBehind.Count + goalsNeedingUpdate.Count + goalsReachingTarget.Count;
+
+    @if (totalAlerts > 0)
+    {
+        <div class="card shadow-sm mb-4 alert-card">
+            <div class="card-header bg-warning bg-opacity-10 border-warning" style="cursor: pointer;" onclick="toggleSmartAlerts()">
+                <div class="d-flex justify-content-between align-items-center">
+                    <h6 class="mb-0">
+                        <i class="fas fa-exclamation-triangle text-warning me-2"></i>
+                        @Localizer["Smart Alerts"]
+                        <span class="badge bg-warning text-dark ms-2">@totalAlerts</span>
+                    </h6>
+                    <i class="fas fa-chevron-down" id="alertsChevron"></i>
+                </div>
+            </div>
+            <div class="card-body" id="smartAlertsBody" style="display: none;">
+                <div class="row g-3">
+                    <!-- Goals Falling Behind -->
+                    @if (goalsFallingBehind.Any())
+                    {
+                        <div class="col-12">
+                            <div class="alert alert-danger mb-0">
+                                <h6 class="alert-heading">
+                                    <i class="fas fa-chart-line-down me-2"></i>
+                                    @Localizer["Goals Falling Behind"]
+                                    <span class="badge bg-danger ms-2">@goalsFallingBehind.Count</span>
+                                </h6>
+                                <hr>
+                                <ul class="mb-0">
+                                    @foreach (var item in goalsFallingBehind)
+                                    {
+                                        <li>
+                                            <strong>@item.Goal.Name</strong>
+                                            <span class="text-muted">(@item.Goal.Framework.Name)</span>
+                                            - Progress: <span class="badge bg-danger">@item.ProgressRate.ToString("N1")%</span>
+                                            <a href="@Url.Action("FrameworkGoalsTimeline", "Dashboard", new { goalId = item.Goal.ID, frameworkCode = item.Goal.FrameworkCode })" class="btn btn-sm btn-outline-danger ms-2">
+                                                <i class="fas fa-chart-line"></i> @Localizer["View"]
+                                            </a>
+                                        </li>
+                                    }
+                                </ul>
+                            </div>
+                        </div>
+                    }
+
+                    <!-- Goals Needing Update -->
+                    @if (goalsNeedingUpdate.Any())
+                    {
+                        <div class="col-12">
+                            <div class="alert alert-warning mb-0">
+                                <h6 class="alert-heading">
+                                    <i class="fas fa-calendar-exclamation me-2"></i>
+                                    @Localizer["Goals Needing Update"]
+                                    <span class="badge bg-warning text-dark ms-2">@goalsNeedingUpdate.Count</span>
+                                </h6>
+                                <hr>
+                                <ul class="mb-0">
+                                    @foreach (var item in goalsNeedingUpdate)
+                                    {
+                                        <li>
+                                            <strong>@item.Goal.Name</strong>
+                                            <span class="text-muted">(@item.Goal.Framework.Name)</span>
+                                            - Current Year: <span class="badge bg-warning text-dark">@item.Goal.CurrentYear</span>
+                                            <span class="text-danger">(@item.YearsOutdated @Localizer["years outdated"])</span>
+                                            @if (SignInManager.IsSignedIn(User))
+                                            {
+                                                var user = await UserManager.GetUserAsync(User);
+                                                if (user != null)
+                                                {
+                                                    var roles = await UserManager.GetRolesAsync(user);
+                                                    if (roles.Contains("SystemAdministrator"))
+                                                    {
+                                                        <button onclick="showEditModal(@item.Goal.ID, @item.Goal.CurrentYear, @item.Goal.BaseValueForCurrentYear.ToString(System.Globalization.CultureInfo.InvariantCulture), @item.Goal.StartingYear, @item.Goal.TargetYear)" class="btn btn-sm btn-outline-warning ms-2">
+                                                            <i class="fas fa-edit"></i> @Localizer["Update"]
+                                                        </button>
+                                                    }
+                                                }
+                                            }
+                                        </li>
+                                    }
+                                </ul>
+                            </div>
+                        </div>
+                    }
+
+                    <!-- Goals Reaching Target Soon -->
+                    @if (goalsReachingTarget.Any())
+                    {
+                        <div class="col-12">
+                            <div class="alert alert-info mb-0">
+                                <h6 class="alert-heading">
+                                    <i class="fas fa-flag-checkered me-2"></i>
+                                    @Localizer["Goals Reaching Target Soon"]
+                                    <span class="badge bg-info ms-2">@goalsReachingTarget.Count</span>
+                                </h6>
+                                <hr>
+                                <ul class="mb-0">
+                                    @foreach (var item in goalsReachingTarget)
+                                    {
+                                        <li>
+                                            <strong>@item.Goal.Name</strong>
+                                            <span class="text-muted">(@item.Goal.Framework.Name)</span>
+                                            - Target Year: <span class="badge bg-info">@item.Goal.TargetYear</span>
+                                            @if (item.YearsRemaining == 0)
+                                            {
+                                                <span class="text-danger fw-bold">(@Localizer["This year"]!)</span>
+                                            }
+                                            else
+                                            {
+                                                <span class="text-info">(@item.YearsRemaining @Localizer["year remaining"])</span>
+                                            }
+                                            <a href="@Url.Action("FrameworkGoalsTimeline", "Dashboard", new { goalId = item.Goal.ID, frameworkCode = item.Goal.FrameworkCode })" class="btn btn-sm btn-outline-info ms-2">
+                                                <i class="fas fa-chart-line"></i> @Localizer["View"]
+                                            </a>
+                                        </li>
+                                    }
+                                </ul>
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    }
 }
 
 <!-- Inline Create Form (Initially Hidden) -->
@@ -1404,6 +1576,22 @@
             // Reapply filters (which will show all rows)
             applyFilters();
         }
+
+        // Toggle Smart Alerts Section
+        function toggleSmartAlerts() {
+            const alertsBody = document.getElementById('smartAlertsBody');
+            const chevron = document.getElementById('alertsChevron');
+
+            if (alertsBody.style.display === 'none') {
+                alertsBody.style.display = 'block';
+                chevron.classList.remove('fa-chevron-down');
+                chevron.classList.add('fa-chevron-up');
+            } else {
+                alertsBody.style.display = 'none';
+                chevron.classList.remove('fa-chevron-up');
+                chevron.classList.add('fa-chevron-down');
+            }
+        }
     </script>
 }
 
@@ -1527,6 +1715,76 @@
         .summary-card-label {
             font-size: 0.8rem;
         }
+    }
+
+    /* Smart Alerts Styles */
+    .alert-card {
+        border-left: 4px solid #ffc107 !important;
+        animation: slideIn 0.5s ease;
+    }
+
+    @@keyframes slideIn {
+        from {
+            opacity: 0;
+            transform: translateY(-10px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .alert-card .card-header:hover {
+        background-color: rgba(255, 193, 7, 0.15) !important;
+    }
+
+    #alertsChevron {
+        transition: transform 0.3s ease;
+    }
+
+    .alert-card .alert {
+        border-radius: 8px;
+        border-left: 4px solid;
+    }
+
+    .alert-card .alert-danger {
+        border-left-color: #dc3545;
+        background: linear-gradient(135deg, #ffffff 0%, #fff5f5 100%);
+    }
+
+    .alert-card .alert-warning {
+        border-left-color: #ffc107;
+        background: linear-gradient(135deg, #ffffff 0%, #fffbf0 100%);
+    }
+
+    .alert-card .alert-info {
+        border-left-color: #0dcaf0;
+        background: linear-gradient(135deg, #ffffff 0%, #f0fcff 100%);
+    }
+
+    .alert-card .alert ul {
+        padding-left: 1.5rem;
+    }
+
+    .alert-card .alert li {
+        margin-bottom: 0.75rem;
+        padding: 0.5rem;
+        background: rgba(255, 255, 255, 0.6);
+        border-radius: 4px;
+        transition: all 0.2s ease;
+    }
+
+    .alert-card .alert li:hover {
+        background: rgba(255, 255, 255, 1);
+        transform: translateX(5px);
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    .alert-card .alert-heading {
+        display: flex;
+        align-items: center;
+        font-weight: 600;
+        margin-bottom: 0.5rem;
     }
 
     /* Sparkline Styles */
