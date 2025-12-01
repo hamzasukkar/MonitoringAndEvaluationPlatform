@@ -277,6 +277,7 @@
                         <tr>
                             <th rowspan="2" class="align-middle">@Localizer["Goal Name"]</th>
                             <th rowspan="2" class="align-middle">@Localizer["Framework"]</th>
+                            <th rowspan="2" class="align-middle text-center">@Localizer["Trend"]</th>
                             @{
                                 // Calculate the full year range across ALL goals
                                 int minYear = Model.Any() ? Model.Min(g => g.StartingYear) : DateTime.Now.Year;
@@ -308,6 +309,20 @@
                                 <td><strong>@goal.Name</strong></td>
                                 <td>
                                     <span class="badge bg-info">@goal.Framework.Name</span>
+                                </td>
+                                <td class="text-center sparkline-cell">
+                                    <canvas class="sparkline-canvas"
+                                            data-goal-id="@goal.ID"
+                                            data-starting-year="@goal.StartingYear"
+                                            data-current-year="@goal.CurrentYear"
+                                            data-target-year="@goal.TargetYear"
+                                            data-starting-value="@goal.BaseValueForStartingYear"
+                                            data-current-value="@goal.BaseValueForCurrentYear"
+                                            data-target-value="@goal.TargetValue"
+                                            data-is-increase="@(goal.TargetValue > goal.BaseValueForStartingYear ? "true" : "false")"
+                                            width="120"
+                                            height="40">
+                                    </canvas>
                                 </td>
                                 @{
                                     // Generate data cells for each year in the full range
@@ -538,6 +553,9 @@
 
             // Initialize decimal input handling
             initializeDecimalInputs();
+
+            // Initialize sparklines
+            initializeSparklines();
         });
 
         // Initialize decimal inputs to allow both comma and period as decimal separators
@@ -1042,6 +1060,159 @@
             document.body.appendChild(alert);
             setTimeout(() => alert.remove(), 3000);
         }
+
+        // Initialize sparklines for all goals
+        async function initializeSparklines() {
+            const sparklines = document.querySelectorAll('.sparkline-canvas');
+
+            for (const canvas of sparklines) {
+                const goalId = canvas.getAttribute('data-goal-id');
+
+                try {
+                    // Fetch yearly values for this goal
+                    const response = await fetch(`@Url.Action("GetYearlyValues", "FrameworkGoals")?goalId=${goalId}`);
+                    const result = await response.json();
+
+                    if (result.success) {
+                        drawSparkline(canvas, result);
+                    }
+                } catch (error) {
+                    console.error('Error loading sparkline data:', error);
+                }
+            }
+        }
+
+        // Draw sparkline on canvas
+        function drawSparkline(canvas, data) {
+            const ctx = canvas.getContext('2d');
+            const width = canvas.width;
+            const height = canvas.height;
+            const padding = 5;
+
+            // Clear canvas
+            ctx.clearRect(0, 0, width, height);
+
+            // Get data from canvas attributes
+            const startingYear = parseInt(canvas.getAttribute('data-starting-year'));
+            const currentYear = parseInt(canvas.getAttribute('data-current-year'));
+            const targetYear = parseInt(canvas.getAttribute('data-target-year'));
+            const startingValue = parseFloat(canvas.getAttribute('data-starting-value'));
+            const currentValue = parseFloat(canvas.getAttribute('data-current-value'));
+            const targetValue = parseFloat(canvas.getAttribute('data-target-value'));
+            const isIncrease = canvas.getAttribute('data-is-increase') === 'true';
+
+            // Build data points array from starting year to current year
+            const dataPoints = [];
+
+            // Add starting year
+            dataPoints.push({ year: startingYear, value: startingValue });
+
+            // Add yearly values (if any exist between starting and current year)
+            if (data.yearlyValues && data.yearlyValues.length > 0) {
+                data.yearlyValues.forEach(yv => {
+                    if (yv.year > startingYear && yv.year < currentYear) {
+                        dataPoints.push({ year: yv.year, value: yv.value });
+                    }
+                });
+            }
+
+            // Add current year
+            dataPoints.push({ year: currentYear, value: currentValue });
+
+            // Sort by year
+            dataPoints.sort((a, b) => a.year - b.year);
+
+            // If we only have 2 points, we can still draw a line
+            if (dataPoints.length < 2) {
+                return; // Not enough data to draw
+            }
+
+            // Find min and max values for scaling
+            const values = dataPoints.map(d => d.value);
+            const minValue = Math.min(...values, targetValue);
+            const maxValue = Math.max(...values, targetValue);
+            const valueRange = maxValue - minValue || 1; // Avoid division by zero
+
+            // Calculate expected trajectory (linear from starting to target)
+            const expectedSlope = (targetValue - startingValue) / (targetYear - startingYear);
+            const expectedCurrentValue = startingValue + (expectedSlope * (currentYear - startingYear));
+
+            // Determine trend: improving, declining, or stagnant
+            let trendColor;
+            const actualChange = currentValue - startingValue;
+            const expectedChange = expectedCurrentValue - startingValue;
+
+            if (isIncrease) {
+                // For increase goals: green if actual >= expected, red if below
+                if (actualChange >= expectedChange * 0.95) {
+                    trendColor = '#198754'; // Green - improving/on track
+                } else if (actualChange >= expectedChange * 0.7) {
+                    trendColor = '#ffc107'; // Yellow - at risk
+                } else {
+                    trendColor = '#dc3545'; // Red - declining/off track
+                }
+            } else {
+                // For decrease goals: green if actual reduction >= expected, red if below
+                const actualReduction = startingValue - currentValue;
+                const expectedReduction = startingValue - expectedCurrentValue;
+
+                if (actualReduction >= expectedReduction * 0.95) {
+                    trendColor = '#198754'; // Green
+                } else if (actualReduction >= expectedReduction * 0.7) {
+                    trendColor = '#ffc107'; // Yellow
+                } else {
+                    trendColor = '#dc3545'; // Red
+                }
+            }
+
+            // Draw background expected line (dashed, light gray)
+            ctx.beginPath();
+            ctx.setLineDash([3, 3]);
+            ctx.strokeStyle = '#dee2e6';
+            ctx.lineWidth = 1;
+
+            const startX = padding;
+            const startY = height - padding - ((startingValue - minValue) / valueRange) * (height - 2 * padding);
+            const endX = width - padding;
+            const endY = height - padding - ((targetValue - minValue) / valueRange) * (height - 2 * padding);
+
+            ctx.moveTo(startX, startY);
+            ctx.lineTo(endX, endY);
+            ctx.stroke();
+            ctx.setLineDash([]);
+
+            // Draw actual progress line
+            ctx.beginPath();
+            ctx.strokeStyle = trendColor;
+            ctx.lineWidth = 2;
+
+            dataPoints.forEach((point, index) => {
+                const x = padding + ((point.year - startingYear) / (targetYear - startingYear)) * (width - 2 * padding);
+                const y = height - padding - ((point.value - minValue) / valueRange) * (height - 2 * padding);
+
+                if (index === 0) {
+                    ctx.moveTo(x, y);
+                } else {
+                    ctx.lineTo(x, y);
+                }
+            });
+
+            ctx.stroke();
+
+            // Draw dots at data points
+            dataPoints.forEach(point => {
+                const x = padding + ((point.year - startingYear) / (targetYear - startingYear)) * (width - 2 * padding);
+                const y = height - padding - ((point.value - minValue) / valueRange) * (height - 2 * padding);
+
+                ctx.beginPath();
+                ctx.arc(x, y, 3, 0, 2 * Math.PI);
+                ctx.fillStyle = trendColor;
+                ctx.fill();
+            });
+
+            // Add tooltip on hover
+            canvas.title = `Trend: ${dataPoints[0].value.toFixed(2)} → ${dataPoints[dataPoints.length - 1].value.toFixed(2)}`;
+        }
     </script>
 }
 
@@ -1165,6 +1336,24 @@
         .summary-card-label {
             font-size: 0.8rem;
         }
+    }
+
+    /* Sparkline Styles */
+    .sparkline-cell {
+        padding: 0.5rem !important;
+        vertical-align: middle !important;
+        background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+    }
+
+    .sparkline-canvas {
+        display: block;
+        margin: 0 auto;
+        cursor: pointer;
+        transition: transform 0.2s ease;
+    }
+
+    .sparkline-canvas:hover {
+        transform: scale(1.1);
     }
 
     .dashboard-header {
