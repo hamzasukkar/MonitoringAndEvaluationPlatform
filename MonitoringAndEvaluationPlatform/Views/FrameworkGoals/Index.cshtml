@@ -63,25 +63,76 @@
     </div>
 </div>
 
-<!-- Filter Section -->
+<!-- Advanced Filter Section -->
 <div class="card shadow-sm mb-4">
+    <div class="card-header bg-light d-flex justify-content-between align-items-center">
+        <h6 class="mb-0">
+            <i class="fas fa-filter me-2"></i>@Localizer["Advanced Filters"]
+        </h6>
+        <button type="button" class="btn btn-sm btn-outline-secondary" onclick="resetFilters()">
+            <i class="fas fa-redo me-1"></i>@Localizer["Reset Filters"]
+        </button>
+    </div>
     <div class="card-body">
-        <form method="get" asp-action="Index">
-            <div class="row">
-                <div class="col-md-4">
-                    <label class="form-label">@Localizer["Filter by Framework"]</label>
-                    <select name="frameworkCode" class="form-select" onchange="this.form.submit()">
-                        <option value="">@Localizer["All Frameworks"]</option>
-                        @foreach (var framework in ViewBag.Frameworks)
-                        {
-                            <option value="@framework.Code" selected="@(ViewBag.SelectedFrameworkCode == framework.Code)">
-                                @framework.Name
-                            </option>
-                        }
-                    </select>
-                </div>
+        <div class="row g-3">
+            <!-- Search Bar -->
+            <div class="col-md-6 col-lg-3">
+                <label class="form-label">
+                    <i class="fas fa-search me-1"></i>@Localizer["Search Goal Name"]
+                </label>
+                <input type="text" id="searchGoal" class="form-control" placeholder="@Localizer["Type to search..."]" oninput="applyFilters()">
             </div>
-        </form>
+
+            <!-- Framework Filter -->
+            <div class="col-md-6 col-lg-3">
+                <label class="form-label">
+                    <i class="fas fa-folder me-1"></i>@Localizer["Framework"]
+                </label>
+                <select id="frameworkFilter" class="form-select" onchange="applyFilters()">
+                    <option value="">@Localizer["All Frameworks"]</option>
+                    @foreach (var framework in ViewBag.Frameworks)
+                    {
+                        <option value="@framework.Code">@framework.Name</option>
+                    }
+                </select>
+            </div>
+
+            <!-- Status Filter -->
+            <div class="col-md-6 col-lg-3">
+                <label class="form-label">
+                    <i class="fas fa-signal me-1"></i>@Localizer["Status"]
+                </label>
+                <select id="statusFilter" class="form-select" onchange="applyFilters()">
+                    <option value="">@Localizer["All Status"]</option>
+                    <option value="on-track">@Localizer["On Track"]</option>
+                    <option value="at-risk">@Localizer["At Risk"]</option>
+                    <option value="off-track">@Localizer["Off Track"]</option>
+                </select>
+            </div>
+
+            <!-- Progress Range Filter -->
+            <div class="col-md-6 col-lg-3">
+                <label class="form-label">
+                    <i class="fas fa-percentage me-1"></i>@Localizer["Progress Range"]
+                </label>
+                <select id="progressRangeFilter" class="form-select" onchange="applyFilters()">
+                    <option value="">@Localizer["All Progress"]</option>
+                    <option value="0-25">0% - 25%</option>
+                    <option value="25-50">25% - 50%</option>
+                    <option value="50-75">50% - 75%</option>
+                    <option value="75-100">75% - 100%</option>
+                    <option value="100+">100%+</option>
+                </select>
+            </div>
+        </div>
+
+        <!-- Filter Results Counter -->
+        <div class="mt-3">
+            <div class="alert alert-info mb-0 py-2" id="filterResults" style="display: none;">
+                <i class="fas fa-info-circle me-2"></i>
+                <span id="filterResultsText"></span>
+            </div>
+        </div>
     </div>
 </div>
 
@@ -305,7 +356,56 @@
                     <tbody>
                         @foreach (var goal in Model)
                         {
-                            <tr id="goal-row-@goal.ID">
+                            // Calculate status for filtering
+                            var isIncreaseGoalFilter = goal.TargetValue > goal.BaseValueForStartingYear;
+                            var actualChangeFilter = goal.BaseValueForCurrentYear - goal.BaseValueForStartingYear;
+
+                                // Calculate expected trajectory
+                                var expectedSlope = (goal.TargetValue - goal.BaseValueForStartingYear) / (goal.TargetYear - goal.StartingYear);
+                                var expectedCurrentValue = goal.BaseValueForStartingYear + (expectedSlope * (goal.CurrentYear - goal.StartingYear));
+
+                                string goalStatus;
+                                if (isIncreaseGoalFilter)
+                                {
+                                    var expectedChange = expectedCurrentValue - goal.BaseValueForStartingYear;
+                                    if (actualChangeFilter >= expectedChange * 0.95)
+                                    {
+                                        goalStatus = "on-track";
+                                    }
+                                    else if (actualChangeFilter >= expectedChange * 0.7)
+                                    {
+                                        goalStatus = "at-risk";
+                                    }
+                                    else
+                                    {
+                                        goalStatus = "off-track";
+                                    }
+                                }
+                                else
+                                {
+                                    var actualReduction = goal.BaseValueForStartingYear - goal.BaseValueForCurrentYear;
+                                    var expectedReduction = goal.BaseValueForStartingYear - expectedCurrentValue;
+                                    if (actualReduction >= expectedReduction * 0.95)
+                                    {
+                                        goalStatus = "on-track";
+                                    }
+                                    else if (actualReduction >= expectedReduction * 0.7)
+                                    {
+                                        goalStatus = "at-risk";
+                                    }
+                                    else
+                                    {
+                                        goalStatus = "off-track";
+                                    }
+                                }
+
+                            <tr id="goal-row-@goal.ID"
+                                class="goal-row"
+                                data-goal-name="@goal.Name.ToLower()"
+                                data-framework-code="@goal.FrameworkCode"
+                                data-framework-name="@goal.Framework.Name"
+                                data-progress-rate="@goal.ProgressRate"
+                                data-status="@goalStatus">
                                 <td><strong>@goal.Name</strong></td>
                                 <td>
                                     <span class="badge bg-info">@goal.Framework.Name</span>
@@ -1212,6 +1312,97 @@
 
             // Add tooltip on hover
             canvas.title = `Trend: ${dataPoints[0].value.toFixed(2)} → ${dataPoints[dataPoints.length - 1].value.toFixed(2)}`;
+        }
+
+        // Advanced Filtering Functions
+        function applyFilters() {
+            const searchTerm = document.getElementById('searchGoal').value.toLowerCase().trim();
+            const frameworkFilter = document.getElementById('frameworkFilter').value;
+            const statusFilter = document.getElementById('statusFilter').value;
+            const progressRangeFilter = document.getElementById('progressRangeFilter').value;
+
+            const goalRows = document.querySelectorAll('.goal-row');
+            let visibleCount = 0;
+            let totalCount = goalRows.length;
+
+            goalRows.forEach(row => {
+                let shouldShow = true;
+
+                // Search by goal name
+                if (searchTerm !== '') {
+                    const goalName = row.getAttribute('data-goal-name');
+                    if (!goalName.includes(searchTerm)) {
+                        shouldShow = false;
+                    }
+                }
+
+                // Filter by framework
+                if (frameworkFilter !== '') {
+                    const frameworkCode = row.getAttribute('data-framework-code');
+                    if (frameworkCode !== frameworkFilter) {
+                        shouldShow = false;
+                    }
+                }
+
+                // Filter by status
+                if (statusFilter !== '') {
+                    const status = row.getAttribute('data-status');
+                    if (status !== statusFilter) {
+                        shouldShow = false;
+                    }
+                }
+
+                // Filter by progress range
+                if (progressRangeFilter !== '') {
+                    const progressRate = parseFloat(row.getAttribute('data-progress-rate'));
+                    const [min, max] = progressRangeFilter.split('-').map(v => v === '' ? Infinity : parseFloat(v.replace('+', '')));
+
+                    if (max === undefined || max === Infinity) {
+                        // Handle "100+" case
+                        if (progressRate < min) {
+                            shouldShow = false;
+                        }
+                    } else {
+                        if (progressRate < min || progressRate > max) {
+                            shouldShow = false;
+                        }
+                    }
+                }
+
+                // Show or hide the row
+                if (shouldShow) {
+                    row.style.display = '';
+                    visibleCount++;
+                } else {
+                    row.style.display = 'none';
+                }
+            });
+
+            // Update filter results counter
+            updateFilterResults(visibleCount, totalCount);
+        }
+
+        function updateFilterResults(visibleCount, totalCount) {
+            const filterResults = document.getElementById('filterResults');
+            const filterResultsText = document.getElementById('filterResultsText');
+
+            if (visibleCount < totalCount) {
+                filterResults.style.display = 'block';
+                filterResultsText.textContent = `@Localizer["Showing"]` + ' ' + visibleCount + ' ' + `@Localizer["of"]` + ' ' + totalCount + ' ' + `@Localizer["goals"]`;
+            } else {
+                filterResults.style.display = 'none';
+            }
+        }
+
+        function resetFilters() {
+            // Clear all filter inputs
+            document.getElementById('searchGoal').value = '';
+            document.getElementById('frameworkFilter').value = '';
+            document.getElementById('statusFilter').value = '';
+            document.getElementById('progressRangeFilter').value = '';
+
+            // Reapply filters (which will show all rows)
+            applyFilters();
         }
     </script>
 }
