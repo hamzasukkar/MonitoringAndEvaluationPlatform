@@ -618,15 +618,15 @@
                                             <td class="text-center @(isCurrentYear ? "bg-light-current" : "")">
                                                 @if (isStartingYear)
                                                 {
-                                                    <strong class="text-primary">@baseValue.ToString("N2")</strong>
+                                                    <strong class="text-primary">@(baseValue.ToString("N2"))%</strong>
                                                 }
                                                 else if (isCurrentYear)
                                                 {
-                                                    <strong class="text-success">@baseValue.ToString("N2")</strong>
+                                                    <strong class="text-success">@(baseValue.ToString("N2"))%</strong>
                                                 }
                                                 else if (baseValue > 0)
                                                 {
-                                                    @baseValue.ToString("N2")
+                                                    <text>@(baseValue.ToString("N2"))%</text>
                                                 }
                                                 else
                                                 {
@@ -638,11 +638,11 @@
                                             <td class="text-center @(isCurrentYear ? "bg-light-current" : "")">
                                                 @if (isTargetYear)
                                                 {
-                                                    <strong class="text-danger">@goal.TargetValue.ToString("N2")</strong>
+                                                    <strong class="text-danger">@(goal.TargetValue.ToString("N2"))%</strong>
                                                 }
                                                 else
                                                 {
-                                                    <span class="text-info">@expectedTarget.ToString("N2")</span>
+                                                    <span class="text-info">@(expectedTarget.ToString("N2"))%</span>
                                                 }
                                             </td>
                                         }
@@ -659,7 +659,7 @@
                                     }
                                 }
                                 <td class="text-center">
-                                    <strong class="text-primary">@goal.AnnualDiscountRate.ToString("N2")</strong>
+                                    <strong class="text-primary">@(goal.AnnualDiscountRate.ToString("N2"))%</strong>
                                 </td>
                                 <td class="text-center">
                                     @{
