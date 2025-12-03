@@ -45,6 +45,9 @@
             <a asp-action="ProgressView" asp-route-frameworkCode="@ViewBag.SelectedFrameworkCode" class="btn btn-dark btn-lg shadow-sm">
                 <i class="fas fa-chart-pie me-2"></i>@Localizer["Cards View"]
             </a>
+            <a asp-action="ChartsView" asp-route-frameworkCode="@ViewBag.SelectedFrameworkCode" class="btn btn-primary btn-lg shadow-sm">
+                <i class="fas fa-chart-area me-2"></i>@Localizer["Performance Charts"]
+            </a>
             @if (SignInManager.IsSignedIn(User))
             {
                 var user = await UserManager.GetUserAsync(User);

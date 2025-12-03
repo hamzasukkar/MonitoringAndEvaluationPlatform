@@ -1,0 +1,395 @@
+@model IEnumerable<MonitoringAndEvaluationPlatform.Models.FrameworkGoal>
+
+@using MonitoringAndEvaluationPlatform.Helpers
+@using Microsoft.AspNetCore.Identity
+@inject UserManager<ApplicationUser> UserManager
+@inject SignInManager<ApplicationUser> SignInManager
+@using Microsoft.AspNetCore.Mvc.Localization
+@inject IViewLocalizer Localizer
+@using Microsoft.AspNetCore.Localization
+
+@{
+    ViewData["Title"] = "Performance Distribution Charts";
+    Layout = "~/Views/Shared/_DashboardHomeLayout.cshtml";
+    var culture = Context.Features.Get<IRequestCultureFeature>().RequestCulture.Culture.Name;
+}
+
+<!-- Dashboard Header -->
+<div class="dashboard-header">
+    <div class="d-flex justify-content-between align-items-center">
+        <div>
+            <h1 class="dashboard-title">
+                <i class="fas fa-chart-pie me-3"></i>
+                @Localizer["Performance Distribution Charts"]
+            </h1>
+            <p class="dashboard-subtitle">
+                @Localizer["Visual analysis of goal performance and distribution"]
+            </p>
+        </div>
+        <div class="d-flex gap-2 flex-wrap">
+            <a asp-action="Index" asp-route-frameworkCode="@ViewBag.SelectedFrameworkCode" class="btn btn-secondary btn-lg shadow-sm">
+                <i class="fas fa-arrow-left me-2"></i>@Localizer["Back to Goals"]
+            </a>
+        </div>
+    </div>
+</div>
+
+<!-- Framework Filter -->
+<div class="card shadow-sm mb-4">
+    <div class="card-header bg-light">
+        <h6 class="mb-0">
+            <i class="fas fa-filter me-2"></i>@Localizer["Filter by Framework"]
+        </h6>
+    </div>
+    <div class="card-body">
+        <div class="row">
+            <div class="col-md-6">
+                <label class="form-label">@Localizer["Framework"]</label>
+                <select id="frameworkFilter" class="form-select" onchange="filterByFramework()">
+                    <option value="">@Localizer["All Frameworks"]</option>
+                    @foreach (var framework in ViewBag.Frameworks)
+                    {
+                        <option value="@framework.Code" selected="@(ViewBag.SelectedFrameworkCode == framework.Code ? "selected" : null)">
+                            @framework.Name
+                        </option>
+                    }
+                </select>
+            </div>
+        </div>
+    </div>
+</div>
+
+@if (Model.Any())
+{
+    var currentYear = DateTime.Now.Year;
+
+    // Calculate status distribution for charts
+    var onTrackChartCount = 0;
+    var atRiskChartCount = 0;
+    var offTrackChartCount = 0;
+    var frameworkGoalCounts = new Dictionary<string, int>();
+
+    foreach (var goal in Model)
+    {
+        var isIncreaseGoal = goal.TargetValue > goal.BaseValueForStartingYear;
+        var actualChange = goal.BaseValueForCurrentYear - goal.BaseValueForStartingYear;
+
+        // Calculate expected trajectory for status determination
+        var expectedSlope = (goal.TargetValue - goal.BaseValueForStartingYear) / (goal.TargetYear - goal.StartingYear);
+        var expectedCurrentValue = goal.BaseValueForStartingYear + (expectedSlope * (goal.CurrentYear - goal.StartingYear));
+
+        // Determine status based on progress
+        double progressPercentage;
+        if (isIncreaseGoal)
+        {
+            var expectedChange = expectedCurrentValue - goal.BaseValueForStartingYear;
+            progressPercentage = expectedChange != 0 ? (actualChange / expectedChange) * 100 : 0;
+        }
+        else
+        {
+            var actualReduction = goal.BaseValueForStartingYear - goal.BaseValueForCurrentYear;
+            var expectedReduction = goal.BaseValueForStartingYear - expectedCurrentValue;
+            progressPercentage = expectedReduction != 0 ? (actualReduction / expectedReduction) * 100 : 0;
+        }
+
+        // Categorize status
+        if (progressPercentage >= 95)
+        {
+            onTrackChartCount++;
+        }
+        else if (progressPercentage >= 70)
+        {
+            atRiskChartCount++;
+        }
+        else
+        {
+            offTrackChartCount++;
+        }
+
+        // Count goals by framework
+        var frameworkName = goal.Framework.Name;
+        if (frameworkGoalCounts.ContainsKey(frameworkName))
+        {
+            frameworkGoalCounts[frameworkName]++;
+        }
+        else
+        {
+            frameworkGoalCounts[frameworkName] = 1;
+        }
+    }
+
+    <div class="row g-4 mb-4">
+        <!-- Status Distribution Chart (Donut) -->
+        <div class="col-lg-6">
+            <div class="card shadow-sm h-100 chart-card-custom">
+                <div class="card-header bg-light">
+                    <h6 class="mb-0">
+                        <i class="fas fa-chart-pie me-2"></i>@Localizer["Goals Status Distribution"]
+                    </h6>
+                </div>
+                <div class="card-body d-flex flex-column">
+                    <canvas id="statusDistributionChart"></canvas>
+                    <div class="chart-legend mt-3">
+                        <div class="legend-item">
+                            <span class="legend-color" style="background-color: #28a745;"></span>
+                            <span class="legend-label">@Localizer["On-Track"]: <strong>@onTrackChartCount</strong></span>
+                        </div>
+                        <div class="legend-item">
+                            <span class="legend-color" style="background-color: #ffc107;"></span>
+                            <span class="legend-label">@Localizer["At Risk"]: <strong>@atRiskChartCount</strong></span>
+                        </div>
+                        <div class="legend-item">
+                            <span class="legend-color" style="background-color: #dc3545;"></span>
+                            <span class="legend-label">@Localizer["Off-Track"]: <strong>@offTrackChartCount</strong></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Framework Distribution Chart (Bar) -->
+        <div class="col-lg-6">
+            <div class="card shadow-sm h-100 chart-card-custom">
+                <div class="card-header bg-light">
+                    <h6 class="mb-0">
+                        <i class="fas fa-chart-bar me-2"></i>@Localizer["Goals by Framework"]
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <canvas id="frameworkDistributionChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Initialize Performance Distribution Charts
+        document.addEventListener('DOMContentLoaded', function() {
+            // Chart data from server
+            const statusChartData = {
+                onTrack: @onTrackChartCount,
+                atRisk: @atRiskChartCount,
+                offTrack: @offTrackChartCount
+            };
+
+            const frameworkChartData = {
+                labels: [@Html.Raw(string.Join(", ", frameworkGoalCounts.Keys.Select(k => $"\"{k}\"")))],
+                data: [@string.Join(", ", frameworkGoalCounts.Values)]
+            };
+
+            // Create Status Distribution Chart (Donut)
+            const statusCtx = document.getElementById('statusDistributionChart');
+            if (statusCtx) {
+                new Chart(statusCtx, {
+                    type: 'doughnut',
+                    data: {
+                        labels: ['@Localizer["On-Track"]', '@Localizer["At Risk"]', '@Localizer["Off-Track"]'],
+                        datasets: [{
+                            data: [statusChartData.onTrack, statusChartData.atRisk, statusChartData.offTrack],
+                            backgroundColor: [
+                                'rgba(40, 167, 69, 0.8)',  // Green for On-Track
+                                'rgba(255, 193, 7, 0.8)',   // Yellow for At Risk
+                                'rgba(220, 53, 69, 0.8)'    // Red for Off-Track
+                            ],
+                            borderColor: [
+                                'rgba(40, 167, 69, 1)',
+                                'rgba(255, 193, 7, 1)',
+                                'rgba(220, 53, 69, 1)'
+                            ],
+                            borderWidth: 2
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: true,
+                        plugins: {
+                            legend: {
+                                display: false  // Using custom legend
+                            },
+                            tooltip: {
+                                callbacks: {
+                                    label: function(context) {
+                                        const label = context.label || '';
+                                        const value = context.parsed || 0;
+                                        const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                                        const percentage = ((value / total) * 100).toFixed(1);
+                                        return label + ': ' + value + ' (' + percentage + '%)';
+                                    }
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+
+            // Create Framework Distribution Chart (Bar)
+            const frameworkCtx = document.getElementById('frameworkDistributionChart');
+            if (frameworkCtx) {
+                new Chart(frameworkCtx, {
+                    type: 'bar',
+                    data: {
+                        labels: frameworkChartData.labels,
+                        datasets: [{
+                            label: '@Localizer["Number of Goals"]',
+                            data: frameworkChartData.data,
+                            backgroundColor: 'rgba(33, 150, 243, 0.8)',
+                            borderColor: 'rgba(33, 150, 243, 1)',
+                            borderWidth: 2,
+                            borderRadius: 8
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: true,
+                        plugins: {
+                            legend: {
+                                display: true,
+                                position: 'top'
+                            },
+                            tooltip: {
+                                callbacks: {
+                                    label: function(context) {
+                                        return context.dataset.label + ': ' + context.parsed.y;
+                                    }
+                                }
+                            }
+                        },
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                ticks: {
+                                    stepSize: 1
+                                },
+                                title: {
+                                    display: true,
+                                    text: '@Localizer["Number of Goals"]'
+                                }
+                            },
+                            x: {
+                                title: {
+                                    display: true,
+                                    text: '@Localizer["Framework"]'
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+        });
+
+        // Framework filter functionality
+        function filterByFramework() {
+            const frameworkCode = document.getElementById('frameworkFilter').value;
+            if (frameworkCode) {
+                window.location.href = '@Url.Action("ChartsView", "FrameworkGoals")?frameworkCode=' + frameworkCode;
+            } else {
+                window.location.href = '@Url.Action("ChartsView", "FrameworkGoals")';
+            }
+        }
+    </script>
+}
+else
+{
+    <div class="alert alert-info">
+        <i class="fas fa-info-circle me-2"></i>
+        @Localizer["No goals found. Please add goals to view the performance charts."]
+    </div>
+}
+
+<style>
+    /* Performance Distribution Chart Styles */
+    .chart-card-custom {
+        border-radius: 16px;
+        border: none;
+        transition: all 0.3s ease;
+        animation: fadeInUp 0.6s ease;
+    }
+
+    .chart-card-custom:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15) !important;
+    }
+
+    .chart-card-custom .card-header {
+        background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+        border-bottom: 2px solid #dee2e6;
+        border-radius: 16px 16px 0 0 !important;
+        padding: 1rem 1.5rem;
+    }
+
+    .chart-card-custom .card-header h6 {
+        color: #495057;
+        font-weight: 600;
+        font-size: 1rem;
+    }
+
+    .chart-card-custom .card-body {
+        padding: 2rem;
+    }
+
+    .chart-legend {
+        display: flex;
+        justify-content: space-around;
+        flex-wrap: wrap;
+        gap: 1rem;
+        padding: 1rem;
+        background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
+        border-radius: 12px;
+    }
+
+    .legend-item {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.5rem 1rem;
+        background: white;
+        border-radius: 8px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+        transition: all 0.2s ease;
+    }
+
+    .legend-item:hover {
+        transform: scale(1.05);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+    }
+
+    .legend-color {
+        width: 16px;
+        height: 16px;
+        border-radius: 4px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    }
+
+    .legend-label {
+        font-size: 0.9rem;
+        color: #495057;
+        font-weight: 500;
+    }
+
+    @@keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    @@media (max-width: 768px) {
+        .chart-card-custom .card-body {
+            padding: 1rem;
+        }
+
+        .chart-legend {
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .legend-item {
+            width: 100%;
+            justify-content: center;
+        }
+    }
+</style>
