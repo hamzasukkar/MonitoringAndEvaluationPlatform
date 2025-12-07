@@ -614,6 +614,7 @@
 
                             <tr id="goal-row-@goal.ID"
                                 class="goal-row"
+                                data-goal-id="@goal.ID"
                                 data-goal-name="@goal.Name.ToLower()"
                                 data-goal-name-display="@goal.Name"
                                 data-framework-code="@goal.FrameworkCode"
@@ -622,7 +623,14 @@
                                 data-discount-rate="@goal.AnnualDiscountRate"
                                 data-status="@goalStatus"
                                 data-starting-year="@goal.StartingYear"
-                                data-target-year="@goal.TargetYear">
+                                data-current-year="@goal.CurrentYear"
+                                data-target-year="@goal.TargetYear"
+                                data-base-value-starting="@goal.BaseValueForStartingYear.ToString(System.Globalization.CultureInfo.InvariantCulture)"
+                                data-base-value-current="@goal.BaseValueForCurrentYear.ToString(System.Globalization.CultureInfo.InvariantCulture)"
+                                data-target-value="@goal.TargetValue.ToString(System.Globalization.CultureInfo.InvariantCulture)"
+                                data-amount-of-reduction="@goal.AmountOfReduction.ToString(System.Globalization.CultureInfo.InvariantCulture)"
+                                data-is-increase-goal="@(goal.TargetValue > goal.BaseValueForStartingYear ? "true" : "false")"
+                                data-timeline-url="@Url.Action("FrameworkGoalsTimeline", "Dashboard", new { goalId = goal.ID, frameworkCode = goal.FrameworkCode })">
                                 <td><strong>@goal.Name</strong></td>
                                 <td>
                                     <span class="badge bg-info">@goal.Framework.Name</span>
@@ -729,6 +737,11 @@
                                     </span>
                                 </td>
                                 <td class="text-center">
+                                    <button onclick="showGoalDetails(@goal.ID)"
+                                            class="btn btn-sm btn-outline-primary me-2"
+                                            title="@Localizer["View Details"]">
+                                        <i class="fas fa-eye"></i>
+                                    </button>
                                     <a href="@Url.Action("FrameworkGoalsTimeline", "Dashboard", new { goalId = goal.ID, frameworkCode = goal.FrameworkCode })"
                                        class="btn btn-sm btn-info text-white me-2"
                                        title="@Localizer["View Timeline Chart"]">
@@ -871,6 +884,179 @@
                 <button type="button" class="btn btn-danger px-4" onclick="confirmDelete()">
                     <i class="fas fa-trash me-2"></i>@Localizer["Delete"]
                 </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Goal Details Sidebar (Offcanvas) -->
+<div class="offcanvas offcanvas-end goal-details-sidebar" tabindex="-1" id="goalDetailsSidebar" aria-labelledby="goalDetailsSidebarLabel">
+    <div class="offcanvas-header bg-primary text-white">
+        <h5 class="offcanvas-title" id="goalDetailsSidebarLabel">
+            <i class="fas fa-bullseye me-2"></i>@Localizer["Goal Details"]
+        </h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+    </div>
+    <div class="offcanvas-body p-0">
+        <!-- Goal Header -->
+        <div class="goal-sidebar-header p-4 bg-light border-bottom">
+            <h4 class="goal-sidebar-name mb-2" id="sidebarGoalName">-</h4>
+            <div class="d-flex align-items-center gap-2 flex-wrap">
+                <span class="badge bg-info" id="sidebarFrameworkBadge">-</span>
+                <span class="badge" id="sidebarStatusBadge">-</span>
+            </div>
+        </div>
+
+        <!-- Progress Section -->
+        <div class="p-4 border-bottom">
+            <h6 class="text-muted mb-3">
+                <i class="fas fa-chart-line me-2"></i>@Localizer["Progress Overview"]
+            </h6>
+            <div class="progress-circle-container text-center mb-3">
+                <div class="progress-circle" id="sidebarProgressCircle">
+                    <svg viewBox="0 0 100 100">
+                        <circle class="progress-circle-bg" cx="50" cy="50" r="45"></circle>
+                        <circle class="progress-circle-fill" cx="50" cy="50" r="45" id="sidebarProgressCircleFill"></circle>
+                    </svg>
+                    <div class="progress-circle-text">
+                        <span class="progress-value" id="sidebarProgressValue">0%</span>
+                        <span class="progress-label">@Localizer["Progress"]</span>
+                    </div>
+                </div>
+            </div>
+            <div class="d-flex justify-content-between text-center">
+                <div class="flex-fill">
+                    <div class="text-muted small">@Localizer["Goal Type"]</div>
+                    <strong id="sidebarGoalType">-</strong>
+                </div>
+                <div class="flex-fill border-start border-end">
+                    <div class="text-muted small">@Localizer["Discount Rate"]</div>
+                    <strong id="sidebarDiscountRate">-</strong>
+                </div>
+                <div class="flex-fill">
+                    <div class="text-muted small">@Localizer["Years Left"]</div>
+                    <strong id="sidebarYearsLeft">-</strong>
+                </div>
+            </div>
+        </div>
+
+        <!-- Timeline Section -->
+        <div class="p-4 border-bottom">
+            <h6 class="text-muted mb-3">
+                <i class="fas fa-calendar-alt me-2"></i>@Localizer["Timeline"]
+            </h6>
+            <div class="timeline-visual">
+                <div class="timeline-bar">
+                    <div class="timeline-progress" id="sidebarTimelineProgress"></div>
+                    <div class="timeline-marker timeline-start" id="sidebarTimelineStart">
+                        <span class="timeline-year" id="sidebarStartYear">-</span>
+                        <span class="timeline-label">@Localizer["Start"]</span>
+                    </div>
+                    <div class="timeline-marker timeline-current" id="sidebarTimelineCurrent">
+                        <span class="timeline-year" id="sidebarCurrentYear">-</span>
+                        <span class="timeline-label">@Localizer["Current"]</span>
+                    </div>
+                    <div class="timeline-marker timeline-target" id="sidebarTimelineTarget">
+                        <span class="timeline-year" id="sidebarTargetYear">-</span>
+                        <span class="timeline-label">@Localizer["Target"]</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Values Section -->
+        <div class="p-4 border-bottom">
+            <h6 class="text-muted mb-3">
+                <i class="fas fa-chart-bar me-2"></i>@Localizer["Key Values"]
+            </h6>
+            <div class="row g-3">
+                <div class="col-6">
+                    <div class="value-card value-card-start">
+                        <div class="value-card-label">@Localizer["Starting Value"]</div>
+                        <div class="value-card-year" id="sidebarStartingYearLabel">-</div>
+                        <div class="value-card-value" id="sidebarStartingValue">-</div>
+                    </div>
+                </div>
+                <div class="col-6">
+                    <div class="value-card value-card-current">
+                        <div class="value-card-label">@Localizer["Current Value"]</div>
+                        <div class="value-card-year" id="sidebarCurrentYearLabel">-</div>
+                        <div class="value-card-value" id="sidebarCurrentValue">-</div>
+                    </div>
+                </div>
+                <div class="col-6">
+                    <div class="value-card value-card-target">
+                        <div class="value-card-label">@Localizer["Target Value"]</div>
+                        <div class="value-card-year" id="sidebarTargetYearLabel">-</div>
+                        <div class="value-card-value" id="sidebarTargetValue">-</div>
+                    </div>
+                </div>
+                <div class="col-6">
+                    <div class="value-card value-card-change">
+                        <div class="value-card-label">@Localizer["Required Change"]</div>
+                        <div class="value-card-year">@Localizer["Total"]</div>
+                        <div class="value-card-value" id="sidebarRequiredChange">-</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Analysis Section -->
+        <div class="p-4 border-bottom">
+            <h6 class="text-muted mb-3">
+                <i class="fas fa-analytics me-2"></i>@Localizer["Analysis"]
+            </h6>
+            <div class="analysis-item">
+                <div class="d-flex justify-content-between mb-2">
+                    <span>@Localizer["Actual Change"]</span>
+                    <strong id="sidebarActualChange">-</strong>
+                </div>
+                <div class="d-flex justify-content-between mb-2">
+                    <span>@Localizer["Expected Change"]</span>
+                    <strong id="sidebarExpectedChange">-</strong>
+                </div>
+                <div class="d-flex justify-content-between">
+                    <span>@Localizer["Variance"]</span>
+                    <strong id="sidebarVariance">-</strong>
+                </div>
+            </div>
+        </div>
+
+        <!-- Historical Values Section -->
+        <div class="p-4 border-bottom">
+            <h6 class="text-muted mb-3">
+                <i class="fas fa-history me-2"></i>@Localizer["Historical Values"]
+            </h6>
+            <div id="sidebarHistoricalValues">
+                <div class="text-center text-muted py-3">
+                    <i class="fas fa-spinner fa-spin me-2"></i>@Localizer["Loading..."]
+                </div>
+            </div>
+        </div>
+
+        <!-- Actions Section -->
+        <div class="p-4">
+            <h6 class="text-muted mb-3">
+                <i class="fas fa-cog me-2"></i>@Localizer["Actions"]
+            </h6>
+            <div class="d-grid gap-2">
+                <a href="#" id="sidebarTimelineLink" class="btn btn-info">
+                    <i class="fas fa-chart-line me-2"></i>@Localizer["View Timeline Chart"]
+                </a>
+                @if (SignInManager.IsSignedIn(User))
+                {
+                    var currentUser = await UserManager.GetUserAsync(User);
+                    if (currentUser != null)
+                    {
+                        var currentUserRoles = await UserManager.GetRolesAsync(currentUser);
+                        if (currentUserRoles.Contains("SystemAdministrator"))
+                        {
+                            <button type="button" class="btn btn-warning" id="sidebarEditBtn">
+                                <i class="fas fa-edit me-2"></i>@Localizer["Edit Goal"]
+                            </button>
+                        }
+                    }
+                }
             </div>
         </div>
     </div>
@@ -2270,6 +2456,242 @@
         // END EXPORT FUNCTIONALITY
         // =============================================
 
+        // =============================================
+        // GOAL DETAILS SIDEBAR FUNCTIONALITY
+        // =============================================
+
+        let currentSidebarGoalId = null;
+
+        // Show goal details in sidebar
+        function showGoalDetails(goalId) {
+            currentSidebarGoalId = goalId;
+            const row = document.getElementById(`goal-row-${goalId}`);
+
+            if (!row) {
+                showErrorMessage('@Localizer["Goal not found"]');
+                return;
+            }
+
+            // Get data from row attributes
+            const goalName = row.getAttribute('data-goal-name-display');
+            const frameworkName = row.getAttribute('data-framework-name');
+            const frameworkCode = row.getAttribute('data-framework-code');
+            const progressRate = parseFloat(row.getAttribute('data-progress-rate'));
+            const discountRate = parseFloat(row.getAttribute('data-discount-rate'));
+            const status = row.getAttribute('data-status');
+            const startingYear = parseInt(row.getAttribute('data-starting-year'));
+            const currentYear = parseInt(row.getAttribute('data-current-year'));
+            const targetYear = parseInt(row.getAttribute('data-target-year'));
+            const baseValueStarting = parseFloat(row.getAttribute('data-base-value-starting'));
+            const baseValueCurrent = parseFloat(row.getAttribute('data-base-value-current'));
+            const targetValue = parseFloat(row.getAttribute('data-target-value'));
+            const amountOfReduction = parseFloat(row.getAttribute('data-amount-of-reduction'));
+            const isIncreaseGoal = row.getAttribute('data-is-increase-goal') === 'true';
+            const timelineUrl = row.getAttribute('data-timeline-url');
+
+            // Populate header
+            document.getElementById('sidebarGoalName').textContent = goalName;
+            document.getElementById('sidebarFrameworkBadge').textContent = frameworkName;
+
+            // Status badge
+            const statusBadge = document.getElementById('sidebarStatusBadge');
+            statusBadge.textContent = status.replace('-', ' ').replace(/\b\w/g, l => l.toUpperCase());
+            statusBadge.className = 'badge ' + getStatusBadgeClass(status);
+
+            // Progress circle
+            const progressValue = Math.min(Math.max(progressRate, 0), 100);
+            const circumference = 2 * Math.PI * 45;
+            const offset = circumference - (progressValue / 100) * circumference;
+            const progressCircleFill = document.getElementById('sidebarProgressCircleFill');
+            progressCircleFill.style.strokeDasharray = circumference;
+            progressCircleFill.style.strokeDashoffset = offset;
+            progressCircleFill.style.stroke = getProgressColor(progressRate, status);
+            document.getElementById('sidebarProgressValue').textContent = progressRate.toFixed(1) + '%';
+
+            // Goal type, discount rate, years left
+            document.getElementById('sidebarGoalType').textContent = isIncreaseGoal ? '@Localizer["Increase"]' : '@Localizer["Decrease"]';
+            document.getElementById('sidebarGoalType').className = isIncreaseGoal ? 'text-success' : 'text-danger';
+            document.getElementById('sidebarDiscountRate').textContent = discountRate.toFixed(2) + '%';
+
+            const currentCalendarYear = new Date().getFullYear();
+            const yearsLeft = Math.max(0, targetYear - currentCalendarYear);
+            document.getElementById('sidebarYearsLeft').textContent = yearsLeft + ' ' + (yearsLeft === 1 ? '@Localizer["year"]' : '@Localizer["years"]');
+
+            // Timeline
+            document.getElementById('sidebarStartYear').textContent = startingYear;
+            document.getElementById('sidebarCurrentYear').textContent = currentYear;
+            document.getElementById('sidebarTargetYear').textContent = targetYear;
+
+            // Calculate timeline progress percentage
+            const totalYears = targetYear - startingYear;
+            const elapsedYears = currentYear - startingYear;
+            const timelineProgressPercent = totalYears > 0 ? (elapsedYears / totalYears) * 100 : 0;
+            document.getElementById('sidebarTimelineProgress').style.width = Math.min(timelineProgressPercent, 100) + '%';
+
+            // Position current marker
+            const currentMarker = document.getElementById('sidebarTimelineCurrent');
+            currentMarker.style.left = Math.min(timelineProgressPercent, 100) + '%';
+
+            // Values
+            document.getElementById('sidebarStartingYearLabel').textContent = startingYear;
+            document.getElementById('sidebarStartingValue').textContent = baseValueStarting.toFixed(2) + '%';
+            document.getElementById('sidebarCurrentYearLabel').textContent = currentYear;
+            document.getElementById('sidebarCurrentValue').textContent = baseValueCurrent.toFixed(2) + '%';
+            document.getElementById('sidebarTargetYearLabel').textContent = targetYear;
+            document.getElementById('sidebarTargetValue').textContent = targetValue.toFixed(2) + '%';
+
+            // Required change
+            const totalChange = Math.abs(targetValue - baseValueStarting);
+            document.getElementById('sidebarRequiredChange').textContent = (isIncreaseGoal ? '+' : '-') + totalChange.toFixed(2) + '%';
+
+            // Analysis
+            const actualChange = baseValueCurrent - baseValueStarting;
+            const expectedSlope = (targetValue - baseValueStarting) / (targetYear - startingYear);
+            const expectedCurrentValue = baseValueStarting + (expectedSlope * (currentYear - startingYear));
+            const expectedChange = expectedCurrentValue - baseValueStarting;
+            const variance = actualChange - expectedChange;
+
+            document.getElementById('sidebarActualChange').textContent = (actualChange >= 0 ? '+' : '') + actualChange.toFixed(2) + '%';
+            document.getElementById('sidebarActualChange').className = getChangeClass(actualChange, isIncreaseGoal);
+
+            document.getElementById('sidebarExpectedChange').textContent = (expectedChange >= 0 ? '+' : '') + expectedChange.toFixed(2) + '%';
+
+            document.getElementById('sidebarVariance').textContent = (variance >= 0 ? '+' : '') + variance.toFixed(2) + '%';
+            document.getElementById('sidebarVariance').className = getVarianceClass(variance, isIncreaseGoal);
+
+            // Actions
+            document.getElementById('sidebarTimelineLink').href = timelineUrl;
+
+            // Edit button
+            const editBtn = document.getElementById('sidebarEditBtn');
+            if (editBtn) {
+                editBtn.onclick = function() {
+                    // Close sidebar first
+                    const sidebar = bootstrap.Offcanvas.getInstance(document.getElementById('goalDetailsSidebar'));
+                    sidebar.hide();
+                    // Show edit modal
+                    showEditModal(goalId, currentYear, baseValueCurrent, startingYear, targetYear);
+                };
+            }
+
+            // Load historical values
+            loadSidebarHistoricalValues(goalId);
+
+            // Show sidebar
+            const sidebar = new bootstrap.Offcanvas(document.getElementById('goalDetailsSidebar'));
+            sidebar.show();
+        }
+
+        // Get status badge class
+        function getStatusBadgeClass(status) {
+            switch (status) {
+                case 'on-track': return 'bg-success';
+                case 'at-risk': return 'bg-warning text-dark';
+                case 'off-track': return 'bg-danger';
+                default: return 'bg-secondary';
+            }
+        }
+
+        // Get progress color
+        function getProgressColor(progress, status) {
+            switch (status) {
+                case 'on-track': return '#198754';
+                case 'at-risk': return '#ffc107';
+                case 'off-track': return '#dc3545';
+                default: return '#6c757d';
+            }
+        }
+
+        // Get change class
+        function getChangeClass(change, isIncrease) {
+            if (isIncrease) {
+                return change >= 0 ? 'text-success' : 'text-danger';
+            } else {
+                return change <= 0 ? 'text-success' : 'text-danger';
+            }
+        }
+
+        // Get variance class
+        function getVarianceClass(variance, isIncrease) {
+            if (isIncrease) {
+                return variance >= 0 ? 'text-success' : 'text-danger';
+            } else {
+                return variance <= 0 ? 'text-success' : 'text-danger';
+            }
+        }
+
+        // Load historical values for sidebar
+        async function loadSidebarHistoricalValues(goalId) {
+            const container = document.getElementById('sidebarHistoricalValues');
+            container.innerHTML = `
+                <div class="text-center text-muted py-3">
+                    <i class="fas fa-spinner fa-spin me-2"></i>@Localizer["Loading..."]
+                </div>
+            `;
+
+            try {
+                const response = await fetch(`@Url.Action("GetYearlyValues", "FrameworkGoals")?goalId=${goalId}`);
+                const result = await response.json();
+
+                if (result.success) {
+                    let html = '<div class="historical-values-list">';
+
+                    // Add starting year
+                    html += `
+                        <div class="historical-value-item">
+                            <span class="historical-year">${result.startingYear}</span>
+                            <span class="historical-badge badge bg-primary">@Localizer["Start"]</span>
+                            <span class="historical-val">${result.baseValueForStartingYear.toFixed(2)}%</span>
+                        </div>
+                    `;
+
+                    // Add yearly values
+                    if (result.yearlyValues && result.yearlyValues.length > 0) {
+                        result.yearlyValues.forEach(yv => {
+                            if (yv.year > result.startingYear && yv.year < result.currentYear) {
+                                html += `
+                                    <div class="historical-value-item">
+                                        <span class="historical-year">${yv.year}</span>
+                                        <span class="historical-badge"></span>
+                                        <span class="historical-val">${yv.value.toFixed(2)}%</span>
+                                    </div>
+                                `;
+                            }
+                        });
+                    }
+
+                    // Add current year
+                    html += `
+                        <div class="historical-value-item">
+                            <span class="historical-year">${result.currentYear}</span>
+                            <span class="historical-badge badge bg-success">@Localizer["Current"]</span>
+                            <span class="historical-val">${result.baseValueForCurrentYear.toFixed(2)}%</span>
+                        </div>
+                    `;
+
+                    html += '</div>';
+                    container.innerHTML = html;
+                } else {
+                    container.innerHTML = `
+                        <div class="text-center text-muted py-3">
+                            <i class="fas fa-info-circle me-2"></i>@Localizer["No historical data available"]
+                        </div>
+                    `;
+                }
+            } catch (error) {
+                console.error('Error loading historical values:', error);
+                container.innerHTML = `
+                    <div class="text-center text-danger py-3">
+                        <i class="fas fa-exclamation-circle me-2"></i>@Localizer["Error loading data"]
+                    </div>
+                `;
+            }
+        }
+
+        // =============================================
+        // END GOAL DETAILS SIDEBAR
+        // =============================================
+
         // Advanced Filtering Functions
         function applyFilters() {
             // Reset to page 1 when filters change
@@ -3009,6 +3431,300 @@
 
         .export-btn-group .btn span {
             display: none;
+        }
+    }
+
+    /* =============================================
+       GOAL DETAILS SIDEBAR STYLES
+       ============================================= */
+    .goal-details-sidebar {
+        width: 420px !important;
+        max-width: 90vw;
+    }
+
+    .goal-details-sidebar .offcanvas-header {
+        padding: 1.25rem 1.5rem;
+    }
+
+    .goal-sidebar-header {
+        background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    }
+
+    .goal-sidebar-name {
+        font-size: 1.25rem;
+        font-weight: 600;
+        color: #2c3e50;
+        line-height: 1.3;
+    }
+
+    /* Progress Circle */
+    .progress-circle-container {
+        display: flex;
+        justify-content: center;
+    }
+
+    .progress-circle {
+        position: relative;
+        width: 140px;
+        height: 140px;
+    }
+
+    .progress-circle svg {
+        transform: rotate(-90deg);
+        width: 100%;
+        height: 100%;
+    }
+
+    .progress-circle-bg {
+        fill: none;
+        stroke: #e9ecef;
+        stroke-width: 8;
+    }
+
+    .progress-circle-fill {
+        fill: none;
+        stroke: #198754;
+        stroke-width: 8;
+        stroke-linecap: round;
+        transition: stroke-dashoffset 0.5s ease, stroke 0.3s ease;
+    }
+
+    .progress-circle-text {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        text-align: center;
+    }
+
+    .progress-circle-text .progress-value {
+        display: block;
+        font-size: 1.75rem;
+        font-weight: 700;
+        color: #2c3e50;
+    }
+
+    .progress-circle-text .progress-label {
+        display: block;
+        font-size: 0.75rem;
+        color: #6c757d;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+    }
+
+    /* Timeline Visual */
+    .timeline-visual {
+        padding: 30px 20px 50px;
+    }
+
+    .timeline-bar {
+        position: relative;
+        height: 8px;
+        background: #e9ecef;
+        border-radius: 4px;
+    }
+
+    .timeline-progress {
+        position: absolute;
+        top: 0;
+        left: 0;
+        height: 100%;
+        background: linear-gradient(90deg, #0d6efd 0%, #198754 100%);
+        border-radius: 4px;
+        transition: width 0.5s ease;
+    }
+
+    .timeline-marker {
+        position: absolute;
+        top: -8px;
+        transform: translateX(-50%);
+        text-align: center;
+    }
+
+    .timeline-start {
+        left: 0;
+    }
+
+    .timeline-current {
+        transition: left 0.5s ease;
+    }
+
+    .timeline-target {
+        left: 100%;
+    }
+
+    .timeline-marker::before {
+        content: '';
+        display: block;
+        width: 24px;
+        height: 24px;
+        border-radius: 50%;
+        background: white;
+        border: 4px solid;
+        margin: 0 auto 8px;
+    }
+
+    .timeline-start::before {
+        border-color: #0d6efd;
+    }
+
+    .timeline-current::before {
+        border-color: #198754;
+        background: #198754;
+    }
+
+    .timeline-target::before {
+        border-color: #dc3545;
+    }
+
+    .timeline-year {
+        display: block;
+        font-weight: 700;
+        font-size: 0.9rem;
+        color: #2c3e50;
+    }
+
+    .timeline-label {
+        display: block;
+        font-size: 0.7rem;
+        color: #6c757d;
+        text-transform: uppercase;
+    }
+
+    /* Value Cards */
+    .value-card {
+        background: #f8f9fa;
+        border-radius: 10px;
+        padding: 1rem;
+        text-align: center;
+        border-left: 4px solid transparent;
+        transition: all 0.2s ease;
+    }
+
+    .value-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+
+    .value-card-start {
+        border-left-color: #0d6efd;
+    }
+
+    .value-card-current {
+        border-left-color: #198754;
+    }
+
+    .value-card-target {
+        border-left-color: #dc3545;
+    }
+
+    .value-card-change {
+        border-left-color: #6c757d;
+    }
+
+    .value-card-label {
+        font-size: 0.7rem;
+        color: #6c757d;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        margin-bottom: 0.25rem;
+    }
+
+    .value-card-year {
+        font-size: 0.8rem;
+        color: #495057;
+        margin-bottom: 0.25rem;
+    }
+
+    .value-card-value {
+        font-size: 1.25rem;
+        font-weight: 700;
+        color: #2c3e50;
+    }
+
+    /* Analysis Items */
+    .analysis-item {
+        background: #f8f9fa;
+        border-radius: 10px;
+        padding: 1rem;
+    }
+
+    .analysis-item > div {
+        padding: 0.5rem 0;
+    }
+
+    .analysis-item > div:not(:last-child) {
+        border-bottom: 1px solid #e9ecef;
+    }
+
+    /* Historical Values */
+    .historical-values-list {
+        max-height: 200px;
+        overflow-y: auto;
+    }
+
+    .historical-value-item {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0.5rem 0.75rem;
+        background: #f8f9fa;
+        border-radius: 6px;
+        margin-bottom: 0.5rem;
+    }
+
+    .historical-value-item:last-child {
+        margin-bottom: 0;
+    }
+
+    .historical-year {
+        font-weight: 600;
+        color: #2c3e50;
+        min-width: 50px;
+    }
+
+    .historical-badge {
+        min-width: 70px;
+        text-align: center;
+    }
+
+    .historical-val {
+        font-weight: 600;
+        color: #495057;
+        min-width: 80px;
+        text-align: right;
+    }
+
+    /* Responsive Sidebar */
+    @@media (max-width: 576px) {
+        .goal-details-sidebar {
+            width: 100% !important;
+        }
+
+        .progress-circle {
+            width: 120px;
+            height: 120px;
+        }
+
+        .progress-circle-text .progress-value {
+            font-size: 1.5rem;
+        }
+
+        .timeline-visual {
+            padding: 25px 10px 45px;
+        }
+
+        .timeline-marker::before {
+            width: 20px;
+            height: 20px;
+        }
+
+        .timeline-year {
+            font-size: 0.8rem;
+        }
+
+        .value-card-value {
+            font-size: 1rem;
         }
     }
 </style>

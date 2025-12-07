@@ -564,4 +564,124 @@
   <data name="No goals found. Please add goals to view the performance charts." xml:space="preserve">
     <value>لم يتم العثور على أهداف. يرجى إضافة أهداف لعرض مخططات الأداء.</value>
   </data>
+  <!-- Export Features -->
+  <data name="entries" xml:space="preserve">
+    <value>عناصر</value>
+  </data>
+  <data name="No data to export" xml:space="preserve">
+    <value>لا توجد بيانات للتصدير</value>
+  </data>
+  <data name="Export to Excel" xml:space="preserve">
+    <value>تصدير إلى Excel</value>
+  </data>
+  <data name="Export to CSV" xml:space="preserve">
+    <value>تصدير إلى CSV</value>
+  </data>
+  <data name="Export to PDF" xml:space="preserve">
+    <value>تصدير إلى PDF</value>
+  </data>
+  <data name="CSV exported successfully!" xml:space="preserve">
+    <value>تم تصدير CSV بنجاح!</value>
+  </data>
+  <data name="Excel exported successfully!" xml:space="preserve">
+    <value>تم تصدير Excel بنجاح!</value>
+  </data>
+  <data name="PDF exported successfully!" xml:space="preserve">
+    <value>تم تصدير PDF بنجاح!</value>
+  </data>
+  <data name="Framework Goals Report" xml:space="preserve">
+    <value>تقرير أهداف السياسات</value>
+  </data>
+  <data name="Generated on" xml:space="preserve">
+    <value>تم إنشاؤه في</value>
+  </data>
+  <data name="Filters" xml:space="preserve">
+    <value>الفلاتر</value>
+  </data>
+  <data name="Total" xml:space="preserve">
+    <value>الإجمالي</value>
+  </data>
+  <!-- Goal Details Sidebar -->
+  <data name="Goal Details" xml:space="preserve">
+    <value>تفاصيل الهدف</value>
+  </data>
+  <data name="Progress Overview" xml:space="preserve">
+    <value>نظرة عامة على التقدم</value>
+  </data>
+  <data name="Goal Type" xml:space="preserve">
+    <value>نوع الهدف</value>
+  </data>
+  <data name="Discount Rate" xml:space="preserve">
+    <value>معدل الخصم</value>
+  </data>
+  <data name="Years Left" xml:space="preserve">
+    <value>السنوات المتبقية</value>
+  </data>
+  <data name="year" xml:space="preserve">
+    <value>سنة</value>
+  </data>
+  <data name="Increase" xml:space="preserve">
+    <value>زيادة</value>
+  </data>
+  <data name="Decrease" xml:space="preserve">
+    <value>تخفيض</value>
+  </data>
+  <data name="Starting Value" xml:space="preserve">
+    <value>قيمة البداية</value>
+  </data>
+  <data name="Current Value" xml:space="preserve">
+    <value>القيمة الحالية</value>
+  </data>
+  <data name="Required Change" xml:space="preserve">
+    <value>التغيير المطلوب</value>
+  </data>
+  <data name="Key Values" xml:space="preserve">
+    <value>القيم الرئيسية</value>
+  </data>
+  <data name="Analysis" xml:space="preserve">
+    <value>التحليل</value>
+  </data>
+  <data name="Actual Change" xml:space="preserve">
+    <value>التغيير الفعلي</value>
+  </data>
+  <data name="Expected Change" xml:space="preserve">
+    <value>التغيير المتوقع</value>
+  </data>
+  <data name="Variance" xml:space="preserve">
+    <value>الفرق</value>
+  </data>
+  <data name="View Details" xml:space="preserve">
+    <value>عرض التفاصيل</value>
+  </data>
+  <data name="View Timeline" xml:space="preserve">
+    <value>عرض الجدول الزمني</value>
+  </data>
+  <data name="Edit Goal" xml:space="preserve">
+    <value>تعديل الهدف</value>
+  </data>
+  <data name="No historical data available" xml:space="preserve">
+    <value>لا توجد بيانات تاريخية متاحة</value>
+  </data>
+  <data name="Error loading data" xml:space="preserve">
+    <value>خطأ في تحميل البيانات</value>
+  </data>
+  <data name="Loading..." xml:space="preserve">
+    <value>جاري التحميل...</value>
+  </data>
+  <data name="Goal not found" xml:space="preserve">
+    <value>الهدف غير موجود</value>
+  </data>
+  <data name="Close" xml:space="preserve">
+    <value>إغلاق</value>
+  </data>
+  <data name="Target" xml:space="preserve">
+    <value>المستهدف</value>
+  </data>
+  <!-- Pagination -->
+  <data name="Page" xml:space="preserve">
+    <value>صفحة</value>
+  </data>
+  <data name="No goals to display" xml:space="preserve">
+    <value>لا توجد أهداف للعرض</value>
+  </data>
 </root>
