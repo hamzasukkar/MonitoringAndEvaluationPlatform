@@ -491,9 +491,22 @@
 
 <!-- Goals Table -->
 <div class="card shadow-sm">
-    <div class="card-header bg-light d-flex justify-content-between align-items-center">
+    <div class="card-header bg-light d-flex justify-content-between align-items-center flex-wrap gap-2">
         <h5 class="mb-0">@Localizer["Framework Goals List"]</h5>
-        <div class="d-flex align-items-center gap-3">
+        <div class="d-flex align-items-center gap-3 flex-wrap">
+            <!-- Export Buttons -->
+            <div class="btn-group export-btn-group" role="group" aria-label="Export options">
+                <button type="button" class="btn btn-outline-success btn-sm" onclick="exportToExcel()" title="@Localizer["Export to Excel"]">
+                    <i class="fas fa-file-excel me-1"></i>Excel
+                </button>
+                <button type="button" class="btn btn-outline-primary btn-sm" onclick="exportToCSV()" title="@Localizer["Export to CSV"]">
+                    <i class="fas fa-file-csv me-1"></i>CSV
+                </button>
+                <button type="button" class="btn btn-outline-danger btn-sm" onclick="exportToPDF()" title="@Localizer["Export to PDF"]">
+                    <i class="fas fa-file-pdf me-1"></i>PDF
+                </button>
+            </div>
+            <!-- Page Size Selector -->
             <div class="d-flex align-items-center gap-2">
                 <label class="form-label mb-0 text-muted small">@Localizer["Show"]</label>
                 <select id="pageSizeSelect" class="form-select form-select-sm" style="width: auto;" onchange="changePageSize()">
@@ -864,6 +877,13 @@
 </div>
 
 @section Scripts {
+    <!-- SheetJS for Excel Export -->
+    <script src="https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js"></script>
+    <!-- jsPDF for PDF Export -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <!-- html2canvas for PDF Arabic support -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+
     <script>
         // Initialize year pickers with default values
         document.addEventListener('DOMContentLoaded', function() {
@@ -1863,6 +1883,393 @@
         // END SORTING AND PAGINATION
         // =============================================
 
+        // =============================================
+        // EXPORT FUNCTIONALITY
+        // =============================================
+
+        // Get export data from filtered/visible rows
+        function getExportData() {
+            const data = [];
+            const rows = document.querySelectorAll('.goal-row');
+
+            rows.forEach(row => {
+                // Check if row passes current filters (regardless of pagination)
+                const searchTerm = document.getElementById('searchGoal')?.value.toLowerCase().trim() || '';
+                const frameworkFilter = document.getElementById('frameworkFilter')?.value || '';
+                const statusFilter = document.getElementById('statusFilter')?.value || '';
+                const progressRangeFilter = document.getElementById('progressRangeFilter')?.value || '';
+
+                let shouldInclude = true;
+
+                if (searchTerm && !row.getAttribute('data-goal-name').includes(searchTerm)) {
+                    shouldInclude = false;
+                }
+                if (frameworkFilter && row.getAttribute('data-framework-code') !== frameworkFilter) {
+                    shouldInclude = false;
+                }
+                if (statusFilter && row.getAttribute('data-status') !== statusFilter) {
+                    shouldInclude = false;
+                }
+                if (progressRangeFilter) {
+                    const progressRate = parseFloat(row.getAttribute('data-progress-rate'));
+                    const [min, max] = progressRangeFilter.split('-').map(v => v === '' ? Infinity : parseFloat(v.replace('+', '')));
+                    if (max === undefined || max === Infinity) {
+                        if (progressRate < min) shouldInclude = false;
+                    } else {
+                        if (progressRate < min || progressRate > max) shouldInclude = false;
+                    }
+                }
+
+                if (shouldInclude) {
+                    const goalName = row.getAttribute('data-goal-name-display');
+                    const frameworkName = row.getAttribute('data-framework-name');
+                    const progressRate = parseFloat(row.getAttribute('data-progress-rate')).toFixed(2);
+                    const discountRate = parseFloat(row.getAttribute('data-discount-rate')).toFixed(2);
+                    const status = row.getAttribute('data-status');
+                    const startingYear = row.getAttribute('data-starting-year');
+                    const targetYear = row.getAttribute('data-target-year');
+
+                    data.push({
+                        goalName,
+                        frameworkName,
+                        startingYear,
+                        targetYear,
+                        discountRate: discountRate + '%',
+                        progressRate: progressRate + '%',
+                        status: status.replace('-', ' ').replace(/\b\w/g, l => l.toUpperCase())
+                    });
+                }
+            });
+
+            return data;
+        }
+
+        // Export to CSV
+        function exportToCSV() {
+            const data = getExportData();
+
+            if (data.length === 0) {
+                showErrorMessage('@Localizer["No data to export"]');
+                return;
+            }
+
+            // CSV headers
+            const headers = [
+                '@Localizer["Goal Name"]',
+                '@Localizer["Framework"]',
+                '@Localizer["Starting Year"]',
+                '@Localizer["Target Year"]',
+                '@Localizer["Annual Discount Rate"]',
+                '@Localizer["Progress Rate"]',
+                '@Localizer["Status"]'
+            ];
+
+            // Build CSV content with proper encoding
+            let csvContent = '';
+            csvContent += headers.join('\t') + '\n'; // Use tab separator for better Excel compatibility
+
+            data.forEach(row => {
+                const values = [
+                    row.goalName,
+                    row.frameworkName,
+                    row.startingYear,
+                    row.targetYear,
+                    row.discountRate,
+                    row.progressRate,
+                    row.status
+                ];
+                csvContent += values.join('\t') + '\n';
+            });
+
+            // Download file with UTF-8 BOM for proper Arabic support
+            downloadFileWithBOM(csvContent, 'FrameworkGoals_' + getDateString() + '.csv');
+            showSuccessMessage('@Localizer["CSV exported successfully!"]');
+        }
+
+        // Export to Excel
+        function exportToExcel() {
+            const data = getExportData();
+
+            if (data.length === 0) {
+                showErrorMessage('@Localizer["No data to export"]');
+                return;
+            }
+
+            // Check if SheetJS is loaded
+            if (typeof XLSX === 'undefined') {
+                showErrorMessage('@Localizer["Excel export library not loaded. Please refresh the page."]');
+                return;
+            }
+
+            // Prepare worksheet data
+            const wsData = [
+                [
+                    '@Localizer["Goal Name"]',
+                    '@Localizer["Framework"]',
+                    '@Localizer["Starting Year"]',
+                    '@Localizer["Target Year"]',
+                    '@Localizer["Annual Discount Rate"]',
+                    '@Localizer["Progress Rate"]',
+                    '@Localizer["Status"]'
+                ]
+            ];
+
+            data.forEach(row => {
+                wsData.push([
+                    row.goalName,
+                    row.frameworkName,
+                    parseInt(row.startingYear),
+                    parseInt(row.targetYear),
+                    row.discountRate,
+                    row.progressRate,
+                    row.status
+                ]);
+            });
+
+            // Create workbook and worksheet
+            const wb = XLSX.utils.book_new();
+            const ws = XLSX.utils.aoa_to_sheet(wsData);
+
+            // Set column widths
+            ws['!cols'] = [
+                { wch: 40 }, // Goal Name
+                { wch: 25 }, // Framework
+                { wch: 15 }, // Starting Year
+                { wch: 15 }, // Target Year
+                { wch: 20 }, // Discount Rate
+                { wch: 15 }, // Progress Rate
+                { wch: 15 }  // Status
+            ];
+
+            // Set RTL for the worksheet (for Arabic)
+            ws['!dir'] = 'rtl';
+
+            // Add worksheet to workbook
+            XLSX.utils.book_append_sheet(wb, ws, 'Framework Goals');
+
+            // Generate and download file with proper encoding
+            XLSX.writeFile(wb, 'FrameworkGoals_' + getDateString() + '.xlsx', {
+                bookType: 'xlsx',
+                type: 'binary',
+                cellStyles: true
+            });
+            showSuccessMessage('@Localizer["Excel exported successfully!"]');
+        }
+
+        // Export to PDF using html2canvas for proper Arabic support
+        function exportToPDF() {
+            const data = getExportData();
+
+            if (data.length === 0) {
+                showErrorMessage('@Localizer["No data to export"]');
+                return;
+            }
+
+            // Check if libraries are loaded
+            if (typeof html2canvas === 'undefined') {
+                showErrorMessage('@Localizer["PDF export library not loaded. Please refresh the page."]');
+                return;
+            }
+
+            if (typeof jspdf === 'undefined' || typeof jspdf.jsPDF === 'undefined') {
+                showErrorMessage('@Localizer["PDF export library not loaded. Please refresh the page."]');
+                return;
+            }
+
+            // Show loading message
+            const loadingAlert = document.createElement('div');
+            loadingAlert.className = 'alert alert-info alert-dismissible fade show position-fixed';
+            loadingAlert.style.cssText = 'top: 20px; right: 20px; z-index: 9999; min-width: 300px;';
+            loadingAlert.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>@Localizer["Generating PDF..."]';
+            document.body.appendChild(loadingAlert);
+
+            // Create a temporary container for PDF content
+            const pdfContainer = document.createElement('div');
+            pdfContainer.id = 'pdf-export-container';
+            pdfContainer.style.cssText = 'position: absolute; left: -9999px; top: 0; background: white; padding: 20px; width: 1100px; direction: rtl;';
+
+            // Build HTML content with Arabic support
+            const activeFilters = getActiveFiltersText();
+            let htmlContent = `
+                <div style="font-family: 'Segoe UI', Tahoma, Arial, sans-serif; direction: rtl; text-align: right;">
+                    <h2 style="color: #2c3e50; margin-bottom: 10px; font-size: 24px;">@Localizer["Framework Goals Report"]</h2>
+                    <p style="color: #6c757d; font-size: 12px; margin-bottom: 5px;">
+                        @Localizer["Generated on"]: ${new Date().toLocaleDateString('ar-SA')} ${new Date().toLocaleTimeString('ar-SA')}
+                    </p>
+                    ${activeFilters ? `<p style="color: #6c757d; font-size: 12px; margin-bottom: 15px;">@Localizer["Filters"]: ${activeFilters}</p>` : ''}
+                    <table style="width: 100%; border-collapse: collapse; font-size: 11px; direction: rtl;">
+                        <thead>
+                            <tr style="background: linear-gradient(135deg, #0d6efd 0%, #0a58ca 100%);">
+                                <th style="border: 1px solid #dee2e6; padding: 10px; color: white; text-align: center;">@Localizer["Goal Name"]</th>
+                                <th style="border: 1px solid #dee2e6; padding: 10px; color: white; text-align: center;">@Localizer["Framework"]</th>
+                                <th style="border: 1px solid #dee2e6; padding: 10px; color: white; text-align: center;">@Localizer["Starting Year"]</th>
+                                <th style="border: 1px solid #dee2e6; padding: 10px; color: white; text-align: center;">@Localizer["Target Year"]</th>
+                                <th style="border: 1px solid #dee2e6; padding: 10px; color: white; text-align: center;">@Localizer["Annual Discount Rate"]</th>
+                                <th style="border: 1px solid #dee2e6; padding: 10px; color: white; text-align: center;">@Localizer["Progress Rate"]</th>
+                                <th style="border: 1px solid #dee2e6; padding: 10px; color: white; text-align: center;">@Localizer["Status"]</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+            `;
+
+            data.forEach((row, index) => {
+                const bgColor = index % 2 === 0 ? '#ffffff' : '#f8f9fa';
+                let statusColor = '#495057';
+                if (row.status.toLowerCase().includes('on track') || row.status.toLowerCase().includes('on-track')) {
+                    statusColor = '#198754';
+                } else if (row.status.toLowerCase().includes('at risk') || row.status.toLowerCase().includes('at-risk')) {
+                    statusColor = '#ffc107';
+                } else if (row.status.toLowerCase().includes('off track') || row.status.toLowerCase().includes('off-track')) {
+                    statusColor = '#dc3545';
+                }
+
+                htmlContent += `
+                    <tr style="background-color: ${bgColor};">
+                        <td style="border: 1px solid #dee2e6; padding: 8px; text-align: right;">${row.goalName}</td>
+                        <td style="border: 1px solid #dee2e6; padding: 8px; text-align: center;">${row.frameworkName}</td>
+                        <td style="border: 1px solid #dee2e6; padding: 8px; text-align: center;">${row.startingYear}</td>
+                        <td style="border: 1px solid #dee2e6; padding: 8px; text-align: center;">${row.targetYear}</td>
+                        <td style="border: 1px solid #dee2e6; padding: 8px; text-align: center;">${row.discountRate}</td>
+                        <td style="border: 1px solid #dee2e6; padding: 8px; text-align: center;">${row.progressRate}</td>
+                        <td style="border: 1px solid #dee2e6; padding: 8px; text-align: center; color: ${statusColor}; font-weight: bold;">${row.status}</td>
+                    </tr>
+                `;
+            });
+
+            htmlContent += `
+                        </tbody>
+                    </table>
+                    <p style="color: #6c757d; font-size: 10px; margin-top: 15px; text-align: center;">
+                        @Localizer["Total"]: ${data.length} @Localizer["goals"]
+                    </p>
+                </div>
+            `;
+
+            pdfContainer.innerHTML = htmlContent;
+            document.body.appendChild(pdfContainer);
+
+            // Use html2canvas to capture the content
+            setTimeout(() => {
+                html2canvas(pdfContainer, {
+                    scale: 2,
+                    useCORS: true,
+                    logging: false,
+                    backgroundColor: '#ffffff'
+                }).then(canvas => {
+                    const { jsPDF } = jspdf;
+                    const imgData = canvas.toDataURL('image/png');
+                    const imgWidth = 287; // A4 landscape width in mm (297 - margins)
+                    const pageHeight = 200; // A4 landscape height in mm (210 - margins)
+                    const imgHeight = (canvas.height * imgWidth) / canvas.width;
+                    let heightLeft = imgHeight;
+                    let position = 5;
+
+                    const pdf = new jsPDF('l', 'mm', 'a4');
+                    pdf.addImage(imgData, 'PNG', 5, position, imgWidth, imgHeight);
+                    heightLeft -= pageHeight;
+
+                    // Add more pages if content is long
+                    while (heightLeft > 0) {
+                        position = heightLeft - imgHeight + 5;
+                        pdf.addPage();
+                        pdf.addImage(imgData, 'PNG', 5, position, imgWidth, imgHeight);
+                        heightLeft -= pageHeight;
+                    }
+
+                    // Save PDF
+                    pdf.save('FrameworkGoals_' + getDateString() + '.pdf');
+
+                    // Cleanup
+                    document.body.removeChild(pdfContainer);
+                    document.body.removeChild(loadingAlert);
+                    showSuccessMessage('@Localizer["PDF exported successfully!"]');
+                }).catch(error => {
+                    console.error('PDF export error:', error);
+                    document.body.removeChild(pdfContainer);
+                    document.body.removeChild(loadingAlert);
+                    showErrorMessage('@Localizer["Error generating PDF. Please try again."]');
+                });
+            }, 100);
+        }
+
+        // Get active filters as text
+        function getActiveFiltersText() {
+            const filters = [];
+
+            const searchTerm = document.getElementById('searchGoal')?.value.trim();
+            if (searchTerm) {
+                filters.push('@Localizer["Search"]: "' + searchTerm + '"');
+            }
+
+            const frameworkSelect = document.getElementById('frameworkFilter');
+            if (frameworkSelect?.value) {
+                filters.push('@Localizer["Framework"]: ' + frameworkSelect.options[frameworkSelect.selectedIndex].text);
+            }
+
+            const statusSelect = document.getElementById('statusFilter');
+            if (statusSelect?.value) {
+                filters.push('@Localizer["Status"]: ' + statusSelect.options[statusSelect.selectedIndex].text);
+            }
+
+            const progressSelect = document.getElementById('progressRangeFilter');
+            if (progressSelect?.value) {
+                filters.push('@Localizer["Progress"]: ' + progressSelect.options[progressSelect.selectedIndex].text);
+            }
+
+            return filters.join(', ');
+        }
+
+        // Helper function to download file
+        function downloadFile(content, filename, mimeType) {
+            const blob = new Blob([content], { type: mimeType });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = filename;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            URL.revokeObjectURL(url);
+        }
+
+        // Helper function to download file with UTF-8 BOM for proper Arabic encoding
+        function downloadFileWithBOM(content, filename) {
+            // Create UTF-8 BOM + content as Uint8Array
+            const BOM = new Uint8Array([0xEF, 0xBB, 0xBF]);
+            const encoder = new TextEncoder();
+            const contentArray = encoder.encode(content);
+
+            // Combine BOM and content
+            const combined = new Uint8Array(BOM.length + contentArray.length);
+            combined.set(BOM, 0);
+            combined.set(contentArray, BOM.length);
+
+            // Create blob and download
+            const blob = new Blob([combined], { type: 'text/csv;charset=utf-8' });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = filename;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            URL.revokeObjectURL(url);
+        }
+
+        // Helper function to get formatted date string
+        function getDateString() {
+            const now = new Date();
+            return now.getFullYear() +
+                String(now.getMonth() + 1).padStart(2, '0') +
+                String(now.getDate()).padStart(2, '0') + '_' +
+                String(now.getHours()).padStart(2, '0') +
+                String(now.getMinutes()).padStart(2, '0');
+        }
+
+        // =============================================
+        // END EXPORT FUNCTIONALITY
+        // =============================================
+
         // Advanced Filtering Functions
         function applyFilters() {
             // Reset to page 1 when filters change
@@ -2532,6 +2939,76 @@
 
         #paginationControls {
             justify-content: center;
+        }
+    }
+
+    /* =============================================
+       EXPORT BUTTONS STYLES
+       ============================================= */
+    .export-btn-group {
+        border-radius: 8px;
+        overflow: hidden;
+    }
+
+    .export-btn-group .btn {
+        border-radius: 0;
+        font-weight: 500;
+        padding: 0.4rem 0.75rem;
+        transition: all 0.2s ease;
+    }
+
+    .export-btn-group .btn:first-child {
+        border-top-left-radius: 8px;
+        border-bottom-left-radius: 8px;
+    }
+
+    .export-btn-group .btn:last-child {
+        border-top-right-radius: 8px;
+        border-bottom-right-radius: 8px;
+    }
+
+    .export-btn-group .btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    }
+
+    .export-btn-group .btn-outline-success:hover {
+        background-color: #198754;
+        border-color: #198754;
+        color: white;
+    }
+
+    .export-btn-group .btn-outline-primary:hover {
+        background-color: #0d6efd;
+        border-color: #0d6efd;
+        color: white;
+    }
+
+    .export-btn-group .btn-outline-danger:hover {
+        background-color: #dc3545;
+        border-color: #dc3545;
+        color: white;
+    }
+
+    .export-btn-group .btn i {
+        font-size: 0.85rem;
+    }
+
+    /* Responsive export buttons */
+    @@media (max-width: 576px) {
+        .export-btn-group {
+            width: 100%;
+            justify-content: center;
+        }
+
+        .export-btn-group .btn {
+            flex: 1;
+            padding: 0.5rem 0.5rem;
+            font-size: 0.8rem;
+        }
+
+        .export-btn-group .btn span {
+            display: none;
         }
     }
 </style>
