@@ -491,8 +491,21 @@
 
 <!-- Goals Table -->
 <div class="card shadow-sm">
-    <div class="card-header bg-light">
+    <div class="card-header bg-light d-flex justify-content-between align-items-center">
         <h5 class="mb-0">@Localizer["Framework Goals List"]</h5>
+        <div class="d-flex align-items-center gap-3">
+            <div class="d-flex align-items-center gap-2">
+                <label class="form-label mb-0 text-muted small">@Localizer["Show"]</label>
+                <select id="pageSizeSelect" class="form-select form-select-sm" style="width: auto;" onchange="changePageSize()">
+                    <option value="10">10</option>
+                    <option value="25" selected>25</option>
+                    <option value="50">50</option>
+                    <option value="100">100</option>
+                    <option value="-1">@Localizer["All"]</option>
+                </select>
+                <label class="form-label mb-0 text-muted small">@Localizer["entries"]</label>
+            </div>
+        </div>
     </div>
     <div class="card-body">
         @if (Model.Any())
@@ -501,8 +514,14 @@
                 <table class="table table-hover" id="goalsTable">
                     <thead class="table-primary bg-opacity-25">
                         <tr>
-                            <th rowspan="2" class="align-middle">@Localizer["Goal Name"]</th>
-                            <th rowspan="2" class="align-middle">@Localizer["Framework"]</th>
+                            <th rowspan="2" class="align-middle sortable-header" data-sort="name" onclick="sortTable('name')">
+                                @Localizer["Goal Name"]
+                                <span class="sort-icon"><i class="fas fa-sort"></i></span>
+                            </th>
+                            <th rowspan="2" class="align-middle sortable-header" data-sort="framework" onclick="sortTable('framework')">
+                                @Localizer["Framework"]
+                                <span class="sort-icon"><i class="fas fa-sort"></i></span>
+                            </th>
                             <th rowspan="2" class="align-middle text-center">@Localizer["Trend"]</th>
                             @{
                                 // Calculate the full year range across ALL goals
@@ -514,8 +533,14 @@
                                     <th colspan="2" class="text-center year-header">@year</th>
                                 }
                             }
-                            <th rowspan="2" class="align-middle">@Localizer["Annual Discount Rate"]</th>
-                            <th rowspan="2" class="align-middle">@Localizer["Progress Rate"]</th>
+                            <th rowspan="2" class="align-middle sortable-header" data-sort="discountRate" onclick="sortTable('discountRate')">
+                                @Localizer["Annual Discount Rate"]
+                                <span class="sort-icon"><i class="fas fa-sort"></i></span>
+                            </th>
+                            <th rowspan="2" class="align-middle sortable-header" data-sort="progressRate" onclick="sortTable('progressRate')">
+                                @Localizer["Progress Rate"]
+                                <span class="sort-icon"><i class="fas fa-sort"></i></span>
+                            </th>
                             <th rowspan="2" class="align-middle text-center">@Localizer["Actions"]</th>
                         </tr>
                         <tr>
@@ -577,10 +602,14 @@
                             <tr id="goal-row-@goal.ID"
                                 class="goal-row"
                                 data-goal-name="@goal.Name.ToLower()"
+                                data-goal-name-display="@goal.Name"
                                 data-framework-code="@goal.FrameworkCode"
                                 data-framework-name="@goal.Framework.Name"
                                 data-progress-rate="@goal.ProgressRate"
-                                data-status="@goalStatus">
+                                data-discount-rate="@goal.AnnualDiscountRate"
+                                data-status="@goalStatus"
+                                data-starting-year="@goal.StartingYear"
+                                data-target-year="@goal.TargetYear">
                                 <td><strong>@goal.Name</strong></td>
                                 <td>
                                     <span class="badge bg-info">@goal.Framework.Name</span>
@@ -716,6 +745,28 @@
                         }
                     </tbody>
                 </table>
+            </div>
+
+            <!-- Pagination Controls -->
+            <div class="d-flex justify-content-between align-items-center mt-4 flex-wrap gap-3">
+                <div class="pagination-info text-muted">
+                    <span id="paginationInfo">@Localizer["Showing"] 1-@Math.Min(25, Model.Count()) @Localizer["of"] @Model.Count() @Localizer["goals"]</span>
+                </div>
+                <nav aria-label="Goals pagination">
+                    <ul class="pagination mb-0" id="paginationControls">
+                        <li class="page-item disabled" id="prevPageItem">
+                            <a class="page-link" href="#" onclick="goToPage('prev'); return false;" tabindex="-1">
+                                <i class="fas fa-chevron-left me-1"></i>@Localizer["Previous"]
+                            </a>
+                        </li>
+                        <li class="page-item active"><a class="page-link" href="#" onclick="goToPage(1); return false;">1</a></li>
+                        <li class="page-item" id="nextPageItem">
+                            <a class="page-link" href="#" onclick="goToPage('next'); return false;">
+                                @Localizer["Next"]<i class="fas fa-chevron-right ms-1"></i>
+                            </a>
+                        </li>
+                    </ul>
+                </nav>
             </div>
         }
         else
@@ -1489,71 +1540,340 @@
             canvas.title = `Trend: ${dataPoints[0].value.toFixed(2)} → ${dataPoints[dataPoints.length - 1].value.toFixed(2)}`;
         }
 
-        // Advanced Filtering Functions
-        function applyFilters() {
-            const searchTerm = document.getElementById('searchGoal').value.toLowerCase().trim();
-            const frameworkFilter = document.getElementById('frameworkFilter').value;
-            const statusFilter = document.getElementById('statusFilter').value;
-            const progressRangeFilter = document.getElementById('progressRangeFilter').value;
+        // =============================================
+        // SORTING AND PAGINATION FUNCTIONALITY
+        // =============================================
 
-            const goalRows = document.querySelectorAll('.goal-row');
-            let visibleCount = 0;
-            let totalCount = goalRows.length;
+        // Pagination state
+        let currentPage = 1;
+        let pageSize = 25;
+        let currentSortColumn = null;
+        let currentSortDirection = 'asc';
+        let allRows = [];
+        let filteredRows = [];
 
-            goalRows.forEach(row => {
+        // Initialize sorting and pagination on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeSortingAndPagination();
+        });
+
+        function initializeSortingAndPagination() {
+            // Store all original rows
+            allRows = Array.from(document.querySelectorAll('.goal-row'));
+            filteredRows = [...allRows];
+
+            // Apply initial pagination
+            applyPagination();
+        }
+
+        // Sorting function
+        function sortTable(column) {
+            // Determine sort direction
+            if (currentSortColumn === column) {
+                currentSortDirection = currentSortDirection === 'asc' ? 'desc' : 'asc';
+            } else {
+                currentSortColumn = column;
+                currentSortDirection = 'asc';
+            }
+
+            // Update sort icons
+            updateSortIcons(column, currentSortDirection);
+
+            // Get visible (filtered) rows
+            const visibleRows = filteredRows.filter(row => row.style.display !== 'none');
+
+            // Sort the rows
+            visibleRows.sort((a, b) => {
+                let aValue, bValue;
+
+                switch (column) {
+                    case 'name':
+                        aValue = a.getAttribute('data-goal-name-display') || '';
+                        bValue = b.getAttribute('data-goal-name-display') || '';
+                        break;
+                    case 'framework':
+                        aValue = a.getAttribute('data-framework-name') || '';
+                        bValue = b.getAttribute('data-framework-name') || '';
+                        break;
+                    case 'discountRate':
+                        aValue = parseFloat(a.getAttribute('data-discount-rate')) || 0;
+                        bValue = parseFloat(b.getAttribute('data-discount-rate')) || 0;
+                        return currentSortDirection === 'asc' ? aValue - bValue : bValue - aValue;
+                    case 'progressRate':
+                        aValue = parseFloat(a.getAttribute('data-progress-rate')) || 0;
+                        bValue = parseFloat(b.getAttribute('data-progress-rate')) || 0;
+                        return currentSortDirection === 'asc' ? aValue - bValue : bValue - aValue;
+                    default:
+                        aValue = '';
+                        bValue = '';
+                }
+
+                // String comparison for text columns
+                if (typeof aValue === 'string') {
+                    const comparison = aValue.localeCompare(bValue, undefined, { sensitivity: 'base' });
+                    return currentSortDirection === 'asc' ? comparison : -comparison;
+                }
+
+                return 0;
+            });
+
+            // Reorder rows in the DOM
+            const tbody = document.querySelector('#goalsTable tbody');
+            visibleRows.forEach(row => tbody.appendChild(row));
+
+            // Update filteredRows to match the new order
+            filteredRows = Array.from(document.querySelectorAll('.goal-row'));
+
+            // Reset to page 1 after sorting
+            currentPage = 1;
+            applyPagination();
+        }
+
+        // Update sort icons in headers
+        function updateSortIcons(activeColumn, direction) {
+            // Reset all sort icons
+            document.querySelectorAll('.sortable-header .sort-icon i').forEach(icon => {
+                icon.className = 'fas fa-sort';
+            });
+
+            // Set active sort icon
+            const activeHeader = document.querySelector(`.sortable-header[data-sort="${activeColumn}"] .sort-icon i`);
+            if (activeHeader) {
+                activeHeader.className = direction === 'asc' ? 'fas fa-sort-up' : 'fas fa-sort-down';
+            }
+
+            // Update header styles
+            document.querySelectorAll('.sortable-header').forEach(header => {
+                header.classList.remove('sorted-asc', 'sorted-desc');
+            });
+            const activeHeaderElement = document.querySelector(`.sortable-header[data-sort="${activeColumn}"]`);
+            if (activeHeaderElement) {
+                activeHeaderElement.classList.add(direction === 'asc' ? 'sorted-asc' : 'sorted-desc');
+            }
+        }
+
+        // Pagination function
+        function applyPagination() {
+            // Get visible rows (respecting filters)
+            const visibleRows = filteredRows.filter(row => {
+                // Check if row passes current filters
+                const searchTerm = document.getElementById('searchGoal')?.value.toLowerCase().trim() || '';
+                const frameworkFilter = document.getElementById('frameworkFilter')?.value || '';
+                const statusFilter = document.getElementById('statusFilter')?.value || '';
+                const progressRangeFilter = document.getElementById('progressRangeFilter')?.value || '';
+
                 let shouldShow = true;
 
-                // Search by goal name
-                if (searchTerm !== '') {
-                    const goalName = row.getAttribute('data-goal-name');
-                    if (!goalName.includes(searchTerm)) {
-                        shouldShow = false;
-                    }
+                if (searchTerm && !row.getAttribute('data-goal-name').includes(searchTerm)) {
+                    shouldShow = false;
                 }
-
-                // Filter by framework
-                if (frameworkFilter !== '') {
-                    const frameworkCode = row.getAttribute('data-framework-code');
-                    if (frameworkCode !== frameworkFilter) {
-                        shouldShow = false;
-                    }
+                if (frameworkFilter && row.getAttribute('data-framework-code') !== frameworkFilter) {
+                    shouldShow = false;
                 }
-
-                // Filter by status
-                if (statusFilter !== '') {
-                    const status = row.getAttribute('data-status');
-                    if (status !== statusFilter) {
-                        shouldShow = false;
-                    }
+                if (statusFilter && row.getAttribute('data-status') !== statusFilter) {
+                    shouldShow = false;
                 }
-
-                // Filter by progress range
-                if (progressRangeFilter !== '') {
+                if (progressRangeFilter) {
                     const progressRate = parseFloat(row.getAttribute('data-progress-rate'));
                     const [min, max] = progressRangeFilter.split('-').map(v => v === '' ? Infinity : parseFloat(v.replace('+', '')));
-
                     if (max === undefined || max === Infinity) {
-                        // Handle "100+" case
-                        if (progressRate < min) {
-                            shouldShow = false;
-                        }
+                        if (progressRate < min) shouldShow = false;
                     } else {
-                        if (progressRate < min || progressRate > max) {
-                            shouldShow = false;
-                        }
+                        if (progressRate < min || progressRate > max) shouldShow = false;
                     }
                 }
 
-                // Show or hide the row
-                if (shouldShow) {
+                return shouldShow;
+            });
+
+            const totalRows = visibleRows.length;
+            const totalPages = pageSize === -1 ? 1 : Math.ceil(totalRows / pageSize);
+
+            // Ensure current page is valid
+            if (currentPage > totalPages) currentPage = totalPages;
+            if (currentPage < 1) currentPage = 1;
+
+            // Calculate start and end indices
+            const startIndex = pageSize === -1 ? 0 : (currentPage - 1) * pageSize;
+            const endIndex = pageSize === -1 ? totalRows : Math.min(startIndex + pageSize, totalRows);
+
+            // Hide all rows first
+            filteredRows.forEach(row => row.style.display = 'none');
+
+            // Show only rows for current page
+            visibleRows.forEach((row, index) => {
+                if (index >= startIndex && index < endIndex) {
                     row.style.display = '';
-                    visibleCount++;
-                } else {
-                    row.style.display = 'none';
                 }
             });
 
+            // Update pagination info
+            updatePaginationInfo(startIndex + 1, endIndex, totalRows);
+
+            // Update pagination controls
+            updatePaginationControls(totalPages);
+        }
+
+        // Update pagination info text
+        function updatePaginationInfo(start, end, total) {
+            const infoElement = document.getElementById('paginationInfo');
+            if (infoElement) {
+                if (total === 0) {
+                    infoElement.textContent = '@Localizer["No goals to display"]';
+                } else {
+                    infoElement.textContent = `@Localizer["Showing"] ${start}-${end} @Localizer["of"] ${total} @Localizer["goals"]`;
+                }
+            }
+        }
+
+        // Update pagination controls
+        function updatePaginationControls(totalPages) {
+            const paginationList = document.getElementById('paginationControls');
+            if (!paginationList) return;
+
+            // Clear existing page numbers (keep prev/next)
+            const pageItems = paginationList.querySelectorAll('.page-item:not(#prevPageItem):not(#nextPageItem)');
+            pageItems.forEach(item => item.remove());
+
+            // Get prev and next buttons
+            const prevItem = document.getElementById('prevPageItem');
+            const nextItem = document.getElementById('nextPageItem');
+
+            // Update prev button state
+            if (currentPage === 1) {
+                prevItem.classList.add('disabled');
+                prevItem.querySelector('a').setAttribute('tabindex', '-1');
+            } else {
+                prevItem.classList.remove('disabled');
+                prevItem.querySelector('a').removeAttribute('tabindex');
+            }
+
+            // Update next button state
+            if (currentPage === totalPages || totalPages === 0) {
+                nextItem.classList.add('disabled');
+                nextItem.querySelector('a').setAttribute('tabindex', '-1');
+            } else {
+                nextItem.classList.remove('disabled');
+                nextItem.querySelector('a').removeAttribute('tabindex');
+            }
+
+            // Generate page numbers
+            const maxVisiblePages = 5;
+            let startPage = Math.max(1, currentPage - Math.floor(maxVisiblePages / 2));
+            let endPage = Math.min(totalPages, startPage + maxVisiblePages - 1);
+
+            if (endPage - startPage + 1 < maxVisiblePages) {
+                startPage = Math.max(1, endPage - maxVisiblePages + 1);
+            }
+
+            // Add first page and ellipsis if needed
+            if (startPage > 1) {
+                insertPageItem(1, paginationList, nextItem);
+                if (startPage > 2) {
+                    insertEllipsis(paginationList, nextItem);
+                }
+            }
+
+            // Add page numbers
+            for (let i = startPage; i <= endPage; i++) {
+                insertPageItem(i, paginationList, nextItem);
+            }
+
+            // Add last page and ellipsis if needed
+            if (endPage < totalPages) {
+                if (endPage < totalPages - 1) {
+                    insertEllipsis(paginationList, nextItem);
+                }
+                insertPageItem(totalPages, paginationList, nextItem);
+            }
+        }
+
+        // Insert a page number item
+        function insertPageItem(pageNum, container, beforeElement) {
+            const li = document.createElement('li');
+            li.className = `page-item ${pageNum === currentPage ? 'active' : ''}`;
+            li.innerHTML = `<a class="page-link" href="#" onclick="goToPage(${pageNum}); return false;">${pageNum}</a>`;
+            container.insertBefore(li, beforeElement);
+        }
+
+        // Insert ellipsis
+        function insertEllipsis(container, beforeElement) {
+            const li = document.createElement('li');
+            li.className = 'page-item disabled';
+            li.innerHTML = '<span class="page-link">...</span>';
+            container.insertBefore(li, beforeElement);
+        }
+
+        // Go to specific page
+        function goToPage(page) {
+            const visibleRows = filteredRows.filter(row => row.style.display !== 'none' || true); // Get all that pass filter
+            const totalPages = pageSize === -1 ? 1 : Math.ceil(getFilteredRowCount() / pageSize);
+
+            if (page === 'prev') {
+                currentPage = Math.max(1, currentPage - 1);
+            } else if (page === 'next') {
+                currentPage = Math.min(totalPages, currentPage + 1);
+            } else {
+                currentPage = parseInt(page);
+            }
+
+            applyPagination();
+        }
+
+        // Get count of rows that pass current filters
+        function getFilteredRowCount() {
+            const searchTerm = document.getElementById('searchGoal')?.value.toLowerCase().trim() || '';
+            const frameworkFilter = document.getElementById('frameworkFilter')?.value || '';
+            const statusFilter = document.getElementById('statusFilter')?.value || '';
+            const progressRangeFilter = document.getElementById('progressRangeFilter')?.value || '';
+
+            return filteredRows.filter(row => {
+                let shouldShow = true;
+                if (searchTerm && !row.getAttribute('data-goal-name').includes(searchTerm)) {
+                    shouldShow = false;
+                }
+                if (frameworkFilter && row.getAttribute('data-framework-code') !== frameworkFilter) {
+                    shouldShow = false;
+                }
+                if (statusFilter && row.getAttribute('data-status') !== statusFilter) {
+                    shouldShow = false;
+                }
+                if (progressRangeFilter) {
+                    const progressRate = parseFloat(row.getAttribute('data-progress-rate'));
+                    const [min, max] = progressRangeFilter.split('-').map(v => v === '' ? Infinity : parseFloat(v.replace('+', '')));
+                    if (max === undefined || max === Infinity) {
+                        if (progressRate < min) shouldShow = false;
+                    } else {
+                        if (progressRate < min || progressRate > max) shouldShow = false;
+                    }
+                }
+                return shouldShow;
+            }).length;
+        }
+
+        // Change page size
+        function changePageSize() {
+            const select = document.getElementById('pageSizeSelect');
+            pageSize = parseInt(select.value);
+            currentPage = 1;
+            applyPagination();
+        }
+
+        // =============================================
+        // END SORTING AND PAGINATION
+        // =============================================
+
+        // Advanced Filtering Functions
+        function applyFilters() {
+            // Reset to page 1 when filters change
+            currentPage = 1;
+
+            // Apply pagination which handles filtering internally
+            applyPagination();
+
             // Update filter results counter
+            const totalCount = filteredRows.length;
+            const visibleCount = getFilteredRowCount();
             updateFilterResults(visibleCount, totalCount);
         }
 
@@ -2092,6 +2412,126 @@
 
         .year-range {
             font-size: 0.95rem;
+        }
+    }
+
+    /* =============================================
+       SORTABLE COLUMNS STYLES
+       ============================================= */
+    .sortable-header {
+        cursor: pointer;
+        user-select: none;
+        position: relative;
+        transition: all 0.2s ease;
+        white-space: nowrap;
+    }
+
+    .sortable-header:hover {
+        background-color: rgba(13, 110, 253, 0.15) !important;
+    }
+
+    .sortable-header .sort-icon {
+        margin-left: 8px;
+        opacity: 0.4;
+        transition: opacity 0.2s ease;
+        display: inline-flex;
+        align-items: center;
+    }
+
+    .sortable-header:hover .sort-icon {
+        opacity: 0.8;
+    }
+
+    .sortable-header.sorted-asc,
+    .sortable-header.sorted-desc {
+        background-color: rgba(13, 110, 253, 0.1) !important;
+    }
+
+    .sortable-header.sorted-asc .sort-icon,
+    .sortable-header.sorted-desc .sort-icon {
+        opacity: 1;
+        color: #0d6efd;
+    }
+
+    .sort-icon i {
+        font-size: 0.75rem;
+    }
+
+    /* =============================================
+       PAGINATION STYLES
+       ============================================= */
+    .pagination {
+        margin: 0;
+    }
+
+    .pagination .page-link {
+        border-radius: 8px;
+        margin: 0 3px;
+        border: 1px solid #dee2e6;
+        color: #495057;
+        font-weight: 500;
+        padding: 0.5rem 0.85rem;
+        transition: all 0.2s ease;
+    }
+
+    .pagination .page-link:hover {
+        background-color: #e9ecef;
+        border-color: #dee2e6;
+        color: #0d6efd;
+        transform: translateY(-2px);
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    .pagination .page-item.active .page-link {
+        background-color: #0d6efd;
+        border-color: #0d6efd;
+        color: white;
+        box-shadow: 0 2px 8px rgba(13, 110, 253, 0.3);
+    }
+
+    .pagination .page-item.disabled .page-link {
+        background-color: #f8f9fa;
+        border-color: #dee2e6;
+        color: #adb5bd;
+        cursor: not-allowed;
+    }
+
+    .pagination-info {
+        font-size: 0.9rem;
+    }
+
+    #pageSizeSelect {
+        border-radius: 8px;
+        border-color: #dee2e6;
+        font-size: 0.875rem;
+        padding: 0.375rem 2rem 0.375rem 0.75rem;
+    }
+
+    #pageSizeSelect:focus {
+        border-color: #0d6efd;
+        box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.15);
+    }
+
+    /* Table row transitions for pagination */
+    .goal-row {
+        transition: opacity 0.2s ease;
+    }
+
+    /* Responsive pagination */
+    @@media (max-width: 768px) {
+        .pagination .page-link {
+            padding: 0.4rem 0.6rem;
+            font-size: 0.8rem;
+        }
+
+        .pagination-info {
+            font-size: 0.8rem;
+            text-align: center;
+            width: 100%;
+        }
+
+        #paginationControls {
+            justify-content: center;
         }
     }
 </style>
