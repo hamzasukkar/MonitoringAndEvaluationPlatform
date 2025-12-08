@@ -684,4 +684,53 @@
   <data name="No goals to display" xml:space="preserve">
     <value>لا توجد أهداف للعرض</value>
   </data>
+  <!-- Bulk Operations -->
+  <data name="selected" xml:space="preserve">
+    <value>محدد</value>
+  </data>
+  <data name="Clear Selection" xml:space="preserve">
+    <value>إلغاء التحديد</value>
+  </data>
+  <data name="Export Selected to Excel" xml:space="preserve">
+    <value>تصدير المحدد إلى Excel</value>
+  </data>
+  <data name="Export Selected to CSV" xml:space="preserve">
+    <value>تصدير المحدد إلى CSV</value>
+  </data>
+  <data name="Export Selected to PDF" xml:space="preserve">
+    <value>تصدير المحدد إلى PDF</value>
+  </data>
+  <data name="Delete Selected" xml:space="preserve">
+    <value>حذف المحدد</value>
+  </data>
+  <data name="Delete Selected Goals" xml:space="preserve">
+    <value>حذف الأهداف المحددة</value>
+  </data>
+  <data name="Are you sure you want to delete the selected goals?" xml:space="preserve">
+    <value>هل أنت متأكد أنك تريد حذف الأهداف المحددة؟</value>
+  </data>
+  <data name="goals will be deleted" xml:space="preserve">
+    <value>أهداف سيتم حذفها</value>
+  </data>
+  <data name="Delete All Selected" xml:space="preserve">
+    <value>حذف جميع المحدد</value>
+  </data>
+  <data name="No goals selected" xml:space="preserve">
+    <value>لم يتم تحديد أهداف</value>
+  </data>
+  <data name="goals deleted successfully" xml:space="preserve">
+    <value>أهداف تم حذفها بنجاح</value>
+  </data>
+  <data name="goals failed to delete" xml:space="preserve">
+    <value>أهداف فشل حذفها</value>
+  </data>
+  <data name="Selected" xml:space="preserve">
+    <value>المحدد</value>
+  </data>
+  <data name="Error generating PDF" xml:space="preserve">
+    <value>خطأ في إنشاء PDF</value>
+  </data>
+  <data name="All" xml:space="preserve">
+    <value>الكل</value>
+  </data>
 </root>

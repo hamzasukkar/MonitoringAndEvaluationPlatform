@@ -489,6 +489,48 @@
     </div>
 </div>
 
+<!-- Bulk Actions Toolbar (Initially Hidden) -->
+<div id="bulkActionsToolbar" class="card shadow-sm mb-3 bulk-toolbar" style="display: none;">
+    <div class="card-body py-2">
+        <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
+            <div class="d-flex align-items-center gap-2">
+                <span class="badge bg-primary fs-6" id="selectedCount">0</span>
+                <span class="text-muted">@Localizer["selected"]</span>
+                <button type="button" class="btn btn-sm btn-outline-secondary ms-2" onclick="clearSelection()">
+                    <i class="fas fa-times me-1"></i>@Localizer["Clear Selection"]
+                </button>
+            </div>
+            <div class="d-flex gap-2 flex-wrap">
+                <div class="btn-group" role="group">
+                    <button type="button" class="btn btn-sm btn-outline-success" onclick="exportSelectedToExcel()" title="@Localizer["Export Selected to Excel"]">
+                        <i class="fas fa-file-excel me-1"></i>Excel
+                    </button>
+                    <button type="button" class="btn btn-sm btn-outline-primary" onclick="exportSelectedToCSV()" title="@Localizer["Export Selected to CSV"]">
+                        <i class="fas fa-file-csv me-1"></i>CSV
+                    </button>
+                    <button type="button" class="btn btn-sm btn-outline-info" onclick="exportSelectedToPDF()" title="@Localizer["Export Selected to PDF"]">
+                        <i class="fas fa-file-pdf me-1"></i>PDF
+                    </button>
+                </div>
+                @if (SignInManager.IsSignedIn(User))
+                {
+                    var bulkUser = await UserManager.GetUserAsync(User);
+                    if (bulkUser != null)
+                    {
+                        var bulkRoles = await UserManager.GetRolesAsync(bulkUser);
+                        if (bulkRoles.Contains("SystemAdministrator"))
+                        {
+                            <button type="button" class="btn btn-sm btn-danger" onclick="bulkDelete()">
+                                <i class="fas fa-trash me-1"></i>@Localizer["Delete Selected"]
+                            </button>
+                        }
+                    }
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
 <!-- Goals Table -->
 <div class="card shadow-sm">
     <div class="card-header bg-light d-flex justify-content-between align-items-center flex-wrap gap-2">
@@ -527,6 +569,11 @@
                 <table class="table table-hover" id="goalsTable">
                     <thead class="table-primary bg-opacity-25">
                         <tr>
+                            <th rowspan="2" class="align-middle text-center checkbox-column" style="width: 50px;">
+                                <div class="form-check d-flex justify-content-center">
+                                    <input class="form-check-input" type="checkbox" id="selectAllCheckbox" onchange="toggleSelectAll(this)">
+                                </div>
+                            </th>
                             <th rowspan="2" class="align-middle sortable-header" data-sort="name" onclick="sortTable('name')">
                                 @Localizer["Goal Name"]
                                 <span class="sort-icon"><i class="fas fa-sort"></i></span>
@@ -631,6 +678,11 @@
                                 data-amount-of-reduction="@goal.AmountOfReduction.ToString(System.Globalization.CultureInfo.InvariantCulture)"
                                 data-is-increase-goal="@(goal.TargetValue > goal.BaseValueForStartingYear ? "true" : "false")"
                                 data-timeline-url="@Url.Action("FrameworkGoalsTimeline", "Dashboard", new { goalId = goal.ID, frameworkCode = goal.FrameworkCode })">
+                                <td class="text-center checkbox-cell">
+                                    <div class="form-check d-flex justify-content-center">
+                                        <input class="form-check-input row-checkbox" type="checkbox" value="@goal.ID" onchange="updateSelection()">
+                                    </div>
+                                </td>
                                 <td><strong>@goal.Name</strong></td>
                                 <td>
                                     <span class="badge bg-info">@goal.Framework.Name</span>
@@ -883,6 +935,36 @@
                 </button>
                 <button type="button" class="btn btn-danger px-4" onclick="confirmDelete()">
                     <i class="fas fa-trash me-2"></i>@Localizer["Delete"]
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Bulk Delete Confirmation Modal -->
+<div class="modal fade" id="bulkDeleteModal" tabindex="-1" aria-labelledby="bulkDeleteModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow-lg">
+            <div class="modal-header bg-danger text-white border-0">
+                <h5 class="modal-title" id="bulkDeleteModalLabel">
+                    <i class="fas fa-exclamation-triangle me-2"></i>@Localizer["Delete Selected Goals"]
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body text-center py-4">
+                <div class="mb-3">
+                    <i class="fas fa-trash-alt text-danger" style="font-size: 3rem;"></i>
+                </div>
+                <h5 class="mb-3">@Localizer["Are you sure you want to delete the selected goals?"]</h5>
+                <p class="text-muted mb-2">@Localizer["This action cannot be undone."]</p>
+                <p class="fw-bold text-danger" id="bulkDeleteCount">0 @Localizer["goals will be deleted"]</p>
+            </div>
+            <div class="modal-footer border-0 justify-content-center">
+                <button type="button" class="btn btn-secondary px-4" data-bs-dismiss="modal">
+                    <i class="fas fa-times me-2"></i>@Localizer["Cancel"]
+                </button>
+                <button type="button" class="btn btn-danger px-4" onclick="confirmBulkDelete()">
+                    <i class="fas fa-trash me-2"></i>@Localizer["Delete All Selected"]
                 </button>
             </div>
         </div>
@@ -1566,6 +1648,296 @@
                 showErrorMessage('@Localizer["An error occurred. Please try again."]');
             }
         }
+
+        // ==================== BULK OPERATIONS ====================
+
+        // Toggle select all checkboxes
+        function toggleSelectAll(checkbox) {
+            const visibleRows = document.querySelectorAll('#goalsTable tbody tr.goal-row:not([style*="display: none"])');
+            visibleRows.forEach(row => {
+                const rowCheckbox = row.querySelector('.row-checkbox');
+                if (rowCheckbox) {
+                    rowCheckbox.checked = checkbox.checked;
+                }
+            });
+            updateSelection();
+        }
+
+        // Update selection count and show/hide bulk toolbar
+        function updateSelection() {
+            const checkboxes = document.querySelectorAll('.row-checkbox:checked');
+            const count = checkboxes.length;
+            const toolbar = document.getElementById('bulkActionsToolbar');
+            const countBadge = document.getElementById('selectedCount');
+            const selectAllCheckbox = document.getElementById('selectAllCheckbox');
+
+            countBadge.textContent = count;
+
+            if (count > 0) {
+                toolbar.style.display = 'block';
+                toolbar.classList.add('slide-in');
+            } else {
+                toolbar.style.display = 'none';
+                toolbar.classList.remove('slide-in');
+            }
+
+            // Update select all checkbox state
+            const visibleRows = document.querySelectorAll('#goalsTable tbody tr.goal-row:not([style*="display: none"])');
+            const visibleCheckboxes = Array.from(visibleRows).map(row => row.querySelector('.row-checkbox')).filter(cb => cb);
+            const checkedVisibleCheckboxes = visibleCheckboxes.filter(cb => cb.checked);
+
+            if (visibleCheckboxes.length > 0 && checkedVisibleCheckboxes.length === visibleCheckboxes.length) {
+                selectAllCheckbox.checked = true;
+                selectAllCheckbox.indeterminate = false;
+            } else if (checkedVisibleCheckboxes.length > 0) {
+                selectAllCheckbox.checked = false;
+                selectAllCheckbox.indeterminate = true;
+            } else {
+                selectAllCheckbox.checked = false;
+                selectAllCheckbox.indeterminate = false;
+            }
+        }
+
+        // Clear all selections
+        function clearSelection() {
+            document.querySelectorAll('.row-checkbox').forEach(cb => cb.checked = false);
+            document.getElementById('selectAllCheckbox').checked = false;
+            document.getElementById('selectAllCheckbox').indeterminate = false;
+            updateSelection();
+        }
+
+        // Get selected goal IDs
+        function getSelectedGoalIds() {
+            return Array.from(document.querySelectorAll('.row-checkbox:checked')).map(cb => cb.value);
+        }
+
+        // Get selected rows data
+        function getSelectedRowsData() {
+            const selectedIds = getSelectedGoalIds();
+            const rows = [];
+            selectedIds.forEach(id => {
+                const row = document.getElementById(`goal-row-${id}`);
+                if (row) {
+                    rows.push(row);
+                }
+            });
+            return rows;
+        }
+
+        // Bulk delete function
+        function bulkDelete() {
+            const selectedIds = getSelectedGoalIds();
+            if (selectedIds.length === 0) {
+                showErrorMessage('@Localizer["No goals selected"]');
+                return;
+            }
+
+            document.getElementById('bulkDeleteCount').innerHTML =
+                `${selectedIds.length} @Localizer["goals will be deleted"]`;
+
+            const modal = new bootstrap.Modal(document.getElementById('bulkDeleteModal'));
+            modal.show();
+        }
+
+        // Confirm and execute bulk delete
+        async function confirmBulkDelete() {
+            const selectedIds = getSelectedGoalIds();
+            const token = document.querySelector('input[name="__RequestVerificationToken"]').value;
+
+            // Close the modal
+            const modal = bootstrap.Modal.getInstance(document.getElementById('bulkDeleteModal'));
+            modal.hide();
+
+            let successCount = 0;
+            let errorCount = 0;
+
+            for (const id of selectedIds) {
+                try {
+                    const response = await fetch('@Url.Action("Delete", "FrameworkGoals")', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/x-www-form-urlencoded',
+                        },
+                        body: `id=${id}&__RequestVerificationToken=${encodeURIComponent(token)}`
+                    });
+
+                    const result = await response.json();
+
+                    if (result.success) {
+                        const row = document.getElementById(`goal-row-${id}`);
+                        if (row) {
+                            row.style.transition = 'opacity 0.3s';
+                            row.style.opacity = '0';
+                            setTimeout(() => row.remove(), 300);
+                        }
+                        successCount++;
+                    } else {
+                        errorCount++;
+                    }
+                } catch (error) {
+                    console.error('Error deleting goal:', error);
+                    errorCount++;
+                }
+            }
+
+            // Clear selection
+            clearSelection();
+
+            // Show results
+            if (successCount > 0) {
+                showSuccessMessage(`${successCount} @Localizer["goals deleted successfully"]`);
+            }
+            if (errorCount > 0) {
+                showErrorMessage(`${errorCount} @Localizer["goals failed to delete"]`);
+            }
+
+            // Reload if no more goals
+            setTimeout(() => {
+                if (document.querySelectorAll('#goalsTable tbody tr.goal-row').length === 0) {
+                    location.reload();
+                }
+            }, 500);
+        }
+
+        // Export selected to Excel
+        function exportSelectedToExcel() {
+            const selectedRows = getSelectedRowsData();
+            if (selectedRows.length === 0) {
+                showErrorMessage('@Localizer["No goals selected"]');
+                return;
+            }
+
+            const data = [];
+            // Headers
+            data.push(['@Localizer["Goal Name"]', '@Localizer["Framework"]', '@Localizer["Starting Year"]', '@Localizer["Current Year"]', '@Localizer["Target Year"]', '@Localizer["Starting Value"]', '@Localizer["Current Value"]', '@Localizer["Target Value"]', '@Localizer["Progress Rate"]', '@Localizer["Discount Rate"]', '@Localizer["Status"]']);
+
+            selectedRows.forEach(row => {
+                data.push([
+                    row.dataset.goalNameDisplay || '',
+                    row.dataset.frameworkName || '',
+                    row.dataset.startingYear || '',
+                    row.dataset.currentYear || '',
+                    row.dataset.targetYear || '',
+                    parseFloat(row.dataset.baseValueStarting || 0).toFixed(2) + '%',
+                    parseFloat(row.dataset.baseValueCurrent || 0).toFixed(2) + '%',
+                    parseFloat(row.dataset.targetValue || 0).toFixed(2) + '%',
+                    parseFloat(row.dataset.progressRate || 0).toFixed(2) + '%',
+                    parseFloat(row.dataset.discountRate || 0).toFixed(2) + '%',
+                    row.dataset.status || ''
+                ]);
+            });
+
+            const ws = XLSX.utils.aoa_to_sheet(data);
+            ws['!dir'] = 'rtl';
+            const wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, ws, '@Localizer["Framework Goals"]');
+            XLSX.writeFile(wb, 'FrameworkGoals_Selected_' + new Date().toISOString().slice(0, 10) + '.xlsx');
+            showSuccessMessage('@Localizer["Excel exported successfully!"]');
+        }
+
+        // Export selected to CSV
+        function exportSelectedToCSV() {
+            const selectedRows = getSelectedRowsData();
+            if (selectedRows.length === 0) {
+                showErrorMessage('@Localizer["No goals selected"]');
+                return;
+            }
+
+            const headers = ['@Localizer["Goal Name"]', '@Localizer["Framework"]', '@Localizer["Starting Year"]', '@Localizer["Current Year"]', '@Localizer["Target Year"]', '@Localizer["Starting Value"]', '@Localizer["Current Value"]', '@Localizer["Target Value"]', '@Localizer["Progress Rate"]', '@Localizer["Discount Rate"]', '@Localizer["Status"]'];
+
+            let csv = headers.join('\t') + '\n';
+
+            selectedRows.forEach(row => {
+                const rowData = [
+                    row.dataset.goalNameDisplay || '',
+                    row.dataset.frameworkName || '',
+                    row.dataset.startingYear || '',
+                    row.dataset.currentYear || '',
+                    row.dataset.targetYear || '',
+                    parseFloat(row.dataset.baseValueStarting || 0).toFixed(2) + '%',
+                    parseFloat(row.dataset.baseValueCurrent || 0).toFixed(2) + '%',
+                    parseFloat(row.dataset.targetValue || 0).toFixed(2) + '%',
+                    parseFloat(row.dataset.progressRate || 0).toFixed(2) + '%',
+                    parseFloat(row.dataset.discountRate || 0).toFixed(2) + '%',
+                    row.dataset.status || ''
+                ];
+                csv += rowData.join('\t') + '\n';
+            });
+
+            downloadFileWithBOM(csv, 'FrameworkGoals_Selected_' + new Date().toISOString().slice(0, 10) + '.csv');
+            showSuccessMessage('@Localizer["CSV exported successfully!"]');
+        }
+
+        // Export selected to PDF
+        async function exportSelectedToPDF() {
+            const selectedRows = getSelectedRowsData();
+            if (selectedRows.length === 0) {
+                showErrorMessage('@Localizer["No goals selected"]');
+                return;
+            }
+
+            // Create a temporary table for PDF export
+            const tempDiv = document.createElement('div');
+            tempDiv.style.cssText = 'position: absolute; left: -9999px; top: -9999px; direction: rtl; font-family: Arial, sans-serif;';
+            tempDiv.innerHTML = `
+                <div style="padding: 20px; background: white; min-width: 1000px;">
+                    <h2 style="text-align: center; color: #333; margin-bottom: 20px;">@Localizer["Framework Goals Report"] - @Localizer["Selected"]</h2>
+                    <p style="text-align: center; color: #666; margin-bottom: 20px;">@Localizer["Generated on"]: ${new Date().toLocaleDateString()}</p>
+                    <p style="text-align: center; color: #666; margin-bottom: 20px;">@Localizer["Total"]: ${selectedRows.length}</p>
+                    <table style="width: 100%; border-collapse: collapse; font-size: 12px;">
+                        <thead>
+                            <tr style="background-color: #f8f9fa;">
+                                <th style="border: 1px solid #dee2e6; padding: 10px;">@Localizer["Goal Name"]</th>
+                                <th style="border: 1px solid #dee2e6; padding: 10px;">@Localizer["Framework"]</th>
+                                <th style="border: 1px solid #dee2e6; padding: 10px;">@Localizer["Progress Rate"]</th>
+                                <th style="border: 1px solid #dee2e6; padding: 10px;">@Localizer["Status"]</th>
+                            </tr>
+                        </thead>
+                        <tbody id="pdfTableBody">
+                        </tbody>
+                    </table>
+                </div>
+            `;
+            document.body.appendChild(tempDiv);
+
+            const tbody = tempDiv.querySelector('#pdfTableBody');
+            selectedRows.forEach(row => {
+                const status = row.dataset.status || '';
+                let statusColor = '#6c757d';
+                let statusText = status;
+                if (status === 'on-track') { statusColor = '#198754'; statusText = '@Localizer["On Track"]'; }
+                else if (status === 'at-risk') { statusColor = '#ffc107'; statusText = '@Localizer["At Risk"]'; }
+                else if (status === 'off-track') { statusColor = '#dc3545'; statusText = '@Localizer["Off Track"]'; }
+
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td style="border: 1px solid #dee2e6; padding: 8px;">${row.dataset.goalNameDisplay || ''}</td>
+                    <td style="border: 1px solid #dee2e6; padding: 8px;">${row.dataset.frameworkName || ''}</td>
+                    <td style="border: 1px solid #dee2e6; padding: 8px; text-align: center;">${parseFloat(row.dataset.progressRate || 0).toFixed(2)}%</td>
+                    <td style="border: 1px solid #dee2e6; padding: 8px; text-align: center; color: ${statusColor}; font-weight: bold;">${statusText}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+
+            try {
+                const canvas = await html2canvas(tempDiv.firstElementChild, { scale: 2, useCORS: true });
+                const { jsPDF } = window.jspdf;
+                const pdf = new jsPDF('l', 'mm', 'a4');
+                const imgData = canvas.toDataURL('image/png');
+                const pdfWidth = pdf.internal.pageSize.getWidth();
+                const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
+                pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
+                pdf.save('FrameworkGoals_Selected_' + new Date().toISOString().slice(0, 10) + '.pdf');
+                showSuccessMessage('@Localizer["PDF exported successfully!"]');
+            } catch (error) {
+                console.error('Error generating PDF:', error);
+                showErrorMessage('@Localizer["Error generating PDF"]');
+            } finally {
+                document.body.removeChild(tempDiv);
+            }
+        }
+
+        // ==================== END BULK OPERATIONS ====================
 
         // Show success message
         function showSuccessMessage(message) {
@@ -3242,6 +3614,73 @@
         .year-range {
             font-size: 0.95rem;
         }
+    }
+
+    /* =============================================
+       BULK OPERATIONS STYLES
+       ============================================= */
+    .bulk-toolbar {
+        border-left: 4px solid #0d6efd;
+        background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    }
+
+    .bulk-toolbar.slide-in {
+        animation: slideIn 0.3s ease-out;
+    }
+
+    @@keyframes slideIn {
+        from {
+            opacity: 0;
+            transform: translateY(-10px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .checkbox-column {
+        width: 50px;
+        min-width: 50px;
+    }
+
+    .checkbox-cell {
+        width: 50px;
+        min-width: 50px;
+    }
+
+    .row-checkbox,
+    #selectAllCheckbox {
+        width: 18px;
+        height: 18px;
+        cursor: pointer;
+        transition: all 0.2s ease;
+    }
+
+    .row-checkbox:hover,
+    #selectAllCheckbox:hover {
+        transform: scale(1.1);
+    }
+
+    .row-checkbox:checked,
+    #selectAllCheckbox:checked {
+        background-color: #0d6efd;
+        border-color: #0d6efd;
+    }
+
+    #goalsTable tbody tr:has(.row-checkbox:checked) {
+        background-color: rgba(13, 110, 253, 0.08) !important;
+    }
+
+    #goalsTable tbody tr:has(.row-checkbox:checked):hover {
+        background-color: rgba(13, 110, 253, 0.12) !important;
+    }
+
+    /* Selected count badge animation */
+    #selectedCount {
+        min-width: 30px;
+        text-align: center;
+        transition: all 0.2s ease;
     }
 
     /* =============================================
