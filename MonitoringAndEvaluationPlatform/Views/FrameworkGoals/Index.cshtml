@@ -501,6 +501,10 @@
                 </button>
             </div>
             <div class="d-flex gap-2 flex-wrap">
+                <button type="button" class="btn btn-sm btn-purple" id="compareBtn" onclick="openComparisonView()" title="@Localizer["Compare Selected Goals"]" disabled>
+                    <i class="fas fa-columns me-1"></i>@Localizer["Compare"]
+                    <span class="badge bg-light text-dark ms-1" id="compareBtnCount">0</span>
+                </button>
                 <div class="btn-group" role="group">
                     <button type="button" class="btn btn-sm btn-outline-success" onclick="exportSelectedToExcel()" title="@Localizer["Export Selected to Excel"]">
                         <i class="fas fa-file-excel me-1"></i>Excel
@@ -971,6 +975,158 @@
     </div>
 </div>
 
+<!-- Goal Comparison Modal -->
+<div class="modal fade" id="comparisonModal" tabindex="-1" aria-labelledby="comparisonModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-fullscreen">
+        <div class="modal-content">
+            <div class="modal-header bg-purple text-white">
+                <h5 class="modal-title" id="comparisonModalLabel">
+                    <i class="fas fa-columns me-2"></i>@Localizer["Goal Comparison"]
+                </h5>
+                <div class="d-flex align-items-center gap-3">
+                    <span class="badge bg-light text-dark" id="comparisonGoalCount">0 @Localizer["goals"]</span>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+            </div>
+            <div class="modal-body p-0 comparison-modal-body">
+                <!-- Comparison Header Summary -->
+                <div class="comparison-summary bg-light p-3 border-bottom">
+                    <div class="row g-3">
+                        <div class="col-md-3">
+                            <div class="comparison-stat">
+                                <div class="comparison-stat-label">@Localizer["Average Progress"]</div>
+                                <div class="comparison-stat-value text-primary" id="compAvgProgress">0%</div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="comparison-stat">
+                                <div class="comparison-stat-label">@Localizer["Best Performer"]</div>
+                                <div class="comparison-stat-value text-success" id="compBestPerformer">-</div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="comparison-stat">
+                                <div class="comparison-stat-label">@Localizer["Needs Attention"]</div>
+                                <div class="comparison-stat-value text-danger" id="compWorstPerformer">-</div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="comparison-stat">
+                                <div class="comparison-stat-label">@Localizer["On Track"]</div>
+                                <div class="comparison-stat-value text-info" id="compOnTrackCount">0</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Comparison Charts Section -->
+                <div class="comparison-charts p-4 border-bottom">
+                    <h6 class="text-muted mb-3">
+                        <i class="fas fa-chart-bar me-2"></i>@Localizer["Progress Comparison"]
+                    </h6>
+                    <div class="chart-container" style="height: 300px;">
+                        <canvas id="comparisonChart"></canvas>
+                    </div>
+                </div>
+
+                <!-- Comparison Table -->
+                <div class="comparison-table-container p-4">
+                    <h6 class="text-muted mb-3">
+                        <i class="fas fa-table me-2"></i>@Localizer["Detailed Comparison"]
+                    </h6>
+                    <div class="table-responsive">
+                        <table class="table table-bordered comparison-table" id="comparisonTable">
+                            <thead class="table-light">
+                                <tr>
+                                    <th class="comparison-metric-header">@Localizer["Metric"]</th>
+                                    <!-- Goal columns will be added dynamically -->
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr class="comparison-row">
+                                    <td class="comparison-metric"><i class="fas fa-folder me-2 text-info"></i>@Localizer["Framework"]</td>
+                                </tr>
+                                <tr class="comparison-row">
+                                    <td class="comparison-metric"><i class="fas fa-signal me-2 text-primary"></i>@Localizer["Status"]</td>
+                                </tr>
+                                <tr class="comparison-row">
+                                    <td class="comparison-metric"><i class="fas fa-percentage me-2 text-success"></i>@Localizer["Progress Rate"]</td>
+                                </tr>
+                                <tr class="comparison-row">
+                                    <td class="comparison-metric"><i class="fas fa-chart-line me-2 text-warning"></i>@Localizer["Discount Rate"]</td>
+                                </tr>
+                                <tr class="comparison-row comparison-section-header">
+                                    <td class="comparison-metric fw-bold bg-light"><i class="fas fa-calendar me-2"></i>@Localizer["Timeline"]</td>
+                                </tr>
+                                <tr class="comparison-row">
+                                    <td class="comparison-metric ps-4">@Localizer["Starting Year"]</td>
+                                </tr>
+                                <tr class="comparison-row">
+                                    <td class="comparison-metric ps-4">@Localizer["Current Year"]</td>
+                                </tr>
+                                <tr class="comparison-row">
+                                    <td class="comparison-metric ps-4">@Localizer["Target Year"]</td>
+                                </tr>
+                                <tr class="comparison-row">
+                                    <td class="comparison-metric ps-4">@Localizer["Years Left"]</td>
+                                </tr>
+                                <tr class="comparison-row comparison-section-header">
+                                    <td class="comparison-metric fw-bold bg-light"><i class="fas fa-chart-bar me-2"></i>@Localizer["Values"]</td>
+                                </tr>
+                                <tr class="comparison-row">
+                                    <td class="comparison-metric ps-4">@Localizer["Starting Value"]</td>
+                                </tr>
+                                <tr class="comparison-row">
+                                    <td class="comparison-metric ps-4">@Localizer["Current Value"]</td>
+                                </tr>
+                                <tr class="comparison-row">
+                                    <td class="comparison-metric ps-4">@Localizer["Target Value"]</td>
+                                </tr>
+                                <tr class="comparison-row">
+                                    <td class="comparison-metric ps-4">@Localizer["Required Change"]</td>
+                                </tr>
+                                <tr class="comparison-row comparison-section-header">
+                                    <td class="comparison-metric fw-bold bg-light"><i class="fas fa-analytics me-2"></i>@Localizer["Analysis"]</td>
+                                </tr>
+                                <tr class="comparison-row">
+                                    <td class="comparison-metric ps-4">@Localizer["Actual Change"]</td>
+                                </tr>
+                                <tr class="comparison-row">
+                                    <td class="comparison-metric ps-4">@Localizer["Expected Change"]</td>
+                                </tr>
+                                <tr class="comparison-row">
+                                    <td class="comparison-metric ps-4">@Localizer["Variance"]</td>
+                                </tr>
+                                <tr class="comparison-row">
+                                    <td class="comparison-metric ps-4">@Localizer["Goal Type"]</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Timeline Comparison -->
+                <div class="comparison-timeline p-4 border-top">
+                    <h6 class="text-muted mb-3">
+                        <i class="fas fa-project-diagram me-2"></i>@Localizer["Timeline Comparison"]
+                    </h6>
+                    <div id="timelineComparisonContainer" class="timeline-comparison-grid">
+                        <!-- Timeline bars will be added dynamically -->
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-outline-secondary" onclick="exportComparisonToPDF()">
+                    <i class="fas fa-file-pdf me-1"></i>@Localizer["Export to PDF"]
+                </button>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    <i class="fas fa-times me-1"></i>@Localizer["Close"]
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <!-- Goal Details Sidebar (Offcanvas) -->
 <div class="offcanvas offcanvas-end goal-details-sidebar" tabindex="-1" id="goalDetailsSidebar" aria-labelledby="goalDetailsSidebarLabel">
     <div class="offcanvas-header bg-primary text-white">
@@ -1151,6 +1307,8 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <!-- html2canvas for PDF Arabic support -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <!-- Chart.js for Comparison Charts -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
 
     <script>
         // Initialize year pickers with default values
@@ -1670,6 +1828,8 @@
             const toolbar = document.getElementById('bulkActionsToolbar');
             const countBadge = document.getElementById('selectedCount');
             const selectAllCheckbox = document.getElementById('selectAllCheckbox');
+            const compareBtn = document.getElementById('compareBtn');
+            const compareBtnCount = document.getElementById('compareBtnCount');
 
             countBadge.textContent = count;
 
@@ -1679,6 +1839,18 @@
             } else {
                 toolbar.style.display = 'none';
                 toolbar.classList.remove('slide-in');
+            }
+
+            // Update compare button state (requires 2+ selections)
+            if (compareBtn) {
+                compareBtnCount.textContent = count;
+                if (count >= 2) {
+                    compareBtn.disabled = false;
+                    compareBtn.classList.add('btn-purple-active');
+                } else {
+                    compareBtn.disabled = true;
+                    compareBtn.classList.remove('btn-purple-active');
+                }
             }
 
             // Update select all checkbox state
@@ -1938,6 +2110,337 @@
         }
 
         // ==================== END BULK OPERATIONS ====================
+
+        // ==================== COMPARISON VIEW ====================
+
+        let comparisonChart = null;
+        const comparisonColors = [
+            '#0d6efd', '#198754', '#dc3545', '#ffc107', '#0dcaf0',
+            '#6f42c1', '#fd7e14', '#20c997', '#e83e8c', '#6c757d'
+        ];
+
+        // Open comparison view
+        function openComparisonView() {
+            const selectedRows = getSelectedRowsData();
+            if (selectedRows.length < 2) {
+                showErrorMessage('@Localizer["Select at least 2 goals to compare"]');
+                return;
+            }
+
+            // Prepare data
+            const goalsData = selectedRows.map((row, index) => ({
+                id: row.dataset.goalId,
+                name: row.dataset.goalNameDisplay || '',
+                framework: row.dataset.frameworkName || '',
+                frameworkCode: row.dataset.frameworkCode || '',
+                status: row.dataset.status || '',
+                progressRate: parseFloat(row.dataset.progressRate) || 0,
+                discountRate: parseFloat(row.dataset.discountRate) || 0,
+                startingYear: parseInt(row.dataset.startingYear) || 0,
+                currentYear: parseInt(row.dataset.currentYear) || 0,
+                targetYear: parseInt(row.dataset.targetYear) || 0,
+                startingValue: parseFloat(row.dataset.baseValueStarting) || 0,
+                currentValue: parseFloat(row.dataset.baseValueCurrent) || 0,
+                targetValue: parseFloat(row.dataset.targetValue) || 0,
+                amountOfReduction: parseFloat(row.dataset.amountOfReduction) || 0,
+                isIncreaseGoal: row.dataset.isIncreaseGoal === 'true',
+                color: comparisonColors[index % comparisonColors.length]
+            }));
+
+            // Update modal content
+            updateComparisonSummary(goalsData);
+            updateComparisonTable(goalsData);
+            updateComparisonChart(goalsData);
+            updateTimelineComparison(goalsData);
+
+            // Update goal count
+            document.getElementById('comparisonGoalCount').textContent = `${goalsData.length} @Localizer["goals"]`;
+
+            // Show modal
+            const modal = new bootstrap.Modal(document.getElementById('comparisonModal'));
+            modal.show();
+        }
+
+        // Update comparison summary statistics
+        function updateComparisonSummary(goalsData) {
+            const avgProgress = goalsData.reduce((sum, g) => sum + g.progressRate, 0) / goalsData.length;
+            const sortedByProgress = [...goalsData].sort((a, b) => b.progressRate - a.progressRate);
+            const bestPerformer = sortedByProgress[0];
+            const worstPerformer = sortedByProgress[sortedByProgress.length - 1];
+            const onTrackCount = goalsData.filter(g => g.status === 'on-track').length;
+
+            document.getElementById('compAvgProgress').textContent = avgProgress.toFixed(1) + '%';
+            document.getElementById('compBestPerformer').innerHTML = `
+                <span class="text-truncate d-block" style="max-width: 150px;" title="${bestPerformer.name}">
+                    ${bestPerformer.name.substring(0, 20)}${bestPerformer.name.length > 20 ? '...' : ''}
+                </span>
+                <small class="text-success">${bestPerformer.progressRate.toFixed(1)}%</small>
+            `;
+            document.getElementById('compWorstPerformer').innerHTML = `
+                <span class="text-truncate d-block" style="max-width: 150px;" title="${worstPerformer.name}">
+                    ${worstPerformer.name.substring(0, 20)}${worstPerformer.name.length > 20 ? '...' : ''}
+                </span>
+                <small class="text-danger">${worstPerformer.progressRate.toFixed(1)}%</small>
+            `;
+            document.getElementById('compOnTrackCount').textContent = `${onTrackCount} / ${goalsData.length}`;
+        }
+
+        // Update comparison table with goal columns
+        function updateComparisonTable(goalsData) {
+            const table = document.getElementById('comparisonTable');
+            const headerRow = table.querySelector('thead tr');
+            const rows = table.querySelectorAll('tbody tr');
+
+            // Clear existing goal columns
+            while (headerRow.children.length > 1) {
+                headerRow.removeChild(headerRow.lastChild);
+            }
+            rows.forEach(row => {
+                while (row.children.length > 1) {
+                    row.removeChild(row.lastChild);
+                }
+            });
+
+            // Add goal header columns
+            goalsData.forEach((goal, index) => {
+                const th = document.createElement('th');
+                th.className = 'text-center';
+                th.style.borderTop = `3px solid ${goal.color}`;
+                th.innerHTML = `
+                    <div class="goal-header-cell">
+                        <span class="goal-color-dot" style="background-color: ${goal.color};"></span>
+                        <span class="text-truncate d-block" style="max-width: 150px;" title="${goal.name}">${goal.name}</span>
+                    </div>
+                `;
+                headerRow.appendChild(th);
+            });
+
+            // Calculate values for each goal
+            goalsData.forEach((goal, goalIndex) => {
+                const currentYear = new Date().getFullYear();
+                const yearsLeft = Math.max(0, goal.targetYear - currentYear);
+                const totalChange = Math.abs(goal.targetValue - goal.startingValue);
+                const actualChange = goal.currentValue - goal.startingValue;
+                const expectedSlope = (goal.targetValue - goal.startingValue) / Math.max(1, goal.targetYear - goal.startingYear);
+                const expectedChange = expectedSlope * (goal.currentYear - goal.startingYear);
+                const variance = actualChange - expectedChange;
+
+                const values = [
+                    `<span class="badge bg-info">${goal.framework}</span>`,
+                    getStatusBadgeHtml(goal.status),
+                    `<span class="fw-bold" style="color: ${goal.progressRate >= 70 ? '#198754' : goal.progressRate >= 40 ? '#ffc107' : '#dc3545'}">${goal.progressRate.toFixed(2)}%</span>`,
+                    `${goal.discountRate.toFixed(2)}%`,
+                    '', // Section header
+                    goal.startingYear,
+                    goal.currentYear,
+                    goal.targetYear,
+                    `<span class="${yearsLeft <= 1 ? 'text-danger fw-bold' : ''}">${yearsLeft} @Localizer["year"]</span>`,
+                    '', // Section header
+                    `${goal.startingValue.toFixed(2)}%`,
+                    `${goal.currentValue.toFixed(2)}%`,
+                    `${goal.targetValue.toFixed(2)}%`,
+                    `${totalChange.toFixed(2)}%`,
+                    '', // Section header
+                    `<span class="${actualChange >= 0 ? 'text-success' : 'text-danger'}">${actualChange >= 0 ? '+' : ''}${actualChange.toFixed(2)}%</span>`,
+                    `${expectedChange.toFixed(2)}%`,
+                    `<span class="${variance >= 0 ? 'text-success' : 'text-danger'}">${variance >= 0 ? '+' : ''}${variance.toFixed(2)}%</span>`,
+                    goal.isIncreaseGoal ? '<span class="badge bg-success">@Localizer["Increase"]</span>' : '<span class="badge bg-warning text-dark">@Localizer["Decrease"]</span>'
+                ];
+
+                rows.forEach((row, rowIndex) => {
+                    const td = document.createElement('td');
+                    td.className = 'text-center';
+                    if (row.classList.contains('comparison-section-header')) {
+                        td.className = 'bg-light';
+                    }
+                    td.innerHTML = values[rowIndex];
+                    row.appendChild(td);
+                });
+            });
+        }
+
+        // Get status badge HTML
+        function getStatusBadgeHtml(status) {
+            const statusMap = {
+                'on-track': { class: 'bg-success', text: '@Localizer["On Track"]' },
+                'at-risk': { class: 'bg-warning text-dark', text: '@Localizer["At Risk"]' },
+                'off-track': { class: 'bg-danger', text: '@Localizer["Off Track"]' }
+            };
+            const statusInfo = statusMap[status] || { class: 'bg-secondary', text: status };
+            return `<span class="badge ${statusInfo.class}">${statusInfo.text}</span>`;
+        }
+
+        // Update comparison chart
+        function updateComparisonChart(goalsData) {
+            const ctx = document.getElementById('comparisonChart').getContext('2d');
+
+            // Destroy existing chart
+            if (comparisonChart) {
+                comparisonChart.destroy();
+            }
+
+            // Prepare data
+            const labels = goalsData.map(g => g.name.length > 25 ? g.name.substring(0, 25) + '...' : g.name);
+            const progressData = goalsData.map(g => g.progressRate);
+            const targetLine = goalsData.map(() => 100);
+
+            comparisonChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [
+                        {
+                            label: '@Localizer["Progress Rate"]',
+                            data: progressData,
+                            backgroundColor: goalsData.map(g => g.color + '99'),
+                            borderColor: goalsData.map(g => g.color),
+                            borderWidth: 2,
+                            borderRadius: 8
+                        },
+                        {
+                            label: '@Localizer["Target"] (100%)',
+                            data: targetLine,
+                            type: 'line',
+                            borderColor: '#dc3545',
+                            borderDash: [5, 5],
+                            borderWidth: 2,
+                            pointRadius: 0,
+                            fill: false
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: true,
+                            position: 'top'
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return context.dataset.label + ': ' + context.raw.toFixed(2) + '%';
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            max: Math.max(120, Math.max(...progressData) + 10),
+                            ticks: {
+                                callback: function(value) {
+                                    return value + '%';
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Update timeline comparison
+        function updateTimelineComparison(goalsData) {
+            const container = document.getElementById('timelineComparisonContainer');
+            container.innerHTML = '';
+
+            // Find min and max years across all goals
+            const allYears = goalsData.flatMap(g => [g.startingYear, g.targetYear]);
+            const minYear = Math.min(...allYears);
+            const maxYear = Math.max(...allYears);
+            const totalYears = maxYear - minYear;
+
+            goalsData.forEach((goal, index) => {
+                const startOffset = ((goal.startingYear - minYear) / totalYears) * 100;
+                const width = ((goal.targetYear - goal.startingYear) / totalYears) * 100;
+                const currentOffset = ((goal.currentYear - goal.startingYear) / (goal.targetYear - goal.startingYear)) * 100;
+
+                const row = document.createElement('div');
+                row.className = 'timeline-comparison-row';
+                row.innerHTML = `
+                    <div class="timeline-comparison-label">
+                        <span class="goal-color-dot" style="background-color: ${goal.color};"></span>
+                        <span class="text-truncate" style="max-width: 200px;" title="${goal.name}">${goal.name}</span>
+                    </div>
+                    <div class="timeline-comparison-bar-container">
+                        <div class="timeline-comparison-bar" style="left: ${startOffset}%; width: ${width}%; background-color: ${goal.color}20; border: 2px solid ${goal.color};">
+                            <div class="timeline-comparison-progress" style="width: ${currentOffset}%; background-color: ${goal.color};"></div>
+                            <span class="timeline-year-label timeline-start-label">${goal.startingYear}</span>
+                            <span class="timeline-year-label timeline-current-label" style="left: ${currentOffset}%;">${goal.currentYear}</span>
+                            <span class="timeline-year-label timeline-end-label">${goal.targetYear}</span>
+                        </div>
+                    </div>
+                    <div class="timeline-comparison-progress-text">
+                        <span style="color: ${goal.color};">${goal.progressRate.toFixed(1)}%</span>
+                    </div>
+                `;
+                container.appendChild(row);
+            });
+
+            // Add year axis
+            const axisRow = document.createElement('div');
+            axisRow.className = 'timeline-comparison-axis';
+            axisRow.innerHTML = `
+                <div class="timeline-comparison-label"></div>
+                <div class="timeline-comparison-bar-container">
+                    <div class="timeline-axis-line">
+                        ${Array.from({ length: totalYears + 1 }, (_, i) => {
+                            const year = minYear + i;
+                            const position = (i / totalYears) * 100;
+                            return `<span class="timeline-axis-year" style="left: ${position}%;">${year}</span>`;
+                        }).join('')}
+                    </div>
+                </div>
+                <div class="timeline-comparison-progress-text"></div>
+            `;
+            container.appendChild(axisRow);
+        }
+
+        // Export comparison to PDF
+        async function exportComparisonToPDF() {
+            const modalBody = document.querySelector('.comparison-modal-body');
+            if (!modalBody) return;
+
+            try {
+                showSuccessMessage('@Localizer["Generating PDF..."]');
+                const canvas = await html2canvas(modalBody, {
+                    scale: 2,
+                    useCORS: true,
+                    logging: false,
+                    backgroundColor: '#ffffff'
+                });
+
+                const { jsPDF } = window.jspdf;
+                const pdf = new jsPDF('l', 'mm', 'a4');
+                const imgData = canvas.toDataURL('image/png');
+                const pdfWidth = pdf.internal.pageSize.getWidth();
+                const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
+
+                // Add multiple pages if needed
+                let heightLeft = pdfHeight;
+                let position = 0;
+                const pageHeight = pdf.internal.pageSize.getHeight();
+
+                pdf.addImage(imgData, 'PNG', 0, position, pdfWidth, pdfHeight);
+                heightLeft -= pageHeight;
+
+                while (heightLeft >= 0) {
+                    position = heightLeft - pdfHeight;
+                    pdf.addPage();
+                    pdf.addImage(imgData, 'PNG', 0, position, pdfWidth, pdfHeight);
+                    heightLeft -= pageHeight;
+                }
+
+                pdf.save('GoalComparison_' + new Date().toISOString().slice(0, 10) + '.pdf');
+                showSuccessMessage('@Localizer["PDF exported successfully!"]');
+            } catch (error) {
+                console.error('Error generating comparison PDF:', error);
+                showErrorMessage('@Localizer["Error generating PDF"]');
+            }
+        }
+
+        // ==================== END COMPARISON VIEW ====================
 
         // Show success message
         function showSuccessMessage(message) {
@@ -4163,6 +4666,222 @@
         }
 
         .value-card-value {
+            font-size: 1rem;
+        }
+    }
+
+    /* =============================================
+       COMPARISON VIEW STYLES
+       ============================================= */
+    .btn-purple {
+        background-color: #6f42c1;
+        border-color: #6f42c1;
+        color: white;
+    }
+
+    .btn-purple:hover:not(:disabled) {
+        background-color: #5a32a3;
+        border-color: #5a32a3;
+        color: white;
+    }
+
+    .btn-purple:disabled {
+        background-color: #a88bd4;
+        border-color: #a88bd4;
+        color: white;
+        opacity: 0.7;
+    }
+
+    .btn-purple-active {
+        animation: pulse 1s ease infinite;
+    }
+
+    @@keyframes pulse {
+        0%, 100% { transform: scale(1); }
+        50% { transform: scale(1.02); }
+    }
+
+    .bg-purple {
+        background-color: #6f42c1 !important;
+    }
+
+    .comparison-modal-body {
+        max-height: calc(100vh - 130px);
+        overflow-y: auto;
+    }
+
+    .comparison-summary {
+        position: sticky;
+        top: 0;
+        z-index: 10;
+    }
+
+    .comparison-stat {
+        text-align: center;
+        padding: 1rem;
+        background: white;
+        border-radius: 10px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    }
+
+    .comparison-stat-label {
+        font-size: 0.85rem;
+        color: #6c757d;
+        margin-bottom: 0.25rem;
+    }
+
+    .comparison-stat-value {
+        font-size: 1.25rem;
+        font-weight: 700;
+    }
+
+    .comparison-table {
+        font-size: 0.9rem;
+    }
+
+    .comparison-metric-header {
+        min-width: 180px;
+        font-weight: 600;
+    }
+
+    .comparison-metric {
+        font-weight: 500;
+        white-space: nowrap;
+    }
+
+    .comparison-section-header td {
+        font-weight: 700 !important;
+        background-color: #f8f9fa !important;
+    }
+
+    .goal-header-cell {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .goal-color-dot {
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+        display: inline-block;
+    }
+
+    /* Timeline Comparison Styles */
+    .timeline-comparison-grid {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+    }
+
+    .timeline-comparison-row {
+        display: grid;
+        grid-template-columns: 200px 1fr 80px;
+        align-items: center;
+        gap: 1rem;
+    }
+
+    .timeline-comparison-label {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-weight: 500;
+        overflow: hidden;
+    }
+
+    .timeline-comparison-bar-container {
+        position: relative;
+        height: 40px;
+        background: #f8f9fa;
+        border-radius: 8px;
+    }
+
+    .timeline-comparison-bar {
+        position: absolute;
+        height: 100%;
+        border-radius: 8px;
+        overflow: hidden;
+    }
+
+    .timeline-comparison-progress {
+        height: 100%;
+        border-radius: 8px 0 0 8px;
+        opacity: 0.7;
+    }
+
+    .timeline-year-label {
+        position: absolute;
+        font-size: 0.7rem;
+        font-weight: 600;
+        color: #333;
+        top: 50%;
+        transform: translateY(-50%);
+        background: rgba(255, 255, 255, 0.9);
+        padding: 2px 4px;
+        border-radius: 3px;
+    }
+
+    .timeline-start-label {
+        left: 5px;
+    }
+
+    .timeline-current-label {
+        transform: translate(-50%, -50%);
+        border: 2px solid currentColor;
+    }
+
+    .timeline-end-label {
+        right: 5px;
+    }
+
+    .timeline-comparison-progress-text {
+        font-weight: 700;
+        text-align: right;
+    }
+
+    .timeline-comparison-axis {
+        margin-top: 1rem;
+        padding-top: 1rem;
+        border-top: 1px solid #dee2e6;
+    }
+
+    .timeline-axis-line {
+        position: relative;
+        height: 30px;
+        border-top: 2px solid #6c757d;
+    }
+
+    .timeline-axis-year {
+        position: absolute;
+        font-size: 0.75rem;
+        color: #6c757d;
+        transform: translateX(-50%);
+        top: 5px;
+    }
+
+    /* Chart Container */
+    .chart-container {
+        position: relative;
+        width: 100%;
+    }
+
+    /* Responsive Comparison */
+    @@media (max-width: 768px) {
+        .timeline-comparison-row {
+            grid-template-columns: 1fr;
+            gap: 0.5rem;
+        }
+
+        .timeline-comparison-label {
+            justify-content: center;
+        }
+
+        .timeline-comparison-progress-text {
+            text-align: center;
+        }
+
+        .comparison-stat-value {
             font-size: 1rem;
         }
     }
