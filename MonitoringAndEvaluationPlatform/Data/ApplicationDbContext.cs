@@ -37,6 +37,7 @@ namespace MonitoringAndEvaluationPlatform.Data
         public DbSet<SDGIndicator> sDGIndicators { get; set; }
         public DbSet<FrameworkGoal> FrameworkGoals { get; set; }
         public DbSet<FrameworkGoalYearlyValue> FrameworkGoalYearlyValues { get; set; }
+        public DbSet<FrameworkGoalFile> FrameworkGoalFiles { get; set; }
 
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -142,8 +143,12 @@ namespace MonitoringAndEvaluationPlatform.Data
                 .HasIndex(fgv => new { fgv.FrameworkGoalID, fgv.Year })
                 .IsUnique();
 
-
-
+            // FrameworkGoal <-> FrameworkGoalFile (one-to-many)
+            modelBuilder.Entity<FrameworkGoalFile>()
+                .HasOne(fgf => fgf.FrameworkGoal)
+                .WithMany(fg => fg.Attachments)
+                .HasForeignKey(fgf => fgf.FrameworkGoalID)
+                .OnDelete(DeleteBehavior.Cascade);
 
 
 

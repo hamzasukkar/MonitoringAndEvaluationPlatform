@@ -1,5 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using Microsoft.AspNetCore.Http;
 
 namespace MonitoringAndEvaluationPlatform.Models
 {
@@ -38,6 +39,16 @@ namespace MonitoringAndEvaluationPlatform.Models
 
         // Collection of historical yearly values
         public ICollection<FrameworkGoalYearlyValue> YearlyValues { get; set; } = new List<FrameworkGoalYearlyValue>();
+
+        // Notes field for additional information
+        public string Notes { get; set; } = string.Empty;
+
+        // Collection of file attachments
+        public ICollection<FrameworkGoalFile> Attachments { get; set; } = new List<FrameworkGoalFile>();
+
+        // For file uploads (not mapped to database)
+        [NotMapped]
+        public List<IFormFile> UploadedFiles { get; set; } = new List<IFormFile>();
 
         // Calculated Properties (Not Mapped to Database)
 

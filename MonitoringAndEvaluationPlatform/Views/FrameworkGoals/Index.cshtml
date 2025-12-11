@@ -1272,6 +1272,66 @@
             </div>
         </div>
 
+        <!-- Notes Section -->
+        <div class="p-4 border-bottom">
+            <h6 class="text-muted mb-3 d-flex justify-content-between align-items-center">
+                <span><i class="fas fa-sticky-note me-2"></i>@Localizer["Notes"]</span>
+                @if (SignInManager.IsSignedIn(User))
+                {
+                    var notesUser = await UserManager.GetUserAsync(User);
+                    if (notesUser != null)
+                    {
+                        var notesRoles = await UserManager.GetRolesAsync(notesUser);
+                        if (notesRoles.Contains("SystemAdministrator"))
+                        {
+                            <button type="button" class="btn btn-sm btn-outline-primary" id="editNotesBtn" onclick="toggleNotesEdit()">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                        }
+                    }
+                }
+            </h6>
+            <div id="sidebarNotesDisplay">
+                <p class="text-muted mb-0" id="sidebarNotesText">@Localizer["No notes available"]</p>
+            </div>
+            <div id="sidebarNotesEdit" style="display: none;">
+                <textarea class="form-control mb-2" id="sidebarNotesTextarea" rows="4" placeholder="@Localizer["Enter notes here..."]"></textarea>
+                <div class="d-flex gap-2">
+                    <button type="button" class="btn btn-sm btn-success" onclick="saveNotes()">
+                        <i class="fas fa-save me-1"></i>@Localizer["Save"]
+                    </button>
+                    <button type="button" class="btn btn-sm btn-secondary" onclick="cancelNotesEdit()">
+                        <i class="fas fa-times me-1"></i>@Localizer["Cancel"]
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Attachments Section -->
+        <div class="p-4 border-bottom">
+            <h6 class="text-muted mb-3 d-flex justify-content-between align-items-center">
+                <span><i class="fas fa-paperclip me-2"></i>@Localizer["Attachments"]</span>
+                @if (SignInManager.IsSignedIn(User))
+                {
+                    var attachUser = await UserManager.GetUserAsync(User);
+                    if (attachUser != null)
+                    {
+                        var attachRoles = await UserManager.GetRolesAsync(attachUser);
+                        if (attachRoles.Contains("SystemAdministrator"))
+                        {
+                            <button type="button" class="btn btn-sm btn-outline-success" onclick="document.getElementById('attachmentFileInput').click()">
+                                <i class="fas fa-plus"></i>
+                            </button>
+                        }
+                    }
+                }
+            </h6>
+            <input type="file" id="attachmentFileInput" style="display: none;" onchange="uploadAttachment(this)" />
+            <div id="sidebarAttachmentsList">
+                <p class="text-muted mb-0">@Localizer["No attachments"]</p>
+            </div>
+        </div>
+
         <!-- Actions Section -->
         <div class="p-4">
             <h6 class="text-muted mb-3">
@@ -3452,6 +3512,10 @@
             // Load historical values
             loadSidebarHistoricalValues(goalId);
 
+            // Load notes and attachments
+            loadSidebarNotes(goalId);
+            loadSidebarAttachments(goalId);
+
             // Show sidebar
             const sidebar = new bootstrap.Offcanvas(document.getElementById('goalDetailsSidebar'));
             sidebar.show();
@@ -3562,6 +3626,208 @@
                 `;
             }
         }
+
+        // =============================================
+        // NOTES & ATTACHMENTS FUNCTIONALITY
+        // =============================================
+
+        // Load notes for sidebar
+        async function loadSidebarNotes(goalId) {
+            const notesText = document.getElementById('sidebarNotesText');
+            const notesTextarea = document.getElementById('sidebarNotesTextarea');
+
+            try {
+                const response = await fetch(`@Url.Action("GetNotes", "FrameworkGoals")?goalId=${goalId}`);
+                const result = await response.json();
+
+                if (result.success) {
+                    if (result.notes && result.notes.trim() !== '') {
+                        notesText.textContent = result.notes;
+                        notesText.className = 'mb-0';
+                    } else {
+                        notesText.textContent = '@Localizer["No notes available"]';
+                        notesText.className = 'text-muted mb-0';
+                    }
+                    notesTextarea.value = result.notes || '';
+                }
+            } catch (error) {
+                console.error('Error loading notes:', error);
+            }
+        }
+
+        // Toggle notes edit mode
+        function toggleNotesEdit() {
+            const displayDiv = document.getElementById('sidebarNotesDisplay');
+            const editDiv = document.getElementById('sidebarNotesEdit');
+            const editBtn = document.getElementById('editNotesBtn');
+
+            if (editDiv.style.display === 'none') {
+                displayDiv.style.display = 'none';
+                editDiv.style.display = 'block';
+                editBtn.innerHTML = '<i class="fas fa-times"></i>';
+            } else {
+                cancelNotesEdit();
+            }
+        }
+
+        // Cancel notes edit
+        function cancelNotesEdit() {
+            const displayDiv = document.getElementById('sidebarNotesDisplay');
+            const editDiv = document.getElementById('sidebarNotesEdit');
+            const editBtn = document.getElementById('editNotesBtn');
+
+            displayDiv.style.display = 'block';
+            editDiv.style.display = 'none';
+            editBtn.innerHTML = '<i class="fas fa-edit"></i>';
+
+            // Reload notes to reset textarea
+            if (currentSidebarGoalId) {
+                loadSidebarNotes(currentSidebarGoalId);
+            }
+        }
+
+        // Save notes
+        async function saveNotes() {
+            if (!currentSidebarGoalId) return;
+
+            const notes = document.getElementById('sidebarNotesTextarea').value;
+            const token = document.querySelector('input[name="__RequestVerificationToken"]').value;
+
+            try {
+                const formData = new FormData();
+                formData.append('goalId', currentSidebarGoalId);
+                formData.append('notes', notes);
+                formData.append('__RequestVerificationToken', token);
+
+                const response = await fetch('@Url.Action("SaveNotes", "FrameworkGoals")', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    showSuccessMessage(result.message);
+                    cancelNotesEdit();
+                    loadSidebarNotes(currentSidebarGoalId);
+                } else {
+                    showErrorMessage(result.message);
+                }
+            } catch (error) {
+                console.error('Error saving notes:', error);
+                showErrorMessage('@Localizer["An error occurred while saving notes."]');
+            }
+        }
+
+        // Load attachments for sidebar
+        async function loadSidebarAttachments(goalId) {
+            const container = document.getElementById('sidebarAttachmentsList');
+
+            try {
+                const response = await fetch(`@Url.Action("GetAttachments", "FrameworkGoals")?goalId=${goalId}`);
+                const result = await response.json();
+
+                if (result.success && result.attachments && result.attachments.length > 0) {
+                    let html = '<div class="attachments-list">';
+                    result.attachments.forEach(att => {
+                        html += `
+                            <div class="attachment-item d-flex justify-content-between align-items-center py-2 border-bottom">
+                                <div class="attachment-info">
+                                    <a href="${att.filePath}" target="_blank" class="text-decoration-none">
+                                        <i class="fas fa-file me-2"></i>${att.fileName}
+                                    </a>
+                                    <small class="text-muted d-block">${att.uploadedDate}</small>
+                                </div>
+                                <div class="attachment-actions">
+                                    <a href="${att.filePath}" download class="btn btn-sm btn-outline-primary me-1" title="@Localizer["Download"]">
+                                        <i class="fas fa-download"></i>
+                                    </a>
+                                    <button type="button" class="btn btn-sm btn-outline-danger" onclick="deleteAttachment(${att.id})" title="@Localizer["Delete"]">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        `;
+                    });
+                    html += '</div>';
+                    container.innerHTML = html;
+                } else {
+                    container.innerHTML = '<p class="text-muted mb-0">@Localizer["No attachments"]</p>';
+                }
+            } catch (error) {
+                console.error('Error loading attachments:', error);
+                container.innerHTML = '<p class="text-danger mb-0">@Localizer["Error loading attachments"]</p>';
+            }
+        }
+
+        // Upload attachment
+        async function uploadAttachment(input) {
+            if (!currentSidebarGoalId || !input.files || input.files.length === 0) return;
+
+            const file = input.files[0];
+            const token = document.querySelector('input[name="__RequestVerificationToken"]').value;
+
+            const formData = new FormData();
+            formData.append('goalId', currentSidebarGoalId);
+            formData.append('file', file);
+            formData.append('__RequestVerificationToken', token);
+
+            try {
+                const response = await fetch('@Url.Action("UploadAttachment", "FrameworkGoals")', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    showSuccessMessage(result.message);
+                    loadSidebarAttachments(currentSidebarGoalId);
+                } else {
+                    showErrorMessage(result.message);
+                }
+            } catch (error) {
+                console.error('Error uploading attachment:', error);
+                showErrorMessage('@Localizer["An error occurred while uploading the file."]');
+            }
+
+            // Clear the input
+            input.value = '';
+        }
+
+        // Delete attachment
+        async function deleteAttachment(attachmentId) {
+            if (!confirm('@Localizer["Are you sure you want to delete this attachment?"]')) return;
+
+            const token = document.querySelector('input[name="__RequestVerificationToken"]').value;
+
+            const formData = new FormData();
+            formData.append('attachmentId', attachmentId);
+            formData.append('__RequestVerificationToken', token);
+
+            try {
+                const response = await fetch('@Url.Action("DeleteAttachment", "FrameworkGoals")', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    showSuccessMessage(result.message);
+                    loadSidebarAttachments(currentSidebarGoalId);
+                } else {
+                    showErrorMessage(result.message);
+                }
+            } catch (error) {
+                console.error('Error deleting attachment:', error);
+                showErrorMessage('@Localizer["An error occurred while deleting the attachment."]');
+            }
+        }
+
+        // =============================================
+        // END NOTES & ATTACHMENTS
+        // =============================================
 
         // =============================================
         // END GOAL DETAILS SIDEBAR

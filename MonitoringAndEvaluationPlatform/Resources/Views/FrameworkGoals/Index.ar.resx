@@ -776,4 +776,59 @@
   <data name="Generating PDF..." xml:space="preserve">
     <value>جاري إنشاء PDF...</value>
   </data>
+  <!-- Notes & Attachments -->
+  <data name="Notes" xml:space="preserve">
+    <value>الملاحظات</value>
+  </data>
+  <data name="No notes available" xml:space="preserve">
+    <value>لا توجد ملاحظات</value>
+  </data>
+  <data name="Enter notes here..." xml:space="preserve">
+    <value>أدخل الملاحظات هنا...</value>
+  </data>
+  <data name="Save" xml:space="preserve">
+    <value>حفظ</value>
+  </data>
+  <data name="Notes saved successfully!" xml:space="preserve">
+    <value>تم حفظ الملاحظات بنجاح!</value>
+  </data>
+  <data name="An error occurred while saving notes." xml:space="preserve">
+    <value>حدث خطأ أثناء حفظ الملاحظات.</value>
+  </data>
+  <data name="Attachments" xml:space="preserve">
+    <value>المرفقات</value>
+  </data>
+  <data name="No attachments" xml:space="preserve">
+    <value>لا توجد مرفقات</value>
+  </data>
+  <data name="Download" xml:space="preserve">
+    <value>تحميل</value>
+  </data>
+  <data name="Please select a file to upload." xml:space="preserve">
+    <value>يرجى اختيار ملف للرفع.</value>
+  </data>
+  <data name="File uploaded successfully!" xml:space="preserve">
+    <value>تم رفع الملف بنجاح!</value>
+  </data>
+  <data name="An error occurred while uploading the file." xml:space="preserve">
+    <value>حدث خطأ أثناء رفع الملف.</value>
+  </data>
+  <data name="Are you sure you want to delete this attachment?" xml:space="preserve">
+    <value>هل أنت متأكد أنك تريد حذف هذا المرفق؟</value>
+  </data>
+  <data name="Attachment deleted successfully!" xml:space="preserve">
+    <value>تم حذف المرفق بنجاح!</value>
+  </data>
+  <data name="An error occurred while deleting the attachment." xml:space="preserve">
+    <value>حدث خطأ أثناء حذف المرفق.</value>
+  </data>
+  <data name="Attachment not found." xml:space="preserve">
+    <value>المرفق غير موجود.</value>
+  </data>
+  <data name="Error loading attachments" xml:space="preserve">
+    <value>خطأ في تحميل المرفقات</value>
+  </data>
+  <data name="An error occurred." xml:space="preserve">
+    <value>حدث خطأ.</value>
+  </data>
 </root>

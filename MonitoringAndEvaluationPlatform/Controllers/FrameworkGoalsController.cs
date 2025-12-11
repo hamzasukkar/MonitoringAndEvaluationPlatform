@@ -18,11 +18,13 @@ namespace MonitoringAndEvaluationPlatform.Controllers
     {
         private readonly ApplicationDbContext _context;
         private readonly IStringLocalizer<HomeController> _localizer;
+        private readonly IWebHostEnvironment _webHostEnvironment;
 
-        public FrameworkGoalsController(ApplicationDbContext context, IStringLocalizer<HomeController> localizer)
+        public FrameworkGoalsController(ApplicationDbContext context, IStringLocalizer<HomeController> localizer, IWebHostEnvironment webHostEnvironment)
         {
             _context = context;
             _localizer = localizer;
+            _webHostEnvironment = webHostEnvironment;
         }
 
         // GET: FrameworkGoals
@@ -539,6 +541,178 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             catch (Exception ex)
             {
                 return Json(new { success = false, message = _localizer["An error occurred while saving the value."] });
+            }
+        }
+
+        // GET: FrameworkGoals/GetNotes - Get notes for a goal
+        [HttpGet]
+        public async Task<IActionResult> GetNotes(int goalId)
+        {
+            try
+            {
+                var goal = await _context.FrameworkGoals.FindAsync(goalId);
+                if (goal == null)
+                {
+                    return Json(new { success = false, message = _localizer["Goal not found."] });
+                }
+
+                return Json(new { success = true, notes = goal.Notes ?? "" });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = _localizer["An error occurred."] });
+            }
+        }
+
+        // POST: FrameworkGoals/SaveNotes - Save notes for a goal
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        [Permission(Permissions.ModifyStrategy)]
+        public async Task<IActionResult> SaveNotes(int goalId, string notes)
+        {
+            try
+            {
+                var goal = await _context.FrameworkGoals.FindAsync(goalId);
+                if (goal == null)
+                {
+                    return Json(new { success = false, message = _localizer["Goal not found."] });
+                }
+
+                goal.Notes = notes ?? "";
+                _context.Update(goal);
+                await _context.SaveChangesAsync();
+
+                return Json(new { success = true, message = _localizer["Notes saved successfully!"] });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = _localizer["An error occurred while saving notes."] });
+            }
+        }
+
+        // GET: FrameworkGoals/GetAttachments - Get attachments for a goal
+        [HttpGet]
+        public async Task<IActionResult> GetAttachments(int goalId)
+        {
+            try
+            {
+                var attachments = await _context.FrameworkGoalFiles
+                    .Where(f => f.FrameworkGoalID == goalId)
+                    .OrderByDescending(f => f.UploadedDate)
+                    .Select(f => new
+                    {
+                        id = f.Id,
+                        fileName = f.FileName,
+                        filePath = f.FilePath,
+                        uploadedDate = f.UploadedDate.ToString("yyyy-MM-dd HH:mm")
+                    })
+                    .ToListAsync();
+
+                return Json(new { success = true, attachments = attachments });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = _localizer["An error occurred."] });
+            }
+        }
+
+        // POST: FrameworkGoals/UploadAttachment - Upload attachment for a goal
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        [Permission(Permissions.ModifyStrategy)]
+        public async Task<IActionResult> UploadAttachment(int goalId, IFormFile file)
+        {
+            try
+            {
+                if (file == null || file.Length == 0)
+                {
+                    return Json(new { success = false, message = _localizer["Please select a file to upload."] });
+                }
+
+                var goal = await _context.FrameworkGoals.FindAsync(goalId);
+                if (goal == null)
+                {
+                    return Json(new { success = false, message = _localizer["Goal not found."] });
+                }
+
+                // Create uploads folder if it doesn't exist
+                var uploadsFolder = Path.Combine(_webHostEnvironment.WebRootPath, "uploads", "frameworkgoals");
+                if (!Directory.Exists(uploadsFolder))
+                {
+                    Directory.CreateDirectory(uploadsFolder);
+                }
+
+                // Generate unique filename
+                var uniqueFileName = $"{Guid.NewGuid()}_{file.FileName}";
+                var filePath = Path.Combine(uploadsFolder, uniqueFileName);
+
+                // Save file to disk
+                using (var stream = new FileStream(filePath, FileMode.Create))
+                {
+                    await file.CopyToAsync(stream);
+                }
+
+                // Save file record to database
+                var attachment = new FrameworkGoalFile
+                {
+                    FrameworkGoalID = goalId,
+                    FileName = file.FileName,
+                    FilePath = $"/uploads/frameworkgoals/{uniqueFileName}",
+                    UploadedDate = DateTime.Now
+                };
+
+                _context.FrameworkGoalFiles.Add(attachment);
+                await _context.SaveChangesAsync();
+
+                return Json(new
+                {
+                    success = true,
+                    message = _localizer["File uploaded successfully!"],
+                    attachment = new
+                    {
+                        id = attachment.Id,
+                        fileName = attachment.FileName,
+                        filePath = attachment.FilePath,
+                        uploadedDate = attachment.UploadedDate.ToString("yyyy-MM-dd HH:mm")
+                    }
+                });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = _localizer["An error occurred while uploading the file."] });
+            }
+        }
+
+        // POST: FrameworkGoals/DeleteAttachment - Delete an attachment
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        [Permission(Permissions.ModifyStrategy)]
+        public async Task<IActionResult> DeleteAttachment(int attachmentId)
+        {
+            try
+            {
+                var attachment = await _context.FrameworkGoalFiles.FindAsync(attachmentId);
+                if (attachment == null)
+                {
+                    return Json(new { success = false, message = _localizer["Attachment not found."] });
+                }
+
+                // Delete physical file
+                var filePath = Path.Combine(_webHostEnvironment.WebRootPath, attachment.FilePath.TrimStart('/').Replace('/', Path.DirectorySeparatorChar));
+                if (System.IO.File.Exists(filePath))
+                {
+                    System.IO.File.Delete(filePath);
+                }
+
+                // Delete database record
+                _context.FrameworkGoalFiles.Remove(attachment);
+                await _context.SaveChangesAsync();
+
+                return Json(new { success = true, message = _localizer["Attachment deleted successfully!"] });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = _localizer["An error occurred while deleting the attachment."] });
             }
         }
 
