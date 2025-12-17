@@ -128,6 +128,15 @@
                         <span>@Localizer["Dashboard"]</span>
                     </a>
                 </li>
+                @if (User.IsInRole("Admin"))
+                {
+                    <li>
+                        <a class="d-flex align-items-center" href="/Admin/Index">
+                            <i class="fas fa-users-cog me-2"></i>
+                            <span>@Localizer["Admin"]</span>
+                        </a>
+                    </li>
+                }
                @*  <li>
                     <a class="d-flex align-items-center" href="#">
                         <img src="~/img/settings.png" alt="Settings Icon" class="me-2" width="24" height="24">
