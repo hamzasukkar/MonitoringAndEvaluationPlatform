@@ -557,6 +557,34 @@
 
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script>
+    // Localized strings for JavaScript
+    const localizedStrings = {
+        select: '@Html.Raw(System.Text.Encodings.Web.JavaScriptEncoder.Default.Encode(Localizer["Select"].Value))',
+        clear: '@Html.Raw(System.Text.Encodings.Web.JavaScriptEncoder.Default.Encode(Localizer["Clear"].Value))',
+        pleaseSelectAllLocationLevels: '@Html.Raw(System.Text.Encodings.Web.JavaScriptEncoder.Default.Encode(Localizer["Please select all location levels."].Value))',
+        locationAlreadyAdded: '@Html.Raw(System.Text.Encodings.Web.JavaScriptEncoder.Default.Encode(Localizer["This location has already been added."].Value))',
+        thisProjectWillCover: '@Html.Raw(System.Text.Encodings.Web.JavaScriptEncoder.Default.Encode(Localizer["This project will cover all locations in the country. Specific location selection is disabled."].Value))',
+        ministryAutoAssigned: '@Html.Raw(System.Text.Encodings.Web.JavaScriptEncoder.Default.Encode(Localizer["Ministry is automatically assigned based on your account"].Value))',
+        pleaseSelectDonorFirst: '@Html.Raw(System.Text.Encodings.Web.JavaScriptEncoder.Default.Encode(Localizer["Please select a donor first."].Value))',
+        donorAlreadyAdded: '@Html.Raw(System.Text.Encodings.Web.JavaScriptEncoder.Default.Encode(Localizer["This donor has already been added."].Value))',
+        fundingContribution: '@Html.Raw(System.Text.Encodings.Web.JavaScriptEncoder.Default.Encode(Localizer["Funding Contribution"].Value))',
+        percentage: '@Html.Raw(System.Text.Encodings.Web.JavaScriptEncoder.Default.Encode(Localizer["Percentage:"].Value))',
+        amount: '@Html.Raw(System.Text.Encodings.Web.JavaScriptEncoder.Default.Encode(Localizer["Amount:"].Value))',
+        fullyFunded: '@Html.Raw(System.Text.Encodings.Web.JavaScriptEncoder.Default.Encode(Localizer["Fully funded"].Value))',
+        partiallyFunded: '@Html.Raw(System.Text.Encodings.Web.JavaScriptEncoder.Default.Encode(Localizer["Partially funded"].Value))',
+        cannotExceed100: '@Html.Raw(System.Text.Encodings.Web.JavaScriptEncoder.Default.Encode(Localizer["Cannot exceed 100%"].Value))',
+        atLeastOneLocation: '@Html.Raw(System.Text.Encodings.Web.JavaScriptEncoder.Default.Encode(Localizer["At least one project location must be selected, or check the Entire Country option."].Value))',
+        atLeastOneSector: '@Html.Raw(System.Text.Encodings.Web.JavaScriptEncoder.Default.Encode(Localizer["At least one sector must be selected."].Value))',
+        indicatorMustBeSelected: '@Html.Raw(System.Text.Encodings.Web.JavaScriptEncoder.Default.Encode(Localizer["An indicator must be selected."].Value))',
+        projectManagerMustBeSelected: '@Html.Raw(System.Text.Encodings.Web.JavaScriptEncoder.Default.Encode(Localizer["A project manager must be selected."].Value))',
+        supervisorMustBeSelected: '@Html.Raw(System.Text.Encodings.Web.JavaScriptEncoder.Default.Encode(Localizer["A supervisor must be selected."].Value))',
+        ministryMustBeSelected: '@Html.Raw(System.Text.Encodings.Web.JavaScriptEncoder.Default.Encode(Localizer["A ministry must be selected."].Value))',
+        endDateMustBeAfterStart: '@Html.Raw(System.Text.Encodings.Web.JavaScriptEncoder.Default.Encode(Localizer["End date must be after start date."].Value))',
+        donorFundingCannotExceed: '@Html.Raw(System.Text.Encodings.Web.JavaScriptEncoder.Default.Encode(Localizer["Total donor funding percentage cannot exceed 100%."].Value))',
+        pleaseFixFollowingIssues: '@Html.Raw(System.Text.Encodings.Web.JavaScriptEncoder.Default.Encode(Localizer["Please fix the following issues:"].Value))',
+        close: '@Html.Raw(System.Text.Encodings.Web.JavaScriptEncoder.Default.Encode(Localizer["Close"].Value))'
+    };
+
     let selections = [];
 
     // Handle Entire Country checkbox
@@ -575,11 +603,11 @@
 
             // Show info message
             if ($("#entire-country-info").length === 0) {
-                $("#location-selector").before(`
-                    <div id="entire-country-info" class="alert alert-info">
-                        <i class="fas fa-info-circle me-2"></i>@Localizer["This project will cover all locations in the country. Specific location selection is disabled."]
-                    </div>
-                `);
+                $("#location-selector").before(
+                    '<div id="entire-country-info" class="alert alert-info">' +
+                    '<i class="fas fa-info-circle me-2"></i>' + localizedStrings.thisProjectWillCover +
+                    '</div>'
+                );
             }
         } else {
             // Enable location selectors
@@ -636,7 +664,7 @@
         const commName = $("#community option:selected").text();
 
         if (!govCode || !distCode || !subCode || !commCode) {
-            showValidationMessage("@Localizer["Please select all location levels."]");
+            showValidationMessage(localizedStrings.pleaseSelectAllLocationLevels);
             return;
         }
 
@@ -649,7 +677,7 @@
         );
 
         if (exists) {
-            showValidationMessage("@Localizer["This location has already been added."]");
+            showValidationMessage(localizedStrings.locationAlreadyAdded);
             return;
         }
 
@@ -664,14 +692,14 @@
         selections.push(item);
 
         // Create list item with "Clear" button
-        const $li = $(`
-            <li class="list-group-item">
-                <span>${govName} > ${distName} > ${subName} > ${commName}</span>
-                <button type="button" class="btn btn-sm btn-outline-danger btn-clear">
-                    <i class="fas fa-times"></i> @Localizer["Clear"]
-                </button>
-            </li>
-        `);
+        const $li = $(
+            '<li class="list-group-item">' +
+                '<span>' + govName + ' > ' + distName + ' > ' + subName + ' > ' + commName + '</span>' +
+                '<button type="button" class="btn btn-sm btn-outline-danger btn-clear">' +
+                    '<i class="fas fa-times"></i> ' + localizedStrings.clear +
+                '</button>' +
+            '</li>'
+        );
 
         // Attach remove handler
         $li.find(".btn-clear").click(function () {
@@ -700,12 +728,12 @@
     // Utility functions
     function fillSelect(selector, data) {
         let select = $(selector);
-        select.empty().append(`<option value="">-- @Localizer["Select"] --</option>`);
-        data.forEach(x => select.append(`<option value="${x.code}">${x.name}</option>`));
+        select.empty().append('<option value="">-- ' + localizedStrings.select + ' --</option>');
+        data.forEach(x => select.append('<option value="' + x.code + '">' + x.name + '</option>'));
     }
 
     function resetSelect(selector) {
-        $(selector).empty().append(`<option value="">-- @Localizer["Select"] --</option>`);
+        $(selector).empty().append('<option value="">-- ' + localizedStrings.select + ' --</option>');
     }
 
     function resetDropdowns() {
@@ -857,7 +885,7 @@
 
             // Also add a visual indicator
             $('#ministrySelect').closest('.mb-4').append(
-                '<small class="form-text text-muted"><i class="fas fa-lock me-1"></i>@Localizer["Ministry is automatically assigned based on your account"]</small>'
+                '<small class="form-text text-muted"><i class="fas fa-lock me-1"></i>' + localizedStrings.ministryAutoAssigned + '</small>'
             );
         }
     });
@@ -871,13 +899,13 @@
         const donorText = $('#availableDonorSelect option:selected').text();
 
         if (!donorValue || donorValue === '') {
-            alert('@Localizer["Please select a donor first."]');
+            alert(localizedStrings.pleaseSelectDonorFirst);
             return;
         }
 
         // Check if donor is already added
         if (selectedDonors.some(d => d.value === donorValue)) {
-            alert('@Localizer["This donor has already been added."]');
+            alert(localizedStrings.donorAlreadyAdded);
             return;
         }
 
@@ -915,46 +943,39 @@
         selectedDonors.forEach(donor => {
             const currentPercentage = donorFundingData[donor.value] || 0;
 
-            const donorHtml = `
-                <div class="card mb-3 donor-funding-card" data-donor="${donor.value}">
-                    <div class="card-body">
-                        <div class="row align-items-center">
-                            <div class="col-md-4">
-                                <h6 class="mb-1">
-                                    <i class="fas fa-hand-holding-usd me-2"></i>${donor.text}
-                                </h6>
-                                <small class="text-muted">@Localizer["Funding Contribution"]</small>
-                            </div>
-                            <div class="col-md-4">
-                                <label class="form-label small mb-1">@Localizer["Percentage:"] <span class="percentage-display" data-donor="${donor.value}">${currentPercentage.toFixed(1)}%</span></label>
-                                <input type="range"
-                                       class="form-range donor-slider"
-                                       data-donor="${donor.value}"
-                                       min="0"
-                                       max="100"
-                                       step="0.1"
-                                       value="${currentPercentage}">
-                                <div class="d-flex justify-content-between small text-muted">
-                                    <span>0%</span>
-                                    <span>100%</span>
-                                </div>
-                            </div>
-                            <div class="col-md-3">
-                                <div class="text-end">
-                                    <strong class="donor-amount" data-donor="${donor.value}">$0.00</strong>
-                                    <br>
-                                    <small class="text-muted">@Localizer["Amount:"]</small>
-                                </div>
-                            </div>
-                            <div class="col-md-1">
-                                <button type="button" class="btn btn-outline-danger btn-sm remove-donor-btn" data-donor="${donor.value}">
-                                    <i class="fas fa-times"></i>
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            `;
+            const donorHtml =
+                '<div class="card mb-3 donor-funding-card" data-donor="' + donor.value + '">' +
+                    '<div class="card-body">' +
+                        '<div class="row align-items-center">' +
+                            '<div class="col-md-4">' +
+                                '<h6 class="mb-1">' +
+                                    '<i class="fas fa-hand-holding-usd me-2"></i>' + donor.text +
+                                '</h6>' +
+                                '<small class="text-muted">' + localizedStrings.fundingContribution + '</small>' +
+                            '</div>' +
+                            '<div class="col-md-4">' +
+                                '<label class="form-label small mb-1">' + localizedStrings.percentage + ' <span class="percentage-display" data-donor="' + donor.value + '">' + currentPercentage.toFixed(1) + '%</span></label>' +
+                                '<input type="range" class="form-range donor-slider" data-donor="' + donor.value + '" min="0" max="100" step="0.1" value="' + currentPercentage + '">' +
+                                '<div class="d-flex justify-content-between small text-muted">' +
+                                    '<span>0%</span>' +
+                                    '<span>100%</span>' +
+                                '</div>' +
+                            '</div>' +
+                            '<div class="col-md-3">' +
+                                '<div class="text-end">' +
+                                    '<strong class="donor-amount" data-donor="' + donor.value + '">$0.00</strong>' +
+                                    '<br>' +
+                                    '<small class="text-muted">' + localizedStrings.amount + '</small>' +
+                                '</div>' +
+                            '</div>' +
+                            '<div class="col-md-1">' +
+                                '<button type="button" class="btn btn-outline-danger btn-sm remove-donor-btn" data-donor="' + donor.value + '">' +
+                                    '<i class="fas fa-times"></i>' +
+                                '</button>' +
+                            '</div>' +
+                        '</div>' +
+                    '</div>' +
+                '</div>';
             donorContributionList.append(donorHtml);
         });
 
@@ -1026,11 +1047,11 @@
         if (totalPercentage > 100) {
             statusElement.text('Error: Exceeds 100%').removeClass('text-success text-muted text-warning').addClass('text-danger');
         } else if (totalPercentage === 100) {
-            statusElement.text('@Localizer["Fully funded"] (100%)').removeClass('text-warning text-danger text-muted').addClass('text-success');
+            statusElement.text(localizedStrings.fullyFunded + ' (100%)').removeClass('text-warning text-danger text-muted').addClass('text-success');
         } else if (totalPercentage > 0) {
-            statusElement.text(`@Localizer["Partially funded"] (${totalPercentage.toFixed(1)}%)`).removeClass('text-success text-danger text-muted').addClass('text-warning');
+            statusElement.text(localizedStrings.partiallyFunded + ' (' + totalPercentage.toFixed(1) + '%)').removeClass('text-success text-danger text-muted').addClass('text-warning');
         } else {
-            statusElement.text('@Localizer["Cannot exceed 100%"]').removeClass('text-success text-warning text-danger').addClass('text-muted');
+            statusElement.text(localizedStrings.cannotExceed100).removeClass('text-success text-warning text-danger').addClass('text-muted');
         }
 
         // Update hidden field with funding data
@@ -1050,15 +1071,15 @@
         // Check if locations are selected (unless "Entire Country" is checked)
         const isEntireCountry = $("#entireCountryCheckbox").is(':checked');
         if (!isEntireCountry && selections.length === 0) {
-            errorMessages.push("@Localizer["At least one project location must be selected, or check 'Entire Country' option."]");
+            errorMessages.push(localizedStrings.atLeastOneLocation);
             isValid = false;
         }
 
         // Check if sectors are selected
         const selectedSectors = $('select[name="Sectors"]').val();
         if (!selectedSectors || selectedSectors.length === 0) {
-            errorMessages.push("@Localizer["At least one sector must be selected."]");
-            $('#sectors-validation-error').text("@Localizer["At least one sector must be selected."]").show();
+            errorMessages.push(localizedStrings.atLeastOneSector);
+            $('#sectors-validation-error').text(localizedStrings.atLeastOneSector).show();
             isValid = false;
         } else {
             $('#sectors-validation-error').hide();
@@ -1067,8 +1088,8 @@
         // Check if indicator is selected
         const selectedIndicator = $('#indicatorSelect').val();
         if (!selectedIndicator) {
-            errorMessages.push("@Localizer["An indicator must be selected."]");
-            $('#indicator-validation-error').text("@Localizer["An indicator must be selected."]").show();
+            errorMessages.push(localizedStrings.indicatorMustBeSelected);
+            $('#indicator-validation-error').text(localizedStrings.indicatorMustBeSelected).show();
             isValid = false;
         } else {
             $('#indicator-validation-error').hide();
@@ -1079,21 +1100,21 @@
         // Check if project manager is selected
         const projectManager = $('select[name="ProjectManagerCode"]').val();
         if (!projectManager) {
-            errorMessages.push("@Localizer["A project manager must be selected."]");
+            errorMessages.push(localizedStrings.projectManagerMustBeSelected);
             isValid = false;
         }
 
         // Check if supervisor is selected
         const supervisor = $('select[name="SuperVisorCode"]').val();
         if (!supervisor) {
-            errorMessages.push("@Localizer["A supervisor must be selected."]");
+            errorMessages.push(localizedStrings.supervisorMustBeSelected);
             isValid = false;
         }
 
         // Check if ministry is selected
         const ministry = $('input[name="MinistryCode"]').val();
         if (!ministry) {
-            errorMessages.push("@Localizer["A ministry must be selected."]");
+            errorMessages.push(localizedStrings.ministryMustBeSelected);
             isValid = false;
         }
 
@@ -1101,7 +1122,7 @@
         const startDate = new Date($('input[name="StartDate"]').val());
         const endDate = new Date($('input[name="EndDate"]').val());
         if (startDate && endDate && endDate <= startDate) {
-            errorMessages.push("@Localizer["End date must be after start date."]");
+            errorMessages.push(localizedStrings.endDateMustBeAfterStart);
             isValid = false;
         }
 
@@ -1109,7 +1130,7 @@
         if (selectedDonors.length > 0) {
             const totalPercentage = parseFloat($('#totalPercentage').text());
             if (totalPercentage > 100) {
-                errorMessages.push("@Localizer["Total donor funding percentage cannot exceed 100%."]");
+                errorMessages.push(localizedStrings.donorFundingCannotExceed);
                 isValid = false;
             }
         }
@@ -1118,11 +1139,11 @@
             e.preventDefault();
             // Show all error messages
             const errorHtml = '<div id="form-validation-alert" class="alert alert-danger alert-dismissible fade show mt-3" role="alert">' +
-                '<strong><i class="fas fa-exclamation-triangle me-2"></i>@Localizer["Please fix the following issues:"]</strong>' +
+                '<strong><i class="fas fa-exclamation-triangle me-2"></i>' + localizedStrings.pleaseFixFollowingIssues + '</strong>' +
                 '<ul class="mb-0 mt-2">' +
-                errorMessages.map(msg => `<li>${msg}</li>`).join('') +
+                errorMessages.map(function(msg) { return '<li>' + msg + '</li>'; }).join('') +
                 '</ul>' +
-                '<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="@Localizer["Close"]"></button>' +
+                '<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="' + localizedStrings.close + '"></button>' +
                 '</div>';
 
             // Remove existing form validation alert and add new one
@@ -1185,14 +1206,14 @@
         if (selections && selections.length > 0) {
             selections.forEach(function(item) {
                 // Create list item display
-                const $li = $(`
-                    <li class="list-group-item">
-                        <span>Governorate ${item.GovernorateCode} > District ${item.DistrictCode} > SubDistrict ${item.SubDistrictCode} > Community ${item.CommunityCode}</span>
-                        <button type="button" class="btn btn-sm btn-outline-danger btn-clear">
-                            <i class="fas fa-times"></i> @Localizer["Clear"]
-                        </button>
-                    </li>
-                `);
+                const $li = $(
+                    '<li class="list-group-item">' +
+                        '<span>Governorate ' + item.GovernorateCode + ' > District ' + item.DistrictCode + ' > SubDistrict ' + item.SubDistrictCode + ' > Community ' + item.CommunityCode + '</span>' +
+                        '<button type="button" class="btn btn-sm btn-outline-danger btn-clear">' +
+                            '<i class="fas fa-times"></i> ' + localizedStrings.clear +
+                        '</button>' +
+                    '</li>'
+                );
 
                 // Attach remove handler
                 $li.find(".btn-clear").click(function () {
