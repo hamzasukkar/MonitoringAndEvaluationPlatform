@@ -1,0 +1,249 @@
+@model MonitoringAndEvaluationPlatform.ViewModels.RoleManagementViewModel
+@using Microsoft.AspNetCore.Mvc.Localization
+@using MonitoringAndEvaluationPlatform.Services
+@inject IViewLocalizer Localizer
+
+@{
+    ViewData["Title"] = Localizer["RoleManagement"];
+    Layout = "~/Views/Shared/_DashboardHomeLayout.cshtml";
+}
+
+<div class="container-fluid py-4">
+    <!-- Header -->
+    <div class="dashboard-header mb-4">
+        <div class="d-flex justify-content-between align-items-center">
+            <div>
+                <h1 class="display-4 mb-2">
+                    <i class="fas fa-user-tag me-3"></i>@Localizer["RoleManagement"]
+                </h1>
+                <p class="text-muted">@Localizer["ViewSystemRolesAndPermissions"]</p>
+            </div>
+            <div>
+                <a asp-action="Index" class="btn btn-secondary btn-lg">
+                    <i class="fas fa-users me-2"></i>@Localizer["UserManagement"]
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Statistics Cards -->
+    <div class="row mb-4">
+        <div class="col-md-4">
+            <div class="stat-card">
+                <div class="stat-icon bg-primary">
+                    <i class="fas fa-user-tag"></i>
+                </div>
+                <div class="stat-content">
+                    <h3>@Model.TotalRoles</h3>
+                    <p>@Localizer["TotalRoles"]</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="stat-card">
+                <div class="stat-icon bg-success">
+                    <i class="fas fa-users"></i>
+                </div>
+                <div class="stat-content">
+                    <h3>@Model.TotalUsers</h3>
+                    <p>@Localizer["TotalUsers"]</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="stat-card">
+                <div class="stat-icon bg-info">
+                    <i class="fas fa-key"></i>
+                </div>
+                <div class="stat-content">
+                    <h3>@RolePermissionService.GetAllPermissions().Count</h3>
+                    <p>@Localizer["TotalPermissions"]</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Roles Grid -->
+    <div class="row">
+        @foreach (var role in Model.Roles)
+        {
+            var badgeColor = RolePermissionService.GetRoleBadgeColor(role.Name);
+            var icon = RolePermissionService.GetRoleIcon(role.Name);
+            var description = RolePermissionService.GetRoleDescription(role.Name);
+
+            <div class="col-md-6 col-lg-3 mb-4">
+                <div class="card role-card h-100">
+                    <div class="card-header bg-@badgeColor text-white">
+                        <h5 class="mb-0">
+                            <i class="fas @icon me-2"></i>@role.Name
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <p class="text-muted small mb-3">@description</p>
+
+                        <div class="role-stats mb-3">
+                            <div class="d-flex justify-content-between mb-2">
+                                <span><i class="fas fa-users me-2 text-muted"></i>@Localizer["Users"]</span>
+                                <span class="badge bg-secondary">@role.UserCount</span>
+                            </div>
+                            <div class="d-flex justify-content-between">
+                                <span><i class="fas fa-key me-2 text-muted"></i>@Localizer["Permissions"]</span>
+                                <span class="badge bg-@badgeColor">@role.Permissions.Count</span>
+                            </div>
+                        </div>
+
+                        <!-- Permission Progress -->
+                        @{
+                            var totalPerms = RolePermissionService.GetAllPermissions().Count;
+                            var percentage = (int)((double)role.Permissions.Count / totalPerms * 100);
+                        }
+                        <div class="mb-3">
+                            <small class="text-muted">@Localizer["PermissionCoverage"]</small>
+                            <div class="progress" style="height: 8px;">
+                                <div class="progress-bar bg-@badgeColor" role="progressbar" style="width: @percentage%"></div>
+                            </div>
+                            <small class="text-muted">@percentage% (@role.Permissions.Count / @totalPerms)</small>
+                        </div>
+                    </div>
+                    <div class="card-footer bg-transparent">
+                        <a asp-action="RoleDetails" asp-route-id="@role.Id" class="btn btn-outline-@badgeColor w-100">
+                            <i class="fas fa-eye me-2"></i>@Localizer["ViewDetails"]
+                        </a>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+
+    <!-- Permissions Overview Table -->
+    <div class="card mt-4">
+        <div class="card-header">
+            <h5 class="mb-0">
+                <i class="fas fa-table me-2"></i>@Localizer["PermissionsOverview"]
+            </h5>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>@Localizer["Category"]</th>
+                            @foreach (var role in Model.Roles)
+                            {
+                                <th class="text-center">@role.Name</th>
+                            }
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var category in RolePermissionService.GetPermissionCategories())
+                        {
+                            <tr>
+                                <td>
+                                    <strong>@category.Key</strong>
+                                    <br />
+                                    <small class="text-muted">@category.Value.Count @Localizer["permissions"]</small>
+                                </td>
+                                @foreach (var role in Model.Roles)
+                                {
+                                    var rolePerms = role.Permissions;
+                                    var categoryPerms = category.Value;
+                                    var matchCount = categoryPerms.Count(p => rolePerms.Contains(p));
+                                    var hasAll = matchCount == categoryPerms.Count;
+                                    var hasNone = matchCount == 0;
+
+                                    <td class="text-center">
+                                        @if (hasAll)
+                                        {
+                                            <span class="badge bg-success">
+                                                <i class="fas fa-check"></i> @Localizer["Full"]
+                                            </span>
+                                        }
+                                        else if (hasNone)
+                                        {
+                                            <span class="badge bg-secondary">
+                                                <i class="fas fa-times"></i> @Localizer["None"]
+                                            </span>
+                                        }
+                                        else
+                                        {
+                                            <span class="badge bg-warning text-dark">
+                                                @matchCount / @categoryPerms.Count
+                                            </span>
+                                        }
+                                    </td>
+                                }
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .stat-card {
+        background: white;
+        border-radius: 12px;
+        padding: 1.5rem;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+    }
+
+    .stat-icon {
+        width: 60px;
+        height: 60px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+        color: white;
+    }
+
+    .stat-content h3 {
+        margin: 0;
+        font-size: 2rem;
+        font-weight: 700;
+        color: #2d3748;
+    }
+
+    .stat-content p {
+        margin: 0;
+        font-size: 0.9rem;
+        color: #718096;
+    }
+
+    .role-card {
+        border-radius: 12px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+    .role-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 4px 16px rgba(0,0,0,0.15);
+    }
+
+    .role-card .card-header {
+        border-radius: 12px 12px 0 0 !important;
+    }
+
+    .card {
+        border-radius: 12px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+
+    .table th {
+        background-color: #f8f9fa;
+        font-weight: 600;
+        border-bottom: 2px solid #dee2e6;
+    }
+
+    .progress {
+        border-radius: 4px;
+        background-color: #e9ecef;
+    }
+</style>

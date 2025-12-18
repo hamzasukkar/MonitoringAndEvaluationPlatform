@@ -4,11 +4,12 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using MonitoringAndEvaluationPlatform.Data;
 using MonitoringAndEvaluationPlatform.Models;
+using MonitoringAndEvaluationPlatform.Services;
 using MonitoringAndEvaluationPlatform.ViewModels;
 
 namespace MonitoringAndEvaluationPlatform.Controllers
 {
-    [Authorize(Roles = "Admin")]
+    [Authorize(Roles = UserRoles.SystemAdministrator)]
     public class AdminController : Controller
     {
         private readonly UserManager<ApplicationUser> _userManager;
@@ -316,6 +317,77 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 LockoutEnabled = user.LockoutEnabled,
                 LockoutEnd = user.LockoutEnd,
                 Roles = roles.ToList()
+            };
+
+            return View(viewModel);
+        }
+
+        // GET: Admin/Roles
+        public async Task<IActionResult> Roles()
+        {
+            var roles = await _roleManager.Roles.ToListAsync();
+            var roleViewModels = new List<RoleViewModel>();
+
+            foreach (var role in roles)
+            {
+                var usersInRole = await _userManager.GetUsersInRoleAsync(role.Name!);
+                roleViewModels.Add(new RoleViewModel
+                {
+                    Id = role.Id,
+                    Name = role.Name!,
+                    UserCount = usersInRole.Count,
+                    Permissions = RolePermissionService.GetPermissionsForRole(role.Name!)
+                });
+            }
+
+            var viewModel = new RoleManagementViewModel
+            {
+                Roles = roleViewModels.OrderBy(r => r.Name).ToList(),
+                TotalRoles = roles.Count,
+                TotalUsers = await _userManager.Users.CountAsync()
+            };
+
+            return View(viewModel);
+        }
+
+        // GET: Admin/RoleDetails/id
+        public async Task<IActionResult> RoleDetails(string id)
+        {
+            if (string.IsNullOrEmpty(id))
+            {
+                return NotFound();
+            }
+
+            var role = await _roleManager.FindByIdAsync(id);
+            if (role == null)
+            {
+                return NotFound();
+            }
+
+            var usersInRole = await _userManager.GetUsersInRoleAsync(role.Name!);
+            var userViewModels = new List<UserViewModel>();
+
+            foreach (var user in usersInRole)
+            {
+                var userRoles = await _userManager.GetRolesAsync(user);
+                userViewModels.Add(new UserViewModel
+                {
+                    Id = user.Id,
+                    UserName = user.UserName!,
+                    Email = user.Email!,
+                    MinistryName = user.MinistryName,
+                    EmailConfirmed = user.EmailConfirmed,
+                    Roles = userRoles.ToList()
+                });
+            }
+
+            var viewModel = new RoleViewModel
+            {
+                Id = role.Id,
+                Name = role.Name!,
+                UserCount = usersInRole.Count,
+                Permissions = RolePermissionService.GetPermissionsForRole(role.Name!),
+                Users = userViewModels.OrderBy(u => u.UserName).ToList()
             };
 
             return View(viewModel);
