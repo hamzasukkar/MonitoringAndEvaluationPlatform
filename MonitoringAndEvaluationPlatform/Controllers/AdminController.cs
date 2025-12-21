@@ -29,6 +29,18 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         // GET: Admin/Index
         public async Task<IActionResult> Index(string searchTerm = "", string roleFilter = "", int page = 1, int pageSize = 10)
         {
+            return await GetUserManagementView(searchTerm, roleFilter, page, pageSize, "Index");
+        }
+
+        // GET: Admin/Users (Alternative page with same functionality)
+        public async Task<IActionResult> Users(string searchTerm = "", string roleFilter = "", int page = 1, int pageSize = 10)
+        {
+            return await GetUserManagementView(searchTerm, roleFilter, page, pageSize, "Users");
+        }
+
+        // Shared method for user management
+        private async Task<IActionResult> GetUserManagementView(string searchTerm, string roleFilter, int page, int pageSize, string viewName)
+        {
             var usersQuery = _userManager.Users.AsQueryable();
 
             // Search filter
@@ -40,37 +52,61 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                     (u.MinistryName != null && u.MinistryName.Contains(searchTerm)));
             }
 
+            // Filter by role if specified (do this at database level)
+            if (!string.IsNullOrWhiteSpace(roleFilter))
+            {
+                var roleId = await _context.Roles
+                    .Where(r => r.Name == roleFilter)
+                    .Select(r => r.Id)
+                    .FirstOrDefaultAsync();
+
+                if (roleId != null)
+                {
+                    var userIdsInRole = _context.UserRoles
+                        .Where(ur => ur.RoleId == roleId)
+                        .Select(ur => ur.UserId);
+
+                    usersQuery = usersQuery.Where(u => userIdsInRole.Contains(u.Id));
+                }
+            }
+
+            var totalUsers = await usersQuery.CountAsync();
+
             var users = await usersQuery
                 .OrderBy(u => u.UserName)
                 .Skip((page - 1) * pageSize)
                 .Take(pageSize)
                 .ToListAsync();
 
-            var totalUsers = await usersQuery.CountAsync();
+            // Get all user IDs for batch role lookup
+            var userIds = users.Select(u => u.Id).ToList();
 
-            // Get user roles
-            var userViewModels = new List<UserViewModel>();
-            foreach (var user in users)
-            {
-                var roles = await _userManager.GetRolesAsync(user);
-                userViewModels.Add(new UserViewModel
-                {
-                    Id = user.Id,
-                    UserName = user.UserName!,
-                    Email = user.Email!,
-                    MinistryName = user.MinistryName,
-                    EmailConfirmed = user.EmailConfirmed,
-                    LockoutEnabled = user.LockoutEnabled,
-                    LockoutEnd = user.LockoutEnd,
-                    Roles = roles.ToList()
-                });
-            }
+            // Batch load all user roles in a single query
+            var userRoles = await _context.UserRoles
+                .Where(ur => userIds.Contains(ur.UserId))
+                .Join(_context.Roles,
+                    ur => ur.RoleId,
+                    r => r.Id,
+                    (ur, r) => new { ur.UserId, RoleName = r.Name })
+                .ToListAsync();
 
-            // Filter by role if specified
-            if (!string.IsNullOrWhiteSpace(roleFilter))
+            // Group roles by user ID
+            var userRolesDict = userRoles
+                .GroupBy(x => x.UserId)
+                .ToDictionary(g => g.Key, g => g.Select(x => x.RoleName!).ToList());
+
+            // Build view models
+            var userViewModels = users.Select(user => new UserViewModel
             {
-                userViewModels = userViewModels.Where(u => u.Roles.Contains(roleFilter)).ToList();
-            }
+                Id = user.Id,
+                UserName = user.UserName!,
+                Email = user.Email!,
+                MinistryName = user.MinistryName,
+                EmailConfirmed = user.EmailConfirmed,
+                LockoutEnabled = user.LockoutEnabled,
+                LockoutEnd = user.LockoutEnd,
+                Roles = userRolesDict.TryGetValue(user.Id, out var roles) ? roles : new List<string>()
+            }).ToList();
 
             var viewModel = new UserManagementViewModel
             {
@@ -81,10 +117,10 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 PageSize = pageSize,
                 TotalUsers = totalUsers,
                 TotalPages = (int)Math.Ceiling(totalUsers / (double)pageSize),
-                AvailableRoles = _roleManager.Roles.Select(r => r.Name!).ToList()
+                AvailableRoles = await _roleManager.Roles.Select(r => r.Name!).ToListAsync()
             };
 
-            return View(viewModel);
+            return View(viewName, viewModel);
         }
 
         // GET: Admin/CreateUser
