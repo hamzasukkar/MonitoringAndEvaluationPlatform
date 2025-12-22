@@ -97,4 +97,274 @@
   <data name="Granted" xml:space="preserve">
     <value>Granted</value>
   </data>
+  <data name="SystemAdministrator" xml:space="preserve">
+    <value>System Administrator</value>
+  </data>
+  <data name="MinistriesUser" xml:space="preserve">
+    <value>Ministries User</value>
+  </data>
+  <data name="DataEntry" xml:space="preserve">
+    <value>Data Entry</value>
+  </data>
+  <data name="ReadingUser" xml:space="preserve">
+    <value>Reading User</value>
+  </data>
+  <data name="SystemAdministratorDescription" xml:space="preserve">
+    <value>Full system access with all permissions</value>
+  </data>
+  <data name="MinistriesUserDescription" xml:space="preserve">
+    <value>Ministry-level access for monitoring and analysis</value>
+  </data>
+  <data name="DataEntryDescription" xml:space="preserve">
+    <value>Data entry and form management access</value>
+  </data>
+  <data name="ReadingUserDescription" xml:space="preserve">
+    <value>Read-only access for viewing reports</value>
+  </data>
+  <data name="Login" xml:space="preserve">
+    <value>Login</value>
+  </data>
+  <data name="Strategy Management" xml:space="preserve">
+    <value>Strategy Management</value>
+  </data>
+  <data name="Policy Management" xml:space="preserve">
+    <value>Policy Management</value>
+  </data>
+  <data name="Program Management" xml:space="preserve">
+    <value>Program Management</value>
+  </data>
+  <data name="Subprogram Management" xml:space="preserve">
+    <value>Subprogram Management</value>
+  </data>
+  <data name="Project Management" xml:space="preserve">
+    <value>Project Management</value>
+  </data>
+  <data name="Project Forms" xml:space="preserve">
+    <value>Project Forms</value>
+  </data>
+  <data name="Project Metrics" xml:space="preserve">
+    <value>Project Metrics</value>
+  </data>
+  <data name="Action Plans" xml:space="preserve">
+    <value>Action Plans</value>
+  </data>
+  <data name="Control Panel" xml:space="preserve">
+    <value>Control Panel</value>
+  </data>
+  <data name="Ministries Management" xml:space="preserve">
+    <value>Ministries Management</value>
+  </data>
+  <data name="Project Dashboard" xml:space="preserve">
+    <value>Project Dashboard</value>
+  </data>
+  <data name="Strategic Indicators" xml:space="preserve">
+    <value>Strategic Indicators</value>
+  </data>
+  <data name="Performance Reporting" xml:space="preserve">
+    <value>Performance Reporting</value>
+  </data>
+  <data name="Outcome Management" xml:space="preserve">
+    <value>Outcome Management</value>
+  </data>
+  <data name="Output Management" xml:space="preserve">
+    <value>Output Management</value>
+  </data>
+  <data name="SubOutput Management" xml:space="preserve">
+    <value>SubOutput Management</value>
+  </data>
+  <data name="Indicator Management" xml:space="preserve">
+    <value>Indicator Management</value>
+  </data>
+  <data name="RecoverPassword" xml:space="preserve">
+    <value>Recover Password</value>
+  </data>
+  <data name="ReadStrategies" xml:space="preserve">
+    <value>Read Strategies</value>
+  </data>
+  <data name="AddStrategy" xml:space="preserve">
+    <value>Add Strategy</value>
+  </data>
+  <data name="ModifyStrategy" xml:space="preserve">
+    <value>Modify Strategy</value>
+  </data>
+  <data name="DeleteStrategy" xml:space="preserve">
+    <value>Delete Strategy</value>
+  </data>
+  <data name="ReadPolicies" xml:space="preserve">
+    <value>Read Policies</value>
+  </data>
+  <data name="AddPolicy" xml:space="preserve">
+    <value>Add Policy</value>
+  </data>
+  <data name="ModifyPolicy" xml:space="preserve">
+    <value>Modify Policy</value>
+  </data>
+  <data name="DeletePolicy" xml:space="preserve">
+    <value>Delete Policy</value>
+  </data>
+  <data name="ReadPrograms" xml:space="preserve">
+    <value>Read Programs</value>
+  </data>
+  <data name="AddProgram" xml:space="preserve">
+    <value>Add Program</value>
+  </data>
+  <data name="EditProgram" xml:space="preserve">
+    <value>Edit Program</value>
+  </data>
+  <data name="DeleteProgram" xml:space="preserve">
+    <value>Delete Program</value>
+  </data>
+  <data name="ReadSubprograms" xml:space="preserve">
+    <value>Read Subprograms</value>
+  </data>
+  <data name="AddSubprogram" xml:space="preserve">
+    <value>Add Subprogram</value>
+  </data>
+  <data name="EditSubprogram" xml:space="preserve">
+    <value>Edit Subprogram</value>
+  </data>
+  <data name="DeleteSubprogram" xml:space="preserve">
+    <value>Delete Subprogram</value>
+  </data>
+  <data name="ReadProjects" xml:space="preserve">
+    <value>Read Projects</value>
+  </data>
+  <data name="AddProject" xml:space="preserve">
+    <value>Add Project</value>
+  </data>
+  <data name="EditProject" xml:space="preserve">
+    <value>Edit Project</value>
+  </data>
+  <data name="DeleteProject" xml:space="preserve">
+    <value>Delete Project</value>
+  </data>
+  <data name="ReadProjectForms" xml:space="preserve">
+    <value>Read Project Forms</value>
+  </data>
+  <data name="FillProjectForm" xml:space="preserve">
+    <value>Fill Project Form</value>
+  </data>
+  <data name="EditProjectForm" xml:space="preserve">
+    <value>Edit Project Form</value>
+  </data>
+  <data name="DeleteProjectForm" xml:space="preserve">
+    <value>Delete Project Form</value>
+  </data>
+  <data name="ReadProjectMetrics" xml:space="preserve">
+    <value>Read Project Metrics</value>
+  </data>
+  <data name="AddMetricValue" xml:space="preserve">
+    <value>Add Metric Value</value>
+  </data>
+  <data name="EditMetricValues" xml:space="preserve">
+    <value>Edit Metric Values</value>
+  </data>
+  <data name="DeleteMetricValues" xml:space="preserve">
+    <value>Delete Metric Values</value>
+  </data>
+  <data name="ReadActionPlans" xml:space="preserve">
+    <value>Read Action Plans</value>
+  </data>
+  <data name="ModifyPlanStatus" xml:space="preserve">
+    <value>Modify Plan Status</value>
+  </data>
+  <data name="DeleteActionPlan" xml:space="preserve">
+    <value>Delete Action Plan</value>
+  </data>
+  <data name="ViewControlPanel" xml:space="preserve">
+    <value>View Control Panel</value>
+  </data>
+  <data name="ReadMinistries" xml:space="preserve">
+    <value>Read Ministries</value>
+  </data>
+  <data name="CreateMinistry" xml:space="preserve">
+    <value>Create Ministry</value>
+  </data>
+  <data name="ModifyMinistry" xml:space="preserve">
+    <value>Modify Ministry</value>
+  </data>
+  <data name="DeleteMinistry" xml:space="preserve">
+    <value>Delete Ministry</value>
+  </data>
+  <data name="DisplayMinistryIndicators" xml:space="preserve">
+    <value>Display Ministry Indicators</value>
+  </data>
+  <data name="BrowseProjects" xml:space="preserve">
+    <value>Browse Projects</value>
+  </data>
+  <data name="MonitorPerformance" xml:space="preserve">
+    <value>Monitor Performance</value>
+  </data>
+  <data name="ClassifyProjects" xml:space="preserve">
+    <value>Classify Projects</value>
+  </data>
+  <data name="DisplayStrategicIndicators" xml:space="preserve">
+    <value>Display Strategic Indicators</value>
+  </data>
+  <data name="ComparePerformance" xml:space="preserve">
+    <value>Compare Performance</value>
+  </data>
+  <data name="EditStrategyData" xml:space="preserve">
+    <value>Edit Strategy Data</value>
+  </data>
+  <data name="ViewReports" xml:space="preserve">
+    <value>View Reports</value>
+  </data>
+  <data name="AnalyzePerformance" xml:space="preserve">
+    <value>Analyze Performance</value>
+  </data>
+  <data name="ExportReports" xml:space="preserve">
+    <value>Export Reports</value>
+  </data>
+  <data name="ReadOutcomes" xml:space="preserve">
+    <value>Read Outcomes</value>
+  </data>
+  <data name="AddOutcome" xml:space="preserve">
+    <value>Add Outcome</value>
+  </data>
+  <data name="ModifyOutcome" xml:space="preserve">
+    <value>Modify Outcome</value>
+  </data>
+  <data name="DeleteOutcome" xml:space="preserve">
+    <value>Delete Outcome</value>
+  </data>
+  <data name="ReadOutputs" xml:space="preserve">
+    <value>Read Outputs</value>
+  </data>
+  <data name="AddOutput" xml:space="preserve">
+    <value>Add Output</value>
+  </data>
+  <data name="ModifyOutput" xml:space="preserve">
+    <value>Modify Output</value>
+  </data>
+  <data name="DeleteOutput" xml:space="preserve">
+    <value>Delete Output</value>
+  </data>
+  <data name="ReadSubOutputs" xml:space="preserve">
+    <value>Read Sub Outputs</value>
+  </data>
+  <data name="AddSubOutput" xml:space="preserve">
+    <value>Add Sub Output</value>
+  </data>
+  <data name="ModifySubOutput" xml:space="preserve">
+    <value>Modify Sub Output</value>
+  </data>
+  <data name="DeleteSubOutput" xml:space="preserve">
+    <value>Delete Sub Output</value>
+  </data>
+  <data name="ReadIndicators" xml:space="preserve">
+    <value>Read Indicators</value>
+  </data>
+  <data name="AddIndicator" xml:space="preserve">
+    <value>Add Indicator</value>
+  </data>
+  <data name="ModifyIndicator" xml:space="preserve">
+    <value>Modify Indicator</value>
+  </data>
+  <data name="DeleteIndicator" xml:space="preserve">
+    <value>Delete Indicator</value>
+  </data>
+  <data name="IndicatorAnalysis" xml:space="preserve">
+    <value>Indicator Analysis</value>
+  </data>
 </root>

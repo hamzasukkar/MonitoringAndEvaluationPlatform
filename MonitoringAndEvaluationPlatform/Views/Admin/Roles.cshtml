@@ -75,11 +75,11 @@
                 <div class="card role-card h-100">
                     <div class="card-header bg-@badgeColor text-white">
                         <h5 class="mb-0">
-                            <i class="fas @icon me-2"></i>@role.Name
+                            <i class="fas @icon me-2"></i>@Localizer[role.Name]
                         </h5>
                     </div>
                     <div class="card-body">
-                        <p class="text-muted small mb-3">@description</p>
+                        <p class="text-muted small mb-3">@Localizer[role.Name + "Description"]</p>
 
                         <div class="role-stats mb-3">
                             <div class="d-flex justify-content-between mb-2">
@@ -130,7 +130,7 @@
                             <th>@Localizer["Category"]</th>
                             @foreach (var role in Model.Roles)
                             {
-                                <th class="text-center">@role.Name</th>
+                                <th class="text-center">@Localizer[role.Name]</th>
                             }
                         </tr>
                     </thead>
@@ -139,7 +139,7 @@
                         {
                             <tr>
                                 <td>
-                                    <strong>@category.Key</strong>
+                                    <strong>@Localizer[category.Key]</strong>
                                     <br />
                                     <small class="text-muted">@category.Value.Count @Localizer["permissions"]</small>
                                 </td>

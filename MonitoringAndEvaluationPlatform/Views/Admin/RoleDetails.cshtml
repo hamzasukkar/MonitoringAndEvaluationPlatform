@@ -18,9 +18,9 @@
         <div class="d-flex justify-content-between align-items-center">
             <div>
                 <h1 class="display-4 mb-2">
-                    <i class="fas @icon me-3"></i>@Model.Name
+                    <i class="fas @icon me-3"></i>@Localizer[Model.Name]
                 </h1>
-                <p class="text-muted">@description</p>
+                <p class="text-muted">@Localizer[Model.Name + "Description"]</p>
             </div>
             <div>
                 <a asp-action="Roles" class="btn btn-secondary btn-lg">
@@ -93,7 +93,7 @@
                                                 data-bs-toggle="collapse" data-bs-target="#@collapseId"
                                                 aria-expanded="@(index == 0 ? "true" : "false")" aria-controls="@collapseId">
                                             <span class="me-auto">
-                                                <strong>@category.Key</strong>
+                                                <strong>@Localizer[category.Key]</strong>
                                             </span>
                                             <span class="badge bg-@badgeColor me-2">@category.Value.Count</span>
                                         </button>
@@ -107,7 +107,7 @@
                                                     <div class="col-md-6 mb-2">
                                                         <div class="permission-item">
                                                             <i class="fas fa-check-circle text-success me-2"></i>
-                                                            <span>@FormatPermissionName(permission)</span>
+                                                            <span>@Localizer[permission]</span>
                                                         </div>
                                                     </div>
                                                 }
@@ -212,11 +212,11 @@
                                     @if (isFirst)
                                     {
                                         <td rowspan="@category.Value.Count" class="align-middle">
-                                            <strong>@category.Key</strong>
+                                            <strong>@Localizer[category.Key]</strong>
                                         </td>
                                         isFirst = false;
                                     }
-                                    <td>@FormatPermissionName(permission)</td>
+                                    <td>@Localizer[permission]</td>
                                     <td class="text-center">
                                         @if (hasPermission)
                                         {

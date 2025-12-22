@@ -103,4 +103,82 @@
   <data name="None" xml:space="preserve">
     <value>لا شيء</value>
   </data>
+  <data name="SystemAdministrator" xml:space="preserve">
+    <value>مدير النظام</value>
+  </data>
+  <data name="MinistriesUser" xml:space="preserve">
+    <value>مستخدم الوزارات</value>
+  </data>
+  <data name="DataEntry" xml:space="preserve">
+    <value>إدخال البيانات</value>
+  </data>
+  <data name="ReadingUser" xml:space="preserve">
+    <value>مستخدم للقراءة فقط</value>
+  </data>
+  <data name="SystemAdministratorDescription" xml:space="preserve">
+    <value>وصول كامل للنظام مع جميع الصلاحيات</value>
+  </data>
+  <data name="MinistriesUserDescription" xml:space="preserve">
+    <value>وصول على مستوى الوزارة للمراقبة والتحليل</value>
+  </data>
+  <data name="DataEntryDescription" xml:space="preserve">
+    <value>وصول لإدخال البيانات وإدارة النماذج</value>
+  </data>
+  <data name="ReadingUserDescription" xml:space="preserve">
+    <value>وصول للقراءة فقط لعرض التقارير</value>
+  </data>
+  <data name="Login" xml:space="preserve">
+    <value>تسجيل الدخول</value>
+  </data>
+  <data name="Strategy Management" xml:space="preserve">
+    <value>إدارة الاستراتيجيات</value>
+  </data>
+  <data name="Policy Management" xml:space="preserve">
+    <value>إدارة السياسات</value>
+  </data>
+  <data name="Program Management" xml:space="preserve">
+    <value>إدارة البرامج</value>
+  </data>
+  <data name="Subprogram Management" xml:space="preserve">
+    <value>إدارة البرامج الفرعية</value>
+  </data>
+  <data name="Project Management" xml:space="preserve">
+    <value>إدارة المشاريع</value>
+  </data>
+  <data name="Project Forms" xml:space="preserve">
+    <value>نماذج المشاريع</value>
+  </data>
+  <data name="Project Metrics" xml:space="preserve">
+    <value>مقاييس المشاريع</value>
+  </data>
+  <data name="Action Plans" xml:space="preserve">
+    <value>خطط العمل</value>
+  </data>
+  <data name="Control Panel" xml:space="preserve">
+    <value>لوحة التحكم</value>
+  </data>
+  <data name="Ministries Management" xml:space="preserve">
+    <value>إدارة الوزارات</value>
+  </data>
+  <data name="Project Dashboard" xml:space="preserve">
+    <value>لوحة معلومات المشاريع</value>
+  </data>
+  <data name="Strategic Indicators" xml:space="preserve">
+    <value>المؤشرات الاستراتيجية</value>
+  </data>
+  <data name="Performance Reporting" xml:space="preserve">
+    <value>تقارير الأداء</value>
+  </data>
+  <data name="Outcome Management" xml:space="preserve">
+    <value>إدارة النتائج</value>
+  </data>
+  <data name="Output Management" xml:space="preserve">
+    <value>إدارة المخرجات</value>
+  </data>
+  <data name="SubOutput Management" xml:space="preserve">
+    <value>إدارة المخرجات الفرعية</value>
+  </data>
+  <data name="Indicator Management" xml:space="preserve">
+    <value>إدارة المؤشرات</value>
+  </data>
 </root>
