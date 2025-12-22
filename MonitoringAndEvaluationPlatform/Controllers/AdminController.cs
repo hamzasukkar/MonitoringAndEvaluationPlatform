@@ -26,6 +26,12 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             _context = context;
         }
 
+        // GET: Admin/Test - Simple test to check if controller works
+        public IActionResult Test()
+        {
+            return Content("Admin controller is working! User: " + User.Identity?.Name);
+        }
+
         // GET: Admin/Index
         public async Task<IActionResult> Index(string searchTerm = "", string roleFilter = "", int page = 1, int pageSize = 10)
         {
