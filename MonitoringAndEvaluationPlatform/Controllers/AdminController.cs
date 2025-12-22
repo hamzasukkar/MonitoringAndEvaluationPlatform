@@ -101,6 +101,12 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 .GroupBy(x => x.UserId)
                 .ToDictionary(g => g.Key, g => g.Select(x => x.RoleName!).ToList());
 
+            // Load ministries for Arabic name lookup
+            var ministries = await _context.Ministries
+                .Select(m => new { m.MinistryDisplayName_EN, m.MinistryDisplayName_AR })
+                .ToListAsync();
+            var ministryArDict = ministries.ToDictionary(m => m.MinistryDisplayName_EN, m => m.MinistryDisplayName_AR);
+
             // Build view models
             var userViewModels = users.Select(user => new UserViewModel
             {
@@ -108,6 +114,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 UserName = user.UserName!,
                 Email = user.Email!,
                 MinistryName = user.MinistryName,
+                MinistryNameAr = user.MinistryName != null && ministryArDict.TryGetValue(user.MinistryName, out var arName) ? arName : user.MinistryName,
                 EmailConfirmed = user.EmailConfirmed,
                 LockoutEnabled = user.LockoutEnabled,
                 LockoutEnd = user.LockoutEnd,
@@ -349,12 +356,23 @@ namespace MonitoringAndEvaluationPlatform.Controllers
 
             var roles = await _userManager.GetRolesAsync(user);
 
+            // Get Arabic ministry name if available
+            string? ministryNameAr = null;
+            if (!string.IsNullOrEmpty(user.MinistryName))
+            {
+                ministryNameAr = await _context.Ministries
+                    .Where(m => m.MinistryDisplayName_EN == user.MinistryName)
+                    .Select(m => m.MinistryDisplayName_AR)
+                    .FirstOrDefaultAsync();
+            }
+
             var viewModel = new UserViewModel
             {
                 Id = user.Id,
                 UserName = user.UserName!,
                 Email = user.Email!,
                 MinistryName = user.MinistryName,
+                MinistryNameAr = ministryNameAr ?? user.MinistryName,
                 EmailConfirmed = user.EmailConfirmed,
                 LockoutEnabled = user.LockoutEnabled,
                 LockoutEnd = user.LockoutEnd,

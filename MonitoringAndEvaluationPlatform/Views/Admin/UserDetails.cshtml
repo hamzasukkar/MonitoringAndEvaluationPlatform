@@ -1,10 +1,12 @@
 @model MonitoringAndEvaluationPlatform.ViewModels.UserViewModel
 @using Microsoft.AspNetCore.Mvc.Localization
+@using System.Globalization
 @inject IViewLocalizer Localizer
 
 @{
     ViewData["Title"] = Localizer["UserDetails"];
     Layout = "~/Views/Shared/_DashboardHomeLayout.cshtml";
+    var isArabic = CultureInfo.CurrentUICulture.Name.StartsWith("ar");
 }
 
 <div class="container-fluid py-4">
@@ -63,7 +65,7 @@
                         <div class="col-md-6">
                             <div class="info-item">
                                 <label class="info-label">@Localizer["Ministry"]</label>
-                                <p class="info-value">@(Model.MinistryName ?? "-")</p>
+                                <p class="info-value">@(isArabic ? (Model.MinistryNameAr ?? "-") : (Model.MinistryName ?? "-"))</p>
                             </div>
                         </div>
                     </div>
