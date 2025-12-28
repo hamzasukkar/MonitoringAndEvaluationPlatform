@@ -1177,6 +1177,12 @@
                             <span>@Localizer["Set Up"]</span>
                         </a>
                     </li>
+                    <li>
+                        <a href="/AuditLogs/Index" class="sidebar-link @(Context.Request.Path.Value.Contains("AuditLogs") ? "active" : "")">
+                            <i class="fas fa-history"></i>
+                            <span>@Localizer["Audit Logs"]</span>
+                        </a>
+                    </li>
                 }
                @*  <li>
                     <a href="/Projects/Index" class="sidebar-link @(Context.Request.Path.Value.Contains("Projects") ? "active" : "")">

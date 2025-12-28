@@ -1,0 +1,153 @@
+@model List<MonitoringAndEvaluationPlatform.Models.AuditLog>
+@using Microsoft.AspNetCore.Mvc.Localization
+@inject IViewLocalizer Localizer
+
+@{
+    ViewData["Title"] = Localizer["UserActivity"];
+    Layout = "~/Views/Shared/_DashboardHomeLayout.cshtml";
+    var userId = ViewBag.UserId as string;
+    var userName = ViewBag.UserName as string;
+    var totalRecords = (int)ViewBag.TotalRecords;
+    var currentPage = (int)ViewBag.CurrentPage;
+    var pageSize = (int)ViewBag.PageSize;
+    var totalPages = (int)ViewBag.TotalPages;
+}
+
+<div class="container-fluid py-4">
+    <!-- Header -->
+    <div class="dashboard-header mb-4">
+        <div class="d-flex justify-content-between align-items-center">
+            <div>
+                <h1 class="display-4 mb-2">
+                    <i class="fas fa-user-clock me-3"></i>@Localizer["UserActivity"]
+                </h1>
+                <p class="text-muted">
+                    @Localizer["AllActionsBy"] <strong>@userName</strong>
+                </p>
+            </div>
+            <div>
+                <a asp-action="Index" class="btn btn-secondary btn-lg">
+                    <i class="fas fa-arrow-left me-2"></i>@Localizer["BackToList"]
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Activity Table -->
+    <div class="card">
+        <div class="card-header">
+            <strong>@totalRecords @Localizer["actions"]</strong>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>@Localizer["Timestamp"]</th>
+                            <th>@Localizer["Action"]</th>
+                            <th>@Localizer["Entity"]</th>
+                            <th>@Localizer["EntityId"]</th>
+                            <th>@Localizer["ChangedFields"]</th>
+                            <th class="text-center">@Localizer["Details"]</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var log in Model)
+                        {
+                            var actionClass = log.Action switch
+                            {
+                                "Create" => "bg-success",
+                                "Update" => "bg-warning text-dark",
+                                "Delete" => "bg-danger",
+                                _ => "bg-secondary"
+                            };
+                            var actionIcon = log.Action switch
+                            {
+                                "Create" => "fa-plus",
+                                "Update" => "fa-edit",
+                                "Delete" => "fa-trash",
+                                _ => "fa-question"
+                            };
+
+                            <tr>
+                                <td>
+                                    <small class="text-muted">
+                                        @log.Timestamp.ToLocalTime().ToString("yyyy-MM-dd HH:mm:ss")
+                                    </small>
+                                </td>
+                                <td>
+                                    <span class="badge @actionClass">
+                                        <i class="fas @actionIcon me-1"></i>@log.Action
+                                    </span>
+                                </td>
+                                <td><strong>@log.EntityName</strong></td>
+                                <td>
+                                    <a asp-action="EntityHistory" asp-route-entityName="@log.EntityName" asp-route-entityId="@log.EntityId">
+                                        @log.EntityId
+                                    </a>
+                                </td>
+                                <td>
+                                    @if (!string.IsNullOrEmpty(log.ChangedColumns))
+                                    {
+                                        <small class="text-muted">@log.ChangedColumns</small>
+                                    }
+                                    else
+                                    {
+                                        <span class="text-muted">-</span>
+                                    }
+                                </td>
+                                <td class="text-center">
+                                    <a asp-action="Details" asp-route-id="@log.Id" class="btn btn-sm btn-info">
+                                        <i class="fas fa-eye"></i>
+                                    </a>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Pagination -->
+            @if (totalPages > 1)
+            {
+                <nav aria-label="Page navigation" class="mt-4">
+                    <ul class="pagination justify-content-center">
+                        <li class="page-item @(currentPage == 1 ? "disabled" : "")">
+                            <a class="page-link" href="@Url.Action("UserActivity", new { userId = userId, page = currentPage - 1, pageSize = pageSize })">
+                                <i class="fas fa-chevron-left"></i>
+                            </a>
+                        </li>
+                        @{
+                            var startPage = Math.Max(1, currentPage - 2);
+                            var endPage = Math.Min(totalPages, currentPage + 2);
+                        }
+                        @for (int i = startPage; i <= endPage; i++)
+                        {
+                            <li class="page-item @(currentPage == i ? "active" : "")">
+                                <a class="page-link" href="@Url.Action("UserActivity", new { userId = userId, page = i, pageSize = pageSize })">@i</a>
+                            </li>
+                        }
+                        <li class="page-item @(currentPage == totalPages ? "disabled" : "")">
+                            <a class="page-link" href="@Url.Action("UserActivity", new { userId = userId, page = currentPage + 1, pageSize = pageSize })">
+                                <i class="fas fa-chevron-right"></i>
+                            </a>
+                        </li>
+                    </ul>
+                </nav>
+            }
+        </div>
+    </div>
+</div>
+
+<style>
+    .card {
+        border-radius: 12px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+
+    .table th {
+        background-color: #f8f9fa;
+        font-weight: 600;
+        border-bottom: 2px solid #dee2e6;
+    }
+</style>

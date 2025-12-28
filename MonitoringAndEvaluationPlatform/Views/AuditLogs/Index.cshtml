@@ -1,0 +1,357 @@
+@model MonitoringAndEvaluationPlatform.ViewModels.AuditLogViewModel
+@using Microsoft.AspNetCore.Mvc.Localization
+@using System.Globalization
+@inject IViewLocalizer Localizer
+
+@{
+    ViewData["Title"] = Localizer["AuditLogs"];
+    Layout = "~/Views/Shared/_DashboardHomeLayout.cshtml";
+    var isArabic = CultureInfo.CurrentUICulture.Name.StartsWith("ar");
+}
+
+<div class="container-fluid py-4">
+    <!-- Header -->
+    <div class="dashboard-header mb-4">
+        <div class="d-flex justify-content-between align-items-center">
+            <div>
+                <h1 class="display-4 mb-2">
+                    <i class="fas fa-history me-3"></i>@Localizer["AuditLogs"]
+                </h1>
+                <p class="text-muted">@Localizer["TrackAllSystemChanges"]</p>
+            </div>
+            <div>
+                <form asp-action="Export" method="post" class="d-inline">
+                    <input type="hidden" name="entityFilter" value="@Model.EntityFilter" />
+                    <input type="hidden" name="actionFilter" value="@Model.ActionFilter" />
+                    <input type="hidden" name="dateFrom" value="@Model.DateFrom?.ToString("yyyy-MM-dd")" />
+                    <input type="hidden" name="dateTo" value="@Model.DateTo?.ToString("yyyy-MM-dd")" />
+                    <button type="submit" class="btn btn-success btn-lg">
+                        <i class="fas fa-file-export me-2"></i>@Localizer["Export"]
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Statistics Cards -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="stat-card">
+                <div class="stat-icon bg-primary">
+                    <i class="fas fa-database"></i>
+                </div>
+                <div class="stat-content">
+                    <h3>@Model.TotalAuditLogs</h3>
+                    <p>@Localizer["TotalLogs"]</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="stat-card">
+                <div class="stat-icon bg-info">
+                    <i class="fas fa-calendar-day"></i>
+                </div>
+                <div class="stat-content">
+                    <h3>@Model.TodayLogs</h3>
+                    <p>@Localizer["Today"]</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-2">
+            <div class="stat-card">
+                <div class="stat-icon bg-success">
+                    <i class="fas fa-plus-circle"></i>
+                </div>
+                <div class="stat-content">
+                    <h3>@Model.CreateCount</h3>
+                    <p>@Localizer["Created"]</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-2">
+            <div class="stat-card">
+                <div class="stat-icon bg-warning">
+                    <i class="fas fa-edit"></i>
+                </div>
+                <div class="stat-content">
+                    <h3>@Model.UpdateCount</h3>
+                    <p>@Localizer["Updated"]</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-2">
+            <div class="stat-card">
+                <div class="stat-icon bg-danger">
+                    <i class="fas fa-trash"></i>
+                </div>
+                <div class="stat-content">
+                    <h3>@Model.DeleteCount</h3>
+                    <p>@Localizer["Deleted"]</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Search and Filter -->
+    <div class="card mb-4">
+        <div class="card-body">
+            <form method="get" asp-action="Index" class="row g-3">
+                <div class="col-md-2">
+                    <label class="form-label">@Localizer["Search"]</label>
+                    <input type="text" name="searchTerm" value="@Model.SearchTerm" class="form-control" placeholder="@Localizer["SearchPlaceholder"]">
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label">@Localizer["Entity"]</label>
+                    <select name="entityFilter" class="form-select">
+                        <option value="">@Localizer["AllEntities"]</option>
+                        @foreach (var entity in Model.AvailableEntities)
+                        {
+                            <option value="@entity" selected="@(entity == Model.EntityFilter)">@entity</option>
+                        }
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label">@Localizer["Action"]</label>
+                    <select name="actionFilter" class="form-select">
+                        <option value="">@Localizer["AllActions"]</option>
+                        @foreach (var action in Model.AvailableActions)
+                        {
+                            <option value="@action" selected="@(action == Model.ActionFilter)">@action</option>
+                        }
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label">@Localizer["DateFrom"]</label>
+                    <input type="date" name="dateFrom" value="@Model.DateFrom?.ToString("yyyy-MM-dd")" class="form-control">
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label">@Localizer["DateTo"]</label>
+                    <input type="date" name="dateTo" value="@Model.DateTo?.ToString("yyyy-MM-dd")" class="form-control">
+                </div>
+                <div class="col-md-2 d-flex align-items-end">
+                    <button type="submit" class="btn btn-primary me-2">
+                        <i class="fas fa-filter me-1"></i>@Localizer["Filter"]
+                    </button>
+                    <a asp-action="Index" class="btn btn-secondary">
+                        <i class="fas fa-redo me-1"></i>@Localizer["Reset"]
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Audit Logs Table -->
+    <div class="card">
+        <div class="card-header">
+            <strong>@Localizer["Results"]: @Model.TotalRecords @Localizer["records"]</strong>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th class="sortable-header">
+                                <a href="@Url.Action("Index", new { searchTerm = Model.SearchTerm, entityFilter = Model.EntityFilter, actionFilter = Model.ActionFilter, dateFrom = Model.DateFrom?.ToString("yyyy-MM-dd"), dateTo = Model.DateTo?.ToString("yyyy-MM-dd"), sortColumn = "Timestamp", sortDirection = Model.GetSortDirection("Timestamp"), page = 1, pageSize = Model.PageSize })" class="sort-link">
+                                    @Localizer["Timestamp"] <i class="fas @Model.GetSortIcon("Timestamp")"></i>
+                                </a>
+                            </th>
+                            <th class="sortable-header">
+                                <a href="@Url.Action("Index", new { searchTerm = Model.SearchTerm, entityFilter = Model.EntityFilter, actionFilter = Model.ActionFilter, dateFrom = Model.DateFrom?.ToString("yyyy-MM-dd"), dateTo = Model.DateTo?.ToString("yyyy-MM-dd"), sortColumn = "User", sortDirection = Model.GetSortDirection("User"), page = 1, pageSize = Model.PageSize })" class="sort-link">
+                                    @Localizer["User"] <i class="fas @Model.GetSortIcon("User")"></i>
+                                </a>
+                            </th>
+                            <th class="sortable-header">
+                                <a href="@Url.Action("Index", new { searchTerm = Model.SearchTerm, entityFilter = Model.EntityFilter, actionFilter = Model.ActionFilter, dateFrom = Model.DateFrom?.ToString("yyyy-MM-dd"), dateTo = Model.DateTo?.ToString("yyyy-MM-dd"), sortColumn = "Action", sortDirection = Model.GetSortDirection("Action"), page = 1, pageSize = Model.PageSize })" class="sort-link">
+                                    @Localizer["Action"] <i class="fas @Model.GetSortIcon("Action")"></i>
+                                </a>
+                            </th>
+                            <th class="sortable-header">
+                                <a href="@Url.Action("Index", new { searchTerm = Model.SearchTerm, entityFilter = Model.EntityFilter, actionFilter = Model.ActionFilter, dateFrom = Model.DateFrom?.ToString("yyyy-MM-dd"), dateTo = Model.DateTo?.ToString("yyyy-MM-dd"), sortColumn = "Entity", sortDirection = Model.GetSortDirection("Entity"), page = 1, pageSize = Model.PageSize })" class="sort-link">
+                                    @Localizer["Entity"] <i class="fas @Model.GetSortIcon("Entity")"></i>
+                                </a>
+                            </th>
+                            <th class="sortable-header">
+                                <a href="@Url.Action("Index", new { searchTerm = Model.SearchTerm, entityFilter = Model.EntityFilter, actionFilter = Model.ActionFilter, dateFrom = Model.DateFrom?.ToString("yyyy-MM-dd"), dateTo = Model.DateTo?.ToString("yyyy-MM-dd"), sortColumn = "EntityId", sortDirection = Model.GetSortDirection("EntityId"), page = 1, pageSize = Model.PageSize })" class="sort-link">
+                                    @Localizer["EntityId"] <i class="fas @Model.GetSortIcon("EntityId")"></i>
+                                </a>
+                            </th>
+                            <th>@Localizer["ChangedFields"]</th>
+                            <th class="text-center">@Localizer["Details"]</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var log in Model.AuditLogs)
+                        {
+                            <tr>
+                                <td>
+                                    <small class="text-muted">
+                                        @log.Timestamp.ToLocalTime().ToString("yyyy-MM-dd HH:mm:ss")
+                                    </small>
+                                </td>
+                                <td>
+                                    @if (!string.IsNullOrEmpty(log.UserName))
+                                    {
+                                        <a asp-action="UserActivity" asp-route-userId="@log.UserId">
+                                            @log.UserName
+                                        </a>
+                                    }
+                                    else
+                                    {
+                                        <span class="text-muted">System</span>
+                                    }
+                                </td>
+                                <td>
+                                    @{
+                                        var actionClass = log.Action switch
+                                        {
+                                            "Create" => "bg-success",
+                                            "Update" => "bg-warning text-dark",
+                                            "Delete" => "bg-danger",
+                                            _ => "bg-secondary"
+                                        };
+                                        var actionIcon = log.Action switch
+                                        {
+                                            "Create" => "fa-plus",
+                                            "Update" => "fa-edit",
+                                            "Delete" => "fa-trash",
+                                            _ => "fa-question"
+                                        };
+                                    }
+                                    <span class="badge @actionClass">
+                                        <i class="fas @actionIcon me-1"></i>@log.Action
+                                    </span>
+                                </td>
+                                <td>
+                                    <strong>@log.EntityName</strong>
+                                </td>
+                                <td>
+                                    <a asp-action="EntityHistory" asp-route-entityName="@log.EntityName" asp-route-entityId="@log.EntityId">
+                                        @log.EntityId
+                                    </a>
+                                </td>
+                                <td>
+                                    @if (!string.IsNullOrEmpty(log.ChangedColumns))
+                                    {
+                                        <small class="text-muted">@log.ChangedColumns</small>
+                                    }
+                                    else
+                                    {
+                                        <span class="text-muted">-</span>
+                                    }
+                                </td>
+                                <td class="text-center">
+                                    <a asp-action="Details" asp-route-id="@log.Id" class="btn btn-sm btn-info" title="@Localizer["ViewDetails"]">
+                                        <i class="fas fa-eye"></i>
+                                    </a>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Pagination -->
+            @if (Model.TotalPages > 1)
+            {
+                <nav aria-label="Page navigation" class="mt-4">
+                    <ul class="pagination justify-content-center">
+                        <li class="page-item @(Model.CurrentPage == 1 ? "disabled" : "")">
+                            <a class="page-link" href="@Url.Action("Index", new { searchTerm = Model.SearchTerm, entityFilter = Model.EntityFilter, actionFilter = Model.ActionFilter, dateFrom = Model.DateFrom?.ToString("yyyy-MM-dd"), dateTo = Model.DateTo?.ToString("yyyy-MM-dd"), sortColumn = Model.SortColumn, sortDirection = Model.SortDirection, page = Model.CurrentPage - 1, pageSize = Model.PageSize })">
+                                <i class="fas fa-chevron-left"></i>
+                            </a>
+                        </li>
+                        @{
+                            var startPage = Math.Max(1, Model.CurrentPage - 2);
+                            var endPage = Math.Min(Model.TotalPages, Model.CurrentPage + 2);
+                        }
+                        @for (int i = startPage; i <= endPage; i++)
+                        {
+                            <li class="page-item @(Model.CurrentPage == i ? "active" : "")">
+                                <a class="page-link" href="@Url.Action("Index", new { searchTerm = Model.SearchTerm, entityFilter = Model.EntityFilter, actionFilter = Model.ActionFilter, dateFrom = Model.DateFrom?.ToString("yyyy-MM-dd"), dateTo = Model.DateTo?.ToString("yyyy-MM-dd"), sortColumn = Model.SortColumn, sortDirection = Model.SortDirection, page = i, pageSize = Model.PageSize })">@i</a>
+                            </li>
+                        }
+                        <li class="page-item @(Model.CurrentPage == Model.TotalPages ? "disabled" : "")">
+                            <a class="page-link" href="@Url.Action("Index", new { searchTerm = Model.SearchTerm, entityFilter = Model.EntityFilter, actionFilter = Model.ActionFilter, dateFrom = Model.DateFrom?.ToString("yyyy-MM-dd"), dateTo = Model.DateTo?.ToString("yyyy-MM-dd"), sortColumn = Model.SortColumn, sortDirection = Model.SortDirection, page = Model.CurrentPage + 1, pageSize = Model.PageSize })">
+                                <i class="fas fa-chevron-right"></i>
+                            </a>
+                        </li>
+                    </ul>
+                </nav>
+            }
+        </div>
+    </div>
+</div>
+
+<style>
+    .stat-card {
+        background: white;
+        border-radius: 12px;
+        padding: 1.5rem;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+    }
+
+    .stat-icon {
+        width: 60px;
+        height: 60px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+        color: white;
+    }
+
+    .stat-content h3 {
+        margin: 0;
+        font-size: 1.8rem;
+        font-weight: 700;
+        color: #2d3748;
+    }
+
+    .stat-content p {
+        margin: 0;
+        font-size: 0.85rem;
+        color: #718096;
+    }
+
+    .card {
+        border-radius: 12px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+
+    .table th {
+        background-color: #f8f9fa;
+        font-weight: 600;
+        border-bottom: 2px solid #dee2e6;
+    }
+
+    .sortable-header {
+        cursor: pointer;
+        user-select: none;
+    }
+
+    .sort-link {
+        color: #333;
+        text-decoration: none;
+        display: flex;
+        align-items: center;
+        gap: 5px;
+    }
+
+    .sort-link:hover {
+        color: var(--primary-color, #2196F3);
+    }
+
+    .sort-link i {
+        font-size: 0.75rem;
+        color: #999;
+    }
+
+    .sort-link i.fa-sort-up,
+    .sort-link i.fa-sort-down {
+        color: var(--primary-color, #2196F3);
+    }
+</style>

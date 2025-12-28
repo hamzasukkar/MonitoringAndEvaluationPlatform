@@ -1,0 +1,310 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="AuditLogs" xml:space="preserve">
+    <value>سجل التدقيق</value>
+  </data>
+  <data name="TrackAllSystemChanges" xml:space="preserve">
+    <value>تتبع جميع تغييرات النظام وأنشطة المستخدمين</value>
+  </data>
+  <data name="Export" xml:space="preserve">
+    <value>تصدير</value>
+  </data>
+  <data name="TotalLogs" xml:space="preserve">
+    <value>إجمالي السجلات</value>
+  </data>
+  <data name="Today" xml:space="preserve">
+    <value>اليوم</value>
+  </data>
+  <data name="Created" xml:space="preserve">
+    <value>إنشاء</value>
+  </data>
+  <data name="Updated" xml:space="preserve">
+    <value>تعديل</value>
+  </data>
+  <data name="Deleted" xml:space="preserve">
+    <value>حذف</value>
+  </data>
+  <data name="Search" xml:space="preserve">
+    <value>بحث</value>
+  </data>
+  <data name="SearchPlaceholder" xml:space="preserve">
+    <value>بحث...</value>
+  </data>
+  <data name="Entity" xml:space="preserve">
+    <value>الكيان</value>
+  </data>
+  <data name="AllEntities" xml:space="preserve">
+    <value>جميع الكيانات</value>
+  </data>
+  <data name="Action" xml:space="preserve">
+    <value>الإجراء</value>
+  </data>
+  <data name="AllActions" xml:space="preserve">
+    <value>جميع الإجراءات</value>
+  </data>
+  <data name="DateFrom" xml:space="preserve">
+    <value>من تاريخ</value>
+  </data>
+  <data name="DateTo" xml:space="preserve">
+    <value>إلى تاريخ</value>
+  </data>
+  <data name="Filter" xml:space="preserve">
+    <value>تصفية</value>
+  </data>
+  <data name="Reset" xml:space="preserve">
+    <value>إعادة تعيين</value>
+  </data>
+  <data name="Results" xml:space="preserve">
+    <value>النتائج</value>
+  </data>
+  <data name="records" xml:space="preserve">
+    <value>سجل</value>
+  </data>
+  <data name="Timestamp" xml:space="preserve">
+    <value>التاريخ والوقت</value>
+  </data>
+  <data name="User" xml:space="preserve">
+    <value>المستخدم</value>
+  </data>
+  <data name="EntityId" xml:space="preserve">
+    <value>معرف الكيان</value>
+  </data>
+  <data name="ChangedFields" xml:space="preserve">
+    <value>الحقول المعدلة</value>
+  </data>
+  <data name="Details" xml:space="preserve">
+    <value>التفاصيل</value>
+  </data>
+  <data name="ViewDetails" xml:space="preserve">
+    <value>عرض التفاصيل</value>
+  </data>
+  <data name="BackToList" xml:space="preserve">
+    <value>العودة إلى القائمة</value>
+  </data>
+  <data name="AuditLogDetails" xml:space="preserve">
+    <value>تفاصيل سجل التدقيق</value>
+  </data>
+  <data name="DetailedViewOfChange" xml:space="preserve">
+    <value>عرض تفصيلي للتغيير في النظام</value>
+  </data>
+  <data name="GeneralInformation" xml:space="preserve">
+    <value>معلومات عامة</value>
+  </data>
+  <data name="ID" xml:space="preserve">
+    <value>المعرف</value>
+  </data>
+  <data name="UserInformation" xml:space="preserve">
+    <value>معلومات المستخدم</value>
+  </data>
+  <data name="Username" xml:space="preserve">
+    <value>اسم المستخدم</value>
+  </data>
+  <data name="UserId" xml:space="preserve">
+    <value>معرف المستخدم</value>
+  </data>
+  <data name="IPAddress" xml:space="preserve">
+    <value>عنوان IP</value>
+  </data>
+  <data name="UserAgent" xml:space="preserve">
+    <value>وكيل المستخدم</value>
+  </data>
+  <data name="OldValues" xml:space="preserve">
+    <value>القيم القديمة</value>
+  </data>
+  <data name="NewValues" xml:space="preserve">
+    <value>القيم الجديدة</value>
+  </data>
+  <data name="EntityHistory" xml:space="preserve">
+    <value>سجل الكيان</value>
+  </data>
+  <data name="AllChangesFor" xml:space="preserve">
+    <value>جميع التغييرات لـ</value>
+  </data>
+  <data name="changes" xml:space="preserve">
+    <value>تغييرات</value>
+  </data>
+  <data name="By" xml:space="preserve">
+    <value>بواسطة</value>
+  </data>
+  <data name="NoHistoryFound" xml:space="preserve">
+    <value>لم يتم العثور على سجل لهذا الكيان</value>
+  </data>
+  <data name="UserActivity" xml:space="preserve">
+    <value>نشاط المستخدم</value>
+  </data>
+  <data name="AllActionsBy" xml:space="preserve">
+    <value>جميع الإجراءات بواسطة</value>
+  </data>
+  <data name="actions" xml:space="preserve">
+    <value>إجراءات</value>
+  </data>
+  <data name="Active" xml:space="preserve">
+    <value>نشط</value>
+  </data>
+  <data name="Comment" xml:space="preserve">
+    <value>تعليق</value>
+  </data>
+  <data name="Concept" xml:space="preserve">
+    <value>المفهوم</value>
+  </data>
+  <data name="Description" xml:space="preserve">
+    <value>الوصف</value>
+  </data>
+  <data name="DisbursementPerformance" xml:space="preserve">
+    <value>أداء الصرف</value>
+  </data>
+  <data name="FieldMonitoring" xml:space="preserve">
+    <value>المتابعة الميدانية</value>
+  </data>
+  <data name="GAGRA" xml:space="preserve">
+    <value>GAGRA</value>
+  </data>
+  <data name="GAGRR" xml:space="preserve">
+    <value>GAGRR</value>
+  </data>
+  <data name="ImpactAssessment" xml:space="preserve">
+    <value>تقييم الأثر</value>
+  </data>
+  <data name="IndicatorsPerformance" xml:space="preserve">
+    <value>أداء المؤشرات</value>
+  </data>
+  <data name="IsCommon" xml:space="preserve">
+    <value>مشترك</value>
+  </data>
+  <data name="MethodOfComputation" xml:space="preserve">
+    <value>طريقة الحساب</value>
+  </data>
+  <data name="Name" xml:space="preserve">
+    <value>الاسم</value>
+  </data>
+  <data name="Source" xml:space="preserve">
+    <value>المصدر</value>
+  </data>
+  <data name="SubOutputCode" xml:space="preserve">
+    <value>رمز المخرج الفرعي</value>
+  </data>
+  <data name="Target" xml:space="preserve">
+    <value>المستهدف</value>
+  </data>
+  <data name="TargetYear" xml:space="preserve">
+    <value>السنة المستهدفة</value>
+  </data>
+  <data name="Weight" xml:space="preserve">
+    <value>الوزن</value>
+  </data>
+  <data name="Project" xml:space="preserve">
+    <value>المشروع</value>
+  </data>
+  <data name="Indicator" xml:space="preserve">
+    <value>المؤشر</value>
+  </data>
+  <data name="Framework" xml:space="preserve">
+    <value>الإطار</value>
+  </data>
+  <data name="Outcome" xml:space="preserve">
+    <value>النتيجة</value>
+  </data>
+  <data name="Output" xml:space="preserve">
+    <value>المخرج</value>
+  </data>
+  <data name="SubOutput" xml:space="preserve">
+    <value>المخرج الفرعي</value>
+  </data>
+  <data name="Measure" xml:space="preserve">
+    <value>القياس</value>
+  </data>
+  <data name="Activity" xml:space="preserve">
+    <value>النشاط</value>
+  </data>
+  <data name="Plan" xml:space="preserve">
+    <value>الخطة</value>
+  </data>
+  <data name="ActionPlan" xml:space="preserve">
+    <value>خطة العمل</value>
+  </data>
+  <data name="Ministry" xml:space="preserve">
+    <value>الوزارة</value>
+  </data>
+  <data name="Sector" xml:space="preserve">
+    <value>القطاع</value>
+  </data>
+  <data name="Donor" xml:space="preserve">
+    <value>الجهة المانحة</value>
+  </data>
+  <data name="Governorate" xml:space="preserve">
+    <value>المحافظة</value>
+  </data>
+  <data name="District" xml:space="preserve">
+    <value>المديرية</value>
+  </data>
+  <data name="Authentication" xml:space="preserve">
+    <value>المصادقة</value>
+  </data>
+  <data name="Login" xml:space="preserve">
+    <value>تسجيل الدخول</value>
+  </data>
+  <data name="Logout" xml:space="preserve">
+    <value>تسجيل الخروج</value>
+  </data>
+  <data name="LoginFailed" xml:space="preserve">
+    <value>فشل تسجيل الدخول</value>
+  </data>
+</root>

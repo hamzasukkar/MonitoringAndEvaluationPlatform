@@ -38,6 +38,7 @@ namespace MonitoringAndEvaluationPlatform.Data
         public DbSet<FrameworkGoal> FrameworkGoals { get; set; }
         public DbSet<FrameworkGoalYearlyValue> FrameworkGoalYearlyValues { get; set; }
         public DbSet<FrameworkGoalFile> FrameworkGoalFiles { get; set; }
+        public DbSet<AuditLog> AuditLogs { get; set; }
 
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -150,7 +151,18 @@ namespace MonitoringAndEvaluationPlatform.Data
                 .HasForeignKey(fgf => fgf.FrameworkGoalID)
                 .OnDelete(DeleteBehavior.Cascade);
 
+            // AuditLog indexes for better query performance
+            modelBuilder.Entity<AuditLog>()
+                .HasIndex(a => a.EntityName);
 
+            modelBuilder.Entity<AuditLog>()
+                .HasIndex(a => a.Timestamp);
+
+            modelBuilder.Entity<AuditLog>()
+                .HasIndex(a => a.UserId);
+
+            modelBuilder.Entity<AuditLog>()
+                .HasIndex(a => new { a.EntityName, a.EntityId });
 
         }
     }

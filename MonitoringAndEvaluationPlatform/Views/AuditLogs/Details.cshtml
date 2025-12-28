@@ -1,0 +1,198 @@
+@model MonitoringAndEvaluationPlatform.Models.AuditLog
+@using Microsoft.AspNetCore.Mvc.Localization
+@inject IViewLocalizer Localizer
+
+@{
+    ViewData["Title"] = Localizer["AuditLogDetails"];
+    Layout = "~/Views/Shared/_DashboardHomeLayout.cshtml";
+}
+
+<div class="container-fluid py-4">
+    <!-- Header -->
+    <div class="dashboard-header mb-4">
+        <div class="d-flex justify-content-between align-items-center">
+            <div>
+                <h1 class="display-4 mb-2">
+                    <i class="fas fa-file-alt me-3"></i>@Localizer["AuditLogDetails"]
+                </h1>
+                <p class="text-muted">@Localizer["DetailedViewOfChange"]</p>
+            </div>
+            <div>
+                <a asp-action="Index" class="btn btn-secondary btn-lg">
+                    <i class="fas fa-arrow-left me-2"></i>@Localizer["BackToList"]
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Main Info -->
+        <div class="col-md-6">
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0"><i class="fas fa-info-circle me-2"></i>@Localizer["GeneralInformation"]</h5>
+                </div>
+                <div class="card-body">
+                    <table class="table table-borderless">
+                        <tr>
+                            <th style="width: 150px;">@Localizer["ID"]</th>
+                            <td>@Model.Id</td>
+                        </tr>
+                        <tr>
+                            <th>@Localizer["Timestamp"]</th>
+                            <td>@Model.Timestamp.ToLocalTime().ToString("yyyy-MM-dd HH:mm:ss")</td>
+                        </tr>
+                        <tr>
+                            <th>@Localizer["Action"]</th>
+                            <td>
+                                @{
+                                    var actionClass = Model.Action switch
+                                    {
+                                        "Create" => "bg-success",
+                                        "Update" => "bg-warning text-dark",
+                                        "Delete" => "bg-danger",
+                                        _ => "bg-secondary"
+                                    };
+                                }
+                                <span class="badge @actionClass fs-6">@Model.Action</span>
+                            </td>
+                        </tr>
+                        <tr>
+                            <th>@Localizer["Entity"]</th>
+                            <td><strong>@Model.EntityName</strong></td>
+                        </tr>
+                        <tr>
+                            <th>@Localizer["EntityId"]</th>
+                            <td>
+                                <a asp-action="EntityHistory" asp-route-entityName="@Model.EntityName" asp-route-entityId="@Model.EntityId">
+                                    @Model.EntityId
+                                </a>
+                            </td>
+                        </tr>
+                        @if (!string.IsNullOrEmpty(Model.ChangedColumns))
+                        {
+                            <tr>
+                                <th>@Localizer["ChangedFields"]</th>
+                                <td>
+                                    @foreach (var col in Model.ChangedColumns.Split(','))
+                                    {
+                                        <span class="badge bg-secondary me-1">@col.Trim()</span>
+                                    }
+                                </td>
+                            </tr>
+                        }
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- User Info -->
+        <div class="col-md-6">
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0"><i class="fas fa-user me-2"></i>@Localizer["UserInformation"]</h5>
+                </div>
+                <div class="card-body">
+                    <table class="table table-borderless">
+                        <tr>
+                            <th style="width: 150px;">@Localizer["Username"]</th>
+                            <td>
+                                @if (!string.IsNullOrEmpty(Model.UserName))
+                                {
+                                    <a asp-action="UserActivity" asp-route-userId="@Model.UserId">
+                                        @Model.UserName
+                                    </a>
+                                }
+                                else
+                                {
+                                    <span class="text-muted">System</span>
+                                }
+                            </td>
+                        </tr>
+                        <tr>
+                            <th>@Localizer["UserId"]</th>
+                            <td><small class="text-muted">@(Model.UserId ?? "N/A")</small></td>
+                        </tr>
+                        <tr>
+                            <th>@Localizer["IPAddress"]</th>
+                            <td>@(Model.IpAddress ?? "N/A")</td>
+                        </tr>
+                        <tr>
+                            <th>@Localizer["UserAgent"]</th>
+                            <td><small class="text-muted text-break">@(Model.UserAgent ?? "N/A")</small></td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Values Comparison -->
+    <div class="row">
+        @if (!string.IsNullOrEmpty(Model.OldValues))
+        {
+            <div class="col-md-6">
+                <div class="card mb-4">
+                    <div class="card-header bg-danger text-white">
+                        <h5 class="mb-0"><i class="fas fa-minus-circle me-2"></i>@Localizer["OldValues"]</h5>
+                    </div>
+                    <div class="card-body">
+                        <pre class="bg-light p-3 rounded" style="max-height: 400px; overflow-y: auto; white-space: pre-wrap; word-break: break-all;">@FormatJson(Model.OldValues)</pre>
+                    </div>
+                </div>
+            </div>
+        }
+
+        @if (!string.IsNullOrEmpty(Model.NewValues))
+        {
+            <div class="col-md-6">
+                <div class="card mb-4">
+                    <div class="card-header bg-success text-white">
+                        <h5 class="mb-0"><i class="fas fa-plus-circle me-2"></i>@Localizer["NewValues"]</h5>
+                    </div>
+                    <div class="card-body">
+                        <pre class="bg-light p-3 rounded" style="max-height: 400px; overflow-y: auto; white-space: pre-wrap; word-break: break-all;">@FormatJson(Model.NewValues)</pre>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+</div>
+
+@functions {
+    string FormatJson(string? json)
+    {
+        if (string.IsNullOrEmpty(json))
+            return "N/A";
+
+        try
+        {
+            var obj = System.Text.Json.JsonSerializer.Deserialize<object>(json);
+            return System.Text.Json.JsonSerializer.Serialize(obj, new System.Text.Json.JsonSerializerOptions
+            {
+                WriteIndented = true
+            });
+        }
+        catch
+        {
+            return json;
+        }
+    }
+}
+
+<style>
+    .card {
+        border-radius: 12px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+
+    .table th {
+        color: #718096;
+        font-weight: 500;
+    }
+
+    pre {
+        font-size: 0.85rem;
+        margin: 0;
+    }
+</style>
