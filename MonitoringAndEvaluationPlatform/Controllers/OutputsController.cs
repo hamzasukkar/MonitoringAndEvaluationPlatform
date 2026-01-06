@@ -28,8 +28,15 @@ namespace MonitoringAndEvaluationPlatform.Controllers
 
         // GET: Outputs
         [Permission(Permissions.ReadOutputs)]
-        public async Task<IActionResult> Index(int? frameworkCode, int? outcomeCode)
+        public async Task<IActionResult> Index(int? frameworkCode, int? outcomeCode, string sortOrder)
         {
+            ViewBag.NameSortParm = sortOrder == "name" ? "name_desc" : "name";
+            ViewBag.WeightSortParm = sortOrder == "weight" ? "weight_desc" : "weight";
+            ViewBag.IndicatorsSortParm = String.IsNullOrEmpty(sortOrder) ? "indicators" : (sortOrder == "indicators" ? "indicators_desc" : "indicators");
+            ViewBag.DisbursementSortParm = sortOrder == "disbursement" ? "disbursement_desc" : "disbursement";
+            ViewBag.OutcomeSortParm = sortOrder == "outcome" ? "outcome_desc" : "outcome";
+            ViewBag.CurrentSort = sortOrder;
+
             // Start with base query including all related entities
             var query = _context.Outputs
                 .Include(o => o.Outcome)
@@ -49,6 +56,22 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 query = query.Where(o => o.OutcomeCode == outcomeCode.Value);
                 ViewBag.SelectedOutcomeCode = outcomeCode.Value;
             }
+
+            // Apply sorting
+            query = sortOrder switch
+            {
+                "name" => query.OrderBy(o => o.Name),
+                "name_desc" => query.OrderByDescending(o => o.Name),
+                "weight" => query.OrderBy(o => o.Weight),
+                "weight_desc" => query.OrderByDescending(o => o.Weight),
+                "indicators" => query.OrderBy(o => o.IndicatorsPerformance),
+                "indicators_desc" => query.OrderByDescending(o => o.IndicatorsPerformance),
+                "disbursement" => query.OrderBy(o => o.DisbursementPerformance),
+                "disbursement_desc" => query.OrderByDescending(o => o.DisbursementPerformance),
+                "outcome" => query.OrderBy(o => o.Outcome.Name),
+                "outcome_desc" => query.OrderByDescending(o => o.Outcome.Name),
+                _ => query.OrderByDescending(o => o.IndicatorsPerformance) // Default: highest Indicators Performance first
+            };
 
             // Execute the query
             var outputs = await query.ToListAsync();
