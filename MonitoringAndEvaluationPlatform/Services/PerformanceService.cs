@@ -110,10 +110,10 @@ namespace MonitoringAndEvaluationPlatform.Services
         }
 
         // ========================================
-        // DisbursementPerformance Methods
+        // DisbursementPerformance Methods (Weighted)
         // ========================================
 
-        // 🔹 Update SubOutput DisbursementPerformance
+        // 🔹 Update SubOutput DisbursementPerformance (weighted by indicator weights)
         public async Task UpdateSubOutputDisbursementPerformance(int subOutputCode)
         {
             var subOutput = await _context.SubOutputs
@@ -129,9 +129,22 @@ namespace MonitoringAndEvaluationPlatform.Services
 
             if (indicatorsWithProjects.Any())
             {
-                subOutput.DisbursementPerformance = (int)indicatorsWithProjects.Average(i => i.DisbursementPerformance);
-                subOutput.FieldMonitoring = (int)indicatorsWithProjects.Average(i => i.FieldMonitoring);
-                subOutput.ImpactAssessment = (int)indicatorsWithProjects.Average(i => i.ImpactAssessment);
+                // Use weighted calculation based on indicator weights
+                subOutput.DisbursementPerformance = (int)CalculateWeightedPerformance(
+                    indicatorsWithProjects,
+                    i => i.DisbursementPerformance,
+                    i => i.Weight
+                );
+                subOutput.FieldMonitoring = (int)CalculateWeightedPerformance(
+                    indicatorsWithProjects,
+                    i => i.FieldMonitoring,
+                    i => i.Weight
+                );
+                subOutput.ImpactAssessment = (int)CalculateWeightedPerformance(
+                    indicatorsWithProjects,
+                    i => i.ImpactAssessment,
+                    i => i.Weight
+                );
             }
             else
             {
@@ -146,7 +159,7 @@ namespace MonitoringAndEvaluationPlatform.Services
             await UpdateOutputDisbursementPerformance(subOutput.OutputCode);
         }
 
-        // 🔹 Update Output DisbursementPerformance
+        // 🔹 Update Output DisbursementPerformance (weighted by subOutput weights)
         public async Task UpdateOutputDisbursementPerformance(int outputCode)
         {
             var output = await _context.Outputs
@@ -163,9 +176,22 @@ namespace MonitoringAndEvaluationPlatform.Services
 
             if (subOutputsWithProjects.Any())
             {
-                output.DisbursementPerformance = (int)subOutputsWithProjects.Average(so => so.DisbursementPerformance);
-                output.FieldMonitoring = (int)subOutputsWithProjects.Average(so => so.FieldMonitoring);
-                output.ImpactAssessment = (int)subOutputsWithProjects.Average(so => so.ImpactAssessment);
+                // Use weighted calculation based on subOutput weights
+                output.DisbursementPerformance = (int)CalculateWeightedPerformance(
+                    subOutputsWithProjects,
+                    so => so.DisbursementPerformance,
+                    so => so.Weight
+                );
+                output.FieldMonitoring = (int)CalculateWeightedPerformance(
+                    subOutputsWithProjects,
+                    so => so.FieldMonitoring,
+                    so => so.Weight
+                );
+                output.ImpactAssessment = (int)CalculateWeightedPerformance(
+                    subOutputsWithProjects,
+                    so => so.ImpactAssessment,
+                    so => so.Weight
+                );
             }
             else
             {
@@ -180,7 +206,7 @@ namespace MonitoringAndEvaluationPlatform.Services
             await UpdateOutcomeDisbursementPerformance(output.OutcomeCode);
         }
 
-        // 🔹 Update Outcome DisbursementPerformance
+        // 🔹 Update Outcome DisbursementPerformance (weighted by output weights)
         public async Task UpdateOutcomeDisbursementPerformance(int outcomeCode)
         {
             var outcome = await _context.Outcomes
@@ -198,9 +224,22 @@ namespace MonitoringAndEvaluationPlatform.Services
 
             if (outputsWithProjects.Any())
             {
-                outcome.DisbursementPerformance = (int)outputsWithProjects.Average(o => o.DisbursementPerformance);
-                outcome.FieldMonitoring = (int)outputsWithProjects.Average(o => o.FieldMonitoring);
-                outcome.ImpactAssessment = (int)outputsWithProjects.Average(o => o.ImpactAssessment);
+                // Use weighted calculation based on output weights
+                outcome.DisbursementPerformance = (int)CalculateWeightedPerformance(
+                    outputsWithProjects,
+                    o => o.DisbursementPerformance,
+                    o => o.Weight
+                );
+                outcome.FieldMonitoring = (int)CalculateWeightedPerformance(
+                    outputsWithProjects,
+                    o => o.FieldMonitoring,
+                    o => o.Weight
+                );
+                outcome.ImpactAssessment = (int)CalculateWeightedPerformance(
+                    outputsWithProjects,
+                    o => o.ImpactAssessment,
+                    o => o.Weight
+                );
             }
             else
             {
@@ -215,7 +254,7 @@ namespace MonitoringAndEvaluationPlatform.Services
             await UpdateFrameworkDisbursementPerformance(outcome.FrameworkCode);
         }
 
-        // 🔹 Update Framework DisbursementPerformance
+        // 🔹 Update Framework DisbursementPerformance (weighted by outcome weights)
         public async Task UpdateFrameworkDisbursementPerformance(int frameworkCode)
         {
             var framework = await _context.Frameworks
@@ -234,9 +273,22 @@ namespace MonitoringAndEvaluationPlatform.Services
 
             if (outcomesWithProjects.Any())
             {
-                framework.DisbursementPerformance = (int)outcomesWithProjects.Average(oc => oc.DisbursementPerformance);
-                framework.FieldMonitoring = (int)outcomesWithProjects.Average(oc => oc.FieldMonitoring);
-                framework.ImpactAssessment = (int)outcomesWithProjects.Average(oc => oc.ImpactAssessment);
+                // Use weighted calculation based on outcome weights
+                framework.DisbursementPerformance = (int)CalculateWeightedPerformance(
+                    outcomesWithProjects,
+                    oc => oc.DisbursementPerformance,
+                    oc => oc.Weight
+                );
+                framework.FieldMonitoring = (int)CalculateWeightedPerformance(
+                    outcomesWithProjects,
+                    oc => oc.FieldMonitoring,
+                    oc => oc.Weight
+                );
+                framework.ImpactAssessment = (int)CalculateWeightedPerformance(
+                    outcomesWithProjects,
+                    oc => oc.ImpactAssessment,
+                    oc => oc.Weight
+                );
             }
             else
             {
