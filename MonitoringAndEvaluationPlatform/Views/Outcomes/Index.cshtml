@@ -87,7 +87,7 @@
                                asp-route-frameworkCode="@ViewBag.SelectedFrameworkCode"
                                class="header-link">
                                 <i class="fas fa-bullseye me-2"></i>@Localizer["Outcome Name"]
-                                @if (ViewBag.CurrentSort == null || ViewBag.CurrentSort == "")
+                                @if (ViewBag.CurrentSort == "name")
                                 {
                                     <i class="fas fa-sort-up ms-1"></i>
                                 }
@@ -127,7 +127,11 @@
                                asp-route-frameworkCode="@ViewBag.SelectedFrameworkCode"
                                class="header-link justify-content-center">
                                 <i class="fas fa-chart-line me-2"></i>@Localizer["Indicators Performance"]
-                                @if (ViewBag.CurrentSort == "indicators")
+                                @if (ViewBag.CurrentSort == null || ViewBag.CurrentSort == "")
+                                {
+                                    <i class="fas fa-sort-down ms-1"></i>
+                                }
+                                else if (ViewBag.CurrentSort == "indicators")
                                 {
                                     <i class="fas fa-sort-up ms-1"></i>
                                 }

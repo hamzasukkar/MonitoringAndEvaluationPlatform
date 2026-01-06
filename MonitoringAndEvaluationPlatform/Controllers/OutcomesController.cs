@@ -31,9 +31,9 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         [Permission(Permissions.ReadOutcomes)]
         public async Task<IActionResult> Index(int? frameworkCode, string sortOrder)
         {
-            ViewBag.NameSortParm = String.IsNullOrEmpty(sortOrder) ? "name_desc" : "";
+            ViewBag.NameSortParm = sortOrder == "name" ? "name_desc" : "name";
             ViewBag.WeightSortParm = sortOrder == "weight" ? "weight_desc" : "weight";
-            ViewBag.IndicatorsSortParm = sortOrder == "indicators" ? "indicators_desc" : "indicators";
+            ViewBag.IndicatorsSortParm = String.IsNullOrEmpty(sortOrder) ? "indicators" : (sortOrder == "indicators" ? "indicators_desc" : "indicators");
             ViewBag.DisbursementSortParm = sortOrder == "disbursement" ? "disbursement_desc" : "disbursement";
             ViewBag.FrameworkSortParm = sortOrder == "framework" ? "framework_desc" : "framework";
             ViewBag.CurrentSort = sortOrder;
@@ -56,6 +56,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             // Apply sorting
             outcomesQuery = sortOrder switch
             {
+                "name" => outcomesQuery.OrderBy(o => o.Name),
                 "name_desc" => outcomesQuery.OrderByDescending(o => o.Name),
                 "weight" => outcomesQuery.OrderBy(o => o.Weight),
                 "weight_desc" => outcomesQuery.OrderByDescending(o => o.Weight),
@@ -65,7 +66,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 "disbursement_desc" => outcomesQuery.OrderByDescending(o => o.DisbursementPerformance),
                 "framework" => outcomesQuery.OrderBy(o => o.Framework.Name),
                 "framework_desc" => outcomesQuery.OrderByDescending(o => o.Framework.Name),
-                _ => outcomesQuery.OrderBy(o => o.Name)
+                _ => outcomesQuery.OrderByDescending(o => o.IndicatorsPerformance) // Default: highest Indicators Performance first
             };
 
             var outcomes = await outcomesQuery.ToListAsync();
