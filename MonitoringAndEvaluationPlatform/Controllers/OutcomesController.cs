@@ -159,8 +159,11 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             // Redistribute weights among remaining outcomes
             await RedistributeWeights(frameworkCode);
 
-            // Recalculate framework performance
+            // Recalculate framework performance (IndicatorsPerformance)
             await _performanceService.UpdateFrameworkPerformance(frameworkCode);
+
+            // Recalculate framework performance (DisbursementPerformance, FieldMonitoring, ImpactAssessment)
+            await _performanceService.UpdateFrameworkDisbursementPerformance(frameworkCode);
 
             return Ok();
         }
