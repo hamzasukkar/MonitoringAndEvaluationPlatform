@@ -82,32 +82,107 @@
                 <thead class="table-header">
                     <tr>
                         <th class="sortable-header">
-                            <div class="header-link">
+                            <a asp-action="Index"
+                               asp-route-sortOrder="@ViewBag.NameSortParm"
+                               asp-route-frameworkCode="@ViewBag.SelectedFrameworkCode"
+                               class="header-link">
                                 <i class="fas fa-bullseye me-2"></i>@Localizer["Outcome Name"]
-                            </div>
+                                @if (ViewBag.CurrentSort == null || ViewBag.CurrentSort == "")
+                                {
+                                    <i class="fas fa-sort-up ms-1"></i>
+                                }
+                                else if (ViewBag.CurrentSort == "name_desc")
+                                {
+                                    <i class="fas fa-sort-down ms-1"></i>
+                                }
+                                else
+                                {
+                                    <i class="fas fa-sort ms-1 text-white-50"></i>
+                                }
+                            </a>
                         </th>
-                        <th class="text-center">
-                            <div class="header-link">
+                        <th class="text-center sortable-header">
+                            <a asp-action="Index"
+                               asp-route-sortOrder="@ViewBag.WeightSortParm"
+                               asp-route-frameworkCode="@ViewBag.SelectedFrameworkCode"
+                               class="header-link justify-content-center">
                                 <i class="fas fa-weight me-2"></i>@Localizer["Weight"]
-                            </div>
+                                @if (ViewBag.CurrentSort == "weight")
+                                {
+                                    <i class="fas fa-sort-up ms-1"></i>
+                                }
+                                else if (ViewBag.CurrentSort == "weight_desc")
+                                {
+                                    <i class="fas fa-sort-down ms-1"></i>
+                                }
+                                else
+                                {
+                                    <i class="fas fa-sort ms-1 text-white-50"></i>
+                                }
+                            </a>
                         </th>
-                        <th class="text-center">
-                            <div class="header-link">
+                        <th class="text-center sortable-header">
+                            <a asp-action="Index"
+                               asp-route-sortOrder="@ViewBag.IndicatorsSortParm"
+                               asp-route-frameworkCode="@ViewBag.SelectedFrameworkCode"
+                               class="header-link justify-content-center">
                                 <i class="fas fa-chart-line me-2"></i>@Localizer["Indicators Performance"]
-                            </div>
+                                @if (ViewBag.CurrentSort == "indicators")
+                                {
+                                    <i class="fas fa-sort-up ms-1"></i>
+                                }
+                                else if (ViewBag.CurrentSort == "indicators_desc")
+                                {
+                                    <i class="fas fa-sort-down ms-1"></i>
+                                }
+                                else
+                                {
+                                    <i class="fas fa-sort ms-1 text-white-50"></i>
+                                }
+                            </a>
                         </th>
-                        <th class="text-center">
-                            <div class="header-link">
+                        <th class="text-center sortable-header">
+                            <a asp-action="Index"
+                               asp-route-sortOrder="@ViewBag.DisbursementSortParm"
+                               asp-route-frameworkCode="@ViewBag.SelectedFrameworkCode"
+                               class="header-link justify-content-center">
                                 <i class="fas fa-money-bill-wave me-2"></i>@Localizer["Disbursement Performance"]
-                            </div>
+                                @if (ViewBag.CurrentSort == "disbursement")
+                                {
+                                    <i class="fas fa-sort-up ms-1"></i>
+                                }
+                                else if (ViewBag.CurrentSort == "disbursement_desc")
+                                {
+                                    <i class="fas fa-sort-down ms-1"></i>
+                                }
+                                else
+                                {
+                                    <i class="fas fa-sort ms-1 text-white-50"></i>
+                                }
+                            </a>
                         </th>
-                        <th class="text-center">
-                            <div class="header-link">
+                        <th class="text-center sortable-header">
+                            <a asp-action="Index"
+                               asp-route-sortOrder="@ViewBag.FrameworkSortParm"
+                               asp-route-frameworkCode="@ViewBag.SelectedFrameworkCode"
+                               class="header-link justify-content-center">
                                 <i class="fas fa-sitemap me-2"></i>@Localizer["Framework"]
-                            </div>
+                                @if (ViewBag.CurrentSort == "framework")
+                                {
+                                    <i class="fas fa-sort-up ms-1"></i>
+                                }
+                                else if (ViewBag.CurrentSort == "framework_desc")
+                                {
+                                    <i class="fas fa-sort-down ms-1"></i>
+                                }
+                                else
+                                {
+                                    <i class="fas fa-sort ms-1 text-white-50"></i>
+                                }
+                            </a>
                         </th>
                         <th class="text-center">
-                            <div class="header-link">
+                            <div class="header-link justify-content-center">
                                 <i class="fas fa-cogs me-2"></i>@Localizer["Actions"]
                             </div>
                         </th>
@@ -400,6 +475,11 @@
             letter-spacing: 0.5px;
         }
         
+        .sortable-header {
+            cursor: pointer;
+            user-select: none;
+        }
+
         .header-link {
             /* color: white !important; */
             text-decoration: none !important;
@@ -407,11 +487,19 @@
             align-items: center;
             justify-content: flex-start;
             transition: all 0.3s ease;
+            white-space: nowrap;
         }
-        
+
         .header-link:hover {
             color: rgba(255, 255, 255, 0.9) !important;
             transform: translateY(-1px);
+        }
+
+        .header-link i.fa-sort,
+        .header-link i.fa-sort-up,
+        .header-link i.fa-sort-down {
+            font-size: 0.8rem;
+            transition: all 0.3s ease;
         }
         
         .table-row {

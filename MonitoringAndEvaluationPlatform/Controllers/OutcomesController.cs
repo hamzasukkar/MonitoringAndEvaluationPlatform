@@ -29,19 +29,46 @@ namespace MonitoringAndEvaluationPlatform.Controllers
 
         // GET: Outcomes
         [Permission(Permissions.ReadOutcomes)]
-        public async Task<IActionResult> Index(int? frameworkCode)
+        public async Task<IActionResult> Index(int? frameworkCode, string sortOrder)
         {
+            ViewBag.NameSortParm = String.IsNullOrEmpty(sortOrder) ? "name_desc" : "";
+            ViewBag.WeightSortParm = sortOrder == "weight" ? "weight_desc" : "weight";
+            ViewBag.IndicatorsSortParm = sortOrder == "indicators" ? "indicators_desc" : "indicators";
+            ViewBag.DisbursementSortParm = sortOrder == "disbursement" ? "disbursement_desc" : "disbursement";
+            ViewBag.FrameworkSortParm = sortOrder == "framework" ? "framework_desc" : "framework";
+            ViewBag.CurrentSort = sortOrder;
+
+            IQueryable<Outcome> outcomesQuery;
+
             if (frameworkCode == null)
             {
-                var applicationDbContext = _context.Outcomes.Include(o => o.Framework);
-                return View(await applicationDbContext.ToListAsync());
+                outcomesQuery = _context.Outcomes.Include(o => o.Framework);
+            }
+            else
+            {
+                ViewBag.SelectedFrameworkCode = frameworkCode;
+                outcomesQuery = _context.Outcomes
+                    .Include(o => o.Framework)
+                    .Include(x => x.Outputs)
+                    .Where(m => m.FrameworkCode == frameworkCode);
             }
 
-            ViewBag.SelectedFrameworkCode = frameworkCode; // Store it for use in the view
+            // Apply sorting
+            outcomesQuery = sortOrder switch
+            {
+                "name_desc" => outcomesQuery.OrderByDescending(o => o.Name),
+                "weight" => outcomesQuery.OrderBy(o => o.Weight),
+                "weight_desc" => outcomesQuery.OrderByDescending(o => o.Weight),
+                "indicators" => outcomesQuery.OrderBy(o => o.IndicatorsPerformance),
+                "indicators_desc" => outcomesQuery.OrderByDescending(o => o.IndicatorsPerformance),
+                "disbursement" => outcomesQuery.OrderBy(o => o.DisbursementPerformance),
+                "disbursement_desc" => outcomesQuery.OrderByDescending(o => o.DisbursementPerformance),
+                "framework" => outcomesQuery.OrderBy(o => o.Framework.Name),
+                "framework_desc" => outcomesQuery.OrderByDescending(o => o.Framework.Name),
+                _ => outcomesQuery.OrderBy(o => o.Name)
+            };
 
-            var outcomes = await _context.Outcomes
-              .Include(o => o.Framework).Include(x => x.Outputs)
-              .Where(m => m.FrameworkCode==frameworkCode).ToListAsync();
+            var outcomes = await outcomesQuery.ToListAsync();
 
             if (outcomes == null)
             {
