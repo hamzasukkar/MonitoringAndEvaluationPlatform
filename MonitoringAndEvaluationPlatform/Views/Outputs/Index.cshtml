@@ -425,15 +425,15 @@
                         url: `/Outputs/DeleteConfirmed/${code}`,
                         type: 'POST',
                         success: function () {
-                            $(`#output-row-${code}`).fadeOut(400, function() {
-                                $(this).remove();
-                            });
                             Swal.fire({
                                 icon: 'success',
                                 title: 'Deleted!',
                                 text: '@Localizer["Output has been deleted successfully."]',
-                                timer: 2000,
+                                timer: 1500,
                                 showConfirmButton: false
+                            }).then(() => {
+                                // Reload page to show updated performance values
+                                location.reload();
                             });
                         },
                         error: function () {

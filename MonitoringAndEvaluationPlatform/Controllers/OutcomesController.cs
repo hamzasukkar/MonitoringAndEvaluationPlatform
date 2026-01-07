@@ -150,8 +150,21 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             var outcome = await _context.Outcomes.FindAsync(id);
             if (outcome == null) return NotFound();
 
+            // Store the frameworkCode before deletion for recalculation
+            int frameworkCode = outcome.FrameworkCode;
+
             _context.Outcomes.Remove(outcome);
             await _context.SaveChangesAsync();
+
+            // Redistribute weights among remaining outcomes
+            await RedistributeWeights(frameworkCode);
+
+            // Recalculate framework performance (IndicatorsPerformance)
+            await _performanceService.UpdateFrameworkPerformance(frameworkCode);
+
+            // Recalculate framework performance (DisbursementPerformance, FieldMonitoring, ImpactAssessment)
+            await _performanceService.UpdateFrameworkDisbursementPerformance(frameworkCode);
+
             return Ok();
         }
 

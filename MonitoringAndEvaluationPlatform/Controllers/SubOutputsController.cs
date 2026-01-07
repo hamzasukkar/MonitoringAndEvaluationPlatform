@@ -159,9 +159,21 @@ namespace MonitoringAndEvaluationPlatform.Controllers
 
             if (subOutput == null) return NotFound();
 
-            _context.SubOutputs.Remove(subOutput);
+            // Store the outputCode before deletion for recalculation
+            int outputCode = subOutput.OutputCode;
 
+            _context.SubOutputs.Remove(subOutput);
             await _context.SaveChangesAsync();
+
+            // Redistribute weights among remaining subOutputs
+            await RedistributeWeights(outputCode);
+
+            // Recalculate output performance (IndicatorsPerformance - cascades up to outcome and framework)
+            await _performanceService.UpdateOutputPerformance(outputCode);
+
+            // Recalculate output performance (DisbursementPerformance, FieldMonitoring, ImpactAssessment - cascades up to outcome and framework)
+            await _performanceService.UpdateOutputDisbursementPerformance(outputCode);
+
             return Ok();
         }
 
