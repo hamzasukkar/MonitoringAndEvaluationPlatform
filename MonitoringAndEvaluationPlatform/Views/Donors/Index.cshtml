@@ -169,7 +169,7 @@
                                             onclick="showDonorProjectsModal(@item.Code)" title="@Localizer["View Projects"]">
                                         <i class="fas fa-project-diagram"></i>
                                     </button>
-                                    <button class="btn btn-outline-primary btn-sm action-btn"
+                                  @*   <button class="btn btn-outline-primary btn-sm action-btn"
                                             id="edit-btn-@item.Code"
                                             onclick="toggleDonorEdit(@item.Code)" title="@Localizer["Edit"]">
                                         <i class="fas fa-edit"></i>
@@ -177,7 +177,7 @@
                                     <button class="btn btn-outline-danger btn-sm action-btn" title="@Localizer["Delete"]"
                                             onclick="deleteDonor(@item.Code)">
                                         <i class="fas fa-trash-alt"></i>
-                                    </button>
+                                    </button> *@
                                     @if (User.IsInRole(UserRoles.SystemAdministrator))
                                     {
                                         <button class="btn btn-outline-primary btn-sm action-btn"
