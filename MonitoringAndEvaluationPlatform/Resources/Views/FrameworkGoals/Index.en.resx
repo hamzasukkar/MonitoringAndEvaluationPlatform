@@ -525,9 +525,6 @@
   <data name="View" xml:space="preserve">
     <value>View</value>
   </data>
-  <data name="Update" xml:space="preserve">
-    <value>Update</value>
-  </data>
   <data name="Goals Status Distribution" xml:space="preserve">
     <value>Goals Status Distribution</value>
   </data>
@@ -537,17 +534,11 @@
   <data name="On-Track" xml:space="preserve">
     <value>On-Track</value>
   </data>
-  <data name="At Risk" xml:space="preserve">
-    <value>At Risk</value>
-  </data>
   <data name="Off-Track" xml:space="preserve">
     <value>Off-Track</value>
   </data>
   <data name="Number of Goals" xml:space="preserve">
     <value>Number of Goals</value>
-  </data>
-  <data name="Framework" xml:space="preserve">
-    <value>Framework</value>
   </data>
   <data name="Performance Charts" xml:space="preserve">
     <value>Performance Charts</value>
@@ -564,7 +555,84 @@
   <data name="No goals found. Please add goals to view the performance charts." xml:space="preserve">
     <value>No goals found. Please add goals to view the performance charts.</value>
   </data>
-  <!-- Notes & Attachments -->
+  <data name="No data to export" xml:space="preserve">
+    <value>No data to export</value>
+  </data>
+  <data name="PDF exported successfully!" xml:space="preserve">
+    <value>PDF exported successfully!</value>
+  </data>
+  <data name="Total" xml:space="preserve">
+    <value>Total</value>
+  </data>
+  <data name="Progress Overview" xml:space="preserve">
+    <value>Progress Overview</value>
+  </data>
+  <data name="Years Left" xml:space="preserve">
+    <value>Years Left</value>
+  </data>
+  <data name="year" xml:space="preserve">
+    <value>Year</value>
+  </data>
+  <data name="Increase" xml:space="preserve">
+    <value>Increase</value>
+  </data>
+  <data name="Starting Value" xml:space="preserve">
+    <value>Starting Value</value>
+  </data>
+  <data name="Required Change" xml:space="preserve">
+    <value>Required Change</value>
+  </data>
+  <data name="Key Values" xml:space="preserve">
+    <value>Key Values</value>
+  </data>
+  <data name="Variance" xml:space="preserve">
+    <value>Variance</value>
+  </data>
+  <data name="View Details" xml:space="preserve">
+    <value>View Details</value>
+  </data>
+  <data name="View Timeline" xml:space="preserve">
+    <value>View Timeline</value>
+  </data>
+  <data name="No historical data available" xml:space="preserve">
+    <value>No historical data available</value>
+  </data>
+  <data name="Loading..." xml:space="preserve">
+    <value>Loading...</value>
+  </data>
+  <data name="Target" xml:space="preserve">
+    <value>Target</value>
+  </data>
+  <data name="Page" xml:space="preserve">
+    <value>Page</value>
+  </data>
+  <data name="No goals to display" xml:space="preserve">
+    <value>No goals to display</value>
+  </data>
+  <data name="selected" xml:space="preserve">
+    <value>selected</value>
+  </data>
+  <data name="goals will be deleted" xml:space="preserve">
+    <value>goals will be deleted</value>
+  </data>
+  <data name="No goals selected" xml:space="preserve">
+    <value>No goals selected</value>
+  </data>
+  <data name="Needs Attention" xml:space="preserve">
+    <value>Needs Attention</value>
+  </data>
+  <data name="Progress Comparison" xml:space="preserve">
+    <value>Progress Comparison</value>
+  </data>
+  <data name="Metric" xml:space="preserve">
+    <value>Metric</value>
+  </data>
+  <data name="Values" xml:space="preserve">
+    <value>Values</value>
+  </data>
+  <data name="Select at least 2 goals to compare" xml:space="preserve">
+    <value>Select at least 2 goals to compare</value>
+  </data>
   <data name="Notes" xml:space="preserve">
     <value>Notes</value>
   </data>
@@ -618,5 +686,8 @@
   </data>
   <data name="An error occurred." xml:space="preserve">
     <value>An error occurred.</value>
+  </data>
+  <data name="progress Rate by Year" xml:space="preserve">
+    <value>progress Rate by Year</value>
   </data>
 </root>

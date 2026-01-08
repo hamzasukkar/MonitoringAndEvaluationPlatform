@@ -499,7 +499,7 @@
     <value>من</value>
   </data>
   <data name="goals" xml:space="preserve">
-    <value>الأهداف</value>
+    <value>أهداف</value>
   </data>
   <data name="Smart Alerts" xml:space="preserve">
     <value>التنبيهات الذكية</value>
@@ -525,9 +525,6 @@
   <data name="View" xml:space="preserve">
     <value>عرض</value>
   </data>
-  <data name="Update" xml:space="preserve">
-    <value>تحديث</value>
-  </data>
   <data name="Goals Status Distribution" xml:space="preserve">
     <value>توزيع حالة الأهداف</value>
   </data>
@@ -537,17 +534,11 @@
   <data name="On-Track" xml:space="preserve">
     <value>على المسار الصحيح</value>
   </data>
-  <data name="At Risk" xml:space="preserve">
-    <value>معرض للخطر</value>
-  </data>
   <data name="Off-Track" xml:space="preserve">
     <value>خارج المسار</value>
   </data>
   <data name="Number of Goals" xml:space="preserve">
     <value>عدد الأهداف</value>
-  </data>
-  <data name="Framework" xml:space="preserve">
-    <value>الإطار</value>
   </data>
   <data name="Performance Charts" xml:space="preserve">
     <value>مخططات الأداء</value>
@@ -564,7 +555,6 @@
   <data name="No goals found. Please add goals to view the performance charts." xml:space="preserve">
     <value>لم يتم العثور على أهداف. يرجى إضافة أهداف لعرض مخططات الأداء.</value>
   </data>
-  <!-- Export Features -->
   <data name="entries" xml:space="preserve">
     <value>عناصر</value>
   </data>
@@ -601,7 +591,6 @@
   <data name="Total" xml:space="preserve">
     <value>الإجمالي</value>
   </data>
-  <!-- Goal Details Sidebar -->
   <data name="Goal Details" xml:space="preserve">
     <value>تفاصيل الهدف</value>
   </data>
@@ -677,16 +666,14 @@
   <data name="Target" xml:space="preserve">
     <value>المستهدف</value>
   </data>
-  <!-- Pagination -->
   <data name="Page" xml:space="preserve">
     <value>صفحة</value>
   </data>
   <data name="No goals to display" xml:space="preserve">
     <value>لا توجد أهداف للعرض</value>
   </data>
-  <!-- Bulk Operations -->
   <data name="selected" xml:space="preserve">
-    <value>محدد</value>
+    <value>المحدد</value>
   </data>
   <data name="Clear Selection" xml:space="preserve">
     <value>إلغاء التحديد</value>
@@ -724,16 +711,12 @@
   <data name="goals failed to delete" xml:space="preserve">
     <value>أهداف فشل حذفها</value>
   </data>
-  <data name="Selected" xml:space="preserve">
-    <value>المحدد</value>
-  </data>
   <data name="Error generating PDF" xml:space="preserve">
     <value>خطأ في إنشاء PDF</value>
   </data>
   <data name="All" xml:space="preserve">
     <value>الكل</value>
   </data>
-  <!-- Comparison View -->
   <data name="Compare" xml:space="preserve">
     <value>مقارنة</value>
   </data>
@@ -742,12 +725,6 @@
   </data>
   <data name="Goal Comparison" xml:space="preserve">
     <value>مقارنة الأهداف</value>
-  </data>
-  <data name="goals" xml:space="preserve">
-    <value>أهداف</value>
-  </data>
-  <data name="Average Progress" xml:space="preserve">
-    <value>متوسط التقدم</value>
   </data>
   <data name="Best Performer" xml:space="preserve">
     <value>الأفضل أداءً</value>
@@ -776,7 +753,6 @@
   <data name="Generating PDF..." xml:space="preserve">
     <value>جاري إنشاء PDF...</value>
   </data>
-  <!-- Notes & Attachments -->
   <data name="Notes" xml:space="preserve">
     <value>الملاحظات</value>
   </data>
@@ -830,5 +806,8 @@
   </data>
   <data name="An error occurred." xml:space="preserve">
     <value>حدث خطأ.</value>
+  </data>
+  <data name="progress Rate by Year" xml:space="preserve">
+    <value>الأنجاز المحرز حسب العام</value>
   </data>
 </root>

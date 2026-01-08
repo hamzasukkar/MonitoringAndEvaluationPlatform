@@ -605,6 +605,27 @@
                                 @Localizer["Progress Rate"]
                                 <span class="sort-icon"><i class="fas fa-sort"></i></span>
                             </th>
+                            <th rowspan="2" class="align-middle text-center" style="min-width: 150px;">
+                                <div>@Localizer["Yearly Performance"]</div>
+                                @{
+                                    var headerMinYear = Model.Any() ? Model.Min(g => g.StartingYear) : DateTime.Now.Year;
+                                    var headerMaxYear = Model.Any() ? Model.Max(g => g.TargetYear) : DateTime.Now.Year;
+                                    var headerCurrentYear = DateTime.Now.Year;
+                                }
+                                <select id="performanceYearSelect" class="form-select form-select-sm mt-1 mx-auto" style="width: auto;" onchange="updateYearlyPerformance()" onclick="event.stopPropagation()">
+                                    @for (int year = headerMinYear; year <= headerMaxYear; year++)
+                                    {
+                                        if (year == headerCurrentYear)
+                                        {
+                                            <option value="@year" selected>@year</option>
+                                        }
+                                        else
+                                        {
+                                            <option value="@year">@year</option>
+                                        }
+                                    }
+                                </select>
+                            </th>
                             <th rowspan="2" class="align-middle text-center">@Localizer["Actions"]</th>
                         </tr>
                         <tr>
@@ -791,6 +812,26 @@
                                     <span class="badge @badgeClass fs-6">
                                         @goal.ProgressRate.ToString("N2")%
                                     </span>
+                                </td>
+                                <td class="text-center performance-cell-dynamic">
+                                    @{
+                                        var pMinY = Model.Any() ? Model.Min(g => g.StartingYear) : DateTime.Now.Year;
+                                        var pMaxY = Model.Any() ? Model.Max(g => g.TargetYear) : DateTime.Now.Year;
+                                        var yearlyData = new Dictionary<int, object>();
+                                        for (int y = pMinY; y <= pMaxY; y++)
+                                        {
+                                            // Only include years within the goal's range
+                                            if (y >= goal.StartingYear && y <= goal.TargetYear)
+                                            {
+                                                yearlyData[y] = new {
+                                                    baseVal = goal.GetBaseValueForYear(y),
+                                                    expected = goal.GetExpectedTargetValueForYear(y)
+                                                };
+                                            }
+                                        }
+                                    }
+                                    <div class="d-none yearly-data" data-values='@Html.Raw(Json.Serialize(yearlyData))'></div>
+                                    <span class="performance-value fw-bold">-</span>
                                 </td>
                                 <td class="text-center">
                                     <button onclick="showGoalDetails(@goal.ID)"
@@ -1361,6 +1402,94 @@
 </div>
 
 @section Scripts {
+    <!-- Yearly Performance Script -->
+    <script>
+        function updateYearlyPerformance() {
+            const select = document.getElementById('performanceYearSelect');
+            if (!select) return;
+            
+            const selectedYear = parseInt(select.value);
+            const rows = document.querySelectorAll('.goal-row');
+
+            rows.forEach(row => {
+                const discountRate = parseFloat(row.getAttribute('data-discount-rate'));
+                const isIncrease = row.getAttribute('data-is-increase-goal') === 'true';
+                const cell = row.querySelector('.performance-cell-dynamic');
+                if (!cell) return;
+                
+                const dataDiv = cell.querySelector('.yearly-data');
+                const valueSpan = cell.querySelector('.performance-value');
+                
+                if (!dataDiv || !valueSpan) return;
+
+                try {
+                    const yearlyData = JSON.parse(dataDiv.getAttribute('data-values'));
+                    const dataForYear = yearlyData[selectedYear];
+
+                    if (dataForYear) {
+                        const baseVal = dataForYear.baseVal;
+                        const expected = dataForYear.expected;
+                        
+                        // Formula: (Value of Current selected Year - Expected value for the year of dropdown) / Annual discount rate
+                        if (discountRate !== 0) {
+                            // Determine raw performance based on goal type (Upward/Increase vs Decrease)
+                            // If Increase: Higher Actual is better (Actual - Expected)
+                            // If Decrease: Lower Actual is better (Expected - Actual)
+                            let performance = 0;
+                            if (isIncrease) {
+                                performance = (baseVal - expected) / discountRate;
+                            } else {
+                                performance = (expected - baseVal) / discountRate;
+                            }
+                            
+                            // Formatting Logic:
+                            // 1. If result is effectively 0 (On Target), display 100%
+                            // 2. Otherwise display percentage (0.44 -> 44%)
+                            
+                            if (Math.abs(performance) < 0.001) { // Effectively 0
+                                valueSpan.className = 'performance-value fw-bold text-success';
+                                valueSpan.textContent = '100%';
+                            } else {
+                                const percentage = performance * 100;
+                                
+                                // Determing color based on sign
+                                if (percentage > 0) {
+                                    valueSpan.className = 'performance-value fw-bold text-success';
+                                    // User requested to remove positive sign as well
+                                    valueSpan.textContent = `${percentage.toFixed(2)}%`;
+                                } else {
+                                    valueSpan.className = 'performance-value fw-bold text-danger';
+                                    // User requested to remove negative sign, so usage absolute value
+                                    valueSpan.textContent = `${Math.abs(percentage).toFixed(2)}%`;
+                                }
+                            }
+                        } else {
+                            // If discount rate is 0 (Target = Start), checking exact match
+                            if (Math.abs(baseVal - expected) < 0.001) {
+                                valueSpan.className = 'performance-value fw-bold text-success';
+                                valueSpan.textContent = '100%';
+                            } else {
+                                valueSpan.textContent = 'N/A';
+                                valueSpan.className = 'performance-value text-muted';
+                            }
+                        }
+                    } else {
+                        valueSpan.textContent = '-';
+                        valueSpan.className = 'performance-value text-muted';
+                    }
+                } catch (e) {
+                    console.error('Error calculating yearly performance:', e);
+                }
+            });
+        }
+
+        // Initialize on load
+        document.addEventListener('DOMContentLoaded', function() {
+            // Wait slightly for other scripts
+            setTimeout(updateYearlyPerformance, 100);
+        });
+    </script>
+
     <!-- SheetJS for Excel Export -->
     <script src="https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js"></script>
     <!-- jsPDF for PDF Export -->
