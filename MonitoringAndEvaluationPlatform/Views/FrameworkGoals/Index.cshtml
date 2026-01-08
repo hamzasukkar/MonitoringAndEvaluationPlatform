@@ -212,7 +212,7 @@
                         <div class="progress-bar bg-success" role="progressbar" style="width: @onTrackPercentage.ToString("F0")%" aria-valuenow="@onTrackPercentage" aria-valuemin="0" aria-valuemax="100"></div>
                         <div class="progress-bar bg-danger" role="progressbar" style="width: @offTrackPercentage.ToString("F0")%" aria-valuenow="@offTrackPercentage" aria-valuemin="0" aria-valuemax="100"></div>
                     </div>
-                    <small class="text-muted">@onTrackPercentage.ToString("F1")% on track</small>
+                    <small class="text-muted">@onTrackPercentage.ToString("F1")% @Localizer["On Track"]</small>
                 </div>
             </div>
         </div>
@@ -2807,7 +2807,7 @@
             });
 
             // Add tooltip on hover
-            canvas.title = `Trend: ${dataPoints[0].value.toFixed(2)} → ${dataPoints[dataPoints.length - 1].value.toFixed(2)}`;
+            canvas.title = `@Localizer["Trend"]: ${dataPoints[0].value.toFixed(2)} → ${dataPoints[dataPoints.length - 1].value.toFixed(2)}`;
         }
 
         // =============================================
@@ -3559,7 +3559,12 @@
 
             // Status badge
             const statusBadge = document.getElementById('sidebarStatusBadge');
-            statusBadge.textContent = status.replace('-', ' ').replace(/\b\w/g, l => l.toUpperCase());
+            const statusTextMap = {
+                'on-track': '@Localizer["On Track"]',
+                'at-risk': '@Localizer["At Risk"]',
+                'off-track': '@Localizer["Off Track"]'
+            };
+            statusBadge.textContent = statusTextMap[status] || status.replace('-', ' ').replace(/\b\w/g, l => l.toUpperCase());
             statusBadge.className = 'badge ' + getStatusBadgeClass(status);
 
             // Progress circle
