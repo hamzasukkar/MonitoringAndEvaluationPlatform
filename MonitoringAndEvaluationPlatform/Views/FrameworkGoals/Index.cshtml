@@ -606,7 +606,7 @@
                                 <span class="sort-icon"><i class="fas fa-sort"></i></span>
                             </th>
                             <th rowspan="2" class="align-middle text-center" style="min-width: 150px;">
-                                <div>@Localizer["Yearly Performance"]</div>
+                                <div>@Localizer["progress Rate by Year"]</div>
                                 @{
                                     var headerMinYear = Model.Any() ? Model.Min(g => g.StartingYear) : DateTime.Now.Year;
                                     var headerMaxYear = Model.Any() ? Model.Max(g => g.TargetYear) : DateTime.Now.Year;
