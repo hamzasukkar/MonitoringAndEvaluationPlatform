@@ -267,7 +267,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
 
                 if (goal == null)
                 {
-                    return Json(new { success = false, message = _localizer["Goal not found."] });
+                    return Json(new { success = false, message = _localizer["Goal not found."].Value });
                 }
 
                 // Validate year order (current year must be after starting year and up to target year)
@@ -304,7 +304,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
 
                 return Json(new {
                     success = true,
-                    message = _localizer["Current year updated successfully!"],
+                    message = _localizer["Current year updated successfully!"].Value,
                     goal = new
                     {
                         id = goal.ID,
@@ -319,7 +319,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             }
             catch (Exception ex)
             {
-                return Json(new { success = false, message = _localizer["An error occurred while updating the goal."] });
+                return Json(new { success = false, message = _localizer["An error occurred while updating the goal."].Value });
             }
         }
 
@@ -337,7 +337,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
 
                 if (goal == null)
                 {
-                    return Json(new { success = false, message = _localizer["Goal not found."] });
+                    return Json(new { success = false, message = _localizer["Goal not found."].Value });
                 }
 
                 // Validate current year is within range (current year must be after starting year and up to target year)
@@ -424,7 +424,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 return Json(new
                 {
                     success = true,
-                    message = _localizer["Goal values updated successfully!"],
+                    message = _localizer["Goal values updated successfully!"].Value,
                     goal = new
                     {
                         id = goal.ID,
@@ -444,7 +444,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             }
             catch (Exception ex)
             {
-                return Json(new { success = false, message = _localizer["An error occurred while updating the goal values."] });
+                return Json(new { success = false, message = _localizer["An error occurred while updating the goal values."].Value });
             }
         }
 
@@ -460,7 +460,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
 
                 if (goal == null)
                 {
-                    return Json(new { success = false, message = _localizer["Goal not found."] });
+                    return Json(new { success = false, message = _localizer["Goal not found."].Value });
                 }
 
                 var yearlyValues = goal.YearlyValues
@@ -485,7 +485,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             }
             catch (Exception ex)
             {
-                return Json(new { success = false, message = _localizer["An error occurred."] });
+                return Json(new { success = false, message = _localizer["An error occurred."].Value });
             }
         }
 
@@ -503,13 +503,13 @@ namespace MonitoringAndEvaluationPlatform.Controllers
 
                 if (goal == null)
                 {
-                    return Json(new { success = false, message = _localizer["Goal not found."] });
+                    return Json(new { success = false, message = _localizer["Goal not found."].Value });
                 }
 
                 // Validate year is within range
                 if (year <= goal.StartingYear || year >= goal.TargetYear)
                 {
-                    return Json(new { success = false, message = _localizer["Year must be between starting year and target year."] });
+                    return Json(new { success = false, message = _localizer["Year must be between starting year and target year."].Value });
                 }
 
                 // Check if value already exists for this year
@@ -536,11 +536,11 @@ namespace MonitoringAndEvaluationPlatform.Controllers
 
                 await _context.SaveChangesAsync();
 
-                return Json(new { success = true, message = _localizer["Yearly value saved successfully!"] });
+                return Json(new { success = true, message = _localizer["Yearly value saved successfully!"].Value });
             }
             catch (Exception ex)
             {
-                return Json(new { success = false, message = _localizer["An error occurred while saving the value."] });
+                return Json(new { success = false, message = _localizer["An error occurred while saving the value."].Value });
             }
         }
 
@@ -553,14 +553,14 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 var goal = await _context.FrameworkGoals.FindAsync(goalId);
                 if (goal == null)
                 {
-                    return Json(new { success = false, message = _localizer["Goal not found."] });
+                    return Json(new { success = false, message = _localizer["Goal not found."].Value });
                 }
 
                 return Json(new { success = true, notes = goal.Notes ?? "" });
             }
             catch (Exception ex)
             {
-                return Json(new { success = false, message = _localizer["An error occurred."] });
+                return Json(new { success = false, message = _localizer["An error occurred."].Value });
             }
         }
 
@@ -575,18 +575,18 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 var goal = await _context.FrameworkGoals.FindAsync(goalId);
                 if (goal == null)
                 {
-                    return Json(new { success = false, message = _localizer["Goal not found."] });
+                    return Json(new { success = false, message = _localizer["Goal not found."].Value });
                 }
 
                 goal.Notes = notes ?? "";
                 _context.Update(goal);
                 await _context.SaveChangesAsync();
 
-                return Json(new { success = true, message = _localizer["Notes saved successfully!"] });
+                return Json(new { success = true, message = _localizer["Notes saved successfully!"].Value });
             }
             catch (Exception ex)
             {
-                return Json(new { success = false, message = _localizer["An error occurred while saving notes."] });
+                return Json(new { success = false, message = _localizer["An error occurred while saving notes."].Value });
             }
         }
 
@@ -612,7 +612,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             }
             catch (Exception ex)
             {
-                return Json(new { success = false, message = _localizer["An error occurred."] });
+                return Json(new { success = false, message = _localizer["An error occurred."].Value });
             }
         }
 
@@ -626,13 +626,13 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             {
                 if (file == null || file.Length == 0)
                 {
-                    return Json(new { success = false, message = _localizer["Please select a file to upload."] });
+                    return Json(new { success = false, message = _localizer["Please select a file to upload."].Value });
                 }
 
                 var goal = await _context.FrameworkGoals.FindAsync(goalId);
                 if (goal == null)
                 {
-                    return Json(new { success = false, message = _localizer["Goal not found."] });
+                    return Json(new { success = false, message = _localizer["Goal not found."].Value });
                 }
 
                 // Create uploads folder if it doesn't exist
@@ -667,7 +667,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 return Json(new
                 {
                     success = true,
-                    message = _localizer["File uploaded successfully!"],
+                    message = _localizer["File uploaded successfully!"].Value,
                     attachment = new
                     {
                         id = attachment.Id,
@@ -679,7 +679,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             }
             catch (Exception ex)
             {
-                return Json(new { success = false, message = _localizer["An error occurred while uploading the file."] });
+                return Json(new { success = false, message = _localizer["An error occurred while uploading the file."].Value });
             }
         }
 
@@ -694,7 +694,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 var attachment = await _context.FrameworkGoalFiles.FindAsync(attachmentId);
                 if (attachment == null)
                 {
-                    return Json(new { success = false, message = _localizer["Attachment not found."] });
+                    return Json(new { success = false, message = _localizer["Attachment not found."].Value });
                 }
 
                 // Delete physical file
@@ -708,11 +708,11 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 _context.FrameworkGoalFiles.Remove(attachment);
                 await _context.SaveChangesAsync();
 
-                return Json(new { success = true, message = _localizer["Attachment deleted successfully!"] });
+                return Json(new { success = true, message = _localizer["Attachment deleted successfully!"].Value });
             }
             catch (Exception ex)
             {
-                return Json(new { success = false, message = _localizer["An error occurred while deleting the attachment."] });
+                return Json(new { success = false, message = _localizer["An error occurred while deleting the attachment."].Value });
             }
         }
 
@@ -726,17 +726,17 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 var goal = await _context.FrameworkGoals.FindAsync(id);
                 if (goal == null)
                 {
-                    return Json(new { success = false, message = _localizer["Goal not found."] });
+                    return Json(new { success = false, message = _localizer["Goal not found."].Value });
                 }
 
                 _context.FrameworkGoals.Remove(goal);
                 await _context.SaveChangesAsync();
 
-                return Json(new { success = true, message = _localizer["Goal deleted successfully!"] });
+                return Json(new { success = true, message = _localizer["Goal deleted successfully!"].Value });
             }
             catch (Exception ex)
             {
-                return Json(new { success = false, message = _localizer["An error occurred while deleting the goal."] });
+                return Json(new { success = false, message = _localizer["An error occurred while deleting the goal."].Value });
             }
         }
 
