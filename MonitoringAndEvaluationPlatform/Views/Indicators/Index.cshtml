@@ -129,9 +129,21 @@
 
 <!-- Indicators Table -->
 <div class="chart-card">
-    <div class="chart-title">
-        <i class="fas fa-chart-bar"></i>
-        @Localizer["Indicators"] (@Model.Count())
+    <div class="chart-title d-flex justify-content-between align-items-center">
+        <span>
+            <i class="fas fa-chart-bar"></i>
+            @Localizer["Indicators"] (@Model.Count())
+        </span>
+        <div class="d-flex gap-2">
+            <a asp-action="ExportExcel" asp-route-frameworkCode="@ViewData["frameworkCode"]" asp-route-subOutputCode="@ViewData["subOutputCode"]"
+               class="btn btn-sm btn-success" title="@Localizer["Export Excel"]" data-bs-toggle="tooltip">
+                <i class="fas fa-file-excel"></i>
+            </a>
+            <a asp-action="ExportPdf" asp-route-frameworkCode="@ViewData["frameworkCode"]" asp-route-subOutputCode="@ViewData["subOutputCode"]"
+               class="btn btn-sm btn-danger" title="@Localizer["Export PDF"]" data-bs-toggle="tooltip">
+                <i class="fas fa-file-pdf"></i>
+            </a>
+        </div>
     </div>
     
     @if (Model.Any())

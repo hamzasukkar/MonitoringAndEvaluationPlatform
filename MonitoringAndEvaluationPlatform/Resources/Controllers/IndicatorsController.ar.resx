@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype"><value>text/microsoft-resx</value></resheader>
+  <resheader name="version"><value>2.0</value></resheader>
+  <data name="Indicators" xml:space="preserve"><value>المؤشرات</value></data>
+  <data name="Indicator Name" xml:space="preserve"><value>اسم المؤشر</value></data>
+  <data name="Weight" xml:space="preserve"><value>الوزن</value></data>
+  <data name="Target" xml:space="preserve"><value>الهدف</value></data>
+  <data name="Indicators Performance" xml:space="preserve"><value>أداء المؤشرات</value></data>
+  <data name="SubOutput" xml:space="preserve"><value>المخرج الفرعي</value></data>
+  <data name="Generated on" xml:space="preserve"><value>تم الإنشاء في</value></data>
+  <data name="Page" xml:space="preserve"><value>صفحة</value></data>
+  <data name="Export Excel" xml:space="preserve"><value>تصدير Excel</value></data>
+  <data name="Export PDF" xml:space="preserve"><value>تصدير PDF</value></data>
+</root>

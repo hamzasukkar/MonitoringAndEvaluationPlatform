@@ -6,11 +6,17 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Localization;
 using MonitoringAndEvaluationPlatform.Attributes;
 using MonitoringAndEvaluationPlatform.Data;
 using MonitoringAndEvaluationPlatform.Models;
 using MonitoringAndEvaluationPlatform.Services;
 using MonitoringAndEvaluationPlatform.ViewModel;
+using ClosedXML.Excel;
+using QuestPDF.Fluent;
+using QuestPDF.Helpers;
+using QuestPDF.Infrastructure;
+using Microsoft.AspNetCore.Localization;
 
 namespace MonitoringAndEvaluationPlatform.Controllers
 {
@@ -19,11 +25,13 @@ namespace MonitoringAndEvaluationPlatform.Controllers
     {
         private readonly ApplicationDbContext _context;
         private readonly IPerformanceService _performanceService;
+        private readonly IStringLocalizer<SubOutputsController> _localizer;
 
-        public SubOutputsController(ApplicationDbContext context, IPerformanceService performanceService)
+        public SubOutputsController(ApplicationDbContext context, IPerformanceService performanceService, IStringLocalizer<SubOutputsController> localizer)
         {
             _context = context;
             _performanceService = performanceService;
+            _localizer = localizer;
         }
 
         // GET: SubOutputs
@@ -301,7 +309,156 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             return View(subOutputs);
         }
 
+        // GET: SubOutputs/ExportExcel
+        [HttpGet]
+        [Permission(Permissions.ReadSubOutputs)]
+        public async Task<IActionResult> ExportExcel(int? frameworkCode, int? outputCode)
+        {
+            var subOutputs = await GetFilteredSubOutputs(frameworkCode, outputCode);
+            var culture = Request.HttpContext.Features.Get<IRequestCultureFeature>()?.RequestCulture.Culture.Name ?? "en";
+            var isRtl = culture.StartsWith("ar");
 
+            using var workbook = new XLWorkbook();
+            var worksheet = workbook.Worksheets.Add(_localizer["SubOutputs"].Value);
+
+            if (isRtl) worksheet.RightToLeft = true;
+
+            worksheet.Cell(1, 1).Value = _localizer["SubOutput Name"].Value;
+            worksheet.Cell(1, 2).Value = _localizer["Weight"].Value + " (%)";
+            worksheet.Cell(1, 3).Value = _localizer["Indicators Performance"].Value + " (%)";
+            worksheet.Cell(1, 4).Value = _localizer["Disbursement Performance"].Value + " (%)";
+            worksheet.Cell(1, 5).Value = _localizer["Output"].Value;
+
+            var headerRange = worksheet.Range(1, 1, 1, 5);
+            headerRange.Style.Font.Bold = true;
+            headerRange.Style.Fill.BackgroundColor = XLColor.FromHtml("#4472C4");
+            headerRange.Style.Font.FontColor = XLColor.White;
+            headerRange.Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
+
+            int row = 2;
+            foreach (var subOutput in subOutputs)
+            {
+                worksheet.Cell(row, 1).Value = subOutput.Name;
+                worksheet.Cell(row, 2).Value = Math.Round(subOutput.Weight, 2);
+                worksheet.Cell(row, 3).Value = Math.Round(subOutput.IndicatorsPerformance, 2);
+                worksheet.Cell(row, 4).Value = Math.Round(subOutput.DisbursementPerformance, 2);
+                worksheet.Cell(row, 5).Value = subOutput.Output?.Name ?? "";
+                row++;
+            }
+
+            worksheet.Columns().AdjustToContents();
+            var dataRange = worksheet.Range(1, 1, row - 1, 5);
+            dataRange.Style.Border.OutsideBorder = XLBorderStyleValues.Thin;
+            dataRange.Style.Border.InsideBorder = XLBorderStyleValues.Thin;
+
+            using var stream = new MemoryStream();
+            workbook.SaveAs(stream);
+            stream.Position = 0;
+
+            var filePrefix = isRtl ? "المخرجات_الفرعية" : "SubOutputs";
+            var fileName = $"{filePrefix}_{DateTime.Now:yyyyMMdd_HHmmss}.xlsx";
+            return File(stream.ToArray(), "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", fileName);
+        }
+
+        // GET: SubOutputs/ExportPdf
+        [HttpGet]
+        [Permission(Permissions.ReadSubOutputs)]
+        public async Task<IActionResult> ExportPdf(int? frameworkCode, int? outputCode)
+        {
+            var subOutputs = await GetFilteredSubOutputs(frameworkCode, outputCode);
+            var culture = Request.HttpContext.Features.Get<IRequestCultureFeature>()?.RequestCulture.Culture.Name ?? "en";
+            var isRtl = culture.StartsWith("ar");
+
+            var document = Document.Create(container =>
+            {
+                container.Page(page =>
+                {
+                    page.Size(PageSizes.A4.Landscape());
+                    page.Margin(25);
+                    page.DefaultTextStyle(x => x.FontSize(10));
+                    if (isRtl) page.ContentFromRightToLeft();
+
+                    page.Header().PaddingBottom(10).BorderBottom(1).BorderColor(Colors.Grey.Medium)
+                        .Row(row =>
+                        {
+                            row.RelativeItem().Column(col =>
+                            {
+                                col.Item().Text(_localizer["SubOutputs"].Value).FontSize(18).Bold().FontColor(Colors.Blue.Darken2);
+                                col.Item().Text($"{_localizer["Generated on"].Value}: {DateTime.Now:yyyy-MM-dd HH:mm}").FontSize(9).FontColor(Colors.Grey.Darken1);
+                            });
+                        });
+
+                    page.Content().PaddingVertical(10).Table(table =>
+                    {
+                        table.ColumnsDefinition(columns =>
+                        {
+                            columns.RelativeColumn(3);
+                            columns.RelativeColumn(1);
+                            columns.RelativeColumn(2);
+                            columns.RelativeColumn(2);
+                            columns.RelativeColumn(2);
+                        });
+
+                        table.Header(header =>
+                        {
+                            header.Cell().Background(Colors.Blue.Darken2).Padding(8).Text(_localizer["SubOutput Name"].Value).FontColor(Colors.White).Bold();
+                            header.Cell().Background(Colors.Blue.Darken2).Padding(8).Text(_localizer["Weight"].Value).FontColor(Colors.White).Bold();
+                            header.Cell().Background(Colors.Blue.Darken2).Padding(8).Text(_localizer["Indicators Performance"].Value).FontColor(Colors.White).Bold();
+                            header.Cell().Background(Colors.Blue.Darken2).Padding(8).Text(_localizer["Disbursement Performance"].Value).FontColor(Colors.White).Bold();
+                            header.Cell().Background(Colors.Blue.Darken2).Padding(8).Text(_localizer["Output"].Value).FontColor(Colors.White).Bold();
+                        });
+
+                        foreach (var subOutput in subOutputs)
+                        {
+                            var indicatorsPerf = Math.Round(subOutput.IndicatorsPerformance, 2);
+                            var disbursementPerf = Math.Round(subOutput.DisbursementPerformance, 2);
+
+                            table.Cell().BorderBottom(1).BorderColor(Colors.Grey.Lighten2).Padding(6).Text(subOutput.Name);
+                            table.Cell().BorderBottom(1).BorderColor(Colors.Grey.Lighten2).Padding(6).Text($"{Math.Round(subOutput.Weight, 2)}%");
+                            table.Cell().BorderBottom(1).BorderColor(Colors.Grey.Lighten2).Padding(6).Text($"{indicatorsPerf}%").FontColor(GetPerformanceColor(indicatorsPerf));
+                            table.Cell().BorderBottom(1).BorderColor(Colors.Grey.Lighten2).Padding(6).Text($"{disbursementPerf}%").FontColor(GetPerformanceColor(disbursementPerf));
+                            table.Cell().BorderBottom(1).BorderColor(Colors.Grey.Lighten2).Padding(6).Text(subOutput.Output?.Name ?? "");
+                        }
+                    });
+
+                    page.Footer().AlignCenter().Text(text =>
+                    {
+                        text.Span(_localizer["Page"].Value + " ");
+                        text.CurrentPageNumber();
+                        text.Span(" / ");
+                        text.TotalPages();
+                    });
+                });
+            });
+
+            var pdfBytes = document.GeneratePdf();
+            var filePrefix = isRtl ? "المخرجات_الفرعية" : "SubOutputs";
+            var fileName = $"{filePrefix}_{DateTime.Now:yyyyMMdd_HHmmss}.pdf";
+            return File(pdfBytes, "application/pdf", fileName);
+        }
+
+        private async Task<List<SubOutput>> GetFilteredSubOutputs(int? frameworkCode, int? outputCode)
+        {
+            var query = _context.SubOutputs.Include(s => s.Output).AsQueryable();
+
+            if (frameworkCode.HasValue)
+                query = query.Where(s => s.Output.Outcome.FrameworkCode == frameworkCode.Value);
+
+            if (outputCode.HasValue)
+                query = query.Where(s => s.OutputCode == outputCode.Value);
+
+            return await query.OrderByDescending(s => s.IndicatorsPerformance).ToListAsync();
+        }
+
+        private static string GetPerformanceColor(double performance)
+        {
+            return performance switch
+            {
+                >= 75 => Colors.Green.Darken2,
+                >= 50 => Colors.Orange.Darken2,
+                _ => Colors.Red.Darken2
+            };
+        }
     }
 
 }

@@ -87,9 +87,21 @@
 
 <!-- Outputs Table -->
 <div class="chart-card">
-    <div class="chart-title">
-        <i class="fas fa-layer-group"></i>
-        @Localizer["Outputs"] (@Model.Count())
+    <div class="chart-title d-flex justify-content-between align-items-center">
+        <span>
+            <i class="fas fa-layer-group"></i>
+            @Localizer["Outputs"] (@Model.Count())
+        </span>
+        <div class="d-flex gap-2">
+            <a asp-action="ExportExcel" asp-route-frameworkCode="@ViewBag.SelectedFrameworkCode" asp-route-outcomeCode="@ViewBag.SelectedOutcomeCode"
+               class="btn btn-sm btn-success" title="@Localizer["Export Excel"]" data-bs-toggle="tooltip">
+                <i class="fas fa-file-excel"></i>
+            </a>
+            <a asp-action="ExportPdf" asp-route-frameworkCode="@ViewBag.SelectedFrameworkCode" asp-route-outcomeCode="@ViewBag.SelectedOutcomeCode"
+               class="btn btn-sm btn-danger" title="@Localizer["Export PDF"]" data-bs-toggle="tooltip">
+                <i class="fas fa-file-pdf"></i>
+            </a>
+        </div>
     </div>
     
     @if (Model.Any())
