@@ -17,10 +17,10 @@ namespace MonitoringAndEvaluationPlatform.Controllers
     public class FrameworkGoalsController : Controller
     {
         private readonly ApplicationDbContext _context;
-        private readonly IStringLocalizer<HomeController> _localizer;
+        private readonly IStringLocalizer<FrameworkGoalsController> _localizer;
         private readonly IWebHostEnvironment _webHostEnvironment;
 
-        public FrameworkGoalsController(ApplicationDbContext context, IStringLocalizer<HomeController> localizer, IWebHostEnvironment webHostEnvironment)
+        public FrameworkGoalsController(ApplicationDbContext context, IStringLocalizer<FrameworkGoalsController> localizer, IWebHostEnvironment webHostEnvironment)
         {
             _context = context;
             _localizer = localizer;

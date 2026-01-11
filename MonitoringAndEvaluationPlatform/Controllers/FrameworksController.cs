@@ -19,9 +19,9 @@ namespace MonitoringAndEvaluationPlatform.Controllers
     public class FrameworksController : Controller
     {
         private readonly ApplicationDbContext _context;
-        private readonly IStringLocalizer<HomeController> _localizer;
+        private readonly IStringLocalizer<FrameworksController> _localizer;
 
-        public FrameworksController(ApplicationDbContext context, IStringLocalizer<HomeController> localizer)
+        public FrameworksController(ApplicationDbContext context, IStringLocalizer<FrameworksController> localizer)
         {
             _context = context;
             _localizer = localizer;

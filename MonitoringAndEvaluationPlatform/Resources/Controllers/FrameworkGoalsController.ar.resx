@@ -1,0 +1,139 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="Please enter a goal name." xml:space="preserve">
+    <value>يرجى إدخال اسم الهدف.</value>
+  </data>
+  <data name="Please fill in all required fields." xml:space="preserve">
+    <value>يرجى ملء جميع الحقول المطلوبة.</value>
+  </data>
+  <data name="Invalid framework selected." xml:space="preserve">
+    <value>تم اختيار إطار غير صالح.</value>
+  </data>
+  <data name="Years must be in ascending order: Starting Year &lt; Current Year &lt; Target Year." xml:space="preserve">
+    <value>يجب أن تكون السنوات بترتيب تصاعدي: سنة البداية &lt; السنة الحالية &lt; السنة المستهدفة.</value>
+  </data>
+  <data name="Framework Goal created successfully!" xml:space="preserve">
+    <value>تم إنشاء هدف الإطار بنجاح!</value>
+  </data>
+  <data name="An error occurred while creating the framework goal. Please try again." xml:space="preserve">
+    <value>حدث خطأ أثناء إنشاء هدف الإطار. يرجى المحاولة مرة أخرى.</value>
+  </data>
+  <data name="Goal not found." xml:space="preserve">
+    <value>الهدف غير موجود.</value>
+  </data>
+  <data name="Current year must be between starting year and target year." xml:space="preserve">
+    <value>يجب أن تكون السنة الحالية بين سنة البداية والسنة المستهدفة.</value>
+  </data>
+  <data name="Current year updated successfully!" xml:space="preserve">
+    <value>تم تحديث السنة الحالية بنجاح!</value>
+  </data>
+  <data name="An error occurred while updating the goal." xml:space="preserve">
+    <value>حدث خطأ أثناء تحديث الهدف.</value>
+  </data>
+  <data name="Goal values updated successfully!" xml:space="preserve">
+    <value>تم تحديث قيم الهدف بنجاح!</value>
+  </data>
+  <data name="An error occurred while updating the goal values." xml:space="preserve">
+    <value>حدث خطأ أثناء تحديث قيم الهدف.</value>
+  </data>
+  <data name="An error occurred." xml:space="preserve">
+    <value>حدث خطأ.</value>
+  </data>
+  <data name="Year must be between starting year and target year." xml:space="preserve">
+    <value>يجب أن تكون السنة بين سنة البداية والسنة المستهدفة.</value>
+  </data>
+  <data name="Yearly value saved successfully!" xml:space="preserve">
+    <value>تم حفظ القيمة السنوية بنجاح!</value>
+  </data>
+  <data name="An error occurred while saving the value." xml:space="preserve">
+    <value>حدث خطأ أثناء حفظ القيمة.</value>
+  </data>
+  <data name="Notes saved successfully!" xml:space="preserve">
+    <value>تم حفظ الملاحظات بنجاح!</value>
+  </data>
+  <data name="An error occurred while saving notes." xml:space="preserve">
+    <value>حدث خطأ أثناء حفظ الملاحظات.</value>
+  </data>
+  <data name="Please select a file to upload." xml:space="preserve">
+    <value>يرجى اختيار ملف للتحميل.</value>
+  </data>
+  <data name="File uploaded successfully!" xml:space="preserve">
+    <value>تم تحميل الملف بنجاح!</value>
+  </data>
+  <data name="An error occurred while uploading the file." xml:space="preserve">
+    <value>حدث خطأ أثناء تحميل الملف.</value>
+  </data>
+  <data name="Attachment not found." xml:space="preserve">
+    <value>المرفق غير موجود.</value>
+  </data>
+  <data name="Attachment deleted successfully!" xml:space="preserve">
+    <value>تم حذف المرفق بنجاح!</value>
+  </data>
+  <data name="An error occurred while deleting the attachment." xml:space="preserve">
+    <value>حدث خطأ أثناء حذف المرفق.</value>
+  </data>
+  <data name="Goal deleted successfully!" xml:space="preserve">
+    <value>تم حذف الهدف بنجاح!</value>
+  </data>
+  <data name="An error occurred while deleting the goal." xml:space="preserve">
+    <value>حدث خطأ أثناء حذف الهدف.</value>
+  </data>
+</root>
