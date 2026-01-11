@@ -10,6 +10,11 @@ using Microsoft.Extensions.Localization;
 using MonitoringAndEvaluationPlatform.Attributes;
 using MonitoringAndEvaluationPlatform.Data;
 using MonitoringAndEvaluationPlatform.Models;
+using ClosedXML.Excel;
+using QuestPDF.Fluent;
+using QuestPDF.Helpers;
+using QuestPDF.Infrastructure;
+using Microsoft.AspNetCore.Localization;
 
 namespace MonitoringAndEvaluationPlatform.Controllers
 {
@@ -743,6 +748,244 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         private bool FrameworkGoalExists(int id)
         {
             return _context.FrameworkGoals.Any(e => e.ID == id);
+        }
+
+        // GET: FrameworkGoals/ExportExcel
+        [HttpGet]
+        [Permission(Permissions.ReadStrategies)]
+        public async Task<IActionResult> ExportExcel(int? frameworkCode)
+        {
+            var goals = await GetFilteredGoals(frameworkCode);
+            var culture = Request.HttpContext.Features.Get<IRequestCultureFeature>()?.RequestCulture.Culture.Name ?? "en";
+            var isRtl = culture.StartsWith("ar");
+
+            using var workbook = new XLWorkbook();
+            var worksheet = workbook.Worksheets.Add(_localizer["Framework Goals"].Value);
+
+            // Set RTL for Arabic
+            if (isRtl)
+            {
+                worksheet.RightToLeft = true;
+            }
+
+            // Header row
+            worksheet.Cell(1, 1).Value = _localizer["Goal Name"].Value;
+            worksheet.Cell(1, 2).Value = _localizer["Framework"].Value;
+            worksheet.Cell(1, 3).Value = _localizer["Starting Year"].Value;
+            worksheet.Cell(1, 4).Value = _localizer["Base Value (Starting)"].Value;
+            worksheet.Cell(1, 5).Value = _localizer["Current Year"].Value;
+            worksheet.Cell(1, 6).Value = _localizer["Base Value (Current)"].Value;
+            worksheet.Cell(1, 7).Value = _localizer["Target Year"].Value;
+            worksheet.Cell(1, 8).Value = _localizer["Target Value"].Value;
+            worksheet.Cell(1, 9).Value = _localizer["Progress Rate"].Value + " (%)";
+            worksheet.Cell(1, 10).Value = _localizer["Status"].Value;
+
+            // Style header
+            var headerRange = worksheet.Range(1, 1, 1, 10);
+            headerRange.Style.Font.Bold = true;
+            headerRange.Style.Fill.BackgroundColor = XLColor.FromHtml("#4472C4");
+            headerRange.Style.Font.FontColor = XLColor.White;
+            headerRange.Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
+
+            // Data rows
+            int row = 2;
+            foreach (var goal in goals)
+            {
+                var isIncreaseGoal = goal.TargetValue > goal.BaseValueForStartingYear;
+                var actualChange = goal.BaseValueForCurrentYear - goal.BaseValueForStartingYear;
+                bool isOnTrack = isIncreaseGoal
+                    ? actualChange >= goal.AmountOfReduction
+                    : (goal.BaseValueForStartingYear - goal.BaseValueForCurrentYear) >= goal.AmountOfReduction;
+
+                worksheet.Cell(row, 1).Value = goal.Name;
+                worksheet.Cell(row, 2).Value = goal.Framework?.Name ?? "";
+                worksheet.Cell(row, 3).Value = goal.StartingYear;
+                worksheet.Cell(row, 4).Value = goal.BaseValueForStartingYear;
+                worksheet.Cell(row, 5).Value = goal.CurrentYear;
+                worksheet.Cell(row, 6).Value = goal.BaseValueForCurrentYear;
+                worksheet.Cell(row, 7).Value = goal.TargetYear;
+                worksheet.Cell(row, 8).Value = goal.TargetValue;
+                worksheet.Cell(row, 9).Value = Math.Round(goal.ProgressRate, 2);
+                worksheet.Cell(row, 10).Value = isOnTrack ? _localizer["On Track"].Value : _localizer["Off Track"].Value;
+
+                // Color coding for status
+                worksheet.Cell(row, 10).Style.Font.FontColor = isOnTrack ? XLColor.Green : XLColor.Red;
+                row++;
+            }
+
+            // Auto-fit columns
+            worksheet.Columns().AdjustToContents();
+
+            // Add borders
+            var dataRange = worksheet.Range(1, 1, row - 1, 10);
+            dataRange.Style.Border.OutsideBorder = XLBorderStyleValues.Thin;
+            dataRange.Style.Border.InsideBorder = XLBorderStyleValues.Thin;
+
+            using var stream = new MemoryStream();
+            workbook.SaveAs(stream);
+            stream.Position = 0;
+
+            var filePrefix = isRtl ? "أهداف_الإطار" : "FrameworkGoals";
+            var fileName = $"{filePrefix}_{DateTime.Now:yyyyMMdd_HHmmss}.xlsx";
+            return File(stream.ToArray(), "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", fileName);
+        }
+
+        // GET: FrameworkGoals/ExportPdf
+        [HttpGet]
+        [Permission(Permissions.ReadStrategies)]
+        public async Task<IActionResult> ExportPdf(int? frameworkCode)
+        {
+            var goals = await GetFilteredGoals(frameworkCode);
+            var culture = Request.HttpContext.Features.Get<IRequestCultureFeature>()?.RequestCulture.Culture.Name ?? "en";
+            var isRtl = culture.StartsWith("ar");
+
+            var document = Document.Create(container =>
+            {
+                container.Page(page =>
+                {
+                    page.Size(PageSizes.A4.Landscape());
+                    page.Margin(25);
+                    page.DefaultTextStyle(x => x.FontSize(9));
+                    if (isRtl)
+                    {
+                        page.ContentFromRightToLeft();
+                    }
+
+                    page.Header()
+                        .PaddingBottom(10)
+                        .BorderBottom(1)
+                        .BorderColor(Colors.Grey.Medium)
+                        .Row(row =>
+                        {
+                            row.RelativeItem().Column(col =>
+                            {
+                                col.Item().Text(_localizer["Framework Goals"].Value)
+                                    .FontSize(18)
+                                    .Bold()
+                                    .FontColor(Colors.Blue.Darken2);
+                                col.Item().Text($"{_localizer["Generated on"].Value}: {DateTime.Now:yyyy-MM-dd HH:mm}")
+                                    .FontSize(9)
+                                    .FontColor(Colors.Grey.Darken1);
+                            });
+                        });
+
+                    page.Content()
+                        .PaddingVertical(10)
+                        .Table(table =>
+                        {
+                            table.ColumnsDefinition(columns =>
+                            {
+                                columns.RelativeColumn(3);  // Goal Name
+                                columns.RelativeColumn(2);  // Framework
+                                columns.RelativeColumn(1);  // Starting Year
+                                columns.RelativeColumn(1.5f);  // Base Starting
+                                columns.RelativeColumn(1);  // Current Year
+                                columns.RelativeColumn(1.5f);  // Base Current
+                                columns.RelativeColumn(1);  // Target Year
+                                columns.RelativeColumn(1.5f);  // Target Value
+                                columns.RelativeColumn(1.2f);  // Progress
+                                columns.RelativeColumn(1.2f);  // Status
+                            });
+
+                            // Header
+                            table.Header(header =>
+                            {
+                                header.Cell().Background(Colors.Blue.Darken2).Padding(5)
+                                    .Text(_localizer["Goal Name"].Value).FontColor(Colors.White).Bold().FontSize(8);
+                                header.Cell().Background(Colors.Blue.Darken2).Padding(5)
+                                    .Text(_localizer["Framework"].Value).FontColor(Colors.White).Bold().FontSize(8);
+                                header.Cell().Background(Colors.Blue.Darken2).Padding(5)
+                                    .Text(_localizer["Start"].Value).FontColor(Colors.White).Bold().FontSize(8);
+                                header.Cell().Background(Colors.Blue.Darken2).Padding(5)
+                                    .Text(_localizer["Base Start"].Value).FontColor(Colors.White).Bold().FontSize(8);
+                                header.Cell().Background(Colors.Blue.Darken2).Padding(5)
+                                    .Text(_localizer["Current"].Value).FontColor(Colors.White).Bold().FontSize(8);
+                                header.Cell().Background(Colors.Blue.Darken2).Padding(5)
+                                    .Text(_localizer["Base Current"].Value).FontColor(Colors.White).Bold().FontSize(8);
+                                header.Cell().Background(Colors.Blue.Darken2).Padding(5)
+                                    .Text(_localizer["Target"].Value).FontColor(Colors.White).Bold().FontSize(8);
+                                header.Cell().Background(Colors.Blue.Darken2).Padding(5)
+                                    .Text(_localizer["Target Val"].Value).FontColor(Colors.White).Bold().FontSize(8);
+                                header.Cell().Background(Colors.Blue.Darken2).Padding(5)
+                                    .Text(_localizer["Progress"].Value).FontColor(Colors.White).Bold().FontSize(8);
+                                header.Cell().Background(Colors.Blue.Darken2).Padding(5)
+                                    .Text(_localizer["Status"].Value).FontColor(Colors.White).Bold().FontSize(8);
+                            });
+
+                            // Data rows
+                            foreach (var goal in goals)
+                            {
+                                var isIncreaseGoal = goal.TargetValue > goal.BaseValueForStartingYear;
+                                var actualChange = goal.BaseValueForCurrentYear - goal.BaseValueForStartingYear;
+                                bool isOnTrack = isIncreaseGoal
+                                    ? actualChange >= goal.AmountOfReduction
+                                    : (goal.BaseValueForStartingYear - goal.BaseValueForCurrentYear) >= goal.AmountOfReduction;
+                                var progressRate = Math.Round(goal.ProgressRate, 1);
+
+                                table.Cell().BorderBottom(1).BorderColor(Colors.Grey.Lighten2).Padding(4)
+                                    .Text(goal.Name).FontSize(8);
+                                table.Cell().BorderBottom(1).BorderColor(Colors.Grey.Lighten2).Padding(4)
+                                    .Text(goal.Framework?.Name ?? "").FontSize(8);
+                                table.Cell().BorderBottom(1).BorderColor(Colors.Grey.Lighten2).Padding(4)
+                                    .Text(goal.StartingYear.ToString()).FontSize(8);
+                                table.Cell().BorderBottom(1).BorderColor(Colors.Grey.Lighten2).Padding(4)
+                                    .Text(goal.BaseValueForStartingYear.ToString("N2")).FontSize(8);
+                                table.Cell().BorderBottom(1).BorderColor(Colors.Grey.Lighten2).Padding(4)
+                                    .Text(goal.CurrentYear.ToString()).FontSize(8);
+                                table.Cell().BorderBottom(1).BorderColor(Colors.Grey.Lighten2).Padding(4)
+                                    .Text(goal.BaseValueForCurrentYear.ToString("N2")).FontSize(8);
+                                table.Cell().BorderBottom(1).BorderColor(Colors.Grey.Lighten2).Padding(4)
+                                    .Text(goal.TargetYear.ToString()).FontSize(8);
+                                table.Cell().BorderBottom(1).BorderColor(Colors.Grey.Lighten2).Padding(4)
+                                    .Text(goal.TargetValue.ToString("N2")).FontSize(8);
+                                table.Cell().BorderBottom(1).BorderColor(Colors.Grey.Lighten2).Padding(4)
+                                    .Text($"{progressRate}%")
+                                    .FontColor(GetPerformanceColor(progressRate)).FontSize(8);
+                                table.Cell().BorderBottom(1).BorderColor(Colors.Grey.Lighten2).Padding(4)
+                                    .Text(isOnTrack ? _localizer["On Track"].Value : _localizer["Off Track"].Value)
+                                    .FontColor(isOnTrack ? Colors.Green.Darken2 : Colors.Red.Darken2).FontSize(8);
+                            }
+                        });
+
+                    page.Footer()
+                        .AlignCenter()
+                        .Text(text =>
+                        {
+                            text.Span(_localizer["Page"].Value + " ");
+                            text.CurrentPageNumber();
+                            text.Span(" / ");
+                            text.TotalPages();
+                        });
+                });
+            });
+
+            var pdfBytes = document.GeneratePdf();
+            var filePrefix = isRtl ? "أهداف_الإطار" : "FrameworkGoals";
+            var fileName = $"{filePrefix}_{DateTime.Now:yyyyMMdd_HHmmss}.pdf";
+            return File(pdfBytes, "application/pdf", fileName);
+        }
+
+        private async Task<List<FrameworkGoal>> GetFilteredGoals(int? frameworkCode)
+        {
+            IQueryable<FrameworkGoal> query = _context.FrameworkGoals
+                .Include(fg => fg.Framework);
+
+            if (frameworkCode.HasValue)
+            {
+                query = query.Where(fg => fg.FrameworkCode == frameworkCode.Value);
+            }
+
+            return await query.OrderByDescending(fg => fg.ID).ToListAsync();
+        }
+
+        private static string GetPerformanceColor(double performance)
+        {
+            return performance switch
+            {
+                >= 75 => Colors.Green.Darken2,
+                >= 50 => Colors.Orange.Darken2,
+                _ => Colors.Red.Darken2
+            };
         }
     }
 

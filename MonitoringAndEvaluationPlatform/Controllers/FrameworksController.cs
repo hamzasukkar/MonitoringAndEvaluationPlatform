@@ -12,6 +12,10 @@ using MonitoringAndEvaluationPlatform.Attributes;
 using MonitoringAndEvaluationPlatform.Data;
 using MonitoringAndEvaluationPlatform.Models;
 using MonitoringAndEvaluationPlatform.ViewModel;
+using ClosedXML.Excel;
+using QuestPDF.Fluent;
+using QuestPDF.Helpers;
+using QuestPDF.Infrastructure;
 
 namespace MonitoringAndEvaluationPlatform.Controllers
 {
@@ -397,6 +401,181 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                     message = _localizer["An error occurred while creating the framework. Please try again."]
                 });
             }
+        }
+
+        // GET: Frameworks/ExportExcel
+        [HttpGet]
+        [Permission(Permissions.ReadStrategies)]
+        public async Task<IActionResult> ExportExcel(string? searchString)
+        {
+            var frameworks = await GetFilteredFrameworks(searchString);
+            var culture = Request.HttpContext.Features.Get<IRequestCultureFeature>()?.RequestCulture.Culture.Name ?? "en";
+            var isRtl = culture.StartsWith("ar");
+
+            using var workbook = new XLWorkbook();
+            var worksheet = workbook.Worksheets.Add(_localizer["Frameworks"].Value);
+
+            // Set RTL for Arabic
+            if (isRtl)
+            {
+                worksheet.RightToLeft = true;
+            }
+
+            // Header row
+            worksheet.Cell(1, 1).Value = _localizer["Framework Name"].Value;
+            worksheet.Cell(1, 2).Value = _localizer["Indicators Performance"].Value + " (%)";
+            worksheet.Cell(1, 3).Value = _localizer["Disbursement Performance"].Value + " (%)";
+
+            // Style header
+            var headerRange = worksheet.Range(1, 1, 1, 3);
+            headerRange.Style.Font.Bold = true;
+            headerRange.Style.Fill.BackgroundColor = XLColor.FromHtml("#4472C4");
+            headerRange.Style.Font.FontColor = XLColor.White;
+            headerRange.Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
+
+            // Data rows
+            int row = 2;
+            foreach (var framework in frameworks)
+            {
+                worksheet.Cell(row, 1).Value = framework.Name;
+                worksheet.Cell(row, 2).Value = Math.Round(framework.IndicatorsPerformance, 2);
+                worksheet.Cell(row, 3).Value = Math.Round(framework.DisbursementPerformance, 2);
+                row++;
+            }
+
+            // Auto-fit columns
+            worksheet.Columns().AdjustToContents();
+
+            // Add borders
+            var dataRange = worksheet.Range(1, 1, row - 1, 3);
+            dataRange.Style.Border.OutsideBorder = XLBorderStyleValues.Thin;
+            dataRange.Style.Border.InsideBorder = XLBorderStyleValues.Thin;
+
+            using var stream = new MemoryStream();
+            workbook.SaveAs(stream);
+            stream.Position = 0;
+
+            var filePrefix = isRtl ? "أطر_العمل" : "Frameworks";
+            var fileName = $"{filePrefix}_{DateTime.Now:yyyyMMdd_HHmmss}.xlsx";
+            return File(stream.ToArray(), "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", fileName);
+        }
+
+        // GET: Frameworks/ExportPdf
+        [HttpGet]
+        [Permission(Permissions.ReadStrategies)]
+        public async Task<IActionResult> ExportPdf(string? searchString)
+        {
+            var frameworks = await GetFilteredFrameworks(searchString);
+            var culture = Request.HttpContext.Features.Get<IRequestCultureFeature>()?.RequestCulture.Culture.Name ?? "en";
+            var isRtl = culture.StartsWith("ar");
+
+            var document = Document.Create(container =>
+            {
+                container.Page(page =>
+                {
+                    page.Size(PageSizes.A4);
+                    page.Margin(30);
+                    page.DefaultTextStyle(x => x.FontSize(10));
+                    if (isRtl)
+                    {
+                        page.ContentFromRightToLeft();
+                    }
+
+                    page.Header()
+                        .PaddingBottom(10)
+                        .BorderBottom(1)
+                        .BorderColor(Colors.Grey.Medium)
+                        .Row(row =>
+                        {
+                            row.RelativeItem().Column(col =>
+                            {
+                                col.Item().Text(_localizer["Results Frameworks"].Value)
+                                    .FontSize(18)
+                                    .Bold()
+                                    .FontColor(Colors.Blue.Darken2);
+                                col.Item().Text($"{_localizer["Generated on"].Value}: {DateTime.Now:yyyy-MM-dd HH:mm}")
+                                    .FontSize(9)
+                                    .FontColor(Colors.Grey.Darken1);
+                            });
+                        });
+
+                    page.Content()
+                        .PaddingVertical(10)
+                        .Table(table =>
+                        {
+                            table.ColumnsDefinition(columns =>
+                            {
+                                columns.RelativeColumn(3);
+                                columns.RelativeColumn(2);
+                                columns.RelativeColumn(2);
+                            });
+
+                            // Header
+                            table.Header(header =>
+                            {
+                                header.Cell().Background(Colors.Blue.Darken2).Padding(8)
+                                    .Text(_localizer["Framework Name"].Value).FontColor(Colors.White).Bold();
+                                header.Cell().Background(Colors.Blue.Darken2).Padding(8)
+                                    .Text(_localizer["Indicators Performance"].Value).FontColor(Colors.White).Bold();
+                                header.Cell().Background(Colors.Blue.Darken2).Padding(8)
+                                    .Text(_localizer["Disbursement Performance"].Value).FontColor(Colors.White).Bold();
+                            });
+
+                            // Data rows
+                            foreach (var framework in frameworks)
+                            {
+                                var indicatorsPerformance = Math.Round(framework.IndicatorsPerformance, 2);
+                                var disbursementPerformance = Math.Round(framework.DisbursementPerformance, 2);
+
+                                table.Cell().BorderBottom(1).BorderColor(Colors.Grey.Lighten2).Padding(6)
+                                    .Text(framework.Name);
+                                table.Cell().BorderBottom(1).BorderColor(Colors.Grey.Lighten2).Padding(6)
+                                    .Text($"{indicatorsPerformance}%")
+                                    .FontColor(GetPerformanceColor(indicatorsPerformance));
+                                table.Cell().BorderBottom(1).BorderColor(Colors.Grey.Lighten2).Padding(6)
+                                    .Text($"{disbursementPerformance}%")
+                                    .FontColor(GetPerformanceColor(disbursementPerformance));
+                            }
+                        });
+
+                    page.Footer()
+                        .AlignCenter()
+                        .Text(text =>
+                        {
+                            text.Span(_localizer["Page"].Value + " ");
+                            text.CurrentPageNumber();
+                            text.Span(" / ");
+                            text.TotalPages();
+                        });
+                });
+            });
+
+            var pdfBytes = document.GeneratePdf();
+            var filePrefix = isRtl ? "أطر_العمل" : "Frameworks";
+            var fileName = $"{filePrefix}_{DateTime.Now:yyyyMMdd_HHmmss}.pdf";
+            return File(pdfBytes, "application/pdf", fileName);
+        }
+
+        private async Task<List<Framework>> GetFilteredFrameworks(string? searchString)
+        {
+            IQueryable<Framework> query = _context.Frameworks;
+
+            if (!string.IsNullOrEmpty(searchString))
+            {
+                query = query.Where(f => f.Name.Contains(searchString));
+            }
+
+            return await query.OrderByDescending(f => f.IndicatorsPerformance).ToListAsync();
+        }
+
+        private static string GetPerformanceColor(double performance)
+        {
+            return performance switch
+            {
+                >= 75 => Colors.Green.Darken2,
+                >= 50 => Colors.Orange.Darken2,
+                _ => Colors.Red.Darken2
+            };
         }
     }
 

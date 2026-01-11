@@ -10,6 +10,10 @@ using MonitoringAndEvaluationPlatform.Data;
 using MonitoringAndEvaluationPlatform.Infrastructure;
 using MonitoringAndEvaluationPlatform.Models;
 using MonitoringAndEvaluationPlatform.Services;
+using QuestPDF.Infrastructure;
+
+// Configure QuestPDF license (Community license for open-source projects)
+QuestPDF.Settings.License = LicenseType.Community;
 
 var builder = WebApplication.CreateBuilder(args);
 ApplicationDbContext applicationDbContext;
