@@ -306,6 +306,9 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             ViewData["frameworkCode"] = frameworkCode;
             ViewData["outputCode"] = outputCode;
 
+            // Load frameworks for filter dropdown
+            ViewBag.Frameworks = await _context.Frameworks.ToListAsync();
+
             return View(subOutputs);
         }
 
