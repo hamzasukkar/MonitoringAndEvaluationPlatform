@@ -272,7 +272,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
 
         // GET: SubOutputs/ProjectsList
         [Permission(Permissions.ReadSubOutputs)]
-        public async Task<IActionResult> ProjectsList(int? frameworkCode, int? outputCode)
+        public async Task<IActionResult> ProjectsList(int? frameworkCode, int? outputCode, string searchString)
         {
             IQueryable<SubOutput> query = _context.SubOutputs
                 .Include(s => s.Output)
@@ -292,6 +292,13 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 ViewBag.SelectedOutputCode = outputCode; // Store for view
             }
             // If both are null, we'll return all records
+
+            // Apply search filter
+            if (!string.IsNullOrEmpty(searchString))
+            {
+                query = query.Where(s => s.Name.Contains(searchString) || s.Output.Name.Contains(searchString));
+                ViewBag.SearchString = searchString;
+            }
 
             var subOutputs = await query
                 .OrderByDescending(s => s.IndicatorsPerformance)
