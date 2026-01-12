@@ -107,6 +107,12 @@ builder.Services.Configure<RequestLocalizationOptions>(options =>
     options.SupportedCultures = supportedCultures;
     options.SupportedUICultures = supportedCultures;
 
+    // Prioritize Arabic by removing the Accept-Language header provider
+    // This ensures the DefaultRequestCulture ("ar") is used unless a specific culture is requested via QueryString or Cookie
+    options.RequestCultureProviders.Clear();
+    options.RequestCultureProviders.Add(new QueryStringRequestCultureProvider());
+    options.RequestCultureProviders.Add(new CookieRequestCultureProvider());
+
 });
 
 builder.Services.AddControllersWithViews()
