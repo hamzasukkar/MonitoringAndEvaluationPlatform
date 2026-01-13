@@ -811,9 +811,7 @@
                                                 };
                                             }
                                         }
-                                        var goalCurrentYear = DateTime.Now.Year;
-                                        if (goalCurrentYear < goal.StartingYear) goalCurrentYear = goal.StartingYear;
-                                        if (goalCurrentYear > goal.TargetYear) goalCurrentYear = goal.TargetYear;
+                                        var maxYearForDropdown = goal.CurrentYear;
                                     }
                                     <div class="d-none yearly-data" data-values='@Html.Raw(Json.Serialize(yearlyData))'></div>
                                     <div class="performance-container" style="cursor: pointer;">
@@ -822,9 +820,9 @@
                                                 style="width: auto; margin: 0 auto;"
                                                 onchange="updateRowPerformance(this)"
                                                 onclick="event.stopPropagation()">
-                                            @for (int y = goal.StartingYear; y <= goal.TargetYear; y++)
+                                            @for (int y = goal.StartingYear; y <= maxYearForDropdown; y++)
                                             {
-                                                if (y == goalCurrentYear)
+                                                if (y == goal.CurrentYear)
                                                 {
                                                     <option value="@y" selected>@y</option>
                                                 }
@@ -1441,7 +1439,6 @@
         // Calculate and display performance for a single row
         function calculatePerformanceForRow(row, selectedYear) {
             const discountRate = parseFloat(row.getAttribute('data-discount-rate'));
-            const isIncrease = row.getAttribute('data-is-increase-goal') === 'true';
             const cell = row.querySelector('.performance-cell-dynamic');
             if (!cell) return;
 
@@ -1455,49 +1452,29 @@
                 const dataForYear = yearlyData[selectedYear];
 
                 if (dataForYear) {
-                    const baseVal = dataForYear.baseVal;
-                    const expected = dataForYear.expected;
+                    const actualValueForYear = dataForYear.baseVal;
+                    const expectedTargetForYear = dataForYear.expected;
+                    const difference = expectedTargetForYear - actualValueForYear;
 
-                    // Formula: (Value of Current selected Year - Expected value for the year of dropdown) / Annual discount rate
-                    if (discountRate !== 0) {
-                        // Determine raw performance based on goal type (Upward/Increase vs Decrease)
-                        // If Increase: Higher Actual is better (Actual - Expected)
-                        // If Decrease: Lower Actual is better (Expected - Actual)
-                        let performance = 0;
-                        if (isIncrease) {
-                            performance = (baseVal - expected) / discountRate;
-                        } else {
-                            performance = (expected - baseVal) / discountRate;
-                        }
+                    if (difference === 0) {
+                        // Goal achieved exactly
+                        valueSpan.className = 'performance-value fw-bold text-success';
+                        valueSpan.textContent = '100%';
+                    } else if (difference < 0) {
+                        // Exceeded target (actual > expected), make positive and multiply by 100
+                        const percentage = Math.abs(difference) * 100;
+                        valueSpan.className = 'performance-value fw-bold text-success';
+                        valueSpan.textContent = `${percentage.toFixed(2)}%`;
+                    } else if (discountRate !== 0) {
+                        // Formula: (Expected Target For selected Year - Actual Value For selected Year) / Annual Discount Rate
+                        const performance = difference / discountRate;
+                        const percentage = performance * 100;
 
-                        // Formatting Logic:
-                        // 1. If result is effectively 0 (On Target), display 100%
-                        // 2. Otherwise display percentage (0.44 -> 44%)
-
-                        if (Math.abs(performance) < 0.001) { // Effectively 0
-                            valueSpan.className = 'performance-value fw-bold text-success';
-                            valueSpan.textContent = '100%';
-                        } else {
-                            const percentage = performance * 100;
-
-                            // Determining color based on sign
-                            if (percentage > 0) {
-                                valueSpan.className = 'performance-value fw-bold text-success';
-                                valueSpan.textContent = `${percentage.toFixed(2)}%`;
-                            } else {
-                                valueSpan.className = 'performance-value fw-bold text-danger';
-                                valueSpan.textContent = `${Math.abs(percentage).toFixed(2)}%`;
-                            }
-                        }
+                        valueSpan.className = 'performance-value fw-bold text-danger';
+                        valueSpan.textContent = `${percentage.toFixed(2)}%`;
                     } else {
-                        // If discount rate is 0 (Target = Start), checking exact match
-                        if (Math.abs(baseVal - expected) < 0.001) {
-                            valueSpan.className = 'performance-value fw-bold text-success';
-                            valueSpan.textContent = '100%';
-                        } else {
-                            valueSpan.textContent = 'N/A';
-                            valueSpan.className = 'performance-value text-muted';
-                        }
+                        valueSpan.textContent = 'N/A';
+                        valueSpan.className = 'performance-value text-muted';
                     }
                 } else {
                     valueSpan.textContent = '-';
