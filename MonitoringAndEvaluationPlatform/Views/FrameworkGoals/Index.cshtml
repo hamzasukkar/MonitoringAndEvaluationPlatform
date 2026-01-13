@@ -607,24 +607,6 @@
                             </th>
                             <th rowspan="2" class="align-middle text-center" style="min-width: 150px;">
                                 <div>@Localizer["progress Rate by Year"]</div>
-                                @{
-                                    var headerMinYear = Model.Any() ? Model.Min(g => g.StartingYear) : DateTime.Now.Year;
-                                    var headerMaxYear = Model.Any() ? Model.Max(g => g.TargetYear) : DateTime.Now.Year;
-                                    var headerCurrentYear = DateTime.Now.Year;
-                                }
-                                <select id="performanceYearSelect" class="form-select form-select-sm mt-1 mx-auto" style="width: auto;" onchange="updateYearlyPerformance()" onclick="event.stopPropagation()">
-                                    @for (int year = headerMinYear; year <= headerMaxYear; year++)
-                                    {
-                                        if (year == headerCurrentYear)
-                                        {
-                                            <option value="@year" selected>@year</option>
-                                        }
-                                        else
-                                        {
-                                            <option value="@year">@year</option>
-                                        }
-                                    }
-                                </select>
                             </th>
                             <th rowspan="2" class="align-middle text-center">@Localizer["Actions"]</th>
                         </tr>
@@ -829,9 +811,30 @@
                                                 };
                                             }
                                         }
+                                        var goalCurrentYear = DateTime.Now.Year;
+                                        if (goalCurrentYear < goal.StartingYear) goalCurrentYear = goal.StartingYear;
+                                        if (goalCurrentYear > goal.TargetYear) goalCurrentYear = goal.TargetYear;
                                     }
                                     <div class="d-none yearly-data" data-values='@Html.Raw(Json.Serialize(yearlyData))'></div>
-                                    <span class="performance-value fw-bold">-</span>
+                                    <div class="performance-container" style="cursor: pointer;">
+                                        <span class="performance-value fw-bold" onclick="toggleYearDropdown(this)">-</span>
+                                        <select class="form-select form-select-sm year-select d-none mt-1"
+                                                style="width: auto; margin: 0 auto;"
+                                                onchange="updateRowPerformance(this)"
+                                                onclick="event.stopPropagation()">
+                                            @for (int y = goal.StartingYear; y <= goal.TargetYear; y++)
+                                            {
+                                                if (y == goalCurrentYear)
+                                                {
+                                                    <option value="@y" selected>@y</option>
+                                                }
+                                                else
+                                                {
+                                                    <option value="@y">@y</option>
+                                                }
+                                            }
+                                        </select>
+                                    </div>
                                 </td>
                                 <td class="text-center">
                                     <button onclick="showGoalDetails(@goal.ID)"
@@ -1404,89 +1407,136 @@
 @section Scripts {
     <!-- Yearly Performance Script -->
     <script>
-        function updateYearlyPerformance() {
-            const select = document.getElementById('performanceYearSelect');
-            if (!select) return;
-            
-            const selectedYear = parseInt(select.value);
-            const rows = document.querySelectorAll('.goal-row');
+        // Toggle year dropdown visibility when clicking on performance value
+        function toggleYearDropdown(valueSpan) {
+            const container = valueSpan.closest('.performance-container');
+            const select = container.querySelector('.year-select');
 
-            rows.forEach(row => {
-                const discountRate = parseFloat(row.getAttribute('data-discount-rate'));
-                const isIncrease = row.getAttribute('data-is-increase-goal') === 'true';
-                const cell = row.querySelector('.performance-cell-dynamic');
-                if (!cell) return;
-                
-                const dataDiv = cell.querySelector('.yearly-data');
-                const valueSpan = cell.querySelector('.performance-value');
-                
-                if (!dataDiv || !valueSpan) return;
+            // Hide all other dropdowns first
+            document.querySelectorAll('.year-select').forEach(s => {
+                if (s !== select) {
+                    s.classList.add('d-none');
+                }
+            });
 
-                try {
-                    const yearlyData = JSON.parse(dataDiv.getAttribute('data-values'));
-                    const dataForYear = yearlyData[selectedYear];
+            // Toggle this dropdown
+            select.classList.toggle('d-none');
 
-                    if (dataForYear) {
-                        const baseVal = dataForYear.baseVal;
-                        const expected = dataForYear.expected;
-                        
-                        // Formula: (Value of Current selected Year - Expected value for the year of dropdown) / Annual discount rate
-                        if (discountRate !== 0) {
-                            // Determine raw performance based on goal type (Upward/Increase vs Decrease)
-                            // If Increase: Higher Actual is better (Actual - Expected)
-                            // If Decrease: Lower Actual is better (Expected - Actual)
-                            let performance = 0;
-                            if (isIncrease) {
-                                performance = (baseVal - expected) / discountRate;
-                            } else {
-                                performance = (expected - baseVal) / discountRate;
-                            }
-                            
-                            // Formatting Logic:
-                            // 1. If result is effectively 0 (On Target), display 100%
-                            // 2. Otherwise display percentage (0.44 -> 44%)
-                            
-                            if (Math.abs(performance) < 0.001) { // Effectively 0
-                                valueSpan.className = 'performance-value fw-bold text-success';
-                                valueSpan.textContent = '100%';
-                            } else {
-                                const percentage = performance * 100;
-                                
-                                // Determing color based on sign
-                                if (percentage > 0) {
-                                    valueSpan.className = 'performance-value fw-bold text-success';
-                                    // User requested to remove positive sign as well
-                                    valueSpan.textContent = `${percentage.toFixed(2)}%`;
-                                } else {
-                                    valueSpan.className = 'performance-value fw-bold text-danger';
-                                    // User requested to remove negative sign, so usage absolute value
-                                    valueSpan.textContent = `${Math.abs(percentage).toFixed(2)}%`;
-                                }
-                            }
+            if (!select.classList.contains('d-none')) {
+                select.focus();
+            }
+        }
+
+        // Update performance for a single row when its dropdown changes
+        function updateRowPerformance(selectElement) {
+            const row = selectElement.closest('.goal-row');
+            const selectedYear = parseInt(selectElement.value);
+
+            calculatePerformanceForRow(row, selectedYear);
+
+            // Hide the dropdown after selection
+            selectElement.classList.add('d-none');
+        }
+
+        // Calculate and display performance for a single row
+        function calculatePerformanceForRow(row, selectedYear) {
+            const discountRate = parseFloat(row.getAttribute('data-discount-rate'));
+            const isIncrease = row.getAttribute('data-is-increase-goal') === 'true';
+            const cell = row.querySelector('.performance-cell-dynamic');
+            if (!cell) return;
+
+            const dataDiv = cell.querySelector('.yearly-data');
+            const valueSpan = cell.querySelector('.performance-value');
+
+            if (!dataDiv || !valueSpan) return;
+
+            try {
+                const yearlyData = JSON.parse(dataDiv.getAttribute('data-values'));
+                const dataForYear = yearlyData[selectedYear];
+
+                if (dataForYear) {
+                    const baseVal = dataForYear.baseVal;
+                    const expected = dataForYear.expected;
+
+                    // Formula: (Value of Current selected Year - Expected value for the year of dropdown) / Annual discount rate
+                    if (discountRate !== 0) {
+                        // Determine raw performance based on goal type (Upward/Increase vs Decrease)
+                        // If Increase: Higher Actual is better (Actual - Expected)
+                        // If Decrease: Lower Actual is better (Expected - Actual)
+                        let performance = 0;
+                        if (isIncrease) {
+                            performance = (baseVal - expected) / discountRate;
                         } else {
-                            // If discount rate is 0 (Target = Start), checking exact match
-                            if (Math.abs(baseVal - expected) < 0.001) {
+                            performance = (expected - baseVal) / discountRate;
+                        }
+
+                        // Formatting Logic:
+                        // 1. If result is effectively 0 (On Target), display 100%
+                        // 2. Otherwise display percentage (0.44 -> 44%)
+
+                        if (Math.abs(performance) < 0.001) { // Effectively 0
+                            valueSpan.className = 'performance-value fw-bold text-success';
+                            valueSpan.textContent = '100%';
+                        } else {
+                            const percentage = performance * 100;
+
+                            // Determining color based on sign
+                            if (percentage > 0) {
                                 valueSpan.className = 'performance-value fw-bold text-success';
-                                valueSpan.textContent = '100%';
+                                valueSpan.textContent = `${percentage.toFixed(2)}%`;
                             } else {
-                                valueSpan.textContent = 'N/A';
-                                valueSpan.className = 'performance-value text-muted';
+                                valueSpan.className = 'performance-value fw-bold text-danger';
+                                valueSpan.textContent = `${Math.abs(percentage).toFixed(2)}%`;
                             }
                         }
                     } else {
-                        valueSpan.textContent = '-';
-                        valueSpan.className = 'performance-value text-muted';
+                        // If discount rate is 0 (Target = Start), checking exact match
+                        if (Math.abs(baseVal - expected) < 0.001) {
+                            valueSpan.className = 'performance-value fw-bold text-success';
+                            valueSpan.textContent = '100%';
+                        } else {
+                            valueSpan.textContent = 'N/A';
+                            valueSpan.className = 'performance-value text-muted';
+                        }
                     }
-                } catch (e) {
-                    console.error('Error calculating yearly performance:', e);
+                } else {
+                    valueSpan.textContent = '-';
+                    valueSpan.className = 'performance-value text-muted';
                 }
+            } catch (e) {
+                console.error('Error calculating yearly performance:', e);
+            }
+        }
+
+        // Initialize all rows with their default selected year
+        function initializeYearlyPerformance() {
+            const rows = document.querySelectorAll('.goal-row');
+
+            rows.forEach(row => {
+                const cell = row.querySelector('.performance-cell-dynamic');
+                if (!cell) return;
+
+                const select = cell.querySelector('.year-select');
+                if (!select) return;
+
+                const selectedYear = parseInt(select.value);
+                calculatePerformanceForRow(row, selectedYear);
             });
         }
+
+        // Close dropdowns when clicking outside
+        document.addEventListener('click', function(e) {
+            if (!e.target.closest('.performance-container')) {
+                document.querySelectorAll('.year-select').forEach(s => {
+                    s.classList.add('d-none');
+                });
+            }
+        });
 
         // Initialize on load
         document.addEventListener('DOMContentLoaded', function() {
             // Wait slightly for other scripts
-            setTimeout(updateYearlyPerformance, 100);
+            setTimeout(initializeYearlyPerformance, 100);
         });
     </script>
 
