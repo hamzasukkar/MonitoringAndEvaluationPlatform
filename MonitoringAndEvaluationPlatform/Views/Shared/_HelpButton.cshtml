@@ -1,0 +1,8 @@
+@using Microsoft.AspNetCore.Mvc.Localization
+@inject IViewLocalizer Localizer
+
+<button type="button" class="btn btn-help-trigger" data-bs-toggle="modal" data-bs-target="#helpModal"
+        title="@Localizer["Help"]">
+    <i class="fas fa-question-circle me-1"></i>
+    <span class="help-btn-text">@Localizer["Help"]</span>
+</button>

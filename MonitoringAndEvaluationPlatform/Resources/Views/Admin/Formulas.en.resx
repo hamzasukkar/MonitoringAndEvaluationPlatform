@@ -1,0 +1,381 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <!-- Page Title and Header -->
+  <data name="FormulasAndCalculations" xml:space="preserve">
+    <value>Formulas and Calculations</value>
+  </data>
+  <data name="FormulasDescription" xml:space="preserve">
+    <value>Comprehensive documentation of all performance formulas and calculations used in the platform</value>
+  </data>
+  <data name="BackToAdmin" xml:space="preserve">
+    <value>Back to Admin</value>
+  </data>
+  <!-- Table of Contents -->
+  <data name="TableOfContents" xml:space="preserve">
+    <value>Table of Contents</value>
+  </data>
+  <data name="DataHierarchy" xml:space="preserve">
+    <value>Data Hierarchy</value>
+  </data>
+  <data name="PlanPerformance" xml:space="preserve">
+    <value>Plan Performance</value>
+  </data>
+  <data name="ProjectPerformance" xml:space="preserve">
+    <value>Project Performance</value>
+  </data>
+  <data name="IndicatorPerformance" xml:space="preserve">
+    <value>Indicator Performance</value>
+  </data>
+  <data name="HierarchyPropagation" xml:space="preserve">
+    <value>Hierarchy Propagation</value>
+  </data>
+  <data name="WeightedAverage" xml:space="preserve">
+    <value>Weighted Average</value>
+  </data>
+  <data name="CrossCuttingEntities" xml:space="preserve">
+    <value>Cross-Cutting Entities</value>
+  </data>
+  <data name="MeasureCalculations" xml:space="preserve">
+    <value>Measure Calculations</value>
+  </data>
+  <!-- Hierarchy Section -->
+  <data name="HierarchyIntro" xml:space="preserve">
+    <value>The Monitoring and Evaluation Platform uses a hierarchical structure where performance flows from the bottom (Plans) to the top (Framework). Each level aggregates performance from its child elements.</value>
+  </data>
+  <data name="Framework" xml:space="preserve">
+    <value>Framework</value>
+  </data>
+  <data name="Outcome" xml:space="preserve">
+    <value>Outcome</value>
+  </data>
+  <data name="Output" xml:space="preserve">
+    <value>Output</value>
+  </data>
+  <data name="SubOutput" xml:space="preserve">
+    <value>Sub-Output</value>
+  </data>
+  <data name="Indicator" xml:space="preserve">
+    <value>Indicator</value>
+  </data>
+  <data name="Project" xml:space="preserve">
+    <value>Project</value>
+  </data>
+  <data name="ActionPlan" xml:space="preserve">
+    <value>Action Plan</value>
+  </data>
+  <data name="Activity" xml:space="preserve">
+    <value>Activity</value>
+  </data>
+  <data name="Plan" xml:space="preserve">
+    <value>Plan</value>
+  </data>
+  <data name="HierarchyNote" xml:space="preserve">
+    <value>Performance calculations propagate upward through the hierarchy. Changes at lower levels automatically update all parent levels.</value>
+  </data>
+  <!-- Plan Performance Section -->
+  <data name="PlanPerformanceIntro" xml:space="preserve">
+    <value>Plans are the lowest level of performance tracking. Each plan tracks planned vs. realized values for different activity types.</value>
+  </data>
+  <data name="ActivityTypes" xml:space="preserve">
+    <value>Activity Types</value>
+  </data>
+  <data name="DisbursementPerformance" xml:space="preserve">
+    <value>Disbursement Performance</value>
+  </data>
+  <data name="DisbursementPerformanceDesc" xml:space="preserve">
+    <value>Tracks fund disbursement progress - comparing planned vs. actual spending</value>
+  </data>
+  <data name="FieldMonitoring" xml:space="preserve">
+    <value>Field Monitoring</value>
+  </data>
+  <data name="FieldMonitoringDesc" xml:space="preserve">
+    <value>Monitors on-ground implementation activities and field visits</value>
+  </data>
+  <data name="ImpactAssessment" xml:space="preserve">
+    <value>Impact Assessment</value>
+  </data>
+  <data name="ImpactAssessmentDesc" xml:space="preserve">
+    <value>Evaluates the broader impact and outcomes of project activities</value>
+  </data>
+  <data name="PhysicalPerformance" xml:space="preserve">
+    <value>Physical Performance</value>
+  </data>
+  <data name="PhysicalPerformanceDesc" xml:space="preserve">
+    <value>Tracks physical deliverables such as construction, equipment, etc.</value>
+  </data>
+  <data name="FinancialPerformance" xml:space="preserve">
+    <value>Financial Performance</value>
+  </data>
+  <data name="FinancialPerformanceDesc" xml:space="preserve">
+    <value>Monitors overall financial execution and budget utilization</value>
+  </data>
+  <!-- Project Performance Section -->
+  <data name="ProjectPerformanceIntro" xml:space="preserve">
+    <value>Project performance is calculated by aggregating plan data from all activities within the project. Each performance type is calculated separately.</value>
+  </data>
+  <data name="Formula" xml:space="preserve">
+    <value>Formula</value>
+  </data>
+  <data name="PerformanceType" xml:space="preserve">
+    <value>Performance Type</value>
+  </data>
+  <data name="Where" xml:space="preserve">
+    <value>Where</value>
+  </data>
+  <data name="SumOfRealisedValues" xml:space="preserve">
+    <value>Sum of all realized/actual values from plans</value>
+  </data>
+  <data name="SumOfPlannedValues" xml:space="preserve">
+    <value>Sum of all planned/target values from plans</value>
+  </data>
+  <data name="CalculationProcess" xml:space="preserve">
+    <value>Calculation Process</value>
+  </data>
+  <data name="ProjectCalcStep1" xml:space="preserve">
+    <value>Collect all plans associated with the project through Action Plans and Activities</value>
+  </data>
+  <data name="ProjectCalcStep2" xml:space="preserve">
+    <value>Group plans by activity type (Disbursement, Field Monitoring, etc.)</value>
+  </data>
+  <data name="ProjectCalcStep3" xml:space="preserve">
+    <value>For each type: Sum all planned values and sum all realized values</value>
+  </data>
+  <data name="ProjectCalcStep4" xml:space="preserve">
+    <value>Calculate percentage: (Total Realized / Total Planned) x 100</value>
+  </data>
+  <data name="Important" xml:space="preserve">
+    <value>Important</value>
+  </data>
+  <data name="ProjectCalcNote" xml:space="preserve">
+    <value>If total planned is zero, performance defaults to 0% to avoid division errors.</value>
+  </data>
+  <!-- Indicator Performance Section -->
+  <data name="IndicatorPerformanceIntro" xml:space="preserve">
+    <value>Indicator performance is derived from the weighted average of all projects linked to that indicator.</value>
+  </data>
+  <data name="CalculationDetails" xml:space="preserve">
+    <value>Calculation Details</value>
+  </data>
+  <data name="IndicatorCalcDetail1" xml:space="preserve">
+    <value>Each project has a weight assigned to it (default: 1 if not specified)</value>
+  </data>
+  <data name="IndicatorCalcDetail2" xml:space="preserve">
+    <value>The indicator's performance is the weighted average of all linked projects</value>
+  </data>
+  <data name="IndicatorCalcDetail3" xml:space="preserve">
+    <value>Projects with higher weights contribute more to the indicator's overall performance</value>
+  </data>
+  <!-- Hierarchy Propagation Section -->
+  <data name="HierarchyPropagationIntro" xml:space="preserve">
+    <value>Performance calculations flow upward through the hierarchy. When a plan is updated, all parent levels are automatically recalculated.</value>
+  </data>
+  <data name="Level" xml:space="preserve">
+    <value>Level</value>
+  </data>
+  <data name="CalculatedFrom" xml:space="preserve">
+    <value>Calculated From</value>
+  </data>
+  <data name="Method" xml:space="preserve">
+    <value>Method</value>
+  </data>
+  <data name="Plans" xml:space="preserve">
+    <value>Plans</value>
+  </data>
+  <data name="Projects" xml:space="preserve">
+    <value>Projects</value>
+  </data>
+  <data name="Indicators" xml:space="preserve">
+    <value>Indicators</value>
+  </data>
+  <data name="SubOutputs" xml:space="preserve">
+    <value>Sub-Outputs</value>
+  </data>
+  <data name="Outputs" xml:space="preserve">
+    <value>Outputs</value>
+  </data>
+  <data name="Outcomes" xml:space="preserve">
+    <value>Outcomes</value>
+  </data>
+  <data name="WeightedAverageMethod" xml:space="preserve">
+    <value>Weighted Average</value>
+  </data>
+  <!-- Weighted Average Section -->
+  <data name="WeightedAverageIntro" xml:space="preserve">
+    <value>The weighted average formula is used throughout the hierarchy to calculate parent performance from child elements. Items with higher weights have more influence on the final result.</value>
+  </data>
+  <data name="PerformanceOfItem" xml:space="preserve">
+    <value>Performance percentage of each item (0-100)</value>
+  </data>
+  <data name="WeightOfItem" xml:space="preserve">
+    <value>Weight assigned to each item</value>
+  </data>
+  <data name="TotalWeight" xml:space="preserve">
+    <value>Sum of all weights</value>
+  </data>
+  <data name="Example" xml:space="preserve">
+    <value>Example</value>
+  </data>
+  <data name="ExampleScenario" xml:space="preserve">
+    <value>Example Scenario</value>
+  </data>
+  <data name="WeightedExampleScenario" xml:space="preserve">
+    <value>An indicator has 3 projects with different weights</value>
+  </data>
+  <data name="Performance" xml:space="preserve">
+    <value>Performance</value>
+  </data>
+  <data name="Weight" xml:space="preserve">
+    <value>Weight</value>
+  </data>
+  <data name="Contribution" xml:space="preserve">
+    <value>Contribution</value>
+  </data>
+  <data name="ProjectA" xml:space="preserve">
+    <value>Project A</value>
+  </data>
+  <data name="ProjectB" xml:space="preserve">
+    <value>Project B</value>
+  </data>
+  <data name="ProjectC" xml:space="preserve">
+    <value>Project C</value>
+  </data>
+  <data name="Total" xml:space="preserve">
+    <value>Total</value>
+  </data>
+  <data name="Result" xml:space="preserve">
+    <value>Result</value>
+  </data>
+  <data name="Note" xml:space="preserve">
+    <value>Note</value>
+  </data>
+  <data name="WeightFallbackNote" xml:space="preserve">
+    <value>If total weight is zero or not specified, the system falls back to a simple average (each item gets weight of 1).</value>
+  </data>
+  <!-- Cross-Cutting Entities Section -->
+  <data name="CrossCuttingIntro" xml:space="preserve">
+    <value>Cross-cutting entities (Ministries, Donors, Sectors) have performance calculated based on all projects associated with them.</value>
+  </data>
+  <data name="Ministries" xml:space="preserve">
+    <value>Ministries</value>
+  </data>
+  <data name="MinistriesCalcDesc" xml:space="preserve">
+    <value>Performance averaged from all projects under the ministry</value>
+  </data>
+  <data name="Donors" xml:space="preserve">
+    <value>Donors</value>
+  </data>
+  <data name="DonorsCalcDesc" xml:space="preserve">
+    <value>Performance averaged from all projects funded by the donor</value>
+  </data>
+  <data name="Sectors" xml:space="preserve">
+    <value>Sectors</value>
+  </data>
+  <data name="SectorsCalcDesc" xml:space="preserve">
+    <value>Performance averaged from all projects in the sector</value>
+  </data>
+  <!-- Measure Calculations Section -->
+  <data name="MeasureCalcIntro" xml:space="preserve">
+    <value>Measures track indicator progress over time through recorded values. The following calculations are used for indicator analysis.</value>
+  </data>
+  <data name="CurrentAchievement" xml:space="preserve">
+    <value>Current Achievement</value>
+  </data>
+  <data name="RemainingToTarget" xml:space="preserve">
+    <value>Remaining to Target</value>
+  </data>
+  <data name="ProgressPercentage" xml:space="preserve">
+    <value>Progress Percentage</value>
+  </data>
+  <data name="CumulativePerformance" xml:space="preserve">
+    <value>Cumulative Performance</value>
+  </data>
+  <data name="CumulativeDesc" xml:space="preserve">
+    <value>Running total of all measure values up to point n (used in charts)</value>
+  </data>
+  <!-- Summary Table -->
+  <data name="FormulaSummary" xml:space="preserve">
+    <value>Formula Summary</value>
+  </data>
+  <data name="Calculation" xml:space="preserve">
+    <value>Calculation</value>
+  </data>
+  <data name="UsedIn" xml:space="preserve">
+    <value>Used In</value>
+  </data>
+  <data name="ProjectCalculation" xml:space="preserve">
+    <value>Project calculations from plans</value>
+  </data>
+  <data name="HierarchyLevels" xml:space="preserve">
+    <value>All hierarchy levels (Indicator to Framework)</value>
+  </data>
+  <data name="SimpleAverage" xml:space="preserve">
+    <value>Simple Average</value>
+  </data>
+  <data name="IndicatorDetails" xml:space="preserve">
+    <value>Indicator details page</value>
+  </data>
+  <data name="CumulativeSum" xml:space="preserve">
+    <value>Cumulative Sum</value>
+  </data>
+  <data name="ChartDisplay" xml:space="preserve">
+    <value>Performance charts and visualizations</value>
+  </data>
+</root>

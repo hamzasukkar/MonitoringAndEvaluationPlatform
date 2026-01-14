@@ -1,0 +1,623 @@
+@using Microsoft.AspNetCore.Mvc.Localization
+@inject IViewLocalizer Localizer
+
+@{
+    ViewData["Title"] = Localizer["FormulasAndCalculations"];
+    Layout = "~/Views/Shared/_DashboardHomeLayout.cshtml";
+}
+
+<div class="container-fluid py-4">
+    <!-- Header -->
+    <div class="dashboard-header mb-4">
+        <div class="d-flex justify-content-between align-items-center">
+            <div>
+                <h1 class="display-4 mb-2">
+                    <i class="fas fa-calculator me-3"></i>@Localizer["FormulasAndCalculations"]
+                </h1>
+                <p class="text-muted">@Localizer["FormulasDescription"]</p>
+            </div>
+            <div>
+                <a asp-action="Index" class="btn btn-secondary btn-lg">
+                    <i class="fas fa-arrow-left me-2"></i>@Localizer["BackToAdmin"]
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Table of Contents -->
+    <div class="card mb-4">
+        <div class="card-header bg-dark text-white">
+            <h5 class="mb-0">
+                <i class="fas fa-list-ol me-2"></i>@Localizer["TableOfContents"]
+            </h5>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-4">
+                    <ul class="list-unstyled">
+                        <li><a href="#hierarchy" class="text-decoration-none"><i class="fas fa-sitemap me-2"></i>@Localizer["DataHierarchy"]</a></li>
+                        <li><a href="#plan-performance" class="text-decoration-none"><i class="fas fa-tasks me-2"></i>@Localizer["PlanPerformance"]</a></li>
+                        <li><a href="#project-performance" class="text-decoration-none"><i class="fas fa-project-diagram me-2"></i>@Localizer["ProjectPerformance"]</a></li>
+                    </ul>
+                </div>
+                <div class="col-md-4">
+                    <ul class="list-unstyled">
+                        <li><a href="#indicator-performance" class="text-decoration-none"><i class="fas fa-bullseye me-2"></i>@Localizer["IndicatorPerformance"]</a></li>
+                        <li><a href="#hierarchy-propagation" class="text-decoration-none"><i class="fas fa-arrow-up me-2"></i>@Localizer["HierarchyPropagation"]</a></li>
+                        <li><a href="#weighted-average" class="text-decoration-none"><i class="fas fa-balance-scale me-2"></i>@Localizer["WeightedAverage"]</a></li>
+                    </ul>
+                </div>
+                <div class="col-md-4">
+                    <ul class="list-unstyled">
+                        <li><a href="#cross-cutting" class="text-decoration-none"><i class="fas fa-exchange-alt me-2"></i>@Localizer["CrossCuttingEntities"]</a></li>
+                        <li><a href="#measure-calculations" class="text-decoration-none"><i class="fas fa-chart-line me-2"></i>@Localizer["MeasureCalculations"]</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Data Hierarchy Section -->
+    <div class="card mb-4" id="hierarchy">
+        <div class="card-header bg-primary text-white">
+            <h5 class="mb-0">
+                <i class="fas fa-sitemap me-2"></i>@Localizer["DataHierarchy"]
+            </h5>
+        </div>
+        <div class="card-body">
+            <p class="lead">@Localizer["HierarchyIntro"]</p>
+
+            <div class="hierarchy-diagram text-center my-4 p-4 bg-light rounded">
+                <div class="hierarchy-level level-1">
+                    <span class="badge bg-dark fs-5 py-2 px-4">@Localizer["Framework"]</span>
+                </div>
+                <div class="hierarchy-arrow"><i class="fas fa-chevron-down text-muted"></i></div>
+                <div class="hierarchy-level level-2">
+                    <span class="badge bg-primary fs-6 py-2 px-3">@Localizer["Outcome"]</span>
+                </div>
+                <div class="hierarchy-arrow"><i class="fas fa-chevron-down text-muted"></i></div>
+                <div class="hierarchy-level level-3">
+                    <span class="badge bg-info fs-6 py-2 px-3">@Localizer["Output"]</span>
+                </div>
+                <div class="hierarchy-arrow"><i class="fas fa-chevron-down text-muted"></i></div>
+                <div class="hierarchy-level level-4">
+                    <span class="badge bg-success fs-6 py-2 px-3">@Localizer["SubOutput"]</span>
+                </div>
+                <div class="hierarchy-arrow"><i class="fas fa-chevron-down text-muted"></i></div>
+                <div class="hierarchy-level level-5">
+                    <span class="badge bg-warning text-dark fs-6 py-2 px-3">@Localizer["Indicator"]</span>
+                </div>
+                <div class="hierarchy-arrow"><i class="fas fa-chevron-down text-muted"></i></div>
+                <div class="hierarchy-level level-6">
+                    <span class="badge bg-secondary fs-6 py-2 px-3">@Localizer["Project"]</span>
+                </div>
+                <div class="hierarchy-arrow"><i class="fas fa-chevron-down text-muted"></i></div>
+                <div class="hierarchy-level level-7">
+                    <span class="badge bg-danger fs-6 py-2 px-3">@Localizer["ActionPlan"] / @Localizer["Activity"] / @Localizer["Plan"]</span>
+                </div>
+            </div>
+
+            <div class="alert alert-info">
+                <i class="fas fa-info-circle me-2"></i>
+                @Localizer["HierarchyNote"]
+            </div>
+        </div>
+    </div>
+
+    <!-- Plan Performance Section -->
+    <div class="card mb-4" id="plan-performance">
+        <div class="card-header bg-danger text-white">
+            <h5 class="mb-0">
+                <i class="fas fa-tasks me-2"></i>@Localizer["PlanPerformance"]
+            </h5>
+        </div>
+        <div class="card-body">
+            <p>@Localizer["PlanPerformanceIntro"]</p>
+
+            <h6 class="mt-4 fw-bold">@Localizer["ActivityTypes"]:</h6>
+            <div class="row mt-3">
+                <div class="col-md-6 col-lg-4 mb-3">
+                    <div class="card h-100 border-primary">
+                        <div class="card-body">
+                            <h6 class="card-title text-primary"><i class="fas fa-money-bill-wave me-2"></i>@Localizer["DisbursementPerformance"]</h6>
+                            <p class="card-text small">@Localizer["DisbursementPerformanceDesc"]</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6 col-lg-4 mb-3">
+                    <div class="card h-100 border-success">
+                        <div class="card-body">
+                            <h6 class="card-title text-success"><i class="fas fa-clipboard-check me-2"></i>@Localizer["FieldMonitoring"]</h6>
+                            <p class="card-text small">@Localizer["FieldMonitoringDesc"]</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6 col-lg-4 mb-3">
+                    <div class="card h-100 border-info">
+                        <div class="card-body">
+                            <h6 class="card-title text-info"><i class="fas fa-chart-pie me-2"></i>@Localizer["ImpactAssessment"]</h6>
+                            <p class="card-text small">@Localizer["ImpactAssessmentDesc"]</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6 col-lg-4 mb-3">
+                    <div class="card h-100 border-warning">
+                        <div class="card-body">
+                            <h6 class="card-title text-warning"><i class="fas fa-hammer me-2"></i>@Localizer["PhysicalPerformance"]</h6>
+                            <p class="card-text small">@Localizer["PhysicalPerformanceDesc"]</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6 col-lg-4 mb-3">
+                    <div class="card h-100 border-danger">
+                        <div class="card-body">
+                            <h6 class="card-title text-danger"><i class="fas fa-dollar-sign me-2"></i>@Localizer["FinancialPerformance"]</h6>
+                            <p class="card-text small">@Localizer["FinancialPerformanceDesc"]</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Project Performance Section -->
+    <div class="card mb-4" id="project-performance">
+        <div class="card-header bg-secondary text-white">
+            <h5 class="mb-0">
+                <i class="fas fa-project-diagram me-2"></i>@Localizer["ProjectPerformance"]
+            </h5>
+        </div>
+        <div class="card-body">
+            <p>@Localizer["ProjectPerformanceIntro"]</p>
+
+            <div class="formula-box bg-dark text-light p-4 rounded my-4">
+                <h6 class="text-warning mb-3"><i class="fas fa-function me-2"></i>@Localizer["Formula"]:</h6>
+                <code class="fs-5 d-block text-center py-3">
+                    @Localizer["PerformanceType"] = (totalRealised / totalPlanned) × 100
+                </code>
+                <hr class="border-secondary">
+                <p class="mb-0 small text-muted">
+                    <strong>@Localizer["Where"]:</strong><br>
+                    • <code>totalRealised</code> = @Localizer["SumOfRealisedValues"]<br>
+                    • <code>totalPlanned</code> = @Localizer["SumOfPlannedValues"]
+                </p>
+            </div>
+
+            <h6 class="fw-bold mt-4">@Localizer["CalculationProcess"]:</h6>
+            <ol class="mt-3">
+                <li class="mb-2">@Localizer["ProjectCalcStep1"]</li>
+                <li class="mb-2">@Localizer["ProjectCalcStep2"]</li>
+                <li class="mb-2">@Localizer["ProjectCalcStep3"]</li>
+                <li class="mb-2">@Localizer["ProjectCalcStep4"]</li>
+            </ol>
+
+            <div class="alert alert-warning mt-4">
+                <i class="fas fa-exclamation-triangle me-2"></i>
+                <strong>@Localizer["Important"]:</strong> @Localizer["ProjectCalcNote"]
+            </div>
+        </div>
+    </div>
+
+    <!-- Indicator Performance Section -->
+    <div class="card mb-4" id="indicator-performance">
+        <div class="card-header bg-warning text-dark">
+            <h5 class="mb-0">
+                <i class="fas fa-bullseye me-2"></i>@Localizer["IndicatorPerformance"]
+            </h5>
+        </div>
+        <div class="card-body">
+            <p>@Localizer["IndicatorPerformanceIntro"]</p>
+
+            <div class="formula-box bg-dark text-light p-4 rounded my-4">
+                <h6 class="text-warning mb-3"><i class="fas fa-function me-2"></i>@Localizer["Formula"]:</h6>
+                <code class="fs-5 d-block text-center py-3">
+                    Indicator.Performance = WeightedAverage(Projects.Performance, Projects.Weight)
+                </code>
+            </div>
+
+            <h6 class="fw-bold mt-4">@Localizer["CalculationDetails"]:</h6>
+            <ul class="mt-3">
+                <li class="mb-2">@Localizer["IndicatorCalcDetail1"]</li>
+                <li class="mb-2">@Localizer["IndicatorCalcDetail2"]</li>
+                <li class="mb-2">@Localizer["IndicatorCalcDetail3"]</li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- Hierarchy Propagation Section -->
+    <div class="card mb-4" id="hierarchy-propagation">
+        <div class="card-header bg-success text-white">
+            <h5 class="mb-0">
+                <i class="fas fa-arrow-up me-2"></i>@Localizer["HierarchyPropagation"]
+            </h5>
+        </div>
+        <div class="card-body">
+            <p>@Localizer["HierarchyPropagationIntro"]</p>
+
+            <div class="propagation-flow my-4">
+                <div class="row text-center">
+                    <div class="col">
+                        <div class="p-3 bg-danger text-white rounded mb-2">@Localizer["Plan"]</div>
+                        <i class="fas fa-arrow-down fa-2x text-muted"></i>
+                    </div>
+                </div>
+                <div class="row text-center mt-2">
+                    <div class="col">
+                        <div class="p-3 bg-secondary text-white rounded mb-2">@Localizer["Project"]</div>
+                        <i class="fas fa-arrow-down fa-2x text-muted"></i>
+                    </div>
+                </div>
+                <div class="row text-center mt-2">
+                    <div class="col">
+                        <div class="p-3 bg-warning text-dark rounded mb-2">@Localizer["Indicator"]</div>
+                        <i class="fas fa-arrow-down fa-2x text-muted"></i>
+                    </div>
+                </div>
+                <div class="row text-center mt-2">
+                    <div class="col">
+                        <div class="p-3 bg-success text-white rounded mb-2">@Localizer["SubOutput"]</div>
+                        <i class="fas fa-arrow-down fa-2x text-muted"></i>
+                    </div>
+                </div>
+                <div class="row text-center mt-2">
+                    <div class="col">
+                        <div class="p-3 bg-info text-white rounded mb-2">@Localizer["Output"]</div>
+                        <i class="fas fa-arrow-down fa-2x text-muted"></i>
+                    </div>
+                </div>
+                <div class="row text-center mt-2">
+                    <div class="col">
+                        <div class="p-3 bg-primary text-white rounded mb-2">@Localizer["Outcome"]</div>
+                        <i class="fas fa-arrow-down fa-2x text-muted"></i>
+                    </div>
+                </div>
+                <div class="row text-center mt-2">
+                    <div class="col">
+                        <div class="p-3 bg-dark text-white rounded">@Localizer["Framework"]</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="table-responsive mt-4">
+                <table class="table table-bordered">
+                    <thead class="table-dark">
+                        <tr>
+                            <th>@Localizer["Level"]</th>
+                            <th>@Localizer["CalculatedFrom"]</th>
+                            <th>@Localizer["Method"]</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><span class="badge bg-secondary">@Localizer["Project"]</span></td>
+                            <td>@Localizer["Plans"]</td>
+                            <td><code>(totalRealised / totalPlanned) × 100</code></td>
+                        </tr>
+                        <tr>
+                            <td><span class="badge bg-warning text-dark">@Localizer["Indicator"]</span></td>
+                            <td>@Localizer["Projects"]</td>
+                            <td>@Localizer["WeightedAverageMethod"]</td>
+                        </tr>
+                        <tr>
+                            <td><span class="badge bg-success">@Localizer["SubOutput"]</span></td>
+                            <td>@Localizer["Indicators"]</td>
+                            <td>@Localizer["WeightedAverageMethod"]</td>
+                        </tr>
+                        <tr>
+                            <td><span class="badge bg-info">@Localizer["Output"]</span></td>
+                            <td>@Localizer["SubOutputs"]</td>
+                            <td>@Localizer["WeightedAverageMethod"]</td>
+                        </tr>
+                        <tr>
+                            <td><span class="badge bg-primary">@Localizer["Outcome"]</span></td>
+                            <td>@Localizer["Outputs"]</td>
+                            <td>@Localizer["WeightedAverageMethod"]</td>
+                        </tr>
+                        <tr>
+                            <td><span class="badge bg-dark">@Localizer["Framework"]</span></td>
+                            <td>@Localizer["Outcomes"]</td>
+                            <td>@Localizer["WeightedAverageMethod"]</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Weighted Average Section -->
+    <div class="card mb-4" id="weighted-average">
+        <div class="card-header bg-info text-white">
+            <h5 class="mb-0">
+                <i class="fas fa-balance-scale me-2"></i>@Localizer["WeightedAverage"]
+            </h5>
+        </div>
+        <div class="card-body">
+            <p>@Localizer["WeightedAverageIntro"]</p>
+
+            <div class="formula-box bg-dark text-light p-4 rounded my-4">
+                <h6 class="text-warning mb-3"><i class="fas fa-function me-2"></i>@Localizer["Formula"]:</h6>
+                <code class="fs-5 d-block text-center py-3">
+                    WeightedPerformance = Σ(Performance<sub>i</sub> × Weight<sub>i</sub>) / Σ(Weight<sub>i</sub>)
+                </code>
+                <hr class="border-secondary">
+                <p class="mb-0 small text-muted">
+                    <strong>@Localizer["Where"]:</strong><br>
+                    • <code>Performance<sub>i</sub></code> = @Localizer["PerformanceOfItem"]<br>
+                    • <code>Weight<sub>i</sub></code> = @Localizer["WeightOfItem"]<br>
+                    • <code>Σ(Weight<sub>i</sub>)</code> = @Localizer["TotalWeight"]
+                </p>
+            </div>
+
+            <h6 class="fw-bold mt-4">@Localizer["Example"]:</h6>
+            <div class="example-box bg-light p-4 rounded mt-3">
+                <p><strong>@Localizer["ExampleScenario"]:</strong> @Localizer["WeightedExampleScenario"]</p>
+                <table class="table table-sm table-bordered mt-3">
+                    <thead class="table-secondary">
+                        <tr>
+                            <th>@Localizer["Project"]</th>
+                            <th>@Localizer["Performance"] (%)</th>
+                            <th>@Localizer["Weight"]</th>
+                            <th>@Localizer["Contribution"]</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>@Localizer["ProjectA"]</td>
+                            <td>80%</td>
+                            <td>2</td>
+                            <td>160</td>
+                        </tr>
+                        <tr>
+                            <td>@Localizer["ProjectB"]</td>
+                            <td>60%</td>
+                            <td>3</td>
+                            <td>180</td>
+                        </tr>
+                        <tr>
+                            <td>@Localizer["ProjectC"]</td>
+                            <td>90%</td>
+                            <td>1</td>
+                            <td>90</td>
+                        </tr>
+                        <tr class="table-info">
+                            <td><strong>@Localizer["Total"]</strong></td>
+                            <td>-</td>
+                            <td><strong>6</strong></td>
+                            <td><strong>430</strong></td>
+                        </tr>
+                    </tbody>
+                </table>
+                <p class="mt-3 mb-0">
+                    <strong>@Localizer["Result"]:</strong>
+                    <code class="bg-dark text-light px-2 py-1 rounded">430 / 6 = 71.67%</code>
+                </p>
+            </div>
+
+            <div class="alert alert-info mt-4">
+                <i class="fas fa-info-circle me-2"></i>
+                <strong>@Localizer["Note"]:</strong> @Localizer["WeightFallbackNote"]
+            </div>
+        </div>
+    </div>
+
+    <!-- Cross-Cutting Entities Section -->
+    <div class="card mb-4" id="cross-cutting">
+        <div class="card-header" style="background-color: #6f42c1; color: white;">
+            <h5 class="mb-0">
+                <i class="fas fa-exchange-alt me-2"></i>@Localizer["CrossCuttingEntities"]
+            </h5>
+        </div>
+        <div class="card-body">
+            <p>@Localizer["CrossCuttingIntro"]</p>
+
+            <div class="row mt-4">
+                <div class="col-md-4 mb-3">
+                    <div class="card h-100 border-0 shadow-sm">
+                        <div class="card-body text-center">
+                            <i class="fas fa-building fa-3x text-primary mb-3"></i>
+                            <h6 class="fw-bold">@Localizer["Ministries"]</h6>
+                            <p class="small text-muted">@Localizer["MinistriesCalcDesc"]</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4 mb-3">
+                    <div class="card h-100 border-0 shadow-sm">
+                        <div class="card-body text-center">
+                            <i class="fas fa-hand-holding-usd fa-3x text-success mb-3"></i>
+                            <h6 class="fw-bold">@Localizer["Donors"]</h6>
+                            <p class="small text-muted">@Localizer["DonorsCalcDesc"]</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4 mb-3">
+                    <div class="card h-100 border-0 shadow-sm">
+                        <div class="card-body text-center">
+                            <i class="fas fa-layer-group fa-3x text-info mb-3"></i>
+                            <h6 class="fw-bold">@Localizer["Sectors"]</h6>
+                            <p class="small text-muted">@Localizer["SectorsCalcDesc"]</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="formula-box bg-dark text-light p-4 rounded my-4">
+                <h6 class="text-warning mb-3"><i class="fas fa-function me-2"></i>@Localizer["Formula"]:</h6>
+                <code class="fs-6 d-block text-center py-3">
+                    Entity.Performance = Average(LinkedProjects.Performance)
+                </code>
+            </div>
+        </div>
+    </div>
+
+    <!-- Measure Calculations Section -->
+    <div class="card mb-4" id="measure-calculations">
+        <div class="card-header" style="background-color: #20c997; color: white;">
+            <h5 class="mb-0">
+                <i class="fas fa-chart-line me-2"></i>@Localizer["MeasureCalculations"]
+            </h5>
+        </div>
+        <div class="card-body">
+            <p>@Localizer["MeasureCalcIntro"]</p>
+
+            <h6 class="fw-bold mt-4">@Localizer["CurrentAchievement"]:</h6>
+            <div class="formula-box bg-dark text-light p-4 rounded my-3">
+                <code class="fs-6 d-block text-center py-2">
+                    CurrentAchievement = Σ(Measure.Value)
+                </code>
+            </div>
+
+            <h6 class="fw-bold mt-4">@Localizer["RemainingToTarget"]:</h6>
+            <div class="formula-box bg-dark text-light p-4 rounded my-3">
+                <code class="fs-6 d-block text-center py-2">
+                    RemainingToTarget = Indicator.Target - CurrentAchievement
+                </code>
+            </div>
+
+            <h6 class="fw-bold mt-4">@Localizer["ProgressPercentage"]:</h6>
+            <div class="formula-box bg-dark text-light p-4 rounded my-3">
+                <code class="fs-6 d-block text-center py-2">
+                    ProgressPercentage = (CurrentAchievement / Indicator.Target) × 100
+                </code>
+            </div>
+
+            <h6 class="fw-bold mt-4">@Localizer["CumulativePerformance"]:</h6>
+            <div class="formula-box bg-dark text-light p-4 rounded my-3">
+                <code class="fs-6 d-block text-center py-2">
+                    CumulativeValue[n] = Σ(Measure.Value[1..n])
+                </code>
+                <p class="small text-muted mt-2 mb-0 text-center">
+                    @Localizer["CumulativeDesc"]
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Summary Table -->
+    <div class="card mb-4">
+        <div class="card-header bg-dark text-white">
+            <h5 class="mb-0">
+                <i class="fas fa-clipboard-list me-2"></i>@Localizer["FormulaSummary"]
+            </h5>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-striped table-hover">
+                    <thead class="table-dark">
+                        <tr>
+                            <th>@Localizer["Calculation"]</th>
+                            <th>@Localizer["Formula"]</th>
+                            <th>@Localizer["UsedIn"]</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>@Localizer["PlanPerformance"]</td>
+                            <td><code>(realised / planned) × 100</code></td>
+                            <td>@Localizer["ProjectCalculation"]</td>
+                        </tr>
+                        <tr>
+                            <td>@Localizer["WeightedAverage"]</td>
+                            <td><code>Σ(P × W) / Σ(W)</code></td>
+                            <td>@Localizer["HierarchyLevels"]</td>
+                        </tr>
+                        <tr>
+                            <td>@Localizer["SimpleAverage"]</td>
+                            <td><code>Σ(P) / count</code></td>
+                            <td>@Localizer["CrossCuttingEntities"]</td>
+                        </tr>
+                        <tr>
+                            <td>@Localizer["ProgressPercentage"]</td>
+                            <td><code>(achieved / target) × 100</code></td>
+                            <td>@Localizer["IndicatorDetails"]</td>
+                        </tr>
+                        <tr>
+                            <td>@Localizer["CumulativeSum"]</td>
+                            <td><code>Σ(values[1..n])</code></td>
+                            <td>@Localizer["ChartDisplay"]</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .hierarchy-diagram {
+        border: 2px dashed #dee2e6;
+    }
+
+    .hierarchy-level {
+        margin: 10px 0;
+    }
+
+    .hierarchy-arrow {
+        font-size: 1.5rem;
+        margin: 5px 0;
+    }
+
+    .formula-box {
+        border-left: 4px solid #ffc107;
+    }
+
+    .formula-box code {
+        color: #00ff88;
+        font-family: 'Consolas', 'Monaco', monospace;
+    }
+
+    .example-box {
+        border-left: 4px solid #17a2b8;
+    }
+
+    .card {
+        border-radius: 12px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        overflow: hidden;
+    }
+
+    .card-header {
+        font-weight: 600;
+    }
+
+    .propagation-flow {
+        max-width: 300px;
+        margin: 0 auto;
+    }
+
+    a[href^="#"] {
+        transition: all 0.2s;
+    }
+
+    a[href^="#"]:hover {
+        color: var(--primary-color) !important;
+        padding-left: 5px;
+    }
+
+    .table code {
+        background-color: #f8f9fa;
+        padding: 2px 6px;
+        border-radius: 4px;
+        font-size: 0.85rem;
+    }
+
+    .table-dark code {
+        background-color: #343a40;
+        color: #00ff88;
+    }
+
+    /* RTL Support */
+    html[dir="rtl"] .formula-box {
+        border-left: none;
+        border-right: 4px solid #ffc107;
+    }
+
+    html[dir="rtl"] .example-box {
+        border-left: none;
+        border-right: 4px solid #17a2b8;
+    }
+
+    html[dir="rtl"] a[href^="#"]:hover {
+        padding-left: 0;
+        padding-right: 5px;
+    }
+</style>

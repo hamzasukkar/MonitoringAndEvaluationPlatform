@@ -5,17 +5,25 @@
 @{
     Layout = "~/Views/Shared/_DashboardHomeLayout.cshtml";
     ViewData["Title"] = "Dashboard";
+    ViewData["HelpFeature"] = "HOME";
 }
 
 <!-- Dashboard Header -->
 <div class="dashboard-header">
-    <h1 class="dashboard-title">
-        <i class="fas fa-chart-line me-3"></i>
-        @Localizer["HEADER_TITLE"]
-    </h1>
-    <p class="dashboard-subtitle">
-        @Localizer["HEADER_SUBTITLE"]
-    </p>
+    <div class="d-flex justify-content-between align-items-start">
+        <div>
+            <h1 class="dashboard-title">
+                <i class="fas fa-chart-line me-3"></i>
+                @Localizer["HEADER_TITLE"]
+            </h1>
+            <p class="dashboard-subtitle">
+                @Localizer["HEADER_SUBTITLE"]
+            </p>
+        </div>
+        <div class="d-flex gap-2">
+            @await Html.PartialAsync("_HelpButton")
+        </div>
+    </div>
 </div>
 
 <!-- Statistics Cards -->
@@ -826,7 +834,7 @@ document.addEventListener('DOMContentLoaded', function() {
         item.style.opacity = '0';
         item.style.transform = 'translateX(-30px)';
         item.style.transition = 'all 0.5s ease';
-        
+
         setTimeout(() => {
             item.style.opacity = '1';
             item.style.transform = 'translateX(0)';
@@ -834,4 +842,8 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 });
 </script>
+}
+
+@section Modals {
+    @await Html.PartialAsync("_HelpModal")
 }

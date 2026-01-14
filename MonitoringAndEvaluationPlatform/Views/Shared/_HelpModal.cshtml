@@ -1,0 +1,135 @@
+@using Microsoft.AspNetCore.Mvc.Localization
+@inject IViewLocalizer Localizer
+@{
+    var featureKey = ViewData["HelpFeature"]?.ToString() ?? "GENERAL";
+    var currentCulture = System.Globalization.CultureInfo.CurrentUICulture.Name;
+    var isRtl = currentCulture.StartsWith("ar");
+}
+
+<div class="modal fade" id="helpModal" tabindex="-1" aria-labelledby="helpModalLabel" aria-hidden="true" dir="@(isRtl ? "rtl" : "ltr")">
+    <div class="modal-dialog modal-lg modal-dialog-scrollable modal-dialog-centered">
+        <div class="modal-content help-modal-content">
+            <div class="modal-header help-modal-header">
+                <h5 class="modal-title" id="helpModalLabel">
+                    <i class="fas fa-question-circle me-2"></i>
+                    @Localizer[$"HELP_{featureKey}_TITLE"]
+                </h5>
+                <button type="button" class="btn-close @(isRtl ? "ms-0 me-auto" : "")" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body help-modal-body">
+                <!-- Help content tabs -->
+                <ul class="nav nav-tabs help-tabs" id="helpTabs" role="tablist">
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link active" id="overview-tab" data-bs-toggle="tab" data-bs-target="#overview-pane" type="button" role="tab" aria-controls="overview-pane" aria-selected="true">
+                            <i class="fas fa-info-circle me-1"></i>@Localizer["Overview"]
+                        </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="howto-tab" data-bs-toggle="tab" data-bs-target="#howto-pane" type="button" role="tab" aria-controls="howto-pane" aria-selected="false">
+                            <i class="fas fa-list-ol me-1"></i>@Localizer["How To"]
+                        </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="faq-tab" data-bs-toggle="tab" data-bs-target="#faq-pane" type="button" role="tab" aria-controls="faq-pane" aria-selected="false">
+                            <i class="fas fa-question me-1"></i>@Localizer["FAQ"]
+                        </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="tips-tab" data-bs-toggle="tab" data-bs-target="#tips-pane" type="button" role="tab" aria-controls="tips-pane" aria-selected="false">
+                            <i class="fas fa-lightbulb me-1"></i>@Localizer["Tips"]
+                        </button>
+                    </li>
+                </ul>
+                <div class="tab-content help-tab-content" id="helpTabContent">
+                    <!-- Overview Tab -->
+                    <div class="tab-pane fade show active" id="overview-pane" role="tabpanel" aria-labelledby="overview-tab" tabindex="0">
+                        <div class="help-section">
+                            <div class="help-overview-content">
+                                <p class="lead">@Localizer[$"HELP_{featureKey}_OVERVIEW"]</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- How To Tab -->
+                    <div class="tab-pane fade" id="howto-pane" role="tabpanel" aria-labelledby="howto-tab" tabindex="0">
+                        <div class="help-section">
+                            <ol class="help-steps">
+                                <li class="help-step">
+                                    <div class="step-number">1</div>
+                                    <div class="step-content">@Localizer[$"HELP_{featureKey}_HOWTO_1"]</div>
+                                </li>
+                                <li class="help-step">
+                                    <div class="step-number">2</div>
+                                    <div class="step-content">@Localizer[$"HELP_{featureKey}_HOWTO_2"]</div>
+                                </li>
+                                <li class="help-step">
+                                    <div class="step-number">3</div>
+                                    <div class="step-content">@Localizer[$"HELP_{featureKey}_HOWTO_3"]</div>
+                                </li>
+                            </ol>
+                        </div>
+                    </div>
+
+                    <!-- FAQ Tab -->
+                    <div class="tab-pane fade" id="faq-pane" role="tabpanel" aria-labelledby="faq-tab" tabindex="0">
+                        <div class="help-section">
+                            <div class="accordion help-accordion" id="helpFaqAccordion">
+                                <div class="accordion-item">
+                                    <h2 class="accordion-header">
+                                        <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#faq1" aria-expanded="true" aria-controls="faq1">
+                                            <i class="fas fa-question-circle me-2 text-primary"></i>
+                                            @Localizer[$"HELP_{featureKey}_FAQ_Q1"]
+                                        </button>
+                                    </h2>
+                                    <div id="faq1" class="accordion-collapse collapse show" data-bs-parent="#helpFaqAccordion">
+                                        <div class="accordion-body">
+                                            @Localizer[$"HELP_{featureKey}_FAQ_A1"]
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="accordion-item">
+                                    <h2 class="accordion-header">
+                                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq2" aria-expanded="false" aria-controls="faq2">
+                                            <i class="fas fa-question-circle me-2 text-primary"></i>
+                                            @Localizer[$"HELP_{featureKey}_FAQ_Q2"]
+                                        </button>
+                                    </h2>
+                                    <div id="faq2" class="accordion-collapse collapse" data-bs-parent="#helpFaqAccordion">
+                                        <div class="accordion-body">
+                                            @Localizer[$"HELP_{featureKey}_FAQ_A2"]
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Tips Tab -->
+                    <div class="tab-pane fade" id="tips-pane" role="tabpanel" aria-labelledby="tips-tab" tabindex="0">
+                        <div class="help-section">
+                            <div class="help-tips">
+                                <div class="help-tip">
+                                    <div class="tip-icon">
+                                        <i class="fas fa-lightbulb"></i>
+                                    </div>
+                                    <div class="tip-content">@Localizer[$"HELP_{featureKey}_TIP_1"]</div>
+                                </div>
+                                <div class="help-tip">
+                                    <div class="tip-icon">
+                                        <i class="fas fa-lightbulb"></i>
+                                    </div>
+                                    <div class="tip-content">@Localizer[$"HELP_{featureKey}_TIP_2"]</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer help-modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    <i class="fas fa-times me-1"></i>@Localizer["Close"]
+                </button>
+            </div>
+        </div>
+    </div>
+</div>

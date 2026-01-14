@@ -1,0 +1,381 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <!-- Page Title and Header -->
+  <data name="FormulasAndCalculations" xml:space="preserve">
+    <value>الصيغ والحسابات</value>
+  </data>
+  <data name="FormulasDescription" xml:space="preserve">
+    <value>توثيق شامل لجميع صيغ الأداء والحسابات المستخدمة في المنصة</value>
+  </data>
+  <data name="BackToAdmin" xml:space="preserve">
+    <value>العودة للإدارة</value>
+  </data>
+  <!-- Table of Contents -->
+  <data name="TableOfContents" xml:space="preserve">
+    <value>جدول المحتويات</value>
+  </data>
+  <data name="DataHierarchy" xml:space="preserve">
+    <value>التسلسل الهرمي للبيانات</value>
+  </data>
+  <data name="PlanPerformance" xml:space="preserve">
+    <value>أداء الخطة</value>
+  </data>
+  <data name="ProjectPerformance" xml:space="preserve">
+    <value>أداء المشروع</value>
+  </data>
+  <data name="IndicatorPerformance" xml:space="preserve">
+    <value>أداء المؤشر</value>
+  </data>
+  <data name="HierarchyPropagation" xml:space="preserve">
+    <value>انتشار التسلسل الهرمي</value>
+  </data>
+  <data name="WeightedAverage" xml:space="preserve">
+    <value>المتوسط المرجح</value>
+  </data>
+  <data name="CrossCuttingEntities" xml:space="preserve">
+    <value>الكيانات الشاملة</value>
+  </data>
+  <data name="MeasureCalculations" xml:space="preserve">
+    <value>حسابات القياس</value>
+  </data>
+  <!-- Hierarchy Section -->
+  <data name="HierarchyIntro" xml:space="preserve">
+    <value>تستخدم منصة الرصد والتقييم هيكلاً هرمياً حيث يتدفق الأداء من الأسفل (الخطط) إلى الأعلى (الإطار). يجمع كل مستوى الأداء من عناصره الفرعية.</value>
+  </data>
+  <data name="Framework" xml:space="preserve">
+    <value>الإطار</value>
+  </data>
+  <data name="Outcome" xml:space="preserve">
+    <value>النتيجة</value>
+  </data>
+  <data name="Output" xml:space="preserve">
+    <value>المخرج</value>
+  </data>
+  <data name="SubOutput" xml:space="preserve">
+    <value>المخرج الفرعي</value>
+  </data>
+  <data name="Indicator" xml:space="preserve">
+    <value>المؤشر</value>
+  </data>
+  <data name="Project" xml:space="preserve">
+    <value>المشروع</value>
+  </data>
+  <data name="ActionPlan" xml:space="preserve">
+    <value>خطة العمل</value>
+  </data>
+  <data name="Activity" xml:space="preserve">
+    <value>النشاط</value>
+  </data>
+  <data name="Plan" xml:space="preserve">
+    <value>الخطة</value>
+  </data>
+  <data name="HierarchyNote" xml:space="preserve">
+    <value>تنتشر حسابات الأداء صعوداً عبر التسلسل الهرمي. التغييرات في المستويات الدنيا تحدث تلقائياً جميع المستويات الأعلى.</value>
+  </data>
+  <!-- Plan Performance Section -->
+  <data name="PlanPerformanceIntro" xml:space="preserve">
+    <value>الخطط هي أدنى مستوى لتتبع الأداء. تتتبع كل خطة القيم المخططة مقابل المحققة لأنواع الأنشطة المختلفة.</value>
+  </data>
+  <data name="ActivityTypes" xml:space="preserve">
+    <value>أنواع الأنشطة</value>
+  </data>
+  <data name="DisbursementPerformance" xml:space="preserve">
+    <value>أداء الصرف</value>
+  </data>
+  <data name="DisbursementPerformanceDesc" xml:space="preserve">
+    <value>يتتبع تقدم صرف الأموال - مقارنة الإنفاق المخطط مقابل الفعلي</value>
+  </data>
+  <data name="FieldMonitoring" xml:space="preserve">
+    <value>الرصد الميداني</value>
+  </data>
+  <data name="FieldMonitoringDesc" xml:space="preserve">
+    <value>يراقب أنشطة التنفيذ الميداني والزيارات الميدانية</value>
+  </data>
+  <data name="ImpactAssessment" xml:space="preserve">
+    <value>تقييم الأثر</value>
+  </data>
+  <data name="ImpactAssessmentDesc" xml:space="preserve">
+    <value>يقيم التأثير الأوسع ونتائج أنشطة المشروع</value>
+  </data>
+  <data name="PhysicalPerformance" xml:space="preserve">
+    <value>الأداء المادي</value>
+  </data>
+  <data name="PhysicalPerformanceDesc" xml:space="preserve">
+    <value>يتتبع المخرجات المادية مثل البناء والمعدات وغيرها</value>
+  </data>
+  <data name="FinancialPerformance" xml:space="preserve">
+    <value>الأداء المالي</value>
+  </data>
+  <data name="FinancialPerformanceDesc" xml:space="preserve">
+    <value>يراقب التنفيذ المالي الشامل واستخدام الميزانية</value>
+  </data>
+  <!-- Project Performance Section -->
+  <data name="ProjectPerformanceIntro" xml:space="preserve">
+    <value>يُحسب أداء المشروع بتجميع بيانات الخطة من جميع الأنشطة داخل المشروع. يُحسب كل نوع أداء بشكل منفصل.</value>
+  </data>
+  <data name="Formula" xml:space="preserve">
+    <value>الصيغة</value>
+  </data>
+  <data name="PerformanceType" xml:space="preserve">
+    <value>نوع الأداء</value>
+  </data>
+  <data name="Where" xml:space="preserve">
+    <value>حيث</value>
+  </data>
+  <data name="SumOfRealisedValues" xml:space="preserve">
+    <value>مجموع جميع القيم المحققة/الفعلية من الخطط</value>
+  </data>
+  <data name="SumOfPlannedValues" xml:space="preserve">
+    <value>مجموع جميع القيم المخططة/المستهدفة من الخطط</value>
+  </data>
+  <data name="CalculationProcess" xml:space="preserve">
+    <value>عملية الحساب</value>
+  </data>
+  <data name="ProjectCalcStep1" xml:space="preserve">
+    <value>جمع جميع الخطط المرتبطة بالمشروع من خلال خطط العمل والأنشطة</value>
+  </data>
+  <data name="ProjectCalcStep2" xml:space="preserve">
+    <value>تجميع الخطط حسب نوع النشاط (الصرف، الرصد الميداني، إلخ)</value>
+  </data>
+  <data name="ProjectCalcStep3" xml:space="preserve">
+    <value>لكل نوع: جمع جميع القيم المخططة وجمع جميع القيم المحققة</value>
+  </data>
+  <data name="ProjectCalcStep4" xml:space="preserve">
+    <value>حساب النسبة المئوية: (إجمالي المحقق / إجمالي المخطط) × 100</value>
+  </data>
+  <data name="Important" xml:space="preserve">
+    <value>مهم</value>
+  </data>
+  <data name="ProjectCalcNote" xml:space="preserve">
+    <value>إذا كان إجمالي المخطط صفراً، يكون الأداء الافتراضي 0% لتجنب أخطاء القسمة.</value>
+  </data>
+  <!-- Indicator Performance Section -->
+  <data name="IndicatorPerformanceIntro" xml:space="preserve">
+    <value>يُشتق أداء المؤشر من المتوسط المرجح لجميع المشاريع المرتبطة بذلك المؤشر.</value>
+  </data>
+  <data name="CalculationDetails" xml:space="preserve">
+    <value>تفاصيل الحساب</value>
+  </data>
+  <data name="IndicatorCalcDetail1" xml:space="preserve">
+    <value>لكل مشروع وزن مخصص له (افتراضي: 1 إذا لم يُحدد)</value>
+  </data>
+  <data name="IndicatorCalcDetail2" xml:space="preserve">
+    <value>أداء المؤشر هو المتوسط المرجح لجميع المشاريع المرتبطة</value>
+  </data>
+  <data name="IndicatorCalcDetail3" xml:space="preserve">
+    <value>المشاريع ذات الأوزان الأعلى تساهم أكثر في الأداء الكلي للمؤشر</value>
+  </data>
+  <!-- Hierarchy Propagation Section -->
+  <data name="HierarchyPropagationIntro" xml:space="preserve">
+    <value>تتدفق حسابات الأداء صعوداً عبر التسلسل الهرمي. عند تحديث خطة، تُعاد حساب جميع المستويات الأعلى تلقائياً.</value>
+  </data>
+  <data name="Level" xml:space="preserve">
+    <value>المستوى</value>
+  </data>
+  <data name="CalculatedFrom" xml:space="preserve">
+    <value>محسوب من</value>
+  </data>
+  <data name="Method" xml:space="preserve">
+    <value>الطريقة</value>
+  </data>
+  <data name="Plans" xml:space="preserve">
+    <value>الخطط</value>
+  </data>
+  <data name="Projects" xml:space="preserve">
+    <value>المشاريع</value>
+  </data>
+  <data name="Indicators" xml:space="preserve">
+    <value>المؤشرات</value>
+  </data>
+  <data name="SubOutputs" xml:space="preserve">
+    <value>المخرجات الفرعية</value>
+  </data>
+  <data name="Outputs" xml:space="preserve">
+    <value>المخرجات</value>
+  </data>
+  <data name="Outcomes" xml:space="preserve">
+    <value>النتائج</value>
+  </data>
+  <data name="WeightedAverageMethod" xml:space="preserve">
+    <value>المتوسط المرجح</value>
+  </data>
+  <!-- Weighted Average Section -->
+  <data name="WeightedAverageIntro" xml:space="preserve">
+    <value>تُستخدم صيغة المتوسط المرجح في جميع أنحاء التسلسل الهرمي لحساب أداء العنصر الأعلى من العناصر الفرعية. العناصر ذات الأوزان الأعلى لها تأثير أكبر على النتيجة النهائية.</value>
+  </data>
+  <data name="PerformanceOfItem" xml:space="preserve">
+    <value>نسبة أداء كل عنصر (0-100)</value>
+  </data>
+  <data name="WeightOfItem" xml:space="preserve">
+    <value>الوزن المخصص لكل عنصر</value>
+  </data>
+  <data name="TotalWeight" xml:space="preserve">
+    <value>مجموع جميع الأوزان</value>
+  </data>
+  <data name="Example" xml:space="preserve">
+    <value>مثال</value>
+  </data>
+  <data name="ExampleScenario" xml:space="preserve">
+    <value>سيناريو المثال</value>
+  </data>
+  <data name="WeightedExampleScenario" xml:space="preserve">
+    <value>مؤشر له 3 مشاريع بأوزان مختلفة</value>
+  </data>
+  <data name="Performance" xml:space="preserve">
+    <value>الأداء</value>
+  </data>
+  <data name="Weight" xml:space="preserve">
+    <value>الوزن</value>
+  </data>
+  <data name="Contribution" xml:space="preserve">
+    <value>المساهمة</value>
+  </data>
+  <data name="ProjectA" xml:space="preserve">
+    <value>المشروع أ</value>
+  </data>
+  <data name="ProjectB" xml:space="preserve">
+    <value>المشروع ب</value>
+  </data>
+  <data name="ProjectC" xml:space="preserve">
+    <value>المشروع ج</value>
+  </data>
+  <data name="Total" xml:space="preserve">
+    <value>الإجمالي</value>
+  </data>
+  <data name="Result" xml:space="preserve">
+    <value>النتيجة</value>
+  </data>
+  <data name="Note" xml:space="preserve">
+    <value>ملاحظة</value>
+  </data>
+  <data name="WeightFallbackNote" xml:space="preserve">
+    <value>إذا كان إجمالي الوزن صفراً أو غير محدد، يعود النظام للمتوسط البسيط (كل عنصر يحصل على وزن 1).</value>
+  </data>
+  <!-- Cross-Cutting Entities Section -->
+  <data name="CrossCuttingIntro" xml:space="preserve">
+    <value>الكيانات الشاملة (الوزارات، المانحون، القطاعات) يُحسب أداؤها بناءً على جميع المشاريع المرتبطة بها.</value>
+  </data>
+  <data name="Ministries" xml:space="preserve">
+    <value>الوزارات</value>
+  </data>
+  <data name="MinistriesCalcDesc" xml:space="preserve">
+    <value>الأداء هو متوسط جميع المشاريع تحت الوزارة</value>
+  </data>
+  <data name="Donors" xml:space="preserve">
+    <value>المانحون</value>
+  </data>
+  <data name="DonorsCalcDesc" xml:space="preserve">
+    <value>الأداء هو متوسط جميع المشاريع الممولة من المانح</value>
+  </data>
+  <data name="Sectors" xml:space="preserve">
+    <value>القطاعات</value>
+  </data>
+  <data name="SectorsCalcDesc" xml:space="preserve">
+    <value>الأداء هو متوسط جميع المشاريع في القطاع</value>
+  </data>
+  <!-- Measure Calculations Section -->
+  <data name="MeasureCalcIntro" xml:space="preserve">
+    <value>تتتبع القياسات تقدم المؤشر عبر الزمن من خلال القيم المسجلة. تُستخدم الحسابات التالية لتحليل المؤشرات.</value>
+  </data>
+  <data name="CurrentAchievement" xml:space="preserve">
+    <value>الإنجاز الحالي</value>
+  </data>
+  <data name="RemainingToTarget" xml:space="preserve">
+    <value>المتبقي للهدف</value>
+  </data>
+  <data name="ProgressPercentage" xml:space="preserve">
+    <value>نسبة التقدم</value>
+  </data>
+  <data name="CumulativePerformance" xml:space="preserve">
+    <value>الأداء التراكمي</value>
+  </data>
+  <data name="CumulativeDesc" xml:space="preserve">
+    <value>المجموع التراكمي لجميع قيم القياس حتى النقطة n (يُستخدم في الرسوم البيانية)</value>
+  </data>
+  <!-- Summary Table -->
+  <data name="FormulaSummary" xml:space="preserve">
+    <value>ملخص الصيغ</value>
+  </data>
+  <data name="Calculation" xml:space="preserve">
+    <value>الحساب</value>
+  </data>
+  <data name="UsedIn" xml:space="preserve">
+    <value>يُستخدم في</value>
+  </data>
+  <data name="ProjectCalculation" xml:space="preserve">
+    <value>حسابات المشروع من الخطط</value>
+  </data>
+  <data name="HierarchyLevels" xml:space="preserve">
+    <value>جميع مستويات التسلسل الهرمي (المؤشر إلى الإطار)</value>
+  </data>
+  <data name="SimpleAverage" xml:space="preserve">
+    <value>المتوسط البسيط</value>
+  </data>
+  <data name="IndicatorDetails" xml:space="preserve">
+    <value>صفحة تفاصيل المؤشر</value>
+  </data>
+  <data name="CumulativeSum" xml:space="preserve">
+    <value>المجموع التراكمي</value>
+  </data>
+  <data name="ChartDisplay" xml:space="preserve">
+    <value>الرسوم البيانية للأداء والتصورات</value>
+  </data>
+</root>

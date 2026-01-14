@@ -1,0 +1,673 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+
+  <!-- Common Help Modal UI Labels -->
+  <data name="Overview" xml:space="preserve">
+    <value>نظرة عامة</value>
+  </data>
+  <data name="How To" xml:space="preserve">
+    <value>كيفية الاستخدام</value>
+  </data>
+  <data name="FAQ" xml:space="preserve">
+    <value>الأسئلة الشائعة</value>
+  </data>
+  <data name="Tips" xml:space="preserve">
+    <value>نصائح</value>
+  </data>
+  <data name="Close" xml:space="preserve">
+    <value>إغلاق</value>
+  </data>
+
+  <!-- General Help Content -->
+  <data name="HELP_GENERAL_TITLE" xml:space="preserve">
+    <value>دليل المستخدم</value>
+  </data>
+  <data name="HELP_GENERAL_OVERVIEW" xml:space="preserve">
+    <value>مرحباً بك في منصة المراقبة والتقييم. يساعدك هذا النظام على تتبع مشاريع التنمية وقياس مؤشرات الأداء وتقييم الأثر عبر أطر عمل متعددة.</value>
+  </data>
+  <data name="HELP_GENERAL_HOWTO_1" xml:space="preserve">
+    <value>استخدم شريط التنقل الجانبي للوصول إلى أقسام المنصة المختلفة.</value>
+  </data>
+  <data name="HELP_GENERAL_HOWTO_2" xml:space="preserve">
+    <value>اختر إطار عمل من شريط التنقل العلوي لعرض هيكله وأدائه.</value>
+  </data>
+  <data name="HELP_GENERAL_HOWTO_3" xml:space="preserve">
+    <value>استخدم لوحة المعلومات للحصول على نظرة عامة على جميع مقاييس المشاريع ومؤشرات الأداء.</value>
+  </data>
+  <data name="HELP_GENERAL_FAQ_Q1" xml:space="preserve">
+    <value>كيف أغير اللغة؟</value>
+  </data>
+  <data name="HELP_GENERAL_FAQ_A1" xml:space="preserve">
+    <value>استخدم القائمة المنسدلة للغة في الشريط الجانبي أو شريط التنقل العلوي للتبديل بين العربية والإنجليزية.</value>
+  </data>
+  <data name="HELP_GENERAL_FAQ_Q2" xml:space="preserve">
+    <value>كيف أصدر البيانات؟</value>
+  </data>
+  <data name="HELP_GENERAL_FAQ_A2" xml:space="preserve">
+    <value>تحتوي معظم جداول البيانات على أزرار تصدير إلى Excel وPDF في قسم الرأس. انقر على الزر المناسب لتحميل بياناتك.</value>
+  </data>
+  <data name="HELP_GENERAL_TIP_1" xml:space="preserve">
+    <value>استخدم خيارات البحث والتصفية للعثور بسرعة على مشاريع أو مؤشرات محددة.</value>
+  </data>
+  <data name="HELP_GENERAL_TIP_2" xml:space="preserve">
+    <value>يمكنك التبديل بين السمة الزرقاء والخضراء باستخدام محدد السمة في شريط التنقل.</value>
+  </data>
+
+  <!-- Frameworks Help Content -->
+  <data name="HELP_FRAMEWORKS_TITLE" xml:space="preserve">
+    <value>مساعدة أطر العمل</value>
+  </data>
+  <data name="HELP_FRAMEWORKS_OVERVIEW" xml:space="preserve">
+    <value>يتيح لك قسم أطر العمل إدارة أطر النتائج التي تنظم هيكل المراقبة والتقييم. تحتوي الأطر على نتائج ومخرجات ومخرجات فرعية ومؤشرات في هيكل هرمي.</value>
+  </data>
+  <data name="HELP_FRAMEWORKS_HOWTO_1" xml:space="preserve">
+    <value>انقر على "إنشاء إطار عمل جديد" لإضافة إطار مراقبة جديد باسمه ورمزه.</value>
+  </data>
+  <data name="HELP_FRAMEWORKS_HOWTO_2" xml:space="preserve">
+    <value>استخدم نموذج الإنشاء السريع في الأعلى لإضافة أطر عمل جديدة بسرعة.</value>
+  </data>
+  <data name="HELP_FRAMEWORKS_HOWTO_3" xml:space="preserve">
+    <value>انقر على اسم إطار العمل لعرض تسلسله الهرمي المفصل من النتائج والمخرجات والمؤشرات.</value>
+  </data>
+  <data name="HELP_FRAMEWORKS_FAQ_Q1" xml:space="preserve">
+    <value>ما هو الهيكل الهرمي؟</value>
+  </data>
+  <data name="HELP_FRAMEWORKS_FAQ_A1" xml:space="preserve">
+    <value>تتبع الأطر هذا التسلسل الهرمي: إطار العمل ← النتيجة ← المخرج ← المخرج الفرعي ← المؤشر ← المشروع. تتدفق مقاييس الأداء صعوداً عبر هذا الهيكل.</value>
+  </data>
+  <data name="HELP_FRAMEWORKS_FAQ_Q2" xml:space="preserve">
+    <value>كيف يتم حساب الأداء؟</value>
+  </data>
+  <data name="HELP_FRAMEWORKS_FAQ_A2" xml:space="preserve">
+    <value>يتم حساب الأداء من خطط مستوى المشروع وينتشر صعوداً عبر المؤشرات والمخرجات الفرعية والمخرجات والنتائج إلى مستوى إطار العمل.</value>
+  </data>
+  <data name="HELP_FRAMEWORKS_TIP_1" xml:space="preserve">
+    <value>استخدم الشريط الجانبي للتصفية لعرض الأطر حسب الوزارة أو الجهة المانحة أو القطاع.</value>
+  </data>
+  <data name="HELP_FRAMEWORKS_TIP_2" xml:space="preserve">
+    <value>يعرض شريط تقدم الأداء معدل الإنجاز الإجمالي لكل إطار عمل.</value>
+  </data>
+
+  <!-- Projects Help Content -->
+  <data name="HELP_PROJECTS_TITLE" xml:space="preserve">
+    <value>مساعدة المشاريع</value>
+  </data>
+  <data name="HELP_PROJECTS_OVERVIEW" xml:space="preserve">
+    <value>يتيح لك قسم المشاريع إدارة مشاريع التنمية وتتبع تقدمها وربطها بالمؤشرات. يمكن أن يحتوي كل مشروع على خطط عمل وأنشطة وقياسات أداء.</value>
+  </data>
+  <data name="HELP_PROJECTS_HOWTO_1" xml:space="preserve">
+    <value>انقر على "إنشاء مشروع جديد" لإضافة مشروع جديد بتفاصيله وموقعه وارتباطاته.</value>
+  </data>
+  <data name="HELP_PROJECTS_HOWTO_2" xml:space="preserve">
+    <value>استخدم عوامل التصفية على اليسار للبحث حسب الوزارة أو الجهة المانحة أو القطاع.</value>
+  </data>
+  <data name="HELP_PROJECTS_HOWTO_3" xml:space="preserve">
+    <value>انقر على اسم المشروع لعرض تفاصيله وخطط العمل ومقاييس الأداء.</value>
+  </data>
+  <data name="HELP_PROJECTS_FAQ_Q1" xml:space="preserve">
+    <value>كيف أربط مشروعاً بالمؤشرات؟</value>
+  </data>
+  <data name="HELP_PROJECTS_FAQ_A1" xml:space="preserve">
+    <value>في عرض تفاصيل المشروع، استخدم خيار "الربط بالمؤشرات" لربط المشروع بمؤشرات الأداء ذات الصلة.</value>
+  </data>
+  <data name="HELP_PROJECTS_FAQ_Q2" xml:space="preserve">
+    <value>ما هي أنواع الخطط المختلفة؟</value>
+  </data>
+  <data name="HELP_PROJECTS_FAQ_A2" xml:space="preserve">
+    <value>يمكن أن تحتوي المشاريع على خطط مالية وفعلية وأداء الصرف ومراقبة ميدانية وتقييم الأثر لتتبع جوانب مختلفة من التنفيذ.</value>
+  </data>
+  <data name="HELP_PROJECTS_TIP_1" xml:space="preserve">
+    <value>رتب المشاريع بالنقر على رؤوس الأعمدة للعثور بسرعة على المشاريع ذات الأداء العالي أو المنخفض.</value>
+  </data>
+  <data name="HELP_PROJECTS_TIP_2" xml:space="preserve">
+    <value>صدّر قوائم المشاريع إلى Excel للتحليل والتقارير التفصيلية.</value>
+  </data>
+
+  <!-- Monitoring Help Content -->
+  <data name="HELP_MONITORING_TITLE" xml:space="preserve">
+    <value>مساعدة المراقبة</value>
+  </data>
+  <data name="HELP_MONITORING_OVERVIEW" xml:space="preserve">
+    <value>يوفر قسم المراقبة رؤية شاملة لأداء المشاريع والمؤشرات. تتبع القيم المخططة مقابل المحققة ومراقبة التقدم على جميع مستويات التسلسل الهرمي.</value>
+  </data>
+  <data name="HELP_MONITORING_HOWTO_1" xml:space="preserve">
+    <value>اختر إطار عمل لعرض بيانات المراقبة على مستويات التسلسل الهرمي المختلفة.</value>
+  </data>
+  <data name="HELP_MONITORING_HOWTO_2" xml:space="preserve">
+    <value>تنقل عبر النتائج والمخرجات والمخرجات الفرعية والمؤشرات لرؤية الأداء التفصيلي.</value>
+  </data>
+  <data name="HELP_MONITORING_HOWTO_3" xml:space="preserve">
+    <value>أدخل القيم المخططة والمحققة في قسم القياسات لتحديث حسابات الأداء.</value>
+  </data>
+  <data name="HELP_MONITORING_FAQ_Q1" xml:space="preserve">
+    <value>كم مرة يجب تحديث بيانات المراقبة؟</value>
+  </data>
+  <data name="HELP_MONITORING_FAQ_A1" xml:space="preserve">
+    <value>يوصى بالتحديثات المنتظمة بناءً على دورة التقارير الخاصة بك (شهرياً أو ربع سنوياً أو سنوياً) للحفاظ على تتبع الأداء الدقيق.</value>
+  </data>
+  <data name="HELP_MONITORING_FAQ_Q2" xml:space="preserve">
+    <value>ماذا تعني ألوان شريط التقدم؟</value>
+  </data>
+  <data name="HELP_MONITORING_FAQ_A2" xml:space="preserve">
+    <value>يشير الأخضر إلى أداء جيد (فوق الهدف)، والأصفر يظهر تقدماً معتدلاً، والبرتقالي يشير إلى أقل من الهدف، والأحمر يظهر ضعفاً حاداً في الأداء.</value>
+  </data>
+  <data name="HELP_MONITORING_TIP_1" xml:space="preserve">
+    <value>استخدم شريط التنقل التفصيلي للتنقل بسرعة بين مستويات التسلسل الهرمي.</value>
+  </data>
+  <data name="HELP_MONITORING_TIP_2" xml:space="preserve">
+    <value>انقر على أوزان المؤشرات لضبط كيفية تجميع الأداء على المستويات الأعلى.</value>
+  </data>
+
+  <!-- Indicators Help Content -->
+  <data name="HELP_INDICATORS_TITLE" xml:space="preserve">
+    <value>مساعدة المؤشرات</value>
+  </data>
+  <data name="HELP_INDICATORS_OVERVIEW" xml:space="preserve">
+    <value>المؤشرات هي مقاييس أداء قابلة للقياس تتتبع التقدم نحو النتائج والمخرجات. لكل مؤشر قيمة مستهدفة ويمكن ربطه بمشاريع متعددة.</value>
+  </data>
+  <data name="HELP_INDICATORS_HOWTO_1" xml:space="preserve">
+    <value>انقر على "إضافة مؤشر" لإنشاء مؤشر جديد باسمه وقيمته المستهدفة.</value>
+  </data>
+  <data name="HELP_INDICATORS_HOWTO_2" xml:space="preserve">
+    <value>استخدم "إضافة وإنشاء مشروع" لإنشاء مؤشر وربطه بمشروع جديد في وقت واحد.</value>
+  </data>
+  <data name="HELP_INDICATORS_HOWTO_3" xml:space="preserve">
+    <value>اضبط أوزان المؤشرات للتحكم في كيفية مساهمتها في الأداء الإجمالي.</value>
+  </data>
+  <data name="HELP_INDICATORS_FAQ_Q1" xml:space="preserve">
+    <value>ما هي أوزان المؤشرات؟</value>
+  </data>
+  <data name="HELP_INDICATORS_FAQ_A1" xml:space="preserve">
+    <value>تحدد الأوزان مقدار مساهمة كل مؤشر في حساب الأداء على مستوى المخرج الفرعي. الأوزان الأعلى تعني تأثيراً أكبر على النتيجة الإجمالية.</value>
+  </data>
+  <data name="HELP_INDICATORS_FAQ_Q2" xml:space="preserve">
+    <value>كيف أربط المؤشرات بالمشاريع؟</value>
+  </data>
+  <data name="HELP_INDICATORS_FAQ_A2" xml:space="preserve">
+    <value>استخدم قسم القياسات لإنشاء روابط بين المؤشرات والمشاريع، ثم أدخل القيم المخططة والمحققة لتتبع التقدم.</value>
+  </data>
+  <data name="HELP_INDICATORS_TIP_1" xml:space="preserve">
+    <value>استخدم التحرير المباشر لتحديث أسماء المؤشرات بسرعة دون الانتقال إلى صفحة منفصلة.</value>
+  </data>
+  <data name="HELP_INDICATORS_TIP_2" xml:space="preserve">
+    <value>يعرض عرض "المؤشرات والمشاريع" جميع المشاريع المرتبطة بكل مؤشر في جدول واحد.</value>
+  </data>
+
+  <!-- Outcomes Help Content -->
+  <data name="HELP_OUTCOMES_TITLE" xml:space="preserve">
+    <value>مساعدة النتائج</value>
+  </data>
+  <data name="HELP_OUTCOMES_OVERVIEW" xml:space="preserve">
+    <value>تمثل النتائج النتائج عالية المستوى المتوقعة من إطار عملك. تحتوي على مخرجات تنقسم بدورها إلى مخرجات فرعية ومؤشرات.</value>
+  </data>
+  <data name="HELP_OUTCOMES_HOWTO_1" xml:space="preserve">
+    <value>انتقل إلى إطار عمل وانقر على "إضافة نتيجة" لإنشاء نتيجة جديدة.</value>
+  </data>
+  <data name="HELP_OUTCOMES_HOWTO_2" xml:space="preserve">
+    <value>انقر على اسم النتيجة لعرض وإدارة مخرجاتها.</value>
+  </data>
+  <data name="HELP_OUTCOMES_HOWTO_3" xml:space="preserve">
+    <value>استخدم "ضبط الأوزان" للتحكم في كيفية مساهمة المخرجات في أداء النتيجة.</value>
+  </data>
+  <data name="HELP_OUTCOMES_FAQ_Q1" xml:space="preserve">
+    <value>ما هي العلاقة بين النتائج والمخرجات؟</value>
+  </data>
+  <data name="HELP_OUTCOMES_FAQ_A1" xml:space="preserve">
+    <value>تتحقق النتائج من خلال المخرجات. يمكن أن يكون لكل نتيجة مخرجات متعددة، ويتم حساب أداء النتيجة من مخرجاتها المرجحة.</value>
+  </data>
+  <data name="HELP_OUTCOMES_FAQ_Q2" xml:space="preserve">
+    <value>هل يمكنني نقل المخرجات بين النتائج؟</value>
+  </data>
+  <data name="HELP_OUTCOMES_FAQ_A2" xml:space="preserve">
+    <value>نعم، يمكنك تحرير مخرج وتغيير النتيجة الأصلية لإعادة تنظيم هيكل إطار عملك.</value>
+  </data>
+  <data name="HELP_OUTCOMES_TIP_1" xml:space="preserve">
+    <value>استخدم أسماء نتائج ذات معنى تصف بوضوح النتيجة المتوقعة.</value>
+  </data>
+  <data name="HELP_OUTCOMES_TIP_2" xml:space="preserve">
+    <value>راجع أوزان النتائج بانتظام للتأكد من أنها تعكس أولويات المراقبة الخاصة بك.</value>
+  </data>
+
+  <!-- Outputs Help Content -->
+  <data name="HELP_OUTPUTS_TITLE" xml:space="preserve">
+    <value>مساعدة المخرجات</value>
+  </data>
+  <data name="HELP_OUTPUTS_OVERVIEW" xml:space="preserve">
+    <value>المخرجات هي المنجزات التي تساهم في تحقيق النتائج. تحتوي على مخرجات فرعية ترتبط بمؤشرات ومشاريع محددة.</value>
+  </data>
+  <data name="HELP_OUTPUTS_HOWTO_1" xml:space="preserve">
+    <value>من عرض النتيجة، انقر على "إضافة مخرج" لإنشاء مخرج جديد.</value>
+  </data>
+  <data name="HELP_OUTPUTS_HOWTO_2" xml:space="preserve">
+    <value>انقر على اسم المخرج لعرض مخرجاته الفرعية ومؤشراته.</value>
+  </data>
+  <data name="HELP_OUTPUTS_HOWTO_3" xml:space="preserve">
+    <value>اضبط أوزان المخرجات الفرعية من عرض المخرج للتحكم في التجميع.</value>
+  </data>
+  <data name="HELP_OUTPUTS_FAQ_Q1" xml:space="preserve">
+    <value>كم عدد المخرجات التي يجب أن تحتويها النتيجة؟</value>
+  </data>
+  <data name="HELP_OUTPUTS_FAQ_A1" xml:space="preserve">
+    <value>لا يوجد حد صارم، ولكن عادةً 3-7 مخرجات لكل نتيجة توفر توازناً جيداً بين التفصيل وسهولة الإدارة.</value>
+  </data>
+  <data name="HELP_OUTPUTS_FAQ_Q2" xml:space="preserve">
+    <value>ماذا لو لم يكن للمخرج مخرجات فرعية؟</value>
+  </data>
+  <data name="HELP_OUTPUTS_FAQ_A2" xml:space="preserve">
+    <value>يجب أن تحتوي المخرجات على مخرج فرعي واحد على الأقل للاتصال بالمؤشرات. أنشئ مخرجات فرعية لتتبع أداء المخرج بشكل صحيح.</value>
+  </data>
+  <data name="HELP_OUTPUTS_TIP_1" xml:space="preserve">
+    <value>تساعد رموز المخرجات في إعداد التقارير وتصدير البيانات. استخدم اصطلاحات تسمية متسقة.</value>
+  </data>
+  <data name="HELP_OUTPUTS_TIP_2" xml:space="preserve">
+    <value>يعرض شريط أداء المخرج المتوسط المرجح لجميع مخرجاته الفرعية.</value>
+  </data>
+
+  <!-- SubOutputs Help Content -->
+  <data name="HELP_SUBOUTPUTS_TITLE" xml:space="preserve">
+    <value>مساعدة المخرجات الفرعية</value>
+  </data>
+  <data name="HELP_SUBOUTPUTS_OVERVIEW" xml:space="preserve">
+    <value>تقسم المخرجات الفرعية المخرجات إلى مكونات أكثر تحديداً وترتبط مباشرة بالمؤشرات. تمثل المستوى الأكثر تفصيلاً من إطار النتائج قبل المؤشرات.</value>
+  </data>
+  <data name="HELP_SUBOUTPUTS_HOWTO_1" xml:space="preserve">
+    <value>من عرض المخرج، انقر على "إضافة مخرج فرعي" لإنشاء مخرج فرعي جديد.</value>
+  </data>
+  <data name="HELP_SUBOUTPUTS_HOWTO_2" xml:space="preserve">
+    <value>انقر على مخرج فرعي لعرض وإدارة مؤشراته.</value>
+  </data>
+  <data name="HELP_SUBOUTPUTS_HOWTO_3" xml:space="preserve">
+    <value>استخدم عرض قائمة المشاريع لرؤية جميع المشاريع المرتبطة من خلال مؤشرات هذا المخرج الفرعي.</value>
+  </data>
+  <data name="HELP_SUBOUTPUTS_FAQ_Q1" xml:space="preserve">
+    <value>ما هو الغرض من المخرجات الفرعية؟</value>
+  </data>
+  <data name="HELP_SUBOUTPUTS_FAQ_A1" xml:space="preserve">
+    <value>توفر المخرجات الفرعية طبقة إضافية من التنظيم بين المخرجات والمؤشرات، مما يسمح بتتبع وإعداد تقارير أكثر تفصيلاً.</value>
+  </data>
+  <data name="HELP_SUBOUTPUTS_FAQ_Q2" xml:space="preserve">
+    <value>كيف أرى جميع المشاريع لمخرج فرعي؟</value>
+  </data>
+  <data name="HELP_SUBOUTPUTS_FAQ_A2" xml:space="preserve">
+    <value>انتقل إلى المخرجات الفرعية ← قائمة المشاريع لرؤية جميع المشاريع المرتبطة من خلال مؤشرات المخرج الفرعي.</value>
+  </data>
+  <data name="HELP_SUBOUTPUTS_TIP_1" xml:space="preserve">
+    <value>احتفظ بأسماء المخرجات الفرعية محددة وقابلة للقياس لجعل إعداد التقارير أوضح.</value>
+  </data>
+  <data name="HELP_SUBOUTPUTS_TIP_2" xml:space="preserve">
+    <value>استخدم أوزان المؤشرات داخل المخرجات الفرعية لتحديد أولويات مقاييس الأداء الرئيسية.</value>
+  </data>
+
+  <!-- Dashboard Help Content -->
+  <data name="HELP_DASHBOARD_TITLE" xml:space="preserve">
+    <value>مساعدة لوحة المعلومات</value>
+  </data>
+  <data name="HELP_DASHBOARD_OVERVIEW" xml:space="preserve">
+    <value>توفر لوحة المعلومات نظرة عامة شاملة على جميع بيانات المراقبة بما في ذلك الإحصائيات والرسوم البيانية والنشاط الأخير. استخدمها للحصول على لمحة سريعة عن الأداء على مستوى المنصة.</value>
+  </data>
+  <data name="HELP_DASHBOARD_HOWTO_1" xml:space="preserve">
+    <value>اعرض بطاقات الإحصائيات في الأعلى لرؤية أعداد المشاريع والوزارات والأطر.</value>
+  </data>
+  <data name="HELP_DASHBOARD_HOWTO_2" xml:space="preserve">
+    <value>استخدم الرسوم البيانية لتحليل توزيع المشاريع حسب الوزارة والموقع واتجاهات الأداء.</value>
+  </data>
+  <data name="HELP_DASHBOARD_HOWTO_3" xml:space="preserve">
+    <value>تحقق من قسم تقدم التنفيذ للاطلاع على معدلات الإنجاز على مستوى إطار العمل.</value>
+  </data>
+  <data name="HELP_DASHBOARD_FAQ_Q1" xml:space="preserve">
+    <value>كم مرة يتم تحديث لوحة المعلومات؟</value>
+  </data>
+  <data name="HELP_DASHBOARD_FAQ_A1" xml:space="preserve">
+    <value>تعرض لوحة المعلومات بيانات فورية من قاعدة البيانات. تظهر التحديثات فوراً عند تغيير البيانات الأساسية.</value>
+  </data>
+  <data name="HELP_DASHBOARD_FAQ_Q2" xml:space="preserve">
+    <value>هل يمكنني تخصيص عرض لوحة المعلومات؟</value>
+  </data>
+  <data name="HELP_DASHBOARD_FAQ_A2" xml:space="preserve">
+    <value>حالياً تخطيط لوحة المعلومات ثابت، ولكن يمكنك تغيير السمة (الزرقاء أو الخضراء) باستخدام محدد السمة.</value>
+  </data>
+  <data name="HELP_DASHBOARD_TIP_1" xml:space="preserve">
+    <value>مرر فوق عناصر الرسم البياني لرؤية تلميحات الأدوات التفصيلية بالقيم الدقيقة.</value>
+  </data>
+  <data name="HELP_DASHBOARD_TIP_2" xml:space="preserve">
+    <value>يعرض قسم النشاط الأخير أحدث التغييرات عبر المنصة.</value>
+  </data>
+
+  <!-- Measures Help Content -->
+  <data name="HELP_MEASURES_TITLE" xml:space="preserve">
+    <value>مساعدة القياسات</value>
+  </data>
+  <data name="HELP_MEASURES_OVERVIEW" xml:space="preserve">
+    <value>تربط القياسات المشاريع بالمؤشرات وتتتبع القيم المخططة مقابل المحققة. وهي الأساس لحساب مقاييس الأداء في جميع أنحاء النظام.</value>
+  </data>
+  <data name="HELP_MEASURES_HOWTO_1" xml:space="preserve">
+    <value>اختر مجموعة من المشروع والمؤشر لإنشاء قياس جديد.</value>
+  </data>
+  <data name="HELP_MEASURES_HOWTO_2" xml:space="preserve">
+    <value>أدخل القيمة المخططة (المستهدفة) للمؤشر بناءً على أهداف المشروع.</value>
+  </data>
+  <data name="HELP_MEASURES_HOWTO_3" xml:space="preserve">
+    <value>حدّث القيمة المحققة مع تقدم المشروع لتتبع الأداء الفعلي.</value>
+  </data>
+  <data name="HELP_MEASURES_FAQ_Q1" xml:space="preserve">
+    <value>ماذا يحدث عند تحديث قياس؟</value>
+  </data>
+  <data name="HELP_MEASURES_FAQ_A1" xml:space="preserve">
+    <value>تنتشر حسابات الأداء تلقائياً صعوداً عبر المؤشرات والمخرجات الفرعية والمخرجات والنتائج والأطر.</value>
+  </data>
+  <data name="HELP_MEASURES_FAQ_Q2" xml:space="preserve">
+    <value>هل يمكن أن يحتوي المشروع على قياسات متعددة لنفس المؤشر؟</value>
+  </data>
+  <data name="HELP_MEASURES_FAQ_A2" xml:space="preserve">
+    <value>عادةً يكون لكل زوج مشروع-مؤشر قياس واحد، ولكن يمكنك تتبع فترات زمنية متعددة باستخدام الخطط داخل المشروع.</value>
+  </data>
+  <data name="HELP_MEASURES_TIP_1" xml:space="preserve">
+    <value>حافظ على تحديث القياسات بانتظام للحفاظ على تقارير أداء دقيقة.</value>
+  </data>
+  <data name="HELP_MEASURES_TIP_2" xml:space="preserve">
+    <value>استخدم ميزات التحرير المجمع عندما تحتاج إلى تحديث قياسات متعددة في وقت واحد.</value>
+  </data>
+
+  <!-- Action Plans Help Content -->
+  <data name="HELP_ACTIONPLANS_TITLE" xml:space="preserve">
+    <value>مساعدة خطط العمل</value>
+  </data>
+  <data name="HELP_ACTIONPLANS_OVERVIEW" xml:space="preserve">
+    <value>تحدد خطط العمل استراتيجية التنفيذ للمشاريع. تحتوي على أنشطة وخطط تتتبع جوانب مختلفة من تنفيذ المشروع.</value>
+  </data>
+  <data name="HELP_ACTIONPLANS_HOWTO_1" xml:space="preserve">
+    <value>انتقل إلى مشروع وانقر على "إنشاء خطة عمل" لإضافة خطة تنفيذ جديدة.</value>
+  </data>
+  <data name="HELP_ACTIONPLANS_HOWTO_2" xml:space="preserve">
+    <value>أضف أنشطة إلى خطة العمل لتفصيل خطوات التنفيذ المحددة.</value>
+  </data>
+  <data name="HELP_ACTIONPLANS_HOWTO_3" xml:space="preserve">
+    <value>تتبع التقدم بتحديث أنواع الخطط (المالية، الفعلية، الصرف، إلخ).</value>
+  </data>
+  <data name="HELP_ACTIONPLANS_FAQ_Q1" xml:space="preserve">
+    <value>ما هي أنواع الخطط المختلفة؟</value>
+  </data>
+  <data name="HELP_ACTIONPLANS_FAQ_A1" xml:space="preserve">
+    <value>تشمل أنواع الخطط: المالية (تتبع الميزانية)، الفعلية (تقدم التنفيذ)، أداء الصرف، المراقبة الميدانية، وتقييم الأثر.</value>
+  </data>
+  <data name="HELP_ACTIONPLANS_FAQ_Q2" xml:space="preserve">
+    <value>كيف تؤثر خطط العمل على أداء المشروع؟</value>
+  </data>
+  <data name="HELP_ACTIONPLANS_FAQ_A2" xml:space="preserve">
+    <value>يتم حساب أداء المشروع من الخطط داخل خطط العمل. يساهم كل نوع خطة في درجة أداء المشروع الإجمالية.</value>
+  </data>
+  <data name="HELP_ACTIONPLANS_TIP_1" xml:space="preserve">
+    <value>قسّم المشاريع المعقدة إلى أنشطة متعددة لتتبع أفضل.</value>
+  </data>
+  <data name="HELP_ACTIONPLANS_TIP_2" xml:space="preserve">
+    <value>استخدم جميع أنواع الخطط للحصول على رؤية شاملة لتنفيذ المشروع.</value>
+  </data>
+
+  <!-- Activities Help Content -->
+  <data name="HELP_ACTIVITIES_TITLE" xml:space="preserve">
+    <value>مساعدة الأنشطة</value>
+  </data>
+  <data name="HELP_ACTIVITIES_OVERVIEW" xml:space="preserve">
+    <value>الأنشطة هي خطوات التنفيذ المحددة ضمن خطة عمل. يمكن أن يكون لكل نشاط خططه الخاصة لتتبع جوانب مختلفة من التنفيذ.</value>
+  </data>
+  <data name="HELP_ACTIVITIES_HOWTO_1" xml:space="preserve">
+    <value>من خطة عمل، انقر على "إضافة نشاط" لإنشاء نشاط تنفيذ جديد.</value>
+  </data>
+  <data name="HELP_ACTIVITIES_HOWTO_2" xml:space="preserve">
+    <value>أدخل تفاصيل النشاط بما في ذلك الاسم والوصف والجدول الزمني.</value>
+  </data>
+  <data name="HELP_ACTIVITIES_HOWTO_3" xml:space="preserve">
+    <value>أضف خططاً إلى النشاط لتتبع المقاييس المالية والفعلية وغيرها.</value>
+  </data>
+  <data name="HELP_ACTIVITIES_FAQ_Q1" xml:space="preserve">
+    <value>ما مدى التفصيل المطلوب للأنشطة؟</value>
+  </data>
+  <data name="HELP_ACTIVITIES_FAQ_A1" xml:space="preserve">
+    <value>يجب أن تكون الأنشطة محددة بما يكفي للتتبع بشكل هادف ولكن ليست دقيقة جداً بحيث يصعب إدارتها. استهدف معالم قابلة للقياس.</value>
+  </data>
+  <data name="HELP_ACTIVITIES_FAQ_Q2" xml:space="preserve">
+    <value>هل يمكن أن يكون للأنشطة أنواع خطط مختلفة؟</value>
+  </data>
+  <data name="HELP_ACTIVITIES_FAQ_A2" xml:space="preserve">
+    <value>نعم، يمكن أن يحتوي كل نشاط على خطط مالية وفعلية وأداء الصرف ومراقبة ميدانية وتقييم الأثر.</value>
+  </data>
+  <data name="HELP_ACTIVITIES_TIP_1" xml:space="preserve">
+    <value>استخدم أسماء واضحة وموجهة نحو العمل للأنشطة (مثل "إجراء جلسات تدريبية").</value>
+  </data>
+  <data name="HELP_ACTIVITIES_TIP_2" xml:space="preserve">
+    <value>التحديثات المنتظمة لخطط الأنشطة تضمن تتبع أداء المشروع بدقة.</value>
+  </data>
+
+  <!-- Ministries Help Content -->
+  <data name="HELP_MINISTRIES_TITLE" xml:space="preserve">
+    <value>مساعدة الوزارات</value>
+  </data>
+  <data name="HELP_MINISTRIES_OVERVIEW" xml:space="preserve">
+    <value>الوزارات هي الجهات الحكومية التي تنفذ المشاريع. يتتبع النظام توزيع المشاريع والأداء عبر مختلف الوزارات.</value>
+  </data>
+  <data name="HELP_MINISTRIES_HOWTO_1" xml:space="preserve">
+    <value>اعرض قائمة الوزارات لرؤية جميع الجهات الحكومية المسجلة.</value>
+  </data>
+  <data name="HELP_MINISTRIES_HOWTO_2" xml:space="preserve">
+    <value>انقر على وزارة لرؤية جميع مشاريعها المرتبطة ومقاييس الأداء.</value>
+  </data>
+  <data name="HELP_MINISTRIES_HOWTO_3" xml:space="preserve">
+    <value>استخدم عرض النتائج لرؤية تفصيل الأداء على مستوى الوزارة.</value>
+  </data>
+  <data name="HELP_MINISTRIES_FAQ_Q1" xml:space="preserve">
+    <value>من يمكنه إدارة معلومات الوزارة؟</value>
+  </data>
+  <data name="HELP_MINISTRIES_FAQ_A1" xml:space="preserve">
+    <value>يمكن لمسؤولي النظام إضافة وتحرير معلومات الوزارة. يمكن لمستخدمي الوزارة عرض وإدارة مشاريع وزارتهم.</value>
+  </data>
+  <data name="HELP_MINISTRIES_FAQ_Q2" xml:space="preserve">
+    <value>كيف أرى أداء وزارة معينة؟</value>
+  </data>
+  <data name="HELP_MINISTRIES_FAQ_A2" xml:space="preserve">
+    <value>انتقل إلى الوزارات والجهات في شريط التنقل العلوي، ثم اختر وزارة محددة لرؤية نتائجها وتفصيل أدائها.</value>
+  </data>
+  <data name="HELP_MINISTRIES_TIP_1" xml:space="preserve">
+    <value>استخدم ميزة البحث للعثور بسرعة على وزارات محددة.</value>
+  </data>
+  <data name="HELP_MINISTRIES_TIP_2" xml:space="preserve">
+    <value>يعرض عرض تفصيل الأداء مقاييس مفصلة على مستوى الوزارة.</value>
+  </data>
+
+  <!-- Donors Help Content -->
+  <data name="HELP_DONORS_TITLE" xml:space="preserve">
+    <value>مساعدة الجهات المانحة</value>
+  </data>
+  <data name="HELP_DONORS_OVERVIEW" xml:space="preserve">
+    <value>الجهات المانحة هي شركاء التعاون الدولي الذين يمولون مشاريع التنمية. تشمل منظمات الأمم المتحدة والمنظمات غير الحكومية والدول والجهات المحلية.</value>
+  </data>
+  <data name="HELP_DONORS_HOWTO_1" xml:space="preserve">
+    <value>اعرض الجهات المانحة حسب الفئة: منظمات الأمم المتحدة، المنظمات الدولية غير الحكومية، الدول، أو المحلية.</value>
+  </data>
+  <data name="HELP_DONORS_HOWTO_2" xml:space="preserve">
+    <value>انقر على جهة مانحة لرؤية جميع المشاريع التي تمولها.</value>
+  </data>
+  <data name="HELP_DONORS_HOWTO_3" xml:space="preserve">
+    <value>استخدم عرض النتائج لتحليل مساهمة الجهة المانحة وأداء المشروع.</value>
+  </data>
+  <data name="HELP_DONORS_FAQ_Q1" xml:space="preserve">
+    <value>ما هي فئات الجهات المانحة؟</value>
+  </data>
+  <data name="HELP_DONORS_FAQ_A1" xml:space="preserve">
+    <value>تصنف الجهات المانحة إلى: منظمات الأمم المتحدة، المنظمات الدولية غير الحكومية، الدول، والجهات المحلية.</value>
+  </data>
+  <data name="HELP_DONORS_FAQ_Q2" xml:space="preserve">
+    <value>هل يمكن أن يكون للمشروع جهات مانحة متعددة؟</value>
+  </data>
+  <data name="HELP_DONORS_FAQ_A2" xml:space="preserve">
+    <value>نعم، يمكن ربط المشاريع بجهات مانحة متعددة لتتبع التمويل متعدد المصادر.</value>
+  </data>
+  <data name="HELP_DONORS_TIP_1" xml:space="preserve">
+    <value>صفّ المشاريع حسب الجهة المانحة لتحليل أداء مصدر تمويل معين.</value>
+  </data>
+  <data name="HELP_DONORS_TIP_2" xml:space="preserve">
+    <value>استخدم تقارير الجهات المانحة للتقارير السنوية لشركاء التمويل.</value>
+  </data>
+
+  <!-- Sectors Help Content -->
+  <data name="HELP_SECTORS_TITLE" xml:space="preserve">
+    <value>مساعدة القطاعات</value>
+  </data>
+  <data name="HELP_SECTORS_OVERVIEW" xml:space="preserve">
+    <value>تصنف القطاعات المشاريع حسب مجال تنفيذها: عام، خاص، مشترك، أو محلي. يساعد هذا في تحليل توزيع المشاريع والأداء حسب القطاع.</value>
+  </data>
+  <data name="HELP_SECTORS_HOWTO_1" xml:space="preserve">
+    <value>اختر قطاعاً من قائمة القطاعات لعرض المشاريع الخاصة بالقطاع.</value>
+  </data>
+  <data name="HELP_SECTORS_HOWTO_2" xml:space="preserve">
+    <value>استخدم مرشحات القطاع عند عرض المشاريع للتركيز على مجالات محددة.</value>
+  </data>
+  <data name="HELP_SECTORS_HOWTO_3" xml:space="preserve">
+    <value>قارن أداء القطاعات في الرسوم البيانية للوحة المعلومات.</value>
+  </data>
+  <data name="HELP_SECTORS_FAQ_Q1" xml:space="preserve">
+    <value>ما هي القطاعات المتاحة؟</value>
+  </data>
+  <data name="HELP_SECTORS_FAQ_A1" xml:space="preserve">
+    <value>يتضمن النظام قطاعات العام والخاص والمشترك والمحلي لتصنيف المشاريع.</value>
+  </data>
+  <data name="HELP_SECTORS_FAQ_Q2" xml:space="preserve">
+    <value>هل يمكنني إنشاء قطاعات جديدة؟</value>
+  </data>
+  <data name="HELP_SECTORS_FAQ_A2" xml:space="preserve">
+    <value>القطاعات محددة من قبل النظام. اتصل بمسؤول النظام إذا كنت بحاجة إلى فئات قطاعات إضافية.</value>
+  </data>
+  <data name="HELP_SECTORS_TIP_1" xml:space="preserve">
+    <value>استخدم تصنيف القطاع بشكل متسق عند إنشاء المشاريع.</value>
+  </data>
+  <data name="HELP_SECTORS_TIP_2" xml:space="preserve">
+    <value>يساعد تحليل القطاع في تحديد مجالات التركيز وتخصيص الموارد.</value>
+  </data>
+
+  <!-- Location Help Content -->
+  <data name="HELP_LOCATION_TITLE" xml:space="preserve">
+    <value>مساعدة الموقع</value>
+  </data>
+  <data name="HELP_LOCATION_OVERVIEW" xml:space="preserve">
+    <value>يدير قسم الموقع التسلسل الهرمي الجغرافي لتنفيذ المشروع: المحافظات والمناطق والنواحي والمجتمعات. يمكن ربط المشاريع بمواقع محددة للتحليل الجغرافي.</value>
+  </data>
+  <data name="HELP_LOCATION_HOWTO_1" xml:space="preserve">
+    <value>تنقل عبر التسلسل الهرمي للموقع بدءاً من المحافظات.</value>
+  </data>
+  <data name="HELP_LOCATION_HOWTO_2" xml:space="preserve">
+    <value>أضف مواقع جديدة على كل مستوى باستخدام أزرار الإنشاء.</value>
+  </data>
+  <data name="HELP_LOCATION_HOWTO_3" xml:space="preserve">
+    <value>اعرض المشاريع حسب الموقع لرؤية التوزيع الجغرافي.</value>
+  </data>
+  <data name="HELP_LOCATION_FAQ_Q1" xml:space="preserve">
+    <value>ما هو التسلسل الهرمي للموقع؟</value>
+  </data>
+  <data name="HELP_LOCATION_FAQ_A1" xml:space="preserve">
+    <value>التسلسل الهرمي هو: المحافظة ← المنطقة ← الناحية ← المجتمع. يمكن ربط المشاريع على أي مستوى.</value>
+  </data>
+  <data name="HELP_LOCATION_FAQ_Q2" xml:space="preserve">
+    <value>كيف أرى المشاريع في موقع محدد؟</value>
+  </data>
+  <data name="HELP_LOCATION_FAQ_A2" xml:space="preserve">
+    <value>استخدم عرض "المشاريع مع المواقع" لرؤية المشاريع المعينة للمناطق الجغرافية.</value>
+  </data>
+  <data name="HELP_LOCATION_TIP_1" xml:space="preserve">
+    <value>تتيح بيانات الموقع الدقيقة التحليل الجغرافي وإعداد التقارير.</value>
+  </data>
+  <data name="HELP_LOCATION_TIP_2" xml:space="preserve">
+    <value>تعرض لوحة المعلومات توزيع المشاريع حسب المحافظة في الرسوم البيانية.</value>
+  </data>
+
+  <!-- Home Help Content -->
+  <data name="HELP_HOME_TITLE" xml:space="preserve">
+    <value>مساعدة الصفحة الرئيسية</value>
+  </data>
+  <data name="HELP_HOME_OVERVIEW" xml:space="preserve">
+    <value>توفر الصفحة الرئيسية نظرة عامة سريعة على منصة المراقبة والتقييم مع إحصائيات رئيسية ورسوم بيانية وتنقل إلى الأقسام الرئيسية.</value>
+  </data>
+  <data name="HELP_HOME_HOWTO_1" xml:space="preserve">
+    <value>استخدم شريط التنقل العلوي للوصول إلى أقسام مختلفة من المنصة.</value>
+  </data>
+  <data name="HELP_HOME_HOWTO_2" xml:space="preserve">
+    <value>اعرض بطاقات الإحصائيات للحصول على أعداد سريعة للمشاريع والوزارات والأطر.</value>
+  </data>
+  <data name="HELP_HOME_HOWTO_3" xml:space="preserve">
+    <value>استخدم الشريط الجانبي للانتقال إلى الأطر والمشاريع والمراقبة ولوحة المعلومات.</value>
+  </data>
+  <data name="HELP_HOME_FAQ_Q1" xml:space="preserve">
+    <value>كيف أبدأ؟</value>
+  </data>
+  <data name="HELP_HOME_FAQ_A1" xml:space="preserve">
+    <value>ابدأ باستكشاف قسم الأطر لفهم التسلسل الهرمي للنتائج، ثم انتقل إلى المشاريع لرؤية تفاصيل التنفيذ.</value>
+  </data>
+  <data name="HELP_HOME_FAQ_Q2" xml:space="preserve">
+    <value>أين يمكنني العثور على مساعدة تفصيلية؟</value>
+  </data>
+  <data name="HELP_HOME_FAQ_A2" xml:space="preserve">
+    <value>كل قسم يحتوي على زر مساعدة يوفر إرشادات خاصة بالسياق. انقر على أيقونة علامة الاستفهام في رأس أي قسم.</value>
+  </data>
+  <data name="HELP_HOME_TIP_1" xml:space="preserve">
+    <value>أضف الصفحة الرئيسية إلى المفضلة للوصول السريع إلى نظرة عامة على المنصة.</value>
+  </data>
+  <data name="HELP_HOME_TIP_2" xml:space="preserve">
+    <value>استخدم محدد السمة للتبديل بين السمات المرئية الزرقاء والخضراء.</value>
+  </data>
+</root>

@@ -11,6 +11,7 @@
 @{
     ViewData["Title"] = "Results Frameworks";
     Layout = "~/Views/Shared/_DashboardHomeLayout.cshtml";
+    ViewData["HelpFeature"] = "FRAMEWORKS";
     var culture = Context.Features.Get<IRequestCultureFeature>().RequestCulture.Culture.Name;
 }
 
@@ -26,25 +27,23 @@
                 @Localizer["Comprehensive overview of monitoring frameworks and their performance metrics"]
             </p>
         </div>
-        @if (SignInManager.IsSignedIn(User))
-        {
-            var user = await UserManager.GetUserAsync(User);
-            if (user != null)
+        <div class="d-flex gap-2">
+            @await Html.PartialAsync("_HelpButton")
+            @if (SignInManager.IsSignedIn(User))
             {
-                var roles = await UserManager.GetRolesAsync(user);
-                if (roles.Contains("SystemAdministrator"))
+                var user = await UserManager.GetUserAsync(User);
+                if (user != null)
                 {
-                    <div>
+                    var roles = await UserManager.GetRolesAsync(user);
+                    if (roles.Contains("SystemAdministrator"))
+                    {
                         <button onclick="toggleInlineCreate()" class="btn btn-primary btn-lg shadow-sm" id="createFrameworkBtn">
                             <i class="fas fa-plus me-2"></i>@Localizer["Quick Create"]
                         </button>
-                       @*  <a asp-action="CreateComprehensive" class="btn btn-success btn-lg shadow-sm">
-                            <i class="fas fa-magic me-2"></i>@Localizer["Comprehensive Builder"]
-                        </a> *@
-                    </div>
+                    }
                 }
             }
-        }
+        </div>
     </div>
 </div>
 
@@ -1198,11 +1197,15 @@
                 flex-direction: column;
                 text-align: center;
             }
-            
+
             .header-link i:first-child {
                 margin-bottom: 5px;
                 margin-right: 0 !important;
             }
         }
     </style>
+}
+
+@section Modals {
+    @await Html.PartialAsync("_HelpModal")
 }

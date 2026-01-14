@@ -410,6 +410,12 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             return View(viewModel);
         }
 
+        // GET: Admin/Formulas - Display all calculation formulas used in the platform
+        public IActionResult Formulas()
+        {
+            return View();
+        }
+
         // GET: Admin/RoleDetails/id
         public async Task<IActionResult> RoleDetails(string id)
         {

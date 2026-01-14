@@ -8,6 +8,7 @@
 @{
     ViewData["Title"] = "Indicators";
     Layout = "~/Views/Shared/_DashboardHomeLayout.cshtml";
+    ViewData["HelpFeature"] = "INDICATORS";
     var culture = Context.Features.Get<IRequestCultureFeature>().RequestCulture.Culture.Name;
 }
 
@@ -29,6 +30,7 @@
             </p>
         </div>
         <div class="d-flex gap-2 flex-wrap">
+            @await Html.PartialAsync("_HelpButton")
             <a asp-action="IndicatorAndProject" asp-route-frameworkCode="@ViewData["frameworkCode"]"
                asp-route-subOutputCode="@ViewData["subOutputCode"]"
                class="btn btn-info btn-lg shadow-sm">
@@ -644,4 +646,8 @@
             }
         }
     </style>
+}
+
+@section Modals {
+    @await Html.PartialAsync("_HelpModal")
 }

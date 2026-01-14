@@ -1,0 +1,360 @@
+/* Help System Styles */
+
+/* Help Button */
+.btn-help-trigger {
+    background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+    color: white;
+    border: none;
+    border-radius: 10px;
+    padding: 10px 20px;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.btn-help-trigger:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px color-mix(in srgb, var(--primary-color) 40%, transparent);
+    color: white;
+}
+
+.btn-help-trigger i {
+    font-size: 1.1rem;
+}
+
+/* Help Modal */
+.help-modal-content {
+    border: none;
+    border-radius: 20px;
+    box-shadow: 0 25px 50px rgba(0, 0, 0, 0.15);
+    overflow: hidden;
+}
+
+.help-modal-header {
+    background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+    color: white;
+    border-bottom: none;
+    padding: 20px 25px;
+}
+
+.help-modal-header .modal-title {
+    font-weight: 600;
+    font-size: 1.3rem;
+    display: flex;
+    align-items: center;
+}
+
+.help-modal-header .btn-close {
+    filter: brightness(0) invert(1);
+    opacity: 0.8;
+}
+
+.help-modal-header .btn-close:hover {
+    opacity: 1;
+}
+
+.help-modal-body {
+    padding: 0;
+}
+
+/* Help Tabs */
+.help-tabs {
+    border-bottom: 2px solid #f0f0f0;
+    padding: 15px 20px 0;
+    background: #fafafa;
+}
+
+.help-tabs .nav-item {
+    margin-bottom: -2px;
+}
+
+.help-tabs .nav-link {
+    color: #666;
+    border: none;
+    border-bottom: 3px solid transparent;
+    border-radius: 0;
+    padding: 12px 20px;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.help-tabs .nav-link:hover {
+    color: var(--primary-color);
+    background: transparent;
+}
+
+.help-tabs .nav-link.active {
+    color: var(--primary-color);
+    background: transparent;
+    border-bottom-color: var(--primary-color);
+}
+
+.help-tabs .nav-link i {
+    font-size: 0.9rem;
+}
+
+/* Help Tab Content */
+.help-tab-content {
+    padding: 25px;
+    min-height: 300px;
+}
+
+.help-section {
+    animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Overview Section */
+.help-overview-content {
+    padding: 20px;
+    background: linear-gradient(135deg, rgba(var(--primary-color-rgb, 33, 150, 243), 0.05), rgba(var(--primary-color-rgb, 33, 150, 243), 0.1));
+    border-radius: 15px;
+    border-left: 4px solid var(--primary-color);
+}
+
+.help-overview-content .lead {
+    font-size: 1.1rem;
+    line-height: 1.8;
+    color: #444;
+    margin: 0;
+}
+
+/* How To Steps */
+.help-steps {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    counter-reset: step-counter;
+}
+
+.help-step {
+    display: flex;
+    gap: 20px;
+    padding: 20px;
+    margin-bottom: 15px;
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+    transition: all 0.3s ease;
+    align-items: flex-start;
+}
+
+.help-step:hover {
+    transform: translateX(5px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+}
+
+[dir="rtl"] .help-step:hover {
+    transform: translateX(-5px);
+}
+
+.step-number {
+    width: 40px;
+    height: 40px;
+    min-width: 40px;
+    background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+    color: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 1.1rem;
+}
+
+.step-content {
+    flex: 1;
+    font-size: 1rem;
+    line-height: 1.6;
+    color: #444;
+    padding-top: 8px;
+}
+
+/* FAQ Accordion */
+.help-accordion .accordion-item {
+    border: none;
+    margin-bottom: 12px;
+    border-radius: 12px !important;
+    overflow: hidden;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+}
+
+.help-accordion .accordion-button {
+    background: #fff;
+    font-weight: 500;
+    color: #333;
+    padding: 18px 20px;
+    border-radius: 12px !important;
+}
+
+.help-accordion .accordion-button:not(.collapsed) {
+    background: linear-gradient(135deg, rgba(var(--primary-color-rgb, 33, 150, 243), 0.05), rgba(var(--primary-color-rgb, 33, 150, 243), 0.1));
+    color: var(--primary-color);
+    box-shadow: none;
+}
+
+.help-accordion .accordion-button:focus {
+    box-shadow: none;
+    border-color: transparent;
+}
+
+.help-accordion .accordion-button::after {
+    background-size: 1rem;
+}
+
+.help-accordion .accordion-body {
+    padding: 20px;
+    background: #fafafa;
+    color: #555;
+    line-height: 1.7;
+}
+
+/* Tips Section */
+.help-tips {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.help-tip {
+    display: flex;
+    gap: 15px;
+    padding: 20px;
+    background: linear-gradient(135deg, #fff9e6, #fff3cd);
+    border-radius: 12px;
+    border-left: 4px solid #ffc107;
+    align-items: flex-start;
+}
+
+[dir="rtl"] .help-tip {
+    border-left: none;
+    border-right: 4px solid #ffc107;
+}
+
+.tip-icon {
+    width: 40px;
+    height: 40px;
+    min-width: 40px;
+    background: linear-gradient(135deg, #ffc107, #ff9800);
+    color: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1rem;
+}
+
+.tip-content {
+    flex: 1;
+    font-size: 1rem;
+    line-height: 1.6;
+    color: #5a4a00;
+    padding-top: 8px;
+}
+
+/* Help Modal Footer */
+.help-modal-footer {
+    border-top: 1px solid #f0f0f0;
+    padding: 15px 25px;
+    background: #fafafa;
+}
+
+.help-modal-footer .btn-secondary {
+    border-radius: 8px;
+    padding: 10px 25px;
+    font-weight: 500;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .help-tabs {
+        padding: 10px 10px 0;
+        overflow-x: auto;
+        flex-wrap: nowrap;
+    }
+
+    .help-tabs .nav-link {
+        padding: 10px 15px;
+        font-size: 0.9rem;
+        white-space: nowrap;
+    }
+
+    .help-tabs .nav-link .help-btn-text {
+        display: none;
+    }
+
+    .help-tab-content {
+        padding: 15px;
+    }
+
+    .help-step {
+        flex-direction: column;
+        gap: 15px;
+        text-align: center;
+    }
+
+    .step-number {
+        margin: 0 auto;
+    }
+
+    .step-content {
+        padding-top: 0;
+    }
+
+    .help-tip {
+        flex-direction: column;
+        gap: 12px;
+        text-align: center;
+    }
+
+    .tip-icon {
+        margin: 0 auto;
+    }
+
+    .tip-content {
+        padding-top: 0;
+    }
+
+    .btn-help-trigger .help-btn-text {
+        display: none;
+    }
+
+    .btn-help-trigger {
+        padding: 10px 15px;
+    }
+}
+
+/* RTL Support */
+[dir="rtl"] .help-overview-content {
+    border-left: none;
+    border-right: 4px solid var(--primary-color);
+}
+
+[dir="rtl"] .help-tabs .nav-link {
+    gap: 8px;
+}
+
+[dir="rtl"] .help-tabs .nav-link i {
+    margin-left: 8px;
+    margin-right: 0;
+}
+
+[dir="rtl"] .step-content,
+[dir="rtl"] .tip-content {
+    text-align: right;
+}

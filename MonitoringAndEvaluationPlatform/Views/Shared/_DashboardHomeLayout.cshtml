@@ -912,6 +912,9 @@
         }
     </style>
 
+    <!-- Help System CSS -->
+    <link rel="stylesheet" href="~/css/help-system.css" asp-append-version="true" />
+
     @await RenderSectionAsync("Styles", required: false)
 </head>
 <body>
@@ -1449,5 +1452,8 @@
     </script>
 
     @await RenderSectionAsync("Scripts", required: false)
+
+    <!-- Help Modal Section -->
+    @await RenderSectionAsync("Modals", required: false)
 </body>
 </html>

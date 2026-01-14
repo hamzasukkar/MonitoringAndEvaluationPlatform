@@ -1,0 +1,673 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+
+  <!-- Common Help Modal UI Labels -->
+  <data name="Overview" xml:space="preserve">
+    <value>Overview</value>
+  </data>
+  <data name="How To" xml:space="preserve">
+    <value>How To</value>
+  </data>
+  <data name="FAQ" xml:space="preserve">
+    <value>FAQ</value>
+  </data>
+  <data name="Tips" xml:space="preserve">
+    <value>Tips</value>
+  </data>
+  <data name="Close" xml:space="preserve">
+    <value>Close</value>
+  </data>
+
+  <!-- General Help Content -->
+  <data name="HELP_GENERAL_TITLE" xml:space="preserve">
+    <value>User Guide</value>
+  </data>
+  <data name="HELP_GENERAL_OVERVIEW" xml:space="preserve">
+    <value>Welcome to the Monitoring and Evaluation Platform. This system helps you track development projects, measure performance indicators, and assess impact across multiple frameworks.</value>
+  </data>
+  <data name="HELP_GENERAL_HOWTO_1" xml:space="preserve">
+    <value>Use the sidebar navigation to access different sections of the platform.</value>
+  </data>
+  <data name="HELP_GENERAL_HOWTO_2" xml:space="preserve">
+    <value>Select a framework from the top navigation to view its structure and performance.</value>
+  </data>
+  <data name="HELP_GENERAL_HOWTO_3" xml:space="preserve">
+    <value>Use the Dashboard to get an overview of all project metrics and performance indicators.</value>
+  </data>
+  <data name="HELP_GENERAL_FAQ_Q1" xml:space="preserve">
+    <value>How do I change the language?</value>
+  </data>
+  <data name="HELP_GENERAL_FAQ_A1" xml:space="preserve">
+    <value>Use the language dropdown in the sidebar or top navigation bar to switch between Arabic and English.</value>
+  </data>
+  <data name="HELP_GENERAL_FAQ_Q2" xml:space="preserve">
+    <value>How do I export data?</value>
+  </data>
+  <data name="HELP_GENERAL_FAQ_A2" xml:space="preserve">
+    <value>Most data tables include Excel and PDF export buttons in the header section. Click the appropriate button to download your data.</value>
+  </data>
+  <data name="HELP_GENERAL_TIP_1" xml:space="preserve">
+    <value>Use the search and filter options to quickly find specific projects or indicators.</value>
+  </data>
+  <data name="HELP_GENERAL_TIP_2" xml:space="preserve">
+    <value>You can switch between the Blue and Green themes using the theme selector in the navigation bar.</value>
+  </data>
+
+  <!-- Frameworks Help Content -->
+  <data name="HELP_FRAMEWORKS_TITLE" xml:space="preserve">
+    <value>Frameworks Help</value>
+  </data>
+  <data name="HELP_FRAMEWORKS_OVERVIEW" xml:space="preserve">
+    <value>The Frameworks section allows you to manage results frameworks that organize your monitoring and evaluation structure. Frameworks contain Outcomes, Outputs, SubOutputs, and Indicators in a hierarchical structure.</value>
+  </data>
+  <data name="HELP_FRAMEWORKS_HOWTO_1" xml:space="preserve">
+    <value>Click "Create New Framework" to add a new monitoring framework with its name and code.</value>
+  </data>
+  <data name="HELP_FRAMEWORKS_HOWTO_2" xml:space="preserve">
+    <value>Use the quick create form at the top to rapidly add new frameworks inline.</value>
+  </data>
+  <data name="HELP_FRAMEWORKS_HOWTO_3" xml:space="preserve">
+    <value>Click on a framework name to view its detailed hierarchy of Outcomes, Outputs, and Indicators.</value>
+  </data>
+  <data name="HELP_FRAMEWORKS_FAQ_Q1" xml:space="preserve">
+    <value>What is the hierarchy structure?</value>
+  </data>
+  <data name="HELP_FRAMEWORKS_FAQ_A1" xml:space="preserve">
+    <value>Frameworks follow this hierarchy: Framework → Outcome → Output → SubOutput → Indicator → Project. Performance metrics flow upward through this structure.</value>
+  </data>
+  <data name="HELP_FRAMEWORKS_FAQ_Q2" xml:space="preserve">
+    <value>How is performance calculated?</value>
+  </data>
+  <data name="HELP_FRAMEWORKS_FAQ_A2" xml:space="preserve">
+    <value>Performance is calculated from project-level plans and propagates upward through indicators, sub-outputs, outputs, and outcomes to the framework level.</value>
+  </data>
+  <data name="HELP_FRAMEWORKS_TIP_1" xml:space="preserve">
+    <value>Use the filter sidebar to view frameworks by Ministry, Donor, or Sector.</value>
+  </data>
+  <data name="HELP_FRAMEWORKS_TIP_2" xml:space="preserve">
+    <value>The performance progress bar shows the overall achievement rate for each framework.</value>
+  </data>
+
+  <!-- Projects Help Content -->
+  <data name="HELP_PROJECTS_TITLE" xml:space="preserve">
+    <value>Projects Help</value>
+  </data>
+  <data name="HELP_PROJECTS_OVERVIEW" xml:space="preserve">
+    <value>The Projects section allows you to manage development projects, track their progress, and link them to indicators. Each project can have action plans, activities, and performance measurements.</value>
+  </data>
+  <data name="HELP_PROJECTS_HOWTO_1" xml:space="preserve">
+    <value>Click "Create New Project" to add a new project with its details, location, and associations.</value>
+  </data>
+  <data name="HELP_PROJECTS_HOWTO_2" xml:space="preserve">
+    <value>Use the filters on the left to search by Ministry, Donor, or Sector.</value>
+  </data>
+  <data name="HELP_PROJECTS_HOWTO_3" xml:space="preserve">
+    <value>Click on a project name to view its details, action plans, and performance metrics.</value>
+  </data>
+  <data name="HELP_PROJECTS_FAQ_Q1" xml:space="preserve">
+    <value>How do I link a project to indicators?</value>
+  </data>
+  <data name="HELP_PROJECTS_FAQ_A1" xml:space="preserve">
+    <value>In the project details view, use the "Link to Indicators" option to associate the project with relevant performance indicators.</value>
+  </data>
+  <data name="HELP_PROJECTS_FAQ_Q2" xml:space="preserve">
+    <value>What are the different plan types?</value>
+  </data>
+  <data name="HELP_PROJECTS_FAQ_A2" xml:space="preserve">
+    <value>Projects can have Financial, Physical, Disbursement Performance, Field Monitoring, and Impact Assessment plans to track different aspects of implementation.</value>
+  </data>
+  <data name="HELP_PROJECTS_TIP_1" xml:space="preserve">
+    <value>Sort projects by clicking on column headers to find high or low performing projects quickly.</value>
+  </data>
+  <data name="HELP_PROJECTS_TIP_2" xml:space="preserve">
+    <value>Export project lists to Excel for detailed offline analysis and reporting.</value>
+  </data>
+
+  <!-- Monitoring Help Content -->
+  <data name="HELP_MONITORING_TITLE" xml:space="preserve">
+    <value>Monitoring Help</value>
+  </data>
+  <data name="HELP_MONITORING_OVERVIEW" xml:space="preserve">
+    <value>The Monitoring section provides a comprehensive view of project and indicator performance. Track planned vs realized values and monitor progress across all levels of the hierarchy.</value>
+  </data>
+  <data name="HELP_MONITORING_HOWTO_1" xml:space="preserve">
+    <value>Select a framework to view its monitoring data at different hierarchy levels.</value>
+  </data>
+  <data name="HELP_MONITORING_HOWTO_2" xml:space="preserve">
+    <value>Navigate through Outcomes, Outputs, SubOutputs, and Indicators to see detailed performance.</value>
+  </data>
+  <data name="HELP_MONITORING_HOWTO_3" xml:space="preserve">
+    <value>Enter planned and realized values in the Measures section to update performance calculations.</value>
+  </data>
+  <data name="HELP_MONITORING_FAQ_Q1" xml:space="preserve">
+    <value>How often should I update monitoring data?</value>
+  </data>
+  <data name="HELP_MONITORING_FAQ_A1" xml:space="preserve">
+    <value>Regular updates are recommended based on your reporting cycle (monthly, quarterly, or annually) to maintain accurate performance tracking.</value>
+  </data>
+  <data name="HELP_MONITORING_FAQ_Q2" xml:space="preserve">
+    <value>What do the progress bar colors mean?</value>
+  </data>
+  <data name="HELP_MONITORING_FAQ_A2" xml:space="preserve">
+    <value>Green indicates good performance (above target), yellow shows moderate progress, orange indicates below target, and red shows critical underperformance.</value>
+  </data>
+  <data name="HELP_MONITORING_TIP_1" xml:space="preserve">
+    <value>Use the breadcrumb navigation to quickly move between hierarchy levels.</value>
+  </data>
+  <data name="HELP_MONITORING_TIP_2" xml:space="preserve">
+    <value>Click on indicator weights to adjust how performance is aggregated at higher levels.</value>
+  </data>
+
+  <!-- Indicators Help Content -->
+  <data name="HELP_INDICATORS_TITLE" xml:space="preserve">
+    <value>Indicators Help</value>
+  </data>
+  <data name="HELP_INDICATORS_OVERVIEW" xml:space="preserve">
+    <value>Indicators are measurable performance metrics that track progress toward outcomes and outputs. Each indicator has a target value and can be linked to multiple projects.</value>
+  </data>
+  <data name="HELP_INDICATORS_HOWTO_1" xml:space="preserve">
+    <value>Click "Add Indicator" to create a new indicator with its name and target value.</value>
+  </data>
+  <data name="HELP_INDICATORS_HOWTO_2" xml:space="preserve">
+    <value>Use "Add &amp; Create Project" to simultaneously create an indicator and link it to a new project.</value>
+  </data>
+  <data name="HELP_INDICATORS_HOWTO_3" xml:space="preserve">
+    <value>Adjust indicator weights to control how they contribute to aggregate performance.</value>
+  </data>
+  <data name="HELP_INDICATORS_FAQ_Q1" xml:space="preserve">
+    <value>What are indicator weights?</value>
+  </data>
+  <data name="HELP_INDICATORS_FAQ_A1" xml:space="preserve">
+    <value>Weights determine how much each indicator contributes to the performance calculation at the SubOutput level. Higher weights mean greater influence on the aggregate score.</value>
+  </data>
+  <data name="HELP_INDICATORS_FAQ_Q2" xml:space="preserve">
+    <value>How do I link indicators to projects?</value>
+  </data>
+  <data name="HELP_INDICATORS_FAQ_A2" xml:space="preserve">
+    <value>Use the Measures section to create links between indicators and projects, then enter planned and realized values to track progress.</value>
+  </data>
+  <data name="HELP_INDICATORS_TIP_1" xml:space="preserve">
+    <value>Use inline editing to quickly update indicator names without navigating to a separate page.</value>
+  </data>
+  <data name="HELP_INDICATORS_TIP_2" xml:space="preserve">
+    <value>The "Indicators &amp; Projects" view shows all projects linked to each indicator in a single table.</value>
+  </data>
+
+  <!-- Outcomes Help Content -->
+  <data name="HELP_OUTCOMES_TITLE" xml:space="preserve">
+    <value>Outcomes Help</value>
+  </data>
+  <data name="HELP_OUTCOMES_OVERVIEW" xml:space="preserve">
+    <value>Outcomes represent the high-level results expected from your framework. They contain Outputs which further break down into SubOutputs and Indicators.</value>
+  </data>
+  <data name="HELP_OUTCOMES_HOWTO_1" xml:space="preserve">
+    <value>Navigate to a framework and click "Add Outcome" to create a new outcome.</value>
+  </data>
+  <data name="HELP_OUTCOMES_HOWTO_2" xml:space="preserve">
+    <value>Click on an outcome name to view and manage its outputs.</value>
+  </data>
+  <data name="HELP_OUTCOMES_HOWTO_3" xml:space="preserve">
+    <value>Use "Adjust Weights" to control how outputs contribute to the outcome's performance.</value>
+  </data>
+  <data name="HELP_OUTCOMES_FAQ_Q1" xml:space="preserve">
+    <value>What is the relationship between outcomes and outputs?</value>
+  </data>
+  <data name="HELP_OUTCOMES_FAQ_A1" xml:space="preserve">
+    <value>Outcomes are achieved through outputs. Each outcome can have multiple outputs, and the outcome's performance is calculated from its weighted outputs.</value>
+  </data>
+  <data name="HELP_OUTCOMES_FAQ_Q2" xml:space="preserve">
+    <value>Can I move outputs between outcomes?</value>
+  </data>
+  <data name="HELP_OUTCOMES_FAQ_A2" xml:space="preserve">
+    <value>Yes, you can edit an output and change its parent outcome to reorganize your framework structure.</value>
+  </data>
+  <data name="HELP_OUTCOMES_TIP_1" xml:space="preserve">
+    <value>Use meaningful outcome names that clearly describe the expected result.</value>
+  </data>
+  <data name="HELP_OUTCOMES_TIP_2" xml:space="preserve">
+    <value>Review outcome weights regularly to ensure they reflect your monitoring priorities.</value>
+  </data>
+
+  <!-- Outputs Help Content -->
+  <data name="HELP_OUTPUTS_TITLE" xml:space="preserve">
+    <value>Outputs Help</value>
+  </data>
+  <data name="HELP_OUTPUTS_OVERVIEW" xml:space="preserve">
+    <value>Outputs are the deliverables that contribute to achieving outcomes. They contain SubOutputs which link to specific indicators and projects.</value>
+  </data>
+  <data name="HELP_OUTPUTS_HOWTO_1" xml:space="preserve">
+    <value>From an outcome view, click "Add Output" to create a new output.</value>
+  </data>
+  <data name="HELP_OUTPUTS_HOWTO_2" xml:space="preserve">
+    <value>Click on an output name to view its sub-outputs and indicators.</value>
+  </data>
+  <data name="HELP_OUTPUTS_HOWTO_3" xml:space="preserve">
+    <value>Adjust sub-output weights from the output view to control aggregation.</value>
+  </data>
+  <data name="HELP_OUTPUTS_FAQ_Q1" xml:space="preserve">
+    <value>How many outputs should an outcome have?</value>
+  </data>
+  <data name="HELP_OUTPUTS_FAQ_A1" xml:space="preserve">
+    <value>There's no strict limit, but typically 3-7 outputs per outcome provides a good balance between detail and manageability.</value>
+  </data>
+  <data name="HELP_OUTPUTS_FAQ_Q2" xml:space="preserve">
+    <value>What if an output has no sub-outputs?</value>
+  </data>
+  <data name="HELP_OUTPUTS_FAQ_A2" xml:space="preserve">
+    <value>Outputs should have at least one sub-output to connect to indicators. Create sub-outputs to properly track output performance.</value>
+  </data>
+  <data name="HELP_OUTPUTS_TIP_1" xml:space="preserve">
+    <value>Output codes help with reporting and data export. Use consistent naming conventions.</value>
+  </data>
+  <data name="HELP_OUTPUTS_TIP_2" xml:space="preserve">
+    <value>The output performance bar shows the weighted average of all its sub-outputs.</value>
+  </data>
+
+  <!-- SubOutputs Help Content -->
+  <data name="HELP_SUBOUTPUTS_TITLE" xml:space="preserve">
+    <value>SubOutputs Help</value>
+  </data>
+  <data name="HELP_SUBOUTPUTS_OVERVIEW" xml:space="preserve">
+    <value>SubOutputs break down outputs into more specific components and link directly to indicators. They represent the most granular level of the results framework before indicators.</value>
+  </data>
+  <data name="HELP_SUBOUTPUTS_HOWTO_1" xml:space="preserve">
+    <value>From an output view, click "Add SubOutput" to create a new sub-output.</value>
+  </data>
+  <data name="HELP_SUBOUTPUTS_HOWTO_2" xml:space="preserve">
+    <value>Click on a sub-output to view and manage its indicators.</value>
+  </data>
+  <data name="HELP_SUBOUTPUTS_HOWTO_3" xml:space="preserve">
+    <value>Use the Projects List view to see all projects linked through this sub-output's indicators.</value>
+  </data>
+  <data name="HELP_SUBOUTPUTS_FAQ_Q1" xml:space="preserve">
+    <value>What's the purpose of sub-outputs?</value>
+  </data>
+  <data name="HELP_SUBOUTPUTS_FAQ_A1" xml:space="preserve">
+    <value>Sub-outputs provide an additional layer of organization between outputs and indicators, allowing for more detailed tracking and reporting.</value>
+  </data>
+  <data name="HELP_SUBOUTPUTS_FAQ_Q2" xml:space="preserve">
+    <value>How do I see all projects for a sub-output?</value>
+  </data>
+  <data name="HELP_SUBOUTPUTS_FAQ_A2" xml:space="preserve">
+    <value>Navigate to SubOutputs → Projects List to see all projects linked through the sub-output's indicators.</value>
+  </data>
+  <data name="HELP_SUBOUTPUTS_TIP_1" xml:space="preserve">
+    <value>Keep sub-output names specific and measurable to make reporting clearer.</value>
+  </data>
+  <data name="HELP_SUBOUTPUTS_TIP_2" xml:space="preserve">
+    <value>Use indicator weights within sub-outputs to prioritize key performance metrics.</value>
+  </data>
+
+  <!-- Dashboard Help Content -->
+  <data name="HELP_DASHBOARD_TITLE" xml:space="preserve">
+    <value>Dashboard Help</value>
+  </data>
+  <data name="HELP_DASHBOARD_OVERVIEW" xml:space="preserve">
+    <value>The Dashboard provides a comprehensive overview of all monitoring data including statistics, charts, and recent activity. Use it to get a quick snapshot of platform-wide performance.</value>
+  </data>
+  <data name="HELP_DASHBOARD_HOWTO_1" xml:space="preserve">
+    <value>View the statistics cards at the top to see counts of projects, ministries, and frameworks.</value>
+  </data>
+  <data name="HELP_DASHBOARD_HOWTO_2" xml:space="preserve">
+    <value>Use the charts to analyze project distribution by ministry, location, and performance trends.</value>
+  </data>
+  <data name="HELP_DASHBOARD_HOWTO_3" xml:space="preserve">
+    <value>Check the Implementation Progress section for framework-level achievement rates.</value>
+  </data>
+  <data name="HELP_DASHBOARD_FAQ_Q1" xml:space="preserve">
+    <value>How often is the dashboard updated?</value>
+  </data>
+  <data name="HELP_DASHBOARD_FAQ_A1" xml:space="preserve">
+    <value>The dashboard shows real-time data from the database. Updates appear immediately when underlying data changes.</value>
+  </data>
+  <data name="HELP_DASHBOARD_FAQ_Q2" xml:space="preserve">
+    <value>Can I customize the dashboard view?</value>
+  </data>
+  <data name="HELP_DASHBOARD_FAQ_A2" xml:space="preserve">
+    <value>Currently the dashboard layout is fixed, but you can change the theme (Blue or Green) using the theme selector.</value>
+  </data>
+  <data name="HELP_DASHBOARD_TIP_1" xml:space="preserve">
+    <value>Hover over chart elements to see detailed tooltips with exact values.</value>
+  </data>
+  <data name="HELP_DASHBOARD_TIP_2" xml:space="preserve">
+    <value>The Recent Activity section shows the latest changes across the platform.</value>
+  </data>
+
+  <!-- Measures Help Content -->
+  <data name="HELP_MEASURES_TITLE" xml:space="preserve">
+    <value>Measures Help</value>
+  </data>
+  <data name="HELP_MEASURES_OVERVIEW" xml:space="preserve">
+    <value>Measures link projects to indicators and track planned versus realized values. They are the foundation for calculating performance metrics throughout the system.</value>
+  </data>
+  <data name="HELP_MEASURES_HOWTO_1" xml:space="preserve">
+    <value>Select a project and indicator combination to create a new measure.</value>
+  </data>
+  <data name="HELP_MEASURES_HOWTO_2" xml:space="preserve">
+    <value>Enter the planned (target) value for the indicator based on project goals.</value>
+  </data>
+  <data name="HELP_MEASURES_HOWTO_3" xml:space="preserve">
+    <value>Update the realized value as the project progresses to track actual performance.</value>
+  </data>
+  <data name="HELP_MEASURES_FAQ_Q1" xml:space="preserve">
+    <value>What happens when I update a measure?</value>
+  </data>
+  <data name="HELP_MEASURES_FAQ_A1" xml:space="preserve">
+    <value>Performance calculations automatically propagate up through indicators, sub-outputs, outputs, outcomes, and frameworks.</value>
+  </data>
+  <data name="HELP_MEASURES_FAQ_Q2" xml:space="preserve">
+    <value>Can a project have multiple measures for the same indicator?</value>
+  </data>
+  <data name="HELP_MEASURES_FAQ_A2" xml:space="preserve">
+    <value>Typically each project-indicator pair has one measure, but you can track multiple time periods by using plans within the project.</value>
+  </data>
+  <data name="HELP_MEASURES_TIP_1" xml:space="preserve">
+    <value>Keep measures updated regularly to maintain accurate performance reporting.</value>
+  </data>
+  <data name="HELP_MEASURES_TIP_2" xml:space="preserve">
+    <value>Use the bulk edit features when you need to update multiple measures at once.</value>
+  </data>
+
+  <!-- Action Plans Help Content -->
+  <data name="HELP_ACTIONPLANS_TITLE" xml:space="preserve">
+    <value>Action Plans Help</value>
+  </data>
+  <data name="HELP_ACTIONPLANS_OVERVIEW" xml:space="preserve">
+    <value>Action Plans define the implementation strategy for projects. They contain activities and plans that track different aspects of project execution.</value>
+  </data>
+  <data name="HELP_ACTIONPLANS_HOWTO_1" xml:space="preserve">
+    <value>Navigate to a project and click "Create Action Plan" to add a new implementation plan.</value>
+  </data>
+  <data name="HELP_ACTIONPLANS_HOWTO_2" xml:space="preserve">
+    <value>Add activities to the action plan to detail specific implementation steps.</value>
+  </data>
+  <data name="HELP_ACTIONPLANS_HOWTO_3" xml:space="preserve">
+    <value>Track progress by updating plan types (Financial, Physical, Disbursement, etc.).</value>
+  </data>
+  <data name="HELP_ACTIONPLANS_FAQ_Q1" xml:space="preserve">
+    <value>What are the different plan types?</value>
+  </data>
+  <data name="HELP_ACTIONPLANS_FAQ_A1" xml:space="preserve">
+    <value>Plan types include Financial (budget tracking), Physical (implementation progress), Disbursement Performance, Field Monitoring, and Impact Assessment.</value>
+  </data>
+  <data name="HELP_ACTIONPLANS_FAQ_Q2" xml:space="preserve">
+    <value>How do action plans affect project performance?</value>
+  </data>
+  <data name="HELP_ACTIONPLANS_FAQ_A2" xml:space="preserve">
+    <value>Project performance is calculated from the plans within action plans. Each plan type contributes to the overall project performance score.</value>
+  </data>
+  <data name="HELP_ACTIONPLANS_TIP_1" xml:space="preserve">
+    <value>Break down complex projects into multiple activities for better tracking.</value>
+  </data>
+  <data name="HELP_ACTIONPLANS_TIP_2" xml:space="preserve">
+    <value>Use all plan types to get a comprehensive view of project implementation.</value>
+  </data>
+
+  <!-- Activities Help Content -->
+  <data name="HELP_ACTIVITIES_TITLE" xml:space="preserve">
+    <value>Activities Help</value>
+  </data>
+  <data name="HELP_ACTIVITIES_OVERVIEW" xml:space="preserve">
+    <value>Activities are the specific implementation steps within an action plan. Each activity can have its own plans to track different aspects of execution.</value>
+  </data>
+  <data name="HELP_ACTIVITIES_HOWTO_1" xml:space="preserve">
+    <value>From an action plan, click "Add Activity" to create a new implementation activity.</value>
+  </data>
+  <data name="HELP_ACTIVITIES_HOWTO_2" xml:space="preserve">
+    <value>Enter activity details including name, description, and timeline.</value>
+  </data>
+  <data name="HELP_ACTIVITIES_HOWTO_3" xml:space="preserve">
+    <value>Add plans to the activity to track financial, physical, and other metrics.</value>
+  </data>
+  <data name="HELP_ACTIVITIES_FAQ_Q1" xml:space="preserve">
+    <value>How detailed should activities be?</value>
+  </data>
+  <data name="HELP_ACTIVITIES_FAQ_A1" xml:space="preserve">
+    <value>Activities should be specific enough to track meaningfully but not so granular that they become difficult to manage. Aim for measurable milestones.</value>
+  </data>
+  <data name="HELP_ACTIVITIES_FAQ_Q2" xml:space="preserve">
+    <value>Can activities have different plan types?</value>
+  </data>
+  <data name="HELP_ACTIVITIES_FAQ_A2" xml:space="preserve">
+    <value>Yes, each activity can have Financial, Physical, Disbursement Performance, Field Monitoring, and Impact Assessment plans.</value>
+  </data>
+  <data name="HELP_ACTIVITIES_TIP_1" xml:space="preserve">
+    <value>Use clear, action-oriented names for activities (e.g., "Conduct training sessions").</value>
+  </data>
+  <data name="HELP_ACTIVITIES_TIP_2" xml:space="preserve">
+    <value>Regular updates to activity plans ensure accurate project performance tracking.</value>
+  </data>
+
+  <!-- Ministries Help Content -->
+  <data name="HELP_MINISTRIES_TITLE" xml:space="preserve">
+    <value>Ministries Help</value>
+  </data>
+  <data name="HELP_MINISTRIES_OVERVIEW" xml:space="preserve">
+    <value>Ministries are government entities that implement projects. The system tracks project distribution and performance across different ministries.</value>
+  </data>
+  <data name="HELP_MINISTRIES_HOWTO_1" xml:space="preserve">
+    <value>View the Ministries list to see all registered government entities.</value>
+  </data>
+  <data name="HELP_MINISTRIES_HOWTO_2" xml:space="preserve">
+    <value>Click on a ministry to see all its associated projects and performance metrics.</value>
+  </data>
+  <data name="HELP_MINISTRIES_HOWTO_3" xml:space="preserve">
+    <value>Use the Results view to see ministry-level performance breakdown.</value>
+  </data>
+  <data name="HELP_MINISTRIES_FAQ_Q1" xml:space="preserve">
+    <value>Who can manage ministry information?</value>
+  </data>
+  <data name="HELP_MINISTRIES_FAQ_A1" xml:space="preserve">
+    <value>System Administrators can add and edit ministry information. Ministry users can view and manage their own ministry's projects.</value>
+  </data>
+  <data name="HELP_MINISTRIES_FAQ_Q2" xml:space="preserve">
+    <value>How do I see ministry-specific performance?</value>
+  </data>
+  <data name="HELP_MINISTRIES_FAQ_A2" xml:space="preserve">
+    <value>Navigate to Ministries and Agencies in the top navigation, then select a specific ministry to see its results and performance breakdown.</value>
+  </data>
+  <data name="HELP_MINISTRIES_TIP_1" xml:space="preserve">
+    <value>Use the search feature to quickly find specific ministries.</value>
+  </data>
+  <data name="HELP_MINISTRIES_TIP_2" xml:space="preserve">
+    <value>The Performance Breakdown view shows detailed ministry-level metrics.</value>
+  </data>
+
+  <!-- Donors Help Content -->
+  <data name="HELP_DONORS_TITLE" xml:space="preserve">
+    <value>Donors Help</value>
+  </data>
+  <data name="HELP_DONORS_OVERVIEW" xml:space="preserve">
+    <value>Donors are international cooperation partners that fund development projects. They include UN organizations, NGOs, countries, and local entities.</value>
+  </data>
+  <data name="HELP_DONORS_HOWTO_1" xml:space="preserve">
+    <value>View donors by category: UN Organizations, International NGOs, Countries, or Local.</value>
+  </data>
+  <data name="HELP_DONORS_HOWTO_2" xml:space="preserve">
+    <value>Click on a donor to see all projects they fund.</value>
+  </data>
+  <data name="HELP_DONORS_HOWTO_3" xml:space="preserve">
+    <value>Use the Results view to analyze donor contribution and project performance.</value>
+  </data>
+  <data name="HELP_DONORS_FAQ_Q1" xml:space="preserve">
+    <value>What are the donor categories?</value>
+  </data>
+  <data name="HELP_DONORS_FAQ_A1" xml:space="preserve">
+    <value>Donors are categorized as: United Nations Organizations, International Non-governmental Organizations, Countries, and Local entities.</value>
+  </data>
+  <data name="HELP_DONORS_FAQ_Q2" xml:space="preserve">
+    <value>Can a project have multiple donors?</value>
+  </data>
+  <data name="HELP_DONORS_FAQ_A2" xml:space="preserve">
+    <value>Yes, projects can be associated with multiple donors to track multi-source funding.</value>
+  </data>
+  <data name="HELP_DONORS_TIP_1" xml:space="preserve">
+    <value>Filter projects by donor to analyze specific funding source performance.</value>
+  </data>
+  <data name="HELP_DONORS_TIP_2" xml:space="preserve">
+    <value>Use donor reports for annual reporting to funding partners.</value>
+  </data>
+
+  <!-- Sectors Help Content -->
+  <data name="HELP_SECTORS_TITLE" xml:space="preserve">
+    <value>Sectors Help</value>
+  </data>
+  <data name="HELP_SECTORS_OVERVIEW" xml:space="preserve">
+    <value>Sectors classify projects by their implementation domain: Public, Private, Common, or Domestic. This helps analyze project distribution and performance by sector.</value>
+  </data>
+  <data name="HELP_SECTORS_HOWTO_1" xml:space="preserve">
+    <value>Select a sector from the Sectors menu to view sector-specific projects.</value>
+  </data>
+  <data name="HELP_SECTORS_HOWTO_2" xml:space="preserve">
+    <value>Use sector filters when viewing projects to focus on specific domains.</value>
+  </data>
+  <data name="HELP_SECTORS_HOWTO_3" xml:space="preserve">
+    <value>Compare sector performance in the dashboard charts.</value>
+  </data>
+  <data name="HELP_SECTORS_FAQ_Q1" xml:space="preserve">
+    <value>What are the available sectors?</value>
+  </data>
+  <data name="HELP_SECTORS_FAQ_A1" xml:space="preserve">
+    <value>The system includes Public, Private, Common, and Domestic sectors for classifying projects.</value>
+  </data>
+  <data name="HELP_SECTORS_FAQ_Q2" xml:space="preserve">
+    <value>Can I create new sectors?</value>
+  </data>
+  <data name="HELP_SECTORS_FAQ_A2" xml:space="preserve">
+    <value>Sectors are system-defined. Contact the System Administrator if you need additional sector categories.</value>
+  </data>
+  <data name="HELP_SECTORS_TIP_1" xml:space="preserve">
+    <value>Use sector classification consistently when creating projects.</value>
+  </data>
+  <data name="HELP_SECTORS_TIP_2" xml:space="preserve">
+    <value>Sector analysis helps identify areas of focus and resource allocation.</value>
+  </data>
+
+  <!-- Location Help Content -->
+  <data name="HELP_LOCATION_TITLE" xml:space="preserve">
+    <value>Location Help</value>
+  </data>
+  <data name="HELP_LOCATION_OVERVIEW" xml:space="preserve">
+    <value>The Location section manages the geographic hierarchy for project implementation: Governorates, Districts, Sub-Districts, and Communities. Projects can be linked to specific locations for geographic analysis.</value>
+  </data>
+  <data name="HELP_LOCATION_HOWTO_1" xml:space="preserve">
+    <value>Navigate through the location hierarchy starting from Governorates.</value>
+  </data>
+  <data name="HELP_LOCATION_HOWTO_2" xml:space="preserve">
+    <value>Add new locations at each level using the Create buttons.</value>
+  </data>
+  <data name="HELP_LOCATION_HOWTO_3" xml:space="preserve">
+    <value>View projects by location to see geographic distribution.</value>
+  </data>
+  <data name="HELP_LOCATION_FAQ_Q1" xml:space="preserve">
+    <value>What is the location hierarchy?</value>
+  </data>
+  <data name="HELP_LOCATION_FAQ_A1" xml:space="preserve">
+    <value>The hierarchy is: Governorate → District → Sub-District → Community. Projects can be linked at any level.</value>
+  </data>
+  <data name="HELP_LOCATION_FAQ_Q2" xml:space="preserve">
+    <value>How do I see projects in a specific location?</value>
+  </data>
+  <data name="HELP_LOCATION_FAQ_A2" xml:space="preserve">
+    <value>Use the "Projects with Locations" view to see projects mapped to geographic areas.</value>
+  </data>
+  <data name="HELP_LOCATION_TIP_1" xml:space="preserve">
+    <value>Accurate location data enables geographic analysis and reporting.</value>
+  </data>
+  <data name="HELP_LOCATION_TIP_2" xml:space="preserve">
+    <value>The dashboard shows project distribution by governorate in the charts.</value>
+  </data>
+
+  <!-- Home Help Content -->
+  <data name="HELP_HOME_TITLE" xml:space="preserve">
+    <value>Home Help</value>
+  </data>
+  <data name="HELP_HOME_OVERVIEW" xml:space="preserve">
+    <value>The Home page provides a quick overview of the Monitoring and Evaluation Platform with key statistics, charts, and navigation to main sections.</value>
+  </data>
+  <data name="HELP_HOME_HOWTO_1" xml:space="preserve">
+    <value>Use the top navigation bar to access different sections of the platform.</value>
+  </data>
+  <data name="HELP_HOME_HOWTO_2" xml:space="preserve">
+    <value>View the statistics cards for quick counts of projects, ministries, and frameworks.</value>
+  </data>
+  <data name="HELP_HOME_HOWTO_3" xml:space="preserve">
+    <value>Use the sidebar to navigate to Frameworks, Projects, Monitoring, and Dashboard.</value>
+  </data>
+  <data name="HELP_HOME_FAQ_Q1" xml:space="preserve">
+    <value>How do I get started?</value>
+  </data>
+  <data name="HELP_HOME_FAQ_A1" xml:space="preserve">
+    <value>Start by exploring the Frameworks section to understand the results hierarchy, then navigate to Projects to see implementation details.</value>
+  </data>
+  <data name="HELP_HOME_FAQ_Q2" xml:space="preserve">
+    <value>Where can I find detailed help?</value>
+  </data>
+  <data name="HELP_HOME_FAQ_A2" xml:space="preserve">
+    <value>Each section has a Help button that provides context-specific guidance. Click the question mark icon in any section header.</value>
+  </data>
+  <data name="HELP_HOME_TIP_1" xml:space="preserve">
+    <value>Bookmark the Home page for quick access to the platform overview.</value>
+  </data>
+  <data name="HELP_HOME_TIP_2" xml:space="preserve">
+    <value>Use the theme selector to switch between Blue and Green visual themes.</value>
+  </data>
+</root>

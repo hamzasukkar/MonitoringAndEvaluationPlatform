@@ -7,6 +7,7 @@
 @{
     ViewData["Title"] = "Indicator Details";
     Layout = "~/Views/Shared/_DashboardHomeLayout.cshtml";
+    ViewData["HelpFeature"] = "INDICATORS";
 }
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns"></script>
@@ -19,8 +20,9 @@
             <h1 class="dashboard-title">@Localizer["Indicator Details"]</h1>
             <p class="dashboard-subtitle">@Localizer["Performance tracking and analysis"]</p>
         </div>
-        <div class="action-buttons">
-            <a href="javascript:history.back()" class="btn btn-outline-primary me-2">
+        <div class="action-buttons d-flex gap-2">
+            @await Html.PartialAsync("_HelpButton")
+            <a href="javascript:history.back()" class="btn btn-outline-primary">
                 <i class="fas fa-arrow-left me-2"></i>@Localizer["Back to List"]
             </a>
             <a href="#" class="btn btn-primary">
@@ -448,3 +450,7 @@
         }
     });
 </script>
+
+@section Modals {
+    @await Html.PartialAsync("_HelpModal")
+}
