@@ -1478,7 +1478,7 @@
                     } else if (discountRate !== 0) {
                          // Formula: (Expected Target For selected Year - Actual Value For selected Year) / Annual Discount Rate * (Year index, starting from 1)
                         // Example: Base 2025, Selected 2026 -> 2 years (2025 is 1, 2026 is 2)
-                        const yearDiff = (selectedYear - startingYear) + 1;
+                        const yearDiff = selectedYear - startingYear;
                         
                         const performance = (difference / (discountRate * yearDiff));
                         const percentage = performance * 100;
