@@ -1483,7 +1483,11 @@
                         const performance = (difference / (discountRate * yearDiff));
                         const percentage = performance * 100;
 
-                        valueSpan.className = 'performance-value fw-bold text-danger';
+                        if (percentage >= 100) {
+                            valueSpan.className = 'performance-value fw-bold text-success';
+                        } else {
+                            valueSpan.className = 'performance-value fw-bold text-danger';
+                        }
                         valueSpan.textContent = `${percentage.toFixed(2)}%`;
                     } else {
                         valueSpan.textContent = 'N/A';
