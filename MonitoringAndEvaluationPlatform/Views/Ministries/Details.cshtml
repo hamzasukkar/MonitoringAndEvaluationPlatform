@@ -5,6 +5,7 @@
 @{
     ViewData["Title"] = "Ministry Details";
     Layout = "~/Views/Shared/_DashboardHomeLayout.cshtml";
+    ViewData["HelpFeature"] = "Ministries";
 
     var totalProjects = ViewBag.TotalProjects ?? 0;
     var activeProjects = ViewBag.ActiveProjects ?? 0;
@@ -26,9 +27,12 @@
                 @Localizer["Ministry Overview and Performance Dashboard"]
             </p>
         </div>
-        <a asp-action="Index" class="btn btn-outline-secondary btn-lg">
-            <i class="fas fa-arrow-left me-2"></i>@Localizer["Back to Ministries"]
-        </a>
+        <div class="d-flex align-items-center gap-2">
+            @await Html.PartialAsync("_HelpButton")
+            <a asp-action="Index" class="btn btn-outline-secondary btn-lg">
+                <i class="fas fa-arrow-left me-2"></i>@Localizer["Back to Ministries"]
+            </a>
+        </div>
     </div>
 </div>
 
@@ -406,3 +410,5 @@
         }
     }
 </style>
+
+@await Html.PartialAsync("_HelpModal")

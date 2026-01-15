@@ -1439,6 +1439,7 @@
         // Calculate and display performance for a single row
         function calculatePerformanceForRow(row, selectedYear) {
             const discountRate = parseFloat(row.getAttribute('data-discount-rate'));
+            const startingYear = parseInt(row.getAttribute('data-starting-year'));
             const cell = row.querySelector('.performance-cell-dynamic');
             if (!cell) return;
 
@@ -1466,8 +1467,11 @@
                         valueSpan.className = 'performance-value fw-bold text-success';
                         valueSpan.textContent = `${percentage.toFixed(2)}%`;
                     } else if (discountRate !== 0) {
-                        // Formula: (Expected Target For selected Year - Actual Value For selected Year) / Annual Discount Rate
-                        const performance = difference / discountRate;
+                        // Formula: (Expected Target For selected Year - Actual Value For selected Year) / Annual Discount Rate * (Year index, starting from 1)
+                        // Example: Base 2025, Selected 2026 -> 2 years (2025 is 1, 2026 is 2)
+                        const yearDiff = (selectedYear - startingYear) + 1;
+                        
+                        const performance = (difference / discountRate) * yearDiff;
                         const percentage = performance * 100;
 
                         valueSpan.className = 'performance-value fw-bold text-danger';
