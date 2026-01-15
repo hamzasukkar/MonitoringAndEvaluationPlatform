@@ -1,0 +1,414 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <!-- Page Title -->
+  <data name="AboutPlatform" xml:space="preserve">
+    <value>عن المنصة</value>
+  </data>
+  <!-- Hero Section -->
+  <data name="MEPlatform" xml:space="preserve">
+    <value>منصة الرصد والتقييم</value>
+  </data>
+  <data name="HeroTitle" xml:space="preserve">
+    <value>منصة الرصد والتقييم</value>
+  </data>
+  <data name="HeroSubtitle" xml:space="preserve">
+    <value>حل شامل لتتبع ورصد وتقييم مشاريع التنمية من التخطيط إلى الإنجاز مع رؤى أداء فورية.</value>
+  </data>
+  <data name="GetStarted" xml:space="preserve">
+    <value>ابدأ الآن</value>
+  </data>
+  <data name="LearnMore" xml:space="preserve">
+    <value>اعرف المزيد</value>
+  </data>
+  <data name="UnlimitedProjects" xml:space="preserve">
+    <value>غير محدود</value>
+  </data>
+  <data name="Projects" xml:space="preserve">
+    <value>المشاريع</value>
+  </data>
+  <data name="CustomIndicators" xml:space="preserve">
+    <value>مخصصة</value>
+  </data>
+  <data name="Indicators" xml:space="preserve">
+    <value>المؤشرات</value>
+  </data>
+  <data name="Languages" xml:space="preserve">
+    <value>اللغات</value>
+  </data>
+  <!-- Overview Section -->
+  <data name="Overview" xml:space="preserve">
+    <value>نظرة عامة</value>
+  </data>
+  <data name="OverviewTitle" xml:space="preserve">
+    <value>لماذا تختار منصتنا؟</value>
+  </data>
+  <data name="OverviewDescription" xml:space="preserve">
+    <value>مصممة للجهات الحكومية والمنظمات غير الحكومية ومنظمات التنمية لإدارة وتتبع أداء المشاريع بكفاءة.</value>
+  </data>
+  <data name="RealTimeVisibility" xml:space="preserve">
+    <value>رؤية فورية</value>
+  </data>
+  <data name="RealTimeVisibilityDesc" xml:space="preserve">
+    <value>اعرف بالضبط أين تقف مشاريعك في أي لحظة مع لوحات معلومات الأداء الحية.</value>
+  </data>
+  <data name="DataDrivenDecisions" xml:space="preserve">
+    <value>قرارات مبنية على البيانات</value>
+  </data>
+  <data name="DataDrivenDecisionsDesc" xml:space="preserve">
+    <value>اتخذ قرارات مستنيرة بناءً على بيانات الأداء الفعلية والتحليلات الشاملة.</value>
+  </data>
+  <data name="Accountability" xml:space="preserve">
+    <value>المساءلة</value>
+  </data>
+  <data name="AccountabilityDesc" xml:space="preserve">
+    <value>تتبع المسؤوليات وقياس الإنجاز مع سجلات تدقيق كاملة.</value>
+  </data>
+  <data name="Transparency" xml:space="preserve">
+    <value>الشفافية</value>
+  </data>
+  <data name="TransparencyDesc" xml:space="preserve">
+    <value>قدم للمعنيين والمانحين تقارير تقدم واضحة وقابلة للتصدير.</value>
+  </data>
+  <!-- Features Section -->
+  <data name="Features" xml:space="preserve">
+    <value>المميزات</value>
+  </data>
+  <data name="FeaturesTitle" xml:space="preserve">
+    <value>مميزات قوية للتحكم الكامل</value>
+  </data>
+  <data name="FeaturesDescription" xml:space="preserve">
+    <value>كل ما تحتاجه لإدارة عمليات الرصد والتقييم في منصة متكاملة واحدة.</value>
+  </data>
+  <!-- Strategic Framework Feature -->
+  <data name="StrategicFramework" xml:space="preserve">
+    <value>إدارة الإطار الاستراتيجي</value>
+  </data>
+  <data name="StrategicFrameworkDesc" xml:space="preserve">
+    <value>نظم أهدافك الاستراتيجية من خلال هيكل تسلسلي يربط الأهداف العليا بالنتائج القابلة للقياس.</value>
+  </data>
+  <data name="StrategicFrameworkF1" xml:space="preserve">
+    <value>حدد الأطر مع النتائج والمخرجات والمخرجات الفرعية</value>
+  </data>
+  <data name="StrategicFrameworkF2" xml:space="preserve">
+    <value>اربط المؤشرات القابلة للقياس بكل مستوى</value>
+  </data>
+  <data name="StrategicFrameworkF3" xml:space="preserve">
+    <value>تتبع الأداء عبر أبعاد متعددة</value>
+  </data>
+  <data name="StrategicFrameworkF4" xml:space="preserve">
+    <value>صدّر التقارير إلى Excel و PDF</value>
+  </data>
+  <data name="Framework" xml:space="preserve">
+    <value>الإطار</value>
+  </data>
+  <data name="Outcome" xml:space="preserve">
+    <value>النتيجة</value>
+  </data>
+  <data name="Output" xml:space="preserve">
+    <value>المخرج</value>
+  </data>
+  <data name="Indicator" xml:space="preserve">
+    <value>المؤشر</value>
+  </data>
+  <!-- Project Management Feature -->
+  <data name="ProjectManagement" xml:space="preserve">
+    <value>إدارة محفظة المشاريع</value>
+  </data>
+  <data name="ProjectManagementDesc" xml:space="preserve">
+    <value>أدر جميع مشاريعك في مكان واحد مركزي مع تتبع كامل لدورة الحياة من البداية إلى الإنجاز.</value>
+  </data>
+  <data name="ProjectManagementF1" xml:space="preserve">
+    <value>أنشئ مشاريع بميزانيات وجداول زمنية ومواقع</value>
+  </data>
+  <data name="ProjectManagementF2" xml:space="preserve">
+    <value>عيّن للوزارات والقطاعات والمانحين</value>
+  </data>
+  <data name="ProjectManagementF3" xml:space="preserve">
+    <value>ارفع وأدر وثائق المشروع</value>
+  </data>
+  <data name="ProjectManagementF4" xml:space="preserve">
+    <value>تتبع مصادر تمويل متعددة مع التفاصيل</value>
+  </data>
+  <data name="ProjectName" xml:space="preserve">
+    <value>اسم المشروع</value>
+  </data>
+  <data name="Budget" xml:space="preserve">
+    <value>الميزانية</value>
+  </data>
+  <data name="Timeline" xml:space="preserve">
+    <value>الجدول الزمني</value>
+  </data>
+  <!-- Performance Tracking Feature -->
+  <data name="PerformanceTracking" xml:space="preserve">
+    <value>تتبع الأداء والمؤشرات</value>
+  </data>
+  <data name="PerformanceTrackingDesc" xml:space="preserve">
+    <value>قس ما يهم مع مؤشرات قابلة للتخصيص وحسابات أداء تلقائية تتصاعد عبر التسلسل الهرمي.</value>
+  </data>
+  <data name="PerformanceTrackingF1" xml:space="preserve">
+    <value>حدد مؤشرات أداء مخصصة مع أهداف</value>
+  </data>
+  <data name="PerformanceTrackingF2" xml:space="preserve">
+    <value>سجل القياسات الدورية وتتبع الاتجاهات</value>
+  </data>
+  <data name="PerformanceTrackingF3" xml:space="preserve">
+    <value>حسابات مرجحة عبر جميع المستويات</value>
+  </data>
+  <data name="PerformanceTrackingF4" xml:space="preserve">
+    <value>رسوم بيانية مرئية تظهر التقدم عبر الزمن</value>
+  </data>
+  <!-- Geographic Analysis Feature -->
+  <data name="GeographicAnalysis" xml:space="preserve">
+    <value>التحليل الجغرافي</value>
+  </data>
+  <data name="GeographicAnalysisDesc" xml:space="preserve">
+    <value>افهم تأثيرك عبر المناطق مع تصفية تفصيلية بناءً على الموقع وإمكانيات الخرائط.</value>
+  </data>
+  <data name="GeographicAnalysisF1" xml:space="preserve">
+    <value>تسلسل هرمي للمواقع من أربعة مستويات</value>
+  </data>
+  <data name="GeographicAnalysisF2" xml:space="preserve">
+    <value>فلتر التقارير ولوحات المعلومات حسب الموقع</value>
+  </data>
+  <data name="GeographicAnalysisF3" xml:space="preserve">
+    <value>تصور المشاريع على الخريطة</value>
+  </data>
+  <data name="GeographicAnalysisF4" xml:space="preserve">
+    <value>مقارنات الأداء الإقليمية</value>
+  </data>
+  <!-- Interactive Dashboards Feature -->
+  <data name="InteractiveDashboards" xml:space="preserve">
+    <value>لوحات معلومات تفاعلية</value>
+  </data>
+  <data name="InteractiveDashboardsDesc" xml:space="preserve">
+    <value>احصل على رؤى فورية مع لوحات معلومات جميلة وتفاعلية تقدم البيانات المعقدة بشكل سهل الفهم.</value>
+  </data>
+  <data name="InteractiveDashboardsF1" xml:space="preserve">
+    <value>نظرة تنفيذية عامة مع المقاييس الرئيسية</value>
+  </data>
+  <data name="InteractiveDashboardsF2" xml:space="preserve">
+    <value>مقاييس الأداء وأشرطة التقدم</value>
+  </data>
+  <data name="InteractiveDashboardsF3" xml:space="preserve">
+    <value>التنقل من الإطار إلى المؤشرات</value>
+  </data>
+  <data name="InteractiveDashboardsF4" xml:space="preserve">
+    <value>خيارات تصور متعددة</value>
+  </data>
+  <!-- Modules Section -->
+  <data name="Modules" xml:space="preserve">
+    <value>الوحدات</value>
+  </data>
+  <data name="ModulesTitle" xml:space="preserve">
+    <value>مجموعة وحدات شاملة</value>
+  </data>
+  <data name="ModulesDescription" xml:space="preserve">
+    <value>مجموعة كاملة من الوحدات المتكاملة تغطي جميع جوانب الرصد والتقييم.</value>
+  </data>
+  <data name="ModuleFrameworks" xml:space="preserve">
+    <value>الأطر</value>
+  </data>
+  <data name="ModuleFrameworksDesc" xml:space="preserve">
+    <value>حدد وتتبع الأطر الاستراتيجية مع النتائج والمخرجات والأهداف.</value>
+  </data>
+  <data name="ModuleProjects" xml:space="preserve">
+    <value>المشاريع</value>
+  </data>
+  <data name="ModuleProjectsDesc" xml:space="preserve">
+    <value>إدارة كاملة لدورة حياة المشروع مع تتبع الميزانية والجدول الزمني.</value>
+  </data>
+  <data name="ModuleIndicators" xml:space="preserve">
+    <value>المؤشرات</value>
+  </data>
+  <data name="ModuleIndicatorsDesc" xml:space="preserve">
+    <value>أنشئ وراقب مؤشرات الأداء مع تتبع القياسات.</value>
+  </data>
+  <data name="ModulePlanning" xml:space="preserve">
+    <value>التخطيط</value>
+  </data>
+  <data name="ModulePlanningDesc" xml:space="preserve">
+    <value>خطط العمل والأنشطة مع تتبع المخطط مقابل الفعلي.</value>
+  </data>
+  <data name="ModuleMonitoring" xml:space="preserve">
+    <value>الرصد</value>
+  </data>
+  <data name="ModuleMonitoringDesc" xml:space="preserve">
+    <value>لوحات رصد فورية مع تفصيل الأداء.</value>
+  </data>
+  <data name="ModuleReporting" xml:space="preserve">
+    <value>التقارير</value>
+  </data>
+  <data name="ModuleReportingDesc" xml:space="preserve">
+    <value>صدّر البيانات إلى Excel و PDF مع تقارير قابلة للتخصيص.</value>
+  </data>
+  <data name="ModuleStakeholders" xml:space="preserve">
+    <value>المعنيون</value>
+  </data>
+  <data name="ModuleStakeholdersDesc" xml:space="preserve">
+    <value>أدر الوزارات والمانحين والقطاعات والمشرفين.</value>
+  </data>
+  <data name="ModuleAdmin" xml:space="preserve">
+    <value>الإدارة</value>
+  </data>
+  <data name="ModuleAdminDesc" xml:space="preserve">
+    <value>إدارة المستخدمين والأدوار والصلاحيات وسجلات التدقيق.</value>
+  </data>
+  <!-- Audience Section -->
+  <data name="WhoIsItFor" xml:space="preserve">
+    <value>لمن هي</value>
+  </data>
+  <data name="AudienceTitle" xml:space="preserve">
+    <value>مصممة للمنظمات المؤثرة</value>
+  </data>
+  <data name="AudienceDescription" xml:space="preserve">
+    <value>منصتنا تخدم المنظمات الملتزمة بإحداث تأثير قابل للقياس.</value>
+  </data>
+  <data name="AudienceGov" xml:space="preserve">
+    <value>الجهات الحكومية</value>
+  </data>
+  <data name="AudienceGovDesc" xml:space="preserve">
+    <value>تتبع أداء الوزارات وأهداف التنمية الوطنية بكفاءة.</value>
+  </data>
+  <data name="AudienceNGO" xml:space="preserve">
+    <value>المنظمات غير الحكومية</value>
+  </data>
+  <data name="AudienceNGODesc" xml:space="preserve">
+    <value>راقب المشاريع الممولة من المانحين وأبلغ عن التأثير القابل للقياس.</value>
+  </data>
+  <data name="AudienceIntl" xml:space="preserve">
+    <value>المنظمات الدولية</value>
+  </data>
+  <data name="AudienceIntlDesc" xml:space="preserve">
+    <value>جمّع بيانات الأداء عبر شركاء التنفيذ المتعددين.</value>
+  </data>
+  <data name="AudienceDonors" xml:space="preserve">
+    <value>المانحون والممولون</value>
+  </data>
+  <data name="AudienceDonorsDesc" xml:space="preserve">
+    <value>احصل على رؤية للمشاريع الممولة ونتائج أدائها.</value>
+  </data>
+  <!-- Languages Section -->
+  <data name="MultiLanguage" xml:space="preserve">
+    <value>متعدد اللغات</value>
+  </data>
+  <data name="LanguagesTitle" xml:space="preserve">
+    <value>تحدث بلغتك</value>
+  </data>
+  <data name="LanguagesDescription" xml:space="preserve">
+    <value>دعم كامل للترجمة للوصول إلى جميع المعنيين بلغتهم المفضلة.</value>
+  </data>
+  <data name="LangArabic" xml:space="preserve">
+    <value>العربية</value>
+  </data>
+  <data name="LangArabicDesc" xml:space="preserve">
+    <value>دعم كامل للاتجاه من اليمين لليسار</value>
+  </data>
+  <data name="LangEnglish" xml:space="preserve">
+    <value>الإنجليزية</value>
+  </data>
+  <data name="LangEnglishDesc" xml:space="preserve">
+    <value>ترجمة كاملة</value>
+  </data>
+  <data name="LangFrench" xml:space="preserve">
+    <value>الفرنسية</value>
+  </data>
+  <data name="LangFrenchDesc" xml:space="preserve">
+    <value>ترجمة كاملة</value>
+  </data>
+  <!-- CTA Section -->
+  <data name="CTATitle" xml:space="preserve">
+    <value>مستعد لتحويل عملية الرصد والتقييم؟</value>
+  </data>
+  <data name="CTADescription" xml:space="preserve">
+    <value>ابدأ استخدام المنصة اليوم وتحكم في تتبع أداء مشاريعك.</value>
+  </data>
+  <data name="EnterPlatform" xml:space="preserve">
+    <value>ادخل المنصة</value>
+  </data>
+  <data name="ViewDashboard" xml:space="preserve">
+    <value>عرض لوحة المعلومات</value>
+  </data>
+  <!-- Footer Info -->
+  <data name="SecureAccess" xml:space="preserve">
+    <value>وصول آمن</value>
+  </data>
+  <data name="SecureAccessDesc" xml:space="preserve">
+    <value>صلاحيات بناءً على الدور ومصادقة ثنائية</value>
+  </data>
+  <data name="ResponsiveDesign" xml:space="preserve">
+    <value>تصميم متجاوب</value>
+  </data>
+  <data name="ResponsiveDesignDesc" xml:space="preserve">
+    <value>يعمل على الحاسوب والجهاز اللوحي والجوال</value>
+  </data>
+  <data name="RealTimeUpdates" xml:space="preserve">
+    <value>تحديثات فورية</value>
+  </data>
+  <data name="RealTimeUpdatesDesc" xml:space="preserve">
+    <value>مزامنة البيانات الحية عبر جميع المستخدمين</value>
+  </data>
+  <data name="AuditTrail" xml:space="preserve">
+    <value>سجل التدقيق</value>
+  </data>
+  <data name="AuditTrailDesc" xml:space="preserve">
+    <value>سجل كامل لجميع التغييرات للامتثال</value>
+  </data>
+</root>

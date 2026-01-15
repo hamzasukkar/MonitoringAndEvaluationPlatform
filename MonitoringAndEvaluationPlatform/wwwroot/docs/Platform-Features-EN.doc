@@ -1,0 +1,600 @@
+<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-microsoft-com:office:word" xmlns="http://www.w3.org/TR/REC-html40">
+<head>
+<meta charset="UTF-8">
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>National Monitoring &amp; Evaluation Platform - Complete Features Guide</title>
+<!--[if gte mso 9]>
+<xml>
+<w:WordDocument>
+<w:View>Print</w:View>
+<w:Zoom>100</w:Zoom>
+<w:DoNotOptimizeForBrowser/>
+</w:WordDocument>
+</xml>
+<![endif]-->
+<style>
+@page { size: A4; margin: 2.5cm 2cm 2.5cm 2cm; }
+body { font-family: 'Segoe UI', Arial, sans-serif; font-size: 11pt; line-height: 1.6; color: #333; }
+h1 { font-size: 24pt; color: #1a365d; text-align: center; border-bottom: 3px solid #3182ce; padding-bottom: 15px; margin-bottom: 30px; }
+h2 { font-size: 16pt; color: #2c5282; margin-top: 25px; border-left: 4px solid #3182ce; padding-left: 12px; background: #ebf8ff; padding: 8px 8px 8px 12px; }
+h3 { font-size: 13pt; color: #2d3748; margin-top: 18px; }
+h4 { font-size: 11pt; color: #4a5568; margin-top: 12px; font-weight: bold; }
+p { margin: 8px 0; text-align: justify; }
+ul { margin: 10px 0 10px 20px; }
+li { margin: 5px 0; }
+.cover-page { text-align: center; page-break-after: always; padding-top: 150px; }
+.cover-title { font-size: 32pt; color: #1a365d; font-weight: bold; margin-bottom: 20px; }
+.cover-subtitle { font-size: 18pt; color: #4a5568; margin-bottom: 40px; }
+.cover-org { font-size: 14pt; color: #718096; margin-top: 60px; }
+.cover-date { font-size: 12pt; color: #a0aec0; margin-top: 20px; }
+.toc { page-break-after: always; }
+.toc h2 { text-align: center; border: none; background: none; padding-left: 0; }
+.toc-item { margin: 8px 0; }
+.toc-section { font-weight: bold; color: #2c5282; }
+.section { page-break-inside: avoid; }
+.feature-box { background: #f7fafc; border: 1px solid #e2e8f0; padding: 15px; margin: 15px 0; border-radius: 5px; }
+.highlight { background: #fef3c7; padding: 2px 6px; border-radius: 3px; }
+.badge-new { background: #48bb78; color: white; padding: 2px 8px; border-radius: 10px; font-size: 9pt; font-weight: bold; margin-left: 8px; }
+table { width: 100%; border-collapse: collapse; margin: 15px 0; }
+th { background: #3182ce; color: white; padding: 10px; text-align: left; }
+td { border: 1px solid #e2e8f0; padding: 8px; }
+tr:nth-child(even) { background: #f7fafc; }
+.footer { text-align: center; font-size: 9pt; color: #718096; margin-top: 40px; border-top: 1px solid #e2e8f0; padding-top: 15px; }
+</style>
+</head>
+<body>
+
+<!-- Cover Page -->
+<div class="cover-page">
+<div class="cover-title">National Monitoring &amp; Evaluation Platform</div>
+<div class="cover-subtitle">Complete Features &amp; Capabilities Guide</div>
+<div style="font-size: 14pt; color: #3182ce; margin: 30px 0;">Comprehensive Solution for Development Project Management</div>
+<div class="cover-org">Syrian Planning and Statistics Commission</div>
+<div class="cover-date">Version 2.0 - January 2026</div>
+</div>
+
+<!-- Table of Contents -->
+<div class="toc">
+<h2>Table of Contents</h2>
+<div class="toc-item"><span class="toc-section">1. Executive Summary</span></div>
+<div class="toc-item"><span class="toc-section">2. Platform Overview</span></div>
+<div class="toc-item"><span class="toc-section">3. Strategic Framework Management</span></div>
+<div class="toc-item">&nbsp;&nbsp;&nbsp;&nbsp;3.1 Frameworks Module</div>
+<div class="toc-item">&nbsp;&nbsp;&nbsp;&nbsp;3.2 Framework Goals</div>
+<div class="toc-item">&nbsp;&nbsp;&nbsp;&nbsp;3.3 Outcomes Management</div>
+<div class="toc-item">&nbsp;&nbsp;&nbsp;&nbsp;3.4 Outputs Management</div>
+<div class="toc-item">&nbsp;&nbsp;&nbsp;&nbsp;3.5 SubOutputs Management</div>
+<div class="toc-item"><span class="toc-section">4. Project &amp; Performance Management</span></div>
+<div class="toc-item">&nbsp;&nbsp;&nbsp;&nbsp;4.1 Projects Module</div>
+<div class="toc-item">&nbsp;&nbsp;&nbsp;&nbsp;4.2 Indicators Module</div>
+<div class="toc-item">&nbsp;&nbsp;&nbsp;&nbsp;4.3 Action Plans</div>
+<div class="toc-item">&nbsp;&nbsp;&nbsp;&nbsp;4.4 Activities Tracking</div>
+<div class="toc-item">&nbsp;&nbsp;&nbsp;&nbsp;4.5 Measures &amp; Milestones</div>
+<div class="toc-item"><span class="toc-section">5. User Experience Features</span></div>
+<div class="toc-item">&nbsp;&nbsp;&nbsp;&nbsp;5.1 Contextual Help System <span class="badge-new">NEW</span></div>
+<div class="toc-item">&nbsp;&nbsp;&nbsp;&nbsp;5.2 About Platform Page <span class="badge-new">NEW</span></div>
+<div class="toc-item">&nbsp;&nbsp;&nbsp;&nbsp;5.3 Multi-Language Support</div>
+<div class="toc-item">&nbsp;&nbsp;&nbsp;&nbsp;5.4 Responsive Design</div>
+<div class="toc-item"><span class="toc-section">6. Administration &amp; Security</span></div>
+<div class="toc-item">&nbsp;&nbsp;&nbsp;&nbsp;6.1 User Management</div>
+<div class="toc-item">&nbsp;&nbsp;&nbsp;&nbsp;6.2 Role-Based Access Control</div>
+<div class="toc-item">&nbsp;&nbsp;&nbsp;&nbsp;6.3 Formulas Documentation <span class="badge-new">NEW</span></div>
+<div class="toc-item">&nbsp;&nbsp;&nbsp;&nbsp;6.4 Audit Logs</div>
+<div class="toc-item"><span class="toc-section">7. Stakeholder Management</span></div>
+<div class="toc-item">&nbsp;&nbsp;&nbsp;&nbsp;7.1 Ministries &amp; Agencies</div>
+<div class="toc-item">&nbsp;&nbsp;&nbsp;&nbsp;7.2 Donors Management</div>
+<div class="toc-item">&nbsp;&nbsp;&nbsp;&nbsp;7.3 Partners Management</div>
+<div class="toc-item"><span class="toc-section">8. Reporting &amp; Analytics</span></div>
+<div class="toc-item">&nbsp;&nbsp;&nbsp;&nbsp;8.1 Dashboard</div>
+<div class="toc-item">&nbsp;&nbsp;&nbsp;&nbsp;8.2 Performance Calculations</div>
+<div class="toc-item">&nbsp;&nbsp;&nbsp;&nbsp;8.3 Visual Analytics</div>
+<div class="toc-item"><span class="toc-section">9. Data Organization</span></div>
+<div class="toc-item">&nbsp;&nbsp;&nbsp;&nbsp;9.1 Sectors Management</div>
+<div class="toc-item">&nbsp;&nbsp;&nbsp;&nbsp;9.2 Geographic Distribution</div>
+<div class="toc-item">&nbsp;&nbsp;&nbsp;&nbsp;9.3 SDGs Integration</div>
+<div class="toc-item"><span class="toc-section">10. Technical Specifications</span></div>
+</div>
+
+<!-- Executive Summary -->
+<h2>1. Executive Summary</h2>
+<p>The National Monitoring &amp; Evaluation Platform is a comprehensive digital solution designed to support national development planning and evaluation processes. The platform provides a unified environment for managing strategic frameworks, tracking development projects, measuring performance indicators, and generating comprehensive reports.</p>
+
+<div class="feature-box">
+<h4>Key Benefits:</h4>
+<ul>
+<li><strong>Centralized Management:</strong> Single platform for all development project tracking</li>
+<li><strong>Real-Time Monitoring:</strong> Live performance tracking with automatic calculations</li>
+<li><strong>Multi-Framework Support:</strong> Manage multiple strategic frameworks simultaneously</li>
+<li><strong>Stakeholder Coordination:</strong> Connect ministries, donors, and implementing partners</li>
+<li><strong>Comprehensive Reporting:</strong> Generate detailed reports with visual analytics</li>
+<li><strong>Built-in Documentation:</strong> Contextual help system with user guides</li>
+</ul>
+</div>
+
+<!-- Platform Overview -->
+<h2>2. Platform Overview</h2>
+<p>The platform is built on modern web technologies and follows international best practices for monitoring and evaluation systems. It supports the complete project lifecycle from strategic planning to implementation tracking and impact assessment.</p>
+
+<h3>2.1 Core Capabilities</h3>
+<ul>
+<li>Strategic framework definition and management</li>
+<li>Project portfolio management</li>
+<li>Performance indicator tracking</li>
+<li>Budget and resource monitoring</li>
+<li>Geographic distribution analysis</li>
+<li>Stakeholder coordination</li>
+<li>Automated performance calculations</li>
+<li>Multi-language interface (Arabic, English, French)</li>
+</ul>
+
+<h3>2.2 Target Users</h3>
+<table>
+<tr><th>User Type</th><th>Primary Functions</th></tr>
+<tr><td>System Administrators</td><td>Platform configuration, user management, system monitoring</td></tr>
+<tr><td>Strategic Planners</td><td>Framework definition, outcome setting, strategic alignment</td></tr>
+<tr><td>Project Managers</td><td>Project creation, indicator tracking, progress reporting</td></tr>
+<tr><td>Ministry Users</td><td>Sector-specific project management, departmental reporting</td></tr>
+<tr><td>Donors &amp; Partners</td><td>Funding tracking, project oversight, impact assessment</td></tr>
+<tr><td>Executive Leadership</td><td>Dashboard overview, strategic decision support</td></tr>
+</table>
+
+<!-- Strategic Framework Management -->
+<h2>3. Strategic Framework Management</h2>
+
+<h3>3.1 Frameworks Module</h3>
+<p>The Frameworks module serves as the foundation for organizing all development initiatives within the platform. Each framework represents a major strategic initiative such as a National Development Strategy or Sustainable Development Goals alignment.</p>
+
+<div class="feature-box">
+<h4>Key Features:</h4>
+<ul>
+<li>Create and manage multiple strategic frameworks</li>
+<li>Define framework hierarchies (Outcomes → Outputs → SubOutputs)</li>
+<li>Assign implementing ministries and partner organizations</li>
+<li>Track framework-level performance with weighted averages</li>
+<li>Visual framework structure display</li>
+<li>Framework comparison and analysis tools</li>
+</ul>
+</div>
+
+<h3>3.2 Framework Goals</h3>
+<p>Framework Goals provide high-level strategic objectives that guide all activities within a framework. Each goal can have multiple outcomes and tracks progress through aggregated indicator data.</p>
+
+<h4>Capabilities:</h4>
+<ul>
+<li>Define strategic goals with clear descriptions</li>
+<li>Link goals to specific outcomes</li>
+<li>Track goal achievement through indicator aggregation</li>
+<li>Support for goal weighting and prioritization</li>
+</ul>
+
+<h3>3.3 Outcomes Management</h3>
+<p>Outcomes represent the expected medium-term results of development interventions. The platform supports comprehensive outcome tracking with automatic performance calculation.</p>
+
+<h4>Features:</h4>
+<ul>
+<li>Create outcomes linked to framework goals</li>
+<li>Define outcome indicators and targets</li>
+<li>Automatic performance calculation from linked outputs</li>
+<li>Outcome-level reporting and analysis</li>
+<li>Budget allocation at outcome level</li>
+</ul>
+
+<h3>3.4 Outputs Management</h3>
+<p>Outputs are the direct results of project activities. The platform tracks output delivery against planned targets with detailed progress monitoring.</p>
+
+<h4>Features:</h4>
+<ul>
+<li>Define outputs with clear deliverables</li>
+<li>Link outputs to outcomes for results chain</li>
+<li>Track output progress through sub-outputs</li>
+<li>Assign responsible ministries and partners</li>
+<li>Budget tracking at output level</li>
+</ul>
+
+<h3>3.5 SubOutputs Management</h3>
+<p>SubOutputs provide granular tracking of output components, allowing detailed monitoring of specific deliverables within each output.</p>
+
+<h4>Features:</h4>
+<ul>
+<li>Create detailed sub-output specifications</li>
+<li>Link projects and indicators to sub-outputs</li>
+<li>Track sub-output performance independently</li>
+<li>Roll-up performance to output level</li>
+</ul>
+
+<!-- Project & Performance Management -->
+<h2>4. Project &amp; Performance Management</h2>
+
+<h3>4.1 Projects Module</h3>
+<p>The Projects module provides comprehensive project portfolio management capabilities, supporting the entire project lifecycle from initiation to completion.</p>
+
+<div class="feature-box">
+<h4>Key Features:</h4>
+<ul>
+<li><strong>Project Registration:</strong> Complete project information capture including objectives, scope, and stakeholders</li>
+<li><strong>Timeline Management:</strong> Start/end date tracking with milestone definition</li>
+<li><strong>Budget Tracking:</strong> Multi-currency budget management with funding source attribution</li>
+<li><strong>Progress Monitoring:</strong> Percentage completion tracking with status indicators</li>
+<li><strong>Document Management:</strong> Attach supporting documents and reports</li>
+<li><strong>Stakeholder Assignment:</strong> Link projects to ministries, donors, and partners</li>
+<li><strong>Geographic Tagging:</strong> Assign projects to specific locations/governorates</li>
+<li><strong>Sector Classification:</strong> Categorize projects by development sectors</li>
+</ul>
+</div>
+
+<h4>Project Status Tracking:</h4>
+<table>
+<tr><th>Status</th><th>Description</th></tr>
+<tr><td>Planned</td><td>Project approved but not yet started</td></tr>
+<tr><td>In Progress</td><td>Project actively being implemented</td></tr>
+<tr><td>On Hold</td><td>Project temporarily suspended</td></tr>
+<tr><td>Completed</td><td>Project successfully finished</td></tr>
+<tr><td>Cancelled</td><td>Project terminated before completion</td></tr>
+</table>
+
+<h3>4.2 Indicators Module</h3>
+<p>The Indicators module enables detailed performance measurement through customizable indicators linked to projects and strategic objectives.</p>
+
+<div class="feature-box">
+<h4>Key Features:</h4>
+<ul>
+<li><strong>Indicator Definition:</strong> Create indicators with baseline, target, and actual values</li>
+<li><strong>Multiple Measurement Types:</strong> Support for percentage, numeric, currency, and custom units</li>
+<li><strong>Trend Analysis:</strong> Increasing, decreasing, or stable trend indicators</li>
+<li><strong>Weighting System:</strong> Assign weights for aggregated calculations</li>
+<li><strong>Data Entry:</strong> Regular data collection with date stamping</li>
+<li><strong>Performance Calculation:</strong> Automatic progress percentage calculation</li>
+<li><strong>Visual Display:</strong> Progress bars and trend indicators</li>
+<li><strong>Historical Tracking:</strong> Maintain historical data for trend analysis</li>
+</ul>
+</div>
+
+<h3>4.3 Action Plans</h3>
+<p>Action Plans provide detailed implementation roadmaps for achieving project objectives and indicator targets.</p>
+
+<h4>Features:</h4>
+<ul>
+<li>Create action plans linked to projects and indicators</li>
+<li>Define specific actions with responsible parties</li>
+<li>Set deadlines and milestones</li>
+<li>Track action completion status</li>
+<li>Link resources and budget to actions</li>
+</ul>
+
+<h3>4.4 Activities Tracking</h3>
+<p>Activities represent the specific tasks and events undertaken to implement projects and achieve indicators.</p>
+
+<h4>Features:</h4>
+<ul>
+<li>Record project activities with detailed descriptions</li>
+<li>Track activity status and completion</li>
+<li>Assign activities to team members</li>
+<li>Link activities to deliverables</li>
+<li>Activity timeline and calendar view</li>
+</ul>
+
+<h3>4.5 Measures &amp; Milestones</h3>
+<p>Measures provide the quantitative data that feeds into indicator calculations, while milestones mark significant project achievements.</p>
+
+<h4>Features:</h4>
+<ul>
+<li>Record periodic measurements for indicators</li>
+<li>Support multiple measurement periods</li>
+<li>Automatic aggregation and averaging</li>
+<li>Milestone definition and tracking</li>
+<li>Achievement notifications</li>
+</ul>
+
+<!-- User Experience Features -->
+<h2>5. User Experience Features</h2>
+
+<h3>5.1 Contextual Help System <span class="badge-new">NEW</span></h3>
+<p>The platform includes a comprehensive built-in help system that provides context-sensitive documentation for every feature and module.</p>
+
+<div class="feature-box">
+<h4>Key Features:</h4>
+<ul>
+<li><strong>Help Button Integration:</strong> Each page includes a help button in the header for instant access to documentation</li>
+<li><strong>Tabbed Content Organization:</strong>
+  <ul>
+    <li><em>Overview:</em> Feature description and purpose</li>
+    <li><em>How To:</em> Step-by-step instructions</li>
+    <li><em>FAQ:</em> Common questions and answers</li>
+    <li><em>Tips:</em> Best practices and shortcuts</li>
+  </ul>
+</li>
+<li><strong>Localized Content:</strong> Help content available in Arabic and English</li>
+<li><strong>Non-Intrusive Design:</strong> Modal-based display that doesn't interrupt workflow</li>
+<li><strong>Feature-Specific:</strong> Each module has dedicated help content</li>
+</ul>
+</div>
+
+<h4>Covered Features:</h4>
+<p>The help system provides documentation for all 16 major platform features including Frameworks, Projects, Indicators, Monitoring, Outcomes, Outputs, SubOutputs, Measures, Action Plans, Activities, Ministries, Donors, Sectors, Locations, Dashboard, and Home page.</p>
+
+<h3>5.2 About Platform Page <span class="badge-new">NEW</span></h3>
+<p>A dedicated marketing and information page that showcases the platform's capabilities to stakeholders and new users.</p>
+
+<div class="feature-box">
+<h4>Page Sections:</h4>
+<ul>
+<li><strong>Hero Section:</strong> Platform introduction with key value proposition</li>
+<li><strong>Overview:</strong> Comprehensive platform description with statistics</li>
+<li><strong>Key Features Grid:</strong> Visual display of main capabilities</li>
+<li><strong>Module Showcase:</strong> Detailed feature cards for each module</li>
+<li><strong>Target Audience:</strong> User types and their benefits</li>
+<li><strong>Language Support:</strong> Multi-language capability display</li>
+<li><strong>Call to Action:</strong> Engagement prompts for new users</li>
+</ul>
+</div>
+
+<h3>5.3 Multi-Language Support</h3>
+<p>The platform provides complete localization support with seamless language switching.</p>
+
+<h4>Supported Languages:</h4>
+<ul>
+<li><strong>Arabic:</strong> Full RTL (Right-to-Left) support with native Arabic interface</li>
+<li><strong>English:</strong> Complete English localization</li>
+<li><strong>French:</strong> French language support</li>
+</ul>
+
+<h4>Features:</h4>
+<ul>
+<li>One-click language switching</li>
+<li>Automatic RTL/LTR layout adjustment</li>
+<li>Localized date, number, and currency formats</li>
+<li>Language preference persistence</li>
+</ul>
+
+<h3>5.4 Responsive Design</h3>
+<p>The platform features a modern, responsive design that works across all devices and screen sizes.</p>
+
+<h4>Features:</h4>
+<ul>
+<li>Desktop-optimized interface</li>
+<li>Tablet-friendly layouts</li>
+<li>Mobile-responsive components</li>
+<li>Touch-friendly controls</li>
+<li>Modern glass-morphism design aesthetic</li>
+<li>Dark header with clean interface</li>
+</ul>
+
+<!-- Administration & Security -->
+<h2>6. Administration &amp; Security</h2>
+
+<h3>6.1 User Management</h3>
+<p>Comprehensive user administration tools for managing platform access and permissions.</p>
+
+<h4>Features:</h4>
+<ul>
+<li>User registration and approval workflow</li>
+<li>Profile management</li>
+<li>Password policies and reset capabilities</li>
+<li>User activity monitoring</li>
+<li>Account deactivation options</li>
+</ul>
+
+<h3>6.2 Role-Based Access Control</h3>
+<p>Granular permission system ensuring users only access features relevant to their responsibilities.</p>
+
+<h4>User Roles:</h4>
+<table>
+<tr><th>Role</th><th>Access Level</th></tr>
+<tr><td>System Administrator</td><td>Full platform access including configuration</td></tr>
+<tr><td>Admin</td><td>Administrative functions excluding system settings</td></tr>
+<tr><td>Moderator</td><td>Content moderation and approval</td></tr>
+<tr><td>User</td><td>Standard data entry and viewing</td></tr>
+<tr><td>Guest</td><td>Read-only access to public information</td></tr>
+</table>
+
+<h3>6.3 Formulas Documentation Page <span class="badge-new">NEW</span></h3>
+<p>A dedicated administrative page that documents all calculation formulas used throughout the platform.</p>
+
+<div class="feature-box">
+<h4>Documentation Includes:</h4>
+<ul>
+<li><strong>Indicator Performance Calculation:</strong> Formula showing how individual indicator progress is calculated from baseline, actual, and target values</li>
+<li><strong>Aggregation Formulas:</strong> How performance rolls up from Indicators → Projects → SubOutputs → Outputs → Outcomes → Frameworks</li>
+<li><strong>Weighting System:</strong> Explanation of weighted average calculations</li>
+<li><strong>Trend Handling:</strong> How increasing vs decreasing indicators are calculated differently</li>
+<li><strong>Edge Cases:</strong> Documentation of special scenarios and boundary conditions</li>
+</ul>
+</div>
+
+<p>This page is accessible only to System Administrators and provides transparency into the platform's calculation methodology.</p>
+
+<h3>6.4 Audit Logs</h3>
+<p>Complete audit trail functionality for tracking all system activities and changes.</p>
+
+<h4>Features:</h4>
+<ul>
+<li>User action logging</li>
+<li>Data change history</li>
+<li>Login/logout tracking</li>
+<li>Searchable audit records</li>
+<li>Export capabilities</li>
+<li>Compliance support</li>
+</ul>
+
+<!-- Stakeholder Management -->
+<h2>7. Stakeholder Management</h2>
+
+<h3>7.1 Ministries &amp; Agencies</h3>
+<p>Manage government ministries and agencies involved in development project implementation.</p>
+
+<h4>Features:</h4>
+<ul>
+<li>Ministry registration and profile management</li>
+<li>Organizational hierarchy definition</li>
+<li>Contact information management</li>
+<li>Project assignment tracking</li>
+<li>Sector responsibility mapping</li>
+<li>Performance summary by ministry</li>
+</ul>
+
+<h3>7.2 Donors Management</h3>
+<p>Track funding sources and donor organizations supporting development initiatives.</p>
+
+<h4>Features:</h4>
+<ul>
+<li>Donor organization profiles</li>
+<li>Funding commitment tracking</li>
+<li>Disbursement monitoring</li>
+<li>Donor-specific reporting</li>
+<li>Multi-currency support</li>
+<li>Donor preference management</li>
+</ul>
+
+<h4>Donor Categories:</h4>
+<ul>
+<li>United Nations Organizations</li>
+<li>International NGOs</li>
+<li>Bilateral Donors (Countries)</li>
+<li>Multilateral Organizations</li>
+<li>Private Sector</li>
+</ul>
+
+<h3>7.3 Partners Management</h3>
+<p>Manage implementing partners and coordination with various stakeholder organizations.</p>
+
+<h4>Features:</h4>
+<ul>
+<li>Partner registration</li>
+<li>Capability profiles</li>
+<li>Project partnerships</li>
+<li>Partnership agreements</li>
+<li>Performance tracking by partner</li>
+</ul>
+
+<!-- Reporting & Analytics -->
+<h2>8. Reporting &amp; Analytics</h2>
+
+<h3>8.1 Dashboard</h3>
+<p>Executive dashboard providing at-a-glance visibility into overall platform performance and key metrics.</p>
+
+<div class="feature-box">
+<h4>Dashboard Components:</h4>
+<ul>
+<li><strong>Summary Statistics:</strong> Total projects, indicators, budgets, and stakeholders</li>
+<li><strong>Performance Overview:</strong> Framework-level performance indicators</li>
+<li><strong>Project Status Distribution:</strong> Visual breakdown by status</li>
+<li><strong>Recent Activities:</strong> Latest system activities and updates</li>
+<li><strong>Quick Navigation:</strong> Fast access to frequently used features</li>
+<li><strong>Alert Panel:</strong> Important notifications and action items</li>
+</ul>
+</div>
+
+<h3>8.2 Performance Calculations</h3>
+<p>The platform employs a sophisticated performance calculation methodology that aggregates data from indicators up through the results chain.</p>
+
+<h4>Calculation Hierarchy:</h4>
+<ol>
+<li><strong>Indicator Level:</strong> Performance = (Actual - Baseline) / (Target - Baseline) × 100</li>
+<li><strong>Project Level:</strong> Weighted average of linked indicators</li>
+<li><strong>SubOutput Level:</strong> Weighted average of linked projects</li>
+<li><strong>Output Level:</strong> Weighted average of sub-outputs</li>
+<li><strong>Outcome Level:</strong> Weighted average of outputs</li>
+<li><strong>Framework Level:</strong> Weighted average of outcomes</li>
+</ol>
+
+<h3>8.3 Visual Analytics</h3>
+<p>Rich data visualization capabilities for understanding trends and patterns.</p>
+
+<h4>Visualization Types:</h4>
+<ul>
+<li>Progress bar charts</li>
+<li>Performance trend lines</li>
+<li>Budget distribution pie charts</li>
+<li>Geographic heat maps</li>
+<li>Stakeholder network diagrams</li>
+<li>Timeline visualizations</li>
+</ul>
+
+<!-- Data Organization -->
+<h2>9. Data Organization</h2>
+
+<h3>9.1 Sectors Management</h3>
+<p>Organize projects and initiatives by development sectors for thematic analysis and reporting.</p>
+
+<h4>Features:</h4>
+<ul>
+<li>Sector definition and hierarchy</li>
+<li>Project classification by sector</li>
+<li>Sector-based filtering and reporting</li>
+<li>Cross-sector analysis</li>
+<li>Sector performance comparison</li>
+</ul>
+
+<h3>9.2 Geographic Distribution</h3>
+<p>Track project implementation across geographic locations for spatial analysis.</p>
+
+<h4>Features:</h4>
+<ul>
+<li>Location/Governorate management</li>
+<li>Project geographic assignment</li>
+<li>Regional performance analysis</li>
+<li>Geographic filtering</li>
+<li>Location-based reporting</li>
+</ul>
+
+<h3>9.3 SDGs Integration</h3>
+<p>Map projects and frameworks to Sustainable Development Goals for global alignment tracking.</p>
+
+<h4>Features:</h4>
+<ul>
+<li>SDG goal reference database</li>
+<li>Project-to-SDG mapping</li>
+<li>SDG contribution analysis</li>
+<li>SDG reporting alignment</li>
+<li>Goal coverage visualization</li>
+</ul>
+
+<!-- Technical Specifications -->
+<h2>10. Technical Specifications</h2>
+
+<h3>10.1 Technology Stack</h3>
+<table>
+<tr><th>Component</th><th>Technology</th></tr>
+<tr><td>Backend Framework</td><td>ASP.NET Core 8.0</td></tr>
+<tr><td>Frontend</td><td>Razor Views, Bootstrap 5</td></tr>
+<tr><td>Database</td><td>SQL Server / PostgreSQL</td></tr>
+<tr><td>Authentication</td><td>ASP.NET Core Identity</td></tr>
+<tr><td>Localization</td><td>Resource files (.resx)</td></tr>
+</table>
+
+<h3>10.2 System Requirements</h3>
+<h4>Server Requirements:</h4>
+<ul>
+<li>Windows Server 2019+ or Linux</li>
+<li>.NET 8.0 Runtime</li>
+<li>4GB RAM minimum</li>
+<li>50GB Storage</li>
+</ul>
+
+<h4>Client Requirements:</h4>
+<ul>
+<li>Modern web browser (Chrome, Firefox, Edge, Safari)</li>
+<li>JavaScript enabled</li>
+<li>Internet connection</li>
+</ul>
+
+<h3>10.3 Security Features</h3>
+<ul>
+<li>HTTPS encryption</li>
+<li>Role-based access control</li>
+<li>Session management</li>
+<li>Input validation</li>
+<li>SQL injection protection</li>
+<li>Cross-site scripting (XSS) prevention</li>
+<li>Audit logging</li>
+</ul>
+
+<div class="footer">
+<p><strong>National Monitoring &amp; Evaluation Platform</strong></p>
+<p>Syrian Planning and Statistics Commission</p>
+<p>Version 2.0 - January 2026</p>
+<p>For inquiries, please contact the system administrator</p>
+</div>
+
+</body>
+</html>

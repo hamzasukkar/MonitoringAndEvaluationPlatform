@@ -1,0 +1,414 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <!-- Page Title -->
+  <data name="AboutPlatform" xml:space="preserve">
+    <value>About Platform</value>
+  </data>
+  <!-- Hero Section -->
+  <data name="MEPlatform" xml:space="preserve">
+    <value>M&amp;E Platform</value>
+  </data>
+  <data name="HeroTitle" xml:space="preserve">
+    <value>Monitoring &amp; Evaluation Platform</value>
+  </data>
+  <data name="HeroSubtitle" xml:space="preserve">
+    <value>A comprehensive solution for tracking, monitoring, and evaluating development projects from planning to completion with real-time performance insights.</value>
+  </data>
+  <data name="GetStarted" xml:space="preserve">
+    <value>Get Started</value>
+  </data>
+  <data name="LearnMore" xml:space="preserve">
+    <value>Learn More</value>
+  </data>
+  <data name="UnlimitedProjects" xml:space="preserve">
+    <value>Unlimited</value>
+  </data>
+  <data name="Projects" xml:space="preserve">
+    <value>Projects</value>
+  </data>
+  <data name="CustomIndicators" xml:space="preserve">
+    <value>Custom</value>
+  </data>
+  <data name="Indicators" xml:space="preserve">
+    <value>Indicators</value>
+  </data>
+  <data name="Languages" xml:space="preserve">
+    <value>Languages</value>
+  </data>
+  <!-- Overview Section -->
+  <data name="Overview" xml:space="preserve">
+    <value>Overview</value>
+  </data>
+  <data name="OverviewTitle" xml:space="preserve">
+    <value>Why Choose Our Platform?</value>
+  </data>
+  <data name="OverviewDescription" xml:space="preserve">
+    <value>Designed for government agencies, NGOs, and development organizations to efficiently manage and track project performance.</value>
+  </data>
+  <data name="RealTimeVisibility" xml:space="preserve">
+    <value>Real-Time Visibility</value>
+  </data>
+  <data name="RealTimeVisibilityDesc" xml:space="preserve">
+    <value>Know exactly where your projects stand at any moment with live performance dashboards.</value>
+  </data>
+  <data name="DataDrivenDecisions" xml:space="preserve">
+    <value>Data-Driven Decisions</value>
+  </data>
+  <data name="DataDrivenDecisionsDesc" xml:space="preserve">
+    <value>Make informed choices based on actual performance data and comprehensive analytics.</value>
+  </data>
+  <data name="Accountability" xml:space="preserve">
+    <value>Accountability</value>
+  </data>
+  <data name="AccountabilityDesc" xml:space="preserve">
+    <value>Track who is responsible for what and measure their delivery with complete audit trails.</value>
+  </data>
+  <data name="Transparency" xml:space="preserve">
+    <value>Transparency</value>
+  </data>
+  <data name="TransparencyDesc" xml:space="preserve">
+    <value>Provide stakeholders and donors with clear, exportable progress reports.</value>
+  </data>
+  <!-- Features Section -->
+  <data name="Features" xml:space="preserve">
+    <value>Features</value>
+  </data>
+  <data name="FeaturesTitle" xml:space="preserve">
+    <value>Powerful Features for Complete Control</value>
+  </data>
+  <data name="FeaturesDescription" xml:space="preserve">
+    <value>Everything you need to manage your monitoring and evaluation processes in one integrated platform.</value>
+  </data>
+  <!-- Strategic Framework Feature -->
+  <data name="StrategicFramework" xml:space="preserve">
+    <value>Strategic Framework Management</value>
+  </data>
+  <data name="StrategicFrameworkDesc" xml:space="preserve">
+    <value>Organize your strategic goals through a structured hierarchy that connects high-level objectives to measurable outcomes.</value>
+  </data>
+  <data name="StrategicFrameworkF1" xml:space="preserve">
+    <value>Define frameworks with outcomes, outputs, and sub-outputs</value>
+  </data>
+  <data name="StrategicFrameworkF2" xml:space="preserve">
+    <value>Link measurable indicators to each level</value>
+  </data>
+  <data name="StrategicFrameworkF3" xml:space="preserve">
+    <value>Track performance across multiple dimensions</value>
+  </data>
+  <data name="StrategicFrameworkF4" xml:space="preserve">
+    <value>Export reports to Excel and PDF</value>
+  </data>
+  <data name="Framework" xml:space="preserve">
+    <value>Framework</value>
+  </data>
+  <data name="Outcome" xml:space="preserve">
+    <value>Outcome</value>
+  </data>
+  <data name="Output" xml:space="preserve">
+    <value>Output</value>
+  </data>
+  <data name="Indicator" xml:space="preserve">
+    <value>Indicator</value>
+  </data>
+  <!-- Project Management Feature -->
+  <data name="ProjectManagement" xml:space="preserve">
+    <value>Project Portfolio Management</value>
+  </data>
+  <data name="ProjectManagementDesc" xml:space="preserve">
+    <value>Manage all your projects in one centralized location with complete lifecycle tracking from initiation to completion.</value>
+  </data>
+  <data name="ProjectManagementF1" xml:space="preserve">
+    <value>Create projects with budgets, timelines, and locations</value>
+  </data>
+  <data name="ProjectManagementF2" xml:space="preserve">
+    <value>Assign to ministries, sectors, and donors</value>
+  </data>
+  <data name="ProjectManagementF3" xml:space="preserve">
+    <value>Upload and manage project documentation</value>
+  </data>
+  <data name="ProjectManagementF4" xml:space="preserve">
+    <value>Track multiple funding sources with breakdowns</value>
+  </data>
+  <data name="ProjectName" xml:space="preserve">
+    <value>Project Name</value>
+  </data>
+  <data name="Budget" xml:space="preserve">
+    <value>Budget</value>
+  </data>
+  <data name="Timeline" xml:space="preserve">
+    <value>Timeline</value>
+  </data>
+  <!-- Performance Tracking Feature -->
+  <data name="PerformanceTracking" xml:space="preserve">
+    <value>Performance Tracking &amp; Indicators</value>
+  </data>
+  <data name="PerformanceTrackingDesc" xml:space="preserve">
+    <value>Measure what matters with customizable indicators and automatic performance calculations that roll up through the hierarchy.</value>
+  </data>
+  <data name="PerformanceTrackingF1" xml:space="preserve">
+    <value>Define custom performance indicators with targets</value>
+  </data>
+  <data name="PerformanceTrackingF2" xml:space="preserve">
+    <value>Record periodic measurements and track trends</value>
+  </data>
+  <data name="PerformanceTrackingF3" xml:space="preserve">
+    <value>Weighted calculations across all levels</value>
+  </data>
+  <data name="PerformanceTrackingF4" xml:space="preserve">
+    <value>Visual charts showing progress over time</value>
+  </data>
+  <!-- Geographic Analysis Feature -->
+  <data name="GeographicAnalysis" xml:space="preserve">
+    <value>Geographic Analysis</value>
+  </data>
+  <data name="GeographicAnalysisDesc" xml:space="preserve">
+    <value>Understand your impact across regions with detailed location-based filtering and mapping capabilities.</value>
+  </data>
+  <data name="GeographicAnalysisF1" xml:space="preserve">
+    <value>Four-level location hierarchy</value>
+  </data>
+  <data name="GeographicAnalysisF2" xml:space="preserve">
+    <value>Filter reports and dashboards by location</value>
+  </data>
+  <data name="GeographicAnalysisF3" xml:space="preserve">
+    <value>Map-based project visualization</value>
+  </data>
+  <data name="GeographicAnalysisF4" xml:space="preserve">
+    <value>Regional performance comparisons</value>
+  </data>
+  <!-- Interactive Dashboards Feature -->
+  <data name="InteractiveDashboards" xml:space="preserve">
+    <value>Interactive Dashboards</value>
+  </data>
+  <data name="InteractiveDashboardsDesc" xml:space="preserve">
+    <value>Get instant insights with beautiful, interactive dashboards that present complex data in an easy-to-understand format.</value>
+  </data>
+  <data name="InteractiveDashboardsF1" xml:space="preserve">
+    <value>Executive overview with key metrics</value>
+  </data>
+  <data name="InteractiveDashboardsF2" xml:space="preserve">
+    <value>Performance gauges and progress bars</value>
+  </data>
+  <data name="InteractiveDashboardsF3" xml:space="preserve">
+    <value>Drill-down from framework to indicators</value>
+  </data>
+  <data name="InteractiveDashboardsF4" xml:space="preserve">
+    <value>Multiple visualization options</value>
+  </data>
+  <!-- Modules Section -->
+  <data name="Modules" xml:space="preserve">
+    <value>Modules</value>
+  </data>
+  <data name="ModulesTitle" xml:space="preserve">
+    <value>Comprehensive Module Suite</value>
+  </data>
+  <data name="ModulesDescription" xml:space="preserve">
+    <value>A complete set of integrated modules covering all aspects of monitoring and evaluation.</value>
+  </data>
+  <data name="ModuleFrameworks" xml:space="preserve">
+    <value>Frameworks</value>
+  </data>
+  <data name="ModuleFrameworksDesc" xml:space="preserve">
+    <value>Define and track strategic frameworks with outcomes, outputs, and goals.</value>
+  </data>
+  <data name="ModuleProjects" xml:space="preserve">
+    <value>Projects</value>
+  </data>
+  <data name="ModuleProjectsDesc" xml:space="preserve">
+    <value>Full project lifecycle management with budget and timeline tracking.</value>
+  </data>
+  <data name="ModuleIndicators" xml:space="preserve">
+    <value>Indicators</value>
+  </data>
+  <data name="ModuleIndicatorsDesc" xml:space="preserve">
+    <value>Create and monitor performance indicators with measurement tracking.</value>
+  </data>
+  <data name="ModulePlanning" xml:space="preserve">
+    <value>Planning</value>
+  </data>
+  <data name="ModulePlanningDesc" xml:space="preserve">
+    <value>Action plans and activities with planned vs. actual tracking.</value>
+  </data>
+  <data name="ModuleMonitoring" xml:space="preserve">
+    <value>Monitoring</value>
+  </data>
+  <data name="ModuleMonitoringDesc" xml:space="preserve">
+    <value>Real-time monitoring dashboards with performance breakdowns.</value>
+  </data>
+  <data name="ModuleReporting" xml:space="preserve">
+    <value>Reporting</value>
+  </data>
+  <data name="ModuleReportingDesc" xml:space="preserve">
+    <value>Export data to Excel and PDF with customizable reports.</value>
+  </data>
+  <data name="ModuleStakeholders" xml:space="preserve">
+    <value>Stakeholders</value>
+  </data>
+  <data name="ModuleStakeholdersDesc" xml:space="preserve">
+    <value>Manage ministries, donors, sectors, and supervisors.</value>
+  </data>
+  <data name="ModuleAdmin" xml:space="preserve">
+    <value>Administration</value>
+  </data>
+  <data name="ModuleAdminDesc" xml:space="preserve">
+    <value>User management, roles, permissions, and audit logs.</value>
+  </data>
+  <!-- Audience Section -->
+  <data name="WhoIsItFor" xml:space="preserve">
+    <value>Who Is It For</value>
+  </data>
+  <data name="AudienceTitle" xml:space="preserve">
+    <value>Built for Organizations That Matter</value>
+  </data>
+  <data name="AudienceDescription" xml:space="preserve">
+    <value>Our platform serves organizations committed to making a measurable impact.</value>
+  </data>
+  <data name="AudienceGov" xml:space="preserve">
+    <value>Government Agencies</value>
+  </data>
+  <data name="AudienceGovDesc" xml:space="preserve">
+    <value>Track ministry performance and national development goals efficiently.</value>
+  </data>
+  <data name="AudienceNGO" xml:space="preserve">
+    <value>NGOs &amp; Non-Profits</value>
+  </data>
+  <data name="AudienceNGODesc" xml:space="preserve">
+    <value>Monitor donor-funded projects and report on measurable impact.</value>
+  </data>
+  <data name="AudienceIntl" xml:space="preserve">
+    <value>International Organizations</value>
+  </data>
+  <data name="AudienceIntlDesc" xml:space="preserve">
+    <value>Aggregate performance data across multiple implementing partners.</value>
+  </data>
+  <data name="AudienceDonors" xml:space="preserve">
+    <value>Donors &amp; Funders</value>
+  </data>
+  <data name="AudienceDonorsDesc" xml:space="preserve">
+    <value>Get visibility into funded projects and their performance outcomes.</value>
+  </data>
+  <!-- Languages Section -->
+  <data name="MultiLanguage" xml:space="preserve">
+    <value>Multi-Language</value>
+  </data>
+  <data name="LanguagesTitle" xml:space="preserve">
+    <value>Speak Your Language</value>
+  </data>
+  <data name="LanguagesDescription" xml:space="preserve">
+    <value>Full localization support to reach all your stakeholders in their preferred language.</value>
+  </data>
+  <data name="LangArabic" xml:space="preserve">
+    <value>Arabic</value>
+  </data>
+  <data name="LangArabicDesc" xml:space="preserve">
+    <value>Full RTL support</value>
+  </data>
+  <data name="LangEnglish" xml:space="preserve">
+    <value>English</value>
+  </data>
+  <data name="LangEnglishDesc" xml:space="preserve">
+    <value>Complete translation</value>
+  </data>
+  <data name="LangFrench" xml:space="preserve">
+    <value>French</value>
+  </data>
+  <data name="LangFrenchDesc" xml:space="preserve">
+    <value>Full localization</value>
+  </data>
+  <!-- CTA Section -->
+  <data name="CTATitle" xml:space="preserve">
+    <value>Ready to Transform Your M&amp;E Process?</value>
+  </data>
+  <data name="CTADescription" xml:space="preserve">
+    <value>Start using the platform today and take control of your project performance tracking.</value>
+  </data>
+  <data name="EnterPlatform" xml:space="preserve">
+    <value>Enter Platform</value>
+  </data>
+  <data name="ViewDashboard" xml:space="preserve">
+    <value>View Dashboard</value>
+  </data>
+  <!-- Footer Info -->
+  <data name="SecureAccess" xml:space="preserve">
+    <value>Secure Access</value>
+  </data>
+  <data name="SecureAccessDesc" xml:space="preserve">
+    <value>Role-based permissions and two-factor authentication</value>
+  </data>
+  <data name="ResponsiveDesign" xml:space="preserve">
+    <value>Responsive Design</value>
+  </data>
+  <data name="ResponsiveDesignDesc" xml:space="preserve">
+    <value>Works on desktop, tablet, and mobile devices</value>
+  </data>
+  <data name="RealTimeUpdates" xml:space="preserve">
+    <value>Real-Time Updates</value>
+  </data>
+  <data name="RealTimeUpdatesDesc" xml:space="preserve">
+    <value>Live data synchronization across all users</value>
+  </data>
+  <data name="AuditTrail" xml:space="preserve">
+    <value>Audit Trail</value>
+  </data>
+  <data name="AuditTrailDesc" xml:space="preserve">
+    <value>Complete history of all changes for compliance</value>
+  </data>
+</root>

@@ -1,0 +1,421 @@
+@using Microsoft.AspNetCore.Mvc.Localization
+@inject IViewLocalizer Localizer
+
+@{
+    ViewData["Title"] = Localizer["AboutPlatform"];
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<link rel="stylesheet" href="~/css/about-platform.css" />
+
+<!-- Hero Section -->
+<section class="about-hero">
+    <div class="hero-overlay"></div>
+    <div class="hero-content">
+        <div class="hero-badge">
+            <i class="fas fa-chart-line"></i>
+            <span>@Localizer["MEPlatform"]</span>
+        </div>
+        <h1 class="hero-title">@Localizer["HeroTitle"]</h1>
+        <p class="hero-subtitle">@Localizer["HeroSubtitle"]</p>
+        <div class="hero-buttons">
+            <a href="@Url.Action("Index", "Home")" class="btn-hero-primary">
+                <i class="fas fa-rocket me-2"></i>@Localizer["GetStarted"]
+            </a>
+            <a href="#features" class="btn-hero-secondary">
+                <i class="fas fa-info-circle me-2"></i>@Localizer["LearnMore"]
+            </a>
+        </div>
+    </div>
+    <div class="hero-stats">
+        <div class="hero-stat">
+            <div class="stat-icon"><i class="fas fa-project-diagram"></i></div>
+            <div class="stat-info">
+                <span class="stat-number">@Localizer["UnlimitedProjects"]</span>
+                <span class="stat-label">@Localizer["Projects"]</span>
+            </div>
+        </div>
+        <div class="hero-stat">
+            <div class="stat-icon"><i class="fas fa-bullseye"></i></div>
+            <div class="stat-info">
+                <span class="stat-number">@Localizer["CustomIndicators"]</span>
+                <span class="stat-label">@Localizer["Indicators"]</span>
+            </div>
+        </div>
+        <div class="hero-stat">
+            <div class="stat-icon"><i class="fas fa-globe"></i></div>
+            <div class="stat-info">
+                <span class="stat-number">3</span>
+                <span class="stat-label">@Localizer["Languages"]</span>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Overview Section -->
+<section class="about-overview">
+    <div class="container">
+        <div class="section-header">
+            <span class="section-badge">@Localizer["Overview"]</span>
+            <h2 class="section-title">@Localizer["OverviewTitle"]</h2>
+            <p class="section-description">@Localizer["OverviewDescription"]</p>
+        </div>
+        <div class="overview-cards">
+            <div class="overview-card">
+                <div class="card-icon bg-gradient-primary">
+                    <i class="fas fa-eye"></i>
+                </div>
+                <h3>@Localizer["RealTimeVisibility"]</h3>
+                <p>@Localizer["RealTimeVisibilityDesc"]</p>
+            </div>
+            <div class="overview-card">
+                <div class="card-icon bg-gradient-success">
+                    <i class="fas fa-chart-pie"></i>
+                </div>
+                <h3>@Localizer["DataDrivenDecisions"]</h3>
+                <p>@Localizer["DataDrivenDecisionsDesc"]</p>
+            </div>
+            <div class="overview-card">
+                <div class="card-icon bg-gradient-info">
+                    <i class="fas fa-users"></i>
+                </div>
+                <h3>@Localizer["Accountability"]</h3>
+                <p>@Localizer["AccountabilityDesc"]</p>
+            </div>
+            <div class="overview-card">
+                <div class="card-icon bg-gradient-warning">
+                    <i class="fas fa-file-alt"></i>
+                </div>
+                <h3>@Localizer["Transparency"]</h3>
+                <p>@Localizer["TransparencyDesc"]</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Features Section -->
+<section class="about-features" id="features">
+    <div class="container">
+        <div class="section-header">
+            <span class="section-badge">@Localizer["Features"]</span>
+            <h2 class="section-title">@Localizer["FeaturesTitle"]</h2>
+            <p class="section-description">@Localizer["FeaturesDescription"]</p>
+        </div>
+
+        <!-- Feature 1: Strategic Framework -->
+        <div class="feature-block">
+            <div class="feature-content">
+                <div class="feature-icon">
+                    <i class="fas fa-sitemap"></i>
+                </div>
+                <h3 class="feature-title">@Localizer["StrategicFramework"]</h3>
+                <p class="feature-description">@Localizer["StrategicFrameworkDesc"]</p>
+                <ul class="feature-list">
+                    <li><i class="fas fa-check-circle"></i> @Localizer["StrategicFrameworkF1"]</li>
+                    <li><i class="fas fa-check-circle"></i> @Localizer["StrategicFrameworkF2"]</li>
+                    <li><i class="fas fa-check-circle"></i> @Localizer["StrategicFrameworkF3"]</li>
+                    <li><i class="fas fa-check-circle"></i> @Localizer["StrategicFrameworkF4"]</li>
+                </ul>
+            </div>
+            <div class="feature-image">
+                <div class="feature-image-placeholder">
+                    <i class="fas fa-layer-group"></i>
+                    <div class="hierarchy-preview">
+                        <div class="h-level h-framework">@Localizer["Framework"]</div>
+                        <div class="h-level h-outcome">@Localizer["Outcome"]</div>
+                        <div class="h-level h-output">@Localizer["Output"]</div>
+                        <div class="h-level h-indicator">@Localizer["Indicator"]</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Feature 2: Project Management -->
+        <div class="feature-block reverse">
+            <div class="feature-content">
+                <div class="feature-icon">
+                    <i class="fas fa-tasks"></i>
+                </div>
+                <h3 class="feature-title">@Localizer["ProjectManagement"]</h3>
+                <p class="feature-description">@Localizer["ProjectManagementDesc"]</p>
+                <ul class="feature-list">
+                    <li><i class="fas fa-check-circle"></i> @Localizer["ProjectManagementF1"]</li>
+                    <li><i class="fas fa-check-circle"></i> @Localizer["ProjectManagementF2"]</li>
+                    <li><i class="fas fa-check-circle"></i> @Localizer["ProjectManagementF3"]</li>
+                    <li><i class="fas fa-check-circle"></i> @Localizer["ProjectManagementF4"]</li>
+                </ul>
+            </div>
+            <div class="feature-image">
+                <div class="feature-image-placeholder">
+                    <i class="fas fa-project-diagram"></i>
+                    <div class="project-card-preview">
+                        <div class="pcp-header">@Localizer["ProjectName"]</div>
+                        <div class="pcp-progress">
+                            <div class="pcp-bar" style="width: 75%"></div>
+                        </div>
+                        <div class="pcp-stats">
+                            <span><i class="fas fa-money-bill"></i> @Localizer["Budget"]</span>
+                            <span><i class="fas fa-calendar"></i> @Localizer["Timeline"]</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Feature 3: Performance Tracking -->
+        <div class="feature-block">
+            <div class="feature-content">
+                <div class="feature-icon">
+                    <i class="fas fa-tachometer-alt"></i>
+                </div>
+                <h3 class="feature-title">@Localizer["PerformanceTracking"]</h3>
+                <p class="feature-description">@Localizer["PerformanceTrackingDesc"]</p>
+                <ul class="feature-list">
+                    <li><i class="fas fa-check-circle"></i> @Localizer["PerformanceTrackingF1"]</li>
+                    <li><i class="fas fa-check-circle"></i> @Localizer["PerformanceTrackingF2"]</li>
+                    <li><i class="fas fa-check-circle"></i> @Localizer["PerformanceTrackingF3"]</li>
+                    <li><i class="fas fa-check-circle"></i> @Localizer["PerformanceTrackingF4"]</li>
+                </ul>
+            </div>
+            <div class="feature-image">
+                <div class="feature-image-placeholder">
+                    <i class="fas fa-chart-line"></i>
+                    <div class="chart-preview">
+                        <div class="chart-bar" style="height: 40%"></div>
+                        <div class="chart-bar" style="height: 60%"></div>
+                        <div class="chart-bar" style="height: 80%"></div>
+                        <div class="chart-bar" style="height: 65%"></div>
+                        <div class="chart-bar" style="height: 90%"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Feature 4: Geographic Analysis -->
+        <div class="feature-block reverse">
+            <div class="feature-content">
+                <div class="feature-icon">
+                    <i class="fas fa-map-marked-alt"></i>
+                </div>
+                <h3 class="feature-title">@Localizer["GeographicAnalysis"]</h3>
+                <p class="feature-description">@Localizer["GeographicAnalysisDesc"]</p>
+                <ul class="feature-list">
+                    <li><i class="fas fa-check-circle"></i> @Localizer["GeographicAnalysisF1"]</li>
+                    <li><i class="fas fa-check-circle"></i> @Localizer["GeographicAnalysisF2"]</li>
+                    <li><i class="fas fa-check-circle"></i> @Localizer["GeographicAnalysisF3"]</li>
+                    <li><i class="fas fa-check-circle"></i> @Localizer["GeographicAnalysisF4"]</li>
+                </ul>
+            </div>
+            <div class="feature-image">
+                <div class="feature-image-placeholder map-placeholder">
+                    <i class="fas fa-globe-africa"></i>
+                    <div class="map-pins">
+                        <span class="map-pin" style="top: 20%; left: 30%"></span>
+                        <span class="map-pin" style="top: 40%; left: 60%"></span>
+                        <span class="map-pin" style="top: 60%; left: 40%"></span>
+                        <span class="map-pin" style="top: 35%; left: 75%"></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Feature 5: Dashboards -->
+        <div class="feature-block">
+            <div class="feature-content">
+                <div class="feature-icon">
+                    <i class="fas fa-th-large"></i>
+                </div>
+                <h3 class="feature-title">@Localizer["InteractiveDashboards"]</h3>
+                <p class="feature-description">@Localizer["InteractiveDashboardsDesc"]</p>
+                <ul class="feature-list">
+                    <li><i class="fas fa-check-circle"></i> @Localizer["InteractiveDashboardsF1"]</li>
+                    <li><i class="fas fa-check-circle"></i> @Localizer["InteractiveDashboardsF2"]</li>
+                    <li><i class="fas fa-check-circle"></i> @Localizer["InteractiveDashboardsF3"]</li>
+                    <li><i class="fas fa-check-circle"></i> @Localizer["InteractiveDashboardsF4"]</li>
+                </ul>
+            </div>
+            <div class="feature-image">
+                <div class="feature-image-placeholder dashboard-placeholder">
+                    <div class="dash-widget w1"><i class="fas fa-chart-pie"></i></div>
+                    <div class="dash-widget w2"><i class="fas fa-chart-bar"></i></div>
+                    <div class="dash-widget w3"><i class="fas fa-list"></i></div>
+                    <div class="dash-widget w4"><i class="fas fa-map"></i></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Modules Section -->
+<section class="about-modules">
+    <div class="container">
+        <div class="section-header">
+            <span class="section-badge">@Localizer["Modules"]</span>
+            <h2 class="section-title">@Localizer["ModulesTitle"]</h2>
+            <p class="section-description">@Localizer["ModulesDescription"]</p>
+        </div>
+        <div class="modules-grid">
+            <div class="module-card">
+                <div class="module-icon"><i class="fas fa-bullseye"></i></div>
+                <h4>@Localizer["ModuleFrameworks"]</h4>
+                <p>@Localizer["ModuleFrameworksDesc"]</p>
+            </div>
+            <div class="module-card">
+                <div class="module-icon"><i class="fas fa-project-diagram"></i></div>
+                <h4>@Localizer["ModuleProjects"]</h4>
+                <p>@Localizer["ModuleProjectsDesc"]</p>
+            </div>
+            <div class="module-card">
+                <div class="module-icon"><i class="fas fa-chart-line"></i></div>
+                <h4>@Localizer["ModuleIndicators"]</h4>
+                <p>@Localizer["ModuleIndicatorsDesc"]</p>
+            </div>
+            <div class="module-card">
+                <div class="module-icon"><i class="fas fa-tasks"></i></div>
+                <h4>@Localizer["ModulePlanning"]</h4>
+                <p>@Localizer["ModulePlanningDesc"]</p>
+            </div>
+            <div class="module-card">
+                <div class="module-icon"><i class="fas fa-desktop"></i></div>
+                <h4>@Localizer["ModuleMonitoring"]</h4>
+                <p>@Localizer["ModuleMonitoringDesc"]</p>
+            </div>
+            <div class="module-card">
+                <div class="module-icon"><i class="fas fa-file-export"></i></div>
+                <h4>@Localizer["ModuleReporting"]</h4>
+                <p>@Localizer["ModuleReportingDesc"]</p>
+            </div>
+            <div class="module-card">
+                <div class="module-icon"><i class="fas fa-building"></i></div>
+                <h4>@Localizer["ModuleStakeholders"]</h4>
+                <p>@Localizer["ModuleStakeholdersDesc"]</p>
+            </div>
+            <div class="module-card">
+                <div class="module-icon"><i class="fas fa-user-shield"></i></div>
+                <h4>@Localizer["ModuleAdmin"]</h4>
+                <p>@Localizer["ModuleAdminDesc"]</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Target Audience Section -->
+<section class="about-audience">
+    <div class="container">
+        <div class="section-header">
+            <span class="section-badge">@Localizer["WhoIsItFor"]</span>
+            <h2 class="section-title">@Localizer["AudienceTitle"]</h2>
+            <p class="section-description">@Localizer["AudienceDescription"]</p>
+        </div>
+        <div class="audience-cards">
+            <div class="audience-card">
+                <div class="audience-icon">
+                    <i class="fas fa-landmark"></i>
+                </div>
+                <h4>@Localizer["AudienceGov"]</h4>
+                <p>@Localizer["AudienceGovDesc"]</p>
+            </div>
+            <div class="audience-card">
+                <div class="audience-icon">
+                    <i class="fas fa-hands-helping"></i>
+                </div>
+                <h4>@Localizer["AudienceNGO"]</h4>
+                <p>@Localizer["AudienceNGODesc"]</p>
+            </div>
+            <div class="audience-card">
+                <div class="audience-icon">
+                    <i class="fas fa-globe"></i>
+                </div>
+                <h4>@Localizer["AudienceIntl"]</h4>
+                <p>@Localizer["AudienceIntlDesc"]</p>
+            </div>
+            <div class="audience-card">
+                <div class="audience-icon">
+                    <i class="fas fa-hand-holding-usd"></i>
+                </div>
+                <h4>@Localizer["AudienceDonors"]</h4>
+                <p>@Localizer["AudienceDonorsDesc"]</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Languages Section -->
+<section class="about-languages">
+    <div class="container">
+        <div class="section-header light">
+            <span class="section-badge">@Localizer["MultiLanguage"]</span>
+            <h2 class="section-title">@Localizer["LanguagesTitle"]</h2>
+            <p class="section-description">@Localizer["LanguagesDescription"]</p>
+        </div>
+        <div class="languages-showcase">
+            <div class="language-item">
+                <div class="language-flag">
+                    <span class="flag-icon">AR</span>
+                </div>
+                <h4>@Localizer["LangArabic"]</h4>
+                <p>@Localizer["LangArabicDesc"]</p>
+            </div>
+            <div class="language-item">
+                <div class="language-flag">
+                    <span class="flag-icon">EN</span>
+                </div>
+                <h4>@Localizer["LangEnglish"]</h4>
+                <p>@Localizer["LangEnglishDesc"]</p>
+            </div>
+            <div class="language-item">
+                <div class="language-flag">
+                    <span class="flag-icon">FR</span>
+                </div>
+                <h4>@Localizer["LangFrench"]</h4>
+                <p>@Localizer["LangFrenchDesc"]</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- CTA Section -->
+<section class="about-cta">
+    <div class="container">
+        <div class="cta-content">
+            <h2>@Localizer["CTATitle"]</h2>
+            <p>@Localizer["CTADescription"]</p>
+            <div class="cta-buttons">
+                <a href="@Url.Action("Index", "Home")" class="btn-cta-primary">
+                    <i class="fas fa-sign-in-alt me-2"></i>@Localizer["EnterPlatform"]
+                </a>
+                <a href="@Url.Action("Index", "Dashboard")" class="btn-cta-secondary">
+                    <i class="fas fa-chart-bar me-2"></i>@Localizer["ViewDashboard"]
+                </a>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Footer Info -->
+<section class="about-footer-info">
+    <div class="container">
+        <div class="footer-info-grid">
+            <div class="footer-info-item">
+                <i class="fas fa-shield-alt"></i>
+                <h5>@Localizer["SecureAccess"]</h5>
+                <p>@Localizer["SecureAccessDesc"]</p>
+            </div>
+            <div class="footer-info-item">
+                <i class="fas fa-mobile-alt"></i>
+                <h5>@Localizer["ResponsiveDesign"]</h5>
+                <p>@Localizer["ResponsiveDesignDesc"]</p>
+            </div>
+            <div class="footer-info-item">
+                <i class="fas fa-sync"></i>
+                <h5>@Localizer["RealTimeUpdates"]</h5>
+                <p>@Localizer["RealTimeUpdatesDesc"]</p>
+            </div>
+            <div class="footer-info-item">
+                <i class="fas fa-history"></i>
+                <h5>@Localizer["AuditTrail"]</h5>
+                <p>@Localizer["AuditTrailDesc"]</p>
+            </div>
+        </div>
+    </div>
+</section>
