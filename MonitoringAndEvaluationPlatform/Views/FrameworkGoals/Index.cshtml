@@ -1453,9 +1453,14 @@
                 const dataForYear = yearlyData[selectedYear];
 
                 if (dataForYear) {
+                    debugger;
                     const actualValueForYear = dataForYear.baseVal;
                     const expectedTargetForYear = dataForYear.expected;
-                    const difference = expectedTargetForYear - actualValueForYear;
+                    
+                    // Formula change per user request: Base Value - actualValueForYear
+                    // "Base Value" refers to the Starting Base Value of the goal
+                    const startingBaseValue = parseFloat(row.getAttribute('data-base-value-starting'));
+                    const difference = startingBaseValue - actualValueForYear;
 
                     // Special case: Base Year performance is always 0%
                     if (selectedYear === startingYear) {
@@ -1475,7 +1480,7 @@
                         // Example: Base 2025, Selected 2026 -> 2 years (2025 is 1, 2026 is 2)
                         const yearDiff = (selectedYear - startingYear) + 1;
                         
-                        const performance = (difference / discountRate) * yearDiff;
+                        const performance = (difference / (discountRate * yearDiff));
                         const percentage = performance * 100;
 
                         valueSpan.className = 'performance-value fw-bold text-danger';
