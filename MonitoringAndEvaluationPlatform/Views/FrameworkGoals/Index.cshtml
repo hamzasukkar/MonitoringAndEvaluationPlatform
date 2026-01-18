@@ -837,9 +837,22 @@
                                     </div>
                                 </td>
                                 <td class="text-center">
-                                    <button onclick="showCalculationExplanation(@goal.ID, '@Html.Raw(goal.Name.Replace("'", "\\'"))', @(goal.TargetValue > goal.BaseValueForStartingYear ? "true" : "false"), @goal.BaseValueForStartingYear.ToString(System.Globalization.CultureInfo.InvariantCulture), @goal.BaseValueForCurrentYear.ToString(System.Globalization.CultureInfo.InvariantCulture), @goal.TargetValue.ToString(System.Globalization.CultureInfo.InvariantCulture), @goal.StartingYear, @goal.CurrentYear, @goal.TargetYear, @goal.AnnualDiscountRate.ToString(System.Globalization.CultureInfo.InvariantCulture), @goal.AmountOfReduction.ToString(System.Globalization.CultureInfo.InvariantCulture), @goal.ProgressRate.ToString(System.Globalization.CultureInfo.InvariantCulture))"
+                                    <button onclick="showCalculationExplanation(this)"
                                             class="btn btn-sm btn-outline-success me-2"
-                                            title="@Localizer["Calculation Explanation"]">
+                                            title="@Localizer["Calculation Explanation"]"
+                                            data-goal-id="@goal.ID"
+                                            data-goal-name="@goal.Name"
+                                            data-is-upward="@(goal.TargetValue > goal.BaseValueForStartingYear ? "true" : "false")"
+                                            data-base-value="@goal.BaseValueForStartingYear.ToString(System.Globalization.CultureInfo.InvariantCulture)"
+                                            data-current-value="@goal.BaseValueForCurrentYear.ToString(System.Globalization.CultureInfo.InvariantCulture)"
+                                            data-target-value="@goal.TargetValue.ToString(System.Globalization.CultureInfo.InvariantCulture)"
+                                            data-starting-year="@goal.StartingYear"
+                                            data-current-year="@goal.CurrentYear"
+                                            data-target-year="@goal.TargetYear"
+                                            data-discount-rate="@goal.AnnualDiscountRate.ToString(System.Globalization.CultureInfo.InvariantCulture)"
+                                            data-amount-reduction="@goal.AmountOfReduction.ToString(System.Globalization.CultureInfo.InvariantCulture)"
+                                            data-progress-rate="@goal.ProgressRate.ToString(System.Globalization.CultureInfo.InvariantCulture)"
+                                            data-yearly-data='@Html.Raw(Json.Serialize(yearlyData))'>
                                         <i class="fas fa-calculator"></i>
                                     </button>
                                     <button onclick="showGoalDetails(@goal.ID)"
@@ -1425,6 +1438,33 @@
                     <h5 class="mb-0" id="calcGoalName">-</h5>
                 </div>
 
+                <!-- Year Selector Section -->
+                <div class="card mb-3 border-warning">
+                    <div class="card-header bg-warning text-dark">
+                        <i class="fas fa-calendar-alt me-2"></i><strong>@Localizer["Select Year for Calculation"]</strong>
+                    </div>
+                    <div class="card-body">
+                        <div class="row align-items-center">
+                            <div class="col-md-4">
+                                <label class="form-label fw-bold">@Localizer["Calculate for Year"]:</label>
+                            </div>
+                            <div class="col-md-4">
+                                <select class="form-select form-select-lg" id="calcYearSelector" onchange="recalculateForYear()">
+                                    <!-- Options will be populated by JavaScript -->
+                                </select>
+                            </div>
+                            <div class="col-md-4">
+                                <span class="text-muted small" id="calcYearHint">-</span>
+                            </div>
+                        </div>
+                        <div class="mt-2">
+                            <span class="text-muted small">
+                                <i class="fas fa-info-circle me-1"></i>@Localizer["Select a year to see detailed calculations for that specific year"]
+                            </span>
+                        </div>
+                    </div>
+                </div>
+
                 <!-- Goal Type Section -->
                 <div class="card mb-3">
                     <div class="card-header bg-light">
@@ -1483,6 +1523,14 @@
                                     <tr>
                                         <td><i class="fas fa-flag-checkered text-danger me-2"></i>@Localizer["Target Value"] (@Localizer["Target Year"])</td>
                                         <td class="text-center fw-bold" id="calcTargetValue">-</td>
+                                    </tr>
+                                    <tr class="table-warning">
+                                        <td><i class="fas fa-crosshairs text-warning me-2"></i><strong>@Localizer["Value for Selected Year"]</strong> (<span id="calcSelectedYearLabel">-</span>)</td>
+                                        <td class="text-center fw-bold fs-5" id="calcSelectedYearValue">-</td>
+                                    </tr>
+                                    <tr class="table-info">
+                                        <td><i class="fas fa-bullseye text-info me-2"></i><strong>@Localizer["Expected Target for Selected Year"]</strong></td>
+                                        <td class="text-center fw-bold fs-5" id="calcExpectedTargetValue">-</td>
                                     </tr>
                                 </tbody>
                             </table>
@@ -1762,9 +1810,32 @@
             setTimeout(initializeYearlyPerformance, 100);
         });
 
+        // Global variable to store current goal data for recalculation
+        let currentCalcGoalData = null;
+
         // Show Calculation Explanation Modal
-        function showCalculationExplanation(goalId, goalName, isUpward, baseValue, currentValue, targetValue, startingYear, currentYear, targetYear, discountRate, amountOfReduction, progressRate) {
-            // Determine if it's RTL
+        function showCalculationExplanation(button) {
+            // Read data from button attributes
+            const goalId = parseInt(button.getAttribute('data-goal-id'));
+            const goalName = button.getAttribute('data-goal-name');
+            const isUpward = button.getAttribute('data-is-upward') === 'true';
+            const baseValue = parseFloat(button.getAttribute('data-base-value'));
+            const currentValue = parseFloat(button.getAttribute('data-current-value'));
+            const targetValue = parseFloat(button.getAttribute('data-target-value'));
+            const startingYear = parseInt(button.getAttribute('data-starting-year'));
+            const currentYear = parseInt(button.getAttribute('data-current-year'));
+            const targetYear = parseInt(button.getAttribute('data-target-year'));
+            const discountRate = parseFloat(button.getAttribute('data-discount-rate'));
+            const amountOfReduction = parseFloat(button.getAttribute('data-amount-reduction'));
+            const progressRate = parseFloat(button.getAttribute('data-progress-rate'));
+            const yearlyData = JSON.parse(button.getAttribute('data-yearly-data'));
+
+            // Store goal data globally for recalculation
+            currentCalcGoalData = {
+                goalId, goalName, isUpward, baseValue, currentValue, targetValue,
+                startingYear, currentYear, targetYear, discountRate, amountOfReduction, progressRate, yearlyData
+            };
+
             const isRtl = document.documentElement.dir === 'rtl' || document.documentElement.lang === 'ar';
 
             // Set goal name
@@ -1791,7 +1862,7 @@
                     : 'Downward Target: Target Value < Base Value, so we want the actual value to decrease over time.';
             }
 
-            // Set input values
+            // Set static input values
             document.getElementById('calcStartingYear').textContent = startingYear;
             document.getElementById('calcCurrentYear').textContent = currentYear;
             document.getElementById('calcTargetYear').textContent = targetYear;
@@ -1799,9 +1870,56 @@
             document.getElementById('calcCurrentValue').textContent = currentValue.toFixed(2);
             document.getElementById('calcTargetValue').textContent = targetValue.toFixed(2);
 
-            // Calculate and display formulas
+            // Populate year selector dropdown
+            const yearSelector = document.getElementById('calcYearSelector');
+            yearSelector.innerHTML = '';
+            for (let y = startingYear; y <= currentYear; y++) {
+                const option = document.createElement('option');
+                option.value = y;
+                option.textContent = y;
+                if (y === currentYear) {
+                    option.selected = true;
+                }
+                yearSelector.appendChild(option);
+            }
 
-            // 1. Number of Years
+            // Set year hint
+            document.getElementById('calcYearHint').textContent = isRtl
+                ? `من ${startingYear} إلى ${currentYear}`
+                : `From ${startingYear} to ${currentYear}`;
+
+            // Calculate for the current year initially
+            calculateForSelectedYear(currentYear);
+
+            // Show the modal
+            const modal = new bootstrap.Modal(document.getElementById('calculationModal'));
+            modal.show();
+        }
+
+        // Recalculate when year dropdown changes
+        function recalculateForYear() {
+            const selectedYear = parseInt(document.getElementById('calcYearSelector').value);
+            calculateForSelectedYear(selectedYear);
+        }
+
+        // Calculate and display all values for a specific year
+        function calculateForSelectedYear(selectedYear) {
+            if (!currentCalcGoalData) return;
+
+            const { goalName, isUpward, baseValue, currentValue, targetValue, startingYear, currentYear, targetYear, yearlyData } = currentCalcGoalData;
+            const isRtl = document.documentElement.dir === 'rtl' || document.documentElement.lang === 'ar';
+
+            // Get values for selected year from yearlyData
+            const yearData = yearlyData[selectedYear];
+            const selectedYearValue = yearData ? yearData.baseVal : baseValue;
+            const expectedTargetForYear = yearData ? yearData.expected : baseValue;
+
+            // Update selected year value display
+            document.getElementById('calcSelectedYearLabel').textContent = selectedYear;
+            document.getElementById('calcSelectedYearValue').textContent = selectedYearValue.toFixed(2);
+            document.getElementById('calcExpectedTargetValue').textContent = expectedTargetForYear.toFixed(2);
+
+            // 1. Number of Years (Total)
             const years = targetYear - startingYear;
             document.getElementById('calcYearsFormula').innerHTML = `<code>${targetYear} - ${startingYear} = <strong>${years}</strong></code>`;
             document.getElementById('calcYearsResult').textContent = years + (isRtl ? ' سنوات' : ' years');
@@ -1816,24 +1934,24 @@
             document.getElementById('calcDiscountRateFormula').innerHTML = `<code>${requiredChange.toFixed(2)} ÷ ${years} = <strong>${calculatedDiscountRate.toFixed(2)}</strong></code>`;
             document.getElementById('calcDiscountRateResult').textContent = calculatedDiscountRate.toFixed(2) + (isRtl ? ' لكل سنة' : ' per year');
 
-            // 4. Years Elapsed
-            const yearsElapsed = currentYear - startingYear;
-            document.getElementById('calcYearsElapsedFormula').innerHTML = `<code>${currentYear} - ${startingYear} = <strong>${yearsElapsed}</strong></code>`;
+            // 4. Years Elapsed (for selected year)
+            const yearsElapsed = selectedYear - startingYear;
+            document.getElementById('calcYearsElapsedFormula').innerHTML = `<code>${selectedYear} - ${startingYear} = <strong>${yearsElapsed}</strong></code>`;
             document.getElementById('calcYearsElapsedResult').textContent = yearsElapsed + (isRtl ? ' سنوات' : ' years');
 
-            // 5. Progress (Actual Change)
+            // 5. Progress (Actual Change for selected year)
             let progress;
             const progressFormulaEl = document.getElementById('calcProgressFormula');
             const progressCalculationEl = document.getElementById('calcProgressCalculation');
 
             if (isUpward) {
-                progress = currentValue - baseValue;
-                progressFormulaEl.innerHTML = (isRtl ? 'التقدم' : 'Progress') + ' = ' + (isRtl ? 'القيمة الحالية' : 'Current Value') + ' - ' + (isRtl ? 'القيمة الأساسية' : 'Base Value');
-                progressCalculationEl.innerHTML = `<code>${currentValue.toFixed(2)} - ${baseValue.toFixed(2)} = <strong>${progress.toFixed(2)}</strong></code>`;
+                progress = selectedYearValue - baseValue;
+                progressFormulaEl.innerHTML = (isRtl ? 'التقدم' : 'Progress') + ' = ' + (isRtl ? 'قيمة السنة المحددة' : 'Selected Year Value') + ' - ' + (isRtl ? 'القيمة الأساسية' : 'Base Value');
+                progressCalculationEl.innerHTML = `<code>${selectedYearValue.toFixed(2)} - ${baseValue.toFixed(2)} = <strong>${progress.toFixed(2)}</strong></code>`;
             } else {
-                progress = baseValue - currentValue;
-                progressFormulaEl.innerHTML = (isRtl ? 'التقدم' : 'Progress') + ' = ' + (isRtl ? 'القيمة الأساسية' : 'Base Value') + ' - ' + (isRtl ? 'القيمة الحالية' : 'Current Value');
-                progressCalculationEl.innerHTML = `<code>${baseValue.toFixed(2)} - ${currentValue.toFixed(2)} = <strong>${progress.toFixed(2)}</strong></code>`;
+                progress = baseValue - selectedYearValue;
+                progressFormulaEl.innerHTML = (isRtl ? 'التقدم' : 'Progress') + ' = ' + (isRtl ? 'القيمة الأساسية' : 'Base Value') + ' - ' + (isRtl ? 'قيمة السنة المحددة' : 'Selected Year Value');
+                progressCalculationEl.innerHTML = `<code>${baseValue.toFixed(2)} - ${selectedYearValue.toFixed(2)} = <strong>${progress.toFixed(2)}</strong></code>`;
             }
 
             const progressResultEl = document.getElementById('calcProgressResult');
@@ -1846,7 +1964,7 @@
                 progressResultEl.className = 'badge bg-secondary fs-6';
             }
 
-            // 6. Expected Change
+            // 6. Expected Change (for selected year)
             const expectedChange = calculatedDiscountRate * yearsElapsed;
             document.getElementById('calcExpectedChangeFormula').innerHTML = `<code>${calculatedDiscountRate.toFixed(2)} × ${yearsElapsed} = <strong>${expectedChange.toFixed(2)}</strong></code>`;
             document.getElementById('calcExpectedChangeResult').textContent = expectedChange.toFixed(2);
@@ -1891,10 +2009,6 @@
             } else {
                 summaryPerformanceEl.className = 'fs-4 fw-bold text-danger';
             }
-
-            // Show the modal
-            const modal = new bootstrap.Modal(document.getElementById('calculationModal'));
-            modal.show();
         }
     </script>
 
