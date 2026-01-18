@@ -1,0 +1,331 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="User Guide" xml:space="preserve">
+    <value>دليل المستخدم</value>
+  </data>
+  <data name="Complete documentation for the National Monitoring &amp; Evaluation Platform" xml:space="preserve">
+    <value>التوثيق الكامل للنظام الوطني للرصد والتقييم</value>
+  </data>
+  <data name="Print Guide" xml:space="preserve">
+    <value>طباعة الدليل</value>
+  </data>
+  <data name="Download PDF" xml:space="preserve">
+    <value>تحميل PDF</value>
+  </data>
+  <data name="Table of Contents" xml:space="preserve">
+    <value>جدول المحتويات</value>
+  </data>
+  <data name="Introduction" xml:space="preserve">
+    <value>المقدمة</value>
+  </data>
+  <data name="Getting Started" xml:space="preserve">
+    <value>البدء</value>
+  </data>
+  <data name="Dashboard" xml:space="preserve">
+    <value>لوحة المعلومات</value>
+  </data>
+  <data name="Frameworks" xml:space="preserve">
+    <value>الأطر</value>
+  </data>
+  <data name="Projects" xml:space="preserve">
+    <value>المشاريع</value>
+  </data>
+  <data name="Indicators" xml:space="preserve">
+    <value>المؤشرات</value>
+  </data>
+  <data name="Monitoring" xml:space="preserve">
+    <value>المراقبة</value>
+  </data>
+  <data name="Outcomes &amp; Outputs" xml:space="preserve">
+    <value>النتائج والمخرجات</value>
+  </data>
+  <data name="Ministries &amp; Agencies" xml:space="preserve">
+    <value>الوزارات والجهات</value>
+  </data>
+  <data name="Donors &amp; Partners" xml:space="preserve">
+    <value>المانحون والشركاء</value>
+  </data>
+  <data name="Sectors" xml:space="preserve">
+    <value>القطاعات</value>
+  </data>
+  <data name="Locations" xml:space="preserve">
+    <value>المواقع</value>
+  </data>
+  <data name="Reports" xml:space="preserve">
+    <value>التقارير</value>
+  </data>
+  <data name="Administration" xml:space="preserve">
+    <value>الإدارة</value>
+  </data>
+  <data name="Getting Help" xml:space="preserve">
+    <value>الحصول على المساعدة</value>
+  </data>
+  <data name="Welcome to the National Monitoring &amp; Evaluation Platform. This comprehensive system helps you track development projects, measure performance indicators, and generate reports across multiple strategic frameworks." xml:space="preserve">
+    <value>مرحباً بك في النظام الوطني للرصد والتقييم. يساعدك هذا النظام الشامل على تتبع مشاريع التنمية وقياس مؤشرات الأداء وإنشاء التقارير عبر أطر استراتيجية متعددة.</value>
+  </data>
+  <data name="What You Can Do" xml:space="preserve">
+    <value>ما يمكنك فعله</value>
+  </data>
+  <data name="Manage strategic frameworks and goals" xml:space="preserve">
+    <value>إدارة الأطر والأهداف الاستراتيجية</value>
+  </data>
+  <data name="Track project progress and performance" xml:space="preserve">
+    <value>تتبع تقدم وأداء المشاريع</value>
+  </data>
+  <data name="Monitor indicators with real-time calculations" xml:space="preserve">
+    <value>مراقبة المؤشرات مع الحسابات الفورية</value>
+  </data>
+  <data name="Coordinate with ministries, donors, and partners" xml:space="preserve">
+    <value>التنسيق مع الوزارات والمانحين والشركاء</value>
+  </data>
+  <data name="Generate comprehensive reports" xml:space="preserve">
+    <value>إنشاء تقارير شاملة</value>
+  </data>
+  <data name="Home Page Screenshot" xml:space="preserve">
+    <value>لقطة شاشة الصفحة الرئيسية</value>
+  </data>
+  <data name="Screenshot: Home Page Overview" xml:space="preserve">
+    <value>لقطة شاشة: نظرة عامة على الصفحة الرئيسية</value>
+  </data>
+  <data name="Figure 1.1: Platform Home Page" xml:space="preserve">
+    <value>الشكل 1.1: الصفحة الرئيسية للمنصة</value>
+  </data>
+  <data name="2.1 Logging In" xml:space="preserve">
+    <value>2.1 تسجيل الدخول</value>
+  </data>
+  <data name="To access the platform, navigate to the login page and enter your credentials." xml:space="preserve">
+    <value>للوصول إلى المنصة، انتقل إلى صفحة تسجيل الدخول وأدخل بيانات الاعتماد الخاصة بك.</value>
+  </data>
+  <data name="Open the Platform" xml:space="preserve">
+    <value>افتح المنصة</value>
+  </data>
+  <data name="Navigate to the platform URL in your web browser." xml:space="preserve">
+    <value>انتقل إلى رابط المنصة في متصفح الويب الخاص بك.</value>
+  </data>
+  <data name="Enter Credentials" xml:space="preserve">
+    <value>أدخل بيانات الاعتماد</value>
+  </data>
+  <data name="Enter your username and password in the login form." xml:space="preserve">
+    <value>أدخل اسم المستخدم وكلمة المرور في نموذج تسجيل الدخول.</value>
+  </data>
+  <data name="Access Dashboard" xml:space="preserve">
+    <value>الوصول إلى لوحة المعلومات</value>
+  </data>
+  <data name="After successful login, you will be redirected to the main dashboard." xml:space="preserve">
+    <value>بعد تسجيل الدخول بنجاح، سيتم توجيهك إلى لوحة المعلومات الرئيسية.</value>
+  </data>
+  <data name="Login Page Screenshot" xml:space="preserve">
+    <value>لقطة شاشة صفحة تسجيل الدخول</value>
+  </data>
+  <data name="Screenshot: Login Page" xml:space="preserve">
+    <value>لقطة شاشة: صفحة تسجيل الدخول</value>
+  </data>
+  <data name="Figure 2.1: Login Page" xml:space="preserve">
+    <value>الشكل 2.1: صفحة تسجيل الدخول</value>
+  </data>
+  <data name="2.2 Changing Language" xml:space="preserve">
+    <value>2.2 تغيير اللغة</value>
+  </data>
+  <data name="The platform supports multiple languages. To change the language:" xml:space="preserve">
+    <value>تدعم المنصة لغات متعددة. لتغيير اللغة:</value>
+  </data>
+  <data name="Find Language Selector" xml:space="preserve">
+    <value>ابحث عن محدد اللغة</value>
+  </data>
+  <data name="Look for the language dropdown in the top navigation bar." xml:space="preserve">
+    <value>ابحث عن قائمة اللغات المنسدلة في شريط التنقل العلوي.</value>
+  </data>
+  <data name="Select Language" xml:space="preserve">
+    <value>اختر اللغة</value>
+  </data>
+  <data name="Choose your preferred language (Arabic, English, or French)." xml:space="preserve">
+    <value>اختر لغتك المفضلة (العربية أو الإنجليزية أو الفرنسية).</value>
+  </data>
+  <data name="Language Selector Screenshot" xml:space="preserve">
+    <value>لقطة شاشة محدد اللغة</value>
+  </data>
+  <data name="Screenshot: Language Selector" xml:space="preserve">
+    <value>لقطة شاشة: محدد اللغة</value>
+  </data>
+  <data name="Figure 2.2: Language Selection" xml:space="preserve">
+    <value>الشكل 2.2: اختيار اللغة</value>
+  </data>
+  <data name="2.3 Navigation" xml:space="preserve">
+    <value>2.3 التنقل</value>
+  </data>
+  <data name="The platform uses a consistent navigation structure with a sidebar menu for easy access to all features." xml:space="preserve">
+    <value>تستخدم المنصة هيكل تنقل متسق مع قائمة جانبية لسهولة الوصول إلى جميع الميزات.</value>
+  </data>
+  <data name="Navigation Menu Screenshot" xml:space="preserve">
+    <value>لقطة شاشة قائمة التنقل</value>
+  </data>
+  <data name="Screenshot: Navigation Menu" xml:space="preserve">
+    <value>لقطة شاشة: قائمة التنقل</value>
+  </data>
+  <data name="Figure 2.3: Main Navigation Menu" xml:space="preserve">
+    <value>الشكل 2.3: قائمة التنقل الرئيسية</value>
+  </data>
+  <data name="The Dashboard provides a comprehensive overview of all platform activities and performance metrics at a glance." xml:space="preserve">
+    <value>توفر لوحة المعلومات نظرة شاملة على جميع أنشطة المنصة ومقاييس الأداء بنظرة واحدة.</value>
+  </data>
+  <data name="3.1 Dashboard Components" xml:space="preserve">
+    <value>3.1 مكونات لوحة المعلومات</value>
+  </data>
+  <data name="Statistics Cards" xml:space="preserve">
+    <value>بطاقات الإحصائيات</value>
+  </data>
+  <data name="Quick view of total projects, frameworks, ministries, and budget." xml:space="preserve">
+    <value>عرض سريع لإجمالي المشاريع والأطر والوزارات والميزانية.</value>
+  </data>
+  <data name="Performance Charts" xml:space="preserve">
+    <value>مخططات الأداء</value>
+  </data>
+  <data name="Visual representation of performance trends over time." xml:space="preserve">
+    <value>تمثيل مرئي لاتجاهات الأداء عبر الزمن.</value>
+  </data>
+  <data name="Geographic Map" xml:space="preserve">
+    <value>الخريطة الجغرافية</value>
+  </data>
+  <data name="Interactive map showing project distribution by location." xml:space="preserve">
+    <value>خريطة تفاعلية تعرض توزيع المشاريع حسب الموقع.</value>
+  </data>
+  <data name="Recent Activities" xml:space="preserve">
+    <value>الأنشطة الأخيرة</value>
+  </data>
+  <data name="Latest updates and activities across the platform." xml:space="preserve">
+    <value>آخر التحديثات والأنشطة عبر المنصة.</value>
+  </data>
+  <data name="Framework" xml:space="preserve">
+    <value>الإطار</value>
+  </data>
+  <data name="Outcomes" xml:space="preserve">
+    <value>النتائج</value>
+  </data>
+  <data name="Outputs" xml:space="preserve">
+    <value>المخرجات</value>
+  </data>
+  <data name="SubOutputs" xml:space="preserve">
+    <value>المخرجات الفرعية</value>
+  </data>
+  <data name="Projects &amp; Indicators" xml:space="preserve">
+    <value>المشاريع والمؤشرات</value>
+  </data>
+  <data name="Governorate" xml:space="preserve">
+    <value>المحافظة</value>
+  </data>
+  <data name="District" xml:space="preserve">
+    <value>المنطقة</value>
+  </data>
+  <data name="Sub-District" xml:space="preserve">
+    <value>الناحية</value>
+  </data>
+  <data name="Community" xml:space="preserve">
+    <value>المجتمع</value>
+  </data>
+  <data name="Click Help Button" xml:space="preserve">
+    <value>انقر على زر المساعدة</value>
+  </data>
+  <data name="Look for the help button (?) in the page header." xml:space="preserve">
+    <value>ابحث عن زر المساعدة (؟) في رأس الصفحة.</value>
+  </data>
+  <data name="Browse Tabs" xml:space="preserve">
+    <value>تصفح علامات التبويب</value>
+  </data>
+  <data name="Use the tabs to find Overview, How To, FAQ, and Tips." xml:space="preserve">
+    <value>استخدم علامات التبويب للعثور على نظرة عامة وكيفية الاستخدام والأسئلة الشائعة والنصائح.</value>
+  </data>
+  <data name="Admin Only" xml:space="preserve">
+    <value>للمديرين فقط</value>
+  </data>
+  <data name="These features are only available to users with System Administrator role." xml:space="preserve">
+    <value>هذه الميزات متاحة فقط للمستخدمين الذين لديهم دور مدير النظام.</value>
+  </data>
+  <data name="Baseline" xml:space="preserve">
+    <value>خط الأساس</value>
+  </data>
+  <data name="Starting value before intervention" xml:space="preserve">
+    <value>القيمة الابتدائية قبل التدخل</value>
+  </data>
+  <data name="Target" xml:space="preserve">
+    <value>الهدف</value>
+  </data>
+  <data name="Goal value to achieve" xml:space="preserve">
+    <value>القيمة المستهدفة للتحقيق</value>
+  </data>
+  <data name="Actual" xml:space="preserve">
+    <value>الفعلي</value>
+  </data>
+  <data name="Current measured value" xml:space="preserve">
+    <value>القيمة الحالية المقاسة</value>
+  </data>
+  <data name="Weight" xml:space="preserve">
+    <value>الوزن</value>
+  </data>
+  <data name="Importance factor for calculations" xml:space="preserve">
+    <value>عامل الأهمية للحسابات</value>
+  </data>
+  <data name="Trend" xml:space="preserve">
+    <value>الاتجاه</value>
+  </data>
+  <data name="Increasing or decreasing is good" xml:space="preserve">
+    <value>الزيادة أو النقصان جيد</value>
+  </data>
+</root>

@@ -1440,6 +1440,7 @@
         function calculatePerformanceForRow(row, selectedYear) {
             const discountRate = parseFloat(row.getAttribute('data-discount-rate'));
             const startingYear = parseInt(row.getAttribute('data-starting-year'));
+            const isIncreaseGoal = row.getAttribute('data-is-increase-goal') === 'true';
             const cell = row.querySelector('.performance-cell-dynamic');
             if (!cell) return;
 
@@ -1453,38 +1454,42 @@
                 const dataForYear = yearlyData[selectedYear];
 
                 if (dataForYear) {
-                    debugger;
                     const actualValueForYear = dataForYear.baseVal;
                     const expectedTargetForYear = dataForYear.expected;
-                    
-                    // Formula change per user request: Base Value - actualValueForYear
-                    // "Base Value" refers to the Starting Base Value of the goal
                     const startingBaseValue = parseFloat(row.getAttribute('data-base-value-starting'));
-                    const difference = startingBaseValue - actualValueForYear;
+
+                    // Calculate difference based on goal direction
+                    // Upward target (target > base): we want actual to INCREASE, so difference = actual - base
+                    // Downward target (target < base): we want actual to DECREASE, so difference = base - actual
+                    const difference = isIncreaseGoal
+                        ? (actualValueForYear - startingBaseValue)  // Upward: positive = progress
+                        : (startingBaseValue - actualValueForYear); // Downward: positive = progress
 
                     // Special case: Base Year performance is always 0%
                     if (selectedYear === startingYear) {
                         valueSpan.className = 'performance-value fw-bold text-danger';
                         valueSpan.textContent = '0.00%';
                     } else if (difference === 0) {
-                        // Goal achieved exactly
-                        valueSpan.className = 'performance-value fw-bold text-success';
-                        valueSpan.textContent = '100%';
+                        // No change from base value
+                        valueSpan.className = 'performance-value fw-bold text-danger';
+                        valueSpan.textContent = '0.00%';
                     } else if (difference < 0) {
-                        // Exceeded target (actual > expected), make positive and multiply by 100
-                        const percentage = Math.abs(difference) * 100;
-                        valueSpan.className = 'performance-value fw-bold text-success';
-                        valueSpan.textContent = `${percentage.toFixed(2)}%`;
+                        // Moving in wrong direction (negative progress)
+                        valueSpan.className = 'performance-value fw-bold text-danger';
+                        valueSpan.textContent = '0.00%';
                     } else if (discountRate !== 0) {
-                         // Formula: (Expected Target For selected Year - Actual Value For selected Year) / Annual Discount Rate * (Year index, starting from 1)
-                        // Example: Base 2025, Selected 2026 -> 2 years (2025 is 1, 2026 is 2)
+                        // Positive difference means progress in the right direction
+                        // Formula: difference / (discountRate * yearDiff) * 100
                         const yearDiff = selectedYear - startingYear;
-                        
+
                         const performance = (difference / (discountRate * yearDiff));
                         const percentage = performance * 100;
 
+                        // Color coding based on performance percentage
                         if (percentage >= 100) {
                             valueSpan.className = 'performance-value fw-bold text-success';
+                        } else if (percentage >= 50) {
+                            valueSpan.className = 'performance-value fw-bold text-warning';
                         } else {
                             valueSpan.className = 'performance-value fw-bold text-danger';
                         }

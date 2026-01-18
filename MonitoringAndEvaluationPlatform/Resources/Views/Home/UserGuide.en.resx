@@ -1,0 +1,226 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="User Guide" xml:space="preserve">
+    <value>User Guide</value>
+  </data>
+  <data name="Complete documentation for the National Monitoring &amp; Evaluation Platform" xml:space="preserve">
+    <value>Complete documentation for the National Monitoring &amp; Evaluation Platform</value>
+  </data>
+  <data name="Print Guide" xml:space="preserve">
+    <value>Print Guide</value>
+  </data>
+  <data name="Download PDF" xml:space="preserve">
+    <value>Download PDF</value>
+  </data>
+  <data name="Table of Contents" xml:space="preserve">
+    <value>Table of Contents</value>
+  </data>
+  <data name="Introduction" xml:space="preserve">
+    <value>Introduction</value>
+  </data>
+  <data name="Getting Started" xml:space="preserve">
+    <value>Getting Started</value>
+  </data>
+  <data name="Dashboard" xml:space="preserve">
+    <value>Dashboard</value>
+  </data>
+  <data name="Frameworks" xml:space="preserve">
+    <value>Frameworks</value>
+  </data>
+  <data name="Projects" xml:space="preserve">
+    <value>Projects</value>
+  </data>
+  <data name="Indicators" xml:space="preserve">
+    <value>Indicators</value>
+  </data>
+  <data name="Monitoring" xml:space="preserve">
+    <value>Monitoring</value>
+  </data>
+  <data name="Outcomes &amp; Outputs" xml:space="preserve">
+    <value>Outcomes &amp; Outputs</value>
+  </data>
+  <data name="Ministries &amp; Agencies" xml:space="preserve">
+    <value>Ministries &amp; Agencies</value>
+  </data>
+  <data name="Donors &amp; Partners" xml:space="preserve">
+    <value>Donors &amp; Partners</value>
+  </data>
+  <data name="Sectors" xml:space="preserve">
+    <value>Sectors</value>
+  </data>
+  <data name="Locations" xml:space="preserve">
+    <value>Locations</value>
+  </data>
+  <data name="Reports" xml:space="preserve">
+    <value>Reports</value>
+  </data>
+  <data name="Administration" xml:space="preserve">
+    <value>Administration</value>
+  </data>
+  <data name="Getting Help" xml:space="preserve">
+    <value>Getting Help</value>
+  </data>
+  <data name="Welcome to the National Monitoring &amp; Evaluation Platform. This comprehensive system helps you track development projects, measure performance indicators, and generate reports across multiple strategic frameworks." xml:space="preserve">
+    <value>Welcome to the National Monitoring &amp; Evaluation Platform. This comprehensive system helps you track development projects, measure performance indicators, and generate reports across multiple strategic frameworks.</value>
+  </data>
+  <data name="What You Can Do" xml:space="preserve">
+    <value>What You Can Do</value>
+  </data>
+  <data name="Manage strategic frameworks and goals" xml:space="preserve">
+    <value>Manage strategic frameworks and goals</value>
+  </data>
+  <data name="Track project progress and performance" xml:space="preserve">
+    <value>Track project progress and performance</value>
+  </data>
+  <data name="Monitor indicators with real-time calculations" xml:space="preserve">
+    <value>Monitor indicators with real-time calculations</value>
+  </data>
+  <data name="Coordinate with ministries, donors, and partners" xml:space="preserve">
+    <value>Coordinate with ministries, donors, and partners</value>
+  </data>
+  <data name="Generate comprehensive reports" xml:space="preserve">
+    <value>Generate comprehensive reports</value>
+  </data>
+  <data name="Home Page Screenshot" xml:space="preserve">
+    <value>Home Page Screenshot</value>
+  </data>
+  <data name="Screenshot: Home Page Overview" xml:space="preserve">
+    <value>Screenshot: Home Page Overview</value>
+  </data>
+  <data name="Figure 1.1: Platform Home Page" xml:space="preserve">
+    <value>Figure 1.1: Platform Home Page</value>
+  </data>
+  <data name="2.1 Logging In" xml:space="preserve">
+    <value>2.1 Logging In</value>
+  </data>
+  <data name="To access the platform, navigate to the login page and enter your credentials." xml:space="preserve">
+    <value>To access the platform, navigate to the login page and enter your credentials.</value>
+  </data>
+  <data name="Open the Platform" xml:space="preserve">
+    <value>Open the Platform</value>
+  </data>
+  <data name="Navigate to the platform URL in your web browser." xml:space="preserve">
+    <value>Navigate to the platform URL in your web browser.</value>
+  </data>
+  <data name="Enter Credentials" xml:space="preserve">
+    <value>Enter Credentials</value>
+  </data>
+  <data name="Enter your username and password in the login form." xml:space="preserve">
+    <value>Enter your username and password in the login form.</value>
+  </data>
+  <data name="Access Dashboard" xml:space="preserve">
+    <value>Access Dashboard</value>
+  </data>
+  <data name="After successful login, you will be redirected to the main dashboard." xml:space="preserve">
+    <value>After successful login, you will be redirected to the main dashboard.</value>
+  </data>
+  <data name="Login Page Screenshot" xml:space="preserve">
+    <value>Login Page Screenshot</value>
+  </data>
+  <data name="Screenshot: Login Page" xml:space="preserve">
+    <value>Screenshot: Login Page</value>
+  </data>
+  <data name="Figure 2.1: Login Page" xml:space="preserve">
+    <value>Figure 2.1: Login Page</value>
+  </data>
+  <data name="2.2 Changing Language" xml:space="preserve">
+    <value>2.2 Changing Language</value>
+  </data>
+  <data name="The platform supports multiple languages. To change the language:" xml:space="preserve">
+    <value>The platform supports multiple languages. To change the language:</value>
+  </data>
+  <data name="Find Language Selector" xml:space="preserve">
+    <value>Find Language Selector</value>
+  </data>
+  <data name="Look for the language dropdown in the top navigation bar." xml:space="preserve">
+    <value>Look for the language dropdown in the top navigation bar.</value>
+  </data>
+  <data name="Select Language" xml:space="preserve">
+    <value>Select Language</value>
+  </data>
+  <data name="Choose your preferred language (Arabic, English, or French)." xml:space="preserve">
+    <value>Choose your preferred language (Arabic, English, or French).</value>
+  </data>
+  <data name="Language Selector Screenshot" xml:space="preserve">
+    <value>Language Selector Screenshot</value>
+  </data>
+  <data name="Screenshot: Language Selector" xml:space="preserve">
+    <value>Screenshot: Language Selector</value>
+  </data>
+  <data name="Figure 2.2: Language Selection" xml:space="preserve">
+    <value>Figure 2.2: Language Selection</value>
+  </data>
+  <data name="2.3 Navigation" xml:space="preserve">
+    <value>2.3 Navigation</value>
+  </data>
+  <data name="The platform uses a consistent navigation structure with a sidebar menu for easy access to all features." xml:space="preserve">
+    <value>The platform uses a consistent navigation structure with a sidebar menu for easy access to all features.</value>
+  </data>
+  <data name="Navigation Menu Screenshot" xml:space="preserve">
+    <value>Navigation Menu Screenshot</value>
+  </data>
+  <data name="Screenshot: Navigation Menu" xml:space="preserve">
+    <value>Screenshot: Navigation Menu</value>
+  </data>
+  <data name="Figure 2.3: Main Navigation Menu" xml:space="preserve">
+    <value>Figure 2.3: Main Navigation Menu</value>
+  </data>
+</root>

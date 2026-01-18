@@ -1,0 +1,936 @@
+@using Microsoft.AspNetCore.Mvc.Localization
+@inject IViewLocalizer Localizer
+@{
+    ViewData["Title"] = Localizer["User Guide"];
+    Layout = "~/Views/Shared/_DashboardHomeLayout.cshtml";
+}
+
+<link rel="stylesheet" href="~/css/user-guide.css" />
+
+<!-- User Guide Header -->
+<div class="guide-header">
+    <div class="guide-header-content">
+        <div class="guide-icon">
+            <i class="fas fa-book-open"></i>
+        </div>
+        <div>
+            <h1 class="guide-title">@Localizer["User Guide"]</h1>
+            <p class="guide-subtitle">@Localizer["Complete documentation for the National Monitoring & Evaluation Platform"]</p>
+        </div>
+    </div>
+    <div class="guide-actions">
+        <button class="btn btn-outline-light" onclick="window.print()">
+            <i class="fas fa-print me-2"></i>@Localizer["Print Guide"]
+        </button>
+        <a href="@Url.Content("~/docs/Platform-Features-EN.doc")" class="btn btn-light" download>
+            <i class="fas fa-download me-2"></i>@Localizer["Download PDF"]
+        </a>
+    </div>
+</div>
+
+<div class="guide-container">
+    <!-- Table of Contents -->
+    <div class="guide-toc">
+        <div class="toc-header">
+            <i class="fas fa-list me-2"></i>@Localizer["Table of Contents"]
+        </div>
+        <nav class="toc-nav">
+            <a href="#introduction" class="toc-link">1. @Localizer["Introduction"]</a>
+            <a href="#getting-started" class="toc-link">2. @Localizer["Getting Started"]</a>
+            <a href="#dashboard" class="toc-link">3. @Localizer["Dashboard"]</a>
+            <a href="#frameworks" class="toc-link">4. @Localizer["Frameworks"]</a>
+            <a href="#projects" class="toc-link">5. @Localizer["Projects"]</a>
+            <a href="#indicators" class="toc-link">6. @Localizer["Indicators"]</a>
+            <a href="#monitoring" class="toc-link">7. @Localizer["Monitoring"]</a>
+            <a href="#outcomes" class="toc-link">8. @Localizer["Outcomes & Outputs"]</a>
+            <a href="#ministries" class="toc-link">9. @Localizer["Ministries & Agencies"]</a>
+            <a href="#donors" class="toc-link">10. @Localizer["Donors & Partners"]</a>
+            <a href="#sectors" class="toc-link">11. @Localizer["Sectors"]</a>
+            <a href="#locations" class="toc-link">12. @Localizer["Locations"]</a>
+            <a href="#reports" class="toc-link">13. @Localizer["Reports"]</a>
+            <a href="#admin" class="toc-link">14. @Localizer["Administration"]</a>
+            <a href="#help" class="toc-link">15. @Localizer["Getting Help"]</a>
+        </nav>
+    </div>
+
+    <!-- Guide Content -->
+    <div class="guide-content">
+
+        <!-- Section 1: Introduction -->
+        <section id="introduction" class="guide-section">
+            <div class="section-header">
+                <span class="section-number">1</span>
+                <h2>@Localizer["Introduction"]</h2>
+            </div>
+            <div class="section-content">
+                <p>@Localizer["Welcome to the National Monitoring & Evaluation Platform. This comprehensive system helps you track development projects, measure performance indicators, and generate reports across multiple strategic frameworks."]</p>
+
+                <div class="info-box">
+                    <div class="info-icon"><i class="fas fa-info-circle"></i></div>
+                    <div class="info-content">
+                        <h4>@Localizer["What You Can Do"]</h4>
+                        <ul>
+                            <li>@Localizer["Manage strategic frameworks and goals"]</li>
+                            <li>@Localizer["Track project progress and performance"]</li>
+                            <li>@Localizer["Monitor indicators with real-time calculations"]</li>
+                            <li>@Localizer["Coordinate with ministries, donors, and partners"]</li>
+                            <li>@Localizer["Generate comprehensive reports"]</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="screenshot-placeholder">
+                    <div class="screenshot-frame">
+                        <img src="~/images/guide/home-page.png" alt="@Localizer["Home Page Screenshot"]" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';" />
+                        <div class="screenshot-missing">
+                            <i class="fas fa-image"></i>
+                            <span>@Localizer["Screenshot: Home Page Overview"]</span>
+                            <small>home-page.png</small>
+                        </div>
+                    </div>
+                    <p class="screenshot-caption">@Localizer["Figure 1.1: Platform Home Page"]</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 2: Getting Started -->
+        <section id="getting-started" class="guide-section">
+            <div class="section-header">
+                <span class="section-number">2</span>
+                <h2>@Localizer["Getting Started"]</h2>
+            </div>
+            <div class="section-content">
+                <h3>@Localizer["2.1 Logging In"]</h3>
+                <p>@Localizer["To access the platform, navigate to the login page and enter your credentials."]</p>
+
+                <div class="step-list">
+                    <div class="step">
+                        <div class="step-number">1</div>
+                        <div class="step-content">
+                            <h4>@Localizer["Open the Platform"]</h4>
+                            <p>@Localizer["Navigate to the platform URL in your web browser."]</p>
+                        </div>
+                    </div>
+                    <div class="step">
+                        <div class="step-number">2</div>
+                        <div class="step-content">
+                            <h4>@Localizer["Enter Credentials"]</h4>
+                            <p>@Localizer["Enter your username and password in the login form."]</p>
+                        </div>
+                    </div>
+                    <div class="step">
+                        <div class="step-number">3</div>
+                        <div class="step-content">
+                            <h4>@Localizer["Access Dashboard"]</h4>
+                            <p>@Localizer["After successful login, you will be redirected to the main dashboard."]</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="screenshot-placeholder">
+                    <div class="screenshot-frame">
+                        <img src="~/images/guide/login-page.png" alt="@Localizer["Login Page Screenshot"]" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';" />
+                        <div class="screenshot-missing">
+                            <i class="fas fa-image"></i>
+                            <span>@Localizer["Screenshot: Login Page"]</span>
+                            <small>login-page.png</small>
+                        </div>
+                    </div>
+                    <p class="screenshot-caption">@Localizer["Figure 2.1: Login Page"]</p>
+                </div>
+
+                <h3>@Localizer["2.2 Changing Language"]</h3>
+                <p>@Localizer["The platform supports multiple languages. To change the language:"]</p>
+
+                <div class="step-list">
+                    <div class="step">
+                        <div class="step-number">1</div>
+                        <div class="step-content">
+                            <h4>@Localizer["Find Language Selector"]</h4>
+                            <p>@Localizer["Look for the language dropdown in the top navigation bar."]</p>
+                        </div>
+                    </div>
+                    <div class="step">
+                        <div class="step-number">2</div>
+                        <div class="step-content">
+                            <h4>@Localizer["Select Language"]</h4>
+                            <p>@Localizer["Choose your preferred language (Arabic, English, or French)."]</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="screenshot-placeholder">
+                    <div class="screenshot-frame">
+                        <img src="~/images/guide/language-selector.png" alt="@Localizer["Language Selector Screenshot"]" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';" />
+                        <div class="screenshot-missing">
+                            <i class="fas fa-image"></i>
+                            <span>@Localizer["Screenshot: Language Selector"]</span>
+                            <small>language-selector.png</small>
+                        </div>
+                    </div>
+                    <p class="screenshot-caption">@Localizer["Figure 2.2: Language Selection"]</p>
+                </div>
+
+                <h3>@Localizer["2.3 Navigation"]</h3>
+                <p>@Localizer["The platform uses a consistent navigation structure with a sidebar menu for easy access to all features."]</p>
+
+                <div class="screenshot-placeholder">
+                    <div class="screenshot-frame">
+                        <img src="~/images/guide/navigation-menu.png" alt="@Localizer["Navigation Menu Screenshot"]" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';" />
+                        <div class="screenshot-missing">
+                            <i class="fas fa-image"></i>
+                            <span>@Localizer["Screenshot: Navigation Menu"]</span>
+                            <small>navigation-menu.png</small>
+                        </div>
+                    </div>
+                    <p class="screenshot-caption">@Localizer["Figure 2.3: Main Navigation Menu"]</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 3: Dashboard -->
+        <section id="dashboard" class="guide-section">
+            <div class="section-header">
+                <span class="section-number">3</span>
+                <h2>@Localizer["Dashboard"]</h2>
+            </div>
+            <div class="section-content">
+                <p>@Localizer["The Dashboard provides a comprehensive overview of all platform activities and performance metrics at a glance."]</p>
+
+                <h3>@Localizer["3.1 Dashboard Components"]</h3>
+
+                <div class="feature-grid">
+                    <div class="feature-item">
+                        <div class="feature-icon"><i class="fas fa-chart-bar"></i></div>
+                        <h4>@Localizer["Statistics Cards"]</h4>
+                        <p>@Localizer["Quick view of total projects, frameworks, ministries, and budget."]</p>
+                    </div>
+                    <div class="feature-item">
+                        <div class="feature-icon"><i class="fas fa-chart-line"></i></div>
+                        <h4>@Localizer["Performance Charts"]</h4>
+                        <p>@Localizer["Visual representation of performance trends over time."]</p>
+                    </div>
+                    <div class="feature-item">
+                        <div class="feature-icon"><i class="fas fa-map"></i></div>
+                        <h4>@Localizer["Geographic Map"]</h4>
+                        <p>@Localizer["Interactive map showing project distribution by location."]</p>
+                    </div>
+                    <div class="feature-item">
+                        <div class="feature-icon"><i class="fas fa-bell"></i></div>
+                        <h4>@Localizer["Recent Activities"]</h4>
+                        <p>@Localizer["Latest updates and activities across the platform."]</p>
+                    </div>
+                </div>
+
+                <div class="screenshot-placeholder">
+                    <div class="screenshot-frame">
+                        <img src="~/images/guide/dashboard-overview.png" alt="@Localizer["Dashboard Overview Screenshot"]" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';" />
+                        <div class="screenshot-missing">
+                            <i class="fas fa-image"></i>
+                            <span>@Localizer["Screenshot: Dashboard Overview"]</span>
+                            <small>dashboard-overview.png</small>
+                        </div>
+                    </div>
+                    <p class="screenshot-caption">@Localizer["Figure 3.1: Dashboard Overview"]</p>
+                </div>
+
+                <div class="screenshot-placeholder">
+                    <div class="screenshot-frame">
+                        <img src="~/images/guide/dashboard-charts.png" alt="@Localizer["Dashboard Charts Screenshot"]" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';" />
+                        <div class="screenshot-missing">
+                            <i class="fas fa-image"></i>
+                            <span>@Localizer["Screenshot: Dashboard Charts"]</span>
+                            <small>dashboard-charts.png</small>
+                        </div>
+                    </div>
+                    <p class="screenshot-caption">@Localizer["Figure 3.2: Performance Charts"]</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 4: Frameworks -->
+        <section id="frameworks" class="guide-section">
+            <div class="section-header">
+                <span class="section-number">4</span>
+                <h2>@Localizer["Frameworks"]</h2>
+            </div>
+            <div class="section-content">
+                <p>@Localizer["Frameworks represent strategic initiatives like the National Development Strategy or SDG alignment. They form the foundation for organizing all development activities."]</p>
+
+                <h3>@Localizer["4.1 Viewing Frameworks"]</h3>
+                <p>@Localizer["Navigate to the Frameworks section to see all available strategic frameworks."]</p>
+
+                <div class="screenshot-placeholder">
+                    <div class="screenshot-frame">
+                        <img src="~/images/guide/frameworks-list.png" alt="@Localizer["Frameworks List Screenshot"]" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';" />
+                        <div class="screenshot-missing">
+                            <i class="fas fa-image"></i>
+                            <span>@Localizer["Screenshot: Frameworks List"]</span>
+                            <small>frameworks-list.png</small>
+                        </div>
+                    </div>
+                    <p class="screenshot-caption">@Localizer["Figure 4.1: Frameworks List View"]</p>
+                </div>
+
+                <h3>@Localizer["4.2 Framework Details"]</h3>
+                <p>@Localizer["Click on any framework to view its detailed information including outcomes, outputs, and performance metrics."]</p>
+
+                <div class="screenshot-placeholder">
+                    <div class="screenshot-frame">
+                        <img src="~/images/guide/framework-details.png" alt="@Localizer["Framework Details Screenshot"]" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';" />
+                        <div class="screenshot-missing">
+                            <i class="fas fa-image"></i>
+                            <span>@Localizer["Screenshot: Framework Details"]</span>
+                            <small>framework-details.png</small>
+                        </div>
+                    </div>
+                    <p class="screenshot-caption">@Localizer["Figure 4.2: Framework Details Page"]</p>
+                </div>
+
+                <h3>@Localizer["4.3 Creating a Framework"]</h3>
+                <p>@Localizer["System administrators can create new frameworks:"]</p>
+
+                <div class="step-list">
+                    <div class="step">
+                        <div class="step-number">1</div>
+                        <div class="step-content">
+                            <h4>@Localizer["Click Create New"]</h4>
+                            <p>@Localizer["Click the 'Create New Framework' button."]</p>
+                        </div>
+                    </div>
+                    <div class="step">
+                        <div class="step-number">2</div>
+                        <div class="step-content">
+                            <h4>@Localizer["Fill Details"]</h4>
+                            <p>@Localizer["Enter the framework name, description, and other details."]</p>
+                        </div>
+                    </div>
+                    <div class="step">
+                        <div class="step-number">3</div>
+                        <div class="step-content">
+                            <h4>@Localizer["Save"]</h4>
+                            <p>@Localizer["Click Save to create the framework."]</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 5: Projects -->
+        <section id="projects" class="guide-section">
+            <div class="section-header">
+                <span class="section-number">5</span>
+                <h2>@Localizer["Projects"]</h2>
+            </div>
+            <div class="section-content">
+                <p>@Localizer["The Projects module is the core of the platform, allowing you to manage all development projects from initiation to completion."]</p>
+
+                <h3>@Localizer["5.1 Projects List"]</h3>
+                <p>@Localizer["View all projects with filtering and sorting options."]</p>
+
+                <div class="screenshot-placeholder">
+                    <div class="screenshot-frame">
+                        <img src="~/images/guide/projects-list.png" alt="@Localizer["Projects List Screenshot"]" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';" />
+                        <div class="screenshot-missing">
+                            <i class="fas fa-image"></i>
+                            <span>@Localizer["Screenshot: Projects List"]</span>
+                            <small>projects-list.png</small>
+                        </div>
+                    </div>
+                    <p class="screenshot-caption">@Localizer["Figure 5.1: Projects List with Filters"]</p>
+                </div>
+
+                <h3>@Localizer["5.2 Filtering Projects"]</h3>
+                <p>@Localizer["Use the filter panel to narrow down projects by:"]</p>
+                <ul>
+                    <li>@Localizer["Framework"]</li>
+                    <li>@Localizer["Ministry/Agency"]</li>
+                    <li>@Localizer["Donor"]</li>
+                    <li>@Localizer["Sector"]</li>
+                    <li>@Localizer["Location/Governorate"]</li>
+                    <li>@Localizer["Status"]</li>
+                    <li>@Localizer["Date Range"]</li>
+                </ul>
+
+                <div class="screenshot-placeholder">
+                    <div class="screenshot-frame">
+                        <img src="~/images/guide/projects-filters.png" alt="@Localizer["Projects Filters Screenshot"]" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';" />
+                        <div class="screenshot-missing">
+                            <i class="fas fa-image"></i>
+                            <span>@Localizer["Screenshot: Project Filters Panel"]</span>
+                            <small>projects-filters.png</small>
+                        </div>
+                    </div>
+                    <p class="screenshot-caption">@Localizer["Figure 5.2: Project Filter Options"]</p>
+                </div>
+
+                <h3>@Localizer["5.3 Project Details"]</h3>
+                <p>@Localizer["View comprehensive project information including:"]</p>
+
+                <div class="feature-grid">
+                    <div class="feature-item">
+                        <div class="feature-icon"><i class="fas fa-info-circle"></i></div>
+                        <h4>@Localizer["Basic Information"]</h4>
+                        <p>@Localizer["Name, description, dates, budget, and status."]</p>
+                    </div>
+                    <div class="feature-item">
+                        <div class="feature-icon"><i class="fas fa-chart-line"></i></div>
+                        <h4>@Localizer["Performance Metrics"]</h4>
+                        <p>@Localizer["Progress indicators and performance calculations."]</p>
+                    </div>
+                    <div class="feature-item">
+                        <div class="feature-icon"><i class="fas fa-users"></i></div>
+                        <h4>@Localizer["Stakeholders"]</h4>
+                        <p>@Localizer["Linked ministries, donors, and partners."]</p>
+                    </div>
+                    <div class="feature-item">
+                        <div class="feature-icon"><i class="fas fa-tasks"></i></div>
+                        <h4>@Localizer["Activities"]</h4>
+                        <p>@Localizer["Action plans and activity tracking."]</p>
+                    </div>
+                </div>
+
+                <div class="screenshot-placeholder">
+                    <div class="screenshot-frame">
+                        <img src="~/images/guide/project-details.png" alt="@Localizer["Project Details Screenshot"]" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';" />
+                        <div class="screenshot-missing">
+                            <i class="fas fa-image"></i>
+                            <span>@Localizer["Screenshot: Project Details"]</span>
+                            <small>project-details.png</small>
+                        </div>
+                    </div>
+                    <p class="screenshot-caption">@Localizer["Figure 5.3: Project Details Page"]</p>
+                </div>
+
+                <h3>@Localizer["5.4 Creating a Project"]</h3>
+                <div class="step-list">
+                    <div class="step">
+                        <div class="step-number">1</div>
+                        <div class="step-content">
+                            <h4>@Localizer["Navigate to Projects"]</h4>
+                            <p>@Localizer["Go to the Projects section from the main menu."]</p>
+                        </div>
+                    </div>
+                    <div class="step">
+                        <div class="step-number">2</div>
+                        <div class="step-content">
+                            <h4>@Localizer["Click Create New"]</h4>
+                            <p>@Localizer["Click the 'Create New Project' button."]</p>
+                        </div>
+                    </div>
+                    <div class="step">
+                        <div class="step-number">3</div>
+                        <div class="step-content">
+                            <h4>@Localizer["Fill Project Information"]</h4>
+                            <p>@Localizer["Enter project name, description, dates, budget, and select related entities."]</p>
+                        </div>
+                    </div>
+                    <div class="step">
+                        <div class="step-number">4</div>
+                        <div class="step-content">
+                            <h4>@Localizer["Save Project"]</h4>
+                            <p>@Localizer["Review and save the project."]</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="screenshot-placeholder">
+                    <div class="screenshot-frame">
+                        <img src="~/images/guide/project-create.png" alt="@Localizer["Create Project Screenshot"]" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';" />
+                        <div class="screenshot-missing">
+                            <i class="fas fa-image"></i>
+                            <span>@Localizer["Screenshot: Create Project Form"]</span>
+                            <small>project-create.png</small>
+                        </div>
+                    </div>
+                    <p class="screenshot-caption">@Localizer["Figure 5.4: Project Creation Form"]</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 6: Indicators -->
+        <section id="indicators" class="guide-section">
+            <div class="section-header">
+                <span class="section-number">6</span>
+                <h2>@Localizer["Indicators"]</h2>
+            </div>
+            <div class="section-content">
+                <p>@Localizer["Indicators measure the performance and progress of projects and strategic objectives."]</p>
+
+                <h3>@Localizer["6.1 Understanding Indicators"]</h3>
+                <div class="info-box warning">
+                    <div class="info-icon"><i class="fas fa-lightbulb"></i></div>
+                    <div class="info-content">
+                        <h4>@Localizer["Key Indicator Components"]</h4>
+                        <ul>
+                            <li><strong>@Localizer["Baseline"]:</strong> @Localizer["Starting value before intervention"]</li>
+                            <li><strong>@Localizer["Target"]:</strong> @Localizer["Goal value to achieve"]</li>
+                            <li><strong>@Localizer["Actual"]:</strong> @Localizer["Current measured value"]</li>
+                            <li><strong>@Localizer["Weight"]:</strong> @Localizer["Importance factor for calculations"]</li>
+                            <li><strong>@Localizer["Trend"]:</strong> @Localizer["Increasing or decreasing is good"]</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="screenshot-placeholder">
+                    <div class="screenshot-frame">
+                        <img src="~/images/guide/indicators-list.png" alt="@Localizer["Indicators List Screenshot"]" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';" />
+                        <div class="screenshot-missing">
+                            <i class="fas fa-image"></i>
+                            <span>@Localizer["Screenshot: Indicators List"]</span>
+                            <small>indicators-list.png</small>
+                        </div>
+                    </div>
+                    <p class="screenshot-caption">@Localizer["Figure 6.1: Indicators List View"]</p>
+                </div>
+
+                <h3>@Localizer["6.2 Indicator Details"]</h3>
+                <div class="screenshot-placeholder">
+                    <div class="screenshot-frame">
+                        <img src="~/images/guide/indicator-details.png" alt="@Localizer["Indicator Details Screenshot"]" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';" />
+                        <div class="screenshot-missing">
+                            <i class="fas fa-image"></i>
+                            <span>@Localizer["Screenshot: Indicator Details"]</span>
+                            <small>indicator-details.png</small>
+                        </div>
+                    </div>
+                    <p class="screenshot-caption">@Localizer["Figure 6.2: Indicator Details with Performance Chart"]</p>
+                </div>
+
+                <h3>@Localizer["6.3 Adding Measurements"]</h3>
+                <p>@Localizer["To update indicator progress, add measurements:"]</p>
+
+                <div class="step-list">
+                    <div class="step">
+                        <div class="step-number">1</div>
+                        <div class="step-content">
+                            <h4>@Localizer["Open Indicator"]</h4>
+                            <p>@Localizer["Navigate to the indicator you want to update."]</p>
+                        </div>
+                    </div>
+                    <div class="step">
+                        <div class="step-number">2</div>
+                        <div class="step-content">
+                            <h4>@Localizer["Add Measurement"]</h4>
+                            <p>@Localizer["Click 'Add Measurement' and enter the value and date."]</p>
+                        </div>
+                    </div>
+                    <div class="step">
+                        <div class="step-number">3</div>
+                        <div class="step-content">
+                            <h4>@Localizer["View Updated Performance"]</h4>
+                            <p>@Localizer["The performance will automatically recalculate."]</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 7: Monitoring -->
+        <section id="monitoring" class="guide-section">
+            <div class="section-header">
+                <span class="section-number">7</span>
+                <h2>@Localizer["Monitoring"]</h2>
+            </div>
+            <div class="section-content">
+                <p>@Localizer["The Monitoring section provides tools for tracking project implementation and performance in real-time."]</p>
+
+                <h3>@Localizer["7.1 Monitoring Dashboard"]</h3>
+                <div class="screenshot-placeholder">
+                    <div class="screenshot-frame">
+                        <img src="~/images/guide/monitoring-dashboard.png" alt="@Localizer["Monitoring Dashboard Screenshot"]" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';" />
+                        <div class="screenshot-missing">
+                            <i class="fas fa-image"></i>
+                            <span>@Localizer["Screenshot: Monitoring Dashboard"]</span>
+                            <small>monitoring-dashboard.png</small>
+                        </div>
+                    </div>
+                    <p class="screenshot-caption">@Localizer["Figure 7.1: Monitoring Dashboard"]</p>
+                </div>
+
+                <h3>@Localizer["7.2 Performance Types"]</h3>
+                <div class="feature-grid">
+                    <div class="feature-item">
+                        <div class="feature-icon"><i class="fas fa-chart-line"></i></div>
+                        <h4>@Localizer["Indicators Performance"]</h4>
+                        <p>@Localizer["Based on indicator measurements vs targets."]</p>
+                    </div>
+                    <div class="feature-item">
+                        <div class="feature-icon"><i class="fas fa-money-bill-wave"></i></div>
+                        <h4>@Localizer["Disbursement Performance"]</h4>
+                        <p>@Localizer["Budget utilization tracking."]</p>
+                    </div>
+                    <div class="feature-item">
+                        <div class="feature-icon"><i class="fas fa-clipboard-check"></i></div>
+                        <h4>@Localizer["Field Monitoring"]</h4>
+                        <p>@Localizer["On-site verification results."]</p>
+                    </div>
+                    <div class="feature-item">
+                        <div class="feature-icon"><i class="fas fa-bullseye"></i></div>
+                        <h4>@Localizer["Impact Assessment"]</h4>
+                        <p>@Localizer["Outcome and impact evaluation."]</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 8: Outcomes & Outputs -->
+        <section id="outcomes" class="guide-section">
+            <div class="section-header">
+                <span class="section-number">8</span>
+                <h2>@Localizer["Outcomes & Outputs"]</h2>
+            </div>
+            <div class="section-content">
+                <p>@Localizer["Outcomes and Outputs form the results chain connecting strategic frameworks to project activities."]</p>
+
+                <h3>@Localizer["8.1 Results Hierarchy"]</h3>
+                <div class="hierarchy-diagram">
+                    <div class="hierarchy-level level-1">
+                        <div class="hierarchy-item">@Localizer["Framework"]</div>
+                    </div>
+                    <div class="hierarchy-arrow"><i class="fas fa-arrow-down"></i></div>
+                    <div class="hierarchy-level level-2">
+                        <div class="hierarchy-item">@Localizer["Outcomes"]</div>
+                    </div>
+                    <div class="hierarchy-arrow"><i class="fas fa-arrow-down"></i></div>
+                    <div class="hierarchy-level level-3">
+                        <div class="hierarchy-item">@Localizer["Outputs"]</div>
+                    </div>
+                    <div class="hierarchy-arrow"><i class="fas fa-arrow-down"></i></div>
+                    <div class="hierarchy-level level-4">
+                        <div class="hierarchy-item">@Localizer["SubOutputs"]</div>
+                    </div>
+                    <div class="hierarchy-arrow"><i class="fas fa-arrow-down"></i></div>
+                    <div class="hierarchy-level level-5">
+                        <div class="hierarchy-item">@Localizer["Projects & Indicators"]</div>
+                    </div>
+                </div>
+
+                <div class="screenshot-placeholder">
+                    <div class="screenshot-frame">
+                        <img src="~/images/guide/outcomes-list.png" alt="@Localizer["Outcomes List Screenshot"]" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';" />
+                        <div class="screenshot-missing">
+                            <i class="fas fa-image"></i>
+                            <span>@Localizer["Screenshot: Outcomes List"]</span>
+                            <small>outcomes-list.png</small>
+                        </div>
+                    </div>
+                    <p class="screenshot-caption">@Localizer["Figure 8.1: Outcomes Management"]</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 9: Ministries & Agencies -->
+        <section id="ministries" class="guide-section">
+            <div class="section-header">
+                <span class="section-number">9</span>
+                <h2>@Localizer["Ministries & Agencies"]</h2>
+            </div>
+            <div class="section-content">
+                <p>@Localizer["Manage government ministries and agencies responsible for implementing development projects."]</p>
+
+                <div class="screenshot-placeholder">
+                    <div class="screenshot-frame">
+                        <img src="~/images/guide/ministries-list.png" alt="@Localizer["Ministries List Screenshot"]" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';" />
+                        <div class="screenshot-missing">
+                            <i class="fas fa-image"></i>
+                            <span>@Localizer["Screenshot: Ministries List"]</span>
+                            <small>ministries-list.png</small>
+                        </div>
+                    </div>
+                    <p class="screenshot-caption">@Localizer["Figure 9.1: Ministries Management"]</p>
+                </div>
+
+                <h3>@Localizer["9.1 Ministry Performance"]</h3>
+                <p>@Localizer["View performance metrics for each ministry including:"]</p>
+                <ul>
+                    <li>@Localizer["Indicators Performance"]</li>
+                    <li>@Localizer["Disbursement Performance"]</li>
+                    <li>@Localizer["Number of Projects"]</li>
+                    <li>@Localizer["Total Budget"]</li>
+                </ul>
+
+                <div class="screenshot-placeholder">
+                    <div class="screenshot-frame">
+                        <img src="~/images/guide/ministry-performance.png" alt="@Localizer["Ministry Performance Screenshot"]" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';" />
+                        <div class="screenshot-missing">
+                            <i class="fas fa-image"></i>
+                            <span>@Localizer["Screenshot: Ministry Performance Breakdown"]</span>
+                            <small>ministry-performance.png</small>
+                        </div>
+                    </div>
+                    <p class="screenshot-caption">@Localizer["Figure 9.2: Ministry Performance Breakdown"]</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 10: Donors & Partners -->
+        <section id="donors" class="guide-section">
+            <div class="section-header">
+                <span class="section-number">10</span>
+                <h2>@Localizer["Donors & Partners"]</h2>
+            </div>
+            <div class="section-content">
+                <p>@Localizer["Track funding sources and partner organizations supporting development initiatives."]</p>
+
+                <div class="screenshot-placeholder">
+                    <div class="screenshot-frame">
+                        <img src="~/images/guide/donors-list.png" alt="@Localizer["Donors List Screenshot"]" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';" />
+                        <div class="screenshot-missing">
+                            <i class="fas fa-image"></i>
+                            <span>@Localizer["Screenshot: Donors List"]</span>
+                            <small>donors-list.png</small>
+                        </div>
+                    </div>
+                    <p class="screenshot-caption">@Localizer["Figure 10.1: Donors Management"]</p>
+                </div>
+
+                <h3>@Localizer["10.1 Donor Categories"]</h3>
+                <ul>
+                    <li>@Localizer["United Nations Organizations"]</li>
+                    <li>@Localizer["International NGOs"]</li>
+                    <li>@Localizer["Bilateral Donors (Countries)"]</li>
+                    <li>@Localizer["Multilateral Organizations"]</li>
+                    <li>@Localizer["Private Sector"]</li>
+                </ul>
+            </div>
+        </section>
+
+        <!-- Section 11: Sectors -->
+        <section id="sectors" class="guide-section">
+            <div class="section-header">
+                <span class="section-number">11</span>
+                <h2>@Localizer["Sectors"]</h2>
+            </div>
+            <div class="section-content">
+                <p>@Localizer["Organize projects by development sectors for thematic analysis and reporting."]</p>
+
+                <div class="screenshot-placeholder">
+                    <div class="screenshot-frame">
+                        <img src="~/images/guide/sectors-list.png" alt="@Localizer["Sectors List Screenshot"]" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';" />
+                        <div class="screenshot-missing">
+                            <i class="fas fa-image"></i>
+                            <span>@Localizer["Screenshot: Sectors List"]</span>
+                            <small>sectors-list.png</small>
+                        </div>
+                    </div>
+                    <p class="screenshot-caption">@Localizer["Figure 11.1: Sectors Management"]</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 12: Locations -->
+        <section id="locations" class="guide-section">
+            <div class="section-header">
+                <span class="section-number">12</span>
+                <h2>@Localizer["Locations"]</h2>
+            </div>
+            <div class="section-content">
+                <p>@Localizer["Manage geographic locations for project distribution analysis."]</p>
+
+                <h3>@Localizer["12.1 Location Hierarchy"]</h3>
+                <div class="hierarchy-diagram horizontal">
+                    <div class="hierarchy-item">@Localizer["Governorate"]</div>
+                    <div class="hierarchy-arrow"><i class="fas fa-arrow-right"></i></div>
+                    <div class="hierarchy-item">@Localizer["District"]</div>
+                    <div class="hierarchy-arrow"><i class="fas fa-arrow-right"></i></div>
+                    <div class="hierarchy-item">@Localizer["Sub-District"]</div>
+                    <div class="hierarchy-arrow"><i class="fas fa-arrow-right"></i></div>
+                    <div class="hierarchy-item">@Localizer["Community"]</div>
+                </div>
+
+                <div class="screenshot-placeholder">
+                    <div class="screenshot-frame">
+                        <img src="~/images/guide/locations-map.png" alt="@Localizer["Locations Map Screenshot"]" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';" />
+                        <div class="screenshot-missing">
+                            <i class="fas fa-image"></i>
+                            <span>@Localizer["Screenshot: Locations Map"]</span>
+                            <small>locations-map.png</small>
+                        </div>
+                    </div>
+                    <p class="screenshot-caption">@Localizer["Figure 12.1: Geographic Distribution Map"]</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 13: Reports -->
+        <section id="reports" class="guide-section">
+            <div class="section-header">
+                <span class="section-number">13</span>
+                <h2>@Localizer["Reports"]</h2>
+            </div>
+            <div class="section-content">
+                <p>@Localizer["Generate comprehensive reports for analysis and stakeholder communication."]</p>
+
+                <h3>@Localizer["13.1 Available Reports"]</h3>
+                <div class="feature-grid">
+                    <div class="feature-item">
+                        <div class="feature-icon"><i class="fas fa-file-alt"></i></div>
+                        <h4>@Localizer["Framework Reports"]</h4>
+                        <p>@Localizer["Performance summaries by framework."]</p>
+                    </div>
+                    <div class="feature-item">
+                        <div class="feature-icon"><i class="fas fa-project-diagram"></i></div>
+                        <h4>@Localizer["Project Reports"]</h4>
+                        <p>@Localizer["Detailed project status reports."]</p>
+                    </div>
+                    <div class="feature-item">
+                        <div class="feature-icon"><i class="fas fa-university"></i></div>
+                        <h4>@Localizer["Ministry Reports"]</h4>
+                        <p>@Localizer["Performance by ministry."]</p>
+                    </div>
+                    <div class="feature-item">
+                        <div class="feature-icon"><i class="fas fa-map-marked-alt"></i></div>
+                        <h4>@Localizer["Geographic Reports"]</h4>
+                        <p>@Localizer["Distribution by location."]</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 14: Administration -->
+        <section id="admin" class="guide-section">
+            <div class="section-header">
+                <span class="section-number">14</span>
+                <h2>@Localizer["Administration"]</h2>
+            </div>
+            <div class="section-content">
+                <p>@Localizer["System administrators have access to additional management features."]</p>
+
+                <div class="info-box warning">
+                    <div class="info-icon"><i class="fas fa-lock"></i></div>
+                    <div class="info-content">
+                        <h4>@Localizer["Admin Only"]</h4>
+                        <p>@Localizer["These features are only available to users with System Administrator role."]</p>
+                    </div>
+                </div>
+
+                <h3>@Localizer["14.1 User Management"]</h3>
+                <div class="screenshot-placeholder">
+                    <div class="screenshot-frame">
+                        <img src="~/images/guide/admin-users.png" alt="@Localizer["User Management Screenshot"]" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';" />
+                        <div class="screenshot-missing">
+                            <i class="fas fa-image"></i>
+                            <span>@Localizer["Screenshot: User Management"]</span>
+                            <small>admin-users.png</small>
+                        </div>
+                    </div>
+                    <p class="screenshot-caption">@Localizer["Figure 14.1: User Management"]</p>
+                </div>
+
+                <h3>@Localizer["14.2 Role Management"]</h3>
+                <div class="screenshot-placeholder">
+                    <div class="screenshot-frame">
+                        <img src="~/images/guide/admin-roles.png" alt="@Localizer["Role Management Screenshot"]" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';" />
+                        <div class="screenshot-missing">
+                            <i class="fas fa-image"></i>
+                            <span>@Localizer["Screenshot: Role Management"]</span>
+                            <small>admin-roles.png</small>
+                        </div>
+                    </div>
+                    <p class="screenshot-caption">@Localizer["Figure 14.2: Role Management"]</p>
+                </div>
+
+                <h3>@Localizer["14.3 Audit Logs"]</h3>
+                <div class="screenshot-placeholder">
+                    <div class="screenshot-frame">
+                        <img src="~/images/guide/admin-audit.png" alt="@Localizer["Audit Logs Screenshot"]" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';" />
+                        <div class="screenshot-missing">
+                            <i class="fas fa-image"></i>
+                            <span>@Localizer["Screenshot: Audit Logs"]</span>
+                            <small>admin-audit.png</small>
+                        </div>
+                    </div>
+                    <p class="screenshot-caption">@Localizer["Figure 14.3: Audit Logs"]</p>
+                </div>
+
+                <h3>@Localizer["14.4 Formulas Documentation"]</h3>
+                <p>@Localizer["View all calculation formulas used in the platform."]</p>
+                <div class="screenshot-placeholder">
+                    <div class="screenshot-frame">
+                        <img src="~/images/guide/admin-formulas.png" alt="@Localizer["Formulas Documentation Screenshot"]" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';" />
+                        <div class="screenshot-missing">
+                            <i class="fas fa-image"></i>
+                            <span>@Localizer["Screenshot: Formulas Documentation"]</span>
+                            <small>admin-formulas.png</small>
+                        </div>
+                    </div>
+                    <p class="screenshot-caption">@Localizer["Figure 14.4: Formulas Documentation Page"]</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 15: Getting Help -->
+        <section id="help" class="guide-section">
+            <div class="section-header">
+                <span class="section-number">15</span>
+                <h2>@Localizer["Getting Help"]</h2>
+            </div>
+            <div class="section-content">
+                <p>@Localizer["The platform provides multiple ways to get help and support."]</p>
+
+                <h3>@Localizer["15.1 Contextual Help"]</h3>
+                <p>@Localizer["Each page has a help button that provides context-specific documentation."]</p>
+
+                <div class="step-list">
+                    <div class="step">
+                        <div class="step-number">1</div>
+                        <div class="step-content">
+                            <h4>@Localizer["Click Help Button"]</h4>
+                            <p>@Localizer["Look for the help button (?) in the page header."]</p>
+                        </div>
+                    </div>
+                    <div class="step">
+                        <div class="step-number">2</div>
+                        <div class="step-content">
+                            <h4>@Localizer["Browse Tabs"]</h4>
+                            <p>@Localizer["Use the tabs to find Overview, How To, FAQ, and Tips."]</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="screenshot-placeholder">
+                    <div class="screenshot-frame">
+                        <img src="~/images/guide/help-modal.png" alt="@Localizer["Help Modal Screenshot"]" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';" />
+                        <div class="screenshot-missing">
+                            <i class="fas fa-image"></i>
+                            <span>@Localizer["Screenshot: Help Modal"]</span>
+                            <small>help-modal.png</small>
+                        </div>
+                    </div>
+                    <p class="screenshot-caption">@Localizer["Figure 15.1: Contextual Help Modal"]</p>
+                </div>
+
+                <h3>@Localizer["15.2 Contact Support"]</h3>
+                <p>@Localizer["For additional assistance, contact the system administrator."]</p>
+
+                <div class="info-box">
+                    <div class="info-icon"><i class="fas fa-envelope"></i></div>
+                    <div class="info-content">
+                        <h4>@Localizer["Support Contact"]</h4>
+                        <p>@Localizer["For technical support, please contact your system administrator."]</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </div>
+</div>
+
+<!-- Print Styles -->
+<style>
+@@media print {
+    .guide-header {
+        background: #1a365d !important;
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+    }
+    .guide-toc { display: none; }
+    .guide-content { margin-left: 0 !important; }
+    .guide-actions { display: none; }
+    .screenshot-missing {
+        border: 2px dashed #ccc;
+        padding: 40px;
+    }
+}
+</style>
