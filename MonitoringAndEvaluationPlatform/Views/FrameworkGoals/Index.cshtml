@@ -11,6 +11,7 @@
 @{
     ViewData["Title"] = "Framework Goals";
     Layout = "~/Views/Shared/_DashboardHomeLayout.cshtml";
+    ViewData["HelpFeature"] = "FrameworkGoals";
     var culture = Context.Features.Get<IRequestCultureFeature>().RequestCulture.Culture.Name;
 }
 
@@ -26,7 +27,8 @@
                 @Localizer["Manage goals and targets for monitoring frameworks"]
             </p>
         </div>
-        <div class="d-flex gap-2 flex-wrap">
+        <div class="d-flex gap-2 flex-wrap align-items-center">
+            @await Html.PartialAsync("_HelpButton")
             <a asp-action="ValueProgressView" asp-route-frameworkCode="@ViewBag.SelectedFrameworkCode" class="btn btn-primary btn-lg shadow-sm">
                 <i class="fas fa-chart-bar me-2"></i>@Localizer["Value Progress"]
             </a>
@@ -5335,3 +5337,5 @@
         }
     }
 </style>
+
+@await Html.PartialAsync("_HelpModal")

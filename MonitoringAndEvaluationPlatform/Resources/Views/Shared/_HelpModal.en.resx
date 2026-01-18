@@ -670,4 +670,55 @@
   <data name="HELP_HOME_TIP_2" xml:space="preserve">
     <value>Use the theme selector to switch between Blue and Green visual themes.</value>
   </data>
+
+  <!-- Framework Goals Help Content -->
+  <data name="HELP_FrameworkGoals_TITLE" xml:space="preserve">
+    <value>Framework Goals - Performance Calculations</value>
+  </data>
+  <data name="HELP_FrameworkGoals_OVERVIEW" xml:space="preserve">
+    <value>Framework Goals track progress toward strategic targets. Performance is calculated differently based on the goal direction:
+
+**Upward Targets** (Target &gt; Base Value): Goals where the value should INCREASE over time.
+- Formula: Progress = (Actual Value - Starting Base Value)
+- Example: If Base=50, Actual=70, then Progress=20
+
+**Downward Targets** (Target &lt; Base Value): Goals where the value should DECREASE over time.
+- Formula: Progress = (Starting Base Value - Actual Value)
+- Example: If Base=50, Actual=30, then Progress=20
+
+**Performance Percentage Formula:**
+Performance % = (Progress / (Discount Rate × Years from Base)) × 100
+
+**Color Coding:**
+- Green (≥100%): On track or exceeding target
+- Yellow (50-99%): Moderate progress
+- Red (&lt;50%): Below expected progress</value>
+  </data>
+  <data name="HELP_FrameworkGoals_HOWTO_1" xml:space="preserve">
+    <value>**Discount Rate Calculation:** The Annual Discount Rate is calculated as the absolute difference between Base Value and Target Value, divided by the number of years: |Target - Base| / Years. This represents the expected annual change needed to reach the target.</value>
+  </data>
+  <data name="HELP_FrameworkGoals_HOWTO_2" xml:space="preserve">
+    <value>**Yearly Performance:** Select a year from the dropdown to see performance for that specific year. Performance is calculated by comparing the actual value for that year against the expected progress based on the discount rate and years elapsed from the starting year.</value>
+  </data>
+  <data name="HELP_FrameworkGoals_HOWTO_3" xml:space="preserve">
+    <value>**Sparkline Charts:** The mini-charts show the trajectory from Starting Year (S) to Current Year (C) to Target Year (T). Green sparklines indicate upward targets where values should increase. Red sparklines indicate downward targets where values should decrease.</value>
+  </data>
+  <data name="HELP_FrameworkGoals_FAQ_Q1" xml:space="preserve">
+    <value>How is the Discount Rate calculated?</value>
+  </data>
+  <data name="HELP_FrameworkGoals_FAQ_A1" xml:space="preserve">
+    <value>The Annual Discount Rate = |Target Value - Base Value| / (Target Year - Starting Year). For example, if Base=100 in 2020, Target=80 in 2025, the Discount Rate = |80-100| / 5 = 4 per year. This means the value should decrease by 4 units each year to reach the target.</value>
+  </data>
+  <data name="HELP_FrameworkGoals_FAQ_Q2" xml:space="preserve">
+    <value>What happens when progress is negative?</value>
+  </data>
+  <data name="HELP_FrameworkGoals_FAQ_A2" xml:space="preserve">
+    <value>Negative progress means the goal is moving in the wrong direction. For upward targets, this occurs when the actual value is less than the starting base value. For downward targets, this occurs when the actual value is greater than the starting base value. In both cases, performance is shown as 0% with a red indicator.</value>
+  </data>
+  <data name="HELP_FrameworkGoals_TIP_1" xml:space="preserve">
+    <value>**Quick Reference:** Upward Target = actual should increase above base value. Downward Target = actual should decrease below base value. The system automatically detects the target direction by comparing Target Value to Base Value for the Starting Year.</value>
+  </data>
+  <data name="HELP_FrameworkGoals_TIP_2" xml:space="preserve">
+    <value>**Export Options:** Use the Excel and PDF export buttons to download goal data for reporting. The Timeline view shows a visual comparison of progress across all years from starting to target year.</value>
+  </data>
 </root>
