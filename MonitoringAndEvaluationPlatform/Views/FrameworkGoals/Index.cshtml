@@ -837,6 +837,11 @@
                                     </div>
                                 </td>
                                 <td class="text-center">
+                                    <button onclick="showCalculationExplanation(@goal.ID, '@Html.Raw(goal.Name.Replace("'", "\\'"))', @(goal.TargetValue > goal.BaseValueForStartingYear ? "true" : "false"), @goal.BaseValueForStartingYear.ToString(System.Globalization.CultureInfo.InvariantCulture), @goal.BaseValueForCurrentYear.ToString(System.Globalization.CultureInfo.InvariantCulture), @goal.TargetValue.ToString(System.Globalization.CultureInfo.InvariantCulture), @goal.StartingYear, @goal.CurrentYear, @goal.TargetYear, @goal.AnnualDiscountRate.ToString(System.Globalization.CultureInfo.InvariantCulture), @goal.AmountOfReduction.ToString(System.Globalization.CultureInfo.InvariantCulture), @goal.ProgressRate.ToString(System.Globalization.CultureInfo.InvariantCulture))"
+                                            class="btn btn-sm btn-outline-success me-2"
+                                            title="@Localizer["Calculation Explanation"]">
+                                        <i class="fas fa-calculator"></i>
+                                    </button>
                                     <button onclick="showGoalDetails(@goal.ID)"
                                             class="btn btn-sm btn-outline-primary me-2"
                                             title="@Localizer["View Details"]">
@@ -1404,6 +1409,223 @@
     </div>
 </div>
 
+<!-- Calculation Explanation Modal -->
+<div class="modal fade" id="calculationModal" tabindex="-1" aria-labelledby="calculationModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header bg-success text-white">
+                <h5 class="modal-title" id="calculationModalLabel">
+                    <i class="fas fa-calculator me-2"></i>@Localizer["Calculation Explanation"]
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <!-- Goal Name -->
+                <div class="alert alert-primary mb-4">
+                    <h5 class="mb-0" id="calcGoalName">-</h5>
+                </div>
+
+                <!-- Goal Type Section -->
+                <div class="card mb-3">
+                    <div class="card-header bg-light">
+                        <i class="fas fa-bullseye me-2"></i><strong>@Localizer["Goal Type"]</strong>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <span class="text-muted">@Localizer["Type"]:</span>
+                                <span id="calcGoalType" class="badge fs-6 ms-2">-</span>
+                            </div>
+                            <div class="col-md-6">
+                                <span class="text-muted">@Localizer["Direction"]:</span>
+                                <span id="calcGoalDirection" class="ms-2">-</span>
+                            </div>
+                        </div>
+                        <div class="mt-2 small text-muted" id="calcGoalTypeExplanation">-</div>
+                    </div>
+                </div>
+
+                <!-- Input Values Section -->
+                <div class="card mb-3">
+                    <div class="card-header bg-light">
+                        <i class="fas fa-database me-2"></i><strong>@Localizer["Input Values"]</strong>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-bordered mb-0">
+                                <thead class="table-secondary">
+                                    <tr>
+                                        <th>@Localizer["Parameter"]</th>
+                                        <th class="text-center">@Localizer["Value"]</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td><i class="fas fa-calendar text-primary me-2"></i>@Localizer["Starting Year"]</td>
+                                        <td class="text-center fw-bold" id="calcStartingYear">-</td>
+                                    </tr>
+                                    <tr>
+                                        <td><i class="fas fa-calendar-check text-info me-2"></i>@Localizer["Current Year"]</td>
+                                        <td class="text-center fw-bold" id="calcCurrentYear">-</td>
+                                    </tr>
+                                    <tr>
+                                        <td><i class="fas fa-calendar-alt text-danger me-2"></i>@Localizer["Target Year"]</td>
+                                        <td class="text-center fw-bold" id="calcTargetYear">-</td>
+                                    </tr>
+                                    <tr>
+                                        <td><i class="fas fa-play-circle text-success me-2"></i>@Localizer["Base Value"] (@Localizer["Starting Year"])</td>
+                                        <td class="text-center fw-bold" id="calcBaseValue">-</td>
+                                    </tr>
+                                    <tr>
+                                        <td><i class="fas fa-dot-circle text-info me-2"></i>@Localizer["Current Value"] (@Localizer["Current Year"])</td>
+                                        <td class="text-center fw-bold" id="calcCurrentValue">-</td>
+                                    </tr>
+                                    <tr>
+                                        <td><i class="fas fa-flag-checkered text-danger me-2"></i>@Localizer["Target Value"] (@Localizer["Target Year"])</td>
+                                        <td class="text-center fw-bold" id="calcTargetValue">-</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Calculations Section -->
+                <div class="card mb-3">
+                    <div class="card-header bg-light">
+                        <i class="fas fa-cogs me-2"></i><strong>@Localizer["Calculations"]</strong>
+                    </div>
+                    <div class="card-body">
+                        <!-- Number of Years -->
+                        <div class="calculation-step mb-3 p-3 bg-light rounded">
+                            <div class="step-title fw-bold text-primary mb-2">
+                                <span class="badge bg-primary me-2">1</span>@Localizer["Number of Years"]
+                            </div>
+                            <div class="step-formula font-monospace bg-white p-2 rounded border">
+                                @Localizer["Years"] = @Localizer["Target Year"] - @Localizer["Starting Year"]
+                            </div>
+                            <div class="step-calculation mt-2" id="calcYearsFormula">-</div>
+                            <div class="step-result mt-2">
+                                <strong>@Localizer["Result"]:</strong> <span id="calcYearsResult" class="badge bg-secondary fs-6">-</span>
+                            </div>
+                        </div>
+
+                        <!-- Total Required Change -->
+                        <div class="calculation-step mb-3 p-3 bg-light rounded">
+                            <div class="step-title fw-bold text-primary mb-2">
+                                <span class="badge bg-primary me-2">2</span>@Localizer["Total Required Change"]
+                            </div>
+                            <div class="step-formula font-monospace bg-white p-2 rounded border">
+                                @Localizer["Required Change"] = |@Localizer["Target Value"] - @Localizer["Base Value"]|
+                            </div>
+                            <div class="step-calculation mt-2" id="calcRequiredChangeFormula">-</div>
+                            <div class="step-result mt-2">
+                                <strong>@Localizer["Result"]:</strong> <span id="calcRequiredChangeResult" class="badge bg-secondary fs-6">-</span>
+                            </div>
+                        </div>
+
+                        <!-- Discount Rate -->
+                        <div class="calculation-step mb-3 p-3 bg-light rounded">
+                            <div class="step-title fw-bold text-primary mb-2">
+                                <span class="badge bg-primary me-2">3</span>@Localizer["Discount Rate"] (@Localizer["Annual Change Rate"])
+                            </div>
+                            <div class="step-formula font-monospace bg-white p-2 rounded border">
+                                @Localizer["Discount Rate"] = @Localizer["Required Change"] ÷ @Localizer["Years"]
+                            </div>
+                            <div class="step-calculation mt-2" id="calcDiscountRateFormula">-</div>
+                            <div class="step-result mt-2">
+                                <strong>@Localizer["Result"]:</strong> <span id="calcDiscountRateResult" class="badge bg-info fs-6">-</span>
+                            </div>
+                        </div>
+
+                        <!-- Years Elapsed -->
+                        <div class="calculation-step mb-3 p-3 bg-light rounded">
+                            <div class="step-title fw-bold text-primary mb-2">
+                                <span class="badge bg-primary me-2">4</span>@Localizer["Years Elapsed"]
+                            </div>
+                            <div class="step-formula font-monospace bg-white p-2 rounded border">
+                                @Localizer["Years Elapsed"] = @Localizer["Current Year"] - @Localizer["Starting Year"]
+                            </div>
+                            <div class="step-calculation mt-2" id="calcYearsElapsedFormula">-</div>
+                            <div class="step-result mt-2">
+                                <strong>@Localizer["Result"]:</strong> <span id="calcYearsElapsedResult" class="badge bg-secondary fs-6">-</span>
+                            </div>
+                        </div>
+
+                        <!-- Progress (Actual Change) -->
+                        <div class="calculation-step mb-3 p-3 bg-light rounded">
+                            <div class="step-title fw-bold text-primary mb-2">
+                                <span class="badge bg-primary me-2">5</span>@Localizer["Progress"] (@Localizer["Actual Change"])
+                            </div>
+                            <div class="step-formula font-monospace bg-white p-2 rounded border" id="calcProgressFormula">-</div>
+                            <div class="step-calculation mt-2" id="calcProgressCalculation">-</div>
+                            <div class="step-result mt-2">
+                                <strong>@Localizer["Result"]:</strong> <span id="calcProgressResult" class="badge bg-secondary fs-6">-</span>
+                            </div>
+                        </div>
+
+                        <!-- Expected Change -->
+                        <div class="calculation-step mb-3 p-3 bg-light rounded">
+                            <div class="step-title fw-bold text-primary mb-2">
+                                <span class="badge bg-primary me-2">6</span>@Localizer["Expected Change"]
+                            </div>
+                            <div class="step-formula font-monospace bg-white p-2 rounded border">
+                                @Localizer["Expected Change"] = @Localizer["Discount Rate"] × @Localizer["Years Elapsed"]
+                            </div>
+                            <div class="step-calculation mt-2" id="calcExpectedChangeFormula">-</div>
+                            <div class="step-result mt-2">
+                                <strong>@Localizer["Result"]:</strong> <span id="calcExpectedChangeResult" class="badge bg-secondary fs-6">-</span>
+                            </div>
+                        </div>
+
+                        <!-- Performance Percentage -->
+                        <div class="calculation-step mb-3 p-3 border border-success rounded" style="background-color: #f0fff4;">
+                            <div class="step-title fw-bold text-success mb-2">
+                                <span class="badge bg-success me-2">7</span>@Localizer["Performance Percentage"]
+                            </div>
+                            <div class="step-formula font-monospace bg-white p-2 rounded border">
+                                @Localizer["Performance"] % = (@Localizer["Progress"] ÷ @Localizer["Expected Change"]) × 100
+                            </div>
+                            <div class="step-calculation mt-2" id="calcPerformanceFormula">-</div>
+                            <div class="step-result mt-2">
+                                <strong>@Localizer["Result"]:</strong> <span id="calcPerformanceResult" class="badge fs-5">-</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Summary Section -->
+                <div class="card border-primary">
+                    <div class="card-header bg-primary text-white">
+                        <i class="fas fa-chart-pie me-2"></i><strong>@Localizer["Summary"]</strong>
+                    </div>
+                    <div class="card-body">
+                        <div class="row text-center">
+                            <div class="col-md-4 border-end">
+                                <div class="text-muted small">@Localizer["Discount Rate"]</div>
+                                <div class="fs-4 fw-bold text-info" id="calcSummaryDiscountRate">-</div>
+                            </div>
+                            <div class="col-md-4 border-end">
+                                <div class="text-muted small">@Localizer["Progress"]</div>
+                                <div class="fs-4 fw-bold" id="calcSummaryProgress">-</div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="text-muted small">@Localizer["Performance"]</div>
+                                <div class="fs-4 fw-bold" id="calcSummaryPerformance">-</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    <i class="fas fa-times me-2"></i>@Localizer["Close"]
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
 @section Scripts {
     <!-- Yearly Performance Script -->
     <script>
@@ -1539,6 +1761,141 @@
             // Wait slightly for other scripts
             setTimeout(initializeYearlyPerformance, 100);
         });
+
+        // Show Calculation Explanation Modal
+        function showCalculationExplanation(goalId, goalName, isUpward, baseValue, currentValue, targetValue, startingYear, currentYear, targetYear, discountRate, amountOfReduction, progressRate) {
+            // Determine if it's RTL
+            const isRtl = document.documentElement.dir === 'rtl' || document.documentElement.lang === 'ar';
+
+            // Set goal name
+            document.getElementById('calcGoalName').textContent = goalName;
+
+            // Set goal type
+            const goalTypeEl = document.getElementById('calcGoalType');
+            const goalDirectionEl = document.getElementById('calcGoalDirection');
+            const goalTypeExplanationEl = document.getElementById('calcGoalTypeExplanation');
+
+            if (isUpward) {
+                goalTypeEl.textContent = isRtl ? 'صاعد' : 'Upward';
+                goalTypeEl.className = 'badge fs-6 ms-2 bg-success';
+                goalDirectionEl.innerHTML = '<i class="fas fa-arrow-up text-success me-1"></i>' + (isRtl ? 'القيمة يجب أن تزيد' : 'Value should INCREASE');
+                goalTypeExplanationEl.textContent = isRtl
+                    ? 'الهدف الصاعد: القيمة المستهدفة أكبر من القيمة الأساسية، لذلك نريد أن تزيد القيمة الفعلية بمرور الوقت.'
+                    : 'Upward Target: Target Value > Base Value, so we want the actual value to increase over time.';
+            } else {
+                goalTypeEl.textContent = isRtl ? 'هابط' : 'Downward';
+                goalTypeEl.className = 'badge fs-6 ms-2 bg-danger';
+                goalDirectionEl.innerHTML = '<i class="fas fa-arrow-down text-danger me-1"></i>' + (isRtl ? 'القيمة يجب أن تنخفض' : 'Value should DECREASE');
+                goalTypeExplanationEl.textContent = isRtl
+                    ? 'الهدف الهابط: القيمة المستهدفة أقل من القيمة الأساسية، لذلك نريد أن تنخفض القيمة الفعلية بمرور الوقت.'
+                    : 'Downward Target: Target Value < Base Value, so we want the actual value to decrease over time.';
+            }
+
+            // Set input values
+            document.getElementById('calcStartingYear').textContent = startingYear;
+            document.getElementById('calcCurrentYear').textContent = currentYear;
+            document.getElementById('calcTargetYear').textContent = targetYear;
+            document.getElementById('calcBaseValue').textContent = baseValue.toFixed(2);
+            document.getElementById('calcCurrentValue').textContent = currentValue.toFixed(2);
+            document.getElementById('calcTargetValue').textContent = targetValue.toFixed(2);
+
+            // Calculate and display formulas
+
+            // 1. Number of Years
+            const years = targetYear - startingYear;
+            document.getElementById('calcYearsFormula').innerHTML = `<code>${targetYear} - ${startingYear} = <strong>${years}</strong></code>`;
+            document.getElementById('calcYearsResult').textContent = years + (isRtl ? ' سنوات' : ' years');
+
+            // 2. Total Required Change
+            const requiredChange = Math.abs(targetValue - baseValue);
+            document.getElementById('calcRequiredChangeFormula').innerHTML = `<code>|${targetValue.toFixed(2)} - ${baseValue.toFixed(2)}| = <strong>${requiredChange.toFixed(2)}</strong></code>`;
+            document.getElementById('calcRequiredChangeResult').textContent = requiredChange.toFixed(2);
+
+            // 3. Discount Rate
+            const calculatedDiscountRate = years > 0 ? requiredChange / years : 0;
+            document.getElementById('calcDiscountRateFormula').innerHTML = `<code>${requiredChange.toFixed(2)} ÷ ${years} = <strong>${calculatedDiscountRate.toFixed(2)}</strong></code>`;
+            document.getElementById('calcDiscountRateResult').textContent = calculatedDiscountRate.toFixed(2) + (isRtl ? ' لكل سنة' : ' per year');
+
+            // 4. Years Elapsed
+            const yearsElapsed = currentYear - startingYear;
+            document.getElementById('calcYearsElapsedFormula').innerHTML = `<code>${currentYear} - ${startingYear} = <strong>${yearsElapsed}</strong></code>`;
+            document.getElementById('calcYearsElapsedResult').textContent = yearsElapsed + (isRtl ? ' سنوات' : ' years');
+
+            // 5. Progress (Actual Change)
+            let progress;
+            const progressFormulaEl = document.getElementById('calcProgressFormula');
+            const progressCalculationEl = document.getElementById('calcProgressCalculation');
+
+            if (isUpward) {
+                progress = currentValue - baseValue;
+                progressFormulaEl.innerHTML = (isRtl ? 'التقدم' : 'Progress') + ' = ' + (isRtl ? 'القيمة الحالية' : 'Current Value') + ' - ' + (isRtl ? 'القيمة الأساسية' : 'Base Value');
+                progressCalculationEl.innerHTML = `<code>${currentValue.toFixed(2)} - ${baseValue.toFixed(2)} = <strong>${progress.toFixed(2)}</strong></code>`;
+            } else {
+                progress = baseValue - currentValue;
+                progressFormulaEl.innerHTML = (isRtl ? 'التقدم' : 'Progress') + ' = ' + (isRtl ? 'القيمة الأساسية' : 'Base Value') + ' - ' + (isRtl ? 'القيمة الحالية' : 'Current Value');
+                progressCalculationEl.innerHTML = `<code>${baseValue.toFixed(2)} - ${currentValue.toFixed(2)} = <strong>${progress.toFixed(2)}</strong></code>`;
+            }
+
+            const progressResultEl = document.getElementById('calcProgressResult');
+            progressResultEl.textContent = progress.toFixed(2);
+            if (progress > 0) {
+                progressResultEl.className = 'badge bg-success fs-6';
+            } else if (progress < 0) {
+                progressResultEl.className = 'badge bg-danger fs-6';
+            } else {
+                progressResultEl.className = 'badge bg-secondary fs-6';
+            }
+
+            // 6. Expected Change
+            const expectedChange = calculatedDiscountRate * yearsElapsed;
+            document.getElementById('calcExpectedChangeFormula').innerHTML = `<code>${calculatedDiscountRate.toFixed(2)} × ${yearsElapsed} = <strong>${expectedChange.toFixed(2)}</strong></code>`;
+            document.getElementById('calcExpectedChangeResult').textContent = expectedChange.toFixed(2);
+
+            // 7. Performance Percentage
+            let performance = 0;
+            if (yearsElapsed === 0) {
+                performance = 0;
+            } else if (expectedChange === 0) {
+                performance = progress === 0 ? 0 : (progress > 0 ? 100 : 0);
+            } else if (progress <= 0) {
+                performance = 0;
+            } else {
+                performance = (progress / expectedChange) * 100;
+            }
+
+            document.getElementById('calcPerformanceFormula').innerHTML = `<code>(${progress.toFixed(2)} ÷ ${expectedChange.toFixed(2)}) × 100 = <strong>${performance.toFixed(2)}%</strong></code>`;
+
+            const performanceResultEl = document.getElementById('calcPerformanceResult');
+            performanceResultEl.textContent = performance.toFixed(2) + '%';
+            if (performance >= 100) {
+                performanceResultEl.className = 'badge bg-success fs-5';
+            } else if (performance >= 50) {
+                performanceResultEl.className = 'badge bg-warning fs-5';
+            } else {
+                performanceResultEl.className = 'badge bg-danger fs-5';
+            }
+
+            // Summary section
+            document.getElementById('calcSummaryDiscountRate').textContent = calculatedDiscountRate.toFixed(2) + '%';
+
+            const summaryProgressEl = document.getElementById('calcSummaryProgress');
+            summaryProgressEl.textContent = progress.toFixed(2);
+            summaryProgressEl.className = progress >= 0 ? 'fs-4 fw-bold text-success' : 'fs-4 fw-bold text-danger';
+
+            const summaryPerformanceEl = document.getElementById('calcSummaryPerformance');
+            summaryPerformanceEl.textContent = performance.toFixed(2) + '%';
+            if (performance >= 100) {
+                summaryPerformanceEl.className = 'fs-4 fw-bold text-success';
+            } else if (performance >= 50) {
+                summaryPerformanceEl.className = 'fs-4 fw-bold text-warning';
+            } else {
+                summaryPerformanceEl.className = 'fs-4 fw-bold text-danger';
+            }
+
+            // Show the modal
+            const modal = new bootstrap.Modal(document.getElementById('calculationModal'));
+            modal.show();
+        }
     </script>
 
     <!-- SheetJS for Excel Export -->

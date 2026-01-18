@@ -676,23 +676,59 @@
     <value>Framework Goals - Performance Calculations</value>
   </data>
   <data name="HELP_FrameworkGoals_OVERVIEW" xml:space="preserve">
-    <value>Framework Goals track progress toward strategic targets. Performance is calculated differently based on the goal direction:
+    <value>Framework Goals track progress toward strategic targets.
 
-**Upward Targets** (Target &gt; Base Value): Goals where the value should INCREASE over time.
-- Formula: Progress = (Actual Value - Starting Base Value)
-- Example: If Base=50, Actual=70, then Progress=20
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+1. GOAL TYPES
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-**Downward Targets** (Target &lt; Base Value): Goals where the value should DECREASE over time.
-- Formula: Progress = (Starting Base Value - Actual Value)
-- Example: If Base=50, Actual=30, then Progress=20
+• Upward Target (Target &gt; Base Value)
+  - Value should INCREASE over time
+  - Example: Literacy rate from 60% to 90%
 
-**Performance Percentage Formula:**
-Performance % = (Progress / (Discount Rate × Years from Base)) × 100
+• Downward Target (Target &lt; Base Value)
+  - Value should DECREASE over time
+  - Example: Poverty rate from 40% to 15%
 
-**Color Coding:**
-- Green (≥100%): On track or exceeding target
-- Yellow (50-99%): Moderate progress
-- Red (&lt;50%): Below expected progress</value>
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+2. CALCULATION FORMULAS
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+• Discount Rate:
+  = |Target Value - Base Value| ÷ Number of Years
+
+• Progress (Upward Target):
+  = Actual Value - Starting Base Value
+
+• Progress (Downward Target):
+  = Starting Base Value - Actual Value
+
+• Performance Percentage:
+  = (Progress ÷ (Discount Rate × Years Elapsed)) × 100
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+3. COLOR CODING
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+• 🟢 Green: ≥100% (On track or exceeding)
+• 🟡 Yellow: 50-99% (Moderate progress)
+• 🔴 Red: &lt;50% (Below expected)
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+4. EXAMPLE CALCULATION
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Given:
+  • Base Value (2020): 100
+  • Target Value (2025): 80
+  • Actual Value (2023): 88
+
+Calculation:
+  • Goal Type: Downward (80 &lt; 100)
+  • Discount Rate: |80-100| ÷ 5 = 4/year
+  • Progress: 100 - 88 = 12
+  • Years Elapsed: 2023 - 2020 = 3
+  • Performance: (12 ÷ (4 × 3)) × 100 = 100%</value>
   </data>
   <data name="HELP_FrameworkGoals_HOWTO_1" xml:space="preserve">
     <value>**Discount Rate Calculation:** The Annual Discount Rate is calculated as the absolute difference between Base Value and Target Value, divided by the number of years: |Target - Base| / Years. This represents the expected annual change needed to reach the target.</value>
