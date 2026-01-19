@@ -28,7 +28,8 @@
                 @Localizer["Click on a suboutput to view related projects"]
             </p> *@
         </div>
-        <div>
+        <div class="d-flex gap-2">
+            @await Html.PartialAsync("_HelpButton")
             <a asp-controller="Projects" asp-action="Create" class="btn btn-primary btn-lg">
                 <i class="fas fa-plus me-2"></i>
                 @Localizer["Add New Project"]
@@ -208,6 +209,8 @@
         </div>
     }
 </div>
+
+@await Html.PartialAsync("_HelpModal")
 
 @section Scripts {
     <script>
