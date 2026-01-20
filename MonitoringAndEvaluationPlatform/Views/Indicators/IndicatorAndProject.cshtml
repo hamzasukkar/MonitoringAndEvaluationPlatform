@@ -201,7 +201,7 @@
                                                                                     @project.ProjectName
                                                                                 </a>
                                                                             </td>
-                                                                            <td class="budget-cell">@project.EstimatedBudget.ToString("C")</td>
+                                                                            <td class="budget-cell">@project.CurrencySymbol@project.EstimatedBudget.ToString("N0")</td>
                                                                             <td>
                                                                                 <div class="performance-container-small">
                                                                                     <div class="progress-bar-modern small">

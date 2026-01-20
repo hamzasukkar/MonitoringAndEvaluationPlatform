@@ -25,8 +25,20 @@ namespace MonitoringAndEvaluationPlatform.Models
 
         [Required(ErrorMessageResourceType = typeof(Resources.Models.Project), ErrorMessageResourceName = "EstimatedBudgetRequired")]
         [Range(0.01, double.MaxValue, ErrorMessageResourceType = typeof(Resources.Models.Project), ErrorMessageResourceName = "EstimatedBudgetRange")]
-        [Display(Name = "Estimated Budget ($)")]
+        [Display(Name = "Estimated Budget")]
         public double EstimatedBudget { get; set; }
+
+        [Display(Name = "Currency")]
+        public string Currency { get; set; } = "USD";
+
+        [NotMapped]
+        public string CurrencySymbol => Currency switch
+        {
+            "USD" => "$",
+            "EUR" => "\u20AC",
+            "SYP" => "SYP ",
+            _ => "$"
+        };
 
         [Range(0, double.MaxValue, ErrorMessageResourceType = typeof(Resources.Models.Project), ErrorMessageResourceName = "RealBudgetRange")]
         [Display(Name = "Real Budget ($)")]

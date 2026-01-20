@@ -292,7 +292,7 @@
                                     <span>@Localizer["unavailable"]</span>
                                 }
                             </td>
-                            <td>@project.EstimatedBudget.ToString("N0")</td>
+                            <td>@project.CurrencySymbol@project.EstimatedBudget.ToString("N0")</td>
                             <td>
                                 <small>@project.StartDate.ToString("yyyy-MM-dd") - @project.EndDate.ToString("yyyy-MM-dd")</small>
                                 @if (project.EndDate >= DateTime.Now)

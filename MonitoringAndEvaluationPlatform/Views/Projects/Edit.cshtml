@@ -97,7 +97,11 @@
                                         @Localizer["Estimated Budget"]
                                     </label>
                                     <div class="input-group">
-                                        <span class="input-group-text">$</span>
+                                        <select asp-for="Currency" class="form-select" style="max-width: 100px;" id="currencySelect">
+                                            <option value="USD">$ USD</option>
+                                            <option value="EUR">&euro; EUR</option>
+                                            <option value="SYP">SYP</option>
+                                        </select>
                                         <input asp-for="EstimatedBudget" class="form-control form-control-lg" min="0.01" step="0.01" required />
                                     </div>
                                     <span asp-validation-for="EstimatedBudget" class="text-danger small"></span>
@@ -312,10 +316,10 @@
                                             <div class="card bg-light">
                                                 <div class="card-body">
                                                     <h6 class="card-title mb-2">
-                                                        <i class="fas fa-dollar-sign me-2"></i>@Localizer["Total Funding Amount"]
+                                                        <i class="fas fa-money-bill-wave me-2"></i>@Localizer["Total Funding Amount"]
                                                     </h6>
                                                     <div class="d-flex align-items-center">
-                                                        <span class="me-1">$</span>
+                                                        <span class="me-1 currency-symbol">$</span>
                                                         <span id="totalFundingAmount" class="h4 mb-0">0.00</span>
                                                     </div>
                                                     <small class="text-muted">@Localizer["Based on estimated budget"]</small>
@@ -769,6 +773,31 @@
     let selectedDonors = [];
     let donorFundingData = {};
 
+    // Currency symbols mapping
+    const currencySymbols = {
+        'USD': '$',
+        'EUR': '\u20AC',
+        'SYP': 'SYP '
+    };
+
+    // Get current currency symbol
+    function getCurrencySymbol() {
+        const currency = $('#currencySelect').val() || 'USD';
+        return currencySymbols[currency] || '$';
+    }
+
+    // Update all currency symbol displays
+    function updateCurrencySymbols() {
+        const symbol = getCurrencySymbol();
+        $('.currency-symbol').text(symbol);
+        calculateDonorTotals();
+    }
+
+    // Handle currency selection change
+    $('#currencySelect').on('change', function() {
+        updateCurrencySymbols();
+    });
+
     // Initialize donor management on page load
     $(document).ready(function() {
         initializeSelectedDonors();
@@ -1009,6 +1038,7 @@
     // Calculate totals and update displays
     function calculateDonorTotals() {
         const budget = parseFloat($('[name="EstimatedBudget"]').val()) || 0;
+        const symbol = getCurrencySymbol();
         let totalPercentage = 0;
         let totalAmount = 0;
 
@@ -1021,7 +1051,7 @@
             totalAmount += amount;
 
             // Update the display for this donor
-            $(`.donor-amount[data-donor="${donor.value}"]`).text('$' + amount.toFixed(2));
+            $(`.donor-amount[data-donor="${donor.value}"]`).text(symbol + amount.toFixed(2));
         });
 
         // Update total displays
