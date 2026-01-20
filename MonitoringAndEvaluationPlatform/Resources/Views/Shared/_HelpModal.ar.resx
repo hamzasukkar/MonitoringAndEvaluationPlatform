@@ -137,7 +137,7 @@
     <value>كيف يتم حساب الأداء؟</value>
   </data>
   <data name="HELP_FRAMEWORKS_FAQ_A2" xml:space="preserve">
-    <value>يتم حساب الأداء من خطط مستوى المشروع وينتشر صعوداً عبر المؤشرات والمخرجات الفرعية والمخرجات والنتائج إلى مستوى إطار العمل.</value>
+    <value>يتم حساب الأداء من خطط مستوى المشروع وينتشر صعوداً عبرالمشاريع والمخرجات الفرعية والمخرجات والنتائج إلى مستوى إطار العمل.</value>
   </data>
   <data name="HELP_FRAMEWORKS_TIP_1" xml:space="preserve">
     <value>استخدم الشريط الجانبي للتصفية لعرض الأطر حسب الوزارة أو الجهة المانحة أو القطاع.</value>
@@ -213,12 +213,12 @@
     <value>استخدم شريط التنقل التفصيلي للتنقل بسرعة بين مستويات التسلسل الهرمي.</value>
   </data>
   <data name="HELP_MONITORING_TIP_2" xml:space="preserve">
-    <value>انقر على أوزان المؤشرات لضبط كيفية تجميع الأداء على المستويات الأعلى.</value>
+    <value>انقر على أوزانالمشاريع لضبط كيفية تجميع الأداء على المستويات الأعلى.</value>
   </data>
 
   <!-- Indicators Help Content -->
   <data name="HELP_INDICATORS_TITLE" xml:space="preserve">
-    <value>مساعدة المؤشرات</value>
+    <value>مساعدةالمشاريع</value>
   </data>
   <data name="HELP_INDICATORS_OVERVIEW" xml:space="preserve">
     <value>المؤشرات هي مقاييس أداء قابلة للقياس تتتبع التقدم نحو النتائج والمخرجات. لكل مؤشر قيمة مستهدفة ويمكن ربطه بمشاريع متعددة.</value>
@@ -230,22 +230,22 @@
     <value>استخدم "إضافة وإنشاء مشروع" لإنشاء مؤشر وربطه بمشروع جديد في وقت واحد.</value>
   </data>
   <data name="HELP_INDICATORS_HOWTO_3" xml:space="preserve">
-    <value>اضبط أوزان المؤشرات للتحكم في كيفية مساهمتها في الأداء الإجمالي.</value>
+    <value>اضبط أوزانالمشاريع للتحكم في كيفية مساهمتها في الأداء الإجمالي.</value>
   </data>
   <data name="HELP_INDICATORS_FAQ_Q1" xml:space="preserve">
-    <value>ما هي أوزان المؤشرات؟</value>
+    <value>ما هي أوزانالمشاريع؟</value>
   </data>
   <data name="HELP_INDICATORS_FAQ_A1" xml:space="preserve">
     <value>تحدد الأوزان مقدار مساهمة كل مؤشر في حساب الأداء على مستوى المخرج الفرعي. الأوزان الأعلى تعني تأثيراً أكبر على النتيجة الإجمالية.</value>
   </data>
   <data name="HELP_INDICATORS_FAQ_Q2" xml:space="preserve">
-    <value>كيف أربط المؤشرات بالمشاريع؟</value>
+    <value>كيف أربطالمشاريع بالمشاريع؟</value>
   </data>
   <data name="HELP_INDICATORS_FAQ_A2" xml:space="preserve">
-    <value>استخدم قسم القياسات لإنشاء روابط بين المؤشرات والمشاريع، ثم أدخل القيم المخططة والمحققة لتتبع التقدم.</value>
+    <value>استخدم قسم القياسات لإنشاء روابط بينالمشاريع والمشاريع، ثم أدخل القيم المخططة والمحققة لتتبع التقدم.</value>
   </data>
   <data name="HELP_INDICATORS_TIP_1" xml:space="preserve">
-    <value>استخدم التحرير المباشر لتحديث أسماء المؤشرات بسرعة دون الانتقال إلى صفحة منفصلة.</value>
+    <value>استخدم التحرير المباشر لتحديث أسماءالمشاريع بسرعة دون الانتقال إلى صفحة منفصلة.</value>
   </data>
   <data name="HELP_INDICATORS_TIP_2" xml:space="preserve">
     <value>يعرض عرض "المؤشرات والمشاريع" جميع المشاريع المرتبطة بكل مؤشر في جدول واحد.</value>
@@ -326,7 +326,7 @@
     <value>مساعدة المخرجات الفرعية</value>
   </data>
   <data name="HELP_SUBOUTPUTS_OVERVIEW" xml:space="preserve">
-    <value>تقسم المخرجات الفرعية المخرجات إلى مكونات أكثر تحديداً وترتبط مباشرة بالمؤشرات. تمثل المستوى الأكثر تفصيلاً من إطار النتائج قبل المؤشرات.</value>
+    <value>تقسم المخرجات الفرعية المخرجات إلى مكونات أكثر تحديداً وترتبط مباشرة بالمؤشرات. تمثل المستوى الأكثر تفصيلاً من إطار النتائج قبلالمشاريع.</value>
   </data>
   <data name="HELP_SUBOUTPUTS_HOWTO_1" xml:space="preserve">
     <value>من عرض المخرج، انقر على "إضافة مخرج فرعي" لإنشاء مخرج فرعي جديد.</value>
@@ -353,7 +353,7 @@
     <value>احتفظ بأسماء المخرجات الفرعية محددة وقابلة للقياس لجعل إعداد التقارير أوضح.</value>
   </data>
   <data name="HELP_SUBOUTPUTS_TIP_2" xml:space="preserve">
-    <value>استخدم أوزان المؤشرات داخل المخرجات الفرعية لتحديد أولويات مقاييس الأداء الرئيسية.</value>
+    <value>استخدم أوزانالمشاريع داخل المخرجات الفرعية لتحديد أولويات مقاييس الأداء الرئيسية.</value>
   </data>
 
   <!-- Dashboard Help Content -->
@@ -411,7 +411,7 @@
     <value>ماذا يحدث عند تحديث قياس؟</value>
   </data>
   <data name="HELP_MEASURES_FAQ_A1" xml:space="preserve">
-    <value>تنتشر حسابات الأداء تلقائياً صعوداً عبر المؤشرات والمخرجات الفرعية والمخرجات والنتائج والأطر.</value>
+    <value>تنتشر حسابات الأداء تلقائياً صعوداً عبرالمشاريع والمخرجات الفرعية والمخرجات والنتائج والأطر.</value>
   </data>
   <data name="HELP_MEASURES_FAQ_Q2" xml:space="preserve">
     <value>هل يمكن أن يحتوي المشروع على قياسات متعددة لنفس المؤشر؟</value>

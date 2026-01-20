@@ -82,7 +82,7 @@
     <value>أداء المشروع</value>
   </data>
   <data name="IndicatorPerformance" xml:space="preserve">
-    <value>أداء المؤشر</value>
+    <value>أداء البرنامج</value>
   </data>
   <data name="HierarchyPropagation" xml:space="preserve">
     <value>انتشار التسلسل الهرمي</value>
@@ -101,19 +101,19 @@
     <value>تستخدم منصة الرصد والتقييم هيكلاً هرمياً حيث يتدفق الأداء من الأسفل (الخطط) إلى الأعلى (الإطار). يجمع كل مستوى الأداء من عناصره الفرعية.</value>
   </data>
   <data name="Framework" xml:space="preserve">
-    <value>الإطار</value>
+    <value>الاستراتيجية</value>
   </data>
   <data name="Outcome" xml:space="preserve">
-    <value>النتيجة</value>
+    <value>السباسة</value>
   </data>
   <data name="Output" xml:space="preserve">
-    <value>المخرج</value>
+    <value>البرنامج</value>
   </data>
   <data name="SubOutput" xml:space="preserve">
-    <value>المخرج الفرعي</value>
+    <value>البرنامج الفرعي</value>
   </data>
   <data name="Indicator" xml:space="preserve">
-    <value>المؤشر</value>
+    <value>المشاريع</value>
   </data>
   <data name="Project" xml:space="preserve">
     <value>المشروع</value>
@@ -209,7 +209,7 @@
   </data>
   <!-- Indicator Performance Section -->
   <data name="IndicatorPerformanceIntro" xml:space="preserve">
-    <value>يُشتق أداء المؤشر من المتوسط المرجح لجميع المشاريع المرتبطة بذلك المؤشر.</value>
+    <value>يُشتق أداء المؤشر من المتوسط المرجح لجميع المشاريع المرتبطة بذلك البرنامج.</value>
   </data>
   <data name="CalculationDetails" xml:space="preserve">
     <value>تفاصيل الحساب</value>
@@ -218,7 +218,7 @@
     <value>لكل مشروع وزن مخصص له (افتراضي: 1 إذا لم يُحدد)</value>
   </data>
   <data name="IndicatorCalcDetail2" xml:space="preserve">
-    <value>أداء المؤشر هو المتوسط المرجح لجميع المشاريع المرتبطة</value>
+    <value>أداء البرنامج هو المتوسط المرجح لجميع المشاريع المرتبطة</value>
   </data>
   <data name="IndicatorCalcDetail3" xml:space="preserve">
     <value>المشاريع ذات الأوزان الأعلى تساهم أكثر في الأداء الكلي للمؤشر</value>
@@ -333,7 +333,7 @@
   </data>
   <!-- Measure Calculations Section -->
   <data name="MeasureCalcIntro" xml:space="preserve">
-    <value>تتتبع القياسات تقدم المؤشر عبر الزمن من خلال القيم المسجلة. تُستخدم الحسابات التالية لتحليل المؤشرات.</value>
+    <value>تتتبع القياسات تقدم البرنامج عبر الزمن من خلال القيم المسجلة. تُستخدم الحسابات التالية لتحليل البرامج.</value>
   </data>
   <data name="CurrentAchievement" xml:space="preserve">
     <value>الإنجاز الحالي</value>
@@ -364,13 +364,13 @@
     <value>حسابات المشروع من الخطط</value>
   </data>
   <data name="HierarchyLevels" xml:space="preserve">
-    <value>جميع مستويات التسلسل الهرمي (المؤشر إلى الإطار)</value>
+    <value>جميع مستويات التسلسل الهرمي (البرنامج إلى الاستراتيجية)</value>
   </data>
   <data name="SimpleAverage" xml:space="preserve">
     <value>المتوسط البسيط</value>
   </data>
   <data name="IndicatorDetails" xml:space="preserve">
-    <value>صفحة تفاصيل المؤشر</value>
+    <value>صفحة تفاصيل البرامج</value>
   </data>
   <data name="CumulativeSum" xml:space="preserve">
     <value>المجموع التراكمي</value>

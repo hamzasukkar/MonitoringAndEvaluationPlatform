@@ -47,7 +47,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         public async Task<IActionResult> Index(string sortOrder, string searchString, FrameworkFilterViewModel filter)
         {
             ViewData["CurrentSort"] = sortOrder;
-            // هنا قمنا بتغيير الفرز الافتراضي ليكون تنازليًا حسب أداء المؤشرات
+            // هنا قمنا بتغيير الفرز الافتراضي ليكون تنازليًا حسب أداءالمشاريع
             ViewData["NameSortParm"] = string.IsNullOrEmpty(sortOrder) ? "name_desc" : "";
             ViewData["IndicatorsSortParm"] = sortOrder == "indicators" ? "indicators_desc" : "indicators";
             ViewData["DisbursementSortParm"] = sortOrder == "disbursement" ? "disbursement_desc" : "disbursement";
