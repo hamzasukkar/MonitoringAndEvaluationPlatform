@@ -73,7 +73,7 @@
             @Html.AntiForgeryToken()
             <input type="hidden" name="SubOutputCode" value="@ViewData["subOutputCode"]" />
 
-            <div class="col-md-4">
+            <div class="col-md-6">
                 <label for="Name" class="form-label fw-bold">
                     <i class="fas fa-tag me-2"></i>@Localizer["Name"]
                 </label>
@@ -81,15 +81,10 @@
                        placeholder="@Localizer["Enter indicator name"]" />
             </div>
 
-            <div class="col-md-3">
-                <label for="Target" class="form-label fw-bold">
-                    <i class="fas fa-bullseye me-2"></i>@Localizer["Target"]
-                </label>
-                <input type="number" step="1" name="Target" class="form-control form-control-lg" required
-                       placeholder="@Localizer["Enter target value"]" />
-            </div>
+            <!-- Hidden Target field - always set to 100 -->
+            <input type="hidden" name="Target" value="100" />
 
-            <div class="col-md-2 d-flex align-items-end">
+            <div class="col-md-3 d-flex align-items-end">
                 <button type="submit" class="btn btn-success btn-lg w-100" asp-action="CreateInline">
                     <i class="fas fa-plus-circle me-1"></i> @Localizer["Add"]
                 </button>
