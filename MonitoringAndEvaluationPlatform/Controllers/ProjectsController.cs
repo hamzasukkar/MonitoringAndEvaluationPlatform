@@ -153,7 +153,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
 
         // GET: Programs/Create
         [Permission(Permissions.AddProject)]
-        public async Task<IActionResult> Create()
+        public async Task<IActionResult> Create(int? indicatorId, string indicatorName)
         {
             // Retrieve related data
             var donors = _context.Donors.ToList();
@@ -167,6 +167,10 @@ namespace MonitoringAndEvaluationPlatform.Controllers
 
             ViewBag.Governorates = _context.Governorates.ToList();
             ViewBag.Indicators = indicators;
+
+            // Pass indicator information for auto-filling if coming from "Add & Create Project"
+            ViewBag.PreSelectedIndicatorId = indicatorId;
+            ViewBag.PreFilledProjectName = indicatorName;
 
             // Get the logged-in user
             var user = await _userManager.GetUserAsync(User);
@@ -198,6 +202,12 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 Sectors = sectors.Take(1).ToList(),
                 GoalCode = goals.FirstOrDefault()?.Code ?? 0,
             };
+
+            // Pre-fill project name if coming from indicator creation
+            if (!string.IsNullOrEmpty(indicatorName))
+            {
+                project.ProjectName = indicatorName;
+            }
 
             var firstSectorCode = sectors.FirstOrDefault()?.Code;
 

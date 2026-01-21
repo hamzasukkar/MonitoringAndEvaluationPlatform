@@ -854,6 +854,27 @@
         // Restore preserved form data after validation failure
         restoreFormData();
 
+        // Auto-fill project name and pre-select indicator if coming from "Add & Create Project"
+        @if (ViewBag.PreSelectedIndicatorId != null)
+        {
+            <text>
+            // Pre-select the indicator in the dropdown
+            $('#indicatorSelect').val(@ViewBag.PreSelectedIndicatorId).trigger('change');
+            </text>
+        }
+
+        @if (!string.IsNullOrEmpty(ViewBag.PreFilledProjectName))
+        {
+            <text>
+            // The project name is already set in the model, but we can add a visual indicator
+            // Highlight the project name field briefly to draw attention
+            $('input[name="ProjectName"]').addClass('border-success border-2');
+            setTimeout(function() {
+                $('input[name="ProjectName"]').removeClass('border-success border-2');
+            }, 2000);
+            </text>
+        }
+
         // Handle ministry dropdown selection
         $('.ministry-item').click(function(e) {
             e.preventDefault();

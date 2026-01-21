@@ -207,7 +207,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         /// <summary>
         /// This is the NEW action that handles the "Add & Create Project" button.
         /// It creates the Indicator and then redirects to the Create action in the ProjectsController,
-        /// passing the new Indicator's ID.
+        /// passing the new Indicator's ID and Name for auto-filling the project form.
         /// </summary>
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -238,8 +238,9 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             TempData["Success"] = "Indicator created. You can now add project details.";
 
             // Redirect to the "Create" action in the "Projects" controller.
-            // Pass the newly created indicator's ID so the project can be associated with it.
-            return RedirectToAction("Create", "Projects", new { indicatorId = indicator.IndicatorCode });
+            // Pass the newly created indicator's ID and Name so the project can be associated with it
+            // and the project name can be auto-filled.
+            return RedirectToAction("Create", "Projects", new { indicatorId = indicator.IndicatorCode, indicatorName = indicator.Name });
         }
 
         // تحديث SubOutput بناءً على Indicators
