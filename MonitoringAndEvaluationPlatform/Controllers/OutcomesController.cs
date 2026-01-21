@@ -49,7 +49,9 @@ namespace MonitoringAndEvaluationPlatform.Controllers
 
             if (frameworkCode == null)
             {
-                outcomesQuery = _context.Outcomes.Include(o => o.Framework);
+                outcomesQuery = _context.Outcomes
+                    .Include(o => o.Framework)
+                    .Include(o => o.Outputs);
             }
             else
             {

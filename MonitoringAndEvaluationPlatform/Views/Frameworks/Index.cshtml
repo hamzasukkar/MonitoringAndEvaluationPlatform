@@ -346,6 +346,10 @@
                                     </td>
                                     <td class="text-center">
                                         <div class="btn-group action-buttons" role="group">
+                                            <button class="btn btn-outline-info btn-sm action-btn"
+                                                    onclick="toggleOutcomes(@item.Code)" title="@Localizer["Show Outcomes"]">
+                                                <i class="fas fa-chevron-down" id="chevron-@item.Code"></i>
+                                            </button>
                                             @if (SignInManager.IsSignedIn(User))
                                             {
                                                 var user = await UserManager.GetUserAsync(User);
@@ -369,6 +373,60 @@
                                                         </button>
                                                     }
                                                 }
+                                            }
+                                        </div>
+                                    </td>
+                                </tr>
+                                <!-- Expandable Outcomes Row -->
+                                <tr id="outcomes-row-@item.Code" class="outcomes-row" style="display: none;">
+                                    <td colspan="4" class="p-0">
+                                        <div class="outcomes-container">
+                                            <div class="outcomes-header">
+                                                <i class="fas fa-bullseye me-2"></i>
+                                                @Localizer["Outcomes"] (@item.Outcomes.Count)
+                                            </div>
+                                            @if (item.Outcomes.Any())
+                                            {
+                                                <table class="table table-sm outcomes-table mb-0">
+                                                    <thead>
+                                                        <tr>
+                                                            <th>@Localizer["Outcome Name"]</th>
+                                                            <th class="text-center">@Localizer["Weight"]</th>
+                                                            <th class="text-center">@Localizer["Indicators Performance"]</th>
+                                                            <th class="text-center">@Localizer["Disbursement Performance"]</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        @foreach (var outcome in item.Outcomes)
+                                                        {
+                                                            string outcomeIndicatorsClass = ProgressBarHelper.GetProgressBarClass(outcome.IndicatorsPerformance);
+                                                            string outcomeDisbursementClass = ProgressBarHelper.GetProgressBarClass(outcome.DisbursementPerformance);
+                                                            <tr>
+                                                                <td>
+                                                                    <a asp-controller="Outputs" asp-action="Index" asp-route-outcomeCode="@outcome.Code" class="outcome-name-link">
+                                                                        @outcome.Name
+                                                                    </a>
+                                                                </td>
+                                                                <td class="text-center">
+                                                                    <span class="badge bg-info">@Math.Round(outcome.Weight, 1)%</span>
+                                                                </td>
+                                                                <td class="text-center">
+                                                                    @await Html.PartialAsync("_ProgressBar", Tuple.Create(Math.Round(outcome.IndicatorsPerformance, 2), outcomeIndicatorsClass))
+                                                                </td>
+                                                                <td class="text-center">
+                                                                    @await Html.PartialAsync("_ProgressBar", Tuple.Create(Math.Round(outcome.DisbursementPerformance, 2), outcomeDisbursementClass))
+                                                                </td>
+                                                            </tr>
+                                                        }
+                                                    </tbody>
+                                                </table>
+                                            }
+                                            else
+                                            {
+                                                <div class="text-center py-3 text-muted">
+                                                    <i class="fas fa-info-circle me-2"></i>
+                                                    @Localizer["No outcomes found for this framework"]
+                                                </div>
                                             }
                                         </div>
                                     </td>
@@ -665,6 +723,31 @@
                 input.removeClass('d-none');
                 viewSpan.addClass('d-none');
                 input.focus();
+            }
+        }
+
+        function toggleOutcomes(code) {
+            const outcomesRow = document.getElementById(`outcomes-row-${code}`);
+            const chevron = document.getElementById(`chevron-${code}`);
+
+            if (outcomesRow.style.display === 'none') {
+                outcomesRow.style.display = 'table-row';
+                chevron.classList.remove('fa-chevron-down');
+                chevron.classList.add('fa-chevron-up');
+
+                // Animate the container
+                const container = outcomesRow.querySelector('.outcomes-container');
+                container.style.opacity = '0';
+                container.style.transform = 'translateY(-10px)';
+                setTimeout(() => {
+                    container.style.transition = 'all 0.3s ease';
+                    container.style.opacity = '1';
+                    container.style.transform = 'translateY(0)';
+                }, 10);
+            } else {
+                outcomesRow.style.display = 'none';
+                chevron.classList.remove('fa-chevron-up');
+                chevron.classList.add('fa-chevron-down');
             }
         }
 
@@ -1143,7 +1226,84 @@
         .swal2-modern {
             border-radius: 15px;
         }
-        
+
+        /* Expandable Outcomes Row Styles */
+        .outcomes-row {
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+        }
+
+        .outcomes-row td {
+            border-bottom: 2px solid var(--primary-color) !important;
+        }
+
+        .outcomes-container {
+            padding: 20px;
+            margin: 0 15px 15px 15px;
+            background: white;
+            border-radius: 12px;
+            box-shadow: inset 0 2px 10px rgba(0, 0, 0, 0.05);
+        }
+
+        .outcomes-header {
+            font-weight: 600;
+            font-size: 1rem;
+            color: var(--primary-color);
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid rgba(0, 0, 0, 0.1);
+        }
+
+        .outcomes-table {
+            background: transparent;
+        }
+
+        .outcomes-table thead tr {
+            background: linear-gradient(135deg, #6c757d 0%, #495057 100%);
+            color: white;
+        }
+
+        .outcomes-table thead th {
+            padding: 12px 15px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            border: none;
+        }
+
+        .outcomes-table tbody tr {
+            transition: all 0.3s ease;
+        }
+
+        .outcomes-table tbody tr:hover {
+            background: rgba(0, 0, 0, 0.03);
+        }
+
+        .outcomes-table tbody td {
+            padding: 12px 15px;
+            vertical-align: middle;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+        }
+
+        .outcome-name-link {
+            color: #333;
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.3s ease;
+        }
+
+        .outcome-name-link:hover {
+            color: var(--primary-color);
+        }
+
+        .btn-outline-info {
+            border-color: #17a2b8;
+            color: #17a2b8;
+        }
+
+        .btn-outline-info:hover {
+            background-color: #17a2b8;
+            color: white;
+        }
+
         /* Badge styling */
         .badge.bg-primary {
             background: linear-gradient(135deg, var(--primary-color), var(--primary-dark)) !important;

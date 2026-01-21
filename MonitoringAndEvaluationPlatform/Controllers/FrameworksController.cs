@@ -59,7 +59,9 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             filter.Sectors = await _context.Sectors.ToListAsync();
             filter.IsMinistryUser = false; // Assuming this logic is handled elsewhere
 
-            IQueryable<Framework> frameworksQuery = _context.Frameworks.AsQueryable();
+            IQueryable<Framework> frameworksQuery = _context.Frameworks
+                .Include(f => f.Outcomes)
+                .AsQueryable();
 
             if (!string.IsNullOrEmpty(searchString))
             {
