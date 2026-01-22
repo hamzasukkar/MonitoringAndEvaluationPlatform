@@ -58,6 +58,59 @@
         .dropdown-submenu:hover > .dropdown-menu {
             display: block;
         }
+
+        /* Policies Dropdown Scroll and Search Styles */
+        .policies-dropdown-menu {
+            min-width: 280px;
+            padding-top: 0;
+        }
+
+        .dropdown-search-container {
+            position: sticky;
+            top: 0;
+            background: white;
+            z-index: 10;
+        }
+
+        .policies-search-input {
+            border-radius: 20px;
+            border: 1px solid #dee2e6;
+            padding: 8px 15px;
+            font-size: 0.875rem;
+        }
+
+        .policies-search-input:focus {
+            border-color: #0d6efd;
+            box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.15);
+        }
+
+        .policies-dropdown-scroll {
+            max-height: 350px;
+            overflow-y: auto;
+            overflow-x: hidden;
+        }
+
+        .policies-dropdown-scroll::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .policies-dropdown-scroll::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 3px;
+        }
+
+        .policies-dropdown-scroll::-webkit-scrollbar-thumb {
+            background: #c1c1c1;
+            border-radius: 3px;
+        }
+
+        .policies-dropdown-scroll::-webkit-scrollbar-thumb:hover {
+            background: #a1a1a1;
+        }
+
+        .framework-item.hidden {
+            display: none !important;
+        }
     </style>
 </head>
 <body>
@@ -70,16 +123,27 @@
                         <a class="nav-link dropdown-toggle" href="#" id="policiesDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                             <i class="fas fa-sitemap me-1"></i> @Localizer["National Development Strategy"]
                         </a>
-                        <ul class="dropdown-menu" aria-labelledby="policiesDropdown">
+                        <ul class="dropdown-menu policies-dropdown-menu" aria-labelledby="policiesDropdown">
+                            <!-- Search Input -->
+                            <li class="dropdown-search-container">
+                                <div class="px-3 py-2">
+                                    <input type="text" class="form-control form-control-sm policies-search-input"
+                                           placeholder="@Localizer["Search..."]"
+                                           onclick="event.stopPropagation();" />
+                                </div>
+                            </li>
+                            <li><hr class="dropdown-divider my-1"></li>
+                            <!-- Scrollable Framework List -->
+                            <div class="policies-dropdown-scroll">
                             @foreach (var framework in _context.Frameworks
                             .OrderByDescending(f => f.IndicatorsPerformance)
                             .ToList())
                             {
-                                
+
                                 var hasPerformance = framework.IndicatorsPerformance > 0;
                                 var performanceClass = hasPerformance ? "has-performance" : "";
 
-                                <li class="dropdown-submenu dropend">
+                                <li class="dropdown-submenu dropend framework-item">
                                     <a class="dropdown-item dropdown-toggle @performanceClass" href="#" id="framework-@framework.Code">
                                         @framework.Name
                                     </a>
@@ -117,6 +181,7 @@
                                     </ul>
                                 </li>
                             }
+                            </div>
                         </ul>
                   </li>
                     <li class="nav-item dropdown">
@@ -404,6 +469,35 @@
 
                 return false;
             });
+
+            // Policies Dropdown Search Functionality
+            const searchInput = document.querySelector('.policies-search-input');
+            if (searchInput) {
+                searchInput.addEventListener('input', function(e) {
+                    const searchTerm = e.target.value.toLowerCase().trim();
+                    const frameworkItems = document.querySelectorAll('.framework-item');
+
+                    frameworkItems.forEach(function(item) {
+                        const frameworkName = item.querySelector('.dropdown-item').textContent.toLowerCase().trim();
+                        if (searchTerm === '' || frameworkName.includes(searchTerm)) {
+                            item.classList.remove('hidden');
+                        } else {
+                            item.classList.add('hidden');
+                        }
+                    });
+                });
+
+                // Clear search when dropdown closes
+                const policiesDropdown = document.getElementById('policiesDropdown');
+                if (policiesDropdown) {
+                    policiesDropdown.addEventListener('hidden.bs.dropdown', function() {
+                        searchInput.value = '';
+                        document.querySelectorAll('.framework-item').forEach(function(item) {
+                            item.classList.remove('hidden');
+                        });
+                    });
+                }
+            }
         });
     </script>
 
