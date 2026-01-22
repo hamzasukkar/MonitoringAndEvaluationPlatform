@@ -277,6 +277,8 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             IQueryable<SubOutput> query = _context.SubOutputs
                 .Include(s => s.Output)
                 .Include(s => s.Indicators)
+                    .ThenInclude(i => i.ProjectIndicators)
+                        .ThenInclude(pi => pi.Project)
                 .Include(s => s.Output.Outcome.Framework);
 
             if (frameworkCode != null)
