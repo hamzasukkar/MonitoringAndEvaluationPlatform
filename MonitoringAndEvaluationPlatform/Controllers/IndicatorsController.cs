@@ -204,6 +204,58 @@ namespace MonitoringAndEvaluationPlatform.Controllers
 
             return RedirectToAction(nameof(Index), new { frameworkCode = indicator.SubOutput.Output.Outcome.FrameworkCode, subOutputCode = indicator.SubOutputCode });
         }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        [Permission(Permissions.AddIndicator)]
+        public async Task<IActionResult> CreateInlineAjax(string name, int subOutputCode)
+        {
+            try
+            {
+                if (string.IsNullOrWhiteSpace(name))
+                {
+                    return Json(new { success = false, message = "Indicator name is required." });
+                }
+
+                var indicator = new Indicator
+                {
+                    Name = name.Trim(),
+                    Target = 0,
+                    SubOutputCode = subOutputCode,
+                    IndicatorsPerformance = 0,
+                    DisbursementPerformance = 0,
+                    FieldMonitoring = 0,
+                    ImpactAssessment = 0
+                };
+
+                _context.Indicators.Add(indicator);
+                await _context.SaveChangesAsync();
+
+                // Update related entities
+                await UpdateSubOutputPerformance(indicator.SubOutputCode);
+                // Recalculate weights
+                await RedistributeWeights(indicator.SubOutputCode);
+
+                return Json(new
+                {
+                    success = true,
+                    indicator = new
+                    {
+                        code = indicator.IndicatorCode,
+                        name = indicator.Name,
+                        weight = Math.Round(indicator.Weight, 2),
+                        indicatorsPerformance = Math.Round(indicator.IndicatorsPerformance, 2),
+                        disbursementPerformance = Math.Round(indicator.DisbursementPerformance, 2)
+                    },
+                    message = "Indicator created successfully!"
+                });
+            }
+            catch (Exception)
+            {
+                return Json(new { success = false, message = "Could not create indicator. Please try again." });
+            }
+        }
+
         /// <summary>
         /// This is the NEW action that handles the "Add & Create Project" button.
         /// It creates the Indicator and then redirects to the Create action in the ProjectsController,

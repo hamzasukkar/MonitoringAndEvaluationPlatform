@@ -428,6 +428,41 @@
                                                     @Localizer["No outcomes found for this framework"]
                                                 </div>
                                             }
+
+                                            <!-- Inline Add Outcome Section -->
+                                            @if (SignInManager.IsSignedIn(User))
+                                            {
+                                                var currentUser = await UserManager.GetUserAsync(User);
+                                                if (currentUser != null)
+                                                {
+                                                    var userRoles = await UserManager.GetRolesAsync(currentUser);
+                                                    if (userRoles.Contains("SystemAdministrator"))
+                                                    {
+                                                        <div class="mt-3 pt-3 border-top">
+                                                            <button type="button" class="btn btn-outline-primary btn-sm" onclick="toggleInlineOutcomeForm(@item.Code)">
+                                                                <i class="fas fa-plus me-1"></i>@Localizer["Add Outcome"]
+                                                            </button>
+
+                                                            <div id="inline-outcome-form-@item.Code" class="inline-create-outcome-form mt-3" style="display: none;">
+                                                                <div class="row g-2 align-items-center">
+                                                                    <div class="col">
+                                                                        <input type="text" class="form-control" id="new-outcome-name-@item.Code"
+                                                                               placeholder="@Localizer["Enter outcome name"]" />
+                                                                    </div>
+                                                                    <div class="col-auto">
+                                                                        <button type="button" class="btn btn-primary btn-sm" onclick="createInlineOutcome(@item.Code)">
+                                                                            <i class="fas fa-save me-1"></i>@Localizer["Save"]
+                                                                        </button>
+                                                                        <button type="button" class="btn btn-outline-secondary btn-sm" onclick="toggleInlineOutcomeForm(@item.Code)">
+                                                                            <i class="fas fa-times"></i>
+                                                                        </button>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    }
+                                                }
+                                            }
                                         </div>
                                     </td>
                                 </tr>
@@ -749,6 +784,125 @@
                 chevron.classList.remove('fa-chevron-up');
                 chevron.classList.add('fa-chevron-down');
             }
+        }
+
+        function toggleInlineOutcomeForm(frameworkCode) {
+            const form = document.getElementById(`inline-outcome-form-${frameworkCode}`);
+            if (form.style.display === 'none') {
+                form.style.display = 'block';
+                document.getElementById(`new-outcome-name-${frameworkCode}`).focus();
+            } else {
+                form.style.display = 'none';
+                document.getElementById(`new-outcome-name-${frameworkCode}`).value = '';
+            }
+        }
+
+        function createInlineOutcome(frameworkCode) {
+            const nameInput = document.getElementById(`new-outcome-name-${frameworkCode}`);
+            const name = nameInput.value.trim();
+
+            if (!name) {
+                Swal.fire({
+                    icon: 'warning',
+                    title: '@Localizer["Warning"]',
+                    text: '@Localizer["Please enter an outcome name"]',
+                });
+                return;
+            }
+
+            const token = $('input[name="__RequestVerificationToken"]').val();
+
+            $.ajax({
+                url: '/Outcomes/CreateInline',
+                type: 'POST',
+                data: {
+                    name: name,
+                    frameworkCode: frameworkCode,
+                    __RequestVerificationToken: token
+                },
+                success: function(response) {
+                    if (response.success) {
+                        Swal.fire({
+                            icon: 'success',
+                            title: '@Localizer["Success"]',
+                            text: '@Localizer["Outcome created successfully!"]',
+                            timer: 2000,
+                            showConfirmButton: false
+                        });
+
+                        // Add new row to the outcomes table
+                        const outcomesTable = $(`#outcomes-row-${frameworkCode} .outcomes-table tbody`);
+                        if (outcomesTable.length) {
+                            const newRow = `
+                                <tr class="new-outcome-row">
+                                    <td>
+                                        <a href="/Outputs?outcomeCode=${response.outcome.code}" class="outcome-name-link">
+                                            ${response.outcome.name}
+                                        </a>
+                                    </td>
+                                    <td class="text-center">
+                                        <span class="badge bg-info">${response.outcome.weight}%</span>
+                                    </td>
+                                    <td class="text-center">
+                                        <div class="progress-container">
+                                            <div class="progress modern-progress-bar">
+                                                <div class="progress-bar bg-secondary" role="progressbar"
+                                                     style="width: 0%">
+                                                </div>
+                                            </div>
+                                            <div class="progress-value-display">
+                                                <span class="progress-percentage">0%</span>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="text-center">
+                                        <div class="progress-container">
+                                            <div class="progress modern-progress-bar">
+                                                <div class="progress-bar bg-secondary" role="progressbar"
+                                                     style="width: 0%">
+                                                </div>
+                                            </div>
+                                            <div class="progress-value-display">
+                                                <span class="progress-percentage">0%</span>
+                                            </div>
+                                        </div>
+                                    </td>
+                                </tr>
+                            `;
+                            outcomesTable.append(newRow);
+                        } else {
+                            // If no table exists, reload to show the new outcome
+                            location.reload();
+                        }
+
+                        // Update the outcomes count in the header
+                        const header = $(`#outcomes-row-${frameworkCode} .outcomes-header`);
+                        const currentText = header.text();
+                        const match = currentText.match(/\((\d+)\)/);
+                        if (match) {
+                            const newCount = parseInt(match[1]) + 1;
+                            header.html(`<i class="fas fa-bullseye me-2"></i>@Localizer["Outcomes"] (${newCount})`);
+                        }
+
+                        // Clear and hide the form
+                        nameInput.value = '';
+                        toggleInlineOutcomeForm(frameworkCode);
+                    } else {
+                        Swal.fire({
+                            icon: 'error',
+                            title: '@Localizer["Error"]',
+                            text: response.message || '@Localizer["Could not create outcome. Please try again."]'
+                        });
+                    }
+                },
+                error: function() {
+                    Swal.fire({
+                        icon: 'error',
+                        title: '@Localizer["Error"]',
+                        text: '@Localizer["Could not create outcome. Please try again."]'
+                    });
+                }
+            });
         }
 
         function confirmFrameworkDelete(code) {
@@ -1292,6 +1446,45 @@
 
         .outcome-name-link:hover {
             color: var(--primary-color);
+        }
+
+        /* Inline Create Outcome Form */
+        .inline-create-outcome-form {
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            padding: 15px;
+            border-radius: 8px;
+            border: 1px dashed #dee2e6;
+        }
+
+        .inline-create-outcome-form .form-control {
+            border-radius: 6px;
+            border: 1px solid #ced4da;
+            padding: 8px 12px;
+        }
+
+        .inline-create-outcome-form .form-control:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 0.2rem rgba(var(--primary-color-rgb), 0.15);
+        }
+
+        .inline-create-outcome-form .btn {
+            border-radius: 6px;
+        }
+
+        .new-outcome-row {
+            background: linear-gradient(135deg, rgba(16, 185, 129, 0.1) 0%, rgba(255, 255, 255, 0.95) 100%) !important;
+            animation: fadeInRow 0.5s ease;
+        }
+
+        @@keyframes fadeInRow {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
 
         .btn-outline-info {

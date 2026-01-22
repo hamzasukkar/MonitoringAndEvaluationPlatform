@@ -11,6 +11,11 @@
     var culture = Context.Features.Get<IRequestCultureFeature>().RequestCulture.Culture.Name;
 }
 
+<!-- Hidden Anti-Forgery Token for AJAX requests -->
+<form id="__AjaxAntiForgeryForm" style="display:none;">
+    @Html.AntiForgeryToken()
+</form>
+
 <!-- Dashboard Header -->
 <div class="dashboard-header">
     <div class="d-flex justify-content-between align-items-center">
@@ -272,13 +277,43 @@
                         <tr id="outputs-row-@item.Code" class="outputs-row" style="display: none;">
                             <td colspan="6" class="p-0">
                                 <div class="outputs-container">
-                                    <div class="outputs-header">
-                                        <i class="fas fa-layer-group me-2"></i>
-                                        @Localizer["Outputs"] (@item.Outputs.Count)
+                                    <div class="outputs-header d-flex justify-content-between align-items-center">
+                                        <span>
+                                            <i class="fas fa-layer-group me-2"></i>
+                                            @Localizer["Outputs"] (<span id="outputs-count-@item.Code">@item.Outputs.Count</span>)
+                                        </span>
+                                        @if (User.IsInRole(UserRoles.SystemAdministrator))
+                                        {
+                                            <button class="btn btn-success btn-sm" onclick="toggleInlineOutputForm(@item.Code)">
+                                                <i class="fas fa-plus me-1"></i>@Localizer["Add Output"]
+                                            </button>
+                                        }
                                     </div>
+
+                                    <!-- Inline Create Output Form -->
+                                    @if (User.IsInRole(UserRoles.SystemAdministrator))
+                                    {
+                                        <div id="inline-output-form-@item.Code" class="inline-create-output-form" style="display: none;">
+                                            <div class="row g-2 align-items-center">
+                                                <div class="col">
+                                                    <input type="text" class="form-control" id="new-output-name-@item.Code"
+                                                           placeholder="@Localizer["Enter output name"]" />
+                                                </div>
+                                                <div class="col-auto">
+                                                    <button type="button" class="btn btn-primary btn-sm" onclick="createInlineOutput(@item.Code)">
+                                                        <i class="fas fa-save me-1"></i>@Localizer["Save"]
+                                                    </button>
+                                                    <button type="button" class="btn btn-outline-secondary btn-sm" onclick="toggleInlineOutputForm(@item.Code)">
+                                                        <i class="fas fa-times"></i>
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    }
+
                                     @if (item.Outputs.Any())
                                     {
-                                        <table class="table table-sm outputs-table mb-0">
+                                        <table class="table table-sm outputs-table mb-0" id="outputs-table-@item.Code">
                                             <thead>
                                                 <tr>
                                                     <th>@Localizer["Output Name"]</th>
@@ -287,7 +322,7 @@
                                                     <th class="text-center">@Localizer["Disbursement Performance"]</th>
                                                 </tr>
                                             </thead>
-                                            <tbody>
+                                            <tbody id="outputs-tbody-@item.Code">
                                                 @foreach (var output in item.Outputs)
                                                 {
                                                     string outputIndicatorsClass = ProgressBarHelper.GetProgressBarClass(output.IndicatorsPerformance);
@@ -314,10 +349,22 @@
                                     }
                                     else
                                     {
-                                        <div class="text-center py-3 text-muted">
+                                        <div id="no-outputs-msg-@item.Code" class="text-center py-3 text-muted">
                                             <i class="fas fa-info-circle me-2"></i>
                                             @Localizer["No outputs found for this outcome"]
                                         </div>
+                                        <table class="table table-sm outputs-table mb-0 d-none" id="outputs-table-@item.Code">
+                                            <thead>
+                                                <tr>
+                                                    <th>@Localizer["Output Name"]</th>
+                                                    <th class="text-center">@Localizer["Weight"]</th>
+                                                    <th class="text-center">@Localizer["Indicators Performance"]</th>
+                                                    <th class="text-center">@Localizer["Disbursement Performance"]</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody id="outputs-tbody-@item.Code">
+                                            </tbody>
+                                        </table>
                                     }
                                 </div>
                             </td>
@@ -476,6 +523,131 @@
                 chevron.classList.remove('fa-chevron-up');
                 chevron.classList.add('fa-chevron-down');
             }
+        }
+
+        function toggleInlineOutputForm(outcomeCode) {
+            const form = document.getElementById(`inline-output-form-${outcomeCode}`);
+            const input = document.getElementById(`new-output-name-${outcomeCode}`);
+
+            if (form.style.display === 'none') {
+                form.style.display = 'block';
+                form.style.opacity = '0';
+                form.style.transform = 'translateY(-10px)';
+                setTimeout(() => {
+                    form.style.transition = 'all 0.3s ease';
+                    form.style.opacity = '1';
+                    form.style.transform = 'translateY(0)';
+                    input.focus();
+                }, 10);
+            } else {
+                form.style.display = 'none';
+                input.value = '';
+            }
+        }
+
+        function createInlineOutput(outcomeCode) {
+            const input = document.getElementById(`new-output-name-${outcomeCode}`);
+            const name = input.value.trim();
+            const token = $('input[name="__RequestVerificationToken"]').val();
+
+            if (!name) {
+                Swal.fire({
+                    icon: 'warning',
+                    title: '@Localizer["Warning"]',
+                    text: '@Localizer["Please enter an output name"]'
+                });
+                return;
+            }
+
+            $.ajax({
+                url: '/Outputs/CreateInline',
+                type: 'POST',
+                data: {
+                    name: name,
+                    outcomeCode: outcomeCode,
+                    __RequestVerificationToken: token
+                },
+                success: function (response) {
+                    if (response.success) {
+                        // Hide the "no outputs" message if it exists
+                        const noOutputsMsg = document.getElementById(`no-outputs-msg-${outcomeCode}`);
+                        if (noOutputsMsg) {
+                            noOutputsMsg.style.display = 'none';
+                        }
+
+                        // Show the table if it was hidden
+                        const table = document.getElementById(`outputs-table-${outcomeCode}`);
+                        table.classList.remove('d-none');
+
+                        // Add new row to the table
+                        const tbody = document.getElementById(`outputs-tbody-${outcomeCode}`);
+                        const newRow = `
+                            <tr style="background-color: rgba(40, 167, 69, 0.1);">
+                                <td>
+                                    <a href="/SubOutputs?outputCode=${response.output.code}" class="output-name-link">
+                                        ${response.output.name}
+                                    </a>
+                                </td>
+                                <td class="text-center">
+                                    <span class="badge bg-info">${response.output.weight}%</span>
+                                </td>
+                                <td class="text-center">
+                                    <div class="progress-container">
+                                        <div class="progress modern-progress-bar">
+                                            <div class="progress-bar bg-secondary" role="progressbar" style="width: 0%">
+                                            </div>
+                                        </div>
+                                        <div class="progress-value-display">
+                                            <span class="progress-percentage">0%</span>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td class="text-center">
+                                    <div class="progress-container">
+                                        <div class="progress modern-progress-bar">
+                                            <div class="progress-bar bg-secondary" role="progressbar" style="width: 0%">
+                                            </div>
+                                        </div>
+                                        <div class="progress-value-display">
+                                            <span class="progress-percentage">0%</span>
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>
+                        `;
+                        tbody.insertAdjacentHTML('beforeend', newRow);
+
+                        // Update count
+                        const countSpan = document.getElementById(`outputs-count-${outcomeCode}`);
+                        countSpan.textContent = parseInt(countSpan.textContent) + 1;
+
+                        // Clear and hide the form
+                        input.value = '';
+                        toggleInlineOutputForm(outcomeCode);
+
+                        Swal.fire({
+                            icon: 'success',
+                            title: '@Localizer["Success"]',
+                            text: '@Localizer["Output created successfully!"]',
+                            timer: 2000,
+                            showConfirmButton: false
+                        });
+                    } else {
+                        Swal.fire({
+                            icon: 'error',
+                            title: '@Localizer["Error"]',
+                            text: response.message
+                        });
+                    }
+                },
+                error: function () {
+                    Swal.fire({
+                        icon: 'error',
+                        title: '@Localizer["Error"]',
+                        text: '@Localizer["Could not create output. Please try again."]'
+                    });
+                }
+            });
         }
 
         function confirmOutcomeDelete(code) {
@@ -799,7 +971,33 @@
             background-color: #17a2b8;
             color: white;
         }
-        
+
+        /* Inline Create Output Form Styles */
+        .inline-create-output-form {
+            background: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%);
+            border-radius: 10px;
+            padding: 15px;
+            margin: 15px 0;
+            border: 1px solid rgba(40, 167, 69, 0.3);
+        }
+
+        .inline-create-output-form .form-control {
+            border: 2px solid rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+            padding: 10px 15px;
+            transition: all 0.3s ease;
+        }
+
+        .inline-create-output-form .form-control:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 0.2rem rgba(var(--primary-color-rgb), 0.15);
+        }
+
+        .inline-create-output-form .btn {
+            border-radius: 8px;
+            padding: 10px 20px;
+        }
+
         /* Badge styling */
         .badge.bg-primary {
             background: linear-gradient(135deg, var(--primary-color), var(--primary-dark)) !important;
