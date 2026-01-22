@@ -237,7 +237,7 @@
                                         <i class="fas fa-list-ul"></i>
                                     </div>
                                     <div>
-                                        <span id="fw-name-@item.Code" class="fw-name-view">
+                                        <span id="suboutput-name-@item.Code" class="suboutput-name-view">
                                             <a asp-controller="Indicators" asp-action="Index"
                                                asp-route-frameworkCode="@item.Output.Outcome.FrameworkCode"
                                                asp-route-subOutputCode="@item.Code"
@@ -245,8 +245,18 @@
                                                 @item.Name
                                             </a>
                                         </span>
-                                        <input type="text" id="fw-name-input-@item.Code"
-                                               class="form-control fw-name-edit d-none" value="@item.Name" />
+                                        <div id="suboutput-name-edit-container-@item.Code" class="d-none" data-framework-code="@item.Output.Outcome.FrameworkCode">
+                                            <div class="d-flex align-items-center gap-2">
+                                                <input type="text" id="suboutput-name-input-@item.Code"
+                                                       class="form-control form-control-sm" value="@item.Name" />
+                                                <button type="button" class="btn btn-success btn-sm" onclick="saveSubOutputName(@item.Code, @item.Output.Outcome.FrameworkCode)" title="@Localizer["Save"]">
+                                                    <i class="fas fa-check"></i>
+                                                </button>
+                                                <button type="button" class="btn btn-outline-secondary btn-sm" onclick="cancelSubOutputEdit(@item.Code)" title="@Localizer["Cancel"]">
+                                                    <i class="fas fa-times"></i>
+                                                </button>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
                             </td>
@@ -475,45 +485,59 @@
         });
 
         function toggleSubOutputEdit(code, frameworkCode) {
-            const viewSpan = $(`#fw-name-${code}`);
-            const input = $(`#fw-name-input-${code}`);
-            
-            const isEditing = !input.hasClass('d-none');
+            const viewSpan = $(`#suboutput-name-${code}`);
+            const editContainer = $(`#suboutput-name-edit-container-${code}`);
+            const input = $(`#suboutput-name-input-${code}`);
 
-            if (isEditing) {
-                // Save via AJAX
-                const newName = input.val();
+            // Enter edit mode
+            editContainer.removeClass('d-none');
+            viewSpan.addClass('d-none');
+            input.focus().select();
+        }
 
-                $.ajax({
-                    url: `/SubOutputs/UpdateName`,
-                    type: 'POST',
-                    data: { id: code, name: newName },
-                    success: function () {
-                        viewSpan.html(`<a href="/Indicators?subOutputCode=${code}&frameworkCode=${frameworkCode}" class="suboutput-name-link">${newName}</a>`);
-                        input.addClass('d-none');
-                        viewSpan.removeClass('d-none');
-                        Swal.fire({
-                            icon: 'success',
-                            title: 'Saved!',
-                            text: 'SubOutput name updated successfully.',
-                            timer: 2000,
-                            showConfirmButton: false
-                        });
-                    },
-                    error: function () {
-                        Swal.fire({
-                            icon: 'error',
-                            title: 'Error',
-                            text: 'Could not update suboutput name.'
-                        });
-                    }
-                });
-            } else {
-                // Enter edit mode
-                input.removeClass('d-none');
-                viewSpan.addClass('d-none');
-                input.focus();
-            }
+        function saveSubOutputName(code, frameworkCode) {
+            const viewSpan = $(`#suboutput-name-${code}`);
+            const editContainer = $(`#suboutput-name-edit-container-${code}`);
+            const input = $(`#suboutput-name-input-${code}`);
+            const newName = input.val();
+
+            $.ajax({
+                url: `/SubOutputs/UpdateName`,
+                type: 'POST',
+                data: { id: code, name: newName },
+                success: function () {
+                    viewSpan.html(`<a href="/Indicators?subOutputCode=${code}&frameworkCode=${frameworkCode}" class="suboutput-name-link">${newName}</a>`);
+                    editContainer.addClass('d-none');
+                    viewSpan.removeClass('d-none');
+                    Swal.fire({
+                        icon: 'success',
+                        title: '@Localizer["Saved!"]',
+                        text: '@Localizer["SubOutput name updated successfully."]',
+                        timer: 2000,
+                        showConfirmButton: false
+                    });
+                },
+                error: function () {
+                    Swal.fire({
+                        icon: 'error',
+                        title: '@Localizer["Error"]',
+                        text: '@Localizer["Could not update suboutput name."]'
+                    });
+                }
+            });
+        }
+
+        function cancelSubOutputEdit(code) {
+            const viewSpan = $(`#suboutput-name-${code}`);
+            const editContainer = $(`#suboutput-name-edit-container-${code}`);
+            const input = $(`#suboutput-name-input-${code}`);
+
+            // Reset input to original value
+            const originalName = viewSpan.find('a').text();
+            input.val(originalName);
+
+            editContainer.addClass('d-none');
+            viewSpan.removeClass('d-none');
         }
 
         function toggleIndicators(code) {

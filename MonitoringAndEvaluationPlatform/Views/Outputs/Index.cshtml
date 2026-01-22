@@ -246,14 +246,24 @@
                                         <i class="fas fa-layer-group"></i>
                                     </div>
                                     <div>
-                                        <span id="fw-name-@item.Code" class="fw-name-view">
-                                            <a asp-action="Index" asp-controller="SubOutputs" asp-route-outputCode="@item.Code" 
+                                        <span id="output-name-@item.Code" class="output-name-view">
+                                            <a asp-action="Index" asp-controller="SubOutputs" asp-route-outputCode="@item.Code"
                                                class="output-name-link">
                                                 @item.Name
                                             </a>
                                         </span>
-                                        <input type="text" id="fw-name-input-@item.Code" 
-                                               class="form-control fw-name-edit d-none" value="@item.Name" />
+                                        <div id="output-name-edit-container-@item.Code" class="d-none">
+                                            <div class="d-flex align-items-center gap-2">
+                                                <input type="text" id="output-name-input-@item.Code"
+                                                       class="form-control form-control-sm" value="@item.Name" />
+                                                <button type="button" class="btn btn-success btn-sm" onclick="saveOutputName(@item.Code)" title="@Localizer["Save"]">
+                                                    <i class="fas fa-check"></i>
+                                                </button>
+                                                <button type="button" class="btn btn-outline-secondary btn-sm" onclick="cancelOutputEdit(@item.Code)" title="@Localizer["Cancel"]">
+                                                    <i class="fas fa-times"></i>
+                                                </button>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
                             </td>
@@ -480,45 +490,59 @@
         });
 
         function toggleOutputEdit(code) {
-            const viewSpan = $(`#fw-name-${code}`);
-            const input = $(`#fw-name-input-${code}`);
-            
-            const isEditing = !input.hasClass('d-none');
+            const viewSpan = $(`#output-name-${code}`);
+            const editContainer = $(`#output-name-edit-container-${code}`);
+            const input = $(`#output-name-input-${code}`);
 
-            if (isEditing) {
-                // Save via AJAX
-                const newName = input.val();
+            // Enter edit mode
+            editContainer.removeClass('d-none');
+            viewSpan.addClass('d-none');
+            input.focus().select();
+        }
 
-                $.ajax({
-                    url: `/Outputs/UpdateName`,
-                    type: 'POST',
-                    data: { id: code, name: newName },
-                    success: function () {
-                        viewSpan.html(`<a href="/SubOutputs?outputCode=${code}" class="output-name-link">${newName}</a>`);
-                        input.addClass('d-none');
-                        viewSpan.removeClass('d-none');
-                        Swal.fire({
-                            icon: 'success',
-                            title: 'Saved!',
-                            text: 'Output name updated successfully.',
-                            timer: 2000,
-                            showConfirmButton: false
-                        });
-                    },
-                    error: function () {
-                        Swal.fire({
-                            icon: 'error',
-                            title: 'Error',
-                            text: 'Could not update output name.'
-                        });
-                    }
-                });
-            } else {
-                // Enter edit mode
-                input.removeClass('d-none');
-                viewSpan.addClass('d-none');
-                input.focus();
-            }
+        function saveOutputName(code) {
+            const viewSpan = $(`#output-name-${code}`);
+            const editContainer = $(`#output-name-edit-container-${code}`);
+            const input = $(`#output-name-input-${code}`);
+            const newName = input.val();
+
+            $.ajax({
+                url: `/Outputs/UpdateName`,
+                type: 'POST',
+                data: { id: code, name: newName },
+                success: function () {
+                    viewSpan.html(`<a href="/SubOutputs?outputCode=${code}" class="output-name-link">${newName}</a>`);
+                    editContainer.addClass('d-none');
+                    viewSpan.removeClass('d-none');
+                    Swal.fire({
+                        icon: 'success',
+                        title: '@Localizer["Saved!"]',
+                        text: '@Localizer["Output name updated successfully."]',
+                        timer: 2000,
+                        showConfirmButton: false
+                    });
+                },
+                error: function () {
+                    Swal.fire({
+                        icon: 'error',
+                        title: '@Localizer["Error"]',
+                        text: '@Localizer["Could not update output name."]'
+                    });
+                }
+            });
+        }
+
+        function cancelOutputEdit(code) {
+            const viewSpan = $(`#output-name-${code}`);
+            const editContainer = $(`#output-name-edit-container-${code}`);
+            const input = $(`#output-name-input-${code}`);
+
+            // Reset input to original value
+            const originalName = viewSpan.find('a').text();
+            input.val(originalName);
+
+            editContainer.addClass('d-none');
+            viewSpan.removeClass('d-none');
         }
 
         function toggleSubOutputs(code) {
