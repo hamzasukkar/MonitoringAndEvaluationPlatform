@@ -61,6 +61,11 @@ namespace MonitoringAndEvaluationPlatform.Controllers
 
             IQueryable<Framework> frameworksQuery = _context.Frameworks
                 .Include(f => f.Outcomes)
+                    .ThenInclude(o => o.Outputs)
+                        .ThenInclude(op => op.SubOutputs)
+                            .ThenInclude(so => so.Indicators)
+                                .ThenInclude(i => i.ProjectIndicators)
+                                    .ThenInclude(pi => pi.Project)
                 .AsQueryable();
 
             if (!string.IsNullOrEmpty(searchString))
