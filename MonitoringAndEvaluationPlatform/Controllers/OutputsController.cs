@@ -36,7 +36,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
 
         // GET: Outputs
         [Permission(Permissions.ReadOutputs)]
-        public async Task<IActionResult> Index(int? frameworkCode, int? outcomeCode, string sortOrder)
+        public async Task<IActionResult> Index(int? frameworkCode, int? outcomeCode, string sortOrder, string searchString)
         {
             ViewBag.NameSortParm = sortOrder == "name" ? "name_desc" : "name";
             ViewBag.WeightSortParm = sortOrder == "weight" ? "weight_desc" : "weight";
@@ -44,11 +44,16 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             ViewBag.DisbursementSortParm = sortOrder == "disbursement" ? "disbursement_desc" : "disbursement";
             ViewBag.OutcomeSortParm = sortOrder == "outcome" ? "outcome_desc" : "outcome";
             ViewBag.CurrentSort = sortOrder;
+            ViewBag.CurrentFilter = searchString;
 
             // Start with base query including all related entities
             var query = _context.Outputs
                 .Include(o => o.Outcome)
+                    .ThenInclude(oc => oc.Framework)
                 .Include(o => o.SubOutputs)
+                    .ThenInclude(so => so.Indicators)
+                        .ThenInclude(i => i.ProjectIndicators)
+                            .ThenInclude(pi => pi.Project)
                 .AsQueryable();
 
             // Apply framework filter if frameworkCode is provided
@@ -63,6 +68,17 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             {
                 query = query.Where(o => o.OutcomeCode == outcomeCode.Value);
                 ViewBag.SelectedOutcomeCode = outcomeCode.Value;
+            }
+
+            // Apply hierarchical search
+            if (!string.IsNullOrEmpty(searchString))
+            {
+                query = query.Where(o =>
+                    EF.Functions.Like(o.Name, $"%{searchString}%") ||
+                    o.SubOutputs.Any(so => EF.Functions.Like(so.Name, $"%{searchString}%")) ||
+                    o.SubOutputs.Any(so => so.Indicators.Any(i => EF.Functions.Like(i.Name, $"%{searchString}%"))) ||
+                    o.SubOutputs.Any(so => so.Indicators.Any(i => i.ProjectIndicators.Any(pi => EF.Functions.Like(pi.Project.ProjectName, $"%{searchString}%"))))
+                );
             }
 
             // Apply sorting
@@ -92,6 +108,17 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             if (outcomeCode.HasValue && outputs.Any())
             {
                 ViewBag.OutcomeName = outputs.First().Outcome?.Name;
+            }
+
+            // Build search results if searching
+            if (!string.IsNullOrEmpty(searchString))
+            {
+                ViewBag.HasSearchResults = true;
+                ViewBag.SearchResults = BuildSearchResults(outputs, searchString);
+            }
+            else
+            {
+                ViewBag.HasSearchResults = false;
             }
 
             return View(outputs);
@@ -417,6 +444,105 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 >= 50 => Colors.Orange.Darken2,
                 _ => Colors.Red.Darken2
             };
+        }
+
+        private List<FrameworkSearchResultViewModel> BuildSearchResults(List<Output> outputs, string searchString)
+        {
+            var results = new List<FrameworkSearchResultViewModel>();
+            var searchTerm = searchString.ToLower();
+
+            foreach (var output in outputs)
+            {
+                var outputResult = new FrameworkSearchResultViewModel
+                {
+                    Framework = null, // Not used for outputs
+                    Matches = new List<SearchMatch>()
+                };
+
+                // Check output name
+                if (output.Name.ToLower().Contains(searchTerm))
+                {
+                    outputResult.Matches.Add(new SearchMatch
+                    {
+                        Type = "Output",
+                        Name = output.Name,
+                        NavigationUrl = Url.Action("Index", "SubOutputs", new { frameworkCode = output.Outcome?.FrameworkCode, outputCode = output.Code }),
+                        Icon = "fas fa-cube",
+                        ParentPath = $"{output.Outcome?.Framework?.Name} > {output.Outcome?.Name}",
+                        Code = output.Code
+                    });
+                }
+
+                // Check sub-outputs
+                foreach (var subOutput in output.SubOutputs ?? Enumerable.Empty<SubOutput>())
+                {
+                    if (subOutput.Name.ToLower().Contains(searchTerm))
+                    {
+                        outputResult.Matches.Add(new SearchMatch
+                        {
+                            Type = "SubOutput",
+                            Name = subOutput.Name,
+                            NavigationUrl = Url.Action("Index", "Indicators", new { frameworkCode = output.Outcome?.FrameworkCode, subOutputCode = subOutput.Code }),
+                            Icon = "fas fa-cubes",
+                            ParentPath = $"{output.Outcome?.Framework?.Name} > {output.Outcome?.Name} > {output.Name}",
+                            Code = subOutput.Code
+                        });
+                    }
+
+                    // Check indicators
+                    foreach (var indicator in subOutput.Indicators ?? Enumerable.Empty<Indicator>())
+                    {
+                        if (indicator.Name.ToLower().Contains(searchTerm))
+                        {
+                            outputResult.Matches.Add(new SearchMatch
+                            {
+                                Type = "Indicator",
+                                Name = indicator.Name,
+                                NavigationUrl = Url.Action("Index", "Measures", new { frameworkCode = output.Outcome?.FrameworkCode, indicatorCode = indicator.IndicatorCode }),
+                                Icon = "fas fa-chart-line",
+                                ParentPath = $"{output.Outcome?.Framework?.Name} > {output.Outcome?.Name} > {output.Name} > {subOutput.Name}",
+                                Code = indicator.IndicatorCode
+                            });
+                        }
+
+                        // Check projects
+                        foreach (var projectIndicator in indicator.ProjectIndicators ?? Enumerable.Empty<ProjectIndicator>())
+                        {
+                            if (projectIndicator.Project?.ProjectName != null &&
+                                projectIndicator.Project.ProjectName.ToLower().Contains(searchTerm))
+                            {
+                                outputResult.Matches.Add(new SearchMatch
+                                {
+                                    Type = "Project",
+                                    Name = projectIndicator.Project.ProjectName,
+                                    NavigationUrl = Url.Action("Details", "Projects", new { id = projectIndicator.ProjectId }),
+                                    Icon = "fas fa-project-diagram",
+                                    ParentPath = $"{output.Outcome?.Framework?.Name} > {output.Outcome?.Name} > {output.Name} > {subOutput.Name} > {indicator.Name}",
+                                    Code = projectIndicator.ProjectId,
+                                    Metadata = new Dictionary<string, object>
+                                    {
+                                        { "IndicatorName", indicator.Name }
+                                    }
+                                });
+                            }
+                        }
+                    }
+                }
+
+                // Only add to results if there are matches
+                if (outputResult.Matches.Any())
+                {
+                    // Use output as the grouping key
+                    outputResult.Framework = new Framework
+                    {
+                        Code = output.Code,
+                        Name = output.Name
+                    };
+                    results.Add(outputResult);
+                }
+            }
+
+            return results;
         }
     }
 }

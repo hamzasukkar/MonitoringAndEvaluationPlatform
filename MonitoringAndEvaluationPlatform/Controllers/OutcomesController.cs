@@ -36,7 +36,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
 
         // GET: Outcomes
         [Permission(Permissions.ReadOutcomes)]
-        public async Task<IActionResult> Index(int? frameworkCode, string sortOrder)
+        public async Task<IActionResult> Index(int? frameworkCode, string sortOrder, string searchString)
         {
             ViewBag.NameSortParm = sortOrder == "name" ? "name_desc" : "name";
             ViewBag.WeightSortParm = sortOrder == "weight" ? "weight_desc" : "weight";
@@ -44,6 +44,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             ViewBag.DisbursementSortParm = sortOrder == "disbursement" ? "disbursement_desc" : "disbursement";
             ViewBag.FrameworkSortParm = sortOrder == "framework" ? "framework_desc" : "framework";
             ViewBag.CurrentSort = sortOrder;
+            ViewBag.CurrentFilter = searchString;
 
             IQueryable<Outcome> outcomesQuery;
 
@@ -68,6 +69,18 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                                 .ThenInclude(i => i.ProjectIndicators)
                                     .ThenInclude(pi => pi.Project)
                     .Where(m => m.FrameworkCode == frameworkCode);
+            }
+
+            // Apply hierarchical search
+            if (!string.IsNullOrEmpty(searchString))
+            {
+                outcomesQuery = outcomesQuery.Where(o =>
+                    EF.Functions.Like(o.Name, $"%{searchString}%") ||
+                    o.Outputs.Any(op => EF.Functions.Like(op.Name, $"%{searchString}%")) ||
+                    o.Outputs.Any(op => op.SubOutputs.Any(so => EF.Functions.Like(so.Name, $"%{searchString}%"))) ||
+                    o.Outputs.Any(op => op.SubOutputs.Any(so => so.Indicators.Any(i => EF.Functions.Like(i.Name, $"%{searchString}%")))) ||
+                    o.Outputs.Any(op => op.SubOutputs.Any(so => so.Indicators.Any(i => i.ProjectIndicators.Any(pi => EF.Functions.Like(pi.Project.ProjectName, $"%{searchString}%")))))
+                );
             }
 
             // Apply sorting
@@ -97,6 +110,17 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             if (frameworkCode.HasValue && outcomes.Any())
             {
                 ViewBag.FrameworkName = outcomes.First().Framework?.Name;
+            }
+
+            // Build search results if searching
+            if (!string.IsNullOrEmpty(searchString))
+            {
+                ViewBag.HasSearchResults = true;
+                ViewBag.SearchResults = BuildSearchResults(outcomes, searchString);
+            }
+            else
+            {
+                ViewBag.HasSearchResults = false;
             }
 
             return View(outcomes);
@@ -469,6 +493,122 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 >= 50 => Colors.Orange.Darken2,
                 _ => Colors.Red.Darken2
             };
+        }
+
+        private List<FrameworkSearchResultViewModel> BuildSearchResults(List<Outcome> outcomes, string searchString)
+        {
+            var results = new List<FrameworkSearchResultViewModel>();
+            var searchTerm = searchString.ToLower();
+
+            foreach (var outcome in outcomes)
+            {
+                var outcomeResult = new FrameworkSearchResultViewModel
+                {
+                    Framework = null, // Not used for outcomes
+                    Matches = new List<SearchMatch>()
+                };
+
+                // Check outcome name
+                if (outcome.Name.ToLower().Contains(searchTerm))
+                {
+                    outcomeResult.Matches.Add(new SearchMatch
+                    {
+                        Type = "Outcome",
+                        Name = outcome.Name,
+                        NavigationUrl = Url.Action("Index", "Outputs", new { frameworkCode = outcome.FrameworkCode, outcomeCode = outcome.Code }),
+                        Icon = "fas fa-bullseye",
+                        ParentPath = outcome.Framework?.Name ?? "",
+                        Code = outcome.Code
+                    });
+                }
+
+                // Check outputs
+                foreach (var output in outcome.Outputs ?? Enumerable.Empty<Output>())
+                {
+                    if (output.Name.ToLower().Contains(searchTerm))
+                    {
+                        outcomeResult.Matches.Add(new SearchMatch
+                        {
+                            Type = "Output",
+                            Name = output.Name,
+                            NavigationUrl = Url.Action("Index", "SubOutputs", new { frameworkCode = outcome.FrameworkCode, outputCode = output.Code }),
+                            Icon = "fas fa-cube",
+                            ParentPath = $"{outcome.Framework?.Name} > {outcome.Name}",
+                            Code = output.Code
+                        });
+                    }
+
+                    // Check sub-outputs
+                    foreach (var subOutput in output.SubOutputs ?? Enumerable.Empty<SubOutput>())
+                    {
+                        if (subOutput.Name.ToLower().Contains(searchTerm))
+                        {
+                            outcomeResult.Matches.Add(new SearchMatch
+                            {
+                                Type = "SubOutput",
+                                Name = subOutput.Name,
+                                NavigationUrl = Url.Action("Index", "Indicators", new { frameworkCode = outcome.FrameworkCode, subOutputCode = subOutput.Code }),
+                                Icon = "fas fa-cubes",
+                                ParentPath = $"{outcome.Framework?.Name} > {outcome.Name} > {output.Name}",
+                                Code = subOutput.Code
+                            });
+                        }
+
+                        // Check indicators
+                        foreach (var indicator in subOutput.Indicators ?? Enumerable.Empty<Indicator>())
+                        {
+                            if (indicator.Name.ToLower().Contains(searchTerm))
+                            {
+                                outcomeResult.Matches.Add(new SearchMatch
+                                {
+                                    Type = "Indicator",
+                                    Name = indicator.Name,
+                                    NavigationUrl = Url.Action("Index", "Measures", new { frameworkCode = outcome.FrameworkCode, indicatorCode = indicator.IndicatorCode }),
+                                    Icon = "fas fa-chart-line",
+                                    ParentPath = $"{outcome.Framework?.Name} > {outcome.Name} > {output.Name} > {subOutput.Name}",
+                                    Code = indicator.IndicatorCode
+                                });
+                            }
+
+                            // Check projects
+                            foreach (var projectIndicator in indicator.ProjectIndicators ?? Enumerable.Empty<ProjectIndicator>())
+                            {
+                                if (projectIndicator.Project?.ProjectName != null &&
+                                    projectIndicator.Project.ProjectName.ToLower().Contains(searchTerm))
+                                {
+                                    outcomeResult.Matches.Add(new SearchMatch
+                                    {
+                                        Type = "Project",
+                                        Name = projectIndicator.Project.ProjectName,
+                                        NavigationUrl = Url.Action("Details", "Projects", new { id = projectIndicator.ProjectId }),
+                                        Icon = "fas fa-project-diagram",
+                                        ParentPath = $"{outcome.Framework?.Name} > {outcome.Name} > {output.Name} > {subOutput.Name} > {indicator.Name}",
+                                        Code = projectIndicator.ProjectId,
+                                        Metadata = new Dictionary<string, object>
+                                        {
+                                            { "IndicatorName", indicator.Name }
+                                        }
+                                    });
+                                }
+                            }
+                        }
+                    }
+                }
+
+                // Only add to results if there are matches
+                if (outcomeResult.Matches.Any())
+                {
+                    // Use outcome as the grouping key
+                    outcomeResult.Framework = new Framework
+                    {
+                        Code = outcome.Code,
+                        Name = outcome.Name
+                    };
+                    results.Add(outcomeResult);
+                }
+            }
+
+            return results;
         }
     }
 }
