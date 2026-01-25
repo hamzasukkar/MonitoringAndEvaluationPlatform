@@ -71,8 +71,8 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 // Filter results if searchString is provided
                 if (!string.IsNullOrEmpty(searchString))
                 {
-                    indicators = indicators.Where(i => i.Name.Contains(searchString) ||
-                                                     (i.SubOutput != null && i.SubOutput.Name.Contains(searchString)));
+                    indicators = indicators.Where(i => EF.Functions.Like(i.Name, $"%{searchString}%") ||
+                                                     (i.SubOutput != null && EF.Functions.Like(i.SubOutput.Name, $"%{searchString}%")));
                 }
 
                 return View(await indicators.ToListAsync());
@@ -101,8 +101,8 @@ namespace MonitoringAndEvaluationPlatform.Controllers
 
             if (!string.IsNullOrEmpty(searchString))
             {
-                frameworkIndicators = frameworkIndicators.Where(i => i.Name.Contains(searchString) ||
-                                                   (i.SubOutput != null && i.SubOutput.Name.Contains(searchString)));
+                frameworkIndicators = frameworkIndicators.Where(i => EF.Functions.Like(i.Name, $"%{searchString}%") ||
+                                                   (i.SubOutput != null && EF.Functions.Like(i.SubOutput.Name, $"%{searchString}%")));
             }
 
             var resultIndicators = await frameworkIndicators.ToListAsync();
@@ -765,10 +765,10 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             // Apply search filter if provided
             if (!string.IsNullOrEmpty(searchString))
             {
-                indicatorsQuery = indicatorsQuery.Where(i => 
-                    i.Name.Contains(searchString) ||
-                    (i.SubOutput != null && i.SubOutput.Name.Contains(searchString)) ||
-                    i.ProjectIndicators.Any(pi => pi.Project.ProjectName.Contains(searchString)));
+                indicatorsQuery = indicatorsQuery.Where(i =>
+                    EF.Functions.Like(i.Name, $"%{searchString}%") ||
+                    (i.SubOutput != null && EF.Functions.Like(i.SubOutput.Name, $"%{searchString}%")) ||
+                    i.ProjectIndicators.Any(pi => EF.Functions.Like(pi.Project.ProjectName, $"%{searchString}%")));
             }
 
             var indicators = await indicatorsQuery.ToListAsync();
@@ -841,10 +841,10 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             // Apply search filter if provided
             if (!string.IsNullOrEmpty(searchString))
             {
-                indicatorsQuery = indicatorsQuery.Where(i => 
-                    i.Name.Contains(searchString) ||
-                    (i.SubOutput != null && i.SubOutput.Name.Contains(searchString)) ||
-                    i.ProjectIndicators.Any(pi => pi.Project.ProjectName.Contains(searchString)));
+                indicatorsQuery = indicatorsQuery.Where(i =>
+                    EF.Functions.Like(i.Name, $"%{searchString}%") ||
+                    (i.SubOutput != null && EF.Functions.Like(i.SubOutput.Name, $"%{searchString}%")) ||
+                    i.ProjectIndicators.Any(pi => EF.Functions.Like(pi.Project.ProjectName, $"%{searchString}%")));
             }
 
             var indicators = await indicatorsQuery.ToListAsync();

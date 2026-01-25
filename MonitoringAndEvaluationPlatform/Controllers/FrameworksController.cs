@@ -70,7 +70,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
 
             if (!string.IsNullOrEmpty(searchString))
             {
-                frameworksQuery = frameworksQuery.Where(f => f.Name.Contains(searchString));
+                frameworksQuery = frameworksQuery.Where(f => EF.Functions.Like(f.Name, $"%{searchString}%"));
             }
 
             if (filter.SelectedMinistries != null && filter.SelectedMinistries.Any())
@@ -569,7 +569,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
 
             if (!string.IsNullOrEmpty(searchString))
             {
-                query = query.Where(f => f.Name.Contains(searchString));
+                query = query.Where(f => EF.Functions.Like(f.Name, $"%{searchString}%"));
             }
 
             return await query.OrderByDescending(f => f.IndicatorsPerformance).ToListAsync();

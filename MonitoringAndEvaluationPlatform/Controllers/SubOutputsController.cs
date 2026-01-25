@@ -304,7 +304,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             // Apply search filter
             if (!string.IsNullOrEmpty(searchString))
             {
-                query = query.Where(s => s.Name.Contains(searchString) || s.Output.Name.Contains(searchString));
+                query = query.Where(s => EF.Functions.Like(s.Name, $"%{searchString}%") || EF.Functions.Like(s.Output.Name, $"%{searchString}%"));
                 ViewBag.SearchString = searchString;
             }
 

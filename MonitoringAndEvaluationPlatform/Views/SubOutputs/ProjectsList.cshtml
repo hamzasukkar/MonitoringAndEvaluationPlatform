@@ -41,7 +41,7 @@
 <!-- Filter Section -->
 <div class="card shadow-sm mb-4">
     <div class="card-body">
-        <form method="get" asp-action="ProjectsList">
+        <form method="get" asp-action="ProjectsList" id="subOutputSearchForm">
             <div class="row align-items-end">
                 <div class="col-md-4">
                     <label class="form-label">@Localizer["Filter by Framework"]</label>
@@ -58,7 +58,7 @@
                 <div class="col-md-4">
                     <label class="form-label">@Localizer["Search"]</label>
                     <div class="input-group">
-                        <input type="text" name="searchString" class="form-control"
+                        <input type="text" name="searchString" id="subOutputSearchInput" class="form-control"
                                placeholder="@Localizer["Search by name..."]"
                                value="@ViewBag.SearchString" />
                         <button type="submit" class="btn btn-primary">
@@ -276,6 +276,20 @@
 
 @section Scripts {
     <script>
+        // Real-time search functionality
+        const subOutputSearchInput = document.getElementById('subOutputSearchInput');
+        const subOutputSearchForm = document.getElementById('subOutputSearchForm');
+        let subOutputSearchTimeout;
+
+        if (subOutputSearchInput && subOutputSearchForm) {
+            subOutputSearchInput.addEventListener('input', function() {
+                clearTimeout(subOutputSearchTimeout);
+                subOutputSearchTimeout = setTimeout(function() {
+                    subOutputSearchForm.submit();
+                }, 500); // Wait 500ms after user stops typing
+            });
+        }
+
         // Initialize page animations
         document.addEventListener('DOMContentLoaded', function() {
             // Animate table rows on load
