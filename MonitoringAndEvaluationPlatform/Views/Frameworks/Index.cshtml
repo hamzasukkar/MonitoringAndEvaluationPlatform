@@ -13,6 +13,34 @@
     Layout = "~/Views/Shared/_DashboardHomeLayout.cshtml";
     ViewData["HelpFeature"] = "FRAMEWORKS";
     var culture = Context.Features.Get<IRequestCultureFeature>().RequestCulture.Culture.Name;
+
+    string GetMatchColorClass(string type)
+    {
+        return type.ToLower() switch
+        {
+            "framework" => "framework",
+            "outcome" => "outcome",
+            "output" => "output",
+            "suboutput" => "suboutput",
+            "indicator" => "indicator",
+            "project" => "project",
+            _ => "framework"
+        };
+    }
+
+    string GetMatchBadgeClass(string type)
+    {
+        return type.ToLower() switch
+        {
+            "framework" => "match-framework",
+            "outcome" => "match-outcome",
+            "output" => "match-output",
+            "suboutput" => "match-suboutput",
+            "indicator" => "match-indicator",
+            "project" => "match-project",
+            _ => "match-framework"
+        };
+    }
 }
 
 <!-- Dashboard Header -->
@@ -107,7 +135,7 @@
         <div class="col-md-6">
             <div class="input-group">
                 <input type="text" name="searchString" id="frameworkSearchInput" class="form-control form-control-lg"
-                       placeholder="@Localizer["Search by framework name"]"
+                       placeholder="@Localizer["Search frameworks, outcomes, outputs, suboutputs, indicators, and projects"]"
                        value="@ViewData["CurrentFilter"]" />
                 <button type="submit" class="btn btn-primary btn-lg">
                     <i class="fas fa-search me-2"></i>@Localizer["Search"]
@@ -123,6 +151,67 @@
         </div>
     </form>
 </div>
+
+<!-- Search Results Section -->
+@if (ViewBag.HasSearchResults == true && ViewBag.SearchResults != null)
+{
+    var searchResults = (List<MonitoringAndEvaluationPlatform.ViewModel.FrameworkSearchResultViewModel>)ViewBag.SearchResults;
+    var totalMatches = searchResults.Sum(r => r.TotalMatches);
+
+    <div class="chart-card mb-4">
+        <div class="chart-title">
+            <i class="fas fa-search me-2"></i>
+            @Localizer["Search Results"] - <span class="badge bg-primary">@totalMatches @Localizer["matches found"]</span>
+        </div>
+        <div class="search-results-container">
+            @foreach (var result in searchResults)
+            {
+                <div class="framework-search-result mb-3">
+                    <div class="result-header" data-bs-toggle="collapse" data-bs-target="#matches-@result.Framework.Code">
+                        <div class="d-flex align-items-center justify-content-between">
+                            <div class="d-flex align-items-center">
+                                <i class="fas fa-sitemap text-primary me-2"></i>
+                                <strong>@result.Framework.Name</strong>
+                                <span class="badge bg-success ms-2">@result.TotalMatches @Localizer["matches"]</span>
+                            </div>
+                            <i class="fas fa-chevron-down toggle-icon"></i>
+                        </div>
+                    </div>
+
+                    <div id="matches-@result.Framework.Code" class="collapse show">
+                        <div class="matches-list">
+                            @foreach (var match in result.Matches)
+                            {
+                                <div class="match-item">
+                                    <a href="@match.NavigationUrl" class="match-link">
+                                        <div class="match-icon @GetMatchColorClass(match.Type)">
+                                            <i class="@match.Icon"></i>
+                                        </div>
+                                        <div class="match-content">
+                                            <div class="match-type-badge">
+                                                <span class="badge @GetMatchBadgeClass(match.Type)">@Localizer[match.Type]</span>
+                                            </div>
+                                            <div class="match-name">@match.Name</div>
+                                            @if (!string.IsNullOrEmpty(match.ParentPath))
+                                            {
+                                                <div class="match-path">
+                                                    <i class="fas fa-sitemap me-1"></i>@match.ParentPath
+                                                </div>
+                                            }
+                                        </div>
+                                        <div class="match-action">
+                                            <i class="fas fa-arrow-right"></i>
+                                        </div>
+                                    </a>
+                                </div>
+                            }
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+}
 
 <!-- Frameworks Grid -->
 <div class="row">
@@ -1711,7 +1800,140 @@
             color: #28a745;
             background-color: rgba(40, 167, 69, 0.1);
         }
-        
+
+        /* Search Results Styling */
+        .search-results-container {
+            padding: 1rem;
+        }
+
+        .framework-search-result {
+            border: 1px solid #e0e0e0;
+            border-radius: 10px;
+            overflow: hidden;
+            background: white;
+        }
+
+        .result-header {
+            padding: 1rem 1.25rem;
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .result-header:hover {
+            background: linear-gradient(135deg, #e9ecef 0%, #dee2e6 100%);
+        }
+
+        .result-header .toggle-icon {
+            transition: transform 0.3s ease;
+            color: var(--primary-color);
+        }
+
+        .result-header[aria-expanded="false"] .toggle-icon {
+            transform: rotate(-90deg);
+        }
+
+        .matches-list {
+            padding: 0.5rem;
+        }
+
+        .match-item {
+            margin-bottom: 0.5rem;
+        }
+
+        .match-link {
+            display: flex;
+            align-items: center;
+            padding: 1rem;
+            border-radius: 8px;
+            background: white;
+            border: 1px solid #e0e0e0;
+            text-decoration: none;
+            color: inherit;
+            transition: all 0.3s ease;
+        }
+
+        .match-link:hover {
+            border-color: var(--primary-color);
+            box-shadow: 0 4px 12px rgba(33, 150, 243, 0.15);
+            transform: translateX(5px);
+        }
+
+        [dir="rtl"] .match-link:hover {
+            transform: translateX(-5px);
+        }
+
+        .match-icon {
+            width: 45px;
+            height: 45px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 10px;
+            font-size: 1.2rem;
+            margin-right: 1rem;
+            flex-shrink: 0;
+        }
+
+        [dir="rtl"] .match-icon {
+            margin-right: 0;
+            margin-left: 1rem;
+        }
+
+        .match-icon.framework { background: rgba(33, 150, 243, 0.1); color: #2196F3; }
+        .match-icon.outcome { background: rgba(76, 175, 80, 0.1); color: #4CAF50; }
+        .match-icon.output { background: rgba(255, 152, 0, 0.1); color: #FF9800; }
+        .match-icon.suboutput { background: rgba(156, 39, 176, 0.1); color: #9C27B0; }
+        .match-icon.indicator { background: rgba(233, 30, 99, 0.1); color: #E91E63; }
+        .match-icon.project { background: rgba(0, 188, 212, 0.1); color: #00BCD4; }
+
+        .match-content {
+            flex: 1;
+        }
+
+        .match-type-badge {
+            margin-bottom: 0.25rem;
+        }
+
+        .match-name {
+            font-weight: 600;
+            font-size: 1.05rem;
+            color: #333;
+            margin-bottom: 0.25rem;
+        }
+
+        .match-path {
+            font-size: 0.85rem;
+            color: #6c757d;
+        }
+
+        .match-action {
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--primary-color);
+            color: white;
+            border-radius: 50%;
+            font-size: 0.9rem;
+            margin-left: 1rem;
+            flex-shrink: 0;
+        }
+
+        [dir="rtl"] .match-action {
+            margin-left: 0;
+            margin-right: 1rem;
+            transform: rotate(180deg);
+        }
+
+        .badge.match-framework { background-color: #2196F3; }
+        .badge.match-outcome { background-color: #4CAF50; }
+        .badge.match-output { background-color: #FF9800; }
+        .badge.match-suboutput { background-color: #9C27B0; }
+        .badge.match-indicator { background-color: #E91E63; }
+        .badge.match-project { background-color: #00BCD4; }
+
         /* Responsive Design */
         @@media (max-width: 768px) {
             .col-lg-3 {

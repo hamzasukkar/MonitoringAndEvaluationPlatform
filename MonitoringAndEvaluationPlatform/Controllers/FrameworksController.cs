@@ -70,7 +70,14 @@ namespace MonitoringAndEvaluationPlatform.Controllers
 
             if (!string.IsNullOrEmpty(searchString))
             {
-                frameworksQuery = frameworksQuery.Where(f => EF.Functions.Like(f.Name, $"%{searchString}%"));
+                frameworksQuery = frameworksQuery.Where(f =>
+                    EF.Functions.Like(f.Name, $"%{searchString}%") ||
+                    f.Outcomes.Any(o => EF.Functions.Like(o.Name, $"%{searchString}%")) ||
+                    f.Outcomes.Any(o => o.Outputs.Any(op => EF.Functions.Like(op.Name, $"%{searchString}%"))) ||
+                    f.Outcomes.Any(o => o.Outputs.Any(op => op.SubOutputs.Any(so => EF.Functions.Like(so.Name, $"%{searchString}%")))) ||
+                    f.Outcomes.Any(o => o.Outputs.Any(op => op.SubOutputs.Any(so => so.Indicators.Any(i => EF.Functions.Like(i.Name, $"%{searchString}%"))))) ||
+                    f.Outcomes.Any(o => o.Outputs.Any(op => op.SubOutputs.Any(so => so.Indicators.Any(i => i.ProjectIndicators.Any(pi => EF.Functions.Like(pi.Project.ProjectName, $"%{searchString}%"))))))
+                );
             }
 
             if (filter.SelectedMinistries != null && filter.SelectedMinistries.Any())
@@ -131,6 +138,15 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             }
 
             filter.Frameworks = await frameworksQuery.ToListAsync();
+
+            // Build detailed search results if search string is provided
+            if (!string.IsNullOrEmpty(searchString))
+            {
+                var searchResults = BuildSearchResults(filter.Frameworks, searchString);
+                ViewBag.SearchResults = searchResults;
+                ViewBag.HasSearchResults = true;
+            }
+
             return View(filter);
         }
 
@@ -565,11 +581,24 @@ namespace MonitoringAndEvaluationPlatform.Controllers
 
         private async Task<List<Framework>> GetFilteredFrameworks(string? searchString)
         {
-            IQueryable<Framework> query = _context.Frameworks;
+            IQueryable<Framework> query = _context.Frameworks
+                .Include(f => f.Outcomes)
+                    .ThenInclude(o => o.Outputs)
+                        .ThenInclude(op => op.SubOutputs)
+                            .ThenInclude(so => so.Indicators)
+                                .ThenInclude(i => i.ProjectIndicators)
+                                    .ThenInclude(pi => pi.Project);
 
             if (!string.IsNullOrEmpty(searchString))
             {
-                query = query.Where(f => EF.Functions.Like(f.Name, $"%{searchString}%"));
+                query = query.Where(f =>
+                    EF.Functions.Like(f.Name, $"%{searchString}%") ||
+                    f.Outcomes.Any(o => EF.Functions.Like(o.Name, $"%{searchString}%")) ||
+                    f.Outcomes.Any(o => o.Outputs.Any(op => EF.Functions.Like(op.Name, $"%{searchString}%"))) ||
+                    f.Outcomes.Any(o => o.Outputs.Any(op => op.SubOutputs.Any(so => EF.Functions.Like(so.Name, $"%{searchString}%")))) ||
+                    f.Outcomes.Any(o => o.Outputs.Any(op => op.SubOutputs.Any(so => so.Indicators.Any(i => EF.Functions.Like(i.Name, $"%{searchString}%"))))) ||
+                    f.Outcomes.Any(o => o.Outputs.Any(op => op.SubOutputs.Any(so => so.Indicators.Any(i => i.ProjectIndicators.Any(pi => EF.Functions.Like(pi.Project.ProjectName, $"%{searchString}%"))))))
+                );
             }
 
             return await query.OrderByDescending(f => f.IndicatorsPerformance).ToListAsync();
@@ -583,6 +612,152 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 >= 50 => Colors.Orange.Darken2,
                 _ => Colors.Red.Darken2
             };
+        }
+
+        private List<FrameworkSearchResultViewModel> BuildSearchResults(List<Framework> frameworks, string searchString)
+        {
+            var results = new List<FrameworkSearchResultViewModel>();
+            var searchTerm = searchString.ToLower();
+
+            foreach (var framework in frameworks)
+            {
+                var frameworkResult = new FrameworkSearchResultViewModel
+                {
+                    Framework = framework,
+                    Matches = new List<SearchMatch>()
+                };
+
+                // Check framework name
+                if (framework.Name.ToLower().Contains(searchTerm))
+                {
+                    frameworkResult.Matches.Add(new SearchMatch
+                    {
+                        Type = "Framework",
+                        Name = framework.Name,
+                        NavigationUrl = Url.Action("Index", "Outcomes", new { frameworkCode = framework.Code }),
+                        Icon = "fas fa-sitemap",
+                        ParentPath = "",
+                        Code = framework.Code
+                    });
+                }
+
+                // Check outcomes
+                foreach (var outcome in framework.Outcomes ?? Enumerable.Empty<Outcome>())
+                {
+                    if (outcome.Name.ToLower().Contains(searchTerm))
+                    {
+                        frameworkResult.Matches.Add(new SearchMatch
+                        {
+                            Type = "Outcome",
+                            Name = outcome.Name,
+                            NavigationUrl = Url.Action("Index", "Outputs", new { frameworkCode = framework.Code, outcomeCode = outcome.Code }),
+                            Icon = "fas fa-bullseye",
+                            ParentPath = framework.Name,
+                            Code = outcome.Code,
+                            Metadata = new Dictionary<string, object>
+                            {
+                                { "FrameworkCode", framework.Code },
+                                { "FrameworkName", framework.Name }
+                            }
+                        });
+                    }
+
+                    // Check outputs
+                    foreach (var output in outcome.Outputs ?? Enumerable.Empty<Output>())
+                    {
+                        if (output.Name.ToLower().Contains(searchTerm))
+                        {
+                            frameworkResult.Matches.Add(new SearchMatch
+                            {
+                                Type = "Output",
+                                Name = output.Name,
+                                NavigationUrl = Url.Action("Index", "SubOutputs", new { frameworkCode = framework.Code, outputCode = output.Code }),
+                                Icon = "fas fa-th-large",
+                                ParentPath = $"{framework.Name} → {outcome.Name}",
+                                Code = output.Code,
+                                Metadata = new Dictionary<string, object>
+                                {
+                                    { "FrameworkCode", framework.Code },
+                                    { "OutcomeCode", outcome.Code }
+                                }
+                            });
+                        }
+
+                        // Check suboutputs
+                        foreach (var subOutput in output.SubOutputs ?? Enumerable.Empty<SubOutput>())
+                        {
+                            if (subOutput.Name.ToLower().Contains(searchTerm))
+                            {
+                                frameworkResult.Matches.Add(new SearchMatch
+                                {
+                                    Type = "SubOutput",
+                                    Name = subOutput.Name,
+                                    NavigationUrl = Url.Action("Index", "Indicators", new { frameworkCode = framework.Code, subOutputCode = subOutput.Code }),
+                                    Icon = "fas fa-layer-group",
+                                    ParentPath = $"{framework.Name} → {outcome.Name} → {output.Name}",
+                                    Code = subOutput.Code,
+                                    Metadata = new Dictionary<string, object>
+                                    {
+                                        { "FrameworkCode", framework.Code },
+                                        { "OutputCode", output.Code }
+                                    }
+                                });
+                            }
+
+                            // Check indicators
+                            foreach (var indicator in subOutput.Indicators ?? Enumerable.Empty<Indicator>())
+                            {
+                                if (indicator.Name.ToLower().Contains(searchTerm))
+                                {
+                                    frameworkResult.Matches.Add(new SearchMatch
+                                    {
+                                        Type = "Indicator",
+                                        Name = indicator.Name,
+                                        NavigationUrl = Url.Action("Details", "Indicators", new { id = indicator.IndicatorCode }),
+                                        Icon = "fas fa-chart-line",
+                                        ParentPath = $"{framework.Name} → {outcome.Name} → {output.Name} → {subOutput.Name}",
+                                        Code = indicator.IndicatorCode,
+                                        Metadata = new Dictionary<string, object>
+                                        {
+                                            { "FrameworkCode", framework.Code },
+                                            { "SubOutputCode", subOutput.Code }
+                                        }
+                                    });
+                                }
+
+                                // Check projects
+                                foreach (var projectIndicator in indicator.ProjectIndicators ?? Enumerable.Empty<ProjectIndicator>())
+                                {
+                                    if (projectIndicator.Project?.ProjectName.ToLower().Contains(searchTerm) == true)
+                                    {
+                                        frameworkResult.Matches.Add(new SearchMatch
+                                        {
+                                            Type = "Project",
+                                            Name = projectIndicator.Project.ProjectName,
+                                            NavigationUrl = Url.Action("Details", "Projects", new { id = projectIndicator.ProjectId }),
+                                            Icon = "fas fa-project-diagram",
+                                            ParentPath = $"{framework.Name} → {outcome.Name} → {output.Name} → {subOutput.Name} → {indicator.Name}",
+                                            Code = projectIndicator.ProjectId,
+                                            Metadata = new Dictionary<string, object>
+                                            {
+                                                { "IndicatorCode", indicator.IndicatorCode },
+                                                { "IndicatorName", indicator.Name }
+                                            }
+                                        });
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+
+                if (frameworkResult.Matches.Any())
+                {
+                    results.Add(frameworkResult);
+                }
+            }
+
+            return results;
         }
     }
 
