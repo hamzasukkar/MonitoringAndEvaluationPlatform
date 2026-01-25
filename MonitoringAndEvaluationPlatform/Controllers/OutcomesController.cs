@@ -51,14 +51,22 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             {
                 outcomesQuery = _context.Outcomes
                     .Include(o => o.Framework)
-                    .Include(o => o.Outputs);
+                    .Include(o => o.Outputs)
+                        .ThenInclude(op => op.SubOutputs)
+                            .ThenInclude(so => so.Indicators)
+                                .ThenInclude(i => i.ProjectIndicators)
+                                    .ThenInclude(pi => pi.Project);
             }
             else
             {
                 ViewBag.SelectedFrameworkCode = frameworkCode;
                 outcomesQuery = _context.Outcomes
                     .Include(o => o.Framework)
-                    .Include(x => x.Outputs)
+                    .Include(o => o.Outputs)
+                        .ThenInclude(op => op.SubOutputs)
+                            .ThenInclude(so => so.Indicators)
+                                .ThenInclude(i => i.ProjectIndicators)
+                                    .ThenInclude(pi => pi.Project)
                     .Where(m => m.FrameworkCode == frameworkCode);
             }
 
