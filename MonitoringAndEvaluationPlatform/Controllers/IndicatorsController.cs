@@ -105,7 +105,15 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                                                    (i.SubOutput != null && i.SubOutput.Name.Contains(searchString)));
             }
 
-            return View(await frameworkIndicators.ToListAsync());
+            var resultIndicators = await frameworkIndicators.ToListAsync();
+
+            // Pass suboutput name to view if viewing specific suboutput
+            if (subOutputCode.HasValue && resultIndicators.Any())
+            {
+                ViewBag.SubOutputName = resultIndicators.First().SubOutput?.Name;
+            }
+
+            return View(resultIndicators);
         }
 
 

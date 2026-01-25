@@ -93,6 +93,12 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 return NotFound();
             }
 
+            // Pass framework name to view if viewing specific framework
+            if (frameworkCode.HasValue && outcomes.Any())
+            {
+                ViewBag.FrameworkName = outcomes.First().Framework?.Name;
+            }
+
             return View(outcomes);
         }
 

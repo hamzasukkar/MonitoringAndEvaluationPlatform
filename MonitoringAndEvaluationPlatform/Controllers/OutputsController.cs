@@ -88,6 +88,12 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             ViewData["frameworkCode"] = frameworkCode;
             ViewData["outcomeCode"] = outcomeCode;
 
+            // Pass outcome name to view if viewing specific outcome
+            if (outcomeCode.HasValue && outputs.Any())
+            {
+                ViewBag.OutcomeName = outputs.First().Outcome?.Name;
+            }
+
             return View(outputs);
         }
 
