@@ -2012,6 +2012,21 @@
                 margin-right: 0 !important;
             }
         }
+
+        /* Fix for Expand/Collapse All buttons hover */
+        #expandAllBtn:hover,
+        #collapseAllBtn:hover {
+            background-color: rgba(33, 150, 243, 0.1);
+            color: var(--primary-color) !important;
+            border-color: var(--primary-color);
+        }
+
+        #expandAllBtn:active,
+        #collapseAllBtn:active {
+            background-color: rgba(33, 150, 243, 0.2);
+            color: var(--primary-dark) !important;
+            border-color: var(--primary-dark);
+        }
     </style>
 }
 
