@@ -112,9 +112,19 @@
     var totalMatches = searchResults.Sum(r => r.TotalMatches);
 
     <div class="chart-card mb-4">
-        <div class="chart-title">
-            <i class="fas fa-search me-2"></i>
-            @Localizer["Search Results"] - <span class="badge bg-primary">@totalMatches @Localizer["matches found"]</span>
+        <div class="chart-title d-flex justify-content-between align-items-center">
+            <div>
+                <i class="fas fa-search me-2"></i>
+                @Localizer["Search Results"] - <span class="badge bg-primary">@totalMatches @Localizer["matches found"]</span>
+            </div>
+            <div class="btn-group" role="group">
+                <button type="button" class="btn btn-sm btn-outline-primary" id="expandAllBtn">
+                    <i class="fas fa-expand-alt me-1"></i>@Localizer["Expand All"]
+                </button>
+                <button type="button" class="btn btn-sm btn-outline-primary" id="collapseAllBtn">
+                    <i class="fas fa-compress-alt me-1"></i>@Localizer["Collapse All"]
+                </button>
+            </div>
         </div>
         <div class="search-results-container">
             @foreach (var result in searchResults)
@@ -961,6 +971,30 @@
                 }, index * 100);
             });
         });
+
+        // Expand All / Collapse All functionality for search results
+        const expandAllBtn = document.getElementById('expandAllBtn');
+        const collapseAllBtn = document.getElementById('collapseAllBtn');
+
+        if (expandAllBtn) {
+            expandAllBtn.addEventListener('click', function() {
+                const collapseElements = document.querySelectorAll('.framework-search-result .collapse');
+                collapseElements.forEach(element => {
+                    const bsCollapse = new bootstrap.Collapse(element, { toggle: false });
+                    bsCollapse.show();
+                });
+            });
+        }
+
+        if (collapseAllBtn) {
+            collapseAllBtn.addEventListener('click', function() {
+                const collapseElements = document.querySelectorAll('.framework-search-result .collapse');
+                collapseElements.forEach(element => {
+                    const bsCollapse = new bootstrap.Collapse(element, { toggle: false });
+                    bsCollapse.hide();
+                });
+            });
+        }
     </script>
 
     <style>
