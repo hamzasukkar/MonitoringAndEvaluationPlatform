@@ -92,6 +92,7 @@ builder.Services.AddScoped<IPerformanceService, PerformanceService>();
 builder.Services.AddScoped<IProjectValidationService, ProjectValidationService>();
 builder.Services.AddScoped<INotificationService, NotificationService>();
 builder.Services.AddScoped<IAuditService, AuditService>();
+builder.Services.AddScoped<MonitoringAndEvaluationPlatform.Helpers.INavigationHelper, MonitoringAndEvaluationPlatform.Helpers.NavigationHelper>();
 builder.Services.AddLocalization(options => options.ResourcesPath = "Resources");
 
 builder.Services.Configure<RequestLocalizationOptions>(options =>

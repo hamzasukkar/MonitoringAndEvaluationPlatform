@@ -149,10 +149,28 @@
         <!-- Content Area -->
         <div class="container-full">
             <main role="main" class="pb-3">
+                <div class="back-button-container">
+                    @await Html.PartialAsync("_BackButton")
+                </div>
                 @RenderBody()
             </main>
         </div>
     </div>
+
+    <style>
+        .back-button-container {
+            margin: 1rem 0 1rem 0;
+            padding: 0 1rem;
+        }
+
+        [dir="ltr"] .back-button-container {
+            text-align: left;
+        }
+
+        [dir="rtl"] .back-button-container {
+            text-align: right;
+        }
+    </style>
 
     @await RenderSectionAsync("Scripts", required: false)
 </body>

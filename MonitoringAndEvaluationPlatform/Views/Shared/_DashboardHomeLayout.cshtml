@@ -1304,9 +1304,27 @@
 
         <!-- Main Content with Sidebar -->
         <div class="main-content-with-sidebar">
+            <div class="back-button-container">
+                @await Html.PartialAsync("_BackButton")
+            </div>
             @RenderBody()
         </div>
     </div>
+
+    <style>
+        .back-button-container {
+            margin: 1rem 0 1rem 0;
+            padding: 0 1rem;
+        }
+
+        [dir="ltr"] .back-button-container {
+            text-align: left;
+        }
+
+        [dir="rtl"] .back-button-container {
+            text-align: right;
+        }
+    </style>
 
     <!-- Footer -->
     <footer class="dashboard-footer">
