@@ -1,0 +1,654 @@
+@model MonitoringAndEvaluationPlatform.ViewModel.ReportsDashboardViewModel
+@using Microsoft.AspNetCore.Mvc.Localization
+@inject IViewLocalizer Localizer
+@using Microsoft.AspNetCore.Localization
+@using Microsoft.AspNetCore.Mvc.ModelBinding
+@using Microsoft.AspNetCore.Mvc.ViewFeatures
+@using Microsoft.AspNetCore.Mvc.ModelBinding.Metadata
+
+@{
+    ViewData["Title"] = "Reports Dashboard";
+    Layout = "~/Views/Shared/_DashboardHomeLayout.cshtml";
+    var requestCultureFeature = ViewContext.HttpContext.Features.Get<IRequestCultureFeature>();
+    var culture = requestCultureFeature?.RequestCulture?.Culture?.Name ?? "en";
+    var isRtl = (culture ?? "en").StartsWith("ar", StringComparison.OrdinalIgnoreCase);
+}
+
+<!-- Dashboard Header -->
+<div class="dashboard-header">
+    <div class="d-flex justify-content-between align-items-center">
+        <div>
+            <h1 class="dashboard-title">
+                <i class="fas fa-chart-bar me-3"></i>
+                @Localizer["Reports Dashboard"]
+            </h1>
+            <p class="dashboard-subtitle">
+                @Localizer["Comprehensive overview of performance metrics and statistics across all hierarchy levels"]
+            </p>
+        </div>
+        <div class="d-flex gap-2">
+            <button class="btn btn-outline-primary btn-lg" onclick="window.print()">
+                <i class="fas fa-print me-2"></i>@Localizer["Print Report"]
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Summary Cards Row -->
+<div class="row g-4 mb-4">
+    <div class="col-lg-2 col-md-4 col-sm-6">
+        <div class="summary-card frameworks">
+            <div class="summary-icon">
+                <i class="fas fa-sitemap"></i>
+            </div>
+            <div class="summary-content">
+                <div class="summary-value">@Model.TotalFrameworks</div>
+                <div class="summary-label">@Localizer["Frameworks"]</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-2 col-md-4 col-sm-6">
+        <div class="summary-card outcomes">
+            <div class="summary-icon">
+                <i class="fas fa-bullseye"></i>
+            </div>
+            <div class="summary-content">
+                <div class="summary-value">@Model.TotalOutcomes</div>
+                <div class="summary-label">@Localizer["Outcomes"]</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-2 col-md-4 col-sm-6">
+        <div class="summary-card outputs">
+            <div class="summary-icon">
+                <i class="fas fa-cube"></i>
+            </div>
+            <div class="summary-content">
+                <div class="summary-value">@Model.TotalOutputs</div>
+                <div class="summary-label">@Localizer["Outputs"]</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-2 col-md-4 col-sm-6">
+        <div class="summary-card suboutputs">
+            <div class="summary-icon">
+                <i class="fas fa-cubes"></i>
+            </div>
+            <div class="summary-content">
+                <div class="summary-value">@Model.TotalSubOutputs</div>
+                <div class="summary-label">@Localizer["SubOutputs"]</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-2 col-md-4 col-sm-6">
+        <div class="summary-card indicators">
+            <div class="summary-icon">
+                <i class="fas fa-chart-line"></i>
+            </div>
+            <div class="summary-content">
+                <div class="summary-value">@Model.TotalIndicators</div>
+                <div class="summary-label">@Localizer["Indicators"]</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-2 col-md-4 col-sm-6">
+        <div class="summary-card projects">
+            <div class="summary-icon">
+                <i class="fas fa-project-diagram"></i>
+            </div>
+            <div class="summary-content">
+                <div class="summary-value">@Model.TotalProjects</div>
+                <div class="summary-label">@Localizer["Projects"]</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Average Performance Cards -->
+<div class="row g-4 mb-4">
+    <div class="col-md-6">
+        <div class="chart-card">
+            <div class="chart-title">
+                <i class="fas fa-tachometer-alt me-2"></i>
+                @Localizer["Average Indicators Performance"]
+            </div>
+            <div class="performance-gauge-container">
+                <div class="performance-gauge">
+                    <div class="gauge-circle @GetPerformanceClass(Model.AverageIndicatorsPerformance)">
+                        <span class="gauge-value">@Model.AverageIndicatorsPerformance%</span>
+                    </div>
+                    <div class="gauge-label">@Localizer["Overall Performance"]</div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="chart-card">
+            <div class="chart-title">
+                <i class="fas fa-money-bill-wave me-2"></i>
+                @Localizer["Average Disbursement Performance"]
+            </div>
+            <div class="performance-gauge-container">
+                <div class="performance-gauge">
+                    <div class="gauge-circle @GetPerformanceClass(Model.AverageDisbursementPerformance)">
+                        <span class="gauge-value">@Model.AverageDisbursementPerformance%</span>
+                    </div>
+                    <div class="gauge-label">@Localizer["Disbursement Rate"]</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Charts Row -->
+<div class="row g-4 mb-4">
+    <div class="col-lg-8">
+        <div class="chart-card">
+            <div class="chart-title">
+                <i class="fas fa-chart-bar me-2"></i>
+                @Localizer["Framework Performance Comparison"]
+            </div>
+            <div class="chart-container">
+                <canvas id="frameworkPerformanceChart"></canvas>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-4">
+        <div class="chart-card">
+            <div class="chart-title">
+                <i class="fas fa-chart-pie me-2"></i>
+                @Localizer["Performance Distribution"]
+            </div>
+            <div class="chart-container">
+                <canvas id="performanceDistributionChart"></canvas>
+            </div>
+            <div class="distribution-legend mt-3">
+                <div class="legend-item">
+                    <span class="legend-color high"></span>
+                    <span>@Localizer["High"] (>=75%): @Model.HighPerformanceCount</span>
+                </div>
+                <div class="legend-item">
+                    <span class="legend-color medium"></span>
+                    <span>@Localizer["Medium"] (50-74%): @Model.MediumPerformanceCount</span>
+                </div>
+                <div class="legend-item">
+                    <span class="legend-color low"></span>
+                    <span>@Localizer["Low"] (<50%): @Model.LowPerformanceCount</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Top Performers Section -->
+<div class="chart-card mb-4">
+    <div class="chart-title d-flex justify-content-between align-items-center">
+        <div>
+            <i class="fas fa-trophy me-2 text-warning"></i>
+            @Localizer["Top Performers"]
+        </div>
+        <div class="btn-group" role="group">
+            <button type="button" class="btn btn-sm btn-outline-primary active" data-target="topFrameworks">@Localizer["Frameworks"]</button>
+            <button type="button" class="btn btn-sm btn-outline-primary" data-target="topOutcomes">@Localizer["Outcomes"]</button>
+            <button type="button" class="btn btn-sm btn-outline-primary" data-target="topOutputs">@Localizer["Outputs"]</button>
+            <button type="button" class="btn btn-sm btn-outline-primary" data-target="topSubOutputs">@Localizer["SubOutputs"]</button>
+            <button type="button" class="btn btn-sm btn-outline-primary" data-target="topIndicators">@Localizer["Indicators"]</button>
+        </div>
+    </div>
+
+    <!-- Top Frameworks -->
+    <div id="topFrameworks" class="performers-table">
+        @await Html.PartialAsync("_PerformersTable", Model.TopFrameworks, new ViewDataDictionary(new EmptyModelMetadataProvider(), new ModelStateDictionary()) { { "Title", Localizer["Top Frameworks"].Value }, { "IsTop", true } })
+    </div>
+
+    <!-- Top Outcomes -->
+    <div id="topOutcomes" class="performers-table" style="display: none;">
+        @await Html.PartialAsync("_PerformersTable", Model.TopOutcomes, new ViewDataDictionary(new EmptyModelMetadataProvider(), new ModelStateDictionary()) { { "Title", Localizer["Top Outcomes"].Value }, { "IsTop", true } })
+    </div>
+
+    <!-- Top Outputs -->
+    <div id="topOutputs" class="performers-table" style="display: none;">
+        @await Html.PartialAsync("_PerformersTable", Model.TopOutputs, new ViewDataDictionary(new EmptyModelMetadataProvider(), new ModelStateDictionary()) { { "Title", Localizer["Top Outputs"].Value }, { "IsTop", true } })
+    </div>
+
+    <!-- Top SubOutputs -->
+    <div id="topSubOutputs" class="performers-table" style="display: none;">
+        @await Html.PartialAsync("_PerformersTable", Model.TopSubOutputs, new ViewDataDictionary(new EmptyModelMetadataProvider(), new ModelStateDictionary()) { { "Title", Localizer["Top SubOutputs"].Value }, { "IsTop", true } })
+    </div>
+
+    <!-- Top Indicators -->
+    <div id="topIndicators" class="performers-table" style="display: none;">
+        @await Html.PartialAsync("_PerformersTable", Model.TopIndicators, new ViewDataDictionary(new EmptyModelMetadataProvider(), new ModelStateDictionary()) { { "Title", Localizer["Top Indicators"].Value }, { "IsTop", true } })
+    </div>
+</div>
+
+<!-- Bottom Performers Section -->
+<div class="chart-card mb-4">
+    <div class="chart-title d-flex justify-content-between align-items-center">
+        <div>
+            <i class="fas fa-exclamation-triangle me-2 text-danger"></i>
+            @Localizer["Needs Improvement"]
+        </div>
+        <div class="btn-group" role="group">
+            <button type="button" class="btn btn-sm btn-outline-danger active" data-target="bottomFrameworks">@Localizer["Frameworks"]</button>
+            <button type="button" class="btn btn-sm btn-outline-danger" data-target="bottomOutcomes">@Localizer["Outcomes"]</button>
+            <button type="button" class="btn btn-sm btn-outline-danger" data-target="bottomOutputs">@Localizer["Outputs"]</button>
+            <button type="button" class="btn btn-sm btn-outline-danger" data-target="bottomSubOutputs">@Localizer["SubOutputs"]</button>
+            <button type="button" class="btn btn-sm btn-outline-danger" data-target="bottomIndicators">@Localizer["Indicators"]</button>
+        </div>
+    </div>
+
+    <!-- Bottom Frameworks -->
+    <div id="bottomFrameworks" class="performers-table">
+        @await Html.PartialAsync("_PerformersTable", Model.BottomFrameworks, new ViewDataDictionary(new EmptyModelMetadataProvider(), new ModelStateDictionary()) { { "Title", Localizer["Bottom Frameworks"].Value }, { "IsTop", false } })
+    </div>
+
+    <!-- Bottom Outcomes -->
+    <div id="bottomOutcomes" class="performers-table" style="display: none;">
+        @await Html.PartialAsync("_PerformersTable", Model.BottomOutcomes, new ViewDataDictionary(new EmptyModelMetadataProvider(), new ModelStateDictionary()) { { "Title", Localizer["Bottom Outcomes"].Value }, { "IsTop", false } })
+    </div>
+
+    <!-- Bottom Outputs -->
+    <div id="bottomOutputs" class="performers-table" style="display: none;">
+        @await Html.PartialAsync("_PerformersTable", Model.BottomOutputs, new ViewDataDictionary(new EmptyModelMetadataProvider(), new ModelStateDictionary()) { { "Title", Localizer["Bottom Outputs"].Value }, { "IsTop", false } })
+    </div>
+
+    <!-- Bottom SubOutputs -->
+    <div id="bottomSubOutputs" class="performers-table" style="display: none;">
+        @await Html.PartialAsync("_PerformersTable", Model.BottomSubOutputs, new ViewDataDictionary(new EmptyModelMetadataProvider(), new ModelStateDictionary()) { { "Title", Localizer["Bottom SubOutputs"].Value }, { "IsTop", false } })
+    </div>
+
+    <!-- Bottom Indicators -->
+    <div id="bottomIndicators" class="performers-table" style="display: none;">
+        @await Html.PartialAsync("_PerformersTable", Model.BottomIndicators, new ViewDataDictionary(new EmptyModelMetadataProvider(), new ModelStateDictionary()) { { "Title", Localizer["Bottom Indicators"].Value }, { "IsTop", false } })
+    </div>
+</div>
+
+@functions {
+    string GetPerformanceClass(double value)
+    {
+        if (value >= 75) return "high";
+        if (value >= 50) return "medium";
+        return "low";
+    }
+}
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        // Framework Performance Chart
+        const frameworkCtx = document.getElementById('frameworkPerformanceChart').getContext('2d');
+        const frameworkLabels = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.FrameworkPerformanceData.Select(f => f.Name)));
+        const indicatorsData = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.FrameworkPerformanceData.Select(f => f.IndicatorsPerformance)));
+        const disbursementData = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.FrameworkPerformanceData.Select(f => f.DisbursementPerformance)));
+
+        new Chart(frameworkCtx, {
+            type: 'bar',
+            data: {
+                labels: frameworkLabels,
+                datasets: [
+                    {
+                        label: '@Localizer["Indicators Performance"]',
+                        data: indicatorsData,
+                        backgroundColor: 'rgba(33, 150, 243, 0.8)',
+                        borderColor: 'rgba(33, 150, 243, 1)',
+                        borderWidth: 1
+                    },
+                    {
+                        label: '@Localizer["Disbursement Performance"]',
+                        data: disbursementData,
+                        backgroundColor: 'rgba(76, 175, 80, 0.8)',
+                        borderColor: 'rgba(76, 175, 80, 1)',
+                        borderWidth: 1
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'top',
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        max: 100,
+                        ticks: {
+                            callback: function(value) {
+                                return value + '%';
+                            }
+                        }
+                    }
+                }
+            }
+        });
+
+        // Performance Distribution Chart
+        const distributionCtx = document.getElementById('performanceDistributionChart').getContext('2d');
+        new Chart(distributionCtx, {
+            type: 'doughnut',
+            data: {
+                labels: ['@Localizer["High"] (>=75%)', '@Localizer["Medium"] (50-74%)', '@Localizer["Low"] (<50%)'],
+                datasets: [{
+                    data: [@Model.HighPerformanceCount, @Model.MediumPerformanceCount, @Model.LowPerformanceCount],
+                    backgroundColor: [
+                        'rgba(76, 175, 80, 0.8)',
+                        'rgba(255, 193, 7, 0.8)',
+                        'rgba(244, 67, 54, 0.8)'
+                    ],
+                    borderColor: [
+                        'rgba(76, 175, 80, 1)',
+                        'rgba(255, 193, 7, 1)',
+                        'rgba(244, 67, 54, 1)'
+                    ],
+                    borderWidth: 2
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: false
+                    }
+                }
+            }
+        });
+
+        // Tab switching for Top Performers
+        document.querySelectorAll('.chart-card .btn-group .btn-outline-primary').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const target = this.dataset.target;
+                const parent = this.closest('.chart-card');
+
+                // Update buttons
+                parent.querySelectorAll('.btn-outline-primary').forEach(b => b.classList.remove('active'));
+                this.classList.add('active');
+
+                // Update tables
+                parent.querySelectorAll('.performers-table').forEach(t => t.style.display = 'none');
+                document.getElementById(target).style.display = 'block';
+            });
+        });
+
+        // Tab switching for Bottom Performers
+        document.querySelectorAll('.chart-card .btn-group .btn-outline-danger').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const target = this.dataset.target;
+                const parent = this.closest('.chart-card');
+
+                // Update buttons
+                parent.querySelectorAll('.btn-outline-danger').forEach(b => b.classList.remove('active'));
+                this.classList.add('active');
+
+                // Update tables
+                parent.querySelectorAll('.performers-table').forEach(t => t.style.display = 'none');
+                document.getElementById(target).style.display = 'block';
+            });
+        });
+    </script>
+
+    <style>
+        /* Summary Cards */
+        .summary-card {
+            background: white;
+            border-radius: 15px;
+            padding: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+            transition: all 0.3s ease;
+            border-left: 4px solid;
+        }
+
+        .summary-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.12);
+        }
+
+        .summary-card.frameworks { border-left-color: #2196F3; }
+        .summary-card.outcomes { border-left-color: #4CAF50; }
+        .summary-card.outputs { border-left-color: #FF9800; }
+        .summary-card.suboutputs { border-left-color: #9C27B0; }
+        .summary-card.indicators { border-left-color: #E91E63; }
+        .summary-card.projects { border-left-color: #00BCD4; }
+
+        .summary-icon {
+            width: 60px;
+            height: 60px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            color: white;
+        }
+
+        .summary-card.frameworks .summary-icon { background: linear-gradient(135deg, #2196F3, #1976D2); }
+        .summary-card.outcomes .summary-icon { background: linear-gradient(135deg, #4CAF50, #388E3C); }
+        .summary-card.outputs .summary-icon { background: linear-gradient(135deg, #FF9800, #F57C00); }
+        .summary-card.suboutputs .summary-icon { background: linear-gradient(135deg, #9C27B0, #7B1FA2); }
+        .summary-card.indicators .summary-icon { background: linear-gradient(135deg, #E91E63, #C2185B); }
+        .summary-card.projects .summary-icon { background: linear-gradient(135deg, #00BCD4, #0097A7); }
+
+        .summary-value {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #2c3e50;
+            line-height: 1;
+        }
+
+        .summary-label {
+            font-size: 0.9rem;
+            color: #6c757d;
+            margin-top: 0.25rem;
+        }
+
+        /* Performance Gauge */
+        .performance-gauge-container {
+            display: flex;
+            justify-content: center;
+            padding: 2rem;
+        }
+
+        .performance-gauge {
+            text-align: center;
+        }
+
+        .gauge-circle {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 1rem;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+        }
+
+        .gauge-circle.high {
+            background: linear-gradient(135deg, #4CAF50, #388E3C);
+        }
+
+        .gauge-circle.medium {
+            background: linear-gradient(135deg, #FFC107, #FFA000);
+        }
+
+        .gauge-circle.low {
+            background: linear-gradient(135deg, #F44336, #D32F2F);
+        }
+
+        .gauge-value {
+            font-size: 2rem;
+            font-weight: 700;
+            color: white;
+        }
+
+        .gauge-label {
+            font-size: 1rem;
+            color: #6c757d;
+        }
+
+        /* Chart Container */
+        .chart-container {
+            height: 350px;
+            padding: 1rem;
+        }
+
+        /* Distribution Legend */
+        .distribution-legend {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+            padding: 0 1rem;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .legend-color {
+            width: 16px;
+            height: 16px;
+            border-radius: 4px;
+        }
+
+        .legend-color.high { background-color: #4CAF50; }
+        .legend-color.medium { background-color: #FFC107; }
+        .legend-color.low { background-color: #F44336; }
+
+        /* Performers Table */
+        .performers-table {
+            padding: 1rem;
+        }
+
+        .performers-table .table {
+            margin-bottom: 0;
+        }
+
+        .performers-table .table th {
+            background: #f8f9fa;
+            font-weight: 600;
+            color: #2c3e50;
+            border-bottom: 2px solid #dee2e6;
+        }
+
+        .performers-table .table td {
+            vertical-align: middle;
+            padding: 1rem;
+        }
+
+        .rank-badge {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 0.9rem;
+        }
+
+        .rank-badge.gold { background: linear-gradient(135deg, #FFD700, #FFA000); color: white; }
+        .rank-badge.silver { background: linear-gradient(135deg, #C0C0C0, #A0A0A0); color: white; }
+        .rank-badge.bronze { background: linear-gradient(135deg, #CD7F32, #A0522D); color: white; }
+        .rank-badge.default { background: #e9ecef; color: #495057; }
+
+        .performance-badge {
+            padding: 0.35rem 0.75rem;
+            border-radius: 20px;
+            font-weight: 600;
+            font-size: 0.85rem;
+        }
+
+        .performance-badge.high { background-color: rgba(76, 175, 80, 0.1); color: #4CAF50; }
+        .performance-badge.medium { background-color: rgba(255, 193, 7, 0.1); color: #FFA000; }
+        .performance-badge.low { background-color: rgba(244, 67, 54, 0.1); color: #F44336; }
+
+        /* Button Group Fix */
+        .btn-group .btn-outline-primary:hover,
+        .btn-group .btn-outline-danger:hover {
+            background-color: rgba(33, 150, 243, 0.1);
+            color: var(--primary-color) !important;
+        }
+
+        .btn-group .btn-outline-danger:hover {
+            background-color: rgba(220, 53, 69, 0.1);
+            color: #dc3545 !important;
+        }
+
+        .btn-group .btn-outline-primary.active {
+            background-color: var(--primary-color);
+            color: white !important;
+        }
+
+        .btn-group .btn-outline-danger.active {
+            background-color: #dc3545;
+            color: white !important;
+        }
+
+        /* Print styles */
+        @@media print {
+            .dashboard-header .d-flex > div:last-child {
+                display: none !important;
+            }
+
+            .btn-group {
+                display: none !important;
+            }
+
+            .performers-table {
+                display: block !important;
+            }
+
+            .chart-card {
+                break-inside: avoid;
+                page-break-inside: avoid;
+            }
+        }
+
+        /* Responsive Design */
+        @@media (max-width: 768px) {
+            .summary-card {
+                padding: 1rem;
+            }
+
+            .summary-icon {
+                width: 45px;
+                height: 45px;
+                font-size: 1.2rem;
+            }
+
+            .summary-value {
+                font-size: 1.5rem;
+            }
+
+            .gauge-circle {
+                width: 120px;
+                height: 120px;
+            }
+
+            .gauge-value {
+                font-size: 1.5rem;
+            }
+
+            .chart-container {
+                height: 250px;
+            }
+
+            .btn-group {
+                flex-wrap: wrap;
+            }
+
+            .btn-group .btn {
+                font-size: 0.75rem;
+                padding: 0.25rem 0.5rem;
+            }
+        }
+    </style>
+}

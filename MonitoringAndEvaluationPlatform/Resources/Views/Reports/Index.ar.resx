@@ -1,0 +1,169 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="Reports Dashboard" xml:space="preserve">
+    <value>لوحة التقارير</value>
+  </data>
+  <data name="Comprehensive overview of performance metrics and statistics across all hierarchy levels" xml:space="preserve">
+    <value>نظرة شاملة على مقاييس الأداء والإحصائيات عبر جميع المستويات الهرمية</value>
+  </data>
+  <data name="Print Report" xml:space="preserve">
+    <value>طباعة التقرير</value>
+  </data>
+  <data name="Frameworks" xml:space="preserve">
+    <value>الأطر</value>
+  </data>
+  <data name="Outcomes" xml:space="preserve">
+    <value>النتائج</value>
+  </data>
+  <data name="Outputs" xml:space="preserve">
+    <value>المخرجات</value>
+  </data>
+  <data name="SubOutputs" xml:space="preserve">
+    <value>المخرجات الفرعية</value>
+  </data>
+  <data name="Indicators" xml:space="preserve">
+    <value>المؤشرات</value>
+  </data>
+  <data name="Projects" xml:space="preserve">
+    <value>المشاريع</value>
+  </data>
+  <data name="Average Indicators Performance" xml:space="preserve">
+    <value>متوسط أداء المؤشرات</value>
+  </data>
+  <data name="Average Disbursement Performance" xml:space="preserve">
+    <value>متوسط أداء الصرف</value>
+  </data>
+  <data name="Overall Performance" xml:space="preserve">
+    <value>الأداء العام</value>
+  </data>
+  <data name="Disbursement Rate" xml:space="preserve">
+    <value>معدل الصرف</value>
+  </data>
+  <data name="Framework Performance Comparison" xml:space="preserve">
+    <value>مقارنة أداء الأطر</value>
+  </data>
+  <data name="Performance Distribution" xml:space="preserve">
+    <value>توزيع الأداء</value>
+  </data>
+  <data name="High" xml:space="preserve">
+    <value>مرتفع</value>
+  </data>
+  <data name="Medium" xml:space="preserve">
+    <value>متوسط</value>
+  </data>
+  <data name="Low" xml:space="preserve">
+    <value>منخفض</value>
+  </data>
+  <data name="Top Performers" xml:space="preserve">
+    <value>الأفضل أداءً</value>
+  </data>
+  <data name="Needs Improvement" xml:space="preserve">
+    <value>يحتاج إلى تحسين</value>
+  </data>
+  <data name="Top Frameworks" xml:space="preserve">
+    <value>أفضل الأطر</value>
+  </data>
+  <data name="Top Outcomes" xml:space="preserve">
+    <value>أفضل النتائج</value>
+  </data>
+  <data name="Top Outputs" xml:space="preserve">
+    <value>أفضل المخرجات</value>
+  </data>
+  <data name="Top SubOutputs" xml:space="preserve">
+    <value>أفضل المخرجات الفرعية</value>
+  </data>
+  <data name="Top Indicators" xml:space="preserve">
+    <value>أفضل المؤشرات</value>
+  </data>
+  <data name="Bottom Frameworks" xml:space="preserve">
+    <value>الأطر الأقل أداءً</value>
+  </data>
+  <data name="Bottom Outcomes" xml:space="preserve">
+    <value>النتائج الأقل أداءً</value>
+  </data>
+  <data name="Bottom Outputs" xml:space="preserve">
+    <value>المخرجات الأقل أداءً</value>
+  </data>
+  <data name="Bottom SubOutputs" xml:space="preserve">
+    <value>المخرجات الفرعية الأقل أداءً</value>
+  </data>
+  <data name="Bottom Indicators" xml:space="preserve">
+    <value>المؤشرات الأقل أداءً</value>
+  </data>
+  <data name="Rank" xml:space="preserve">
+    <value>الترتيب</value>
+  </data>
+  <data name="Name" xml:space="preserve">
+    <value>الاسم</value>
+  </data>
+  <data name="Parent" xml:space="preserve">
+    <value>الأصل</value>
+  </data>
+  <data name="Indicators Performance" xml:space="preserve">
+    <value>أداء المؤشرات</value>
+  </data>
+  <data name="Disbursement Performance" xml:space="preserve">
+    <value>أداء الصرف</value>
+  </data>
+  <data name="No data available" xml:space="preserve">
+    <value>لا توجد بيانات</value>
+  </data>
+</root>

@@ -1,0 +1,91 @@
+@model List<MonitoringAndEvaluationPlatform.ViewModel.PerformanceDataItem>
+@using Microsoft.AspNetCore.Mvc.Localization
+@inject IViewLocalizer Localizer
+
+@{
+    var isTop = ViewData["IsTop"] as bool? ?? true;
+}
+
+@functions {
+    string GetRankClass(int rank)
+    {
+        return rank switch
+        {
+            1 => "gold",
+            2 => "silver",
+            3 => "bronze",
+            _ => "default"
+        };
+    }
+
+    string GetPerformanceClass(double value)
+    {
+        if (value >= 75) return "high";
+        if (value >= 50) return "medium";
+        return "low";
+    }
+}
+
+@if (Model != null && Model.Any())
+{
+    <div class="table-responsive">
+        <table class="table table-hover">
+            <thead>
+                <tr>
+                    <th style="width: 60px;">@Localizer["Rank"]</th>
+                    <th>@Localizer["Name"]</th>
+                    @if (Model.Any(m => !string.IsNullOrEmpty(m.ParentName)))
+                    {
+                        <th>@Localizer["Parent"]</th>
+                    }
+                    <th class="text-center" style="width: 180px;">@Localizer["Indicators Performance"]</th>
+                    <th class="text-center" style="width: 180px;">@Localizer["Disbursement Performance"]</th>
+                </tr>
+            </thead>
+            <tbody>
+                @for (int i = 0; i < Model.Count; i++)
+                {
+                    var item = Model[i];
+                    var rank = i + 1;
+                    <tr>
+                        <td>
+                            <span class="rank-badge @GetRankClass(rank)">@rank</span>
+                        </td>
+                        <td>
+                            <strong>@item.Name</strong>
+                            <small class="text-muted d-block">#@item.Code</small>
+                        </td>
+                        @if (Model.Any(m => !string.IsNullOrEmpty(m.ParentName)))
+                        {
+                            <td>
+                                @if (!string.IsNullOrEmpty(item.ParentName))
+                                {
+                                    <span class="text-muted">
+                                        <i class="fas fa-level-up-alt me-1"></i>@item.ParentName
+                                    </span>
+                                }
+                            </td>
+                        }
+                        <td class="text-center">
+                            <span class="performance-badge @GetPerformanceClass(item.IndicatorsPerformance)">
+                                @item.IndicatorsPerformance%
+                            </span>
+                        </td>
+                        <td class="text-center">
+                            <span class="performance-badge @GetPerformanceClass(item.DisbursementPerformance)">
+                                @item.DisbursementPerformance%
+                            </span>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+}
+else
+{
+    <div class="text-center py-4 text-muted">
+        <i class="fas fa-info-circle me-2"></i>
+        @Localizer["No data available"]
+    </div>
+}

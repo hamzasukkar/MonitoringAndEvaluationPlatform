@@ -1,0 +1,169 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="Reports Dashboard" xml:space="preserve">
+    <value>Reports Dashboard</value>
+  </data>
+  <data name="Comprehensive overview of performance metrics and statistics across all hierarchy levels" xml:space="preserve">
+    <value>Comprehensive overview of performance metrics and statistics across all hierarchy levels</value>
+  </data>
+  <data name="Print Report" xml:space="preserve">
+    <value>Print Report</value>
+  </data>
+  <data name="Frameworks" xml:space="preserve">
+    <value>Frameworks</value>
+  </data>
+  <data name="Outcomes" xml:space="preserve">
+    <value>Outcomes</value>
+  </data>
+  <data name="Outputs" xml:space="preserve">
+    <value>Outputs</value>
+  </data>
+  <data name="SubOutputs" xml:space="preserve">
+    <value>Sub-Outputs</value>
+  </data>
+  <data name="Indicators" xml:space="preserve">
+    <value>Indicators</value>
+  </data>
+  <data name="Projects" xml:space="preserve">
+    <value>Projects</value>
+  </data>
+  <data name="Average Indicators Performance" xml:space="preserve">
+    <value>Average Indicators Performance</value>
+  </data>
+  <data name="Average Disbursement Performance" xml:space="preserve">
+    <value>Average Disbursement Performance</value>
+  </data>
+  <data name="Overall Performance" xml:space="preserve">
+    <value>Overall Performance</value>
+  </data>
+  <data name="Disbursement Rate" xml:space="preserve">
+    <value>Disbursement Rate</value>
+  </data>
+  <data name="Framework Performance Comparison" xml:space="preserve">
+    <value>Framework Performance Comparison</value>
+  </data>
+  <data name="Performance Distribution" xml:space="preserve">
+    <value>Performance Distribution</value>
+  </data>
+  <data name="High" xml:space="preserve">
+    <value>High</value>
+  </data>
+  <data name="Medium" xml:space="preserve">
+    <value>Medium</value>
+  </data>
+  <data name="Low" xml:space="preserve">
+    <value>Low</value>
+  </data>
+  <data name="Top Performers" xml:space="preserve">
+    <value>Top Performers</value>
+  </data>
+  <data name="Needs Improvement" xml:space="preserve">
+    <value>Needs Improvement</value>
+  </data>
+  <data name="Top Frameworks" xml:space="preserve">
+    <value>Top Frameworks</value>
+  </data>
+  <data name="Top Outcomes" xml:space="preserve">
+    <value>Top Outcomes</value>
+  </data>
+  <data name="Top Outputs" xml:space="preserve">
+    <value>Top Outputs</value>
+  </data>
+  <data name="Top SubOutputs" xml:space="preserve">
+    <value>Top Sub-Outputs</value>
+  </data>
+  <data name="Top Indicators" xml:space="preserve">
+    <value>Top Indicators</value>
+  </data>
+  <data name="Bottom Frameworks" xml:space="preserve">
+    <value>Bottom Frameworks</value>
+  </data>
+  <data name="Bottom Outcomes" xml:space="preserve">
+    <value>Bottom Outcomes</value>
+  </data>
+  <data name="Bottom Outputs" xml:space="preserve">
+    <value>Bottom Outputs</value>
+  </data>
+  <data name="Bottom SubOutputs" xml:space="preserve">
+    <value>Bottom Sub-Outputs</value>
+  </data>
+  <data name="Bottom Indicators" xml:space="preserve">
+    <value>Bottom Indicators</value>
+  </data>
+  <data name="Rank" xml:space="preserve">
+    <value>Rank</value>
+  </data>
+  <data name="Name" xml:space="preserve">
+    <value>Name</value>
+  </data>
+  <data name="Parent" xml:space="preserve">
+    <value>Parent</value>
+  </data>
+  <data name="Indicators Performance" xml:space="preserve">
+    <value>Indicators Performance</value>
+  </data>
+  <data name="Disbursement Performance" xml:space="preserve">
+    <value>Disbursement Performance</value>
+  </data>
+  <data name="No data available" xml:space="preserve">
+    <value>No data available</value>
+  </data>
+</root>
