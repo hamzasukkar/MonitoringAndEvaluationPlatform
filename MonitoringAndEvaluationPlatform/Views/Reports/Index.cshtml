@@ -12,11 +12,12 @@
     var requestCultureFeature = ViewContext.HttpContext.Features.Get<IRequestCultureFeature>();
     var culture = requestCultureFeature?.RequestCulture?.Culture?.Name ?? "en";
     var isRtl = (culture ?? "en").StartsWith("ar", StringComparison.OrdinalIgnoreCase);
+    var currentDate = DateTime.Now;
 }
 
 <!-- Dashboard Header -->
 <div class="dashboard-header">
-    <div class="d-flex justify-content-between align-items-center">
+    <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
         <div>
             <h1 class="dashboard-title">
                 <i class="fas fa-chart-bar me-3"></i>
@@ -26,10 +27,24 @@
                 @Localizer["Comprehensive overview of performance metrics and statistics across all hierarchy levels"]
             </p>
         </div>
-        <div class="d-flex gap-2">
-            <button class="btn btn-outline-primary btn-lg" onclick="window.print()">
+        <div class="d-flex gap-2 flex-wrap report-actions">
+            <button class="btn btn-outline-success" onclick="exportToExcel()">
+                <i class="fas fa-file-excel me-2"></i>@Localizer["Export Excel"]
+            </button>
+            <button class="btn btn-outline-primary" onclick="printReport()">
                 <i class="fas fa-print me-2"></i>@Localizer["Print Report"]
             </button>
+        </div>
+    </div>
+    <!-- Report Generation Info (visible in print) -->
+    <div class="report-meta print-only">
+        <div class="report-meta-item">
+            <i class="fas fa-calendar-alt me-2"></i>
+            <span>@Localizer["Generated on"]: @currentDate.ToString("dd/MM/yyyy")</span>
+        </div>
+        <div class="report-meta-item">
+            <i class="fas fa-clock me-2"></i>
+            <span>@Localizer["Time"]: @currentDate.ToString("HH:mm")</span>
         </div>
     </div>
 </div>
@@ -181,13 +196,13 @@
 </div>
 
 <!-- Top Performers Section -->
-<div class="chart-card mb-4">
-    <div class="chart-title d-flex justify-content-between align-items-center">
+<div class="chart-card mb-4 performers-section">
+    <div class="chart-title d-flex justify-content-between align-items-center flex-wrap gap-2">
         <div>
             <i class="fas fa-trophy me-2 text-warning"></i>
             @Localizer["Top Performers"]
         </div>
-        <div class="btn-group" role="group">
+        <div class="btn-group no-print" role="group">
             <button type="button" class="btn btn-sm btn-outline-primary active" data-target="topFrameworks">@Localizer["Frameworks"]</button>
             <button type="button" class="btn btn-sm btn-outline-primary" data-target="topOutcomes">@Localizer["Outcomes"]</button>
             <button type="button" class="btn btn-sm btn-outline-primary" data-target="topOutputs">@Localizer["Outputs"]</button>
@@ -197,39 +212,44 @@
     </div>
 
     <!-- Top Frameworks -->
-    <div id="topFrameworks" class="performers-table">
+    <div id="topFrameworks" class="performers-table" data-title="@Localizer["Top Frameworks"]">
+        <h5 class="print-section-title print-only">@Localizer["Top Frameworks"]</h5>
         @await Html.PartialAsync("_PerformersTable", Model.TopFrameworks, new ViewDataDictionary(new EmptyModelMetadataProvider(), new ModelStateDictionary()) { { "Title", Localizer["Top Frameworks"].Value }, { "IsTop", true } })
     </div>
 
     <!-- Top Outcomes -->
-    <div id="topOutcomes" class="performers-table" style="display: none;">
+    <div id="topOutcomes" class="performers-table" style="display: none;" data-title="@Localizer["Top Outcomes"]">
+        <h5 class="print-section-title print-only">@Localizer["Top Outcomes"]</h5>
         @await Html.PartialAsync("_PerformersTable", Model.TopOutcomes, new ViewDataDictionary(new EmptyModelMetadataProvider(), new ModelStateDictionary()) { { "Title", Localizer["Top Outcomes"].Value }, { "IsTop", true } })
     </div>
 
     <!-- Top Outputs -->
-    <div id="topOutputs" class="performers-table" style="display: none;">
+    <div id="topOutputs" class="performers-table" style="display: none;" data-title="@Localizer["Top Outputs"]">
+        <h5 class="print-section-title print-only">@Localizer["Top Outputs"]</h5>
         @await Html.PartialAsync("_PerformersTable", Model.TopOutputs, new ViewDataDictionary(new EmptyModelMetadataProvider(), new ModelStateDictionary()) { { "Title", Localizer["Top Outputs"].Value }, { "IsTop", true } })
     </div>
 
     <!-- Top SubOutputs -->
-    <div id="topSubOutputs" class="performers-table" style="display: none;">
+    <div id="topSubOutputs" class="performers-table" style="display: none;" data-title="@Localizer["Top SubOutputs"]">
+        <h5 class="print-section-title print-only">@Localizer["Top SubOutputs"]</h5>
         @await Html.PartialAsync("_PerformersTable", Model.TopSubOutputs, new ViewDataDictionary(new EmptyModelMetadataProvider(), new ModelStateDictionary()) { { "Title", Localizer["Top SubOutputs"].Value }, { "IsTop", true } })
     </div>
 
     <!-- Top Indicators -->
-    <div id="topIndicators" class="performers-table" style="display: none;">
+    <div id="topIndicators" class="performers-table" style="display: none;" data-title="@Localizer["Top Indicators"]">
+        <h5 class="print-section-title print-only">@Localizer["Top Indicators"]</h5>
         @await Html.PartialAsync("_PerformersTable", Model.TopIndicators, new ViewDataDictionary(new EmptyModelMetadataProvider(), new ModelStateDictionary()) { { "Title", Localizer["Top Indicators"].Value }, { "IsTop", true } })
     </div>
 </div>
 
 <!-- Bottom Performers Section -->
-<div class="chart-card mb-4">
-    <div class="chart-title d-flex justify-content-between align-items-center">
+<div class="chart-card mb-4 performers-section">
+    <div class="chart-title d-flex justify-content-between align-items-center flex-wrap gap-2">
         <div>
             <i class="fas fa-exclamation-triangle me-2 text-danger"></i>
             @Localizer["Needs Improvement"]
         </div>
-        <div class="btn-group" role="group">
+        <div class="btn-group no-print" role="group">
             <button type="button" class="btn btn-sm btn-outline-danger active" data-target="bottomFrameworks">@Localizer["Frameworks"]</button>
             <button type="button" class="btn btn-sm btn-outline-danger" data-target="bottomOutcomes">@Localizer["Outcomes"]</button>
             <button type="button" class="btn btn-sm btn-outline-danger" data-target="bottomOutputs">@Localizer["Outputs"]</button>
@@ -239,27 +259,32 @@
     </div>
 
     <!-- Bottom Frameworks -->
-    <div id="bottomFrameworks" class="performers-table">
+    <div id="bottomFrameworks" class="performers-table" data-title="@Localizer["Bottom Frameworks"]">
+        <h5 class="print-section-title print-only">@Localizer["Needs Improvement - Frameworks"]</h5>
         @await Html.PartialAsync("_PerformersTable", Model.BottomFrameworks, new ViewDataDictionary(new EmptyModelMetadataProvider(), new ModelStateDictionary()) { { "Title", Localizer["Bottom Frameworks"].Value }, { "IsTop", false } })
     </div>
 
     <!-- Bottom Outcomes -->
-    <div id="bottomOutcomes" class="performers-table" style="display: none;">
+    <div id="bottomOutcomes" class="performers-table" style="display: none;" data-title="@Localizer["Bottom Outcomes"]">
+        <h5 class="print-section-title print-only">@Localizer["Needs Improvement - Outcomes"]</h5>
         @await Html.PartialAsync("_PerformersTable", Model.BottomOutcomes, new ViewDataDictionary(new EmptyModelMetadataProvider(), new ModelStateDictionary()) { { "Title", Localizer["Bottom Outcomes"].Value }, { "IsTop", false } })
     </div>
 
     <!-- Bottom Outputs -->
-    <div id="bottomOutputs" class="performers-table" style="display: none;">
+    <div id="bottomOutputs" class="performers-table" style="display: none;" data-title="@Localizer["Bottom Outputs"]">
+        <h5 class="print-section-title print-only">@Localizer["Needs Improvement - Outputs"]</h5>
         @await Html.PartialAsync("_PerformersTable", Model.BottomOutputs, new ViewDataDictionary(new EmptyModelMetadataProvider(), new ModelStateDictionary()) { { "Title", Localizer["Bottom Outputs"].Value }, { "IsTop", false } })
     </div>
 
     <!-- Bottom SubOutputs -->
-    <div id="bottomSubOutputs" class="performers-table" style="display: none;">
+    <div id="bottomSubOutputs" class="performers-table" style="display: none;" data-title="@Localizer["Bottom SubOutputs"]">
+        <h5 class="print-section-title print-only">@Localizer["Needs Improvement - SubOutputs"]</h5>
         @await Html.PartialAsync("_PerformersTable", Model.BottomSubOutputs, new ViewDataDictionary(new EmptyModelMetadataProvider(), new ModelStateDictionary()) { { "Title", Localizer["Bottom SubOutputs"].Value }, { "IsTop", false } })
     </div>
 
     <!-- Bottom Indicators -->
-    <div id="bottomIndicators" class="performers-table" style="display: none;">
+    <div id="bottomIndicators" class="performers-table" style="display: none;" data-title="@Localizer["Bottom Indicators"]">
+        <h5 class="print-section-title print-only">@Localizer["Needs Improvement - Indicators"]</h5>
         @await Html.PartialAsync("_PerformersTable", Model.BottomIndicators, new ViewDataDictionary(new EmptyModelMetadataProvider(), new ModelStateDictionary()) { { "Title", Localizer["Bottom Indicators"].Value }, { "IsTop", false } })
     </div>
 </div>
@@ -275,14 +300,18 @@
 
 @section Scripts {
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <script>
+        // Store chart instances for later use
+        let frameworkChart, distributionChart;
+
         // Framework Performance Chart
         const frameworkCtx = document.getElementById('frameworkPerformanceChart').getContext('2d');
         const frameworkLabels = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.FrameworkPerformanceData.Select(f => f.Name)));
         const indicatorsData = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.FrameworkPerformanceData.Select(f => f.IndicatorsPerformance)));
         const disbursementData = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.FrameworkPerformanceData.Select(f => f.DisbursementPerformance)));
 
-        new Chart(frameworkCtx, {
+        frameworkChart = new Chart(frameworkCtx, {
             type: 'bar',
             data: {
                 labels: frameworkLabels,
@@ -306,6 +335,7 @@
             options: {
                 responsive: true,
                 maintainAspectRatio: false,
+                animation: { duration: 0 },
                 plugins: {
                     legend: {
                         position: 'top',
@@ -327,7 +357,7 @@
 
         // Performance Distribution Chart
         const distributionCtx = document.getElementById('performanceDistributionChart').getContext('2d');
-        new Chart(distributionCtx, {
+        distributionChart = new Chart(distributionCtx, {
             type: 'doughnut',
             data: {
                 labels: ['@Localizer["High"] (>=75%)', '@Localizer["Medium"] (50-74%)', '@Localizer["Low"] (<50%)'],
@@ -349,6 +379,7 @@
             options: {
                 responsive: true,
                 maintainAspectRatio: false,
+                animation: { duration: 0 },
                 plugins: {
                     legend: {
                         display: false
@@ -388,9 +419,160 @@
                 document.getElementById(target).style.display = 'block';
             });
         });
+
+        // Print Report Function
+        function printReport() {
+            // Convert charts to images before printing
+            const chartContainers = document.querySelectorAll('.chart-container');
+            const originalCanvases = [];
+
+            chartContainers.forEach((container, index) => {
+                const canvas = container.querySelector('canvas');
+                if (canvas) {
+                    const imgData = canvas.toDataURL('image/png');
+                    const img = document.createElement('img');
+                    img.src = imgData;
+                    img.className = 'chart-print-image';
+                    img.style.width = '100%';
+                    img.style.maxHeight = '300px';
+                    img.style.objectFit = 'contain';
+
+                    originalCanvases.push({ container, canvas, img });
+                    canvas.style.display = 'none';
+                    container.appendChild(img);
+                }
+            });
+
+            // Show all performers tables for printing
+            document.querySelectorAll('.performers-table').forEach(t => {
+                t.dataset.originalDisplay = t.style.display;
+                t.style.display = 'block';
+            });
+
+            // Trigger print
+            window.print();
+
+            // Restore original state after print
+            setTimeout(() => {
+                originalCanvases.forEach(({ container, canvas, img }) => {
+                    canvas.style.display = 'block';
+                    if (img.parentNode === container) {
+                        container.removeChild(img);
+                    }
+                });
+
+                // Restore table visibility
+                document.querySelectorAll('.performers-table').forEach(t => {
+                    if (t.dataset.originalDisplay !== undefined) {
+                        t.style.display = t.dataset.originalDisplay;
+                    }
+                });
+            }, 1000);
+        }
+
+        // Export to Excel Function
+        function exportToExcel() {
+            const wb = XLSX.utils.book_new();
+
+            // Summary Data
+            const summaryData = [
+                ['@Localizer["Reports Dashboard"] - @Localizer["Summary"]'],
+                ['@Localizer["Generated on"]', '@DateTime.Now.ToString("dd/MM/yyyy HH:mm")'],
+                [],
+                ['@Localizer["Metric"]', '@Localizer["Value"]'],
+                ['@Localizer["Frameworks"]', @Model.TotalFrameworks],
+                ['@Localizer["Outcomes"]', @Model.TotalOutcomes],
+                ['@Localizer["Outputs"]', @Model.TotalOutputs],
+                ['@Localizer["SubOutputs"]', @Model.TotalSubOutputs],
+                ['@Localizer["Indicators"]', @Model.TotalIndicators],
+                ['@Localizer["Projects"]', @Model.TotalProjects],
+                [],
+                ['@Localizer["Average Indicators Performance"]', '@Model.AverageIndicatorsPerformance%'],
+                ['@Localizer["Average Disbursement Performance"]', '@Model.AverageDisbursementPerformance%'],
+                [],
+                ['@Localizer["Performance Distribution"]'],
+                ['@Localizer["High"] (>=75%)', @Model.HighPerformanceCount],
+                ['@Localizer["Medium"] (50-74%)', @Model.MediumPerformanceCount],
+                ['@Localizer["Low"] (<50%)', @Model.LowPerformanceCount]
+            ];
+            const summaryWs = XLSX.utils.aoa_to_sheet(summaryData);
+            XLSX.utils.book_append_sheet(wb, summaryWs, '@Localizer["Summary"]');
+
+            // Export all tables
+            const tables = document.querySelectorAll('.performers-table .table');
+            const tableNames = ['Top Frameworks', 'Top Outcomes', 'Top Outputs', 'Top SubOutputs', 'Top Indicators',
+                               'Bottom Frameworks', 'Bottom Outcomes', 'Bottom Outputs', 'Bottom SubOutputs', 'Bottom Indicators'];
+
+            tables.forEach((table, index) => {
+                if (table && tableNames[index]) {
+                    const ws = XLSX.utils.table_to_sheet(table);
+                    XLSX.utils.book_append_sheet(wb, ws, tableNames[index].substring(0, 31));
+                }
+            });
+
+            // Save file
+            const fileName = 'Reports_Dashboard_' + new Date().toISOString().slice(0, 10) + '.xlsx';
+            XLSX.writeFile(wb, fileName);
+        }
     </script>
 
     <style>
+        /* Report Meta Info */
+        .report-meta {
+            display: none;
+            margin-top: 1rem;
+            padding-top: 1rem;
+            border-top: 1px solid #e9ecef;
+        }
+
+        .report-meta-item {
+            display: inline-block;
+            margin-right: 2rem;
+            color: #6c757d;
+            font-size: 0.9rem;
+        }
+
+        /* Print Only Elements */
+        .print-only {
+            display: none !important;
+        }
+
+        .print-section-title {
+            color: #2c3e50;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid var(--primary-color);
+        }
+
+        /* No Print Elements */
+        .no-print {
+            display: flex;
+        }
+
+        /* Report Actions */
+        .report-actions .btn {
+            padding: 0.5rem 1.25rem;
+            font-weight: 500;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+
+        .report-actions .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        .report-actions .btn-outline-success {
+            border-color: #28a745;
+            color: #28a745;
+        }
+
+        .report-actions .btn-outline-success:hover {
+            background-color: #28a745;
+            color: white;
+        }
+
         /* Summary Cards */
         .summary-card {
             background: white;
@@ -496,6 +678,11 @@
         .chart-container {
             height: 350px;
             padding: 1rem;
+            position: relative;
+        }
+
+        .chart-print-image {
+            display: none;
         }
 
         /* Distribution Legend */
@@ -592,23 +779,307 @@
             color: white !important;
         }
 
-        /* Print styles */
+        /* ========================================
+           PRINT STYLES - Comprehensive
+           ======================================== */
         @@media print {
-            .dashboard-header .d-flex > div:last-child {
+            /* Reset page settings */
+            @@page {
+                size: A4;
+                margin: 15mm;
+            }
+
+            /* Hide non-essential elements */
+            .topbar,
+            .modern-sidebar,
+            .dashboard-footer,
+            .report-actions,
+            .no-print,
+            .btn-group,
+            .back-button-container {
                 display: none !important;
             }
 
-            .btn-group {
-                display: none !important;
-            }
-
-            .performers-table {
+            /* Show print-only elements */
+            .print-only {
                 display: block !important;
             }
 
+            .report-meta {
+                display: block !important;
+            }
+
+            /* Reset body and container */
+            body {
+                background: white !important;
+                color: black !important;
+                font-size: 11pt !important;
+                line-height: 1.4 !important;
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
+            }
+
+            .main-content-with-sidebar {
+                margin: 0 !important;
+                padding: 0 !important;
+            }
+
+            /* Dashboard Header for Print */
+            .dashboard-header {
+                background: white !important;
+                box-shadow: none !important;
+                border: none !important;
+                border-bottom: 3px solid #2196F3 !important;
+                border-radius: 0 !important;
+                padding: 15px 0 !important;
+                margin-bottom: 20px !important;
+                page-break-after: avoid !important;
+            }
+
+            .dashboard-title {
+                font-size: 24pt !important;
+                color: #2196F3 !important;
+                -webkit-text-fill-color: #2196F3 !important;
+                background: none !important;
+            }
+
+            .dashboard-subtitle {
+                font-size: 10pt !important;
+                color: #666 !important;
+            }
+
+            /* Summary Cards for Print */
+            .summary-card {
+                box-shadow: none !important;
+                border: 1px solid #ddd !important;
+                border-radius: 8px !important;
+                padding: 10px !important;
+                page-break-inside: avoid !important;
+            }
+
+            .summary-icon {
+                width: 40px !important;
+                height: 40px !important;
+                font-size: 1rem !important;
+            }
+
+            .summary-value {
+                font-size: 1.5rem !important;
+            }
+
+            .summary-label {
+                font-size: 0.8rem !important;
+            }
+
+            /* Chart Cards for Print */
             .chart-card {
-                break-inside: avoid;
-                page-break-inside: avoid;
+                box-shadow: none !important;
+                border: 1px solid #ddd !important;
+                border-radius: 8px !important;
+                padding: 15px !important;
+                margin-bottom: 15px !important;
+                page-break-inside: avoid !important;
+            }
+
+            .chart-title {
+                font-size: 14pt !important;
+                color: #333 !important;
+                border-bottom: 1px solid #eee !important;
+                padding-bottom: 10px !important;
+                margin-bottom: 15px !important;
+            }
+
+            /* Chart Container for Print */
+            .chart-container {
+                height: auto !important;
+                max-height: 280px !important;
+                padding: 10px 0 !important;
+            }
+
+            .chart-container canvas {
+                display: none !important;
+            }
+
+            .chart-container .chart-print-image {
+                display: block !important;
+                max-width: 100% !important;
+                max-height: 250px !important;
+                margin: 0 auto !important;
+            }
+
+            /* Performance Gauge for Print */
+            .gauge-circle {
+                width: 100px !important;
+                height: 100px !important;
+                box-shadow: none !important;
+                border: 3px solid currentColor !important;
+            }
+
+            .gauge-circle.high {
+                background: #4CAF50 !important;
+                border-color: #388E3C !important;
+            }
+
+            .gauge-circle.medium {
+                background: #FFC107 !important;
+                border-color: #FFA000 !important;
+            }
+
+            .gauge-circle.low {
+                background: #F44336 !important;
+                border-color: #D32F2F !important;
+            }
+
+            .gauge-value {
+                font-size: 1.5rem !important;
+                color: white !important;
+            }
+
+            /* Performers Section for Print */
+            .performers-section {
+                page-break-before: always !important;
+            }
+
+            .performers-section:first-of-type {
+                page-break-before: auto !important;
+            }
+
+            /* Show ALL performers tables in print */
+            .performers-table {
+                display: block !important;
+                padding: 10px 0 !important;
+                page-break-inside: avoid !important;
+                margin-bottom: 15px !important;
+                border-bottom: 1px solid #eee !important;
+            }
+
+            .performers-table:last-child {
+                border-bottom: none !important;
+            }
+
+            .print-section-title {
+                display: block !important;
+                font-size: 12pt !important;
+                color: #2c3e50 !important;
+                margin-bottom: 10px !important;
+                padding-bottom: 5px !important;
+                border-bottom: 2px solid #2196F3 !important;
+            }
+
+            /* Table Styles for Print */
+            .table {
+                font-size: 9pt !important;
+                border-collapse: collapse !important;
+            }
+
+            .table th {
+                background-color: #f5f5f5 !important;
+                color: #333 !important;
+                font-weight: 600 !important;
+                padding: 8px !important;
+                border: 1px solid #ddd !important;
+            }
+
+            .table td {
+                padding: 6px 8px !important;
+                border: 1px solid #ddd !important;
+            }
+
+            .table-responsive {
+                overflow: visible !important;
+            }
+
+            /* Rank Badge for Print */
+            .rank-badge {
+                width: 24px !important;
+                height: 24px !important;
+                font-size: 0.75rem !important;
+            }
+
+            .rank-badge.gold {
+                background: #FFD700 !important;
+            }
+
+            .rank-badge.silver {
+                background: #C0C0C0 !important;
+            }
+
+            .rank-badge.bronze {
+                background: #CD7F32 !important;
+            }
+
+            /* Performance Badge for Print */
+            .performance-badge {
+                padding: 2px 8px !important;
+                font-size: 0.75rem !important;
+                border: 1px solid currentColor !important;
+            }
+
+            .performance-badge.high {
+                background-color: #e8f5e9 !important;
+                color: #2e7d32 !important;
+                border-color: #4CAF50 !important;
+            }
+
+            .performance-badge.medium {
+                background-color: #fff8e1 !important;
+                color: #f57f17 !important;
+                border-color: #FFC107 !important;
+            }
+
+            .performance-badge.low {
+                background-color: #ffebee !important;
+                color: #c62828 !important;
+                border-color: #F44336 !important;
+            }
+
+            /* Legend for Print */
+            .distribution-legend {
+                padding: 10px 0 !important;
+            }
+
+            .legend-item {
+                font-size: 9pt !important;
+            }
+
+            .legend-color {
+                width: 12px !important;
+                height: 12px !important;
+                border: 1px solid #999 !important;
+            }
+
+            /* Row adjustments */
+            .row {
+                margin: 0 !important;
+            }
+
+            .col-lg-2, .col-lg-4, .col-lg-8, .col-md-4, .col-md-6, .col-sm-6 {
+                padding: 5px !important;
+            }
+
+            /* Ensure colors print */
+            * {
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
+            }
+
+            /* Links */
+            a {
+                color: inherit !important;
+                text-decoration: none !important;
+            }
+
+            /* Page breaks */
+            .page-break-before {
+                page-break-before: always !important;
+            }
+
+            .page-break-after {
+                page-break-after: always !important;
+            }
+
+            .avoid-break {
+                page-break-inside: avoid !important;
             }
         }
 
@@ -648,6 +1119,16 @@
             .btn-group .btn {
                 font-size: 0.75rem;
                 padding: 0.25rem 0.5rem;
+            }
+
+            .report-actions {
+                width: 100%;
+                justify-content: center;
+            }
+
+            .report-actions .btn {
+                flex: 1;
+                min-width: 120px;
             }
         }
     </style>
