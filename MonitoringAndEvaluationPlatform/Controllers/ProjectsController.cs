@@ -289,6 +289,17 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                     ? new List<LocationSelectionViewModel>()
                     : JsonConvert.DeserializeObject<List<LocationSelectionViewModel>>(selections);
 
+                // Check if project name already exists
+                if (!string.IsNullOrWhiteSpace(project.ProjectName))
+                {
+                    var existingProject = await _context.Projects
+                        .FirstOrDefaultAsync(p => p.ProjectName.ToLower() == project.ProjectName.Trim().ToLower());
+                    if (existingProject != null)
+                    {
+                        ModelState.AddModelError("ProjectName", "A project with this name already exists.");
+                    }
+                }
+
                 // Validate project creation
                 _validationService.ValidateProjectCreation(
                     project,

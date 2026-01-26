@@ -136,6 +136,15 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                     return Json(new { success = false, message = "Output name is required." });
                 }
 
+                // Check if output name already exists within the same outcome
+                var existingOutput = await _context.Outputs
+                    .FirstOrDefaultAsync(o => o.OutcomeCode == outcomeCode &&
+                                              o.Name.ToLower() == name.Trim().ToLower());
+                if (existingOutput != null)
+                {
+                    return Json(new { success = false, message = "An output with this name already exists in this outcome." });
+                }
+
                 var output = new Output
                 {
                     Name = name.Trim(),

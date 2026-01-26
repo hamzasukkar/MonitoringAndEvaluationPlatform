@@ -763,7 +763,14 @@
                             toggleInlineCreate();
                         });
                     } else {
-                        throw new Error(response.message || 'Unknown error');
+                        Swal.fire({
+                            icon: 'error',
+                            title: '@Localizer["Error"]',
+                            text: response.message || '@Localizer["Could not create framework. Please try again."]',
+                            customClass: {
+                                popup: 'swal2-modern'
+                            }
+                        });
                     }
                 },
                 error: function(xhr) {

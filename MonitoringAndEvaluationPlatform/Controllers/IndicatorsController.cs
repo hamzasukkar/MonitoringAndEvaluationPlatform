@@ -164,6 +164,17 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         {
             ModelState.Remove(nameof(indicator.SubOutput));
 
+            // Check if indicator name already exists within the same suboutput
+            var existingIndicator = await _context.Indicators
+                .FirstOrDefaultAsync(i => i.SubOutputCode == indicator.SubOutputCode &&
+                                          i.Name.ToLower() == indicator.Name.Trim().ToLower());
+            if (existingIndicator != null)
+            {
+                ModelState.AddModelError("Name", "An indicator with this name already exists in this suboutput.");
+                ViewData["SubOutputCode"] = new SelectList(_context.SubOutputs, "Code", "Name", indicator.SubOutputCode);
+                return View(indicator);
+            }
+
             //To Fix
             if (ModelState.IsValid || true)
             {
@@ -191,6 +202,16 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             if (string.IsNullOrWhiteSpace(Name) || Target <= 0)
             {
                 TempData["Error"] = "Name and Target are required and must be valid.";
+                return RedirectToAction("Index", new { subOutputCode = SubOutputCode });
+            }
+
+            // Check if indicator name already exists within the same suboutput
+            var existingIndicator = await _context.Indicators
+                .FirstOrDefaultAsync(i => i.SubOutputCode == SubOutputCode &&
+                                          i.Name.ToLower() == Name.Trim().ToLower());
+            if (existingIndicator != null)
+            {
+                TempData["Error"] = "An indicator with this name already exists in this suboutput.";
                 return RedirectToAction("Index", new { subOutputCode = SubOutputCode });
             }
 
@@ -223,6 +244,15 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 if (string.IsNullOrWhiteSpace(name))
                 {
                     return Json(new { success = false, message = "Indicator name is required." });
+                }
+
+                // Check if indicator name already exists within the same suboutput
+                var existingIndicator = await _context.Indicators
+                    .FirstOrDefaultAsync(i => i.SubOutputCode == subOutputCode &&
+                                              i.Name.ToLower() == name.Trim().ToLower());
+                if (existingIndicator != null)
+                {
+                    return Json(new { success = false, message = "An indicator with this name already exists in this suboutput." });
                 }
 
                 var indicator = new Indicator
@@ -277,6 +307,16 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             if (string.IsNullOrWhiteSpace(Name) || Target <= 0)
             {
                 TempData["Error"] = "Name and Target are required and must be valid.";
+                return RedirectToAction("Index", new { subOutputCode = SubOutputCode });
+            }
+
+            // Check if indicator name already exists within the same suboutput
+            var existingIndicator = await _context.Indicators
+                .FirstOrDefaultAsync(i => i.SubOutputCode == SubOutputCode &&
+                                          i.Name.ToLower() == Name.Trim().ToLower());
+            if (existingIndicator != null)
+            {
+                TempData["Error"] = "An indicator with this name already exists in this suboutput.";
                 return RedirectToAction("Index", new { subOutputCode = SubOutputCode });
             }
 

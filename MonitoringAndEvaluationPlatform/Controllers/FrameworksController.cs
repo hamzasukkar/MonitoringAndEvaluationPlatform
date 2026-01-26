@@ -160,14 +160,14 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             {
                 if (string.IsNullOrWhiteSpace(name))
                 {
-                    return Json(new { success = false, message = _localizer["Framework name is required."] });
+                    return Json(new { success = false, message = _localizer["Framework name is required."].Value });
                 }
 
                 // Check if framework name already exists
                 var existingFramework = await _context.Frameworks.FirstOrDefaultAsync(f => f.Name.ToLower() == name.ToLower());
                 if (existingFramework != null)
                 {
-                    return Json(new { success = false, message = _localizer["A framework with this name already exists."] });
+                    return Json(new { success = false, message = _localizer["A framework with this name already exists."].Value });
                 }
 
                 // Create new framework
@@ -200,7 +200,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             catch (Exception ex)
             {
                 // Log the exception (you might want to use ILogger here)
-                return Json(new { success = false, message = _localizer["An error occurred while creating the framework. Please try again."] });
+                return Json(new { success = false, message = _localizer["An error occurred while creating the framework. Please try again."].Value });
             }
         }
 

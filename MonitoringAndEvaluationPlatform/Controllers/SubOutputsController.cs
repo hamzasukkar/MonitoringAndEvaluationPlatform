@@ -137,6 +137,15 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                     return Json(new { success = false, message = "SubOutput name is required." });
                 }
 
+                // Check if suboutput name already exists within the same output
+                var existingSubOutput = await _context.SubOutputs
+                    .FirstOrDefaultAsync(s => s.OutputCode == outputCode &&
+                                              s.Name.ToLower() == name.Trim().ToLower());
+                if (existingSubOutput != null)
+                {
+                    return Json(new { success = false, message = "A suboutput with this name already exists in this output." });
+                }
+
                 var subOutput = new SubOutput
                 {
                     Name = name.Trim(),
