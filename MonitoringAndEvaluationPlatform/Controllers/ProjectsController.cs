@@ -384,7 +384,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
 
                 this.SetSuccessMessage(successMessage);
 
-                return RedirectToAction("Index");
+                return RedirectToAction("Details", new { id = project.ProjectID });
             }
             catch (Exception ex)
             {
