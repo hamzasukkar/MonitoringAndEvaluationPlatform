@@ -64,8 +64,17 @@
   <data name="Comprehensive overview of performance metrics and statistics across all hierarchy levels" xml:space="preserve">
     <value>Comprehensive overview of performance metrics and statistics across all hierarchy levels</value>
   </data>
+  <data name="Export Excel" xml:space="preserve">
+    <value>Export Excel</value>
+  </data>
   <data name="Print Report" xml:space="preserve">
     <value>Print Report</value>
+  </data>
+  <data name="Generated on" xml:space="preserve">
+    <value>Generated on</value>
+  </data>
+  <data name="Time" xml:space="preserve">
+    <value>Time</value>
   </data>
   <data name="Frameworks" xml:space="preserve">
     <value>Frameworks</value>
@@ -77,7 +86,7 @@
     <value>Outputs</value>
   </data>
   <data name="SubOutputs" xml:space="preserve">
-    <value>Sub-Outputs</value>
+    <value>SubOutputs</value>
   </data>
   <data name="Indicators" xml:space="preserve">
     <value>Indicators</value>
@@ -102,6 +111,12 @@
   </data>
   <data name="Performance Distribution" xml:space="preserve">
     <value>Performance Distribution</value>
+  </data>
+  <data name="Indicators Performance" xml:space="preserve">
+    <value>Indicators Performance</value>
+  </data>
+  <data name="Disbursement Performance" xml:space="preserve">
+    <value>Disbursement Performance</value>
   </data>
   <data name="High" xml:space="preserve">
     <value>High</value>
@@ -128,25 +143,25 @@
     <value>Top Outputs</value>
   </data>
   <data name="Top SubOutputs" xml:space="preserve">
-    <value>Top Sub-Outputs</value>
+    <value>Top SubOutputs</value>
   </data>
   <data name="Top Indicators" xml:space="preserve">
     <value>Top Indicators</value>
   </data>
-  <data name="Bottom Frameworks" xml:space="preserve">
-    <value>Bottom Frameworks</value>
+  <data name="Needs Improvement - Frameworks" xml:space="preserve">
+    <value>Needs Improvement - Frameworks</value>
   </data>
-  <data name="Bottom Outcomes" xml:space="preserve">
-    <value>Bottom Outcomes</value>
+  <data name="Needs Improvement - Outcomes" xml:space="preserve">
+    <value>Needs Improvement - Outcomes</value>
   </data>
-  <data name="Bottom Outputs" xml:space="preserve">
-    <value>Bottom Outputs</value>
+  <data name="Needs Improvement - Outputs" xml:space="preserve">
+    <value>Needs Improvement - Outputs</value>
   </data>
-  <data name="Bottom SubOutputs" xml:space="preserve">
-    <value>Bottom Sub-Outputs</value>
+  <data name="Needs Improvement - SubOutputs" xml:space="preserve">
+    <value>Needs Improvement - SubOutputs</value>
   </data>
-  <data name="Bottom Indicators" xml:space="preserve">
-    <value>Bottom Indicators</value>
+  <data name="Needs Improvement - Indicators" xml:space="preserve">
+    <value>Needs Improvement - Indicators</value>
   </data>
   <data name="Rank" xml:space="preserve">
     <value>Rank</value>
@@ -157,13 +172,61 @@
   <data name="Parent" xml:space="preserve">
     <value>Parent</value>
   </data>
-  <data name="Indicators Performance" xml:space="preserve">
-    <value>Indicators Performance</value>
-  </data>
-  <data name="Disbursement Performance" xml:space="preserve">
-    <value>Disbursement Performance</value>
-  </data>
   <data name="No data available" xml:space="preserve">
     <value>No data available</value>
+  </data>
+  <data name="Print Options" xml:space="preserve">
+    <value>Print Options</value>
+  </data>
+  <data name="Select the sections you want to include in the printed report" xml:space="preserve">
+    <value>Select the sections you want to include in the printed report</value>
+  </data>
+  <data name="Summary Cards" xml:space="preserve">
+    <value>Summary Cards</value>
+  </data>
+  <data name="Frameworks, Outcomes, Outputs, SubOutputs, Indicators, Projects counts" xml:space="preserve">
+    <value>Frameworks, Outcomes, Outputs, SubOutputs, Indicators, Projects counts</value>
+  </data>
+  <data name="Performance Gauges" xml:space="preserve">
+    <value>Performance Gauges</value>
+  </data>
+  <data name="Average Indicators and Disbursement Performance" xml:space="preserve">
+    <value>Average Indicators and Disbursement Performance</value>
+  </data>
+  <data name="Charts" xml:space="preserve">
+    <value>Charts</value>
+  </data>
+  <data name="Framework Performance Comparison and Distribution charts" xml:space="preserve">
+    <value>Framework Performance Comparison and Distribution charts</value>
+  </data>
+  <data name="Best performing Frameworks, Outcomes, Outputs, SubOutputs, Indicators" xml:space="preserve">
+    <value>Best performing Frameworks, Outcomes, Outputs, SubOutputs, Indicators</value>
+  </data>
+  <data name="Lowest performing Frameworks, Outcomes, Outputs, SubOutputs, Indicators" xml:space="preserve">
+    <value>Lowest performing Frameworks, Outcomes, Outputs, SubOutputs, Indicators</value>
+  </data>
+  <data name="Select All" xml:space="preserve">
+    <value>Select All</value>
+  </data>
+  <data name="Deselect All" xml:space="preserve">
+    <value>Deselect All</value>
+  </data>
+  <data name="Cancel" xml:space="preserve">
+    <value>Cancel</value>
+  </data>
+  <data name="Print" xml:space="preserve">
+    <value>Print</value>
+  </data>
+  <data name="Please select at least one section to print" xml:space="preserve">
+    <value>Please select at least one section to print</value>
+  </data>
+  <data name="Summary" xml:space="preserve">
+    <value>Summary</value>
+  </data>
+  <data name="Metric" xml:space="preserve">
+    <value>Metric</value>
+  </data>
+  <data name="Value" xml:space="preserve">
+    <value>Value</value>
   </data>
 </root>

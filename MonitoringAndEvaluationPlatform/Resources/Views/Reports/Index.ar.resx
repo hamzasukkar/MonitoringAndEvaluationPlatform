@@ -62,22 +62,31 @@
     <value>لوحة التقارير</value>
   </data>
   <data name="Comprehensive overview of performance metrics and statistics across all hierarchy levels" xml:space="preserve">
-    <value>نظرة شاملة على مقاييس الأداء والإحصائيات عبر جميع المستويات الهرمية</value>
+    <value>نظرة شاملة على مقاييس الأداء والإحصائيات عبر جميع مستويات التسلسل الهرمي</value>
+  </data>
+  <data name="Export Excel" xml:space="preserve">
+    <value>تصدير إكسل</value>
   </data>
   <data name="Print Report" xml:space="preserve">
     <value>طباعة التقرير</value>
   </data>
+  <data name="Generated on" xml:space="preserve">
+    <value>تاريخ الإنشاء</value>
+  </data>
+  <data name="Time" xml:space="preserve">
+    <value>الوقت</value>
+  </data>
   <data name="Frameworks" xml:space="preserve">
-    <value>الأطر</value>
+    <value>الاستراتيجيات</value>
   </data>
   <data name="Outcomes" xml:space="preserve">
-    <value>النتائج</value>
+    <value>السياسات</value>
   </data>
   <data name="Outputs" xml:space="preserve">
-    <value>المخرجات</value>
+    <value>البرامج</value>
   </data>
   <data name="SubOutputs" xml:space="preserve">
-    <value>المخرجات الفرعية</value>
+    <value>البرامج الفرعية</value>
   </data>
   <data name="Indicators" xml:space="preserve">
     <value>المؤشرات</value>
@@ -98,10 +107,16 @@
     <value>معدل الصرف</value>
   </data>
   <data name="Framework Performance Comparison" xml:space="preserve">
-    <value>مقارنة أداء الأطر</value>
+    <value>مقارنة أداء الاستراتيجيات</value>
   </data>
   <data name="Performance Distribution" xml:space="preserve">
     <value>توزيع الأداء</value>
+  </data>
+  <data name="Indicators Performance" xml:space="preserve">
+    <value>أداء المؤشرات</value>
+  </data>
+  <data name="Disbursement Performance" xml:space="preserve">
+    <value>أداء الصرف</value>
   </data>
   <data name="High" xml:space="preserve">
     <value>مرتفع</value>
@@ -116,37 +131,37 @@
     <value>الأفضل أداءً</value>
   </data>
   <data name="Needs Improvement" xml:space="preserve">
-    <value>يحتاج إلى تحسين</value>
+    <value>يحتاج تحسين</value>
   </data>
   <data name="Top Frameworks" xml:space="preserve">
-    <value>أفضل الأطر</value>
+    <value>أفضل الاستراتيجيات</value>
   </data>
   <data name="Top Outcomes" xml:space="preserve">
-    <value>أفضل النتائج</value>
+    <value>أفضل السياسات</value>
   </data>
   <data name="Top Outputs" xml:space="preserve">
-    <value>أفضل المخرجات</value>
+    <value>أفضل البرامج</value>
   </data>
   <data name="Top SubOutputs" xml:space="preserve">
-    <value>أفضل المخرجات الفرعية</value>
+    <value>أفضل البرامج الفرعية</value>
   </data>
   <data name="Top Indicators" xml:space="preserve">
     <value>أفضل المؤشرات</value>
   </data>
-  <data name="Bottom Frameworks" xml:space="preserve">
-    <value>الأطر الأقل أداءً</value>
+  <data name="Needs Improvement - Frameworks" xml:space="preserve">
+    <value>يحتاج تحسين - الاستراتيجيات</value>
   </data>
-  <data name="Bottom Outcomes" xml:space="preserve">
-    <value>النتائج الأقل أداءً</value>
+  <data name="Needs Improvement - Outcomes" xml:space="preserve">
+    <value>يحتاج تحسين - السياسات</value>
   </data>
-  <data name="Bottom Outputs" xml:space="preserve">
-    <value>المخرجات الأقل أداءً</value>
+  <data name="Needs Improvement - Outputs" xml:space="preserve">
+    <value>يحتاج تحسين - البرامج</value>
   </data>
-  <data name="Bottom SubOutputs" xml:space="preserve">
-    <value>المخرجات الفرعية الأقل أداءً</value>
+  <data name="Needs Improvement - SubOutputs" xml:space="preserve">
+    <value>يحتاج تحسين - البرامج الفرعية</value>
   </data>
-  <data name="Bottom Indicators" xml:space="preserve">
-    <value>المؤشرات الأقل أداءً</value>
+  <data name="Needs Improvement - Indicators" xml:space="preserve">
+    <value>يحتاج تحسين - المؤشرات</value>
   </data>
   <data name="Rank" xml:space="preserve">
     <value>الترتيب</value>
@@ -155,15 +170,63 @@
     <value>الاسم</value>
   </data>
   <data name="Parent" xml:space="preserve">
-    <value>الأصل</value>
-  </data>
-  <data name="Indicators Performance" xml:space="preserve">
-    <value>أداء المؤشرات</value>
-  </data>
-  <data name="Disbursement Performance" xml:space="preserve">
-    <value>أداء الصرف</value>
+    <value>التابع لـ</value>
   </data>
   <data name="No data available" xml:space="preserve">
-    <value>لا توجد بيانات</value>
+    <value>لا توجد بيانات متاحة</value>
+  </data>
+  <data name="Print Options" xml:space="preserve">
+    <value>خيارات الطباعة</value>
+  </data>
+  <data name="Select the sections you want to include in the printed report" xml:space="preserve">
+    <value>حدد الأقسام التي تريد تضمينها في التقرير المطبوع</value>
+  </data>
+  <data name="Summary Cards" xml:space="preserve">
+    <value>بطاقات الملخص</value>
+  </data>
+  <data name="Frameworks, Outcomes, Outputs, SubOutputs, Indicators, Projects counts" xml:space="preserve">
+    <value>أعداد الاستراتيجيات والسياسات والبرامج والبرامج الفرعية والمؤشرات والمشاريع</value>
+  </data>
+  <data name="Performance Gauges" xml:space="preserve">
+    <value>مقاييس الأداء</value>
+  </data>
+  <data name="Average Indicators and Disbursement Performance" xml:space="preserve">
+    <value>متوسط أداء المؤشرات والصرف</value>
+  </data>
+  <data name="Charts" xml:space="preserve">
+    <value>الرسوم البيانية</value>
+  </data>
+  <data name="Framework Performance Comparison and Distribution charts" xml:space="preserve">
+    <value>رسوم مقارنة أداء الاستراتيجيات والتوزيع</value>
+  </data>
+  <data name="Best performing Frameworks, Outcomes, Outputs, SubOutputs, Indicators" xml:space="preserve">
+    <value>أفضل الاستراتيجيات والسياسات والبرامج والبرامج الفرعية والمؤشرات أداءً</value>
+  </data>
+  <data name="Lowest performing Frameworks, Outcomes, Outputs, SubOutputs, Indicators" xml:space="preserve">
+    <value>أدنى الاستراتيجيات والسياسات والبرامج والبرامج الفرعية والمؤشرات أداءً</value>
+  </data>
+  <data name="Select All" xml:space="preserve">
+    <value>تحديد الكل</value>
+  </data>
+  <data name="Deselect All" xml:space="preserve">
+    <value>إلغاء تحديد الكل</value>
+  </data>
+  <data name="Cancel" xml:space="preserve">
+    <value>إلغاء</value>
+  </data>
+  <data name="Print" xml:space="preserve">
+    <value>طباعة</value>
+  </data>
+  <data name="Please select at least one section to print" xml:space="preserve">
+    <value>يرجى تحديد قسم واحد على الأقل للطباعة</value>
+  </data>
+  <data name="Summary" xml:space="preserve">
+    <value>ملخص</value>
+  </data>
+  <data name="Metric" xml:space="preserve">
+    <value>المقياس</value>
+  </data>
+  <data name="Value" xml:space="preserve">
+    <value>القيمة</value>
   </data>
 </root>
