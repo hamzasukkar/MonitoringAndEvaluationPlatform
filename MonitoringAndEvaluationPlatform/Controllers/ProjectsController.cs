@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Localization;
 using MonitoringAndEvaluationPlatform.Attributes;
 using MonitoringAndEvaluationPlatform.Data;
 using MonitoringAndEvaluationPlatform.Models;
@@ -26,8 +27,9 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         private readonly IActivityService _activityService;
         private readonly PlanService _planService;
         private readonly IProjectValidationService _validationService;
+        private readonly IStringLocalizer<ProjectsController> _localizer;
 
-        public ProjectsController(ApplicationDbContext context, UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager, IActivityService activityService, PlanService planService, IProjectValidationService validationService)
+        public ProjectsController(ApplicationDbContext context, UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager, IActivityService activityService, PlanService planService, IProjectValidationService validationService, IStringLocalizer<ProjectsController> localizer)
         {
             _context = context;
             _userManager = userManager;
@@ -35,6 +37,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             _activityService = activityService;
             _planService = planService;
             _validationService = validationService;
+            _localizer = localizer;
         }
 
 
@@ -296,7 +299,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                         .FirstOrDefaultAsync(p => p.ProjectName.ToLower() == project.ProjectName.Trim().ToLower());
                     if (existingProject != null)
                     {
-                        ModelState.AddModelError("ProjectName", "A project with this name already exists.");
+                        ModelState.AddModelError("ProjectName", _localizer["A project with this name already exists."]);
                     }
                 }
 
