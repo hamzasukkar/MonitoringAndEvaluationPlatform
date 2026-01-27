@@ -12,6 +12,10 @@
     var endDate = Model?.EndDate != default ? Model.EndDate.ToString("yyyy-MM-dd") : DateTime.Today.ToString("yyyy-MM-dd");
 
     var governorates = ViewBag.Governorates as List<Governorate>;
+
+    // Helper to check if a field has validation errors
+    bool HasError(string fieldName) => ViewData.ModelState.ContainsKey(fieldName) && ViewData.ModelState[fieldName].Errors.Count > 0;
+    string ValidationClass(string fieldName) => HasError(fieldName) ? "is-invalid" : "";
 }
 
 <!-- Dashboard Header -->
@@ -62,12 +66,12 @@
                                 </h6>
 
                                 <!-- Project Name -->
-                                <div class="mb-4">
+                                <div class="mb-4 @(HasError("ProjectName") ? "has-validation-error" : "")">
                                     <label asp-for="ProjectName" class="form-label fw-bold">
                                         <i class="fas fa-project-diagram me-2"></i>
                                         @Localizer["Project Name"] <span class="text-danger">*</span>
                                     </label>
-                                    <input asp-for="ProjectName" class="form-control form-control-lg" placeholder="@Localizer["Enter a descriptive project name (3-200 characters)"]" />
+                                    <input asp-for="ProjectName" class="form-control form-control-lg @ValidationClass("ProjectName")" placeholder="@Localizer["Enter a descriptive project name (3-200 characters)"]" />
                                     <div class="form-text">@Localizer["Choose a clear and meaningful name for your project"]</div>
                                     <span asp-validation-for="ProjectName" class="invalid-feedback d-block"></span>
                                 </div>
@@ -161,21 +165,21 @@
                                     <i class="fas fa-clock me-2"></i>@Localizer["Project Timeline"]
                                 </h6>
                                 <div class="row g-3">
-                                    <div class="col-md-6">
+                                    <div class="col-md-6 @(HasError("StartDate") ? "has-validation-error" : "")">
                                         <label asp-for="StartDate" class="form-label fw-bold">
                                             <i class="fas fa-play me-2"></i>
                                             @Localizer["Start Date"] <span class="text-danger">*</span>
                                         </label>
-                                        <input type="date" asp-for="StartDate" value="@startDate" class="form-control form-control-lg" />
+                                        <input type="date" asp-for="StartDate" value="@startDate" class="form-control form-control-lg @ValidationClass("StartDate")" />
                                     <div class="form-text">@Localizer["Project implementation start date"] </div>
                                         <span asp-validation-for="StartDate" class="invalid-feedback d-block"></span>
                                     </div>
-                                    <div class="col-md-6">
+                                    <div class="col-md-6 @(HasError("EndDate") ? "has-validation-error" : "")">
                                         <label asp-for="EndDate" class="form-label fw-bold">
                                             <i class="fas fa-stop me-2"></i>
                                             @Localizer["End Date"] <span class="text-danger">*</span>
                                         </label>
-                                        <input type="date" asp-for="EndDate" value="@endDate" class="form-control form-control-lg" />
+                                        <input type="date" asp-for="EndDate" value="@endDate" class="form-control form-control-lg @ValidationClass("EndDate")" />
                                         <div class="form-text">@Localizer["Project completion deadline"]</div>
                                         <span asp-validation-for="EndDate" class="invalid-feedback d-block"></span>
                                     </div>
@@ -188,7 +192,7 @@
                                 <h6 class="text-primary mb-3">
                                     <i class="fas fa-dollar-sign me-2"></i>@Localizer["Budget Information"]
                                 </h6>
-                                <div class="mb-4">
+                                <div class="mb-4 @(HasError("EstimatedBudget") ? "has-validation-error" : "")">
                                     <label asp-for="EstimatedBudget" class="form-label fw-bold">
                                         <i class="fas fa-coins me-2"></i>
                                         @Localizer["Estimated Budget"] <span class="text-danger">*</span>
@@ -199,7 +203,7 @@
                                             <option value="EUR">&euro; EUR</option>
                                             <option value="SYP">SYP</option>
                                         </select>
-                                        <input asp-for="EstimatedBudget" class="form-control form-control-lg" min="0.01" step="0.01" placeholder="0.00" />
+                                        <input asp-for="EstimatedBudget" class="form-control form-control-lg @ValidationClass("EstimatedBudget")" min="0.01" step="0.01" placeholder="0.00" />
                                     </div>
                                     <div class="form-text">@Localizer["Enter the total estimated budget for this project"]</div>
                                     <span asp-validation-for="EstimatedBudget" class="invalid-feedback d-block"></span>
@@ -209,49 +213,49 @@
                                 <h6 class="text-primary mb-3">
                                     <i class="fas fa-users me-2"></i>@Localizer["Stakeholders"]
                                 </h6>
-                                <div class="mb-4">
+                                <div class="mb-4 @(HasError("Sectors") ? "has-validation-error" : "")" id="sectors-container">
                                     <label class="form-label fw-bold">
                                         <i class="fas fa-industry me-2"></i>
                                         @Localizer["Sectors"] <span class="text-danger">*</span>
                                     </label>
-                                    <select asp-for="Sectors" class="form-select" asp-items="ViewBag.SectorList" multiple size="4">
+                                    <select asp-for="Sectors" class="form-select @ValidationClass("Sectors")" asp-items="ViewBag.SectorList" multiple size="4">
                                         <option disabled>@Localizer["Select one or more sectors"]</option>
                                     </select>
                                     <div class="form-text">@Localizer["Hold Ctrl/Cmd to select multiple sectors"]</div>
                                     <div id="sectors-validation-error" class="invalid-feedback d-block" style="display: none;"></div>
                                 </div>
 
-                                <div class="mb-4">
+                                <div class="mb-4 @(HasError("ProjectManagerCode") ? "has-validation-error" : "")">
                                     <label asp-for="ProjectManagerCode" class="form-label fw-bold">
                                         <i class="fas fa-user-tie me-2"></i>
                                         @Localizer["Project Manager"] <span class="text-danger">*</span>
                                     </label>
-                                    <select asp-for="ProjectManagerCode" class="form-select form-select-lg" asp-items="ViewBag.ProjectManager">
+                                    <select asp-for="ProjectManagerCode" class="form-select form-select-lg @ValidationClass("ProjectManagerCode")" asp-items="ViewBag.ProjectManager">
                                         <option value="">-- @Localizer["Select Project Manager"] --</option>
                                     </select>
                                 <div class="form-text">@Localizer["Choose the primary manager responsible for this project"]</div>
                                     <span asp-validation-for="ProjectManagerCode" class="invalid-feedback d-block"></span>
                                 </div>
 
-                                <div class="mb-4">
+                                <div class="mb-4 @(HasError("SuperVisorCode") ? "has-validation-error" : "")">
                                     <label asp-for="SuperVisorCode" class="form-label fw-bold">
                                         <i class="fas fa-user-check me-2"></i>
                                         @Localizer["Supervisor"] <span class="text-danger">*</span>
                                     </label>
-                                    <select asp-for="SuperVisorCode" class="form-select form-select-lg" asp-items="ViewBag.SuperVisor">
+                                    <select asp-for="SuperVisorCode" class="form-select form-select-lg @ValidationClass("SuperVisorCode")" asp-items="ViewBag.SuperVisor">
                                         <option value="">-- @Localizer["Select Supervisor"] --</option>
                                     </select>
                                 <div class="form-text">@Localizer["Choose the supervisor who will oversee this project"]</div>
                                     <span asp-validation-for="SuperVisorCode" class="invalid-feedback d-block"></span>
                                 </div>
 
-                                <div class="mb-4">
+                                <div class="mb-4 @(HasError("MinistryCode") ? "has-validation-error" : "")">
                                     <label asp-for="MinistryCode" class="form-label fw-bold">
                                         <i class="fas fa-building me-2"></i>
                                         @Localizer["Ministry"] <span class="text-danger">*</span>
                                     </label>
                                     <div class="dropdown ministry-dropdown">
-                                        <button class="btn btn-outline-secondary dropdown-toggle form-control form-control-lg text-start d-flex align-items-center justify-content-between" type="button" id="ministryDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                                        <button class="btn btn-outline-secondary dropdown-toggle form-control form-control-lg text-start d-flex align-items-center justify-content-between @(HasError("MinistryCode") ? "is-invalid" : "")" type="button" id="ministryDropdown" data-bs-toggle="dropdown" aria-expanded="false">
                                             <span id="selectedMinistryDisplay" class="text-muted">@Localizer["Select Ministry"]</span>
                                         </button>
                                         <ul class="dropdown-menu dropdown-menu-lg w-100" aria-labelledby="ministryDropdown" style="max-height: 400px; overflow-y: auto;">
@@ -376,12 +380,12 @@
                                 <h6 class="text-primary mb-3">
                                     <i class="fas fa-bullseye me-2"></i>@Localizer["Project Indicators"]
                                 </h6>
-                                <div class="mb-4">
+                                <div class="mb-4 @(HasError("SelectedIndicators") ? "has-validation-error" : "")" id="indicator-container">
                                     <label class="form-label fw-bold">
                                         <i class="fas fa-chart-line me-2"></i>
                                         @Localizer["Select Indicator"] <span class="text-danger">*</span>
                                     </label>
-                                    <select name="SelectedIndicators" class="form-select form-select-lg" id="indicatorSelect">
+                                    <select name="SelectedIndicators" class="form-select form-select-lg @ValidationClass("SelectedIndicators")" id="indicatorSelect">
                                         <option value="">-- @Localizer["Select an indicator"] --</option>
                                         @if (ViewBag.Indicators != null)
                                         {
@@ -449,6 +453,50 @@
         display: flex;
         justify-content: space-between;
         align-items: center;
+    }
+
+    /* Validation Error Highlighting Styles */
+    .has-validation-error {
+        animation: shake 0.5s ease-in-out;
+        border-radius: 8px;
+        padding: 10px;
+        margin: -10px;
+        margin-bottom: 1rem;
+        background-color: rgba(220, 53, 69, 0.05);
+        border-left: 4px solid #dc3545;
+    }
+
+    .has-validation-error label {
+        color: #dc3545;
+    }
+
+    .is-invalid {
+        border-color: #dc3545 !important;
+        background-color: rgba(220, 53, 69, 0.05) !important;
+        box-shadow: 0 0 0 0.2rem rgba(220, 53, 69, 0.25) !important;
+    }
+
+    .is-invalid:focus {
+        border-color: #dc3545 !important;
+        box-shadow: 0 0 0 0.25rem rgba(220, 53, 69, 0.25) !important;
+    }
+
+    .invalid-feedback {
+        color: #dc3545;
+        font-size: 0.875rem;
+        margin-top: 0.25rem;
+        font-weight: 500;
+    }
+
+    @@keyframes shake {
+        0%, 100% { transform: translateX(0); }
+        10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
+        20%, 40%, 60%, 80% { transform: translateX(5px); }
+    }
+
+    /* Scroll to first error on page load */
+    .has-validation-error:first-of-type {
+        scroll-margin-top: 120px;
     }
 
     .donor-funding-card {
@@ -872,6 +920,17 @@
             }
         }
 
+        // Scroll to first validation error if any
+        var $firstError = $('.has-validation-error').first();
+        if ($firstError.length > 0) {
+            $('html, body').animate({
+                scrollTop: $firstError.offset().top - 120
+            }, 500);
+
+            // Focus on the first invalid input
+            $firstError.find('.is-invalid').first().focus();
+        }
+
         // Auto-fill project name and pre-select indicator if coming from "Add & Create Project"
         @if (ViewBag.PreSelectedIndicatorId != null)
         {
@@ -1153,10 +1212,31 @@
         let isValid = true;
         let errorMessages = [];
 
+        // Helper function to add validation error styling
+        function addFieldError(selector, containerSelector) {
+            $(selector).addClass('is-invalid');
+            if (containerSelector) {
+                $(containerSelector).addClass('has-validation-error');
+            }
+        }
+
+        // Helper function to remove validation error styling
+        function removeFieldError(selector, containerSelector) {
+            $(selector).removeClass('is-invalid');
+            if (containerSelector) {
+                $(containerSelector).removeClass('has-validation-error');
+            }
+        }
+
+        // Clear all previous validation errors
+        $('.is-invalid').removeClass('is-invalid');
+        $('.has-validation-error').removeClass('has-validation-error');
+
         // Check if locations are selected (unless "Entire Country" is checked)
         const isEntireCountry = $("#entireCountryCheckbox").is(':checked');
         if (!isEntireCountry && selections.length === 0) {
             errorMessages.push(localizedStrings.atLeastOneLocation);
+            $('#location-selector').closest('.mb-4').addClass('has-validation-error');
             isValid = false;
         }
 
@@ -1165,9 +1245,11 @@
         if (!selectedSectors || selectedSectors.length === 0) {
             errorMessages.push(localizedStrings.atLeastOneSector);
             $('#sectors-validation-error').text(localizedStrings.atLeastOneSector).show();
+            addFieldError('select[name="Sectors"]', '#sectors-container');
             isValid = false;
         } else {
             $('#sectors-validation-error').hide();
+            removeFieldError('select[name="Sectors"]', '#sectors-container');
         }
 
         // Check if indicator is selected
@@ -1175,17 +1257,19 @@
         if (!selectedIndicator) {
             errorMessages.push(localizedStrings.indicatorMustBeSelected);
             $('#indicator-validation-error').text(localizedStrings.indicatorMustBeSelected).show();
+            addFieldError('#indicatorSelect', '#indicator-container');
             isValid = false;
         } else {
             $('#indicator-validation-error').hide();
-            // No need to create hidden input - the select dropdown already has name="SelectedIndicators"
-            // The dropdown value will be submitted with the form
+            removeFieldError('#indicatorSelect', '#indicator-container');
         }
 
         // Check if project manager is selected
         const projectManager = $('select[name="ProjectManagerCode"]').val();
         if (!projectManager) {
             errorMessages.push(localizedStrings.projectManagerMustBeSelected);
+            addFieldError('select[name="ProjectManagerCode"]', 'select[name="ProjectManagerCode"]').closest('.mb-4');
+            $('select[name="ProjectManagerCode"]').addClass('is-invalid').closest('.mb-4').addClass('has-validation-error');
             isValid = false;
         }
 
@@ -1193,6 +1277,7 @@
         const supervisor = $('select[name="SuperVisorCode"]').val();
         if (!supervisor) {
             errorMessages.push(localizedStrings.supervisorMustBeSelected);
+            $('select[name="SuperVisorCode"]').addClass('is-invalid').closest('.mb-4').addClass('has-validation-error');
             isValid = false;
         }
 
@@ -1200,6 +1285,7 @@
         const ministry = $('input[name="MinistryCode"]').val();
         if (!ministry) {
             errorMessages.push(localizedStrings.ministryMustBeSelected);
+            $('#ministryDropdown').addClass('is-invalid').closest('.mb-4').addClass('has-validation-error');
             isValid = false;
         }
 
@@ -1208,6 +1294,8 @@
         const endDate = new Date($('input[name="EndDate"]').val());
         if (startDate && endDate && endDate <= startDate) {
             errorMessages.push(localizedStrings.endDateMustBeAfterStart);
+            $('input[name="StartDate"]').addClass('is-invalid').closest('.col-md-6').addClass('has-validation-error');
+            $('input[name="EndDate"]').addClass('is-invalid').closest('.col-md-6').addClass('has-validation-error');
             isValid = false;
         }
 
@@ -1216,6 +1304,7 @@
             const totalPercentage = parseFloat($('#totalPercentage').text());
             if (totalPercentage > 100) {
                 errorMessages.push(localizedStrings.donorFundingCannotExceed);
+                $('#donorFundingSection').addClass('has-validation-error');
                 isValid = false;
             }
         }
@@ -1235,10 +1324,20 @@
             $('#form-validation-alert').remove();
             $('#main-form-body').prepend(errorHtml);
 
-            // Scroll to top of form
-            $('html, body').animate({
-                scrollTop: $('#main-form-body').offset().top - 100
-            }, 500);
+            // Scroll to first error field
+            var $firstError = $('.has-validation-error').first();
+            if ($firstError.length > 0) {
+                $('html, body').animate({
+                    scrollTop: $firstError.offset().top - 120
+                }, 500);
+                // Focus on the first invalid input
+                $firstError.find('.is-invalid, input, select').first().focus();
+            } else {
+                // Fallback: scroll to top of form
+                $('html, body').animate({
+                    scrollTop: $('#main-form-body').offset().top - 100
+                }, 500);
+            }
 
             return false;
         }
