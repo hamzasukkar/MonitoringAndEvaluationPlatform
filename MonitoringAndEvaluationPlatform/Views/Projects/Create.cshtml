@@ -335,7 +335,7 @@
                                     </h6>
                                     <div class="alert alert-info">
                                         <i class="fas fa-info-circle me-2"></i>
-                                        @Localizer["Use sliders to specify the funding percentage for each donor. Total cannot exceed 100%."]
+                                        @Localizer["Enter percentage directly or use sliders to specify the funding for each donor. Total cannot exceed 100%."]
                                     </div>
 
                                     <div id="donorContributionList" class="mb-4"></div>
@@ -566,6 +566,17 @@
         background: #e9ecef;
         height: 6px;
         border-radius: 3px;
+    }
+
+    /* Percentage input styling */
+    .donor-percentage-input {
+        text-align: center;
+        font-weight: 600;
+    }
+
+    .donor-percentage-input::-webkit-inner-spin-button,
+    .donor-percentage-input::-webkit-outer-spin-button {
+        opacity: 1;
     }
 
     .percentage-display {
@@ -1090,21 +1101,28 @@
                 '<div class="card mb-3 donor-funding-card" data-donor="' + donor.value + '">' +
                     '<div class="card-body">' +
                         '<div class="row align-items-center">' +
-                            '<div class="col-md-4">' +
+                            '<div class="col-md-3">' +
                                 '<h6 class="mb-1">' +
                                     '<i class="fas fa-hand-holding-usd me-2"></i>' + donor.text +
                                 '</h6>' +
                                 '<small class="text-muted">' + localizedStrings.fundingContribution + '</small>' +
                             '</div>' +
+                            '<div class="col-md-2">' +
+                                '<label class="form-label small mb-1">' + localizedStrings.percentage + '</label>' +
+                                '<div class="input-group input-group-sm">' +
+                                    '<input type="number" class="form-control donor-percentage-input" data-donor="' + donor.value + '" min="0" max="100" step="0.1" value="' + currentPercentage.toFixed(1) + '">' +
+                                    '<span class="input-group-text">%</span>' +
+                                '</div>' +
+                            '</div>' +
                             '<div class="col-md-4">' +
-                                '<label class="form-label small mb-1">' + localizedStrings.percentage + ' <span class="percentage-display" data-donor="' + donor.value + '">' + currentPercentage.toFixed(1) + '%</span></label>' +
+                                '<label class="form-label small mb-1 d-none d-md-block">&nbsp;</label>' +
                                 '<input type="range" class="form-range donor-slider" data-donor="' + donor.value + '" min="0" max="100" step="0.1" value="' + currentPercentage + '">' +
                                 '<div class="d-flex justify-content-between small text-muted">' +
                                     '<span>0%</span>' +
                                     '<span>100%</span>' +
                                 '</div>' +
                             '</div>' +
-                            '<div class="col-md-3">' +
+                            '<div class="col-md-2">' +
                                 '<div class="text-end">' +
                                     '<strong class="donor-amount" data-donor="' + donor.value + '">$0.00</strong>' +
                                     '<br>' +
@@ -1132,10 +1150,39 @@
 
         donorFundingData[donorValue] = percentage;
 
-        // Update percentage display
-        $(`.percentage-display[data-donor="${donorValue}"]`).text(percentage.toFixed(1) + '%');
+        // Update text input to match slider
+        $(`.donor-percentage-input[data-donor="${donorValue}"]`).val(percentage.toFixed(1));
 
         calculateDonorTotals();
+    });
+
+    // Handle text input changes
+    $(document).on('input', '.donor-percentage-input', function() {
+        const donorValue = $(this).data('donor');
+        let percentage = parseFloat($(this).val()) || 0;
+
+        // Clamp value between 0 and 100
+        if (percentage < 0) percentage = 0;
+        if (percentage > 100) percentage = 100;
+
+        donorFundingData[donorValue] = percentage;
+
+        // Update slider to match text input
+        $(`.donor-slider[data-donor="${donorValue}"]`).val(percentage);
+
+        calculateDonorTotals();
+    });
+
+    // Handle text input blur to format the value
+    $(document).on('blur', '.donor-percentage-input', function() {
+        const donorValue = $(this).data('donor');
+        let percentage = parseFloat($(this).val()) || 0;
+
+        // Clamp and format value
+        if (percentage < 0) percentage = 0;
+        if (percentage > 100) percentage = 100;
+
+        $(this).val(percentage.toFixed(1));
     });
 
     // Handle remove donor button
