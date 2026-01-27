@@ -198,9 +198,14 @@
         }
 
             .dropdown-submenu > .dropdown-menu {
+                position: absolute;
                 top: 0;
                 margin-top: -6px;
                 left: 100%;
+                display: none;
+                visibility: visible;
+                opacity: 1;
+                z-index: 1050;
             }
 
         body[dir="rtl"] .dropdown-submenu > .dropdown-menu {
@@ -208,8 +213,11 @@
             right: 100%;
         }
 
+        .dropdown-submenu > .dropdown-menu.show,
         .dropdown-submenu:hover > .dropdown-menu {
-            display: block;
+            display: block !important;
+            visibility: visible !important;
+            opacity: 1 !important;
         }
 
         .language-selector select, .theme-selector select {
@@ -915,6 +923,8 @@
         .policies-dropdown-menu {
             min-width: 280px;
             padding-top: 0;
+            max-height: 400px;
+            overflow: visible;
         }
 
         .dropdown-search-container {
@@ -934,30 +944,6 @@
         .policies-search-input:focus {
             border-color: var(--primary-color);
             box-shadow: 0 0 0 0.2rem rgba(var(--primary-color-rgb), 0.15);
-        }
-
-        .policies-dropdown-scroll {
-            max-height: 350px;
-            overflow-y: auto;
-            overflow-x: hidden;
-        }
-
-        .policies-dropdown-scroll::-webkit-scrollbar {
-            width: 6px;
-        }
-
-        .policies-dropdown-scroll::-webkit-scrollbar-track {
-            background: #f1f1f1;
-            border-radius: 3px;
-        }
-
-        .policies-dropdown-scroll::-webkit-scrollbar-thumb {
-            background: #c1c1c1;
-            border-radius: 3px;
-        }
-
-        .policies-dropdown-scroll::-webkit-scrollbar-thumb:hover {
-            background: #a1a1a1;
         }
 
         .framework-item.hidden {
@@ -990,7 +976,7 @@
                         </a>
                     </li> *@
                     <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" href="#" id="policiesDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        <a class="nav-link dropdown-toggle" href="#" id="policiesDropdown" role="button" data-bs-toggle="dropdown" data-bs-auto-close="outside" aria-expanded="false">
                             <i class="fas fa-sitemap me-1"></i> @Localizer["National Development Strategy"]
                         </a>
                         <ul class="dropdown-menu policies-dropdown-menu" aria-labelledby="policiesDropdown">
@@ -1004,7 +990,6 @@
                             </li>
                             <li><hr class="dropdown-divider my-1"></li>
                             <!-- Scrollable Framework List -->
-                            <div class="policies-dropdown-scroll">
                             @foreach (var framework in _context.Frameworks
                             .OrderByDescending(f => f.IndicatorsPerformance)
                             .ToList())
@@ -1050,11 +1035,10 @@
                                     </ul>
                                 </li>
                             }
-                            </div>
                         </ul>
                     </li>
                           <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" href="#" id="SDGsDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        <a class="nav-link dropdown-toggle" href="#" id="SDGsDropdown" role="button" data-bs-toggle="dropdown" data-bs-auto-close="outside" aria-expanded="false">
                             <img src="/img/SDG Wheel_Transparent_WEB.png" alt="SDGs" class="me-2" style="width:24px; height:24px;" />
                             SDGs
                         </a>
@@ -1463,19 +1447,67 @@
         document.addEventListener("DOMContentLoaded", function () {
             // Load the theme when page loads
             loadTheme();
-            // Dropdown submenu functionality
-            document.querySelectorAll('.dropdown-submenu').forEach(function(element) {
-                element.addEventListener('mouseenter', function (e) {
-                    let dropdownMenu = this.querySelector('.dropdown-menu');
-                    if (dropdownMenu) {
-                        dropdownMenu.style.display = 'block';
+
+            // Dropdown submenu functionality using event delegation
+            document.addEventListener('click', function(e) {
+                var toggle = e.target.closest('.dropdown-submenu > a');
+                if (toggle) {
+                    e.preventDefault();
+                    e.stopPropagation();
+
+                    var submenuItem = toggle.parentElement;
+                    var submenu = submenuItem.querySelector('.dropdown-menu');
+
+                    if (submenu) {
+                        // Close other open submenus at the same level
+                        var parentMenu = submenuItem.parentElement;
+                        if (parentMenu) {
+                            var siblings = parentMenu.querySelectorAll('.dropdown-submenu > .dropdown-menu');
+                            siblings.forEach(function(sibling) {
+                                if (sibling !== submenu) {
+                                    sibling.classList.remove('show');
+                                    sibling.style.display = '';
+                                }
+                            });
+                        }
+
+                        // Toggle current submenu
+                        var isOpen = submenu.classList.contains('show');
+                        if (isOpen) {
+                            submenu.classList.remove('show');
+                            submenu.style.display = '';
+                        } else {
+                            submenu.classList.add('show');
+                            submenu.style.display = 'block';
+                        }
                     }
-                });
-                element.addEventListener('mouseleave', function (e) {
-                    let dropdownMenu = this.querySelector('.dropdown-menu');
-                    if (dropdownMenu) {
-                        dropdownMenu.style.display = 'none';
-                    }
+                }
+            });
+
+            // Mouse events for hover functionality
+            document.querySelectorAll('.dropdown-submenu').forEach(function(submenuItem) {
+                var submenu = submenuItem.querySelector('.dropdown-menu');
+
+                if (submenu) {
+                    submenuItem.addEventListener('mouseenter', function() {
+                        submenu.classList.add('show');
+                        submenu.style.display = 'block';
+                    });
+
+                    submenuItem.addEventListener('mouseleave', function() {
+                        submenu.classList.remove('show');
+                        submenu.style.display = '';
+                    });
+                }
+            });
+
+            // Close all submenus when parent dropdown closes
+            document.querySelectorAll('.nav-item.dropdown').forEach(function(dropdown) {
+                dropdown.addEventListener('hidden.bs.dropdown', function() {
+                    this.querySelectorAll('.dropdown-submenu .dropdown-menu').forEach(function(submenu) {
+                        submenu.classList.remove('show');
+                        submenu.style.display = '';
+                    });
                 });
             });
 
@@ -1493,21 +1525,6 @@
                     });
                 });
             }
-
-            // Dropdown submenu click functionality for mobile
-            $('.dropdown-submenu a.dropdown-toggle').on("click", function(e){
-                if (!$(this).next('ul').hasClass('show')) {
-                    $(this).parents('.dropdown-menu').first().find('.show').removeClass("show");
-                }
-                var $subMenu = $(this).next('ul');
-                $subMenu.toggleClass('show');
-
-                $(this).parents('li.nav-item.dropdown.show').on('hidden.bs.dropdown', function(e) {
-                    $('.dropdown-submenu .show').removeClass("show");
-                });
-
-                return false;
-            });
 
             // Footer counter animation
             function animateFooterCounter(elementId) {
