@@ -470,7 +470,7 @@
                                             </button>
                                             <button class="btn btn-outline-success btn-sm action-btn"
                                                     onclick="toggleProjects(@item.Code)" title="@Localizer["Show Projects"]">
-                                                <i class="fas fa-project-diagram" id="projects-chevron-@item.Code"></i>
+                                                <i class="fas fa-briefcase" id="projects-chevron-@item.Code"></i>
                                             </button>
                                             @if (SignInManager.IsSignedIn(User))
                                             {
@@ -1006,7 +1006,7 @@
 
             if (projectsRow.style.display === 'none') {
                 projectsRow.style.display = 'table-row';
-                icon.classList.remove('fa-project-diagram');
+                icon.classList.remove('fa-briefcase');
                 icon.classList.add('fa-times');
 
                 // Animate the container
@@ -1021,7 +1021,7 @@
             } else {
                 projectsRow.style.display = 'none';
                 icon.classList.remove('fa-times');
-                icon.classList.add('fa-project-diagram');
+                icon.classList.add('fa-briefcase');
             }
         }
 
