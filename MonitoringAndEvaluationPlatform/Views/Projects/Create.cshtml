@@ -7,8 +7,9 @@
     ViewData["Title"] = "Create New Project";
     Layout = "~/Views/Shared/_DashboardHomeLayout.cshtml";
 
-    var startDate = DateTime.Today.ToString("yyyy-MM-dd");
-    var endDate = DateTime.Today.ToString("yyyy-MM-dd");
+    // Use model values if available, otherwise default to today's date
+    var startDate = Model?.StartDate != default ? Model.StartDate.ToString("yyyy-MM-dd") : DateTime.Today.ToString("yyyy-MM-dd");
+    var endDate = Model?.EndDate != default ? Model.EndDate.ToString("yyyy-MM-dd") : DateTime.Today.ToString("yyyy-MM-dd");
 
     var governorates = ViewBag.Governorates as List<Governorate>;
 }
@@ -95,7 +96,7 @@
                                     <!-- Entire Country Checkbox -->
                                     <div class="mb-3">
                                         <div class="form-check form-switch">
-                                            <input class="form-check-input" type="checkbox" id="entireCountryCheckbox" name="IsEntireCountry" value="true">
+                                            <input class="form-check-input" type="checkbox" id="entireCountryCheckbox" name="IsEntireCountry" value="true" @(Model?.IsEntireCountry == true ? "checked" : "")>
                                             <label class="form-check-label fw-bold" for="entireCountryCheckbox">
                                                 <i class="fas fa-flag me-2"></i>@Localizer["This project covers the entire country"]
                                             </label>
@@ -685,12 +686,16 @@
             return;
         }
 
-        // Add location
+        // Add location with names for display
         const item = {
             GovernorateCode: govCode,
+            GovernorateName: govName,
             DistrictCode: distCode,
+            DistrictName: distName,
             SubDistrictCode: subCode,
-            CommunityCode: commCode
+            SubDistrictName: subName,
+            CommunityCode: commCode,
+            CommunityName: commName
         };
 
         selections.push(item);
@@ -854,6 +859,19 @@
         // Restore preserved form data after validation failure
         restoreFormData();
 
+        // Handle initial state of "Entire Country" checkbox
+        if ($("#entireCountryCheckbox").is(':checked')) {
+            $("#location-selector select").prop('disabled', true).val('');
+            $("#add-location, #reset-dropdowns").prop('disabled', true);
+            if ($("#entire-country-info").length === 0) {
+                $("#location-selector").before(
+                    '<div id="entire-country-info" class="alert alert-info">' +
+                    '<i class="fas fa-info-circle me-2"></i>' + localizedStrings.thisProjectWillCover +
+                    '</div>'
+                );
+            }
+        }
+
         // Auto-fill project name and pre-select indicator if coming from "Add & Create Project"
         @if (ViewBag.PreSelectedIndicatorId != null)
         {
@@ -886,6 +904,14 @@
             $('#ministrySelect').val(ministryCode);
 
             // Update display button
+            updateMinistryDisplay(ministryCode, ministryName, ministryLogo);
+
+            // Close dropdown
+            $('#ministryDropdown').dropdown('hide');
+        });
+
+        // Function to update ministry display
+        function updateMinistryDisplay(ministryCode, ministryName, ministryLogo) {
             $('#selectedMinistryDisplay').html('').removeClass('text-muted');
             if (ministryLogo && ministryLogo.trim() !== '') {
                 $('#selectedMinistryDisplay').append('<span class="me-2" style="font-size: 1.5rem;">' + ministryLogo + '</span>');
@@ -893,10 +919,18 @@
                 $('#selectedMinistryDisplay').append('<span class="me-2 bg-light border rounded d-flex align-items-center justify-content-center" style="width: 24px; height: 24px; display: inline-flex;"><i class="fas fa-building text-muted" style="font-size: 0.7rem;"></i></span>');
             }
             $('#selectedMinistryDisplay').append('<span>' + ministryName + '</span>');
+        }
 
-            // Close dropdown
-            $('#ministryDropdown').dropdown('hide');
-        });
+        // Restore ministry display if already selected (from model)
+        var selectedMinistryCode = $('#ministrySelect').val();
+        if (selectedMinistryCode) {
+            var $selectedMinistryItem = $('.ministry-item[data-ministry-code="' + selectedMinistryCode + '"]');
+            if ($selectedMinistryItem.length > 0) {
+                var ministryName = $selectedMinistryItem.data('ministry-name');
+                var ministryLogo = $selectedMinistryItem.data('ministry-logo');
+                updateMinistryDisplay(selectedMinistryCode, ministryName, ministryLogo);
+            }
+        }
 
         // Make ministry dropdown readonly for ministry users
         var isMinistryUser = @Html.Raw(Json.Serialize(ViewBag.IsMinistryUser ?? false));
@@ -1256,10 +1290,16 @@
     function restoreLocationSelections() {
         if (selections && selections.length > 0) {
             selections.forEach(function(item) {
+                // Use names if available, otherwise use codes
+                var govDisplay = item.GovernorateName || ('Governorate ' + item.GovernorateCode);
+                var distDisplay = item.DistrictName || ('District ' + item.DistrictCode);
+                var subDisplay = item.SubDistrictName || ('SubDistrict ' + item.SubDistrictCode);
+                var commDisplay = item.CommunityName || ('Community ' + item.CommunityCode);
+
                 // Create list item display
                 const $li = $(
                     '<li class="list-group-item">' +
-                        '<span>Governorate ' + item.GovernorateCode + ' > District ' + item.DistrictCode + ' > SubDistrict ' + item.SubDistrictCode + ' > Community ' + item.CommunityCode + '</span>' +
+                        '<span>' + govDisplay + ' > ' + distDisplay + ' > ' + subDisplay + ' > ' + commDisplay + '</span>' +
                         '<button type="button" class="btn btn-sm btn-outline-danger btn-clear">' +
                             '<i class="fas fa-times"></i> ' + localizedStrings.clear +
                         '</button>' +
