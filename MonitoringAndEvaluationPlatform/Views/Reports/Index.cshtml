@@ -195,6 +195,197 @@
     </div>
 </div>
 
+<!-- NEW: Radar Chart - Multi-dimensional Framework Comparison -->
+<div id="print-section-radar" class="row g-4 mb-4 print-section">
+    <div class="col-lg-6">
+        <div class="chart-card">
+            <div class="chart-title">
+                <i class="fas fa-spider me-2"></i>
+                @Localizer["Framework Performance Radar"]
+            </div>
+            <div class="chart-container">
+                <canvas id="radarChart"></canvas>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-6">
+        <div class="chart-card">
+            <div class="chart-title">
+                <i class="fas fa-chart-area me-2"></i>
+                @Localizer["Polar Performance View"]
+            </div>
+            <div class="chart-container">
+                <canvas id="polarChart"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- NEW: Hierarchy Structure Overview -->
+<div id="print-section-hierarchy" class="row g-4 mb-4 print-section">
+    <div class="col-lg-5">
+        <div class="chart-card">
+            <div class="chart-title">
+                <i class="fas fa-layer-group me-2"></i>
+                @Localizer["Hierarchy Levels Overview"]
+            </div>
+            <div class="chart-container">
+                <canvas id="hierarchyChart"></canvas>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-7">
+        <div class="chart-card">
+            <div class="chart-title">
+                <i class="fas fa-stream me-2"></i>
+                @Localizer["Performance by Level"]
+            </div>
+            <div class="performance-levels-container">
+                <div class="performance-level-row">
+                    <div class="level-info">
+                        <i class="fas fa-sitemap text-primary"></i>
+                        <span class="level-name">@Localizer["Frameworks"]</span>
+                        <span class="level-count">@Model.TotalFrameworks</span>
+                    </div>
+                    <div class="level-progress-container">
+                        <div class="level-progress" data-value="@Model.AverageIndicatorsPerformance" style="--progress-color: #2196F3;">
+                            <div class="level-progress-bar"></div>
+                        </div>
+                        <span class="level-percentage">@Model.AverageIndicatorsPerformance%</span>
+                    </div>
+                </div>
+                <div class="performance-level-row">
+                    <div class="level-info">
+                        <i class="fas fa-bullseye text-success"></i>
+                        <span class="level-name">@Localizer["Outcomes"]</span>
+                        <span class="level-count">@Model.TotalOutcomes</span>
+                    </div>
+                    <div class="level-progress-container">
+                        @{
+                            var avgOutcomePerf = Model.TopOutcomes.Any() ? Model.TopOutcomes.Average(o => o.IndicatorsPerformance) : 0;
+                        }
+                        <div class="level-progress" data-value="@avgOutcomePerf" style="--progress-color: #4CAF50;">
+                            <div class="level-progress-bar"></div>
+                        </div>
+                        <span class="level-percentage">@Math.Round(avgOutcomePerf, 1)%</span>
+                    </div>
+                </div>
+                <div class="performance-level-row">
+                    <div class="level-info">
+                        <i class="fas fa-cube text-warning"></i>
+                        <span class="level-name">@Localizer["Outputs"]</span>
+                        <span class="level-count">@Model.TotalOutputs</span>
+                    </div>
+                    <div class="level-progress-container">
+                        @{
+                            var avgOutputPerf = Model.TopOutputs.Any() ? Model.TopOutputs.Average(o => o.IndicatorsPerformance) : 0;
+                        }
+                        <div class="level-progress" data-value="@avgOutputPerf" style="--progress-color: #FF9800;">
+                            <div class="level-progress-bar"></div>
+                        </div>
+                        <span class="level-percentage">@Math.Round(avgOutputPerf, 1)%</span>
+                    </div>
+                </div>
+                <div class="performance-level-row">
+                    <div class="level-info">
+                        <i class="fas fa-cubes text-purple"></i>
+                        <span class="level-name">@Localizer["SubOutputs"]</span>
+                        <span class="level-count">@Model.TotalSubOutputs</span>
+                    </div>
+                    <div class="level-progress-container">
+                        @{
+                            var avgSubOutputPerf = Model.TopSubOutputs.Any() ? Model.TopSubOutputs.Average(o => o.IndicatorsPerformance) : 0;
+                        }
+                        <div class="level-progress" data-value="@avgSubOutputPerf" style="--progress-color: #9C27B0;">
+                            <div class="level-progress-bar"></div>
+                        </div>
+                        <span class="level-percentage">@Math.Round(avgSubOutputPerf, 1)%</span>
+                    </div>
+                </div>
+                <div class="performance-level-row">
+                    <div class="level-info">
+                        <i class="fas fa-chart-line text-pink"></i>
+                        <span class="level-name">@Localizer["Indicators"]</span>
+                        <span class="level-count">@Model.TotalIndicators</span>
+                    </div>
+                    <div class="level-progress-container">
+                        @{
+                            var avgIndicatorPerf = Model.TopIndicators.Any() ? Model.TopIndicators.Average(o => o.IndicatorsPerformance) : 0;
+                        }
+                        <div class="level-progress" data-value="@avgIndicatorPerf" style="--progress-color: #E91E63;">
+                            <div class="level-progress-bar"></div>
+                        </div>
+                        <span class="level-percentage">@Math.Round(avgIndicatorPerf, 1)%</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- NEW: Dual Performance Comparison Chart -->
+<div id="print-section-dual" class="row g-4 mb-4 print-section">
+    <div class="col-12">
+        <div class="chart-card">
+            <div class="chart-title">
+                <i class="fas fa-balance-scale me-2"></i>
+                @Localizer["Indicators vs Disbursement Performance Comparison"]
+            </div>
+            <div class="chart-container" style="height: 400px;">
+                <canvas id="dualComparisonChart"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- NEW: Performance Trend Visualization (Simulated) -->
+<div id="print-section-trend" class="row g-4 mb-4 print-section">
+    <div class="col-lg-6">
+        <div class="chart-card">
+            <div class="chart-title">
+                <i class="fas fa-wave-square me-2"></i>
+                @Localizer["Performance Gap Analysis"]
+            </div>
+            <div class="chart-container">
+                <canvas id="gapAnalysisChart"></canvas>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-6">
+        <div class="chart-card">
+            <div class="chart-title">
+                <i class="fas fa-th-large me-2"></i>
+                @Localizer["Performance Heatmap"]
+            </div>
+            <div class="heatmap-container">
+                @foreach (var framework in Model.FrameworkPerformanceData.Take(5))
+                {
+                    <div class="heatmap-row">
+                        <span class="heatmap-label" title="@framework.Name">@(framework.Name.Length > 20 ? framework.Name.Substring(0, 17) + "..." : framework.Name)</span>
+                        <div class="heatmap-cells">
+                            <div class="heatmap-cell" style="background-color: @GetHeatmapColor(framework.IndicatorsPerformance);" title="@Localizer["Indicators"]: @framework.IndicatorsPerformance%">
+                                <span class="cell-value">@Math.Round(framework.IndicatorsPerformance)%</span>
+                            </div>
+                            <div class="heatmap-cell" style="background-color: @GetHeatmapColor(framework.DisbursementPerformance);" title="@Localizer["Disbursement"]: @framework.DisbursementPerformance%">
+                                <span class="cell-value">@Math.Round(framework.DisbursementPerformance)%</span>
+                            </div>
+                        </div>
+                    </div>
+                }
+                <div class="heatmap-legend">
+                    <span class="legend-label">@Localizer["Low"]</span>
+                    <div class="legend-gradient"></div>
+                    <span class="legend-label">@Localizer["High"]</span>
+                </div>
+                <div class="heatmap-axis">
+                    <span>@Localizer["Indicators"]</span>
+                    <span>@Localizer["Disbursement"]</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
 <!-- Top Performers Section -->
 <div id="print-section-top" class="chart-card mb-4 performers-section print-section">
     <div class="chart-title d-flex justify-content-between align-items-center flex-wrap gap-2">
@@ -333,6 +524,46 @@
                         </label>
                     </div>
 
+                    <!-- Radar & Polar Charts -->
+                    <div class="form-check print-option-item">
+                        <input class="form-check-input print-section-check" type="checkbox" id="printRadar" value="print-section-radar" checked>
+                        <label class="form-check-label" for="printRadar">
+                            <i class="fas fa-spider me-2 text-secondary"></i>
+                            @Localizer["Radar & Polar Charts"]
+                            <small class="text-muted d-block">@Localizer["Multi-dimensional performance visualization"]</small>
+                        </label>
+                    </div>
+
+                    <!-- Hierarchy Overview -->
+                    <div class="form-check print-option-item">
+                        <input class="form-check-input print-section-check" type="checkbox" id="printHierarchy" value="print-section-hierarchy" checked>
+                        <label class="form-check-label" for="printHierarchy">
+                            <i class="fas fa-layer-group me-2 text-purple"></i>
+                            @Localizer["Hierarchy Overview"]
+                            <small class="text-muted d-block">@Localizer["Levels breakdown and progress bars"]</small>
+                        </label>
+                    </div>
+
+                    <!-- Dual Comparison -->
+                    <div class="form-check print-option-item">
+                        <input class="form-check-input print-section-check" type="checkbox" id="printDual" value="print-section-dual" checked>
+                        <label class="form-check-label" for="printDual">
+                            <i class="fas fa-balance-scale me-2 text-warning"></i>
+                            @Localizer["Dual Performance Comparison"]
+                            <small class="text-muted d-block">@Localizer["Indicators vs Disbursement mixed chart"]</small>
+                        </label>
+                    </div>
+
+                    <!-- Trend & Heatmap -->
+                    <div class="form-check print-option-item">
+                        <input class="form-check-input print-section-check" type="checkbox" id="printTrend" value="print-section-trend" checked>
+                        <label class="form-check-label" for="printTrend">
+                            <i class="fas fa-th-large me-2 text-danger"></i>
+                            @Localizer["Gap Analysis & Heatmap"]
+                            <small class="text-muted d-block">@Localizer["Performance gap and heatmap visualization"]</small>
+                        </label>
+                    </div>
+
                     <!-- Top Performers -->
                     <div class="form-check print-option-item">
                         <input class="form-check-input print-section-check" type="checkbox" id="printTopPerformers" value="print-section-top" checked>
@@ -384,6 +615,27 @@
         if (value >= 75) return "high";
         if (value >= 50) return "medium";
         return "low";
+    }
+
+    string GetHeatmapColor(double value)
+    {
+        // Color gradient from red (0) to yellow (50) to green (100)
+        if (value >= 75)
+        {
+            return $"rgba(76, 175, 80, {0.6 + (value - 75) * 0.016})";
+        }
+        else if (value >= 50)
+        {
+            return $"rgba(255, 193, 7, {0.6 + (value - 50) * 0.016})";
+        }
+        else if (value >= 25)
+        {
+            return $"rgba(255, 152, 0, {0.5 + (value - 25) * 0.02})";
+        }
+        else
+        {
+            return $"rgba(244, 67, 54, {0.5 + value * 0.02})";
+        }
     }
 }
 
@@ -475,6 +727,293 @@
                     }
                 }
             }
+        });
+
+        // NEW: Radar Chart - Multi-dimensional Framework Comparison
+        const radarCtx = document.getElementById('radarChart').getContext('2d');
+        const radarChart = new Chart(radarCtx, {
+            type: 'radar',
+            data: {
+                labels: frameworkLabels.slice(0, 6),
+                datasets: [
+                    {
+                        label: '@Localizer["Indicators Performance"]',
+                        data: indicatorsData.slice(0, 6),
+                        backgroundColor: 'rgba(33, 150, 243, 0.2)',
+                        borderColor: 'rgba(33, 150, 243, 1)',
+                        borderWidth: 2,
+                        pointBackgroundColor: 'rgba(33, 150, 243, 1)',
+                        pointBorderColor: '#fff',
+                        pointHoverBackgroundColor: '#fff',
+                        pointHoverBorderColor: 'rgba(33, 150, 243, 1)'
+                    },
+                    {
+                        label: '@Localizer["Disbursement Performance"]',
+                        data: disbursementData.slice(0, 6),
+                        backgroundColor: 'rgba(76, 175, 80, 0.2)',
+                        borderColor: 'rgba(76, 175, 80, 1)',
+                        borderWidth: 2,
+                        pointBackgroundColor: 'rgba(76, 175, 80, 1)',
+                        pointBorderColor: '#fff',
+                        pointHoverBackgroundColor: '#fff',
+                        pointHoverBorderColor: 'rgba(76, 175, 80, 1)'
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                animation: { duration: 0 },
+                plugins: {
+                    legend: {
+                        position: 'top',
+                    }
+                },
+                scales: {
+                    r: {
+                        beginAtZero: true,
+                        max: 100,
+                        ticks: {
+                            stepSize: 25,
+                            callback: function(value) {
+                                return value + '%';
+                            }
+                        }
+                    }
+                }
+            }
+        });
+
+        // NEW: Polar Area Chart - Performance Distribution Alternative View
+        const polarCtx = document.getElementById('polarChart').getContext('2d');
+        const polarChart = new Chart(polarCtx, {
+            type: 'polarArea',
+            data: {
+                labels: ['@Localizer["High Performers"]', '@Localizer["Medium Performers"]', '@Localizer["Low Performers"]', '@Localizer["Projects"]'],
+                datasets: [{
+                    data: [@Model.HighPerformanceCount, @Model.MediumPerformanceCount, @Model.LowPerformanceCount, Math.min(@Model.TotalProjects, 10)],
+                    backgroundColor: [
+                        'rgba(76, 175, 80, 0.7)',
+                        'rgba(255, 193, 7, 0.7)',
+                        'rgba(244, 67, 54, 0.7)',
+                        'rgba(0, 188, 212, 0.7)'
+                    ],
+                    borderColor: [
+                        'rgba(76, 175, 80, 1)',
+                        'rgba(255, 193, 7, 1)',
+                        'rgba(244, 67, 54, 1)',
+                        'rgba(0, 188, 212, 1)'
+                    ],
+                    borderWidth: 2
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                animation: { duration: 0 },
+                plugins: {
+                    legend: {
+                        position: 'right',
+                    }
+                },
+                scales: {
+                    r: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+
+        // NEW: Hierarchy Horizontal Bar Chart
+        const hierarchyCtx = document.getElementById('hierarchyChart').getContext('2d');
+        const hierarchyChart = new Chart(hierarchyCtx, {
+            type: 'bar',
+            data: {
+                labels: ['@Localizer["Frameworks"]', '@Localizer["Outcomes"]', '@Localizer["Outputs"]', '@Localizer["SubOutputs"]', '@Localizer["Indicators"]', '@Localizer["Projects"]'],
+                datasets: [{
+                    label: '@Localizer["Count"]',
+                    data: [@Model.TotalFrameworks, @Model.TotalOutcomes, @Model.TotalOutputs, @Model.TotalSubOutputs, @Model.TotalIndicators, @Model.TotalProjects],
+                    backgroundColor: [
+                        'rgba(33, 150, 243, 0.8)',
+                        'rgba(76, 175, 80, 0.8)',
+                        'rgba(255, 152, 0, 0.8)',
+                        'rgba(156, 39, 176, 0.8)',
+                        'rgba(233, 30, 99, 0.8)',
+                        'rgba(0, 188, 212, 0.8)'
+                    ],
+                    borderColor: [
+                        'rgba(33, 150, 243, 1)',
+                        'rgba(76, 175, 80, 1)',
+                        'rgba(255, 152, 0, 1)',
+                        'rgba(156, 39, 176, 1)',
+                        'rgba(233, 30, 99, 1)',
+                        'rgba(0, 188, 212, 1)'
+                    ],
+                    borderWidth: 2,
+                    borderRadius: 8
+                }]
+            },
+            options: {
+                indexAxis: 'y',
+                responsive: true,
+                maintainAspectRatio: false,
+                animation: { duration: 0 },
+                plugins: {
+                    legend: {
+                        display: false
+                    }
+                },
+                scales: {
+                    x: {
+                        beginAtZero: true,
+                        grid: {
+                            display: true,
+                            color: 'rgba(0, 0, 0, 0.05)'
+                        }
+                    },
+                    y: {
+                        grid: {
+                            display: false
+                        }
+                    }
+                }
+            }
+        });
+
+        // NEW: Dual Performance Comparison (Mixed Chart - Line + Bar)
+        const dualCtx = document.getElementById('dualComparisonChart').getContext('2d');
+        const dualComparisonChart = new Chart(dualCtx, {
+            type: 'bar',
+            data: {
+                labels: frameworkLabels,
+                datasets: [
+                    {
+                        type: 'bar',
+                        label: '@Localizer["Indicators Performance"]',
+                        data: indicatorsData,
+                        backgroundColor: 'rgba(33, 150, 243, 0.7)',
+                        borderColor: 'rgba(33, 150, 243, 1)',
+                        borderWidth: 2,
+                        borderRadius: 4,
+                        order: 2
+                    },
+                    {
+                        type: 'line',
+                        label: '@Localizer["Disbursement Performance"]',
+                        data: disbursementData,
+                        borderColor: 'rgba(255, 87, 34, 1)',
+                        backgroundColor: 'rgba(255, 87, 34, 0.1)',
+                        borderWidth: 3,
+                        fill: true,
+                        tension: 0.4,
+                        pointRadius: 6,
+                        pointBackgroundColor: 'rgba(255, 87, 34, 1)',
+                        pointBorderColor: '#fff',
+                        pointBorderWidth: 2,
+                        order: 1
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                animation: { duration: 0 },
+                plugins: {
+                    legend: {
+                        position: 'top',
+                    },
+                    tooltip: {
+                        mode: 'index',
+                        intersect: false
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        max: 100,
+                        ticks: {
+                            callback: function(value) {
+                                return value + '%';
+                            }
+                        }
+                    }
+                }
+            }
+        });
+
+        // NEW: Gap Analysis Chart (Difference between Indicators and Disbursement)
+        const gapCtx = document.getElementById('gapAnalysisChart').getContext('2d');
+        const gapData = indicatorsData.map((val, idx) => val - disbursementData[idx]);
+        const gapColors = gapData.map(val => val >= 0 ? 'rgba(76, 175, 80, 0.7)' : 'rgba(244, 67, 54, 0.7)');
+        const gapBorders = gapData.map(val => val >= 0 ? 'rgba(76, 175, 80, 1)' : 'rgba(244, 67, 54, 1)');
+
+        const gapAnalysisChart = new Chart(gapCtx, {
+            type: 'bar',
+            data: {
+                labels: frameworkLabels.slice(0, 6),
+                datasets: [{
+                    label: '@Localizer["Performance Gap"] (@Localizer["Indicators"] - @Localizer["Disbursement"])',
+                    data: gapData.slice(0, 6),
+                    backgroundColor: gapColors.slice(0, 6),
+                    borderColor: gapBorders.slice(0, 6),
+                    borderWidth: 2,
+                    borderRadius: 6
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                animation: { duration: 0 },
+                plugins: {
+                    legend: {
+                        display: true,
+                        position: 'top'
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                const value = context.raw;
+                                const sign = value >= 0 ? '+' : '';
+                                return `@Localizer["Gap"]: ${sign}${value.toFixed(1)}%`;
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: false,
+                        ticks: {
+                            callback: function(value) {
+                                const sign = value >= 0 ? '+' : '';
+                                return sign + value + '%';
+                            }
+                        },
+                        grid: {
+                            color: function(context) {
+                                if (context.tick.value === 0) {
+                                    return 'rgba(0, 0, 0, 0.3)';
+                                }
+                                return 'rgba(0, 0, 0, 0.05)';
+                            },
+                            lineWidth: function(context) {
+                                if (context.tick.value === 0) {
+                                    return 2;
+                                }
+                                return 1;
+                            }
+                        }
+                    }
+                }
+            }
+        });
+
+        // Animate Progress Bars
+        document.querySelectorAll('.level-progress').forEach(progress => {
+            const value = parseFloat(progress.dataset.value);
+            const bar = progress.querySelector('.level-progress-bar');
+            setTimeout(() => {
+                bar.style.width = value + '%';
+            }, 300);
         });
 
         // Tab switching for Top Performers
@@ -1296,6 +1835,224 @@
             .avoid-break {
                 page-break-inside: avoid !important;
             }
+
+            /* NEW: Performance Levels Print Styles */
+            .performance-levels-container {
+                padding: 10px !important;
+            }
+
+            .performance-level-row {
+                padding: 8px 0 !important;
+            }
+
+            .level-progress {
+                height: 10px !important;
+            }
+
+            .level-progress-bar {
+                transition: none !important;
+            }
+
+            /* NEW: Heatmap Print Styles */
+            .heatmap-container {
+                padding: 10px !important;
+            }
+
+            .heatmap-cell {
+                height: 35px !important;
+            }
+
+            .cell-value {
+                font-size: 0.8rem !important;
+            }
+
+            .heatmap-legend {
+                margin-top: 10px !important;
+            }
+        }
+
+        /* NEW: Performance Levels Container */
+        .performance-levels-container {
+            padding: 1.5rem;
+        }
+
+        .performance-level-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 1rem 0;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .performance-level-row:last-child {
+            border-bottom: none;
+        }
+
+        .level-info {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            min-width: 180px;
+        }
+
+        .level-info i {
+            font-size: 1.25rem;
+            width: 30px;
+            text-align: center;
+        }
+
+        .level-name {
+            font-weight: 600;
+            color: #2c3e50;
+        }
+
+        .level-count {
+            background: #f0f0f0;
+            padding: 0.25rem 0.5rem;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: #666;
+        }
+
+        .level-progress-container {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            flex: 1;
+            max-width: 400px;
+        }
+
+        .level-progress {
+            flex: 1;
+            height: 12px;
+            background: #e9ecef;
+            border-radius: 6px;
+            overflow: hidden;
+        }
+
+        .level-progress-bar {
+            height: 100%;
+            width: 0%;
+            background: var(--progress-color, #2196F3);
+            border-radius: 6px;
+            transition: width 1.5s ease-out;
+        }
+
+        .level-percentage {
+            font-weight: 700;
+            font-size: 1rem;
+            color: #2c3e50;
+            min-width: 50px;
+            text-align: right;
+        }
+
+        .text-purple {
+            color: #9C27B0 !important;
+        }
+
+        .text-pink {
+            color: #E91E63 !important;
+        }
+
+        /* NEW: Heatmap Styles */
+        .heatmap-container {
+            padding: 1.5rem;
+        }
+
+        .heatmap-row {
+            display: flex;
+            align-items: center;
+            margin-bottom: 0.75rem;
+            gap: 1rem;
+        }
+
+        .heatmap-label {
+            width: 140px;
+            font-size: 0.85rem;
+            font-weight: 500;
+            color: #2c3e50;
+            text-overflow: ellipsis;
+            overflow: hidden;
+            white-space: nowrap;
+        }
+
+        .heatmap-cells {
+            display: flex;
+            gap: 0.5rem;
+            flex: 1;
+        }
+
+        .heatmap-cell {
+            flex: 1;
+            height: 45px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            position: relative;
+        }
+
+        .heatmap-cell:hover {
+            transform: scale(1.05);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+        }
+
+        .cell-value {
+            font-weight: 700;
+            font-size: 0.9rem;
+            color: white;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
+        }
+
+        .heatmap-legend {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.75rem;
+            margin-top: 1.5rem;
+            padding-top: 1rem;
+            border-top: 1px solid #e9ecef;
+        }
+
+        .legend-gradient {
+            width: 150px;
+            height: 15px;
+            border-radius: 8px;
+            background: linear-gradient(90deg,
+                rgba(244, 67, 54, 0.8) 0%,
+                rgba(255, 152, 0, 0.8) 33%,
+                rgba(255, 193, 7, 0.8) 66%,
+                rgba(76, 175, 80, 0.8) 100%
+            );
+        }
+
+        .legend-label {
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: #666;
+        }
+
+        .heatmap-axis {
+            display: flex;
+            justify-content: flex-end;
+            gap: 0.5rem;
+            margin-top: 0.5rem;
+            padding-right: 0.5rem;
+        }
+
+        .heatmap-axis span {
+            flex: 1;
+            text-align: center;
+            font-size: 0.75rem;
+            color: #888;
+            font-weight: 500;
+        }
+
+        .heatmap-axis span:first-child {
+            margin-left: 156px;
         }
 
         /* Responsive Design */
@@ -1344,6 +2101,39 @@
             .report-actions .btn {
                 flex: 1;
                 min-width: 120px;
+            }
+
+            /* NEW: Responsive styles for new charts */
+            .performance-level-row {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 0.5rem;
+            }
+
+            .level-info {
+                min-width: auto;
+            }
+
+            .level-progress-container {
+                width: 100%;
+                max-width: none;
+            }
+
+            .heatmap-label {
+                width: 100px;
+                font-size: 0.75rem;
+            }
+
+            .heatmap-cell {
+                height: 35px;
+            }
+
+            .cell-value {
+                font-size: 0.75rem;
+            }
+
+            .heatmap-axis span:first-child {
+                margin-left: 116px;
             }
         }
     </style>
