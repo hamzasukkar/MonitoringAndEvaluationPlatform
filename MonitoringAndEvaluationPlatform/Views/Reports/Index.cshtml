@@ -119,6 +119,102 @@
     </div>
 </div>
 
+<!-- Syria Map Section -->
+<div id="print-section-map" class="row g-4 mb-4 print-section">
+    <div class="col-lg-8">
+        <div class="chart-card">
+            <div class="chart-title d-flex justify-content-between align-items-center">
+                <div>
+                    <i class="fas fa-map-marked-alt me-2"></i>
+                    @Localizer["Projects by Governorate"]
+                </div>
+                <button class="btn btn-sm btn-outline-secondary no-print" id="resetMapBtn" style="display: none;">
+                    <i class="fas fa-undo me-1"></i>@Localizer["Show All"]
+                </button>
+            </div>
+            <div class="syria-map-container">
+                <div id="syriaMapContainer" class="syria-map-wrapper">
+                    <!-- SVG will be loaded here -->
+                    <div class="map-loading">
+                        <i class="fas fa-spinner fa-spin fa-2x"></i>
+                        <p>@Localizer["Loading map..."]</p>
+                    </div>
+                </div>
+
+                <!-- Map Tooltip -->
+                <div id="mapTooltip" class="map-tooltip"></div>
+            </div>
+
+            <!-- Map Legend -->
+            <div class="map-legend mt-3">
+                <div class="legend-title">@Localizer["Project Density"]</div>
+                <div class="legend-scale">
+                    <span class="legend-label">0</span>
+                    <div class="legend-gradient-bar"></div>
+                    <span class="legend-label" id="maxProjectsLabel">10+</span>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-4">
+        <div class="chart-card h-100">
+            <div class="chart-title">
+                <i class="fas fa-info-circle me-2"></i>
+                <span id="selectedGovTitle">@Localizer["Governorate Details"]</span>
+            </div>
+            <div id="governorateDetails" class="governorate-details">
+                <div class="gov-placeholder">
+                    <i class="fas fa-mouse-pointer fa-3x text-muted mb-3"></i>
+                    <p class="text-muted">@Localizer["Click on a governorate to view details"]</p>
+                </div>
+            </div>
+            <div id="governorateStats" class="governorate-stats" style="display: none;">
+                <div class="gov-stat-item">
+                    <div class="gov-stat-icon bg-primary">
+                        <i class="fas fa-project-diagram"></i>
+                    </div>
+                    <div class="gov-stat-content">
+                        <span class="gov-stat-value" id="govProjectCount">0</span>
+                        <span class="gov-stat-label">@Localizer["Projects"]</span>
+                    </div>
+                </div>
+                <div class="gov-stat-item">
+                    <div class="gov-stat-icon bg-success">
+                        <i class="fas fa-dollar-sign"></i>
+                    </div>
+                    <div class="gov-stat-content">
+                        <span class="gov-stat-value" id="govBudget">$0</span>
+                        <span class="gov-stat-label">@Localizer["Total Budget"]</span>
+                    </div>
+                </div>
+                <div class="gov-stat-item">
+                    <div class="gov-stat-icon bg-info">
+                        <i class="fas fa-chart-line"></i>
+                    </div>
+                    <div class="gov-stat-content">
+                        <span class="gov-stat-value" id="govPerformance">0%</span>
+                        <span class="gov-stat-label">@Localizer["Avg Performance"]</span>
+                    </div>
+                </div>
+                <div class="gov-stat-item">
+                    <div class="gov-stat-icon bg-warning">
+                        <i class="fas fa-money-bill-wave"></i>
+                    </div>
+                    <div class="gov-stat-content">
+                        <span class="gov-stat-value" id="govDisbursement">0%</span>
+                        <span class="gov-stat-label">@Localizer["Disbursement"]</span>
+                    </div>
+                </div>
+                <div class="mt-3">
+                    <button class="btn btn-primary btn-sm w-100" id="viewGovReportBtn">
+                        <i class="fas fa-file-alt me-1"></i>@Localizer["View Full Report"]
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
 <!-- Average Performance Cards -->
 <div id="print-section-performance" class="row g-4 mb-4 print-section">
     <div class="col-md-6">
@@ -956,6 +1052,16 @@
                         </label>
                     </div>
 
+                    <!-- Syria Map -->
+                    <div class="form-check print-option-item">
+                        <input class="form-check-input print-section-check" type="checkbox" id="printMap" value="print-section-map" checked>
+                        <label class="form-check-label" for="printMap">
+                            <i class="fas fa-map-marked-alt me-2 text-success"></i>
+                            @Localizer["Syria Map"]
+                            <small class="text-muted d-block">@Localizer["Interactive map showing projects by governorate"]</small>
+                        </label>
+                    </div>
+
                     <!-- Performance Gauges -->
                     <div class="form-check print-option-item">
                         <input class="form-check-input print-section-check" type="checkbox" id="printPerformance" value="print-section-performance" checked>
@@ -1577,6 +1683,234 @@
                             }
                         }
                     }
+                }
+            }
+        });
+
+        // Syria Map Interactions
+        const governorateReportsData = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.GovernorateReports));
+        const isRtlLang = @(isRtl ? "true" : "false");
+
+        // Governorate mapping - maps path IDs to governorate info
+        // Based on the SVG structure: path1-path14 correspond to the 14 governorates
+        const governorateMapping = {
+            'path1': { nameEn: 'Quneitra', nameAr: 'القنيطرة', code: 'SY02' },
+            'path2': { nameEn: 'Daraa', nameAr: 'درعا', code: 'SY05' },
+            'path3': { nameEn: 'As-Suwayda', nameAr: 'السويداء', code: 'SY10' },
+            'path4': { nameEn: 'Damascus', nameAr: 'دمشق', code: 'SY01' },
+            'path5': { nameEn: 'Rif Dimashq', nameAr: 'ريف دمشق', code: 'SY03' },
+            'path6': { nameEn: 'Homs', nameAr: 'حمص', code: 'SY04' },
+            'path7': { nameEn: 'Tartus', nameAr: 'طرطوس', code: 'SY14' },
+            'path8': { nameEn: 'Latakia', nameAr: 'اللاذقية', code: 'SY06' },
+            'path9': { nameEn: 'Hama', nameAr: 'حماة', code: 'SY07' },
+            'path10': { nameEn: 'Idlib', nameAr: 'إدلب', code: 'SY08' },
+            'path11': { nameEn: 'Aleppo', nameAr: 'حلب', code: 'SY12' },
+            'path12': { nameEn: 'Ar-Raqqah', nameAr: 'الرقة', code: 'SY11' },
+            'path13': { nameEn: 'Deir ez-Zor', nameAr: 'دير الزور', code: 'SY09' },
+            'path14': { nameEn: 'Al-Hasakah', nameAr: 'الحسكة', code: 'SY13' }
+        };
+
+        // Load external SVG map
+        fetch('/images/syria-map.svg')
+            .then(response => response.text())
+            .then(svgContent => {
+                const container = document.getElementById('syriaMapContainer');
+                container.innerHTML = svgContent;
+
+                // Get the SVG element
+                const svg = container.querySelector('svg');
+                if (svg) {
+                    svg.classList.add('syria-map');
+                    svg.setAttribute('id', 'syriaMap');
+
+                    // Apply governorate class and data attributes to each path
+                    Object.keys(governorateMapping).forEach(pathId => {
+                        const path = svg.querySelector('#' + pathId);
+                        if (path) {
+                            const govInfo = governorateMapping[pathId];
+                            path.classList.add('governorate');
+                            path.dataset.nameEn = govInfo.nameEn;
+                            path.dataset.nameAr = govInfo.nameAr;
+                            path.dataset.code = govInfo.code;
+                        }
+                    });
+
+                    // Initialize map after SVG is loaded
+                    initializeMap();
+                }
+            })
+            .catch(error => {
+                console.error('Error loading map:', error);
+                document.getElementById('syriaMapContainer').innerHTML = '<p class="text-danger text-center">@Localizer["Error loading map"]</p>';
+            });
+
+        function initializeMap() {
+            // Color governorates based on project count
+            colorizeMap();
+
+            // Map tooltip
+            const mapTooltip = document.getElementById('mapTooltip');
+
+            document.querySelectorAll('.governorate').forEach(path => {
+                // Mouse enter - show tooltip
+                path.addEventListener('mouseenter', function(e) {
+                    const govNameEn = this.dataset.nameEn;
+                    const govNameAr = this.dataset.nameAr;
+                    const govName = isRtlLang ? govNameAr : govNameEn;
+
+                    const govData = governorateReportsData.find(g =>
+                        g.Name.toLowerCase().includes(govNameEn.toLowerCase()) ||
+                        govNameEn.toLowerCase().includes(g.Name.toLowerCase()) ||
+                        (g.NameAr && govNameAr === g.NameAr)
+                    );
+
+                    let tooltipContent = `<div class="tooltip-title">${govName}</div>`;
+                    if (govData) {
+                        tooltipContent += `<div class="tooltip-stats">
+                            <div>@Localizer["Projects"]: <strong>${govData.ProjectCount}</strong></div>
+                            <div>@Localizer["Budget"]: <strong>$${govData.TotalBudget.toLocaleString()}</strong></div>
+                            <div>@Localizer["Performance"]: <strong>${govData.IndicatorsPerformance}%</strong></div>
+                        </div>`;
+                    } else {
+                        tooltipContent += `<div class="tooltip-stats">@Localizer["No projects in this governorate"]</div>`;
+                    }
+
+                    mapTooltip.innerHTML = tooltipContent;
+                    mapTooltip.classList.add('visible');
+                });
+
+                // Mouse move - position tooltip
+                path.addEventListener('mousemove', function(e) {
+                    const container = document.querySelector('.syria-map-container');
+                    const rect = container.getBoundingClientRect();
+                    const x = e.clientX - rect.left + 15;
+                    const y = e.clientY - rect.top + 15;
+                    mapTooltip.style.left = x + 'px';
+                    mapTooltip.style.top = y + 'px';
+                });
+
+                // Mouse leave - hide tooltip
+                path.addEventListener('mouseleave', function() {
+                    mapTooltip.classList.remove('visible');
+                });
+
+                // Click - show details
+                path.addEventListener('click', function() {
+                    const govNameEn = this.dataset.nameEn;
+                    const govNameAr = this.dataset.nameAr;
+                    const govName = isRtlLang ? govNameAr : govNameEn;
+                    const govCode = this.dataset.code;
+
+                    // Update active state
+                    document.querySelectorAll('.governorate').forEach(p => p.classList.remove('active'));
+                    this.classList.add('active');
+
+                    // Find governorate data
+                    const govData = governorateReportsData.find(g =>
+                        g.Name.toLowerCase().includes(govNameEn.toLowerCase()) ||
+                        govNameEn.toLowerCase().includes(g.Name.toLowerCase()) ||
+                        (g.NameAr && govNameAr === g.NameAr)
+                    );
+
+                    // Update title
+                    document.getElementById('selectedGovTitle').textContent = govName;
+
+                    // Show/hide elements
+                    document.getElementById('governorateDetails').style.display = 'none';
+                    document.getElementById('governorateStats').style.display = 'block';
+                    document.getElementById('resetMapBtn').style.display = 'inline-block';
+
+                    if (govData) {
+                        document.getElementById('govProjectCount').textContent = govData.ProjectCount;
+                        document.getElementById('govBudget').textContent = '$' + govData.TotalBudget.toLocaleString();
+                        document.getElementById('govPerformance').textContent = govData.IndicatorsPerformance + '%';
+                        document.getElementById('govDisbursement').textContent = govData.DisbursementPerformance + '%';
+
+                        // Update performance color
+                        const perfValue = document.getElementById('govPerformance');
+                        perfValue.className = 'gov-stat-value';
+                        if (govData.IndicatorsPerformance >= 75) {
+                            perfValue.style.color = '#4CAF50';
+                        } else if (govData.IndicatorsPerformance >= 50) {
+                            perfValue.style.color = '#FF9800';
+                        } else {
+                            perfValue.style.color = '#F44336';
+                        }
+                    } else {
+                        document.getElementById('govProjectCount').textContent = '0';
+                        document.getElementById('govBudget').textContent = '$0';
+                        document.getElementById('govPerformance').textContent = '0%';
+                        document.getElementById('govDisbursement').textContent = '0%';
+                    }
+
+                    // Store selected governorate for filtering
+                    window.selectedGovernorate = govNameEn;
+
+                    // Scroll to category reports and filter by governorate
+                    const categorySection = document.getElementById('print-section-categories');
+                    if (categorySection) {
+                        // Activate governorate tab
+                        const govBtn = document.querySelector('[data-target="governorateReport"]');
+                        if (govBtn) {
+                            govBtn.click();
+                        }
+                    }
+                });
+            });
+        }
+
+        // Color governorates based on project count
+        function colorizeMap() {
+            const maxProjects = Math.max(...governorateReportsData.map(g => g.ProjectCount), 1);
+            document.getElementById('maxProjectsLabel').textContent = maxProjects + '+';
+
+            document.querySelectorAll('.governorate').forEach(path => {
+                const govNameEn = path.dataset.nameEn;
+                const govData = governorateReportsData.find(g =>
+                    g.Name.toLowerCase().includes(govNameEn.toLowerCase()) ||
+                    govNameEn.toLowerCase().includes(g.Name.toLowerCase()) ||
+                    (g.NameAr && path.dataset.nameAr === g.NameAr)
+                );
+
+                if (govData && govData.ProjectCount > 0) {
+                    const ratio = govData.ProjectCount / maxProjects;
+                    path.classList.remove('has-projects-low', 'has-projects-medium', 'has-projects-high', 'has-projects-very-high');
+                    if (ratio <= 0.25) {
+                        path.classList.add('has-projects-low');
+                    } else if (ratio <= 0.5) {
+                        path.classList.add('has-projects-medium');
+                    } else if (ratio <= 0.75) {
+                        path.classList.add('has-projects-high');
+                    } else {
+                        path.classList.add('has-projects-very-high');
+                    }
+                }
+            });
+        }
+
+        // Reset map button
+        document.getElementById('resetMapBtn').addEventListener('click', function() {
+            document.querySelectorAll('.governorate').forEach(p => p.classList.remove('active'));
+            document.getElementById('selectedGovTitle').textContent = '@Localizer["Governorate Details"]';
+            document.getElementById('governorateDetails').style.display = 'flex';
+            document.getElementById('governorateStats').style.display = 'none';
+            this.style.display = 'none';
+            window.selectedGovernorate = null;
+        });
+
+        // View full report button
+        document.getElementById('viewGovReportBtn').addEventListener('click', function() {
+            if (window.selectedGovernorate) {
+                // Scroll to and activate the governorate report tab
+                const categorySection = document.getElementById('print-section-categories');
+                if (categorySection) {
+                    categorySection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    setTimeout(() => {
+                        const govBtn = document.querySelector('[data-target="governorateReport"]');
+                        if (govBtn) {
+                            govBtn.click();
+                        }
+                    }, 500);
                 }
             }
         });
@@ -2546,6 +2880,214 @@
             .category-stat .stat-value {
                 font-size: 1.5rem !important;
             }
+
+            /* NEW: Syria Map Print Styles */
+            .syria-map-container {
+                padding: 10px !important;
+            }
+
+            .syria-map {
+                max-height: 300px !important;
+            }
+
+            .map-tooltip {
+                display: none !important;
+            }
+
+            .governorate-stats {
+                display: block !important;
+            }
+
+            .governorate-details {
+                display: none !important;
+            }
+        }
+
+        /* NEW: Syria Map Styles */
+        .syria-map-container {
+            position: relative;
+            width: 100%;
+            padding: 1rem;
+        }
+
+        .syria-map-wrapper {
+            width: 100%;
+            min-height: 400px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .map-loading {
+            text-align: center;
+            color: #6c757d;
+        }
+
+        .map-loading i {
+            color: #2196F3;
+        }
+
+        .syria-map {
+            width: 100%;
+            height: auto;
+            max-height: 450px;
+        }
+
+        .governorate {
+            fill: #e3f2fd;
+            stroke: #1976d2;
+            stroke-width: 1.5;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .governorate:hover {
+            fill: #90caf9;
+            stroke: #0d47a1;
+            stroke-width: 2.5;
+            filter: drop-shadow(0 2px 4px rgba(0,0,0,0.2));
+        }
+
+        .governorate.active {
+            fill: #1976d2;
+            stroke: #0d47a1;
+            stroke-width: 3;
+        }
+
+        .governorate.has-projects-low {
+            fill: #fff3e0;
+        }
+
+        .governorate.has-projects-medium {
+            fill: #ffe0b2;
+        }
+
+        .governorate.has-projects-high {
+            fill: #ffb74d;
+        }
+
+        .governorate.has-projects-very-high {
+            fill: #ff9800;
+        }
+
+        .map-tooltip {
+            position: absolute;
+            background: rgba(0, 0, 0, 0.85);
+            color: white;
+            padding: 10px 15px;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.2s ease;
+            z-index: 1000;
+            max-width: 250px;
+        }
+
+        .map-tooltip.visible {
+            opacity: 1;
+        }
+
+        .map-tooltip .tooltip-title {
+            font-weight: 600;
+            margin-bottom: 5px;
+            border-bottom: 1px solid rgba(255,255,255,0.3);
+            padding-bottom: 5px;
+        }
+
+        .map-tooltip .tooltip-stats {
+            font-size: 0.85rem;
+        }
+
+        .map-legend {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 1rem;
+            padding: 0.75rem;
+            background: #f8f9fa;
+            border-radius: 8px;
+        }
+
+        .legend-title {
+            font-weight: 600;
+            color: #2c3e50;
+            font-size: 0.9rem;
+        }
+
+        .legend-scale {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .legend-gradient-bar {
+            width: 150px;
+            height: 12px;
+            border-radius: 6px;
+            background: linear-gradient(90deg, #e3f2fd 0%, #fff3e0 25%, #ffe0b2 50%, #ffb74d 75%, #ff9800 100%);
+        }
+
+        /* Governorate Details Panel */
+        .governorate-details {
+            padding: 1.5rem;
+            min-height: 300px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .gov-placeholder {
+            text-align: center;
+        }
+
+        .governorate-stats {
+            padding: 1rem;
+        }
+
+        .gov-stat-item {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 1rem;
+            background: #f8f9fa;
+            border-radius: 10px;
+            margin-bottom: 0.75rem;
+            transition: all 0.3s ease;
+        }
+
+        .gov-stat-item:hover {
+            transform: translateX(5px);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .gov-stat-icon {
+            width: 45px;
+            height: 45px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.2rem;
+        }
+
+        .gov-stat-content {
+            flex: 1;
+        }
+
+        .gov-stat-value {
+            display: block;
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: #2c3e50;
+        }
+
+        .gov-stat-label {
+            display: block;
+            font-size: 0.8rem;
+            color: #6c757d;
         }
 
         /* NEW: Category Reports Styles */
