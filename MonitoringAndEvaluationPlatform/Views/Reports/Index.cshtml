@@ -195,7 +195,7 @@
     </div>
 </div>
 
-<!-- NEW: Radar Chart - Multi-dimensional Framework Comparison -->
+<!-- NEW: Radar Chart - Multi-dimensional Framework Comparison & Project Analysis -->
 <div id="print-section-radar" class="row g-4 mb-4 print-section">
     <div class="col-lg-6">
         <div class="chart-card">
@@ -216,6 +216,92 @@
             </div>
             <div class="chart-container">
                 <canvas id="polarChart"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- NEW: Sector & Ministry Analysis -->
+<div id="print-section-sector-ministry" class="row g-4 mb-4 print-section">
+    <div class="col-lg-4">
+        <div class="chart-card">
+            <div class="chart-title">
+                <i class="fas fa-industry me-2"></i>
+                @Localizer["Projects by Sector"]
+            </div>
+            <div class="chart-container">
+                <canvas id="sectorChart"></canvas>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-8">
+        <div class="chart-card">
+            <div class="chart-title">
+                <i class="fas fa-building me-2"></i>
+                @Localizer["Ministry Performance Overview"]
+            </div>
+            <div class="chart-container">
+                <canvas id="ministryChart"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- NEW: Budget & Progress Analysis -->
+<div id="print-section-budget-prog" class="row g-4 mb-4 print-section">
+    <div class="col-lg-8">
+        <div class="chart-card">
+            <div class="chart-title">
+                <i class="fas fa-chart-scatter me-2"></i>
+                @Localizer["Financial vs Physical Progress"]
+            </div>
+            <div class="chart-container">
+                <canvas id="scatterChart"></canvas>
+            </div>
+            <p class="text-muted text-center mt-2 small">
+                @Localizer["X-Axis: Financial Progress %, Y-Axis: Physical Progress % (Bubble Size = Budget)"]
+            </p>
+        </div>
+    </div>
+    <div class="col-lg-4">
+        <div class="chart-card">
+            <div class="chart-title">
+                <i class="fas fa-wallet me-2"></i>
+                @Localizer["Budget Overview"]
+            </div>
+            <div class="d-flex flex-column gap-4 justify-content-center h-100 py-3">
+                <div class="summary-card projects mb-0"> <!-- Reusing style -->
+                    <div class="summary-icon bg-primary text-white">
+                        <i class="fas fa-file-invoice-dollar"></i>
+                    </div>
+                    <div class="summary-content">
+                        <div class="summary-value" style="font-size: 1.5rem;">$@Model.BudgetOverview.TotalEstimatedBudget.ToString("N0")</div>
+                        <div class="summary-label">@Localizer["Total Estimated Budget"]</div>
+                    </div>
+                </div>
+                <div class="summary-card frameworks mb-0"> <!-- Reusing style -->
+                    <div class="summary-icon bg-success text-white">
+                        <i class="fas fa-hand-holding-usd"></i>
+                    </div>
+                    <div class="summary-content">
+                        <div class="summary-value" style="font-size: 1.5rem;">$@Model.BudgetOverview.TotalRealBudget.ToString("N0")</div>
+                        <div class="summary-label">@Localizer["Total Real Budget"]</div>
+                    </div>
+                </div>
+                 <div class="summary-card outcomes mb-0"> <!-- Reusing style -->
+                     <div class="summary-icon bg-warning text-white">
+                        <i class="fas fa-percentage"></i>
+                    </div>
+                    <div class="summary-content">
+                         @{
+                             var utilization = Model.BudgetOverview.TotalEstimatedBudget > 0 
+                                 ? (Model.BudgetOverview.TotalRealBudget / Model.BudgetOverview.TotalEstimatedBudget * 100) 
+                                 : 0;
+                         }
+                        <div class="summary-value" style="font-size: 1.5rem;">@Math.Round(utilization, 1)%</div>
+                        <div class="summary-label">@Localizer["Budget Utilization"]</div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -819,6 +905,118 @@
                 scales: {
                     r: {
                         beginAtZero: true
+                    }
+                }
+            }
+        });
+
+        // NEW: Sector Performance Chart
+        const sectorCtx = document.getElementById('sectorChart').getContext('2d');
+        const sectorLabels = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.SectorPerformanceData.Select(s => s.Name)));
+        const sectorData = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.SectorPerformanceData.Select(s => s.IndicatorsPerformance)));
+        const sectorChart = new Chart(sectorCtx, {
+            type: 'doughnut',
+            data: {
+                labels: sectorLabels,
+                datasets: [{
+                    data: sectorData,
+                    backgroundColor: [
+                        'rgba(255, 99, 132, 0.7)', 'rgba(54, 162, 235, 0.7)', 'rgba(255, 206, 86, 0.7)',
+                        'rgba(75, 192, 192, 0.7)', 'rgba(153, 102, 255, 0.7)', 'rgba(255, 159, 64, 0.7)',
+                        'rgba(199, 199, 199, 0.7)', 'rgba(83, 102, 255, 0.7)'
+                    ],
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { position: 'bottom' },
+                    title: { display: false }
+                }
+            }
+        });
+
+        // NEW: Ministry Performance Chart
+        const ministryCtx = document.getElementById('ministryChart').getContext('2d');
+        const ministryLabels = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.MinistryPerformanceData.Select(m => m.Name)));
+        const ministryIndData = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.MinistryPerformanceData.Select(m => m.IndicatorsPerformance)));
+        const ministryDisbData = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.MinistryPerformanceData.Select(m => m.DisbursementPerformance)));
+
+        const ministryChart = new Chart(ministryCtx, {
+            type: 'bar',
+            data: {
+                labels: ministryLabels,
+                datasets: [
+                    {
+                        label: '@Localizer["Indicators Performance"]',
+                        data: ministryIndData,
+                        backgroundColor: 'rgba(54, 162, 235, 0.7)',
+                        borderColor: 'rgba(54, 162, 235, 1)',
+                        borderWidth: 1
+                    },
+                    {
+                        label: '@Localizer["Disbursement Performance"]',
+                        data: ministryDisbData,
+                        backgroundColor: 'rgba(75, 192, 192, 0.7)',
+                        borderColor: 'rgba(75, 192, 192, 1)',
+                        borderWidth: 1
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                indexAxis: 'y',
+                scales: {
+                    x: { beginAtZero: true, max: 100 }
+                }
+            }
+        });
+
+        // NEW: Financial vs Physical Progress Scatter Chart
+        const scatterCtx = document.getElementById('scatterChart').getContext('2d');
+        const scatterRawData = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.ProjectScatterData));
+        const scatterData = scatterRawData.map(item => ({
+            x: item.FinancialProgress,
+            y: item.PhysicalProgress,
+            r: Math.max(5, Math.min(30, Math.sqrt(item.Budget) / 100)), // Scale bubble size
+            project: item.ProjectName,
+            budget: item.Budget
+        }));
+
+        const scatterChart = new Chart(scatterCtx, {
+            type: 'bubble',
+            data: {
+                datasets: [{
+                    label: '@Localizer["Projects"]',
+                    data: scatterData,
+                    backgroundColor: 'rgba(255, 99, 132, 0.6)',
+                    borderColor: 'rgba(255, 99, 132, 1)'
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    x: {
+                        title: { display: true, text: '@Localizer["Financial Progress (%)"]' },
+                        min: 0, max: 100
+                    },
+                    y: {
+                        title: { display: true, text: '@Localizer["Physical Progress (%)"]' },
+                        min: 0, max: 100
+                    }
+                },
+                plugins: {
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                const pt = context.raw;
+                                return pt.project + ': (Fin: ' + pt.x + '%, Phy: ' + pt.y + '%, Budget: $' + pt.budget.toLocaleString() + ')';
+                            }
+                        }
                     }
                 }
             }

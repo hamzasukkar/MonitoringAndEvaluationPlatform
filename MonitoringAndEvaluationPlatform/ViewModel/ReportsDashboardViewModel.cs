@@ -35,6 +35,26 @@ namespace MonitoringAndEvaluationPlatform.ViewModel
         public int HighPerformanceCount { get; set; }
         public int MediumPerformanceCount { get; set; }
         public int LowPerformanceCount { get; set; }
+
+        // New Chart Data
+        public List<PerformanceDataItem> SectorPerformanceData { get; set; } = new List<PerformanceDataItem>();
+        public List<PerformanceDataItem> MinistryPerformanceData { get; set; } = new List<PerformanceDataItem>();
+        public List<ProjectScatterDataItem> ProjectScatterData { get; set; } = new List<ProjectScatterDataItem>();
+        public BudgetOverviewItem BudgetOverview { get; set; } = new BudgetOverviewItem();
+    }
+
+    public class ProjectScatterDataItem
+    {
+        public string ProjectName { get; set; }
+        public double FinancialProgress { get; set; }
+        public double PhysicalProgress { get; set; }
+        public double Budget { get; set; }
+    }
+
+    public class BudgetOverviewItem
+    {
+        public double TotalEstimatedBudget { get; set; }
+        public double TotalRealBudget { get; set; }
     }
 
     public class PerformanceDataItem

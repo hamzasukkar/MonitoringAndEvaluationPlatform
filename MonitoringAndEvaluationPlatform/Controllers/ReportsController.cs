@@ -5,6 +5,7 @@ using MonitoringAndEvaluationPlatform.Attributes;
 using MonitoringAndEvaluationPlatform.Data;
 using MonitoringAndEvaluationPlatform.Models;
 using MonitoringAndEvaluationPlatform.ViewModel;
+using System.Globalization;
 
 namespace MonitoringAndEvaluationPlatform.Controllers
 {
@@ -33,7 +34,9 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                                     .ThenInclude(pi => pi.Project)
                 .ToListAsync();
 
-            var projects = await _context.Projects.ToListAsync();
+            var projects = await _context.Projects.Include(p => p.Sectors).Include(p => p.Ministry).ToListAsync();
+            var sectors = await _context.Sectors.Include(s => s.Projects).ToListAsync();
+            var ministries = await _context.Ministries.Include(m => m.Projects).ToListAsync();
 
             // Summary Counts
             viewModel.TotalFrameworks = frameworks.Count;
@@ -198,9 +201,42 @@ namespace MonitoringAndEvaluationPlatform.Controllers
 
             // Performance Distribution (for pie/doughnut charts)
             var allOutcomes = frameworks.SelectMany(f => f.Outcomes).ToList();
-            viewModel.HighPerformanceCount = allOutcomes.Count(o => o.IndicatorsPerformance >= 75);
-            viewModel.MediumPerformanceCount = allOutcomes.Count(o => o.IndicatorsPerformance >= 50 && o.IndicatorsPerformance < 75);
             viewModel.LowPerformanceCount = allOutcomes.Count(o => o.IndicatorsPerformance < 50);
+
+            // Populate New Chart Data
+            // 1. Sector Performance
+            viewModel.SectorPerformanceData = sectors.Select(s => new PerformanceDataItem
+            {
+                Name = CultureInfo.CurrentCulture.Name.StartsWith("ar") ? s.AR_Name : s.EN_Name,
+                Code = s.Code,
+                IndicatorsPerformance = Math.Round(s.IndicatorsPerformance, 2),
+                DisbursementPerformance = Math.Round(s.DisbursementPerformance, 2)
+            }).OrderByDescending(s => s.IndicatorsPerformance).ToList();
+
+            // 2. Ministry Performance
+            viewModel.MinistryPerformanceData = ministries.Select(m => new PerformanceDataItem
+            {
+                Name = CultureInfo.CurrentCulture.Name.StartsWith("ar") ? m.MinistryDisplayName_AR : m.MinistryDisplayName_EN,
+                Code = m.Code,
+                IndicatorsPerformance = Math.Round(m.IndicatorsPerformance, 2),
+                DisbursementPerformance = Math.Round(m.DisbursementPerformance, 2)
+            }).OrderByDescending(m => m.IndicatorsPerformance).ToList();
+
+            // 3. Project Financial vs Physical (Scatter Plot)
+            viewModel.ProjectScatterData = projects.Select(p => new ProjectScatterDataItem
+            {
+                ProjectName = p.ProjectName,
+                FinancialProgress = p.Financial, // Assuming 'Financial' is percentage (0-100)
+                PhysicalProgress = p.Physical,   // Assuming 'Physical' is percentage (0-100)
+                Budget = p.RealBudget
+            }).ToList();
+
+            // 4. Budget Overview
+            viewModel.BudgetOverview = new BudgetOverviewItem
+            {
+                TotalEstimatedBudget = projects.Sum(p => p.EstimatedBudget),
+                TotalRealBudget = projects.Sum(p => p.RealBudget)
+            };
 
             return View(viewModel);
         }
