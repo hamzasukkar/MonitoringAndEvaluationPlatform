@@ -1692,22 +1692,22 @@
         const isRtlLang = @(isRtl ? "true" : "false");
 
         // Governorate mapping - maps path IDs to governorate info
-        // Based on the SVG structure: path1-path14 correspond to the 14 governorates
+        // Corrected mapping based on actual SVG structure
         const governorateMapping = {
-            'path1': { nameEn: 'Quneitra', nameAr: 'القنيطرة', code: 'SY02' },
-            'path2': { nameEn: 'Daraa', nameAr: 'درعا', code: 'SY05' },
-            'path3': { nameEn: 'As-Suwayda', nameAr: 'السويداء', code: 'SY10' },
-            'path4': { nameEn: 'Damascus', nameAr: 'دمشق', code: 'SY01' },
-            'path5': { nameEn: 'Rif Dimashq', nameAr: 'ريف دمشق', code: 'SY03' },
-            'path6': { nameEn: 'Homs', nameAr: 'حمص', code: 'SY04' },
-            'path7': { nameEn: 'Tartus', nameAr: 'طرطوس', code: 'SY14' },
-            'path8': { nameEn: 'Latakia', nameAr: 'اللاذقية', code: 'SY06' },
-            'path9': { nameEn: 'Hama', nameAr: 'حماة', code: 'SY07' },
-            'path10': { nameEn: 'Idlib', nameAr: 'إدلب', code: 'SY08' },
-            'path11': { nameEn: 'Aleppo', nameAr: 'حلب', code: 'SY12' },
-            'path12': { nameEn: 'Ar-Raqqah', nameAr: 'الرقة', code: 'SY11' },
-            'path13': { nameEn: 'Deir ez-Zor', nameAr: 'دير الزور', code: 'SY09' },
-            'path14': { nameEn: 'Al-Hasakah', nameAr: 'الحسكة', code: 'SY13' }
+            'path1': { nameEn: 'Rif Dimashq', nameAr: 'ريف دمشق', code: 'SY03' },
+            'path2': { nameEn: 'Aleppo', nameAr: 'حلب', code: 'SY12' },
+            'path3': { nameEn: 'Damascus', nameAr: 'دمشق', code: 'SY01' },
+            'path4': { nameEn: 'Homs', nameAr: 'حمص', code: 'SY04' },
+            'path5': { nameEn: 'Hama', nameAr: 'حماة', code: 'SY07' },
+            'path6': { nameEn: 'Tartus', nameAr: 'طرطوس', code: 'SY14' },
+            'path7': { nameEn: 'Idlib', nameAr: 'إدلب', code: 'SY08' },
+            'path8': { nameEn: 'Al-Hasakah', nameAr: 'الحسكة', code: 'SY13' },
+            'path9': { nameEn: 'Deir ez-Zor', nameAr: 'دير الزور', code: 'SY09' },
+            'path10': { nameEn: 'Latakia', nameAr: 'اللاذقية', code: 'SY06' },
+            'path11': { nameEn: 'Ar-Raqqah', nameAr: 'الرقة', code: 'SY11' },
+            'path12': { nameEn: 'Daraa', nameAr: 'درعا', code: 'SY05' },
+            'path13': { nameEn: 'As-Suwayda', nameAr: 'السويداء', code: 'SY10' },
+            'path14': { nameEn: 'Quneitra', nameAr: 'القنيطرة', code: 'SY02' }
         };
 
         // Load external SVG map
@@ -2942,32 +2942,38 @@
         }
 
         .governorate:hover {
-            fill: #90caf9;
-            stroke: #0d47a1;
-            stroke-width: 2.5;
-            filter: drop-shadow(0 2px 4px rgba(0,0,0,0.2));
+            fill: #4caf50 !important;
+            stroke: #2e7d32;
+            stroke-width: 3;
+            filter: drop-shadow(0 4px 8px rgba(0,0,0,0.35));
+            transform: scale(1.02);
+            transform-origin: center;
         }
 
         .governorate.active {
-            fill: #1976d2;
+            fill: #1976d2 !important;
             stroke: #0d47a1;
             stroke-width: 3;
         }
 
+        .governorate.active:hover {
+            fill: #4caf50 !important;
+        }
+
         .governorate.has-projects-low {
-            fill: #fff3e0;
+            fill: #e3f2fd;
         }
 
         .governorate.has-projects-medium {
-            fill: #ffe0b2;
+            fill: #90caf9;
         }
 
         .governorate.has-projects-high {
-            fill: #ffb74d;
+            fill: #42a5f5;
         }
 
         .governorate.has-projects-very-high {
-            fill: #ff9800;
+            fill: #1976d2;
         }
 
         .map-tooltip {
