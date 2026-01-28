@@ -34,9 +34,20 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                                     .ThenInclude(pi => pi.Project)
                 .ToListAsync();
 
-            var projects = await _context.Projects.Include(p => p.Sectors).Include(p => p.Ministry).ToListAsync();
+            var projects = await _context.Projects
+                .Include(p => p.Sectors)
+                .Include(p => p.Ministry)
+                .Include(p => p.Donors)
+                .Include(p => p.SuperVisor)
+                .Include(p => p.ProjectManager)
+                .Include(p => p.Governorates)
+                .ToListAsync();
             var sectors = await _context.Sectors.Include(s => s.Projects).ToListAsync();
             var ministries = await _context.Ministries.Include(m => m.Projects).ToListAsync();
+            var donors = await _context.Donors.Include(d => d.Projects).ToListAsync();
+            var supervisors = await _context.SuperVisors.ToListAsync();
+            var projectManagers = await _context.ProjectManagers.ToListAsync();
+            var governorates = await _context.Governorates.Include(g => g.projects).ToListAsync();
 
             // Summary Counts
             viewModel.TotalFrameworks = frameworks.Count;
@@ -201,6 +212,8 @@ namespace MonitoringAndEvaluationPlatform.Controllers
 
             // Performance Distribution (for pie/doughnut charts)
             var allOutcomes = frameworks.SelectMany(f => f.Outcomes).ToList();
+            viewModel.HighPerformanceCount = allOutcomes.Count(o => o.IndicatorsPerformance >= 75);
+            viewModel.MediumPerformanceCount = allOutcomes.Count(o => o.IndicatorsPerformance >= 50 && o.IndicatorsPerformance < 75);
             viewModel.LowPerformanceCount = allOutcomes.Count(o => o.IndicatorsPerformance < 50);
 
             // Populate New Chart Data
@@ -237,6 +250,120 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 TotalEstimatedBudget = projects.Sum(p => p.EstimatedBudget),
                 TotalRealBudget = projects.Sum(p => p.RealBudget)
             };
+
+            // NEW: Category Reports
+            var isArabic = CultureInfo.CurrentCulture.Name.StartsWith("ar");
+
+            // Ministry Reports
+            viewModel.TotalMinistries = ministries.Count;
+            viewModel.MinistryReports = ministries
+                .Where(m => m.Projects.Any())
+                .Select(m => new CategoryReportItem
+                {
+                    Name = isArabic ? m.MinistryDisplayName_AR : m.MinistryDisplayName_EN,
+                    NameAr = m.MinistryDisplayName_AR,
+                    ProjectCount = m.Projects.Count,
+                    TotalBudget = m.Projects.Sum(p => p.EstimatedBudget),
+                    IndicatorsPerformance = Math.Round(m.IndicatorsPerformance, 2),
+                    DisbursementPerformance = Math.Round(m.DisbursementPerformance, 2),
+                    FieldMonitoring = Math.Round(m.FieldMonitoring, 2),
+                    ImpactAssessment = Math.Round(m.ImpactAssessment, 2)
+                })
+                .OrderByDescending(m => m.ProjectCount)
+                .ToList();
+
+            // Sector Reports
+            viewModel.TotalSectors = sectors.Count;
+            viewModel.SectorReports = sectors
+                .Where(s => s.Projects.Any())
+                .Select(s => new CategoryReportItem
+                {
+                    Name = isArabic ? s.AR_Name : s.EN_Name,
+                    NameAr = s.AR_Name,
+                    ProjectCount = s.Projects.Count,
+                    TotalBudget = s.Projects.Sum(p => p.EstimatedBudget),
+                    IndicatorsPerformance = Math.Round(s.IndicatorsPerformance, 2),
+                    DisbursementPerformance = Math.Round(s.DisbursementPerformance, 2),
+                    FieldMonitoring = Math.Round(s.FieldMonitoring, 2),
+                    ImpactAssessment = Math.Round(s.ImpactAssessment, 2)
+                })
+                .OrderByDescending(s => s.ProjectCount)
+                .ToList();
+
+            // Donor Reports
+            viewModel.TotalDonors = donors.Count;
+            viewModel.DonorReports = donors
+                .Where(d => d.Projects.Any())
+                .Select(d => new CategoryReportItem
+                {
+                    Name = d.Partner,
+                    ProjectCount = d.Projects.Count,
+                    TotalBudget = d.Projects.Sum(p => p.EstimatedBudget),
+                    IndicatorsPerformance = Math.Round(d.IndicatorsPerformance, 2),
+                    DisbursementPerformance = Math.Round(d.DisbursementPerformance, 2),
+                    FieldMonitoring = Math.Round(d.FieldMonitoring, 2),
+                    ImpactAssessment = Math.Round(d.ImpactAssessment, 2)
+                })
+                .OrderByDescending(d => d.ProjectCount)
+                .ToList();
+
+            // Supervisor Reports
+            viewModel.TotalSupervisors = supervisors.Count;
+            viewModel.SupervisorReports = supervisors
+                .Select(s => {
+                    var supervisorProjects = projects.Where(p => p.SuperVisorCode == s.Code).ToList();
+                    return new CategoryReportItem
+                    {
+                        Name = s.Name,
+                        ProjectCount = supervisorProjects.Count,
+                        TotalBudget = supervisorProjects.Sum(p => p.EstimatedBudget),
+                        IndicatorsPerformance = supervisorProjects.Any() ? Math.Round(supervisorProjects.Average(p => p.performance), 2) : 0,
+                        DisbursementPerformance = supervisorProjects.Any() ? Math.Round(supervisorProjects.Average(p => p.DisbursementPerformance), 2) : 0,
+                        FieldMonitoring = supervisorProjects.Any() ? Math.Round(supervisorProjects.Average(p => p.FieldMonitoring), 2) : 0,
+                        ImpactAssessment = supervisorProjects.Any() ? Math.Round(supervisorProjects.Average(p => p.ImpactAssessment), 2) : 0
+                    };
+                })
+                .Where(s => s.ProjectCount > 0)
+                .OrderByDescending(s => s.ProjectCount)
+                .ToList();
+
+            // Project Manager Reports
+            viewModel.TotalProjectManagers = projectManagers.Count;
+            viewModel.ProjectManagerReports = projectManagers
+                .Select(pm => {
+                    var pmProjects = projects.Where(p => p.ProjectManagerCode == pm.Code).ToList();
+                    return new CategoryReportItem
+                    {
+                        Name = pm.Name,
+                        ProjectCount = pmProjects.Count,
+                        TotalBudget = pmProjects.Sum(p => p.EstimatedBudget),
+                        IndicatorsPerformance = pmProjects.Any() ? Math.Round(pmProjects.Average(p => p.performance), 2) : 0,
+                        DisbursementPerformance = pmProjects.Any() ? Math.Round(pmProjects.Average(p => p.DisbursementPerformance), 2) : 0,
+                        FieldMonitoring = pmProjects.Any() ? Math.Round(pmProjects.Average(p => p.FieldMonitoring), 2) : 0,
+                        ImpactAssessment = pmProjects.Any() ? Math.Round(pmProjects.Average(p => p.ImpactAssessment), 2) : 0
+                    };
+                })
+                .Where(pm => pm.ProjectCount > 0)
+                .OrderByDescending(pm => pm.ProjectCount)
+                .ToList();
+
+            // Governorate Reports
+            viewModel.TotalGovernorates = governorates.Count;
+            viewModel.GovernorateReports = governorates
+                .Where(g => g.projects.Any())
+                .Select(g => new CategoryReportItem
+                {
+                    Name = isArabic ? g.AR_Name : g.EN_Name,
+                    NameAr = g.AR_Name,
+                    ProjectCount = g.projects.Count,
+                    TotalBudget = g.projects.Sum(p => p.EstimatedBudget),
+                    IndicatorsPerformance = g.projects.Any() ? Math.Round(g.projects.Average(p => p.performance), 2) : 0,
+                    DisbursementPerformance = g.projects.Any() ? Math.Round(g.projects.Average(p => p.DisbursementPerformance), 2) : 0,
+                    FieldMonitoring = g.projects.Any() ? Math.Round(g.projects.Average(p => p.FieldMonitoring), 2) : 0,
+                    ImpactAssessment = g.projects.Any() ? Math.Round(g.projects.Average(p => p.ImpactAssessment), 2) : 0
+                })
+                .OrderByDescending(g => g.ProjectCount)
+                .ToList();
 
             return View(viewModel);
         }

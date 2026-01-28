@@ -41,6 +41,22 @@ namespace MonitoringAndEvaluationPlatform.ViewModel
         public List<PerformanceDataItem> MinistryPerformanceData { get; set; } = new List<PerformanceDataItem>();
         public List<ProjectScatterDataItem> ProjectScatterData { get; set; } = new List<ProjectScatterDataItem>();
         public BudgetOverviewItem BudgetOverview { get; set; } = new BudgetOverviewItem();
+
+        // Reports by Category
+        public List<CategoryReportItem> MinistryReports { get; set; } = new List<CategoryReportItem>();
+        public List<CategoryReportItem> SectorReports { get; set; } = new List<CategoryReportItem>();
+        public List<CategoryReportItem> DonorReports { get; set; } = new List<CategoryReportItem>();
+        public List<CategoryReportItem> SupervisorReports { get; set; } = new List<CategoryReportItem>();
+        public List<CategoryReportItem> ProjectManagerReports { get; set; } = new List<CategoryReportItem>();
+        public List<CategoryReportItem> GovernorateReports { get; set; } = new List<CategoryReportItem>();
+
+        // Totals for category summaries
+        public int TotalMinistries { get; set; }
+        public int TotalSectors { get; set; }
+        public int TotalDonors { get; set; }
+        public int TotalSupervisors { get; set; }
+        public int TotalProjectManagers { get; set; }
+        public int TotalGovernorates { get; set; }
     }
 
     public class ProjectScatterDataItem
@@ -64,5 +80,17 @@ namespace MonitoringAndEvaluationPlatform.ViewModel
         public double IndicatorsPerformance { get; set; }
         public double DisbursementPerformance { get; set; }
         public string? ParentName { get; set; }
+    }
+
+    public class CategoryReportItem
+    {
+        public string Name { get; set; } = string.Empty;
+        public string? NameAr { get; set; }
+        public int ProjectCount { get; set; }
+        public double TotalBudget { get; set; }
+        public double IndicatorsPerformance { get; set; }
+        public double DisbursementPerformance { get; set; }
+        public double FieldMonitoring { get; set; }
+        public double ImpactAssessment { get; set; }
     }
 }
