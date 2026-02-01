@@ -503,6 +503,16 @@
                                     </td>
                                     <td class="text-center">
                                         <div class="btn-group action-buttons" role="group">
+                                            @{
+                                                var fileExt = System.IO.Path.GetExtension(file.FileName).ToLowerInvariant();
+                                                var isViewable = new[] { ".pdf", ".png", ".jpg", ".jpeg", ".gif", ".txt" }.Contains(fileExt);
+                                            }
+                                            @if (isViewable)
+                                            {
+                                                <a asp-action="ViewFile" asp-route-id="@file.Id" target="_blank" class="btn btn-outline-primary btn-sm action-btn" title="@Localizer["View"]">
+                                                    <i class="fas fa-eye"></i>
+                                                </a>
+                                            }
                                             <a asp-action="DownloadFile" asp-route-id="@file.Id" class="btn btn-outline-success btn-sm action-btn" title="@Localizer["Download"]">
                                                 <i class="fas fa-download"></i>
                                             </a>

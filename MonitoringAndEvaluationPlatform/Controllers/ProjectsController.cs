@@ -1073,6 +1073,32 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             return File(memory, GetContentType(filePath), file.FileName);
         }
 
+        [Permission(Permissions.ReadProjects)]
+        public async Task<IActionResult> ViewFile(int id)
+        {
+            var file = await _context.ProjectFiles.FindAsync(id);
+            if (file == null)
+            {
+                return NotFound();
+            }
+
+            var filePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", file.FilePath.TrimStart('/'));
+            if (!System.IO.File.Exists(filePath))
+            {
+                return NotFound();
+            }
+
+            var contentType = GetContentType(filePath);
+            var fileBytes = await System.IO.File.ReadAllBytesAsync(filePath);
+
+            // Use ContentDispositionHeaderValue to properly encode non-ASCII filenames
+            var cd = new Microsoft.Net.Http.Headers.ContentDispositionHeaderValue("inline");
+            cd.SetHttpFileName(file.FileName);
+            Response.Headers.ContentDisposition = cd.ToString();
+
+            return File(fileBytes, contentType);
+        }
+
         private string GetContentType(string path)
         {
             var types = new Dictionary<string, string>
