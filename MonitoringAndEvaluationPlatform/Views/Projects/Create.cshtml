@@ -411,7 +411,17 @@
                                 </h6>
                                 <div class="mb-4">
                                     <label class="form-label fw-bold">@Localizer["Upload Files"]</label>
-                                    <input type="file" name="UploadedFiles" multiple class="form-control form-control-lg" />
+                                    <div class="file-upload-wrapper">
+                                        <div class="file-upload-area" id="fileUploadArea">
+                                            <i class="fas fa-cloud-upload-alt fa-3x text-muted mb-3"></i>
+                                            <p class="mb-2">@Localizer["Drag and drop files here or click to browse"]</p>
+                                            <input type="file" name="UploadedFiles" id="fileInput" multiple class="file-input-hidden" accept=".pdf,.doc,.docx,.xls,.xlsx,.jpg,.jpeg,.png" />
+                                            <button type="button" class="btn btn-outline-primary" onclick="document.getElementById('fileInput').click()">
+                                                <i class="fas fa-folder-open me-2"></i>@Localizer["Browse Files"]
+                                            </button>
+                                        </div>
+                                        <div id="selectedFilesList" class="selected-files-list mt-3"></div>
+                                    </div>
                                     <div class="form-text">@Localizer["Maximum file size: 10MB. Allowed types: PDF, DOC, XLS, JPG, PNG"]</div>
                                 </div>
                         <!-- Form Actions -->
@@ -613,10 +623,127 @@
         }
     }
 
+    /* File Upload Styles */
+    .file-upload-wrapper {
+        width: 100%;
+    }
 
+    .file-upload-area {
+        border: 2px dashed #dee2e6;
+        border-radius: 8px;
+        padding: 30px;
+        text-align: center;
+        background-color: #f8f9fa;
+        transition: all 0.3s ease;
+        cursor: pointer;
+    }
 
+    .file-upload-area:hover,
+    .file-upload-area.dragover {
+        border-color: #007bff;
+        background-color: #e7f1ff;
+    }
 
+    .file-input-hidden {
+        display: none;
+    }
 
+    .selected-files-list {
+        max-height: 300px;
+        overflow-y: auto;
+    }
+
+    .file-item {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 10px 15px;
+        background-color: #fff;
+        border: 1px solid #dee2e6;
+        border-radius: 6px;
+        margin-bottom: 8px;
+        transition: all 0.2s ease;
+    }
+
+    .file-item:hover {
+        background-color: #f8f9fa;
+        border-color: #adb5bd;
+    }
+
+    .file-item-info {
+        display: flex;
+        align-items: center;
+        flex: 1;
+        min-width: 0;
+    }
+
+    .file-item-icon {
+        width: 40px;
+        height: 40px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 6px;
+        margin-right: 12px;
+        font-size: 1.2rem;
+    }
+
+    .file-item-icon.pdf { background-color: #fee2e2; color: #dc2626; }
+    .file-item-icon.doc { background-color: #dbeafe; color: #2563eb; }
+    .file-item-icon.xls { background-color: #dcfce7; color: #16a34a; }
+    .file-item-icon.img { background-color: #fef3c7; color: #d97706; }
+    .file-item-icon.default { background-color: #e5e7eb; color: #6b7280; }
+
+    .file-item-details {
+        flex: 1;
+        min-width: 0;
+    }
+
+    .file-item-name {
+        font-weight: 500;
+        color: #1f2937;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .file-item-size {
+        font-size: 0.85rem;
+        color: #6b7280;
+    }
+
+    .file-item-remove {
+        background: none;
+        border: none;
+        color: #dc3545;
+        cursor: pointer;
+        padding: 5px 10px;
+        border-radius: 4px;
+        transition: all 0.2s ease;
+    }
+
+    .file-item-remove:hover {
+        background-color: #fee2e2;
+    }
+
+    .files-summary {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 10px 15px;
+        background-color: #e7f1ff;
+        border-radius: 6px;
+        margin-bottom: 10px;
+    }
+
+    .files-summary-text {
+        font-weight: 500;
+        color: #1e40af;
+    }
+
+    .clear-all-btn {
+        font-size: 0.875rem;
+    }
 </style>
 
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
@@ -646,7 +773,10 @@
         endDateMustBeAfterStart: '@Html.Raw(System.Text.Encodings.Web.JavaScriptEncoder.Default.Encode(Localizer["End date must be after start date."].Value))',
         donorFundingCannotExceed: '@Html.Raw(System.Text.Encodings.Web.JavaScriptEncoder.Default.Encode(Localizer["Total donor funding percentage cannot exceed 100%."].Value))',
         pleaseFixFollowingIssues: '@Html.Raw(System.Text.Encodings.Web.JavaScriptEncoder.Default.Encode(Localizer["Please fix the following issues:"].Value))',
-        close: '@Html.Raw(System.Text.Encodings.Web.JavaScriptEncoder.Default.Encode(Localizer["Close"].Value))'
+        close: '@Html.Raw(System.Text.Encodings.Web.JavaScriptEncoder.Default.Encode(Localizer["Close"].Value))',
+        filesSelected: '@Html.Raw(System.Text.Encodings.Web.JavaScriptEncoder.Default.Encode(Localizer["file(s) selected"].Value))',
+        clearAll: '@Html.Raw(System.Text.Encodings.Web.JavaScriptEncoder.Default.Encode(Localizer["Clear All"].Value))',
+        remove: '@Html.Raw(System.Text.Encodings.Web.JavaScriptEncoder.Default.Encode(Localizer["Remove"].Value))'
     };
 
     let selections = [];
@@ -1506,6 +1636,157 @@
         // Update UI
         updateDonorFundingSection();
         updateSelectedDonorsInput();
+    }
+
+    // =====================
+    // FILE UPLOAD MANAGEMENT
+    // =====================
+
+    let selectedFiles = [];
+    const fileInput = document.getElementById('fileInput');
+    const fileUploadArea = document.getElementById('fileUploadArea');
+    const selectedFilesList = document.getElementById('selectedFilesList');
+
+    // Handle file input change
+    if (fileInput) {
+        fileInput.addEventListener('change', function(e) {
+            handleFiles(e.target.files);
+        });
+    }
+
+    // Handle drag and drop
+    if (fileUploadArea) {
+        fileUploadArea.addEventListener('dragover', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            this.classList.add('dragover');
+        });
+
+        fileUploadArea.addEventListener('dragleave', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            this.classList.remove('dragover');
+        });
+
+        fileUploadArea.addEventListener('drop', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            this.classList.remove('dragover');
+            handleFiles(e.dataTransfer.files);
+        });
+
+        fileUploadArea.addEventListener('click', function(e) {
+            if (e.target.tagName !== 'BUTTON' && e.target.tagName !== 'INPUT') {
+                fileInput.click();
+            }
+        });
+    }
+
+    function handleFiles(files) {
+        for (let i = 0; i < files.length; i++) {
+            const file = files[i];
+
+            // Check if file is already added
+            const exists = selectedFiles.some(f => f.name === file.name && f.size === file.size);
+            if (!exists) {
+                selectedFiles.push(file);
+            }
+        }
+        updateFilesList();
+        updateFileInput();
+    }
+
+    function removeFile(index) {
+        selectedFiles.splice(index, 1);
+        updateFilesList();
+        updateFileInput();
+    }
+
+    function clearAllFiles() {
+        selectedFiles = [];
+        updateFilesList();
+        updateFileInput();
+    }
+
+    function updateFilesList() {
+        if (!selectedFilesList) return;
+
+        if (selectedFiles.length === 0) {
+            selectedFilesList.innerHTML = '';
+            return;
+        }
+
+        let html = '';
+
+        // Summary bar
+        const totalSize = selectedFiles.reduce((sum, f) => sum + f.size, 0);
+        html += `
+            <div class="files-summary">
+                <span class="files-summary-text">
+                    <i class="fas fa-paperclip me-2"></i>
+                    ${selectedFiles.length} ${localizedStrings.filesSelected} (${formatFileSize(totalSize)})
+                </span>
+                <button type="button" class="btn btn-outline-danger btn-sm clear-all-btn" onclick="clearAllFiles()">
+                    <i class="fas fa-trash me-1"></i>${localizedStrings.clearAll}
+                </button>
+            </div>
+        `;
+
+        // File items
+        selectedFiles.forEach((file, index) => {
+            const iconClass = getFileIconClass(file.name);
+            html += `
+                <div class="file-item">
+                    <div class="file-item-info">
+                        <div class="file-item-icon ${iconClass}">
+                            <i class="fas ${getFileIcon(file.name)}"></i>
+                        </div>
+                        <div class="file-item-details">
+                            <div class="file-item-name" title="${file.name}">${file.name}</div>
+                            <div class="file-item-size">${formatFileSize(file.size)}</div>
+                        </div>
+                    </div>
+                    <button type="button" class="file-item-remove" onclick="removeFile(${index})" title="${localizedStrings.remove}">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+            `;
+        });
+
+        selectedFilesList.innerHTML = html;
+    }
+
+    function updateFileInput() {
+        // Create a new DataTransfer object to set files on input
+        const dt = new DataTransfer();
+        selectedFiles.forEach(file => dt.items.add(file));
+        fileInput.files = dt.files;
+    }
+
+    function getFileIconClass(filename) {
+        const ext = filename.split('.').pop().toLowerCase();
+        if (ext === 'pdf') return 'pdf';
+        if (['doc', 'docx'].includes(ext)) return 'doc';
+        if (['xls', 'xlsx'].includes(ext)) return 'xls';
+        if (['jpg', 'jpeg', 'png', 'gif'].includes(ext)) return 'img';
+        return 'default';
+    }
+
+    function getFileIcon(filename) {
+        const ext = filename.split('.').pop().toLowerCase();
+        if (ext === 'pdf') return 'fa-file-pdf';
+        if (['doc', 'docx'].includes(ext)) return 'fa-file-word';
+        if (['xls', 'xlsx'].includes(ext)) return 'fa-file-excel';
+        if (['jpg', 'jpeg', 'png', 'gif'].includes(ext)) return 'fa-file-image';
+        return 'fa-file';
+    }
+
+    function formatFileSize(bytes) {
+        if (bytes === 0) return '0 Bytes';
+        const k = 1024;
+        const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+        const i = Math.floor(Math.log(bytes) / Math.log(k));
+        return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
     }
 
 
