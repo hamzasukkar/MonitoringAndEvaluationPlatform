@@ -128,12 +128,21 @@
                         <span>@Localizer["Dashboard"]</span>
                     </a>
                 </li>
-                @if (User.IsInRole("Admin"))
+                @if (User.IsInRole("Admin") || User.IsInRole("SystemAdministrator"))
                 {
                     <li>
                         <a class="d-flex align-items-center" href="/Admin/Index">
                             <i class="fas fa-users-cog me-2"></i>
                             <span>@Localizer["Admin"]</span>
+                        </a>
+                    </li>
+                }
+                @if (User.IsInRole("SystemAdministrator"))
+                {
+                    <li>
+                        <a class="d-flex align-items-center" href="/DataManagement/Index">
+                            <i class="fas fa-database me-2"></i>
+                            <span>@Localizer["DataManagement"]</span>
                         </a>
                     </li>
                 }

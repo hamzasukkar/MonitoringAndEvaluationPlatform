@@ -1243,6 +1243,12 @@
                             <span>@Localizer["Audit Logs"]</span>
                         </a>
                     </li>
+                    <li>
+                        <a href="/DataManagement/Index" class="sidebar-link @(Context.Request.Path.Value.Contains("DataManagement") ? "active" : "")">
+                            <i class="fas fa-database"></i>
+                            <span>@Localizer["DataManagement"]</span>
+                        </a>
+                    </li>
                 }
                @*  <li>
                     <a href="/Projects/Index" class="sidebar-link @(Context.Request.Path.Value.Contains("Projects") ? "active" : "")">

@@ -1,0 +1,166 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="Delete Projects" xml:space="preserve">
+    <value>Delete Projects</value>
+  </data>
+  <data name="Select projects to permanently delete with all related data" xml:space="preserve">
+    <value>Select projects to permanently delete with all related data</value>
+  </data>
+  <data name="Back" xml:space="preserve">
+    <value>Back</value>
+  </data>
+  <data name="Search Projects" xml:space="preserve">
+    <value>Search Projects</value>
+  </data>
+  <data name="Search by project name..." xml:space="preserve">
+    <value>Search by project name...</value>
+  </data>
+  <data name="Search" xml:space="preserve">
+    <value>Search</value>
+  </data>
+  <data name="Reset" xml:space="preserve">
+    <value>Reset</value>
+  </data>
+  <data name="Projects" xml:space="preserve">
+    <value>Projects</value>
+  </data>
+  <data name="Select All" xml:space="preserve">
+    <value>Select All</value>
+  </data>
+  <data name="Project Name" xml:space="preserve">
+    <value>Project Name</value>
+  </data>
+  <data name="Ministry" xml:space="preserve">
+    <value>Ministry</value>
+  </data>
+  <data name="Activities" xml:space="preserve">
+    <value>Activities</value>
+  </data>
+  <data name="Plans" xml:space="preserve">
+    <value>Plans</value>
+  </data>
+  <data name="Indicators" xml:space="preserve">
+    <value>Indicators</value>
+  </data>
+  <data name="Dates" xml:space="preserve">
+    <value>Dates</value>
+  </data>
+  <data name="No projects found" xml:space="preserve">
+    <value>No projects found</value>
+  </data>
+  <data name="Security Confirmation" xml:space="preserve">
+    <value>Security Confirmation</value>
+  </data>
+  <data name="Warning!" xml:space="preserve">
+    <value>Warning!</value>
+  </data>
+  <data name="Deleting projects will remove all associated data including action plans, activities, plans, indicators, and files. This cannot be undone!" xml:space="preserve">
+    <value>Deleting projects will remove all associated data including action plans, activities, plans, indicators, and files. This cannot be undone!</value>
+  </data>
+  <data name="Your Password" xml:space="preserve">
+    <value>Your Password</value>
+  </data>
+  <data name="Type" xml:space="preserve">
+    <value>Type</value>
+  </data>
+  <data name="to confirm" xml:space="preserve">
+    <value>to confirm</value>
+  </data>
+  <data name="projects selected" xml:space="preserve">
+    <value>projects selected</value>
+  </data>
+  <data name="Delete Selected Projects" xml:space="preserve">
+    <value>Delete Selected Projects</value>
+  </data>
+  <data name="What Gets Deleted" xml:space="preserve">
+    <value>What Gets Deleted</value>
+  </data>
+  <data name="When you delete a project, the following related data is also deleted" xml:space="preserve">
+    <value>When you delete a project, the following related data is also deleted</value>
+  </data>
+  <data name="Action Plans" xml:space="preserve">
+    <value>Action Plans</value>
+  </data>
+  <data name="Plans (all types)" xml:space="preserve">
+    <value>Plans (all types)</value>
+  </data>
+  <data name="Project Indicators" xml:space="preserve">
+    <value>Project Indicators</value>
+  </data>
+  <data name="Project Donors" xml:space="preserve">
+    <value>Project Donors</value>
+  </data>
+  <data name="Project Files" xml:space="preserve">
+    <value>Project Files</value>
+  </data>
+  <data name="Location Associations" xml:space="preserve">
+    <value>Location Associations</value>
+  </data>
+  <data name="Performance metrics will be recalculated for affected indicators after deletion." xml:space="preserve">
+    <value>Performance metrics will be recalculated for affected indicators after deletion.</value>
+  </data>
+  <data name="Please select at least one project to delete." xml:space="preserve">
+    <value>Please select at least one project to delete.</value>
+  </data>
+  <data name="Are you absolutely sure you want to delete the selected projects? All related data will be permanently removed!" xml:space="preserve">
+    <value>Are you absolutely sure you want to delete the selected projects? All related data will be permanently removed!</value>
+  </data>
+</root>

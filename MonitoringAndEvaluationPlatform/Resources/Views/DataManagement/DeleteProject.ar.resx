@@ -1,0 +1,166 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="Delete Projects" xml:space="preserve">
+    <value>حذف المشاريع</value>
+  </data>
+  <data name="Select projects to permanently delete with all related data" xml:space="preserve">
+    <value>حدد المشاريع لحذفها نهائياً مع جميع البيانات المرتبطة</value>
+  </data>
+  <data name="Back" xml:space="preserve">
+    <value>رجوع</value>
+  </data>
+  <data name="Search Projects" xml:space="preserve">
+    <value>البحث عن المشاريع</value>
+  </data>
+  <data name="Search by project name..." xml:space="preserve">
+    <value>البحث باسم المشروع...</value>
+  </data>
+  <data name="Search" xml:space="preserve">
+    <value>بحث</value>
+  </data>
+  <data name="Reset" xml:space="preserve">
+    <value>إعادة تعيين</value>
+  </data>
+  <data name="Projects" xml:space="preserve">
+    <value>المشاريع</value>
+  </data>
+  <data name="Select All" xml:space="preserve">
+    <value>تحديد الكل</value>
+  </data>
+  <data name="Project Name" xml:space="preserve">
+    <value>اسم المشروع</value>
+  </data>
+  <data name="Ministry" xml:space="preserve">
+    <value>الوزارة</value>
+  </data>
+  <data name="Activities" xml:space="preserve">
+    <value>الأنشطة</value>
+  </data>
+  <data name="Plans" xml:space="preserve">
+    <value>الخطط</value>
+  </data>
+  <data name="Indicators" xml:space="preserve">
+    <value>المؤشرات</value>
+  </data>
+  <data name="Dates" xml:space="preserve">
+    <value>التواريخ</value>
+  </data>
+  <data name="No projects found" xml:space="preserve">
+    <value>لم يتم العثور على مشاريع</value>
+  </data>
+  <data name="Security Confirmation" xml:space="preserve">
+    <value>تأكيد الأمان</value>
+  </data>
+  <data name="Warning!" xml:space="preserve">
+    <value>تحذير!</value>
+  </data>
+  <data name="Deleting projects will remove all associated data including action plans, activities, plans, indicators, and files. This cannot be undone!" xml:space="preserve">
+    <value>سيؤدي حذف المشاريع إلى إزالة جميع البيانات المرتبطة بما في ذلك خطط العمل والأنشطة والخطط والمؤشرات والملفات. لا يمكن التراجع عن هذا!</value>
+  </data>
+  <data name="Your Password" xml:space="preserve">
+    <value>كلمة المرور الخاصة بك</value>
+  </data>
+  <data name="Type" xml:space="preserve">
+    <value>اكتب</value>
+  </data>
+  <data name="to confirm" xml:space="preserve">
+    <value>للتأكيد</value>
+  </data>
+  <data name="projects selected" xml:space="preserve">
+    <value>مشاريع محددة</value>
+  </data>
+  <data name="Delete Selected Projects" xml:space="preserve">
+    <value>حذف المشاريع المحددة</value>
+  </data>
+  <data name="What Gets Deleted" xml:space="preserve">
+    <value>ما الذي سيتم حذفه</value>
+  </data>
+  <data name="When you delete a project, the following related data is also deleted" xml:space="preserve">
+    <value>عند حذف مشروع، يتم حذف البيانات المرتبطة التالية أيضاً</value>
+  </data>
+  <data name="Action Plans" xml:space="preserve">
+    <value>خطط العمل</value>
+  </data>
+  <data name="Plans (all types)" xml:space="preserve">
+    <value>الخطط (جميع الأنواع)</value>
+  </data>
+  <data name="Project Indicators" xml:space="preserve">
+    <value>مؤشرات المشروع</value>
+  </data>
+  <data name="Project Donors" xml:space="preserve">
+    <value>مانحو المشروع</value>
+  </data>
+  <data name="Project Files" xml:space="preserve">
+    <value>ملفات المشروع</value>
+  </data>
+  <data name="Location Associations" xml:space="preserve">
+    <value>ارتباطات الموقع</value>
+  </data>
+  <data name="Performance metrics will be recalculated for affected indicators after deletion." xml:space="preserve">
+    <value>سيتم إعادة حساب مقاييس الأداء للمؤشرات المتأثرة بعد الحذف.</value>
+  </data>
+  <data name="Please select at least one project to delete." xml:space="preserve">
+    <value>يرجى تحديد مشروع واحد على الأقل للحذف.</value>
+  </data>
+  <data name="Are you absolutely sure you want to delete the selected projects? All related data will be permanently removed!" xml:space="preserve">
+    <value>هل أنت متأكد تماماً من أنك تريد حذف المشاريع المحددة؟ سيتم إزالة جميع البيانات المرتبطة بشكل دائم!</value>
+  </data>
+</root>

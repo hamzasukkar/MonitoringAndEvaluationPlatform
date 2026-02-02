@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="Database Backup" xml:space="preserve">
+    <value>Database Backup</value>
+  </data>
+  <data name="Generate SQL backup script for database restoration" xml:space="preserve">
+    <value>Generate SQL backup script for database restoration</value>
+  </data>
+  <data name="Back" xml:space="preserve">
+    <value>Back</value>
+  </data>
+  <data name="Backup Options" xml:space="preserve">
+    <value>Backup Options</value>
+  </data>
+  <data name="Include Identity Data (Users, Roles)" xml:space="preserve">
+    <value>Include Identity Data (Users, Roles)</value>
+  </data>
+  <data name="Warning: This includes sensitive user information" xml:space="preserve">
+    <value>Warning: This includes sensitive user information</value>
+  </data>
+  <data name="Include Audit Logs" xml:space="preserve">
+    <value>Include Audit Logs</value>
+  </data>
+  <data name="Security Confirmation" xml:space="preserve">
+    <value>Security Confirmation</value>
+  </data>
+  <data name="Your Password" xml:space="preserve">
+    <value>Your Password</value>
+  </data>
+  <data name="Type" xml:space="preserve">
+    <value>Type</value>
+  </data>
+  <data name="to confirm" xml:space="preserve">
+    <value>to confirm</value>
+  </data>
+  <data name="Generate Backup Script" xml:space="preserve">
+    <value>Generate Backup Script</value>
+  </data>
+  <data name="Information" xml:space="preserve">
+    <value>Information</value>
+  </data>
+  <data name="Total Records" xml:space="preserve">
+    <value>Total Records</value>
+  </data>
+  <data name="What's included in the backup" xml:space="preserve">
+    <value>What's included in the backup</value>
+  </data>
+  <data name="Frameworks and structure" xml:space="preserve">
+    <value>Frameworks and structure</value>
+  </data>
+  <data name="Projects and action plans" xml:space="preserve">
+    <value>Projects and action plans</value>
+  </data>
+  <data name="Indicators and measures" xml:space="preserve">
+    <value>Indicators and measures</value>
+  </data>
+  <data name="Reference data (Ministries, Donors, etc.)" xml:space="preserve">
+    <value>Reference data (Ministries, Donors, etc.)</value>
+  </data>
+  <data name="Location data" xml:space="preserve">
+    <value>Location data</value>
+  </data>
+  <data name="SDG Goals and targets" xml:space="preserve">
+    <value>SDG Goals and targets</value>
+  </data>
+  <data name="The backup script can be executed on SQL Server to restore data." xml:space="preserve">
+    <value>The backup script can be executed on SQL Server to restore data.</value>
+  </data>
+</root>

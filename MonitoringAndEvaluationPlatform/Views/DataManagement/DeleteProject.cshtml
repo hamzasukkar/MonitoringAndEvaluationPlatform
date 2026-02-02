@@ -1,0 +1,249 @@
+@model MonitoringAndEvaluationPlatform.ViewModels.DataManagement.DeleteProjectViewModel
+@using Microsoft.AspNetCore.Mvc.Localization
+@using System.Globalization
+@inject IViewLocalizer Localizer
+
+@{
+    ViewData["Title"] = Localizer["Delete Projects"];
+    Layout = "~/Views/Shared/_DashboardHomeLayout.cshtml";
+    var isArabic = CultureInfo.CurrentUICulture.Name.StartsWith("ar");
+}
+
+<div class="container-fluid py-4">
+    <!-- Header -->
+    <div class="dashboard-header mb-4">
+        <div class="d-flex justify-content-between align-items-center">
+            <div>
+                <h1 class="display-5 mb-2">
+                    <i class="fas fa-trash-alt me-3 text-danger"></i>@Localizer["Delete Projects"]
+                </h1>
+                <p class="text-muted">@Localizer["Select projects to permanently delete with all related data"]</p>
+            </div>
+            <a asp-action="Index" class="btn btn-secondary">
+                <i class="fas fa-arrow-left me-2"></i>@Localizer["Back"]
+            </a>
+        </div>
+    </div>
+
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            <i class="fas fa-exclamation-circle me-2"></i>@TempData["ErrorMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+
+    <!-- Search -->
+    <div class="card mb-4">
+        <div class="card-body">
+            <form method="get" asp-action="DeleteProject" class="row g-3">
+                <div class="col-md-6">
+                    <label class="form-label">@Localizer["Search Projects"]</label>
+                    <div class="input-group">
+                        <span class="input-group-text"><i class="fas fa-search"></i></span>
+                        <input type="text" name="searchTerm" value="@Model.SearchTerm" class="form-control"
+                               placeholder="@Localizer["Search by project name..."]">
+                    </div>
+                </div>
+                <div class="col-md-3 d-flex align-items-end">
+                    <button type="submit" class="btn btn-primary me-2">
+                        <i class="fas fa-filter me-1"></i>@Localizer["Search"]
+                    </button>
+                    <a asp-action="DeleteProject" class="btn btn-secondary">
+                        <i class="fas fa-redo me-1"></i>@Localizer["Reset"]
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <form asp-action="ExecuteDeleteProject" method="post" id="deleteProjectForm">
+        <div class="row">
+            <div class="col-lg-8">
+                <div class="card">
+                    <div class="card-header bg-danger text-white d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0"><i class="fas fa-project-diagram me-2"></i>@Localizer["Projects"] (@Model.Projects.Count)</h5>
+                        <div class="form-check text-white">
+                            <input class="form-check-input" type="checkbox" id="selectAll" onclick="toggleAllProjects(this)">
+                            <label class="form-check-label" for="selectAll">@Localizer["Select All"]</label>
+                        </div>
+                    </div>
+                    <div class="card-body p-0">
+                        @if (Model.Projects.Any())
+                        {
+                            <div class="table-responsive">
+                                <table class="table table-hover mb-0">
+                                    <thead class="table-light">
+                                        <tr>
+                                            <th width="50"></th>
+                                            <th>@Localizer["Project Name"]</th>
+                                            <th>@Localizer["Ministry"]</th>
+                                            <th class="text-center">@Localizer["Activities"]</th>
+                                            <th class="text-center">@Localizer["Plans"]</th>
+                                            <th class="text-center">@Localizer["Indicators"]</th>
+                                            <th>@Localizer["Dates"]</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach (var project in Model.Projects)
+                                        {
+                                            <tr>
+                                                <td>
+                                                    <input class="form-check-input project-checkbox" type="checkbox"
+                                                           name="selectedProjectIds" value="@project.ProjectId"
+                                                           id="project-@project.ProjectId">
+                                                </td>
+                                                <td>
+                                                    <label for="project-@project.ProjectId" class="mb-0 cursor-pointer">
+                                                        <strong>@project.ProjectName</strong>
+                                                    </label>
+                                                </td>
+                                                <td>@(project.MinistryName ?? "-")</td>
+                                                <td class="text-center">
+                                                    <span class="badge bg-secondary">@project.ActivityCount</span>
+                                                </td>
+                                                <td class="text-center">
+                                                    <span class="badge bg-info">@project.PlanCount</span>
+                                                </td>
+                                                <td class="text-center">
+                                                    <span class="badge bg-primary">@project.IndicatorCount</span>
+                                                </td>
+                                                <td>
+                                                    <small class="text-muted">
+                                                        @project.StartDate.ToString("yyyy-MM-dd") - @project.EndDate.ToString("yyyy-MM-dd")
+                                                    </small>
+                                                </td>
+                                            </tr>
+                                        }
+                                    </tbody>
+                                </table>
+                            </div>
+                        }
+                        else
+                        {
+                            <div class="text-center py-5">
+                                <i class="fas fa-search fa-3x text-muted mb-3"></i>
+                                <p class="text-muted">@Localizer["No projects found"]</p>
+                            </div>
+                        }
+                    </div>
+                </div>
+
+                @if (Model.Projects.Any())
+                {
+                    <!-- Security Confirmation -->
+                    <div class="card mt-4">
+                        <div class="card-header bg-danger text-white">
+                            <h5 class="mb-0"><i class="fas fa-shield-alt me-2"></i>@Localizer["Security Confirmation"]</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="alert alert-danger">
+                                <i class="fas fa-exclamation-triangle me-2"></i>
+                                <strong>@Localizer["Warning!"]</strong> @Localizer["Deleting projects will remove all associated data including action plans, activities, plans, indicators, and files. This cannot be undone!"]
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="password" class="form-label">@Localizer["Your Password"]</label>
+                                <input type="password" class="form-control" id="password" name="password" required>
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="confirmationPhrase" class="form-label">
+                                    @Localizer["Type"] <code class="text-danger">DELETE PROJECT</code> @Localizer["to confirm"]
+                                </label>
+                                <input type="text" class="form-control" id="confirmationPhrase" name="confirmationPhrase" required
+                                       pattern="DELETE PROJECT" title="Please type 'DELETE PROJECT' exactly">
+                            </div>
+
+                            <div class="d-flex justify-content-between align-items-center">
+                                <span id="selectedCount" class="text-muted">0 @Localizer["projects selected"]</span>
+                                <button type="submit" class="btn btn-danger btn-lg" onclick="return confirmDeleteProjects()">
+                                    <i class="fas fa-trash me-2"></i>@Localizer["Delete Selected Projects"]
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+
+            <div class="col-lg-4">
+                <div class="card">
+                    <div class="card-header bg-info text-white">
+                        <h5 class="mb-0"><i class="fas fa-info-circle me-2"></i>@Localizer["What Gets Deleted"]</h5>
+                    </div>
+                    <div class="card-body">
+                        <p>@Localizer["When you delete a project, the following related data is also deleted"]: </p>
+                        <ul class="list-unstyled">
+                            <li><i class="fas fa-times text-danger me-2"></i>@Localizer["Action Plans"]</li>
+                            <li><i class="fas fa-times text-danger me-2"></i>@Localizer["Activities"]</li>
+                            <li><i class="fas fa-times text-danger me-2"></i>@Localizer["Plans (all types)"]</li>
+                            <li><i class="fas fa-times text-danger me-2"></i>@Localizer["Project Indicators"]</li>
+                            <li><i class="fas fa-times text-danger me-2"></i>@Localizer["Project Donors"]</li>
+                            <li><i class="fas fa-times text-danger me-2"></i>@Localizer["Project Files"]</li>
+                            <li><i class="fas fa-times text-danger me-2"></i>@Localizer["Location Associations"]</li>
+                        </ul>
+                        <hr>
+                        <div class="alert alert-warning mb-0">
+                            <small><i class="fas fa-lightbulb me-2"></i>@Localizer["Performance metrics will be recalculated for affected indicators after deletion."]</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+
+<style>
+    .cursor-pointer {
+        cursor: pointer;
+    }
+
+    .card {
+        border-radius: 12px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+
+    .card-header {
+        border-radius: 12px 12px 0 0 !important;
+    }
+
+    .table th {
+        background-color: #f8f9fa;
+        font-weight: 600;
+    }
+
+    .table tbody tr:hover {
+        background-color: rgba(220, 53, 69, 0.05);
+    }
+</style>
+
+<script>
+    function toggleAllProjects(checkbox) {
+        var checkboxes = document.querySelectorAll('.project-checkbox');
+        checkboxes.forEach(function(cb) {
+            cb.checked = checkbox.checked;
+        });
+        updateSelectedCount();
+    }
+
+    function updateSelectedCount() {
+        var count = document.querySelectorAll('.project-checkbox:checked').length;
+        document.getElementById('selectedCount').textContent = count + ' @Localizer["projects selected"]';
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+        var checkboxes = document.querySelectorAll('.project-checkbox');
+        checkboxes.forEach(function(cb) {
+            cb.addEventListener('change', updateSelectedCount);
+        });
+    });
+
+    function confirmDeleteProjects() {
+        var selectedProjects = document.querySelectorAll('.project-checkbox:checked');
+        if (selectedProjects.length === 0) {
+            alert('@Localizer["Please select at least one project to delete."]');
+            return false;
+        }
+        return confirm('@Localizer["Are you absolutely sure you want to delete the selected projects? All related data will be permanently removed!"]');
+    }
+</script>

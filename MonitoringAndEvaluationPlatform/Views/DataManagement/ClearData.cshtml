@@ -1,0 +1,194 @@
+@model MonitoringAndEvaluationPlatform.ViewModels.DataManagement.ClearDataViewModel
+@using Microsoft.AspNetCore.Mvc.Localization
+@using System.Globalization
+@inject IViewLocalizer Localizer
+
+@{
+    ViewData["Title"] = Localizer["Clear Data"];
+    Layout = "~/Views/Shared/_DashboardHomeLayout.cshtml";
+    var isArabic = CultureInfo.CurrentUICulture.Name.StartsWith("ar");
+}
+
+<div class="container-fluid py-4">
+    <!-- Header -->
+    <div class="dashboard-header mb-4">
+        <div class="d-flex justify-content-between align-items-center">
+            <div>
+                <h1 class="display-5 mb-2">
+                    <i class="fas fa-eraser me-3 text-warning"></i>@Localizer["Clear Data"]
+                </h1>
+                <p class="text-muted">@Localizer["Select table groups to delete all data from"]</p>
+            </div>
+            <a asp-action="Index" class="btn btn-secondary">
+                <i class="fas fa-arrow-left me-2"></i>@Localizer["Back"]
+            </a>
+        </div>
+    </div>
+
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            <i class="fas fa-exclamation-circle me-2"></i>@TempData["ErrorMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+
+    <form asp-action="ExecuteClearData" method="post" id="clearDataForm">
+        <div class="row">
+            <div class="col-lg-8">
+                <div class="card">
+                    <div class="card-header bg-warning text-dark">
+                        <h5 class="mb-0"><i class="fas fa-table me-2"></i>@Localizer["Select Table Groups"]</h5>
+                    </div>
+                    <div class="card-body">
+                        @foreach (var group in Model.TableGroups)
+                        {
+                            var dangerClass = group.DangerLevel switch
+                            {
+                                "Low" => "border-success",
+                                "Medium" => "border-warning",
+                                "High" => "border-danger",
+                                "Critical" => "border-danger bg-danger-subtle",
+                                _ => ""
+                            };
+                            var badgeClass = group.DangerLevel switch
+                            {
+                                "Low" => "bg-success",
+                                "Medium" => "bg-warning text-dark",
+                                "High" => "bg-danger",
+                                "Critical" => "bg-danger",
+                                _ => "bg-secondary"
+                            };
+
+                            <div class="table-group-item card mb-3 @dangerClass">
+                                <div class="card-body">
+                                    <div class="form-check d-flex align-items-start">
+                                        <input class="form-check-input me-3 mt-1" type="checkbox"
+                                               name="selectedGroups" value="@group.GroupKey"
+                                               id="group-@group.GroupKey">
+                                        <label class="form-check-label flex-grow-1" for="group-@group.GroupKey">
+                                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                                <h5 class="mb-0">@Localizer[group.GroupName]</h5>
+                                                <div>
+                                                    <span class="badge @badgeClass me-2">@Localizer[group.DangerLevel]</span>
+                                                    <span class="badge bg-secondary">@group.TotalRecords @Localizer["records"]</span>
+                                                </div>
+                                            </div>
+                                            <p class="text-muted mb-2">@Localizer[group.Description]</p>
+                                            <small class="text-muted">
+                                                <strong>@Localizer["Tables"]:</strong> @string.Join(", ", group.Tables)
+                                            </small>
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                </div>
+
+                <!-- Security Confirmation -->
+                <div class="card mt-4">
+                    <div class="card-header bg-danger text-white">
+                        <h5 class="mb-0"><i class="fas fa-shield-alt me-2"></i>@Localizer["Security Confirmation"]</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="alert alert-danger">
+                            <i class="fas fa-exclamation-triangle me-2"></i>
+                            <strong>@Localizer["Warning!"]</strong> @Localizer["This action will permanently delete all data from the selected tables. This cannot be undone!"]
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="password" class="form-label">@Localizer["Your Password"]</label>
+                            <input type="password" class="form-control" id="password" name="password" required>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="confirmationPhrase" class="form-label">
+                                @Localizer["Type"] <code class="text-danger">DELETE ALL DATA</code> @Localizer["to confirm"]
+                            </label>
+                            <input type="text" class="form-control" id="confirmationPhrase" name="confirmationPhrase" required
+                                   pattern="DELETE ALL DATA" title="Please type 'DELETE ALL DATA' exactly">
+                        </div>
+
+                        <div class="d-flex justify-content-end">
+                            <button type="submit" class="btn btn-danger btn-lg" onclick="return confirmClearData()">
+                                <i class="fas fa-trash me-2"></i>@Localizer["Delete Selected Data"]
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-4">
+                <div class="card">
+                    <div class="card-header bg-info text-white">
+                        <h5 class="mb-0"><i class="fas fa-info-circle me-2"></i>@Localizer["Danger Levels"]</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="mb-3">
+                            <span class="badge bg-success me-2">@Localizer["Low"]</span>
+                            <span>@Localizer["Can be regenerated easily"]</span>
+                        </div>
+                        <div class="mb-3">
+                            <span class="badge bg-warning text-dark me-2">@Localizer["Medium"]</span>
+                            <span>@Localizer["May require data re-entry"]</span>
+                        </div>
+                        <div class="mb-3">
+                            <span class="badge bg-danger me-2">@Localizer["High"]</span>
+                            <span>@Localizer["Significant data loss"]</span>
+                        </div>
+                        <div class="mb-3">
+                            <span class="badge bg-danger me-2">@Localizer["Critical"]</span>
+                            <span>@Localizer["Core system data"]</span>
+                        </div>
+                        <hr>
+                        <div class="alert alert-warning mb-0">
+                            <small><i class="fas fa-lightbulb me-2"></i>@Localizer["Always create a backup before clearing data."]</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+
+<style>
+    .table-group-item {
+        transition: all 0.3s ease;
+    }
+
+    .table-group-item:hover {
+        box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    }
+
+    .form-check-input:checked + label {
+        background-color: rgba(220, 53, 69, 0.1);
+        border-radius: 8px;
+        padding: 8px;
+        margin: -8px;
+    }
+
+    .card {
+        border-radius: 12px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+
+    .card-header {
+        border-radius: 12px 12px 0 0 !important;
+    }
+
+    .bg-danger-subtle {
+        background-color: rgba(220, 53, 69, 0.1) !important;
+    }
+</style>
+
+<script>
+    function confirmClearData() {
+        var selectedGroups = document.querySelectorAll('input[name="selectedGroups"]:checked');
+        if (selectedGroups.length === 0) {
+            alert('@Localizer["Please select at least one table group to clear."]');
+            return false;
+        }
+        return confirm('@Localizer["Are you absolutely sure you want to delete all data from the selected table groups? This action cannot be undone!"]');
+    }
+</script>

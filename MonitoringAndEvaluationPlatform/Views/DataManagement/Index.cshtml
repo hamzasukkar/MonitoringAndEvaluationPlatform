@@ -1,0 +1,244 @@
+@model MonitoringAndEvaluationPlatform.ViewModels.DataManagement.DataManagementIndexViewModel
+@using Microsoft.AspNetCore.Mvc.Localization
+@using System.Globalization
+@inject IViewLocalizer Localizer
+
+@{
+    ViewData["Title"] = Localizer["Data Management"];
+    Layout = "~/Views/Shared/_DashboardHomeLayout.cshtml";
+    var isArabic = CultureInfo.CurrentUICulture.Name.StartsWith("ar");
+}
+
+<div class="container-fluid py-4">
+    <!-- Header -->
+    <div class="dashboard-header mb-4">
+        <div class="d-flex justify-content-between align-items-center">
+            <div>
+                <h1 class="display-4 mb-2">
+                    <i class="fas fa-database me-3"></i>@Localizer["Data Management"]
+                </h1>
+                <p class="text-muted">@Localizer["Database administration and maintenance tools for system administrators"]</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Success/Error Messages -->
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            <i class="fas fa-check-circle me-2"></i>@TempData["SuccessMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            <i class="fas fa-exclamation-circle me-2"></i>@TempData["ErrorMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+
+    <!-- Statistics Cards -->
+    <div class="row mb-4">
+        <div class="col-md-2">
+            <div class="stat-card">
+                <div class="stat-icon bg-primary">
+                    <i class="fas fa-project-diagram"></i>
+                </div>
+                <div class="stat-content">
+                    <h3>@Model.TotalProjects</h3>
+                    <p>@Localizer["Projects"]</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-2">
+            <div class="stat-card">
+                <div class="stat-icon bg-success">
+                    <i class="fas fa-sitemap"></i>
+                </div>
+                <div class="stat-content">
+                    <h3>@Model.TotalFrameworks</h3>
+                    <p>@Localizer["Frameworks"]</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-2">
+            <div class="stat-card">
+                <div class="stat-icon bg-info">
+                    <i class="fas fa-chart-line"></i>
+                </div>
+                <div class="stat-content">
+                    <h3>@Model.TotalIndicators</h3>
+                    <p>@Localizer["Indicators"]</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-2">
+            <div class="stat-card">
+                <div class="stat-icon bg-warning">
+                    <i class="fas fa-calendar-check"></i>
+                </div>
+                <div class="stat-content">
+                    <h3>@Model.TotalPlans</h3>
+                    <p>@Localizer["Plans"]</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-2">
+            <div class="stat-card">
+                <div class="stat-icon bg-secondary">
+                    <i class="fas fa-ruler"></i>
+                </div>
+                <div class="stat-content">
+                    <h3>@Model.TotalMeasures</h3>
+                    <p>@Localizer["Measures"]</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-2">
+            <div class="stat-card">
+                <div class="stat-icon bg-dark">
+                    <i class="fas fa-history"></i>
+                </div>
+                <div class="stat-content">
+                    <h3>@Model.TotalAuditLogs</h3>
+                    <p>@Localizer["Audit Logs"]</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Action Cards -->
+    <div class="row">
+        <!-- Backup Card -->
+        <div class="col-md-6 col-lg-3 mb-4">
+            <div class="card h-100 action-card">
+                <div class="card-body text-center">
+                    <div class="action-icon bg-primary mb-3">
+                        <i class="fas fa-download"></i>
+                    </div>
+                    <h5 class="card-title">@Localizer["Database Backup"]</h5>
+                    <p class="card-text text-muted">@Localizer["Generate SQL backup script for all data in the database"]</p>
+                    <a asp-action="Backup" class="btn btn-primary">
+                        <i class="fas fa-download me-2"></i>@Localizer["Create Backup"]
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Clear Data Card -->
+        <div class="col-md-6 col-lg-3 mb-4">
+            <div class="card h-100 action-card border-warning">
+                <div class="card-body text-center">
+                    <div class="action-icon bg-warning mb-3">
+                        <i class="fas fa-eraser"></i>
+                    </div>
+                    <h5 class="card-title">@Localizer["Clear Data"]</h5>
+                    <p class="card-text text-muted">@Localizer["Delete data from selected table groups"]</p>
+                    <a asp-action="ClearData" class="btn btn-warning">
+                        <i class="fas fa-eraser me-2"></i>@Localizer["Clear Data"]
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Delete Project Card -->
+        <div class="col-md-6 col-lg-3 mb-4">
+            <div class="card h-100 action-card border-danger">
+                <div class="card-body text-center">
+                    <div class="action-icon bg-danger mb-3">
+                        <i class="fas fa-trash-alt"></i>
+                    </div>
+                    <h5 class="card-title">@Localizer["Delete Projects"]</h5>
+                    <p class="card-text text-muted">@Localizer["Select and delete specific projects with all related data"]</p>
+                    <a asp-action="DeleteProject" class="btn btn-danger">
+                        <i class="fas fa-trash-alt me-2"></i>@Localizer["Delete Projects"]
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Reset Values Card -->
+        <div class="col-md-6 col-lg-3 mb-4">
+            <div class="card h-100 action-card border-info">
+                <div class="card-body text-center">
+                    <div class="action-icon bg-info mb-3">
+                        <i class="fas fa-redo"></i>
+                    </div>
+                    <h5 class="card-title">@Localizer["Reset Values"]</h5>
+                    <p class="card-text text-muted">@Localizer["Reset performance values and recalculate metrics"]</p>
+                    <a asp-action="ResetValues" class="btn btn-info">
+                        <i class="fas fa-redo me-2"></i>@Localizer["Reset Values"]
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Warning Section -->
+    <div class="alert alert-warning mt-4">
+        <h5 class="alert-heading"><i class="fas fa-exclamation-triangle me-2"></i>@Localizer["Important Notice"]</h5>
+        <p class="mb-0">
+            @Localizer["All data management operations are logged and require security confirmation. These operations cannot be undone. Please ensure you have a backup before performing any destructive operations."]
+        </p>
+    </div>
+</div>
+
+<style>
+    .stat-card {
+        background: white;
+        border-radius: 12px;
+        padding: 1.5rem;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+    }
+
+    .stat-icon {
+        width: 60px;
+        height: 60px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+        color: white;
+    }
+
+    .stat-content h3 {
+        margin: 0;
+        font-size: 1.8rem;
+        font-weight: 700;
+        color: #2d3748;
+    }
+
+    .stat-content p {
+        margin: 0;
+        font-size: 0.85rem;
+        color: #718096;
+    }
+
+    .action-card {
+        border-radius: 12px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .action-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+    }
+
+    .action-icon {
+        width: 80px;
+        height: 80px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 2rem;
+        color: white;
+        margin: 0 auto;
+    }
+</style>

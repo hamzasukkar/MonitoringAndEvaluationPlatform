@@ -1,0 +1,137 @@
+@model MonitoringAndEvaluationPlatform.ViewModels.DataManagement.BackupViewModel
+@using Microsoft.AspNetCore.Mvc.Localization
+@using System.Globalization
+@inject IViewLocalizer Localizer
+
+@{
+    ViewData["Title"] = Localizer["Database Backup"];
+    Layout = "~/Views/Shared/_DashboardHomeLayout.cshtml";
+    var isArabic = CultureInfo.CurrentUICulture.Name.StartsWith("ar");
+}
+
+<div class="container-fluid py-4">
+    <!-- Header -->
+    <div class="dashboard-header mb-4">
+        <div class="d-flex justify-content-between align-items-center">
+            <div>
+                <h1 class="display-5 mb-2">
+                    <i class="fas fa-download me-3 text-primary"></i>@Localizer["Database Backup"]
+                </h1>
+                <p class="text-muted">@Localizer["Generate SQL backup script for database restoration"]</p>
+            </div>
+            <a asp-action="Index" class="btn btn-secondary">
+                <i class="fas fa-arrow-left me-2"></i>@Localizer["Back"]
+            </a>
+        </div>
+    </div>
+
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            <i class="fas fa-exclamation-circle me-2"></i>@TempData["ErrorMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+
+    <div class="row">
+        <div class="col-lg-8">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0"><i class="fas fa-cog me-2"></i>@Localizer["Backup Options"]</h5>
+                </div>
+                <div class="card-body">
+                    <form asp-action="ExecuteBackup" method="post" id="backupForm">
+                        <div class="mb-4">
+                            <div class="form-check mb-3">
+                                <input class="form-check-input" type="checkbox" name="IncludeIdentityData" id="includeIdentity" value="true">
+                                <label class="form-check-label" for="includeIdentity">
+                                    @Localizer["Include Identity Data (Users, Roles)"]
+                                </label>
+                                <small class="form-text text-muted d-block">@Localizer["Warning: This includes sensitive user information"]</small>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" name="IncludeAuditLogs" id="includeAuditLogs" value="true" checked>
+                                <label class="form-check-label" for="includeAuditLogs">
+                                    @Localizer["Include Audit Logs"]
+                                </label>
+                            </div>
+                        </div>
+
+                        <hr class="my-4">
+
+                        <!-- Security Confirmation -->
+                        <div class="security-confirmation">
+                            <h5 class="text-danger mb-3"><i class="fas fa-shield-alt me-2"></i>@Localizer["Security Confirmation"]</h5>
+
+                            <div class="mb-3">
+                                <label for="password" class="form-label">@Localizer["Your Password"]</label>
+                                <input type="password" class="form-control" id="password" name="password" required>
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="confirmationPhrase" class="form-label">
+                                    @Localizer["Type"] <code class="text-danger">BACKUP DATABASE</code> @Localizer["to confirm"]
+                                </label>
+                                <input type="text" class="form-control" id="confirmationPhrase" name="confirmationPhrase" required
+                                       pattern="BACKUP DATABASE" title="Please type 'BACKUP DATABASE' exactly">
+                            </div>
+                        </div>
+
+                        <div class="d-flex justify-content-end mt-4">
+                            <button type="submit" class="btn btn-primary btn-lg">
+                                <i class="fas fa-download me-2"></i>@Localizer["Generate Backup Script"]
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-4">
+            <div class="card">
+                <div class="card-header bg-info text-white">
+                    <h5 class="mb-0"><i class="fas fa-info-circle me-2"></i>@Localizer["Information"]</h5>
+                </div>
+                <div class="card-body">
+                    <p><strong>@Localizer["Total Records"]: </strong>@Model.TotalRecords</p>
+                    <hr>
+                    <h6>@Localizer["What's included in the backup"]: </h6>
+                    <ul class="list-unstyled">
+                        <li><i class="fas fa-check text-success me-2"></i>@Localizer["Frameworks and structure"]</li>
+                        <li><i class="fas fa-check text-success me-2"></i>@Localizer["Projects and action plans"]</li>
+                        <li><i class="fas fa-check text-success me-2"></i>@Localizer["Indicators and measures"]</li>
+                        <li><i class="fas fa-check text-success me-2"></i>@Localizer["Reference data (Ministries, Donors, etc.)"]</li>
+                        <li><i class="fas fa-check text-success me-2"></i>@Localizer["Location data"]</li>
+                        <li><i class="fas fa-check text-success me-2"></i>@Localizer["SDG Goals and targets"]</li>
+                    </ul>
+                    <div class="alert alert-info mt-3 mb-0">
+                        <small><i class="fas fa-lightbulb me-2"></i>@Localizer["The backup script can be executed on SQL Server to restore data."]</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .security-confirmation {
+        background-color: #fff3cd;
+        border: 1px solid #ffc107;
+        border-radius: 8px;
+        padding: 20px;
+    }
+
+    .card {
+        border-radius: 12px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+
+    .card-header {
+        border-radius: 12px 12px 0 0 !important;
+    }
+</style>
+
+@* Anti-forgery token for form submission *@
+<form id="antiForgeryForm">
+    @Html.AntiForgeryToken()
+</form>

@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="Data Management" xml:space="preserve">
+    <value>إدارة البيانات</value>
+  </data>
+  <data name="Database administration and maintenance tools for system administrators" xml:space="preserve">
+    <value>أدوات إدارة وصيانة قاعدة البيانات لمسؤولي النظام</value>
+  </data>
+  <data name="Projects" xml:space="preserve">
+    <value>المشاريع</value>
+  </data>
+  <data name="Frameworks" xml:space="preserve">
+    <value>الأطر</value>
+  </data>
+  <data name="Indicators" xml:space="preserve">
+    <value>المؤشرات</value>
+  </data>
+  <data name="Plans" xml:space="preserve">
+    <value>الخطط</value>
+  </data>
+  <data name="Measures" xml:space="preserve">
+    <value>المقاييس</value>
+  </data>
+  <data name="Audit Logs" xml:space="preserve">
+    <value>سجلات المراجعة</value>
+  </data>
+  <data name="Database Backup" xml:space="preserve">
+    <value>نسخ احتياطي لقاعدة البيانات</value>
+  </data>
+  <data name="Generate SQL backup script for all data in the database" xml:space="preserve">
+    <value>إنشاء برنامج نصي SQL للنسخ الاحتياطي لجميع البيانات في قاعدة البيانات</value>
+  </data>
+  <data name="Create Backup" xml:space="preserve">
+    <value>إنشاء نسخة احتياطية</value>
+  </data>
+  <data name="Clear Data" xml:space="preserve">
+    <value>مسح البيانات</value>
+  </data>
+  <data name="Delete data from selected table groups" xml:space="preserve">
+    <value>حذف البيانات من مجموعات الجداول المحددة</value>
+  </data>
+  <data name="Delete Projects" xml:space="preserve">
+    <value>حذف المشاريع</value>
+  </data>
+  <data name="Select and delete specific projects with all related data" xml:space="preserve">
+    <value>تحديد وحذف مشاريع محددة مع جميع البيانات المرتبطة</value>
+  </data>
+  <data name="Reset Values" xml:space="preserve">
+    <value>إعادة تعيين القيم</value>
+  </data>
+  <data name="Reset performance values and recalculate metrics" xml:space="preserve">
+    <value>إعادة تعيين قيم الأداء وإعادة حساب المقاييس</value>
+  </data>
+  <data name="Important Notice" xml:space="preserve">
+    <value>ملاحظة هامة</value>
+  </data>
+  <data name="All data management operations are logged and require security confirmation. These operations cannot be undone. Please ensure you have a backup before performing any destructive operations." xml:space="preserve">
+    <value>يتم تسجيل جميع عمليات إدارة البيانات وتتطلب تأكيد أمني. لا يمكن التراجع عن هذه العمليات. يرجى التأكد من وجود نسخة احتياطية قبل إجراء أي عمليات تدميرية.</value>
+  </data>
+</root>

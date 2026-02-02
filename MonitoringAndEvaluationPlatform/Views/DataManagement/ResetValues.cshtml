@@ -1,0 +1,242 @@
+@model MonitoringAndEvaluationPlatform.ViewModels.DataManagement.ResetValuesViewModel
+@using Microsoft.AspNetCore.Mvc.Localization
+@using System.Globalization
+@inject IViewLocalizer Localizer
+
+@{
+    ViewData["Title"] = Localizer["Reset Values"];
+    Layout = "~/Views/Shared/_DashboardHomeLayout.cshtml";
+    var isArabic = CultureInfo.CurrentUICulture.Name.StartsWith("ar");
+}
+
+<div class="container-fluid py-4">
+    <!-- Header -->
+    <div class="dashboard-header mb-4">
+        <div class="d-flex justify-content-between align-items-center">
+            <div>
+                <h1 class="display-5 mb-2">
+                    <i class="fas fa-redo me-3 text-info"></i>@Localizer["Reset Values"]
+                </h1>
+                <p class="text-muted">@Localizer["Reset performance values and recalculate metrics across the system"]</p>
+            </div>
+            <a asp-action="Index" class="btn btn-secondary">
+                <i class="fas fa-arrow-left me-2"></i>@Localizer["Back"]
+            </a>
+        </div>
+    </div>
+
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            <i class="fas fa-exclamation-circle me-2"></i>@TempData["ErrorMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+
+    <form asp-action="ExecuteResetValues" method="post" id="resetValuesForm">
+        <div class="row">
+            <div class="col-lg-8">
+                <div class="card">
+                    <div class="card-header bg-info text-white">
+                        <h5 class="mb-0"><i class="fas fa-cog me-2"></i>@Localizer["Reset Options"]</h5>
+                    </div>
+                    <div class="card-body">
+                        <!-- Reset Plans -->
+                        <div class="reset-option card mb-3 border-warning">
+                            <div class="card-body">
+                                <div class="form-check d-flex align-items-start">
+                                    <input class="form-check-input me-3 mt-1" type="checkbox"
+                                           name="ResetPlans" value="true" id="resetPlans">
+                                    <label class="form-check-label flex-grow-1" for="resetPlans">
+                                        <div class="d-flex justify-content-between align-items-center mb-2">
+                                            <h5 class="mb-0">@Localizer["Reset Plans"]</h5>
+                                            <span class="badge bg-warning text-dark">@Model.TotalPlans @Localizer["records"]</span>
+                                        </div>
+                                        <p class="text-muted mb-0">@Localizer["Set all Planned and Realised values to 0 in the Plans table"]</p>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Reset Measures -->
+                        <div class="reset-option card mb-3 border-warning">
+                            <div class="card-body">
+                                <div class="form-check d-flex align-items-start">
+                                    <input class="form-check-input me-3 mt-1" type="checkbox"
+                                           name="ResetMeasures" value="true" id="resetMeasures">
+                                    <label class="form-check-label flex-grow-1" for="resetMeasures">
+                                        <div class="d-flex justify-content-between align-items-center mb-2">
+                                            <h5 class="mb-0">@Localizer["Reset Measures"]</h5>
+                                            <span class="badge bg-warning text-dark">@Model.TotalMeasures @Localizer["records"]</span>
+                                        </div>
+                                        <p class="text-muted mb-0">@Localizer["Set all Value fields to 0 in the Measures table"]</p>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Reset Project Performance -->
+                        <div class="reset-option card mb-3 border-danger">
+                            <div class="card-body">
+                                <div class="form-check d-flex align-items-start">
+                                    <input class="form-check-input me-3 mt-1" type="checkbox"
+                                           name="ResetProjectPerformance" value="true" id="resetProjectPerformance">
+                                    <label class="form-check-label flex-grow-1" for="resetProjectPerformance">
+                                        <div class="d-flex justify-content-between align-items-center mb-2">
+                                            <h5 class="mb-0">@Localizer["Reset All Performance Metrics"]</h5>
+                                            <span class="badge bg-danger">@Localizer["All Entities"]</span>
+                                        </div>
+                                        <p class="text-muted mb-0">@Localizer["Reset DisbursementPerformance, FieldMonitoring, ImpactAssessment, Financial, and Physical values to 0 across all entities (Projects, Indicators, SubOutputs, Outputs, Outcomes, Frameworks, Donors, Sectors, Ministries)"]</p>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Recalculate Hierarchy -->
+                        <div class="reset-option card mb-3 border-info">
+                            <div class="card-body">
+                                <div class="form-check d-flex align-items-start">
+                                    <input class="form-check-input me-3 mt-1" type="checkbox"
+                                           name="RecalculateHierarchy" value="true" id="recalculateHierarchy">
+                                    <label class="form-check-label flex-grow-1" for="recalculateHierarchy">
+                                        <div class="d-flex justify-content-between align-items-center mb-2">
+                                            <h5 class="mb-0">@Localizer["Recalculate Performance Hierarchy"]</h5>
+                                            <span class="badge bg-info">@Localizer["Recommended"]</span>
+                                        </div>
+                                        <p class="text-muted mb-0">@Localizer["Recalculate performance metrics from Plans upward through the entire hierarchy. Use this after resetting plans if you want to recalculate based on current plan values."]</p>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Security Confirmation -->
+                <div class="card mt-4">
+                    <div class="card-header bg-danger text-white">
+                        <h5 class="mb-0"><i class="fas fa-shield-alt me-2"></i>@Localizer["Security Confirmation"]</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="alert alert-warning">
+                            <i class="fas fa-exclamation-triangle me-2"></i>
+                            <strong>@Localizer["Warning!"]</strong> @Localizer["Resetting values will affect all selected data. Make sure you understand the implications before proceeding."]
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="password" class="form-label">@Localizer["Your Password"]</label>
+                            <input type="password" class="form-control" id="password" name="password" required>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="confirmationPhrase" class="form-label">
+                                @Localizer["Type"] <code class="text-danger">RESET ALL VALUES</code> @Localizer["to confirm"]
+                            </label>
+                            <input type="text" class="form-control" id="confirmationPhrase" name="confirmationPhrase" required
+                                   pattern="RESET ALL VALUES" title="Please type 'RESET ALL VALUES' exactly">
+                        </div>
+
+                        <div class="d-flex justify-content-end">
+                            <button type="submit" class="btn btn-danger btn-lg" onclick="return confirmReset()">
+                                <i class="fas fa-redo me-2"></i>@Localizer["Reset Selected Values"]
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-4">
+                <div class="card">
+                    <div class="card-header bg-secondary text-white">
+                        <h5 class="mb-0"><i class="fas fa-chart-bar me-2"></i>@Localizer["Current Statistics"]</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="stat-item mb-3">
+                            <div class="d-flex justify-content-between">
+                                <span>@Localizer["Total Plans"]</span>
+                                <strong>@Model.TotalPlans</strong>
+                            </div>
+                        </div>
+                        <div class="stat-item mb-3">
+                            <div class="d-flex justify-content-between">
+                                <span>@Localizer["Total Measures"]</span>
+                                <strong>@Model.TotalMeasures</strong>
+                            </div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="d-flex justify-content-between">
+                                <span>@Localizer["Total Projects"]</span>
+                                <strong>@Model.TotalProjects</strong>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card mt-4">
+                    <div class="card-header bg-info text-white">
+                        <h5 class="mb-0"><i class="fas fa-info-circle me-2"></i>@Localizer["Usage Guide"]</h5>
+                    </div>
+                    <div class="card-body">
+                        <h6>@Localizer["Typical Scenarios"]: </h6>
+                        <ul class="list-unstyled">
+                            <li class="mb-2">
+                                <i class="fas fa-arrow-right text-primary me-2"></i>
+                                <strong>@Localizer["New Year Reset"]:</strong>
+                                <br><small class="text-muted">@Localizer["Reset Plans + Recalculate"]</small>
+                            </li>
+                            <li class="mb-2">
+                                <i class="fas fa-arrow-right text-primary me-2"></i>
+                                <strong>@Localizer["Data Correction"]:</strong>
+                                <br><small class="text-muted">@Localizer["Reset Performance + Recalculate"]</small>
+                            </li>
+                            <li class="mb-2">
+                                <i class="fas fa-arrow-right text-primary me-2"></i>
+                                <strong>@Localizer["Full Reset"]:</strong>
+                                <br><small class="text-muted">@Localizer["All options selected"]</small>
+                            </li>
+                        </ul>
+                        <hr>
+                        <div class="alert alert-info mb-0">
+                            <small><i class="fas fa-lightbulb me-2"></i>@Localizer["Use 'Recalculate' alone to fix any performance calculation inconsistencies without losing data."]</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+
+<style>
+    .reset-option {
+        transition: all 0.3s ease;
+    }
+
+    .reset-option:hover {
+        box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    }
+
+    .card {
+        border-radius: 12px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+
+    .card-header {
+        border-radius: 12px 12px 0 0 !important;
+    }
+
+    .stat-item {
+        padding: 10px;
+        background-color: #f8f9fa;
+        border-radius: 8px;
+    }
+</style>
+
+<script>
+    function confirmReset() {
+        var selectedOptions = document.querySelectorAll('.reset-option input[type="checkbox"]:checked');
+        if (selectedOptions.length === 0) {
+            alert('@Localizer["Please select at least one reset option."]');
+            return false;
+        }
+        return confirm('@Localizer["Are you sure you want to reset the selected values? This action cannot be undone!"]');
+    }
+</script>

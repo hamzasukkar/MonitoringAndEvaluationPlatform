@@ -1,0 +1,172 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="Reset Values" xml:space="preserve">
+    <value>إعادة تعيين القيم</value>
+  </data>
+  <data name="Reset performance values and recalculate metrics across the system" xml:space="preserve">
+    <value>إعادة تعيين قيم الأداء وإعادة حساب المقاييس في جميع أنحاء النظام</value>
+  </data>
+  <data name="Back" xml:space="preserve">
+    <value>رجوع</value>
+  </data>
+  <data name="Reset Options" xml:space="preserve">
+    <value>خيارات إعادة التعيين</value>
+  </data>
+  <data name="Reset Plans" xml:space="preserve">
+    <value>إعادة تعيين الخطط</value>
+  </data>
+  <data name="records" xml:space="preserve">
+    <value>سجلات</value>
+  </data>
+  <data name="Set all Planned and Realised values to 0 in the Plans table" xml:space="preserve">
+    <value>تعيين جميع القيم المخططة والمحققة إلى 0 في جدول الخطط</value>
+  </data>
+  <data name="Reset Measures" xml:space="preserve">
+    <value>إعادة تعيين المقاييس</value>
+  </data>
+  <data name="Set all Value fields to 0 in the Measures table" xml:space="preserve">
+    <value>تعيين جميع حقول القيمة إلى 0 في جدول المقاييس</value>
+  </data>
+  <data name="Reset All Performance Metrics" xml:space="preserve">
+    <value>إعادة تعيين جميع مقاييس الأداء</value>
+  </data>
+  <data name="All Entities" xml:space="preserve">
+    <value>جميع الكيانات</value>
+  </data>
+  <data name="Reset DisbursementPerformance, FieldMonitoring, ImpactAssessment, Financial, and Physical values to 0 across all entities (Projects, Indicators, SubOutputs, Outputs, Outcomes, Frameworks, Donors, Sectors, Ministries)" xml:space="preserve">
+    <value>إعادة تعيين قيم أداء الصرف والرصد الميداني وتقييم الأثر والمالي والمادي إلى 0 في جميع الكيانات (المشاريع، المؤشرات، المخرجات الفرعية، المخرجات، النتائج، الأطر، المانحون، القطاعات، الوزارات)</value>
+  </data>
+  <data name="Recalculate Performance Hierarchy" xml:space="preserve">
+    <value>إعادة حساب التسلسل الهرمي للأداء</value>
+  </data>
+  <data name="Recommended" xml:space="preserve">
+    <value>موصى به</value>
+  </data>
+  <data name="Recalculate performance metrics from Plans upward through the entire hierarchy. Use this after resetting plans if you want to recalculate based on current plan values." xml:space="preserve">
+    <value>إعادة حساب مقاييس الأداء من الخطط صعوداً عبر التسلسل الهرمي بأكمله. استخدم هذا بعد إعادة تعيين الخطط إذا كنت تريد إعادة الحساب بناءً على قيم الخطة الحالية.</value>
+  </data>
+  <data name="Security Confirmation" xml:space="preserve">
+    <value>تأكيد الأمان</value>
+  </data>
+  <data name="Warning!" xml:space="preserve">
+    <value>تحذير!</value>
+  </data>
+  <data name="Resetting values will affect all selected data. Make sure you understand the implications before proceeding." xml:space="preserve">
+    <value>ستؤثر إعادة تعيين القيم على جميع البيانات المحددة. تأكد من فهمك للتبعات قبل المتابعة.</value>
+  </data>
+  <data name="Your Password" xml:space="preserve">
+    <value>كلمة المرور الخاصة بك</value>
+  </data>
+  <data name="Type" xml:space="preserve">
+    <value>اكتب</value>
+  </data>
+  <data name="to confirm" xml:space="preserve">
+    <value>للتأكيد</value>
+  </data>
+  <data name="Reset Selected Values" xml:space="preserve">
+    <value>إعادة تعيين القيم المحددة</value>
+  </data>
+  <data name="Current Statistics" xml:space="preserve">
+    <value>الإحصائيات الحالية</value>
+  </data>
+  <data name="Total Plans" xml:space="preserve">
+    <value>إجمالي الخطط</value>
+  </data>
+  <data name="Total Measures" xml:space="preserve">
+    <value>إجمالي المقاييس</value>
+  </data>
+  <data name="Total Projects" xml:space="preserve">
+    <value>إجمالي المشاريع</value>
+  </data>
+  <data name="Usage Guide" xml:space="preserve">
+    <value>دليل الاستخدام</value>
+  </data>
+  <data name="Typical Scenarios" xml:space="preserve">
+    <value>السيناريوهات النموذجية</value>
+  </data>
+  <data name="New Year Reset" xml:space="preserve">
+    <value>إعادة تعيين السنة الجديدة</value>
+  </data>
+  <data name="Reset Plans + Recalculate" xml:space="preserve">
+    <value>إعادة تعيين الخطط + إعادة الحساب</value>
+  </data>
+  <data name="Data Correction" xml:space="preserve">
+    <value>تصحيح البيانات</value>
+  </data>
+  <data name="Reset Performance + Recalculate" xml:space="preserve">
+    <value>إعادة تعيين الأداء + إعادة الحساب</value>
+  </data>
+  <data name="Full Reset" xml:space="preserve">
+    <value>إعادة تعيين كاملة</value>
+  </data>
+  <data name="All options selected" xml:space="preserve">
+    <value>جميع الخيارات محددة</value>
+  </data>
+  <data name="Use 'Recalculate' alone to fix any performance calculation inconsistencies without losing data." xml:space="preserve">
+    <value>استخدم 'إعادة الحساب' وحده لإصلاح أي تناقضات في حساب الأداء دون فقدان البيانات.</value>
+  </data>
+  <data name="Please select at least one reset option." xml:space="preserve">
+    <value>يرجى تحديد خيار إعادة تعيين واحد على الأقل.</value>
+  </data>
+  <data name="Are you sure you want to reset the selected values? This action cannot be undone!" xml:space="preserve">
+    <value>هل أنت متأكد من أنك تريد إعادة تعيين القيم المحددة؟ لا يمكن التراجع عن هذا الإجراء!</value>
+  </data>
+</root>
