@@ -20,6 +20,23 @@ namespace MonitoringAndEvaluationPlatform.ViewModel
         // SubOutput filtering
         public int? SubOutputCode { get; set; }
         public string? SubOutputName { get; set; }
+
+        // Hierarchy filter selections
+        public int? SelectedFrameworkCode { get; set; }
+        public int? SelectedOutcomeCode { get; set; }
+        public int? SelectedOutputCode { get; set; }
+        public int? SelectedSubOutputCode { get; set; }
+
+        // Dropdown data for frameworks
+        public List<Framework> Frameworks { get; set; } = new List<Framework>();
+
+        // Display names for filter badges
+        public string? FrameworkName { get; set; }
+        public string? OutcomeName { get; set; }
+        public string? OutputName { get; set; }
+
+        // Search query
+        public string? SearchQuery { get; set; }
     }
 
 }

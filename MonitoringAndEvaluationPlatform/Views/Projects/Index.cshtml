@@ -28,6 +28,134 @@
             </a>
         </div>
     </div>
+
+    <!-- Hierarchy Filter in Header -->
+    <form asp-action="Index" method="get" id="hierarchyFilterForm" class="mt-3">
+        <!-- Hidden fields to preserve other filters -->
+        @foreach (var ministry in Model.SelectedMinistries)
+        {
+            <input type="hidden" name="SelectedMinistries" value="@ministry" />
+        }
+        @foreach (var donor in Model.SelectedDonors)
+        {
+            <input type="hidden" name="SelectedDonors" value="@donor" />
+        }
+        @foreach (var sector in Model.SelectedSectors)
+        {
+            <input type="hidden" name="SelectedSectors" value="@sector" />
+        }
+        <input type="hidden" id="currentFramework" value="@Model.SelectedFrameworkCode" />
+        <input type="hidden" id="currentOutcome" value="@Model.SelectedOutcomeCode" />
+        <input type="hidden" id="currentOutput" value="@Model.SelectedOutputCode" />
+        <input type="hidden" id="currentSubOutput" value="@Model.SelectedSubOutputCode" />
+
+        <div class="hierarchy-header-filters">
+            <div class="d-flex flex-wrap align-items-end gap-3">
+                <!-- Search Box -->
+                <div class="hierarchy-filter-item search-filter-item">
+                    <label class="form-label small mb-1">@Localizer["Search"]</label>
+                    <div class="search-input-wrapper">
+                        <i class="fas fa-search search-icon"></i>
+                        <input type="text"
+                               class="form-control form-control-sm search-header-input"
+                               id="projectSearch"
+                               name="SearchQuery"
+                               value="@Model.SearchQuery"
+                               placeholder="@Localizer["Search projects, frameworks, indicators..."]"
+                               autocomplete="off" />
+                        @if (!string.IsNullOrEmpty(Model.SearchQuery))
+                        {
+                            <button type="button" class="search-clear-btn" id="clearSearch">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        }
+                    </div>
+                </div>
+
+                <!-- Framework Dropdown -->
+                <div class="hierarchy-filter-item">
+                    <label class="form-label small mb-1">@Localizer["Framework"]</label>
+                    <select class="form-select form-select-sm hierarchy-header-select" id="frameworkFilter" name="SelectedFrameworkCode">
+                        <option value="">@Localizer["-- All Frameworks --"]</option>
+                        @foreach (var framework in Model.Frameworks)
+                        {
+                            if (Model.SelectedFrameworkCode == framework.Code)
+                            {
+                                <option value="@framework.Code" selected>@framework.Name</option>
+                            }
+                            else
+                            {
+                                <option value="@framework.Code">@framework.Name</option>
+                            }
+                        }
+                    </select>
+                </div>
+
+                <!-- Outcome Dropdown -->
+                <div class="hierarchy-filter-item">
+                    <label class="form-label small mb-1">@Localizer["Outcome"]</label>
+                    @if (Model.SelectedFrameworkCode.HasValue)
+                    {
+                        <select class="form-select form-select-sm hierarchy-header-select" id="outcomeFilter" name="SelectedOutcomeCode">
+                            <option value="">@Localizer["-- All Outcomes --"]</option>
+                        </select>
+                    }
+                    else
+                    {
+                        <select class="form-select form-select-sm hierarchy-header-select" id="outcomeFilter" name="SelectedOutcomeCode" disabled>
+                            <option value="">@Localizer["-- Select Framework --"]</option>
+                        </select>
+                    }
+                </div>
+
+                <!-- Output Dropdown -->
+                <div class="hierarchy-filter-item">
+                    <label class="form-label small mb-1">@Localizer["Output"]</label>
+                    @if (Model.SelectedOutcomeCode.HasValue)
+                    {
+                        <select class="form-select form-select-sm hierarchy-header-select" id="outputFilter" name="SelectedOutputCode">
+                            <option value="">@Localizer["-- All Outputs --"]</option>
+                        </select>
+                    }
+                    else
+                    {
+                        <select class="form-select form-select-sm hierarchy-header-select" id="outputFilter" name="SelectedOutputCode" disabled>
+                            <option value="">@Localizer["-- Select Outcome --"]</option>
+                        </select>
+                    }
+                </div>
+
+                <!-- SubOutput Dropdown -->
+                <div class="hierarchy-filter-item">
+                    <label class="form-label small mb-1">@Localizer["SubOutput"]</label>
+                    @if (Model.SelectedOutputCode.HasValue)
+                    {
+                        <select class="form-select form-select-sm hierarchy-header-select" id="subOutputFilter" name="SelectedSubOutputCode">
+                            <option value="">@Localizer["-- All SubOutputs --"]</option>
+                        </select>
+                    }
+                    else
+                    {
+                        <select class="form-select form-select-sm hierarchy-header-select" id="subOutputFilter" name="SelectedSubOutputCode" disabled>
+                            <option value="">@Localizer["-- Select Output --"]</option>
+                        </select>
+                    }
+                </div>
+
+                <!-- Clear Filters Button -->
+                @if (Model.SelectedFrameworkCode.HasValue || Model.SelectedOutcomeCode.HasValue ||
+                     Model.SelectedOutputCode.HasValue || Model.SelectedSubOutputCode.HasValue)
+                {
+                    <div class="hierarchy-filter-item">
+                        <label class="form-label small mb-1">&nbsp;</label>
+                        <a href="@Url.Action("Index", new { SelectedMinistries = Model.SelectedMinistries, SelectedDonors = Model.SelectedDonors, SelectedSectors = Model.SelectedSectors })" class="btn btn-outline-light btn-sm">
+                            <i class="fas fa-times me-1"></i>@Localizer["Clear"]
+                        </a>
+                    </div>
+                }
+            </div>
+        </div>
+    </form>
 </div>
 
 <div class="container-fluid">
@@ -41,7 +169,13 @@
                     @Localizer["Filters"]
                 </h3>
                 <div class="chart-content">
-                    <form asp-action="Index" method="get">
+                    <form asp-action="Index" method="get" id="sidebarFilterForm">
+                        <!-- Hidden fields to preserve hierarchy selections -->
+                        <input type="hidden" name="SelectedFrameworkCode" value="@Model.SelectedFrameworkCode" />
+                        <input type="hidden" name="SelectedOutcomeCode" value="@Model.SelectedOutcomeCode" />
+                        <input type="hidden" name="SelectedOutputCode" value="@Model.SelectedOutputCode" />
+                        <input type="hidden" name="SelectedSubOutputCode" value="@Model.SelectedSubOutputCode" />
+
                         <!-- Ministry Filter -->
                         @if (!Model.IsMinistryUser)
                         {
@@ -140,6 +274,29 @@
                     {
                         <span class="badge bg-info ms-3">
                             <i class="fas fa-filter me-2"></i>@Localizer["Filtered by SubOutput"]: @Model.SubOutputName
+                        </span>
+                    }
+                    @if (Model.SelectedFrameworkCode.HasValue || Model.SelectedOutcomeCode.HasValue ||
+                         Model.SelectedOutputCode.HasValue || Model.SelectedSubOutputCode.HasValue)
+                    {
+                        <span class="badge bg-primary ms-2">
+                            <i class="fas fa-sitemap me-2"></i>
+                            @if (Model.SelectedSubOutputCode.HasValue && !string.IsNullOrEmpty(Model.SubOutputName))
+                            {
+                                <text>@Localizer["SubOutput"]: @Model.SubOutputName</text>
+                            }
+                            else if (Model.SelectedOutputCode.HasValue && !string.IsNullOrEmpty(Model.OutputName))
+                            {
+                                <text>@Localizer["Output"]: @Model.OutputName</text>
+                            }
+                            else if (Model.SelectedOutcomeCode.HasValue && !string.IsNullOrEmpty(Model.OutcomeName))
+                            {
+                                <text>@Localizer["Outcome"]: @Model.OutcomeName</text>
+                            }
+                            else if (Model.SelectedFrameworkCode.HasValue && !string.IsNullOrEmpty(Model.FrameworkName))
+                            {
+                                <text>@Localizer["Framework"]: @Model.FrameworkName</text>
+                            }
                         </span>
                     }
                 </h3>
@@ -491,6 +648,168 @@
         50% { background: linear-gradient(90deg, rgba(40, 167, 69, 0.2), rgba(40, 167, 69, 0.1)); }
     }
 
+    /* Hierarchy Header Filter Styles */
+    .hierarchy-header-filters {
+        background: rgba(0, 0, 0, 0.25);
+        border-radius: 12px;
+        padding: 1rem 1.25rem;
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .hierarchy-filter-item {
+        display: flex;
+        flex-direction: column;
+        min-width: 180px;
+    }
+
+    .hierarchy-filter-item .form-label {
+        color: rgba(255, 255, 255, 0.8);
+        font-weight: 500;
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .hierarchy-header-select {
+        background: #1e293b !important;
+        border: 1px solid rgba(255, 255, 255, 0.2) !important;
+        color: #e2e8f0 !important;
+        border-radius: 8px !important;
+        transition: all 0.3s ease;
+        min-width: 180px;
+        padding: 0.5rem 0.75rem;
+        -webkit-appearance: none;
+        -moz-appearance: none;
+        appearance: none;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23e2e8f0' d='M6 8L1 3h10z'/%3E%3C/svg%3E") !important;
+        background-repeat: no-repeat !important;
+        background-position: right 0.75rem center !important;
+        padding-right: 2rem;
+    }
+
+    .hierarchy-header-select:hover:not(:disabled) {
+        background: #334155 !important;
+        border-color: rgba(255, 255, 255, 0.35) !important;
+    }
+
+    .hierarchy-header-select:focus {
+        background: #334155 !important;
+        border-color: var(--primary-light) !important;
+        box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.3) !important;
+        outline: none;
+    }
+
+    .hierarchy-header-select:disabled {
+        background: #0f172a !important;
+        opacity: 0.5;
+        cursor: not-allowed;
+        color: #64748b !important;
+    }
+
+    .hierarchy-header-select option {
+        background: #1e293b;
+        color: #e2e8f0;
+        padding: 0.5rem;
+    }
+
+    .hierarchy-header-select option:hover,
+    .hierarchy-header-select option:checked {
+        background: #334155;
+    }
+
+    @@media (max-width: 992px) {
+        .hierarchy-filter-item {
+            min-width: 150px;
+            flex: 1;
+        }
+    }
+
+    /* Search Input Styles */
+    .search-filter-item {
+        min-width: 280px;
+        flex: 1;
+        max-width: 400px;
+    }
+
+    .search-input-wrapper {
+        position: relative;
+        display: flex;
+        align-items: center;
+    }
+
+    .search-icon {
+        position: absolute;
+        left: 12px;
+        color: #64748b;
+        font-size: 0.85rem;
+        pointer-events: none;
+        z-index: 1;
+    }
+
+    .search-header-input {
+        background: #1e293b !important;
+        border: 1px solid rgba(255, 255, 255, 0.2) !important;
+        color: #e2e8f0 !important;
+        border-radius: 8px !important;
+        padding: 0.5rem 2.5rem 0.5rem 2.25rem !important;
+        transition: all 0.3s ease;
+        width: 100%;
+    }
+
+    .search-header-input::placeholder {
+        color: #64748b;
+        font-size: 0.85rem;
+    }
+
+    .search-header-input:hover {
+        background: #334155 !important;
+        border-color: rgba(255, 255, 255, 0.35) !important;
+    }
+
+    .search-header-input:focus {
+        background: #334155 !important;
+        border-color: var(--primary-light) !important;
+        box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.3) !important;
+        outline: none;
+    }
+
+    .search-clear-btn {
+        position: absolute;
+        right: 8px;
+        background: transparent;
+        border: none;
+        color: #64748b;
+        cursor: pointer;
+        padding: 4px 8px;
+        border-radius: 4px;
+        transition: all 0.2s ease;
+    }
+
+    .search-clear-btn:hover {
+        color: #e2e8f0;
+        background: rgba(255, 255, 255, 0.1);
+    }
+
+    @@media (max-width: 992px) {
+        .search-filter-item {
+            min-width: 200px;
+            max-width: none;
+        }
+    }
+
+    @@media (max-width: 768px) {
+        .hierarchy-header-filters .d-flex {
+            flex-direction: column;
+        }
+        .hierarchy-filter-item {
+            width: 100%;
+        }
+        .search-filter-item {
+            max-width: none;
+        }
+    }
+
     /* Custom scrollbar for filter options */
     .filter-options-modern::-webkit-scrollbar {
         width: 6px;
@@ -766,6 +1085,170 @@
             icon.className = 'fas fa-sort-up ms-2';
         }
     }
+
+    // Search functionality with instant search
+    $(document).ready(function() {
+        let searchTimeout;
+        const debounceDelay = 800; // milliseconds to wait after typing stops
+        const minChars = 2; // minimum characters before searching
+        let lastSearchValue = $('#projectSearch').val() || '';
+
+        // Search on Enter key (immediate)
+        $('#projectSearch').on('keypress', function(e) {
+            if (e.which === 13) {
+                e.preventDefault();
+                clearTimeout(searchTimeout);
+                $('#hierarchyFilterForm').submit();
+            }
+        });
+
+        // Instant search with debounce - submit after user stops typing
+        $('#projectSearch').on('input', function() {
+            clearTimeout(searchTimeout);
+            const searchValue = $(this).val().trim();
+
+            // Show/hide clear button
+            if (searchValue.length > 0) {
+                if ($('.search-clear-btn').length === 0) {
+                    $(this).after('<button type="button" class="search-clear-btn" id="clearSearch"><i class="fas fa-times"></i></button>');
+                }
+            } else {
+                $('.search-clear-btn').remove();
+            }
+
+            // Only auto-submit if minimum characters reached or clearing search
+            if (searchValue.length >= minChars || (searchValue.length === 0 && lastSearchValue.length > 0)) {
+                searchTimeout = setTimeout(function() {
+                    lastSearchValue = searchValue;
+                    $('#hierarchyFilterForm').submit();
+                }, debounceDelay);
+            }
+        });
+
+        // Clear search button
+        $(document).on('click', '#clearSearch', function() {
+            clearTimeout(searchTimeout);
+            $('#projectSearch').val('');
+            lastSearchValue = '';
+            $('#hierarchyFilterForm').submit();
+        });
+    });
+
+    // Hierarchy Filter Cascading Logic with Instant Submit
+    // Localized strings for JavaScript
+    const hierarchyLabels = {
+        selectFramework: '@Html.Raw(Localizer["-- Select Framework --"].Value)',
+        selectOutcome: '@Html.Raw(Localizer["-- Select Outcome --"].Value)',
+        selectOutput: '@Html.Raw(Localizer["-- Select Output --"].Value)',
+        allOutcomes: '@Html.Raw(Localizer["-- All Outcomes --"].Value)',
+        allOutputs: '@Html.Raw(Localizer["-- All Outputs --"].Value)',
+        allSubOutputs: '@Html.Raw(Localizer["-- All SubOutputs --"].Value)'
+    };
+
+    $(document).ready(function() {
+        const currentFramework = $('#currentFramework').val();
+        const currentOutcome = $('#currentOutcome').val();
+        const currentOutput = $('#currentOutput').val();
+        const currentSubOutput = $('#currentSubOutput').val();
+        let isInitializing = true;
+
+        // If returning with selections, load the cascaded options
+        if (currentFramework) {
+            loadOutcomes(currentFramework, currentOutcome, function() {
+                if (currentOutcome) {
+                    loadOutputs(currentOutcome, currentOutput, function() {
+                        if (currentOutput) {
+                            loadSubOutputs(currentOutput, currentSubOutput, function() {
+                                isInitializing = false;
+                            });
+                        } else {
+                            isInitializing = false;
+                        }
+                    });
+                } else {
+                    isInitializing = false;
+                }
+            });
+        } else {
+            isInitializing = false;
+        }
+
+        // Framework change handler - submit form immediately
+        $('#frameworkFilter').change(function() {
+            // Clear child values and submit
+            $('#outcomeFilter').val('');
+            $('#outputFilter').val('');
+            $('#subOutputFilter').val('');
+            submitHierarchyForm();
+        });
+
+        // Outcome change handler - submit form immediately
+        $('#outcomeFilter').change(function() {
+            // Clear child values and submit
+            $('#outputFilter').val('');
+            $('#subOutputFilter').val('');
+            submitHierarchyForm();
+        });
+
+        // Output change handler - submit form immediately
+        $('#outputFilter').change(function() {
+            // Clear child value and submit
+            $('#subOutputFilter').val('');
+            submitHierarchyForm();
+        });
+
+        // SubOutput change handler - submit form immediately
+        $('#subOutputFilter').change(function() {
+            submitHierarchyForm();
+        });
+
+        // Submit the hierarchy filter form
+        function submitHierarchyForm() {
+            if (!isInitializing) {
+                $('#hierarchyFilterForm').submit();
+            }
+        }
+
+        // Helper functions to load cascaded data (for restoring state on page load)
+        function loadOutcomes(frameworkCode, selectedValue, callback) {
+            $.getJSON('/Projects/GetOutcomes', { frameworkCode: frameworkCode })
+                .done(function(data) {
+                    $('#outcomeFilter').empty().append('<option value="">' + hierarchyLabels.allOutcomes + '</option>');
+                    $.each(data, function(i, item) {
+                        const selected = (selectedValue && item.code == selectedValue) ? 'selected' : '';
+                        $('#outcomeFilter').append('<option value="' + item.code + '" ' + selected + '>' + item.name + '</option>');
+                    });
+                    $('#outcomeFilter').prop('disabled', false);
+                    if (callback) callback();
+                });
+        }
+
+        function loadOutputs(outcomeCode, selectedValue, callback) {
+            $.getJSON('/Projects/GetOutputs', { outcomeCode: outcomeCode })
+                .done(function(data) {
+                    $('#outputFilter').empty().append('<option value="">' + hierarchyLabels.allOutputs + '</option>');
+                    $.each(data, function(i, item) {
+                        const selected = (selectedValue && item.code == selectedValue) ? 'selected' : '';
+                        $('#outputFilter').append('<option value="' + item.code + '" ' + selected + '>' + item.name + '</option>');
+                    });
+                    $('#outputFilter').prop('disabled', false);
+                    if (callback) callback();
+                });
+        }
+
+        function loadSubOutputs(outputCode, selectedValue, callback) {
+            $.getJSON('/Projects/GetSubOutputs', { outputCode: outputCode })
+                .done(function(data) {
+                    $('#subOutputFilter').empty().append('<option value="">' + hierarchyLabels.allSubOutputs + '</option>');
+                    $.each(data, function(i, item) {
+                        const selected = (selectedValue && item.code == selectedValue) ? 'selected' : '';
+                        $('#subOutputFilter').append('<option value="' + item.code + '" ' + selected + '>' + item.name + '</option>');
+                    });
+                    $('#subOutputFilter').prop('disabled', false);
+                    if (callback) callback();
+                });
+        }
+    });
 </script>
 }
 

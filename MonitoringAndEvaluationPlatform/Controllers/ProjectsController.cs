@@ -54,6 +54,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             filter.Ministries = await _context.Ministries.ToListAsync();
             filter.Donors = await _context.Donors.ToListAsync();
             filter.Sectors = await _context.Sectors.ToListAsync();
+            filter.Frameworks = await _context.Frameworks.ToListAsync();
 
             // Get the logged-in user
             var user = await _userManager.GetUserAsync(User);
@@ -70,7 +71,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 filter.IsMinistryUser = true;
             }
 
-            // Apply SubOutput filter if provided
+            // Apply SubOutput filter if provided (legacy URL parameter)
             if (filter.SubOutputCode.HasValue)
             {
                 // Get the SubOutput name for display
@@ -84,6 +85,120 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 projectQuery = projectQuery
                     .Where(p => p.ProjectIndicators
                                  .Any(pi => pi.Indicator.SubOutputCode == filter.SubOutputCode.Value));
+            }
+
+            // Apply hierarchy filters (Framework -> Outcome -> Output -> SubOutput)
+            if (filter.SelectedSubOutputCode.HasValue)
+            {
+                // SubOutput filter is most specific
+                projectQuery = projectQuery
+                    .Where(p => p.ProjectIndicators
+                                 .Any(pi => pi.Indicator.SubOutputCode == filter.SelectedSubOutputCode.Value));
+
+                // Get display names for breadcrumb
+                var subOutput = await _context.SubOutputs
+                    .Include(so => so.Output)
+                        .ThenInclude(o => o.Outcome)
+                            .ThenInclude(oc => oc.Framework)
+                    .FirstOrDefaultAsync(so => so.Code == filter.SelectedSubOutputCode.Value);
+                if (subOutput != null)
+                {
+                    filter.SubOutputName = subOutput.Name;
+                    filter.OutputName = subOutput.Output?.Name;
+                    filter.OutcomeName = subOutput.Output?.Outcome?.Name;
+                    filter.FrameworkName = subOutput.Output?.Outcome?.Framework?.Name;
+                }
+            }
+            else if (filter.SelectedOutputCode.HasValue)
+            {
+                // Output filter - get all SubOutputs under this Output
+                var subOutputCodes = await _context.SubOutputs
+                    .Where(so => so.OutputCode == filter.SelectedOutputCode.Value)
+                    .Select(so => so.Code)
+                    .ToListAsync();
+
+                projectQuery = projectQuery
+                    .Where(p => p.ProjectIndicators
+                                 .Any(pi => subOutputCodes.Contains(pi.Indicator.SubOutputCode)));
+
+                // Get display names
+                var output = await _context.Outputs
+                    .Include(o => o.Outcome)
+                        .ThenInclude(oc => oc.Framework)
+                    .FirstOrDefaultAsync(o => o.Code == filter.SelectedOutputCode.Value);
+                if (output != null)
+                {
+                    filter.OutputName = output.Name;
+                    filter.OutcomeName = output.Outcome?.Name;
+                    filter.FrameworkName = output.Outcome?.Framework?.Name;
+                }
+            }
+            else if (filter.SelectedOutcomeCode.HasValue)
+            {
+                // Outcome filter - get all SubOutputs under Outputs under this Outcome
+                var subOutputCodes = await _context.SubOutputs
+                    .Where(so => so.Output.OutcomeCode == filter.SelectedOutcomeCode.Value)
+                    .Select(so => so.Code)
+                    .ToListAsync();
+
+                projectQuery = projectQuery
+                    .Where(p => p.ProjectIndicators
+                                 .Any(pi => subOutputCodes.Contains(pi.Indicator.SubOutputCode)));
+
+                // Get display names
+                var outcome = await _context.Outcomes
+                    .Include(oc => oc.Framework)
+                    .FirstOrDefaultAsync(oc => oc.Code == filter.SelectedOutcomeCode.Value);
+                if (outcome != null)
+                {
+                    filter.OutcomeName = outcome.Name;
+                    filter.FrameworkName = outcome.Framework?.Name;
+                }
+            }
+            else if (filter.SelectedFrameworkCode.HasValue)
+            {
+                // Framework filter - get all SubOutputs under this Framework
+                var subOutputCodes = await _context.SubOutputs
+                    .Where(so => so.Output.Outcome.FrameworkCode == filter.SelectedFrameworkCode.Value)
+                    .Select(so => so.Code)
+                    .ToListAsync();
+
+                projectQuery = projectQuery
+                    .Where(p => p.ProjectIndicators
+                                 .Any(pi => subOutputCodes.Contains(pi.Indicator.SubOutputCode)));
+
+                // Get display name
+                var framework = await _context.Frameworks.FindAsync(filter.SelectedFrameworkCode.Value);
+                if (framework != null)
+                {
+                    filter.FrameworkName = framework.Name;
+                }
+            }
+
+            // Apply search filter
+            if (!string.IsNullOrWhiteSpace(filter.SearchQuery))
+            {
+                var searchTerm = filter.SearchQuery.Trim().ToLower();
+
+                // Get matching indicator codes based on hierarchy search
+                var matchingIndicatorCodes = await _context.Indicators
+                    .Include(i => i.SubOutput)
+                        .ThenInclude(so => so.Output)
+                            .ThenInclude(o => o.Outcome)
+                                .ThenInclude(oc => oc.Framework)
+                    .Where(i =>
+                        i.Name.ToLower().Contains(searchTerm) ||
+                        i.SubOutput.Name.ToLower().Contains(searchTerm) ||
+                        i.SubOutput.Output.Name.ToLower().Contains(searchTerm) ||
+                        i.SubOutput.Output.Outcome.Name.ToLower().Contains(searchTerm) ||
+                        i.SubOutput.Output.Outcome.Framework.Name.ToLower().Contains(searchTerm))
+                    .Select(i => i.IndicatorCode)
+                    .ToListAsync();
+
+                // Filter projects by name OR by matching indicators
+                projectQuery = projectQuery
+                    .Where(p => p.ProjectName.ToLower().Contains(searchTerm) ||
+                                p.ProjectIndicators.Any(pi => matchingIndicatorCodes.Contains(pi.IndicatorCode)));
             }
 
             // Apply additional filters
