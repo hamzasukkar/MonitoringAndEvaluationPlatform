@@ -7,7 +7,7 @@
 @using Microsoft.AspNetCore.Mvc.ModelBinding.Metadata
 
 @{
-    ViewData["Title"] = "Reports Dashboard";
+    ViewData["Title"] = @Localizer["Reports Dashboard"];
     Layout = "~/Views/Shared/_DashboardHomeLayout.cshtml";
     var requestCultureFeature = ViewContext.HttpContext.Features.Get<IRequestCultureFeature>();
     var culture = requestCultureFeature?.RequestCulture?.Culture?.Name ?? "en";
@@ -613,6 +613,7 @@
                         <th>@Localizer["Ministry"]</th>
                         <th>@Localizer["Projects"]</th>
                         <th>@Localizer["Budget"]</th>
+                        <th>@Localizer["Amount Spent"]</th>
                         <th>@Localizer["Indicators Performance"]</th>
                         <th>@Localizer["Disbursement Performance"]</th>
                     </tr>
@@ -628,6 +629,7 @@
                                 <td>@item.Name</td>
                                 <td><span class="badge bg-primary">@item.ProjectCount</span></td>
                                 <td>$@item.TotalBudget.ToString("N0")</td>
+                                <td>$@item.AmountSpent.ToString("N0")</td>
                                 <td><span class="performance-badge @GetPerformanceClass(item.IndicatorsPerformance)">@item.IndicatorsPerformance%</span></td>
                                 <td><span class="performance-badge @GetPerformanceClass(item.DisbursementPerformance)">@item.DisbursementPerformance%</span></td>
                             </tr>
@@ -636,7 +638,7 @@
                     }
                     else
                     {
-                        <tr><td colspan="6" class="text-center text-muted">@Localizer["No data available"]</td></tr>
+                        <tr><td colspan="7" class="text-center text-muted">@Localizer["No data available"]</td></tr>
                     }
                 </tbody>
             </table>
@@ -671,6 +673,7 @@
                         <th>@Localizer["Sector"]</th>
                         <th>@Localizer["Projects"]</th>
                         <th>@Localizer["Budget"]</th>
+                        <th>@Localizer["Amount Spent"]</th>
                         <th>@Localizer["Indicators Performance"]</th>
                         <th>@Localizer["Disbursement Performance"]</th>
                     </tr>
@@ -686,6 +689,7 @@
                                 <td>@item.Name</td>
                                 <td><span class="badge bg-success">@item.ProjectCount</span></td>
                                 <td>$@item.TotalBudget.ToString("N0")</td>
+                                <td>$@item.AmountSpent.ToString("N0")</td>
                                 <td><span class="performance-badge @GetPerformanceClass(item.IndicatorsPerformance)">@item.IndicatorsPerformance%</span></td>
                                 <td><span class="performance-badge @GetPerformanceClass(item.DisbursementPerformance)">@item.DisbursementPerformance%</span></td>
                             </tr>
@@ -694,7 +698,7 @@
                     }
                     else
                     {
-                        <tr><td colspan="6" class="text-center text-muted">@Localizer["No data available"]</td></tr>
+                        <tr><td colspan="7" class="text-center text-muted">@Localizer["No data available"]</td></tr>
                     }
                 </tbody>
             </table>
@@ -729,6 +733,7 @@
                         <th>@Localizer["Donor"]</th>
                         <th>@Localizer["Projects"]</th>
                         <th>@Localizer["Budget"]</th>
+                        <th>@Localizer["Amount Spent"]</th>
                         <th>@Localizer["Indicators Performance"]</th>
                         <th>@Localizer["Disbursement Performance"]</th>
                     </tr>
@@ -744,6 +749,7 @@
                                 <td>@item.Name</td>
                                 <td><span class="badge bg-warning text-dark">@item.ProjectCount</span></td>
                                 <td>$@item.TotalBudget.ToString("N0")</td>
+                                <td>$@item.AmountSpent.ToString("N0")</td>
                                 <td><span class="performance-badge @GetPerformanceClass(item.IndicatorsPerformance)">@item.IndicatorsPerformance%</span></td>
                                 <td><span class="performance-badge @GetPerformanceClass(item.DisbursementPerformance)">@item.DisbursementPerformance%</span></td>
                             </tr>
@@ -752,7 +758,7 @@
                     }
                     else
                     {
-                        <tr><td colspan="6" class="text-center text-muted">@Localizer["No data available"]</td></tr>
+                        <tr><td colspan="7" class="text-center text-muted">@Localizer["No data available"]</td></tr>
                     }
                 </tbody>
             </table>
@@ -787,6 +793,7 @@
                         <th>@Localizer["Supervisor"]</th>
                         <th>@Localizer["Projects"]</th>
                         <th>@Localizer["Budget"]</th>
+                        <th>@Localizer["Amount Spent"]</th>
                         <th>@Localizer["Indicators Performance"]</th>
                         <th>@Localizer["Disbursement Performance"]</th>
                     </tr>
@@ -802,6 +809,7 @@
                                 <td>@item.Name</td>
                                 <td><span class="badge bg-info">@item.ProjectCount</span></td>
                                 <td>$@item.TotalBudget.ToString("N0")</td>
+                                <td>$@item.AmountSpent.ToString("N0")</td>
                                 <td><span class="performance-badge @GetPerformanceClass(item.IndicatorsPerformance)">@item.IndicatorsPerformance%</span></td>
                                 <td><span class="performance-badge @GetPerformanceClass(item.DisbursementPerformance)">@item.DisbursementPerformance%</span></td>
                             </tr>
@@ -810,7 +818,7 @@
                     }
                     else
                     {
-                        <tr><td colspan="6" class="text-center text-muted">@Localizer["No data available"]</td></tr>
+                        <tr><td colspan="7" class="text-center text-muted">@Localizer["No data available"]</td></tr>
                     }
                 </tbody>
             </table>
@@ -845,6 +853,7 @@
                         <th>@Localizer["Project Manager"]</th>
                         <th>@Localizer["Projects"]</th>
                         <th>@Localizer["Budget"]</th>
+                        <th>@Localizer["Amount Spent"]</th>
                         <th>@Localizer["Indicators Performance"]</th>
                         <th>@Localizer["Disbursement Performance"]</th>
                     </tr>
@@ -860,6 +869,7 @@
                                 <td>@item.Name</td>
                                 <td><span class="badge bg-secondary">@item.ProjectCount</span></td>
                                 <td>$@item.TotalBudget.ToString("N0")</td>
+                                <td>$@item.AmountSpent.ToString("N0")</td>
                                 <td><span class="performance-badge @GetPerformanceClass(item.IndicatorsPerformance)">@item.IndicatorsPerformance%</span></td>
                                 <td><span class="performance-badge @GetPerformanceClass(item.DisbursementPerformance)">@item.DisbursementPerformance%</span></td>
                             </tr>
@@ -868,7 +878,7 @@
                     }
                     else
                     {
-                        <tr><td colspan="6" class="text-center text-muted">@Localizer["No data available"]</td></tr>
+                        <tr><td colspan="7" class="text-center text-muted">@Localizer["No data available"]</td></tr>
                     }
                 </tbody>
             </table>
@@ -903,6 +913,7 @@
                         <th>@Localizer["Governorate"]</th>
                         <th>@Localizer["Projects"]</th>
                         <th>@Localizer["Budget"]</th>
+                        <th>@Localizer["Amount Spent"]</th>
                         <th>@Localizer["Indicators Performance"]</th>
                         <th>@Localizer["Disbursement Performance"]</th>
                     </tr>
@@ -918,6 +929,7 @@
                                 <td>@item.Name</td>
                                 <td><span class="badge bg-danger">@item.ProjectCount</span></td>
                                 <td>$@item.TotalBudget.ToString("N0")</td>
+                                <td>$@item.AmountSpent.ToString("N0")</td>
                                 <td><span class="performance-badge @GetPerformanceClass(item.IndicatorsPerformance)">@item.IndicatorsPerformance%</span></td>
                                 <td><span class="performance-badge @GetPerformanceClass(item.DisbursementPerformance)">@item.DisbursementPerformance%</span></td>
                             </tr>
@@ -926,7 +938,7 @@
                     }
                     else
                     {
-                        <tr><td colspan="6" class="text-center text-muted">@Localizer["No data available"]</td></tr>
+                        <tr><td colspan="7" class="text-center text-muted">@Localizer["No data available"]</td></tr>
                     }
                 </tbody>
             </table>
@@ -1496,7 +1508,7 @@
                         callbacks: {
                             label: function(context) {
                                 const pt = context.raw;
-                                return pt.project + ': (Fin: ' + pt.x + '%, Phy: ' + pt.y + '%, Budget: $' + pt.budget.toLocaleString() + ')';
+                                return pt.project + ': (@Localizer["Fin"]: ' + pt.x + '%, @Localizer["Phy"]: ' + pt.y + '%, @Localizer["Budget"]: $' + pt.budget.toLocaleString() + ')';
                             }
                         }
                     }
@@ -2179,8 +2191,8 @@
 
             // Export all tables
             const tables = document.querySelectorAll('.performers-table .table');
-            const tableNames = ['Top Frameworks', 'Top Outcomes', 'Top Outputs', 'Top SubOutputs', 'Top Indicators',
-                               'Bottom Frameworks', 'Bottom Outcomes', 'Bottom Outputs', 'Bottom SubOutputs', 'Bottom Indicators'];
+            const tableNames = ['@Localizer["Top Frameworks"]', '@Localizer["Top Outcomes"]', '@Localizer["Top Outputs"]', '@Localizer["Top SubOutputs"]', '@Localizer["Top Indicators"]',
+                               '@Localizer["Bottom Frameworks"]', '@Localizer["Bottom Outcomes"]', '@Localizer["Bottom Outputs"]', '@Localizer["Bottom SubOutputs"]', '@Localizer["Bottom Indicators"]'];
 
             tables.forEach((table, index) => {
                 if (table && tableNames[index]) {

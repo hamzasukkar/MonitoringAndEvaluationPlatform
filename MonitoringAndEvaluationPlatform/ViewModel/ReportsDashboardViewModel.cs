@@ -88,6 +88,7 @@ namespace MonitoringAndEvaluationPlatform.ViewModel
         public string? NameAr { get; set; }
         public int ProjectCount { get; set; }
         public double TotalBudget { get; set; }
+        public double AmountSpent { get; set; }
         public double IndicatorsPerformance { get; set; }
         public double DisbursementPerformance { get; set; }
         public double FieldMonitoring { get; set; }
