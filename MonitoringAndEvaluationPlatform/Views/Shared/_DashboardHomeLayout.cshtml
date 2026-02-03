@@ -75,26 +75,26 @@
             --theme-name: 'green';
         }
 
-        [data-theme="green"] button,
-        [data-theme="green"] .btn,
-        [data-theme="green"] input[type="submit"],
-        [data-theme="green"] input[type="button"] {
-            background-color: #C8A85F !important;
-            border-color: #C8A85F !important;
-        }
+            [data-theme="green"] button,
+            [data-theme="green"] .btn,
+            [data-theme="green"] input[type="submit"],
+            [data-theme="green"] input[type="button"] {
+                background-color: #C8A85F !important;
+                border-color: #C8A85F !important;
+            }
 
-        /* Exclude buttons inside btn-group and action-buttons */
-        [data-theme="green"] .btn-group button,
-        [data-theme="green"] .btn-group .btn,
-        [data-theme="green"] .btn-group input[type="submit"],
-        [data-theme="green"] .btn-group input[type="button"],
-        [data-theme="green"] .action-buttons button,
-        [data-theme="green"] .action-buttons .btn,
-        [data-theme="green"] .action-buttons input[type="submit"],
-        [data-theme="green"] .action-buttons input[type="button"] {
-            background-color: initial !important;
-            border-color: initial !important;
-        }
+            /* Exclude buttons inside btn-group and action-buttons */
+            [data-theme="green"] .btn-group button,
+            [data-theme="green"] .btn-group .btn,
+            [data-theme="green"] .btn-group input[type="submit"],
+            [data-theme="green"] .btn-group input[type="button"],
+            [data-theme="green"] .action-buttons button,
+            [data-theme="green"] .action-buttons .btn,
+            [data-theme="green"] .action-buttons input[type="submit"],
+            [data-theme="green"] .action-buttons input[type="button"] {
+                background-color: initial !important;
+                border-color: initial !important;
+            }
 
         * {
             margin: 0;
@@ -157,7 +157,7 @@
             border-radius: 8px;
             transition: all 0.3s ease;
             font-weight: 500;
-            white-space:nowrap;
+            white-space: nowrap;
         }
 
             .nav-item .nav-link:hover {
@@ -198,14 +198,9 @@
         }
 
             .dropdown-submenu > .dropdown-menu {
-                position: absolute;
                 top: 0;
                 margin-top: -6px;
                 left: 100%;
-                display: none;
-                visibility: visible;
-                opacity: 1;
-                z-index: 1050;
             }
 
         body[dir="rtl"] .dropdown-submenu > .dropdown-menu {
@@ -213,11 +208,8 @@
             right: 100%;
         }
 
-        .dropdown-submenu > .dropdown-menu.show,
         .dropdown-submenu:hover > .dropdown-menu {
-            display: block !important;
-            visibility: visible !important;
-            opacity: 1 !important;
+            display: block;
         }
 
         .language-selector select, .theme-selector select {
@@ -250,8 +242,8 @@
             padding: 30px 0;
             position: fixed;
             top: 70px;
-           /*  height: calc(100vh - 70px - 400px); */
-           height:100%;
+            /*  height: calc(100vh - 70px - 400px); */
+            height: 100%;
             overflow-y: auto;
             z-index: 1000;
             transition: all 0.3s ease;
@@ -267,8 +259,8 @@
             border-left: none;
         }
 
-        [dir="rtl"] .ministry-item{
-            float:right;
+        [dir="rtl"] .ministry-item {
+            float: right;
         }
 
         /* RTL (Arabic) - Sidebar on Right */
@@ -918,37 +910,6 @@
                 justify-content: center;
             }
         }
-
-        /* Policies Dropdown Scroll and Search Styles */
-        .policies-dropdown-menu {
-            min-width: 280px;
-            padding-top: 0;
-            max-height: 400px;
-            overflow: visible;
-        }
-
-        .dropdown-search-container {
-            position: sticky;
-            top: 0;
-            background: white;
-            z-index: 10;
-        }
-
-        .policies-search-input {
-            border-radius: 20px;
-            border: 1px solid #dee2e6;
-            padding: 8px 15px;
-            font-size: 0.875rem;
-        }
-
-        .policies-search-input:focus {
-            border-color: var(--primary-color);
-            box-shadow: 0 0 0 0.2rem rgba(var(--primary-color-rgb), 0.15);
-        }
-
-        .framework-item.hidden {
-            display: none !important;
-        }
     </style>
 
     <!-- Help System CSS -->
@@ -970,26 +931,16 @@
                             <i class="fas fa-home me-1"></i> @Localizer["Home"]
                         </a>
                     </li>
-            @*         <li class="nav-item">
+                    @*         <li class="nav-item">
                         <a class="nav-link" asp-controller="Home" asp-action="About">
                             <i class="fas fa-info-circle me-1"></i> @Localizer["About"]
                         </a>
                     </li> *@
                     <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" href="#" id="policiesDropdown" role="button" data-bs-toggle="dropdown" data-bs-auto-close="outside" aria-expanded="false">
+                        <a class="nav-link dropdown-toggle" href="#" id="policiesDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                             <i class="fas fa-sitemap me-1"></i> @Localizer["National Development Strategy"]
                         </a>
-                        <ul class="dropdown-menu policies-dropdown-menu" aria-labelledby="policiesDropdown">
-                            <!-- Search Input -->
-                            <li class="dropdown-search-container">
-                                <div class="px-3 py-2">
-                                    <input type="text" class="form-control form-control-sm policies-search-input"
-                                           placeholder="@Localizer["Search..."]"
-                                           onclick="event.stopPropagation();" />
-                                </div>
-                            </li>
-                            <li><hr class="dropdown-divider my-1"></li>
-                            <!-- Scrollable Framework List -->
+                        <ul class="dropdown-menu" aria-labelledby="policiesDropdown">
                             @foreach (var framework in _context.Frameworks
                             .OrderByDescending(f => f.IndicatorsPerformance)
                             .ToList())
@@ -997,7 +948,7 @@
                                 var hasPerformance = framework.IndicatorsPerformance > 0;
                                 var performanceClass = hasPerformance ? "has-performance" : "";
 
-                                <li class="dropdown-submenu dropend framework-item">
+                                <li class="dropdown-submenu dropend">
                                     <a class="dropdown-item dropdown-toggle @performanceClass" href="#" id="framework-@framework.Code">
                                         @framework.Name
                                     </a>
@@ -1037,8 +988,8 @@
                             }
                         </ul>
                     </li>
-                          <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" href="#" id="SDGsDropdown" role="button" data-bs-toggle="dropdown" data-bs-auto-close="outside" aria-expanded="false">
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="SDGsDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                             <img src="/img/SDG Wheel_Transparent_WEB.png" alt="SDGs" class="me-2" style="width:24px; height:24px;" />
                             SDGs
                         </a>
@@ -1066,14 +1017,14 @@
                                                 {
                                                     <li class="dropdown-submenu dropend">
                                                         <a class="dropdown-item dropdown-toggle" href="#" id="target-@target.Code">
-                                                            @(System.Globalization.CultureInfo.CurrentUICulture.TwoLetterISOLanguageName == "ar" ?  @target.AR_Name : @target.EN_Name)
+                                                            @(System.Globalization.CultureInfo.CurrentUICulture.TwoLetterISOLanguageName == "ar" ? @target.AR_Name : @target.EN_Name)
                                                         </a>
                                                         <ul class="dropdown-menu" aria-labelledby="target-@target.Code">
                                                             @foreach (var indicator in target.SDGsIndicators)
                                                             {
                                                                 <li>
                                                                     <a class="dropdown-item" href="#">
-                                                                        <i class="fas fa-chart-line me-1"></i> @(System.Globalization.CultureInfo.CurrentUICulture.TwoLetterISOLanguageName == "ar" ?  @indicator.AR_Name  : @indicator.EN_Name )
+                                                                        <i class="fas fa-chart-line me-1"></i> @(System.Globalization.CultureInfo.CurrentUICulture.TwoLetterISOLanguageName == "ar" ? @indicator.AR_Name : @indicator.EN_Name)
                                                                     </a>
                                                                 </li>
                                                             }
@@ -1188,11 +1139,7 @@
                             }
                         </a>
                         <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
-                            <li><a asp-action="Index" asp-controller="admin" class="dropdown-item" ><i class="fas fa-cog me-2"></i>@Localizer["Settings"]</a></li>
-                            @if (User.IsInRole("SystemAdministrator"))
-                            {
-                                <li><a class="dropdown-item" href="/DataManagement/Index"><i class="fas fa-database me-2"></i>@Localizer["DataManagement"]</a></li>
-                            }
+                            <li><a asp-action="Index" asp-controller="admin" class="dropdown-item"><i class="fas fa-cog me-2"></i>@Localizer["Settings"]</a></li>
                             <li><hr class="dropdown-divider"></li>
                             <li>
                                 <form class="form-inline" asp-area="Identity" asp-page="/Account/Logout" asp-route-returnUrl="@Url.Action("Index", "Home", new { area = "" })">
@@ -1248,7 +1195,7 @@
                         </a>
                     </li>
                 }
-               @*  <li>
+                @*  <li>
                     <a href="/Projects/Index" class="sidebar-link @(Context.Request.Path.Value.Contains("Projects") ? "active" : "")">
                         <i class="fas fa-project-diagram"></i>
                         <span>@Localizer["Projects"]</span>
@@ -1273,12 +1220,6 @@
                         <span>@Localizer["Dashboard"]</span>
                     </a>
                 </li>
-                <li>
-                    <a href="/Reports/Index" class="sidebar-link @(Context.Request.Path.Value.Contains("Reports") ? "active" : "")">
-                        <i class="fas fa-chart-bar"></i>
-                        <span>@Localizer["Reports"]</span>
-                    </a>
-                </li>
             </ul>
 
             <!-- Language Selector -->
@@ -1298,27 +1239,9 @@
 
         <!-- Main Content with Sidebar -->
         <div class="main-content-with-sidebar">
-            <div class="back-button-container">
-                @await Html.PartialAsync("_BackButton")
-            </div>
             @RenderBody()
         </div>
     </div>
-
-    <style>
-        .back-button-container {
-            margin: 1rem 0 1rem 0;
-            padding: 0 1rem;
-        }
-
-        [dir="ltr"] .back-button-container {
-            text-align: left;
-        }
-
-        [dir="rtl"] .back-button-container {
-            text-align: right;
-        }
-    </style>
 
     <!-- Footer -->
     <footer class="dashboard-footer">
@@ -1374,16 +1297,16 @@
                     <li><i class="fas fa-globe"></i>www.Psc.gov.sy</li>
                     <li><i class="fas fa-clock"></i>@Localizer["Sun-Thu: 8:00 AM - 3:00 PM"]</li>
                 </ul>
-               
+
             </div>
 
             <!-- Partners Section -->
             <div class="footer-section">
                 <h4><i class="fas fa-handshake"></i>@Localizer["Partners"]</h4>
-                   <img src="~/img/UNDB Logo.png" alt="UNDB Logo" style="width: 50%; height: 95%; background: transparent; border-radius: 0;">
+                <img src="~/img/UNDB Logo.png" alt="UNDB Logo" style="width: 50%; height: 95%; background: transparent; border-radius: 0;">
             </div>
         </div>
-@* 
+        @* 
         <!-- Statistics Section -->
         <div class="footer-stats">
             <div class="footer-stat">
@@ -1451,67 +1374,19 @@
         document.addEventListener("DOMContentLoaded", function () {
             // Load the theme when page loads
             loadTheme();
-
-            // Dropdown submenu functionality using event delegation
-            document.addEventListener('click', function(e) {
-                var toggle = e.target.closest('.dropdown-submenu > a');
-                if (toggle) {
-                    e.preventDefault();
-                    e.stopPropagation();
-
-                    var submenuItem = toggle.parentElement;
-                    var submenu = submenuItem.querySelector('.dropdown-menu');
-
-                    if (submenu) {
-                        // Close other open submenus at the same level
-                        var parentMenu = submenuItem.parentElement;
-                        if (parentMenu) {
-                            var siblings = parentMenu.querySelectorAll('.dropdown-submenu > .dropdown-menu');
-                            siblings.forEach(function(sibling) {
-                                if (sibling !== submenu) {
-                                    sibling.classList.remove('show');
-                                    sibling.style.display = '';
-                                }
-                            });
-                        }
-
-                        // Toggle current submenu
-                        var isOpen = submenu.classList.contains('show');
-                        if (isOpen) {
-                            submenu.classList.remove('show');
-                            submenu.style.display = '';
-                        } else {
-                            submenu.classList.add('show');
-                            submenu.style.display = 'block';
-                        }
+            // Dropdown submenu functionality
+            document.querySelectorAll('.dropdown-submenu').forEach(function(element) {
+                element.addEventListener('mouseenter', function (e) {
+                    let dropdownMenu = this.querySelector('.dropdown-menu');
+                    if (dropdownMenu) {
+                        dropdownMenu.style.display = 'block';
                     }
-                }
-            });
-
-            // Mouse events for hover functionality
-            document.querySelectorAll('.dropdown-submenu').forEach(function(submenuItem) {
-                var submenu = submenuItem.querySelector('.dropdown-menu');
-
-                if (submenu) {
-                    submenuItem.addEventListener('mouseenter', function() {
-                        submenu.classList.add('show');
-                        submenu.style.display = 'block';
-                    });
-
-                    submenuItem.addEventListener('mouseleave', function() {
-                        submenu.classList.remove('show');
-                        submenu.style.display = '';
-                    });
-                }
-            });
-
-            // Close all submenus when parent dropdown closes
-            document.querySelectorAll('.nav-item.dropdown').forEach(function(dropdown) {
-                dropdown.addEventListener('hidden.bs.dropdown', function() {
-                    this.querySelectorAll('.dropdown-submenu .dropdown-menu').forEach(function(submenu) {
-                        submenu.classList.remove('show');
-                        submenu.style.display = '';
-                    });
+                });
+                element.addEventListener('mouseleave', function (e) {
+                    let dropdownMenu = this.querySelector('.dropdown-menu');
+                    if (dropdownMenu) {
+                        dropdownMenu.style.display = 'none';
+                    }
                 });
             });
 
@@ -1529,6 +1404,21 @@
                     });
                 });
             }
+
+            // Dropdown submenu click functionality for mobile
+            $('.dropdown-submenu a.dropdown-toggle').on("click", function(e){
+                if (!$(this).next('ul').hasClass('show')) {
+                    $(this).parents('.dropdown-menu').first().find('.show').removeClass("show");
+                }
+                var $subMenu = $(this).next('ul');
+                $subMenu.toggleClass('show');
+
+                $(this).parents('li.nav-item.dropdown.show').on('hidden.bs.dropdown', function(e) {
+                    $('.dropdown-submenu .show').removeClass("show");
+                });
+
+                return false;
+            });
 
             // Footer counter animation
             function animateFooterCounter(elementId) {
@@ -1563,37 +1453,6 @@
             footerStats.forEach(stat => {
                 observer.observe(stat);
             });
-        });
-
-        // Policies Dropdown Search Functionality
-        document.addEventListener('DOMContentLoaded', function() {
-            const searchInput = document.querySelector('.policies-search-input');
-            if (searchInput) {
-                searchInput.addEventListener('input', function(e) {
-                    const searchTerm = e.target.value.toLowerCase().trim();
-                    const frameworkItems = document.querySelectorAll('.framework-item');
-
-                    frameworkItems.forEach(function(item) {
-                        const frameworkName = item.querySelector('.dropdown-item').textContent.toLowerCase().trim();
-                        if (searchTerm === '' || frameworkName.includes(searchTerm)) {
-                            item.classList.remove('hidden');
-                        } else {
-                            item.classList.add('hidden');
-                        }
-                    });
-                });
-
-                // Clear search when dropdown closes
-                const policiesDropdown = document.getElementById('policiesDropdown');
-                if (policiesDropdown) {
-                    policiesDropdown.addEventListener('hidden.bs.dropdown', function() {
-                        searchInput.value = '';
-                        document.querySelectorAll('.framework-item').forEach(function(item) {
-                            item.classList.remove('hidden');
-                        });
-                    });
-                }
-            }
         });
     </script>
 
