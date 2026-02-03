@@ -1189,6 +1189,10 @@
                         </a>
                         <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
                             <li><a asp-action="Index" asp-controller="admin" class="dropdown-item" ><i class="fas fa-cog me-2"></i>@Localizer["Settings"]</a></li>
+                            @if (User.IsInRole("SystemAdministrator"))
+                            {
+                                <li><a class="dropdown-item" href="/DataManagement/Index"><i class="fas fa-database me-2"></i>@Localizer["DataManagement"]</a></li>
+                            }
                             <li><hr class="dropdown-divider"></li>
                             <li>
                                 <form class="form-inline" asp-area="Identity" asp-page="/Account/Logout" asp-route-returnUrl="@Url.Action("Index", "Home", new { area = "" })">
@@ -1241,12 +1245,6 @@
                         <a href="/AuditLogs/Index" class="sidebar-link @(Context.Request.Path.Value.Contains("AuditLogs") ? "active" : "")">
                             <i class="fas fa-history"></i>
                             <span>@Localizer["Audit Logs"]</span>
-                        </a>
-                    </li>
-                    <li>
-                        <a href="/DataManagement/Index" class="sidebar-link @(Context.Request.Path.Value.Contains("DataManagement") ? "active" : "")">
-                            <i class="fas fa-database"></i>
-                            <span>@Localizer["DataManagement"]</span>
                         </a>
                     </li>
                 }
