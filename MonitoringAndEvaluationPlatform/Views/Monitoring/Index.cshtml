@@ -84,6 +84,18 @@
                     </button>
                 </div>
             </div>
+
+            <!-- Collapse/Expand All Controls -->
+            <div class="filter-group ms-auto">
+                <div class="btn-group filter-buttons" role="group">
+                    <button type="button" class="btn btn-filter" id="expandAllBtn">
+                        <i class="fas fa-expand-alt me-1"></i> @Localizer["Expand All"]
+                    </button>
+                    <button type="button" class="btn btn-filter" id="collapseAllBtn">
+                        <i class="fas fa-compress-alt me-1"></i> @Localizer["Collapse All"]
+                    </button>
+                </div>
+            </div>
         </div>
 
         <!-- Results Count -->
@@ -115,7 +127,7 @@
                 new { Value = Math.Round(item.DisbursementPerformance), Label = @Localizer["Disbursement Performance"], Icon = "fas fa-money-bill-wave", Color = "success" }
             };
         
-            <div class="modern-framework-card">
+            <div class="modern-framework-card" data-framework-code="@item.Code">
                 <div class="framework-card-header">
                     <div class="framework-title-section">
                         <h3 class="framework-title">
@@ -127,12 +139,15 @@
                             @Localizer["Outcomes"]: @item.Outcomes.Count
                         </div>
                     </div>
+                    <button class="framework-collapse-btn" title="@Localizer["Collapse/Expand"]">
+                        <i class="fas fa-chevron-up"></i>
+                    </button>
 @*                     <div class="framework-performance-summary">
                         <div class="performance-circle" data-performance="@Math.Round(item.IndicatorsPerformance)">
                             <svg class="progress-ring" width="60" height="60">
-                                <circle class="progress-ring-circle" 
-                                        cx="30" cy="30" r="25" 
-                                        stroke-dasharray="157" 
+                                <circle class="progress-ring-circle"
+                                        cx="30" cy="30" r="25"
+                                        stroke-dasharray="157"
                                         stroke-dashoffset="@(157 - (157 * item.IndicatorsPerformance / 100))"
                                         style="--progress-color: @(item.IndicatorsPerformance >= 80 ? "#28a745" : item.IndicatorsPerformance >= 60 ? "#ffc107" : "#dc3545")">
                                 </circle>
@@ -144,6 +159,7 @@
                     </div>
  *@                </div>
 
+                <div class="framework-card-body">
                     <!-- Performance Metrics Section -->
                     <div class="performance-metrics-grid">
                         @foreach (var metric in metrics)
@@ -239,6 +255,7 @@
                         </div>
                     </div>
                 </div>
+            </div>
         }
     </div>
 </div>
@@ -602,8 +619,8 @@
     /* Framework Card Header */
     .framework-card-header {
         display: grid;
-        grid-template-columns: 1fr auto;
-        gap: 2rem;
+        grid-template-columns: 1fr auto auto;
+        gap: 1.5rem;
         align-items: center;
         margin-bottom: 2rem;
         padding-bottom: 1.5rem;
@@ -645,6 +662,62 @@
         font-weight: 600;
         box-shadow: 0 4px 15px rgba(79, 172, 254, 0.3);
         text-shadow: 0 1px 2px rgba(0,0,0,0.2);
+    }
+
+    /* Collapse Button */
+    .framework-collapse-btn {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border: none;
+        width: 42px;
+        height: 42px;
+        border-radius: 50%;
+        color: white;
+        font-size: 1.1rem;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+    }
+
+    .framework-collapse-btn:hover {
+        transform: scale(1.1);
+        box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+    }
+
+    .framework-collapse-btn:active {
+        transform: scale(0.95);
+    }
+
+    .framework-collapse-btn i {
+        transition: transform 0.3s ease;
+    }
+
+    .modern-framework-card.collapsed .framework-collapse-btn i {
+        transform: rotate(180deg);
+    }
+
+    /* Framework Card Body - Collapsible Content */
+    .framework-card-body {
+        max-height: 5000px;
+        overflow: hidden;
+        transition: max-height 0.5s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s ease, padding 0.3s ease;
+        opacity: 1;
+    }
+
+    .modern-framework-card.collapsed .framework-card-body {
+        max-height: 0;
+        opacity: 0;
+        padding-top: 0;
+        padding-bottom: 0;
+    }
+
+    .modern-framework-card.collapsed .framework-card-header {
+        margin-bottom: 0;
+        padding-bottom: 0;
+        border-bottom: none;
     }
 
     /* Performance Circle */
@@ -1238,6 +1311,111 @@
 
         // Initial count
         updateResultsCount(allFrameworks.length, allFrameworks.length);
+
+        // ========== FRAMEWORK CARD COLLAPSE/EXPAND FUNCTIONALITY ==========
+
+        // Get all collapse buttons
+        const collapseButtons = document.querySelectorAll('.framework-collapse-btn');
+
+        // Load saved collapse states from localStorage
+        const loadCollapseStates = () => {
+            try {
+                const savedStates = localStorage.getItem('frameworkCollapseStates');
+                if (savedStates) {
+                    const states = JSON.parse(savedStates);
+                    Object.keys(states).forEach(frameworkCode => {
+                        if (states[frameworkCode] === true) {
+                            const card = document.querySelector(`[data-framework-code="${frameworkCode}"]`);
+                            if (card) {
+                                card.classList.add('collapsed');
+                            }
+                        }
+                    });
+                }
+            } catch (error) {
+                console.error('Error loading collapse states:', error);
+            }
+        };
+
+        // Save collapse states to localStorage
+        const saveCollapseStates = () => {
+            try {
+                const states = {};
+                allFrameworks.forEach(card => {
+                    const frameworkCode = card.getAttribute('data-framework-code');
+                    if (frameworkCode) {
+                        states[frameworkCode] = card.classList.contains('collapsed');
+                    }
+                });
+                localStorage.setItem('frameworkCollapseStates', JSON.stringify(states));
+            } catch (error) {
+                console.error('Error saving collapse states:', error);
+            }
+        };
+
+        // Add click event to each collapse button
+        collapseButtons.forEach(btn => {
+            btn.addEventListener('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+
+                const card = this.closest('.modern-framework-card');
+                card.classList.toggle('collapsed');
+
+                // Save state to localStorage
+                saveCollapseStates();
+
+                // Add ripple effect
+                const ripple = document.createElement('span');
+                ripple.style.cssText = `
+                    position: absolute;
+                    border-radius: 50%;
+                    background: rgba(255,255,255,0.6);
+                    width: 20px;
+                    height: 20px;
+                    top: 50%;
+                    left: 50%;
+                    transform: translate(-50%, -50%);
+                    animation: ripple 0.6s ease-out;
+                    pointer-events: none;
+                `;
+                this.style.position = 'relative';
+                this.appendChild(ripple);
+                setTimeout(() => ripple.remove(), 600);
+            });
+        });
+
+        // Load saved states on page load
+        loadCollapseStates();
+
+        // ========== EXPAND ALL / COLLAPSE ALL FUNCTIONALITY ==========
+
+        const expandAllBtn = document.getElementById('expandAllBtn');
+        const collapseAllBtn = document.getElementById('collapseAllBtn');
+
+        // Expand All button
+        expandAllBtn.addEventListener('click', function() {
+            allFrameworks.forEach(card => {
+                card.classList.remove('collapsed');
+            });
+            saveCollapseStates();
+
+            // Visual feedback
+            this.classList.add('active');
+            setTimeout(() => this.classList.remove('active'), 300);
+        });
+
+        // Collapse All button
+        collapseAllBtn.addEventListener('click', function() {
+            allFrameworks.forEach(card => {
+                card.classList.add('collapsed');
+            });
+            saveCollapseStates();
+
+            // Visual feedback
+            this.classList.add('active');
+            setTimeout(() => this.classList.remove('active'), 300);
+        });
     });
 </script>
 
