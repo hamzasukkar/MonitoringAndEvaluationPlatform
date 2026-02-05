@@ -158,6 +158,69 @@
     </form>
 </div>
 
+<!-- Summary Statistics Cards -->
+<div class="summary-cards-container">
+    <div class="row g-3">
+        <div class="col-md-3 col-sm-6">
+            <div class="summary-card summary-card-total">
+                <div class="summary-card-icon">
+                    <i class="fas fa-project-diagram"></i>
+                </div>
+                <div class="summary-card-content">
+                    <div class="summary-card-value">@Model.TotalProjects</div>
+                    <div class="summary-card-label">@Localizer["Total Projects"]</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 col-sm-6">
+            <div class="summary-card summary-card-not-started">
+                <div class="summary-card-icon">
+                    <i class="fas fa-clock"></i>
+                </div>
+                <div class="summary-card-content">
+                    <div class="summary-card-value">@Model.NotStartedProjects</div>
+                    <div class="summary-card-label">@Localizer["Not Started"]</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 col-sm-6">
+            <div class="summary-card summary-card-in-progress">
+                <div class="summary-card-icon">
+                    <i class="fas fa-spinner"></i>
+                </div>
+                <div class="summary-card-content">
+                    <div class="summary-card-value">@Model.InProgressProjects</div>
+                    <div class="summary-card-label">@Localizer["In Progress"]</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 col-sm-6">
+            <div class="summary-card summary-card-completed">
+                <div class="summary-card-icon">
+                    <i class="fas fa-check-circle"></i>
+                </div>
+                <div class="summary-card-content">
+                    <div class="summary-card-value">@Model.CompletedProjects</div>
+                    <div class="summary-card-label">@Localizer["Completed"]</div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row g-3 mt-2">
+        <div class="col-12">
+            <div class="summary-card summary-card-budget">
+                <div class="summary-card-icon">
+                    <i class="fas fa-dollar-sign"></i>
+                </div>
+                <div class="summary-card-content">
+                    <div class="summary-card-value">@Model.TotalBudget.ToString("N0")</div>
+                    <div class="summary-card-label">@Localizer["Total Budget"]</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
 <div class="container-fluid">
 
     <div class="row">
@@ -251,6 +314,65 @@
                             </div>
                         </div>
 
+                        <!-- Governorate Filter -->
+                        <div class="mb-4">
+                            <h6 class="filter-section-title">@Localizer["Governorate"]</h6>
+                            <div class="filter-options-modern">
+                                @foreach (var governorate in Model.Governorates)
+                                {
+                                    <div class="modern-checkbox">
+                                        <input class="modern-checkbox-input" type="checkbox" name="SelectedGovernorates"
+                                               value="@governorate.Code" id="governorate-@governorate.Code"
+                                        @(Model.SelectedGovernorates.Contains(governorate.Code) ? "checked" : "")>
+                                        <label class="modern-checkbox-label" for="governorate-@governorate.Code">
+                                            <span class="checkbox-custom"></span>
+                                            @if (culture.StartsWith("ar"))
+                                            {
+                                                @governorate.AR_Name
+                                            }
+                                            else
+                                            {
+                                                @governorate.EN_Name
+                                            }
+                                        </label>
+                                    </div>
+                                }
+                            </div>
+                        </div>
+
+                        <!-- Date Filters -->
+                        <div class="mb-4">
+                            <h6 class="filter-section-title">@Localizer["Start Date"]</h6>
+                            <div class="date-filter-group">
+                                <div class="date-input-wrapper">
+                                    <label class="date-label">@Localizer["From"]</label>
+                                    <input type="date" class="form-control form-control-sm date-filter-input"
+                                           name="StartDateFrom" value="@Model.StartDateFrom?.ToString("yyyy-MM-dd")" />
+                                </div>
+                                <div class="date-input-wrapper">
+                                    <label class="date-label">@Localizer["To"]</label>
+                                    <input type="date" class="form-control form-control-sm date-filter-input"
+                                           name="StartDateTo" value="@Model.StartDateTo?.ToString("yyyy-MM-dd")" />
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mb-4">
+                            <h6 class="filter-section-title">@Localizer["End Date"]</h6>
+                            <div class="date-filter-group">
+                                <div class="date-input-wrapper">
+                                    <label class="date-label">@Localizer["From"]</label>
+                                    <input type="date" class="form-control form-control-sm date-filter-input"
+                                           name="EndDateFrom" value="@Model.EndDateFrom?.ToString("yyyy-MM-dd")" />
+                                </div>
+                                <div class="date-input-wrapper">
+                                    <label class="date-label">@Localizer["To"]</label>
+                                    <input type="date" class="form-control form-control-sm date-filter-input"
+                                           name="EndDateTo" value="@Model.EndDateTo?.ToString("yyyy-MM-dd")" />
+                                </div>
+                            </div>
+                        </div>
+
                         <div class="filter-actions">
                             <button type="submit" class="btn btn-gradient-primary">
                                 <i class="fas fa-filter me-2"></i>@Localizer["Apply Filters"]
@@ -308,6 +430,15 @@
                                     <th>
                                         <i class="fas fa-project-diagram me-2"></i>@Localizer["Project Name"]
                                     </th>
+                                    <th class="text-center">
+                                        <i class="fas fa-calendar-alt me-2"></i>@Localizer["Start Date"]
+                                    </th>
+                                    <th class="text-center">
+                                        <i class="fas fa-calendar-check me-2"></i>@Localizer["End Date"]
+                                    </th>
+                                    <th class="text-center">
+                                        <i class="fas fa-info-circle me-2"></i>@Localizer["Status"]
+                                    </th>
                                     <th class="text-center sortable-header" onclick="sortProjectsTable('performance')" style="cursor: pointer;">
                                         <i class="fas fa-chart-line me-2"></i>@Localizer["Performance"]
                                         <i class="fas fa-sort ms-2" id="performance-sort-icon"></i>
@@ -329,6 +460,30 @@
                                     string performanceClass = ProgressBarHelper.GetProgressBarClass(performance);
                                     string disbursementClass = ProgressBarHelper.GetProgressBarClass(item.DisbursementPerformance);
                                     var rowId = "row_" + item.ProjectID;
+
+                                    // Calculate project status based on performance
+                                    string statusText;
+                                    string statusClass;
+                                    string statusIcon;
+                                    if (performance == 0)
+                                    {
+                                        statusText = Localizer["Not Started"].Value;
+                                        statusClass = "status-not-started";
+                                        statusIcon = "fa-clock";
+                                    }
+                                    else if (performance > 0 && performance < 100)
+                                    {
+                                        statusText = Localizer["In Progress"].Value;
+                                        statusClass = "status-in-progress";
+                                        statusIcon = "fa-spinner";
+                                    }
+                                    else
+                                    {
+                                        statusText = Localizer["Completed"].Value;
+                                        statusClass = "status-completed";
+                                        statusIcon = "fa-check-circle";
+                                    }
+
                                     <tr id="row_@item.ProjectID" class="table-row" data-performance="@performance" data-disbursement="@disbursement">
                                         <td class="project-name-cell">
                                             <div class="d-flex align-items-center">
@@ -339,6 +494,17 @@
                                                     <a href="@Url.Action("Details", "Projects", new { id = item.ProjectID })" class="project-name fw-semibold">@item.ProjectName</a>
                                                 </div>
                                             </div>
+                                        </td>
+                                        <td class="text-center">
+                                            <span class="date-cell">@item.StartDate.ToString("yyyy-MM-dd")</span>
+                                        </td>
+                                        <td class="text-center">
+                                            <span class="date-cell">@item.EndDate.ToString("yyyy-MM-dd")</span>
+                                        </td>
+                                        <td class="text-center">
+                                            <span class="status-badge @statusClass">
+                                                <i class="fas @statusIcon me-1"></i>@statusText
+                                            </span>
                                         </td>
                                         <td class="text-center" title="@Localizer["Performance"]: @performance%">
                                             @await Html.PartialAsync("_ProgressBar", Tuple.Create(performance, performanceClass))
@@ -379,6 +545,87 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
     <style>
+        /* Summary Cards Styles */
+        .summary-cards-container {
+            padding: 20px 30px;
+            background: linear-gradient(135deg, rgba(30, 41, 59, 0.5) 0%, rgba(51, 65, 85, 0.5) 100%);
+        }
+
+        .summary-card {
+            display: flex;
+            align-items: center;
+            padding: 20px;
+            border-radius: 12px;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            transition: all 0.3s ease;
+        }
+
+        .summary-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+        }
+
+        .summary-card-icon {
+            width: 55px;
+            height: 55px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            color: white;
+            margin-right: 15px;
+        }
+
+        html[dir="rtl"] .summary-card-icon {
+            margin-right: 0;
+            margin-left: 15px;
+        }
+
+        .summary-card-content {
+            flex: 1;
+        }
+
+        .summary-card-value {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: white;
+            line-height: 1.2;
+        }
+
+        .summary-card-label {
+            font-size: 0.85rem;
+            color: rgba(255, 255, 255, 0.7);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .summary-card-total .summary-card-icon {
+            background: linear-gradient(135deg, #6366f1, #8b5cf6);
+        }
+
+        .summary-card-not-started .summary-card-icon {
+            background: linear-gradient(135deg, #64748b, #94a3b8);
+        }
+
+        .summary-card-in-progress .summary-card-icon {
+            background: linear-gradient(135deg, #f59e0b, #fbbf24);
+        }
+
+        .summary-card-completed .summary-card-icon {
+            background: linear-gradient(135deg, #10b981, #34d399);
+        }
+
+        .summary-card-budget .summary-card-icon {
+            background: linear-gradient(135deg, #3b82f6, #60a5fa);
+        }
+
+        .summary-card-budget {
+            background: linear-gradient(135deg, rgba(59, 130, 246, 0.2), rgba(96, 165, 250, 0.2));
+        }
+
         /* Modern Table Styles */
         .modern-table {
             width:100%;
@@ -723,6 +970,81 @@
             min-width: 150px;
             flex: 1;
         }
+    }
+
+    /* Date Filter Styles */
+    .date-filter-group {
+        display: flex;
+        flex-direction: column;
+        gap: 0.75rem;
+    }
+
+    .date-input-wrapper {
+        display: flex;
+        flex-direction: column;
+        gap: 0.25rem;
+    }
+
+    .date-label {
+        font-size: 0.75rem;
+            color: rgb(0, 0, 0);
+        font-weight: 500;
+    }
+
+    .date-filter-input {
+        background: rgba(255, 255, 255, 0.1) !important;
+        border: 1px solid rgba(255, 255, 255, 0.2) !important;
+        color: var(--text-color) !important;
+        border-radius: 8px !important;
+        padding: 0.5rem 0.75rem !important;
+        transition: all 0.3s ease;
+    }
+
+    .date-filter-input:focus {
+        background: rgba(255, 255, 255, 0.15) !important;
+        border-color: var(--primary-color) !important;
+        box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.2) !important;
+        outline: none;
+    }
+
+    .date-filter-input::-webkit-calendar-picker-indicator {
+        filter: invert(1);
+        cursor: pointer;
+    }
+
+    /* Date and Status Styles */
+    .date-cell {
+        font-size: 0.85rem;
+        color: rgba(0, 0, 0, 0.8);
+        font-weight: 500;
+    }
+
+    .status-badge {
+        display: inline-flex;
+        align-items: center;
+        padding: 0.35rem 0.75rem;
+        border-radius: 20px;
+        font-size: 0.8rem;
+        font-weight: 600;
+        white-space: nowrap;
+    }
+
+    .status-not-started {
+        background: rgba(156, 163, 175, 0.2);
+        color: #9ca3af;
+        border: 1px solid rgba(156, 163, 175, 0.3);
+    }
+
+    .status-in-progress {
+        background: rgba(59, 130, 246, 0.2);
+        color: #60a5fa;
+        border: 1px solid rgba(59, 130, 246, 0.3);
+    }
+
+    .status-completed {
+        background: rgba(34, 197, 94, 0.2);
+        color: #4ade80;
+        border: 1px solid rgba(34, 197, 94, 0.3);
     }
 
     /* Search Input Styles */

@@ -55,6 +55,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             filter.Donors = await _context.Donors.ToListAsync();
             filter.Sectors = await _context.Sectors.ToListAsync();
             filter.Frameworks = await _context.Frameworks.ToListAsync();
+            filter.Governorates = await _context.Governorates.ToListAsync();
 
             // Get the logged-in user
             var user = await _userManager.GetUserAsync(User);
@@ -223,8 +224,40 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                                  .Any(d => filter.SelectedDonors.Contains(d.Code)));
             }
 
+            if (filter.SelectedGovernorates.Any())
+            {
+                projectQuery = projectQuery
+                    .Where(p => p.Governorates
+                                 .Any(g => filter.SelectedGovernorates.Contains(g.Code)));
+            }
+
+            // Apply date filters
+            if (filter.StartDateFrom.HasValue)
+            {
+                projectQuery = projectQuery.Where(p => p.StartDate >= filter.StartDateFrom.Value);
+            }
+            if (filter.StartDateTo.HasValue)
+            {
+                projectQuery = projectQuery.Where(p => p.StartDate <= filter.StartDateTo.Value);
+            }
+            if (filter.EndDateFrom.HasValue)
+            {
+                projectQuery = projectQuery.Where(p => p.EndDate >= filter.EndDateFrom.Value);
+            }
+            if (filter.EndDateTo.HasValue)
+            {
+                projectQuery = projectQuery.Where(p => p.EndDate <= filter.EndDateTo.Value);
+            }
+
             // Finalize and assign filtered results
             filter.Projects = await projectQuery.ToListAsync();
+
+            // Calculate summary statistics based on performance
+            filter.TotalProjects = filter.Projects.Count;
+            filter.NotStartedProjects = filter.Projects.Count(p => p.performance == 0);
+            filter.InProgressProjects = filter.Projects.Count(p => p.performance > 0 && p.performance < 100);
+            filter.CompletedProjects = filter.Projects.Count(p => p.performance >= 100);
+            filter.TotalBudget = filter.Projects.Sum(p => p.EstimatedBudget);
 
             return View(filter);
         }

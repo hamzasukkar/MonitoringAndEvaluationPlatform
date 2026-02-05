@@ -10,6 +10,10 @@ using System.Linq;
 using Microsoft.AspNetCore.Authorization;
 using MonitoringAndEvaluationPlatform.Attributes;
 using MonitoringAndEvaluationPlatform.Models;
+using ClosedXML.Excel;
+using QuestPDF.Fluent;
+using QuestPDF.Helpers;
+using QuestPDF.Infrastructure;
 
 [Authorize]
 [Permission(Permissions.ViewControlPanel)]
@@ -1158,5 +1162,546 @@ public class DashboardController : Controller
     }
 
 
+    [HttpPost]
+    public async Task<IActionResult> ExportExcel([FromBody] DashboardExportRequest? request)
+    {
+        request ??= new DashboardExportRequest();
+
+        var exportData = await GetExportData(request.FrameworkCode, request.MinistryCode, request.ProjectCode,
+            request.GovernorateCode, request.DistrictCode, request.SubDistrictCode, request.CommunityCode);
+
+        using var workbook = new XLWorkbook();
+
+        // Summary Sheet
+        var summarySheet = workbook.Worksheets.Add("Summary");
+        summarySheet.Cell(1, 1).Value = "Dashboard Export Summary";
+        summarySheet.Cell(1, 1).Style.Font.Bold = true;
+        summarySheet.Cell(1, 1).Style.Font.FontSize = 16;
+        summarySheet.Range(1, 1, 1, 4).Merge();
+
+        summarySheet.Cell(3, 1).Value = "Export Date:";
+        summarySheet.Cell(3, 2).Value = DateTime.Now.ToString("yyyy-MM-dd HH:mm");
+        summarySheet.Cell(4, 1).Value = "Total Frameworks:";
+        summarySheet.Cell(4, 2).Value = exportData.Frameworks.Count;
+        summarySheet.Cell(5, 1).Value = "Total Projects:";
+        summarySheet.Cell(5, 2).Value = exportData.Frameworks.SelectMany(f => f.Projects).Distinct().Count();
+
+        summarySheet.Columns().AdjustToContents();
+
+        // Framework Performance Sheet
+        var frameworkSheet = workbook.Worksheets.Add("Framework Performance");
+        frameworkSheet.Cell(1, 1).Value = "Framework";
+        frameworkSheet.Cell(1, 2).Value = "Performance (%)";
+        frameworkSheet.Cell(1, 3).Value = "Indicator Count";
+        frameworkSheet.Cell(1, 4).Value = "Project Count";
+
+        var headerRange = frameworkSheet.Range(1, 1, 1, 4);
+        headerRange.Style.Font.Bold = true;
+        headerRange.Style.Fill.BackgroundColor = XLColor.FromHtml("#667eea");
+        headerRange.Style.Font.FontColor = XLColor.White;
+
+        int row = 2;
+        foreach (var fw in exportData.Frameworks)
+        {
+            frameworkSheet.Cell(row, 1).Value = fw.Name;
+            frameworkSheet.Cell(row, 2).Value = Math.Round(fw.Performance, 2);
+            frameworkSheet.Cell(row, 3).Value = fw.IndicatorCount;
+            frameworkSheet.Cell(row, 4).Value = fw.Projects.Count;
+            row++;
+        }
+
+        frameworkSheet.Columns().AdjustToContents();
+
+        // Projects Sheet
+        var projectsSheet = workbook.Worksheets.Add("Projects");
+        projectsSheet.Cell(1, 1).Value = "Framework";
+        projectsSheet.Cell(1, 2).Value = "Project Name";
+        projectsSheet.Cell(1, 3).Value = "Performance (%)";
+
+        var projectHeaderRange = projectsSheet.Range(1, 1, 1, 3);
+        projectHeaderRange.Style.Font.Bold = true;
+        projectHeaderRange.Style.Fill.BackgroundColor = XLColor.FromHtml("#667eea");
+        projectHeaderRange.Style.Font.FontColor = XLColor.White;
+
+        row = 2;
+        foreach (var fw in exportData.Frameworks)
+        {
+            foreach (var proj in fw.Projects)
+            {
+                projectsSheet.Cell(row, 1).Value = fw.Name;
+                projectsSheet.Cell(row, 2).Value = proj.ProjectName;
+                projectsSheet.Cell(row, 3).Value = Math.Round(proj.Performance, 2);
+                row++;
+            }
+        }
+
+        projectsSheet.Columns().AdjustToContents();
+
+        // Charts Sheet - Add chart images if available
+        if (request.ChartImages?.Any() == true)
+        {
+            var chartsSheet = workbook.Worksheets.Add("Charts");
+            chartsSheet.Cell(1, 1).Value = "Framework Performance Charts";
+            chartsSheet.Cell(1, 1).Style.Font.Bold = true;
+            chartsSheet.Cell(1, 1).Style.Font.FontSize = 16;
+
+            int imageRow = 3;
+            int chartIndex = 1;
+            foreach (var chart in request.ChartImages)
+            {
+                try
+                {
+                    // Add chart title
+                    chartsSheet.Cell(imageRow, 1).Value = $"{chartIndex}. {chart.Name}";
+                    chartsSheet.Cell(imageRow, 1).Style.Font.Bold = true;
+                    chartsSheet.Cell(imageRow + 1, 1).Value = chart.Performance;
+
+                    // Convert base64 to image and add to sheet
+                    if (!string.IsNullOrEmpty(chart.Image) && chart.Image.Contains(","))
+                    {
+                        var base64Data = chart.Image.Split(',')[1];
+                        var imageBytes = Convert.FromBase64String(base64Data);
+                        using var imageStream = new MemoryStream(imageBytes);
+
+                        var picture = chartsSheet.AddPicture(imageStream)
+                            .MoveTo(chartsSheet.Cell(imageRow + 2, 1))
+                            .WithSize(200, 200);
+                    }
+
+                    imageRow += 18; // Space for next chart
+                    chartIndex++;
+                }
+                catch (Exception)
+                {
+                    // Skip invalid images
+                    continue;
+                }
+            }
+
+            chartsSheet.Columns().AdjustToContents();
+        }
+
+        using var stream = new MemoryStream();
+        workbook.SaveAs(stream);
+        stream.Position = 0;
+
+        return File(stream.ToArray(),
+            "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+            $"Dashboard_Export_{DateTime.Now:yyyyMMdd}.xlsx");
+    }
+
+    [HttpPost]
+    public async Task<IActionResult> ExportPdf([FromBody] DashboardExportRequest? request)
+    {
+        request ??= new DashboardExportRequest();
+
+        QuestPDF.Settings.License = LicenseType.Community;
+
+        var exportData = await GetExportData(request.FrameworkCode, request.MinistryCode, request.ProjectCode,
+            request.GovernorateCode, request.DistrictCode, request.SubDistrictCode, request.CommunityCode);
+
+        var isRtl = CultureInfo.CurrentUICulture.TwoLetterISOLanguageName == "ar";
+
+        // Pre-process chart images
+        var chartImageBytes = new List<(string Name, string Performance, byte[] ImageData)>();
+        if (request.ChartImages?.Any() == true)
+        {
+            foreach (var chart in request.ChartImages)
+            {
+                try
+                {
+                    if (!string.IsNullOrEmpty(chart.Image) && chart.Image.Contains(","))
+                    {
+                        var base64Data = chart.Image.Split(',')[1];
+                        var imageBytes = Convert.FromBase64String(base64Data);
+                        chartImageBytes.Add((chart.Name, chart.Performance, imageBytes));
+                    }
+                }
+                catch
+                {
+                    // Skip invalid images
+                }
+            }
+        }
+
+        var document = Document.Create(container =>
+        {
+            container.Page(page =>
+            {
+                page.Size(PageSizes.A4);
+                page.Margin(30);
+                page.DefaultTextStyle(x => x.FontSize(10));
+
+                if (isRtl)
+                {
+                    page.ContentFromRightToLeft();
+                }
+
+                // Header
+                page.Header().Column(col =>
+                {
+                    col.Item().Text(isRtl ? "ملخص لوحة المعلومات" : "Dashboard Summary Report")
+                        .FontSize(20).Bold().FontColor(Colors.Indigo.Darken2);
+                    col.Item().Text($"{(isRtl ? "تاريخ التصدير:" : "Export Date:")} {DateTime.Now:yyyy-MM-dd HH:mm}")
+                        .FontSize(10).FontColor(Colors.Grey.Darken1);
+                    col.Item().PaddingBottom(10).LineHorizontal(1).LineColor(Colors.Grey.Lighten2);
+                });
+
+                // Content
+                page.Content().Column(col =>
+                {
+                    // Summary Section
+                    col.Item().PaddingVertical(10).Text(isRtl ? "ملخص" : "Summary")
+                        .FontSize(14).Bold().FontColor(Colors.Indigo.Darken1);
+
+                    col.Item().Table(table =>
+                    {
+                        table.ColumnsDefinition(columns =>
+                        {
+                            columns.RelativeColumn(2);
+                            columns.RelativeColumn(1);
+                        });
+
+                        table.Cell().Padding(5).Text(isRtl ? "إجمالي الأطر:" : "Total Frameworks:");
+                        table.Cell().Padding(5).Text(exportData.Frameworks.Count.ToString());
+
+                        table.Cell().Padding(5).Text(isRtl ? "إجمالي المشاريع:" : "Total Projects:");
+                        table.Cell().Padding(5).Text(exportData.Frameworks.SelectMany(f => f.Projects).Distinct().Count().ToString());
+                    });
+
+                    col.Item().PaddingVertical(5);
+
+                    // Charts Section - Add chart images if available
+                    if (chartImageBytes.Any())
+                    {
+                        col.Item().PaddingVertical(10).Text(isRtl ? "مخططات الأداء" : "Performance Charts")
+                            .FontSize(14).Bold().FontColor(Colors.Indigo.Darken1);
+
+                        col.Item().Row(row =>
+                        {
+                            int chartCount = 0;
+                            foreach (var chart in chartImageBytes)
+                            {
+                                if (chartCount > 0 && chartCount % 2 == 0)
+                                {
+                                    // This will be handled by creating new rows
+                                }
+
+                                row.RelativeItem().Padding(5).Column(chartCol =>
+                                {
+                                    chartCol.Item().Text(chart.Name).Bold().FontSize(10);
+                                    chartCol.Item().Text(chart.Performance).FontSize(9).FontColor(Colors.Green.Darken1);
+                                    chartCol.Item().Padding(5).Image(chart.ImageData).FitWidth();
+                                });
+
+                                chartCount++;
+                                if (chartCount >= 2) break; // Only show first 2 in this row
+                            }
+                        });
+
+                        // Additional charts in new rows
+                        for (int i = 2; i < chartImageBytes.Count; i += 2)
+                        {
+                            col.Item().Row(row =>
+                            {
+                                for (int j = i; j < Math.Min(i + 2, chartImageBytes.Count); j++)
+                                {
+                                    var chart = chartImageBytes[j];
+                                    row.RelativeItem().Padding(5).Column(chartCol =>
+                                    {
+                                        chartCol.Item().Text(chart.Name).Bold().FontSize(10);
+                                        chartCol.Item().Text(chart.Performance).FontSize(9).FontColor(Colors.Green.Darken1);
+                                        chartCol.Item().Padding(5).Image(chart.ImageData).FitWidth();
+                                    });
+                                }
+
+                                // Fill empty space if odd number
+                                if (i + 1 >= chartImageBytes.Count)
+                                {
+                                    row.RelativeItem();
+                                }
+                            });
+                        }
+
+                        col.Item().PaddingVertical(10);
+                    }
+
+                    // Framework Performance Section
+                    col.Item().PaddingVertical(10).Text(isRtl ? "أداء الاستراتيجيات" : "Framework Performance")
+                        .FontSize(14).Bold().FontColor(Colors.Indigo.Darken1);
+
+                    col.Item().Table(table =>
+                    {
+                        table.ColumnsDefinition(columns =>
+                        {
+                            columns.RelativeColumn(3);
+                            columns.RelativeColumn(1);
+                            columns.RelativeColumn(1);
+                            columns.RelativeColumn(1);
+                        });
+
+                        // Header row
+                        table.Header(header =>
+                        {
+                            header.Cell().Background(Colors.Indigo.Darken2).Padding(5)
+                                .Text(isRtl ? "الإطار" : "Framework").FontColor(Colors.White).Bold();
+                            header.Cell().Background(Colors.Indigo.Darken2).Padding(5)
+                                .Text(isRtl ? "الأداء (%)" : "Performance (%)").FontColor(Colors.White).Bold();
+                            header.Cell().Background(Colors.Indigo.Darken2).Padding(5)
+                                .Text(isRtl ? "المؤشرات" : "Indicators").FontColor(Colors.White).Bold();
+                            header.Cell().Background(Colors.Indigo.Darken2).Padding(5)
+                                .Text(isRtl ? "المشاريع" : "Projects").FontColor(Colors.White).Bold();
+                        });
+
+                        // Data rows
+                        foreach (var fw in exportData.Frameworks)
+                        {
+                            var bgColor = exportData.Frameworks.ToList().IndexOf(fw) % 2 == 0
+                                ? Colors.White : Colors.Grey.Lighten4;
+
+                            table.Cell().Background(bgColor).Padding(5).Text(fw.Name);
+                            table.Cell().Background(bgColor).Padding(5).Text($"{Math.Round(fw.Performance, 2)}%");
+                            table.Cell().Background(bgColor).Padding(5).Text(fw.IndicatorCount.ToString());
+                            table.Cell().Background(bgColor).Padding(5).Text(fw.Projects.Count.ToString());
+                        }
+                    });
+
+                    col.Item().PaddingVertical(10);
+
+                    // Projects Section
+                    col.Item().PaddingVertical(10).Text(isRtl ? "تفاصيل المشاريع" : "Project Details")
+                        .FontSize(14).Bold().FontColor(Colors.Indigo.Darken1);
+
+                    col.Item().Table(table =>
+                    {
+                        table.ColumnsDefinition(columns =>
+                        {
+                            columns.RelativeColumn(2);
+                            columns.RelativeColumn(3);
+                            columns.RelativeColumn(1);
+                        });
+
+                        // Header row
+                        table.Header(header =>
+                        {
+                            header.Cell().Background(Colors.Indigo.Darken2).Padding(5)
+                                .Text(isRtl ? "الإطار" : "Framework").FontColor(Colors.White).Bold();
+                            header.Cell().Background(Colors.Indigo.Darken2).Padding(5)
+                                .Text(isRtl ? "المشروع" : "Project").FontColor(Colors.White).Bold();
+                            header.Cell().Background(Colors.Indigo.Darken2).Padding(5)
+                                .Text(isRtl ? "الأداء (%)" : "Performance (%)").FontColor(Colors.White).Bold();
+                        });
+
+                        int rowIndex = 0;
+                        foreach (var fw in exportData.Frameworks)
+                        {
+                            foreach (var proj in fw.Projects)
+                            {
+                                var bgColor = rowIndex % 2 == 0 ? Colors.White : Colors.Grey.Lighten4;
+
+                                table.Cell().Background(bgColor).Padding(5).Text(fw.Name);
+                                table.Cell().Background(bgColor).Padding(5).Text(proj.ProjectName);
+                                table.Cell().Background(bgColor).Padding(5).Text($"{Math.Round(proj.Performance, 2)}%");
+                                rowIndex++;
+                            }
+                        }
+                    });
+                });
+
+                // Footer
+                page.Footer().AlignCenter().Text(text =>
+                {
+                    text.Span(isRtl ? "صفحة " : "Page ");
+                    text.CurrentPageNumber();
+                    text.Span(isRtl ? " من " : " of ");
+                    text.TotalPages();
+                });
+            });
+        });
+
+        var pdfBytes = document.GeneratePdf();
+
+        return File(pdfBytes, "application/pdf", $"Dashboard_Export_{DateTime.Now:yyyyMMdd}.pdf");
+    }
+
+    private async Task<DashboardExportData> GetExportData(
+        int? frameworkCode,
+        int? ministryCode,
+        int? projectCode,
+        string? governorateCode,
+        string? districtCode,
+        string? subDistrictCode,
+        string? communityCode)
+    {
+        var governorateCodes = governorateCode?.Split(',', StringSplitOptions.RemoveEmptyEntries).ToList();
+        var districtCodes = districtCode?.Split(',', StringSplitOptions.RemoveEmptyEntries).ToList();
+        var subDistrictCodes = subDistrictCode?.Split(',', StringSplitOptions.RemoveEmptyEntries).ToList();
+        var communityCodes = communityCode?.Split(',', StringSplitOptions.RemoveEmptyEntries).ToList();
+
+        var frameworkQuery = _context.Frameworks.AsQueryable();
+
+        if (frameworkCode.HasValue)
+        {
+            frameworkQuery = frameworkQuery.Where(fw => fw.Code == frameworkCode);
+        }
+        else if (communityCodes?.Any() == true)
+        {
+            frameworkQuery = frameworkQuery.Where(f =>
+                f.Outcomes.Any(o =>
+                    o.Outputs.Any(op =>
+                        op.SubOutputs.Any(so =>
+                            so.Indicators.Any(i =>
+                                i.ProjectIndicators.Any(pi =>
+                                    pi.Project.IsEntireCountry || pi.Project.Communities.Any(c => communityCodes.Contains(c.Code))))))));
+        }
+        else if (subDistrictCodes?.Any() == true)
+        {
+            frameworkQuery = frameworkQuery.Where(f =>
+                f.Outcomes.Any(o =>
+                    o.Outputs.Any(op =>
+                        op.SubOutputs.Any(so =>
+                            so.Indicators.Any(i =>
+                                i.ProjectIndicators.Any(pi =>
+                                    pi.Project.IsEntireCountry || pi.Project.SubDistricts.Any(s => subDistrictCodes.Contains(s.Code))))))));
+        }
+        else if (districtCodes?.Any() == true)
+        {
+            frameworkQuery = frameworkQuery.Where(f =>
+                f.Outcomes.Any(o =>
+                    o.Outputs.Any(op =>
+                        op.SubOutputs.Any(so =>
+                            so.Indicators.Any(i =>
+                                i.ProjectIndicators.Any(pi =>
+                                    pi.Project.IsEntireCountry || pi.Project.Districts.Any(d => districtCodes.Contains(d.Code))))))));
+        }
+        else if (governorateCodes?.Any() == true)
+        {
+            frameworkQuery = frameworkQuery.Where(f =>
+                f.Outcomes.Any(o =>
+                    o.Outputs.Any(op =>
+                        op.SubOutputs.Any(so =>
+                            so.Indicators.Any(i =>
+                                i.ProjectIndicators.Any(pi =>
+                                    pi.Project.IsEntireCountry || pi.Project.Governorates.Any(g => governorateCodes.Contains(g.Code))))))));
+        }
+
+        if (ministryCode.HasValue)
+        {
+            frameworkQuery = frameworkQuery.Where(f =>
+                f.Outcomes.Any(o =>
+                    o.Outputs.Any(op =>
+                        op.SubOutputs.Any(so =>
+                            so.Indicators.Any(i =>
+                                i.ProjectIndicators.Any(pi =>
+                                    pi.Project.Ministries.Any(min => min.Code == ministryCode.Value)))))));
+        }
+
+        if (projectCode.HasValue)
+        {
+            frameworkQuery = frameworkQuery.Where(f =>
+                f.Outcomes.Any(o =>
+                    o.Outputs.Any(op =>
+                        op.SubOutputs.Any(so =>
+                            so.Indicators.Any(i =>
+                                i.ProjectIndicators.Any(pi =>
+                                    pi.Project.ProjectID == projectCode.Value))))));
+        }
+
+        var frameworks = await frameworkQuery
+            .Select(fw => new
+            {
+                fw.Code,
+                fw.Name,
+                fw.IndicatorsPerformance,
+                Indicators = fw.Outcomes
+                    .SelectMany(o => o.Outputs)
+                    .SelectMany(op => op.SubOutputs)
+                    .SelectMany(so => so.Indicators),
+                Projects = fw.Outcomes
+                    .SelectMany(o => o.Outputs)
+                    .SelectMany(op => op.SubOutputs)
+                    .SelectMany(so => so.Indicators)
+                    .SelectMany(i => i.ProjectIndicators)
+                    .Select(pi => pi.Project)
+                    .Where(p =>
+                        p != null &&
+                        (!projectCode.HasValue || p.ProjectID == projectCode.Value) &&
+                        (!ministryCode.HasValue || p.Ministries.Any(m => m.Code == ministryCode.Value)) &&
+                        (communityCodes == null || !communityCodes.Any() || p.IsEntireCountry || p.Communities.Any(c => communityCodes.Contains(c.Code))) &&
+                        (subDistrictCodes == null || !subDistrictCodes.Any() || p.IsEntireCountry || p.SubDistricts.Any(s => subDistrictCodes.Contains(s.Code))) &&
+                        (districtCodes == null || !districtCodes.Any() || p.IsEntireCountry || p.Districts.Any(d => districtCodes.Contains(d.Code))) &&
+                        (governorateCodes == null || !governorateCodes.Any() || p.IsEntireCountry || p.Governorates.Any(g => governorateCodes.Contains(g.Code)))
+                    )
+                    .Distinct()
+            })
+            .OrderByDescending(f => f.IndicatorsPerformance)
+            .ToListAsync();
+
+        var exportData = new DashboardExportData
+        {
+            Frameworks = frameworks.Select(fw =>
+            {
+                double performance = fw.Projects.Any()
+                    ? fw.Projects.Average(p => p.performance)
+                    : fw.IndicatorsPerformance;
+
+                return new FrameworkExportItem
+                {
+                    Code = fw.Code,
+                    Name = fw.Name,
+                    Performance = performance,
+                    IndicatorCount = fw.Indicators.Count(),
+                    Projects = fw.Projects.Select(p => new ProjectExportItem
+                    {
+                        ProjectID = p.ProjectID,
+                        ProjectName = p.ProjectName,
+                        Performance = p.performance
+                    }).ToList()
+                };
+            }).ToList()
+        };
+
+        return exportData;
+    }
+}
+
+public class DashboardExportData
+{
+    public List<FrameworkExportItem> Frameworks { get; set; } = new();
+}
+
+public class FrameworkExportItem
+{
+    public int Code { get; set; }
+    public string Name { get; set; } = string.Empty;
+    public double Performance { get; set; }
+    public int IndicatorCount { get; set; }
+    public List<ProjectExportItem> Projects { get; set; } = new();
+}
+
+public class ProjectExportItem
+{
+    public int ProjectID { get; set; }
+    public string ProjectName { get; set; } = string.Empty;
+    public double Performance { get; set; }
+}
+
+public class DashboardExportRequest
+{
+    public int? FrameworkCode { get; set; }
+    public int? MinistryCode { get; set; }
+    public int? ProjectCode { get; set; }
+    public string? GovernorateCode { get; set; }
+    public string? DistrictCode { get; set; }
+    public string? SubDistrictCode { get; set; }
+    public string? CommunityCode { get; set; }
+    public List<ChartImageData>? ChartImages { get; set; }
+}
+
+public class ChartImageData
+{
+    public string Name { get; set; } = string.Empty;
+    public string Performance { get; set; } = string.Empty;
+    public string Image { get; set; } = string.Empty;
 }
 //totalTarget = Math.Round(totalTarget, 2),

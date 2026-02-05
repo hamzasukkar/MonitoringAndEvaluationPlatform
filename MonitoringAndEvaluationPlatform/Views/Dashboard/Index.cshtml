@@ -136,11 +136,19 @@
 	</div>
 
 
-	<!-- Clear Filters Button -->
+	<!-- Filter Actions and Export Buttons -->
 	<div class="filter-actions-container mb-4">
 		<button id="clearFiltersBtn" class="btn btn-modern-secondary">
 			<i class="fas fa-times-circle me-2"></i>@Localizer["Clear Filters"]
 		</button>
+		<div class="export-buttons">
+			<button id="exportExcelBtn" class="btn btn-modern-export btn-excel">
+				<i class="fas fa-file-excel me-2"></i>@Localizer["Export Excel"]
+			</button>
+			<button id="exportPdfBtn" class="btn btn-modern-export btn-pdf">
+				<i class="fas fa-file-pdf me-2"></i>@Localizer["Export PDF"]
+			</button>
+		</div>
 	</div>
 
 	<!-- Performance Charts Section -->
@@ -268,7 +276,52 @@
 	.filter-actions-container {
 		display: flex;
 		justify-content: center;
+		align-items: center;
+		gap: 1rem;
 		margin: 2rem 0;
+		flex-wrap: wrap;
+	}
+
+	.export-buttons {
+		display: flex;
+		gap: 0.75rem;
+	}
+
+	.btn-modern-export {
+		padding: 0.75rem 1.5rem;
+		border-radius: 12px;
+		font-weight: 600;
+		transition: all 0.3s ease;
+		box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+		border: none;
+		color: white;
+		cursor: pointer;
+	}
+
+	.btn-excel {
+		background: linear-gradient(135deg, #217346 0%, #1d5c38 100%);
+	}
+
+	.btn-excel:hover {
+		background: linear-gradient(135deg, #1d5c38 0%, #165a2d 100%);
+		transform: translateY(-2px);
+		box-shadow: 0 8px 15px rgba(33, 115, 70, 0.3);
+	}
+
+	.btn-pdf {
+		background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+	}
+
+	.btn-pdf:hover {
+		background: linear-gradient(135deg, #c82333 0%, #bd2130 100%);
+		transform: translateY(-2px);
+		box-shadow: 0 8px 15px rgba(220, 53, 69, 0.3);
+	}
+
+	.btn-modern-export:disabled {
+		opacity: 0.6;
+		cursor: not-allowed;
+		transform: none;
 	}
 
 	.btn-modern-secondary {
@@ -1152,7 +1205,6 @@ $(document).ready(function() {
 	});
 
 	$('#communityFilter').on('change', function () {
-		debugger;
 		const filters = getFilters();
 		const selectedCommunityCodes = $(this).val() || [];
 		const communityCodeString = selectedCommunityCodes.join(',');
@@ -1269,6 +1321,97 @@ $(document).ready(function() {
 	document.getElementById('clearFiltersBtn').addEventListener('click', function () {
 		location.reload();
 	});
+
+	// Export functionality
+	document.getElementById('exportExcelBtn').addEventListener('click', function () {
+		exportDashboard('excel');
+	});
+
+	document.getElementById('exportPdfBtn').addEventListener('click', function () {
+		exportDashboard('pdf');
+	});
+
+	async function captureCharts() {
+		const charts = [];
+		const container = document.getElementById('gaugesContainer');
+		const canvases = container.querySelectorAll('canvas');
+
+		for (const canvas of canvases) {
+			const card = canvas.closest('.card');
+			const frameworkName = card ? card.querySelector('h5')?.textContent || 'Chart' : 'Chart';
+			const performanceText = card ? card.querySelector('.fw-bold.mt-2')?.textContent || '' : '';
+
+			// Get the chart image as base64
+			const imageData = canvas.toDataURL('image/png');
+			charts.push({
+				name: frameworkName.trim(),
+				performance: performanceText.trim(),
+				image: imageData
+			});
+		}
+		return charts;
+	}
+
+	async function exportDashboard(format) {
+		const filters = getFilters();
+
+		// Show loading state
+		const btn = format === 'excel'
+			? document.getElementById('exportExcelBtn')
+			: document.getElementById('exportPdfBtn');
+		const originalHtml = btn.innerHTML;
+		btn.disabled = true;
+		btn.innerHTML = `<i class="fas fa-spinner fa-spin me-2"></i>@Localizer["Exporting..."]`;
+
+		try {
+			// Capture charts as images
+			const chartImages = await captureCharts();
+
+			// Prepare request data - convert empty strings to null
+			const requestData = {
+				frameworkCode: filters.frameworkCode ? parseInt(filters.frameworkCode) : null,
+				ministryCode: filters.ministryCode ? parseInt(filters.ministryCode) : null,
+				projectCode: filters.projectCode ? parseInt(filters.projectCode) : null,
+				governorateCode: filters.governorateCode || null,
+				districtCode: filters.districtCode || null,
+				subDistrictCode: filters.subDistrictCode || null,
+				communityCode: filters.communityCode || null,
+				chartImages: chartImages
+			};
+
+			console.log('Export request data:', requestData);
+
+			const exportUrl = format === 'excel' ? '/Dashboard/ExportExcel' : '/Dashboard/ExportPdf';
+
+			const response = await fetch(exportUrl, {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json'
+				},
+				body: JSON.stringify(requestData)
+			});
+
+			if (!response.ok) throw new Error('Export failed');
+
+			const blob = await response.blob();
+			const url = window.URL.createObjectURL(blob);
+			const a = document.createElement('a');
+			a.href = url;
+			a.download = format === 'excel'
+				? `Dashboard_Export_${new Date().toISOString().split('T')[0]}.xlsx`
+				: `Dashboard_Export_${new Date().toISOString().split('T')[0]}.pdf`;
+			document.body.appendChild(a);
+			a.click();
+			window.URL.revokeObjectURL(url);
+			a.remove();
+		} catch (error) {
+			console.error('Export error:', error);
+			alert('@Localizer["Export failed. Please try again."]');
+		} finally {
+			btn.disabled = false;
+			btn.innerHTML = originalHtml;
+		}
+	}
 	// Helpers
 	function resetDropdown(id) {
 		const dd = $(`#${id}`);
