@@ -27,9 +27,87 @@
     </div>
 </div>
 
+<!-- Quick Filters Section -->
+<div class="container-fluid">
+    <div class="quick-filters-container">
+        <div class="filters-row">
+            <!-- Search Box -->
+            <div class="filter-search-box">
+                <i class="fas fa-search search-icon"></i>
+                <input type="text" id="frameworkSearch" class="form-control search-input" placeholder="@Localizer["Search frameworks..."]">
+            </div>
+
+            <!-- Performance Level Filters -->
+            <div class="filter-group">
+                <label class="filter-label">@Localizer["Performance Level"]:</label>
+                <div class="btn-group filter-buttons" role="group">
+                    <button type="button" class="btn btn-filter active" data-filter="all">
+                        <i class="fas fa-th me-1"></i> @Localizer["All"]
+                    </button>
+                    <button type="button" class="btn btn-filter" data-filter="high">
+                        <i class="fas fa-arrow-up me-1"></i> @Localizer["High"] (≥80%)
+                    </button>
+                    <button type="button" class="btn btn-filter" data-filter="medium">
+                        <i class="fas fa-minus me-1"></i> @Localizer["Medium"] (60-79%)
+                    </button>
+                    <button type="button" class="btn btn-filter" data-filter="low">
+                        <i class="fas fa-arrow-down me-1"></i> @Localizer["Low"] (<60%)
+                    </button>
+                </div>
+            </div>
+
+            <!-- Sort Options -->
+            <div class="filter-group">
+                <label class="filter-label">@Localizer["Sort By"]:</label>
+                <div class="btn-group filter-buttons" role="group">
+                    <button type="button" class="btn btn-filter active" data-sort="name">
+                        <i class="fas fa-sort-alpha-down me-1"></i> @Localizer["Name"]
+                    </button>
+                    <button type="button" class="btn btn-filter" data-sort="performance">
+                        <i class="fas fa-chart-line me-1"></i> @Localizer["Performance"]
+                    </button>
+                    <button type="button" class="btn btn-filter" data-sort="projects">
+                        <i class="fas fa-project-diagram me-1"></i> @Localizer["Projects"]
+                    </button>
+                </div>
+            </div>
+
+            <!-- View Mode Toggle -->
+            <div class="filter-group">
+                <label class="filter-label">@Localizer["View"]:</label>
+                <div class="btn-group filter-buttons" role="group">
+                    <button type="button" class="btn btn-filter active" data-view="grid">
+                        <i class="fas fa-th-large me-1"></i> @Localizer["Grid"]
+                    </button>
+                    <button type="button" class="btn btn-filter" data-view="list">
+                        <i class="fas fa-list me-1"></i> @Localizer["List"]
+                    </button>
+                </div>
+            </div>
+
+            <!-- Collapse/Expand All Controls -->
+            <div class="filter-group ms-auto">
+                <div class="btn-group filter-buttons" role="group">
+                    <button type="button" class="btn btn-filter" id="expandAllBtn">
+                        <i class="fas fa-expand-alt me-1"></i> @Localizer["Expand All"]
+                    </button>
+                    <button type="button" class="btn btn-filter" id="collapseAllBtn">
+                        <i class="fas fa-compress-alt me-1"></i> @Localizer["Collapse All"]
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Results Count -->
+        <div class="filter-results-info">
+            <span id="resultsCount" class="results-count"></span>
+        </div>
+    </div>
+</div>
+
 <div class="container-fluid">
     <!-- Frameworks Analytics Grid -->
-    <div class="frameworks-analytics-container">
+    <div class="frameworks-analytics-container" id="frameworksContainer">
         @foreach (var item in Model)
         {
             var outcomes = item.Outcomes;
@@ -49,7 +127,7 @@
                 new { Value = Math.Round(item.DisbursementPerformance), Label = @Localizer["Disbursement Performance"], Icon = "fas fa-money-bill-wave", Color = "success" }
             };
         
-            <div class="modern-framework-card">
+            <div class="modern-framework-card" data-framework-code="@item.Code">
                 <div class="framework-card-header">
                     <div class="framework-title-section">
                         <h3 class="framework-title">
@@ -61,12 +139,15 @@
                             @Localizer["Outcomes"]: @item.Outcomes.Count
                         </div>
                     </div>
+                    <button class="framework-collapse-btn" title="@Localizer["Collapse/Expand"]">
+                        <i class="fas fa-chevron-up"></i>
+                    </button>
 @*                     <div class="framework-performance-summary">
                         <div class="performance-circle" data-performance="@Math.Round(item.IndicatorsPerformance)">
                             <svg class="progress-ring" width="60" height="60">
-                                <circle class="progress-ring-circle" 
-                                        cx="30" cy="30" r="25" 
-                                        stroke-dasharray="157" 
+                                <circle class="progress-ring-circle"
+                                        cx="30" cy="30" r="25"
+                                        stroke-dasharray="157"
                                         stroke-dashoffset="@(157 - (157 * item.IndicatorsPerformance / 100))"
                                         style="--progress-color: @(item.IndicatorsPerformance >= 80 ? "#28a745" : item.IndicatorsPerformance >= 60 ? "#ffc107" : "#dc3545")">
                                 </circle>
@@ -78,6 +159,7 @@
                     </div>
  *@                </div>
 
+                <div class="framework-card-body">
                     <!-- Performance Metrics Section -->
                     <div class="performance-metrics-grid">
                         @foreach (var metric in metrics)
@@ -173,13 +255,322 @@
                         </div>
                     </div>
                 </div>
+            </div>
         }
     </div>
 </div>
 
 <style>
+    /* Quick Filters Styles */
+    .quick-filters-container {
+        background: linear-gradient(135deg, rgba(255,255,255,0.95) 0%, rgba(248,249,250,0.95) 100%);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255,255,255,0.3);
+        border-radius: 20px;
+        padding: 1.5rem 2rem;
+        margin: 2rem 0;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+    }
+
+    .filters-row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 1.5rem;
+        align-items: center;
+        margin-bottom: 1rem;
+    }
+
+    .filter-search-box {
+        position: relative;
+        flex: 1;
+        min-width: 250px;
+        max-width: 400px;
+    }
+
+    .search-icon {
+        position: absolute;
+        left: 1rem;
+        top: 50%;
+        transform: translateY(-50%);
+        color: #a0aec0;
+        font-size: 1rem;
+        pointer-events: none;
+    }
+
+    .search-input {
+        padding-left: 2.8rem;
+        border-radius: 12px;
+        border: 2px solid rgba(226, 232, 240, 0.8);
+        background: white;
+        transition: all 0.3s ease;
+        font-size: 0.95rem;
+    }
+
+    .search-input:focus {
+        border-color: #667eea;
+        box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        outline: none;
+    }
+
+    .filter-group {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+    }
+
+    .filter-label {
+        font-size: 0.9rem;
+        font-weight: 600;
+        color: #4a5568;
+        margin: 0;
+        white-space: nowrap;
+    }
+
+    .filter-buttons {
+        display: flex;
+        gap: 0.5rem;
+        background: white;
+        padding: 0.25rem;
+        border-radius: 12px;
+        border: 1px solid rgba(226, 232, 240, 0.8);
+    }
+
+    .btn-filter {
+        background: transparent;
+        border: none;
+        color: #718096;
+        font-size: 0.85rem;
+        font-weight: 500;
+        padding: 0.5rem 1rem;
+        border-radius: 8px;
+        transition: all 0.2s ease;
+        cursor: pointer;
+        white-space: nowrap;
+    }
+
+    .btn-filter:hover {
+        background: rgba(102, 126, 234, 0.1);
+        color: #667eea;
+    }
+
+    .btn-filter.active {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+    }
+
+    .btn-filter.active:hover {
+        background: linear-gradient(135deg, #5568d3 0%, #654091 100%);
+        color: white;
+    }
+
+    .filter-results-info {
+        padding-top: 0.75rem;
+        border-top: 1px solid rgba(226, 232, 240, 0.5);
+    }
+
+    .results-count {
+        font-size: 0.9rem;
+        color: #718096;
+        font-weight: 500;
+    }
+
+    .results-count strong {
+        color: #667eea;
+        font-weight: 700;
+    }
+
+    /* Framework Card Data Attributes */
+    .modern-framework-card {
+        transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
+    }
+
+    .modern-framework-card.hidden {
+        display: none;
+    }
+
+    .modern-framework-card.list-view {
+        max-width: 100%;
+    }
+
+    .frameworks-analytics-container.list-view {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+    }
+
+    .frameworks-analytics-container.list-view .modern-framework-card {
+        animation: none;
+        padding: 1.25rem 1.5rem;
+        border-radius: 16px;
+    }
+
+    /* List View - Horizontal Card Layout */
+    .modern-framework-card.list-view .framework-card-header {
+        grid-template-columns: auto 1fr auto;
+        gap: 1.5rem;
+        margin-bottom: 0;
+        padding-bottom: 0;
+        border-bottom: none;
+        align-items: center;
+    }
+
+    .modern-framework-card.list-view .performance-circle {
+        order: -1;
+        width: 50px;
+        height: 50px;
+    }
+
+    .modern-framework-card.list-view .progress-ring {
+        width: 50px;
+        height: 50px;
+    }
+
+    .modern-framework-card.list-view .performance-value {
+        font-size: 0.75rem;
+    }
+
+    .modern-framework-card.list-view .framework-title-section {
+        flex-direction: row;
+        align-items: center;
+        gap: 1rem;
+        flex: 1;
+    }
+
+    .modern-framework-card.list-view .framework-title {
+        font-size: 1.3rem;
+        margin: 0;
+    }
+
+    .modern-framework-card.list-view .framework-status-badge {
+        padding: 0.35rem 1rem;
+        font-size: 0.8rem;
+        white-space: nowrap;
+    }
+
+    /* List View - Horizontal Stats */
+    .modern-framework-card.list-view .framework-nav-stats {
+        display: flex;
+        flex-direction: row;
+        gap: 0.75rem;
+        margin-top: 0;
+        flex-wrap: wrap;
+    }
+
+    .modern-framework-card.list-view .nav-stat-card {
+        flex: 0 1 auto;
+        padding: 0.5rem 0.75rem;
+        min-width: 100px;
+        border-radius: 10px;
+    }
+
+    .modern-framework-card.list-view .nav-stat-icon {
+        width: 35px;
+        height: 35px;
+        font-size: 0.9rem;
+    }
+
+    .modern-framework-card.list-view .nav-stat-value {
+        font-size: 1.1rem;
+    }
+
+    .modern-framework-card.list-view .nav-stat-label {
+        font-size: 0.7rem;
+    }
+
+    .modern-framework-card.list-view .nav-stat-arrow {
+        font-size: 0.75rem;
+    }
+
+    /* List View - Compact Performance Metrics */
+    .modern-framework-card.list-view .performance-metrics-container {
+        margin-top: 0;
+        grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+        gap: 0.75rem;
+    }
+
+    .modern-framework-card.list-view .performance-metric-card {
+        padding: 0.75rem 1rem;
+        border-radius: 10px;
+    }
+
+    .modern-framework-card.list-view .metric-label {
+        font-size: 0.75rem;
+    }
+
+    .modern-framework-card.list-view .metric-value {
+        font-size: 1.5rem;
+    }
+
+    /* List View - Minimize hover effects */
+    .modern-framework-card.list-view:hover {
+        transform: translateY(-2px) scale(1.005);
+    }
+
+    /* List View Responsive */
+    @@media (max-width: 1200px) {
+        .modern-framework-card.list-view .framework-card-header {
+            grid-template-columns: 1fr;
+            gap: 1rem;
+        }
+
+        .modern-framework-card.list-view .framework-title-section {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+
+        .modern-framework-card.list-view .framework-nav-stats {
+            flex-direction: column;
+        }
+
+        .modern-framework-card.list-view .nav-stat-card {
+            min-width: 100%;
+        }
+    }
+
+    /* Responsive Filters */
+    @@media (max-width: 1200px) {
+        .filters-row {
+            flex-direction: column;
+            align-items: stretch;
+        }
+
+        .filter-search-box {
+            max-width: 100%;
+        }
+
+        .filter-group {
+            justify-content: space-between;
+        }
+
+        .filter-buttons {
+            flex: 1;
+        }
+    }
+
+    @@media (max-width: 768px) {
+        .quick-filters-container {
+            padding: 1rem;
+        }
+
+        .filter-buttons {
+            width: 100%;
+            flex-wrap: wrap;
+        }
+
+        .btn-filter {
+            flex: 1;
+            font-size: 0.75rem;
+            padding: 0.4rem 0.6rem;
+        }
+
+        .btn-filter i {
+            display: none;
+        }
+    }
+
     /* Modern Monitoring Dashboard Styles */
-    
+
     .frameworks-analytics-container {
         display: flex;
         flex-direction: column;
@@ -228,8 +619,8 @@
     /* Framework Card Header */
     .framework-card-header {
         display: grid;
-        grid-template-columns: 1fr auto;
-        gap: 2rem;
+        grid-template-columns: 1fr auto auto;
+        gap: 1.5rem;
         align-items: center;
         margin-bottom: 2rem;
         padding-bottom: 1.5rem;
@@ -271,6 +662,62 @@
         font-weight: 600;
         box-shadow: 0 4px 15px rgba(79, 172, 254, 0.3);
         text-shadow: 0 1px 2px rgba(0,0,0,0.2);
+    }
+
+    /* Collapse Button */
+    .framework-collapse-btn {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border: none;
+        width: 42px;
+        height: 42px;
+        border-radius: 50%;
+        color: white;
+        font-size: 1.1rem;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+    }
+
+    .framework-collapse-btn:hover {
+        transform: scale(1.1);
+        box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+    }
+
+    .framework-collapse-btn:active {
+        transform: scale(0.95);
+    }
+
+    .framework-collapse-btn i {
+        transition: transform 0.3s ease;
+    }
+
+    .modern-framework-card.collapsed .framework-collapse-btn i {
+        transform: rotate(180deg);
+    }
+
+    /* Framework Card Body - Collapsible Content */
+    .framework-card-body {
+        max-height: 5000px;
+        overflow: hidden;
+        transition: max-height 0.5s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s ease, padding 0.3s ease;
+        opacity: 1;
+    }
+
+    .modern-framework-card.collapsed .framework-card-body {
+        max-height: 0;
+        opacity: 0;
+        padding-top: 0;
+        padding-bottom: 0;
+    }
+
+    .modern-framework-card.collapsed .framework-card-header {
+        margin-bottom: 0;
+        padding-bottom: 0;
+        border-bottom: none;
     }
 
     /* Performance Circle */
@@ -736,6 +1183,239 @@
             }
         `;
         document.head.appendChild(style);
+
+        // ========== QUICK FILTERS FUNCTIONALITY ==========
+
+        const frameworksContainer = document.getElementById('frameworksContainer');
+        const allFrameworks = Array.from(document.querySelectorAll('.modern-framework-card'));
+        const searchInput = document.getElementById('frameworkSearch');
+        const resultsCount = document.getElementById('resultsCount');
+
+        // Store framework data for filtering and sorting
+        const frameworksData = allFrameworks.map(card => {
+            const performanceCard = card.querySelector('.performance-metric-card.excellent, .performance-metric-card.good, .performance-metric-card.critical');
+            const performance = performanceCard ? parseFloat(card.querySelector('.metric-value').textContent) : 0;
+            const name = card.querySelector('.framework-title').textContent.trim();
+            const projectsCount = parseInt(card.querySelector('.projects-card .nav-stat-value').textContent) || 0;
+
+            return {
+                element: card,
+                name: name.toLowerCase(),
+                performance: performance,
+                projectsCount: projectsCount,
+                displayName: name
+            };
+        });
+
+        let currentFilter = 'all';
+        let currentSort = 'name';
+        let currentView = 'grid';
+        let searchTerm = '';
+
+        // Performance filter buttons
+        document.querySelectorAll('[data-filter]').forEach(btn => {
+            btn.addEventListener('click', function() {
+                document.querySelectorAll('[data-filter]').forEach(b => b.classList.remove('active'));
+                this.classList.add('active');
+                currentFilter = this.dataset.filter;
+                applyFiltersAndSort();
+            });
+        });
+
+        // Sort buttons
+        document.querySelectorAll('[data-sort]').forEach(btn => {
+            btn.addEventListener('click', function() {
+                document.querySelectorAll('[data-sort]').forEach(b => b.classList.remove('active'));
+                this.classList.add('active');
+                currentSort = this.dataset.sort;
+                applyFiltersAndSort();
+            });
+        });
+
+        // View mode buttons
+        document.querySelectorAll('[data-view]').forEach(btn => {
+            btn.addEventListener('click', function() {
+                document.querySelectorAll('[data-view]').forEach(b => b.classList.remove('active'));
+                this.classList.add('active');
+                currentView = this.dataset.view;
+                applyView();
+            });
+        });
+
+        // Search functionality
+        searchInput.addEventListener('input', function() {
+            searchTerm = this.value.toLowerCase();
+            applyFiltersAndSort();
+        });
+
+        function applyFiltersAndSort() {
+            // Filter frameworks
+            let filtered = frameworksData.filter(fw => {
+                // Search filter
+                const matchesSearch = searchTerm === '' || fw.name.includes(searchTerm);
+
+                // Performance filter
+                let matchesPerformance = true;
+                if (currentFilter === 'high') {
+                    matchesPerformance = fw.performance >= 80;
+                } else if (currentFilter === 'medium') {
+                    matchesPerformance = fw.performance >= 60 && fw.performance < 80;
+                } else if (currentFilter === 'low') {
+                    matchesPerformance = fw.performance < 60;
+                }
+
+                return matchesSearch && matchesPerformance;
+            });
+
+            // Sort frameworks
+            filtered.sort((a, b) => {
+                if (currentSort === 'name') {
+                    return a.name.localeCompare(b.name);
+                } else if (currentSort === 'performance') {
+                    return b.performance - a.performance; // Descending
+                } else if (currentSort === 'projects') {
+                    return b.projectsCount - a.projectsCount; // Descending
+                }
+                return 0;
+            });
+
+            // Update DOM
+            allFrameworks.forEach(card => card.classList.add('hidden'));
+
+            filtered.forEach((fw, index) => {
+                fw.element.classList.remove('hidden');
+                fw.element.style.order = index;
+            });
+
+            // Update results count
+            updateResultsCount(filtered.length, allFrameworks.length);
+        }
+
+        function applyView() {
+            if (currentView === 'list') {
+                frameworksContainer.classList.add('list-view');
+                allFrameworks.forEach(card => card.classList.add('list-view'));
+            } else {
+                frameworksContainer.classList.remove('list-view');
+                allFrameworks.forEach(card => card.classList.remove('list-view'));
+            }
+        }
+
+        function updateResultsCount(shown, total) {
+            if (shown === total) {
+                resultsCount.innerHTML = `@Localizer["Showing"] <strong>${shown}</strong> @Localizer["framework(s)"]`;
+            } else {
+                resultsCount.innerHTML = `@Localizer["Showing"] <strong>${shown}</strong> @Localizer["of"] <strong>${total}</strong> @Localizer["framework(s)"]`;
+            }
+        }
+
+        // Initial count
+        updateResultsCount(allFrameworks.length, allFrameworks.length);
+
+        // ========== FRAMEWORK CARD COLLAPSE/EXPAND FUNCTIONALITY ==========
+
+        // Get all collapse buttons
+        const collapseButtons = document.querySelectorAll('.framework-collapse-btn');
+
+        // Load saved collapse states from localStorage
+        const loadCollapseStates = () => {
+            try {
+                const savedStates = localStorage.getItem('frameworkCollapseStates');
+                if (savedStates) {
+                    const states = JSON.parse(savedStates);
+                    Object.keys(states).forEach(frameworkCode => {
+                        if (states[frameworkCode] === true) {
+                            const card = document.querySelector(`[data-framework-code="${frameworkCode}"]`);
+                            if (card) {
+                                card.classList.add('collapsed');
+                            }
+                        }
+                    });
+                }
+            } catch (error) {
+                console.error('Error loading collapse states:', error);
+            }
+        };
+
+        // Save collapse states to localStorage
+        const saveCollapseStates = () => {
+            try {
+                const states = {};
+                allFrameworks.forEach(card => {
+                    const frameworkCode = card.getAttribute('data-framework-code');
+                    if (frameworkCode) {
+                        states[frameworkCode] = card.classList.contains('collapsed');
+                    }
+                });
+                localStorage.setItem('frameworkCollapseStates', JSON.stringify(states));
+            } catch (error) {
+                console.error('Error saving collapse states:', error);
+            }
+        };
+
+        // Add click event to each collapse button
+        collapseButtons.forEach(btn => {
+            btn.addEventListener('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+
+                const card = this.closest('.modern-framework-card');
+                card.classList.toggle('collapsed');
+
+                // Save state to localStorage
+                saveCollapseStates();
+
+                // Add ripple effect
+                const ripple = document.createElement('span');
+                ripple.style.cssText = `
+                    position: absolute;
+                    border-radius: 50%;
+                    background: rgba(255,255,255,0.6);
+                    width: 20px;
+                    height: 20px;
+                    top: 50%;
+                    left: 50%;
+                    transform: translate(-50%, -50%);
+                    animation: ripple 0.6s ease-out;
+                    pointer-events: none;
+                `;
+                this.style.position = 'relative';
+                this.appendChild(ripple);
+                setTimeout(() => ripple.remove(), 600);
+            });
+        });
+
+        // Load saved states on page load
+        loadCollapseStates();
+
+        // ========== EXPAND ALL / COLLAPSE ALL FUNCTIONALITY ==========
+
+        const expandAllBtn = document.getElementById('expandAllBtn');
+        const collapseAllBtn = document.getElementById('collapseAllBtn');
+
+        // Expand All button
+        expandAllBtn.addEventListener('click', function() {
+            allFrameworks.forEach(card => {
+                card.classList.remove('collapsed');
+            });
+            saveCollapseStates();
+
+            // Visual feedback
+            this.classList.add('active');
+            setTimeout(() => this.classList.remove('active'), 300);
+        });
+
+        // Collapse All button
+        collapseAllBtn.addEventListener('click', function() {
+            allFrameworks.forEach(card => {
+                card.classList.add('collapsed');
+            });
+            saveCollapseStates();
+
+            // Visual feedback
+            this.classList.add('active');
+            setTimeout(() => this.classList.remove('active'), 300);
+        });
     });
 </script>
 
