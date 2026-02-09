@@ -48,6 +48,7 @@
 			<div class="stats-grid mb-4">
 				<!-- Frameworks Card -->
 				<div class="stat-card frameworks-card">
+					<span class="notification-badge" id="badgeFrameworks" title="" style="display:none;"></span>
 					<div class="stat-icon primary">
 						<i class="fas fa-sitemap"></i>
 					</div>
@@ -66,6 +67,7 @@
 
 				<!-- Projects Card -->
 				<div class="stat-card projects-card">
+					<span class="notification-badge" id="badgeProjects" title="" style="display:none;"></span>
 					<div class="stat-icon warning">
 						<i class="fas fa-project-diagram"></i>
 					</div>
@@ -672,6 +674,75 @@
 		}
 	}
 
+	/* Notification Badges */
+	.notification-badge {
+		position: absolute;
+		top: 12px;
+		right: 12px;
+		min-width: 24px;
+		height: 24px;
+		padding: 0 7px;
+		border-radius: 12px;
+		font-size: 0.75rem;
+		font-weight: 700;
+		color: white;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		z-index: 10;
+		animation: badgePulse 2s ease-in-out infinite;
+		cursor: default;
+		line-height: 1;
+	}
+
+	[dir="rtl"] .notification-badge {
+		right: auto;
+		left: 12px;
+	}
+
+	.notification-badge.badge-danger {
+		background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+		box-shadow: 0 2px 8px rgba(220, 53, 69, 0.4);
+	}
+
+	.notification-badge.badge-warning {
+		background: linear-gradient(135deg, #f0ad4e 0%, #ec971f 100%);
+		box-shadow: 0 2px 8px rgba(240, 173, 78, 0.4);
+	}
+
+	.notification-badge.badge-success {
+		background: linear-gradient(135deg, #28a745 0%, #218838 100%);
+		box-shadow: 0 2px 8px rgba(40, 167, 69, 0.4);
+	}
+
+	@@keyframes badgePulse {
+		0%, 100% { transform: scale(1); }
+		50% { transform: scale(1.1); }
+	}
+
+	/* Badge tooltip */
+	.notification-badge[title]:hover::after {
+		content: attr(title);
+		position: absolute;
+		top: 110%;
+		right: 0;
+		background: #2d3748;
+		color: white;
+		padding: 6px 10px;
+		border-radius: 6px;
+		font-size: 0.72rem;
+		font-weight: 500;
+		white-space: nowrap;
+		z-index: 20;
+		box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+		pointer-events: none;
+	}
+
+	[dir="rtl"] .notification-badge[title]:hover::after {
+		right: auto;
+		left: 0;
+	}
+
 	/* Print-Friendly Styles */
 	@@media print {
 		/* Reset backgrounds and shadows for clean print */
@@ -691,7 +762,8 @@
 		.select2-container,
 		.sidebar-language-selector,
 		.section-tabs,
-		.section-toggle-btn {
+		.section-toggle-btn,
+		.notification-badge {
 			display: none !important;
 		}
 
@@ -1029,6 +1101,63 @@ $(document).ready(function() {
 				}
 			});
 		});
+
+		// Update notification badges based on performance data
+		updateNotificationBadges(frameworks);
+	}
+
+	function updateNotificationBadges(frameworks) {
+		const badgeFrameworks = document.getElementById('badgeFrameworks');
+		const badgeProjects = document.getElementById('badgeProjects');
+
+		// Frameworks badge: count frameworks below 50% performance
+		const criticalFrameworks = frameworks.filter(f => f.indicatorsPerformance < 50);
+		const warningFrameworks = frameworks.filter(f => f.indicatorsPerformance >= 50 && f.indicatorsPerformance < 80);
+
+		if (criticalFrameworks.length > 0) {
+			badgeFrameworks.textContent = criticalFrameworks.length;
+			badgeFrameworks.className = 'notification-badge badge-danger';
+			badgeFrameworks.title = criticalFrameworks.length + ' @Localizer["framework(s) below 50%"]';
+			badgeFrameworks.style.display = 'flex';
+		} else if (warningFrameworks.length > 0) {
+			badgeFrameworks.textContent = warningFrameworks.length;
+			badgeFrameworks.className = 'notification-badge badge-warning';
+			badgeFrameworks.title = warningFrameworks.length + ' @Localizer["framework(s) between 50-80%"]';
+			badgeFrameworks.style.display = 'flex';
+		} else if (frameworks.length > 0) {
+			badgeFrameworks.innerHTML = '<i class="fas fa-check" style="font-size:0.65rem;"></i>';
+			badgeFrameworks.className = 'notification-badge badge-success';
+			badgeFrameworks.title = '@Localizer["All frameworks above 80%"]';
+			badgeFrameworks.style.display = 'flex';
+			badgeFrameworks.style.animation = 'none';
+		} else {
+			badgeFrameworks.style.display = 'none';
+		}
+
+		// Projects badge: count projects below 50% across all frameworks
+		const allProjects = frameworks.flatMap(f => f.projects || []);
+		const criticalProjects = allProjects.filter(p => Math.round(p.performance) < 50);
+		const warningProjects = allProjects.filter(p => { const r = Math.round(p.performance); return r >= 50 && r < 80; });
+
+		if (criticalProjects.length > 0) {
+			badgeProjects.textContent = criticalProjects.length;
+			badgeProjects.className = 'notification-badge badge-danger';
+			badgeProjects.title = criticalProjects.length + ' @Localizer["project(s) below 50%"]';
+			badgeProjects.style.display = 'flex';
+		} else if (warningProjects.length > 0) {
+			badgeProjects.textContent = warningProjects.length;
+			badgeProjects.className = 'notification-badge badge-warning';
+			badgeProjects.title = warningProjects.length + ' @Localizer["project(s) between 50-80%"]';
+			badgeProjects.style.display = 'flex';
+		} else if (allProjects.length > 0) {
+			badgeProjects.innerHTML = '<i class="fas fa-check" style="font-size:0.65rem;"></i>';
+			badgeProjects.className = 'notification-badge badge-success';
+			badgeProjects.title = '@Localizer["All projects above 80%"]';
+			badgeProjects.style.display = 'flex';
+			badgeProjects.style.animation = 'none';
+		} else {
+			badgeProjects.style.display = 'none';
+		}
 	}
 
 	// --- Your existing event listeners and helper functions below ---
