@@ -27,6 +27,9 @@
 		<button class="section-tab active" data-section="performanceSection">
 			<i class="fas fa-chart-pie me-2"></i>@Localizer["Performance"]
 		</button>
+		<button class="section-tab active" data-section="distributionSection">
+			<i class="fas fa-chart-bar me-2"></i>@Localizer["Distribution"]
+		</button>
 		<button class="section-tab-action" id="toggleAllSections">
 			<i class="fas fa-expand-alt me-2"></i><span>@Localizer["Collapse All"]</span>
 		</button>
@@ -197,6 +200,55 @@
 		<div class="section-body">
 			<div class="chart-content">
 				<div id="gaugesContainer" class="performance-charts-grid"></div>
+			</div>
+		</div>
+	</div>
+
+	<!-- Performance Distribution Section -->
+	<div class="dashboard-section" id="distributionSection">
+		<div class="section-header" data-target="distributionSection">
+			<h3 class="section-title">
+				<i class="fas fa-chart-bar"></i>
+				@Localizer["Performance Distribution"]
+			</h3>
+			<button class="section-toggle-btn" aria-label="Toggle section">
+				<i class="fas fa-chevron-up"></i>
+			</button>
+		</div>
+		<div class="section-body">
+			<div class="distribution-grid">
+				<!-- Pie Chart -->
+				<div class="distribution-chart-card">
+					<h5 class="distribution-chart-title">@Localizer["Projects by Performance"]</h5>
+					<div class="distribution-chart-wrapper">
+						<canvas id="distributionPieChart"></canvas>
+					</div>
+				</div>
+				<!-- Bar Chart -->
+				<div class="distribution-chart-card">
+					<h5 class="distribution-chart-title">@Localizer["Frameworks by Performance"]</h5>
+					<div class="distribution-chart-wrapper">
+						<canvas id="distributionBarChart"></canvas>
+					</div>
+				</div>
+			</div>
+			<!-- Summary Cards -->
+			<div class="distribution-summary">
+				<div class="distribution-summary-card summary-excellent">
+					<div class="summary-icon"><i class="fas fa-trophy"></i></div>
+					<div class="summary-value" id="distExcellentCount">0</div>
+					<div class="summary-label">@Localizer["Excellent"] (&ge;80%)</div>
+				</div>
+				<div class="distribution-summary-card summary-satisfactory">
+					<div class="summary-icon"><i class="fas fa-thumbs-up"></i></div>
+					<div class="summary-value" id="distSatisfactoryCount">0</div>
+					<div class="summary-label">@Localizer["Satisfactory"] (50-79%)</div>
+				</div>
+				<div class="distribution-summary-card summary-needs-improvement">
+					<div class="summary-icon"><i class="fas fa-exclamation-triangle"></i></div>
+					<div class="summary-value" id="distNeedsImprovementCount">0</div>
+					<div class="summary-label">@Localizer["Needs Improvement"] (&lt;50%)</div>
+				</div>
 			</div>
 		</div>
 	</div>
@@ -674,6 +726,122 @@
 		}
 	}
 
+	/* Performance Distribution */
+	.distribution-grid {
+		display: grid;
+		grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+		gap: 1.5rem;
+		margin-bottom: 1.5rem;
+	}
+
+	.distribution-chart-card {
+		background: rgba(255,255,255,0.6);
+		border: 1px solid rgba(0,0,0,0.06);
+		border-radius: 16px;
+		padding: 1.5rem;
+		text-align: center;
+	}
+
+	.distribution-chart-title {
+		font-size: 1rem;
+		font-weight: 600;
+		color: #2d3748;
+		margin-bottom: 1rem;
+	}
+
+	.distribution-chart-wrapper {
+		position: relative;
+		max-height: 280px;
+		display: flex;
+		justify-content: center;
+	}
+
+	.distribution-chart-wrapper canvas {
+		max-height: 280px;
+	}
+
+	.distribution-summary {
+		display: grid;
+		grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+		gap: 1rem;
+	}
+
+	.distribution-summary-card {
+		display: flex;
+		align-items: center;
+		gap: 1rem;
+		padding: 1.25rem 1.5rem;
+		border-radius: 14px;
+		transition: transform 0.3s ease, box-shadow 0.3s ease;
+	}
+
+	.distribution-summary-card:hover {
+		transform: translateY(-3px);
+		box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+	}
+
+	.summary-excellent {
+		background: linear-gradient(135deg, rgba(40, 167, 69, 0.1) 0%, rgba(40, 167, 69, 0.05) 100%);
+		border: 1px solid rgba(40, 167, 69, 0.2);
+	}
+
+	.summary-satisfactory {
+		background: linear-gradient(135deg, rgba(255, 193, 7, 0.1) 0%, rgba(255, 193, 7, 0.05) 100%);
+		border: 1px solid rgba(255, 193, 7, 0.2);
+	}
+
+	.summary-needs-improvement {
+		background: linear-gradient(135deg, rgba(220, 53, 69, 0.1) 0%, rgba(220, 53, 69, 0.05) 100%);
+		border: 1px solid rgba(220, 53, 69, 0.2);
+	}
+
+	.summary-icon {
+		width: 44px;
+		height: 44px;
+		border-radius: 12px;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		font-size: 1.1rem;
+		color: white;
+		flex-shrink: 0;
+	}
+
+	.summary-excellent .summary-icon {
+		background: linear-gradient(135deg, #28a745 0%, #218838 100%);
+	}
+
+	.summary-satisfactory .summary-icon {
+		background: linear-gradient(135deg, #ffc107 0%, #e0a800 100%);
+	}
+
+	.summary-needs-improvement .summary-icon {
+		background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+	}
+
+	.summary-value {
+		font-size: 1.75rem;
+		font-weight: 700;
+		color: #2d3748;
+		line-height: 1;
+	}
+
+	.summary-label {
+		font-size: 0.8rem;
+		color: #718096;
+		font-weight: 500;
+	}
+
+	@@media (max-width: 768px) {
+		.distribution-grid {
+			grid-template-columns: 1fr;
+		}
+
+		.distribution-summary {
+			grid-template-columns: 1fr;
+		}
+	}
+
 	/* Notification Badges */
 	.notification-badge {
 		position: absolute;
@@ -945,6 +1113,23 @@
 			page-break-inside: avoid;
 		}
 
+		/* Distribution section for print */
+		.distribution-chart-card {
+			border: 1px solid #ddd !important;
+			background: white !important;
+			page-break-inside: avoid;
+		}
+
+		.distribution-summary-card {
+			border: 1px solid #ddd !important;
+			background: white !important;
+		}
+
+		.distribution-summary-card:hover {
+			transform: none !important;
+			box-shadow: none !important;
+		}
+
 		/* Container */
 		.container-fluid {
 			padding: 0 !important;
@@ -1104,6 +1289,9 @@ $(document).ready(function() {
 
 		// Update notification badges based on performance data
 		updateNotificationBadges(frameworks);
+
+		// Update performance distribution charts
+		updateDistributionCharts(frameworks);
 	}
 
 	function updateNotificationBadges(frameworks) {
@@ -1158,6 +1346,152 @@ $(document).ready(function() {
 		} else {
 			badgeProjects.style.display = 'none';
 		}
+	}
+
+	// Performance Distribution Charts
+	let distributionPieInstance = null;
+	let distributionBarInstance = null;
+
+	function updateDistributionCharts(frameworks) {
+		// Gather all projects across frameworks
+		const allProjects = frameworks.flatMap(f => f.projects || []);
+
+		const excellent = allProjects.filter(p => Math.round(p.performance) >= 80);
+		const satisfactory = allProjects.filter(p => { const r = Math.round(p.performance); return r >= 50 && r < 80; });
+		const needsImprovement = allProjects.filter(p => Math.round(p.performance) < 50);
+
+		// Update summary cards
+		document.getElementById('distExcellentCount').textContent = excellent.length;
+		document.getElementById('distSatisfactoryCount').textContent = satisfactory.length;
+		document.getElementById('distNeedsImprovementCount').textContent = needsImprovement.length;
+
+		// --- Pie Chart: Project distribution ---
+		if (distributionPieInstance) distributionPieInstance.destroy();
+
+		const pieCtx = document.getElementById('distributionPieChart').getContext('2d');
+		const pieData = [excellent.length, satisfactory.length, needsImprovement.length];
+		const hasData = pieData.some(v => v > 0);
+
+		distributionPieInstance = new Chart(pieCtx, {
+			type: 'doughnut',
+			data: {
+				labels: [
+					'@Localizer["Excellent"] (≥80%)',
+					'@Localizer["Satisfactory"] (50-79%)',
+					'@Localizer["Needs Improvement"] (<50%)'
+				],
+				datasets: [{
+					data: hasData ? pieData : [1],
+					backgroundColor: hasData
+						? ['#28a745', '#ffc107', '#dc3545']
+						: ['#e2e8f0'],
+					borderWidth: hasData ? 2 : 0,
+					borderColor: '#fff',
+					cutout: '55%'
+				}]
+			},
+			options: {
+				responsive: true,
+				maintainAspectRatio: true,
+				plugins: {
+					legend: {
+						position: 'bottom',
+						labels: {
+							padding: 15,
+							font: { size: 11, weight: '500' },
+							color: '#4a5568',
+							usePointStyle: true,
+							pointStyle: 'rectRounded'
+						}
+					},
+					tooltip: {
+						enabled: hasData,
+						backgroundColor: 'rgba(45, 55, 72, 0.95)',
+						cornerRadius: 10,
+						padding: 12,
+						callbacks: {
+							label: function (context) {
+								const total = context.dataset.data.reduce((a, b) => a + b, 0);
+								const pct = total > 0 ? Math.round((context.raw / total) * 100) : 0;
+								return context.label + ': ' + context.raw + ' (' + pct + '%)';
+							}
+						}
+					}
+				}
+			}
+		});
+
+		// --- Bar Chart: Framework performance levels ---
+		if (distributionBarInstance) distributionBarInstance.destroy();
+
+		const barCtx = document.getElementById('distributionBarChart').getContext('2d');
+
+		// Sort frameworks by performance ascending for visual impact
+		const sortedFrameworks = [...frameworks].sort((a, b) => a.indicatorsPerformance - b.indicatorsPerformance);
+		const fwLabels = sortedFrameworks.map(f => f.name.length > 25 ? f.name.substring(0, 25) + '...' : f.name);
+		const fwValues = sortedFrameworks.map(f => f.indicatorsPerformance);
+		const fwColors = sortedFrameworks.map(f =>
+			f.indicatorsPerformance >= 80 ? '#28a745'
+			: f.indicatorsPerformance >= 50 ? '#ffc107'
+			: '#dc3545'
+		);
+
+		distributionBarInstance = new Chart(barCtx, {
+			type: 'bar',
+			data: {
+				labels: fwLabels,
+				datasets: [{
+					label: '@Localizer["Performance"]',
+					data: fwValues,
+					backgroundColor: fwColors.map(c => c + 'CC'),
+					borderColor: fwColors,
+					borderWidth: 2,
+					borderRadius: 8,
+					borderSkipped: false
+				}]
+			},
+			options: {
+				responsive: true,
+				maintainAspectRatio: true,
+				indexAxis: 'y',
+				plugins: {
+					legend: { display: false },
+					tooltip: {
+						backgroundColor: 'rgba(45, 55, 72, 0.95)',
+						cornerRadius: 10,
+						padding: 12,
+						callbacks: {
+							label: function (context) {
+								const val = context.raw;
+								const level = val >= 80 ? '@Localizer["Excellent"]'
+									: val >= 50 ? '@Localizer["Satisfactory"]'
+									: '@Localizer["Needs Improvement"]';
+								return val + '% - ' + level;
+							}
+						}
+					}
+				},
+				scales: {
+					x: {
+						beginAtZero: true,
+						max: 100,
+						ticks: {
+							callback: function (v) { return v + '%'; },
+							font: { size: 11 },
+							color: '#718096'
+						},
+						grid: { color: 'rgba(0,0,0,0.05)', drawBorder: false }
+					},
+					y: {
+						ticks: {
+							font: { size: 11, weight: '500' },
+							color: '#4a5568'
+						},
+						grid: { display: false }
+					}
+				}
+			}
+		});
 	}
 
 	// --- Your existing event listeners and helper functions below ---

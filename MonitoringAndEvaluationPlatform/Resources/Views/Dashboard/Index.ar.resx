@@ -210,4 +210,61 @@
   <data name="Export failed. Please try again." xml:space="preserve">
     <value>فشل التصدير. يرجى المحاولة مرة أخرى.</value>
   </data>
+  <data name="Print" xml:space="preserve">
+    <value>طباعة</value>
+  </data>
+  <data name="Filters" xml:space="preserve">
+    <value>الفلاتر</value>
+  </data>
+  <data name="Performance" xml:space="preserve">
+    <value>الأداء</value>
+  </data>
+  <data name="Distribution" xml:space="preserve">
+    <value>التوزيع</value>
+  </data>
+  <data name="Collapse All" xml:space="preserve">
+    <value>طي الكل</value>
+  </data>
+  <data name="Expand All" xml:space="preserve">
+    <value>توسيع الكل</value>
+  </data>
+  <data name="Filters &amp; Overview" xml:space="preserve">
+    <value>الفلاتر والنظرة العامة</value>
+  </data>
+  <data name="Performance Distribution" xml:space="preserve">
+    <value>توزيع الأداء</value>
+  </data>
+  <data name="Projects by Performance" xml:space="preserve">
+    <value>المشاريع حسب الأداء</value>
+  </data>
+  <data name="Frameworks by Performance" xml:space="preserve">
+    <value>الاستراتيجيات حسب الأداء</value>
+  </data>
+  <data name="Excellent" xml:space="preserve">
+    <value>ممتاز</value>
+  </data>
+  <data name="Satisfactory" xml:space="preserve">
+    <value>مُرضٍ</value>
+  </data>
+  <data name="Needs Improvement" xml:space="preserve">
+    <value>يحتاج تحسين</value>
+  </data>
+  <data name="framework(s) below 50%" xml:space="preserve">
+    <value>استراتيجية أقل من 50%</value>
+  </data>
+  <data name="framework(s) between 50-80%" xml:space="preserve">
+    <value>استراتيجية بين 50-80%</value>
+  </data>
+  <data name="All frameworks above 80%" xml:space="preserve">
+    <value>جميع الاستراتيجيات فوق 80%</value>
+  </data>
+  <data name="project(s) below 50%" xml:space="preserve">
+    <value>مشروع أقل من 50%</value>
+  </data>
+  <data name="project(s) between 50-80%" xml:space="preserve">
+    <value>مشروع بين 50-80%</value>
+  </data>
+  <data name="All projects above 80%" xml:space="preserve">
+    <value>جميع المشاريع فوق 80%</value>
+  </data>
 </root>
