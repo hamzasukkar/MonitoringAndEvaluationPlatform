@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<Shell xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+       xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+       xmlns:views="clr-namespace:MonitoringAndEvaluationPlatform.Mobile.Views"
+       x:Class="MonitoringAndEvaluationPlatform.Mobile.AppShell"
+       Title="M&amp;E Platform"
+       FlyoutBehavior="Flyout">
+
+    <!-- Login (no flyout item) -->
+    <ShellContent Route="login"
+                  ContentTemplate="{DataTemplate views:LoginPage}"
+                  FlyoutItemIsVisible="False" />
+
+    <!-- Dashboard -->
+    <FlyoutItem Title="Dashboard" Icon="dashboard.png">
+        <ShellContent Route="dashboard"
+                      ContentTemplate="{DataTemplate views:DashboardPage}" />
+    </FlyoutItem>
+
+    <!-- Framework Performance -->
+    <FlyoutItem Title="Frameworks" Icon="framework.png">
+        <ShellContent Route="frameworks"
+                      ContentTemplate="{DataTemplate views:FrameworkPerformancePage}" />
+    </FlyoutItem>
+
+    <!-- Outcome Progress -->
+    <FlyoutItem Title="Outcomes" Icon="outcome.png">
+        <ShellContent Route="outcomes"
+                      ContentTemplate="{DataTemplate views:OutcomeProgressPage}" />
+    </FlyoutItem>
+
+    <!-- Project Progress -->
+    <FlyoutItem Title="Projects" Icon="project.png">
+        <ShellContent Route="projects"
+                      ContentTemplate="{DataTemplate views:ProjectProgressPage}" />
+    </FlyoutItem>
+
+    <!-- Reports -->
+    <FlyoutItem Title="Reports" Icon="report.png">
+        <ShellContent Route="reports"
+                      ContentTemplate="{DataTemplate views:ReportsPage}" />
+    </FlyoutItem>
+
+    <!-- Ministry Performance -->
+    <FlyoutItem Title="Ministries" Icon="ministry.png">
+        <ShellContent Route="ministries"
+                      ContentTemplate="{DataTemplate views:MinistryPerformancePage}" />
+    </FlyoutItem>
+
+    <!-- Sector Performance -->
+    <FlyoutItem Title="Sectors" Icon="sector.png">
+        <ShellContent Route="sectors"
+                      ContentTemplate="{DataTemplate views:SectorPerformancePage}" />
+    </FlyoutItem>
+
+    <!-- Donor Performance -->
+    <FlyoutItem Title="Donors" Icon="donor.png">
+        <ShellContent Route="donors"
+                      ContentTemplate="{DataTemplate views:DonorPerformancePage}" />
+    </FlyoutItem>
+
+    <!-- Settings -->
+    <FlyoutItem Title="Settings" Icon="settings.png">
+        <ShellContent Route="settings"
+                      ContentTemplate="{DataTemplate views:SettingsPage}" />
+    </FlyoutItem>
+
+</Shell>

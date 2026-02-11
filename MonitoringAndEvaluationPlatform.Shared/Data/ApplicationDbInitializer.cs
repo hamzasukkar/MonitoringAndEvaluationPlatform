@@ -1,5 +1,4 @@
-﻿using System.Text.Json;
-using Microsoft.DotNet.Scaffolding.Shared.Messaging;
+using System.Text.Json;
 using MonitoringAndEvaluationPlatform.Models;
 
 namespace MonitoringAndEvaluationPlatform.Data

@@ -1,5 +1,6 @@
-﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using Microsoft.AspNetCore.Http;
 using MonitoringAndEvaluationPlatform.Attributes;
 
 namespace MonitoringAndEvaluationPlatform.Models
@@ -9,8 +10,8 @@ namespace MonitoringAndEvaluationPlatform.Models
         [Key]
         public int ProjectID { get; set; }
 
-        [Required(ErrorMessageResourceType = typeof(Resources.Models.Project), ErrorMessageResourceName = "ProjectNameRequired")]
-        [StringLength(200, MinimumLength = 3, ErrorMessageResourceType = typeof(Resources.Models.Project), ErrorMessageResourceName = "ProjectNameLength")]
+        [Required(ErrorMessage = "Project name is required")]
+        [StringLength(200, MinimumLength = 3, ErrorMessage = "Project name must be between 3 and 200 characters")]
         [Display(Name = "Project Name")]
         public string ProjectName { get; set; } = string.Empty;
 
@@ -23,8 +24,8 @@ namespace MonitoringAndEvaluationPlatform.Models
         public int? MinistryCode { get; set; }
         public virtual Ministry? Ministry { get; set; }
 
-        [Required(ErrorMessageResourceType = typeof(Resources.Models.Project), ErrorMessageResourceName = "EstimatedBudgetRequired")]
-        [Range(0.01, double.MaxValue, ErrorMessageResourceType = typeof(Resources.Models.Project), ErrorMessageResourceName = "EstimatedBudgetRange")]
+        [Required(ErrorMessage = "Estimated budget is required")]
+        [Range(0.01, double.MaxValue, ErrorMessage = "Estimated budget must be greater than 0")]
         [Display(Name = "Estimated Budget")]
         public double EstimatedBudget { get; set; }
 
@@ -40,16 +41,16 @@ namespace MonitoringAndEvaluationPlatform.Models
             _ => "$"
         };
 
-        [Range(0, double.MaxValue, ErrorMessageResourceType = typeof(Resources.Models.Project), ErrorMessageResourceName = "RealBudgetRange")]
+        [Range(0, double.MaxValue, ErrorMessage = "Real budget must be 0 or greater")]
         [Display(Name = "Real Budget ($)")]
         public double RealBudget { get; set; }
 
-        [Required(ErrorMessageResourceType = typeof(Resources.Models.Project), ErrorMessageResourceName = "ProjectManagerRequired")]
+        [Required(ErrorMessage = "Project manager is required")]
         [Display(Name = "Project Manager")]
         public int ProjectManagerCode { get; set; }
         public virtual ProjectManager? ProjectManager { get; set; }
 
-        [Required(ErrorMessageResourceType = typeof(Resources.Models.Project), ErrorMessageResourceName = "SupervisorRequired")]
+        [Required(ErrorMessage = "Supervisor is required")]
         [Display(Name = "Supervisor")]
         public int SuperVisorCode { get; set; }
         public virtual SuperVisor? SuperVisor { get; set; }
@@ -58,12 +59,12 @@ namespace MonitoringAndEvaluationPlatform.Models
         public int? GoalCode { get; set; }
         public virtual Goal? Goal { get; set; }
 
-        [Required(ErrorMessageResourceType = typeof(Resources.Models.Project), ErrorMessageResourceName = "StartDateRequired")]
+        [Required(ErrorMessage = "Start date is required")]
         [Display(Name = "Start Date")]
         [DataType(DataType.Date)]
         public DateTime StartDate { get; set; }
 
-        [Required(ErrorMessageResourceType = typeof(Resources.Models.Project), ErrorMessageResourceName = "EndDateRequired")]
+        [Required(ErrorMessage = "End date is required")]
         [Display(Name = "End Date")]
         [DataType(DataType.Date)]
         [DateRangeValidation(nameof(StartDate))]

@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<Application xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:converters="clr-namespace:MonitoringAndEvaluationPlatform.Mobile.Converters"
+             x:Class="MonitoringAndEvaluationPlatform.Mobile.App">
+    <Application.Resources>
+        <ResourceDictionary>
+            <converters:PerformanceToColorConverter x:Key="PerformanceToColor" />
+            <converters:PerformanceToProgressConverter x:Key="PerformanceToProgress" />
+            <converters:InvertedBoolConverter x:Key="InvertedBoolConverter" />
+            <converters:IsNotNullOrEmptyConverter x:Key="IsNotNullOrEmptyConverter" />
+            <converters:IsNotZeroConverter x:Key="IsNotZeroConverter" />
+
+            <Color x:Key="Primary">#512BD4</Color>
+            <Color x:Key="PrimaryDark">#ac99ea</Color>
+            <Color x:Key="Accent">#F7B548</Color>
+            <Color x:Key="LightBackground">#F6F6F6</Color>
+            <Color x:Key="DarkBackground">#1C1C1E</Color>
+            <Color x:Key="CardBackground">White</Color>
+            <Color x:Key="TextPrimary">#1B1B1F</Color>
+            <Color x:Key="TextSecondary">#6B7280</Color>
+            <Color x:Key="SuccessGreen">#22C55E</Color>
+            <Color x:Key="WarningOrange">#F97316</Color>
+            <Color x:Key="DangerRed">#EF4444</Color>
+
+            <Style TargetType="Label" x:Key="PageTitle">
+                <Setter Property="FontSize" Value="24" />
+                <Setter Property="FontAttributes" Value="Bold" />
+                <Setter Property="TextColor" Value="{StaticResource TextPrimary}" />
+                <Setter Property="Margin" Value="16,16,16,8" />
+            </Style>
+
+            <Style TargetType="Frame" x:Key="CardStyle">
+                <Setter Property="BackgroundColor" Value="{StaticResource CardBackground}" />
+                <Setter Property="CornerRadius" Value="12" />
+                <Setter Property="Padding" Value="16" />
+                <Setter Property="HasShadow" Value="True" />
+                <Setter Property="BorderColor" Value="Transparent" />
+                <Setter Property="Margin" Value="8,4" />
+            </Style>
+        </ResourceDictionary>
+    </Application.Resources>
+</Application>

@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:MonitoringAndEvaluationPlatform.Mobile.ViewModels"
+             xmlns:models="clr-namespace:MonitoringAndEvaluationPlatform.Mobile.Models"
+             xmlns:converters="clr-namespace:MonitoringAndEvaluationPlatform.Mobile.Converters"
+             x:Class="MonitoringAndEvaluationPlatform.Mobile.Views.MinistryPerformancePage"
+             x:DataType="vm:CategoryPerformanceViewModel"
+             Title="Ministry Performance"
+             BackgroundColor="{StaticResource LightBackground}">
+
+    <ContentPage.Resources>
+        <converters:PerformanceToColorConverter x:Key="PerformanceToColor" />
+    </ContentPage.Resources>
+
+    <RefreshView IsRefreshing="{Binding IsRefreshing}"
+                 Command="{Binding LoadDataCommand}">
+        <CollectionView ItemsSource="{Binding Items}">
+            <CollectionView.Header>
+                <Label Text="Ministry Performance" Style="{StaticResource PageTitle}" />
+            </CollectionView.Header>
+            <CollectionView.ItemTemplate>
+                <DataTemplate x:DataType="models:CategoryReport">
+                    <Frame Style="{StaticResource CardStyle}">
+                        <VerticalStackLayout Spacing="8">
+                            <Label Text="{Binding Name}" FontSize="15" FontAttributes="Bold" />
+                            <Grid ColumnDefinitions="*,*" RowDefinitions="Auto,Auto" RowSpacing="6" ColumnSpacing="8">
+                                <VerticalStackLayout>
+                                    <Label Text="{Binding ProjectCount}" FontSize="16" FontAttributes="Bold" />
+                                    <Label Text="Projects" FontSize="10" TextColor="{StaticResource TextSecondary}" />
+                                </VerticalStackLayout>
+                                <VerticalStackLayout Grid.Column="1">
+                                    <Label Text="{Binding TotalBudget, StringFormat='${0:N0}'}" FontSize="16" FontAttributes="Bold" />
+                                    <Label Text="Budget" FontSize="10" TextColor="{StaticResource TextSecondary}" />
+                                </VerticalStackLayout>
+                                <VerticalStackLayout Grid.Row="1">
+                                    <Label Text="{Binding IndicatorsPerformance, StringFormat='{0:F1}%'}" FontSize="16" FontAttributes="Bold"
+                                           TextColor="{Binding IndicatorsPerformance, Converter={StaticResource PerformanceToColor}}" />
+                                    <Label Text="Indicators Perf." FontSize="10" TextColor="{StaticResource TextSecondary}" />
+                                </VerticalStackLayout>
+                                <VerticalStackLayout Grid.Row="1" Grid.Column="1">
+                                    <Label Text="{Binding DisbursementPerformance, StringFormat='{0:F1}%'}" FontSize="16" FontAttributes="Bold"
+                                           TextColor="{Binding DisbursementPerformance, Converter={StaticResource PerformanceToColor}}" />
+                                    <Label Text="Disbursement Perf." FontSize="10" TextColor="{StaticResource TextSecondary}" />
+                                </VerticalStackLayout>
+                            </Grid>
+                        </VerticalStackLayout>
+                    </Frame>
+                </DataTemplate>
+            </CollectionView.ItemTemplate>
+            <CollectionView.EmptyView>
+                <Label Text="No ministry data available" HorizontalOptions="Center" Margin="20"
+                       TextColor="{StaticResource TextSecondary}" />
+            </CollectionView.EmptyView>
+        </CollectionView>
+    </RefreshView>
+</ContentPage>
