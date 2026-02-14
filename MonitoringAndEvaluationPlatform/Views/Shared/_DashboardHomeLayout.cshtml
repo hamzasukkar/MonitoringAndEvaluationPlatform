@@ -1226,6 +1226,12 @@
                         <span>@Localizer["Reports"]</span>
                     </a>
                 </li>
+                <li>
+                    <a href="@Url.Action("UserGuide", "Home")" class="sidebar-link @(Context.Request.Path.Value.Contains("UserGuide") ? "active" : "")">
+                        <i class="fas fa-book-open"></i>
+                        <span>@Localizer["User Guide"]</span>
+                    </a>
+                </li>
             </ul>
 
             <!-- Language Selector -->

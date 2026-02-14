@@ -58,6 +58,7 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
+  <!-- Section: Header -->
   <data name="User Guide" xml:space="preserve">
     <value>User Guide</value>
   </data>
@@ -70,6 +71,7 @@
   <data name="Download PDF" xml:space="preserve">
     <value>Download PDF</value>
   </data>
+  <!-- Section: Table of Contents -->
   <data name="Table of Contents" xml:space="preserve">
     <value>Table of Contents</value>
   </data>
@@ -82,53 +84,69 @@
   <data name="Dashboard" xml:space="preserve">
     <value>Dashboard</value>
   </data>
-  <data name="Frameworks" xml:space="preserve">
-    <value>Frameworks</value>
+  <data name="Results Framework" xml:space="preserve">
+    <value>Results Framework</value>
   </data>
-  <data name="Projects" xml:space="preserve">
-    <value>Projects</value>
+  <data name="Outcomes" xml:space="preserve">
+    <value>Outcomes</value>
+  </data>
+  <data name="Outputs &amp; SubOutputs" xml:space="preserve">
+    <value>Outputs &amp; SubOutputs</value>
   </data>
   <data name="Indicators" xml:space="preserve">
     <value>Indicators</value>
   </data>
+  <data name="Framework Goals" xml:space="preserve">
+    <value>Framework Goals</value>
+  </data>
+  <data name="Set Up" xml:space="preserve">
+    <value>Set Up</value>
+  </data>
+  <data name="Projects" xml:space="preserve">
+    <value>Projects</value>
+  </data>
+  <data name="Plans &amp; Activities" xml:space="preserve">
+    <value>Plans &amp; Activities</value>
+  </data>
   <data name="Monitoring" xml:space="preserve">
     <value>Monitoring</value>
   </data>
-  <data name="Outcomes &amp; Outputs" xml:space="preserve">
-    <value>Outcomes &amp; Outputs</value>
-  </data>
-  <data name="Ministries &amp; Agencies" xml:space="preserve">
-    <value>Ministries &amp; Agencies</value>
-  </data>
-  <data name="Donors &amp; Partners" xml:space="preserve">
-    <value>Donors &amp; Partners</value>
-  </data>
-  <data name="Sectors" xml:space="preserve">
-    <value>Sectors</value>
-  </data>
-  <data name="Locations" xml:space="preserve">
-    <value>Locations</value>
-  </data>
-  <data name="Reports" xml:space="preserve">
-    <value>Reports</value>
+  <data name="Reports &amp; Export" xml:space="preserve">
+    <value>Reports &amp; Export</value>
   </data>
   <data name="Administration" xml:space="preserve">
     <value>Administration</value>
   </data>
+  <data name="Data Management" xml:space="preserve">
+    <value>Data Management</value>
+  </data>
+  <data name="Audit Logs" xml:space="preserve">
+    <value>Audit Logs</value>
+  </data>
+  <data name="User Roles &amp; Permissions" xml:space="preserve">
+    <value>User Roles &amp; Permissions</value>
+  </data>
+  <data name="Performance Calculations" xml:space="preserve">
+    <value>Performance Calculations</value>
+  </data>
+  <data name="Settings &amp; Themes" xml:space="preserve">
+    <value>Settings &amp; Themes</value>
+  </data>
   <data name="Getting Help" xml:space="preserve">
     <value>Getting Help</value>
   </data>
+  <!-- Section 1: Introduction -->
   <data name="Welcome to the National Monitoring &amp; Evaluation Platform. This comprehensive system helps you track development projects, measure performance indicators, and generate reports across multiple strategic frameworks." xml:space="preserve">
     <value>Welcome to the National Monitoring &amp; Evaluation Platform. This comprehensive system helps you track development projects, measure performance indicators, and generate reports across multiple strategic frameworks.</value>
   </data>
   <data name="What You Can Do" xml:space="preserve">
     <value>What You Can Do</value>
   </data>
-  <data name="Manage strategic frameworks and goals" xml:space="preserve">
-    <value>Manage strategic frameworks and goals</value>
+  <data name="Manage strategic frameworks and goals (e.g., SDGs, National Development Strategy)" xml:space="preserve">
+    <value>Manage strategic frameworks and goals (e.g., SDGs, National Development Strategy)</value>
   </data>
-  <data name="Track project progress and performance" xml:space="preserve">
-    <value>Track project progress and performance</value>
+  <data name="Track project progress and performance across hierarchies" xml:space="preserve">
+    <value>Track project progress and performance across hierarchies</value>
   </data>
   <data name="Monitor indicators with real-time calculations" xml:space="preserve">
     <value>Monitor indicators with real-time calculations</value>
@@ -136,8 +154,35 @@
   <data name="Coordinate with ministries, donors, and partners" xml:space="preserve">
     <value>Coordinate with ministries, donors, and partners</value>
   </data>
-  <data name="Generate comprehensive reports" xml:space="preserve">
-    <value>Generate comprehensive reports</value>
+  <data name="Generate and export comprehensive reports (Excel &amp; PDF)" xml:space="preserve">
+    <value>Generate and export comprehensive reports (Excel &amp; PDF)</value>
+  </data>
+  <data name="Manage locations, sectors, and organizational structures" xml:space="preserve">
+    <value>Manage locations, sectors, and organizational structures</value>
+  </data>
+  <data name="Audit and track all system activities" xml:space="preserve">
+    <value>Audit and track all system activities</value>
+  </data>
+  <data name="1.1 Platform Structure" xml:space="preserve">
+    <value>1.1 Platform Structure</value>
+  </data>
+  <data name="The platform is organized into five main sections accessible from the sidebar:" xml:space="preserve">
+    <value>The platform is organized into five main sections accessible from the sidebar:</value>
+  </data>
+  <data name="Manage frameworks, outcomes, outputs, sub-outputs, and indicators." xml:space="preserve">
+    <value>Manage frameworks, outcomes, outputs, sub-outputs, and indicators.</value>
+  </data>
+  <data name="Configure ministries, donors, sectors, project managers, supervisors, and locations." xml:space="preserve">
+    <value>Configure ministries, donors, sectors, project managers, supervisors, and locations.</value>
+  </data>
+  <data name="Create and manage projects, action plans, activities, and plans." xml:space="preserve">
+    <value>Create and manage projects, action plans, activities, and plans.</value>
+  </data>
+  <data name="Track performance at all levels of the hierarchy in real-time." xml:space="preserve">
+    <value>Track performance at all levels of the hierarchy in real-time.</value>
+  </data>
+  <data name="View analytics, charts, gauges, and summary statistics." xml:space="preserve">
+    <value>View analytics, charts, gauges, and summary statistics.</value>
   </data>
   <data name="Home Page Screenshot" xml:space="preserve">
     <value>Home Page Screenshot</value>
@@ -148,6 +193,7 @@
   <data name="Figure 1.1: Platform Home Page" xml:space="preserve">
     <value>Figure 1.1: Platform Home Page</value>
   </data>
+  <!-- Section 2: Getting Started -->
   <data name="2.1 Logging In" xml:space="preserve">
     <value>2.1 Logging In</value>
   </data>
@@ -163,8 +209,8 @@
   <data name="Enter Credentials" xml:space="preserve">
     <value>Enter Credentials</value>
   </data>
-  <data name="Enter your username and password in the login form." xml:space="preserve">
-    <value>Enter your username and password in the login form.</value>
+  <data name="Enter your email address and password in the login form." xml:space="preserve">
+    <value>Enter your email address and password in the login form.</value>
   </data>
   <data name="Access Dashboard" xml:space="preserve">
     <value>Access Dashboard</value>
@@ -184,8 +230,8 @@
   <data name="2.2 Changing Language" xml:space="preserve">
     <value>2.2 Changing Language</value>
   </data>
-  <data name="The platform supports multiple languages. To change the language:" xml:space="preserve">
-    <value>The platform supports multiple languages. To change the language:</value>
+  <data name="The platform supports Arabic (default), English, and French. To change the language:" xml:space="preserve">
+    <value>The platform supports Arabic (default), English, and French. To change the language:</value>
   </data>
   <data name="Find Language Selector" xml:space="preserve">
     <value>Find Language Selector</value>
@@ -196,8 +242,8 @@
   <data name="Select Language" xml:space="preserve">
     <value>Select Language</value>
   </data>
-  <data name="Choose your preferred language (Arabic, English, or French)." xml:space="preserve">
-    <value>Choose your preferred language (Arabic, English, or French).</value>
+  <data name="Choose your preferred language. The page will reload in the selected language." xml:space="preserve">
+    <value>Choose your preferred language. The page will reload in the selected language.</value>
   </data>
   <data name="Language Selector Screenshot" xml:space="preserve">
     <value>Language Selector Screenshot</value>
@@ -211,16 +257,1576 @@
   <data name="2.3 Navigation" xml:space="preserve">
     <value>2.3 Navigation</value>
   </data>
-  <data name="The platform uses a consistent navigation structure with a sidebar menu for easy access to all features." xml:space="preserve">
-    <value>The platform uses a consistent navigation structure with a sidebar menu for easy access to all features.</value>
+  <data name="The platform uses a sidebar menu on the left (or right in Arabic) for main navigation. The top bar contains:" xml:space="preserve">
+    <value>The platform uses a sidebar menu on the left (or right in Arabic) for main navigation. The top bar contains:</value>
   </data>
-  <data name="Navigation Menu Screenshot" xml:space="preserve">
-    <value>Navigation Menu Screenshot</value>
+  <data name="Framework dropdown menus for quick access to specific frameworks" xml:space="preserve">
+    <value>Framework dropdown menus for quick access to specific frameworks</value>
   </data>
-  <data name="Screenshot: Navigation Menu" xml:space="preserve">
-    <value>Screenshot: Navigation Menu</value>
+  <data name="Ministries dropdown for quick ministry navigation" xml:space="preserve">
+    <value>Ministries dropdown for quick ministry navigation</value>
   </data>
-  <data name="Figure 2.3: Main Navigation Menu" xml:space="preserve">
-    <value>Figure 2.3: Main Navigation Menu</value>
+  <data name="Sectors dropdown organized by category" xml:space="preserve">
+    <value>Sectors dropdown organized by category</value>
+  </data>
+  <data name="Donors dropdown organized by type" xml:space="preserve">
+    <value>Donors dropdown organized by type</value>
+  </data>
+  <data name="SDGs dropdown with all 17 Sustainable Development Goals" xml:space="preserve">
+    <value>SDGs dropdown with all 17 Sustainable Development Goals</value>
+  </data>
+  <data name="Language selector and user menu" xml:space="preserve">
+    <value>Language selector and user menu</value>
+  </data>
+  <data name="Sidebar Navigation Screenshot" xml:space="preserve">
+    <value>Sidebar Navigation Screenshot</value>
+  </data>
+  <data name="Screenshot: Sidebar Navigation" xml:space="preserve">
+    <value>Screenshot: Sidebar Navigation</value>
+  </data>
+  <data name="Figure 2.3: Sidebar Navigation Menu" xml:space="preserve">
+    <value>Figure 2.3: Sidebar Navigation Menu</value>
+  </data>
+  <data name="Top Navigation Screenshot" xml:space="preserve">
+    <value>Top Navigation Screenshot</value>
+  </data>
+  <data name="Screenshot: Top Navigation Bar with Dropdowns" xml:space="preserve">
+    <value>Screenshot: Top Navigation Bar with Dropdowns</value>
+  </data>
+  <data name="Figure 2.4: Top Navigation Bar" xml:space="preserve">
+    <value>Figure 2.4: Top Navigation Bar</value>
+  </data>
+  <!-- Section 3: Dashboard -->
+  <data name="The Dashboard provides a comprehensive overview of all platform activities and performance metrics at a glance." xml:space="preserve">
+    <value>The Dashboard provides a comprehensive overview of all platform activities and performance metrics at a glance.</value>
+  </data>
+  <data name="3.1 Home Dashboard" xml:space="preserve">
+    <value>3.1 Home Dashboard</value>
+  </data>
+  <data name="The main dashboard displays summary statistics including total frameworks, projects, ministries, budget, and monthly performance trends." xml:space="preserve">
+    <value>The main dashboard displays summary statistics including total frameworks, projects, ministries, budget, and monthly performance trends.</value>
+  </data>
+  <data name="Statistics Cards" xml:space="preserve">
+    <value>Statistics Cards</value>
+  </data>
+  <data name="Quick view of total projects, frameworks, ministries, and budget." xml:space="preserve">
+    <value>Quick view of total projects, frameworks, ministries, and budget.</value>
+  </data>
+  <data name="Performance Charts" xml:space="preserve">
+    <value>Performance Charts</value>
+  </data>
+  <data name="Visual representation of performance trends over time." xml:space="preserve">
+    <value>Visual representation of performance trends over time.</value>
+  </data>
+  <data name="Geographic Map" xml:space="preserve">
+    <value>Geographic Map</value>
+  </data>
+  <data name="Interactive map showing project distribution by governorate." xml:space="preserve">
+    <value>Interactive map showing project distribution by governorate.</value>
+  </data>
+  <data name="Recent Activities" xml:space="preserve">
+    <value>Recent Activities</value>
+  </data>
+  <data name="Latest updates and activities across the platform." xml:space="preserve">
+    <value>Latest updates and activities across the platform.</value>
+  </data>
+  <data name="Dashboard Overview Screenshot" xml:space="preserve">
+    <value>Dashboard Overview Screenshot</value>
+  </data>
+  <data name="Screenshot: Dashboard Overview" xml:space="preserve">
+    <value>Screenshot: Dashboard Overview</value>
+  </data>
+  <data name="Figure 3.1: Dashboard Overview" xml:space="preserve">
+    <value>Figure 3.1: Dashboard Overview</value>
+  </data>
+  <data name="3.2 Framework Performance Gauges" xml:space="preserve">
+    <value>3.2 Framework Performance Gauges</value>
+  </data>
+  <data name="View performance gauges for each framework. Gauges show the achievement rate as a percentage with color-coded indicators:" xml:space="preserve">
+    <value>View performance gauges for each framework. Gauges show the achievement rate as a percentage with color-coded indicators:</value>
+  </data>
+  <data name="Green (80-100%)" xml:space="preserve">
+    <value>Green (80-100%)</value>
+  </data>
+  <data name="On track or exceeding targets" xml:space="preserve">
+    <value>On track or exceeding targets</value>
+  </data>
+  <data name="Yellow (50-79%)" xml:space="preserve">
+    <value>Yellow (50-79%)</value>
+  </data>
+  <data name="Needs attention" xml:space="preserve">
+    <value>Needs attention</value>
+  </data>
+  <data name="Red (0-49%)" xml:space="preserve">
+    <value>Red (0-49%)</value>
+  </data>
+  <data name="Below target, requires intervention" xml:space="preserve">
+    <value>Below target, requires intervention</value>
+  </data>
+  <data name="Performance Gauges Screenshot" xml:space="preserve">
+    <value>Performance Gauges Screenshot</value>
+  </data>
+  <data name="Screenshot: Framework Performance Gauges" xml:space="preserve">
+    <value>Screenshot: Framework Performance Gauges</value>
+  </data>
+  <data name="Figure 3.2: Framework Performance Gauges" xml:space="preserve">
+    <value>Figure 3.2: Framework Performance Gauges</value>
+  </data>
+  <data name="3.3 Dashboard Filters" xml:space="preserve">
+    <value>3.3 Dashboard Filters</value>
+  </data>
+  <data name="The dashboard supports advanced filtering by:" xml:space="preserve">
+    <value>The dashboard supports advanced filtering by:</value>
+  </data>
+  <data name="Framework - Select specific frameworks to view" xml:space="preserve">
+    <value>Framework - Select specific frameworks to view</value>
+  </data>
+  <data name="Ministry - Filter by responsible ministry" xml:space="preserve">
+    <value>Ministry - Filter by responsible ministry</value>
+  </data>
+  <data name="Location - Filter by Governorate, District, Sub-District, or Community" xml:space="preserve">
+    <value>Location - Filter by Governorate, District, Sub-District, or Community</value>
+  </data>
+  <data name="Project - Focus on specific projects" xml:space="preserve">
+    <value>Project - Focus on specific projects</value>
+  </data>
+  <data name="Dashboard Filters Screenshot" xml:space="preserve">
+    <value>Dashboard Filters Screenshot</value>
+  </data>
+  <data name="Screenshot: Dashboard Filter Panel" xml:space="preserve">
+    <value>Screenshot: Dashboard Filter Panel</value>
+  </data>
+  <data name="Figure 3.3: Dashboard Filter Options" xml:space="preserve">
+    <value>Figure 3.3: Dashboard Filter Options</value>
+  </data>
+  <data name="3.4 Indicator Trends" xml:space="preserve">
+    <value>3.4 Indicator Trends</value>
+  </data>
+  <data name="View trend charts showing how indicators change over time. Click on any indicator to see its detailed trend line." xml:space="preserve">
+    <value>View trend charts showing how indicators change over time. Click on any indicator to see its detailed trend line.</value>
+  </data>
+  <data name="Indicator Trend Screenshot" xml:space="preserve">
+    <value>Indicator Trend Screenshot</value>
+  </data>
+  <data name="Screenshot: Indicator Trend Chart" xml:space="preserve">
+    <value>Screenshot: Indicator Trend Chart</value>
+  </data>
+  <data name="Figure 3.4: Indicator Trend Over Time" xml:space="preserve">
+    <value>Figure 3.4: Indicator Trend Over Time</value>
+  </data>
+  <data name="3.5 Outcome Progress" xml:space="preserve">
+    <value>3.5 Outcome Progress</value>
+  </data>
+  <data name="Track progress of outcomes within each framework using bar charts and progress indicators." xml:space="preserve">
+    <value>Track progress of outcomes within each framework using bar charts and progress indicators.</value>
+  </data>
+  <data name="Outcome Progress Screenshot" xml:space="preserve">
+    <value>Outcome Progress Screenshot</value>
+  </data>
+  <data name="Screenshot: Outcome Progress View" xml:space="preserve">
+    <value>Screenshot: Outcome Progress View</value>
+  </data>
+  <data name="Figure 3.5: Outcome Progress Visualization" xml:space="preserve">
+    <value>Figure 3.5: Outcome Progress Visualization</value>
+  </data>
+  <data name="3.6 Project Progress" xml:space="preserve">
+    <value>3.6 Project Progress</value>
+  </data>
+  <data name="View project progress filtered by region, sector, or donor. This view shows disbursement and physical performance for each project." xml:space="preserve">
+    <value>View project progress filtered by region, sector, or donor. This view shows disbursement and physical performance for each project.</value>
+  </data>
+  <data name="Project Progress Screenshot" xml:space="preserve">
+    <value>Project Progress Screenshot</value>
+  </data>
+  <data name="Screenshot: Project Progress View" xml:space="preserve">
+    <value>Screenshot: Project Progress View</value>
+  </data>
+  <data name="Figure 3.6: Project Progress by Region" xml:space="preserve">
+    <value>Figure 3.6: Project Progress by Region</value>
+  </data>
+  <data name="3.7 Exporting Dashboard" xml:space="preserve">
+    <value>3.7 Exporting Dashboard</value>
+  </data>
+  <data name="Export the dashboard view to Excel or PDF for sharing and offline analysis." xml:space="preserve">
+    <value>Export the dashboard view to Excel or PDF for sharing and offline analysis.</value>
+  </data>
+  <data name="Apply Filters" xml:space="preserve">
+    <value>Apply Filters</value>
+  </data>
+  <data name="Set the desired filters for the data you want to export." xml:space="preserve">
+    <value>Set the desired filters for the data you want to export.</value>
+  </data>
+  <data name="Click Export" xml:space="preserve">
+    <value>Click Export</value>
+  </data>
+  <data name="Click the Export Excel or Export PDF button in the dashboard toolbar." xml:space="preserve">
+    <value>Click the Export Excel or Export PDF button in the dashboard toolbar.</value>
+  </data>
+  <!-- Section 4: Results Framework -->
+  <data name="Frameworks represent strategic initiatives like the National Development Strategy or SDG alignment. They form the top level of the results hierarchy." xml:space="preserve">
+    <value>Frameworks represent strategic initiatives like the National Development Strategy or SDG alignment. They form the top level of the results hierarchy.</value>
+  </data>
+  <data name="4.1 Framework Hierarchy" xml:space="preserve">
+    <value>4.1 Framework Hierarchy</value>
+  </data>
+  <data name="Framework" xml:space="preserve">
+    <value>Framework</value>
+  </data>
+  <data name="SubOutputs" xml:space="preserve">
+    <value>SubOutputs</value>
+  </data>
+  <data name="Indicators &amp; Projects" xml:space="preserve">
+    <value>Indicators &amp; Projects</value>
+  </data>
+  <data name="Outputs" xml:space="preserve">
+    <value>Outputs</value>
+  </data>
+  <data name="4.2 Viewing Frameworks" xml:space="preserve">
+    <value>4.2 Viewing Frameworks</value>
+  </data>
+  <data name="Navigate to Results Framework from the sidebar. The list shows all frameworks with their performance rates, search, and sort options." xml:space="preserve">
+    <value>Navigate to Results Framework from the sidebar. The list shows all frameworks with their performance rates, search, and sort options.</value>
+  </data>
+  <data name="Frameworks List Screenshot" xml:space="preserve">
+    <value>Frameworks List Screenshot</value>
+  </data>
+  <data name="Screenshot: Frameworks List" xml:space="preserve">
+    <value>Screenshot: Frameworks List</value>
+  </data>
+  <data name="Figure 4.1: Frameworks List View" xml:space="preserve">
+    <value>Figure 4.1: Frameworks List View</value>
+  </data>
+  <data name="4.3 Creating a Framework" xml:space="preserve">
+    <value>4.3 Creating a Framework</value>
+  </data>
+  <data name="System administrators can create new frameworks using two methods:" xml:space="preserve">
+    <value>System administrators can create new frameworks using two methods:</value>
+  </data>
+  <data name="Method 1: Inline Creation" xml:space="preserve">
+    <value>Method 1: Inline Creation</value>
+  </data>
+  <data name="Click Add New" xml:space="preserve">
+    <value>Click Add New</value>
+  </data>
+  <data name="Click the 'Add New Framework' button on the frameworks list page." xml:space="preserve">
+    <value>Click the 'Add New Framework' button on the frameworks list page.</value>
+  </data>
+  <data name="Enter Name" xml:space="preserve">
+    <value>Enter Name</value>
+  </data>
+  <data name="Type the framework name in the inline form that appears." xml:space="preserve">
+    <value>Type the framework name in the inline form that appears.</value>
+  </data>
+  <data name="Save" xml:space="preserve">
+    <value>Save</value>
+  </data>
+  <data name="Click Save to create the framework." xml:space="preserve">
+    <value>Click Save to create the framework.</value>
+  </data>
+  <data name="Method 2: Comprehensive Creation" xml:space="preserve">
+    <value>Method 2: Comprehensive Creation</value>
+  </data>
+  <data name="Use the comprehensive creation form to build an entire framework hierarchy at once, including outcomes, outputs, sub-outputs, and indicators." xml:space="preserve">
+    <value>Use the comprehensive creation form to build an entire framework hierarchy at once, including outcomes, outputs, sub-outputs, and indicators.</value>
+  </data>
+  <data name="Comprehensive Framework Creation Screenshot" xml:space="preserve">
+    <value>Comprehensive Framework Creation Screenshot</value>
+  </data>
+  <data name="Screenshot: Comprehensive Framework Creation" xml:space="preserve">
+    <value>Screenshot: Comprehensive Framework Creation</value>
+  </data>
+  <data name="Figure 4.2: Comprehensive Framework Creation Form" xml:space="preserve">
+    <value>Figure 4.2: Comprehensive Framework Creation Form</value>
+  </data>
+  <data name="4.4 Editing &amp; Deleting Frameworks" xml:space="preserve">
+    <value>4.4 Editing &amp; Deleting Frameworks</value>
+  </data>
+  <data name="To edit a framework name, click the edit icon next to the framework name. To delete, click the delete icon and confirm the deletion." xml:space="preserve">
+    <value>To edit a framework name, click the edit icon next to the framework name. To delete, click the delete icon and confirm the deletion.</value>
+  </data>
+  <data name="Warning" xml:space="preserve">
+    <value>Warning</value>
+  </data>
+  <data name="Deleting a framework will remove all associated outcomes, outputs, sub-outputs, and indicators. This action cannot be undone." xml:space="preserve">
+    <value>Deleting a framework will remove all associated outcomes, outputs, sub-outputs, and indicators. This action cannot be undone.</value>
+  </data>
+  <data name="4.5 Exporting Frameworks" xml:space="preserve">
+    <value>4.5 Exporting Frameworks</value>
+  </data>
+  <data name="Export framework data to Excel or PDF using the export buttons at the top of the frameworks list." xml:space="preserve">
+    <value>Export framework data to Excel or PDF using the export buttons at the top of the frameworks list.</value>
+  </data>
+  <data name="Framework Export Screenshot" xml:space="preserve">
+    <value>Framework Export Screenshot</value>
+  </data>
+  <data name="Screenshot: Framework Export Buttons" xml:space="preserve">
+    <value>Screenshot: Framework Export Buttons</value>
+  </data>
+  <data name="Figure 4.3: Export Framework Data" xml:space="preserve">
+    <value>Figure 4.3: Export Framework Data</value>
+  </data>
+  <data name="4.6 Tree View" xml:space="preserve">
+    <value>4.6 Tree View</value>
+  </data>
+  <data name="View the complete framework hierarchy as an interactive tree. Expand or collapse nodes to explore the structure." xml:space="preserve">
+    <value>View the complete framework hierarchy as an interactive tree. Expand or collapse nodes to explore the structure.</value>
+  </data>
+  <data name="Framework Tree View Screenshot" xml:space="preserve">
+    <value>Framework Tree View Screenshot</value>
+  </data>
+  <data name="Screenshot: Framework Tree View" xml:space="preserve">
+    <value>Screenshot: Framework Tree View</value>
+  </data>
+  <data name="Figure 4.4: Interactive Framework Tree" xml:space="preserve">
+    <value>Figure 4.4: Interactive Framework Tree</value>
+  </data>
+  <!-- Section 5: Outcomes -->
+  <data name="Outcomes represent the high-level results expected from each framework. Each framework contains multiple outcomes." xml:space="preserve">
+    <value>Outcomes represent the high-level results expected from each framework. Each framework contains multiple outcomes.</value>
+  </data>
+  <data name="5.1 Viewing Outcomes" xml:space="preserve">
+    <value>5.1 Viewing Outcomes</value>
+  </data>
+  <data name="Select a framework from the dropdown to view its outcomes. Each outcome shows its name, performance rate, and weight." xml:space="preserve">
+    <value>Select a framework from the dropdown to view its outcomes. Each outcome shows its name, performance rate, and weight.</value>
+  </data>
+  <data name="Outcomes List Screenshot" xml:space="preserve">
+    <value>Outcomes List Screenshot</value>
+  </data>
+  <data name="Screenshot: Outcomes List" xml:space="preserve">
+    <value>Screenshot: Outcomes List</value>
+  </data>
+  <data name="Figure 5.1: Outcomes List for a Framework" xml:space="preserve">
+    <value>Figure 5.1: Outcomes List for a Framework</value>
+  </data>
+  <data name="5.2 Creating Outcomes" xml:space="preserve">
+    <value>5.2 Creating Outcomes</value>
+  </data>
+  <data name="Select Framework" xml:space="preserve">
+    <value>Select Framework</value>
+  </data>
+  <data name="Choose the parent framework from the dropdown." xml:space="preserve">
+    <value>Choose the parent framework from the dropdown.</value>
+  </data>
+  <data name="Click Add New Outcome" xml:space="preserve">
+    <value>Click Add New Outcome</value>
+  </data>
+  <data name="Click the add button and enter the outcome name in the inline form." xml:space="preserve">
+    <value>Click the add button and enter the outcome name in the inline form.</value>
+  </data>
+  <data name="Click Save to create the outcome under the selected framework." xml:space="preserve">
+    <value>Click Save to create the outcome under the selected framework.</value>
+  </data>
+  <data name="5.3 Adjusting Outcome Weights" xml:space="preserve">
+    <value>5.3 Adjusting Outcome Weights</value>
+  </data>
+  <data name="Weights determine how much each outcome contributes to the overall framework performance. To adjust weights:" xml:space="preserve">
+    <value>Weights determine how much each outcome contributes to the overall framework performance. To adjust weights:</value>
+  </data>
+  <data name="Click Adjust Weights" xml:space="preserve">
+    <value>Click Adjust Weights</value>
+  </data>
+  <data name="Click the 'Adjust Weights' button on the outcomes page." xml:space="preserve">
+    <value>Click the 'Adjust Weights' button on the outcomes page.</value>
+  </data>
+  <data name="Set Weight Values" xml:space="preserve">
+    <value>Set Weight Values</value>
+  </data>
+  <data name="Enter weight values for each outcome. Weights should total 100%." xml:space="preserve">
+    <value>Enter weight values for each outcome. Weights should total 100%.</value>
+  </data>
+  <data name="Save Weights" xml:space="preserve">
+    <value>Save Weights</value>
+  </data>
+  <data name="Click Save to apply the new weights." xml:space="preserve">
+    <value>Click Save to apply the new weights.</value>
+  </data>
+  <data name="Outcomes Weights Screenshot" xml:space="preserve">
+    <value>Outcomes Weights Screenshot</value>
+  </data>
+  <data name="Screenshot: Adjust Outcome Weights" xml:space="preserve">
+    <value>Screenshot: Adjust Outcome Weights</value>
+  </data>
+  <data name="Figure 5.2: Outcome Weight Adjustment" xml:space="preserve">
+    <value>Figure 5.2: Outcome Weight Adjustment</value>
+  </data>
+  <!-- Section 6: Outputs & SubOutputs -->
+  <data name="Outputs are the deliverables under each outcome. SubOutputs provide further breakdown of outputs." xml:space="preserve">
+    <value>Outputs are the deliverables under each outcome. SubOutputs provide further breakdown of outputs.</value>
+  </data>
+  <data name="6.1 Managing Outputs" xml:space="preserve">
+    <value>6.1 Managing Outputs</value>
+  </data>
+  <data name="Filter outputs by framework and outcome. Each output displays its name, performance, and weight." xml:space="preserve">
+    <value>Filter outputs by framework and outcome. Each output displays its name, performance, and weight.</value>
+  </data>
+  <data name="Outputs List Screenshot" xml:space="preserve">
+    <value>Outputs List Screenshot</value>
+  </data>
+  <data name="Screenshot: Outputs List" xml:space="preserve">
+    <value>Screenshot: Outputs List</value>
+  </data>
+  <data name="Figure 6.1: Outputs List View" xml:space="preserve">
+    <value>Figure 6.1: Outputs List View</value>
+  </data>
+  <data name="6.2 Creating Outputs" xml:space="preserve">
+    <value>6.2 Creating Outputs</value>
+  </data>
+  <data name="Select Framework and Outcome" xml:space="preserve">
+    <value>Select Framework and Outcome</value>
+  </data>
+  <data name="Choose the parent framework and outcome from the dropdowns." xml:space="preserve">
+    <value>Choose the parent framework and outcome from the dropdowns.</value>
+  </data>
+  <data name="Add New Output" xml:space="preserve">
+    <value>Add New Output</value>
+  </data>
+  <data name="Enter the output name in the inline creation form and click Save." xml:space="preserve">
+    <value>Enter the output name in the inline creation form and click Save.</value>
+  </data>
+  <data name="6.3 Managing SubOutputs" xml:space="preserve">
+    <value>6.3 Managing SubOutputs</value>
+  </data>
+  <data name="SubOutputs provide additional detail under outputs. They work the same way as outputs with inline creation, editing, and weight adjustment." xml:space="preserve">
+    <value>SubOutputs provide additional detail under outputs. They work the same way as outputs with inline creation, editing, and weight adjustment.</value>
+  </data>
+  <data name="SubOutputs List Screenshot" xml:space="preserve">
+    <value>SubOutputs List Screenshot</value>
+  </data>
+  <data name="Screenshot: SubOutputs List" xml:space="preserve">
+    <value>Screenshot: SubOutputs List</value>
+  </data>
+  <data name="Figure 6.2: SubOutputs Management" xml:space="preserve">
+    <value>Figure 6.2: SubOutputs Management</value>
+  </data>
+  <data name="6.4 Adjusting Output/SubOutput Weights" xml:space="preserve">
+    <value>6.4 Adjusting Output/SubOutput Weights</value>
+  </data>
+  <data name="Like outcomes, outputs and sub-outputs have weights that determine their contribution to the parent level performance. Use the Adjust Weights button to modify." xml:space="preserve">
+    <value>Like outcomes, outputs and sub-outputs have weights that determine their contribution to the parent level performance. Use the Adjust Weights button to modify.</value>
+  </data>
+  <data name="6.5 Projects List by SubOutput" xml:space="preserve">
+    <value>6.5 Projects List by SubOutput</value>
+  </data>
+  <data name="View all projects linked to a specific sub-output. This view can also be exported to Excel or PDF." xml:space="preserve">
+    <value>View all projects linked to a specific sub-output. This view can also be exported to Excel or PDF.</value>
+  </data>
+  <data name="SubOutput Projects Screenshot" xml:space="preserve">
+    <value>SubOutput Projects Screenshot</value>
+  </data>
+  <data name="Screenshot: Projects by SubOutput" xml:space="preserve">
+    <value>Screenshot: Projects by SubOutput</value>
+  </data>
+  <data name="Figure 6.3: Projects Linked to SubOutput" xml:space="preserve">
+    <value>Figure 6.3: Projects Linked to SubOutput</value>
+  </data>
+  <!-- Section 7: Indicators -->
+  <data name="Indicators measure the performance and progress of projects and strategic objectives. They are linked to sub-outputs and have measurable targets." xml:space="preserve">
+    <value>Indicators measure the performance and progress of projects and strategic objectives. They are linked to sub-outputs and have measurable targets.</value>
+  </data>
+  <data name="7.1 Understanding Indicators" xml:space="preserve">
+    <value>7.1 Understanding Indicators</value>
+  </data>
+  <data name="Key Indicator Components" xml:space="preserve">
+    <value>Key Indicator Components</value>
+  </data>
+  <data name="Baseline" xml:space="preserve">
+    <value>Baseline</value>
+  </data>
+  <data name="Starting value before intervention" xml:space="preserve">
+    <value>Starting value before intervention</value>
+  </data>
+  <data name="Target" xml:space="preserve">
+    <value>Target</value>
+  </data>
+  <data name="Goal value to achieve" xml:space="preserve">
+    <value>Goal value to achieve</value>
+  </data>
+  <data name="Actual" xml:space="preserve">
+    <value>Actual</value>
+  </data>
+  <data name="Current measured value" xml:space="preserve">
+    <value>Current measured value</value>
+  </data>
+  <data name="Weight" xml:space="preserve">
+    <value>Weight</value>
+  </data>
+  <data name="Importance factor for performance calculations" xml:space="preserve">
+    <value>Importance factor for performance calculations</value>
+  </data>
+  <data name="Trend" xml:space="preserve">
+    <value>Trend</value>
+  </data>
+  <data name="Whether increasing or decreasing value is positive" xml:space="preserve">
+    <value>Whether increasing or decreasing value is positive</value>
+  </data>
+  <data name="7.2 Viewing Indicators" xml:space="preserve">
+    <value>7.2 Viewing Indicators</value>
+  </data>
+  <data name="Filter indicators by framework and sub-output, or search by name." xml:space="preserve">
+    <value>Filter indicators by framework and sub-output, or search by name.</value>
+  </data>
+  <data name="Indicators List Screenshot" xml:space="preserve">
+    <value>Indicators List Screenshot</value>
+  </data>
+  <data name="Screenshot: Indicators List" xml:space="preserve">
+    <value>Screenshot: Indicators List</value>
+  </data>
+  <data name="Figure 7.1: Indicators List View" xml:space="preserve">
+    <value>Figure 7.1: Indicators List View</value>
+  </data>
+  <data name="7.3 Creating Indicators" xml:space="preserve">
+    <value>7.3 Creating Indicators</value>
+  </data>
+  <data name="Navigate to Indicators" xml:space="preserve">
+    <value>Navigate to Indicators</value>
+  </data>
+  <data name="Go to the Indicators page and select the target framework/sub-output." xml:space="preserve">
+    <value>Go to the Indicators page and select the target framework/sub-output.</value>
+  </data>
+  <data name="Add Indicator" xml:space="preserve">
+    <value>Add Indicator</value>
+  </data>
+  <data name="Use inline creation or the full form to enter indicator details including name, baseline, target, and weight." xml:space="preserve">
+    <value>Use inline creation or the full form to enter indicator details including name, baseline, target, and weight.</value>
+  </data>
+  <data name="Save the indicator. It will automatically appear in the hierarchy." xml:space="preserve">
+    <value>Save the indicator. It will automatically appear in the hierarchy.</value>
+  </data>
+  <data name="Create Indicator Screenshot" xml:space="preserve">
+    <value>Create Indicator Screenshot</value>
+  </data>
+  <data name="Screenshot: Create Indicator Form" xml:space="preserve">
+    <value>Screenshot: Create Indicator Form</value>
+  </data>
+  <data name="Figure 7.2: Indicator Creation Form" xml:space="preserve">
+    <value>Figure 7.2: Indicator Creation Form</value>
+  </data>
+  <data name="7.4 Indicator Details &amp; Charts" xml:space="preserve">
+    <value>7.4 Indicator Details &amp; Charts</value>
+  </data>
+  <data name="View detailed indicator information including performance charts, linked projects, and measurement history." xml:space="preserve">
+    <value>View detailed indicator information including performance charts, linked projects, and measurement history.</value>
+  </data>
+  <data name="Indicator Details Screenshot" xml:space="preserve">
+    <value>Indicator Details Screenshot</value>
+  </data>
+  <data name="Screenshot: Indicator Details with Chart" xml:space="preserve">
+    <value>Screenshot: Indicator Details with Chart</value>
+  </data>
+  <data name="Figure 7.3: Indicator Details Page" xml:space="preserve">
+    <value>Figure 7.3: Indicator Details Page</value>
+  </data>
+  <data name="7.5 Indicators &amp; Projects View" xml:space="preserve">
+    <value>7.5 Indicators &amp; Projects View</value>
+  </data>
+  <data name="View the relationship between indicators and their linked projects in a combined table or detailed view." xml:space="preserve">
+    <value>View the relationship between indicators and their linked projects in a combined table or detailed view.</value>
+  </data>
+  <data name="Indicators and Projects Screenshot" xml:space="preserve">
+    <value>Indicators and Projects Screenshot</value>
+  </data>
+  <data name="Screenshot: Indicators &amp; Projects Combined View" xml:space="preserve">
+    <value>Screenshot: Indicators &amp; Projects Combined View</value>
+  </data>
+  <data name="Figure 7.4: Indicators &amp; Projects View" xml:space="preserve">
+    <value>Figure 7.4: Indicators &amp; Projects View</value>
+  </data>
+  <data name="7.6 Measures" xml:space="preserve">
+    <value>7.6 Measures</value>
+  </data>
+  <data name="Measures link projects to indicators with planned and realized values. To add a measure:" xml:space="preserve">
+    <value>Measures link projects to indicators with planned and realized values. To add a measure:</value>
+  </data>
+  <data name="Open Indicator Details" xml:space="preserve">
+    <value>Open Indicator Details</value>
+  </data>
+  <data name="Navigate to the indicator you want to add a measure for." xml:space="preserve">
+    <value>Navigate to the indicator you want to add a measure for.</value>
+  </data>
+  <data name="Add Measure" xml:space="preserve">
+    <value>Add Measure</value>
+  </data>
+  <data name="Click 'Add Measure' and select the project, then enter planned and realized values." xml:space="preserve">
+    <value>Click 'Add Measure' and select the project, then enter planned and realized values.</value>
+  </data>
+  <data name="View Performance" xml:space="preserve">
+    <value>View Performance</value>
+  </data>
+  <data name="Performance will automatically recalculate based on the new measure." xml:space="preserve">
+    <value>Performance will automatically recalculate based on the new measure.</value>
+  </data>
+  <!-- Section 8: Framework Goals -->
+  <data name="Framework Goals allow you to set and track yearly targets for each framework. Multiple visualization views are available." xml:space="preserve">
+    <value>Framework Goals allow you to set and track yearly targets for each framework. Multiple visualization views are available.</value>
+  </data>
+  <data name="8.1 Goal Visualization Views" xml:space="preserve">
+    <value>8.1 Goal Visualization Views</value>
+  </data>
+  <data name="Progress View" xml:space="preserve">
+    <value>Progress View</value>
+  </data>
+  <data name="Progress bars showing completion percentage." xml:space="preserve">
+    <value>Progress bars showing completion percentage.</value>
+  </data>
+  <data name="Circular Gauge" xml:space="preserve">
+    <value>Circular Gauge</value>
+  </data>
+  <data name="Circular gauge visualization of goal achievement." xml:space="preserve">
+    <value>Circular gauge visualization of goal achievement.</value>
+  </data>
+  <data name="Timeline View" xml:space="preserve">
+    <value>Timeline View</value>
+  </data>
+  <data name="Goals displayed on a timeline." xml:space="preserve">
+    <value>Goals displayed on a timeline.</value>
+  </data>
+  <data name="Charts View" xml:space="preserve">
+    <value>Charts View</value>
+  </data>
+  <data name="Bar and line chart comparisons." xml:space="preserve">
+    <value>Bar and line chart comparisons.</value>
+  </data>
+  <data name="Framework Goals Progress Screenshot" xml:space="preserve">
+    <value>Framework Goals Progress Screenshot</value>
+  </data>
+  <data name="Screenshot: Framework Goals Progress View" xml:space="preserve">
+    <value>Screenshot: Framework Goals Progress View</value>
+  </data>
+  <data name="Figure 8.1: Framework Goals Progress View" xml:space="preserve">
+    <value>Figure 8.1: Framework Goals Progress View</value>
+  </data>
+  <data name="8.2 Managing Goals" xml:space="preserve">
+    <value>8.2 Managing Goals</value>
+  </data>
+  <data name="Create Goal" xml:space="preserve">
+    <value>Create Goal</value>
+  </data>
+  <data name="Add a new goal with name, expected value, and direction (increase/decrease)." xml:space="preserve">
+    <value>Add a new goal with name, expected value, and direction (increase/decrease).</value>
+  </data>
+  <data name="Set Yearly Values" xml:space="preserve">
+    <value>Set Yearly Values</value>
+  </data>
+  <data name="Enter expected and actual values for each year." xml:space="preserve">
+    <value>Enter expected and actual values for each year.</value>
+  </data>
+  <data name="Track Progress" xml:space="preserve">
+    <value>Track Progress</value>
+  </data>
+  <data name="Monitor goal progress through the various visualization views." xml:space="preserve">
+    <value>Monitor goal progress through the various visualization views.</value>
+  </data>
+  <data name="Framework Goals Timeline Screenshot" xml:space="preserve">
+    <value>Framework Goals Timeline Screenshot</value>
+  </data>
+  <data name="Screenshot: Framework Goals Timeline" xml:space="preserve">
+    <value>Screenshot: Framework Goals Timeline</value>
+  </data>
+  <data name="Figure 8.2: Framework Goals Timeline View" xml:space="preserve">
+    <value>Figure 8.2: Framework Goals Timeline View</value>
+  </data>
+  <!-- Section 9: Set Up -->
+  <data name="The Set Up section manages all reference data needed for projects: Ministries, Donors, Sectors, Project Managers, Supervisors, and Locations." xml:space="preserve">
+    <value>The Set Up section manages all reference data needed for projects: Ministries, Donors, Sectors, Project Managers, Supervisors, and Locations.</value>
+  </data>
+  <data name="9.1 Ministries &amp; Agencies" xml:space="preserve">
+    <value>9.1 Ministries &amp; Agencies</value>
+  </data>
+  <data name="Manage government ministries and agencies responsible for development projects. Each ministry shows its linked projects and performance." xml:space="preserve">
+    <value>Manage government ministries and agencies responsible for development projects. Each ministry shows its linked projects and performance.</value>
+  </data>
+  <data name="View Ministries" xml:space="preserve">
+    <value>View Ministries</value>
+  </data>
+  <data name="Navigate to Set Up &gt; Ministries to see all ministries with inline editing." xml:space="preserve">
+    <value>Navigate to Set Up &gt; Ministries to see all ministries with inline editing.</value>
+  </data>
+  <data name="Add Ministry" xml:space="preserve">
+    <value>Add Ministry</value>
+  </data>
+  <data name="Use the inline form to add a new ministry name." xml:space="preserve">
+    <value>Use the inline form to add a new ministry name.</value>
+  </data>
+  <data name="Click on a ministry to see its performance breakdown across all linked projects." xml:space="preserve">
+    <value>Click on a ministry to see its performance breakdown across all linked projects.</value>
+  </data>
+  <data name="Ministries List Screenshot" xml:space="preserve">
+    <value>Ministries List Screenshot</value>
+  </data>
+  <data name="Screenshot: Ministries List" xml:space="preserve">
+    <value>Screenshot: Ministries List</value>
+  </data>
+  <data name="Figure 9.1: Ministries Management" xml:space="preserve">
+    <value>Figure 9.1: Ministries Management</value>
+  </data>
+  <data name="Ministry Performance Screenshot" xml:space="preserve">
+    <value>Ministry Performance Screenshot</value>
+  </data>
+  <data name="Screenshot: Ministry Performance Breakdown" xml:space="preserve">
+    <value>Screenshot: Ministry Performance Breakdown</value>
+  </data>
+  <data name="Figure 9.2: Ministry Performance Breakdown" xml:space="preserve">
+    <value>Figure 9.2: Ministry Performance Breakdown</value>
+  </data>
+  <data name="9.2 Donors &amp; Partners" xml:space="preserve">
+    <value>9.2 Donors &amp; Partners</value>
+  </data>
+  <data name="Track funding sources and partner organizations. Donors are categorized as:" xml:space="preserve">
+    <value>Track funding sources and partner organizations. Donors are categorized as:</value>
+  </data>
+  <data name="United Nations Organizations" xml:space="preserve">
+    <value>United Nations Organizations</value>
+  </data>
+  <data name="International Non-Governmental Organizations" xml:space="preserve">
+    <value>International Non-Governmental Organizations</value>
+  </data>
+  <data name="Bilateral Donors (Countries)" xml:space="preserve">
+    <value>Bilateral Donors (Countries)</value>
+  </data>
+  <data name="Local Organizations" xml:space="preserve">
+    <value>Local Organizations</value>
+  </data>
+  <data name="Donors List Screenshot" xml:space="preserve">
+    <value>Donors List Screenshot</value>
+  </data>
+  <data name="Screenshot: Donors List" xml:space="preserve">
+    <value>Screenshot: Donors List</value>
+  </data>
+  <data name="Figure 9.3: Donors Management" xml:space="preserve">
+    <value>Figure 9.3: Donors Management</value>
+  </data>
+  <data name="9.3 Sectors" xml:space="preserve">
+    <value>9.3 Sectors</value>
+  </data>
+  <data name="Organize projects by development sectors: Public, Private, Common, and Domestic." xml:space="preserve">
+    <value>Organize projects by development sectors: Public, Private, Common, and Domestic.</value>
+  </data>
+  <data name="Sectors List Screenshot" xml:space="preserve">
+    <value>Sectors List Screenshot</value>
+  </data>
+  <data name="Screenshot: Sectors List" xml:space="preserve">
+    <value>Screenshot: Sectors List</value>
+  </data>
+  <data name="Figure 9.4: Sectors Management" xml:space="preserve">
+    <value>Figure 9.4: Sectors Management</value>
+  </data>
+  <data name="9.4 Project Managers" xml:space="preserve">
+    <value>9.4 Project Managers</value>
+  </data>
+  <data name="Manage project manager contacts. Each manager can be linked to multiple projects." xml:space="preserve">
+    <value>Manage project manager contacts. Each manager can be linked to multiple projects.</value>
+  </data>
+  <data name="Project Managers Screenshot" xml:space="preserve">
+    <value>Project Managers Screenshot</value>
+  </data>
+  <data name="Screenshot: Project Managers List" xml:space="preserve">
+    <value>Screenshot: Project Managers List</value>
+  </data>
+  <data name="Figure 9.5: Project Managers" xml:space="preserve">
+    <value>Figure 9.5: Project Managers</value>
+  </data>
+  <data name="9.5 Supervisors" xml:space="preserve">
+    <value>9.5 Supervisors</value>
+  </data>
+  <data name="Manage supervisors who oversee project implementation." xml:space="preserve">
+    <value>Manage supervisors who oversee project implementation.</value>
+  </data>
+  <data name="Supervisors Screenshot" xml:space="preserve">
+    <value>Supervisors Screenshot</value>
+  </data>
+  <data name="Screenshot: Supervisors List" xml:space="preserve">
+    <value>Screenshot: Supervisors List</value>
+  </data>
+  <data name="Figure 9.6: Supervisors Management" xml:space="preserve">
+    <value>Figure 9.6: Supervisors Management</value>
+  </data>
+  <data name="9.6 Locations" xml:space="preserve">
+    <value>9.6 Locations</value>
+  </data>
+  <data name="Manage the geographic hierarchy for project distribution:" xml:space="preserve">
+    <value>Manage the geographic hierarchy for project distribution:</value>
+  </data>
+  <data name="Governorate" xml:space="preserve">
+    <value>Governorate</value>
+  </data>
+  <data name="District" xml:space="preserve">
+    <value>District</value>
+  </data>
+  <data name="Sub-District" xml:space="preserve">
+    <value>Sub-District</value>
+  </data>
+  <data name="Community" xml:space="preserve">
+    <value>Community</value>
+  </data>
+  <data name="Locations Management Screenshot" xml:space="preserve">
+    <value>Locations Management Screenshot</value>
+  </data>
+  <data name="Screenshot: Locations Management" xml:space="preserve">
+    <value>Screenshot: Locations Management</value>
+  </data>
+  <data name="Figure 9.7: Location Hierarchy Management" xml:space="preserve">
+    <value>Figure 9.7: Location Hierarchy Management</value>
+  </data>
+  <!-- Section 10: Projects -->
+  <data name="The Projects module is the core of the platform, allowing you to manage all development projects from initiation to completion." xml:space="preserve">
+    <value>The Projects module is the core of the platform, allowing you to manage all development projects from initiation to completion.</value>
+  </data>
+  <data name="10.1 Projects List" xml:space="preserve">
+    <value>10.1 Projects List</value>
+  </data>
+  <data name="View all projects with advanced filtering and sorting options." xml:space="preserve">
+    <value>View all projects with advanced filtering and sorting options.</value>
+  </data>
+  <data name="Projects List Screenshot" xml:space="preserve">
+    <value>Projects List Screenshot</value>
+  </data>
+  <data name="Screenshot: Projects List" xml:space="preserve">
+    <value>Screenshot: Projects List</value>
+  </data>
+  <data name="Figure 10.1: Projects List with Filters" xml:space="preserve">
+    <value>Figure 10.1: Projects List with Filters</value>
+  </data>
+  <data name="10.2 Filtering Projects" xml:space="preserve">
+    <value>10.2 Filtering Projects</value>
+  </data>
+  <data name="Use the filter panel to narrow down projects by:" xml:space="preserve">
+    <value>Use the filter panel to narrow down projects by:</value>
+  </data>
+  <data name="Ministry/Agency" xml:space="preserve">
+    <value>Ministry/Agency</value>
+  </data>
+  <data name="Donor" xml:space="preserve">
+    <value>Donor</value>
+  </data>
+  <data name="Sector" xml:space="preserve">
+    <value>Sector</value>
+  </data>
+  <data name="Location (Governorate/District/SubDistrict/Community)" xml:space="preserve">
+    <value>Location (Governorate/District/SubDistrict/Community)</value>
+  </data>
+  <data name="Status" xml:space="preserve">
+    <value>Status</value>
+  </data>
+  <data name="Date Range" xml:space="preserve">
+    <value>Date Range</value>
+  </data>
+  <data name="Projects Filters Screenshot" xml:space="preserve">
+    <value>Projects Filters Screenshot</value>
+  </data>
+  <data name="Screenshot: Project Filter Panel" xml:space="preserve">
+    <value>Screenshot: Project Filter Panel</value>
+  </data>
+  <data name="Figure 10.2: Project Filter Options" xml:space="preserve">
+    <value>Figure 10.2: Project Filter Options</value>
+  </data>
+  <data name="10.3 Creating a Project" xml:space="preserve">
+    <value>10.3 Creating a Project</value>
+  </data>
+  <data name="Click Create New Project" xml:space="preserve">
+    <value>Click Create New Project</value>
+  </data>
+  <data name="Navigate to Projects and click the Create New button." xml:space="preserve">
+    <value>Navigate to Projects and click the Create New button.</value>
+  </data>
+  <data name="Fill Basic Information" xml:space="preserve">
+    <value>Fill Basic Information</value>
+  </data>
+  <data name="Enter project name, description, start/end dates, and budget." xml:space="preserve">
+    <value>Enter project name, description, start/end dates, and budget.</value>
+  </data>
+  <data name="Select Related Entities" xml:space="preserve">
+    <value>Select Related Entities</value>
+  </data>
+  <data name="Choose ministries, donors, sectors, locations, and indicators linked to this project." xml:space="preserve">
+    <value>Choose ministries, donors, sectors, locations, and indicators linked to this project.</value>
+  </data>
+  <data name="Attach Files" xml:space="preserve">
+    <value>Attach Files</value>
+  </data>
+  <data name="Optionally upload supporting documents and files." xml:space="preserve">
+    <value>Optionally upload supporting documents and files.</value>
+  </data>
+  <data name="Save Project" xml:space="preserve">
+    <value>Save Project</value>
+  </data>
+  <data name="Review all information and click Save." xml:space="preserve">
+    <value>Review all information and click Save.</value>
+  </data>
+  <data name="Create Project Screenshot" xml:space="preserve">
+    <value>Create Project Screenshot</value>
+  </data>
+  <data name="Screenshot: Create Project Form" xml:space="preserve">
+    <value>Screenshot: Create Project Form</value>
+  </data>
+  <data name="Figure 10.3: Project Creation Form" xml:space="preserve">
+    <value>Figure 10.3: Project Creation Form</value>
+  </data>
+  <data name="10.4 Project Details" xml:space="preserve">
+    <value>10.4 Project Details</value>
+  </data>
+  <data name="View comprehensive project information including:" xml:space="preserve">
+    <value>View comprehensive project information including:</value>
+  </data>
+  <data name="Basic Information" xml:space="preserve">
+    <value>Basic Information</value>
+  </data>
+  <data name="Name, description, dates, budget, and status." xml:space="preserve">
+    <value>Name, description, dates, budget, and status.</value>
+  </data>
+  <data name="Performance Metrics" xml:space="preserve">
+    <value>Performance Metrics</value>
+  </data>
+  <data name="Financial, physical, disbursement, field monitoring, and impact assessment." xml:space="preserve">
+    <value>Financial, physical, disbursement, field monitoring, and impact assessment.</value>
+  </data>
+  <data name="Stakeholders" xml:space="preserve">
+    <value>Stakeholders</value>
+  </data>
+  <data name="Linked ministries, donors, sectors, and partners." xml:space="preserve">
+    <value>Linked ministries, donors, sectors, and partners.</value>
+  </data>
+  <data name="Attached Files" xml:space="preserve">
+    <value>Attached Files</value>
+  </data>
+  <data name="Download or view uploaded project documents." xml:space="preserve">
+    <value>Download or view uploaded project documents.</value>
+  </data>
+  <data name="Project Details Screenshot" xml:space="preserve">
+    <value>Project Details Screenshot</value>
+  </data>
+  <data name="Screenshot: Project Details" xml:space="preserve">
+    <value>Screenshot: Project Details</value>
+  </data>
+  <data name="Figure 10.4: Project Details Page" xml:space="preserve">
+    <value>Figure 10.4: Project Details Page</value>
+  </data>
+  <data name="10.5 Linking Projects to Indicators" xml:space="preserve">
+    <value>10.5 Linking Projects to Indicators</value>
+  </data>
+  <data name="Connect a project to one or more indicators to track its contribution to strategic objectives." xml:space="preserve">
+    <value>Connect a project to one or more indicators to track its contribution to strategic objectives.</value>
+  </data>
+  <data name="Link Indicators Screenshot" xml:space="preserve">
+    <value>Link Indicators Screenshot</value>
+  </data>
+  <data name="Screenshot: Link Project to Indicators" xml:space="preserve">
+    <value>Screenshot: Link Project to Indicators</value>
+  </data>
+  <data name="Figure 10.5: Linking Projects to Indicators" xml:space="preserve">
+    <value>Figure 10.5: Linking Projects to Indicators</value>
+  </data>
+  <!-- Section 11: Plans & Activities -->
+  <data name="Plans and Activities provide detailed tracking of project implementation at the operational level." xml:space="preserve">
+    <value>Plans and Activities provide detailed tracking of project implementation at the operational level.</value>
+  </data>
+  <data name="11.1 Action Plans" xml:space="preserve">
+    <value>11.1 Action Plans</value>
+  </data>
+  <data name="Action plans organize project work into manageable groups of activities." xml:space="preserve">
+    <value>Action plans organize project work into manageable groups of activities.</value>
+  </data>
+  <data name="Action Plans Screenshot" xml:space="preserve">
+    <value>Action Plans Screenshot</value>
+  </data>
+  <data name="Screenshot: Action Plans" xml:space="preserve">
+    <value>Screenshot: Action Plans</value>
+  </data>
+  <data name="Figure 11.1: Action Plans View" xml:space="preserve">
+    <value>Figure 11.1: Action Plans View</value>
+  </data>
+  <data name="11.2 Activities" xml:space="preserve">
+    <value>11.2 Activities</value>
+  </data>
+  <data name="Activities are the specific tasks within an action plan. Each activity has its own set of plans." xml:space="preserve">
+    <value>Activities are the specific tasks within an action plan. Each activity has its own set of plans.</value>
+  </data>
+  <data name="Navigate to Activity" xml:space="preserve">
+    <value>Navigate to Activity</value>
+  </data>
+  <data name="Open the project and go to its action plan, then select an activity." xml:space="preserve">
+    <value>Open the project and go to its action plan, then select an activity.</value>
+  </data>
+  <data name="Create Activity" xml:space="preserve">
+    <value>Create Activity</value>
+  </data>
+  <data name="Click Create New Activity and fill in the name and details." xml:space="preserve">
+    <value>Click Create New Activity and fill in the name and details.</value>
+  </data>
+  <data name="Activities Screenshot" xml:space="preserve">
+    <value>Activities Screenshot</value>
+  </data>
+  <data name="Screenshot: Activities List" xml:space="preserve">
+    <value>Screenshot: Activities List</value>
+  </data>
+  <data name="Figure 11.2: Activities Management" xml:space="preserve">
+    <value>Figure 11.2: Activities Management</value>
+  </data>
+  <data name="11.3 Plan Types" xml:space="preserve">
+    <value>11.3 Plan Types</value>
+  </data>
+  <data name="Each activity can have multiple plan types with planned and realized values:" xml:space="preserve">
+    <value>Each activity can have multiple plan types with planned and realized values:</value>
+  </data>
+  <data name="Financial" xml:space="preserve">
+    <value>Financial</value>
+  </data>
+  <data name="Budget allocation and spending tracking." xml:space="preserve">
+    <value>Budget allocation and spending tracking.</value>
+  </data>
+  <data name="Physical" xml:space="preserve">
+    <value>Physical</value>
+  </data>
+  <data name="Physical progress of deliverables." xml:space="preserve">
+    <value>Physical progress of deliverables.</value>
+  </data>
+  <data name="Disbursement" xml:space="preserve">
+    <value>Disbursement</value>
+  </data>
+  <data name="Fund disbursement performance." xml:space="preserve">
+    <value>Fund disbursement performance.</value>
+  </data>
+  <data name="Field Monitoring" xml:space="preserve">
+    <value>Field Monitoring</value>
+  </data>
+  <data name="On-site verification and monitoring results." xml:space="preserve">
+    <value>On-site verification and monitoring results.</value>
+  </data>
+  <data name="Impact Assessment" xml:space="preserve">
+    <value>Impact Assessment</value>
+  </data>
+  <data name="A fifth plan type for tracking outcome-level impact evaluation results." xml:space="preserve">
+    <value>A fifth plan type for tracking outcome-level impact evaluation results.</value>
+  </data>
+  <data name="11.4 Updating Plan Values" xml:space="preserve">
+    <value>11.4 Updating Plan Values</value>
+  </data>
+  <data name="Plan values can be updated inline directly in the table:" xml:space="preserve">
+    <value>Plan values can be updated inline directly in the table:</value>
+  </data>
+  <data name="Navigate to Plans" xml:space="preserve">
+    <value>Navigate to Plans</value>
+  </data>
+  <data name="Open the project plans page or activity details." xml:space="preserve">
+    <value>Open the project plans page or activity details.</value>
+  </data>
+  <data name="Click on Value" xml:space="preserve">
+    <value>Click on Value</value>
+  </data>
+  <data name="Click on the planned or realized value cell to edit it." xml:space="preserve">
+    <value>Click on the planned or realized value cell to edit it.</value>
+  </data>
+  <data name="Enter New Value" xml:space="preserve">
+    <value>Enter New Value</value>
+  </data>
+  <data name="Type the new value. Performance calculations update automatically." xml:space="preserve">
+    <value>Type the new value. Performance calculations update automatically.</value>
+  </data>
+  <data name="Plans Update Screenshot" xml:space="preserve">
+    <value>Plans Update Screenshot</value>
+  </data>
+  <data name="Screenshot: Updating Plan Values" xml:space="preserve">
+    <value>Screenshot: Updating Plan Values</value>
+  </data>
+  <data name="Figure 11.3: Inline Plan Value Update" xml:space="preserve">
+    <value>Figure 11.3: Inline Plan Value Update</value>
+  </data>
+  <!-- Section 12: Monitoring -->
+  <data name="The Monitoring section provides real-time performance tracking at every level of the hierarchy." xml:space="preserve">
+    <value>The Monitoring section provides real-time performance tracking at every level of the hierarchy.</value>
+  </data>
+  <data name="12.1 Framework Dashboard" xml:space="preserve">
+    <value>12.1 Framework Dashboard</value>
+  </data>
+  <data name="View all frameworks with their overall performance. Filter by ministry to see ministry-specific results." xml:space="preserve">
+    <value>View all frameworks with their overall performance. Filter by ministry to see ministry-specific results.</value>
+  </data>
+  <data name="Monitoring Framework Screenshot" xml:space="preserve">
+    <value>Monitoring Framework Screenshot</value>
+  </data>
+  <data name="Screenshot: Monitoring Framework Dashboard" xml:space="preserve">
+    <value>Screenshot: Monitoring Framework Dashboard</value>
+  </data>
+  <data name="Figure 12.1: Framework Monitoring Dashboard" xml:space="preserve">
+    <value>Figure 12.1: Framework Monitoring Dashboard</value>
+  </data>
+  <data name="12.2 Monitoring Levels" xml:space="preserve">
+    <value>12.2 Monitoring Levels</value>
+  </data>
+  <data name="Navigate through each level of the hierarchy to see detailed performance:" xml:space="preserve">
+    <value>Navigate through each level of the hierarchy to see detailed performance:</value>
+  </data>
+  <data name="Performance of each outcome within a framework" xml:space="preserve">
+    <value>Performance of each outcome within a framework</value>
+  </data>
+  <data name="Performance of outputs within an outcome" xml:space="preserve">
+    <value>Performance of outputs within an outcome</value>
+  </data>
+  <data name="Performance of sub-outputs within an output" xml:space="preserve">
+    <value>Performance of sub-outputs within an output</value>
+  </data>
+  <data name="Individual indicator measurements and trends" xml:space="preserve">
+    <value>Individual indicator measurements and trends</value>
+  </data>
+  <data name="Project-level performance with hierarchical filters" xml:space="preserve">
+    <value>Project-level performance with hierarchical filters</value>
+  </data>
+  <data name="Monitoring Outcomes Screenshot" xml:space="preserve">
+    <value>Monitoring Outcomes Screenshot</value>
+  </data>
+  <data name="Screenshot: Monitoring Outcomes View" xml:space="preserve">
+    <value>Screenshot: Monitoring Outcomes View</value>
+  </data>
+  <data name="Figure 12.2: Outcome Monitoring" xml:space="preserve">
+    <value>Figure 12.2: Outcome Monitoring</value>
+  </data>
+  <data name="12.3 Project Monitoring" xml:space="preserve">
+    <value>12.3 Project Monitoring</value>
+  </data>
+  <data name="Monitor individual project performance with filters for framework, outcome, output, and sub-output." xml:space="preserve">
+    <value>Monitor individual project performance with filters for framework, outcome, output, and sub-output.</value>
+  </data>
+  <data name="Monitoring Projects Screenshot" xml:space="preserve">
+    <value>Monitoring Projects Screenshot</value>
+  </data>
+  <data name="Screenshot: Project Monitoring" xml:space="preserve">
+    <value>Screenshot: Project Monitoring</value>
+  </data>
+  <data name="Figure 12.3: Project Monitoring View" xml:space="preserve">
+    <value>Figure 12.3: Project Monitoring View</value>
+  </data>
+  <!-- Section 13: Reports & Export -->
+  <data name="Generate comprehensive reports and export data for analysis and stakeholder communication." xml:space="preserve">
+    <value>Generate comprehensive reports and export data for analysis and stakeholder communication.</value>
+  </data>
+  <data name="13.1 Reports Dashboard" xml:space="preserve">
+    <value>13.1 Reports Dashboard</value>
+  </data>
+  <data name="Reports Dashboard Screenshot" xml:space="preserve">
+    <value>Reports Dashboard Screenshot</value>
+  </data>
+  <data name="Screenshot: Reports Dashboard" xml:space="preserve">
+    <value>Screenshot: Reports Dashboard</value>
+  </data>
+  <data name="Figure 13.1: Reports Dashboard" xml:space="preserve">
+    <value>Figure 13.1: Reports Dashboard</value>
+  </data>
+  <data name="13.2 Export Options" xml:space="preserve">
+    <value>13.2 Export Options</value>
+  </data>
+  <data name="Most data views support exporting to Excel and PDF. Export buttons are available on:" xml:space="preserve">
+    <value>Most data views support exporting to Excel and PDF. Export buttons are available on:</value>
+  </data>
+  <data name="Frameworks list" xml:space="preserve">
+    <value>Frameworks list</value>
+  </data>
+  <data name="Outcomes list" xml:space="preserve">
+    <value>Outcomes list</value>
+  </data>
+  <data name="Outputs list" xml:space="preserve">
+    <value>Outputs list</value>
+  </data>
+  <data name="SubOutputs list and projects list" xml:space="preserve">
+    <value>SubOutputs list and projects list</value>
+  </data>
+  <data name="Indicators list" xml:space="preserve">
+    <value>Indicators list</value>
+  </data>
+  <data name="Dashboard views" xml:space="preserve">
+    <value>Dashboard views</value>
+  </data>
+  <data name="Audit logs access" xml:space="preserve">
+    <value>Audit logs access</value>
+  </data>
+  <data name="Excel Export" xml:space="preserve">
+    <value>Excel Export</value>
+  </data>
+  <data name="Excel exports include all visible data with formatting and can be opened in Microsoft Excel or Google Sheets." xml:space="preserve">
+    <value>Excel exports include all visible data with formatting and can be opened in Microsoft Excel or Google Sheets.</value>
+  </data>
+  <data name="PDF Export" xml:space="preserve">
+    <value>PDF Export</value>
+  </data>
+  <data name="PDF exports create formatted, printable documents suitable for sharing with stakeholders." xml:space="preserve">
+    <value>PDF exports create formatted, printable documents suitable for sharing with stakeholders.</value>
+  </data>
+  <!-- Section 14: Administration -->
+  <data name="Admin Only" xml:space="preserve">
+    <value>Admin Only</value>
+  </data>
+  <data name="These features are only available to users with the System Administrator role." xml:space="preserve">
+    <value>These features are only available to users with the System Administrator role.</value>
+  </data>
+  <data name="14.1 User Management" xml:space="preserve">
+    <value>14.1 User Management</value>
+  </data>
+  <data name="Create, edit, and manage user accounts with search, filter, and pagination." xml:space="preserve">
+    <value>Create, edit, and manage user accounts with search, filter, and pagination.</value>
+  </data>
+  <data name="View Users" xml:space="preserve">
+    <value>View Users</value>
+  </data>
+  <data name="Navigate to Admin &gt; Users to see all system users." xml:space="preserve">
+    <value>Navigate to Admin &gt; Users to see all system users.</value>
+  </data>
+  <data name="Create User" xml:space="preserve">
+    <value>Create User</value>
+  </data>
+  <data name="Click Create New User, enter email, password, name, role, and ministry assignment." xml:space="preserve">
+    <value>Click Create New User, enter email, password, name, role, and ministry assignment.</value>
+  </data>
+  <data name="Manage User" xml:space="preserve">
+    <value>Manage User</value>
+  </data>
+  <data name="Edit user details, reset password, or lock/unlock accounts." xml:space="preserve">
+    <value>Edit user details, reset password, or lock/unlock accounts.</value>
+  </data>
+  <data name="User Management Screenshot" xml:space="preserve">
+    <value>User Management Screenshot</value>
+  </data>
+  <data name="Screenshot: User Management" xml:space="preserve">
+    <value>Screenshot: User Management</value>
+  </data>
+  <data name="Figure 14.1: User Management" xml:space="preserve">
+    <value>Figure 14.1: User Management</value>
+  </data>
+  <data name="14.2 Role Management" xml:space="preserve">
+    <value>14.2 Role Management</value>
+  </data>
+  <data name="View all system roles and the users assigned to each role." xml:space="preserve">
+    <value>View all system roles and the users assigned to each role.</value>
+  </data>
+  <data name="Role Management Screenshot" xml:space="preserve">
+    <value>Role Management Screenshot</value>
+  </data>
+  <data name="Screenshot: Role Management" xml:space="preserve">
+    <value>Screenshot: Role Management</value>
+  </data>
+  <data name="Figure 14.2: Role Management" xml:space="preserve">
+    <value>Figure 14.2: Role Management</value>
+  </data>
+  <data name="14.3 Formulas Documentation" xml:space="preserve">
+    <value>14.3 Formulas Documentation</value>
+  </data>
+  <data name="View all calculation formulas used in the platform for performance metrics." xml:space="preserve">
+    <value>View all calculation formulas used in the platform for performance metrics.</value>
+  </data>
+  <data name="Formulas Screenshot" xml:space="preserve">
+    <value>Formulas Screenshot</value>
+  </data>
+  <data name="Screenshot: Formulas Documentation" xml:space="preserve">
+    <value>Screenshot: Formulas Documentation</value>
+  </data>
+  <data name="Figure 14.3: Performance Formulas" xml:space="preserve">
+    <value>Figure 14.3: Performance Formulas</value>
+  </data>
+  <!-- Section 15: Data Management -->
+  <data name="Caution" xml:space="preserve">
+    <value>Caution</value>
+  </data>
+  <data name="Data Management operations are powerful and some are irreversible. They are password-protected and restricted to System Administrators only." xml:space="preserve">
+    <value>Data Management operations are powerful and some are irreversible. They are password-protected and restricted to System Administrators only.</value>
+  </data>
+  <data name="15.1 Database Backup" xml:space="preserve">
+    <value>15.1 Database Backup</value>
+  </data>
+  <data name="Create a backup of the entire database for disaster recovery." xml:space="preserve">
+    <value>Create a backup of the entire database for disaster recovery.</value>
+  </data>
+  <data name="Database Backup Screenshot" xml:space="preserve">
+    <value>Database Backup Screenshot</value>
+  </data>
+  <data name="Screenshot: Database Backup" xml:space="preserve">
+    <value>Screenshot: Database Backup</value>
+  </data>
+  <data name="Figure 15.1: Database Backup Interface" xml:space="preserve">
+    <value>Figure 15.1: Database Backup Interface</value>
+  </data>
+  <data name="15.2 Clear Data" xml:space="preserve">
+    <value>15.2 Clear Data</value>
+  </data>
+  <data name="Selectively clear data by groups (e.g., projects, plans, measures) while preserving system configuration." xml:space="preserve">
+    <value>Selectively clear data by groups (e.g., projects, plans, measures) while preserving system configuration.</value>
+  </data>
+  <data name="15.3 Delete Projects" xml:space="preserve">
+    <value>15.3 Delete Projects</value>
+  </data>
+  <data name="Bulk delete selected projects and all their associated data (action plans, activities, plans)." xml:space="preserve">
+    <value>Bulk delete selected projects and all their associated data (action plans, activities, plans).</value>
+  </data>
+  <data name="15.4 Reset Values" xml:space="preserve">
+    <value>15.4 Reset Values</value>
+  </data>
+  <data name="Reset all performance values across the hierarchy while keeping the structure intact." xml:space="preserve">
+    <value>Reset all performance values across the hierarchy while keeping the structure intact.</value>
+  </data>
+  <data name="Data Management Hub Screenshot" xml:space="preserve">
+    <value>Data Management Hub Screenshot</value>
+  </data>
+  <data name="Screenshot: Data Management Hub" xml:space="preserve">
+    <value>Screenshot: Data Management Hub</value>
+  </data>
+  <data name="Figure 15.2: Data Management Hub" xml:space="preserve">
+    <value>Figure 15.2: Data Management Hub</value>
+  </data>
+  <!-- Section 16: Audit Logs -->
+  <data name="The Audit Log system tracks all changes made in the platform for accountability and transparency." xml:space="preserve">
+    <value>The Audit Log system tracks all changes made in the platform for accountability and transparency.</value>
+  </data>
+  <data name="16.1 Viewing Audit Logs" xml:space="preserve">
+    <value>16.1 Viewing Audit Logs</value>
+  </data>
+  <data name="Filter audit logs by:" xml:space="preserve">
+    <value>Filter audit logs by:</value>
+  </data>
+  <data name="Action type (Create, Update, Delete)" xml:space="preserve">
+    <value>Action type (Create, Update, Delete)</value>
+  </data>
+  <data name="Entity type (Project, Framework, Indicator, etc.)" xml:space="preserve">
+    <value>Entity type (Project, Framework, Indicator, etc.)</value>
+  </data>
+  <data name="Date range filter" xml:space="preserve">
+    <value>Date range filter</value>
+  </data>
+  <data name="User who made the change" xml:space="preserve">
+    <value>User who made the change</value>
+  </data>
+  <data name="Audit Logs Screenshot" xml:space="preserve">
+    <value>Audit Logs Screenshot</value>
+  </data>
+  <data name="Screenshot: Audit Logs" xml:space="preserve">
+    <value>Screenshot: Audit Logs</value>
+  </data>
+  <data name="Figure 16.1: Audit Logs View" xml:space="preserve">
+    <value>Figure 16.1: Audit Logs View</value>
+  </data>
+  <data name="16.2 Entity History" xml:space="preserve">
+    <value>16.2 Entity History</value>
+  </data>
+  <data name="View the complete change history of any entity, showing old and new values for each modification." xml:space="preserve">
+    <value>View the complete change history of any entity, showing old and new values for each modification.</value>
+  </data>
+  <data name="16.3 User Activity" xml:space="preserve">
+    <value>16.3 User Activity</value>
+  </data>
+  <data name="Track all actions performed by a specific user across the platform." xml:space="preserve">
+    <value>Track all actions performed by a specific user across the platform.</value>
+  </data>
+  <data name="16.4 Exporting Audit Logs" xml:space="preserve">
+    <value>16.4 Exporting Audit Logs</value>
+  </data>
+  <data name="Export filtered audit logs for external analysis and compliance reporting." xml:space="preserve">
+    <value>Export filtered audit logs for external analysis and compliance reporting.</value>
+  </data>
+  <!-- Section 17: User Roles & Permissions -->
+  <data name="The platform uses role-based access control with four predefined roles:" xml:space="preserve">
+    <value>The platform uses role-based access control with four predefined roles:</value>
+  </data>
+  <data name="System Administrator" xml:space="preserve">
+    <value>System Administrator</value>
+  </data>
+  <data name="Full system access including user management, data management, and all CRUD operations." xml:space="preserve">
+    <value>Full system access including user management, data management, and all CRUD operations.</value>
+  </data>
+  <data name="Ministries User" xml:space="preserve">
+    <value>Ministries User</value>
+  </data>
+  <data name="Read-only access to strategies and projects. Can view reports and performance analytics." xml:space="preserve">
+    <value>Read-only access to strategies and projects. Can view reports and performance analytics.</value>
+  </data>
+  <data name="Data Entry" xml:space="preserve">
+    <value>Data Entry</value>
+  </data>
+  <data name="Can manage projects, action plans, and metrics. Cannot modify strategic frameworks." xml:space="preserve">
+    <value>Can manage projects, action plans, and metrics. Cannot modify strategic frameworks.</value>
+  </data>
+  <data name="Reading User" xml:space="preserve">
+    <value>Reading User</value>
+  </data>
+  <data name="View-only access to dashboards and basic reports. Cannot modify any data." xml:space="preserve">
+    <value>View-only access to dashboards and basic reports. Cannot modify any data.</value>
+  </data>
+  <data name="17.1 Permission Summary" xml:space="preserve">
+    <value>17.1 Permission Summary</value>
+  </data>
+  <data name="Feature" xml:space="preserve">
+    <value>Feature</value>
+  </data>
+  <data name="Admin" xml:space="preserve">
+    <value>Admin</value>
+  </data>
+  <data name="Ministry" xml:space="preserve">
+    <value>Ministry</value>
+  </data>
+  <data name="Reader" xml:space="preserve">
+    <value>Reader</value>
+  </data>
+  <data name="View Dashboard" xml:space="preserve">
+    <value>View Dashboard</value>
+  </data>
+  <data name="View Frameworks" xml:space="preserve">
+    <value>View Frameworks</value>
+  </data>
+  <data name="Create/Edit Frameworks" xml:space="preserve">
+    <value>Create/Edit Frameworks</value>
+  </data>
+  <data name="Manage Projects" xml:space="preserve">
+    <value>Manage Projects</value>
+  </data>
+  <data name="View Reports" xml:space="preserve">
+    <value>View Reports</value>
+  </data>
+  <data name="Export Data" xml:space="preserve">
+    <value>Export Data</value>
+  </data>
+  <data name="User Management" xml:space="preserve">
+    <value>User Management</value>
+  </data>
+  <!-- Section 18: Performance Calculations -->
+  <data name="Performance metrics flow upward through the hierarchy, from plans to framework level." xml:space="preserve">
+    <value>Performance metrics flow upward through the hierarchy, from plans to framework level.</value>
+  </data>
+  <data name="18.1 Calculation Flow" xml:space="preserve">
+    <value>18.1 Calculation Flow</value>
+  </data>
+  <data name="Plans (Planned vs Realized Values)" xml:space="preserve">
+    <value>Plans (Planned vs Realized Values)</value>
+  </data>
+  <data name="Project Performance" xml:space="preserve">
+    <value>Project Performance</value>
+  </data>
+  <data name="Indicator Performance" xml:space="preserve">
+    <value>Indicator Performance</value>
+  </data>
+  <data name="SubOutput → Output → Outcome" xml:space="preserve">
+    <value>SubOutput → Output → Outcome</value>
+  </data>
+  <data name="Framework Performance" xml:space="preserve">
+    <value>Framework Performance</value>
+  </data>
+  <data name="18.2 Performance Types" xml:space="preserve">
+    <value>18.2 Performance Types</value>
+  </data>
+  <data name="Financial Performance" xml:space="preserve">
+    <value>Financial Performance</value>
+  </data>
+  <data name="Realized budget / Planned budget x 100" xml:space="preserve">
+    <value>Realized budget / Planned budget x 100</value>
+  </data>
+  <data name="Physical Performance" xml:space="preserve">
+    <value>Physical Performance</value>
+  </data>
+  <data name="Realized physical progress / Planned physical progress x 100" xml:space="preserve">
+    <value>Realized physical progress / Planned physical progress x 100</value>
+  </data>
+  <data name="Disbursement Performance" xml:space="preserve">
+    <value>Disbursement Performance</value>
+  </data>
+  <data name="Actual disbursement / Planned disbursement x 100" xml:space="preserve">
+    <value>Actual disbursement / Planned disbursement x 100</value>
+  </data>
+  <data name="Field verification score" xml:space="preserve">
+    <value>Field verification score</value>
+  </data>
+  <data name="Outcome impact evaluation score" xml:space="preserve">
+    <value>Outcome impact evaluation score</value>
+  </data>
+  <data name="18.3 Weighted Averages" xml:space="preserve">
+    <value>18.3 Weighted Averages</value>
+  </data>
+  <data name="Performance at each hierarchy level is calculated as a weighted average of its children. Weights can be adjusted at every level (Outcomes, Outputs, SubOutputs, Indicators)." xml:space="preserve">
+    <value>Performance at each hierarchy level is calculated as a weighted average of its children. Weights can be adjusted at every level (Outcomes, Outputs, SubOutputs, Indicators).</value>
+  </data>
+  <data name="Formula" xml:space="preserve">
+    <value>Formula</value>
+  </data>
+  <data name="Parent Performance = Sum of (Child Performance x Child Weight) / Sum of Weights" xml:space="preserve">
+    <value>Parent Performance = Sum of (Child Performance x Child Weight) / Sum of Weights</value>
+  </data>
+  <!-- Section 19: Settings & Themes -->
+  <data name="19.1 Theme Selection" xml:space="preserve">
+    <value>19.1 Theme Selection</value>
+  </data>
+  <data name="The platform offers multiple visual themes. Click the theme icon in the top bar to switch between:" xml:space="preserve">
+    <value>The platform offers multiple visual themes. Click the theme icon in the top bar to switch between:</value>
+  </data>
+  <data name="Default Theme" xml:space="preserve">
+    <value>Default Theme</value>
+  </data>
+  <data name="Calm Blue" xml:space="preserve">
+    <value>Calm Blue</value>
+  </data>
+  <data name="Alternative" xml:space="preserve">
+    <value>Alternative</value>
+  </data>
+  <data name="Modern Glass" xml:space="preserve">
+    <value>Modern Glass</value>
+  </data>
+  <data name="Theme Selector Screenshot" xml:space="preserve">
+    <value>Theme Selector Screenshot</value>
+  </data>
+  <data name="Screenshot: Theme Selector" xml:space="preserve">
+    <value>Screenshot: Theme Selector</value>
+  </data>
+  <data name="Figure 19.1: Theme Selection" xml:space="preserve">
+    <value>Figure 19.1: Theme Selection</value>
+  </data>
+  <data name="19.2 User Settings" xml:space="preserve">
+    <value>19.2 User Settings</value>
+  </data>
+  <data name="Access user settings from the user menu in the top-right corner to manage your account preferences." xml:space="preserve">
+    <value>Access user settings from the user menu in the top-right corner to manage your account preferences.</value>
+  </data>
+  <data name="19.3 Notifications" xml:space="preserve">
+    <value>19.3 Notifications</value>
+  </data>
+  <data name="The notification system alerts you to important updates and changes across the platform. Click the bell icon to view notifications." xml:space="preserve">
+    <value>The notification system alerts you to important updates and changes across the platform. Click the bell icon to view notifications.</value>
+  </data>
+  <data name="Notifications Screenshot" xml:space="preserve">
+    <value>Notifications Screenshot</value>
+  </data>
+  <data name="Screenshot: Notifications Panel" xml:space="preserve">
+    <value>Screenshot: Notifications Panel</value>
+  </data>
+  <data name="Figure 19.2: Notifications" xml:space="preserve">
+    <value>Figure 19.2: Notifications</value>
+  </data>
+  <!-- Section 20: Getting Help -->
+  <data name="20.1 Contextual Help" xml:space="preserve">
+    <value>20.1 Contextual Help</value>
+  </data>
+  <data name="Each page has a help button (?) that provides context-specific documentation with tabs for Overview, How To, FAQ, and Tips." xml:space="preserve">
+    <value>Each page has a help button (?) that provides context-specific documentation with tabs for Overview, How To, FAQ, and Tips.</value>
+  </data>
+  <data name="Click Help Button" xml:space="preserve">
+    <value>Click Help Button</value>
+  </data>
+  <data name="Look for the help button (?) in the page header." xml:space="preserve">
+    <value>Look for the help button (?) in the page header.</value>
+  </data>
+  <data name="Browse Tabs" xml:space="preserve">
+    <value>Browse Tabs</value>
+  </data>
+  <data name="Use the tabs to find the information you need." xml:space="preserve">
+    <value>Use the tabs to find the information you need.</value>
+  </data>
+  <data name="Help Modal Screenshot" xml:space="preserve">
+    <value>Help Modal Screenshot</value>
+  </data>
+  <data name="Screenshot: Help Modal" xml:space="preserve">
+    <value>Screenshot: Help Modal</value>
+  </data>
+  <data name="Figure 20.1: Contextual Help Modal" xml:space="preserve">
+    <value>Figure 20.1: Contextual Help Modal</value>
+  </data>
+  <data name="20.2 Contact Support" xml:space="preserve">
+    <value>20.2 Contact Support</value>
+  </data>
+  <data name="Support Contact" xml:space="preserve">
+    <value>Support Contact</value>
+  </data>
+  <data name="For technical support and assistance, please contact your system administrator." xml:space="preserve">
+    <value>For technical support and assistance, please contact your system administrator.</value>
   </data>
 </root>
