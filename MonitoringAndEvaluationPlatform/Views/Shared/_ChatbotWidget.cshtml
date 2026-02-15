@@ -1,0 +1,52 @@
+@using Microsoft.AspNetCore.Mvc.Localization
+@using Microsoft.AspNetCore.Localization
+@inject IViewLocalizer Localizer
+@{
+    var cultureFeature = Context.Features.Get<IRequestCultureFeature>();
+    var currentLocale = cultureFeature?.RequestCulture.Culture.Name ?? "ar";
+}
+
+@if (User.Identity != null && User.Identity.IsAuthenticated)
+{
+    <!-- Chatbot Toggle Button -->
+    <button id="chatbot-toggle-btn" class="chatbot-toggle-btn" title="@Localizer["AI Assistant"]">
+        <i class="bi bi-robot"></i>
+    </button>
+
+    <!-- Chatbot Panel -->
+    <div id="chatbot-panel" class="chatbot-panel" data-locale="@currentLocale">
+        <!-- Header -->
+        <div class="chatbot-header">
+            <div class="chatbot-header-title">
+                <i class="bi bi-robot"></i>
+                <span>@Localizer["AI Assistant"]</span>
+            </div>
+            <button id="chatbot-close-btn" class="chatbot-close-btn" title="@Localizer["Close"]">
+                <i class="bi bi-x-lg"></i>
+            </button>
+        </div>
+
+        <!-- Messages -->
+        <div id="chatbot-messages" class="chatbot-messages">
+            <div class="chatbot-message welcome">
+                @Localizer["ChatbotWelcome"]
+            </div>
+        </div>
+
+        <!-- Typing Indicator -->
+        <div id="chatbot-typing" class="chatbot-typing">
+            <div class="chatbot-typing-dot"></div>
+            <div class="chatbot-typing-dot"></div>
+            <div class="chatbot-typing-dot"></div>
+        </div>
+
+        <!-- Input Area -->
+        <div class="chatbot-input-area">
+            <textarea id="chatbot-input" class="chatbot-input" rows="1"
+                      placeholder="@Localizer["TypeYourMessage"]"></textarea>
+            <button id="chatbot-send-btn" class="chatbot-send-btn" title="@Localizer["Send"]">
+                <i class="bi bi-send-fill"></i>
+            </button>
+        </div>
+    </div>
+}

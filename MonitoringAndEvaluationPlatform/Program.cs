@@ -94,6 +94,9 @@ builder.Services.AddScoped<INotificationService, NotificationService>();
 builder.Services.AddScoped<IAuditService, AuditService>();
 builder.Services.AddScoped<IDataManagementService, DataManagementService>();
 builder.Services.AddScoped<MonitoringAndEvaluationPlatform.Helpers.INavigationHelper, MonitoringAndEvaluationPlatform.Helpers.NavigationHelper>();
+builder.Services.Configure<ChatbotSettings>(builder.Configuration.GetSection("Chatbot"));
+builder.Services.AddHttpClient();
+builder.Services.AddScoped<IChatbotService, ChatbotService>();
 builder.Services.AddLocalization(options => options.ResourcesPath = "Resources");
 
 builder.Services.Configure<RequestLocalizationOptions>(options =>

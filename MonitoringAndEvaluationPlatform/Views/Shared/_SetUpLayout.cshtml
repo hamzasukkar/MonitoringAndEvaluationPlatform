@@ -34,6 +34,7 @@
 	<link rel="stylesheet" href="~/css/themes/theme-calm-blue.css" />
 	<link rel="stylesheet" href="~/css/themes/theme-alternative.css" />
 	<link rel="stylesheet" href="~/css/themes/theme-modern-glass.css" />
+	<link rel="stylesheet" href="~/css/chatbot-widget.css" asp-append-version="true" />
 	<style>
 		.has-performance {
 			background-color: #007bff !important; /* أزرق أنيق */
@@ -483,5 +484,7 @@
 	</script>
 
 	@await RenderSectionAsync("Scripts", required: false)
+	@await Html.PartialAsync("_ChatbotWidget")
+	<script src="~/js/chatbot-widget.js" asp-append-version="true"></script>
 </body>
 </html>

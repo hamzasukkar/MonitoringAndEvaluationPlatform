@@ -9,6 +9,7 @@
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/MonitoringAndEvaluationPlatform.styles.css" asp-append-version="true" />
     <link href="~/css/bootstrap-icons.css" rel="stylesheet">
+    <link rel="stylesheet" href="~/css/chatbot-widget.css" asp-append-version="true" />
 </head>
 <body>
     <div class="container">
@@ -26,5 +27,7 @@
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
     @await RenderSectionAsync("Scripts", required: false)
+    @await Html.PartialAsync("_ChatbotWidget")
+    <script src="~/js/chatbot-widget.js" asp-append-version="true"></script>
 </body>
 </html>

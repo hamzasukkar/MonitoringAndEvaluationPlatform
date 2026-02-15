@@ -27,6 +27,7 @@
 	<link rel="stylesheet" href="~/css/themes/theme-alternative.css" />
 	<link rel="stylesheet" href="~/css/themes/theme-modern-glass.css" />
 	<link href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css" rel="stylesheet">
+	<link rel="stylesheet" href="~/css/chatbot-widget.css" asp-append-version="true" />
 </head>
 <body>
 	<header>
@@ -109,5 +110,7 @@
 	<script src="~/js/site.js" asp-append-version="true"></script>
 	<script src="~/js/theme-switcher.js" asp-append-version="true"></script>
 	@*  @await RenderSectionAsync("Scripts", required: false) *@
+	@await Html.PartialAsync("_ChatbotWidget")
+	<script src="~/js/chatbot-widget.js" asp-append-version="true"></script>
 </body>
 </html>
