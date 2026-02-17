@@ -209,6 +209,35 @@
                                     <span asp-validation-for="EstimatedBudget" class="invalid-feedback d-block"></span>
                                 </div>
 
+                                <!-- Exchange Rate (SYP only) -->
+                                <div class="mb-4" id="exchangeRateSection" style="display:none;">
+                                    <label class="form-label fw-bold">
+                                        <i class="fas fa-exchange-alt me-2"></i>
+                                        @Localizer["Exchange Rate"] <small class="text-muted">(1 USD = ? SYP)</small>
+                                    </label>
+                                    <div class="input-group">
+                                        <span class="input-group-text">
+                                            <i class="fas fa-dollar-sign"></i>
+                                        </span>
+                                        <input asp-for="ExchangeRate" type="number" class="form-control form-control-lg" id="exchangeRateInput"
+                                               min="0.01" step="0.01" placeholder="@Localizer["e.g. 13000"]" />
+                                        <span class="input-group-text fw-bold">SYP</span>
+                                        <button type="button" class="btn btn-outline-primary" id="fetchRateBtn" title="@Localizer["Fetch current rate"]">
+                                            <i class="fas fa-sync-alt me-1"></i>@Localizer["Fetch Rate"]
+                                        </button>
+                                    </div>
+                                    <div id="exchangeRateMeta" class="form-text mt-1" style="display:none;">
+                                        <i class="fas fa-calendar-alt me-1 text-muted"></i>
+                                        <span id="exchangeRateDateLabel">@Localizer["Rate recorded on"]:</span>
+                                        <strong id="exchangeRateDateDisplay"></strong>
+                                        <span class="ms-2 badge bg-success" id="exchangeRateSourceBadge" style="display:none;">
+                                            <i class="fas fa-check-circle me-1"></i>@Localizer["Live Rate"]
+                                        </span>
+                                    </div>
+                                    <input asp-for="ExchangeRateDate" type="hidden" id="exchangeRateDateInput" />
+                                    <div id="fetchRateError" class="text-danger small mt-1" style="display:none;"></div>
+                                </div>
+
                                 <!-- Stakeholders -->
                                 <h6 class="text-primary mb-3">
                                     <i class="fas fa-users me-2"></i>@Localizer["Stakeholders"]
@@ -1175,7 +1204,76 @@
     // Handle currency selection change
     $('#currencySelect').on('change', function() {
         updateCurrencySymbols();
+        toggleExchangeRateSection($(this).val());
     });
+
+    // ========== EXCHANGE RATE SECTION ==========
+
+    function toggleExchangeRateSection(currency) {
+        if (currency === 'SYP') {
+            $('#exchangeRateSection').show();
+            // Auto-fetch if no rate is already filled in
+            if (!$('#exchangeRateInput').val()) {
+                fetchExchangeRate();
+            }
+        } else {
+            $('#exchangeRateSection').hide();
+        }
+    }
+
+    function fetchExchangeRate() {
+        const btn = $('#fetchRateBtn');
+        const errorDiv = $('#fetchRateError');
+        errorDiv.hide();
+        btn.prop('disabled', true).html('<i class="fas fa-spinner fa-spin me-1"></i>@Localizer["Fetching..."]');
+
+        fetch('https://open.er-api.com/v6/latest/USD')
+            .then(response => response.json())
+            .then(data => {
+                if (data && data.rates && data.rates.SYP) {
+                    const rate = Math.round(data.rates.SYP * 100) / 100;
+                    const today = new Date().toISOString().split('T')[0];
+                    $('#exchangeRateInput').val(rate);
+                    $('#exchangeRateDateInput').val(today);
+                    $('#exchangeRateDateDisplay').text(today);
+                    $('#exchangeRateMeta').show();
+                    $('#exchangeRateSourceBadge').show();
+                } else {
+                    setManualRateDate();
+                    errorDiv.text('@Localizer["Could not fetch live rate. Please enter manually."]').show();
+                }
+            })
+            .catch(() => {
+                setManualRateDate();
+                errorDiv.text('@Localizer["Could not fetch live rate. Please enter manually."]').show();
+            })
+            .finally(() => {
+                btn.prop('disabled', false).html('<i class="fas fa-sync-alt me-1"></i>@Localizer["Fetch Rate"]');
+            });
+    }
+
+    function setManualRateDate() {
+        const today = new Date().toISOString().split('T')[0];
+        $('#exchangeRateDateInput').val(today);
+        $('#exchangeRateDateDisplay').text(today);
+        $('#exchangeRateMeta').show();
+        $('#exchangeRateSourceBadge').hide();
+    }
+
+    // When user manually edits the rate, record today as the date
+    $('#exchangeRateInput').on('input', function() {
+        if ($(this).val()) {
+            setManualRateDate();
+        }
+    });
+
+    $('#fetchRateBtn').on('click', function() {
+        fetchExchangeRate();
+    });
+
+    // Initialize on page load
+    toggleExchangeRateSection($('#currencySelect').val());
+    // ===========================================
 
     // Add donor button click handler
     $('#addDonorBtn').click(function() {

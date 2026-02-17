@@ -31,6 +31,15 @@ namespace MonitoringAndEvaluationPlatform.Models
         [Display(Name = "Currency")]
         public string Currency { get; set; } = "USD";
 
+        [Display(Name = "Exchange Rate (1 USD = X SYP)")]
+        [Range(0.01, double.MaxValue)]
+        [Column(TypeName = "decimal(18,2)")]
+        public decimal? ExchangeRate { get; set; }
+
+        [Display(Name = "Exchange Rate Date")]
+        [DataType(DataType.Date)]
+        public DateTime? ExchangeRateDate { get; set; }
+
         [NotMapped]
         public string CurrencySymbol => Currency switch
         {
