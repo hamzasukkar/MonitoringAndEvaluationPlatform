@@ -611,7 +611,7 @@
                                                                 <div class="flex-grow-1">
                                                                     <span class="fw-semibold">@indicator.Name</span>
                                                                 </div>
-                                                                <span class="badge bg-info">@Localizer["Weight"]: @Math.Round(indicator.Weight * 100, 1)%</span>
+                                                                <span class="badge bg-info">@Localizer["Weight"]: @Math.Round(indicator.Weight / 100, 1)%</span>
                                                                 <span class="badge indicator-perf-badge @indPerfClass">@indPerf%</span>
                                                                 <span class="badge bg-secondary">@indicatorProjects.Count @Localizer["Projects"]</span>
                                                             </div>
