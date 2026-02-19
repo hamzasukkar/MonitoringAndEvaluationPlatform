@@ -120,7 +120,13 @@
                             </td>
                             <td>
                                 <span id="donor-category-@item.Code" class="donor-category-view badge bg-primary">
-                                    @item.donorCategory.ToString()
+                                    @(item.donorCategory switch {
+                                        MonitoringAndEvaluationPlatform.Enums.DonorCategory.UNOrganizations => Localizer["UN Organizations"].Value,
+                                        MonitoringAndEvaluationPlatform.Enums.DonorCategory.Countries => Localizer["Countries"].Value,
+                                        MonitoringAndEvaluationPlatform.Enums.DonorCategory.InternationalNonGovernmentalOrganizations => Localizer["International NGOs"].Value,
+                                        MonitoringAndEvaluationPlatform.Enums.DonorCategory.Local => Localizer["Local"].Value,
+                                        _ => item.donorCategory.ToString()
+                                    })
                                 </span>
                                 <select id="donor-category-select-@item.Code" class="form-control form-control-sm donor-category-edit d-none">
                                     @if (item.donorCategory == MonitoringAndEvaluationPlatform.Enums.DonorCategory.UNOrganizations)
@@ -381,6 +387,13 @@
                 data: formData,
                 success: function(response) {
                     if (response.success) {
+                        const categoryNames = {
+                            1: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Localizer["UN Organizations"].Value)),
+                            2: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Localizer["Countries"].Value)),
+                            3: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Localizer["International NGOs"].Value)),
+                            4: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Localizer["Local"].Value))
+                        };
+                        const categoryLabel = categoryNames[response.donor.donorCategory] || response.donor.donorCategory;
                         // Add new row to table
                         const newRow = `
                             <tr id="donor-row-${response.donor.code}" class="table-row">
@@ -392,7 +405,7 @@
                                 </td>
                                 <td>
                                     <span id="donor-category-${response.donor.code}" class="donor-category-view badge bg-primary">
-                                        ${response.donor.donorCategory}
+                                        ${categoryLabel}
                                     </span>
                                     <select id="donor-category-select-${response.donor.code}" class="form-control form-control-sm donor-category-edit d-none">
                                         <option value="1">@Localizer["UN Organizations"]</option>

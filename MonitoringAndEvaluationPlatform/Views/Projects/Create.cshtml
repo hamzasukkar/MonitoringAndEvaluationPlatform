@@ -302,6 +302,20 @@
                                             <span id="selectedMinistryDisplay" class="text-muted">@Localizer["Select Ministry"]</span>
                                         </button>
                                         <ul class="dropdown-menu dropdown-menu-lg w-100" aria-labelledby="ministryDropdown" style="max-height: 400px; overflow-y: auto;">
+                                            <li class="ministry-search-wrapper px-2 pt-2 pb-1 sticky-top bg-white">
+                                                <div class="input-group input-group-sm">
+                                                    <span class="input-group-text border-end-0 bg-white">
+                                                        <i class="fas fa-search text-muted"></i>
+                                                    </span>
+                                                    <input type="text" id="ministrySearch" class="form-control border-start-0"
+                                                           placeholder="@Localizer["Search ministry..."]"
+                                                           autocomplete="off" />
+                                                </div>
+                                                <div id="ministryNoResults" class="text-center text-muted py-2 small" style="display:none;">
+                                                    <i class="fas fa-search me-1"></i>@Localizer["No ministries found"]
+                                                </div>
+                                            </li>
+                                            <li><hr class="dropdown-divider mt-0"></li>
                                             @if (ViewBag.Ministries != null)
                                             {
                                                 var isArabic = System.Threading.Thread.CurrentThread.CurrentUICulture.TwoLetterISOLanguageName == "ar";
@@ -1151,6 +1165,32 @@
 
             // Close dropdown
             $('#ministryDropdown').dropdown('hide');
+        });
+
+        // Ministry search — prevent dropdown from closing while typing
+        $(document).on('click', '#ministrySearch', function(e) {
+            e.stopPropagation();
+        });
+
+        $(document).on('input', '#ministrySearch', function() {
+            const query = $(this).val().toLowerCase().trim();
+            let visibleCount = 0;
+
+            $('.ministry-item').each(function() {
+                const name = ($(this).data('ministry-name') || '').toLowerCase();
+                const match = !query || name.includes(query);
+                $(this).closest('li').toggle(match);
+                if (match) visibleCount++;
+            });
+
+            $('#ministryNoResults').toggle(visibleCount === 0);
+        });
+
+        // Clear search when dropdown closes
+        $('#ministryDropdown').closest('.dropdown').on('hidden.bs.dropdown', function() {
+            $('#ministrySearch').val('');
+            $('.ministry-item').closest('li').show();
+            $('#ministryNoResults').hide();
         });
 
         // Function to update ministry display
