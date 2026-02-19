@@ -121,7 +121,7 @@
     <value>مسح</value>
   </data>
   <data name="-- All Projects --" xml:space="preserve">
-    <value>-- جميع المشاريع --</value>
+    <value>-- جميع مراحل المشاريع --</value>
   </data>
   <data name="Actions" xml:space="preserve">
     <value>الإجراءات</value>
@@ -133,10 +133,10 @@
     <value>أداء الصرف</value>
   </data>
   <data name="Filter by Project" xml:space="preserve">
-    <value>تصفية حسب المشروع</value>
+    <value>تصفية حسب مراحل المشروع</value>
   </data>
   <data name="Indicator Name" xml:space="preserve">
-    <value>اسم المؤشر</value>
+    <value>اسم المشروع</value>
   </data>
   <data name="Indicators Performance" xml:space="preserve">
     <value>الأداء والأنجاز</value>
@@ -151,7 +151,7 @@
     <value>البحث</value>
   </data>
   <data name="Search by indicator name, suboutput, or project..." xml:space="preserve">
-    <value>البحث حسب اسم المؤشر، أو البرنامج الفرعي، أو المشروع...</value>
+    <value>البحث حسب اسم المشروع، أو البرنامج الفرعي، أو مرحلة المشروع...</value>
   </data>
   <data name="SubOutput" xml:space="preserve">
     <value>البرنامج الفرعي</value>
@@ -160,7 +160,7 @@
     <value>الوزن</value>
   </data>
   <data name="Indicators and Projects Management" xml:space="preserve">
-    <value>المؤشرات وإدارة المشاريع</value>
+    <value> إدارة المشاريع</value>
   </data>
   <data name="View and manage indicators with their related projects" xml:space="preserve">
     <value>عرضالمشاريع وإدارتها مع المشاريع ذات الصلة بها</value>
@@ -196,7 +196,7 @@
     <value>خيارات التصفية والبحث</value>
   </data>
   <data name="Indicators and Projects Table" xml:space="preserve">
-    <value>جدولالمشاريع والمشاريع</value>
+    <value>جدول المشاريع</value>
   </data>
   <data name="Name" xml:space="preserve">
     <value>الاسم</value>
@@ -205,9 +205,15 @@
     <value>التثقيل</value>
   </data>
   <data name="Enter indicator name" xml:space="preserve">
-    <value>أدخل اسم المؤشر</value>
+    <value>أدخل اسم المشروع</value>
   </data>
   <data name="Projects" xml:space="preserve">
     <value>مراحل المشروع</value>
+  </data>
+  <data name="Add New Project" xml:space="preserve">
+    <value>اضافة مرحلة مشروع</value>
+  </data>
+  <data name="View" xml:space="preserve">
+    <value>عرض</value>
   </data>
 </root>
