@@ -167,10 +167,10 @@ namespace MonitoringAndEvaluationPlatform.Controllers
 
             var ministry = new Ministry
             {
-                MinistryDisplayName_AR = MinistryDisplayName_AR,
-                MinistryDisplayName_EN = MinistryDisplayName_EN,
+                MinistryDisplayName_AR = MinistryDisplayName_AR ?? "",
+                MinistryDisplayName_EN = MinistryDisplayName_EN ?? "",
                 MinistryUserName = MinistryUserName ?? (MinistryDisplayName_EN ?? MinistryDisplayName_AR).Replace(" ", "").ToLower(),
-                Logo = Logo
+                Logo = Logo ?? ""
             };
 
             try
