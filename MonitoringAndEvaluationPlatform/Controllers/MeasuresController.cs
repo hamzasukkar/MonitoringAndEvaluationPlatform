@@ -30,6 +30,15 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         [HttpPost("add-measure")]
         public async Task<IActionResult> AddMeasure([FromBody] AddMeasureDto dto)
         {
+            if (dto.Value < 0 || dto.Value > 100)
+                return BadRequest(_localizer["Value must be between 0 and 100."]);
+
+            var existingTotal = await _context.Measures
+                .Where(m => m.IndicatorCode == dto.IndicatorId)
+                .SumAsync(m => m.Value);
+            if (existingTotal + dto.Value > 100)
+                return BadRequest(_localizer["Total measures value for this indicator cannot exceed 100%."]);
+
             await _monitoringService.AddMeasureToIndicator(dto.IndicatorId, dto.Value);
             return Ok(_localizer["Measure added and Indicator Performance updated"]);
         }
@@ -116,6 +125,15 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         {
             ModelState.Remove(nameof(measure.Indicator));
 
+            if (measure.Value < 0 || measure.Value > 100)
+                return BadRequest(new { message = _localizer["Value must be between 0 and 100."].Value });
+
+            var existingTotal = await _context.Measures
+                .Where(m => m.IndicatorCode == measure.IndicatorCode)
+                .SumAsync(m => m.Value);
+            if (existingTotal + measure.Value > 100)
+                return BadRequest(new { message = _localizer["Total measures value for this indicator cannot exceed 100%."].Value });
+
             if (ModelState.IsValid)
             {
                 _context.Add(measure);
@@ -124,10 +142,10 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 // Update indicator performance after adding the measure
                 await _monitoringService.UpdateIndicatorPerformance(measure.IndicatorCode);
 
-                return Ok(new { message = _localizer["Measure added successfully and indicator performance updated"] });
+                return Ok(new { message = _localizer["Measure added successfully and indicator performance updated"].Value });
             }
 
-            return BadRequest(_localizer["Invalid input"]);
+            return BadRequest(new { message = _localizer["Invalid input"].Value });
         }
 
         // GET: Measures/Create
@@ -171,6 +189,16 @@ namespace MonitoringAndEvaluationPlatform.Controllers
 
             if (ModelState.IsValid)
             {
+                var existingTotal = await _context.Measures
+                    .Where(m => m.IndicatorCode == measure.IndicatorCode)
+                    .SumAsync(m => m.Value);
+                if (existingTotal + measure.Value > 100)
+                {
+                    ModelState.AddModelError("Value", _localizer["Total measures value for this indicator cannot exceed 100%."]);
+                    ViewData["IndicatorCode"] = new SelectList(_context.Indicators, "IndicatorCode", "Name", measure.IndicatorCode);
+                    return View(measure);
+                }
+
                 _context.Measures.Add(measure);
                 await _context.SaveChangesAsync();
 
@@ -222,7 +250,16 @@ namespace MonitoringAndEvaluationPlatform.Controllers
 
                 // Update only the editable fields
                 existingMeasure.Date = measure.Date;
-                existingMeasure.Value = measure.Value;
+                var clampedValue = Math.Max(0, Math.Min(100, measure.Value));
+
+                // Check total constraint (excluding this measure)
+                var otherTotal = await _context.Measures
+                    .Where(m => m.IndicatorCode == existingMeasure.IndicatorCode && m.Code != id)
+                    .SumAsync(m => m.Value);
+                if (otherTotal + clampedValue > 100)
+                    return BadRequest(new { message = _localizer["Total measures value for this indicator cannot exceed 100%."].Value });
+
+                existingMeasure.Value = clampedValue;
 
                 try
                 {
@@ -232,7 +269,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                     // Update indicator performance
                     await _monitoringService.UpdateIndicatorPerformance(existingMeasure.IndicatorCode);
 
-                    return Ok(new { message = _localizer["Measure updated successfully"] });
+                    return Ok(new { message = _localizer["Measure updated successfully"].Value });
                 }
                 catch (DbUpdateConcurrencyException)
                 {
