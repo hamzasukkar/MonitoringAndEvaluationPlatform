@@ -5,64 +5,162 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ## Development Commands
 
 ### Build and Run
-- `dotnet run` - Run the application in development mode (https://localhost:7173)
+- `dotnet run` - Run the application (https://localhost:7173)
 - `dotnet build` - Build the project
 - `dotnet publish` - Publish for deployment
 
 ### Database Management
-- `dotnet ef database update` - Apply pending migrations to the database
-- `dotnet ef migrations add <MigrationName>` - Create a new database migration
+- `dotnet ef database update` - Apply pending migrations
+- `dotnet ef migrations add <MigrationName>` - Create a new migration
 - `dotnet ef database drop` - Drop the database (use with caution)
 
 ### Configuration
-- Update connection string in `appsettings.json` for your SQL Server instance
-- Default admin credentials: admin@example.com / Admin@123
+- Update connection string in `appsettings.json` for your SQL Server instance (default DB: `mre-New`)
+- Default credentials: admin@example.com / Admin@123 · ministry@example.com / Ministry@123 · dataentry@example.com / DataEntry@123 · reader@example.com / Reader@123
 
 ## Architecture Overview
 
-This is an ASP.NET Core 8 MVC web application for monitoring and evaluating development projects, with a hierarchical performance tracking system.
+ASP.NET Core 8 MVC application for monitoring and evaluating development projects with a hierarchical performance tracking system.
 
-### Core Domain Model
-The application follows a hierarchical structure for monitoring and evaluation:
+### Domain Hierarchy
 
-**Framework → Outcome → Output → SubOutput → Indicator → Project → ActionPlan → Activity → Plan**
+```
+Framework → Outcome → Output → SubOutput → Indicator → Project → ActionPlan → Activity → Plan
+```
 
 Key entities:
-- **Framework**: Top-level monitoring framework (e.g., SDGs)
-- **Outcome/Output/SubOutput**: Hierarchical results structure
-- **Indicator**: Measurable performance metrics with weights
-- **Project**: Implementation units with location, sector, donor, ministry associations
-- **Measure**: Links projects to indicators with planned/realized values
-- **Plan**: Detailed activity tracking (Financial, Physical, DisbursementPerformance, FieldMonitoring, ImpactAssessment)
+- **Framework** – Top-level monitoring framework (e.g., SDGs)
+- **Outcome / Output / SubOutput** – Hierarchical results chain
+- **Indicator** – Measurable metrics with weights; linked to projects via `ProjectIndicator`
+- **Project** – Implementation units linked to Ministry, Sector, Donor, Supervisor, and geographic locations
+- **Measure** – Joins projects to indicators with planned/realized values
+- **ActionPlan / Activity / Plan** – Granular tracking (Financial, Physical, DisbursementPerformance, FieldMonitoring, ImpactAssessment)
+- **FrameworkGoal / FrameworkGoalYearlyValue** – Strategic goal tracking with yearly values and file attachments
 
-### Services Architecture
-- **PlanService**: Handles plan updates and cascades performance calculations up the hierarchy
-- **MonitoringService**: Manages monitoring data and calculations
-- **PerformanceService**: Aggregates performance metrics across the hierarchy
-- **ActivityService**: Manages activity data and relationships
+### Location Hierarchy
+`Governorate → District → SubDistrict → Community`
 
-### Performance Calculation System
-Performance metrics flow upward through the hierarchy:
-1. Plans are updated with planned vs realized values
-2. Project performance is calculated from activity plans by type
-3. Performance propagates up: Project → Indicator → SubOutput → Output → Outcome → Framework
-4. Currently uses direct propagation (simplified); designed for weighted averages
+### Many-to-Many Relationships
+- `Project ↔ Sector` (ProjectSectors)
+- `Project ↔ Ministry` (ProjectMinistries)
+- `Project ↔ Indicator` (ProjectIndicator — includes extra properties)
+- `Project ↔ Donor` (ProjectDonor — includes FundingPercentage, FundingAmount)
+- `Project ↔ Governorate/District/SubDistrict/Community`
 
-### Data Context
-`ApplicationDbContext` manages:
-- Identity (users, roles, authentication)
-- Core entities with complex many-to-many relationships
-- Location hierarchy (Governorate → District → SubDistrict → Community)
-- Localization support (Arabic/English/French)
+---
 
-### Localization
-- Supports Arabic (default), English, and French
-- Resource files in `Resources/` directory
-- Uses suffix-based view localization
+## Services
 
-### Key Patterns
-- Entity Framework Core with SQL Server
-- ASP.NET Core Identity for authentication
-- Razor Views with multiple layout types (Dashboard, Monitoring, Projects, etc.)
-- Service layer pattern with dependency injection
-- Seed data initialization on startup
+| Service | Interface | Purpose |
+|---------|-----------|---------|
+| `PlanService` | — | Updates plans, cascades performance up the hierarchy via `UpdateProjectPerformance()` |
+| `MonitoringService` | — | Monitoring data management and performance calculations |
+| `PerformanceService` | `IPerformanceService` | Weighted-average performance aggregation (Project → Indicator → SubOutput → Output → Outcome → Framework) |
+| `ActivityService` | `IActivityService` | Activity CRUD and relationships |
+| `AuditService` | `IAuditService` | Audit log writes; backed by `AuditInterceptor` (EF Core interceptor) |
+| `DataManagementService` | `IDataManagementService` | Export (Excel/PDF), backup, data deletion, value reset |
+| `ChatbotService` | `IChatbotService` | Groq LLM API integration (model: `llama-3.3-70b-versatile`) |
+| `NotificationService` | `INotificationService` | In-app user notifications |
+| `ProjectValidationService` | `IProjectValidationService` | Project-level validation rules |
+| `RolePermissionService` | — | Role-to-permission resolution |
+| `NavigationHelper` | `INavigationHelper` | Breadcrumb and navigation path generation |
+
+---
+
+## Controllers (28 total)
+
+**Hierarchy:** FrameworksController, OutcomesController, OutputsController, SubOutputsController, IndicatorsController
+**Projects:** ProjectsController, MeasuresController, ActionPlansController, ActivitiesController, PlansController
+**Lookups:** MinistriesController, SectorsController, DonorsController, ProjectManagersController, SuperVisorsController, LocationController
+**Reporting / Monitoring:** DashboardController, MonitoringController, ReportsController, TreeController
+**Strategic:** FrameworkGoalsController
+**Admin:** AdminController, AuditLogsController, DataManagementController
+**Other:** ChatbotController, HomeController, DebugController, TestController
+
+---
+
+## Authorization & Roles
+
+Four built-in roles defined in `Models/UserRoles.cs`:
+- `SystemAdministrator`
+- `MinistriesUser`
+- `DataEntry`
+- `ReadingUser`
+
+Permissions are defined as string constants in `Models/Permissions.cs` (80+ entries).
+Custom policy enforcement via `Infrastructure/PermissionAuthorizationHandler.cs`.
+Policies are registered in `Program.cs` per permission constant.
+
+---
+
+## Data & Persistence
+
+- **ORM:** Entity Framework Core 8 with SQL Server (SQLite available as alternative)
+- **Context:** `Data/ApplicationDbContext.cs` — Identity + all domain entities
+- **Audit logging:** `AuditInterceptor` intercepts `SaveChanges` and writes to `AuditLog` table (user, timestamp, entity, operation, old/new values)
+- **Seed data:** `Infrastructure/DbInitializer.cs` runs on startup — creates roles, 4 default users, and loads location hierarchy from JSON files in `SeedData/`
+- **Migrations:** 22 migrations under `Migrations/` (latest adds exchange rate and currency fields to Project)
+
+---
+
+## Views & Layouts
+
+Suffix-based localization: views look up `.ar.resx` / `.en.resx` / `.fr.resx` resource files.
+
+**Shared layouts:**
+`_Layout`, `_DashboardLayout`, `_DashboardHomeLayout`, `_ProjectsLayout`, `_MonitoringLayout`, `_ResultsFrameworkLayout`, `_AssessmentFrameworkLayout`, `_SetUpLayout`, `_ManagementNavigation`
+
+**Key partials:**
+`_HierarchyBreadcrumb`, `_Notifications`, `_ProgressBar`, `_ChatbotWidget`, `_HelpModal`, `_BackButton`, `_NavThemeDropdown`
+
+**Helpers:** `ProgressHelper`, `ProgressBarHelper`, `ProgressTagHelper` — render performance indicators in views.
+
+---
+
+## ViewModels
+
+Located in `ViewModels/`:
+- User/role management: `CreateUserViewModel`, `EditUserViewModel`, `UserManagementViewModel`, `RoleViewModel`, `RoleManagementViewModel`, `UserViewModel`
+- Audit: `AuditLogViewModel`
+- Data management: `BackupViewModel`, `ClearDataViewModel`, `DeleteProjectViewModel`, `ResetValuesViewModel`, `SecurityConfirmationViewModel` (security confirmation required for destructive ops)
+
+---
+
+## NuGet Packages
+
+| Package | Purpose |
+|---------|---------|
+| `Microsoft.AspNetCore.Identity.EntityFrameworkCore` 8.0.11 | Identity with EF Core |
+| `Microsoft.EntityFrameworkCore.SqlServer` 8.0.11 | SQL Server provider |
+| `Microsoft.EntityFrameworkCore.Sqlite` 8.0.11 | SQLite alternative |
+| `Microsoft.EntityFrameworkCore.Tools` 8.0.11 | Migrations CLI |
+| `ClosedXML` 0.104.2 | Excel export/import |
+| `QuestPDF` 2024.12.2 | PDF generation (Community license — set in `Program.cs`) |
+
+---
+
+## Localization
+
+- Supports Arabic (default), English, French
+- Culture set via request localization middleware
+- Resource files under `Resources/Views/` and `Resources/Models/`
+- `RequestLocalizationOptions` configured in `Program.cs`
+
+---
+
+## External Integrations
+
+- **Groq API** – LLM-powered chatbot (`ChatbotService`); API key and model configured in `appsettings.json` under `ChatbotSettings`
+- **QuestPDF** – Report PDF generation in `ReportsController`
+- **ClosedXML** – Excel export in `DataManagementController`
+
+---
+
+## Key Patterns & Conventions
+
+- **Service layer** – All business logic in `Services/`; controllers are thin
+- **No unit tests** – `DebugController` and `TestController` serve as development-mode testing endpoints
+- **Performance propagation** – Always update via `PlanService.UpdateProjectPerformance()` to keep hierarchy metrics consistent; never update performance fields directly
+- **Permissions** – Use the `Permissions` constants when adding new `[Authorize(Policy = ...)]` attributes; register the policy in `Program.cs`
+- **Migrations** – Run `dotnet ef migrations add <Name>` then `dotnet ef database update` after any model change; never edit existing migration files
+- **Seed data** – Location JSON files are in `SeedData/`; loaded once on startup if table is empty
