@@ -292,10 +292,11 @@
                                         @if (i < activity.Plans.Count)
                                         {
                                             var plan = activity.Plans[i];
-                                            <td class="editable-plan-cell" contenteditable="true"
+                                            <td class="editable-plan-cell"
                                                 data-plan-code="@plan.PlanCode"
-                                                data-value-type="Planned">
-                                                @plan.PlannedValue
+                                                data-value-type="Planned"
+                                                data-value="@plan.PlannedValue">
+                                                <span class="cell-display">@plan.PlannedValue</span>
                                             </td>
                                         }
                                         else
@@ -308,10 +309,11 @@
                                 {
                                     @foreach (var plan in activity.Plans)
                                     {
-                                        <td class="editable-plan-cell" contenteditable="true"
+                                        <td class="editable-plan-cell"
                                             data-plan-code="@plan.PlanCode"
-                                            data-value-type="Planned">
-                                            @plan.PlannedValue
+                                            data-value-type="Planned"
+                                            data-value="@plan.PlannedValue">
+                                            <span class="cell-display">@plan.PlannedValue</span>
                                         </td>
                                     }
                                     @for (int i = activity.Plans.Count; i < maxPlans; i++)
@@ -330,10 +332,11 @@
                                         @if (i < activity.Plans.Count)
                                         {
                                             var plan = activity.Plans[i];
-                                            <td class="editable-plan-cell" contenteditable="true"
+                                            <td class="editable-plan-cell"
                                                 data-plan-code="@plan.PlanCode"
-                                                data-value-type="Realised">
-                                                @plan.RealisedValue
+                                                data-value-type="Realised"
+                                                data-value="@plan.RealisedValue">
+                                                <span class="cell-display">@plan.RealisedValue</span>
                                             </td>
                                         }
                                         else
@@ -346,10 +349,11 @@
                                 {
                                     @foreach (var plan in activity.Plans)
                                     {
-                                        <td class="editable-plan-cell" contenteditable="true"
+                                        <td class="editable-plan-cell"
                                             data-plan-code="@plan.PlanCode"
-                                            data-value-type="Realised">
-                                            @plan.RealisedValue
+                                            data-value-type="Realised"
+                                            data-value="@plan.RealisedValue">
+                                            <span class="cell-display">@plan.RealisedValue</span>
                                         </td>
                                     }
                                     @for (int i = activity.Plans.Count; i < maxPlans; i++)
@@ -692,16 +696,43 @@
             cursor: pointer;
             transition: all 0.3s ease;
             min-width: 80px;
+            position: relative;
         }
 
         .editable-plan-cell:hover {
             background: rgba(0, 0, 0, 0.1);
-            transform: scale(1.05);
         }
 
-        .editable-plan-cell:focus {
-            outline: 2px solid var(--primary-color);
-            background: rgba(var(--primary-color-rgb), 0.2);
+        .editable-plan-cell .cell-display {
+            display: block;
+            width: 100%;
+            padding: 2px 4px;
+            border-radius: 6px;
+            transition: background 0.2s;
+        }
+
+        .editable-plan-cell:hover .cell-display {
+            background: rgba(var(--primary-color-rgb, 0, 123, 255), 0.08);
+        }
+
+        .editable-plan-cell .cell-input {
+            width: 100%;
+            border: 2px solid var(--primary-color, #0d6efd);
+            border-radius: 6px;
+            padding: 4px 8px;
+            font-size: inherit;
+            font-weight: 500;
+            text-align: center;
+            background: #fff;
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(var(--primary-color-rgb, 13, 110, 253), 0.15);
+            -moz-appearance: textfield;
+        }
+
+        .editable-plan-cell .cell-input::-webkit-outer-spin-button,
+        .editable-plan-cell .cell-input::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
         }
 
         .empty-plan-cell {
@@ -956,38 +987,81 @@
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
     <script>
         $(document).ready(function () {
-            let originalValue;
 
-            // Use event delegation for dynamically added content if needed in the future
-            $('body').on('focus', '.editable-plan-cell', function () {
-                originalValue = $(this).text().trim();
-                // Select all text in the cell for easy editing
-                //document.execCommand('selectAll', false, null);
+            // Click on a cell to start editing
+            $('body').on('click', '.editable-plan-cell', function (e) {
+                var cell = $(this);
+
+                // Already editing this cell
+                if (cell.find('.cell-input').length > 0) return;
+
+                // Close any other open editors first
+                $('.editable-plan-cell .cell-input').each(function () {
+                    cancelEdit($(this));
+                });
+
+                var display = cell.find('.cell-display');
+                var currentValue = cell.data('value');
+
+                // Hide the display span and show an input
+                display.hide();
+                var input = $('<input type="number" class="cell-input">')
+                    .val(currentValue)
+                    .appendTo(cell);
+
+                // Select all text so typing replaces it immediately
+                input.focus().select();
             });
 
-            $('body').on('blur', '.editable-plan-cell', function () {
-                var cell = $(this);
-                var newValue = cell.text().trim();
+            // Save on blur
+            $('body').on('blur', '.editable-plan-cell .cell-input', function () {
+                saveEdit($(this));
+            });
 
-                // If value hasn't changed, do nothing
-                if (newValue === originalValue) {
+            // Enter = save, Escape = cancel
+            $('body').on('keydown', '.editable-plan-cell .cell-input', function (e) {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    $(this).blur();
+                } else if (e.key === 'Escape') {
+                    e.preventDefault();
+                    cancelEdit($(this));
+                }
+            });
+
+            function cancelEdit(input) {
+                var cell = input.closest('.editable-plan-cell');
+                input.remove();
+                cell.find('.cell-display').show();
+            }
+
+            function saveEdit(input) {
+                var cell = input.closest('.editable-plan-cell');
+                var display = cell.find('.cell-display');
+                var originalValue = cell.data('value');
+                var newValue = input.val().trim();
+
+                // If empty or unchanged, just cancel
+                if (newValue === '' || newValue == originalValue) {
+                    cancelEdit(input);
                     return;
                 }
 
-                // Basic validation: ensure the value is a number
-                if (isNaN(newValue) || newValue === '') {
+                // Validate
+                if (isNaN(newValue)) {
                     cell.addClass('error');
-                    cell.text(originalValue); // Revert to original value
-                    // Optionally show a more specific alert
-                    // alert("Invalid input. Please enter a number.");
                     setTimeout(() => cell.removeClass('error'), 1500);
+                    cancelEdit(input);
                     return;
                 }
+
+                // Remove input, show saving state
+                input.remove();
+                display.text(newValue).show();
+                cell.removeClass('success error').addClass('saving');
 
                 var planCode = cell.data('plan-code');
                 var valueType = cell.data('value-type');
-
-                cell.removeClass('success error').addClass('saving');
 
                 $.ajax({
                     url: '@Url.Action("UpdatePlanValue", "Plans")',
@@ -999,30 +1073,22 @@
                     },
                     success: function (response) {
                         if (response.success) {
-                            // On success, simply reload the page to ensure all calculations and totals are updated from the server.
-                            // This is the most reliable way to reflect the change everywhere.
                             location.reload();
                         } else {
                             cell.removeClass('saving').addClass('error');
-                            cell.text(originalValue); // Revert on failure
+                            display.text(originalValue);
+                            cell.data('value', originalValue);
                             alert('Error: ' + response.message);
                         }
                     },
                     error: function (jqXHR, textStatus, errorThrown) {
                         cell.removeClass('saving').addClass('error');
-                        cell.text(originalValue); // Revert on AJAX error
+                        display.text(originalValue);
+                        cell.data('value', originalValue);
                         alert('A server error occurred: ' + textStatus + ' - ' + errorThrown);
                     }
                 });
-            });
-
-            // Allow Enter key to function like Tab (blur)
-            $('body').on('keydown', '.editable-plan-cell', function(e) {
-                if (e.key === 'Enter') {
-                    e.preventDefault();
-                    $(this).blur();
-                }
-            });
+            }
 
             // Quick Update Section - Toggle
             $('#toggleQuickUpdate, .quick-update-header').on('click', function() {
