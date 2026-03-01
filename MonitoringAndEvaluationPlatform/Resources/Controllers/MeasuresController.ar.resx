@@ -132,4 +132,13 @@
   <data name="Measure updated successfully and indicator performance has been updated." xml:space="preserve">
     <value>تم تحديث القياس بنجاح وتم تحديث أداء البرنامج.</value>
   </data>
+  <data name="Value must be between 0 and 100." xml:space="preserve">
+    <value>يجب أن تكون القيمة بين 0 و 100.</value>
+  </data>
+  <data name="Total measures value for this indicator cannot exceed 100%." xml:space="preserve">
+    <value>لا يمكن أن يتجاوز مجموع قيم الإنجازات لهذا المؤشر 100%.</value>
+  </data>
+  <data name="Measure updated successfully" xml:space="preserve">
+    <value>تم تحديث الإنجاز بنجاح</value>
+  </data>
 </root>

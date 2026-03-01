@@ -216,4 +216,70 @@
   <data name="Current Achievement" xml:space="preserve">
     <value>الإنجاز الحالي</value>
   </data>
+  <data name="Invalid Value" xml:space="preserve">
+    <value>قيمة غير صالحة</value>
+  </data>
+  <data name="Value must be between 0 and 100." xml:space="preserve">
+    <value>يجب أن تكون القيمة بين 0 و 100.</value>
+  </data>
+  <data name="Total measures value for this indicator cannot exceed 100%." xml:space="preserve">
+    <value>لا يمكن أن يتجاوز مجموع قيم الإنجازات لهذا المؤشر 100%.</value>
+  </data>
+  <data name="Current total" xml:space="preserve">
+    <value>المجموع الحالي</value>
+  </data>
+  <data name="Remaining" xml:space="preserve">
+    <value>المتبقي</value>
+  </data>
+  <data name="Other measures total" xml:space="preserve">
+    <value>مجموع الإنجازات الأخرى</value>
+  </data>
+  <data name="Error" xml:space="preserve">
+    <value>خطأ</value>
+  </data>
+  <data name="Failed to add measure. Please try again." xml:space="preserve">
+    <value>فشل إضافة الإنجاز. الرجاء المحاولة مرة أخرى.</value>
+  </data>
+  <data name="Failed to update measure. Please try again." xml:space="preserve">
+    <value>فشل تحديث الإنجاز. الرجاء المحاولة مرة أخرى.</value>
+  </data>
+  <data name="Deleted!" xml:space="preserve">
+    <value>تم الحذف!</value>
+  </data>
+  <data name="Measure has been deleted successfully" xml:space="preserve">
+    <value>تم حذف الإنجاز بنجاح</value>
+  </data>
+  <data name="Failed to delete measure. Please try again." xml:space="preserve">
+    <value>فشل حذف الإنجاز. الرجاء المحاولة مرة أخرى.</value>
+  </data>
+  <data name="Failed to load chart data" xml:space="preserve">
+    <value>فشل تحميل بيانات الرسم البياني</value>
+  </data>
+  <data name="Adding..." xml:space="preserve">
+    <value>جاري الإضافة...</value>
+  </data>
+  <data name="Measure updated successfully" xml:space="preserve">
+    <value>تم تحديث الإنجاز بنجاح</value>
+  </data>
+  <data name="View Details" xml:space="preserve">
+    <value>عرض التفاصيل</value>
+  </data>
+  <data name="View Chart" xml:space="preserve">
+    <value>عرض الرسم البياني</value>
+  </data>
+  <data name="Edit" xml:space="preserve">
+    <value>تعديل</value>
+  </data>
+  <data name="Delete" xml:space="preserve">
+    <value>حذف</value>
+  </data>
+  <data name="Save" xml:space="preserve">
+    <value>حفظ</value>
+  </data>
+  <data name="No measures have been added yet." xml:space="preserve">
+    <value>لم تُضَف أي إنجازات بعد.</value>
+  </data>
+  <data name="Target Reached" xml:space="preserve">
+    <value>تم بلوغ الهدف</value>
+  </data>
 </root>

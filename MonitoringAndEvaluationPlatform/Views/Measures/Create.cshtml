@@ -160,14 +160,14 @@
                             @Localizer["Achievement Value"] *
                         </label>
                         <div class="input-with-icon">
-                            <input asp-for="Value" type="number" step="0.01" min="0" class="modern-input" placeholder="0.00" required />
+                            <input asp-for="Value" type="number" step="0.01" min="0" max="100" class="modern-input" placeholder="0–100" required />
                             <div class="input-icon">
                                 <i class="fas fa-trophy"></i>
                             </div>
                         </div>
                         <span asp-validation-for="Value" class="field-error"></span>
                         <div class="field-info">
-                            @Localizer["Enter the achieved value for this indicator"]
+                            @Localizer["Enter the achieved percentage (0–100%)"]
                         </div>
                     </div>
 

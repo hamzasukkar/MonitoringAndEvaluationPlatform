@@ -1,0 +1,139 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="Measures" xml:space="preserve">
+    <value>التتبع والإنجاز</value>
+  </data>
+  <data name="Create" xml:space="preserve">
+    <value>إنشاء</value>
+  </data>
+  <data name="Create New Measure" xml:space="preserve">
+    <value>إضافة إنجاز جديد</value>
+  </data>
+  <data name="Back to List" xml:space="preserve">
+    <value>العودة إلى القائمة</value>
+  </data>
+  <data name="Success" xml:space="preserve">
+    <value>نجاح</value>
+  </data>
+  <data name="Error" xml:space="preserve">
+    <value>خطأ</value>
+  </data>
+  <data name="Creating Measure for Selected Indicator" xml:space="preserve">
+    <value>إضافة إنجاز للمؤشر المحدد</value>
+  </data>
+  <data name="Target" xml:space="preserve">
+    <value>الهدف</value>
+  </data>
+  <data name="Record Achievement" xml:space="preserve">
+    <value>تسجيل الإنجاز</value>
+  </data>
+  <data name="Indicator" xml:space="preserve">
+    <value>المؤشر</value>
+  </data>
+  <data name="This indicator was automatically selected from the project" xml:space="preserve">
+    <value>تم تحديد هذا المؤشر تلقائيًا من المشروع</value>
+  </data>
+  <data name="Select an Indicator" xml:space="preserve">
+    <value>اختر مؤشرًا</value>
+  </data>
+  <data name="Choose the indicator for which you are recording progress" xml:space="preserve">
+    <value>اختر المؤشر الذي تسجل له التقدم</value>
+  </data>
+  <data name="Achievement Date" xml:space="preserve">
+    <value>تاريخ الإنجاز</value>
+  </data>
+  <data name="Date when this progress was achieved" xml:space="preserve">
+    <value>التاريخ الذي تم فيه تحقيق هذا التقدم</value>
+  </data>
+  <data name="Achievement Value" xml:space="preserve">
+    <value>قيمة الإنجاز</value>
+  </data>
+  <data name="Enter the achieved percentage (0–100%)" xml:space="preserve">
+    <value>أدخل نسبة الإنجاز المحققة (0–100%)</value>
+  </data>
+  <data name="Indicator Target" xml:space="preserve">
+    <value>هدف المؤشر</value>
+  </data>
+  <data name="Your achievement will be measured against this target" xml:space="preserve">
+    <value>سيُقاس إنجازك بالنسبة لهذا الهدف</value>
+  </data>
+  <data name="Cancel" xml:space="preserve">
+    <value>إلغاء</value>
+  </data>
+  <data name="How It Works" xml:space="preserve">
+    <value>كيف يعمل</value>
+  </data>
+  <data name="Each measure records actual progress toward an indicator's target" xml:space="preserve">
+    <value>كل إنجاز يسجل التقدم الفعلي نحو هدف المؤشر</value>
+  </data>
+  <data name="Multiple measures can be added to track cumulative progress over time" xml:space="preserve">
+    <value>يمكن إضافة إنجازات متعددة لتتبع التقدم التراكمي بمرور الوقت</value>
+  </data>
+  <data name="Indicator performance is calculated as: (Total Achievements ÷ Indicator Target) × 100%" xml:space="preserve">
+    <value>يُحسب أداء المؤشر على النحو التالي: (مجموع الإنجازات ÷ هدف المؤشر) × 100%</value>
+  </data>
+  <data name="Performance automatically updates throughout the project hierarchy" xml:space="preserve">
+    <value>يتحدث الأداء تلقائيًا عبر التسلسل الهرمي للمشروع</value>
+  </data>
+  <data name="Recording..." xml:space="preserve">
+    <value>جاري التسجيل...</value>
+  </data>
+</root>

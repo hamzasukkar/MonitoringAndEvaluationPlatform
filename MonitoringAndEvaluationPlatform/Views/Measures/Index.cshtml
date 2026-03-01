@@ -243,7 +243,7 @@
                     </div>
                     <div class="col-md-4">
                         <label for="measureValue" class="form-label">@Localizer["Achievement Value"] *</label>
-                        <input type="number" id="measureValue" name="Value" step="0.01" min="0" class="form-control" placeholder="0.00" required />
+                        <input type="number" id="measureValue" name="Value" step="0.01" min="0" max="100" class="form-control" placeholder="0–100" required />
                     </div>
                     <div class="col-md-4 d-flex align-items-end">
                         <button type="submit" class="btn btn-gradient-primary w-100" id="addMeasureBtn">
@@ -312,7 +312,7 @@
                                 </td>
                                 <td class="text-center">
                                     <span class="modern-badge badge-success measure-value-display">@item.Value.ToString("N2")</span>
-                                    <input type="number" class="form-control form-control-sm measure-value-edit d-none" value="@item.Value" step="0.01" min="0" />
+                                    <input type="number" class="form-control form-control-sm measure-value-edit d-none" value="@item.Value" step="0.01" min="0" max="100" />
                                 </td>
                                 @if (ViewBag.SelectedIndicatorId == null)
                                 {
@@ -895,6 +895,19 @@
 
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script>
+        // Compute the sum of all measure values currently in the table,
+        // optionally excluding one row by its measure code.
+        function getMeasureTotal(excludeCode) {
+            let total = 0;
+            $('.table-row').each(function() {
+                const rowCode = $(this).attr('id').replace('row-', '');
+                if (excludeCode && rowCode == excludeCode) return;
+                const val = parseFloat($(this).find('.measure-value-display').text());
+                if (!isNaN(val)) total += val;
+            });
+            return total;
+        }
+
         $(document).ready(function() {
             // Option 2: Handle view details button click
             $('.view-details-btn').on('click', function() {
@@ -1043,11 +1056,23 @@
                 const btn = $(this);
                 const measureCode = btn.data('code');
                 const row = btn.closest('tr');
+                const editedValue = parseFloat(row.find('.measure-value-edit').val());
+
+                if (editedValue < 0 || editedValue > 100) {
+                    Swal.fire({ icon: 'error', title: '@Localizer["Invalid Value"]', text: '@Localizer["Value must be between 0 and 100."]', confirmButtonColor: 'var(--danger-color)' });
+                    return;
+                }
+
+                const otherTotal = getMeasureTotal(measureCode);
+                if (otherTotal + editedValue > 100) {
+                    Swal.fire({ icon: 'error', title: '@Localizer["Invalid Value"]', text: '@Localizer["Total measures value for this indicator cannot exceed 100%."]' + ' (@Localizer["Other measures total"]: ' + otherTotal.toFixed(2) + '%, @Localizer["Remaining"]: ' + (100 - otherTotal).toFixed(2) + '%)', confirmButtonColor: 'var(--danger-color)' });
+                    return;
+                }
 
                 const formData = {
                     Code: measureCode,
                     Date: row.find('.measure-date-edit').val(),
-                    Value: parseFloat(row.find('.measure-value-edit').val()),
+                    Value: editedValue,
                     __RequestVerificationToken: $('input[name="__RequestVerificationToken"]').val()
                 };
 
@@ -1082,7 +1107,7 @@
                         Swal.fire({
                             icon: 'success',
                             title: '@Localizer["Success"]',
-                            text: '@Localizer["Measure updated successfully"]',
+                            text: response.message || '@Localizer["Measure updated successfully"]',
                             timer: 2000,
                             showConfirmButton: false,
                             confirmButtonColor: 'var(--primary-color)',
@@ -1092,11 +1117,12 @@
                         });
                     },
                     error: function(xhr) {
-                        // Show error message
+                        var errMsg = '@Localizer["Failed to update measure. Please try again."]';
+                        try { var r = JSON.parse(xhr.responseText); if (r.message) errMsg = r.message; } catch(e) {}
                         Swal.fire({
                             icon: 'error',
                             title: '@Localizer["Error"]',
-                            text: '@Localizer["Failed to update measure. Please try again."]',
+                            text: errMsg,
                             confirmButtonColor: 'var(--danger-color)',
                             customClass: {
                                 popup: 'modern-swal-popup'
@@ -1114,9 +1140,21 @@
             $('#inlineMeasureForm').on('submit', function(e) {
                 e.preventDefault();
 
+                const rawValue = parseFloat($('#measureValue').val());
+                if (rawValue < 0 || rawValue > 100) {
+                    Swal.fire({ icon: 'error', title: '@Localizer["Invalid Value"]', text: '@Localizer["Value must be between 0 and 100."]', confirmButtonColor: 'var(--danger-color)' });
+                    return;
+                }
+
+                const currentTotal = getMeasureTotal(null);
+                if (currentTotal + rawValue > 100) {
+                    Swal.fire({ icon: 'error', title: '@Localizer["Invalid Value"]', text: '@Localizer["Total measures value for this indicator cannot exceed 100%."]' + ' (@Localizer["Current total"]: ' + currentTotal.toFixed(2) + '%, @Localizer["Remaining"]: ' + (100 - currentTotal).toFixed(2) + '%)', confirmButtonColor: 'var(--danger-color)' });
+                    return;
+                }
+
                 const formData = {
                     Date: $('#measureDate').val(),
-                    Value: parseFloat($('#measureValue').val()),
+                    Value: rawValue,
                     IndicatorCode: parseInt($('#indicatorCode').val())
                 };
 
@@ -1138,7 +1176,7 @@
                         Swal.fire({
                             icon: 'success',
                             title: '@Localizer["Success"]',
-                            text: '@Localizer["Measure added successfully and indicator performance updated"]',
+                            text: response.message || '@Localizer["Measure added successfully and indicator performance updated"]',
                             timer: 2000,
                             showConfirmButton: false,
                             confirmButtonColor: 'var(--primary-color)',
@@ -1157,11 +1195,12 @@
                         }, 2000);
                     },
                     error: function(xhr) {
-                        // Show error message
+                        var errMsg = '@Localizer["Failed to add measure. Please try again."]';
+                        try { var r = JSON.parse(xhr.responseText); if (r.message) errMsg = r.message; } catch(e) {}
                         Swal.fire({
                             icon: 'error',
                             title: '@Localizer["Error"]',
-                            text: '@Localizer["Failed to add measure. Please try again."]',
+                            text: errMsg,
                             confirmButtonColor: 'var(--danger-color)',
                             customClass: {
                                 popup: 'modern-swal-popup'
