@@ -1447,7 +1447,7 @@
 
     // Handle slider changes
     $(document).on('input', '.donor-slider', function() {
-        const donorValue = $(this).data('donor');
+        const donorValue = String($(this).data('donor'));
         const percentage = parseFloat($(this).val()) || 0;
 
         donorFundingData[donorValue] = percentage;
@@ -1460,7 +1460,7 @@
 
     // Handle text input changes
     $(document).on('input', '.donor-percentage-input', function() {
-        const donorValue = $(this).data('donor');
+        const donorValue = String($(this).data('donor'));
         let percentage = parseFloat($(this).val()) || 0;
 
         // Clamp value between 0 and 100
@@ -1477,7 +1477,7 @@
 
     // Handle text input blur to format the value
     $(document).on('blur', '.donor-percentage-input', function() {
-        const donorValue = $(this).data('donor');
+        const donorValue = String($(this).data('donor'));
         let percentage = parseFloat($(this).val()) || 0;
 
         // Clamp and format value
@@ -1489,7 +1489,7 @@
 
     // Handle remove donor button
     $(document).on('click', '.remove-donor-btn', function() {
-        const donorValue = $(this).data('donor');
+        const donorValue = String($(this).data('donor'));
 
         // Remove from selected donors array
         selectedDonors = selectedDonors.filter(d => d.value !== donorValue);
