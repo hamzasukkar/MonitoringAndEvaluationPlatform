@@ -37,9 +37,9 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             try
             {
                 // Find the Plan entity directly by its Primary Key (Code)
-                var planToUpdate = await _context.Plans.FindAsync(planCode);
+                var plan = await _context.Plans.FindAsync(planCode);
 
-                if (planToUpdate == null)
+                if (plan == null)
                 {
                     return Json(new { success = false, message = "The record could not be found." });
                 }
@@ -47,27 +47,25 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 // Update the correct property based on valueType
                 if (valueType == "Planned")
                 {
-                    planToUpdate.Planned = parsedValue;
+                    plan.Planned = parsedValue;
                 }
                 else if (valueType == "Realised")
                 {
-                    planToUpdate.Realised = parsedValue;
+                    plan.Realised = parsedValue;
                 }
                 else
                 {
                     return Json(new { success = false, message = "Invalid data type specified." });
                 }
-                var plan = _context.Plans.Find(planCode);
+
                 await _planService.UpdatePlanAsync(plan);
-                await _context.SaveChangesAsync();
 
                 // Return a success response
                 return Json(new { success = true });
             }
             catch (Exception ex)
             {
-                // Log the exception (using a proper logging framework is recommended)
-                return StatusCode(500, Json(new { success = false, message = "An internal server error occurred." }));
+                return Json(new { success = false, message = "An internal server error occurred: " + ex.Message });
             }
         }
         // GET: Plans
