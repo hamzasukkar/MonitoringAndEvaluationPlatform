@@ -11,6 +11,13 @@ using MonitoringAndEvaluationPlatform.Services;
 
 namespace MonitoringAndEvaluationPlatform.Controllers
 {
+    public class PlanValueUpdate
+    {
+        public int PlanCode { get; set; }
+        public string ValueType { get; set; }
+        public int NewValue { get; set; }
+    }
+
     public class PlansController : Controller
     {
         private readonly ApplicationDbContext _context;
@@ -21,6 +28,52 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             _context = context;
             _planService = planService;
         }
+
+        [HttpPost]
+        public async Task<IActionResult> UpdatePlanValues([FromBody] List<PlanValueUpdate> updates)
+        {
+            if (updates == null || !updates.Any())
+            {
+                return Json(new { success = false, message = "No updates provided." });
+            }
+
+            try
+            {
+                // Update all plans except the last one directly (no performance cascade)
+                for (int i = 0; i < updates.Count - 1; i++)
+                {
+                    var update = updates[i];
+                    var plan = await _context.Plans.FindAsync(update.PlanCode);
+                    if (plan == null) continue;
+
+                    if (update.ValueType == "Planned")
+                        plan.Planned = update.NewValue;
+                    else if (update.ValueType == "Realised")
+                        plan.Realised = update.NewValue;
+                }
+                await _context.SaveChangesAsync();
+
+                // For the last update, use _planService.UpdatePlanAsync to trigger performance cascade
+                var lastUpdate = updates.Last();
+                var lastPlan = await _context.Plans.FindAsync(lastUpdate.PlanCode);
+                if (lastPlan != null)
+                {
+                    if (lastUpdate.ValueType == "Planned")
+                        lastPlan.Planned = lastUpdate.NewValue;
+                    else if (lastUpdate.ValueType == "Realised")
+                        lastPlan.Realised = lastUpdate.NewValue;
+
+                    await _planService.UpdatePlanAsync(lastPlan);
+                }
+
+                return Json(new { success = true });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = "An internal server error occurred: " + ex.Message });
+            }
+        }
+
         [HttpPost]
         public async Task<IActionResult> UpdatePlanValue(int planCode, string valueType, string newValue)
         {

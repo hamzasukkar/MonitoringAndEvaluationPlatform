@@ -195,6 +195,26 @@
     </div>
 </div>
 
+<!-- Save Bar -->
+<div class="save-bar" id="saveBar">
+    <div class="save-bar-content">
+        <div class="save-bar-info">
+            <i class="fas fa-exclamation-circle"></i>
+            <span id="changeCount">0</span> @Localizer["unsaved changes"]
+        </div>
+        <div class="save-bar-actions">
+            <button type="button" class="btn-discard" id="discardBtn">
+                <i class="fas fa-undo"></i>
+                @Localizer["Discard"]
+            </button>
+            <button type="button" class="btn-save" id="saveAllBtn">
+                <i class="fas fa-save"></i>
+                @Localizer["Save All"]
+            </button>
+        </div>
+    </div>
+</div>
+
 <!-- Activity Plans Section -->
 <div class="modern-activity-section">
 
@@ -292,11 +312,10 @@
                                         @if (i < activity.Plans.Count)
                                         {
                                             var plan = activity.Plans[i];
-                                            <td class="editable-plan-cell"
+                                            <td class="editable-plan-cell" contenteditable="true"
                                                 data-plan-code="@plan.PlanCode"
-                                                data-value-type="Planned"
-                                                data-value="@plan.PlannedValue">
-                                                <span class="cell-display">@plan.PlannedValue</span>
+                                                data-value-type="Planned">
+                                                @plan.PlannedValue
                                             </td>
                                         }
                                         else
@@ -309,11 +328,10 @@
                                 {
                                     @foreach (var plan in activity.Plans)
                                     {
-                                        <td class="editable-plan-cell"
+                                        <td class="editable-plan-cell" contenteditable="true"
                                             data-plan-code="@plan.PlanCode"
-                                            data-value-type="Planned"
-                                            data-value="@plan.PlannedValue">
-                                            <span class="cell-display">@plan.PlannedValue</span>
+                                            data-value-type="Planned">
+                                            @plan.PlannedValue
                                         </td>
                                     }
                                     @for (int i = activity.Plans.Count; i < maxPlans; i++)
@@ -332,11 +350,10 @@
                                         @if (i < activity.Plans.Count)
                                         {
                                             var plan = activity.Plans[i];
-                                            <td class="editable-plan-cell"
+                                            <td class="editable-plan-cell" contenteditable="true"
                                                 data-plan-code="@plan.PlanCode"
-                                                data-value-type="Realised"
-                                                data-value="@plan.RealisedValue">
-                                                <span class="cell-display">@plan.RealisedValue</span>
+                                                data-value-type="Realised">
+                                                @plan.RealisedValue
                                             </td>
                                         }
                                         else
@@ -349,11 +366,10 @@
                                 {
                                     @foreach (var plan in activity.Plans)
                                     {
-                                        <td class="editable-plan-cell"
+                                        <td class="editable-plan-cell" contenteditable="true"
                                             data-plan-code="@plan.PlanCode"
-                                            data-value-type="Realised"
-                                            data-value="@plan.RealisedValue">
-                                            <span class="cell-display">@plan.RealisedValue</span>
+                                            data-value-type="Realised">
+                                            @plan.RealisedValue
                                         </td>
                                     }
                                     @for (int i = activity.Plans.Count; i < maxPlans; i++)
@@ -696,43 +712,15 @@
             cursor: pointer;
             transition: all 0.3s ease;
             min-width: 80px;
-            position: relative;
         }
 
         .editable-plan-cell:hover {
             background: rgba(0, 0, 0, 0.1);
         }
 
-        .editable-plan-cell .cell-display {
-            display: block;
-            width: 100%;
-            padding: 2px 4px;
-            border-radius: 6px;
-            transition: background 0.2s;
-        }
-
-        .editable-plan-cell:hover .cell-display {
-            background: rgba(var(--primary-color-rgb, 0, 123, 255), 0.08);
-        }
-
-        .editable-plan-cell .cell-input {
-            width: 100%;
-            border: 2px solid var(--primary-color, #0d6efd);
-            border-radius: 6px;
-            padding: 4px 8px;
-            font-size: inherit;
-            font-weight: 500;
-            text-align: center;
-            background: #fff;
-            outline: none;
-            box-shadow: 0 0 0 3px rgba(var(--primary-color-rgb, 13, 110, 253), 0.15);
-            -moz-appearance: textfield;
-        }
-
-        .editable-plan-cell .cell-input::-webkit-outer-spin-button,
-        .editable-plan-cell .cell-input::-webkit-inner-spin-button {
-            -webkit-appearance: none;
-            margin: 0;
+        .editable-plan-cell:focus {
+            outline: 2px solid var(--primary-color);
+            background: rgba(var(--primary-color-rgb), 0.2);
         }
 
         .empty-plan-cell {
@@ -794,6 +782,93 @@
             font-size: 1rem;
             max-width: 400px;
             margin: 0 auto;
+        }
+
+        /* Save Bar */
+        .save-bar {
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            display: none;
+            margin-bottom: 1.5rem;
+        }
+
+        .save-bar.visible {
+            display: block;
+        }
+
+        .save-bar-content {
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            border-radius: 15px;
+            padding: 1rem 2rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        }
+
+        .save-bar-info {
+            color: #ffd700;
+            font-weight: 600;
+            font-size: 0.95rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .save-bar-actions {
+            display: flex;
+            gap: 0.75rem;
+        }
+
+        .btn-discard {
+            background: rgba(255, 255, 255, 0.1);
+            color: #fff;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            padding: 0.5rem 1.25rem;
+            border-radius: 10px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-discard:hover {
+            background: rgba(220, 53, 69, 0.3);
+            border-color: rgba(220, 53, 69, 0.5);
+        }
+
+        .btn-save {
+            background: linear-gradient(135deg, #28a745 0%, #218838 100%);
+            color: #fff;
+            border: none;
+            padding: 0.5rem 1.25rem;
+            border-radius: 10px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-save:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(40, 167, 69, 0.4);
+        }
+
+        .btn-save:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        /* Modified Cell Highlight */
+        .editable-plan-cell.modified {
+            background: rgba(255, 193, 7, 0.25) !important;
+            box-shadow: inset 0 0 0 2px rgba(255, 193, 7, 0.5);
         }
 
         /* Status Animations */
@@ -987,108 +1062,130 @@
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
     <script>
         $(document).ready(function () {
+            let currentOriginalValue;
 
-            // Click on a cell to start editing
-            $('body').on('click', '.editable-plan-cell', function (e) {
+            function updateSaveBar() {
+                var count = $('.editable-plan-cell.modified').length;
+                $('#changeCount').text(count);
+                if (count > 0) {
+                    $('#saveBar').addClass('visible');
+                } else {
+                    $('#saveBar').removeClass('visible');
+                }
+            }
+
+            // On focus: store the current value and select all text
+            $('body').on('focus', '.editable-plan-cell', function () {
                 var cell = $(this);
-
-                // Already editing this cell
-                if (cell.find('.cell-input').length > 0) return;
-
-                // Close any other open editors first
-                $('.editable-plan-cell .cell-input').each(function () {
-                    cancelEdit($(this));
-                });
-
-                var display = cell.find('.cell-display');
-                var currentValue = cell.data('value');
-
-                // Hide the display span and show an input
-                display.hide();
-                var input = $('<input type="number" class="cell-input">')
-                    .val(currentValue)
-                    .appendTo(cell);
-
-                // Select all text so typing replaces it immediately
-                input.focus().select();
+                // Store the original server value on first edit
+                if (cell.data('original-value') === undefined) {
+                    cell.data('original-value', cell.text().trim());
+                }
+                currentOriginalValue = cell.text().trim();
+                var el = this;
+                setTimeout(function () {
+                    var range = document.createRange();
+                    range.selectNodeContents(el);
+                    var sel = window.getSelection();
+                    sel.removeAllRanges();
+                    sel.addRange(range);
+                }, 0);
             });
 
-            // Save on blur
-            $('body').on('blur', '.editable-plan-cell .cell-input', function () {
-                saveEdit($(this));
+            // On blur: validate and mark as modified (no auto-save)
+            $('body').on('blur', '.editable-plan-cell', function () {
+                var cell = $(this);
+                var newValue = cell.text().trim();
+                var originalValue = cell.data('original-value');
+
+                // Validate: must be a number
+                if (isNaN(newValue) || newValue === '') {
+                    cell.addClass('error');
+                    cell.text(currentOriginalValue);
+                    setTimeout(() => cell.removeClass('error'), 1500);
+                    return;
+                }
+
+                // Check if value differs from original server value
+                if (newValue === String(originalValue)) {
+                    cell.removeClass('modified');
+                } else {
+                    cell.addClass('modified');
+                }
+                updateSaveBar();
             });
 
-            // Enter = save, Escape = cancel
-            $('body').on('keydown', '.editable-plan-cell .cell-input', function (e) {
+            // Enter = confirm edit, Escape = revert cell
+            $('body').on('keydown', '.editable-plan-cell', function(e) {
                 if (e.key === 'Enter') {
                     e.preventDefault();
                     $(this).blur();
                 } else if (e.key === 'Escape') {
                     e.preventDefault();
-                    cancelEdit($(this));
+                    var cell = $(this);
+                    var originalValue = cell.data('original-value');
+                    if (originalValue !== undefined) {
+                        cell.text(originalValue);
+                        cell.removeClass('modified');
+                    } else {
+                        cell.text(currentOriginalValue);
+                    }
+                    cell.blur();
+                    updateSaveBar();
                 }
             });
 
-            function cancelEdit(input) {
-                var cell = input.closest('.editable-plan-cell');
-                input.remove();
-                cell.find('.cell-display').show();
-            }
+            // Discard all changes
+            $('#discardBtn').on('click', function() {
+                $('.editable-plan-cell.modified').each(function() {
+                    var cell = $(this);
+                    cell.text(cell.data('original-value'));
+                    cell.removeClass('modified');
+                    cell.removeData('original-value');
+                });
+                updateSaveBar();
+            });
 
-            function saveEdit(input) {
-                var cell = input.closest('.editable-plan-cell');
-                var display = cell.find('.cell-display');
-                var originalValue = cell.data('value');
-                var newValue = input.val().trim();
+            // Save all changes
+            $('#saveAllBtn').on('click', function() {
+                var updates = [];
+                $('.editable-plan-cell.modified').each(function() {
+                    var cell = $(this);
+                    updates.push({
+                        planCode: cell.data('plan-code'),
+                        valueType: cell.data('value-type'),
+                        newValue: parseInt(cell.text().trim(), 10)
+                    });
+                });
 
-                // If empty or unchanged, just cancel
-                if (newValue === '' || newValue == originalValue) {
-                    cancelEdit(input);
-                    return;
-                }
+                if (updates.length === 0) return;
 
-                // Validate
-                if (isNaN(newValue)) {
-                    cell.addClass('error');
-                    setTimeout(() => cell.removeClass('error'), 1500);
-                    cancelEdit(input);
-                    return;
-                }
-
-                // Remove input, show saving state
-                input.remove();
-                display.text(newValue).show();
-                cell.removeClass('success error').addClass('saving');
-
-                var planCode = cell.data('plan-code');
-                var valueType = cell.data('value-type');
+                var btn = $(this);
+                var originalHtml = btn.html();
+                btn.prop('disabled', true).html('<i class="fas fa-spinner fa-spin"></i> @Localizer["Saving..."]');
+                $('#discardBtn').prop('disabled', true);
 
                 $.ajax({
-                    url: '@Url.Action("UpdatePlanValue", "Plans")',
+                    url: '@Url.Action("UpdatePlanValues", "Plans")',
                     type: 'POST',
-                    data: {
-                        planCode: planCode,
-                        valueType: valueType,
-                        newValue: newValue
-                    },
-                    success: function (response) {
+                    contentType: 'application/json',
+                    data: JSON.stringify(updates),
+                    success: function(response) {
                         if (response.success) {
                             location.reload();
                         } else {
-                            cell.removeClass('saving').addClass('error');
-                            display.text(originalValue);
-                            cell.data('value', originalValue);
-                            alert('Error: ' + response.message);
+                            alert('@Localizer["Error"]: ' + response.message);
+                            btn.prop('disabled', false).html(originalHtml);
+                            $('#discardBtn').prop('disabled', false);
                         }
                     },
-                    error: function (jqXHR, textStatus, errorThrown) {
-                        cell.removeClass('saving').addClass('error');
-                        display.text(originalValue);
-                        cell.data('value', originalValue);
-                        alert('A server error occurred: ' + textStatus + ' - ' + errorThrown);
+                    error: function(jqXHR, textStatus, errorThrown) {
+                        alert('@Localizer["A server error occurred"]: ' + textStatus);
+                        btn.prop('disabled', false).html(originalHtml);
+                        $('#discardBtn').prop('disabled', false);
                     }
                 });
-            }
+            });
 
             // Quick Update Section - Toggle
             $('#toggleQuickUpdate, .quick-update-header').on('click', function() {
