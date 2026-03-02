@@ -1189,12 +1189,6 @@
                             <span>@Localizer["Set Up"]</span>
                         </a>
                     </li>
-                    <li>
-                        <a href="/AuditLogs/Index" class="sidebar-link @(Context.Request.Path.Value.Contains("AuditLogs") ? "active" : "")">
-                            <i class="fas fa-history"></i>
-                            <span>@Localizer["Audit Logs"]</span>
-                        </a>
-                    </li>
                 }
                 @*  <li>
                     <a href="/Projects/Index" class="sidebar-link @(Context.Request.Path.Value.Contains("Projects") ? "active" : "")">
@@ -1227,6 +1221,15 @@
                         <span>@Localizer["Reports"]</span>
                     </a>
                 </li>
+                @if (User.IsInRole("SystemAdministrator"))
+                {
+                    <li>
+                        <a href="/AuditLogs/Index" class="sidebar-link @(Context.Request.Path.Value.Contains("AuditLogs") ? "active" : "")">
+                            <i class="fas fa-history"></i>
+                            <span>@Localizer["Audit Logs"]</span>
+                        </a>
+                    </li>
+                }
                 <li>
                     <a href="@Url.Action("UserGuide", "Home")" class="sidebar-link @(Context.Request.Path.Value.Contains("UserGuide") ? "active" : "")">
                         <i class="fas fa-book-open"></i>
