@@ -1145,6 +1145,54 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             return RedirectToAction(nameof(Index));
         }
 
+        [HttpPost]
+        [Authorize(Roles = UserRoles.SystemAdministrator)]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> DeleteSelected([FromBody] List<int> ids)
+        {
+            if (ids == null || !ids.Any())
+                return Json(new { success = false, message = "No projects selected." });
+
+            var errors = new List<string>();
+            var deletedCount = 0;
+
+            var planService = new PlanService(_context);
+            var monitoringService = new MonitoringService(_context);
+
+            foreach (var id in ids)
+            {
+                try
+                {
+                    var project = await _context.Projects
+                        .Include(p => p.ProjectIndicators)
+                        .FirstOrDefaultAsync(p => p.ProjectID == id);
+
+                    if (project == null) continue;
+
+                    var affectedIndicatorIds = project.ProjectIndicators
+                        .Select(pi => pi.IndicatorCode)
+                        .Distinct()
+                        .ToList();
+
+                    await monitoringService.DeleteProjectAndRecalculateAsync(id);
+
+                    if (affectedIndicatorIds.Any())
+                        await planService.RecalculateIndicatorsPerformance(affectedIndicatorIds);
+
+                    deletedCount++;
+                }
+                catch (Exception ex)
+                {
+                    errors.Add($"Project {id}: {ex.Message}");
+                }
+            }
+
+            if (errors.Any())
+                return Json(new { success = false, message = $"Deleted {deletedCount} project(s). Errors: {string.Join("; ", errors)}" });
+
+            return Json(new { success = true, message = $"{deletedCount} project(s) deleted successfully.", deletedIds = ids });
+        }
+
         private bool ProgramExists(int id)
         {
             return _context.Projects.Any(e => e.ProjectID == id);

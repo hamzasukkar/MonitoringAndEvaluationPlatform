@@ -21,8 +21,14 @@
                 @Localizer["Filter and analyze project performance with comprehensive insights"]
             </p>
         </div>
-        <div class="dashboard-actions d-flex gap-2">
+        <div class="dashboard-actions d-flex gap-2 align-items-center">
             @await Html.PartialAsync("_HelpButton")
+            @if (User.IsInRole("SystemAdministrator"))
+            {
+                <button type="button" id="deleteSelectedBtn" class="btn btn-danger d-none" onclick="deleteSelectedProjects()">
+                    <i class="fas fa-trash-alt me-2"></i>@Localizer["Delete Selected"] (<span id="selectedCount">0</span>)
+                </button>
+            }
             <a asp-action="Create" class="btn btn-gradient-primary">
                 <i class="fas fa-plus me-2"></i>@Localizer["Create New Project"]
             </a>
@@ -427,6 +433,12 @@
                         <table class="modern-table">
                             <thead class="table-header">
                                 <tr>
+                                    @if (User.IsInRole("SystemAdministrator"))
+                                    {
+                                        <th style="width:48px; text-align:center;">
+                                            <input type="checkbox" id="selectAllCheckbox" class="project-checkbox" title="@Localizer["Select All"]" style="width:18px;height:18px;cursor:pointer;" />
+                                        </th>
+                                    }
                                     <th>
                                         <i class="fas fa-project-diagram me-2"></i>@Localizer["Project Name"]
                                     </th>
@@ -485,6 +497,12 @@
                                     }
 
                                     <tr id="row_@item.ProjectID" class="table-row" data-performance="@performance" data-disbursement="@disbursement">
+                                        @if (User.IsInRole("SystemAdministrator"))
+                                        {
+                                            <td style="text-align:center; vertical-align:middle;">
+                                                <input type="checkbox" class="project-row-checkbox" data-id="@item.ProjectID" style="width:18px;height:18px;cursor:pointer;" />
+                                            </td>
+                                        }
                                         <td class="project-name-cell">
                                             <div class="d-flex align-items-center">
                                                 <div class="project-icon me-3">
@@ -1407,6 +1425,122 @@
             icon.className = 'fas fa-sort-up ms-2';
         }
     }
+
+    // ── Admin: Select-All & Delete Selected ──────────────────────────────────
+    function updateDeleteSelectedBtn() {
+        const checked = $('.project-row-checkbox:checked').length;
+        $('#selectedCount').text(checked);
+        if (checked > 0) {
+            $('#deleteSelectedBtn').removeClass('d-none');
+        } else {
+            $('#deleteSelectedBtn').addClass('d-none');
+        }
+    }
+
+    // Select-all checkbox
+    $(document).on('change', '#selectAllCheckbox', function () {
+        $('.project-row-checkbox').prop('checked', this.checked);
+        updateDeleteSelectedBtn();
+    });
+
+    // Individual row checkbox
+    $(document).on('change', '.project-row-checkbox', function () {
+        const total = $('.project-row-checkbox').length;
+        const checked = $('.project-row-checkbox:checked').length;
+        $('#selectAllCheckbox').prop('indeterminate', checked > 0 && checked < total);
+        $('#selectAllCheckbox').prop('checked', checked === total);
+        updateDeleteSelectedBtn();
+    });
+
+    function deleteSelectedProjects() {
+        const selectedIds = $('.project-row-checkbox:checked').map(function () {
+            return parseInt($(this).data('id'));
+        }).get();
+
+        if (selectedIds.length === 0) return;
+
+        Swal.fire({
+            title: '@Localizer["Are you sure?"]',
+            html: `@Localizer["You are about to permanently delete"] <strong>${selectedIds.length}</strong> @Localizer["project(s). This action cannot be undone!"]`,
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonText: '@Localizer["Yes, delete all!"]',
+            cancelButtonText: '@Localizer["Cancel"]',
+            reverseButtons: true,
+            confirmButtonColor: '#dc3545',
+            cancelButtonColor: 'var(--secondary-color)',
+            customClass: { popup: 'modern-swal-popup', title: 'modern-swal-title' }
+        }).then((result) => {
+            if (!result.isConfirmed) return;
+
+            // Second confirmation for extra safety
+            Swal.fire({
+                title: '@Localizer["Final Confirmation"]',
+                html: `@Localizer["Type"] <strong>DELETE</strong> @Localizer["to confirm"]`,
+                input: 'text',
+                inputPlaceholder: 'DELETE',
+                showCancelButton: true,
+                confirmButtonText: '@Localizer["Confirm Delete"]',
+                cancelButtonText: '@Localizer["Cancel"]',
+                confirmButtonColor: '#dc3545',
+                cancelButtonColor: 'var(--secondary-color)',
+                customClass: { popup: 'modern-swal-popup' },
+                preConfirm: (value) => {
+                    if (value !== 'DELETE') {
+                        Swal.showValidationMessage('@Localizer["Please type DELETE to confirm"]');
+                    }
+                }
+            }).then((res) => {
+                if (!res.isConfirmed) return;
+
+                $.ajax({
+                    url: '@Url.Action("DeleteSelected", "Projects")',
+                    type: 'POST',
+                    contentType: 'application/json',
+                    data: JSON.stringify(selectedIds),
+                    headers: { 'RequestVerificationToken': token },
+                    success: function (response) {
+                        if (response.success) {
+                            // Remove rows from table
+                            response.deletedIds.forEach(id => {
+                                $(`#row_${id}`).fadeOut(400, function () { $(this).remove(); });
+                            });
+                            // Reset checkboxes & button
+                            $('#selectAllCheckbox').prop('checked', false).prop('indeterminate', false);
+                            $('#deleteSelectedBtn').addClass('d-none');
+                            $('#selectedCount').text('0');
+
+                            Swal.fire({
+                                title: '@Localizer["Deleted!"]',
+                                text: response.message,
+                                icon: 'success',
+                                confirmButtonColor: 'var(--primary-color)',
+                                customClass: { popup: 'modern-swal-popup' }
+                            });
+                        } else {
+                            Swal.fire({
+                                title: '@Localizer["Error"]',
+                                text: response.message,
+                                icon: 'error',
+                                confirmButtonColor: '#dc3545',
+                                customClass: { popup: 'modern-swal-popup' }
+                            });
+                        }
+                    },
+                    error: function () {
+                        Swal.fire({
+                            title: '@Localizer["Error"]',
+                            text: '@Localizer["Failed to delete selected projects."]',
+                            icon: 'error',
+                            confirmButtonColor: '#dc3545',
+                            customClass: { popup: 'modern-swal-popup' }
+                        });
+                    }
+                });
+            });
+        });
+    }
+    // ─────────────────────────────────────────────────────────────────────────
 
     // Search functionality with instant search
     $(document).ready(function() {
