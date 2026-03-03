@@ -289,6 +289,7 @@
                         @if (item.Project != null)
                         {
                             var proj = item.Project;
+                            double remainingBudget = proj.EstimatedBudget - (proj.Phases?.Sum(p => p.Budget) ?? 0);
                             <tr class="expandable-row" id="projects-row-@item.IndicatorCode" style="display:none;">
                                 <td colspan="7">
                                     <div class="phases-expanded-content">
@@ -403,9 +404,18 @@
                                                                        max="@proj.EndDate.ToString("yyyy-MM-dd")" />
                                                             </div>
                                                             <div class="col-md-2">
-                                                                <label class="form-label fw-semibold small mb-1">@Localizer["Budget"]</label>
+                                                                <label class="form-label fw-semibold small mb-1">
+                                                                    @Localizer["Budget"]
+                                                                    <span class="budget-max-hint">
+                                                                        (@proj.CurrencySymbol@remainingBudget.ToString("N0") @Localizer["available"])
+                                                                    </span>
+                                                                </label>
                                                                 <input type="number" name="Budget" class="form-control form-control-sm"
-                                                                       required min="0" step="0.01" placeholder="0.00" />
+                                                                       required min="0" step="0.01" placeholder="0.00"
+                                                                       max="@remainingBudget"
+                                                                       id="budget-input-@proj.ProjectID"
+                                                                       oninput="updateBudgetRemaining(@proj.ProjectID, @remainingBudget, '@proj.CurrencySymbol')" />
+                                                                <div id="budget-remaining-@proj.ProjectID" class="budget-remaining-display mt-1"></div>
                                                             </div>
                                                             <div class="col-md-2 d-flex gap-1">
                                                                 <button type="submit" class="btn btn-success btn-sm flex-fill">
@@ -576,6 +586,24 @@
             });
         }
         
+        // ── Budget remaining live counter ─────────────────────────────────
+        function updateBudgetRemaining(projectId, maxBudget, symbol) {
+            const input   = document.getElementById(`budget-input-${projectId}`);
+            const display = document.getElementById(`budget-remaining-${projectId}`);
+            const entered = parseFloat(input.value) || 0;
+
+            if (entered <= 0) { display.innerHTML = ''; return; }
+
+            const remaining = maxBudget - entered;
+            const fmt = v => Math.abs(v).toLocaleString(undefined, { maximumFractionDigits: 0 });
+
+            if (remaining < 0) {
+                display.innerHTML = `<span class="budget-over"><i class="fas fa-exclamation-triangle me-1"></i>Exceeds by ${symbol}${fmt(remaining)}</span>`;
+            } else {
+                display.innerHTML = `<span class="budget-ok"><i class="fas fa-check-circle me-1"></i>${symbol}${fmt(remaining)} remaining</span>`;
+            }
+        }
+
         // ── Inline Add Phase form ──────────────────────────────────────────
         function showAddPhaseForm(projectId, indicatorCode) {
             const formWrap = document.getElementById(`add-phase-form-${projectId}`);
@@ -1112,6 +1140,15 @@
         }
         .btn-close-form:hover { color: white; }
         .add-phase-form-body { padding: 1rem 1rem 0.75rem; }
+        .budget-max-hint {
+            color: #6c757d;
+            font-size: 0.68rem;
+            font-weight: 400;
+            margin-left: 0.25rem;
+        }
+        .budget-remaining-display { min-height: 1.1rem; font-size: 0.72rem; }
+        .budget-ok   { color: #28a745; font-weight: 600; }
+        .budget-over { color: #dc3545; font-weight: 600; }
 
         /* ── Phase count pill on expand button ────────────── */
         .phase-count-pill {
