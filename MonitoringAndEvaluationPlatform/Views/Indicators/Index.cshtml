@@ -382,7 +382,7 @@
                                                         @Html.AntiForgeryToken()
                                                         <input type="hidden" name="ProjectID" value="@proj.ProjectID" />
                                                         <div class="row g-2 align-items-end">
-                                                            <div class="col-md-4">
+                                                            <div class="col-md-3">
                                                                 <label class="form-label fw-semibold small mb-1">@Localizer["Phase Name"]</label>
                                                                 <input type="text" name="Name" class="form-control form-control-sm"
                                                                        required placeholder="@Localizer["Enter phase name..."]" />
@@ -403,18 +403,22 @@
                                                                        min="@proj.StartDate.ToString("yyyy-MM-dd")"
                                                                        max="@proj.EndDate.ToString("yyyy-MM-dd")" />
                                                             </div>
-                                                            <div class="col-md-2">
+                                                            <div class="col-md-3">
                                                                 <label class="form-label fw-semibold small mb-1">
                                                                     @Localizer["Budget"]
                                                                     <span class="budget-max-hint">
                                                                         (@proj.CurrencySymbol@remainingBudget.ToString("N0") @Localizer["available"])
                                                                     </span>
                                                                 </label>
-                                                                <input type="number" name="Budget" class="form-control form-control-sm"
+                                                                <input type="number" name="Budget" class="form-control form-control-sm mb-1"
                                                                        required min="0" step="0.01" placeholder="0.00"
                                                                        max="@remainingBudget"
                                                                        id="budget-input-@proj.ProjectID"
-                                                                       oninput="updateBudgetRemaining(@proj.ProjectID, @remainingBudget, '@proj.CurrencySymbol')" />
+                                                                       oninput="syncBudget(@proj.ProjectID, @remainingBudget, '@proj.CurrencySymbol', 'number')" />
+                                                                <input type="range" class="budget-slider"
+                                                                       min="0" max="@remainingBudget" step="1" value="0"
+                                                                       id="budget-slider-@proj.ProjectID"
+                                                                       oninput="syncBudget(@proj.ProjectID, @remainingBudget, '@proj.CurrencySymbol', 'slider')" />
                                                                 <div id="budget-remaining-@proj.ProjectID" class="budget-remaining-display mt-1"></div>
                                                             </div>
                                                             <div class="col-md-2 d-flex gap-1">
@@ -587,14 +591,24 @@
         }
         
         // ── Budget remaining live counter ─────────────────────────────────
-        function updateBudgetRemaining(projectId, maxBudget, symbol) {
-            const input   = document.getElementById(`budget-input-${projectId}`);
-            const display = document.getElementById(`budget-remaining-${projectId}`);
-            const entered = parseFloat(input.value) || 0;
+        function syncBudget(projectId, maxBudget, symbol, source) {
+            const numInput = document.getElementById(`budget-input-${projectId}`);
+            const slider   = document.getElementById(`budget-slider-${projectId}`);
+            const display  = document.getElementById(`budget-remaining-${projectId}`);
 
-            if (entered <= 0) { display.innerHTML = ''; return; }
+            let value;
+            if (source === 'slider') {
+                value = parseFloat(slider.value) || 0;
+                numInput.value = value;
+            } else {
+                value = parseFloat(numInput.value) || 0;
+                // clamp slider to its max so it doesn't go negative
+                slider.value = Math.min(value, maxBudget);
+            }
 
-            const remaining = maxBudget - entered;
+            if (value <= 0) { display.innerHTML = ''; return; }
+
+            const remaining = maxBudget - value;
             const fmt = v => Math.abs(v).toLocaleString(undefined, { maximumFractionDigits: 0 });
 
             if (remaining < 0) {
@@ -623,6 +637,11 @@
             // Reset the form
             const form = document.getElementById(`phase-form-${projectId}`);
             if (form) form.reset();
+            // Reset slider and budget display
+            const slider  = document.getElementById(`budget-slider-${projectId}`);
+            const display = document.getElementById(`budget-remaining-${projectId}`);
+            if (slider)  slider.value = 0;
+            if (display) display.innerHTML = '';
         }
 
         async function submitPhaseForm(event, projectId, indicatorCode) {
@@ -1149,6 +1168,13 @@
         .budget-remaining-display { min-height: 1.1rem; font-size: 0.72rem; }
         .budget-ok   { color: #28a745; font-weight: 600; }
         .budget-over { color: #dc3545; font-weight: 600; }
+        .budget-slider {
+            width: 100%;
+            accent-color: #28a745;
+            cursor: pointer;
+            height: 4px;
+            margin-top: 2px;
+        }
 
         /* ── Phase count pill on expand button ────────────── */
         .phase-count-pill {
