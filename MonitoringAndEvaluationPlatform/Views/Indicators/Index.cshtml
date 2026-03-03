@@ -343,13 +343,13 @@
                                                         </div>
                                                     </div>
                                                 }
-                                                <!-- Add Phase dashed card -->
-                                                <div class="phase-card phase-add-card">
-                                                    <a asp-action="Create" asp-controller="ProjectPhases" asp-route-projectId="@proj.ProjectID"
-                                                       class="add-phase-link">
+                                                <!-- Add Phase dashed card — toggles inline form below -->
+                                                <div class="phase-card phase-add-card" id="add-phase-card-@proj.ProjectID">
+                                                    <button type="button" class="add-phase-link"
+                                                            onclick="showAddPhaseForm(@proj.ProjectID, @item.IndicatorCode)">
                                                         <i class="fas fa-plus-circle fa-2x mb-2"></i>
                                                         <span>@Localizer["Add Phase"]</span>
-                                                    </a>
+                                                    </button>
                                                 </div>
                                             </div>
                                         }
@@ -358,12 +358,70 @@
                                             <div class="phases-empty">
                                                 <i class="fas fa-layer-group fa-2x mb-2 opacity-50"></i>
                                                 <p class="mb-3">@Localizer["No phases yet for this project."]</p>
-                                                <a asp-action="Create" asp-controller="ProjectPhases" asp-route-projectId="@proj.ProjectID"
-                                                   class="btn btn-success btn-sm">
+                                                <button type="button" class="btn btn-success btn-sm"
+                                                        onclick="showAddPhaseForm(@proj.ProjectID, @item.IndicatorCode)">
                                                     <i class="fas fa-plus me-1"></i>@Localizer["Add First Phase"]
-                                                </a>
+                                                </button>
                                             </div>
                                         }
+
+                                        <!-- ── Inline Add Phase Form (hidden by default) ── -->
+                                        <div class="add-phase-form-wrap mt-3" id="add-phase-form-@proj.ProjectID" style="display:none;">
+                                            <div class="add-phase-form-card">
+                                                <div class="add-phase-form-header">
+                                                    <i class="fas fa-plus-circle me-2"></i>@Localizer["New Phase"] — @proj.ProjectName
+                                                    <button type="button" class="btn-close-form ms-auto"
+                                                            onclick="hideAddPhaseForm(@proj.ProjectID)">
+                                                        <i class="fas fa-times"></i>
+                                                    </button>
+                                                </div>
+                                                <div class="add-phase-form-body">
+                                                    <form id="phase-form-@proj.ProjectID"
+                                                          onsubmit="submitPhaseForm(event, @proj.ProjectID, @item.IndicatorCode)">
+                                                        @Html.AntiForgeryToken()
+                                                        <input type="hidden" name="ProjectID" value="@proj.ProjectID" />
+                                                        <div class="row g-2 align-items-end">
+                                                            <div class="col-md-4">
+                                                                <label class="form-label fw-semibold small mb-1">@Localizer["Phase Name"]</label>
+                                                                <input type="text" name="Name" class="form-control form-control-sm"
+                                                                       required placeholder="@Localizer["Enter phase name..."]" />
+                                                            </div>
+                                                            <div class="col-md-2">
+                                                                <label class="form-label fw-semibold small mb-1">@Localizer["Start Date"]</label>
+                                                                <input type="date" name="StartDate" class="form-control form-control-sm"
+                                                                       required
+                                                                       value="@proj.StartDate.ToString("yyyy-MM-dd")"
+                                                                       min="@proj.StartDate.ToString("yyyy-MM-dd")"
+                                                                       max="@proj.EndDate.ToString("yyyy-MM-dd")" />
+                                                            </div>
+                                                            <div class="col-md-2">
+                                                                <label class="form-label fw-semibold small mb-1">@Localizer["End Date"]</label>
+                                                                <input type="date" name="EndDate" class="form-control form-control-sm"
+                                                                       required
+                                                                       value="@proj.EndDate.ToString("yyyy-MM-dd")"
+                                                                       min="@proj.StartDate.ToString("yyyy-MM-dd")"
+                                                                       max="@proj.EndDate.ToString("yyyy-MM-dd")" />
+                                                            </div>
+                                                            <div class="col-md-2">
+                                                                <label class="form-label fw-semibold small mb-1">@Localizer["Budget"]</label>
+                                                                <input type="number" name="Budget" class="form-control form-control-sm"
+                                                                       required min="0" step="0.01" placeholder="0.00" />
+                                                            </div>
+                                                            <div class="col-md-2 d-flex gap-1">
+                                                                <button type="submit" class="btn btn-success btn-sm flex-fill">
+                                                                    <i class="fas fa-save me-1"></i>@Localizer["Save"]
+                                                                </button>
+                                                                <button type="button" class="btn btn-outline-secondary btn-sm"
+                                                                        onclick="hideAddPhaseForm(@proj.ProjectID)">
+                                                                    <i class="fas fa-times"></i>
+                                                                </button>
+                                                            </div>
+                                                        </div>
+                                                        <div id="phase-error-@proj.ProjectID" class="mt-2" style="display:none;"></div>
+                                                    </form>
+                                                </div>
+                                            </div>
+                                        </div>
                                     </div>
                                 </td>
                             </tr>
@@ -518,8 +576,80 @@
             });
         }
         
+        // ── Inline Add Phase form ──────────────────────────────────────────
+        function showAddPhaseForm(projectId, indicatorCode) {
+            const formWrap = document.getElementById(`add-phase-form-${projectId}`);
+            if (formWrap.style.display !== 'none') {
+                formWrap.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                return;
+            }
+            formWrap.style.display = 'block';
+            setTimeout(() => formWrap.scrollIntoView({ behavior: 'smooth', block: 'nearest' }), 50);
+        }
+
+        function hideAddPhaseForm(projectId) {
+            const formWrap = document.getElementById(`add-phase-form-${projectId}`);
+            formWrap.style.display = 'none';
+            const errorDiv = document.getElementById(`phase-error-${projectId}`);
+            if (errorDiv) { errorDiv.style.display = 'none'; errorDiv.innerHTML = ''; }
+            // Reset the form
+            const form = document.getElementById(`phase-form-${projectId}`);
+            if (form) form.reset();
+        }
+
+        async function submitPhaseForm(event, projectId, indicatorCode) {
+            event.preventDefault();
+            const form = document.getElementById(`phase-form-${projectId}`);
+            const errorDiv = document.getElementById(`phase-error-${projectId}`);
+            const submitBtn = form.querySelector('[type="submit"]');
+            const originalHtml = submitBtn.innerHTML;
+
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i>@Localizer["Saving..."]';
+            errorDiv.style.display = 'none';
+
+            try {
+                const response = await fetch('/ProjectPhases/CreateAjax', {
+                    method: 'POST',
+                    body: new FormData(form)
+                });
+                const result = await response.json();
+
+                if (result.success) {
+                    // Remember which row to re-expand after the page reloads
+                    sessionStorage.setItem('expandPhaseRow', indicatorCode);
+                    window.location.reload();
+                } else {
+                    errorDiv.style.display = 'block';
+                    errorDiv.innerHTML = `<div class="alert alert-danger py-1 mb-0 small"><i class="fas fa-exclamation-circle me-1"></i>${result.message}</div>`;
+                    submitBtn.disabled = false;
+                    submitBtn.innerHTML = originalHtml;
+                }
+            } catch (e) {
+                errorDiv.style.display = 'block';
+                errorDiv.innerHTML = `<div class="alert alert-danger py-1 mb-0 small"><i class="fas fa-exclamation-circle me-1"></i>An error occurred. Please try again.</div>`;
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = originalHtml;
+            }
+        }
+        // ──────────────────────────────────────────────────────────────────
+
         // Initialize page animations
         document.addEventListener('DOMContentLoaded', function() {
+            // Re-expand the phases row after adding a phase (page reload)
+            const expandCode = sessionStorage.getItem('expandPhaseRow');
+            if (expandCode) {
+                sessionStorage.removeItem('expandPhaseRow');
+                const row = document.getElementById(`projects-row-${expandCode}`);
+                const chevron = document.getElementById(`chevron-${expandCode}`);
+                if (row) {
+                    row.style.display = 'table-row';
+                    row.classList.add('expanded');
+                    if (chevron) chevron.style.transform = 'rotate(180deg)';
+                    setTimeout(() => row.scrollIntoView({ behavior: 'smooth', block: 'nearest' }), 200);
+                }
+            }
+
             // Animate table rows on load
             const tableRows = document.querySelectorAll('.table-row');
             tableRows.forEach((row, index) => {
@@ -951,6 +1081,37 @@
 
         /* ── Empty phases state ───────────────────────────── */
         .phases-empty { text-align: center; padding: 2rem 1rem; color: #6c757d; }
+
+        /* ── Inline Add Phase form card ───────────────────── */
+        .add-phase-form-wrap { animation: slideDown 0.25s ease-out; }
+        .add-phase-form-card {
+            background: #fff;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 14px rgba(0,0,0,0.12);
+            border-left: 4px solid #28a745;
+        }
+        .add-phase-form-header {
+            background: linear-gradient(135deg, #28a745, #20c997);
+            color: white;
+            padding: 0.7rem 1rem;
+            display: flex;
+            align-items: center;
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+        .btn-close-form {
+            background: none;
+            border: none;
+            color: rgba(255,255,255,0.8);
+            cursor: pointer;
+            padding: 0 0.25rem;
+            font-size: 1rem;
+            line-height: 1;
+            transition: color 0.2s;
+        }
+        .btn-close-form:hover { color: white; }
+        .add-phase-form-body { padding: 1rem 1rem 0.75rem; }
 
         /* ── Phase count pill on expand button ────────────── */
         .phase-count-pill {

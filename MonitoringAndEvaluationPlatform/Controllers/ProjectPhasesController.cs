@@ -214,6 +214,44 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             return RedirectToAction("Details", "Projects", new { id = projectId, tab = "phases" });
         }
 
+        // POST: ProjectPhases/CreateAjax  (AJAX inline form from Indicators/Index)
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> CreateAjax([Bind("Name,StartDate,EndDate,Budget,ProjectID")] ProjectPhase phase)
+        {
+            ModelState.Remove(nameof(phase.Project));
+            ModelState.Remove(nameof(phase.Measures));
+            ModelState.Remove(nameof(phase.ActionPlan));
+
+            var project = await _context.Projects
+                .Include(p => p.Phases)
+                .FirstOrDefaultAsync(p => p.ProjectID == phase.ProjectID);
+
+            if (project == null)
+                return Json(new { success = false, message = "Project not found." });
+
+            if (phase.StartDate < project.StartDate || phase.EndDate > project.EndDate)
+                return Json(new { success = false, message = $"Phase dates must be within the project dates ({project.StartDate:yyyy-MM-dd} – {project.EndDate:yyyy-MM-dd})." });
+
+            if (phase.StartDate >= phase.EndDate)
+                return Json(new { success = false, message = "End date must be after start date." });
+
+            var existingBudgetSum = project.Phases.Sum(pp => pp.Budget);
+            if (existingBudgetSum + phase.Budget > project.EstimatedBudget)
+                return Json(new { success = false, message = $"Total phase budgets cannot exceed the project budget of {project.EstimatedBudget:N2}. Remaining: {project.EstimatedBudget - existingBudgetSum:N2}." });
+
+            _context.ProjectPhases.Add(phase);
+            await _context.SaveChangesAsync();
+
+            var actionPlan = new ActionPlan { ProjectPhaseId = phase.Id, PlansCount = 0 };
+            _context.ActionPlans.Add(actionPlan);
+            await _context.SaveChangesAsync();
+
+            await RedistributeWeightsEqually(phase.ProjectID);
+
+            return Json(new { success = true, message = "Phase created successfully." });
+        }
+
         // POST: ProjectPhases/UpdateWeights  (AJAX)
         [HttpPost]
         public async Task<IActionResult> UpdateWeights([FromBody] UpdateWeightsDto dto)
