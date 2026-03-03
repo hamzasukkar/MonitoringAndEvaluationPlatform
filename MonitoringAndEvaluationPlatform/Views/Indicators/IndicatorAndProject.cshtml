@@ -213,15 +213,20 @@
                                                                             <td class="date-cell">@project.StartDate.ToString("MMM yyyy")</td>
                                                                             <td>
                                                                                 <div class="action-buttons">
-                                                                                    <a asp-action="Details" asp-controller="Projects" 
-                                                                                       asp-route-id="@project.ProjectID" 
+                                                                                    <a asp-action="Details" asp-controller="Projects"
+                                                                                       asp-route-id="@project.ProjectID"
                                                                                        class="btn btn-action-primary" title="@Localizer["View Project"]">
                                                                                         <i class="fas fa-eye"></i>
                                                                                     </a>
-                                                                                    <a asp-action="Edit" asp-controller="Projects" 
-                                                                                       asp-route-id="@project.ProjectID" 
+                                                                                    <a asp-action="Edit" asp-controller="Projects"
+                                                                                       asp-route-id="@project.ProjectID"
                                                                                        class="btn btn-action-warning" title="@Localizer["Edit Project"]">
                                                                                         <i class="fas fa-edit"></i>
+                                                                                    </a>
+                                                                                    <a asp-action="Create" asp-controller="ProjectPhases"
+                                                                                       asp-route-projectId="@project.ProjectID"
+                                                                                       class="btn btn-action-success" title="@Localizer["Add Phase"]">
+                                                                                        <i class="fas fa-plus"></i>
                                                                                     </a>
                                                                                 </div>
                                                                             </td>
@@ -566,8 +571,14 @@
         color: white;
     }
 
+    .btn-action-success {
+        background: linear-gradient(45deg, #28a745, #20c997);
+        color: white;
+    }
+
     .btn-action-primary:hover,
-    .btn-action-warning:hover {
+    .btn-action-warning:hover,
+    .btn-action-success:hover {
         transform: translateY(-2px);
         box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
     }
