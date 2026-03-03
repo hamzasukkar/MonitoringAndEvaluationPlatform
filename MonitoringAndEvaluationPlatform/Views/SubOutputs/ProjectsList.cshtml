@@ -143,7 +143,7 @@
                         string disbursementClass = ProgressBarHelper.GetProgressBarClass(item.DisbursementPerformance);
                         double IndicatorsPerformance = Math.Round(item.IndicatorsPerformance, 2);
                         double DisbursementPerformance = Math.Round(item.DisbursementPerformance, 2);
-                        var projects = item.Indicators.SelectMany(i => i.ProjectIndicators).Select(pi => pi.Project).Where(p => p != null).Distinct().ToList();
+                        var projects = item.Indicators.Select(i => i.Project).Where(p => p != null).Distinct().ToList();
 
                         <tr id="subOutput-row-@item.Code" class="table-row">
                             <td class="suboutput-name-cell">

@@ -1,4 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using MonitoringAndEvaluationPlatform.Attributes;
 
@@ -77,6 +77,7 @@ namespace MonitoringAndEvaluationPlatform.Models
         [DataType(DataType.Date)]
         [DateRangeValidation(nameof(StartDate))]
         public DateTime EndDate { get; set; }
+
         public double performance { get; set; }
         public double DisbursementPerformance { get; set; }
         public double FieldMonitoring { get; set; }
@@ -84,11 +85,11 @@ namespace MonitoringAndEvaluationPlatform.Models
         public int Financial { get; set; }
         public int Physical { get; set; }
 
-        // Many-to-many with Indicator
-        public ICollection<ProjectIndicator> ProjectIndicators { get; set; } = new List<ProjectIndicator>();
+        // Project Phases — the new intermediate layer
+        public virtual ICollection<ProjectPhase> Phases { get; set; } = new List<ProjectPhase>();
 
-        // Navigation property for one-to-one relationship
-        public ActionPlan ActionPlan { get; set; }
+        // Indicators linked directly to this project (one-to-many, replacing the old many-to-many via ProjectIndicator)
+        public virtual ICollection<Indicator> Indicators { get; set; } = new List<Indicator>();
 
         [NotMapped]
         public List<IFormFile> UploadedFiles { get; set; } = new List<IFormFile>();
@@ -101,26 +102,5 @@ namespace MonitoringAndEvaluationPlatform.Models
 
         [Display(Name = "Entire Country")]
         public bool IsEntireCountry { get; set; } = false;
-
-
-        public void UpdatePerformance(double totalPlanned, double totalRealised)
-        {
-            if (totalPlanned > 0)
-            {
-                this.DisbursementPerformance = (int)((totalRealised / totalPlanned) * 100);
-                this.FieldMonitoring = (int)((totalRealised / totalPlanned) * 100);
-                this.ImpactAssessment = (int)((totalRealised / totalPlanned) * 100);
-                this.Financial = (int)((totalRealised / totalPlanned) * 100);
-                this.Physical = (int)((totalRealised / totalPlanned) * 100);
-            }
-            else
-            {
-                this.DisbursementPerformance = 0;
-                this.FieldMonitoring = 0;
-                this.ImpactAssessment = 0;
-                this.Financial = 0;
-                this.Physical = 0;
-            }
-        }
     }
 }

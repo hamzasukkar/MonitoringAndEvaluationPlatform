@@ -402,7 +402,7 @@
                                         <option value="">-- @Localizer["Select an indicator"] --</option>
                                         @if (ViewBag.Indicators != null)
                                         {
-                                            var selectedIndicatorCodes = Model.ProjectIndicators?.Select(pi => pi.IndicatorCode).ToList() ?? new List<int>();
+                                            var selectedIndicatorCodes = Model.Indicators?.Select(i => i.IndicatorCode).ToList() ?? new List<int>();
                                             @foreach (var indicator in ViewBag.Indicators as List<Indicator>)
                                             {
                                                 var isSelected = selectedIndicatorCodes.Contains(indicator.IndicatorCode);

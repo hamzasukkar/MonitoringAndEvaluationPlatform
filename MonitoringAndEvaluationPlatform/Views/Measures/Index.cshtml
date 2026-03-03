@@ -5,7 +5,7 @@
 @{
     ViewData["Title"] = "Measures";
     Layout = "~/Views/Shared/_DashboardHomeLayout.cshtml";
-    var selectedIndicator = ViewBag.SelectedIndicator as MonitoringAndEvaluationPlatform.Models.Indicator;
+    var selectedPhase = ViewBag.SelectedPhase as MonitoringAndEvaluationPlatform.Models.ProjectPhase;
     var selectedProject = ViewBag.SelectedProject as MonitoringAndEvaluationPlatform.Models.Project;
 }
 
@@ -19,7 +19,7 @@
         @Localizer["Track and monitor performance indicators with detailed measurements"]
     </p>
     <div class="dashboard-actions">
-        @if (ViewBag.SelectedIndicatorId == null)
+        @if (ViewBag.SelectedPhaseId == null)
         {
             <a asp-action="Create" class="btn btn-gradient-primary">
                 <i class="fas fa-plus me-2"></i>@Localizer["Create New Measure"]
@@ -43,12 +43,12 @@
                                 </a>
                             </li>
                             <li class="nav-item-modern">
-                                <a asp-action="Index" asp-controller="Measures" asp-route-indicatorId="@ViewBag.SelectedIndicatorId" class="nav-link-modern active" aria-current="page">
+                                <a asp-action="Index" asp-controller="Measures" asp-route-phaseId="@ViewBag.SelectedPhaseId" class="nav-link-modern active" aria-current="page">
                                     <i class="fas fa-ruler-combined me-2"></i>@Localizer["Measures"]
                                 </a>
                             </li>
                             <li class="nav-item-modern">
-                                <a asp-controller="ActionPlans" asp-action="ActionPlan" asp-route-id="@ViewBag.SelectedProjectId" class="nav-link-modern">
+                                <a asp-controller="ActionPlans" asp-action="ActionPlan" asp-route-phaseId="@ViewBag.SelectedPhaseId" class="nav-link-modern">
                                     <i class="fas fa-tasks me-2"></i>@Localizer["Action Plans"]
                                 </a>
                             </li>
@@ -59,7 +59,7 @@
         </div>
     }
 
-    @if (selectedProject != null && selectedIndicator != null)
+    @if (selectedProject != null && selectedPhase != null)
     {
         <div class="chart-card mb-4">
             <h3 class="chart-title">
@@ -70,69 +70,29 @@
                 <div class="info-section">
                     <div class="info-card">
                         <div class="info-header">
-                            <i class="fas fa-bullseye me-2"></i>
-                            <h5 class="info-title">@Localizer["Selected Indicator"]</h5>
+                            <i class="fas fa-layer-group me-2"></i>
+                            <h5 class="info-title">@Localizer["Selected Phase"]</h5>
                         </div>
                         <div class="info-content">
                             <div class="info-row">
                                 <div class="info-label">
-                                    <i class="fas fa-code me-2"></i>
-                                    @Localizer["Code"]
+                                    <i class="fas fa-tag me-2"></i>
+                                    @Localizer["Phase Name"]
                                 </div>
-                                <div class="info-value">
-                                    <span class="modern-badge badge-primary">@selectedIndicator.IndicatorCode</span>
-                                </div>
+                                <div class="info-value">@selectedPhase.Name</div>
                             </div>
+                            @{
+                                var phaseTotal = Model.Sum(m => m.Value);
+                            }
                             <div class="info-row">
                                 <div class="info-label">
-                                    <i class="fas fa-tag me-2"></i>
-                                    @Localizer["Name"]
+                                    <i class="fas fa-chart-bar me-2"></i>
+                                    @Localizer["Total Achievement"]
                                 </div>
-                                <div class="info-value">@selectedIndicator.Name</div>
+                                <div class="info-value">
+                                    <span class="modern-badge badge-success">@phaseTotal.ToString("N2")%</span>
+                                </div>
                             </div>
-                            @if (selectedIndicator.Target > 0)
-                            {
-                                var currentValue = selectedIndicator.Measures.Sum(m => m.Value);
-                                var remaining = selectedIndicator.Target - currentValue;
-
-                                <div class="info-row">
-                                    <div class="info-label">
-                                        <i class="fas fa-target me-2"></i>
-                                        @Localizer["Target"]
-                                    </div>
-                                    <div class="info-value">
-                                        <span class="target-value">@selectedIndicator.Target.ToString("N2")</span>
-                                    </div>
-                                </div>
-                                <div class="info-row">
-                                    <div class="info-label">
-                                        <i class="fas fa-chart-bar me-2"></i>
-                                        @Localizer["Current Achievement"]
-                                    </div>
-                                    <div class="info-value">
-                                        <span class="modern-badge badge-success">@currentValue.ToString("N2")</span>
-                                    </div>
-                                </div>
-                                <div class="info-row">
-                                    <div class="info-label">
-                                        <i class="fas fa-road me-2"></i>
-                                        @Localizer["Remaining to Target"]
-                                    </div>
-                                    <div class="info-value">
-                                        @if (remaining > 0)
-                                        {
-                                            <span class="remaining-value">@remaining.ToString("N2")</span>
-                                            <small class="text-muted ms-2">(@((currentValue / selectedIndicator.Target * 100).ToString("N1"))% @Localizer["achieved"])</small>
-                                        }
-                                        else
-                                        {
-                                            <span class="modern-badge badge-success">
-                                                <i class="fas fa-check-circle me-1"></i>@Localizer["Target Reached"]
-                                            </span>
-                                        }
-                                    </div>
-                                </div>
-                            }
                         </div>
                     </div>
                 </div>
@@ -149,12 +109,12 @@
         </div>
     }
 
-    @if (selectedIndicator != null && selectedProject == null)
+    @if (selectedPhase != null && selectedProject == null)
     {
         <div class="chart-card mb-4">
             <h3 class="chart-title">
-                <i class="fas fa-bullseye"></i>
-                @Localizer["Selected Indicator"]
+                <i class="fas fa-layer-group"></i>
+                @Localizer["Selected Phase"]
             </h3>
             <div class="chart-content">
                 <div class="info-section">
@@ -162,63 +122,11 @@
                         <div class="info-content">
                             <div class="info-row">
                                 <div class="info-label">
-                                    <i class="fas fa-code me-2"></i>
-                                    @Localizer["Code"]
-                                </div>
-                                <div class="info-value">
-                                    <span class="modern-badge badge-primary">@selectedIndicator.IndicatorCode</span>
-                                </div>
-                            </div>
-                            <div class="info-row">
-                                <div class="info-label">
                                     <i class="fas fa-tag me-2"></i>
                                     @Localizer["Name"]
                                 </div>
-                                <div class="info-value">@selectedIndicator.Name</div>
+                                <div class="info-value">@selectedPhase.Name</div>
                             </div>
-                            @if (selectedIndicator.Target > 0)
-                            {
-                                var currentValue2 = selectedIndicator.Measures.Sum(m => m.Value);
-                                var remaining2 = selectedIndicator.Target - currentValue2;
-
-                                <div class="info-row">
-                                    <div class="info-label">
-                                        <i class="fas fa-target me-2"></i>
-                                        @Localizer["Target"]
-                                    </div>
-                                    <div class="info-value">
-                                        <span class="target-value">@selectedIndicator.Target.ToString("N2")</span>
-                                    </div>
-                                </div>
-                                <div class="info-row">
-                                    <div class="info-label">
-                                        <i class="fas fa-chart-bar me-2"></i>
-                                        @Localizer["Current Achievement"]
-                                    </div>
-                                    <div class="info-value">
-                                        <span class="modern-badge badge-success">@currentValue2.ToString("N2")</span>
-                                    </div>
-                                </div>
-                                <div class="info-row">
-                                    <div class="info-label">
-                                        <i class="fas fa-road me-2"></i>
-                                        @Localizer["Remaining to Target"]
-                                    </div>
-                                    <div class="info-value">
-                                        @if (remaining2 > 0)
-                                        {
-                                            <span class="remaining-value">@remaining2.ToString("N2")</span>
-                                            <small class="text-muted ms-2">(@((currentValue2 / selectedIndicator.Target * 100).ToString("N1"))% @Localizer["achieved"])</small>
-                                        }
-                                        else
-                                        {
-                                            <span class="modern-badge badge-success">
-                                                <i class="fas fa-check-circle me-1"></i>@Localizer["Target Reached"]
-                                            </span>
-                                        }
-                                    </div>
-                                </div>
-                            }
                         </div>
                     </div>
                 </div>
@@ -226,7 +134,7 @@
         </div>
     }
 
-    @if (ViewBag.SelectedIndicatorId != null)
+    @if (ViewBag.SelectedPhaseId != null)
     {
         <!-- Inline Create Form -->
         <div class="chart-card mb-4">
@@ -250,7 +158,7 @@
                             <i class="fas fa-save me-2"></i>@Localizer["Add Measure"]
                         </button>
                     </div>
-                    <input type="hidden" id="indicatorCode" name="IndicatorCode" value="@ViewBag.SelectedIndicatorId" />
+                    <input type="hidden" id="phaseId" name="ProjectPhaseId" value="@ViewBag.SelectedPhaseId" />
                 </form>
             </div>
         </div>
@@ -282,15 +190,15 @@
                         <thead class="table-header">
                             <tr>
                                 <th>
-                                    <i class="fas fa-calendar me-2"></i>@Localizer["Name"]
+                                    <i class="fas fa-calendar me-2"></i>@Localizer["Date"]
                                 </th>
                                 <th class="text-center">
                                     <i class="fas fa-chart-line me-2"></i>@Localizer["Value"]
                                 </th>
-                                @if (ViewBag.SelectedIndicatorId == null)
+                                @if (ViewBag.SelectedPhaseId == null)
                                 {
                                     <th>
-                                        <i class="fas fa-bullseye me-2"></i>@Html.DisplayNameFor(model => model.Indicator)
+                                        <i class="fas fa-layer-group me-2"></i>@Localizer["Phase"]
                                     </th>
                                 }
                                 <th class="text-center">
@@ -314,16 +222,15 @@
                                     <span class="modern-badge badge-success measure-value-display">@item.Value.ToString("N2")</span>
                                     <input type="number" class="form-control form-control-sm measure-value-edit d-none" value="@item.Value" step="0.01" min="0" max="100" />
                                 </td>
-                                @if (ViewBag.SelectedIndicatorId == null)
+                                @if (ViewBag.SelectedPhaseId == null)
                                 {
                                     <td class="indicator-cell">
                                         <div class="d-flex align-items-center">
                                             <div class="indicator-icon me-3">
-                                                <i class="fas fa-bullseye"></i>
+                                                <i class="fas fa-layer-group"></i>
                                             </div>
                                             <div>
-                                                <span class="indicator-code">[@item.Indicator.IndicatorCode]</span>
-                                                <span class="indicator-name">@Html.DisplayFor(modelItem => item.Indicator.Name)</span>
+                                                <span class="indicator-name">@item.ProjectPhase?.Name</span>
                                             </div>
                                         </div>
                                     </td>
@@ -338,15 +245,13 @@
                                                 data-code="@item.Code"
                                                 data-date="@item.Date.ToString("yyyy-MM-dd")"
                                                 data-value="@item.Value.ToString("N2")"
-                                                data-indicator-code="@item.Indicator.IndicatorCode"
-                                                data-indicator-name="@item.Indicator.Name"
-                                                data-indicator-target="@item.Indicator.Target"
+                                                data-phase-name="@item.ProjectPhase?.Name"
                                                 title="@Localizer["View Details"]">
                                             <i class="fas fa-eye"></i>
                                         </button>
                                         <button type="button" class="btn btn-outline-success btn-sm action-btn view-chart-btn"
-                                                data-indicator-code="@item.Indicator.IndicatorCode"
-                                                data-indicator-name="@item.Indicator.Name"
+                                                data-phase-id="@item.ProjectPhaseId"
+                                                data-phase-name="@item.ProjectPhase?.Name"
                                                 title="@Localizer["View Chart"]">
                                             <i class="fas fa-chart-line"></i>
                                         </button>
@@ -380,9 +285,9 @@
                     </div>
                     <h5 class="empty-title">@Localizer["No measures found"]</h5>
                     <p class="empty-text">
-                        @if (ViewBag.SelectedIndicatorId != null)
+                        @if (ViewBag.SelectedPhaseId != null)
                         {
-                            @Localizer["No measures have been added for this indicator yet. Use the form above to add the first measure."]
+                            @Localizer["No measures have been added for this phase yet. Use the form above to add the first measure."]
                         }
                         else
                         {
@@ -914,16 +819,12 @@
                 const btn = $(this);
                 const date = btn.data('date');
                 const value = btn.data('value');
-                const indicatorCode = btn.data('indicator-code');
-                const indicatorName = btn.data('indicator-name');
-                const indicatorTarget = btn.data('indicator-target');
+                const phaseName = btn.data('phase-name');
 
                 // Populate modal
                 $('#modal-date').text(date);
                 $('#modal-value').html('<span class="modern-badge badge-success">' + value + '</span>');
-                $('#modal-indicator-code').html('<span class="modern-badge badge-primary">' + indicatorCode + '</span>');
-                $('#modal-indicator-name').text(indicatorName);
-                $('#modal-indicator-target').html('<span class="target-value">' + indicatorTarget + '</span>');
+                $('#modal-indicator-name').text(phaseName);
 
                 // Show modal
                 new bootstrap.Modal(document.getElementById('detailsModal')).show();
@@ -932,17 +833,17 @@
             // Option 1: Handle view chart button click
             $('.view-chart-btn').on('click', function() {
                 const btn = $(this);
-                const indicatorCode = btn.data('indicator-code');
-                const indicatorName = btn.data('indicator-name');
+                const phaseId = btn.data('phase-id');
+                const phaseName = btn.data('phase-name');
 
-                // Set indicator info
-                $('#chart-indicator-info').html('<strong><i class="fas fa-bullseye me-2"></i>' + indicatorName + '</strong> <span class="modern-badge badge-primary ms-2">' + indicatorCode + '</span>');
+                // Set phase info
+                $('#chart-indicator-info').html('<strong><i class="fas fa-layer-group me-2"></i>' + phaseName + '</strong>');
 
-                // Fetch measures for this indicator
+                // Fetch measures for this phase
                 $.ajax({
-                    url: '@Url.Action("GetMeasuresByIndicator", "Measures")',
+                    url: '@Url.Action("GetMeasuresByPhase", "Measures")',
                     type: 'GET',
-                    data: { indicatorCode: indicatorCode },
+                    data: { phaseId: phaseId },
                     success: function(response) {
                         // Prepare chart data
                         const dates = response.map(m => m.date);
@@ -1155,7 +1056,7 @@
                 const formData = {
                     Date: $('#measureDate').val(),
                     Value: rawValue,
-                    IndicatorCode: parseInt($('#indicatorCode').val())
+                    ProjectPhaseId: parseInt($('#phaseId').val())
                 };
 
                 // Disable button and show loading

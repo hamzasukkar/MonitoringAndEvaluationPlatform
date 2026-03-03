@@ -256,17 +256,14 @@
                             <td class="text-center">
                                 <div class="projects-column">
                                     @{
-                                        var distinctProjects = item.ProjectIndicators
-                                            .GroupBy(pi => pi.ProjectId)
-                                            .Select(g => g.First())
-                                            .ToList();
+                                        var hasProject = item.Project != null;
                                     }
-                                    @if (distinctProjects.Any())
+                                    @if (hasProject)
                                     {
                                         <button class="btn expand-projects-btn" type="button"
                                                 onclick="toggleProjects(@item.IndicatorCode)">
                                             <i class="fas fa-folder-open me-2"></i>
-                                            <span class="badge bg-light text-dark">@distinctProjects.Count()</span>
+                                            <span class="badge bg-light text-dark">1</span>
                                             @Localizer["Projects"]
                                             <i class="fas fa-chevron-down ms-2 chevron-icon" id="chevron-@item.IndicatorCode"></i>
                                         </button>
@@ -313,19 +310,14 @@
                         </tr>
 
                         @* Expandable Projects Row *@
-                        @if (item.ProjectIndicators.Any())
+                        @if (item.Project != null)
                         {
-                            var uniqueProjects = item.ProjectIndicators
-                                .GroupBy(pi => pi.ProjectId)
-                                .Select(g => g.First())
-                                .ToList();
                             <tr class="expandable-row" id="projects-row-@item.IndicatorCode" style="display: none;">
                                 <td colspan="7">
                                     <div class="projects-expanded-content">
                                         <div class="projects-grid">
-                                            @foreach (var projectIndicator in uniqueProjects)
-                                            {
-                                                var project = projectIndicator.Project;
+                                            @{
+                                                var project = item.Project;
                                                 <div class="project-mini-card">
                                                     <div class="project-mini-header">
                                                         <i class="fas fa-folder-open"></i>

@@ -84,8 +84,8 @@ namespace MonitoringAndEvaluationPlatform.Controllers
 
                 // Filter projects that have indicators belonging to the specified SubOutput
                 projectQuery = projectQuery
-                    .Where(p => p.ProjectIndicators
-                                 .Any(pi => pi.Indicator.SubOutputCode == filter.SubOutputCode.Value));
+                    .Where(p => p.Indicators
+                                 .Any(i => i.SubOutputCode == filter.SubOutputCode.Value));
             }
 
             // Apply hierarchy filters (Framework -> Outcome -> Output -> SubOutput)
@@ -93,8 +93,8 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             {
                 // SubOutput filter is most specific
                 projectQuery = projectQuery
-                    .Where(p => p.ProjectIndicators
-                                 .Any(pi => pi.Indicator.SubOutputCode == filter.SelectedSubOutputCode.Value));
+                    .Where(p => p.Indicators
+                                 .Any(i => i.SubOutputCode == filter.SelectedSubOutputCode.Value));
 
                 // Get display names for breadcrumb
                 var subOutput = await _context.SubOutputs
@@ -119,8 +119,8 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                     .ToListAsync();
 
                 projectQuery = projectQuery
-                    .Where(p => p.ProjectIndicators
-                                 .Any(pi => subOutputCodes.Contains(pi.Indicator.SubOutputCode)));
+                    .Where(p => p.Indicators
+                                 .Any(i => subOutputCodes.Contains(i.SubOutputCode)));
 
                 // Get display names
                 var output = await _context.Outputs
@@ -143,8 +143,8 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                     .ToListAsync();
 
                 projectQuery = projectQuery
-                    .Where(p => p.ProjectIndicators
-                                 .Any(pi => subOutputCodes.Contains(pi.Indicator.SubOutputCode)));
+                    .Where(p => p.Indicators
+                                 .Any(i => subOutputCodes.Contains(i.SubOutputCode)));
 
                 // Get display names
                 var outcome = await _context.Outcomes
@@ -165,8 +165,8 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                     .ToListAsync();
 
                 projectQuery = projectQuery
-                    .Where(p => p.ProjectIndicators
-                                 .Any(pi => subOutputCodes.Contains(pi.Indicator.SubOutputCode)));
+                    .Where(p => p.Indicators
+                                 .Any(i => subOutputCodes.Contains(i.SubOutputCode)));
 
                 // Get display name
                 var framework = await _context.Frameworks.FindAsync(filter.SelectedFrameworkCode.Value);
@@ -199,7 +199,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 // Filter projects by name OR by matching indicators
                 projectQuery = projectQuery
                     .Where(p => p.ProjectName.ToLower().Contains(searchTerm) ||
-                                p.ProjectIndicators.Any(pi => matchingIndicatorCodes.Contains(pi.IndicatorCode)));
+                                p.Indicators.Any(i => matchingIndicatorCodes.Contains(i.IndicatorCode)));
             }
 
             // Apply additional filters
@@ -486,18 +486,30 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                     }
                 }
 
-                // Create action plan
-                project.ActionPlan = new ActionPlan { PlansCount = PlansCount };
-
-                // Save project and action plan
+                // Save project first to get its ID
                 _context.Projects.Add(project);
+                await _context.SaveChangesAsync();
+
+                // Create a default project phase and action plan
+                var defaultPhase = new ProjectPhase
+                {
+                    Name = "Phase 1",
+                    StartDate = project.StartDate,
+                    EndDate = project.EndDate,
+                    Budget = 0,
+                    Weight = 100m,
+                    PhasePerformance = 0,
+                    ProjectID = project.ProjectID,
+                    ActionPlan = new ActionPlan { PlansCount = PlansCount }
+                };
+                _context.ProjectPhases.Add(defaultPhase);
                 await _context.SaveChangesAsync();
 
                 // Create activities for the project
                 var baseActivity = new Activity
                 {
                     Name = project.ProjectName ?? "New Project Activity",
-                    ActionPlanCode = project.ActionPlan.Code
+                    ActionPlanCode = defaultPhase.ActionPlan!.Code
                 };
 
                 var activitiesCreated = await _activityService.CreateActivitiesForAllTypesAsync(baseActivity);
@@ -510,10 +522,10 @@ namespace MonitoringAndEvaluationPlatform.Controllers
 
                 // Distribute budget across plans
                 var actionPlanWithActivities = await _context.ActionPlans
-                    .Include(ap => ap.Project)
+                    .Include(ap => ap.ProjectPhase)
                     .Include(ap => ap.Activities)
                         .ThenInclude(a => a.Plans)
-                    .FirstOrDefaultAsync(ap => ap.Code == project.ActionPlan.Code);
+                    .FirstOrDefaultAsync(ap => ap.Code == defaultPhase.ActionPlan!.Code);
 
                 if (actionPlanWithActivities != null)
                 {
@@ -573,9 +585,11 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 .Include(p => p.SubDistricts)
                 .Include(p => p.Communities)
                 .Include(p => p.Sectors)
-                .Include(p => p.ProjectIndicators)
-                .Include(p => p.ProjectFiles) // FIXED: Missing ProjectFiles
-                .AsNoTracking() // OPTIMIZATION: Read-only query for better performance
+                .Include(p => p.Indicators)
+                .Include(p => p.Phases)
+                    .ThenInclude(pp => pp.Measures)
+                .Include(p => p.ProjectFiles)
+                .AsNoTracking()
                 .FirstOrDefaultAsync(m => m.ProjectID == id);
 
             if (project == null)
@@ -599,7 +613,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 .Include(p => p.ProjectManager)
                 .Include(p => p.SuperVisor)
                 .Include(p => p.Goal)
-                .Include(p => p.ProjectIndicators)
+                .Include(p => p.Indicators)
                 .FirstOrDefaultAsync(p => p.ProjectID == id.Value);
 
 
@@ -806,7 +820,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             ModelState.Remove(nameof(Project.Districts));
             ModelState.Remove(nameof(Project.SubDistricts));
             ModelState.Remove(nameof(Project.Communities));
-            ModelState.Remove(nameof(Project.ActionPlan));
+            ModelState.Remove(nameof(Project.Phases));
             ModelState.Remove(nameof(Project.Goal));
 
             if (!ModelState.IsValid)
@@ -816,7 +830,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 return View(project);
             }
 
-            // --- Include Regions, Sectors, Donors, and ProjectIndicators so Clear() will delete old join rows ---
+            // --- Include Regions, Sectors, Donors, and Indicators ---
             var dbProject = await _context.Projects
                 .Include(p => p.Sectors)
                 .Include(p => p.Donors)
@@ -827,7 +841,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 .Include(p => p.SubDistricts)
                 .Include(p => p.Communities)
                 .Include(p => p.Goal)
-                .Include(p => p.ProjectIndicators)
+                .Include(p => p.Indicators)
                 .FirstOrDefaultAsync(p => p.ProjectID == id);
 
             if (dbProject == null)
@@ -973,10 +987,14 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             }
 
             // --- Update Project Indicators ---
-            // Clear existing indicators
-            dbProject.ProjectIndicators.Clear();
+            // Unlink existing indicators from this project
+            foreach (var indicator in dbProject.Indicators.ToList())
+            {
+                indicator.ProjectID = null;
+                _context.Indicators.Update(indicator);
+            }
 
-            // Add selected indicators (with duplicate prevention)
+            // Link newly selected indicators
             if (SelectedIndicators != null && SelectedIndicators.Any())
             {
                 foreach (var indicatorCode in SelectedIndicators)
@@ -984,11 +1002,8 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                     var indicator = await _context.Indicators.FindAsync(indicatorCode);
                     if (indicator != null)
                     {
-                        dbProject.ProjectIndicators.Add(new ProjectIndicator
-                        {
-                            ProjectId = dbProject.ProjectID,
-                            IndicatorCode = indicatorCode
-                        });
+                        indicator.ProjectID = dbProject.ProjectID;
+                        _context.Indicators.Update(indicator);
                     }
                 }
             }
@@ -1114,27 +1129,27 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             var service = new MonitoringService(_context);
             try
             {
-                // Get project info before deletion for DisbursementPerformance recalculation
+                // Get project info before deletion for performance recalculation
                 var project = await _context.Projects
-                    .Include(p => p.ProjectIndicators)
+                    .Include(p => p.Indicators)
                     .FirstOrDefaultAsync(p => p.ProjectID == id);
 
                 if (project != null)
                 {
-                    // Capture affected indicator IDs before deletion
-                    var affectedIndicatorIds = project.ProjectIndicators
-                        .Select(pi => pi.IndicatorCode)
-                        .Distinct()
-                        .ToList();
+                    // Capture affected indicators before deletion
+                    var affectedIndicators = project.Indicators.ToList();
 
                     // Delete the project and recalculate IndicatorsPerformance (from measures)
                     await service.DeleteProjectAndRecalculateAsync(id);
 
-                    // Recalculate DisbursementPerformance for all affected levels
-                    if (affectedIndicatorIds.Any())
+                    // Recalculate performance for all affected levels
+                    if (affectedIndicators.Any())
                     {
                         var planService = new PlanService(_context);
-                        await planService.RecalculateIndicatorsPerformance(affectedIndicatorIds);
+                        foreach (var indicator in affectedIndicators)
+                        {
+                            await planService.RecalculatePerformanceAfterIndicatorDeletion(indicator);
+                        }
                     }
                 }
             }
@@ -1164,20 +1179,17 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 try
                 {
                     var project = await _context.Projects
-                        .Include(p => p.ProjectIndicators)
+                        .Include(p => p.Indicators)
                         .FirstOrDefaultAsync(p => p.ProjectID == id);
 
                     if (project == null) continue;
 
-                    var affectedIndicatorIds = project.ProjectIndicators
-                        .Select(pi => pi.IndicatorCode)
-                        .Distinct()
-                        .ToList();
+                    var affectedIndicators = project.Indicators.ToList();
 
                     await monitoringService.DeleteProjectAndRecalculateAsync(id);
 
-                    if (affectedIndicatorIds.Any())
-                        await planService.RecalculateIndicatorsPerformance(affectedIndicatorIds);
+                    foreach (var indicator in affectedIndicators)
+                        await planService.RecalculatePerformanceAfterIndicatorDeletion(indicator);
 
                     deletedCount++;
                 }
@@ -1209,10 +1221,8 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                     .ToList(),
 
                 // Get already linked indicators
-                LinkedIndicators = _context.ProjectIndicators
-                .Where(pi => pi.ProjectId == projectId)
-                .Include(pi => pi.Indicator)
-                .Select(pi => pi.Indicator)
+                LinkedIndicators = _context.Indicators
+                .Where(i => i.ProjectID == projectId)
                 .ToList()
             };
 
@@ -1329,11 +1339,12 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             // Logic to link indicators to the selected project
             foreach (var indicatorCode in model.SelectedIndicatorCodes)
             {
-                _context.ProjectIndicators.Add(new ProjectIndicator
+                var indicator = await _context.Indicators.FindAsync(indicatorCode);
+                if (indicator != null && indicator.ProjectID != model.SelectedProjectId)
                 {
-                    ProjectId = model.SelectedProjectId,
-                    IndicatorCode = indicatorCode
-                });
+                    indicator.ProjectID = model.SelectedProjectId;
+                    _context.Indicators.Update(indicator);
+                }
             }
 
             await _context.SaveChangesAsync();
@@ -1516,19 +1527,10 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             foreach (var indicatorCode in selectedIndicators)
             {
                 var indicator = await _context.Indicators.FindAsync(indicatorCode);
-                if (indicator != null)
+                if (indicator != null && indicator.ProjectID != projectId)
                 {
-                    var existingLink = await _context.ProjectIndicators
-                        .FirstOrDefaultAsync(pi => pi.ProjectId == projectId && pi.IndicatorCode == indicatorCode);
-
-                    if (existingLink == null)
-                    {
-                        _context.ProjectIndicators.Add(new ProjectIndicator
-                        {
-                            ProjectId = projectId,
-                            IndicatorCode = indicatorCode
-                        });
-                    }
+                    indicator.ProjectID = projectId;
+                    _context.Indicators.Update(indicator);
                 }
             }
 
@@ -1546,7 +1548,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 nameof(Project.Ministries),
                 nameof(Project.Ministry),
                 nameof(Project.SuperVisor),
-                nameof(Project.ActionPlan),
+                nameof(Project.Phases),
                 nameof(Project.Communities),
                 nameof(Project.Districts),
                 nameof(Project.SubDistricts),

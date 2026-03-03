@@ -86,13 +86,12 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                     return View(activity);
                 }
 
-                // 🛠 Fetch the ProjectID from the ActionPlan
+                // Fetch the ProjectPhaseId from the ActionPlan
                 var actionPlan = await _context.ActionPlans
                     .FirstOrDefaultAsync(ap => ap.Code == activity.ActionPlanCode);
 
                 if (actionPlan == null)
                 {
-                    // Handle unexpected missing ActionPlan
                     return NotFound();
                 }
 
@@ -100,7 +99,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 {
                     controller = "ActionPlans",
                     action = "ActionPlan",
-                    id = actionPlan.ProjectID // ✅ Use correct ProjectID
+                    phaseId = actionPlan.ProjectPhaseId
                 });
             }
 

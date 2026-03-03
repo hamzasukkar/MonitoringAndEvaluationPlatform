@@ -7,8 +7,8 @@
     ViewData["Title"] = "Create Measure";
     Layout = "~/Views/Shared/_DashboardHomeLayout.cshtml";
     var targetDate = DateTime.Today.ToString("yyyy-MM-dd");
-    var selectedIndicator = ViewBag.SelectedIndicator as MonitoringAndEvaluationPlatform.Models.Indicator;
-    var preSelectedIndicatorId = ViewBag.PreSelectedIndicatorId as int?;
+    var selectedPhase = ViewBag.SelectedPhase as MonitoringAndEvaluationPlatform.Models.ProjectPhase;
+    var preSelectedPhaseId = ViewBag.PreSelectedPhaseId as int?;
 }
 
 <!-- Dashboard Header -->
@@ -68,29 +68,20 @@
     </div>
 }
 
-@if (selectedIndicator != null)
+@if (selectedPhase != null)
 {
-    <!-- Pre-selected Indicator Info -->
+    <!-- Pre-selected Phase Info -->
     <div class="indicator-info-section">
         <div class="indicator-info-card">
             <div class="info-header">
                 <div class="info-icon">
-                    <i class="fas fa-bullseye"></i>
+                    <i class="fas fa-layer-group"></i>
                 </div>
                 <div class="info-content">
-                    <h3 class="info-title">@Localizer["Creating Measure for Selected Indicator"]</h3>
-                    <p class="info-subtitle">[@selectedIndicator.IndicatorCode] @selectedIndicator.Name</p>
+                    <h3 class="info-title">@Localizer["Creating Measure for Selected Phase"]</h3>
+                    <p class="info-subtitle">@selectedPhase.Name @(selectedPhase.Project != null ? "- " + selectedPhase.Project.ProjectName : "")</p>
                 </div>
             </div>
-            @if (selectedIndicator.Target > 0)
-            {
-                <div class="info-metrics">
-                    <div class="metric-item">
-                        <span class="metric-label">@Localizer["Target"]</span>
-                        <span class="metric-value">@selectedIndicator.Target.ToString("N2")</span>
-                    </div>
-                </div>
-            }
         </div>
     </div>
 }
@@ -113,30 +104,30 @@
                 <div asp-validation-summary="ModelOnly" class="validation-summary"></div>
 
                 <div class="form-grid">
-                    <!-- Indicator Selection -->
+                    <!-- Phase Selection -->
                     <div class="form-group full-width">
-                        <label asp-for="IndicatorCode" class="modern-label">
-                            <i class="fas fa-bullseye"></i>
-                            @Localizer["Indicator"] *
+                        <label asp-for="ProjectPhaseId" class="modern-label">
+                            <i class="fas fa-layer-group"></i>
+                            @Localizer["Project Phase"] *
                         </label>
-                        @if (preSelectedIndicatorId.HasValue)
+                        @if (preSelectedPhaseId.HasValue)
                         {
-                            <!-- Read-only display of pre-selected indicator -->
-                            <input type="text" class="modern-input readonly" value="[@selectedIndicator.IndicatorCode] @selectedIndicator.Name" readonly />
-                            <input asp-for="IndicatorCode" type="hidden" value="@preSelectedIndicatorId.Value" />
+                            <!-- Read-only display of pre-selected phase -->
+                            <input type="text" class="modern-input readonly" value="@selectedPhase?.Name" readonly />
+                            <input asp-for="ProjectPhaseId" type="hidden" value="@preSelectedPhaseId.Value" />
                             <div class="field-info success">
                                 <i class="fas fa-info-circle"></i>
-                                @Localizer["This indicator was automatically selected from the project"]
+                                @Localizer["This phase was automatically selected from the project"]
                             </div>
                         }
                         else
                         {
-                            <select asp-for="IndicatorCode" class="modern-select" asp-items="ViewBag.Indicators" id="indicatorSelect" required>
-                                <option value="">@Localizer["Select an Indicator"]</option>
+                            <select asp-for="ProjectPhaseId" class="modern-select" asp-items="ViewBag.Phases" id="phaseSelect" required>
+                                <option value="">@Localizer["Select a Phase"]</option>
                             </select>
-                            <span asp-validation-for="IndicatorCode" class="field-error"></span>
+                            <span asp-validation-for="ProjectPhaseId" class="field-error"></span>
                             <div class="field-info">
-                                @Localizer["Choose the indicator for which you are recording progress"]
+                                @Localizer["Choose the project phase for which you are recording progress"]
                             </div>
                         }
                     </div>
@@ -171,8 +162,8 @@
                         </div>
                     </div>
 
-                    <!-- Indicator Target Info Display -->
-                    @if (preSelectedIndicatorId.HasValue && selectedIndicator.Target > 0)
+                    <!-- Phase Info Display -->
+                    @if (preSelectedPhaseId.HasValue && selectedPhase != null)
                     {
                         <div class="form-group full-width">
                             <div class="info-card">
@@ -180,24 +171,9 @@
                                     <i class="fas fa-info-circle"></i>
                                 </div>
                                 <div class="info-text">
-                                    <strong>@Localizer["Indicator Target"]: @selectedIndicator.Target.ToString("N2")</strong>
+                                    <strong>@Localizer["Phase"]: @selectedPhase.Name</strong>
                                     <br>
-                                    <small>@Localizer["Your achievement will be measured against this target"]</small>
-                                </div>
-                            </div>
-                        </div>
-                    }
-                    else if (!preSelectedIndicatorId.HasValue)
-                    {
-                        <div class="form-group full-width" id="indicatorInfo" style="display: none;">
-                            <div class="info-card">
-                                <div class="info-icon-sm">
-                                    <i class="fas fa-info-circle"></i>
-                                </div>
-                                <div class="info-text">
-                                    <strong>@Localizer["Indicator Target"]: <span id="indicatorTarget">-</span></strong>
-                                    <br>
-                                    <small>@Localizer["Your achievement will be measured against this target"]</small>
+                                    <small>@Localizer["Your achievement will be recorded for this phase"]</small>
                                 </div>
                             </div>
                         </div>
@@ -749,23 +725,6 @@
         // Form validation feedback
         const form = document.getElementById('measureForm');
         const submitBtn = document.getElementById('submitBtn');
-        const indicatorSelect = document.getElementById('indicatorSelect');
-        const indicatorInfo = document.getElementById('indicatorInfo');
-        const indicatorTarget = document.getElementById('indicatorTarget');
-        
-        // Indicator targets would be loaded from server in real implementation
-        const indicatorTargets = {};
-        
-        // Indicator selection handler
-        indicatorSelect.addEventListener('change', function() {
-            const selectedValue = this.value;
-            if (selectedValue && indicatorTargets[selectedValue]) {
-                indicatorTarget.textContent = indicatorTargets[selectedValue];
-                indicatorInfo.style.display = 'block';
-            } else {
-                indicatorInfo.style.display = 'none';
-            }
-        });
         
         // Form submission handler
         form.addEventListener('submit', function(e) {

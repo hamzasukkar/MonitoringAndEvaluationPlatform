@@ -108,7 +108,7 @@
                                             </div>
                                             <div class="project-count">
                                                 <i class="fas fa-project-diagram me-1"></i>
-                                                @indicator.ProjectIndicators.Count()
+                                                @(indicator.Project != null ? 1 : 0)
                                             </div>
                                         </div>
                                     </div>
@@ -162,11 +162,11 @@
                                                 <div class="detail-card-header d-flex justify-content-between align-items-center">
                                                     <div>
                                                         <i class="fas fa-project-diagram me-2"></i>
-                                                        @Localizer["Related Projects"] (@indicator.ProjectIndicators.Count())
+                                                        @Localizer["Related Projects"] (@(indicator.Project != null ? 1 : 0))
                                                     </div>
-                                                    @if (!indicator.ProjectIndicators.Any())
+                                                    @if (indicator.Project == null)
                                                     {
-                                                        <a asp-action="Create" asp-controller="Projects" 
+                                                        <a asp-action="Create" asp-controller="Projects"
                                                            asp-route-indicatorId="@indicator.IndicatorCode"
                                                            class="btn btn-modern-success btn-sm">
                                                             <i class="fas fa-plus me-1"></i> @Localizer["Add Project"]
@@ -174,7 +174,7 @@
                                                     }
                                                 </div>
                                                 <div class="detail-card-body">
-                                                    @if (indicator.ProjectIndicators.Any())
+                                                    @if (indicator.Project != null)
                                                     {
                                                         <div class="modern-table-container">
                                                             <table class="modern-table">
@@ -188,10 +188,10 @@
                                                                     </tr>
                                                                 </thead>
                                                                 <tbody>
-                                                                    @foreach (var projectIndicator in indicator.ProjectIndicators)
-                                                                    {
-                                                                        var project = projectIndicator.Project;
+                                                                    @{
+                                                                        var project = indicator.Project!;
                                                                         string projectPerformanceClass = ProgressBarHelper.GetProgressBarClass(project.performance);
+                                                                    }
                                                                         
                                                                         <tr class="table-row-hover">
                                                                             <td>
@@ -226,7 +226,6 @@
                                                                                 </div>
                                                                             </td>
                                                                         </tr>
-                                                                    }
                                                                 </tbody>
                                                             </table>
                                                         </div>

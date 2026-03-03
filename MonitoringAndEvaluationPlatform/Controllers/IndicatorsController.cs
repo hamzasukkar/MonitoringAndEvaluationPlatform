@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.Json;
@@ -56,16 +56,15 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 // Include the SubOutput navigation property
                 var indicators = _context.Indicators
                     .Include(i => i.SubOutput)
-                    .Include(i => i.ProjectIndicators)
-                        .ThenInclude(pi => pi.Project)
-                            .ThenInclude(p => p.Ministry)
+                    .Include(i => i.Project)
+                        .ThenInclude(p => p.Ministry)
                     .AsQueryable();
 
                 // Filter by ministry if user is a ministry user
                 if (isMinistryUser && !string.IsNullOrEmpty(userMinistryName))
                 {
                     indicators = indicators.Where(i =>
-                        i.ProjectIndicators.Any(pi => pi.Project.Ministry != null && (pi.Project.Ministry.MinistryDisplayName_AR == userMinistryName || pi.Project.Ministry.MinistryDisplayName_EN == userMinistryName || pi.Project.Ministry.MinistryUserName == userMinistryName)));
+                        i.Project != null && i.Project.Ministry != null && (i.Project.Ministry.MinistryDisplayName_AR == userMinistryName || i.Project.Ministry.MinistryDisplayName_EN == userMinistryName || i.Project.Ministry.MinistryUserName == userMinistryName));
                 }
 
                 // Filter results if searchString is provided
@@ -81,16 +80,15 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             var frameworkIndicators = _context.Indicators
                 .Where(i => i.SubOutput.Output.Outcome.FrameworkCode == frameworkCode)
                 .Include(i => i.SubOutput)
-                .Include(i => i.ProjectIndicators)
-                    .ThenInclude(pi => pi.Project)
-                        .ThenInclude(p => p.Ministry)
+                .Include(i => i.Project)
+                    .ThenInclude(p => p.Ministry)
                 .AsQueryable();
 
             // Filter by ministry if user is a ministry user
             if (isMinistryUser && !string.IsNullOrEmpty(userMinistryName))
             {
                 frameworkIndicators = frameworkIndicators.Where(i =>
-                    i.ProjectIndicators.Any(pi => pi.Project.Ministry != null && (pi.Project.Ministry.MinistryDisplayName_AR == userMinistryName || pi.Project.Ministry.MinistryDisplayName_EN == userMinistryName || pi.Project.Ministry.MinistryUserName == userMinistryName)));
+                    i.Project != null && i.Project.Ministry != null && (i.Project.Ministry.MinistryDisplayName_AR == userMinistryName || i.Project.Ministry.MinistryDisplayName_EN == userMinistryName || i.Project.Ministry.MinistryUserName == userMinistryName));
             }
 
             // Add subOutputCode filter if it's provided
@@ -574,7 +572,13 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         (indicator.Name, "Indicator", indicator.IndicatorCode)
     };
 
-            var measures = await _context.Measures.Where(m => m.IndicatorCode == id).ToListAsync();
+            // Measures are now linked to ProjectPhases; get them via the indicator's project
+            var measures = indicator.ProjectID.HasValue
+                ? await _context.Measures
+                    .Where(m => m.ProjectPhase.ProjectID == indicator.ProjectID.Value)
+                    .OrderBy(m => m.Date)
+                    .ToListAsync()
+                : new List<Measure>();
 
             var labels = new List<string>();
             var realData = new List<double>();
@@ -613,17 +617,19 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         [Permission(Permissions.ReadIndicators)]
         public async Task<IActionResult> GetMeasureChartData(int indicatorCode)
         {
-            var data = await _context.Measures
-                .Where(m => m.IndicatorCode == indicatorCode)
-                .OrderBy(m => m.Date)
-                .Select(m => new { date = m.Date.ToString("yyyy-MM-dd"), value = m.Value })
-                .ToListAsync();
-
-            // Get indicator target as baseline
-            var indicator = await _context.Indicators
+            // Get indicator to find its project
+            var indicatorForChart = await _context.Indicators
                 .FirstOrDefaultAsync(i => i.IndicatorCode == indicatorCode);
 
-            var targetValue = indicator?.Target ?? 0;
+            var data = indicatorForChart?.ProjectID.HasValue == true
+                ? await _context.Measures
+                    .Where(m => m.ProjectPhase.ProjectID == indicatorForChart.ProjectID.Value)
+                    .OrderBy(m => m.Date)
+                    .Select(m => new { date = m.Date.ToString("yyyy-MM-dd"), value = m.Value })
+                    .ToListAsync()
+                : new List<object>().Select(x => new { date = "", value = 0.0 }).ToList();
+
+            var targetValue = indicatorForChart?.Target ?? 0;
             var target = new[] { new { date = "baseline", value = targetValue } };
 
             var result = new { Real = data, Target = target };
@@ -634,10 +640,15 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         [Permission(Permissions.ReadIndicators)]
         public async Task<IActionResult> MeasureTablePartial(int indicatorCode)
         {
-            var measures = await _context.Measures
-                .Where(m => m.IndicatorCode == indicatorCode)
-                .OrderBy(m => m.Date)
-                .ToListAsync();
+            var indicatorForTable = await _context.Indicators
+                .FirstOrDefaultAsync(i => i.IndicatorCode == indicatorCode);
+
+            var measures = indicatorForTable?.ProjectID.HasValue == true
+                ? await _context.Measures
+                    .Where(m => m.ProjectPhase.ProjectID == indicatorForTable.ProjectID.Value)
+                    .OrderBy(m => m.Date)
+                    .ToListAsync()
+                : new List<Measure>();
 
             return PartialView("_MeasureTablePartial", measures);
         }
@@ -762,8 +773,8 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             {
                 // Filter projects that are associated with indicators belonging to the specified framework
                 projectsQuery = projectsQuery.Where(p =>
-                    p.ProjectIndicators.Any(pi =>
-                        pi.Indicator.SubOutput.Output.Outcome.FrameworkCode == frameworkCode));
+                    p.Indicators.Any(i =>
+                        i.SubOutput != null && i.SubOutput.Output.Outcome.FrameworkCode == frameworkCode));
             }
 
             var projects = await projectsQuery
@@ -780,8 +791,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                     .ThenInclude(so => so.Output)
                     .ThenInclude(o => o.Outcome)
                     .ThenInclude(oc => oc.Framework)
-                .Include(i => i.ProjectIndicators)
-                    .ThenInclude(pi => pi.Project)
+                .Include(i => i.Project)
                 .AsQueryable();
 
             // Apply framework filter if provided
@@ -799,7 +809,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             // Apply project filter if provided
             if (projectId.HasValue)
             {
-                indicatorsQuery = indicatorsQuery.Where(i => i.ProjectIndicators.Any(pi => pi.ProjectId == projectId));
+                indicatorsQuery = indicatorsQuery.Where(i => i.ProjectID == projectId);
             }
 
             // Apply search filter if provided
@@ -808,7 +818,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 indicatorsQuery = indicatorsQuery.Where(i =>
                     EF.Functions.Like(i.Name, $"%{searchString}%") ||
                     (i.SubOutput != null && EF.Functions.Like(i.SubOutput.Name, $"%{searchString}%")) ||
-                    i.ProjectIndicators.Any(pi => EF.Functions.Like(pi.Project.ProjectName, $"%{searchString}%")));
+                    (i.Project != null && EF.Functions.Like(i.Project.ProjectName, $"%{searchString}%")));
             }
 
             var indicators = await indicatorsQuery.ToListAsync();
@@ -838,8 +848,8 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             {
                 // Filter projects that are associated with indicators belonging to the specified framework
                 projectsQuery = projectsQuery.Where(p =>
-                    p.ProjectIndicators.Any(pi =>
-                        pi.Indicator.SubOutput.Output.Outcome.FrameworkCode == frameworkCode));
+                    p.Indicators.Any(i =>
+                        i.SubOutput != null && i.SubOutput.Output.Outcome.FrameworkCode == frameworkCode));
             }
 
             var projects = await projectsQuery
@@ -856,8 +866,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                     .ThenInclude(so => so.Output)
                     .ThenInclude(o => o.Outcome)
                     .ThenInclude(oc => oc.Framework)
-                .Include(i => i.ProjectIndicators)
-                    .ThenInclude(pi => pi.Project)
+                .Include(i => i.Project)
                 .AsQueryable();
 
             // Apply framework filter if provided
@@ -875,7 +884,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             // Apply project filter if provided
             if (projectId.HasValue)
             {
-                indicatorsQuery = indicatorsQuery.Where(i => i.ProjectIndicators.Any(pi => pi.ProjectId == projectId));
+                indicatorsQuery = indicatorsQuery.Where(i => i.ProjectID == projectId);
             }
 
             // Apply search filter if provided
@@ -884,7 +893,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 indicatorsQuery = indicatorsQuery.Where(i =>
                     EF.Functions.Like(i.Name, $"%{searchString}%") ||
                     (i.SubOutput != null && EF.Functions.Like(i.SubOutput.Name, $"%{searchString}%")) ||
-                    i.ProjectIndicators.Any(pi => EF.Functions.Like(pi.Project.ProjectName, $"%{searchString}%")));
+                    (i.Project != null && EF.Functions.Like(i.Project.ProjectName, $"%{searchString}%")));
             }
 
             var indicators = await indicatorsQuery.ToListAsync();

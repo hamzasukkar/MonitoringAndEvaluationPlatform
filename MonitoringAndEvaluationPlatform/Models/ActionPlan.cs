@@ -1,4 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations;
 
 namespace MonitoringAndEvaluationPlatform.Models
 {
@@ -8,10 +8,9 @@ namespace MonitoringAndEvaluationPlatform.Models
         public int Code { get; set; }
         public int PlansCount { get; set; }
 
-
-        // Foreign key for one-to-one relationship
-        public int ProjectID { get; set; }
-        public Project Project { get; set; }
+        // Foreign key for one-to-one relationship with ProjectPhase
+        public int ProjectPhaseId { get; set; }
+        public virtual ProjectPhase ProjectPhase { get; set; } = null!;
 
         public ICollection<Activity> Activities { get; set; } = new List<Activity>();
 
@@ -20,21 +19,22 @@ namespace MonitoringAndEvaluationPlatform.Models
             double totalPlanned = Activities.SelectMany(a => a.Plans).Sum(p => p.Planned);
             double totalRealised = Activities.SelectMany(a => a.Plans).Sum(p => p.Realised);
 
-            if (Project != null) // Ensure Project is loaded
+            if (ProjectPhase?.Project != null)
             {
-                Project.UpdatePerformance(totalPlanned, totalRealised);
+                // Performance cascade is handled by PlanService/MonitoringService
+                // This method kept for compatibility with Plan.UpdatePerformance() call chain
             }
         }
 
         public void DistributeBudgetEquallyToPlans()
         {
-            if (Project?.EstimatedBudget > 0)
+            if (ProjectPhase?.Project?.EstimatedBudget > 0)
             {
-                var allPlans = Activities.Where(a=>a.ActivityType==Enums.ActivityType.DisbursementPerformance).SelectMany(a => a.Plans).ToList();
+                var allPlans = Activities.Where(a => a.ActivityType == Enums.ActivityType.DisbursementPerformance).SelectMany(a => a.Plans).ToList();
                 if (allPlans.Count > 0)
                 {
-                    int equalPlannedValue = (int)(Project.EstimatedBudget / allPlans.Count);
-                    int remainder = (int)(Project.EstimatedBudget % allPlans.Count);
+                    int equalPlannedValue = (int)(ProjectPhase.Project.EstimatedBudget / allPlans.Count);
+                    int remainder = (int)(ProjectPhase.Project.EstimatedBudget % allPlans.Count);
 
                     for (int i = 0; i < allPlans.Count; i++)
                     {
@@ -49,8 +49,5 @@ namespace MonitoringAndEvaluationPlatform.Models
                 }
             }
         }
-
-
-
     }
 }

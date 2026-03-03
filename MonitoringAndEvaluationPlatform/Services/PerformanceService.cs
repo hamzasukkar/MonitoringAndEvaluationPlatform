@@ -124,7 +124,7 @@ namespace MonitoringAndEvaluationPlatform.Services
 
             // Only include indicators that have projects
             var indicatorsWithProjects = subOutput.Indicators
-                .Where(i => _context.ProjectIndicators.Any(pi => pi.IndicatorCode == i.IndicatorCode))
+                .Where(i => i.ProjectID != null)
                 .ToList();
 
             if (indicatorsWithProjects.Any())
@@ -171,7 +171,7 @@ namespace MonitoringAndEvaluationPlatform.Services
 
             // Only include subOutputs that have indicators with projects
             var subOutputsWithProjects = output.SubOutputs
-                .Where(so => so.Indicators.Any(i => _context.ProjectIndicators.Any(pi => pi.IndicatorCode == i.IndicatorCode)))
+                .Where(so => so.Indicators.Any(i => i.ProjectID != null))
                 .ToList();
 
             if (subOutputsWithProjects.Any())
@@ -219,7 +219,7 @@ namespace MonitoringAndEvaluationPlatform.Services
 
             // Only include outputs that have subOutputs with indicators with projects
             var outputsWithProjects = outcome.Outputs
-                .Where(o => o.SubOutputs.Any(so => so.Indicators.Any(i => _context.ProjectIndicators.Any(pi => pi.IndicatorCode == i.IndicatorCode))))
+                .Where(o => o.SubOutputs.Any(so => so.Indicators.Any(i => i.ProjectID != null)))
                 .ToList();
 
             if (outputsWithProjects.Any())
@@ -268,7 +268,7 @@ namespace MonitoringAndEvaluationPlatform.Services
 
             // Only include outcomes that have outputs with subOutputs with indicators with projects
             var outcomesWithProjects = framework.Outcomes
-                .Where(oc => oc.Outputs.Any(o => o.SubOutputs.Any(so => so.Indicators.Any(i => _context.ProjectIndicators.Any(pi => pi.IndicatorCode == i.IndicatorCode)))))
+                .Where(oc => oc.Outputs.Any(o => o.SubOutputs.Any(so => so.Indicators.Any(i => i.ProjectID != null))))
                 .ToList();
 
             if (outcomesWithProjects.Any())

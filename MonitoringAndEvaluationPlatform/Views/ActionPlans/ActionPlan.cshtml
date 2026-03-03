@@ -20,14 +20,32 @@
                     @Localizer["Projects"]
                 </a>
                 <i class="fas fa-chevron-right breadcrumb-separator"></i>
+                @if (ViewBag.ProjectID != null)
+                {
+                    <a href="@Url.Action("Details", "Projects", new { id = ViewBag.ProjectID, tab = "phases" })" class="breadcrumb-link">
+                        @Localizer["Project"]
+                    </a>
+                    <i class="fas fa-chevron-right breadcrumb-separator"></i>
+                }
+                @if (ViewBag.PhaseName != null)
+                {
+                    <span class="breadcrumb-link-inactive">@ViewBag.PhaseName</span>
+                    <i class="fas fa-chevron-right breadcrumb-separator"></i>
+                }
                 <span class="current-page">@Localizer["Action Plan"]</span>
             </div>
             <h1 class="page-title">@Localizer["Project Action Plan"]</h1>
-            <p class="page-description">@Localizer["Detailed planning and execution tracking"]</p>
+            <p class="page-description">
+                @if (ViewBag.PhaseName != null)
+                {
+                    <span>@Localizer["Phase"]: <strong>@ViewBag.PhaseName</strong> — </span>
+                }
+                @Localizer["Detailed planning and execution tracking"]
+            </p>
         </div>
         
         <div class="header-actions">
-            <a href="@Url.Action("Details", "Projects", new { id = ViewBag.ProjectID })" class="action-btn secondary">
+            <a href="@Url.Action("Details", "Projects", new { id = ViewBag.ProjectID, tab = "phases" })" class="action-btn secondary">
                 <i class="fas fa-arrow-left"></i>
                 @Localizer["Back to Project"]
             </a>
@@ -42,26 +60,17 @@
             <div class="navbar-collapse" id="projectNavbar">
                 <ul class="modern-nav-list">
                     <li class="nav-item-modern">
-                        <a asp-action="Details" asp-controller="Projects" asp-route-id="@ViewBag.ProjectID" class="nav-link-modern">
+                        <a asp-action="Details" asp-controller="Projects" asp-route-id="@ViewBag.ProjectID" asp-route-tab="phases" class="nav-link-modern">
                             <i class="fas fa-project-diagram me-2"></i>@Localizer["Project"]
                         </a>
                     </li>
                     <li class="nav-item-modern">
-                        @if (ViewBag.FirstIndicatorCode != null)
-                        {
-                            <a asp-action="Index" asp-controller="Measures" asp-route-indicatorId="@ViewBag.FirstIndicatorCode" class="nav-link-modern" title="@Localizer["View measures for indicator"]">
-                                <i class="fas fa-ruler-combined me-2"></i>@Localizer["Measures"]
-                            </a>
-                        }
-                        else
-                        {
-                            <a asp-action="Index" asp-controller="Measures" class="nav-link-modern" title="@Localizer["No indicators linked to this project yet"]">
-                                <i class="fas fa-ruler-combined me-2"></i>@Localizer["Measures"]
-                            </a>
-                        }
+                        <a asp-action="Index" asp-controller="Measures" asp-route-phaseId="@ViewBag.PhaseId" class="nav-link-modern">
+                            <i class="fas fa-ruler-combined me-2"></i>@Localizer["Measures"]
+                        </a>
                     </li>
                     <li class="nav-item-modern">
-                        <a asp-controller="ActionPlans" asp-action="ActionPlan" asp-route-id="@ViewBag.ProjectID" class="nav-link-modern active" aria-current="page">
+                        <a asp-controller="ActionPlans" asp-action="ActionPlan" asp-route-phaseId="@ViewBag.PhaseId" class="nav-link-modern active" aria-current="page">
                             <i class="fas fa-tasks me-2"></i>@Localizer["Action Plans"]
                         </a>
                     </li>
@@ -443,6 +452,11 @@
 @section Scripts {
     <style>
         /* Modern Action Plan Styles */
+        .breadcrumb-link-inactive {
+            color: rgba(255,255,255,0.75);
+            font-size: 0.85rem;
+        }
+
         /* Modern Project Navigation */
         .project-nav-modern {
             background: rgba(255, 255, 255, 0.95);

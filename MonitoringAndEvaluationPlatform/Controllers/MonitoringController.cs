@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -31,9 +31,8 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                     .ThenInclude(o => o.Outputs)
                         .ThenInclude(outp => outp.SubOutputs)
                             .ThenInclude(so => so.Indicators)
-                                .ThenInclude(i => i.ProjectIndicators)
-                                    .ThenInclude(pi => pi.Project)
-                                        .ThenInclude(p => p.Ministries)
+                                .ThenInclude(i => i.Project)
+                                    .ThenInclude(p => p.Ministries)
                 .AsQueryable();
 
             if (selectedMinistryIds != null && selectedMinistryIds.Any())
@@ -44,9 +43,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                          .SelectMany(o => o.Outputs)
                          .SelectMany(outp => outp.SubOutputs)
                          .SelectMany(so => so.Indicators)
-                         .SelectMany(i => i.ProjectIndicators)
-                         .Any(pi =>
-                             pi.Project.Ministries.Any(min => selectedMinistryIds.Contains(min.Code))
+                         .Any(i => i.Project != null && i.Project.Ministries.Any(min => selectedMinistryIds.Contains(min.Code))
                          )
                     );
             }
@@ -71,8 +68,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 .ThenInclude(i => i.Outputs)
                 .ThenInclude(i => i.SubOutputs)
                 .ThenInclude(i => i.Indicators)
-                .ThenInclude(i => i.ProjectIndicators)
-                .ThenInclude(pi => pi.Project)
+                .ThenInclude(i => i.Project)
                 .ToListAsync();
             return View(frameworks);
         }
@@ -85,8 +81,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 .ThenInclude(i => i.Outputs)
                 .ThenInclude(i => i.SubOutputs)
                 .ThenInclude(i => i.Indicators)
-                .ThenInclude(i => i.ProjectIndicators)
-                .ThenInclude(pi => pi.Project)
+                .ThenInclude(i => i.Project)
                 .OrderByDescending(f => f.IndicatorsPerformance)
                 .ToListAsync();
             return View(frameworks);
@@ -98,7 +93,6 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 .Include(o => o.Outputs)
                     .ThenInclude(ou => ou.SubOutputs)
                         .ThenInclude(so => so.Indicators)
-                            .ThenInclude(i => i.ProjectIndicators)
                 .AsQueryable();
 
             if (frameworkCode.HasValue)
@@ -114,8 +108,8 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 o => o.Outputs
                         .SelectMany(ou => ou.SubOutputs)
                         .SelectMany(so => so.Indicators)
-                        .SelectMany(i => i.ProjectIndicators)
-                        .Select(pi => pi.ProjectId)
+                        .Where(i => i.ProjectID != null)
+                        .Select(i => i.ProjectID)
                         .Distinct()
                         .Count()
             );
@@ -131,7 +125,6 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             var outputsQuery = _context.Outputs
                 .Include(o => o.SubOutputs)
                     .ThenInclude(so => so.Indicators)
-                        .ThenInclude(i => i.ProjectIndicators)
                 .Include(o => o.Outcome)
                 .AsQueryable();
 
@@ -152,8 +145,8 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 o => o.Code,
                 o => o.SubOutputs
                         .SelectMany(so => so.Indicators)
-                        .SelectMany(i => i.ProjectIndicators)
-                        .Select(pi => pi.ProjectId)
+                        .Where(i => i.ProjectID != null)
+                        .Select(i => i.ProjectID)
                         .Distinct()
                         .Count()
             );
@@ -168,7 +161,6 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         {
             var subOutputsQuery = _context.SubOutputs
                 .Include(so => so.Indicators)
-                    .ThenInclude(i => i.ProjectIndicators)
                 .Include(so => so.Output)
                     .ThenInclude(o => o.Outcome)
                 .AsQueryable();
@@ -194,8 +186,8 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             var projectCounts = subOutputs.ToDictionary(
                 so => so.Code,
                 so => so.Indicators
-                        .SelectMany(i => i.ProjectIndicators)
-                        .Select(pi => pi.ProjectId)
+                        .Where(i => i.ProjectID != null)
+                        .Select(i => i.ProjectID)
                         .Distinct()
                         .Count()
             );
@@ -214,54 +206,36 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             int? subOutputCode,
             int? indicatorCode)
         {
-            // Start with a query on ProjectIndicators to get projects based on indicators
-            IQueryable<ProjectIndicator> projectIndicatorsQuery = _context.ProjectIndicators
-                .Include(pi => pi.Project) // Eager load the Project
-                .Include(pi => pi.Project.Sectors)
-                .Include(pi => pi.Project.Donors)
-                .Include(pi => pi.Project.Ministries)
-                .Include(pi => pi.Project.Communities)
-                .Include(pi => pi.Indicator) // Eager load the Indicator
-                    .ThenInclude(i => i.SubOutput) // Eager load SubOutput from Indicator
-                        .ThenInclude(so => so.Output) // Eager load Output from SubOutput
-                            .ThenInclude(o => o.Outcome) // Eager load Outcome from Output
-                                .ThenInclude(outc => outc.Framework); // Eager load Framework from Outcome
+            // Query projects linked via Indicator.ProjectID
+            var projectsQuery = _context.Projects
+                .Include(p => p.Sectors)
+                .Include(p => p.Donors)
+                .Include(p => p.Ministries)
+                .Include(p => p.Communities)
+                .AsQueryable();
 
             if (indicatorCode.HasValue)
             {
-                // Filter by IndicatorCode directly
-                projectIndicatorsQuery = projectIndicatorsQuery.Where(pi => pi.IndicatorCode == indicatorCode.Value);
+                projectsQuery = projectsQuery.Where(p => p.Indicators.Any(i => i.IndicatorCode == indicatorCode.Value));
             }
             else if (subOutputCode.HasValue)
             {
-                // Filter by SubOutputCode, traversing from ProjectIndicator -> Indicator -> SubOutput
-                projectIndicatorsQuery = projectIndicatorsQuery.Where(pi => pi.Indicator.SubOutputCode == subOutputCode.Value);
+                projectsQuery = projectsQuery.Where(p => p.Indicators.Any(i => i.SubOutputCode == subOutputCode.Value));
             }
             else if (outputCode.HasValue)
             {
-                // Filter by OutputCode, traversing from ProjectIndicator -> Indicator -> SubOutput -> Output
-                projectIndicatorsQuery = projectIndicatorsQuery.Where(pi => pi.Indicator.SubOutput.OutputCode == outputCode.Value);
+                projectsQuery = projectsQuery.Where(p => p.Indicators.Any(i => i.SubOutput.OutputCode == outputCode.Value));
             }
             else if (outcomeCode.HasValue)
             {
-                // Filter by OutcomeCode, traversing from ProjectIndicator -> Indicator -> SubOutput -> Output -> Outcome
-                projectIndicatorsQuery = projectIndicatorsQuery.Where(pi => pi.Indicator.SubOutput.Output.OutcomeCode == outcomeCode.Value);
+                projectsQuery = projectsQuery.Where(p => p.Indicators.Any(i => i.SubOutput.Output.OutcomeCode == outcomeCode.Value));
             }
             else if (frameworkCode.HasValue)
             {
-                // Filter by FrameworkCode, traversing from ProjectIndicator -> Indicator -> SubOutput -> Output -> Outcome -> Framework
-                projectIndicatorsQuery = projectIndicatorsQuery.Where(pi => pi.Indicator.SubOutput.Output.Outcome.FrameworkCode == frameworkCode.Value);
-            }
-            else
-            {
-                // If no specific hierarchy level is provided, return all projects that have indicators
+                projectsQuery = projectsQuery.Where(p => p.Indicators.Any(i => i.SubOutput.Output.Outcome.FrameworkCode == frameworkCode.Value));
             }
 
-            // Select distinct projects from the filtered ProjectIndicators
-            List<Project> projects = await projectIndicatorsQuery
-                .Select(pi => pi.Project) // Select the Project entity from each ProjectIndicator
-                .Distinct() // Get only unique Project entities
-                .ToListAsync();
+            List<Project> projects = await projectsQuery.Distinct().ToListAsync();
 
             return View(projects);
         }
@@ -280,7 +254,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                     .ThenInclude(so => so.Output) // Include Output
                         .ThenInclude(o => o.Outcome) // Include Outcome
                             .ThenInclude(outc => outc.Framework) // Include Framework
-                .Include(i => i.ProjectIndicators); // <--- CRUCIAL: Include ProjectIndicators to count projects
+                ;
 
             if (subOutputCode.HasValue)
             {
@@ -303,12 +277,10 @@ namespace MonitoringAndEvaluationPlatform.Controllers
 
             // Create a dictionary of IndicatorCode -> ProjectCount
             // Now correctly counting distinct projects via the ProjectIndicators collection
+            // Each indicator now has at most 1 project via ProjectID (nullable FK)
             var projectCounts = indicators.ToDictionary(
-                i => i.IndicatorCode, // Use i.Code as the key for the dictionary
-                i => i.ProjectIndicators // Access the ProjectIndicators collection on the indicator
-                      .Select(pi => pi.ProjectId) // Select the ProjectId from each ProjectIndicator
-                      .Distinct() // Get distinct ProjectIds
-                      .Count() // Count them
+                i => i.IndicatorCode,
+                i => i.ProjectID != null ? 1 : 0
             );
 
             ViewBag.ProjectCounts = projectCounts;
