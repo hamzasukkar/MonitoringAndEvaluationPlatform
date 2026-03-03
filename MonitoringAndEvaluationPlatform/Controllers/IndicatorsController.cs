@@ -40,27 +40,11 @@ namespace MonitoringAndEvaluationPlatform.Controllers
 
         // GET: Indicators
         [Permission(Permissions.ReadIndicators)]
-        public async Task<IActionResult> Index(int? frameworkCode, int? subOutputCode, string searchString, int? projectId)
+        public async Task<IActionResult> Index(int? frameworkCode, int? subOutputCode, string searchString)
         {
             ViewData["CurrentFilter"] = searchString;
             ViewData["subOutputCode"] = subOutputCode;
             ViewData["frameworkCode"] = frameworkCode;
-            ViewData["ProjectId"] = projectId;
-
-            // Build projects SelectList for filter dropdown
-            var projectsQuery = _context.Projects.AsQueryable();
-            if (frameworkCode.HasValue)
-            {
-                projectsQuery = projectsQuery.Where(p =>
-                    p.Indicators.Any(i =>
-                        i.SubOutput != null && i.SubOutput.Output.Outcome.FrameworkCode == frameworkCode));
-            }
-            var projects = await projectsQuery
-                .Select(p => new { p.ProjectID, p.ProjectName })
-                .Distinct()
-                .OrderBy(p => p.ProjectName)
-                .ToListAsync();
-            ViewData["Projects"] = new SelectList(projects, "ProjectID", "ProjectName", projectId);
 
             // Get current user and check if they are a ministry user
             var currentUser = await _userManager.GetUserAsync(User);
@@ -88,12 +72,6 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             if (subOutputCode.HasValue)
             {
                 indicators = indicators.Where(i => i.SubOutputCode == subOutputCode);
-            }
-
-            // Apply project filter
-            if (projectId.HasValue)
-            {
-                indicators = indicators.Where(i => i.ProjectID == projectId);
             }
 
             // Filter by ministry if user is a ministry user

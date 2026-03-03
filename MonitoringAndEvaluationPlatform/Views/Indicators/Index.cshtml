@@ -106,14 +106,7 @@
     <form asp-action="Index" method="get" class="row g-3" id="searchForm">
         <input type="hidden" name="frameworkCode" value="@ViewData["frameworkCode"]" />
         <input type="hidden" name="subOutputCode" value="@ViewData["subOutputCode"]" />
-        <div class="col-md-3">
-            <label class="form-label fw-bold">
-                <i class="fas fa-project-diagram me-2"></i>@Localizer["Filter by Project"]
-            </label>
-            @Html.DropDownList("projectId", ViewData["Projects"] as SelectList,
-                Localizer["-- All Projects --"].Value, new { @class = "form-select form-select-lg", id = "projectFilter" })
-        </div>
-        <div class="col-md-6">
+        <div class="col-md-9">
             <label class="form-label fw-bold">
                 <i class="fas fa-search me-2"></i>@Localizer["Search"]
             </label>

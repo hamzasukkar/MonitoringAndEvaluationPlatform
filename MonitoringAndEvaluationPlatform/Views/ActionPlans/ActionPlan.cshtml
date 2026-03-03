@@ -45,6 +45,10 @@
         </div>
         
         <div class="header-actions">
+            <a href="@Url.Action("Create", "Activities", new { actionPlanCode = ViewBag.ActionPlanCode })" class="action-btn primary">
+                <i class="fas fa-plus"></i>
+                @Localizer["Add Activity"]
+            </a>
             <a href="@Url.Action("Details", "Projects", new { id = ViewBag.ProjectID, tab = "phases" })" class="action-btn secondary">
                 <i class="fas fa-arrow-left"></i>
                 @Localizer["Back to Project"]
@@ -442,10 +446,14 @@
         <div class="empty-state-icon">
             <i class="fas fa-clipboard-list"></i>
         </div>
-        <h3 class="empty-state-title">@Localizer["No Action Plans"]</h3>
+        <h3 class="empty-state-title">@Localizer["No Activities Yet"]</h3>
         <p class="empty-state-text">
-            @Localizer["No action plans have been created for this project yet. Start by creating your first action plan to track project activities."]
+            @Localizer["No activities have been added to this action plan yet. Add your first activity to start tracking progress."]
         </p>
+        <a href="@Url.Action("Create", "Activities", new { actionPlanCode = ViewBag.ActionPlanCode })"
+           class="btn btn-primary mt-3">
+            <i class="fas fa-plus me-2"></i>@Localizer["Add Activity"]
+        </a>
     </div>
 }
 

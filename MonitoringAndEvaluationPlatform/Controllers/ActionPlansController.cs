@@ -35,17 +35,42 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         }
 
         // GET: ActionPlans/ActionPlan?phaseId=5
-        public IActionResult ActionPlan(int phaseId)
+        public async Task<IActionResult> ActionPlan(int phaseId)
         {
             // Fetch action plan for this specific phase
-            var phaseActionPlan = _context.ActionPlans
+            var phaseActionPlan = await _context.ActionPlans
                 .Include(ap => ap.Activities)
                     .ThenInclude(a => a.Plans)
                 .Include(ap => ap.ProjectPhase)
                     .ThenInclude(pp => pp.Project)
-                .FirstOrDefault(ap => ap.ProjectPhaseId == phaseId);
+                .FirstOrDefaultAsync(ap => ap.ProjectPhaseId == phaseId);
 
-            if (phaseActionPlan == null) return NotFound();
+            // Auto-create ActionPlan if it doesn't exist yet (e.g. phases created before the auto-create fix)
+            if (phaseActionPlan == null)
+            {
+                var orphanPhase = await _context.ProjectPhases
+                    .Include(p => p.Project)
+                    .FirstOrDefaultAsync(p => p.Id == phaseId);
+
+                if (orphanPhase == null) return NotFound();
+
+                int plansCount = ((orphanPhase.EndDate.Year - orphanPhase.StartDate.Year) * 12) + orphanPhase.EndDate.Month - orphanPhase.StartDate.Month;
+                if (orphanPhase.EndDate.Day < orphanPhase.StartDate.Day) plansCount--;
+                if (plansCount <= 0) plansCount = 1;
+
+                var newPlan = new ActionPlan { ProjectPhaseId = phaseId, PlansCount = plansCount };
+                _context.ActionPlans.Add(newPlan);
+                await _context.SaveChangesAsync();
+
+                phaseActionPlan = await _context.ActionPlans
+                    .Include(ap => ap.Activities)
+                        .ThenInclude(a => a.Plans)
+                    .Include(ap => ap.ProjectPhase)
+                        .ThenInclude(pp => pp.Project)
+                    .FirstOrDefaultAsync(ap => ap.Code == newPlan.Code);
+
+                if (phaseActionPlan == null) return NotFound();
+            }
 
             var phase = phaseActionPlan.ProjectPhase;
             var project = phase.Project;

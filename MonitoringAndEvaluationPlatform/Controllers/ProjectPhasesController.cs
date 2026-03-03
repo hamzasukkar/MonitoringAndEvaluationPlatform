@@ -83,11 +83,15 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             _context.ProjectPhases.Add(phase);
             await _context.SaveChangesAsync();
 
-            // Auto-create an ActionPlan for this phase
+            // Auto-create an ActionPlan for this phase with PlansCount = months in phase
+            int plansCount = ((phase.EndDate.Year - phase.StartDate.Year) * 12) + phase.EndDate.Month - phase.StartDate.Month;
+            if (phase.EndDate.Day < phase.StartDate.Day) plansCount--;
+            if (plansCount <= 0) plansCount = 1;
+
             var actionPlan = new ActionPlan
             {
                 ProjectPhaseId = phase.Id,
-                PlansCount = 0
+                PlansCount = plansCount
             };
             _context.ActionPlans.Add(actionPlan);
             await _context.SaveChangesAsync();
@@ -243,7 +247,11 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             _context.ProjectPhases.Add(phase);
             await _context.SaveChangesAsync();
 
-            var actionPlan = new ActionPlan { ProjectPhaseId = phase.Id, PlansCount = 0 };
+            int plansCount = ((phase.EndDate.Year - phase.StartDate.Year) * 12) + phase.EndDate.Month - phase.StartDate.Month;
+            if (phase.EndDate.Day < phase.StartDate.Day) plansCount--;
+            if (plansCount <= 0) plansCount = 1;
+
+            var actionPlan = new ActionPlan { ProjectPhaseId = phase.Id, PlansCount = plansCount };
             _context.ActionPlans.Add(actionPlan);
             await _context.SaveChangesAsync();
 

@@ -62,9 +62,10 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         }
 
         // GET: Activities/Create
-        public IActionResult Create()
+        public IActionResult Create(int? actionPlanCode)
         {
-            ViewData["ActionPlanCode"] = new SelectList(_context.ActionPlans, "Code", "Code");
+            ViewData["ActionPlanCode"] = new SelectList(_context.ActionPlans, "Code", "Code", actionPlanCode);
+            ViewBag.PreselectedActionPlanCode = actionPlanCode;
             return View();
         }
 
