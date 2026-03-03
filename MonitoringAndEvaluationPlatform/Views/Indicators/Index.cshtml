@@ -31,17 +31,7 @@
         </div>
         <div class="d-flex gap-2 flex-wrap">
             @await Html.PartialAsync("_HelpButton")
-            <a asp-action="IndicatorAndProject" asp-route-frameworkCode="@ViewData["frameworkCode"]"
-               asp-route-subOutputCode="@ViewData["subOutputCode"]"
-               class="btn btn-info btn-lg shadow-sm">
-                <i class="fas fa-th-large me-2"></i>@Localizer["Card View"]
-            </a>
-            <a asp-action="IndicatorAndProjectTable" asp-route-frameworkCode="@ViewData["frameworkCode"]"
-               asp-route-subOutputCode="@ViewData["subOutputCode"]"
-               class="btn btn-outline-info btn-lg shadow-sm">
-                <i class="fas fa-table me-2"></i>@Localizer["Table View"]
-            </a>
-            @if (@ViewData["subOutputCode"] != null && (User.IsInRole(UserRoles.SystemAdministrator) || User.IsInRole(UserRoles.MinistriesUser) || User.IsInRole(UserRoles.DataEntry)))
+@if (@ViewData["subOutputCode"] != null && (User.IsInRole(UserRoles.SystemAdministrator) || User.IsInRole(UserRoles.MinistriesUser) || User.IsInRole(UserRoles.DataEntry)))
             {
                 <a asp-action="AdjustWeights" asp-route-frameworkCode="@ViewData["frameworkCode"]"
                    asp-route-subOutputCode="@ViewData["subOutputCode"]"
@@ -88,22 +78,14 @@
         <form method="post" class="row g-3">
             @Html.AntiForgeryToken()
             <input type="hidden" name="SubOutputCode" value="@ViewData["subOutputCode"]" />
+            <input type="hidden" name="Target" value="100" />
 
-            <div class="col-md-6">
+            <div class="col-md-9">
                 <label for="Name" class="form-label fw-bold">
                     <i class="fas fa-tag me-2"></i>@Localizer["Name"]
                 </label>
                 <input type="text" name="Name" class="form-control form-control-lg" required
                        placeholder="@Localizer["Enter indicator name"]" />
-            </div>
-
-            <!-- Hidden Target field - always set to 100 -->
-            <input type="hidden" name="Target" value="100" />
-
-            <div class="col-md-3 d-flex align-items-end">
-                <button type="submit" class="btn btn-success btn-lg w-100" asp-action="CreateInline">
-                    <i class="fas fa-plus-circle me-1"></i> @Localizer["Add"]
-                </button>
             </div>
 
             <div class="col-md-3 d-flex align-items-end">
@@ -122,18 +104,32 @@
         @Localizer["Search Indicators"]
     </div>
     <form asp-action="Index" method="get" class="row g-3" id="searchForm">
-        <div class="col-md-8">
+        <input type="hidden" name="frameworkCode" value="@ViewData["frameworkCode"]" />
+        <input type="hidden" name="subOutputCode" value="@ViewData["subOutputCode"]" />
+        <div class="col-md-3">
+            <label class="form-label fw-bold">
+                <i class="fas fa-project-diagram me-2"></i>@Localizer["Filter by Project"]
+            </label>
+            @Html.DropDownList("projectId", ViewData["Projects"] as SelectList,
+                Localizer["-- All Projects --"].Value, new { @class = "form-select form-select-lg", id = "projectFilter" })
+        </div>
+        <div class="col-md-6">
+            <label class="form-label fw-bold">
+                <i class="fas fa-search me-2"></i>@Localizer["Search"]
+            </label>
             <div class="input-group">
                 <input type="text" name="searchString" id="searchInput" class="form-control form-control-lg"
-                       placeholder="@Localizer["Search by indicator name or suboutput..."]"
+                       placeholder="@Localizer["Search by indicator name, suboutput or project..."]"
                        value="@ViewData["CurrentFilter"]">
                 <button type="submit" class="btn btn-primary btn-lg">
                     <i class="fas fa-search me-1"></i> @Localizer["Search"]
                 </button>
             </div>
         </div>
-        <div class="col-md-4 d-flex align-items-end">
-            <a asp-action="Index" class="btn btn-outline-secondary btn-lg">
+        <div class="col-md-3 d-flex align-items-end">
+            <a asp-action="Index" asp-route-frameworkCode="@ViewData["frameworkCode"]"
+               asp-route-subOutputCode="@ViewData["subOutputCode"]"
+               class="btn btn-outline-secondary btn-lg w-100">
                 <i class="fas fa-sync-alt me-2"></i>@Localizer["Reset"]
             </a>
         </div>
@@ -192,6 +188,11 @@
                         </th>
                         <th class="text-center">
                             <div class="header-link">
+                                <i class="fas fa-project-diagram me-2"></i>@Localizer["Related Project"]
+                            </div>
+                        </th>
+                        <th class="text-center">
+                            <div class="header-link">
                                 <i class="fas fa-cogs me-2"></i>@Localizer["Actions"]
                             </div>
                         </th>
@@ -243,19 +244,31 @@
                                 </div>
                             </td>
                             <td class="text-center">
+                                <div class="projects-column">
+                                    @if (item.Project != null)
+                                    {
+                                        <button class="btn expand-projects-btn btn-sm" type="button"
+                                                onclick="toggleProjects(@item.IndicatorCode)">
+                                            <i class="fas fa-layer-group me-1"></i>
+                                            @(item.Project.ProjectName.Length > 18 ? item.Project.ProjectName.Substring(0, 18) + "…" : item.Project.ProjectName)
+                                            <span class="phase-count-pill ms-1">@item.Project.Phases.Count</span>
+                                            <i class="fas fa-chevron-down ms-1 chevron-icon" id="chevron-@item.IndicatorCode"></i>
+                                        </button>
+                                    }
+                                    else
+                                    {
+                                        <span class="text-muted small">
+                                            <i class="fas fa-folder-open opacity-50 me-1"></i>@Localizer["No Project"]
+                                        </span>
+                                    }
+                                </div>
+                            </td>
+                            <td class="text-center">
                                 <div class="btn-group action-buttons" role="group">
                                     <a asp-action="Details" asp-route-id="@item.IndicatorCode"
                                        class="btn btn-outline-info btn-sm action-btn" title="@Localizer["View Details"]">
                                         <i class="fas fa-eye"></i>
                                     </a>
-                                    @if (item.Project != null)
-                                    {
-                                        <a asp-action="Create" asp-controller="ProjectPhases"
-                                           asp-route-projectId="@item.Project.ProjectID"
-                                           class="btn btn-outline-success btn-sm action-btn" title="@Localizer["Add Phase"]">
-                                            <i class="fas fa-plus"></i>
-                                        </a>
-                                    }
                                     @if (User.IsInRole(UserRoles.SystemAdministrator) || User.IsInRole(UserRoles.MinistriesUser) || User.IsInRole(UserRoles.DataEntry))
                                     {
                                         <button type="button" class="btn btn-outline-primary btn-sm action-btn" title="Edit Name"
@@ -271,6 +284,90 @@
                                 </div>
                             </td>
                         </tr>
+
+                        @* Expandable Phases Row *@
+                        @if (item.Project != null)
+                        {
+                            var proj = item.Project;
+                            <tr class="expandable-row" id="projects-row-@item.IndicatorCode" style="display:none;">
+                                <td colspan="7">
+                                    <div class="phases-expanded-content">
+                                        <!-- Project header bar -->
+                                        <div class="phases-expanded-header">
+                                            <i class="fas fa-folder-open me-2"></i>
+                                            <strong>@proj.ProjectName</strong>
+                                            <a asp-action="Details" asp-controller="Projects" asp-route-id="@proj.ProjectID"
+                                               class="btn btn-sm btn-outline-primary ms-3">
+                                                <i class="fas fa-eye me-1"></i>@Localizer["View Project"]
+                                            </a>
+                                        </div>
+
+                                        @if (proj.Phases != null && proj.Phases.Any())
+                                        {
+                                            <div class="phases-grid">
+                                                @foreach (var phase in proj.Phases.OrderBy(p => p.StartDate))
+                                                {
+                                                    double phasePerf = Math.Round(phase.PhasePerformance, 1);
+                                                    string perfColor = phasePerf >= 75 ? "#28a745" : phasePerf >= 50 ? "#ffc107" : "#dc3545";
+                                                    <div class="phase-card">
+                                                        <div class="phase-card-header">
+                                                            <span class="phase-name"><i class="fas fa-tasks me-1"></i>@phase.Name</span>
+                                                            <span class="phase-weight-badge">@phase.Weight%</span>
+                                                        </div>
+                                                        <div class="phase-card-body">
+                                                            <div class="mini-info">
+                                                                <i class="fas fa-calendar text-primary"></i>
+                                                                <span>@phase.StartDate.ToString("MMM yyyy") – @phase.EndDate.ToString("MMM yyyy")</span>
+                                                            </div>
+                                                            <div class="mini-info">
+                                                                <i class="fas fa-coins text-success"></i>
+                                                                <span>@proj.CurrencySymbol@phase.Budget.ToString("N0")</span>
+                                                            </div>
+                                                            <div class="mini-info phase-perf-row">
+                                                                <i class="fas fa-chart-line text-info"></i>
+                                                                <div class="phase-progress-wrap">
+                                                                    <div class="phase-progress-bar" style="width:@phasePerf%; background:@perfColor;"></div>
+                                                                </div>
+                                                                <span class="phase-perf-text">@phasePerf%</span>
+                                                            </div>
+                                                        </div>
+                                                        <div class="phase-card-footer">
+                                                            <a asp-action="ActionPlan" asp-controller="ActionPlans" asp-route-phaseId="@phase.Id"
+                                                               class="btn btn-sm btn-primary flex-fill">
+                                                                <i class="fas fa-list me-1"></i>@Localizer["Action Plan"]
+                                                            </a>
+                                                            <a asp-action="Edit" asp-controller="ProjectPhases" asp-route-id="@phase.Id"
+                                                               class="btn btn-sm btn-warning flex-fill">
+                                                                <i class="fas fa-edit me-1"></i>@Localizer["Edit"]
+                                                            </a>
+                                                        </div>
+                                                    </div>
+                                                }
+                                                <!-- Add Phase dashed card -->
+                                                <div class="phase-card phase-add-card">
+                                                    <a asp-action="Create" asp-controller="ProjectPhases" asp-route-projectId="@proj.ProjectID"
+                                                       class="add-phase-link">
+                                                        <i class="fas fa-plus-circle fa-2x mb-2"></i>
+                                                        <span>@Localizer["Add Phase"]</span>
+                                                    </a>
+                                                </div>
+                                            </div>
+                                        }
+                                        else
+                                        {
+                                            <div class="phases-empty">
+                                                <i class="fas fa-layer-group fa-2x mb-2 opacity-50"></i>
+                                                <p class="mb-3">@Localizer["No phases yet for this project."]</p>
+                                                <a asp-action="Create" asp-controller="ProjectPhases" asp-route-projectId="@proj.ProjectID"
+                                                   class="btn btn-success btn-sm">
+                                                    <i class="fas fa-plus me-1"></i>@Localizer["Add First Phase"]
+                                                </a>
+                                            </div>
+                                        }
+                                    </div>
+                                </td>
+                            </tr>
+                        }
                     }
                 </tbody>
             </table>
@@ -293,6 +390,25 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
     <script>
+        // Auto-submit form when project filter dropdown changes
+        document.getElementById('projectFilter')?.addEventListener('change', function () {
+            this.form.submit();
+        });
+
+        function toggleProjects(indicatorCode) {
+            const row = document.getElementById(`projects-row-${indicatorCode}`);
+            const chevron = document.getElementById(`chevron-${indicatorCode}`);
+            if (row.style.display === 'none') {
+                row.style.display = 'table-row';
+                setTimeout(() => row.classList.add('expanded'), 10);
+                chevron.style.transform = 'rotate(180deg)';
+            } else {
+                row.classList.remove('expanded');
+                setTimeout(() => row.style.display = 'none', 300);
+                chevron.style.transform = 'rotate(0deg)';
+            }
+        }
+
         // Real-time search functionality
         const searchInput = document.getElementById('searchInput');
         const searchForm = document.getElementById('searchForm');
@@ -703,6 +819,146 @@
             background: linear-gradient(135deg, #4CAF50 0%, #2A4C44 100%);
             box-shadow: 0 6px 20px rgba(76, 175, 80, 0.25);
             border-left-color: #81C784;
+        }
+
+        /* Related Project column */
+        .projects-column { min-width: 160px; }
+
+        .expand-projects-btn {
+            border-radius: 8px;
+            font-size: 0.82rem;
+            font-weight: 600;
+            padding: 0.35rem 0.75rem;
+            background: linear-gradient(135deg, #17a2b8, #138496);
+            color: white;
+            border: none;
+            transition: all 0.3s ease;
+            max-width: 180px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .expand-projects-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(23,162,184,0.4);
+            color: white;
+        }
+        .chevron-icon { transition: transform 0.3s ease; }
+
+        /* ── Expandable row base ──────────────────────────── */
+        .expandable-row { background: rgba(255,255,255,0.95); }
+        .expandable-row.expanded { animation: slideDown 0.3s ease-out; }
+        @@keyframes slideDown {
+            from { opacity: 0; transform: translateY(-8px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+
+        /* ── Phases expanded panel ────────────────────────── */
+        .phases-expanded-content {
+            padding: 1.25rem 1.5rem;
+            background: linear-gradient(135deg, #f0f4f8 0%, #d9e2ec 100%);
+        }
+        .phases-expanded-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 1rem;
+            font-size: 0.95rem;
+            color: #333;
+        }
+
+        /* ── Phase cards grid ─────────────────────────────── */
+        .phases-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+            gap: 1rem;
+        }
+        .phase-card {
+            background: #fff;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.09);
+            display: flex;
+            flex-direction: column;
+            transition: all 0.25s ease;
+        }
+        .phase-card:hover { transform: translateY(-3px); box-shadow: 0 7px 18px rgba(0,0,0,0.13); }
+        .phase-card-header {
+            background: linear-gradient(135deg, #17a2b8, #138496);
+            color: white;
+            padding: 0.65rem 0.9rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .phase-name { font-weight: 600; font-size: 0.87rem; }
+        .phase-weight-badge {
+            background: rgba(255,255,255,0.25);
+            border-radius: 20px;
+            padding: 0.1rem 0.5rem;
+            font-size: 0.73rem;
+            font-weight: 700;
+            white-space: nowrap;
+        }
+        .phase-card-body { padding: 0.75rem 0.9rem; flex: 1; display: flex; flex-direction: column; gap: 0.4rem; }
+        .mini-info {
+            display: flex; align-items: center; gap: 0.5rem;
+            padding: 0.35rem 0.6rem;
+            background: rgba(0,0,0,0.03);
+            border-radius: 6px; font-size: 0.82rem;
+        }
+        .mini-info i { width: 14px; text-align: center; }
+        .mini-info span { color: #495057; font-weight: 500; }
+        .phase-perf-row { align-items: center; }
+        .phase-progress-wrap {
+            flex: 1;
+            height: 8px;
+            background: rgba(0,0,0,0.1);
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        .phase-progress-bar { height: 100%; border-radius: 10px; transition: width 0.8s ease; }
+        .phase-perf-text { font-weight: 700; font-size: 0.78rem; color: #333; white-space: nowrap; }
+        .phase-card-footer {
+            padding: 0.55rem 0.9rem;
+            background: rgba(0,0,0,0.02);
+            border-top: 1px solid rgba(0,0,0,0.05);
+            display: flex;
+            gap: 0.4rem;
+        }
+
+        /* ── Add Phase dashed card ────────────────────────── */
+        .phase-add-card {
+            border: 2px dashed #ced4da;
+            background: rgba(255,255,255,0.6) !important;
+            box-shadow: none !important;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 150px;
+        }
+        .phase-add-card:hover { border-color: #28a745; background: rgba(40,167,69,0.06) !important; }
+        .add-phase-link {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            color: #6c757d;
+            text-decoration: none;
+            padding: 1rem;
+            transition: color 0.2s;
+        }
+        .add-phase-link:hover { color: #28a745; }
+
+        /* ── Empty phases state ───────────────────────────── */
+        .phases-empty { text-align: center; padding: 2rem 1rem; color: #6c757d; }
+
+        /* ── Phase count pill on expand button ────────────── */
+        .phase-count-pill {
+            background: rgba(255,255,255,0.3);
+            border-radius: 20px;
+            padding: 0.1rem 0.45rem;
+            font-size: 0.72rem;
+            font-weight: 700;
         }
 
         /* Responsive Design */
