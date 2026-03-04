@@ -448,11 +448,18 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 return NotFound();
             }
 
-            _context.Indicators.Remove(indicator);
-            await _context.SaveChangesAsync();
+            if (indicator.ProjectID.HasValue)
+            {
+                var monitoringService = new MonitoringService(_context);
+                await monitoringService.DeleteProjectAndRecalculateAsync(indicator.ProjectID.Value);
+            }
+            else
+            {
+                _context.Indicators.Remove(indicator);
+                await _context.SaveChangesAsync();
+            }
+
             await RedistributeWeights(indicator.SubOutputCode);
-            await UpdateSubOutputPerformance(indicator.SubOutputCode);
-            // Call recalculation BEFORE deleting the indicator
             await _planService.RecalculatePerformanceAfterIndicatorDeletion(indicator);
 
             return Ok();
