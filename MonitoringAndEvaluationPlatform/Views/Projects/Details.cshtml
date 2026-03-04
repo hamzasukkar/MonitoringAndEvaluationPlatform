@@ -59,6 +59,21 @@
                         <li class="nav-item-modern">
                             @if (Model.Phases != null && Model.Phases.Any())
                             {
+                                var firstPhaseForMeasures = Model.Phases.First();
+                                <a asp-controller="Measures" asp-action="Index" asp-route-phaseId="@firstPhaseForMeasures.Id" class="nav-link-modern">
+                                    <i class="fas fa-chart-bar me-2"></i>@Localizer["Measures"]
+                                </a>
+                            }
+                            else
+                            {
+                                <a class="nav-link-modern disabled" title="@Localizer["No phases linked to this project yet"]">
+                                    <i class="fas fa-chart-bar me-2"></i>@Localizer["Measures"]
+                                </a>
+                            }
+                        </li>
+                        <li class="nav-item-modern">
+                            @if (Model.Phases != null && Model.Phases.Any())
+                            {
                                 var firstPhaseForActionPlan = Model.Phases.First();
                                 <a asp-controller="ActionPlans" asp-action="ActionPlan" asp-route-phaseId="@firstPhaseForActionPlan.Id" class="nav-link-modern">
                                     <i class="fas fa-tasks me-2"></i>@Localizer["Action Plans"]
@@ -516,6 +531,10 @@
                                     </td>
                                     <td class="text-center">
                                         <div class="btn-group action-buttons" role="group">
+                                            <a asp-controller="Measures" asp-action="Index" asp-route-phaseId="@phase.Id"
+                                               class="btn btn-outline-info btn-sm action-btn" title="@Localizer["Measures"]">
+                                                <i class="fas fa-chart-bar"></i>
+                                            </a>
                                             <a asp-controller="ActionPlans" asp-action="ActionPlan" asp-route-phaseId="@phase.Id"
                                                class="btn btn-outline-secondary btn-sm action-btn" title="@Localizer["Action Plan"]">
                                                 <i class="fas fa-tasks"></i>
