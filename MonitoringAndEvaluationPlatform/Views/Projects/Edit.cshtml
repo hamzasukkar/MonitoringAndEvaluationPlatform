@@ -65,43 +65,59 @@
                                 </div>
 
                                 <!-- Timeline -->
-                                <h6 class="text-primary mb-3">
-                                    <i class="fas fa-clock me-2"></i>@Localizer["Project Timeline"]
-                                </h6>
-                                <div class="row g-3 mb-4">
-                                    <div class="col-md-6">
-                                        <label asp-for="StartDate" class="form-label fw-bold">
-                                            <i class="fas fa-play me-2"></i>
-                                            @Localizer["Start Date"]
-                                        </label>
-                                        <div class="month-year-picker">
-                                            <input type="hidden" name="StartDate" id="StartDate" value="@Model.StartDate.ToString("yyyy-MM")" />
-                                            <div class="d-flex align-items-center gap-1">
-                                                <select class="form-control mypicker-month" style="max-width:80px">
-                                                    @for (int _m = 1; _m <= 12; _m++) { <option value="@_m">@_m</option> }
-                                                </select>
-                                                <span class="text-muted px-1 fw-bold">/</span>
-                                                <input type="number" class="form-control mypicker-year" min="2000" max="2100" style="max-width:100px" placeholder="YYYY" />
-                                            </div>
+                                <div class="timeline-frame mb-4">
+                                    <div class="timeline-frame-header">
+                                        <div class="timeline-frame-title">
+                                            <i class="fas fa-stream me-2"></i>
+                                            @Localizer["Project Timeline"]
                                         </div>
-                                        <span asp-validation-for="StartDate" class="text-danger small"></span>
+                                        <div class="timeline-frame-dots">
+                                            <span class="tl-dot tl-dot-start"></span>
+                                            <span class="tl-connector"></span>
+                                            <span class="tl-dot tl-dot-end"></span>
+                                        </div>
                                     </div>
-                                    <div class="col-md-6">
-                                        <label asp-for="EndDate" class="form-label fw-bold">
-                                            <i class="fas fa-stop me-2"></i>
-                                            @Localizer["End Date"]
-                                        </label>
-                                        <div class="month-year-picker">
-                                            <input type="hidden" name="EndDate" id="EndDate" value="@Model.EndDate.ToString("yyyy-MM")" />
-                                            <div class="d-flex align-items-center gap-1">
-                                                <select class="form-control mypicker-month" style="max-width:80px">
-                                                    @for (int _m = 1; _m <= 12; _m++) { <option value="@_m">@_m</option> }
-                                                </select>
-                                                <span class="text-muted px-1 fw-bold">/</span>
-                                                <input type="number" class="form-control mypicker-year" min="2000" max="2100" style="max-width:100px" placeholder="YYYY" />
+                                    <div class="timeline-frame-body">
+                                        <div class="row g-3">
+                                            <div class="col-md-6">
+                                                <div class="tl-date-block tl-start-block">
+                                                    <div class="tl-date-icon"><i class="fas fa-play-circle"></i></div>
+                                                    <label asp-for="StartDate" class="form-label fw-bold">
+                                                        @Localizer["Start Date"]
+                                                    </label>
+                                                    <div class="month-year-picker">
+                                                        <input type="hidden" name="StartDate" id="StartDate" value="@Model.StartDate.ToString("yyyy-MM")" />
+                                                        <div class="d-flex align-items-center gap-1">
+                                                            <select class="form-control mypicker-month" style="max-width:80px">
+                                                                @for (int _m = 1; _m <= 12; _m++) { <option value="@_m">@_m</option> }
+                                                            </select>
+                                                            <span class="text-muted px-1 fw-bold">/</span>
+                                                            <input type="number" class="form-control mypicker-year" min="2000" max="2100" style="max-width:100px" placeholder="YYYY" />
+                                                        </div>
+                                                    </div>
+                                                    <span asp-validation-for="StartDate" class="text-danger small"></span>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <div class="tl-date-block tl-end-block">
+                                                    <div class="tl-date-icon"><i class="fas fa-flag-checkered"></i></div>
+                                                    <label asp-for="EndDate" class="form-label fw-bold">
+                                                        @Localizer["End Date"]
+                                                    </label>
+                                                    <div class="month-year-picker">
+                                                        <input type="hidden" name="EndDate" id="EndDate" value="@Model.EndDate.ToString("yyyy-MM")" />
+                                                        <div class="d-flex align-items-center gap-1">
+                                                            <select class="form-control mypicker-month" style="max-width:80px">
+                                                                @for (int _m = 1; _m <= 12; _m++) { <option value="@_m">@_m</option> }
+                                                            </select>
+                                                            <span class="text-muted px-1 fw-bold">/</span>
+                                                            <input type="number" class="form-control mypicker-year" min="2000" max="2100" style="max-width:100px" placeholder="YYYY" />
+                                                        </div>
+                                                    </div>
+                                                    <span asp-validation-for="EndDate" class="text-danger small"></span>
+                                                </div>
                                             </div>
                                         </div>
-                                        <span asp-validation-for="EndDate" class="text-danger small"></span>
                                     </div>
                                 </div>
 
@@ -566,6 +582,119 @@
         display: flex;
         justify-content: space-between;
         align-items: center;
+    }
+
+    /* Project Timeline Frame */
+    .timeline-frame {
+        position: relative;
+        border-radius: 16px;
+        background: linear-gradient(135deg, #f0f4ff 0%, #f8f0ff 100%);
+        border: 1.5px solid #d0d9ff;
+        overflow: hidden;
+        box-shadow: 0 4px 16px rgba(102, 126, 234, 0.1);
+    }
+
+    .timeline-frame-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 0.75rem 1.25rem;
+        background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+        color: white;
+    }
+
+    .timeline-frame-title {
+        font-size: 0.95rem;
+        font-weight: 700;
+        letter-spacing: 0.3px;
+    }
+
+    .timeline-frame-dots {
+        display: flex;
+        align-items: center;
+        gap: 0;
+    }
+
+    .tl-dot {
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+        border: 2px solid white;
+        display: inline-block;
+        flex-shrink: 0;
+    }
+
+    .tl-dot-start {
+        background: #10b981;
+        box-shadow: 0 0 6px rgba(16, 185, 129, 0.8);
+    }
+
+    .tl-dot-end {
+        background: #ef4444;
+        box-shadow: 0 0 6px rgba(239, 68, 68, 0.8);
+    }
+
+    .tl-connector {
+        width: 48px;
+        height: 2px;
+        background: repeating-linear-gradient(90deg, rgba(255,255,255,0.8) 0, rgba(255,255,255,0.8) 4px, transparent 4px, transparent 8px);
+        display: inline-block;
+        margin: 0 6px;
+    }
+
+    .timeline-frame-body {
+        padding: 1.25rem 1.25rem 1rem;
+    }
+
+    .tl-date-block {
+        position: relative;
+        background: white;
+        border-radius: 12px;
+        padding: 1rem 1rem 0.75rem;
+        border-top: 3px solid transparent;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+        transition: box-shadow 0.2s ease;
+    }
+
+    .tl-date-block:hover {
+        box-shadow: 0 4px 16px rgba(0,0,0,0.1);
+    }
+
+    .tl-start-block {
+        border-top-color: #10b981;
+    }
+
+    .tl-end-block {
+        border-top-color: #ef4444;
+    }
+
+    .tl-date-icon {
+        position: absolute;
+        top: -14px;
+        left: 1rem;
+        width: 28px;
+        height: 28px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.85rem;
+        color: white;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+    }
+
+    .tl-start-block .tl-date-icon {
+        background: linear-gradient(135deg, #10b981, #059669);
+    }
+
+    .tl-end-block .tl-date-icon {
+        background: linear-gradient(135deg, #ef4444, #dc2626);
+    }
+
+    .tl-date-block label {
+        margin-top: 0.25rem;
+        font-size: 0.85rem;
+        color: #374151;
     }
 
     .donor-funding-card {
