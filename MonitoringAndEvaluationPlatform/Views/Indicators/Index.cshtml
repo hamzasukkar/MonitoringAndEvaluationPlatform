@@ -382,19 +382,29 @@
                                                             </div>
                                                             <div class="col-md-2">
                                                                 <label class="form-label fw-semibold small mb-1">@Localizer["Start Date"]</label>
-                                                                <input type="date" name="StartDate" class="form-control form-control-sm"
-                                                                       required
-                                                                       value="@proj.StartDate.ToString("yyyy-MM-dd")"
-                                                                       min="@proj.StartDate.ToString("yyyy-MM-dd")"
-                                                                       max="@proj.EndDate.ToString("yyyy-MM-dd")" />
+                                                                <div class="month-year-picker">
+                                                                    <input type="hidden" name="StartDate" id="StartDate-@proj.ProjectID" value="@proj.StartDate.ToString("yyyy-MM")" />
+                                                                    <div class="d-flex align-items-center gap-1">
+                                                                        <select class="form-control form-control-sm mypicker-month" style="max-width:60px">
+                                                                            @for (int _m = 1; _m <= 12; _m++) { <option value="@_m">@_m</option> }
+                                                                        </select>
+                                                                        <span class="text-muted fw-bold">/</span>
+                                                                        <input type="number" class="form-control form-control-sm mypicker-year" min="2000" max="2100" style="max-width:80px" placeholder="YYYY" />
+                                                                    </div>
+                                                                </div>
                                                             </div>
                                                             <div class="col-md-2">
                                                                 <label class="form-label fw-semibold small mb-1">@Localizer["End Date"]</label>
-                                                                <input type="date" name="EndDate" class="form-control form-control-sm"
-                                                                       required
-                                                                       value="@proj.EndDate.ToString("yyyy-MM-dd")"
-                                                                       min="@proj.StartDate.ToString("yyyy-MM-dd")"
-                                                                       max="@proj.EndDate.ToString("yyyy-MM-dd")" />
+                                                                <div class="month-year-picker">
+                                                                    <input type="hidden" name="EndDate" id="EndDate-@proj.ProjectID" value="@proj.EndDate.ToString("yyyy-MM")" />
+                                                                    <div class="d-flex align-items-center gap-1">
+                                                                        <select class="form-control form-control-sm mypicker-month" style="max-width:60px">
+                                                                            @for (int _m = 1; _m <= 12; _m++) { <option value="@_m">@_m</option> }
+                                                                        </select>
+                                                                        <span class="text-muted fw-bold">/</span>
+                                                                        <input type="number" class="form-control form-control-sm mypicker-year" min="2000" max="2100" style="max-width:80px" placeholder="YYYY" />
+                                                                    </div>
+                                                                </div>
                                                             </div>
                                                             <div class="col-md-3">
                                                                 <label class="form-label fw-semibold small mb-1">
@@ -619,6 +629,7 @@
                 return;
             }
             formWrap.style.display = 'block';
+            initMonthYearPickers(formWrap);
             setTimeout(() => formWrap.scrollIntoView({ behavior: 'smooth', block: 'nearest' }), 50);
         }
 
@@ -673,6 +684,31 @@
             }
         }
         // ──────────────────────────────────────────────────────────────────
+
+        // Initialize month-year pickers
+        function initMonthYearPickers(root) {
+            (root || document).querySelectorAll('.month-year-picker').forEach(function (picker) {
+                var hidden = picker.querySelector('input[type="hidden"]');
+                var monthSel = picker.querySelector('.mypicker-month');
+                var yearInput = picker.querySelector('.mypicker-year');
+                if (!hidden || !monthSel || !yearInput) return;
+                if (hidden.value) {
+                    var parts = hidden.value.split('-');
+                    if (parts.length >= 2) {
+                        yearInput.value = parseInt(parts[0], 10);
+                        monthSel.value = parseInt(parts[1], 10);
+                    }
+                }
+                function sync() {
+                    var m = monthSel.value, y = yearInput.value;
+                    if (m && y) hidden.value = String(parseInt(y)).padStart(4, '0') + '-' + String(parseInt(m)).padStart(2, '0');
+                }
+                monthSel.addEventListener('change', sync);
+                yearInput.addEventListener('change', sync);
+                yearInput.addEventListener('input', sync);
+            });
+        }
+        initMonthYearPickers();
 
         // Initialize page animations
         document.addEventListener('DOMContentLoaded', function() {
