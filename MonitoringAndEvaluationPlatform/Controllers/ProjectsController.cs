@@ -391,7 +391,6 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         public async Task<IActionResult> Create(
             Project project,
             List<IFormFile> UploadedFiles,
-            int PlansCount,
             string? selections,
             List<int>? SelectedIndicators,
             string? DonorFundingBreakdown)
@@ -405,7 +404,6 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 ModelState.Remove("selections");
                 ModelState.Remove("SelectedIndicators");
                 ModelState.Remove("DonorFundingBreakdown");
-                ModelState.Remove("PlansCount");
                 ModelState.Remove("IsEntireCountry");
 
                 // Explicitly read IsEntireCountry from form (checkbox sends "true" if checked, nothing if unchecked)
@@ -417,15 +415,6 @@ namespace MonitoringAndEvaluationPlatform.Controllers
 
                 // Ensure SelectedIndicators is not null and remove duplicates
                 SelectedIndicators = SelectedIndicators?.Distinct().ToList() ?? new List<int>();
-
-                // Calculate PlansCount automatically based on the difference in months between StartDate and EndDate
-                PlansCount = CalculateMonthsDifference(project.StartDate, project.EndDate);
-
-                // Ensure PlansCount is at least 1 month
-                if (PlansCount <= 0)
-                {
-                    PlansCount = 1;
-                }
 
                 // Process location selections (skip if entire country)
                 if (!IsEntireCountry)
@@ -457,7 +446,6 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                     selectedLocations,
                     selectedSectorCodes,
                     SelectedIndicators,
-                    PlansCount,
                     ModelState,
                     IsEntireCountry);
 
@@ -490,49 +478,6 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 _context.Projects.Add(project);
                 await _context.SaveChangesAsync();
 
-                // Create a default project phase and action plan
-                var defaultPhase = new ProjectPhase
-                {
-                    Name = "Phase 1",
-                    StartDate = project.StartDate,
-                    EndDate = project.EndDate,
-                    Budget = 0,
-                    Weight = 100m,
-                    PhasePerformance = 0,
-                    ProjectID = project.ProjectID,
-                    ActionPlan = new ActionPlan { PlansCount = PlansCount }
-                };
-                _context.ProjectPhases.Add(defaultPhase);
-                await _context.SaveChangesAsync();
-
-                // Create activities for the project
-                var baseActivity = new Activity
-                {
-                    Name = project.ProjectName ?? "New Project Activity",
-                    ActionPlanCode = defaultPhase.ActionPlan!.Code
-                };
-
-                var activitiesCreated = await _activityService.CreateActivitiesForAllTypesAsync(baseActivity);
-                if (!activitiesCreated)
-                {
-                    ModelState.AddModelError("", "Unable to create activities for the new ActionPlan.");
-                    await PopulateCreateViewBagAsync(selectedSectorCodes, selectedDonorCodes, SelectedIndicators, selections, DonorFundingBreakdown);
-                    return View(project);
-                }
-
-                // Distribute budget across plans
-                var actionPlanWithActivities = await _context.ActionPlans
-                    .Include(ap => ap.ProjectPhase)
-                    .Include(ap => ap.Activities)
-                        .ThenInclude(a => a.Plans)
-                    .FirstOrDefaultAsync(ap => ap.Code == defaultPhase.ActionPlan!.Code);
-
-                if (actionPlanWithActivities != null)
-                {
-                    actionPlanWithActivities.DistributeBudgetEquallyToPlans();
-                    await _context.SaveChangesAsync();
-                }
-
                 // Process file uploads
                 await ProcessFileUploadsAsync(project.ProjectID, UploadedFiles);
 
@@ -542,7 +487,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 // Set success message
                 var indicatorCount = SelectedIndicators?.Count ?? 0;
                 var successMessage = indicatorCount > 0
-                    ? $"Project '{project.ProjectName}' has been created successfully with {indicatorCount} indicator(s) linked and {PlansCount} month(s) planned."
+                    ? $"Project '{project.ProjectName}' has been created successfully with {indicatorCount} indicator(s) linked."
                     : $"Project '{project.ProjectName}' has been created successfully.";
 
                 this.SetSuccessMessage(successMessage);
@@ -1553,8 +1498,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 nameof(Project.Districts),
                 nameof(Project.SubDistricts),
                 nameof(Project.Governorates),
-                nameof(Project.Goal),
-                "PlansCount"
+                nameof(Project.Goal)
             };
 
             foreach (var property in propertiesToRemove)
