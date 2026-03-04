@@ -58,7 +58,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             // Validate dates within project dates
             if (phase.StartDate < project.StartDate || phase.EndDate > project.EndDate)
             {
-                ModelState.AddModelError("", $"Phase dates must be within the project dates ({project.StartDate:yyyy-MM-dd} – {project.EndDate:yyyy-MM-dd}).");
+                ModelState.AddModelError("", $"Phase dates must be within the project dates ({project.StartDate:MMM yyyy} – {project.EndDate:MMM yyyy}).");
             }
 
             if (phase.StartDate >= phase.EndDate)
@@ -142,7 +142,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             // Validate dates
             if (phase.StartDate < project.StartDate || phase.EndDate > project.EndDate)
             {
-                ModelState.AddModelError("", $"Phase dates must be within the project dates ({project.StartDate:yyyy-MM-dd} – {project.EndDate:yyyy-MM-dd}).");
+                ModelState.AddModelError("", $"Phase dates must be within the project dates ({project.StartDate:MMM yyyy} – {project.EndDate:MMM yyyy}).");
             }
 
             if (phase.StartDate >= phase.EndDate)
@@ -239,7 +239,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 return Json(new { success = false, message = "Project not found." });
 
             if (phase.StartDate < project.StartDate || phase.EndDate > project.EndDate)
-                return Json(new { success = false, message = $"Phase dates must be within the project dates ({project.StartDate:yyyy-MM-dd} – {project.EndDate:yyyy-MM-dd})." });
+                return Json(new { success = false, message = $"Phase dates must be within the project dates ({project.StartDate:MMM yyyy} – {project.EndDate:MMM yyyy})." });
 
             if (phase.StartDate >= phase.EndDate)
                 return Json(new { success = false, message = "End date must be after start date." });

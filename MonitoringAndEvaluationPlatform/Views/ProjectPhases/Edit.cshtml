@@ -62,7 +62,7 @@
             </div>
             <div class="banner-content">
                 <div class="banner-label">@Localizer["Project Dates"]</div>
-                <div class="banner-value">@project.StartDate.ToString("yyyy-MM-dd") – @project.EndDate.ToString("yyyy-MM-dd")</div>
+                <div class="banner-value">@project.StartDate.ToString("MMM yyyy") – @project.EndDate.ToString("MMM yyyy")</div>
             </div>
         </div>
         <div class="banner-item">
@@ -152,13 +152,21 @@
                         <label asp-for="StartDate" class="modern-label">
                             <i class="fas fa-calendar-plus me-2"></i>@Localizer["Start Date"] *
                         </label>
-                        <input asp-for="StartDate" type="date" class="modern-input"
-                               min="@(project?.StartDate.ToString("yyyy-MM-dd"))"
-                               max="@(project?.EndDate.ToString("yyyy-MM-dd"))" />
+                        @{ var _editPhaseStartVal = Model.StartDate.ToString("yyyy-MM"); }
+                        <div class="month-year-picker">
+                            <input type="hidden" name="StartDate" id="StartDate" value="@_editPhaseStartVal" />
+                            <div class="d-flex align-items-center gap-1">
+                                <select class="modern-input mypicker-month" style="max-width:80px">
+                                    @for (int _m = 1; _m <= 12; _m++) { <option value="@_m">@_m</option> }
+                                </select>
+                                <span class="text-muted px-1 fw-bold">/</span>
+                                <input type="number" class="modern-input mypicker-year" min="2000" max="2100" style="max-width:100px" placeholder="YYYY" />
+                            </div>
+                        </div>
                         <span asp-validation-for="StartDate" class="field-error"></span>
                         @if (project != null)
                         {
-                            <div class="field-hint">@Localizer["Must be on or after"] @project.StartDate.ToString("yyyy-MM-dd")</div>
+                            <div class="field-hint">@Localizer["Must be on or after"] @project.StartDate.ToString("MMM yyyy")</div>
                         }
                     </div>
 
@@ -167,13 +175,21 @@
                         <label asp-for="EndDate" class="modern-label">
                             <i class="fas fa-calendar-minus me-2"></i>@Localizer["End Date"] *
                         </label>
-                        <input asp-for="EndDate" type="date" class="modern-input"
-                               min="@(project?.StartDate.ToString("yyyy-MM-dd"))"
-                               max="@(project?.EndDate.ToString("yyyy-MM-dd"))" />
+                        @{ var _editPhaseEndVal = Model.EndDate.ToString("yyyy-MM"); }
+                        <div class="month-year-picker">
+                            <input type="hidden" name="EndDate" id="EndDate" value="@_editPhaseEndVal" />
+                            <div class="d-flex align-items-center gap-1">
+                                <select class="modern-input mypicker-month" style="max-width:80px">
+                                    @for (int _m = 1; _m <= 12; _m++) { <option value="@_m">@_m</option> }
+                                </select>
+                                <span class="text-muted px-1 fw-bold">/</span>
+                                <input type="number" class="modern-input mypicker-year" min="2000" max="2100" style="max-width:100px" placeholder="YYYY" />
+                            </div>
+                        </div>
                         <span asp-validation-for="EndDate" class="field-error"></span>
                         @if (project != null)
                         {
-                            <div class="field-hint">@Localizer["Must be on or before"] @project.EndDate.ToString("yyyy-MM-dd")</div>
+                            <div class="field-hint">@Localizer["Must be on or before"] @project.EndDate.ToString("MMM yyyy")</div>
                         }
                     </div>
 
@@ -650,6 +666,28 @@
         btn.disabled = true;
         btn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>@Localizer["Saving..."]';
     });
+
+    (function () {
+        document.querySelectorAll('.month-year-picker').forEach(function (picker) {
+            var hidden = picker.querySelector('input[type="hidden"]');
+            var monthSel = picker.querySelector('.mypicker-month');
+            var yearInput = picker.querySelector('.mypicker-year');
+            if (hidden.value) {
+                var parts = hidden.value.split('-');
+                if (parts.length >= 2) {
+                    yearInput.value = parseInt(parts[0], 10);
+                    monthSel.value = parseInt(parts[1], 10);
+                }
+            }
+            function sync() {
+                var m = monthSel.value, y = yearInput.value;
+                if (m && y) hidden.value = String(parseInt(y)).padStart(4, '0') + '-' + String(parseInt(m)).padStart(2, '0');
+            }
+            monthSel.addEventListener('change', sync);
+            yearInput.addEventListener('change', sync);
+            yearInput.addEventListener('input', sync);
+        });
+    })();
 
     // Initialize bar on page load
     updateWeightBar();

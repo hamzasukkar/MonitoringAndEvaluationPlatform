@@ -8,8 +8,8 @@
     Layout = "~/Views/Shared/_DashboardHomeLayout.cshtml";
 
     // Use model values if available, otherwise default to today's date
-    var startDate = Model?.StartDate != default ? Model.StartDate.ToString("yyyy-MM-dd") : DateTime.Today.ToString("yyyy-MM-dd");
-    var endDate = Model?.EndDate != default ? Model.EndDate.ToString("yyyy-MM-dd") : DateTime.Today.ToString("yyyy-MM-dd");
+    var startDate = Model?.StartDate != default ? Model.StartDate.ToString("yyyy-MM") : DateTime.Today.ToString("yyyy-MM");
+    var endDate = Model?.EndDate != default ? Model.EndDate.ToString("yyyy-MM") : DateTime.Today.ToString("yyyy-MM");
 
     var governorates = ViewBag.Governorates as List<Governorate>;
 
@@ -170,7 +170,16 @@
                                             <i class="fas fa-play me-2"></i>
                                             @Localizer["Start Date"] <span class="text-danger">*</span>
                                         </label>
-                                        <input type="date" asp-for="StartDate" value="@startDate" class="form-control form-control-lg @ValidationClass("StartDate")" />
+                                        <div class="month-year-picker">
+                                            <input type="hidden" name="StartDate" id="StartDate" value="@startDate" />
+                                            <div class="d-flex align-items-center gap-1">
+                                                <select class="form-control mypicker-month" style="max-width:80px">
+                                                    @for (int _m = 1; _m <= 12; _m++) { <option value="@_m">@_m</option> }
+                                                </select>
+                                                <span class="text-muted px-1 fw-bold">/</span>
+                                                <input type="number" class="form-control mypicker-year" min="2000" max="2100" style="max-width:100px" placeholder="YYYY" />
+                                            </div>
+                                        </div>
                                     <div class="form-text">@Localizer["Project implementation start date"] </div>
                                         <span asp-validation-for="StartDate" class="invalid-feedback d-block"></span>
                                     </div>
@@ -179,7 +188,16 @@
                                             <i class="fas fa-stop me-2"></i>
                                             @Localizer["End Date"] <span class="text-danger">*</span>
                                         </label>
-                                        <input type="date" asp-for="EndDate" value="@endDate" class="form-control form-control-lg @ValidationClass("EndDate")" />
+                                        <div class="month-year-picker">
+                                            <input type="hidden" name="EndDate" id="EndDate" value="@endDate" />
+                                            <div class="d-flex align-items-center gap-1">
+                                                <select class="form-control mypicker-month" style="max-width:80px">
+                                                    @for (int _m = 1; _m <= 12; _m++) { <option value="@_m">@_m</option> }
+                                                </select>
+                                                <span class="text-muted px-1 fw-bold">/</span>
+                                                <input type="number" class="form-control mypicker-year" min="2000" max="2100" style="max-width:100px" placeholder="YYYY" />
+                                            </div>
+                                        </div>
                                         <div class="form-text">@Localizer["Project completion deadline"]</div>
                                         <span asp-validation-for="EndDate" class="invalid-feedback d-block"></span>
                                     </div>
@@ -1961,5 +1979,26 @@
         return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
     }
 
+    (function () {
+        document.querySelectorAll('.month-year-picker').forEach(function (picker) {
+            var hidden = picker.querySelector('input[type="hidden"]');
+            var monthSel = picker.querySelector('.mypicker-month');
+            var yearInput = picker.querySelector('.mypicker-year');
+            if (hidden.value) {
+                var parts = hidden.value.split('-');
+                if (parts.length >= 2) {
+                    yearInput.value = parseInt(parts[0], 10);
+                    monthSel.value = parseInt(parts[1], 10);
+                }
+            }
+            function sync() {
+                var m = monthSel.value, y = yearInput.value;
+                if (m && y) hidden.value = String(parseInt(y)).padStart(4, '0') + '-' + String(parseInt(m)).padStart(2, '0');
+            }
+            monthSel.addEventListener('change', sync);
+            yearInput.addEventListener('change', sync);
+            yearInput.addEventListener('input', sync);
+        });
+    })();
 
 </script>
