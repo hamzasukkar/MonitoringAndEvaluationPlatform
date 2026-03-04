@@ -243,7 +243,15 @@
     <div class="info-row">
         <div class="info-label">@Localizer["Donor Category"]</div>
         <div class="info-value">
-            <span class="category-badge">@Model.donorCategory.ToString()</span>
+            <span class="category-badge">
+                @(Model.donorCategory switch {
+                    MonitoringAndEvaluationPlatform.Enums.DonorCategory.UNOrganizations => Localizer["UN Organizations"].Value,
+                    MonitoringAndEvaluationPlatform.Enums.DonorCategory.Countries => Localizer["Countries"].Value,
+                    MonitoringAndEvaluationPlatform.Enums.DonorCategory.InternationalNonGovernmentalOrganizations => Localizer["International NGOs"].Value,
+                    MonitoringAndEvaluationPlatform.Enums.DonorCategory.Local => Localizer["Local"].Value,
+                    _ => Model.donorCategory.ToString()
+                })
+            </span>
         </div>
     </div>
 </div>

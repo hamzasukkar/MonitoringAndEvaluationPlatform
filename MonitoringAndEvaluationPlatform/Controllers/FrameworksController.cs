@@ -221,6 +221,23 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             var framework = await _context.Frameworks.FindAsync(id);
             if (framework == null) return NotFound();
 
+            // Collect all project IDs linked to indicators under this framework
+            var projectIds = await (
+                from outcome in _context.Outcomes
+                join output in _context.Outputs on outcome.Code equals output.OutcomeCode
+                join subOutput in _context.SubOutputs on output.Code equals subOutput.OutputCode
+                join indicator in _context.Indicators on subOutput.Code equals indicator.SubOutputCode
+                where outcome.FrameworkCode == id && indicator.ProjectID != null
+                select indicator.ProjectID!.Value
+            ).Distinct().ToListAsync();
+
+            // Delete each linked project (handles cascade + performance recalculation)
+            var monitoringService = new MonitoringService(_context);
+            foreach (var projectId in projectIds)
+            {
+                await monitoringService.DeleteProjectAndRecalculateAsync(projectId);
+            }
+
             _context.Frameworks.Remove(framework);
             await _context.SaveChangesAsync();
 

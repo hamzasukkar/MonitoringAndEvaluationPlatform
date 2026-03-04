@@ -718,6 +718,14 @@
             cancel: '@Localizer["Cancel"]',
             confirm: '@Localizer["Yes, delete it!"]'
         };
+        window.saveWeightsStrings = {
+            mustSum: '@Localizer["Weights must sum to exactly 100. Current sum:"]',
+            saving: '@Localizer["Saving..."]',
+            saved: '@Localizer["Saved!"]',
+            saveWeights: '@Localizer["Save Weights"]',
+            errorSaving: '@Localizer["Error saving weights."]',
+            networkError: '@Localizer["Network error saving weights."]'
+        };
     </script>
 
     <!-- Optimized external JavaScript -->
@@ -754,13 +762,13 @@
 
             const total = phases.reduce((s, p) => s + p.weight, 0);
             if (Math.abs(total - 100) > 0.01) {
-                alert('Weights must sum to exactly 100. Current sum: ' + total.toFixed(2));
+                alert(window.saveWeightsStrings.mustSum + ' ' + total.toFixed(2));
                 return;
             }
 
             const btn = document.getElementById('save-weights-btn');
             btn.disabled = true;
-            btn.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i>Saving...';
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i>' + window.saveWeightsStrings.saving;
 
             try {
                 const token = document.querySelector('input[name="__RequestVerificationToken"]')?.value;
@@ -773,23 +781,23 @@
                     body: JSON.stringify({ phases })
                 });
                 if (resp.ok) {
-                    btn.innerHTML = '<i class="fas fa-check me-1"></i>Saved!';
+                    btn.innerHTML = '<i class="fas fa-check me-1"></i>' + window.saveWeightsStrings.saved;
                     btn.classList.replace('btn-primary', 'btn-success');
                     setTimeout(() => {
-                        btn.innerHTML = '<i class="fas fa-save me-1"></i>Save Weights';
+                        btn.innerHTML = '<i class="fas fa-save me-1"></i>' + window.saveWeightsStrings.saveWeights;
                         btn.classList.replace('btn-success', 'btn-primary');
                         btn.disabled = false;
                     }, 2000);
                 } else {
                     const err = await resp.json();
-                    alert(err.message || 'Error saving weights.');
+                    alert(err.message || window.saveWeightsStrings.errorSaving);
                     btn.disabled = false;
-                    btn.innerHTML = '<i class="fas fa-save me-1"></i>Save Weights';
+                    btn.innerHTML = '<i class="fas fa-save me-1"></i>' + window.saveWeightsStrings.saveWeights;
                 }
             } catch (e) {
-                alert('Network error saving weights.');
+                alert(window.saveWeightsStrings.networkError);
                 btn.disabled = false;
-                btn.innerHTML = '<i class="fas fa-save me-1"></i>Save Weights';
+                btn.innerHTML = '<i class="fas fa-save me-1"></i>' + window.saveWeightsStrings.saveWeights;
             }
         }
     </script>

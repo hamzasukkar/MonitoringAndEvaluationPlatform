@@ -393,7 +393,7 @@
                             3: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Localizer["International NGOs"].Value)),
                             4: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Localizer["Local"].Value))
                         };
-                        const categoryLabel = categoryNames[response.donor.donorCategory] || response.donor.donorCategory;
+                        const categoryLabel = categoryNames[response.donor.donorCategoryValue] || response.donor.donorCategory;
                         // Add new row to table
                         const newRow = `
                             <tr id="donor-row-${response.donor.code}" class="table-row">

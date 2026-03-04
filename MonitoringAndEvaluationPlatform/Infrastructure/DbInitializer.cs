@@ -262,20 +262,20 @@ namespace MonitoringAndEvaluationPlatform.Infrastructure
                 {
                     var donors = new List<Donor>
                     {
-                        new Donor { Partner = "OCHA" }, // Remove explicit Code if using auto-increment
-                        new Donor { Partner = "UNHCR 2" },
-                        new Donor { Partner = "WFP" },
-                        new Donor { Partner = "UNICEF" },
-                        new Donor { Partner = "WHO" },
-                        new Donor { Partner = "UNDP" },
-                        new Donor { Partner = "FAO" },
-                        new Donor { Partner = "OHCHR" },
-                        new Donor { Partner = "UNRWA" },
-                        new Donor { Partner = "INGO's" },
-                        new Donor { Partner = "ICRC" },
-                        new Donor { Partner = "MSF" },
-                        new Donor { Partner = "NRC" },
-                        new Donor { Partner = "UN-OCHA" },
+                        new Donor { Partner = "OCHA",    donorCategory = DonorCategory.UNOrganizations },
+                        new Donor { Partner = "UNHCR 2", donorCategory = DonorCategory.UNOrganizations },
+                        new Donor { Partner = "WFP",     donorCategory = DonorCategory.UNOrganizations },
+                        new Donor { Partner = "UNICEF",  donorCategory = DonorCategory.UNOrganizations },
+                        new Donor { Partner = "WHO",     donorCategory = DonorCategory.UNOrganizations },
+                        new Donor { Partner = "UNDP",    donorCategory = DonorCategory.UNOrganizations },
+                        new Donor { Partner = "FAO",     donorCategory = DonorCategory.UNOrganizations },
+                        new Donor { Partner = "OHCHR",   donorCategory = DonorCategory.UNOrganizations },
+                        new Donor { Partner = "UNRWA",   donorCategory = DonorCategory.UNOrganizations },
+                        new Donor { Partner = "INGO's",  donorCategory = DonorCategory.InternationalNonGovernmentalOrganizations },
+                        new Donor { Partner = "ICRC",    donorCategory = DonorCategory.InternationalNonGovernmentalOrganizations },
+                        new Donor { Partner = "MSF",     donorCategory = DonorCategory.InternationalNonGovernmentalOrganizations },
+                        new Donor { Partner = "NRC",     donorCategory = DonorCategory.InternationalNonGovernmentalOrganizations },
+                        new Donor { Partner = "UN-OCHA", donorCategory = DonorCategory.UNOrganizations },
                     };
                     context.Donors.AddRange(donors);
                     context.SaveChanges();
