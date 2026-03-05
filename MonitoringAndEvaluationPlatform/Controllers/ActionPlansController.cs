@@ -84,7 +84,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                     Activities = group.Select(activity => new ActivityRow
                     {
                         ActivityName = activity.Name,
-                        Plans = activity.Plans.Select(plan => new PlanDetail
+                        Plans = activity.Plans.OrderBy(p => p.Date).Select(plan => new PlanDetail
                         {
                             PlanCode = plan.Code,
                             Date = plan.Date,
@@ -98,11 +98,13 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             ViewBag.ProjectID = project.ProjectID;
             ViewBag.PhaseName = phase.Name;
             ViewBag.ActionPlanCode = phaseActionPlan.Code;
+            ViewBag.PhaseBudget = phase.Budget;
+            ViewBag.CurrencySymbol = project.CurrencySymbol;
 
-            // Calculate project months for display
+            // Calculate phase months for display (use phase dates, not project dates)
             var months = new List<DateTime>();
-            var currentMonth = new DateTime(project.StartDate.Year, project.StartDate.Month, 1);
-            var endMonth = new DateTime(project.EndDate.Year, project.EndDate.Month, 1);
+            var currentMonth = new DateTime(phase.StartDate.Year, phase.StartDate.Month, 1);
+            var endMonth = new DateTime(phase.EndDate.Year, phase.EndDate.Month, 1);
 
             while (currentMonth <= endMonth)
             {
