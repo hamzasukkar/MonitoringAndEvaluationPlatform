@@ -321,6 +321,9 @@
   <data name="Weight %" xml:space="preserve">
     <value>Weight %</value>
   </data>
+  <data name="Total Realised" xml:space="preserve">
+    <value>Total Realised</value>
+  </data>
   <data name="Performance %" xml:space="preserve">
     <value>Performance %</value>
   </data>
@@ -347,5 +350,20 @@
   </data>
   <data name="LogicalFramework" xml:space="preserve">
     <value>Logical Framework</value>
+  </data>
+  <data name="Weights must sum to exactly 100. Current sum:" xml:space="preserve">
+    <value>Weights must sum to exactly 100. Current sum:</value>
+  </data>
+  <data name="Saving..." xml:space="preserve">
+    <value>Saving...</value>
+  </data>
+  <data name="Saved!" xml:space="preserve">
+    <value>Saved!</value>
+  </data>
+  <data name="Error saving weights." xml:space="preserve">
+    <value>Error saving weights.</value>
+  </data>
+  <data name="Network error saving weights." xml:space="preserve">
+    <value>Network error saving weights.</value>
   </data>
 </root>

@@ -437,6 +437,7 @@
                                 <th><i class="fas fa-calendar-check me-1"></i>@Localizer["End"]</th>
                                 <th><i class="fas fa-dollar-sign me-1"></i>@Localizer["Budget"]</th>
                                 <th class="text-center"><i class="fas fa-weight me-1"></i>@Localizer["Weight %"]</th>
+                                <th class="text-center"><i class="fas fa-check-double me-1"></i>@Localizer["Total Realised"]</th>
                                 <th class="text-center"><i class="fas fa-chart-line me-1"></i>@Localizer["Performance %"]</th>
                                 <th class="text-center"><i class="fas fa-cogs me-1"></i>@Localizer["Actions"]</th>
                             </tr>
@@ -454,6 +455,15 @@
                                     <td>@Model.CurrencySymbol@phase.Budget.ToString("N2")</td>
                                     <td class="text-center">
                                         <span class="modern-badge badge-primary">@phase.Weight.ToString("0.##")%</span>
+                                    </td>
+                                    <td class="text-center">
+                                        @{
+                                            double realisedAmount = phase.ActionPlan?.Activities
+                                                .Where(a => a.ActivityType == MonitoringAndEvaluationPlatform.Enums.ActivityType.DisbursementPerformance)
+                                                .SelectMany(a => a.Plans)
+                                                .Sum(p => (double)p.Realised) ?? 0;
+                                        }
+                                        <span class="fw-bold">@Model.CurrencySymbol@realisedAmount.ToString("N2")</span>
                                     </td>
                                     <td class="text-center">
                                         @{
