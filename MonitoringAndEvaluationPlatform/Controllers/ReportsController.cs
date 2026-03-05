@@ -366,28 +366,52 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 .OrderByDescending(pm => pm.ProjectCount)
                 .ToList();
 
+            // National projects (IsEntireCountry = true) count for every governorate
+            var nationalProjects = projects.Where(p => p.IsEntireCountry).ToList();
+
             // Governorate Reports
             viewModel.TotalGovernorates = governorates.Count;
             viewModel.GovernorateReports = governorates
-                .Where(g => g.projects.Any())
                 .Select(g => {
                     var govProjectIds = g.projects.Select(p => p.ProjectID).ToList();
                     var govProjects = projects.Where(p => govProjectIds.Contains(p.ProjectID)).ToList();
+                    // Merge with national projects (avoid duplicates)
+                    var allGovProjects = govProjects.Concat(nationalProjects)
+                        .DistinctBy(p => p.ProjectID).ToList();
+                    if (!allGovProjects.Any()) return null;
                     return new CategoryReportItem
                     {
                         Name = isArabic ? g.AR_Name : g.EN_Name,
                         NameAr = g.AR_Name,
-                        ProjectCount = g.projects.Count,
-                        TotalBudget = g.projects.Sum(p => p.EstimatedBudget),
-                        AmountSpent = govProjects.Sum(p => p.Phases?.SelectMany(pp => pp.ActionPlan?.Activities ?? Enumerable.Empty<Activity>()).SelectMany(a => a.Plans).Sum(plan => plan.Realised) ?? 0),
-                        IndicatorsPerformance = g.projects.Any() ? Math.Round(g.projects.Average(p => p.performance), 2) : 0,
-                        DisbursementPerformance = g.projects.Any() ? Math.Round(g.projects.Average(p => p.DisbursementPerformance), 2) : 0,
-                        FieldMonitoring = g.projects.Any() ? Math.Round(g.projects.Average(p => p.FieldMonitoring), 2) : 0,
-                        ImpactAssessment = g.projects.Any() ? Math.Round(g.projects.Average(p => p.ImpactAssessment), 2) : 0
+                        ProjectCount = allGovProjects.Count,
+                        TotalBudget = allGovProjects.Sum(p => p.EstimatedBudget),
+                        AmountSpent = allGovProjects.Sum(p => p.Phases?.SelectMany(pp => pp.ActionPlan?.Activities ?? Enumerable.Empty<Activity>()).SelectMany(a => a.Plans).Sum(plan => plan.Realised) ?? 0),
+                        IndicatorsPerformance = Math.Round(allGovProjects.Average(p => p.performance), 2),
+                        DisbursementPerformance = Math.Round(allGovProjects.Average(p => p.DisbursementPerformance), 2),
+                        FieldMonitoring = Math.Round(allGovProjects.Average(p => p.FieldMonitoring), 2),
+                        ImpactAssessment = Math.Round(allGovProjects.Average(p => p.ImpactAssessment), 2)
                     };
                 })
-                .OrderByDescending(g => g.ProjectCount)
-                .ToList();
+                .Where(g => g != null)
+                .OrderByDescending(g => g!.ProjectCount)
+                .ToList()!;
+
+            // Add "Entire Country" entry at the top if any national projects exist
+            if (nationalProjects.Any())
+            {
+                viewModel.GovernorateReports.Insert(0, new CategoryReportItem
+                {
+                    Name = isArabic ? "الدولة بأكملها" : "Entire Country",
+                    NameAr = "الدولة بأكملها",
+                    ProjectCount = nationalProjects.Count,
+                    TotalBudget = nationalProjects.Sum(p => p.EstimatedBudget),
+                    AmountSpent = nationalProjects.Sum(p => p.Phases?.SelectMany(pp => pp.ActionPlan?.Activities ?? Enumerable.Empty<Activity>()).SelectMany(a => a.Plans).Sum(plan => plan.Realised) ?? 0),
+                    IndicatorsPerformance = Math.Round(nationalProjects.Average(p => p.performance), 2),
+                    DisbursementPerformance = Math.Round(nationalProjects.Average(p => p.DisbursementPerformance), 2),
+                    FieldMonitoring = Math.Round(nationalProjects.Average(p => p.FieldMonitoring), 2),
+                    ImpactAssessment = Math.Round(nationalProjects.Average(p => p.ImpactAssessment), 2)
+                });
+            }
 
             return View(viewModel);
         }
