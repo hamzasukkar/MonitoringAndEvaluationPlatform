@@ -482,6 +482,11 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 return NotFound();
             }
             ViewData["SubOutputCode"] = new SelectList(_context.SubOutputs, "Code", "Name", indicator.SubOutputCode);
+            if (indicator.ProjectID.HasValue)
+            {
+                var project = await _context.Projects.FindAsync(indicator.ProjectID.Value);
+                ViewBag.ProjectName = project?.ProjectName;
+            }
             return View(indicator);
         }
 
@@ -496,17 +501,24 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             }
 
             ModelState.Remove(nameof(indicator.SubOutput));
+            ModelState.Remove(nameof(indicator.Project));
+            ModelState.Remove(nameof(indicator.ProjectID));
 
             if (ModelState.IsValid)
             {
                 try
                 {
-                    // Update the indicator
-                    _context.Update(indicator);
+                    var existing = await _context.Indicators.FindAsync(id);
+                    if (existing == null) return NotFound();
+
+                    existing.Name = indicator.Name;
+                    existing.SubOutputCode = indicator.SubOutputCode;
+                    // ProjectID is immutable — not overwritten
+
                     await _context.SaveChangesAsync();
 
                     // Update related entities
-                    await UpdateSubOutputPerformance(indicator.SubOutputCode);
+                    await UpdateSubOutputPerformance(existing.SubOutputCode);
                 }
                 catch (DbUpdateConcurrencyException)
                 {
@@ -524,6 +536,11 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             }
 
             ViewData["SubOutputCode"] = new SelectList(_context.SubOutputs, "Code", "Name", indicator.SubOutputCode);
+            if (indicator.ProjectID.HasValue)
+            {
+                var project = await _context.Projects.FindAsync(indicator.ProjectID.Value);
+                ViewBag.ProjectName = project?.ProjectName;
+            }
             return View(indicator);
         }
 

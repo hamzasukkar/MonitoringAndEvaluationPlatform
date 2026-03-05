@@ -518,6 +518,8 @@ public class MonitoringService
         var sectorIds = project.Sectors.Select(s => s.Code).ToList();
         var donorCodes = project.Donors.Select(d => d.Code).ToList();
 
+        // Delete linked indicators together with the project (they are created and exist as a pair)
+        _context.Indicators.RemoveRange(project.Indicators);
         _context.Projects.Remove(project);
         await _context.SaveChangesAsync();
 

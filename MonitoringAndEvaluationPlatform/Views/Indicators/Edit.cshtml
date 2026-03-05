@@ -19,16 +19,18 @@
                 <input asp-for="Name" class="form-control" />
                 <span asp-validation-for="Name" class="text-danger"></span>
             </div>
-@*             <div class="form-group">
-                <label asp-for="Trend" class="control-label"></label>
-                <input asp-for="Trend" class="form-control" />
-                <span asp-validation-for="Trend" class="text-danger"></span>
-            </div> *@
             <div class="form-group">
                 <label asp-for="SubOutputCode" class="control-label"></label>
                 <select asp-for="SubOutputCode" class="form-control" asp-items="ViewBag.SubOutputCode"></select>
                 <span asp-validation-for="SubOutputCode" class="text-danger"></span>
             </div>
+            @if (Model.ProjectID.HasValue && ViewBag.ProjectName != null)
+            {
+                <div class="form-group">
+                    <label class="control-label">Project</label>
+                    <input type="text" class="form-control" value="@ViewBag.ProjectName" disabled />
+                </div>
+            }
             <div class="form-group">
                 <input type="submit" value="Save" class="btn btn-primary" />
             </div>

@@ -318,6 +318,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             ViewBag.Governorates = _context.Governorates.ToList();
 
             // Pass indicator information for auto-filling if coming from "Add & Create Project"
+            ViewBag.PreSelectedIndicatorId = indicatorId;
             ViewBag.PreFilledProjectName = indicatorName;
 
             // Get the logged-in user
@@ -389,7 +390,8 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             Project project,
             List<IFormFile> UploadedFiles,
             string? selections,
-            string? DonorFundingBreakdown)
+            string? DonorFundingBreakdown,
+            int? LinkedIndicatorId)
         {
             try
             {
@@ -468,6 +470,17 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 // Save project first to get its ID
                 _context.Projects.Add(project);
                 await _context.SaveChangesAsync();
+
+                // Auto-link the indicator that triggered project creation (from CreateAndRedirectToProject)
+                if (LinkedIndicatorId.HasValue)
+                {
+                    var indicator = await _context.Indicators.FindAsync(LinkedIndicatorId.Value);
+                    if (indicator != null)
+                    {
+                        indicator.ProjectID = project.ProjectID;
+                        await _context.SaveChangesAsync();
+                    }
+                }
 
                 // Process file uploads
                 await ProcessFileUploadsAsync(project.ProjectID, UploadedFiles);
