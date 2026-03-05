@@ -112,21 +112,37 @@
 
     @if (Model.Measures.Any())
     {
+        double runningTotal = 0;
+        double target = Model.Indicator.Target > 0 ? Model.Indicator.Target : 1;
         @foreach (var item in Model.Measures)
         {
+            runningTotal += item.Value;
+            double pct = Math.Min(runningTotal / target * 100, 100);
+            string pctClass = pct >= 100 ? "success" : pct >= 60 ? "primary" : pct >= 30 ? "warning" : "danger";
             <div class="activity-item">
                 <div class="activity-icon">
                     <i class="fas fa-chart-bar"></i>
                 </div>
                 <div class="activity-content">
                     <div class="activity-title">
-                        @Localizer["Value"]: <span class="fw-bold text-primary">@item.Value</span>
+                        <span class="fw-bold text-primary">@item.Value</span>
+                        &mdash;
+                        <span class="text-muted small">@(item.ProjectPhase?.Name ?? @Localizer["Unknown Phase"].Value)</span>
                     </div>
                     <div class="activity-time">
                         <i class="fas fa-calendar me-1"></i>@item.Date.ToString("MMM dd, yyyy")
                     </div>
+                    <div class="mt-1">
+                        <div class="progress" style="height:6px; width:200px;">
+                            <div class="progress-bar bg-@pctClass" style="width:@pct.ToString("N0")%"></div>
+                        </div>
+                        <small class="text-muted">
+                            @Localizer["Cumulative"]: @runningTotal.ToString("N2") / @target.ToString("N2")
+                            (@pct.ToString("N1")% @Localizer["of target"])
+                        </small>
+                    </div>
                 </div>
-                <div class="ms-auto">
+                <div class="ms-auto text-end">
                     <span class="stat-number" style="font-size: 1.5rem; color: var(--primary-color);">
                         @item.Value
                     </span>

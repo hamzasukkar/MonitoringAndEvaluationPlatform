@@ -589,6 +589,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             // Measures are now linked to ProjectPhases; get them via the indicator's project
             var measures = indicator.ProjectID.HasValue
                 ? await _context.Measures
+                    .Include(m => m.ProjectPhase)
                     .Where(m => m.ProjectPhase.ProjectID == indicator.ProjectID.Value)
                     .OrderBy(m => m.Date)
                     .ToListAsync()
