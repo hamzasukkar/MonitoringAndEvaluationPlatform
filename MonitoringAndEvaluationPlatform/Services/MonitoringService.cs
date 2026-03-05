@@ -29,7 +29,7 @@ public class MonitoringService
         if (phase == null) return;
 
         phase.PhasePerformance = phase.Measures.Any()
-            ? phase.Measures.Average(m => m.Value)
+            ? phase.Measures.Sum(m => m.Value)
             : 0;
 
         _context.ProjectPhases.Update(phase);
