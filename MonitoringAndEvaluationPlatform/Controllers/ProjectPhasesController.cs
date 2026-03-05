@@ -98,7 +98,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             await _context.SaveChangesAsync();
 
             // Auto-create one Activity per ActivityType with monthly Plans
-            await CreateActivitiesWithPlans(actionPlan.Code, phase.StartDate, phase.EndDate);
+            await CreateActivitiesWithPlans(actionPlan.Code, phase.StartDate, phase.EndDate, phase.Budget);
 
             // Redistribute weights equally among all phases
             await RedistributeWeightsEqually(phase.ProjectID);
@@ -260,7 +260,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             await _context.SaveChangesAsync();
 
             // Auto-create one Activity per ActivityType with monthly Plans
-            await CreateActivitiesWithPlans(actionPlan.Code, phase.StartDate, phase.EndDate);
+            await CreateActivitiesWithPlans(actionPlan.Code, phase.StartDate, phase.EndDate, phase.Budget);
 
             await RedistributeWeightsEqually(phase.ProjectID);
 
@@ -357,9 +357,18 @@ namespace MonitoringAndEvaluationPlatform.Controllers
 
         // ─────────────────────────────────────────────────────────────────────
         // HELPER: Create one Activity per ActivityType with one Plan per month
+        // Financial & DisbursementPerformance plans get Planned = budget / months
         // ─────────────────────────────────────────────────────────────────────
-        private async Task CreateActivitiesWithPlans(int actionPlanCode, DateTime startDate, DateTime endDate)
+        private async Task CreateActivitiesWithPlans(int actionPlanCode, DateTime startDate, DateTime endDate, double budget)
         {
+            var startMonth = new DateTime(startDate.Year, startDate.Month, 1);
+            var endMonth   = new DateTime(endDate.Year,   endDate.Month,   1);
+
+            // Count total months (inclusive of both start and end month)
+            int totalMonths = 0;
+            for (var d = startMonth; d <= endMonth; d = d.AddMonths(1))
+                totalMonths++;
+
             foreach (ActivityType type in Enum.GetValues(typeof(ActivityType)))
             {
                 var activity = new Activity
@@ -369,16 +378,26 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                     ActivityType = type
                 };
 
-                var current = new DateTime(startDate.Year, startDate.Month, 1);
-                var endMonth = new DateTime(endDate.Year, endDate.Month, 1);
+                // Distribute budget evenly for financial activity types
+                bool isFinancialType = type == ActivityType.Financial ||
+                                       type == ActivityType.DisbursementPerformance;
+                int monthlyPlanned = isFinancialType && totalMonths > 0
+                    ? (int)(budget / totalMonths)
+                    : 0;
+                int remainder = isFinancialType
+                    ? (int)budget - (monthlyPlanned * totalMonths)
+                    : 0;
+
+                var current = startMonth;
                 int i = 1;
                 while (current <= endMonth)
                 {
+                    bool isLastMonth = current == endMonth;
                     activity.Plans.Add(new Plan
                     {
                         Name = $"{type}-{i}",
                         Date = current,
-                        Planned = 0,
+                        Planned = monthlyPlanned + (isLastMonth ? remainder : 0),
                         Realised = 0,
                         Activity = activity
                     });

@@ -467,35 +467,6 @@
 
                                     </div>
 
-                                <!-- Indicators -->
-                                <h6 class="text-primary mb-3">
-                                    <i class="fas fa-bullseye me-2"></i>@Localizer["Project Indicators"]
-                                </h6>
-                                <div class="mb-4 @(HasError("SelectedIndicators") ? "has-validation-error" : "")" id="indicator-container">
-                                    <label class="form-label fw-bold">
-                                        <i class="fas fa-chart-line me-2"></i>
-                                        @Localizer["Select Indicator"] <span class="text-danger">*</span>
-                                    </label>
-                                    <select name="SelectedIndicators" class="form-select form-select-lg @ValidationClass("SelectedIndicators")" id="indicatorSelect">
-                                        <option value="">-- @Localizer["Select an indicator"] --</option>
-                                        @if (ViewBag.Indicators != null)
-                                        {
-                                            @foreach (var indicator in ViewBag.Indicators as List<Indicator>)
-                                            {
-                                                <option value="@indicator.IndicatorCode" data-target="@indicator.Target">
-                                                    [@indicator.IndicatorCode] @indicator.Name
-                                                    @if (indicator.Target > 0)
-                                                    {
-                                                        <text> (Target: @indicator.Target.ToString("N2"))</text>
-                                                    }
-                                                </option>
-                                            }
-                                        }
-                                    </select>
-                            <div class="form-text">@Localizer["Choose the key performance indicator for measuring project success"]</div>
-                                    <div id="indicator-validation-error" class="invalid-feedback d-block" style="display: none;"></div>
-                                </div>
-
                                 <!-- Files Upload -->
                                 <h6 class="text-primary mb-3">
                                     <i class="fas fa-file-upload me-2"></i>@Localizer["Project Documents"]
@@ -970,8 +941,7 @@
         cannotExceed100: '@Html.Raw(System.Text.Encodings.Web.JavaScriptEncoder.Default.Encode(Localizer["Cannot exceed 100%"].Value))',
         atLeastOneLocation: '@Html.Raw(System.Text.Encodings.Web.JavaScriptEncoder.Default.Encode(Localizer["At least one project location must be selected, or check the Entire Country option."].Value))',
         atLeastOneSector: '@Html.Raw(System.Text.Encodings.Web.JavaScriptEncoder.Default.Encode(Localizer["At least one sector must be selected."].Value))',
-        indicatorMustBeSelected: '@Html.Raw(System.Text.Encodings.Web.JavaScriptEncoder.Default.Encode(Localizer["An indicator must be selected."].Value))',
-        projectManagerMustBeSelected: '@Html.Raw(System.Text.Encodings.Web.JavaScriptEncoder.Default.Encode(Localizer["A project manager must be selected."].Value))',
+projectManagerMustBeSelected: '@Html.Raw(System.Text.Encodings.Web.JavaScriptEncoder.Default.Encode(Localizer["A project manager must be selected."].Value))',
         supervisorMustBeSelected: '@Html.Raw(System.Text.Encodings.Web.JavaScriptEncoder.Default.Encode(Localizer["A supervisor must be selected."].Value))',
         ministryMustBeSelected: '@Html.Raw(System.Text.Encodings.Web.JavaScriptEncoder.Default.Encode(Localizer["A ministry must be selected."].Value))',
         endDateMustBeAfterStart: '@Html.Raw(System.Text.Encodings.Web.JavaScriptEncoder.Default.Encode(Localizer["End date must be after start date."].Value))',
@@ -1199,34 +1169,6 @@
     }
 
 
-    // Handle indicator selection preview (single select)
-    $("#indicatorSelect").change(function () {
-        const selectedOption = $(this).find('option:selected');
-        const previewDiv = $("#selectedIndicatorsPreview");
-        const listDiv = $("#selectedIndicatorsList");
-        
-        if (selectedOption.val() && selectedOption.val() !== "") {
-            const indicatorCode = selectedOption.val();
-            const indicatorText = selectedOption.text();
-            const target = selectedOption.data('target');
-            
-            const html = `
-                <div class="d-flex justify-content-between align-items-center p-2 border rounded bg-white">
-                    <div>
-                        <span class="badge bg-success me-2">${indicatorCode}</span>
-                        <span class="fw-medium">${indicatorText.split(']')[1]?.trim() || indicatorText}</span>
-                    </div>
-                    ${target > 0 ? `<small class="text-muted">Target: ${parseFloat(target).toFixed(2)}</small>` : ''}
-                </div>
-            `;
-            
-            listDiv.html(html);
-            previewDiv.show();
-        } else {
-            previewDiv.hide();
-        }
-    });
-
     // Calculate plans count based on project duration
     function calculatePlansCount() {
         const startDate = new Date($('[name="StartDate"]').val());
@@ -1274,15 +1216,6 @@
 
             // Focus on the first invalid input
             $firstError.find('.is-invalid').first().focus();
-        }
-
-        // Auto-fill project name and pre-select indicator if coming from "Add & Create Project"
-        @if (ViewBag.PreSelectedIndicatorId != null)
-        {
-            <text>
-            // Pre-select the indicator in the dropdown
-            $('#indicatorSelect').val(@ViewBag.PreSelectedIndicatorId).trigger('change');
-            </text>
         }
 
         @if (!string.IsNullOrEmpty(ViewBag.PreFilledProjectName))
@@ -1748,18 +1681,6 @@
             removeFieldError('select[name="Sectors"]', '#sectors-container');
         }
 
-        // Check if indicator is selected
-        const selectedIndicator = $('#indicatorSelect').val();
-        if (!selectedIndicator) {
-            errorMessages.push(localizedStrings.indicatorMustBeSelected);
-            $('#indicator-validation-error').text(localizedStrings.indicatorMustBeSelected).show();
-            addFieldError('#indicatorSelect', '#indicator-container');
-            isValid = false;
-        } else {
-            $('#indicator-validation-error').hide();
-            removeFieldError('#indicatorSelect', '#indicator-container');
-        }
-
         // Check if project manager is selected
         const projectManager = $('select[name="ProjectManagerCode"]').val();
         if (!projectManager) {
@@ -1844,7 +1765,6 @@
         // Get preserved data from ViewBag
         var selectedSectorCodes = @Html.Raw(Json.Serialize(ViewBag.SelectedSectorCodes ?? new List<string>()));
         var selectedDonorCodes = @Html.Raw(Json.Serialize(ViewBag.SelectedDonorCodes ?? new List<string>()));
-        var selectedIndicators = @Html.Raw(Json.Serialize(ViewBag.SelectedIndicators ?? new List<int>()));
         var locationSelections = @Html.Raw(Json.Serialize(ViewBag.LocationSelections ?? ""));
         var donorFundingBreakdown = @Html.Raw(Json.Serialize(ViewBag.DonorFundingBreakdown ?? ""));
 
@@ -1853,12 +1773,6 @@
             selectedSectorCodes.forEach(function(code) {
                 $('select[name="Sectors"] option[value="' + code + '"]').prop('selected', true);
             });
-        }
-
-        // Restore selected indicators
-        if (selectedIndicators && selectedIndicators.length > 0) {
-            // Just set the dropdown value - no need for hidden input
-            $('#indicatorSelect').val(selectedIndicators[0]).trigger('change');
         }
 
         // Restore location selections

@@ -313,14 +313,11 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             var supervisors = _context.SuperVisors.ToList();
             var projectManagers = _context.ProjectManagers.ToList();
             var goals = _context.Goals.ToList();
-            var indicators = _context.Indicators.OrderBy(i => i.IndicatorCode).ToList();
             var isArabic = CultureInfo.CurrentUICulture.TwoLetterISOLanguageName == "ar";
 
             ViewBag.Governorates = _context.Governorates.ToList();
-            ViewBag.Indicators = indicators;
 
             // Pass indicator information for auto-filling if coming from "Add & Create Project"
-            ViewBag.PreSelectedIndicatorId = indicatorId;
             ViewBag.PreFilledProjectName = indicatorName;
 
             // Get the logged-in user
@@ -392,7 +389,6 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             Project project,
             List<IFormFile> UploadedFiles,
             string? selections,
-            List<int>? SelectedIndicators,
             string? DonorFundingBreakdown)
         {
             try
@@ -402,7 +398,6 @@ namespace MonitoringAndEvaluationPlatform.Controllers
 
                 // Remove form parameters from ModelState (they're not part of the Project model)
                 ModelState.Remove("selections");
-                ModelState.Remove("SelectedIndicators");
                 ModelState.Remove("DonorFundingBreakdown");
                 ModelState.Remove("IsEntireCountry");
 
@@ -412,9 +407,6 @@ namespace MonitoringAndEvaluationPlatform.Controllers
 
                 // Set IsEntireCountry on project
                 project.IsEntireCountry = IsEntireCountry;
-
-                // Ensure SelectedIndicators is not null and remove duplicates
-                SelectedIndicators = SelectedIndicators?.Distinct().ToList() ?? new List<int>();
 
                 // Process location selections (skip if entire country)
                 if (!IsEntireCountry)
@@ -445,13 +437,12 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                     project,
                     selectedLocations,
                     selectedSectorCodes,
-                    SelectedIndicators,
                     ModelState,
                     IsEntireCountry);
 
                 if (!ModelState.IsValid)
                 {
-                    await PopulateCreateViewBagAsync(selectedSectorCodes, selectedDonorCodes, SelectedIndicators, selections, DonorFundingBreakdown);
+                    await PopulateCreateViewBagAsync(selectedSectorCodes, selectedDonorCodes, selections, DonorFundingBreakdown);
                     return View(project);
                 }
 
@@ -481,16 +472,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 // Process file uploads
                 await ProcessFileUploadsAsync(project.ProjectID, UploadedFiles);
 
-                // Link indicators to project
-                await LinkProjectIndicatorsAsync(project.ProjectID, SelectedIndicators);
-
-                // Set success message
-                var indicatorCount = SelectedIndicators?.Count ?? 0;
-                var successMessage = indicatorCount > 0
-                    ? $"Project '{project.ProjectName}' has been created successfully with {indicatorCount} indicator(s) linked."
-                    : $"Project '{project.ProjectName}' has been created successfully.";
-
-                this.SetSuccessMessage(successMessage);
+                this.SetSuccessMessage($"Project '{project.ProjectName}' has been created successfully.");
 
                 return RedirectToAction("Details", new { id = project.ProjectID });
             }
@@ -500,7 +482,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 // Get form data for preservation
                 var selectedSectorCodes = Request.Form["Sectors"].ToList();
                 var selectedDonorCodes = Request.Form["Donors"].ToList();
-                await PopulateCreateViewBagAsync(selectedSectorCodes, selectedDonorCodes, SelectedIndicators, selections, DonorFundingBreakdown);
+                await PopulateCreateViewBagAsync(selectedSectorCodes, selectedDonorCodes, selections, DonorFundingBreakdown);
                 return View(project);
             }
         }
@@ -673,9 +655,6 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 isArabic ? "AR_Name" : "EN_Name"
             );
 
-            // Load indicators for selection
-            ViewBag.Indicators = await _context.Indicators.OrderBy(i => i.IndicatorCode).ToListAsync();
-
             return View(project);
         }
         [HttpPost]
@@ -704,7 +683,6 @@ namespace MonitoringAndEvaluationPlatform.Controllers
           List<IFormFile> UploadedFiles,
           List<int>? SelectedSectorCodes,
           List<int>? SelectedDonorCodes,
-          List<int>? SelectedIndicators,
           string? selections,
           string? DonorFundingBreakdown)
         {
@@ -714,7 +692,6 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             // Initialize to empty lists if null to prevent null reference exceptions and remove duplicates
             SelectedSectorCodes = SelectedSectorCodes ?? new List<int>();
             SelectedDonorCodes = SelectedDonorCodes ?? new List<int>();
-            SelectedIndicators = SelectedIndicators?.Distinct().ToList() ?? new List<int>();
 
             // Explicitly read IsEntireCountry from form (checkbox sends "true" if checked, nothing if unchecked)
             var isEntireCountryValue = Request.Form["IsEntireCountry"].ToString();
@@ -929,28 +906,6 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             else
             {
                 dbProject.MinistryCode = null;
-            }
-
-            // --- Update Project Indicators ---
-            // Unlink existing indicators from this project
-            foreach (var indicator in dbProject.Indicators.ToList())
-            {
-                indicator.ProjectID = null;
-                _context.Indicators.Update(indicator);
-            }
-
-            // Link newly selected indicators
-            if (SelectedIndicators != null && SelectedIndicators.Any())
-            {
-                foreach (var indicatorCode in SelectedIndicators)
-                {
-                    var indicator = await _context.Indicators.FindAsync(indicatorCode);
-                    if (indicator != null)
-                    {
-                        indicator.ProjectID = dbProject.ProjectID;
-                        _context.Indicators.Update(indicator);
-                    }
-                }
             }
 
             // --- Handle file uploads (unchanged) ---
@@ -1507,7 +1462,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             }
         }
 
-        private async Task PopulateCreateViewBagAsync(List<string> selectedSectorCodes = null, List<string> selectedDonorCodes = null, List<int> selectedIndicators = null, string locationSelections = null, string donorFundingBreakdown = null)
+        private async Task PopulateCreateViewBagAsync(List<string> selectedSectorCodes = null, List<string> selectedDonorCodes = null, string locationSelections = null, string donorFundingBreakdown = null)
         {
             var isArabic = CultureInfo.CurrentUICulture.TwoLetterISOLanguageName == "ar";
 
@@ -1546,12 +1501,9 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 "Code",
                 isArabic ? "AR_Name" : "EN_Name"
             );
-            ViewBag.Indicators = _context.Indicators.OrderBy(i => i.IndicatorCode).ToList();
-
             // Preserve form data
             ViewBag.SelectedSectorCodes = selectedSectorCodes ?? new List<string>();
             ViewBag.SelectedDonorCodes = selectedDonorCodes ?? new List<string>();
-            ViewBag.SelectedIndicators = selectedIndicators ?? new List<int>();
             ViewBag.LocationSelections = locationSelections ?? "";
             ViewBag.DonorFundingBreakdown = donorFundingBreakdown ?? "";
         }

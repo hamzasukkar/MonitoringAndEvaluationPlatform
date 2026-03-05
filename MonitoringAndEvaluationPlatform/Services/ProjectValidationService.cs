@@ -10,7 +10,6 @@ namespace MonitoringAndEvaluationPlatform.Services
             Project project,
             List<LocationSelectionViewModel>? selectedLocations,
             List<string> selectedSectorCodes,
-            List<int>? selectedIndicators,
             ModelStateDictionary modelState,
             bool isEntireCountry = false);
     }
@@ -21,7 +20,6 @@ namespace MonitoringAndEvaluationPlatform.Services
             Project project,
             List<LocationSelectionViewModel>? selectedLocations,
             List<string> selectedSectorCodes,
-            List<int>? selectedIndicators,
             ModelStateDictionary modelState,
             bool isEntireCountry = false)
         {
@@ -35,12 +33,6 @@ namespace MonitoringAndEvaluationPlatform.Services
             if (!selectedSectorCodes.Any())
             {
                 modelState.AddModelError("Sectors", "At least one sector must be selected for the project.");
-            }
-
-            // Validate indicators
-            if (selectedIndicators == null || !selectedIndicators.Any())
-            {
-                modelState.AddModelError("SelectedIndicators", "At least one performance indicator must be selected to measure project success.");
             }
 
             // Validate project manager and supervisor
