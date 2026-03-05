@@ -101,6 +101,17 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 ViewBag.SubOutputName = resultIndicators.First().SubOutput?.Name;
             }
 
+            // Pass SubOutputs for the create form when accessed from framework level
+            if (frameworkCode.HasValue && !subOutputCode.HasValue)
+            {
+                ViewBag.SubOutputsForCreate = await _context.SubOutputs
+                    .Include(so => so.Output)
+                    .ThenInclude(o => o.Outcome)
+                    .Where(so => so.Output.Outcome.FrameworkCode == frameworkCode.Value)
+                    .OrderBy(so => so.Name)
+                    .ToListAsync();
+            }
+
             return View(resultIndicators);
         }
 

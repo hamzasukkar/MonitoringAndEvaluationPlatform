@@ -67,7 +67,7 @@
     </div>
 }
 
-@if (@ViewData["subOutputCode"] != null && (User.IsInRole(UserRoles.SystemAdministrator) || User.IsInRole(UserRoles.MinistriesUser) || User.IsInRole(UserRoles.DataEntry)))
+@if ((ViewData["subOutputCode"] != null || ViewData["frameworkCode"] != null) && (User.IsInRole(UserRoles.SystemAdministrator) || User.IsInRole(UserRoles.MinistriesUser) || User.IsInRole(UserRoles.DataEntry)))
 {
     <!-- Inline Create Form -->
     <div class="chart-card mb-4">
@@ -77,10 +77,28 @@
         </div>
         <form method="post" class="row g-3">
             @Html.AntiForgeryToken()
-            <input type="hidden" name="SubOutputCode" value="@ViewData["subOutputCode"]" />
+            @if (ViewData["subOutputCode"] != null)
+            {
+                <input type="hidden" name="SubOutputCode" value="@ViewData["subOutputCode"]" />
+            }
+            else
+            {
+                <div class="col-md-4">
+                    <label class="form-label fw-bold">
+                        <i class="fas fa-list-ul me-2"></i>@Localizer["SubOutput"]
+                    </label>
+                    <select name="SubOutputCode" class="form-control form-control-lg" required>
+                        <option value="">— @Localizer["Select SubOutput"] —</option>
+                        @foreach (var so in (IEnumerable<MonitoringAndEvaluationPlatform.Models.SubOutput>)ViewBag.SubOutputsForCreate)
+                        {
+                            <option value="@so.Code">@so.Name</option>
+                        }
+                    </select>
+                </div>
+            }
             <input type="hidden" name="Target" value="100" />
 
-            <div class="col-md-9">
+            <div class="@(ViewData["subOutputCode"] != null ? "col-md-9" : "col-md-5")">
                 <label for="Name" class="form-label fw-bold">
                     <i class="fas fa-tag me-2"></i>@Localizer["Name"]
                 </label>
@@ -329,6 +347,10 @@
                                                             <a asp-action="ActionPlan" asp-controller="ActionPlans" asp-route-phaseId="@phase.Id"
                                                                class="btn btn-sm btn-primary flex-fill">
                                                                 <i class="fas fa-list me-1"></i>@Localizer["Action Plan"]
+                                                            </a>
+                                                            <a asp-action="Index" asp-controller="Measures" asp-route-phaseId="@phase.Id"
+                                                               class="btn btn-sm btn-info flex-fill">
+                                                                <i class="fas fa-chart-bar me-1"></i>@Localizer["Measures"]
                                                             </a>
                                                             <a asp-action="Edit" asp-controller="ProjectPhases" asp-route-id="@phase.Id"
                                                                class="btn btn-sm btn-warning flex-fill">
