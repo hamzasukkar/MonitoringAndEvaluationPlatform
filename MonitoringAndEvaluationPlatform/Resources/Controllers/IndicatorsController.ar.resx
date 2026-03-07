@@ -20,13 +20,34 @@
   <resheader name="resmimetype"><value>text/microsoft-resx</value></resheader>
   <resheader name="version"><value>2.0</value></resheader>
   <data name="Indicators" xml:space="preserve"><value>المؤشرات</value></data>
-  <data name="Indicator Name" xml:space="preserve"><value>اسم المؤشر</value></data>
+  <data name="Indicator Name" xml:space="preserve"><value>اسم المشروع</value></data>
   <data name="Weight" xml:space="preserve"><value>الوزن</value></data>
   <data name="Target" xml:space="preserve"><value>الهدف</value></data>
   <data name="Indicators Performance" xml:space="preserve"><value>أداءالمشاريع</value></data>
-  <data name="SubOutput" xml:space="preserve"><value>المخرج الفرعي</value></data>
+  <data name="SubOutput" xml:space="preserve"><value>البرنامج الفرعي</value></data>
   <data name="Generated on" xml:space="preserve"><value>تم الإنشاء في</value></data>
   <data name="Page" xml:space="preserve"><value>صفحة</value></data>
   <data name="Export Excel" xml:space="preserve"><value>تصدير Excel</value></data>
   <data name="Export PDF" xml:space="preserve"><value>تصدير PDF</value></data>
+  <data name="An indicator with this name already exists in this suboutput." xml:space="preserve">
+    <value>يوجد مؤشر بهذا الاسم بالفعل في هذا البرنامج الفرعي.</value>
+  </data>
+  <data name="Name and Target are required and must be valid." xml:space="preserve">
+    <value>الاسم والهدف مطلوبان ويجب أن يكونا صحيحين.</value>
+  </data>
+  <data name="Indicator name is required." xml:space="preserve">
+    <value>اسم المشروع مطلوب.</value>
+  </data>
+  <data name="Indicator created successfully!" xml:space="preserve">
+    <value>تم إنشاء المشروع بنجاح!</value>
+  </data>
+  <data name="Could not create indicator. Please try again." xml:space="preserve">
+    <value>تعذّر إنشاء المشروع. يرجى المحاولة مرة أخرى.</value>
+  </data>
+  <data name="Indicator created. You can now add project details." xml:space="preserve">
+    <value>تم إنشاء المشروع. يمكنك الآن إضافة تفاصيل المشروع.</value>
+  </data>
+  <data name="Total weight must equal 100%." xml:space="preserve">
+    <value>يجب أن يساوي مجموع الأوزان 100%.</value>
+  </data>
 </root>

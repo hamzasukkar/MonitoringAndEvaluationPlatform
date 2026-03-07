@@ -61,4 +61,19 @@
   <data name="A project with this name already exists." xml:space="preserve">
     <value>يوجد مشروع بهذا الاسم بالفعل.</value>
   </data>
+  <data name="Project '{0}' has been created successfully." xml:space="preserve">
+    <value>تم إنشاء المشروع '{0}' بنجاح.</value>
+  </data>
+  <data name="An error occurred while creating the project." xml:space="preserve">
+    <value>حدث خطأ أثناء إنشاء المشروع.</value>
+  </data>
+  <data name="No projects selected." xml:space="preserve">
+    <value>لم يتم تحديد أي مشاريع.</value>
+  </data>
+  <data name="Deleted {0} project(s) with errors." xml:space="preserve">
+    <value>تم حذف {0} مشروع/مشاريع مع وجود أخطاء.</value>
+  </data>
+  <data name="{0} project(s) deleted successfully." xml:space="preserve">
+    <value>تم حذف {0} مشروع/مشاريع بنجاح.</value>
+  </data>
 </root>

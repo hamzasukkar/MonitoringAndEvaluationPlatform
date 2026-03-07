@@ -1416,7 +1416,7 @@ public class DashboardController : Controller
                         table.Header(header =>
                         {
                             header.Cell().Background(Colors.Indigo.Darken2).Padding(5)
-                                .Text(isRtl ? "الإطار" : "Framework").FontColor(Colors.White).Bold();
+                                .Text(isRtl ? "السياسة" : "Framework").FontColor(Colors.White).Bold();
                             header.Cell().Background(Colors.Indigo.Darken2).Padding(5)
                                 .Text(isRtl ? "الأداء (%)" : "Performance (%)").FontColor(Colors.White).Bold();
                             header.Cell().Background(Colors.Indigo.Darken2).Padding(5)
@@ -1457,7 +1457,7 @@ public class DashboardController : Controller
                         table.Header(header =>
                         {
                             header.Cell().Background(Colors.Indigo.Darken2).Padding(5)
-                                .Text(isRtl ? "الإطار" : "Framework").FontColor(Colors.White).Bold();
+                                .Text(isRtl ? "السياسة" : "Framework").FontColor(Colors.White).Bold();
                             header.Cell().Background(Colors.Indigo.Darken2).Padding(5)
                                 .Text(isRtl ? "المشروع" : "Project").FontColor(Colors.White).Bold();
                             header.Cell().Background(Colors.Indigo.Darken2).Padding(5)

@@ -131,7 +131,7 @@
     <value>ما هو الهيكل الهرمي؟</value>
   </data>
   <data name="HELP_FRAMEWORKS_FAQ_A1" xml:space="preserve">
-    <value>تتبع الأطر هذا التسلسل الهرمي: إطار العمل ← النتيجة ← المخرج ← المخرج الفرعي ← المؤشر ← المشروع. تتدفق مقاييس الأداء صعوداً عبر هذا الهيكل.</value>
+    <value>تتبع الأطر هذا التسلسل الهرمي: إطار العمل ← النتيجة ← المخرج ← البرنامج الفرعي ← المؤشر ← المشروع. تتدفق مقاييس الأداء صعوداً عبر هذا الهيكل.</value>
   </data>
   <data name="HELP_FRAMEWORKS_FAQ_Q2" xml:space="preserve">
     <value>كيف يتم حساب الأداء؟</value>
@@ -236,7 +236,7 @@
     <value>ما هي أوزانالمشاريع؟</value>
   </data>
   <data name="HELP_INDICATORS_FAQ_A1" xml:space="preserve">
-    <value>تحدد الأوزان مقدار مساهمة كل مؤشر في حساب الأداء على مستوى المخرج الفرعي. الأوزان الأعلى تعني تأثيراً أكبر على النتيجة الإجمالية.</value>
+    <value>تحدد الأوزان مقدار مساهمة كل مؤشر في حساب الأداء على مستوى البرنامج الفرعي. الأوزان الأعلى تعني تأثيراً أكبر على النتيجة الإجمالية.</value>
   </data>
   <data name="HELP_INDICATORS_FAQ_Q2" xml:space="preserve">
     <value>كيف أربطالمشاريع بالمشاريع؟</value>
@@ -335,7 +335,7 @@
     <value>انقر على مخرج فرعي لعرض وإدارة مؤشراته.</value>
   </data>
   <data name="HELP_SUBOUTPUTS_HOWTO_3" xml:space="preserve">
-    <value>استخدم عرض قائمة المشاريع لرؤية جميع المشاريع المرتبطة من خلال مؤشرات هذا المخرج الفرعي.</value>
+    <value>استخدم عرض قائمة المشاريع لرؤية جميع المشاريع المرتبطة من خلال مؤشرات هذا البرنامج الفرعي.</value>
   </data>
   <data name="HELP_SUBOUTPUTS_FAQ_Q1" xml:space="preserve">
     <value>ما هو الغرض من المخرجات الفرعية؟</value>
@@ -347,7 +347,7 @@
     <value>كيف أرى جميع المشاريع لمخرج فرعي؟</value>
   </data>
   <data name="HELP_SUBOUTPUTS_FAQ_A2" xml:space="preserve">
-    <value>انتقل إلى المخرجات الفرعية ← قائمة المشاريع لرؤية جميع المشاريع المرتبطة من خلال مؤشرات المخرج الفرعي.</value>
+    <value>انتقل إلى المخرجات الفرعية ← قائمة المشاريع لرؤية جميع المشاريع المرتبطة من خلال مؤشرات البرنامج الفرعي.</value>
   </data>
   <data name="HELP_SUBOUTPUTS_TIP_1" xml:space="preserve">
     <value>احتفظ بأسماء المخرجات الفرعية محددة وقابلة للقياس لجعل إعداد التقارير أوضح.</value>
@@ -673,10 +673,10 @@
 
   <!-- Framework Goals Help Content - Arabic -->
   <data name="HELP_FrameworkGoals_TITLE" xml:space="preserve">
-    <value>أهداف الإطار - حسابات الأداء</value>
+    <value>أهداف السياسة - حسابات الأداء</value>
   </data>
   <data name="HELP_FrameworkGoals_OVERVIEW" xml:space="preserve">
-    <value>تتتبع أهداف الإطار التقدم نحو الأهداف الاستراتيجية.
+    <value>تتتبع أهداف السياسة التقدم نحو الأهداف الاستراتيجية.
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 1. أنواع الأهداف
