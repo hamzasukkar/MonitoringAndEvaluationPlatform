@@ -637,9 +637,9 @@
             const fmt = v => Math.abs(v).toLocaleString(undefined, { maximumFractionDigits: 0 });
 
             if (remaining < 0) {
-                display.innerHTML = `<span class="budget-over"><i class="fas fa-exclamation-triangle me-1"></i>Exceeds by ${symbol}${fmt(remaining)}</span>`;
+                display.innerHTML = `<span class="budget-over"><i class="fas fa-exclamation-triangle me-1"></i>@Localizer["Exceeds by"] ${symbol}${fmt(remaining)}</span>`;
             } else {
-                display.innerHTML = `<span class="budget-ok"><i class="fas fa-check-circle me-1"></i>${symbol}${fmt(remaining)} remaining</span>`;
+                display.innerHTML = `<span class="budget-ok"><i class="fas fa-check-circle me-1"></i>${symbol}${fmt(remaining)} @Localizer["remaining"]</span>`;
             }
         }
 
