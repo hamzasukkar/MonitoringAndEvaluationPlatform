@@ -200,7 +200,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         {
             if (string.IsNullOrWhiteSpace(Name) || Target <= 0)
             {
-                TempData["Error"] = _localizer["Name and Target are required and must be valid."];
+                TempData["Error"] = _localizer["Name and Target are required and must be valid."].Value;
                 return RedirectToAction("Index", new { subOutputCode = SubOutputCode });
             }
 
@@ -210,7 +210,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                                           i.Name.ToLower() == Name.Trim().ToLower());
             if (existingIndicator != null)
             {
-                TempData["Error"] = _localizer["An indicator with this name already exists in this suboutput."];
+                TempData["Error"] = _localizer["An indicator with this name already exists in this suboutput."].Value;
                 return RedirectToAction("Index", new { subOutputCode = SubOutputCode });
             }
 
@@ -251,7 +251,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                                               i.Name.ToLower() == name.Trim().ToLower());
                 if (existingIndicator != null)
                 {
-                    return Json(new { success = false, message = _localizer["An indicator with this name already exists in this suboutput."] });
+                    return Json(new { success = false, message = _localizer["An indicator with this name already exists in this suboutput."].Value });
                 }
 
                 var indicator = new Indicator
@@ -305,7 +305,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         {
             if (string.IsNullOrWhiteSpace(Name) || Target <= 0)
             {
-                TempData["Error"] = _localizer["Name and Target are required and must be valid."];
+                TempData["Error"] = _localizer["Name and Target are required and must be valid."].Value;
                 return RedirectToAction("Index", new { subOutputCode = SubOutputCode });
             }
 
@@ -315,7 +315,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                                           i.Name.ToLower() == Name.Trim().ToLower());
             if (existingIndicator != null)
             {
-                TempData["Error"] = _localizer["An indicator with this name already exists in this suboutput."];
+                TempData["Error"] = _localizer["An indicator with this name already exists in this suboutput."].Value;
                 return RedirectToAction("Index", new { subOutputCode = SubOutputCode });
             }
 
@@ -334,7 +334,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             // Recalculate weights
             await RedistributeWeights(indicator.SubOutputCode);
 
-            TempData["Success"] = _localizer["Indicator created. You can now add project details."];
+            TempData["Success"] = _localizer["Indicator created. You can now add project details."].Value;
 
             // Redirect to the "Create" action in the "Projects" controller.
             // Pass the newly created indicator's ID and Name so the project can be associated with it
