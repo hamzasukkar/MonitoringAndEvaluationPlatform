@@ -195,7 +195,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
 
                 await _monitoringService.UpdatePhasePerformance(measure.ProjectPhaseId);
 
-                TempData["SuccessMessage"] = _localizer["Measure added successfully and phase performance has been updated."];
+                TempData["SuccessMessage"] = _localizer["Measure added successfully and phase performance has been updated."].Value;
                 return RedirectToAction(nameof(Index), new { phaseId = measure.ProjectPhaseId });
             }
 
@@ -272,7 +272,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                     await _context.SaveChangesAsync();
 
                     await _monitoringService.UpdatePhasePerformance(measure.ProjectPhaseId);
-                    TempData["SuccessMessage"] = _localizer["Measure updated successfully and phase performance has been updated."];
+                    TempData["SuccessMessage"] = _localizer["Measure updated successfully and phase performance has been updated."].Value;
                 }
                 catch (DbUpdateConcurrencyException)
                 {

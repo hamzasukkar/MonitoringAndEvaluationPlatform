@@ -237,7 +237,9 @@
                                             <option value="EUR">&euro; EUR</option>
                                             <option value="SYP">SYP</option>
                                         </select>
-                                        <input asp-for="EstimatedBudget" class="form-control form-control-lg @ValidationClass("EstimatedBudget")" min="0.01" step="0.01" placeholder="0.00" />
+                                        <input asp-for="EstimatedBudget" class="form-control form-control-lg @ValidationClass("EstimatedBudget")" min="0.01" step="0.01" placeholder="0.00"
+                                               oninvalid="this.setCustomValidity('@Localizer["Please enter a value greater than or equal to 0.01."]')"
+                                               oninput="this.setCustomValidity('')" />
                                     </div>
                                     <div class="form-text">@Localizer["Enter the total estimated budget for this project"]</div>
                                     <span asp-validation-for="EstimatedBudget" class="invalid-feedback d-block"></span>

@@ -485,13 +485,13 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 // Process file uploads
                 await ProcessFileUploadsAsync(project.ProjectID, UploadedFiles);
 
-                this.SetSuccessMessage($"Project '{project.ProjectName}' has been created successfully.");
+                this.SetSuccessMessage(string.Format(_localizer["Project '{0}' has been created successfully."].Value, project.ProjectName));
 
                 return RedirectToAction("Details", new { id = project.ProjectID });
             }
             catch (Exception ex)
             {
-                ModelState.AddModelError("", $"An error occurred while creating the project: {ex.Message}");
+                ModelState.AddModelError("", _localizer["An error occurred while creating the project."]);
                 // Get form data for preservation
                 var selectedSectorCodes = Request.Form["Sectors"].ToList();
                 var selectedDonorCodes = Request.Form["Donors"].ToList();
@@ -1083,7 +1083,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         public async Task<IActionResult> DeleteSelected([FromBody] List<int> ids)
         {
             if (ids == null || !ids.Any())
-                return Json(new { success = false, message = "No projects selected." });
+                return Json(new { success = false, message = _localizer["No projects selected."].Value });
 
             var errors = new List<string>();
             var deletedCount = 0;
@@ -1117,9 +1117,9 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             }
 
             if (errors.Any())
-                return Json(new { success = false, message = $"Deleted {deletedCount} project(s). Errors: {string.Join("; ", errors)}" });
+                return Json(new { success = false, message = string.Format(_localizer["Deleted {0} project(s) with errors."].Value, deletedCount) });
 
-            return Json(new { success = true, message = $"{deletedCount} project(s) deleted successfully.", deletedIds = ids });
+            return Json(new { success = true, message = string.Format(_localizer["{0} project(s) deleted successfully."].Value, deletedCount), deletedIds = ids });
         }
 
         private bool ProgramExists(int id)

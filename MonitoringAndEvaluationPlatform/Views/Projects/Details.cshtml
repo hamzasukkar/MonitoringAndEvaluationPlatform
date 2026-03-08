@@ -399,7 +399,7 @@
 
                 <!-- Weight editor (inline AJAX) -->
                 <div id="weight-editor" class="mb-3 p-3 bg-light rounded border">
-                    <h6 class="mb-2"><i class="fas fa-balance-scale me-1"></i>@Localizer["Phase Weights"] <small class="text-muted">(must sum to 100)</small></h6>
+                    <h6 class="mb-2"><i class="fas fa-balance-scale me-1"></i>@Localizer["Phase Weights"] <small class="text-muted">(@Localizer["must sum to 100"])</small></h6>
                     <div class="row g-2 align-items-end" id="weight-inputs">
                         @foreach (var ph in Model.Phases)
                         {
@@ -687,9 +687,9 @@
                 inputs.forEach(inp => total += parseFloat(inp.value) || 0);
                 sumEl.textContent = total.toFixed(2);
                 if (Math.abs(total - 100) < 0.01) {
-                    statusEl.innerHTML = '<span class="text-success"><i class="fas fa-check-circle me-1"></i>Valid</span>';
+                    statusEl.innerHTML = '<span class="text-success"><i class="fas fa-check-circle me-1"></i>@Localizer["Valid"]</span>';
                 } else {
-                    statusEl.innerHTML = '<span class="text-danger"><i class="fas fa-exclamation-circle me-1"></i>Must sum to 100</span>';
+                    statusEl.innerHTML = '<span class="text-danger"><i class="fas fa-exclamation-circle me-1"></i>@Localizer["Must sum to 100"]</span>';
                 }
             }
             inputs.forEach(inp => inp.addEventListener('input', updateSum));

@@ -97,7 +97,7 @@
     <value>المؤشرات</value>
   </data>
   <data name="Framework Goals" xml:space="preserve">
-    <value>أهداف الإطار</value>
+    <value>أهداف السياسة</value>
   </data>
   <data name="Set Up" xml:space="preserve">
     <value>الإعدادات</value>
@@ -379,7 +379,7 @@
     <value>تدعم لوحة المعلومات التصفية المتقدمة حسب:</value>
   </data>
   <data name="Framework - Select specific frameworks to view" xml:space="preserve">
-    <value>الإطار - اختر أطراً محددة للعرض</value>
+    <value>السياسة - اختر أطراً محددة للعرض</value>
   </data>
   <data name="Ministry - Filter by responsible ministry" xml:space="preserve">
     <value>الوزارة - التصفية حسب الوزارة المسؤولة</value>
@@ -470,7 +470,7 @@
     <value>4.1 التسلسل الهرمي للإطار</value>
   </data>
   <data name="Framework" xml:space="preserve">
-    <value>الإطار</value>
+    <value>السياسة</value>
   </data>
   <data name="SubOutputs" xml:space="preserve">
     <value>المخرجات الفرعية</value>
@@ -515,13 +515,13 @@
     <value>أدخل الاسم</value>
   </data>
   <data name="Type the framework name in the inline form that appears." xml:space="preserve">
-    <value>اكتب اسم الإطار في النموذج المباشر الذي يظهر.</value>
+    <value>اكتب اسم السياسة في النموذج المباشر الذي يظهر.</value>
   </data>
   <data name="Save" xml:space="preserve">
     <value>حفظ</value>
   </data>
   <data name="Click Save to create the framework." xml:space="preserve">
-    <value>انقر حفظ لإنشاء الإطار.</value>
+    <value>انقر حفظ لإنشاء السياسة.</value>
   </data>
   <data name="Method 2: Comprehensive Creation" xml:space="preserve">
     <value>الطريقة 2: الإنشاء الشامل</value>
@@ -542,28 +542,28 @@
     <value>4.4 تعديل وحذف الأطر</value>
   </data>
   <data name="To edit a framework name, click the edit icon next to the framework name. To delete, click the delete icon and confirm the deletion." xml:space="preserve">
-    <value>لتعديل اسم الإطار، انقر على أيقونة التعديل بجوار اسم الإطار. للحذف، انقر على أيقونة الحذف وأكد الحذف.</value>
+    <value>لتعديل اسم السياسة، انقر على أيقونة التعديل بجوار اسم السياسة. للحذف، انقر على أيقونة الحذف وأكد الحذف.</value>
   </data>
   <data name="Warning" xml:space="preserve">
     <value>تحذير</value>
   </data>
   <data name="Deleting a framework will remove all associated outcomes, outputs, sub-outputs, and indicators. This action cannot be undone." xml:space="preserve">
-    <value>سيؤدي حذف الإطار إلى إزالة جميع النتائج والمخرجات والمخرجات الفرعية والمؤشرات المرتبطة. لا يمكن التراجع عن هذا الإجراء.</value>
+    <value>سيؤدي حذف السياسة إلى إزالة جميع النتائج والمخرجات والمخرجات الفرعية والمؤشرات المرتبطة. لا يمكن التراجع عن هذا الإجراء.</value>
   </data>
   <data name="4.5 Exporting Frameworks" xml:space="preserve">
     <value>4.5 تصدير الأطر</value>
   </data>
   <data name="Export framework data to Excel or PDF using the export buttons at the top of the frameworks list." xml:space="preserve">
-    <value>تصدير بيانات الإطار إلى Excel أو PDF باستخدام أزرار التصدير في أعلى قائمة الأطر.</value>
+    <value>تصدير بيانات السياسة إلى Excel أو PDF باستخدام أزرار التصدير في أعلى قائمة الأطر.</value>
   </data>
   <data name="Framework Export Screenshot" xml:space="preserve">
-    <value>لقطة شاشة تصدير الإطار</value>
+    <value>لقطة شاشة تصدير السياسة</value>
   </data>
   <data name="Screenshot: Framework Export Buttons" xml:space="preserve">
-    <value>لقطة شاشة: أزرار تصدير الإطار</value>
+    <value>لقطة شاشة: أزرار تصدير السياسة</value>
   </data>
   <data name="Figure 4.3: Export Framework Data" xml:space="preserve">
-    <value>الشكل 4.3: تصدير بيانات الإطار</value>
+    <value>الشكل 4.3: تصدير بيانات السياسة</value>
   </data>
   <data name="4.6 Tree View" xml:space="preserve">
     <value>4.6 العرض الشجري</value>
@@ -597,16 +597,16 @@
     <value>لقطة شاشة: قائمة النتائج</value>
   </data>
   <data name="Figure 5.1: Outcomes List for a Framework" xml:space="preserve">
-    <value>الشكل 5.1: قائمة نتائج الإطار</value>
+    <value>الشكل 5.1: قائمة نتائج السياسة</value>
   </data>
   <data name="5.2 Creating Outcomes" xml:space="preserve">
     <value>5.2 إنشاء النتائج</value>
   </data>
   <data name="Select Framework" xml:space="preserve">
-    <value>اختر الإطار</value>
+    <value>اختر السياسة</value>
   </data>
   <data name="Choose the parent framework from the dropdown." xml:space="preserve">
-    <value>اختر الإطار الأصلي من القائمة المنسدلة.</value>
+    <value>اختر السياسة الأصلي من القائمة المنسدلة.</value>
   </data>
   <data name="Click Add New Outcome" xml:space="preserve">
     <value>انقر إضافة نتيجة جديدة</value>
@@ -615,7 +615,7 @@
     <value>انقر على زر الإضافة وأدخل اسم النتيجة في النموذج المباشر.</value>
   </data>
   <data name="Click Save to create the outcome under the selected framework." xml:space="preserve">
-    <value>انقر حفظ لإنشاء النتيجة تحت الإطار المحدد.</value>
+    <value>انقر حفظ لإنشاء النتيجة تحت السياسة المحدد.</value>
   </data>
   <data name="5.3 Adjusting Outcome Weights" xml:space="preserve">
     <value>5.3 ضبط أوزان النتائج</value>
@@ -658,7 +658,7 @@
     <value>6.1 إدارة المخرجات</value>
   </data>
   <data name="Filter outputs by framework and outcome. Each output displays its name, performance, and weight." xml:space="preserve">
-    <value>تصفية المخرجات حسب الإطار والنتيجة. يعرض كل مخرج اسمه وأداءه ووزنه.</value>
+    <value>تصفية المخرجات حسب السياسة والنتيجة. يعرض كل مخرج اسمه وأداءه ووزنه.</value>
   </data>
   <data name="Outputs List Screenshot" xml:space="preserve">
     <value>لقطة شاشة قائمة المخرجات</value>
@@ -673,10 +673,10 @@
     <value>6.2 إنشاء المخرجات</value>
   </data>
   <data name="Select Framework and Outcome" xml:space="preserve">
-    <value>اختر الإطار والنتيجة</value>
+    <value>اختر السياسة والنتيجة</value>
   </data>
   <data name="Choose the parent framework and outcome from the dropdowns." xml:space="preserve">
-    <value>اختر الإطار والنتيجة الأصلية من القوائم المنسدلة.</value>
+    <value>اختر السياسة والنتيجة الأصلية من القوائم المنسدلة.</value>
   </data>
   <data name="Add New Output" xml:space="preserve">
     <value>إضافة مخرج جديد</value>
@@ -706,16 +706,16 @@
     <value>مثل النتائج، للمخرجات والمخرجات الفرعية أوزان تحدد مساهمتها في أداء المستوى الأعلى. استخدم زر ضبط الأوزان للتعديل.</value>
   </data>
   <data name="6.5 Projects List by SubOutput" xml:space="preserve">
-    <value>6.5 قائمة المشاريع حسب المخرج الفرعي</value>
+    <value>6.5 قائمة المشاريع حسب البرنامج الفرعي</value>
   </data>
   <data name="View all projects linked to a specific sub-output. This view can also be exported to Excel or PDF." xml:space="preserve">
     <value>عرض جميع المشاريع المرتبطة بمخرج فرعي محدد. يمكن أيضاً تصدير هذا العرض إلى Excel أو PDF.</value>
   </data>
   <data name="SubOutput Projects Screenshot" xml:space="preserve">
-    <value>لقطة شاشة مشاريع المخرج الفرعي</value>
+    <value>لقطة شاشة مشاريع البرنامج الفرعي</value>
   </data>
   <data name="Screenshot: Projects by SubOutput" xml:space="preserve">
-    <value>لقطة شاشة: المشاريع حسب المخرج الفرعي</value>
+    <value>لقطة شاشة: المشاريع حسب البرنامج الفرعي</value>
   </data>
   <data name="Figure 6.3: Projects Linked to SubOutput" xml:space="preserve">
     <value>الشكل 6.3: المشاريع المرتبطة بالمخرج الفرعي</value>
@@ -764,7 +764,7 @@
     <value>7.2 عرض المؤشرات</value>
   </data>
   <data name="Filter indicators by framework and sub-output, or search by name." xml:space="preserve">
-    <value>تصفية المؤشرات حسب الإطار والمخرج الفرعي، أو البحث بالاسم.</value>
+    <value>تصفية المؤشرات حسب السياسة والمخرج الفرعي، أو البحث بالاسم.</value>
   </data>
   <data name="Indicators List Screenshot" xml:space="preserve">
     <value>لقطة شاشة قائمة المؤشرات</value>
@@ -782,7 +782,7 @@
     <value>انتقل إلى المؤشرات</value>
   </data>
   <data name="Go to the Indicators page and select the target framework/sub-output." xml:space="preserve">
-    <value>انتقل إلى صفحة المؤشرات واختر الإطار/المخرج الفرعي المستهدف.</value>
+    <value>انتقل إلى صفحة المؤشرات واختر السياسة/البرنامج الفرعي المستهدف.</value>
   </data>
   <data name="Add Indicator" xml:space="preserve">
     <value>إضافة مؤشر</value>
@@ -858,7 +858,7 @@
   </data>
   <!-- Section 8: Framework Goals -->
   <data name="Framework Goals allow you to set and track yearly targets for each framework. Multiple visualization views are available." xml:space="preserve">
-    <value>تتيح لك أهداف الإطار تحديد وتتبع الأهداف السنوية لكل إطار. تتوفر طرق عرض متعددة للتصور.</value>
+    <value>تتيح لك أهداف السياسة تحديد وتتبع الأهداف السنوية لكل إطار. تتوفر طرق عرض متعددة للتصور.</value>
   </data>
   <data name="8.1 Goal Visualization Views" xml:space="preserve">
     <value>8.1 طرق عرض تصور الأهداف</value>
@@ -888,13 +888,13 @@
     <value>مقارنات بالرسوم البيانية الشريطية والخطية.</value>
   </data>
   <data name="Framework Goals Progress Screenshot" xml:space="preserve">
-    <value>لقطة شاشة تقدم أهداف الإطار</value>
+    <value>لقطة شاشة تقدم أهداف السياسة</value>
   </data>
   <data name="Screenshot: Framework Goals Progress View" xml:space="preserve">
-    <value>لقطة شاشة: عرض تقدم أهداف الإطار</value>
+    <value>لقطة شاشة: عرض تقدم أهداف السياسة</value>
   </data>
   <data name="Figure 8.1: Framework Goals Progress View" xml:space="preserve">
-    <value>الشكل 8.1: عرض تقدم أهداف الإطار</value>
+    <value>الشكل 8.1: عرض تقدم أهداف السياسة</value>
   </data>
   <data name="8.2 Managing Goals" xml:space="preserve">
     <value>8.2 إدارة الأهداف</value>
@@ -918,13 +918,13 @@
     <value>راقب تقدم الأهداف من خلال طرق العرض المتنوعة.</value>
   </data>
   <data name="Framework Goals Timeline Screenshot" xml:space="preserve">
-    <value>لقطة شاشة الجدول الزمني لأهداف الإطار</value>
+    <value>لقطة شاشة الجدول الزمني لأهداف السياسة</value>
   </data>
   <data name="Screenshot: Framework Goals Timeline" xml:space="preserve">
-    <value>لقطة شاشة: الجدول الزمني لأهداف الإطار</value>
+    <value>لقطة شاشة: الجدول الزمني لأهداف السياسة</value>
   </data>
   <data name="Figure 8.2: Framework Goals Timeline View" xml:space="preserve">
-    <value>الشكل 8.2: عرض الجدول الزمني لأهداف الإطار</value>
+    <value>الشكل 8.2: عرض الجدول الزمني لأهداف السياسة</value>
   </data>
   <!-- Section 9: Set Up -->
   <data name="The Set Up section manages all reference data needed for projects: Ministries, Donors, Sectors, Project Managers, Supervisors, and Locations." xml:space="preserve">
@@ -1357,7 +1357,7 @@
     <value>تنقل عبر كل مستوى من التسلسل الهرمي لرؤية الأداء التفصيلي:</value>
   </data>
   <data name="Performance of each outcome within a framework" xml:space="preserve">
-    <value>أداء كل نتيجة ضمن الإطار</value>
+    <value>أداء كل نتيجة ضمن السياسة</value>
   </data>
   <data name="Performance of outputs within an outcome" xml:space="preserve">
     <value>أداء المخرجات ضمن النتيجة</value>
@@ -1684,7 +1684,7 @@
   </data>
   <!-- Section 18 -->
   <data name="Performance metrics flow upward through the hierarchy, from plans to framework level." xml:space="preserve">
-    <value>تتدفق مقاييس الأداء صعوداً عبر التسلسل الهرمي، من الخطط إلى مستوى الإطار.</value>
+    <value>تتدفق مقاييس الأداء صعوداً عبر التسلسل الهرمي، من الخطط إلى مستوى السياسة.</value>
   </data>
   <data name="18.1 Calculation Flow" xml:space="preserve">
     <value>18.1 تدفق الحسابات</value>
@@ -1699,10 +1699,10 @@
     <value>أداء المؤشر</value>
   </data>
   <data name="SubOutput → Output → Outcome" xml:space="preserve">
-    <value>المخرج الفرعي ← المخرج ← النتيجة</value>
+    <value>البرنامج الفرعي ← المخرج ← النتيجة</value>
   </data>
   <data name="Framework Performance" xml:space="preserve">
-    <value>أداء الإطار</value>
+    <value>أداء السياسة</value>
   </data>
   <data name="18.2 Performance Types" xml:space="preserve">
     <value>18.2 أنواع الأداء</value>
