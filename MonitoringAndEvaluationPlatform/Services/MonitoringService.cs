@@ -292,7 +292,7 @@ public class MonitoringService
             .SelectMany(a => a.Plans)
             .ToList();
 
-        project.DisbursementPerformance = CalcPerf(allPlans, ActivityType.DisbursementPerformance);
+        project.DisbursementPerformance = CalcDisbursementPerf(allPlans, project.EstimatedBudget);
         project.FieldMonitoring = CalcPerf(allPlans, ActivityType.FieldMonitoring);
         project.ImpactAssessment = CalcPerf(allPlans, ActivityType.ImpactAssessment);
         project.Physical = (int)CalcPerf(allPlans, ActivityType.Physical);
@@ -337,6 +337,13 @@ public class MonitoringService
         double totalPlanned = typed.Sum(p => p.Planned);
         double totalRealised = typed.Sum(p => p.Realised);
         return totalPlanned > 0 ? (totalRealised / totalPlanned) * 100 : 0;
+    }
+
+    private double CalcDisbursementPerf(List<Plan> plans, double estimatedBudget)
+    {
+        var typed = plans.Where(p => p.Activity?.ActivityType == ActivityType.DisbursementPerformance).ToList();
+        double totalRealised = typed.Sum(p => p.Realised);
+        return estimatedBudget > 0 ? (totalRealised / estimatedBudget) * 100 : 0;
     }
 
     private async Task UpdateSubOutputDisbursementPerformance(int subOutputCode)
