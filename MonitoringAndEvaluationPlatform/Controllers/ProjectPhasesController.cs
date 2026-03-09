@@ -217,6 +217,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
 
             // Recalculate project performance
             await _monitoringService.UpdateProjectPerformanceFromPhases(projectId);
+            await _monitoringService.UpdateDisbursementPerformancesForProject(projectId);
 
             TempData["SuccessMessage"] = "Phase deleted. Weights have been redistributed equally.";
             return RedirectToAction("Details", "Projects", new { id = projectId, tab = "phases" });
