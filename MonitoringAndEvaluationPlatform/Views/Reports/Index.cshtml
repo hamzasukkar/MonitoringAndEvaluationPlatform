@@ -1781,6 +1781,12 @@
                         }
                     });
 
+                    // Move path1 (Rif Dimashq / SY03) to end of its parent so it renders on top when scaled
+                    const path1 = svg.querySelector('#path1');
+                    if (path1 && path1.parentNode) {
+                        path1.parentNode.appendChild(path1);
+                    }
+
                     // Initialize map after SVG is loaded
                     initializeMap();
                 }
@@ -2611,6 +2617,13 @@
         .btn-group .btn-outline-danger.active {
             background-color: #dc3545;
             color: white !important;
+        }
+
+        /* Enlarge Rif Dimashq (SY03 / path1) on the Syria map */
+        #syriaMap #path1 {
+            transform-box: fill-box;
+            transform-origin: center;
+            transform: scale(2.5);
         }
 
         /* Map level toggle - explicit overrides */
