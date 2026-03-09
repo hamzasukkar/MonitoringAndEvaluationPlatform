@@ -1740,9 +1740,9 @@
         // Governorate mapping - maps path IDs to governorate info
         // Corrected mapping based on actual SVG structure
         const governorateMapping = {
-            'path1': { nameEn: 'Rif Dimashq', nameAr: 'ريف دمشق', code: 'SY03' },
+            'path1': { nameEn: 'Damascus', nameAr: 'دمشق', code: 'SY01' },
             'path2': { nameEn: 'Aleppo', nameAr: 'حلب', code: 'SY12' },
-            'path3': { nameEn: 'Damascus', nameAr: 'دمشق', code: 'SY01' },
+            'path3': { nameEn: 'Rif Dimashq', nameAr: 'ريف دمشق', code: 'SY03' },
             'path4': { nameEn: 'Homs', nameAr: 'حمص', code: 'SY04' },
             'path5': { nameEn: 'Hama', nameAr: 'حماة', code: 'SY07' },
             'path6': { nameEn: 'Tartus', nameAr: 'طرطوس', code: 'SY14' },
@@ -1781,7 +1781,7 @@
                         }
                     });
 
-                    // Move path1 (Rif Dimashq / SY03) to end of its parent so it renders on top when scaled
+                    // Move path1 (Damascus / SY01) to end of its parent so it renders on top when scaled
                     const path1 = svg.querySelector('#path1');
                     if (path1 && path1.parentNode) {
                         path1.parentNode.appendChild(path1);
