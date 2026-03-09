@@ -132,6 +132,20 @@
                     <i class="fas fa-undo me-1"></i>@Localizer["Show All"]
                 </button>
             </div>
+            <!-- National / Provincial presentation toggle -->
+            <div class="d-flex justify-content-center mb-2 no-print">
+                <div class="btn-group btn-group-sm" role="group" id="mapLevelToggle">
+                    <button type="button" class="btn map-active" onclick="setMapLevel('all', this)">
+                        <i class="fas fa-globe-asia me-1"></i>@Localizer["All"]
+                    </button>
+                    <button type="button" class="btn" onclick="setMapLevel('national', this)">
+                        <i class="fas fa-flag me-1"></i>@Localizer["National Level"]
+                    </button>
+                    <button type="button" class="btn" onclick="setMapLevel('provincial', this)">
+                        <i class="fas fa-map-marker-alt me-1"></i>@Localizer["Provincial Level"]
+                    </button>
+                </div>
+            </div>
             <div class="syria-map-container">
                 <div id="syriaMapContainer" class="syria-map-wrapper">
                     <!-- SVG will be loaded here -->
@@ -1796,18 +1810,15 @@
                         (g.NameAr && govNameAr === g.NameAr)
                     );
 
+                    const tooltipMode = window.mapLevelMode || 'all';
+                    const tooltipCount = getEffectiveCount(govData, tooltipMode);
                     let tooltipContent = `<div class="tooltip-title">${govName}</div>`;
-                    if (govData) {
+                    if (tooltipCount > 0) {
+                        let modeLabel = tooltipMode === 'national' ? ' (@Localizer["national"])' : tooltipMode === 'provincial' ? ' (@Localizer["provincial"])' : '';
                         tooltipContent += `<div class="tooltip-stats">
-                            <div>@Localizer["Projects"]: <strong>${govData.ProjectCount}</strong></div>
-                            ${nationalProjectCount > 0 ? `<div style="font-size:0.8em;opacity:0.8">(@Localizer["incl."] ${nationalProjectCount} @Localizer["nationwide"])</div>` : ''}
-                            <div>@Localizer["Budget"]: <strong>$${govData.TotalBudget.toLocaleString()}</strong></div>
-                            <div>@Localizer["Performance"]: <strong>${govData.IndicatorsPerformance}%</strong></div>
-                        </div>`;
-                    } else if (nationalProjectCount > 0) {
-                        tooltipContent += `<div class="tooltip-stats">
-                            <div>@Localizer["Projects"]: <strong>${nationalProjectCount}</strong></div>
-                            <div style="font-size:0.8em;opacity:0.8">(@Localizer["nationwide only"])</div>
+                            <div>@Localizer["Projects"]: <strong>${tooltipCount}</strong>${modeLabel}</div>
+                            ${govData ? `<div>@Localizer["Budget"]: <strong>$${govData.TotalBudget.toLocaleString()}</strong></div>
+                            <div>@Localizer["Performance"]: <strong>${govData.IndicatorsPerformance}%</strong></div>` : ''}
                         </div>`;
                     } else {
                         tooltipContent += `<div class="tooltip-stats">@Localizer["No projects in this governorate"]</div>`;
@@ -1858,10 +1869,11 @@
                     document.getElementById('governorateStats').style.display = 'block';
                     document.getElementById('resetMapBtn').style.display = 'inline-block';
 
+                    const clickMode = window.mapLevelMode || 'all';
                     const displayData = govData || (nationalProjectCount > 0 ? nationalEntry : null);
                     if (displayData) {
-                        document.getElementById('govProjectCount').textContent = displayData.ProjectCount +
-                            (govData && nationalProjectCount > 0 ? ' ★' : '');
+                        const modeCount = getEffectiveCount(govData, clickMode);
+                        document.getElementById('govProjectCount').textContent = modeCount;
                         document.getElementById('govBudget').textContent = '$' + displayData.TotalBudget.toLocaleString();
                         document.getElementById('govPerformance').textContent = displayData.IndicatorsPerformance + '%';
                         document.getElementById('govDisbursement').textContent = displayData.DisbursementPerformance + '%';
@@ -1911,9 +1923,21 @@
             });
         }
 
-        // Color governorates based on project count (national projects count for every governorate)
+        // Current map presentation mode: 'all' | 'national' | 'provincial'
+        window.mapLevelMode = 'all';
+
+        function getEffectiveCount(govData, mode) {
+            if (mode === 'national') return nationalProjectCount;
+            if (mode === 'provincial') return govData ? Math.max(govData.ProjectCount - nationalProjectCount, 0) : 0;
+            // 'all': gov-specific (already includes national) or fall back to national-only
+            return govData ? govData.ProjectCount : nationalProjectCount;
+        }
+
+        // Color governorates based on project count and current mode
         function colorizeMap() {
-            const maxProjects = Math.max(...governorateReportsData.map(g => g.ProjectCount), nationalProjectCount, 1);
+            const mode = window.mapLevelMode;
+            const counts = governorateReportsData.map(g => getEffectiveCount(g, mode));
+            const maxProjects = Math.max(...counts, mode === 'national' ? nationalProjectCount : 0, 1);
             document.getElementById('maxProjectsLabel').textContent = maxProjects + '+';
 
             document.querySelectorAll('.governorate').forEach(path => {
@@ -1924,12 +1948,11 @@
                     (g.NameAr && path.dataset.nameAr === g.NameAr)
                 );
 
-                // Use gov-specific count (already includes national) or fall back to national-only
-                const effectiveCount = govData ? govData.ProjectCount : nationalProjectCount;
+                const effectiveCount = getEffectiveCount(govData, mode);
 
+                path.classList.remove('has-projects-low', 'has-projects-medium', 'has-projects-high', 'has-projects-very-high');
                 if (effectiveCount > 0) {
                     const ratio = effectiveCount / maxProjects;
-                    path.classList.remove('has-projects-low', 'has-projects-medium', 'has-projects-high', 'has-projects-very-high');
                     if (ratio <= 0.25) {
                         path.classList.add('has-projects-low');
                     } else if (ratio <= 0.5) {
@@ -1942,6 +1965,14 @@
                 }
             });
         }
+
+        // Switch map presentation level
+        window.setMapLevel = function(mode, btn) {
+            window.mapLevelMode = mode;
+            document.querySelectorAll('#mapLevelToggle button').forEach(b => b.classList.remove('map-active'));
+            btn.classList.add('map-active');
+            colorizeMap();
+        };
 
         // Reset map button
         document.getElementById('resetMapBtn').addEventListener('click', function() {
@@ -2580,6 +2611,18 @@
         .btn-group .btn-outline-danger.active {
             background-color: #dc3545;
             color: white !important;
+        }
+
+        /* Map level toggle - explicit overrides */
+        #mapLevelToggle button {
+            background-color: transparent !important;
+            color: #333 !important;
+            border: 1px solid #6c757d !important;
+        }
+        #mapLevelToggle button.map-active {
+            background-color: #343a40 !important;
+            color: #ffffff !important;
+            border-color: #343a40 !important;
         }
 
         /* ========================================
