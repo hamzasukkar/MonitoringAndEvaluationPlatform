@@ -104,6 +104,16 @@
                 <div asp-validation-summary="ModelOnly" class="validation-summary"></div>
 
                 <div class="form-grid">
+                    <!-- Name -->
+                    <div class="form-group full-width">
+                        <label asp-for="Name" class="modern-label">
+                            <i class="fas fa-tag"></i>
+                            @Localizer["Name"] *
+                        </label>
+                        <input asp-for="Name" type="text" class="modern-input" placeholder="@Localizer["Enter measure name"]" required />
+                        <span asp-validation-for="Name" class="field-error"></span>
+                    </div>
+
                     <!-- Phase Selection -->
                     <div class="form-group full-width">
                         <label asp-for="ProjectPhaseId" class="modern-label">
@@ -160,6 +170,16 @@
                         <div class="field-info">
                             @Localizer["Enter the achieved percentage (0–100%)"]
                         </div>
+                    </div>
+
+                    <!-- Note (optional) -->
+                    <div class="form-group full-width">
+                        <label asp-for="Note" class="modern-label">
+                            <i class="fas fa-sticky-note"></i>
+                            @Localizer["Note"]
+                        </label>
+                        <textarea asp-for="Note" class="modern-input" rows="3" placeholder="@Localizer["Optional note or description"]" style="resize:vertical;"></textarea>
+                        <span asp-validation-for="Note" class="field-error"></span>
                     </div>
 
                     <!-- Phase Info Display -->

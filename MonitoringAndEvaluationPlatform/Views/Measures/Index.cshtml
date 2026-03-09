@@ -146,12 +146,20 @@
                 <form id="inlineMeasureForm" class="row g-3">
                     @Html.AntiForgeryToken()
                     <div class="col-md-4">
+                        <label for="measureName" class="form-label">@Localizer["Name"] *</label>
+                        <input type="text" id="measureName" name="Name" class="form-control" placeholder="@Localizer["Measure name"]" required />
+                    </div>
+                    <div class="col-md-4">
                         <label for="measureDate" class="form-label">@Localizer["Date"] *</label>
                         <input type="date" id="measureDate" name="Date" class="form-control" value="@DateTime.Today.ToString("yyyy-MM-dd")" required />
                     </div>
                     <div class="col-md-4">
                         <label for="measureValue" class="form-label">@Localizer["Achievement Value"] *</label>
                         <input type="number" id="measureValue" name="Value" step="0.01" min="0" max="100" class="form-control" placeholder="0–100" required />
+                    </div>
+                    <div class="col-12">
+                        <label for="measureNote" class="form-label">@Localizer["Note"]</label>
+                        <textarea id="measureNote" name="Note" class="form-control" rows="2" placeholder="@Localizer["Optional note or description"]"></textarea>
                     </div>
                     <div class="col-md-4 d-flex align-items-end">
                         <button type="submit" class="btn btn-gradient-primary w-100" id="addMeasureBtn">
@@ -190,6 +198,9 @@
                         <thead class="table-header">
                             <tr>
                                 <th>
+                                    <i class="fas fa-tag me-2"></i>@Localizer["Name"]
+                                </th>
+                                <th>
                                     <i class="fas fa-calendar me-2"></i>@Localizer["Date"]
                                 </th>
                                 <th class="text-center">
@@ -209,6 +220,17 @@
                         <tbody>
                         @foreach (var item in Model) {
                             <tr class="table-row" id="row-@item.Code">
+                                <td>
+                                    <span class="fw-semibold measure-name-display">@item.Name</span>
+                                    <input type="text" class="form-control form-control-sm measure-name-edit d-none" value="@item.Name" maxlength="200" />
+                                    @if (!string.IsNullOrWhiteSpace(item.Note))
+                                    {
+                                        <div class="text-muted small measure-note-display" title="@item.Note">
+                                            <i class="fas fa-sticky-note me-1"></i>@(item.Note.Length > 60 ? item.Note[..60] + "…" : item.Note)
+                                        </div>
+                                    }
+                                    <textarea class="form-control form-control-sm measure-note-edit d-none mt-1" rows="2" maxlength="1000">@item.Note</textarea>
+                                </td>
                                 <td class="measure-date-cell">
                                     <div class="d-flex align-items-center">
                                         <div class="date-icon me-3">
@@ -243,8 +265,10 @@
                                         </button>
                                         <button type="button" class="btn btn-outline-info btn-sm action-btn view-details-btn"
                                                 data-code="@item.Code"
+                                                data-name="@item.Name"
                                                 data-date="@item.Date.ToString("yyyy-MM-dd")"
                                                 data-value="@item.Value.ToString("N2")"
+                                                data-note="@item.Note"
                                                 data-phase-name="@item.ProjectPhase?.Name"
                                                 title="@Localizer["View Details"]">
                                             <i class="fas fa-eye"></i>
@@ -312,6 +336,12 @@
             <div class="modal-body">
                 <div class="detail-item">
                     <div class="detail-label">
+                        <i class="fas fa-tag me-2"></i>@Localizer["Name"]
+                    </div>
+                    <div class="detail-value" id="modal-name"></div>
+                </div>
+                <div class="detail-item">
+                    <div class="detail-label">
                         <i class="fas fa-calendar me-2"></i>@Localizer["Date"]
                     </div>
                     <div class="detail-value" id="modal-date"></div>
@@ -322,23 +352,17 @@
                     </div>
                     <div class="detail-value" id="modal-value"></div>
                 </div>
-           @*      <div class="detail-item">
-                    <div class="detail-label">
-                        <i class="fas fa-code me-2"></i>@Localizer["Indicator Code"]
-                    </div>
-                    <div class="detail-value" id="modal-indicator-code"></div>
-                </div> *@
                 <div class="detail-item">
                     <div class="detail-label">
-                        <i class="fas fa-tag me-2"></i>@Localizer["Indicator Name"]
+                        <i class="fas fa-layer-group me-2"></i>@Localizer["Phase"]
                     </div>
                     <div class="detail-value" id="modal-indicator-name"></div>
                 </div>
-                <div class="detail-item">
+                <div id="modal-note-item" class="detail-item" style="display:none;">
                     <div class="detail-label">
-                        <i class="fas fa-target me-2"></i>@Localizer["Target"]
+                        <i class="fas fa-sticky-note me-2"></i>@Localizer["Note"]
                     </div>
-                    <div class="detail-value" id="modal-indicator-target"></div>
+                    <div class="detail-value" id="modal-note"></div>
                 </div>
             </div>
         </div>
@@ -817,14 +841,23 @@
             // Option 2: Handle view details button click
             $('.view-details-btn').on('click', function() {
                 const btn = $(this);
+                const name = btn.data('name');
                 const date = btn.data('date');
                 const value = btn.data('value');
+                const note = btn.data('note');
                 const phaseName = btn.data('phase-name');
 
                 // Populate modal
+                $('#modal-name').text(name);
                 $('#modal-date').text(date);
                 $('#modal-value').html('<span class="modern-badge badge-success">' + value + '</span>');
                 $('#modal-indicator-name').text(phaseName);
+                if (note) {
+                    $('#modal-note').text(note);
+                    $('#modal-note-item').show();
+                } else {
+                    $('#modal-note-item').hide();
+                }
 
                 // Show modal
                 new bootstrap.Modal(document.getElementById('detailsModal')).show();
@@ -927,6 +960,8 @@
                 const row = $(this).closest('tr');
 
                 // Show edit inputs and hide display values
+                row.find('.measure-name-display, .measure-note-display').addClass('d-none');
+                row.find('.measure-name-edit, .measure-note-edit').removeClass('d-none');
                 row.find('.measure-date-display').addClass('d-none');
                 row.find('.measure-date-edit').removeClass('d-none');
                 row.find('.measure-value-display').addClass('d-none');
@@ -942,6 +977,9 @@
                 const row = $(this).closest('tr');
 
                 // Hide edit inputs and show display values
+                row.find('.measure-name-display').removeClass('d-none');
+                row.find('.measure-name-edit, .measure-note-edit').addClass('d-none');
+                row.find('.measure-note-display').removeClass('d-none');
                 row.find('.measure-date-display').removeClass('d-none');
                 row.find('.measure-date-edit').addClass('d-none');
                 row.find('.measure-value-display').removeClass('d-none');
@@ -972,8 +1010,10 @@
 
                 const formData = {
                     Code: measureCode,
+                    Name: row.find('.measure-name-edit').val(),
                     Date: row.find('.measure-date-edit').val(),
                     Value: editedValue,
+                    Note: row.find('.measure-note-edit').val(),
                     __RequestVerificationToken: $('input[name="__RequestVerificationToken"]').val()
                 };
 
@@ -991,10 +1031,14 @@
                         const dateValue = formData.Date;
                         const valueFormatted = parseFloat(formData.Value).toFixed(2);
 
+                        row.find('.measure-name-display').text(formData.Name);
                         row.find('.measure-date-display').text(dateValue);
                         row.find('.measure-value-display').text(valueFormatted);
 
                         // Hide edit inputs and show display values
+                        row.find('.measure-name-display').removeClass('d-none');
+                        row.find('.measure-name-edit').addClass('d-none');
+                        row.find('.measure-note-edit').addClass('d-none');
                         row.find('.measure-date-display').removeClass('d-none');
                         row.find('.measure-date-edit').addClass('d-none');
                         row.find('.measure-value-display').removeClass('d-none');
@@ -1054,8 +1098,10 @@
                 }
 
                 const formData = {
+                    Name: $('#measureName').val(),
                     Date: $('#measureDate').val(),
                     Value: rawValue,
+                    Note: $('#measureNote').val(),
                     ProjectPhaseId: parseInt($('#phaseId').val())
                 };
 
@@ -1087,7 +1133,9 @@
                         });
 
                         // Reset form
+                        $('#measureName').val('');
                         $('#measureValue').val('');
+                        $('#measureNote').val('');
                         $('#measureDate').val('@DateTime.Today.ToString("yyyy-MM-dd")');
 
                         // Reload page to show new measure

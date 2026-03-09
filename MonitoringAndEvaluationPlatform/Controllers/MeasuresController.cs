@@ -38,7 +38,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             if (existingTotal + dto.Value > 100)
                 return BadRequest(_localizer["Total measures value for this phase cannot exceed 100%."]);
 
-            await _monitoringService.AddMeasureToPhase(dto.PhaseId, dto.Value);
+            await _monitoringService.AddMeasureToPhase(dto.PhaseId, dto.Value, dto.Name, dto.Note);
             return Ok(_localizer["Measure added and Phase Performance updated"]);
         }
 
@@ -52,7 +52,9 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 .Select(m => new
                 {
                     date = m.Date.ToString("yyyy-MM-dd"),
-                    value = m.Value
+                    value = m.Value,
+                    name = m.Name,
+                    note = m.Note
                 })
                 .ToListAsync();
 
@@ -64,6 +66,8 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         {
             public int PhaseId { get; set; }
             public double Value { get; set; }
+            public string Name { get; set; } = string.Empty;
+            public string? Note { get; set; }
         }
 
         // GET: Measures
@@ -171,7 +175,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         // POST: Measures/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Code,Date,Value,ProjectPhaseId")] Measure measure)
+        public async Task<IActionResult> Create([Bind("Code,Name,Date,Value,Note,ProjectPhaseId")] Measure measure)
         {
             ModelState.Remove(nameof(measure.ProjectPhase));
 
@@ -232,6 +236,8 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 if (existingMeasure == null) return NotFound();
 
                 existingMeasure.Date = measure.Date;
+                existingMeasure.Name = measure.Name;
+                existingMeasure.Note = measure.Note;
                 var clampedValue = Math.Max(0, Math.Min(100, measure.Value));
 
                 var otherTotal = await _context.Measures

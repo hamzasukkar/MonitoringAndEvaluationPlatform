@@ -468,13 +468,15 @@ public class MonitoringService
     // MEASURE CRUD HELPERS
     // ─────────────────────────────────────────────────────────────────────────
 
-    public async Task AddMeasureToPhase(int phaseId, double value)
+    public async Task AddMeasureToPhase(int phaseId, double value, string name = "", string? note = null)
     {
         var measure = new Measure
         {
             ProjectPhaseId = phaseId,
             Value = value,
-            Date = DateTime.UtcNow
+            Date = DateTime.UtcNow,
+            Name = name,
+            Note = note
         };
 
         _context.Measures.Add(measure);
