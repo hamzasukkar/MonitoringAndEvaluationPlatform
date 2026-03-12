@@ -38,13 +38,16 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             }
             else
             {
-                if (dto.Value < 0 || dto.Value > 100)
+                if (dto.Value <= 0 || dto.Value > 100)
                     return BadRequest(_localizer["Value must be between 0 and 100."]);
             }
 
             var existingTotal = await _context.Measures
                 .Where(m => m.ProjectPhaseId == dto.PhaseId)
                 .SumAsync(m => m.Value);
+
+            if (existingTotal >= 100)
+                return BadRequest(_localizer["Total measures value for this phase cannot exceed 100%."]);
 
             if (existingTotal + dto.Value > 100)
                 return BadRequest(_localizer["Total measures value for this phase cannot exceed 100%."]);
@@ -145,13 +148,16 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             }
             else
             {
-                if (measure.Value < 0 || measure.Value > 100)
+                if (measure.Value <= 0 || measure.Value > 100)
                     return BadRequest(new { message = _localizer["Value must be between 0 and 100."].Value });
             }
 
             var existingTotal = await _context.Measures
                 .Where(m => m.ProjectPhaseId == measure.ProjectPhaseId)
                 .SumAsync(m => m.Value);
+
+            if (existingTotal >= 100)
+                return BadRequest(new { message = _localizer["Total measures value for this phase cannot exceed 100%."].Value });
 
             if (existingTotal + measure.Value > 100)
                 return BadRequest(new { message = _localizer["Total measures value for this phase cannot exceed 100%."].Value });
@@ -218,7 +224,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                     .Where(m => m.ProjectPhaseId == measure.ProjectPhaseId)
                     .SumAsync(m => m.Value);
 
-                if (existingTotal + measure.Value > 100)
+                if (existingTotal >= 100 || existingTotal + measure.Value > 100)
                 {
                     ModelState.AddModelError("Value", _localizer["Total measures value for this phase cannot exceed 100%."]);
                     ViewData["Phases"] = new SelectList(
