@@ -102,6 +102,31 @@
     color: white;
 }
 
+.badge-done {
+    background: linear-gradient(45deg, #28a745, #48c774);
+    color: white;
+}
+
+.badge-success {
+    background: linear-gradient(45deg, #28a745, #48c774);
+    color: white;
+}
+
+.badge-warning {
+    background: linear-gradient(45deg, #ffc107, #ffd54f);
+    color: #212529;
+}
+
+.badge-orange {
+    background: linear-gradient(45deg, #fd7e14, #ffa040);
+    color: white;
+}
+
+.badge-danger {
+    background: linear-gradient(45deg, #dc3545, #f06674);
+    color: white;
+}
+
 .budget-amount {
     font-size: 1.2rem;
     font-weight: 700;

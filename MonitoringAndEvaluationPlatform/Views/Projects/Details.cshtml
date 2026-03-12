@@ -466,11 +466,13 @@
                                         <span class="fw-bold">@Model.CurrencySymbol@realisedAmount.ToString("N2")</span>
                                     </td>
                                     <td class="text-center">
-                                        @{
-                                            int perfInt = (int)Math.Round(phase.PhasePerformance);
-                                            string perfColor = perfInt >= 75 ? "success" : perfInt >= 40 ? "warning" : "danger";
-                                        }
-                                        <span class="modern-badge badge-@perfColor">@phase.PhasePerformance.ToString("0.##")%</span>
+                                        <span class="modern-badge @MonitoringAndEvaluationPlatform.Helpers.ProgressBarHelper.GetBadgeClass(phase.PhasePerformance)">
+                                            @phase.PhasePerformance.ToString("0.##")%
+                                            @if (phase.PhasePerformance >= 100)
+                                            {
+                                                <i class="fas fa-check-circle ms-1"></i>
+                                            }
+                                        </span>
                                     </td>
                                     <td class="text-center">
                                         <div class="btn-group action-buttons" role="group">
