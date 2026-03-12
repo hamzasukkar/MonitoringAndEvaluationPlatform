@@ -94,6 +94,8 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 .Include(o => o.Outputs)
                     .ThenInclude(ou => ou.SubOutputs)
                         .ThenInclude(so => so.Indicators)
+                            .ThenInclude(i => i.Project)
+                                .ThenInclude(p => p.Phases)
                 .AsQueryable();
 
             if (frameworkCode.HasValue)
@@ -115,7 +117,21 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                         .Count()
             );
 
+            // Dictionary: OutcomeCode -> Distinct Phase Count
+            var phaseCounts = outcomes.ToDictionary(
+                o => o.Code,
+                o => o.Outputs
+                        .SelectMany(ou => ou.SubOutputs)
+                        .SelectMany(so => so.Indicators)
+                        .Where(i => i.Project != null)
+                        .SelectMany(i => i.Project!.Phases)
+                        .Select(ph => ph.Id)
+                        .Distinct()
+                        .Count()
+            );
+
             ViewBag.ProjectCounts = projectCounts;
+            ViewBag.PhaseCounts = phaseCounts;
 
             return View(outcomes);
         }

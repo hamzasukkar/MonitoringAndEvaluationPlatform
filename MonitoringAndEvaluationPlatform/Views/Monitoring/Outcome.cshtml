@@ -28,6 +28,7 @@
             var subOutputs = outputs.SelectMany(output => output.SubOutputs);
             var indicators = subOutputs.SelectMany(subOutput => subOutput.Indicators);
             var projectCount = (ViewBag.ProjectCounts as Dictionary<int, int>)?[item.Code] ?? 0;
+            var phaseCount = (ViewBag.PhaseCounts as Dictionary<int, int>)?[item.Code] ?? 0;
 
             var metrics = new[]
             {
@@ -165,6 +166,22 @@
                                         <div class="nav-card-value">@projectCount</div>
                                         <div class="nav-card-label">@Localizer["Projects"]</div>
                                         <div class="nav-card-description">@Localizer["Implementation projects"]</div>
+                                    </div>
+                                </div>
+                                <div class="nav-card-arrow">
+                                    <i class="fas fa-arrow-right"></i>
+                                </div>
+                            </a>
+
+                            <a asp-controller="Monitoring" asp-action="Phase" asp-route-outcomeCode="@item.Code" class="outcome-nav-card phases">
+                                <div class="nav-card-content">
+                                    <div class="nav-card-icon">
+                                        <i class="fas fa-layer-group"></i>
+                                    </div>
+                                    <div class="nav-card-info">
+                                        <div class="nav-card-value">@phaseCount</div>
+                                        <div class="nav-card-label">@Localizer["Project Phases"]</div>
+                                        <div class="nav-card-description">@Localizer["Project phase breakdown"]</div>
                                     </div>
                                 </div>
                                 <div class="nav-card-arrow">
@@ -561,8 +578,11 @@
     .outcome-nav-card.indicators .nav-card-icon { 
         background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); 
     }
-    .outcome-nav-card.projects .nav-card-icon { 
-        background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%); 
+    .outcome-nav-card.projects .nav-card-icon {
+        background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
+    }
+    .outcome-nav-card.phases .nav-card-icon {
+        background: linear-gradient(135deg, #a18cd1 0%, #fbc2eb 100%);
     }
 
     .nav-card-info {
