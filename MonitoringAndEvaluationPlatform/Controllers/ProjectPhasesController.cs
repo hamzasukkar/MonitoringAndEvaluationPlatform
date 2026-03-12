@@ -61,9 +61,9 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 ModelState.AddModelError("", $"Phase dates must be within the project dates ({project.StartDate:MMM yyyy} – {project.EndDate:MMM yyyy}).");
             }
 
-            if (phase.StartDate >= phase.EndDate)
+            if (phase.StartDate > phase.EndDate)
             {
-                ModelState.AddModelError("EndDate", "End date must be after start date.");
+                ModelState.AddModelError("EndDate", "End date must be on or after start date.");
             }
 
             // Validate budget (sum must not exceed project budget)
@@ -145,9 +145,9 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 ModelState.AddModelError("", $"Phase dates must be within the project dates ({project.StartDate:MMM yyyy} – {project.EndDate:MMM yyyy}).");
             }
 
-            if (phase.StartDate >= phase.EndDate)
+            if (phase.StartDate > phase.EndDate)
             {
-                ModelState.AddModelError("EndDate", "End date must be after start date.");
+                ModelState.AddModelError("EndDate", "End date must be on or after start date.");
             }
 
             // Validate budget (sum of other phases + this phase must not exceed project budget)
@@ -243,8 +243,8 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             if (phase.StartDate < project.StartDate || phase.EndDate > project.EndDate)
                 return Json(new { success = false, message = $"Phase dates must be within the project dates ({project.StartDate:MMM yyyy} – {project.EndDate:MMM yyyy})." });
 
-            if (phase.StartDate >= phase.EndDate)
-                return Json(new { success = false, message = "End date must be after start date." });
+            if (phase.StartDate > phase.EndDate)
+                return Json(new { success = false, message = "End date must be on or after start date." });
 
             var existingBudgetSum = project.Phases.Sum(pp => pp.Budget);
             if (existingBudgetSum + phase.Budget > project.EstimatedBudget)
