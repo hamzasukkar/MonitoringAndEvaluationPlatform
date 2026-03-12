@@ -26,6 +26,7 @@
         @foreach (var item in Model)
         {
             var projectCount = (ViewBag.ProjectCounts as Dictionary<int, int>)?[item.IndicatorCode] ?? 0;
+            var phaseCount = (ViewBag.PhaseCounts as Dictionary<int, int>)?[item.IndicatorCode] ?? 0;
             var metrics = new[]
             {
                 new { Value = Math.Round(item.IndicatorsPerformance), Label = @Localizer["Assessment"], Icon = "fas fa-chart-bar", Color = "primary" },
@@ -96,6 +97,19 @@
                             <div class="nav-stat-content">
                                 <div class="nav-stat-value">@projectCount</div>
                                 <div class="nav-stat-label">@Localizer["Projects"]</div>
+                            </div>
+                            <div class="nav-stat-arrow">
+                                <i class="fas fa-chevron-right"></i>
+                            </div>
+                        </a>
+
+                        <a asp-controller="Monitoring" asp-action="Phase" asp-route-indicatorCode="@item.IndicatorCode" class="nav-stat-card phases-card">
+                            <div class="nav-stat-icon">
+                                <i class="fas fa-layer-group"></i>
+                            </div>
+                            <div class="nav-stat-content">
+                                <div class="nav-stat-value">@phaseCount</div>
+                                <div class="nav-stat-label">@Localizer["Project Phases"]</div>
                             </div>
                             <div class="nav-stat-arrow">
                                 <i class="fas fa-chevron-right"></i>
@@ -459,6 +473,7 @@
     }
 
     .projects-card .nav-stat-icon { background: linear-gradient(135deg, #fa709a 0%, #fee140 100%); }
+    .phases-card .nav-stat-icon { background: linear-gradient(135deg, #a18cd1 0%, #fbc2eb 100%); }
 
     .nav-stat-content {
         flex: 1;

@@ -142,6 +142,8 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             var outputsQuery = _context.Outputs
                 .Include(o => o.SubOutputs)
                     .ThenInclude(so => so.Indicators)
+                        .ThenInclude(i => i.Project)
+                            .ThenInclude(p => p.Phases)
                 .Include(o => o.Outcome)
                 .AsQueryable();
 
@@ -168,7 +170,20 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                         .Count()
             );
 
+            // Dictionary: OutputCode -> Distinct Phase Count
+            var phaseCounts = outputs.ToDictionary(
+                o => o.Code,
+                o => o.SubOutputs
+                        .SelectMany(so => so.Indicators)
+                        .Where(i => i.Project != null)
+                        .SelectMany(i => i.Project!.Phases)
+                        .Select(ph => ph.Id)
+                        .Distinct()
+                        .Count()
+            );
+
             ViewBag.ProjectCounts = projectCounts;
+            ViewBag.PhaseCounts = phaseCounts;
 
             return View(outputs);
         }
@@ -178,6 +193,8 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         {
             var subOutputsQuery = _context.SubOutputs
                 .Include(so => so.Indicators)
+                    .ThenInclude(i => i.Project)
+                        .ThenInclude(p => p.Phases)
                 .Include(so => so.Output)
                     .ThenInclude(o => o.Outcome)
                 .AsQueryable();
@@ -209,7 +226,19 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                         .Count()
             );
 
+            // Dictionary: SubOutputCode -> Distinct Phase Count
+            var phaseCounts = subOutputs.ToDictionary(
+                so => so.Code,
+                so => so.Indicators
+                        .Where(i => i.Project != null)
+                        .SelectMany(i => i.Project!.Phases)
+                        .Select(ph => ph.Id)
+                        .Distinct()
+                        .Count()
+            );
+
             ViewBag.ProjectCounts = projectCounts;
+            ViewBag.PhaseCounts = phaseCounts;
 
             return View(subOutputs);
         }
@@ -257,7 +286,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             return View(projects);
         }
 
-        public async Task<IActionResult> Phase(int? projectId, int? frameworkCode, int? outcomeCode, int? outputCode, int? subOutputCode)
+        public async Task<IActionResult> Phase(int? projectId, int? frameworkCode, int? outcomeCode, int? outputCode, int? subOutputCode, int? indicatorCode)
         {
             var phasesQuery = _context.ProjectPhases
                 .Include(pp => pp.Project)
@@ -266,6 +295,10 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             if (projectId.HasValue)
             {
                 phasesQuery = phasesQuery.Where(pp => pp.ProjectID == projectId.Value);
+            }
+            else if (indicatorCode.HasValue)
+            {
+                phasesQuery = phasesQuery.Where(pp => pp.Project.Indicators.Any(i => i.IndicatorCode == indicatorCode.Value));
             }
             else if (subOutputCode.HasValue)
             {
@@ -302,6 +335,8 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                     .ThenInclude(so => so.Output) // Include Output
                         .ThenInclude(o => o.Outcome) // Include Outcome
                             .ThenInclude(outc => outc.Framework) // Include Framework
+                .Include(i => i.Project)
+                    .ThenInclude(p => p.Phases)
                 ;
 
             if (subOutputCode.HasValue)
@@ -324,14 +359,20 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             var indicators = await indicatorsQuery.ToListAsync();
 
             // Create a dictionary of IndicatorCode -> ProjectCount
-            // Now correctly counting distinct projects via the ProjectIndicators collection
-            // Each indicator now has at most 1 project via ProjectID (nullable FK)
+            // Each indicator has at most 1 project via ProjectID (nullable FK)
             var projectCounts = indicators.ToDictionary(
                 i => i.IndicatorCode,
                 i => i.ProjectID != null ? 1 : 0
             );
 
+            // Dictionary: IndicatorCode -> Phase Count
+            var phaseCounts = indicators.ToDictionary(
+                i => i.IndicatorCode,
+                i => i.Project?.Phases.Select(ph => ph.Id).Distinct().Count() ?? 0
+            );
+
             ViewBag.ProjectCounts = projectCounts;
+            ViewBag.PhaseCounts = phaseCounts;
 
             return View(indicators);
         }
