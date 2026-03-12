@@ -19,6 +19,11 @@ namespace MonitoringAndEvaluationPlatform.Models
         [StringLength(1000)]
         public string? Note { get; set; }
 
+        public double? Quantity { get; set; }
+
+        [StringLength(100)]
+        public string? Unit { get; set; }
+
         public int ProjectPhaseId { get; set; }
         public virtual ProjectPhase ProjectPhase { get; set; } = null!;
     }

@@ -41,6 +41,14 @@ namespace MonitoringAndEvaluationPlatform.Models
         [Display(Name = "Phase Performance (%)")]
         public double PhasePerformance { get; set; } = 0;
 
+        /// <summary>
+        /// The total quantity target for this phase (e.g. 100 trees, 50 km).
+        /// When set, measure Value is auto-calculated as (Quantity / TargetQuantity) × 100.
+        /// </summary>
+        [Display(Name = "Target Quantity")]
+        [Range(0, double.MaxValue, ErrorMessage = "Target quantity must be a positive value.")]
+        public double? TargetQuantity { get; set; }
+
         // Foreign key to Project
         public int ProjectID { get; set; }
         public virtual Project Project { get; set; } = null!;

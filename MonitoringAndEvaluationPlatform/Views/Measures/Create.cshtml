@@ -172,6 +172,27 @@
                         </div>
                     </div>
 
+                    <!-- Quantity and Unit -->
+                    <div class="form-group">
+                        <label asp-for="Quantity" class="modern-label">
+                            <i class="fas fa-hashtag"></i>
+                            @Localizer["Quantity"]
+                        </label>
+                        <input asp-for="Quantity" type="number" step="0.01" min="0" class="modern-input" placeholder="@Localizer["How many"]" />
+                        <span asp-validation-for="Quantity" class="field-error"></span>
+                        <div class="field-info">@Localizer["Optional: number of units achieved"]</div>
+                    </div>
+
+                    <div class="form-group">
+                        <label asp-for="Unit" class="modern-label">
+                            <i class="fas fa-ruler"></i>
+                            @Localizer["Unit"]
+                        </label>
+                        <input asp-for="Unit" type="text" class="modern-input" placeholder="@Localizer["e.g. tree, km, household"]" maxlength="100" />
+                        <span asp-validation-for="Unit" class="field-error"></span>
+                        <div class="field-info">@Localizer["Optional: unit of measurement"]</div>
+                    </div>
+
                     <!-- Note (optional) -->
                     <div class="form-group full-width">
                         <label asp-for="Note" class="modern-label">

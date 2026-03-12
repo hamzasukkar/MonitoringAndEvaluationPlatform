@@ -28,8 +28,19 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         [HttpPost("add-measure")]
         public async Task<IActionResult> AddMeasure([FromBody] AddMeasureDto dto)
         {
-            if (dto.Value < 0 || dto.Value > 100)
-                return BadRequest(_localizer["Value must be between 0 and 100."]);
+            var phase = await _context.ProjectPhases.FindAsync(dto.PhaseId);
+            if (phase == null) return NotFound();
+
+            // Auto-calculate Value from Quantity if phase has a TargetQuantity
+            if (dto.Quantity.HasValue && phase.TargetQuantity.HasValue && phase.TargetQuantity.Value > 0)
+            {
+                dto.Value = Math.Min((dto.Quantity.Value / phase.TargetQuantity.Value) * 100.0, 100.0);
+            }
+            else
+            {
+                if (dto.Value < 0 || dto.Value > 100)
+                    return BadRequest(_localizer["Value must be between 0 and 100."]);
+            }
 
             var existingTotal = await _context.Measures
                 .Where(m => m.ProjectPhaseId == dto.PhaseId)
@@ -38,7 +49,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             if (existingTotal + dto.Value > 100)
                 return BadRequest(_localizer["Total measures value for this phase cannot exceed 100%."]);
 
-            await _monitoringService.AddMeasureToPhase(dto.PhaseId, dto.Value, dto.Name, dto.Note);
+            await _monitoringService.AddMeasureToPhase(dto.PhaseId, dto.Value, dto.Name, dto.Note, dto.Quantity, dto.Unit);
             return Ok(_localizer["Measure added and Phase Performance updated"]);
         }
 
@@ -54,7 +65,9 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                     date = m.Date.ToString("yyyy-MM-dd"),
                     value = m.Value,
                     name = m.Name,
-                    note = m.Note
+                    note = m.Note,
+                    quantity = m.Quantity,
+                    unit = m.Unit
                 })
                 .ToListAsync();
 
@@ -68,6 +81,8 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             public double Value { get; set; }
             public string Name { get; set; } = string.Empty;
             public string? Note { get; set; }
+            public double? Quantity { get; set; }
+            public string? Unit { get; set; }
         }
 
         // GET: Measures
@@ -121,8 +136,18 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         {
             ModelState.Remove(nameof(measure.ProjectPhase));
 
-            if (measure.Value < 0 || measure.Value > 100)
-                return BadRequest(new { message = _localizer["Value must be between 0 and 100."].Value });
+            // Auto-calculate Value from Quantity if phase has a TargetQuantity
+            var phase = await _context.ProjectPhases.FindAsync(measure.ProjectPhaseId);
+            if (measure.Quantity.HasValue && phase?.TargetQuantity.HasValue == true && phase.TargetQuantity.Value > 0)
+            {
+                measure.Value = Math.Min((measure.Quantity.Value / phase.TargetQuantity.Value) * 100.0, 100.0);
+                ModelState.Remove(nameof(measure.Value));
+            }
+            else
+            {
+                if (measure.Value < 0 || measure.Value > 100)
+                    return BadRequest(new { message = _localizer["Value must be between 0 and 100."].Value });
+            }
 
             var existingTotal = await _context.Measures
                 .Where(m => m.ProjectPhaseId == measure.ProjectPhaseId)
@@ -175,9 +200,17 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         // POST: Measures/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Code,Name,Date,Value,Note,ProjectPhaseId")] Measure measure)
+        public async Task<IActionResult> Create([Bind("Code,Name,Date,Value,Note,Quantity,Unit,ProjectPhaseId")] Measure measure)
         {
             ModelState.Remove(nameof(measure.ProjectPhase));
+
+            // Auto-calculate Value from Quantity if phase has a TargetQuantity
+            var phase = await _context.ProjectPhases.FindAsync(measure.ProjectPhaseId);
+            if (measure.Quantity.HasValue && phase?.TargetQuantity.HasValue == true && phase.TargetQuantity.Value > 0)
+            {
+                measure.Value = Math.Min((measure.Quantity.Value / phase.TargetQuantity.Value) * 100.0, 100.0);
+                ModelState.Remove(nameof(measure.Value));
+            }
 
             if (ModelState.IsValid)
             {
@@ -238,16 +271,29 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 existingMeasure.Date = measure.Date;
                 existingMeasure.Name = measure.Name;
                 existingMeasure.Note = measure.Note;
-                var clampedValue = Math.Max(0, Math.Min(100, measure.Value));
+                existingMeasure.Quantity = measure.Quantity;
+                existingMeasure.Unit = measure.Unit;
+
+                // Auto-calculate Value from Quantity if phase has a TargetQuantity
+                double computedValue;
+                var phaseForEdit = await _context.ProjectPhases.FindAsync(existingMeasure.ProjectPhaseId);
+                if (measure.Quantity.HasValue && phaseForEdit?.TargetQuantity.HasValue == true && phaseForEdit.TargetQuantity.Value > 0)
+                {
+                    computedValue = Math.Min((measure.Quantity.Value / phaseForEdit.TargetQuantity.Value) * 100.0, 100.0);
+                }
+                else
+                {
+                    computedValue = Math.Max(0, Math.Min(100, measure.Value));
+                }
 
                 var otherTotal = await _context.Measures
                     .Where(m => m.ProjectPhaseId == existingMeasure.ProjectPhaseId && m.Code != id)
                     .SumAsync(m => m.Value);
 
-                if (otherTotal + clampedValue > 100)
+                if (otherTotal + computedValue > 100)
                     return BadRequest(new { message = _localizer["Total measures value for this phase cannot exceed 100%."].Value });
 
-                existingMeasure.Value = clampedValue;
+                existingMeasure.Value = computedValue;
 
                 try
                 {

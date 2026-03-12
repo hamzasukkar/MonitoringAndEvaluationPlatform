@@ -43,7 +43,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         // POST: ProjectPhases/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Name,StartDate,EndDate,Budget,ProjectID")] ProjectPhase phase)
+        public async Task<IActionResult> Create([Bind("Name,StartDate,EndDate,Budget,TargetQuantity,ProjectID")] ProjectPhase phase)
         {
             ModelState.Remove(nameof(phase.Project));
             ModelState.Remove(nameof(phase.Measures));
@@ -125,7 +125,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         // POST: ProjectPhases/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,Name,StartDate,EndDate,Budget,Weight,ProjectID")] ProjectPhase phase)
+        public async Task<IActionResult> Edit(int id, [Bind("Id,Name,StartDate,EndDate,Budget,Weight,TargetQuantity,ProjectID")] ProjectPhase phase)
         {
             if (id != phase.Id) return NotFound();
 
@@ -181,6 +181,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 existingPhase.EndDate = phase.EndDate;
                 existingPhase.Budget = phase.Budget;
                 existingPhase.Weight = phase.Weight;
+                existingPhase.TargetQuantity = phase.TargetQuantity;
 
                 _context.ProjectPhases.Update(existingPhase);
                 await _context.SaveChangesAsync();
@@ -226,7 +227,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         // POST: ProjectPhases/CreateAjax  (AJAX inline form from Indicators/Index)
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> CreateAjax([Bind("Name,StartDate,EndDate,Budget,ProjectID")] ProjectPhase phase)
+        public async Task<IActionResult> CreateAjax([Bind("Name,StartDate,EndDate,Budget,TargetQuantity,ProjectID")] ProjectPhase phase)
         {
             ModelState.Remove(nameof(phase.Project));
             ModelState.Remove(nameof(phase.Measures));
