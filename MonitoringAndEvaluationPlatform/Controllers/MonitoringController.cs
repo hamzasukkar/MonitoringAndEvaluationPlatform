@@ -82,6 +82,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 .ThenInclude(i => i.SubOutputs)
                 .ThenInclude(i => i.Indicators)
                 .ThenInclude(i => i.Project)
+                    .ThenInclude(p => p.Phases)
                 .OrderByDescending(f => f.IndicatorsPerformance)
                 .ToListAsync();
             return View(frameworks);
@@ -238,6 +239,37 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             List<Project> projects = await projectsQuery.Distinct().ToListAsync();
 
             return View(projects);
+        }
+
+        public async Task<IActionResult> Phase(int? projectId, int? frameworkCode, int? outcomeCode, int? outputCode, int? subOutputCode)
+        {
+            var phasesQuery = _context.ProjectPhases
+                .Include(pp => pp.Project)
+                .AsQueryable();
+
+            if (projectId.HasValue)
+            {
+                phasesQuery = phasesQuery.Where(pp => pp.ProjectID == projectId.Value);
+            }
+            else if (subOutputCode.HasValue)
+            {
+                phasesQuery = phasesQuery.Where(pp => pp.Project.Indicators.Any(i => i.SubOutputCode == subOutputCode.Value));
+            }
+            else if (outputCode.HasValue)
+            {
+                phasesQuery = phasesQuery.Where(pp => pp.Project.Indicators.Any(i => i.SubOutput.OutputCode == outputCode.Value));
+            }
+            else if (outcomeCode.HasValue)
+            {
+                phasesQuery = phasesQuery.Where(pp => pp.Project.Indicators.Any(i => i.SubOutput.Output.OutcomeCode == outcomeCode.Value));
+            }
+            else if (frameworkCode.HasValue)
+            {
+                phasesQuery = phasesQuery.Where(pp => pp.Project.Indicators.Any(i => i.SubOutput.Output.Outcome.FrameworkCode == frameworkCode.Value));
+            }
+
+            var phases = await phasesQuery.OrderBy(pp => pp.Project.ProjectName).ThenBy(pp => pp.StartDate).ToListAsync();
+            return View(phases);
         }
 
         public async Task<IActionResult> Indicators(

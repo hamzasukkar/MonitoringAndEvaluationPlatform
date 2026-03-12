@@ -117,118 +117,43 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="Assessment" xml:space="preserve">
-    <value>التقدير</value>
+  <data name="Phases Dashboard" xml:space="preserve">
+    <value>لوحة معلومات المراحل</value>
   </data>
-  <data name="Comprehensive framework monitoring with real-time performance analytics and progress tracking" xml:space="preserve">
-    <value>مراقبة شاملة للإطار مع تحليلات الأداء في الوقت الفعلي وتتبع التقدم</value>
+  <data name="Phase-level performance monitoring with budget tracking and progress analytics" xml:space="preserve">
+    <value>مراقبة أداء على مستوى المراحل مع تتبع الميزانية وتحليلات التقدم</value>
   </data>
-  <data name="Disbursement" xml:space="preserve">
-    <value>الصرف</value>
+  <data name="No phases found" xml:space="preserve">
+    <value>لا توجد مراحل</value>
   </data>
-  <data name="Disbursement Performance" xml:space="preserve">
-    <value>أداء الصرف</value>
+  <data name="Phase Performance" xml:space="preserve">
+    <value>أداء المرحلة</value>
   </data>
-  <data name="Field Monitoring" xml:space="preserve">
-    <value>المراقبة الميدانية</value>
+  <data name="Weight" xml:space="preserve">
+    <value>الوزن</value>
   </data>
-  <data name="Framework Navigation" xml:space="preserve">
-    <value>التنقل بين المكونات</value>
+  <data name="Phase Details" xml:space="preserve">
+    <value>تفاصيل المرحلة</value>
   </data>
-  <data name="Impact Assessment" xml:space="preserve">
-    <value>تقييم الأثر</value>
+  <data name="Budget" xml:space="preserve">
+    <value>الميزانية</value>
   </data>
-  <data name="Indicators" xml:space="preserve">
-    <value>المشاريع</value>
+  <data name="Target Quantity" xml:space="preserve">
+    <value>الكمية المستهدفة</value>
   </data>
-  <data name="Indicators Performance" xml:space="preserve">
-    <value>الأداء والأنجاز</value>
+  <data name="Measures" xml:space="preserve">
+    <value>القياسات</value>
   </data>
-  <data name="Monitoring" xml:space="preserve">
-    <value>المراقبة</value>
+  <data name="Actions" xml:space="preserve">
+    <value>الإجراءات</value>
   </data>
-  <data name="Monitoring Dashboard" xml:space="preserve">
-    <value>لوحة المراقبة</value>
+  <data name="View Measures" xml:space="preserve">
+    <value>عرض القياسات</value>
   </data>
-  <data name="Outcome" xml:space="preserve">
-    <value>السياسات</value>
+  <data name="Start Date" xml:space="preserve">
+    <value>تاريخ البدء</value>
   </data>
-  <data name="Outcomes" xml:space="preserve">
-    <value>السياسات</value>
-  </data>
-  <data name="Outputs" xml:space="preserve">
-    <value>البرامج</value>
-  </data>
-  <data name="Performance Assessment" xml:space="preserve">
-    <value>تقييم الأداء</value>
-  </data>
-  <data name="Projects" xml:space="preserve">
-    <value>المشاريع</value>
-  </data>
-  <data name="Sub-outputs" xml:space="preserve">
-    <value>البرامج الفرعية</value>
-  </data>
-  <data name="Search frameworks..." xml:space="preserve">
-    <value>البحث في الأطر...</value>
-  </data>
-  <data name="Performance Level" xml:space="preserve">
-    <value>مستوى الأداء</value>
-  </data>
-  <data name="All" xml:space="preserve">
-    <value>الكل</value>
-  </data>
-  <data name="High" xml:space="preserve">
-    <value>مرتفع</value>
-  </data>
-  <data name="Medium" xml:space="preserve">
-    <value>متوسط</value>
-  </data>
-  <data name="Low" xml:space="preserve">
-    <value>منخفض</value>
-  </data>
-  <data name="Sort By" xml:space="preserve">
-    <value>ترتيب حسب</value>
-  </data>
-  <data name="Name" xml:space="preserve">
-    <value>الاسم</value>
-  </data>
-  <data name="Performance" xml:space="preserve">
-    <value>الأداء</value>
-  </data>
-  <data name="View" xml:space="preserve">
-    <value>عرض</value>
-  </data>
-  <data name="Grid" xml:space="preserve">
-    <value>شبكة</value>
-  </data>
-  <data name="List" xml:space="preserve">
-    <value>قائمة</value>
-  </data>
-  <data name="Showing" xml:space="preserve">
-    <value>عرض</value>
-  </data>
-  <data name="of" xml:space="preserve">
-    <value>من</value>
-  </data>
-  <data name="framework(s)" xml:space="preserve">
-    <value>إطار/أطر</value>
-  </data>
-  <data name="Collapse/Expand" xml:space="preserve">
-    <value>طي/توسيع</value>
-  </data>
-  <data name="Expand All" xml:space="preserve">
-    <value>توسيع الكل</value>
-  </data>
-  <data name="Collapse All" xml:space="preserve">
-    <value>طي الكل</value>
-  </data>
-  <data name="Projects &amp; Phases" xml:space="preserve">
-    <value>المشاريع والمراحل</value>
-  </data>
-  <data name="No phases added yet" xml:space="preserve">
-    <value>لم تُضف مراحل بعد</value>
-  </data>
-  <data name="Project Phases" xml:space="preserve">
-    <value>مراحل المشروع</value>
+  <data name="End Date" xml:space="preserve">
+    <value>تاريخ الانتهاء</value>
   </data>
 </root>

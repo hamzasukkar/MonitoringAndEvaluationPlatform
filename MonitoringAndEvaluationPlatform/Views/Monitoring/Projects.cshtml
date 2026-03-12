@@ -85,6 +85,18 @@
                     }
                 </div>
 
+                <!-- Quick Actions -->
+                <div class="mb-3">
+                    <a asp-controller="Monitoring" asp-action="Phase" asp-route-projectId="@item.ProjectID"
+                       class="btn-phase-link">
+                        <i class="fas fa-layer-group me-1"></i>@Localizer["View Phases"]
+                    </a>
+                    <a asp-controller="Projects" asp-action="Details" asp-route-id="@item.ProjectID"
+                       class="btn-phase-link btn-phase-link-outline ms-2">
+                        <i class="fas fa-info-circle me-1"></i>@Localizer["Details"]
+                    </a>
+                </div>
+
                 <!-- Project Details Section -->
                 <div class="framework-navigation-section">
                     <h5 class="navigation-title">
@@ -535,6 +547,40 @@
         font-weight: 600;
         color: #2d3748;
         line-height: 1;
+    }
+
+    .btn-phase-link {
+        display: inline-flex;
+        align-items: center;
+        padding: 0.4rem 1rem;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border-radius: 12px;
+        font-size: 0.85rem;
+        font-weight: 600;
+        text-decoration: none;
+        transition: all 0.2s ease;
+        box-shadow: 0 3px 10px rgba(102,126,234,0.3);
+    }
+
+    .btn-phase-link:hover {
+        color: white;
+        text-decoration: none;
+        transform: translateY(-1px);
+        box-shadow: 0 5px 15px rgba(102,126,234,0.4);
+    }
+
+    .btn-phase-link-outline {
+        background: transparent;
+        color: #667eea;
+        border: 2px solid #667eea;
+        box-shadow: none;
+    }
+
+    .btn-phase-link-outline:hover {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border-color: transparent;
     }
 
     /* Animations */
