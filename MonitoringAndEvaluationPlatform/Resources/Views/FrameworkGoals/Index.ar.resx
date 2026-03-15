@@ -882,4 +882,25 @@
   <data name="Expected Target for Selected Year" xml:space="preserve">
     <value>الهدف المتوقع للسنة المحددة</value>
   </data>
+  <data name="Set Expected Targets Manually" xml:space="preserve">
+    <value>تحديد الأهداف المتوقعة يدوياً</value>
+  </data>
+  <data name="When enabled, you can set the expected target values for each intermediate year manually instead of using the auto-calculated linear values. This setting cannot be changed after creation." xml:space="preserve">
+    <value>عند التفعيل، يمكنك تحديد قيم الأهداف المتوقعة لكل سنة وسيطة يدوياً بدلاً من استخدام القيم المحسوبة تلقائياً. لا يمكن تغيير هذا الإعداد بعد الإنشاء.</value>
+  </data>
+  <data name="Manual Expected Targets for Intermediate Years" xml:space="preserve">
+    <value>الأهداف المتوقعة اليدوية للسنوات الوسيطة</value>
+  </data>
+  <data name="Set the expected target value for each year between Starting Year and Target Year (excluding Starting Year, Current Year, and Target Year)." xml:space="preserve">
+    <value>حدد قيمة الهدف المتوقع لكل سنة بين سنة البداية وسنة الهدف (باستثناء سنة البداية والسنة الحالية وسنة الهدف).</value>
+  </data>
+  <data name="Fill in all year and value fields above first, then check the checkbox to enter manual targets." xml:space="preserve">
+    <value>الرجاء تعبئة جميع حقول السنوات والقيم أعلاه أولاً، ثم حدد مربع الاختيار لإدخال الأهداف اليدوية.</value>
+  </data>
+  <data name="Fill in all year fields above first, then check the checkbox to enter manual targets." xml:space="preserve">
+    <value>الرجاء تعبئة جميع حقول السنوات أعلاه أولاً، ثم حدد مربع الاختيار لإدخال الأهداف اليدوية.</value>
+  </data>
+  <data name="No intermediate years to set. All years between Starting Year and Target Year (excluding Current Year) are already covered." xml:space="preserve">
+    <value>لا توجد سنوات وسيطة لتحديدها. جميع السنوات بين سنة البداية وسنة الهدف (باستثناء السنة الحالية) مغطاة بالفعل.</value>
+  </data>
 </root>

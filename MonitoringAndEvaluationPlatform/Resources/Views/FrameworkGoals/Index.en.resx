@@ -762,4 +762,25 @@
   <data name="Expected Target for Selected Year" xml:space="preserve">
     <value>Expected Target for Selected Year</value>
   </data>
+  <data name="Set Expected Targets Manually" xml:space="preserve">
+    <value>Set Expected Targets Manually</value>
+  </data>
+  <data name="When enabled, you can set the expected target values for each intermediate year manually instead of using the auto-calculated linear values. This setting cannot be changed after creation." xml:space="preserve">
+    <value>When enabled, you can set the expected target values for each intermediate year manually instead of using the auto-calculated linear values. This setting cannot be changed after creation.</value>
+  </data>
+  <data name="Manual Expected Targets for Intermediate Years" xml:space="preserve">
+    <value>Manual Expected Targets for Intermediate Years</value>
+  </data>
+  <data name="Set the expected target value for each year between Starting Year and Target Year (excluding Starting Year, Current Year, and Target Year)." xml:space="preserve">
+    <value>Set the expected target value for each year between Starting Year and Target Year (excluding Starting Year, Current Year, and Target Year).</value>
+  </data>
+  <data name="Fill in all year and value fields above first, then check the checkbox to enter manual targets." xml:space="preserve">
+    <value>Fill in all year and value fields above first, then check the checkbox to enter manual targets.</value>
+  </data>
+  <data name="Fill in all year fields above first, then check the checkbox to enter manual targets." xml:space="preserve">
+    <value>Fill in all year fields above first, then check the checkbox to enter manual targets.</value>
+  </data>
+  <data name="No intermediate years to set. All years between Starting Year and Target Year (excluding Current Year) are already covered." xml:space="preserve">
+    <value>No intermediate years to set. All years between Starting Year and Target Year (excluding Current Year) are already covered.</value>
+  </data>
 </root>

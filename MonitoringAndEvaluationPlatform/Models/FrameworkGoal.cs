@@ -43,8 +43,15 @@ namespace MonitoringAndEvaluationPlatform.Models
         // Notes field for additional information
         public string Notes { get; set; } = string.Empty;
 
+        // When true, expected target values for intermediate years are set manually at creation
+        // and will not be auto-calculated. This flag is permanent and cannot be changed after creation.
+        public bool ManualYearlyTargets { get; set; } = false;
+
         // Collection of file attachments
         public ICollection<FrameworkGoalFile> Attachments { get; set; } = new List<FrameworkGoalFile>();
+
+        // Collection of manually set expected targets for intermediate years (populated only when ManualYearlyTargets = true)
+        public ICollection<FrameworkGoalManualExpectedTarget> ManualExpectedTargets { get; set; } = new List<FrameworkGoalManualExpectedTarget>();
 
         // For file uploads (not mapped to database)
         [NotMapped]
@@ -151,8 +158,24 @@ namespace MonitoringAndEvaluationPlatform.Models
             if (year < StartingYear || year > TargetYear)
                 return 0;
 
-            var yearsPassed = year - StartingYear;
-            return BaseValueForStartingYear + (AnnualChangeRate * yearsPassed);
+            // StartingYear and TargetYear are always auto-calculated (anchors of the plan)
+            if (year == StartingYear || year == TargetYear)
+            {
+                var yearsPassed = year - StartingYear;
+                return BaseValueForStartingYear + (AnnualChangeRate * yearsPassed);
+            }
+
+            // In manual mode, stored manual targets are immutable — always use them
+            // regardless of whether the year is currently the CurrentYear or not.
+            if (ManualYearlyTargets && ManualExpectedTargets != null)
+            {
+                var manual = ManualExpectedTargets.FirstOrDefault(m => m.Year == year);
+                if (manual != null)
+                    return manual.ExpectedTargetValue;
+            }
+
+            var years = year - StartingYear;
+            return BaseValueForStartingYear + (AnnualChangeRate * years);
         }
 
         /// <summary>

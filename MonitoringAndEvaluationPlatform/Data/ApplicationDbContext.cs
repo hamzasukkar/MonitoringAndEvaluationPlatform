@@ -39,6 +39,7 @@ namespace MonitoringAndEvaluationPlatform.Data
         public DbSet<FrameworkGoal> FrameworkGoals { get; set; }
         public DbSet<FrameworkGoalYearlyValue> FrameworkGoalYearlyValues { get; set; }
         public DbSet<FrameworkGoalFile> FrameworkGoalFiles { get; set; }
+        public DbSet<FrameworkGoalManualExpectedTarget> FrameworkGoalManualExpectedTargets { get; set; }
         public DbSet<AuditLog> AuditLogs { get; set; }
 
 
@@ -170,6 +171,18 @@ namespace MonitoringAndEvaluationPlatform.Data
                 .WithMany(fg => fg.Attachments)
                 .HasForeignKey(fgf => fgf.FrameworkGoalID)
                 .OnDelete(DeleteBehavior.Cascade);
+
+            // FrameworkGoal <-> FrameworkGoalManualExpectedTarget (one-to-many)
+            modelBuilder.Entity<FrameworkGoalManualExpectedTarget>()
+                .HasOne(m => m.FrameworkGoal)
+                .WithMany(fg => fg.ManualExpectedTargets)
+                .HasForeignKey(m => m.FrameworkGoalID)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            // Unique constraint: one manual expected target per year per goal
+            modelBuilder.Entity<FrameworkGoalManualExpectedTarget>()
+                .HasIndex(m => new { m.FrameworkGoalID, m.Year })
+                .IsUnique();
 
             // MeasureFile → Measure (one-to-many)
             modelBuilder.Entity<MeasureFile>()
