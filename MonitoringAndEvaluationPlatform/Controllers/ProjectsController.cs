@@ -528,6 +528,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 .Include(p => p.Indicators)
                 .Include(p => p.Phases)
                     .ThenInclude(pp => pp.Measures)
+                        .ThenInclude(m => m.Files)
                 .Include(p => p.Phases)
                     .ThenInclude(pp => pp.ActionPlan)
                         .ThenInclude(ap => ap.Activities)

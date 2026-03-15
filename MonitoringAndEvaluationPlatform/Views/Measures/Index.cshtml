@@ -229,7 +229,7 @@
                     </div>
                     <div class="col-md-6">
                         <label for="measureFile" class="form-label">@Localizer["Attachment"]</label>
-                        <input type="file" id="measureFile" name="MeasureFile" class="form-control" />
+                        <input type="file" id="measureFile" name="MeasureFiles" class="form-control" multiple />
                         <div class="form-text text-muted"><i class="fas fa-paperclip me-1"></i>@Localizer["Optional file attachment"]</div>
                     </div>
                     <div class="col-md-4 d-flex align-items-end">
@@ -346,11 +346,14 @@
                                                 data-code="@item.Code" title="@Localizer["Edit"]">
                                             <i class="fas fa-edit"></i>
                                         </button>
-                                        @if (!string.IsNullOrEmpty(item.FilePath))
+                                        @if (item.Files != null && item.Files.Any())
                                         {
-                                            <a href="@item.FilePath" target="_blank" class="btn btn-outline-secondary btn-sm action-btn" title="@Localizer["Attachment"]">
-                                                <i class="fas fa-paperclip"></i>
-                                            </a>
+                                            @foreach (var f in item.Files)
+                                            {
+                                                <a href="@f.FilePath" target="_blank" class="btn btn-outline-secondary btn-sm action-btn" title="@f.FileName">
+                                                    <i class="fas fa-file-alt"></i>
+                                                </a>
+                                            }
                                         }
                                         <button type="button" class="btn btn-outline-info btn-sm action-btn view-details-btn"
                                                 data-code="@item.Code"
@@ -1309,7 +1312,9 @@
                 formData.append('ProjectPhaseId', parseInt($('#phaseId').val()));
                 formData.append('__RequestVerificationToken', $('input[name="__RequestVerificationToken"]').val());
                 const fileInput = document.getElementById('measureFile');
-                if (fileInput.files.length > 0) formData.append('MeasureFile', fileInput.files[0]);
+                for (let i = 0; i < fileInput.files.length; i++) {
+                    formData.append('MeasureFiles', fileInput.files[i]);
+                }
 
                 // Disable button and show loading
                 const btn = $('#addMeasureBtn');

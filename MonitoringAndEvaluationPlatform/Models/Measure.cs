@@ -24,10 +24,8 @@ namespace MonitoringAndEvaluationPlatform.Models
         [StringLength(100)]
         public string? Unit { get; set; }
 
-        [StringLength(500)]
-        public string? FilePath { get; set; }
-
         public int ProjectPhaseId { get; set; }
         public virtual ProjectPhase ProjectPhase { get; set; } = null!;
+        public virtual ICollection<MeasureFile> Files { get; set; } = new List<MeasureFile>();
     }
 }

@@ -21,6 +21,7 @@ namespace MonitoringAndEvaluationPlatform.Data
         public DbSet<Sector> Sectors { get; set; } = default!;
         public DbSet<Donor> Donors { get; set; } = default!;
         public DbSet<Measure> Measures { get; set; } = default!;
+        public DbSet<MeasureFile> MeasureFiles { get; set; } = default!;
         public DbSet<SuperVisor> SuperVisors { get; set; } = default!;
         public DbSet<ProjectManager> ProjectManagers { get; set; } = default!;
         public DbSet<Activity> Activities { get; set; } = default!;
@@ -168,6 +169,13 @@ namespace MonitoringAndEvaluationPlatform.Data
                 .HasOne(fgf => fgf.FrameworkGoal)
                 .WithMany(fg => fg.Attachments)
                 .HasForeignKey(fgf => fgf.FrameworkGoalID)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            // MeasureFile → Measure (one-to-many)
+            modelBuilder.Entity<MeasureFile>()
+                .HasOne(mf => mf.Measure)
+                .WithMany(m => m.Files)
+                .HasForeignKey(mf => mf.MeasureCode)
                 .OnDelete(DeleteBehavior.Cascade);
 
             // AuditLog indexes for better query performance
