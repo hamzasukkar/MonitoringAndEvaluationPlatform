@@ -223,9 +223,14 @@
                         <label for="measureUnit" class="form-label">@Localizer["Unit"]</label>
                         <input type="text" id="measureUnit" name="Unit" class="form-control" placeholder="@Localizer["e.g. tree, km, household"]" maxlength="100" />
                     </div>
-                    <div class="col-12">
+                    <div class="col-md-6">
                         <label for="measureNote" class="form-label">@Localizer["Note"]</label>
                         <textarea id="measureNote" name="Note" class="form-control" rows="2" placeholder="@Localizer["Optional note or description"]"></textarea>
+                    </div>
+                    <div class="col-md-6">
+                        <label for="measureFile" class="form-label">@Localizer["Attachment"]</label>
+                        <input type="file" id="measureFile" name="MeasureFile" class="form-control" />
+                        <div class="form-text text-muted"><i class="fas fa-paperclip me-1"></i>@Localizer["Optional file attachment"]</div>
                     </div>
                     <div class="col-md-4 d-flex align-items-end">
                         <button type="submit" class="btn btn-gradient-primary w-100" id="addMeasureBtn">
@@ -341,6 +346,12 @@
                                                 data-code="@item.Code" title="@Localizer["Edit"]">
                                             <i class="fas fa-edit"></i>
                                         </button>
+                                        @if (!string.IsNullOrEmpty(item.FilePath))
+                                        {
+                                            <a href="@item.FilePath" target="_blank" class="btn btn-outline-secondary btn-sm action-btn" title="@Localizer["Attachment"]">
+                                                <i class="fas fa-paperclip"></i>
+                                            </a>
+                                        }
                                         <button type="button" class="btn btn-outline-info btn-sm action-btn view-details-btn"
                                                 data-code="@item.Code"
                                                 data-name="@item.Name"
@@ -1288,29 +1299,30 @@
                     }
                 }
 
-                const formData = {
-                    Name: $('#measureName').val(),
-                    Date: $('#measureDate').val(),
-                    Value: rawValue,
-                    Note: $('#measureNote').val(),
-                    Quantity: $('#measureQuantity').val() ? parseFloat($('#measureQuantity').val()) : null,
-                    Unit: $('#measureUnit').val(),
-                    ProjectPhaseId: parseInt($('#phaseId').val())
-                };
+                const formData = new FormData();
+                formData.append('Name', $('#measureName').val());
+                formData.append('Date', $('#measureDate').val());
+                formData.append('Value', rawValue);
+                formData.append('Note', $('#measureNote').val());
+                if ($('#measureQuantity').val()) formData.append('Quantity', parseFloat($('#measureQuantity').val()));
+                formData.append('Unit', $('#measureUnit').val());
+                formData.append('ProjectPhaseId', parseInt($('#phaseId').val()));
+                formData.append('__RequestVerificationToken', $('input[name="__RequestVerificationToken"]').val());
+                const fileInput = document.getElementById('measureFile');
+                if (fileInput.files.length > 0) formData.append('MeasureFile', fileInput.files[0]);
 
                 // Disable button and show loading
                 const btn = $('#addMeasureBtn');
                 const originalText = btn.html();
                 btn.prop('disabled', true).html('<i class="fas fa-spinner fa-spin me-2"></i>@Localizer["Adding..."]');
 
-                // Add anti-forgery token to form data
-                formData.__RequestVerificationToken = $('input[name="__RequestVerificationToken"]').val();
-
                 // Send AJAX request
                 $.ajax({
                     url: '@Url.Action("CreateFromDetails", "Measures")',
                     type: 'POST',
                     data: formData,
+                    processData: false,
+                    contentType: false,
                     success: function(response) {
                         // Show success message
                         Swal.fire({
@@ -1332,6 +1344,7 @@
                         $('#measureQuantity').val('');
                         $('#measureUnit').val('');
                         $('#measureDate').val('@DateTime.Today.ToString("yyyy-MM-dd")');
+                        $('#measureFile').val('');
 
                         // Reload page to show new measure
                         setTimeout(function() {

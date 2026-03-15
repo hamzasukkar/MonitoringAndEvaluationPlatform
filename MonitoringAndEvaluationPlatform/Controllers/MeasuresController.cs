@@ -17,11 +17,14 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         private readonly MonitoringService _monitoringService;
         private readonly IStringLocalizer<MeasuresController> _localizer;
 
-        public MeasuresController(ApplicationDbContext context, MonitoringService monitoringService, IStringLocalizer<MeasuresController> localizer)
+        private readonly IWebHostEnvironment _webHostEnvironment;
+
+        public MeasuresController(ApplicationDbContext context, MonitoringService monitoringService, IStringLocalizer<MeasuresController> localizer, IWebHostEnvironment webHostEnvironment)
         {
             _context = context;
             _monitoringService = monitoringService;
             _localizer = localizer;
+            _webHostEnvironment = webHostEnvironment;
         }
 
         // POST: add-measure (AJAX)
@@ -135,9 +138,10 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         // POST: CreateFromDetails (AJAX inline creation)
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> CreateFromDetails(Measure measure)
+        public async Task<IActionResult> CreateFromDetails(Measure measure, IFormFile? MeasureFile)
         {
             ModelState.Remove(nameof(measure.ProjectPhase));
+            ModelState.Remove(nameof(measure.FilePath));
 
             // Auto-calculate Value from Quantity if phase has a TargetQuantity
             var phase = await _context.ProjectPhases.FindAsync(measure.ProjectPhaseId);
@@ -164,6 +168,17 @@ namespace MonitoringAndEvaluationPlatform.Controllers
 
             if (ModelState.IsValid)
             {
+                if (MeasureFile != null && MeasureFile.Length > 0)
+                {
+                    var uploadsFolder = Path.Combine(_webHostEnvironment.WebRootPath, "uploads", "measures");
+                    Directory.CreateDirectory(uploadsFolder);
+                    var uniqueName = $"{Guid.NewGuid()}_{Path.GetFileName(MeasureFile.FileName)}";
+                    var filePath = Path.Combine(uploadsFolder, uniqueName);
+                    using var fs = new FileStream(filePath, FileMode.Create);
+                    await MeasureFile.CopyToAsync(fs);
+                    measure.FilePath = $"/uploads/measures/{uniqueName}";
+                }
+
                 _context.Add(measure);
                 await _context.SaveChangesAsync();
 

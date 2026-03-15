@@ -475,6 +475,23 @@
                                         </span>
                                     </td>
                                     <td class="text-center">
+                                        @{
+                                            var phaseMeasureFiles = phase.Measures?.Where(m => !string.IsNullOrEmpty(m.FilePath)).ToList();
+                                        }
+                                        @if (phaseMeasureFiles != null && phaseMeasureFiles.Any())
+                                        {
+                                            <div class="mb-1">
+                                                @foreach (var mf in phaseMeasureFiles)
+                                                {
+                                                    <a href="@mf.FilePath" target="_blank"
+                                                       class="btn btn-outline-secondary btn-sm action-btn mb-1"
+                                                       title="@mf.Name">
+                                                        <i class="fas fa-paperclip me-1"></i>
+                                                        <small>@(mf.Name.Length > 20 ? mf.Name[..20] + "…" : mf.Name)</small>
+                                                    </a>
+                                                }
+                                            </div>
+                                        }
                                         <div class="btn-group action-buttons" role="group">
                                             <a asp-controller="Measures" asp-action="Index" asp-route-phaseId="@phase.Id"
                                                class="btn btn-outline-info btn-sm action-btn" title="@Localizer["Measures"]">
