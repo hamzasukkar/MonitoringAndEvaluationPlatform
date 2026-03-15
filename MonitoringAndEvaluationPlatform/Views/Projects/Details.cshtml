@@ -480,14 +480,15 @@
                                         }
                                         @if (phaseMeasureFiles != null && phaseMeasureFiles.Any())
                                         {
-                                            <div class="mb-1">
+                                            <div class="mb-2 d-flex flex-wrap gap-1 justify-content-center">
                                                 @foreach (var mf in phaseMeasureFiles)
                                                 {
-                                                    <a href="@mf.FilePath" target="_blank"
-                                                       class="btn btn-outline-secondary btn-sm action-btn mb-1"
-                                                       title="@mf.Name">
-                                                        <i class="fas fa-paperclip me-1"></i>
-                                                        <small>@(mf.Name.Length > 20 ? mf.Name[..20] + "…" : mf.Name)</small>
+                                                    <a href="@mf.FilePath" target="_blank" class="text-decoration-none" title="@mf.Name">
+                                                        <span class="d-inline-flex align-items-center gap-1 px-2 py-1 rounded-pill border bg-white text-secondary" style="font-size:0.75rem; max-width:160px;">
+                                                            <i class="fas fa-file-alt text-primary"></i>
+                                                            <span class="text-truncate" style="max-width:110px;">@mf.Name</span>
+                                                            <i class="fas fa-download" style="font-size:0.65rem;"></i>
+                                                        </span>
                                                     </a>
                                                 }
                                             </div>
