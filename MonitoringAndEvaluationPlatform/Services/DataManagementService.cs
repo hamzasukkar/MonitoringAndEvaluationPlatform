@@ -53,8 +53,8 @@ namespace MonitoringAndEvaluationPlatform.Services
                 "Goals", "Targets", "sDGIndicators",
                 "Ministries", "Sectors", "Donors", "SuperVisors", "ProjectManagers",
                 "Governorates", "Districts", "SubDistricts", "Communities",
-                "Projects", "ActionPlans", "Activities", "Plans", "Measures",
-                "ProjectIndicators", "ProjectDonors", "ProjectFiles",
+                "Projects", "ProjectPhases", "ActionPlans", "Activities", "Plans", "Measures",
+                "ProjectDonors", "ProjectFiles",
                 "FrameworkGoals", "FrameworkGoalYearlyValues", "FrameworkGoalFiles"
             };
 
@@ -218,9 +218,9 @@ namespace MonitoringAndEvaluationPlatform.Services
                     GroupName = "Project Data",
                     Description = "Projects with associated action plans, activities, files, and relationships",
                     DangerLevel = "High",
-                    Tables = new List<string> { "Projects", "ActionPlans", "Activities", "ProjectIndicators", "ProjectDonors", "ProjectFiles" },
+                    Tables = new List<string> { "Projects", "ActionPlans", "Activities", "ProjectDonors", "ProjectFiles" },
                     TotalRecords = await _context.Projects.CountAsync() + await _context.ActionPlans.CountAsync() +
-                                   await _context.Activities.CountAsync() + await _context.ProjectIndicators.CountAsync() +
+                                   await _context.Activities.CountAsync() +
                                    await _context.ProjectDonors.CountAsync() + await _context.ProjectFiles.CountAsync()
                 },
                 new TableGroupViewModel
@@ -331,10 +331,11 @@ namespace MonitoringAndEvaluationPlatform.Services
         public async Task<DeleteProjectViewModel> GetProjectsForDeletionAsync(string? searchTerm = null)
         {
             var query = _context.Projects
-                .Include(p => p.ActionPlan)
-                    .ThenInclude(ap => ap.Activities)
-                        .ThenInclude(a => a.Plans)
-                .Include(p => p.ProjectIndicators)
+                .Include(p => p.Phases)
+                    .ThenInclude(pp => pp.ActionPlan)
+                        .ThenInclude(ap => ap.Activities)
+                            .ThenInclude(a => a.Plans)
+                .Include(p => p.Indicators)
                 .Include(p => p.ProjectFiles)
                 .Include(p => p.Ministry)
                 .AsQueryable();
@@ -350,10 +351,10 @@ namespace MonitoringAndEvaluationPlatform.Services
                 {
                     ProjectId = p.ProjectID,
                     ProjectName = p.ProjectName,
-                    ActionPlanCount = p.ActionPlan != null ? 1 : 0,
-                    ActivityCount = p.ActionPlan != null ? p.ActionPlan.Activities.Count : 0,
-                    PlanCount = p.ActionPlan != null ? p.ActionPlan.Activities.SelectMany(a => a.Plans).Count() : 0,
-                    IndicatorCount = p.ProjectIndicators.Count,
+                    ActionPlanCount = p.Phases.Count(pp => pp.ActionPlan != null),
+                    ActivityCount = p.Phases.Where(pp => pp.ActionPlan != null).SelectMany(pp => pp.ActionPlan!.Activities).Count(),
+                    PlanCount = p.Phases.Where(pp => pp.ActionPlan != null).SelectMany(pp => pp.ActionPlan!.Activities).SelectMany(a => a.Plans).Count(),
+                    IndicatorCount = p.Indicators.Count,
                     FileCount = p.ProjectFiles.Count,
                     StartDate = p.StartDate,
                     EndDate = p.EndDate,
@@ -378,10 +379,11 @@ namespace MonitoringAndEvaluationPlatform.Services
                 foreach (var projectId in projectIds)
                 {
                     var project = await _context.Projects
-                        .Include(p => p.ActionPlan)
-                            .ThenInclude(ap => ap.Activities)
-                                .ThenInclude(a => a.Plans)
-                        .Include(p => p.ProjectIndicators)
+                        .Include(p => p.Phases)
+                            .ThenInclude(pp => pp.ActionPlan)
+                                .ThenInclude(ap => ap.Activities)
+                                    .ThenInclude(a => a.Plans)
+                        .Include(p => p.Indicators)
                         .Include(p => p.ProjectDonors)
                         .Include(p => p.ProjectFiles)
                         .Include(p => p.Sectors)
@@ -394,28 +396,32 @@ namespace MonitoringAndEvaluationPlatform.Services
 
                     if (project == null) continue;
 
-                    // Store for recalculation
-                    var indicatorIds = project.ProjectIndicators.Select(pi => pi.IndicatorCode).ToList();
+                    // Store indicator codes for recalculation
+                    var indicatorCodes = project.Indicators.Select(i => i.IndicatorCode).ToList();
 
-                    // Delete Plans
-                    if (project.ActionPlan != null)
+                    // Delete Plans and ActionPlans from all phases
+                    foreach (var phase in project.Phases)
                     {
-                        foreach (var activity in project.ActionPlan.Activities)
+                        if (phase.ActionPlan != null)
                         {
-                            _context.Plans.RemoveRange(activity.Plans);
-                            totalDeleted += activity.Plans.Count;
+                            foreach (var activity in phase.ActionPlan.Activities)
+                            {
+                                _context.Plans.RemoveRange(activity.Plans);
+                                totalDeleted += activity.Plans.Count;
+                            }
+                            _context.Activities.RemoveRange(phase.ActionPlan.Activities);
+                            totalDeleted += phase.ActionPlan.Activities.Count;
+                            _context.ActionPlans.Remove(phase.ActionPlan);
+                            totalDeleted++;
                         }
-                        _context.Activities.RemoveRange(project.ActionPlan.Activities);
-                        totalDeleted += project.ActionPlan.Activities.Count;
-                        _context.ActionPlans.Remove(project.ActionPlan);
-                        totalDeleted++;
                     }
+                    _context.ProjectPhases.RemoveRange(project.Phases);
+                    totalDeleted += project.Phases.Count;
 
                     // Delete related data
-                    _context.ProjectIndicators.RemoveRange(project.ProjectIndicators);
                     _context.ProjectDonors.RemoveRange(project.ProjectDonors);
                     _context.ProjectFiles.RemoveRange(project.ProjectFiles);
-                    totalDeleted += project.ProjectIndicators.Count + project.ProjectDonors.Count + project.ProjectFiles.Count;
+                    totalDeleted += project.ProjectDonors.Count + project.ProjectFiles.Count;
 
                     // Clear many-to-many relationships
                     project.Sectors?.Clear();
@@ -432,9 +438,13 @@ namespace MonitoringAndEvaluationPlatform.Services
                     await _context.SaveChangesAsync();
 
                     // Recalculate performance for affected indicators
-                    if (indicatorIds.Any())
+                    foreach (var indicatorCode in indicatorCodes)
                     {
-                        await _planService.RecalculateIndicatorsPerformance(indicatorIds);
+                        var indicator = await _context.Indicators.FindAsync(indicatorCode);
+                        if (indicator != null)
+                        {
+                            await _planService.RecalculatePerformanceAfterIndicatorDeletion(indicator);
+                        }
                     }
                 }
 
@@ -510,11 +520,11 @@ namespace MonitoringAndEvaluationPlatform.Services
 
                 if (recalculateHierarchy && !resetProjectPerformance)
                 {
-                    // Get all indicator IDs and recalculate
-                    var allIndicatorIds = await _context.Indicators.Select(i => i.IndicatorCode).ToListAsync();
-                    if (allIndicatorIds.Any())
+                    // Get all indicators and recalculate performance hierarchy
+                    var allIndicators = await _context.Indicators.ToListAsync();
+                    foreach (var indicator in allIndicators)
                     {
-                        await _planService.RecalculateIndicatorsPerformance(allIndicatorIds);
+                        await _planService.RecalculatePerformanceAfterIndicatorDeletion(indicator);
                     }
                 }
 

@@ -289,11 +289,14 @@
 </form>
 
 <script>
+    const _strSecurityToken = '@Localizer["Security token not found. Please refresh the page."]';
+    const _strAnErrorOccurred = '@Localizer["An error occurred. Please try again."]';
+
     function deleteUser(userId, userName) {
         if (confirm('@Localizer["ConfirmDeleteUser"]'.replace('{0}', userName))) {
             var token = document.querySelector('input[name="__RequestVerificationToken"]');
             if (!token) {
-                alert('Security token not found. Please refresh the page.');
+                alert(_strSecurityToken);
                 return;
             }
             fetch('@Url.Action("DeleteUser", "Admin")', {
@@ -315,7 +318,7 @@
             })
             .catch(error => {
                 console.error('Error:', error);
-                alert('An error occurred. Please try again.');
+                alert(_strAnErrorOccurred);
             });
         }
     }
@@ -325,7 +328,7 @@
         if (newPassword) {
             var token = document.querySelector('input[name="__RequestVerificationToken"]');
             if (!token) {
-                alert('Security token not found. Please refresh the page.');
+                alert(_strSecurityToken);
                 return;
             }
             fetch('@Url.Action("ResetPassword", "Admin")', {
@@ -345,7 +348,7 @@
             })
             .catch(error => {
                 console.error('Error:', error);
-                alert('An error occurred. Please try again.');
+                alert(_strAnErrorOccurred);
             });
         }
     }
@@ -355,7 +358,7 @@
         if (confirm('@Localizer["ConfirmToggleLockout"]'.replace('{0}', action).replace('{1}', userName))) {
             var token = document.querySelector('input[name="__RequestVerificationToken"]');
             if (!token) {
-                alert('Security token not found. Please refresh the page.');
+                alert(_strSecurityToken);
                 return;
             }
             fetch('@Url.Action("ToggleLockout", "Admin")', {
@@ -375,7 +378,7 @@
             })
             .catch(error => {
                 console.error('Error:', error);
-                alert('An error occurred. Please try again.');
+                alert(_strAnErrorOccurred);
             });
         }
     }

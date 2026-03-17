@@ -52,8 +52,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                     .ThenInclude(oc => oc.Framework)
                 .Include(o => o.SubOutputs)
                     .ThenInclude(so => so.Indicators)
-                        .ThenInclude(i => i.ProjectIndicators)
-                            .ThenInclude(pi => pi.Project)
+                        .ThenInclude(i => i.Project)
                 .AsQueryable();
 
             // Apply framework filter if frameworkCode is provided
@@ -77,7 +76,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                     EF.Functions.Like(o.Name, $"%{searchString}%") ||
                     o.SubOutputs.Any(so => EF.Functions.Like(so.Name, $"%{searchString}%")) ||
                     o.SubOutputs.Any(so => so.Indicators.Any(i => EF.Functions.Like(i.Name, $"%{searchString}%"))) ||
-                    o.SubOutputs.Any(so => so.Indicators.Any(i => i.ProjectIndicators.Any(pi => EF.Functions.Like(pi.Project.ProjectName, $"%{searchString}%"))))
+                    o.SubOutputs.Any(so => so.Indicators.Any(i => i.Project != null && EF.Functions.Like(i.Project.ProjectName, $"%{searchString}%")))
                 );
             }
 
@@ -514,26 +513,23 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                             });
                         }
 
-                        // Check projects
-                        foreach (var projectIndicator in indicator.ProjectIndicators ?? Enumerable.Empty<ProjectIndicator>())
+                        // Check project
+                        if (indicator.Project?.ProjectName != null &&
+                            indicator.Project.ProjectName.ToLower().Contains(searchTerm))
                         {
-                            if (projectIndicator.Project?.ProjectName != null &&
-                                projectIndicator.Project.ProjectName.ToLower().Contains(searchTerm))
+                            outputResult.Matches.Add(new SearchMatch
                             {
-                                outputResult.Matches.Add(new SearchMatch
+                                Type = "Project",
+                                Name = indicator.Project.ProjectName,
+                                NavigationUrl = Url.Action("Details", "Projects", new { id = indicator.Project.ProjectID }),
+                                Icon = "fas fa-project-diagram",
+                                ParentPath = $"{output.Outcome?.Framework?.Name} > {output.Outcome?.Name} > {output.Name} > {subOutput.Name} > {indicator.Name}",
+                                Code = indicator.Project.ProjectID,
+                                Metadata = new Dictionary<string, object>
                                 {
-                                    Type = "Project",
-                                    Name = projectIndicator.Project.ProjectName,
-                                    NavigationUrl = Url.Action("Details", "Projects", new { id = projectIndicator.ProjectId }),
-                                    Icon = "fas fa-project-diagram",
-                                    ParentPath = $"{output.Outcome?.Framework?.Name} > {output.Outcome?.Name} > {output.Name} > {subOutput.Name} > {indicator.Name}",
-                                    Code = projectIndicator.ProjectId,
-                                    Metadata = new Dictionary<string, object>
-                                    {
-                                        { "IndicatorName", indicator.Name }
-                                    }
-                                });
-                            }
+                                    { "IndicatorName", indicator.Name }
+                                }
+                            });
                         }
                     }
                 }

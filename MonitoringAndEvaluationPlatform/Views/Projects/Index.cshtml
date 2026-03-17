@@ -352,13 +352,31 @@
                             <div class="date-filter-group">
                                 <div class="date-input-wrapper">
                                     <label class="date-label">@Localizer["From"]</label>
-                                    <input type="date" class="form-control form-control-sm date-filter-input"
-                                           name="StartDateFrom" value="@Model.StartDateFrom?.ToString("yyyy-MM-dd")" />
+                                    <div class="month-year-picker">
+                                        <input type="hidden" name="StartDateFrom" id="StartDateFrom" value="@(Model.StartDateFrom?.ToString("yyyy-MM") ?? "")" />
+                                        <div class="d-flex align-items-center gap-1">
+                                            <select class="form-control form-control-sm mypicker-month" style="max-width:65px">
+                                                <option value="">--</option>
+                                                @for (int _m = 1; _m <= 12; _m++) { <option value="@_m">@_m</option> }
+                                            </select>
+                                            <span class="text-muted fw-bold">/</span>
+                                            <input type="number" class="form-control form-control-sm mypicker-year" min="2000" max="2100" style="max-width:82px" placeholder="YYYY" />
+                                        </div>
+                                    </div>
                                 </div>
                                 <div class="date-input-wrapper">
                                     <label class="date-label">@Localizer["To"]</label>
-                                    <input type="date" class="form-control form-control-sm date-filter-input"
-                                           name="StartDateTo" value="@Model.StartDateTo?.ToString("yyyy-MM-dd")" />
+                                    <div class="month-year-picker">
+                                        <input type="hidden" name="StartDateTo" id="StartDateTo" value="@(Model.StartDateTo?.ToString("yyyy-MM") ?? "")" />
+                                        <div class="d-flex align-items-center gap-1">
+                                            <select class="form-control form-control-sm mypicker-month" style="max-width:65px">
+                                                <option value="">--</option>
+                                                @for (int _m = 1; _m <= 12; _m++) { <option value="@_m">@_m</option> }
+                                            </select>
+                                            <span class="text-muted fw-bold">/</span>
+                                            <input type="number" class="form-control form-control-sm mypicker-year" min="2000" max="2100" style="max-width:82px" placeholder="YYYY" />
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -368,13 +386,31 @@
                             <div class="date-filter-group">
                                 <div class="date-input-wrapper">
                                     <label class="date-label">@Localizer["From"]</label>
-                                    <input type="date" class="form-control form-control-sm date-filter-input"
-                                           name="EndDateFrom" value="@Model.EndDateFrom?.ToString("yyyy-MM-dd")" />
+                                    <div class="month-year-picker">
+                                        <input type="hidden" name="EndDateFrom" id="EndDateFrom" value="@(Model.EndDateFrom?.ToString("yyyy-MM") ?? "")" />
+                                        <div class="d-flex align-items-center gap-1">
+                                            <select class="form-control form-control-sm mypicker-month" style="max-width:65px">
+                                                <option value="">--</option>
+                                                @for (int _m = 1; _m <= 12; _m++) { <option value="@_m">@_m</option> }
+                                            </select>
+                                            <span class="text-muted fw-bold">/</span>
+                                            <input type="number" class="form-control form-control-sm mypicker-year" min="2000" max="2100" style="max-width:82px" placeholder="YYYY" />
+                                        </div>
+                                    </div>
                                 </div>
                                 <div class="date-input-wrapper">
                                     <label class="date-label">@Localizer["To"]</label>
-                                    <input type="date" class="form-control form-control-sm date-filter-input"
-                                           name="EndDateTo" value="@Model.EndDateTo?.ToString("yyyy-MM-dd")" />
+                                    <div class="month-year-picker">
+                                        <input type="hidden" name="EndDateTo" id="EndDateTo" value="@(Model.EndDateTo?.ToString("yyyy-MM") ?? "")" />
+                                        <div class="d-flex align-items-center gap-1">
+                                            <select class="form-control form-control-sm mypicker-month" style="max-width:65px">
+                                                <option value="">--</option>
+                                                @for (int _m = 1; _m <= 12; _m++) { <option value="@_m">@_m</option> }
+                                            </select>
+                                            <span class="text-muted fw-bold">/</span>
+                                            <input type="number" class="form-control form-control-sm mypicker-year" min="2000" max="2100" style="max-width:82px" placeholder="YYYY" />
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -514,10 +550,10 @@
                                             </div>
                                         </td>
                                         <td class="text-center">
-                                            <span class="date-cell">@item.StartDate.ToString("yyyy-MM-dd")</span>
+                                            <span class="date-cell">@item.StartDate.ToString("MMM yyyy")</span>
                                         </td>
                                         <td class="text-center">
-                                            <span class="date-cell">@item.EndDate.ToString("yyyy-MM-dd")</span>
+                                            <span class="date-cell">@item.EndDate.ToString("MMM yyyy")</span>
                                         </td>
                                         <td class="text-center">
                                             <span class="status-badge @statusClass">
@@ -1705,6 +1741,33 @@
                 });
         }
     });
+
+    // Month-Year Picker
+    (function () {
+        document.querySelectorAll('.month-year-picker').forEach(function (picker) {
+            var hidden = picker.querySelector('input[type="hidden"]');
+            var monthSel = picker.querySelector('.mypicker-month');
+            var yearInput = picker.querySelector('.mypicker-year');
+            if (hidden.value) {
+                var parts = hidden.value.split('-');
+                if (parts.length >= 2) {
+                    yearInput.value = parseInt(parts[0], 10);
+                    monthSel.value = parseInt(parts[1], 10);
+                }
+            }
+            function sync() {
+                var m = monthSel.value, y = yearInput.value;
+                if (m && y && y.length === 4) {
+                    hidden.value = String(parseInt(y)).padStart(4, '0') + '-' + String(parseInt(m)).padStart(2, '0');
+                } else {
+                    hidden.value = '';
+                }
+            }
+            monthSel.addEventListener('change', sync);
+            yearInput.addEventListener('change', sync);
+            yearInput.addEventListener('input', sync);
+        });
+    })();
 </script>
 }
 

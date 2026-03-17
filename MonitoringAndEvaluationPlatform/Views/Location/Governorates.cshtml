@@ -1,4 +1,6 @@
 ﻿@model IEnumerable<Governorate>
+@using Microsoft.AspNetCore.Mvc.Localization
+@inject IViewLocalizer Localizer
 
 @{
     ViewData["Title"] = "Governorates";
@@ -22,7 +24,7 @@
                 <td>
                     <a asp-action="EditGovernorate" asp-route-id="@gov.Code" class="btn btn-sm btn-warning">Edit</a>
                     <a asp-action="DeleteGovernorate" asp-route-id="@gov.Code" class="btn btn-sm btn-danger"
-                       onclick="return confirm('Are you sure you want to delete this governorate?');">Delete</a>
+                       onclick="return confirm('@Localizer["Are you sure you want to delete this governorate?"]');">@Localizer["Delete"]</a>
                 </td>
 
             </tr>

@@ -596,10 +596,9 @@
                                             {
                                                 @foreach (var indicator in frameworkIndicators)
                                                 {
-                                                    var indicatorProjects = indicator.ProjectIndicators
-                                                        .Select(pi => pi.Project)
-                                                        .Where(p => p != null)
-                                                        .ToList();
+                                                    var indicatorProjects = indicator.Project != null
+                                                        ? new List<MonitoringAndEvaluationPlatform.Models.Project> { indicator.Project }
+                                                        : new List<MonitoringAndEvaluationPlatform.Models.Project>();
                                                     var indPerf = Math.Round(indicator.IndicatorsPerformance, 1);
                                                     var indPerfClass = ProgressBarHelper.GetProgressBarClass(indicator.IndicatorsPerformance);
                                                     <div class="indicator-group">
@@ -1200,7 +1199,7 @@
                             });
                             Swal.fire({
                                 icon: 'success',
-                                title: 'Deleted!',
+                                title: '@Localizer["Deleted!"]',
                                 text: '@Localizer["Framework has been deleted successfully."]',
                                 timer: 2000,
                                 showConfirmButton: false

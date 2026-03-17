@@ -479,6 +479,37 @@
                     <input type="text" inputmode="decimal" class="form-control decimal-input" id="targetValue" name="TargetValue" required placeholder="0.00" />
                 </div>
             </div>
+            <!-- Manual Yearly Targets Option -->
+            <div class="row mb-3">
+                <div class="col-12">
+                    <div class="form-check form-switch">
+                        <input class="form-check-input" type="checkbox" id="manualYearlyTargets" name="ManualYearlyTargets" value="true" onchange="onManualTargetsToggle()" />
+                        <input type="hidden" name="ManualYearlyTargets" value="false" />
+                        <label class="form-check-label fw-semibold" for="manualYearlyTargets">
+                            <i class="fas fa-edit me-1 text-warning"></i>@Localizer["Set Expected Targets Manually"]
+                        </label>
+                        <div class="form-text text-muted">
+                            @Localizer["When enabled, you can set the expected target values for each intermediate year manually instead of using the auto-calculated linear values. This setting cannot be changed after creation."]
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Manual Expected Targets Section (shown only when checkbox is checked) -->
+            <div id="manualTargetsSection" style="display:none;" class="mb-3">
+                <div class="card border-warning">
+                    <div class="card-header bg-warning bg-opacity-10">
+                        <h6 class="mb-0 text-warning">
+                            <i class="fas fa-sliders-h me-2"></i>@Localizer["Manual Expected Targets for Intermediate Years"]
+                        </h6>
+                        <small class="text-muted">@Localizer["Set the expected target value for each year between Starting Year and Target Year (excluding Starting Year, Current Year, and Target Year)."]</small>
+                    </div>
+                    <div class="card-body" id="manualTargetsInputs">
+                        <p class="text-muted small">@Localizer["Fill in all year and value fields above first, then check the checkbox to enter manual targets."]</p>
+                    </div>
+                </div>
+            </div>
+
             <div class="d-flex gap-2">
                 <button type="submit" class="btn btn-success">
                     <i class="fas fa-save me-2"></i>@Localizer["Save Goal"]
@@ -1730,32 +1761,31 @@
                     const expectedTargetForYear = dataForYear.expected;
                     const startingBaseValue = parseFloat(row.getAttribute('data-base-value-starting'));
 
-                    // Calculate difference based on goal direction
-                    // Upward target (target > base): we want actual to INCREASE, so difference = actual - base
-                    // Downward target (target < base): we want actual to DECREASE, so difference = base - actual
-                    const difference = isIncreaseGoal
-                        ? (actualValueForYear - startingBaseValue)  // Upward: positive = progress
-                        : (startingBaseValue - actualValueForYear); // Downward: positive = progress
+                    // Calculate actual progress and expected progress using the correct
+                    // expected target (respects manual mode — already resolved server-side).
+                    const actualChange = isIncreaseGoal
+                        ? (actualValueForYear - startingBaseValue)
+                        : (startingBaseValue - actualValueForYear);
+
+                    const expectedChange = isIncreaseGoal
+                        ? (expectedTargetForYear - startingBaseValue)
+                        : (startingBaseValue - expectedTargetForYear);
 
                     // Special case: Base Year performance is always 0%
                     if (selectedYear === startingYear) {
                         valueSpan.className = 'performance-value fw-bold text-danger';
                         valueSpan.textContent = '0.00%';
-                    } else if (difference === 0) {
+                    } else if (actualChange === 0) {
                         // No change from base value
                         valueSpan.className = 'performance-value fw-bold text-danger';
                         valueSpan.textContent = '0.00%';
-                    } else if (difference < 0) {
+                    } else if (actualChange < 0) {
                         // Moving in wrong direction (negative progress)
                         valueSpan.className = 'performance-value fw-bold text-danger';
                         valueSpan.textContent = '0.00%';
-                    } else if (discountRate !== 0) {
-                        // Positive difference means progress in the right direction
-                        // Formula: difference / (discountRate * yearDiff) * 100
-                        const yearDiff = selectedYear - startingYear;
-
-                        const performance = (difference / (discountRate * yearDiff));
-                        const percentage = performance * 100;
+                    } else if (expectedChange !== 0) {
+                        // Progress rate = (actual change from base) / (expected change from base) × 100
+                        const percentage = (actualChange / expectedChange) * 100;
 
                         // Color coding based on performance percentage
                         if (percentage >= 100) {
@@ -2194,6 +2224,8 @@
                 form.style.display = 'none';
                 btn.innerHTML = '<i class="fas fa-plus me-2"></i>@Localizer["Add New Goal"]';
                 document.getElementById('createGoalForm').reset();
+                document.getElementById('manualTargetsSection').style.display = 'none';
+                document.getElementById('manualTargetsInputs').innerHTML = '';
             }
         }
 
@@ -2204,6 +2236,65 @@
             }
             return value;
         }
+
+        // Build manual expected targets inputs based on selected years
+        function onManualTargetsToggle() {
+            const checkbox = document.getElementById('manualYearlyTargets');
+            const section = document.getElementById('manualTargetsSection');
+            section.style.display = checkbox.checked ? '' : 'none';
+            if (checkbox.checked) {
+                buildManualTargetInputs();
+            }
+        }
+
+        function buildManualTargetInputs() {
+            const startingYear = parseInt(document.getElementById('startingYear').value);
+            const currentYear = parseInt(document.getElementById('currentYear').value);
+            const targetYear = parseInt(document.getElementById('targetYear').value);
+            const container = document.getElementById('manualTargetsInputs');
+
+            if (!startingYear || !currentYear || !targetYear || startingYear >= targetYear) {
+                container.innerHTML = '<p class="text-muted small">@Localizer["Fill in all year fields above first, then check the checkbox to enter manual targets."]</p>';
+                return;
+            }
+
+            // Collect intermediate years (exclude startingYear, currentYear, targetYear)
+            const intermediateYears = [];
+            for (let y = startingYear + 1; y < targetYear; y++) {
+                if (y !== currentYear) {
+                    intermediateYears.push(y);
+                }
+            }
+
+            if (intermediateYears.length === 0) {
+                container.innerHTML = '<p class="text-muted small">@Localizer["No intermediate years to set. All years between Starting Year and Target Year (excluding Current Year) are already covered."]</p>';
+                return;
+            }
+
+            let html = '<div class="row">';
+            intermediateYears.forEach(function(year, idx) {
+                html += `
+                    <div class="col-md-3 mb-3">
+                        <label class="form-label fw-semibold">${year}</label>
+                        <input type="hidden" name="ManualTargetYears[${idx}]" value="${year}" />
+                        <input type="text" inputmode="decimal" class="form-control decimal-input"
+                               name="ManualTargetValues[${idx}]"
+                               placeholder="0.00"
+                               required />
+                    </div>`;
+            });
+            html += '</div>';
+            container.innerHTML = html;
+        }
+
+        // Re-build manual targets when year picker values change
+        ['startingYear', 'currentYear', 'targetYear'].forEach(function(id) {
+            document.getElementById(id).addEventListener('change', function() {
+                if (document.getElementById('manualYearlyTargets').checked) {
+                    buildManualTargetInputs();
+                }
+            });
+        });
 
         // Handle form submission
         document.getElementById('createGoalForm').addEventListener('submit', async function(e) {
@@ -2220,6 +2311,7 @@
             const baseValueCurrent = normalizeDecimal(document.getElementById('baseValueCurrent').value);
             const targetYear = document.getElementById('targetYear').value;
             const targetValue = normalizeDecimal(document.getElementById('targetValue').value);
+            const manualYearlyTargets = document.getElementById('manualYearlyTargets').checked;
 
             // Client-side validation
             if (!name || !frameworkCode || !startingYear || !baseValueStarting || !currentYear || !baseValueCurrent || !targetYear || !targetValue) {
@@ -2243,7 +2335,20 @@
             formData.append('BaseValueForCurrentYear', baseValueCurrent);
             formData.append('TargetYear', targetYear);
             formData.append('TargetValue', targetValue);
+            formData.append('ManualYearlyTargets', manualYearlyTargets ? 'true' : 'false');
             formData.append('__RequestVerificationToken', token);
+
+            // Append manual target year/value pairs if enabled
+            if (manualYearlyTargets) {
+                const yearInputs = document.querySelectorAll('#manualTargetsInputs input[name^="ManualTargetYears"]');
+                const valueInputs = document.querySelectorAll('#manualTargetsInputs input[name^="ManualTargetValues"]');
+                yearInputs.forEach(function(input, idx) {
+                    formData.append(input.name, input.value);
+                });
+                valueInputs.forEach(function(input, idx) {
+                    formData.append(input.name, normalizeDecimal(input.value));
+                });
+            }
 
             // Debug logging
             console.log('Submitting form with values:', {

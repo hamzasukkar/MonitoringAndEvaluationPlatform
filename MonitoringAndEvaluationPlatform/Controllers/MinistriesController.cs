@@ -276,9 +276,10 @@ namespace MonitoringAndEvaluationPlatform.Controllers
 
             var ministry = await _context.Ministries
                 .Include(m => m.Projects)
-                    .ThenInclude(p => p.ProjectIndicators)
-                        .ThenInclude(pi => pi.Indicator)
-                            .ThenInclude(i => i.Measures)
+                    .ThenInclude(p => p.Indicators)
+                .Include(m => m.Projects)
+                    .ThenInclude(p => p.Phases)
+                        .ThenInclude(pp => pp.Measures)
                 .FirstOrDefaultAsync(m => m.Code == id);
 
             if (ministry == null)
@@ -293,23 +294,27 @@ namespace MonitoringAndEvaluationPlatform.Controllers
 
             foreach (var project in ministry.Projects)
             {
+                // Get all measures for this project (from all phases)
+                var projectMeasures = project.Phases.SelectMany(pp => pp.Measures).ToList();
+                double measuresSum = projectMeasures.Sum(m => m.Value);
+
                 var projectBreakdown = new
                 {
                     ProjectId = project.ProjectID,
                     ProjectName = project.ProjectName,
-                    Indicators = project.ProjectIndicators.Select(pi => new
+                    Indicators = project.Indicators.Select(i => new
                     {
-                        IndicatorCode = pi.Indicator.IndicatorCode,
-                        IndicatorName = pi.Indicator.Name,
-                        Weight = pi.Indicator.Weight > 0 ? pi.Indicator.Weight : 1,
-                        Target = pi.Indicator.Target,
-                        Achieved = pi.Indicator.Measures.Sum(m => m.Value),
-                        WeightedTarget = pi.Indicator.Target * (pi.Indicator.Weight > 0 ? pi.Indicator.Weight : 1),
-                        WeightedAchieved = pi.Indicator.Measures.Sum(m => m.Value) * (pi.Indicator.Weight > 0 ? pi.Indicator.Weight : 1),
-                        Performance = pi.Indicator.Target > 0
-                            ? (pi.Indicator.Measures.Sum(m => m.Value) / pi.Indicator.Target) * 100
+                        IndicatorCode = i.IndicatorCode,
+                        IndicatorName = i.Name,
+                        Weight = i.Weight > 0 ? i.Weight : 1,
+                        Target = i.Target,
+                        Achieved = measuresSum,
+                        WeightedTarget = i.Target * (i.Weight > 0 ? i.Weight : 1),
+                        WeightedAchieved = measuresSum * (i.Weight > 0 ? i.Weight : 1),
+                        Performance = i.Target > 0
+                            ? (measuresSum / i.Target) * 100
                             : 0,
-                        Measures = pi.Indicator.Measures.Select(m => new
+                        Measures = projectMeasures.Select(m => new
                         {
                             MeasureCode = m.Code,
                             Value = m.Value,

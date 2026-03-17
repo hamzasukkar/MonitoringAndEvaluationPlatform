@@ -282,4 +282,82 @@
   <data name="Target Reached" xml:space="preserve">
     <value>تم بلوغ الهدف</value>
   </data>
+  <data name="Selected Phase" xml:space="preserve">
+    <value>المرحلة المحددة</value>
+  </data>
+  <data name="Phase" xml:space="preserve">
+    <value>المرحلة</value>
+  </data>
+  <data name="Phase Name" xml:space="preserve">
+    <value>اسم المرحلة</value>
+  </data>
+  <data name="Total Achievement" xml:space="preserve">
+    <value>إجمالي الإنجاز</value>
+  </data>
+  <data name="No measures have been added for this phase yet. Use the form above to add the first measure." xml:space="preserve">
+    <value>لم تُضَف أي إنجازات لهذه المرحلة بعد. استخدم النموذج أعلاه لإضافة الإنجاز الأول.</value>
+  </data>
+  <data name="Measure added successfully and phase performance updated" xml:space="preserve">
+    <value>تمت إضافة الإنجاز بنجاح وتم تحديث أداء المرحلة</value>
+  </data>
+  <data name="Name" xml:space="preserve">
+    <value>الاسم</value>
+  </data>
+  <data name="Note" xml:space="preserve">
+    <value>ملاحظة</value>
+  </data>
+  <data name="Measure name" xml:space="preserve">
+    <value>اسم الإنجاز</value>
+  </data>
+  <data name="Optional note or description" xml:space="preserve">
+    <value>ملاحظة أو وصف اختياري</value>
+  </data>
+  <data name="Measure Details" xml:space="preserve">
+    <value>تفاصيل الإنجاز</value>
+  </data>
+  <data name="Quantity" xml:space="preserve">
+    <value>الكمية</value>
+  </data>
+  <data name="Unit" xml:space="preserve">
+    <value>الوحدة</value>
+  </data>
+  <data name="How many" xml:space="preserve">
+    <value>كم عدد</value>
+  </data>
+  <data name="e.g. tree, km, household" xml:space="preserve">
+    <value>مثال: شجرة، كم، أسرة</value>
+  </data>
+  <data name="Target Quantity" xml:space="preserve">
+    <value>الكمية المستهدفة</value>
+  </data>
+  <data name="Achievement Calculation" xml:space="preserve">
+    <value>طريقة احتساب الإنجاز</value>
+  </data>
+  <data name="Value = (Quantity ÷ Target Quantity) × 100%" xml:space="preserve">
+    <value>القيمة = (الكمية ÷ الكمية المستهدفة) × 100%</value>
+  </data>
+  <data name="Auto-calculated" xml:space="preserve">
+    <value>محتسب تلقائياً</value>
+  </data>
+  <data name="Auto-calculated from Quantity ÷" xml:space="preserve">
+    <value>محتسب تلقائياً من الكمية ÷</value>
+  </data>
+  <data name="Quantity is required when a target is set." xml:space="preserve">
+    <value>الكمية مطلوبة عند تحديد هدف.</value>
+  </data>
+  <data name="Unit" xml:space="preserve">
+    <value>الوحدة</value>
+  </data>
+  <data name="Start Date" xml:space="preserve">
+    <value>تاريخ البداية</value>
+  </data>
+  <data name="End Date" xml:space="preserve">
+    <value>تاريخ النهاية</value>
+  </data>
+  <data name="Attachment" xml:space="preserve">
+    <value>المرفق</value>
+  </data>
+  <data name="Optional file attachment" xml:space="preserve">
+    <value>مرفق ملف اختياري</value>
+  </data>
 </root>

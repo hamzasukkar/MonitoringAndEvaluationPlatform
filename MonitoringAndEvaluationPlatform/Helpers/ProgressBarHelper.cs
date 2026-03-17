@@ -14,6 +14,19 @@
             };
         }
 
+        public static string GetBadgeClass(double value)
+        {
+            return value switch
+            {
+                >= 100 => "badge-done",
+                >= 80 => "badge-success",
+                >= 60 => "badge-warning",
+                >= 40 => "badge-orange",
+                >= 20 => "badge-danger",
+                _ => "badge-danger"
+            };
+        }
+
         public static string GetTrendImage(double trend)
         {
             return trend switch

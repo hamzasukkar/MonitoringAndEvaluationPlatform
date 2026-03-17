@@ -20,14 +20,36 @@
                     @Localizer["Projects"]
                 </a>
                 <i class="fas fa-chevron-right breadcrumb-separator"></i>
+                @if (ViewBag.ProjectID != null)
+                {
+                    <a href="@Url.Action("Details", "Projects", new { id = ViewBag.ProjectID, tab = "phases" })" class="breadcrumb-link">
+                        @Localizer["Project"]
+                    </a>
+                    <i class="fas fa-chevron-right breadcrumb-separator"></i>
+                }
+                @if (ViewBag.PhaseName != null)
+                {
+                    <span class="breadcrumb-link-inactive">@ViewBag.PhaseName</span>
+                    <i class="fas fa-chevron-right breadcrumb-separator"></i>
+                }
                 <span class="current-page">@Localizer["Action Plan"]</span>
             </div>
             <h1 class="page-title">@Localizer["Project Action Plan"]</h1>
-            <p class="page-description">@Localizer["Detailed planning and execution tracking"]</p>
+            <p class="page-description">
+                @if (ViewBag.PhaseName != null)
+                {
+                    <span>@Localizer["Phase"]: <strong>@ViewBag.PhaseName</strong> — </span>
+                }
+                @Localizer["Detailed planning and execution tracking"]
+            </p>
         </div>
         
         <div class="header-actions">
-            <a href="@Url.Action("Details", "Projects", new { id = ViewBag.ProjectID })" class="action-btn secondary">
+            <a href="@Url.Action("Create", "Activities", new { actionPlanCode = ViewBag.ActionPlanCode })" class="action-btn primary">
+                <i class="fas fa-plus"></i>
+                @Localizer["Add Activity"]
+            </a>
+            <a href="@Url.Action("Details", "Projects", new { id = ViewBag.ProjectID, tab = "phases" })" class="action-btn secondary">
                 <i class="fas fa-arrow-left"></i>
                 @Localizer["Back to Project"]
             </a>
@@ -42,26 +64,17 @@
             <div class="navbar-collapse" id="projectNavbar">
                 <ul class="modern-nav-list">
                     <li class="nav-item-modern">
-                        <a asp-action="Details" asp-controller="Projects" asp-route-id="@ViewBag.ProjectID" class="nav-link-modern">
+                        <a asp-action="Details" asp-controller="Projects" asp-route-id="@ViewBag.ProjectID" asp-route-tab="phases" class="nav-link-modern">
                             <i class="fas fa-project-diagram me-2"></i>@Localizer["Project"]
                         </a>
                     </li>
                     <li class="nav-item-modern">
-                        @if (ViewBag.FirstIndicatorCode != null)
-                        {
-                            <a asp-action="Index" asp-controller="Measures" asp-route-indicatorId="@ViewBag.FirstIndicatorCode" class="nav-link-modern" title="@Localizer["View measures for indicator"]">
-                                <i class="fas fa-ruler-combined me-2"></i>@Localizer["Measures"]
-                            </a>
-                        }
-                        else
-                        {
-                            <a asp-action="Index" asp-controller="Measures" class="nav-link-modern" title="@Localizer["No indicators linked to this project yet"]">
-                                <i class="fas fa-ruler-combined me-2"></i>@Localizer["Measures"]
-                            </a>
-                        }
+                        <a asp-action="Index" asp-controller="Measures" asp-route-phaseId="@ViewBag.PhaseId" class="nav-link-modern">
+                            <i class="fas fa-ruler-combined me-2"></i>@Localizer["Measures"]
+                        </a>
                     </li>
                     <li class="nav-item-modern">
-                        <a asp-controller="ActionPlans" asp-action="ActionPlan" asp-route-id="@ViewBag.ProjectID" class="nav-link-modern active" aria-current="page">
+                        <a asp-controller="ActionPlans" asp-action="ActionPlan" asp-route-phaseId="@ViewBag.PhaseId" class="nav-link-modern active" aria-current="page">
                             <i class="fas fa-tasks me-2"></i>@Localizer["Action Plans"]
                         </a>
                     </li>
@@ -84,7 +97,7 @@
             </div>
         </div>
         <div class="metric-value">
-            @projectTotalPlannedCost.ToString("C0")
+            @ViewBag.CurrencySymbol@((ViewBag.PhaseBudget as double? ?? 0).ToString("N0"))
         </div>
     </div>
 
@@ -99,7 +112,7 @@
             </div>
         </div>
         <div class="metric-value">
-            @projectTotalRealisedCost.ToString("C0")
+            @ViewBag.CurrencySymbol@projectTotalRealisedCost.ToString("N0")
         </div>
     </div>
 </div>
@@ -150,23 +163,13 @@
                                         }
 
                                         <optgroup label="@displayName">
-                                            @for (int i = 0; i < activity.Plans.Count; i++)
+                                            @foreach (var plan in activity.Plans)
                                             {
-                                                var plan = activity.Plans[i];
-                                                string planLabel = "";
-                                                if (projectMonthsList != null && projectMonthsList.Count > i)
-                                                {
-                                                    planLabel = projectMonthsList[i].ToString("MMM yyyy");
-                                                }
-                                                else
-                                                {
-                                                    planLabel = $"{Localizer["Plan"]} {i + 1}";
-                                                }
                                                 <option value="@plan.PlanCode"
                                                         data-planned="@plan.PlannedValue"
                                                         data-realised="@plan.RealisedValue"
                                                         data-activity="@displayName">
-                                                    @planLabel
+                                                    @plan.Date.ToString("MMM yyyy")
                                                 </option>
                                             }
                                         </optgroup>
@@ -307,15 +310,15 @@
                                 <td class="framework-label-cell">@Localizer["Planned"]</td>
                                 @if (projectMonths != null && projectMonths.Any())
                                 {
-                                    @for (int i = 0; i < projectMonths.Count; i++)
+                                    @foreach (var month in projectMonths)
                                     {
-                                        @if (i < activity.Plans.Count)
+                                        var plannedPlan = activity.Plans.FirstOrDefault(p => p.Date.Year == month.Year && p.Date.Month == month.Month);
+                                        @if (plannedPlan != null)
                                         {
-                                            var plan = activity.Plans[i];
                                             <td class="editable-plan-cell" contenteditable="true"
-                                                data-plan-code="@plan.PlanCode"
+                                                data-plan-code="@plannedPlan.PlanCode"
                                                 data-value-type="Planned">
-                                                @plan.PlannedValue
+                                                @plannedPlan.PlannedValue
                                             </td>
                                         }
                                         else
@@ -345,15 +348,15 @@
                                 <td class="framework-label-cell">@Localizer["Realised"]</td>
                                 @if (projectMonths != null && projectMonths.Any())
                                 {
-                                    @for (int i = 0; i < projectMonths.Count; i++)
+                                    @foreach (var month in projectMonths)
                                     {
-                                        @if (i < activity.Plans.Count)
+                                        var realisedPlan = activity.Plans.FirstOrDefault(p => p.Date.Year == month.Year && p.Date.Month == month.Month);
+                                        @if (realisedPlan != null)
                                         {
-                                            var plan = activity.Plans[i];
                                             <td class="editable-plan-cell" contenteditable="true"
-                                                data-plan-code="@plan.PlanCode"
+                                                data-plan-code="@realisedPlan.PlanCode"
                                                 data-value-type="Realised">
-                                                @plan.RealisedValue
+                                                @realisedPlan.RealisedValue
                                             </td>
                                         }
                                         else
@@ -386,9 +389,9 @@
                             <td colspan="2">@Localizer["Subtotal Planned"]</td>
                             @if (projectMonths != null && projectMonths.Any())
                             {
-                                @for (int i = 0; i < projectMonths.Count; i++)
+                                @foreach (var subMonth in projectMonths)
                                 {
-                                    <td>@activityGroup.Activities.Sum(a => a.Plans.Count > i ? a.Plans[i].PlannedValue : 0)</td>
+                                    <td>@activityGroup.Activities.Sum(a => a.Plans.FirstOrDefault(p => p.Date.Year == subMonth.Year && p.Date.Month == subMonth.Month)?.PlannedValue ?? 0)</td>
                                 }
                             }
                             else
@@ -404,9 +407,9 @@
                             <td colspan="2">@Localizer["Subtotal Realised"]</td>
                             @if (projectMonths != null && projectMonths.Any())
                             {
-                                @for (int i = 0; i < projectMonths.Count; i++)
+                                @foreach (var subMonth in projectMonths)
                                 {
-                                    <td>@activityGroup.Activities.Sum(a => a.Plans.Count > i ? a.Plans[i].RealisedValue : 0)</td>
+                                    <td>@activityGroup.Activities.Sum(a => a.Plans.FirstOrDefault(p => p.Date.Year == subMonth.Year && p.Date.Month == subMonth.Month)?.RealisedValue ?? 0)</td>
                                 }
                             }
                             else
@@ -433,16 +436,25 @@
         <div class="empty-state-icon">
             <i class="fas fa-clipboard-list"></i>
         </div>
-        <h3 class="empty-state-title">@Localizer["No Action Plans"]</h3>
+        <h3 class="empty-state-title">@Localizer["No Activities Yet"]</h3>
         <p class="empty-state-text">
-            @Localizer["No action plans have been created for this project yet. Start by creating your first action plan to track project activities."]
+            @Localizer["No activities have been added to this action plan yet. Add your first activity to start tracking progress."]
         </p>
+        <a href="@Url.Action("Create", "Activities", new { actionPlanCode = ViewBag.ActionPlanCode })"
+           class="btn btn-primary mt-3">
+            <i class="fas fa-plus me-2"></i>@Localizer["Add Activity"]
+        </a>
     </div>
 }
 
 @section Scripts {
     <style>
         /* Modern Action Plan Styles */
+        .breadcrumb-link-inactive {
+            color: rgba(255,255,255,0.75);
+            font-size: 0.85rem;
+        }
+
         /* Modern Project Navigation */
         .project-nav-modern {
             background: rgba(255, 255, 255, 0.95);

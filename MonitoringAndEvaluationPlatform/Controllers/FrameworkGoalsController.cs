@@ -40,7 +40,8 @@ namespace MonitoringAndEvaluationPlatform.Controllers
 
             IQueryable<FrameworkGoal> goalsQuery = _context.FrameworkGoals
                 .Include(fg => fg.Framework)
-                .Include(fg => fg.YearlyValues);
+                .Include(fg => fg.YearlyValues)
+                .Include(fg => fg.ManualExpectedTargets);
 
             if (frameworkCode.HasValue)
             {
@@ -227,11 +228,35 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                     BaseValueForCurrentYear = baseValueCurrent,
                     TargetYear = model.TargetYear,
                     TargetValue = targetValue,
-                    FrameworkCode = model.FrameworkCode
+                    FrameworkCode = model.FrameworkCode,
+                    ManualYearlyTargets = model.ManualYearlyTargets
                 };
 
                 _context.Add(frameworkGoal);
                 await _context.SaveChangesAsync();
+
+                // Save manual expected targets if enabled
+                if (model.ManualYearlyTargets && model.ManualTargetYears != null)
+                {
+                    for (int i = 0; i < model.ManualTargetYears.Count; i++)
+                    {
+                        var year = model.ManualTargetYears[i];
+                        // Skip years that are not intermediate (starting, current, target are auto-calculated)
+                        if (year <= model.StartingYear || year >= model.TargetYear || year == model.CurrentYear)
+                            continue;
+
+                        var rawValue = i < model.ManualTargetValues.Count ? model.ManualTargetValues[i] : "0";
+                        var expectedValue = FrameworkGoalCreateModel.ParseDecimal(rawValue);
+
+                        _context.FrameworkGoalManualExpectedTargets.Add(new FrameworkGoalManualExpectedTarget
+                        {
+                            FrameworkGoalID = frameworkGoal.ID,
+                            Year = year,
+                            ExpectedTargetValue = expectedValue
+                        });
+                    }
+                    await _context.SaveChangesAsync();
+                }
 
                 // Return the created goal data for frontend update
                 return Json(new
@@ -1001,12 +1026,19 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         public string TargetValue { get; set; } = string.Empty;
         public int FrameworkCode { get; set; }
 
+        // When true, expected target values for intermediate years are provided manually
+        public bool ManualYearlyTargets { get; set; } = false;
+
+        // Parallel lists for manual expected target years and their values
+        public List<int> ManualTargetYears { get; set; } = new List<int>();
+        public List<string> ManualTargetValues { get; set; } = new List<string>();
+
         // Helper method to parse decimal values (handles both comma and period)
         public double GetBaseValueForStartingYear() => ParseDecimal(BaseValueForStartingYear);
         public double GetBaseValueForCurrentYear() => ParseDecimal(BaseValueForCurrentYear);
         public double GetTargetValue() => ParseDecimal(TargetValue);
 
-        private static double ParseDecimal(string value)
+        public static double ParseDecimal(string value)
         {
             if (string.IsNullOrWhiteSpace(value)) return 0;
             // Replace comma with period and parse using invariant culture

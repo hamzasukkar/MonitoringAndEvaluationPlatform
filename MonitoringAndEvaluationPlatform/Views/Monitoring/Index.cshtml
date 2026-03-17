@@ -116,8 +116,16 @@
             var indicators = subOutputs.SelectMany(subOutput => subOutput.Indicators);
 
             var projectCount = indicators
-            .SelectMany(indicator => indicator.ProjectIndicators)
-            .Select(pi => pi.Project)
+            .Select(indicator => indicator.Project)
+            .Where(p => p != null)
+            .Distinct()
+            .Count();
+
+            var phaseCount = indicators
+            .Select(indicator => indicator.Project)
+            .Where(p => p != null)
+            .SelectMany(p => p!.Phases)
+            .Select(ph => ph.Id)
             .Distinct()
             .Count();
 
@@ -247,6 +255,19 @@
                                 <div class="nav-stat-content">
                                     <div class="nav-stat-value">@projectCount</div>
                                     <div class="nav-stat-label">@Localizer["Projects"]</div>
+                                </div>
+                                <div class="nav-stat-arrow">
+                                    <i class="fas fa-chevron-right"></i>
+                                </div>
+                            </a>
+
+                            <a asp-controller="Monitoring" asp-action="Phase" asp-route-frameworkCode="@item.Code" class="nav-stat-card phases-card">
+                                <div class="nav-stat-icon">
+                                    <i class="fas fa-layer-group"></i>
+                                </div>
+                                <div class="nav-stat-content">
+                                    <div class="nav-stat-value">@phaseCount</div>
+                                    <div class="nav-stat-label">@Localizer["Project Phases"]</div>
                                 </div>
                                 <div class="nav-stat-arrow">
                                     <i class="fas fa-chevron-right"></i>
@@ -969,6 +990,7 @@
     .suboutputs-card .nav-stat-icon { background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); }
     .indicators-card .nav-stat-icon { background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%); }
     .projects-card .nav-stat-icon { background: linear-gradient(135deg, #fa709a 0%, #fee140 100%); }
+    .phases-card .nav-stat-icon { background: linear-gradient(135deg, #a18cd1 0%, #fbc2eb 100%); }
 
     .nav-stat-content {
         flex: 1;
@@ -1103,6 +1125,7 @@
             font-size: 1.5rem;
         }
     }
+
 </style>
 
 <script>
@@ -1417,6 +1440,7 @@
             setTimeout(() => this.classList.remove('active'), 300);
         });
     });
+
 </script>
 
 @section Modals {

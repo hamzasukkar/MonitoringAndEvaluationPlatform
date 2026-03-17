@@ -1,4 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations;
 using MonitoringAndEvaluationPlatform.Enums;
 
 namespace MonitoringAndEvaluationPlatform.Models
@@ -30,12 +30,9 @@ namespace MonitoringAndEvaluationPlatform.Models
         public string Description { get; set; } = string.Empty;
         public string MethodOfComputation { get; set; } = string.Empty;
         public string Comment { get; set; } = string.Empty;
-        public ICollection<Measure> Measures { get; set; } = new List<Measure>();
 
-        // New: Many-to-many with Project
-        public ICollection<ProjectIndicator> ProjectIndicators { get; set; } = new List<ProjectIndicator>();
-
-        //virtual public Program Program { get; set; }
-
+        // Each indicator is associated with exactly one project (nullable for indicators not yet linked)
+        public int? ProjectID { get; set; }
+        public virtual Project? Project { get; set; }
     }
 }

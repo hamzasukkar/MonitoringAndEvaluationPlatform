@@ -26,6 +26,7 @@
         @foreach (var item in Model)
         {
             var projectCount = ViewBag.ProjectCounts[item.Code];
+            var phaseCount = (ViewBag.PhaseCounts as Dictionary<int, int>)?[item.Code] ?? 0;
 
             var metrics = new[]
             {
@@ -110,6 +111,19 @@
                             <div class="nav-stat-content">
                                 <div class="nav-stat-value">@projectCount</div>
                                 <div class="nav-stat-label">@Localizer["Projects"]</div>
+                            </div>
+                            <div class="nav-stat-arrow">
+                                <i class="fas fa-chevron-right"></i>
+                            </div>
+                        </a>
+
+                        <a asp-controller="Monitoring" asp-action="Phase" asp-route-subOutputCode="@item.Code" class="nav-stat-card phases-card">
+                            <div class="nav-stat-icon">
+                                <i class="fas fa-layer-group"></i>
+                            </div>
+                            <div class="nav-stat-content">
+                                <div class="nav-stat-value">@phaseCount</div>
+                                <div class="nav-stat-label">@Localizer["Project Phases"]</div>
                             </div>
                             <div class="nav-stat-arrow">
                                 <i class="fas fa-chevron-right"></i>
@@ -464,6 +478,7 @@
 
     .indicators-card .nav-stat-icon { background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%); }
     .projects-card .nav-stat-icon { background: linear-gradient(135deg, #fa709a 0%, #fee140 100%); }
+    .phases-card .nav-stat-icon { background: linear-gradient(135deg, #a18cd1 0%, #fbc2eb 100%); }
 
     .nav-stat-content {
         flex: 1;

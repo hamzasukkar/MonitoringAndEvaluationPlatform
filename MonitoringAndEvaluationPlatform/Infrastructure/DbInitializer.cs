@@ -262,20 +262,20 @@ namespace MonitoringAndEvaluationPlatform.Infrastructure
                 {
                     var donors = new List<Donor>
                     {
-                        new Donor { Partner = "OCHA" }, // Remove explicit Code if using auto-increment
-                        new Donor { Partner = "UNHCR 2" },
-                        new Donor { Partner = "WFP" },
-                        new Donor { Partner = "UNICEF" },
-                        new Donor { Partner = "WHO" },
-                        new Donor { Partner = "UNDP" },
-                        new Donor { Partner = "FAO" },
-                        new Donor { Partner = "OHCHR" },
-                        new Donor { Partner = "UNRWA" },
-                        new Donor { Partner = "INGO's" },
-                        new Donor { Partner = "ICRC" },
-                        new Donor { Partner = "MSF" },
-                        new Donor { Partner = "NRC" },
-                        new Donor { Partner = "UN-OCHA" },
+                        new Donor { Partner = "OCHA",    donorCategory = DonorCategory.UNOrganizations },
+                        new Donor { Partner = "UNHCR 2", donorCategory = DonorCategory.UNOrganizations },
+                        new Donor { Partner = "WFP",     donorCategory = DonorCategory.UNOrganizations },
+                        new Donor { Partner = "UNICEF",  donorCategory = DonorCategory.UNOrganizations },
+                        new Donor { Partner = "WHO",     donorCategory = DonorCategory.UNOrganizations },
+                        new Donor { Partner = "UNDP",    donorCategory = DonorCategory.UNOrganizations },
+                        new Donor { Partner = "FAO",     donorCategory = DonorCategory.UNOrganizations },
+                        new Donor { Partner = "OHCHR",   donorCategory = DonorCategory.UNOrganizations },
+                        new Donor { Partner = "UNRWA",   donorCategory = DonorCategory.UNOrganizations },
+                        new Donor { Partner = "INGO's",  donorCategory = DonorCategory.InternationalNonGovernmentalOrganizations },
+                        new Donor { Partner = "ICRC",    donorCategory = DonorCategory.InternationalNonGovernmentalOrganizations },
+                        new Donor { Partner = "MSF",     donorCategory = DonorCategory.InternationalNonGovernmentalOrganizations },
+                        new Donor { Partner = "NRC",     donorCategory = DonorCategory.InternationalNonGovernmentalOrganizations },
+                        new Donor { Partner = "UN-OCHA", donorCategory = DonorCategory.UNOrganizations },
                     };
                     context.Donors.AddRange(donors);
                     context.SaveChanges();
@@ -582,12 +582,12 @@ namespace MonitoringAndEvaluationPlatform.Infrastructure
             context.Projects.AddRange(projects);
             await context.SaveChangesAsync();
 
-            // Create indicators for each project
+            // Create indicators for each project (directly linked via ProjectID)
             var indicatorsList = new List<Indicator>();
 
             foreach (var project in projects)
             {
-                // Create 2-3 indicators per project with varying weights
+                // Create 3 indicators per project with varying weights, linked directly to the project
                 var projectIndicators = new List<Indicator>
                 {
                     new Indicator
@@ -597,7 +597,8 @@ namespace MonitoringAndEvaluationPlatform.Infrastructure
                         Weight = 3,
                         IndicatorsPerformance = 0,
                         Concept = "Main performance metric",
-                        Description = "Primary indicator measuring project success"
+                        Description = "Primary indicator measuring project success",
+                        ProjectID = project.ProjectID
                     },
                     new Indicator
                     {
@@ -606,7 +607,8 @@ namespace MonitoringAndEvaluationPlatform.Infrastructure
                         Weight = 2,
                         IndicatorsPerformance = 0,
                         Concept = "Quality measurement",
-                        Description = "Indicator measuring quality of deliverables"
+                        Description = "Indicator measuring quality of deliverables",
+                        ProjectID = project.ProjectID
                     },
                     new Indicator
                     {
@@ -615,7 +617,8 @@ namespace MonitoringAndEvaluationPlatform.Infrastructure
                         Weight = 1,
                         IndicatorsPerformance = 0,
                         Concept = "Coverage measurement",
-                        Description = "Indicator measuring project reach and coverage"
+                        Description = "Indicator measuring project reach and coverage",
+                        ProjectID = project.ProjectID
                     }
                 };
 
@@ -625,59 +628,52 @@ namespace MonitoringAndEvaluationPlatform.Infrastructure
             context.Indicators.AddRange(indicatorsList);
             await context.SaveChangesAsync();
 
-            // Now link indicators to projects after they have IDs
-            int indicatorIndex = 0;
+            // Create a default ProjectPhase for each project so measures can be attached
+            var random = new Random(42); // Fixed seed for reproducible data
+            var phasesList = new List<ProjectPhase>();
+
             foreach (var project in projects)
             {
-                // Get the 3 indicators for this project
-                for (int i = 0; i < 3; i++)
+                var phase = new ProjectPhase
                 {
-                    if (indicatorIndex < indicatorsList.Count)
-                    {
-                        var indicator = indicatorsList[indicatorIndex];
-                        context.ProjectIndicators.Add(new ProjectIndicator
-                        {
-                            ProjectId = project.ProjectID,
-                            IndicatorCode = indicator.IndicatorCode
-                        });
-                        indicatorIndex++;
-                    }
-                }
+                    Name = "Phase 1",
+                    StartDate = project.StartDate,
+                    EndDate = project.EndDate,
+                    Budget = project.EstimatedBudget,
+                    Weight = 100m,
+                    PhasePerformance = 0,
+                    ProjectID = project.ProjectID
+                };
+                phasesList.Add(phase);
             }
+
+            context.ProjectPhases.AddRange(phasesList);
             await context.SaveChangesAsync();
 
-            // Create measures for each indicator
-            var random = new Random(42); // Fixed seed for reproducible data
+            // Create measures for each project phase
             var measuresList = new List<Measure>();
+            int phaseIndex = 0;
 
-            foreach (var indicator in indicatorsList)
+            foreach (var project in projects)
             {
-                // Create 3-5 measures per indicator spread over time
+                var phase = phasesList[phaseIndex++];
+
+                // Create 3-5 measures per phase spread over time
                 int numberOfMeasures = random.Next(3, 6);
-                double totalAchieved = 0;
 
                 for (int i = 0; i < numberOfMeasures; i++)
                 {
-                    // Generate realistic achieved values (between 60-110% of proportional target)
-                    double proportionalTarget = indicator.Target / numberOfMeasures;
-                    double variance = random.NextDouble() * 0.5 + 0.6; // 60-110% range
-                    double achievedValue = proportionalTarget * variance;
-                    totalAchieved += achievedValue;
+                    double achievedValue = random.NextDouble() * 40 + 60; // 60-100% range
 
                     var measure = new Measure
                     {
-                        IndicatorCode = indicator.IndicatorCode,
+                        ProjectPhaseId = phase.Id,
                         Value = Math.Round(achievedValue, 2),
                         Date = DateTime.Now.AddMonths(-numberOfMeasures + i)
                     };
 
                     measuresList.Add(measure);
                 }
-
-                // Update indicator performance
-                indicator.IndicatorsPerformance = indicator.Target > 0
-                    ? (totalAchieved / indicator.Target) * 100
-                    : 0;
             }
 
             context.Measures.AddRange(measuresList);

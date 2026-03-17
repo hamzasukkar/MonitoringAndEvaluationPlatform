@@ -130,7 +130,7 @@
     <value>إلغاء</value>
   </data>
   <data name="Filter by Framework" xml:space="preserve">
-    <value>تصفية حسب الإطار</value>
+    <value>تصفية حسب السياسة</value>
   </data>
   <data name="All Frameworks" xml:space="preserve">
     <value>جميع السياسات</value>
@@ -142,10 +142,10 @@
     <value>اسم الهدف</value>
   </data>
   <data name="Framework" xml:space="preserve">
-    <value>الإطار</value>
+    <value>السياسة</value>
   </data>
   <data name="Select Framework" xml:space="preserve">
-    <value>اختر الإطار</value>
+    <value>اختر السياسة</value>
   </data>
   <data name="Starting Year" xml:space="preserve">
     <value>سنة البداية</value>
@@ -226,10 +226,10 @@
     <value>يجب أن تكون السنوات بترتيب تصاعدي: سنة البداية &lt; السنة الحالية &lt; السنة المستهدفة.</value>
   </data>
   <data name="Framework Goal created successfully!" xml:space="preserve">
-    <value>تم إنشاء هدف الإطار بنجاح!</value>
+    <value>تم إنشاء هدف السياسة بنجاح!</value>
   </data>
   <data name="An error occurred while creating the framework goal. Please try again." xml:space="preserve">
-    <value>حدث خطأ أثناء إنشاء هدف الإطار. يرجى المحاولة مرة أخرى.</value>
+    <value>حدث خطأ أثناء إنشاء هدف السياسة. يرجى المحاولة مرة أخرى.</value>
   </data>
   <data name="Goal not found." xml:space="preserve">
     <value>الهدف غير موجود.</value>
@@ -259,7 +259,7 @@
     <value>عرض تقدم الأهداف</value>
   </data>
   <data name="Visual progress indicators for framework goals" xml:space="preserve">
-    <value>مؤشرات التقدم المرئية لأهداف الإطار</value>
+    <value>مؤشرات التقدم المرئية لأهداف السياسة</value>
   </data>
   <data name="Table View" xml:space="preserve">
     <value>عرض الجدول</value>
@@ -274,7 +274,7 @@
     <value>مقاييس التقدم الدائرية</value>
   </data>
   <data name="Visual circular progress indicators for framework goals" xml:space="preserve">
-    <value>مؤشرات التقدم الدائرية المرئية لأهداف الإطار</value>
+    <value>مؤشرات التقدم الدائرية المرئية لأهداف السياسة</value>
   </data>
   <data name="Time Progress" xml:space="preserve">
     <value>تقدم الوقت</value>
@@ -529,7 +529,7 @@
     <value>توزيع حالة الأهداف</value>
   </data>
   <data name="Goals by Framework" xml:space="preserve">
-    <value>الأهداف حسب الإطار</value>
+    <value>الأهداف حسب السياسة</value>
   </data>
   <data name="On-Track" xml:space="preserve">
     <value>على المسار الصحيح</value>
@@ -881,5 +881,26 @@
   </data>
   <data name="Expected Target for Selected Year" xml:space="preserve">
     <value>الهدف المتوقع للسنة المحددة</value>
+  </data>
+  <data name="Set Expected Targets Manually" xml:space="preserve">
+    <value>تحديد الأهداف المتوقعة يدوياً</value>
+  </data>
+  <data name="When enabled, you can set the expected target values for each intermediate year manually instead of using the auto-calculated linear values. This setting cannot be changed after creation." xml:space="preserve">
+    <value>عند التفعيل، يمكنك تحديد قيم الأهداف المتوقعة لكل سنة وسيطة يدوياً بدلاً من استخدام القيم المحسوبة تلقائياً. لا يمكن تغيير هذا الإعداد بعد الإنشاء.</value>
+  </data>
+  <data name="Manual Expected Targets for Intermediate Years" xml:space="preserve">
+    <value>الأهداف المتوقعة اليدوية للسنوات الوسيطة</value>
+  </data>
+  <data name="Set the expected target value for each year between Starting Year and Target Year (excluding Starting Year, Current Year, and Target Year)." xml:space="preserve">
+    <value>حدد قيمة الهدف المتوقع لكل سنة بين سنة البداية وسنة الهدف (باستثناء سنة البداية والسنة الحالية وسنة الهدف).</value>
+  </data>
+  <data name="Fill in all year and value fields above first, then check the checkbox to enter manual targets." xml:space="preserve">
+    <value>الرجاء تعبئة جميع حقول السنوات والقيم أعلاه أولاً، ثم حدد مربع الاختيار لإدخال الأهداف اليدوية.</value>
+  </data>
+  <data name="Fill in all year fields above first, then check the checkbox to enter manual targets." xml:space="preserve">
+    <value>الرجاء تعبئة جميع حقول السنوات أعلاه أولاً، ثم حدد مربع الاختيار لإدخال الأهداف اليدوية.</value>
+  </data>
+  <data name="No intermediate years to set. All years between Starting Year and Target Year (excluding Current Year) are already covered." xml:space="preserve">
+    <value>لا توجد سنوات وسيطة لتحديدها. جميع السنوات بين سنة البداية وسنة الهدف (باستثناء السنة الحالية) مغطاة بالفعل.</value>
   </data>
 </root>

@@ -132,6 +132,12 @@
   <data name="Actions" xml:space="preserve">
     <value>الإجراءات</value>
   </data>
+  <data name="Measures" xml:space="preserve">
+    <value>الإنجازات</value>
+  </data>
+  <data name="Select SubOutput" xml:space="preserve">
+    <value>اختر البرنامج الفرعي</value>
+  </data>
   <data name="SubOutput" xml:space="preserve">
     <value>البرنامج الفرعي</value>
   </data>
@@ -148,7 +154,7 @@
     <value>الأسم</value>
   </data>
   <data name="Add New Indicator" xml:space="preserve">
-    <value>إضافة برنامج جديد</value>
+    <value>إضافة مشروع جديد</value>
   </data>
   <data name="Adjust Weights" xml:space="preserve">
     <value>التثقيل</value>
@@ -223,7 +229,7 @@
     <value>عرض وإدارة جميع مقاييس أداءالمشاريع عبر أطر التطوير</value>
   </data>
   <data name="Enter indicator name" xml:space="preserve">
-    <value>أدخل اسم البرنامج</value>
+    <value>أدخل اسم المشروع</value>
   </data>
   <data name="Enter target value" xml:space="preserve">
     <value>أدخل قيمة الهدف</value>
@@ -239,5 +245,80 @@
   </data>
   <data name="Cancel" xml:space="preserve">
     <value>إلغاء</value>
+  </data>
+  <data name="Filter by Project" xml:space="preserve">
+    <value>تصفية حسب المشروع</value>
+  </data>
+  <data name="-- All Projects --" xml:space="preserve">
+    <value>-- جميع المشاريع --</value>
+  </data>
+  <data name="Search by indicator name, suboutput or project..." xml:space="preserve">
+    <value>البحث حسب اسم البرنامج أو البرنامج الفرعي أو المشروع...</value>
+  </data>
+  <data name="Related Project" xml:space="preserve">
+    <value>مراحل المشروع</value>
+  </data>
+  <data name="No Project" xml:space="preserve">
+    <value>لا يوجد مشروع</value>
+  </data>
+  <data name="View Details" xml:space="preserve">
+    <value>عرض التفاصيل</value>
+  </data>
+  <data name="View Project" xml:space="preserve">
+    <value>عرض المشروع</value>
+  </data>
+  <data name="Action Plan" xml:space="preserve">
+    <value>خطة العمل</value>
+  </data>
+  <data name="Edit" xml:space="preserve">
+    <value>تعديل</value>
+  </data>
+  <data name="Add Phase" xml:space="preserve">
+    <value>إضافة مرحلة</value>
+  </data>
+  <data name="No phases yet for this project." xml:space="preserve">
+    <value>لا توجد مراحل لهذا المشروع حتى الآن.</value>
+  </data>
+  <data name="Add First Phase" xml:space="preserve">
+    <value>إضافة المرحلة الأولى</value>
+  </data>
+  <data name="New Phase" xml:space="preserve">
+    <value>مرحلة جديدة</value>
+  </data>
+  <data name="Phase Name" xml:space="preserve">
+    <value>اسم المرحلة</value>
+  </data>
+  <data name="Start Date" xml:space="preserve">
+    <value>تاريخ البداية</value>
+  </data>
+  <data name="End Date" xml:space="preserve">
+    <value>تاريخ الانتهاء</value>
+  </data>
+  <data name="Budget" xml:space="preserve">
+    <value>الميزانية</value>
+  </data>
+  <data name="available" xml:space="preserve">
+    <value>متاح</value>
+  </data>
+  <data name="Enter phase name..." xml:space="preserve">
+    <value>أدخل اسم المرحلة...</value>
+  </data>
+  <data name="Save" xml:space="preserve">
+    <value>حفظ</value>
+  </data>
+  <data name="Saving..." xml:space="preserve">
+    <value>جاري الحفظ...</value>
+  </data>
+  <data name="Export Excel" xml:space="preserve">
+    <value>تصدير Excel</value>
+  </data>
+  <data name="Export PDF" xml:space="preserve">
+    <value>تصدير PDF</value>
+  </data>
+  <data name="Exceeds by" xml:space="preserve">
+    <value>يتجاوز بمقدار</value>
+  </data>
+  <data name="remaining" xml:space="preserve">
+    <value>متبقي</value>
   </data>
 </root>

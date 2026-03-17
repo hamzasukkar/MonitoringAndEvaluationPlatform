@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -23,7 +23,9 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         // GET: ActionPlans
         public async Task<IActionResult> Index()
         {
-            var applicationDbContext = _context.ActionPlans.Include(a => a.Project);
+            var applicationDbContext = _context.ActionPlans
+                .Include(a => a.ProjectPhase)
+                    .ThenInclude(pp => pp.Project);
             return View(await applicationDbContext.ToListAsync());
         }
 
@@ -31,36 +33,60 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         {
             return View();
         }
-        // In your controller (e.g., PlansController or ActivitiesController)
 
-        public IActionResult ActionPlan(int id) // Or however you get your data
+        // GET: ActionPlans/ActionPlan?phaseId=5
+        public async Task<IActionResult> ActionPlan(int phaseId)
         {
-            // 1. Fetch your data from the database
-            var projectActionPlan = _context.ActionPlans
-                                            .Include(ap => ap.Activities)
-                                            .ThenInclude(a => a.Plans)
-                                            .FirstOrDefault(ap => ap.ProjectID == id);
+            // Fetch action plan for this specific phase
+            var phaseActionPlan = await _context.ActionPlans
+                .Include(ap => ap.Activities)
+                    .ThenInclude(a => a.Plans)
+                .Include(ap => ap.ProjectPhase)
+                    .ThenInclude(pp => pp.Project)
+                .FirstOrDefaultAsync(ap => ap.ProjectPhaseId == phaseId);
 
-            if (projectActionPlan == null) return NotFound();
+            // Auto-create ActionPlan if it doesn't exist yet (e.g. phases created before the auto-create fix)
+            if (phaseActionPlan == null)
+            {
+                var orphanPhase = await _context.ProjectPhases
+                    .Include(p => p.Project)
+                    .FirstOrDefaultAsync(p => p.Id == phaseId);
 
-            // 2. Get project indicators for navigation
-            var project = _context.Projects
-                .Include(p => p.ProjectIndicators)
-                .FirstOrDefault(p => p.ProjectID == id);
+                if (orphanPhase == null) return NotFound();
 
-            // 3. Map the data to your NEW ViewModel
-            var viewModel = projectActionPlan.Activities
-                .GroupBy(a => a.ActivityType.ToString()) // Group activities by type
+                int plansCount = ((orphanPhase.EndDate.Year - orphanPhase.StartDate.Year) * 12) + orphanPhase.EndDate.Month - orphanPhase.StartDate.Month;
+                if (orphanPhase.EndDate.Day < orphanPhase.StartDate.Day) plansCount--;
+                if (plansCount <= 0) plansCount = 1;
+
+                var newPlan = new ActionPlan { ProjectPhaseId = phaseId, PlansCount = plansCount };
+                _context.ActionPlans.Add(newPlan);
+                await _context.SaveChangesAsync();
+
+                phaseActionPlan = await _context.ActionPlans
+                    .Include(ap => ap.Activities)
+                        .ThenInclude(a => a.Plans)
+                    .Include(ap => ap.ProjectPhase)
+                        .ThenInclude(pp => pp.Project)
+                    .FirstOrDefaultAsync(ap => ap.Code == newPlan.Code);
+
+                if (phaseActionPlan == null) return NotFound();
+            }
+
+            var phase = phaseActionPlan.ProjectPhase;
+            var project = phase.Project;
+
+            // Map to ViewModel
+            var viewModel = phaseActionPlan.Activities
+                .GroupBy(a => a.ActivityType.ToString())
                 .Select(group => new ActivityPlanViewModel
                 {
                     ActivityType = group.Key,
                     Activities = group.Select(activity => new ActivityRow
                     {
                         ActivityName = activity.Name,
-                        // This is where you populate the new 'Plans' list
-                        Plans = activity.Plans.Select(plan => new PlanDetail
+                        Plans = activity.Plans.OrderBy(p => p.Date).Select(plan => new PlanDetail
                         {
-                            PlanCode = plan.Code, // <-- The crucial ID
+                            PlanCode = plan.Code,
                             Date = plan.Date,
                             PlannedValue = plan.Planned,
                             RealisedValue = plan.Realised
@@ -68,37 +94,27 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                     }).ToList()
                 }).ToList();
 
-            ViewBag.ProjectID = id; // Pass project ID for navigation links
+            ViewBag.PhaseId = phaseId;
+            ViewBag.ProjectID = project.ProjectID;
+            ViewBag.PhaseName = phase.Name;
+            ViewBag.ActionPlanCode = phaseActionPlan.Code;
+            ViewBag.PhaseBudget = phase.Budget;
+            ViewBag.CurrencySymbol = project.CurrencySymbol;
 
-            // Pass first indicator code for navigation
-            if (project?.ProjectIndicators != null && project.ProjectIndicators.Any())
+            // Calculate phase months for display (use phase dates, not project dates)
+            var months = new List<DateTime>();
+            var currentMonth = new DateTime(phase.StartDate.Year, phase.StartDate.Month, 1);
+            var endMonth = new DateTime(phase.EndDate.Year, phase.EndDate.Month, 1);
+
+            while (currentMonth <= endMonth)
             {
-                ViewBag.FirstIndicatorCode = project.ProjectIndicators.First().IndicatorCode;
-            }
-            else
-            {
-                ViewBag.FirstIndicatorCode = null;
+                months.Add(currentMonth);
+                currentMonth = currentMonth.AddMonths(1);
             }
 
-            // Pass project start and end dates for month calculation
-            if (project != null)
-            {
-                ViewBag.ProjectStartDate = project.StartDate;
-                ViewBag.ProjectEndDate = project.EndDate;
-
-                // Calculate project months for display
-                var months = new List<DateTime>();
-                var currentMonth = new DateTime(project.StartDate.Year, project.StartDate.Month, 1);
-                var endMonth = new DateTime(project.EndDate.Year, project.EndDate.Month, 1);
-
-                while (currentMonth <= endMonth)
-                {
-                    months.Add(currentMonth);
-                    currentMonth = currentMonth.AddMonths(1);
-                }
-
-                ViewBag.ProjectMonths = months;
-            }
+            ViewBag.ProjectMonths = months;
+            ViewBag.ProjectStartDate = project.StartDate;
+            ViewBag.ProjectEndDate = project.EndDate;
 
             return View(viewModel);
         }
@@ -106,18 +122,14 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         // GET: ActionPlans/Details/5
         public async Task<IActionResult> Details(int? id)
         {
-            if (id == null)
-            {
-                return NotFound();
-            }
+            if (id == null) return NotFound();
 
             var actionPlan = await _context.ActionPlans
-                .Include(a => a.Project)
+                .Include(a => a.ProjectPhase)
+                    .ThenInclude(pp => pp.Project)
                 .FirstOrDefaultAsync(m => m.Code == id);
-            if (actionPlan == null)
-            {
-                return NotFound();
-            }
+
+            if (actionPlan == null) return NotFound();
 
             return View(actionPlan);
         }
@@ -125,13 +137,13 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         // GET: ActionPlans/Create
         public IActionResult Create()
         {
-            ViewData["ProjectID"] = new SelectList(_context.Projects, "ProjectID", "ProjectName");
+            ViewData["ProjectPhaseId"] = new SelectList(
+                _context.ProjectPhases.Include(pp => pp.Project),
+                "Id", "Name");
             return View();
         }
 
         // POST: ActionPlans/Create
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(ActionPlan actionPlan)
@@ -147,38 +159,32 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                     id = 5
                 });
             }
-            ViewData["ProjectID"] = new SelectList(_context.Projects, "ProjectID", "ProjectName", actionPlan.ProjectID);
+            ViewData["ProjectPhaseId"] = new SelectList(
+                _context.ProjectPhases.Include(pp => pp.Project),
+                "Id", "Name", actionPlan.ProjectPhaseId);
             return View(actionPlan);
         }
 
         // GET: ActionPlans/Edit/5
         public async Task<IActionResult> Edit(int? id)
         {
-            if (id == null)
-            {
-                return NotFound();
-            }
+            if (id == null) return NotFound();
 
             var actionPlan = await _context.ActionPlans.FindAsync(id);
-            if (actionPlan == null)
-            {
-                return NotFound();
-            }
-            ViewData["ProjectID"] = new SelectList(_context.Projects, "ProjectID", "ProjectName", actionPlan.ProjectID);
+            if (actionPlan == null) return NotFound();
+
+            ViewData["ProjectPhaseId"] = new SelectList(
+                _context.ProjectPhases.Include(pp => pp.Project),
+                "Id", "Name", actionPlan.ProjectPhaseId);
             return View(actionPlan);
         }
 
         // POST: ActionPlans/Edit/5
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Code,PlansCount,ProjectName")] ActionPlan actionPlan)
+        public async Task<IActionResult> Edit(int id, [Bind("Code,PlansCount,ProjectPhaseId")] ActionPlan actionPlan)
         {
-            if (id != actionPlan.Code)
-            {
-                return NotFound();
-            }
+            if (id != actionPlan.Code) return NotFound();
 
             if (ModelState.IsValid)
             {
@@ -189,36 +195,28 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!ActionPlanExists(actionPlan.Code))
-                    {
-                        return NotFound();
-                    }
-                    else
-                    {
-                        throw;
-                    }
+                    if (!ActionPlanExists(actionPlan.Code)) return NotFound();
+                    throw;
                 }
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["ProjectID"] = new SelectList(_context.Projects, "ProjectID", "ProjectID", actionPlan.ProjectID);
+            ViewData["ProjectPhaseId"] = new SelectList(
+                _context.ProjectPhases.Include(pp => pp.Project),
+                "Id", "Name", actionPlan.ProjectPhaseId);
             return View(actionPlan);
         }
 
         // GET: ActionPlans/Delete/5
         public async Task<IActionResult> Delete(int? id)
         {
-            if (id == null)
-            {
-                return NotFound();
-            }
+            if (id == null) return NotFound();
 
             var actionPlan = await _context.ActionPlans
-                .Include(a => a.Project)
+                .Include(a => a.ProjectPhase)
+                    .ThenInclude(pp => pp.Project)
                 .FirstOrDefaultAsync(m => m.Code == id);
-            if (actionPlan == null)
-            {
-                return NotFound();
-            }
+
+            if (actionPlan == null) return NotFound();
 
             return View(actionPlan);
         }

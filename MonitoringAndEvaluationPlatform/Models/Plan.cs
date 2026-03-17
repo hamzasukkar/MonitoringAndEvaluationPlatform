@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Text;
 
 namespace MonitoringAndEvaluationPlatform.Models
@@ -10,6 +11,7 @@ namespace MonitoringAndEvaluationPlatform.Models
 
         public string Name { get; set; }
 
+        [DisplayFormat(DataFormatString = "{0:MMM yyyy}")]
         public DateTime Date { get; set; }
 
         public int Planned { get; set; }

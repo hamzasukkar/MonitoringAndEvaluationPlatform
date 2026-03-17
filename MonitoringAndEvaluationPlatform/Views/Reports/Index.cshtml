@@ -132,6 +132,20 @@
                     <i class="fas fa-undo me-1"></i>@Localizer["Show All"]
                 </button>
             </div>
+            <!-- National / Provincial presentation toggle -->
+            <div class="d-flex justify-content-center mb-2 no-print">
+                <div class="btn-group btn-group-sm" role="group" id="mapLevelToggle">
+                    <button type="button" class="btn map-active" onclick="setMapLevel('all', this)">
+                        <i class="fas fa-globe-asia me-1"></i>@Localizer["All"]
+                    </button>
+                    <button type="button" class="btn" onclick="setMapLevel('national', this)">
+                        <i class="fas fa-flag me-1"></i>@Localizer["National Level"]
+                    </button>
+                    <button type="button" class="btn" onclick="setMapLevel('provincial', this)">
+                        <i class="fas fa-map-marker-alt me-1"></i>@Localizer["Provincial Level"]
+                    </button>
+                </div>
+            </div>
             <div class="syria-map-container">
                 <div id="syriaMapContainer" class="syria-map-wrapper">
                     <!-- SVG will be loaded here -->
@@ -921,19 +935,35 @@
                 <tbody>
                     @if (Model.GovernorateReports.Any())
                     {
-                        var rank = 1;
-                        @foreach (var item in Model.GovernorateReports.Take(10))
+                        var rank = 0;
+                        @foreach (var item in Model.GovernorateReports.Take(11))
                         {
-                            <tr>
-                                <td><span class="rank-badge @(rank <= 3 ? (rank == 1 ? "gold" : rank == 2 ? "silver" : "bronze") : "default")">@rank</span></td>
-                                <td>@item.Name</td>
-                                <td><span class="badge bg-danger">@item.ProjectCount</span></td>
-                                <td>$@item.TotalBudget.ToString("N0")</td>
-                                <td>$@item.AmountSpent.ToString("N0")</td>
-                                <td><span class="performance-badge @GetPerformanceClass(item.IndicatorsPerformance)">@item.IndicatorsPerformance%</span></td>
-                                <td><span class="performance-badge @GetPerformanceClass(item.DisbursementPerformance)">@item.DisbursementPerformance%</span></td>
-                            </tr>
-                            rank++;
+                            bool isNational = item.NameAr == "الدولة بأكملها" || item.Name == "Entire Country";
+                            if (isNational)
+                            {
+                                <tr class="table-info fw-semibold">
+                                    <td><i class="fas fa-globe text-primary"></i></td>
+                                    <td><i class="fas fa-flag me-1 text-primary"></i>@item.Name</td>
+                                    <td><span class="badge bg-primary">@item.ProjectCount</span></td>
+                                    <td>$@item.TotalBudget.ToString("N0")</td>
+                                    <td>$@item.AmountSpent.ToString("N0")</td>
+                                    <td><span class="performance-badge @GetPerformanceClass(item.IndicatorsPerformance)">@item.IndicatorsPerformance%</span></td>
+                                    <td><span class="performance-badge @GetPerformanceClass(item.DisbursementPerformance)">@item.DisbursementPerformance%</span></td>
+                                </tr>
+                            }
+                            else
+                            {
+                                rank++;
+                                <tr>
+                                    <td><span class="rank-badge @(rank <= 3 ? (rank == 1 ? "gold" : rank == 2 ? "silver" : "bronze") : "default")">@rank</span></td>
+                                    <td>@item.Name</td>
+                                    <td><span class="badge bg-danger">@item.ProjectCount</span></td>
+                                    <td>$@item.TotalBudget.ToString("N0")</td>
+                                    <td>$@item.AmountSpent.ToString("N0")</td>
+                                    <td><span class="performance-badge @GetPerformanceClass(item.IndicatorsPerformance)">@item.IndicatorsPerformance%</span></td>
+                                    <td><span class="performance-badge @GetPerformanceClass(item.DisbursementPerformance)">@item.DisbursementPerformance%</span></td>
+                                </tr>
+                            }
                         }
                     }
                     else
@@ -1700,15 +1730,19 @@
         });
 
         // Syria Map Interactions
-        const governorateReportsData = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.GovernorateReports));
+        const allGovernorateReportsData = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.GovernorateReports));
+        // Separate national (Entire Country) entry from governorate-specific entries
+        const nationalEntry = allGovernorateReportsData.find(g => g.Name === 'Entire Country' || g.NameAr === 'الدولة بأكملها');
+        const nationalProjectCount = nationalEntry ? nationalEntry.ProjectCount : 0;
+        const governorateReportsData = allGovernorateReportsData.filter(g => g.Name !== 'Entire Country' && g.NameAr !== 'الدولة بأكملها');
         const isRtlLang = @(isRtl ? "true" : "false");
 
         // Governorate mapping - maps path IDs to governorate info
         // Corrected mapping based on actual SVG structure
         const governorateMapping = {
-            'path1': { nameEn: 'Rif Dimashq', nameAr: 'ريف دمشق', code: 'SY03' },
+            'path1': { nameEn: 'Damascus', nameAr: 'دمشق', code: 'SY01' },
             'path2': { nameEn: 'Aleppo', nameAr: 'حلب', code: 'SY12' },
-            'path3': { nameEn: 'Damascus', nameAr: 'دمشق', code: 'SY01' },
+            'path3': { nameEn: 'Rif Dimashq', nameAr: 'ريف دمشق', code: 'SY03' },
             'path4': { nameEn: 'Homs', nameAr: 'حمص', code: 'SY04' },
             'path5': { nameEn: 'Hama', nameAr: 'حماة', code: 'SY07' },
             'path6': { nameEn: 'Tartus', nameAr: 'طرطوس', code: 'SY14' },
@@ -1747,6 +1781,12 @@
                         }
                     });
 
+                    // Move path1 (Damascus / SY01) to end of its parent so it renders on top when scaled
+                    const path1 = svg.querySelector('#path1');
+                    if (path1 && path1.parentNode) {
+                        path1.parentNode.appendChild(path1);
+                    }
+
                     // Initialize map after SVG is loaded
                     initializeMap();
                 }
@@ -1776,12 +1816,15 @@
                         (g.NameAr && govNameAr === g.NameAr)
                     );
 
+                    const tooltipMode = window.mapLevelMode || 'all';
+                    const tooltipCount = getEffectiveCount(govData, tooltipMode);
                     let tooltipContent = `<div class="tooltip-title">${govName}</div>`;
-                    if (govData) {
+                    if (tooltipCount > 0) {
+                        let modeLabel = tooltipMode === 'national' ? ' (@Localizer["national"])' : tooltipMode === 'provincial' ? ' (@Localizer["provincial"])' : '';
                         tooltipContent += `<div class="tooltip-stats">
-                            <div>@Localizer["Projects"]: <strong>${govData.ProjectCount}</strong></div>
-                            <div>@Localizer["Budget"]: <strong>$${govData.TotalBudget.toLocaleString()}</strong></div>
-                            <div>@Localizer["Performance"]: <strong>${govData.IndicatorsPerformance}%</strong></div>
+                            <div>@Localizer["Projects"]: <strong>${tooltipCount}</strong>${modeLabel}</div>
+                            ${govData ? `<div>@Localizer["Budget"]: <strong>$${govData.TotalBudget.toLocaleString()}</strong></div>
+                            <div>@Localizer["Performance"]: <strong>${govData.IndicatorsPerformance}%</strong></div>` : ''}
                         </div>`;
                     } else {
                         tooltipContent += `<div class="tooltip-stats">@Localizer["No projects in this governorate"]</div>`;
@@ -1832,21 +1875,36 @@
                     document.getElementById('governorateStats').style.display = 'block';
                     document.getElementById('resetMapBtn').style.display = 'inline-block';
 
-                    if (govData) {
-                        document.getElementById('govProjectCount').textContent = govData.ProjectCount;
-                        document.getElementById('govBudget').textContent = '$' + govData.TotalBudget.toLocaleString();
-                        document.getElementById('govPerformance').textContent = govData.IndicatorsPerformance + '%';
-                        document.getElementById('govDisbursement').textContent = govData.DisbursementPerformance + '%';
+                    const clickMode = window.mapLevelMode || 'all';
+                    const displayData = govData || (nationalProjectCount > 0 ? nationalEntry : null);
+                    if (displayData) {
+                        const modeCount = getEffectiveCount(govData, clickMode);
+                        document.getElementById('govProjectCount').textContent = modeCount;
+                        document.getElementById('govBudget').textContent = '$' + displayData.TotalBudget.toLocaleString();
+                        document.getElementById('govPerformance').textContent = displayData.IndicatorsPerformance + '%';
+                        document.getElementById('govDisbursement').textContent = displayData.DisbursementPerformance + '%';
 
                         // Update performance color
                         const perfValue = document.getElementById('govPerformance');
                         perfValue.className = 'gov-stat-value';
-                        if (govData.IndicatorsPerformance >= 75) {
+                        if (displayData.IndicatorsPerformance >= 75) {
                             perfValue.style.color = '#4CAF50';
-                        } else if (govData.IndicatorsPerformance >= 50) {
+                        } else if (displayData.IndicatorsPerformance >= 50) {
                             perfValue.style.color = '#FF9800';
                         } else {
                             perfValue.style.color = '#F44336';
+                        }
+
+                        // Show nationwide note
+                        let noteEl = document.getElementById('govNationalNote');
+                        if (nationalProjectCount > 0 && !noteEl) {
+                            noteEl = document.createElement('p');
+                            noteEl.id = 'govNationalNote';
+                            noteEl.className = 'text-info small mt-2 mb-0';
+                            noteEl.innerHTML = '<i class="fas fa-globe me-1"></i>@Localizer["Includes"] ' + nationalProjectCount + ' @Localizer["nationwide project(s)"]';
+                            document.getElementById('governorateStats').appendChild(noteEl);
+                        } else if (noteEl) {
+                            noteEl.style.display = nationalProjectCount > 0 ? 'block' : 'none';
                         }
                     } else {
                         document.getElementById('govProjectCount').textContent = '0';
@@ -1871,9 +1929,21 @@
             });
         }
 
-        // Color governorates based on project count
+        // Current map presentation mode: 'all' | 'national' | 'provincial'
+        window.mapLevelMode = 'all';
+
+        function getEffectiveCount(govData, mode) {
+            if (mode === 'national') return nationalProjectCount;
+            if (mode === 'provincial') return govData ? Math.max(govData.ProjectCount - nationalProjectCount, 0) : 0;
+            // 'all': gov-specific (already includes national) or fall back to national-only
+            return govData ? govData.ProjectCount : nationalProjectCount;
+        }
+
+        // Color governorates based on project count and current mode
         function colorizeMap() {
-            const maxProjects = Math.max(...governorateReportsData.map(g => g.ProjectCount), 1);
+            const mode = window.mapLevelMode;
+            const counts = governorateReportsData.map(g => getEffectiveCount(g, mode));
+            const maxProjects = Math.max(...counts, mode === 'national' ? nationalProjectCount : 0, 1);
             document.getElementById('maxProjectsLabel').textContent = maxProjects + '+';
 
             document.querySelectorAll('.governorate').forEach(path => {
@@ -1884,9 +1954,11 @@
                     (g.NameAr && path.dataset.nameAr === g.NameAr)
                 );
 
-                if (govData && govData.ProjectCount > 0) {
-                    const ratio = govData.ProjectCount / maxProjects;
-                    path.classList.remove('has-projects-low', 'has-projects-medium', 'has-projects-high', 'has-projects-very-high');
+                const effectiveCount = getEffectiveCount(govData, mode);
+
+                path.classList.remove('has-projects-low', 'has-projects-medium', 'has-projects-high', 'has-projects-very-high');
+                if (effectiveCount > 0) {
+                    const ratio = effectiveCount / maxProjects;
                     if (ratio <= 0.25) {
                         path.classList.add('has-projects-low');
                     } else if (ratio <= 0.5) {
@@ -1899,6 +1971,14 @@
                 }
             });
         }
+
+        // Switch map presentation level
+        window.setMapLevel = function(mode, btn) {
+            window.mapLevelMode = mode;
+            document.querySelectorAll('#mapLevelToggle button').forEach(b => b.classList.remove('map-active'));
+            btn.classList.add('map-active');
+            colorizeMap();
+        };
 
         // Reset map button
         document.getElementById('resetMapBtn').addEventListener('click', function() {
@@ -2537,6 +2617,25 @@
         .btn-group .btn-outline-danger.active {
             background-color: #dc3545;
             color: white !important;
+        }
+
+        /* Enlarge Rif Dimashq (SY03 / path1) on the Syria map */
+        #syriaMap #path1 {
+            transform-box: fill-box;
+            transform-origin: center;
+            transform: scale(2.5);
+        }
+
+        /* Map level toggle - explicit overrides */
+        #mapLevelToggle button {
+            background-color: transparent !important;
+            color: #333 !important;
+            border: 1px solid #6c757d !important;
+        }
+        #mapLevelToggle button.map-active {
+            background-color: #343a40 !important;
+            color: #ffffff !important;
+            border-color: #343a40 !important;
         }
 
         /* ========================================

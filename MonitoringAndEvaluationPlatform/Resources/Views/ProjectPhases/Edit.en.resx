@@ -1,0 +1,148 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="Projects" xml:space="preserve">
+    <value>Projects</value>
+  </data>
+  <data name="Edit Phase" xml:space="preserve">
+    <value>Edit Phase</value>
+  </data>
+  <data name="Update the phase details and weight" xml:space="preserve">
+    <value>Update the phase details and weight</value>
+  </data>
+  <data name="Back to Project" xml:space="preserve">
+    <value>Back to Project</value>
+  </data>
+  <data name="Project" xml:space="preserve">
+    <value>Project</value>
+  </data>
+  <data name="Project Dates" xml:space="preserve">
+    <value>Project Dates</value>
+  </data>
+  <data name="Total Project Budget" xml:space="preserve">
+    <value>Total Project Budget</value>
+  </data>
+  <data name="Total Phases" xml:space="preserve">
+    <value>Total Phases</value>
+  </data>
+  <data name="Current Performance" xml:space="preserve">
+    <value>Current Performance</value>
+  </data>
+  <data name="Current Weight" xml:space="preserve">
+    <value>Current Weight</value>
+  </data>
+  <data name="Measures Count" xml:space="preserve">
+    <value>Measures Count</value>
+  </data>
+  <data name="Phase Details" xml:space="preserve">
+    <value>Phase Details</value>
+  </data>
+  <data name="Editing:" xml:space="preserve">
+    <value>Editing:</value>
+  </data>
+  <data name="Phase Name" xml:space="preserve">
+    <value>Phase Name</value>
+  </data>
+  <data name="Start Date" xml:space="preserve">
+    <value>Start Date</value>
+  </data>
+  <data name="Must be on or after" xml:space="preserve">
+    <value>Must be on or after</value>
+  </data>
+  <data name="End Date" xml:space="preserve">
+    <value>End Date</value>
+  </data>
+  <data name="Must be on or before" xml:space="preserve">
+    <value>Must be on or before</value>
+  </data>
+  <data name="Budget Allocation" xml:space="preserve">
+    <value>Budget Allocation</value>
+  </data>
+  <data name="Total project budget" xml:space="preserve">
+    <value>Total project budget</value>
+  </data>
+  <data name="Phase Weight (%)" xml:space="preserve">
+    <value>Phase Weight (%)</value>
+  </data>
+  <data name="All @totalPhases phase weights must sum to exactly 100%. Current: " xml:space="preserve">
+    <value>All phase weights must sum to exactly 100%. Current: </value>
+  </data>
+  <data name="Single phase: weight must be 100%." xml:space="preserve">
+    <value>Single phase: weight must be 100%.</value>
+  </data>
+  <data name="Cancel" xml:space="preserve">
+    <value>Cancel</value>
+  </data>
+  <data name="Save Changes" xml:space="preserve">
+    <value>Save Changes</value>
+  </data>
+  <data name="Saving..." xml:space="preserve">
+    <value>Saving...</value>
+  </data>
+  <data name="Target Quantity" xml:space="preserve">
+    <value>Target Quantity</value>
+  </data>
+  <data name="e.g. 100" xml:space="preserve">
+    <value>e.g. 100</value>
+  </data>
+  <data name="Optional: set a quantity target so that measure achievements are auto-calculated (e.g. plant 100 trees)" xml:space="preserve">
+    <value>Optional: set a quantity target so that measure achievements are auto-calculated (e.g. plant 100 trees)</value>
+  </data>
+</root>

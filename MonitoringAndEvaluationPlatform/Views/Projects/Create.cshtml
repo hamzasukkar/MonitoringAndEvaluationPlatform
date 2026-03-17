@@ -8,8 +8,8 @@
     Layout = "~/Views/Shared/_DashboardHomeLayout.cshtml";
 
     // Use model values if available, otherwise default to today's date
-    var startDate = Model?.StartDate != default ? Model.StartDate.ToString("yyyy-MM-dd") : DateTime.Today.ToString("yyyy-MM-dd");
-    var endDate = Model?.EndDate != default ? Model.EndDate.ToString("yyyy-MM-dd") : DateTime.Today.ToString("yyyy-MM-dd");
+    var startDate = Model?.StartDate != default ? Model.StartDate.ToString("yyyy-MM") : DateTime.Today.ToString("yyyy-MM");
+    var endDate = Model?.EndDate != default ? Model.EndDate.ToString("yyyy-MM") : DateTime.Today.ToString("yyyy-MM");
 
     var governorates = ViewBag.Governorates as List<Governorate>;
 
@@ -161,27 +161,61 @@
 
 
                                 <!-- Timeline -->
-                                <h6 class="text-primary mb-3">
-                                    <i class="fas fa-clock me-2"></i>@Localizer["Project Timeline"]
-                                </h6>
-                                <div class="row g-3">
-                                    <div class="col-md-6 @(HasError("StartDate") ? "has-validation-error" : "")">
-                                        <label asp-for="StartDate" class="form-label fw-bold">
-                                            <i class="fas fa-play me-2"></i>
-                                            @Localizer["Start Date"] <span class="text-danger">*</span>
-                                        </label>
-                                        <input type="date" asp-for="StartDate" value="@startDate" class="form-control form-control-lg @ValidationClass("StartDate")" />
-                                    <div class="form-text">@Localizer["Project implementation start date"] </div>
-                                        <span asp-validation-for="StartDate" class="invalid-feedback d-block"></span>
+                                <div class="timeline-frame mb-4">
+                                    <div class="timeline-frame-header">
+                                        <div class="timeline-frame-title">
+                                            <i class="fas fa-stream me-2"></i>
+                                            @Localizer["Project Timeline"]
+                                        </div>
+                                        <div class="timeline-frame-dots">
+                                            <span class="tl-dot tl-dot-start"></span>
+                                            <span class="tl-connector"></span>
+                                            <span class="tl-dot tl-dot-end"></span>
+                                        </div>
                                     </div>
-                                    <div class="col-md-6 @(HasError("EndDate") ? "has-validation-error" : "")">
-                                        <label asp-for="EndDate" class="form-label fw-bold">
-                                            <i class="fas fa-stop me-2"></i>
-                                            @Localizer["End Date"] <span class="text-danger">*</span>
-                                        </label>
-                                        <input type="date" asp-for="EndDate" value="@endDate" class="form-control form-control-lg @ValidationClass("EndDate")" />
-                                        <div class="form-text">@Localizer["Project completion deadline"]</div>
-                                        <span asp-validation-for="EndDate" class="invalid-feedback d-block"></span>
+                                    <div class="timeline-frame-body">
+                                        <div class="row g-3">
+                                            <div class="col-md-6 @(HasError("StartDate") ? "has-validation-error" : "")">
+                                                <div class="tl-date-block tl-start-block">
+                                                    <div class="tl-date-icon"><i class="fas fa-play-circle"></i></div>
+                                                    <label asp-for="StartDate" class="form-label fw-bold">
+                                                        @Localizer["Start Date"] <span class="text-danger">*</span>
+                                                    </label>
+                                                    <div class="month-year-picker">
+                                                        <input type="hidden" name="StartDate" id="StartDate" value="@startDate" />
+                                                        <div class="d-flex align-items-center gap-1">
+                                                            <select class="form-control mypicker-month" style="max-width:80px">
+                                                                @for (int _m = 1; _m <= 12; _m++) { <option value="@_m">@_m</option> }
+                                                            </select>
+                                                            <span class="text-muted px-1 fw-bold">/</span>
+                                                            <input type="number" class="form-control mypicker-year" min="2000" max="2100" style="max-width:100px" placeholder="YYYY" />
+                                                        </div>
+                                                    </div>
+                                                    <div class="form-text">@Localizer["Project implementation start date"]</div>
+                                                    <span asp-validation-for="StartDate" class="invalid-feedback d-block"></span>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-6 @(HasError("EndDate") ? "has-validation-error" : "")">
+                                                <div class="tl-date-block tl-end-block">
+                                                    <div class="tl-date-icon"><i class="fas fa-flag-checkered"></i></div>
+                                                    <label asp-for="EndDate" class="form-label fw-bold">
+                                                        @Localizer["End Date"] <span class="text-danger">*</span>
+                                                    </label>
+                                                    <div class="month-year-picker">
+                                                        <input type="hidden" name="EndDate" id="EndDate" value="@endDate" />
+                                                        <div class="d-flex align-items-center gap-1">
+                                                            <select class="form-control mypicker-month" style="max-width:80px">
+                                                                @for (int _m = 1; _m <= 12; _m++) { <option value="@_m">@_m</option> }
+                                                            </select>
+                                                            <span class="text-muted px-1 fw-bold">/</span>
+                                                            <input type="number" class="form-control mypicker-year" min="2000" max="2100" style="max-width:100px" placeholder="YYYY" />
+                                                        </div>
+                                                    </div>
+                                                    <div class="form-text">@Localizer["Project completion deadline"]</div>
+                                                    <span asp-validation-for="EndDate" class="invalid-feedback d-block"></span>
+                                                </div>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
                                 </div>
@@ -203,7 +237,9 @@
                                             <option value="EUR">&euro; EUR</option>
                                             <option value="SYP">SYP</option>
                                         </select>
-                                        <input asp-for="EstimatedBudget" class="form-control form-control-lg @ValidationClass("EstimatedBudget")" min="0.01" step="0.01" placeholder="0.00" />
+                                        <input asp-for="EstimatedBudget" class="form-control form-control-lg @ValidationClass("EstimatedBudget")" min="0.01" step="0.01" placeholder="0.00"
+                                               oninvalid="this.setCustomValidity('@Localizer["Please enter a value greater than or equal to 0.01."]')"
+                                               oninput="this.setCustomValidity('')" />
                                     </div>
                                     <div class="form-text">@Localizer["Enter the total estimated budget for this project"]</div>
                                     <span asp-validation-for="EstimatedBudget" class="invalid-feedback d-block"></span>
@@ -429,38 +465,10 @@
                                     </div>
 
                                     <input type="hidden" id="donorFundingData" name="DonorFundingBreakdown" />
+                                    <input type="hidden" name="LinkedIndicatorId" value="@ViewBag.PreSelectedIndicatorId" />
                                 </div>
 
                                     </div>
-
-                                <!-- Indicators -->
-                                <h6 class="text-primary mb-3">
-                                    <i class="fas fa-bullseye me-2"></i>@Localizer["Project Indicators"]
-                                </h6>
-                                <div class="mb-4 @(HasError("SelectedIndicators") ? "has-validation-error" : "")" id="indicator-container">
-                                    <label class="form-label fw-bold">
-                                        <i class="fas fa-chart-line me-2"></i>
-                                        @Localizer["Select Indicator"] <span class="text-danger">*</span>
-                                    </label>
-                                    <select name="SelectedIndicators" class="form-select form-select-lg @ValidationClass("SelectedIndicators")" id="indicatorSelect">
-                                        <option value="">-- @Localizer["Select an indicator"] --</option>
-                                        @if (ViewBag.Indicators != null)
-                                        {
-                                            @foreach (var indicator in ViewBag.Indicators as List<Indicator>)
-                                            {
-                                                <option value="@indicator.IndicatorCode" data-target="@indicator.Target">
-                                                    [@indicator.IndicatorCode] @indicator.Name
-                                                    @if (indicator.Target > 0)
-                                                    {
-                                                        <text> (Target: @indicator.Target.ToString("N2"))</text>
-                                                    }
-                                                </option>
-                                            }
-                                        }
-                                    </select>
-                            <div class="form-text">@Localizer["Choose the key performance indicator for measuring project success"]</div>
-                                    <div id="indicator-validation-error" class="invalid-feedback d-block" style="display: none;"></div>
-                                </div>
 
                                 <!-- Files Upload -->
                                 <h6 class="text-primary mb-3">
@@ -564,6 +572,119 @@
     /* Scroll to first error on page load */
     .has-validation-error:first-of-type {
         scroll-margin-top: 120px;
+    }
+
+    /* Project Timeline Frame */
+    .timeline-frame {
+        position: relative;
+        border-radius: 16px;
+        background: linear-gradient(135deg, #f0f7ff 0%, #e8f4ff 100%);
+        border: 1.5px solid #b8d4f8;
+        overflow: hidden;
+        box-shadow: 0 4px 16px rgba(0, 123, 255, 0.1);
+    }
+
+    .timeline-frame-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 0.75rem 1.25rem;
+        background: linear-gradient(90deg, #007bff 0%, #0056b3 100%);
+        color: white;
+    }
+
+    .timeline-frame-title {
+        font-size: 0.95rem;
+        font-weight: 700;
+        letter-spacing: 0.3px;
+    }
+
+    .timeline-frame-dots {
+        display: flex;
+        align-items: center;
+        gap: 0;
+    }
+
+    .tl-dot {
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+        border: 2px solid white;
+        display: inline-block;
+        flex-shrink: 0;
+    }
+
+    .tl-dot-start {
+        background: #10b981;
+        box-shadow: 0 0 6px rgba(16, 185, 129, 0.8);
+    }
+
+    .tl-dot-end {
+        background: #ef4444;
+        box-shadow: 0 0 6px rgba(239, 68, 68, 0.8);
+    }
+
+    .tl-connector {
+        width: 48px;
+        height: 2px;
+        background: repeating-linear-gradient(90deg, rgba(255,255,255,0.8) 0, rgba(255,255,255,0.8) 4px, transparent 4px, transparent 8px);
+        display: inline-block;
+        margin: 0 6px;
+    }
+
+    .timeline-frame-body {
+        padding: 1.25rem 1.25rem 1rem;
+    }
+
+    .tl-date-block {
+        position: relative;
+        background: white;
+        border-radius: 12px;
+        padding: 1rem 1rem 0.75rem;
+        border-top: 3px solid transparent;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+        transition: box-shadow 0.2s ease;
+    }
+
+    .tl-date-block:hover {
+        box-shadow: 0 4px 16px rgba(0,0,0,0.1);
+    }
+
+    .tl-start-block {
+        border-top-color: #10b981;
+    }
+
+    .tl-end-block {
+        border-top-color: #ef4444;
+    }
+
+    .tl-date-icon {
+        position: absolute;
+        top: -14px;
+        left: 1rem;
+        width: 28px;
+        height: 28px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.85rem;
+        color: white;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+    }
+
+    .tl-start-block .tl-date-icon {
+        background: linear-gradient(135deg, #10b981, #059669);
+    }
+
+    .tl-end-block .tl-date-icon {
+        background: linear-gradient(135deg, #ef4444, #dc2626);
+    }
+
+    .tl-date-block label {
+        margin-top: 0.25rem;
+        font-size: 0.85rem;
+        color: #374151;
     }
 
     .donor-funding-card {
@@ -823,8 +944,7 @@
         cannotExceed100: '@Html.Raw(System.Text.Encodings.Web.JavaScriptEncoder.Default.Encode(Localizer["Cannot exceed 100%"].Value))',
         atLeastOneLocation: '@Html.Raw(System.Text.Encodings.Web.JavaScriptEncoder.Default.Encode(Localizer["At least one project location must be selected, or check the Entire Country option."].Value))',
         atLeastOneSector: '@Html.Raw(System.Text.Encodings.Web.JavaScriptEncoder.Default.Encode(Localizer["At least one sector must be selected."].Value))',
-        indicatorMustBeSelected: '@Html.Raw(System.Text.Encodings.Web.JavaScriptEncoder.Default.Encode(Localizer["An indicator must be selected."].Value))',
-        projectManagerMustBeSelected: '@Html.Raw(System.Text.Encodings.Web.JavaScriptEncoder.Default.Encode(Localizer["A project manager must be selected."].Value))',
+projectManagerMustBeSelected: '@Html.Raw(System.Text.Encodings.Web.JavaScriptEncoder.Default.Encode(Localizer["A project manager must be selected."].Value))',
         supervisorMustBeSelected: '@Html.Raw(System.Text.Encodings.Web.JavaScriptEncoder.Default.Encode(Localizer["A supervisor must be selected."].Value))',
         ministryMustBeSelected: '@Html.Raw(System.Text.Encodings.Web.JavaScriptEncoder.Default.Encode(Localizer["A ministry must be selected."].Value))',
         endDateMustBeAfterStart: '@Html.Raw(System.Text.Encodings.Web.JavaScriptEncoder.Default.Encode(Localizer["End date must be after start date."].Value))',
@@ -1052,34 +1172,6 @@
     }
 
 
-    // Handle indicator selection preview (single select)
-    $("#indicatorSelect").change(function () {
-        const selectedOption = $(this).find('option:selected');
-        const previewDiv = $("#selectedIndicatorsPreview");
-        const listDiv = $("#selectedIndicatorsList");
-        
-        if (selectedOption.val() && selectedOption.val() !== "") {
-            const indicatorCode = selectedOption.val();
-            const indicatorText = selectedOption.text();
-            const target = selectedOption.data('target');
-            
-            const html = `
-                <div class="d-flex justify-content-between align-items-center p-2 border rounded bg-white">
-                    <div>
-                        <span class="badge bg-success me-2">${indicatorCode}</span>
-                        <span class="fw-medium">${indicatorText.split(']')[1]?.trim() || indicatorText}</span>
-                    </div>
-                    ${target > 0 ? `<small class="text-muted">Target: ${parseFloat(target).toFixed(2)}</small>` : ''}
-                </div>
-            `;
-            
-            listDiv.html(html);
-            previewDiv.show();
-        } else {
-            previewDiv.hide();
-        }
-    });
-
     // Calculate plans count based on project duration
     function calculatePlansCount() {
         const startDate = new Date($('[name="StartDate"]').val());
@@ -1127,15 +1219,6 @@
 
             // Focus on the first invalid input
             $firstError.find('.is-invalid').first().focus();
-        }
-
-        // Auto-fill project name and pre-select indicator if coming from "Add & Create Project"
-        @if (ViewBag.PreSelectedIndicatorId != null)
-        {
-            <text>
-            // Pre-select the indicator in the dropdown
-            $('#indicatorSelect').val(@ViewBag.PreSelectedIndicatorId).trigger('change');
-            </text>
         }
 
         @if (!string.IsNullOrEmpty(ViewBag.PreFilledProjectName))
@@ -1601,18 +1684,6 @@
             removeFieldError('select[name="Sectors"]', '#sectors-container');
         }
 
-        // Check if indicator is selected
-        const selectedIndicator = $('#indicatorSelect').val();
-        if (!selectedIndicator) {
-            errorMessages.push(localizedStrings.indicatorMustBeSelected);
-            $('#indicator-validation-error').text(localizedStrings.indicatorMustBeSelected).show();
-            addFieldError('#indicatorSelect', '#indicator-container');
-            isValid = false;
-        } else {
-            $('#indicator-validation-error').hide();
-            removeFieldError('#indicatorSelect', '#indicator-container');
-        }
-
         // Check if project manager is selected
         const projectManager = $('select[name="ProjectManagerCode"]').val();
         if (!projectManager) {
@@ -1697,7 +1768,6 @@
         // Get preserved data from ViewBag
         var selectedSectorCodes = @Html.Raw(Json.Serialize(ViewBag.SelectedSectorCodes ?? new List<string>()));
         var selectedDonorCodes = @Html.Raw(Json.Serialize(ViewBag.SelectedDonorCodes ?? new List<string>()));
-        var selectedIndicators = @Html.Raw(Json.Serialize(ViewBag.SelectedIndicators ?? new List<int>()));
         var locationSelections = @Html.Raw(Json.Serialize(ViewBag.LocationSelections ?? ""));
         var donorFundingBreakdown = @Html.Raw(Json.Serialize(ViewBag.DonorFundingBreakdown ?? ""));
 
@@ -1706,12 +1776,6 @@
             selectedSectorCodes.forEach(function(code) {
                 $('select[name="Sectors"] option[value="' + code + '"]').prop('selected', true);
             });
-        }
-
-        // Restore selected indicators
-        if (selectedIndicators && selectedIndicators.length > 0) {
-            // Just set the dropdown value - no need for hidden input
-            $('#indicatorSelect').val(selectedIndicators[0]).trigger('change');
         }
 
         // Restore location selections
@@ -1961,5 +2025,26 @@
         return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
     }
 
+    (function () {
+        document.querySelectorAll('.month-year-picker').forEach(function (picker) {
+            var hidden = picker.querySelector('input[type="hidden"]');
+            var monthSel = picker.querySelector('.mypicker-month');
+            var yearInput = picker.querySelector('.mypicker-year');
+            if (hidden.value) {
+                var parts = hidden.value.split('-');
+                if (parts.length >= 2) {
+                    yearInput.value = parseInt(parts[0], 10);
+                    monthSel.value = parseInt(parts[1], 10);
+                }
+            }
+            function sync() {
+                var m = monthSel.value, y = yearInput.value;
+                if (m && y) hidden.value = String(parseInt(y)).padStart(4, '0') + '-' + String(parseInt(m)).padStart(2, '0');
+            }
+            monthSel.addEventListener('change', sync);
+            yearInput.addEventListener('change', sync);
+            yearInput.addEventListener('input', sync);
+        });
+    })();
 
 </script>

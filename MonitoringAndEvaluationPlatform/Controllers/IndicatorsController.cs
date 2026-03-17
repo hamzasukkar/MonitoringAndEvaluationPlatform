@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.Json;
@@ -51,66 +51,65 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             var isMinistryUser = User.IsInRole(UserRoles.MinistriesUser) || User.IsInRole(UserRoles.DataEntry);
             var userMinistryName = currentUser?.MinistryName;
 
-            if (frameworkCode == null)
+            var indicators = _context.Indicators
+                .Include(i => i.SubOutput)
+                    .ThenInclude(so => so.Output)
+                    .ThenInclude(o => o.Outcome)
+                    .ThenInclude(oc => oc.Framework)
+                .Include(i => i.Project)
+                    .ThenInclude(p => p.Ministry)
+                .Include(i => i.Project)
+                    .ThenInclude(p => p.Phases)
+                .AsQueryable();
+
+            // Apply framework filter
+            if (frameworkCode.HasValue)
             {
-                // Include the SubOutput navigation property
-                var indicators = _context.Indicators
-                    .Include(i => i.SubOutput)
-                    .Include(i => i.ProjectIndicators)
-                        .ThenInclude(pi => pi.Project)
-                            .ThenInclude(p => p.Ministry)
-                    .AsQueryable();
-
-                // Filter by ministry if user is a ministry user
-                if (isMinistryUser && !string.IsNullOrEmpty(userMinistryName))
-                {
-                    indicators = indicators.Where(i =>
-                        i.ProjectIndicators.Any(pi => pi.Project.Ministry != null && (pi.Project.Ministry.MinistryDisplayName_AR == userMinistryName || pi.Project.Ministry.MinistryDisplayName_EN == userMinistryName || pi.Project.Ministry.MinistryUserName == userMinistryName)));
-                }
-
-                // Filter results if searchString is provided
-                if (!string.IsNullOrEmpty(searchString))
-                {
-                    indicators = indicators.Where(i => EF.Functions.Like(i.Name, $"%{searchString}%") ||
-                                                     (i.SubOutput != null && EF.Functions.Like(i.SubOutput.Name, $"%{searchString}%")));
-                }
-
-                return View(await indicators.ToListAsync());
+                indicators = indicators.Where(i => i.SubOutput.Output.Outcome.FrameworkCode == frameworkCode);
             }
 
-            var frameworkIndicators = _context.Indicators
-                .Where(i => i.SubOutput.Output.Outcome.FrameworkCode == frameworkCode)
-                .Include(i => i.SubOutput)
-                .Include(i => i.ProjectIndicators)
-                    .ThenInclude(pi => pi.Project)
-                        .ThenInclude(p => p.Ministry)
-                .AsQueryable();
+            // Apply subOutput filter
+            if (subOutputCode.HasValue)
+            {
+                indicators = indicators.Where(i => i.SubOutputCode == subOutputCode);
+            }
 
             // Filter by ministry if user is a ministry user
             if (isMinistryUser && !string.IsNullOrEmpty(userMinistryName))
             {
-                frameworkIndicators = frameworkIndicators.Where(i =>
-                    i.ProjectIndicators.Any(pi => pi.Project.Ministry != null && (pi.Project.Ministry.MinistryDisplayName_AR == userMinistryName || pi.Project.Ministry.MinistryDisplayName_EN == userMinistryName || pi.Project.Ministry.MinistryUserName == userMinistryName)));
+                indicators = indicators.Where(i =>
+                    i.Project != null && i.Project.Ministry != null &&
+                    (i.Project.Ministry.MinistryDisplayName_AR == userMinistryName ||
+                     i.Project.Ministry.MinistryDisplayName_EN == userMinistryName ||
+                     i.Project.Ministry.MinistryUserName == userMinistryName));
             }
 
-            // Add subOutputCode filter if it's provided
-            if (subOutputCode != null)
-            {
-                frameworkIndicators = frameworkIndicators.Where(i => i.SubOutputCode== subOutputCode);
-            }
-
+            // Apply search filter
             if (!string.IsNullOrEmpty(searchString))
             {
-                frameworkIndicators = frameworkIndicators.Where(i => EF.Functions.Like(i.Name, $"%{searchString}%") ||
-                                                   (i.SubOutput != null && EF.Functions.Like(i.SubOutput.Name, $"%{searchString}%")));
+                indicators = indicators.Where(i =>
+                    EF.Functions.Like(i.Name, $"%{searchString}%") ||
+                    (i.SubOutput != null && EF.Functions.Like(i.SubOutput.Name, $"%{searchString}%")) ||
+                    (i.Project != null && EF.Functions.Like(i.Project.ProjectName, $"%{searchString}%")));
             }
 
-            var resultIndicators = await frameworkIndicators.ToListAsync();
+            var resultIndicators = await indicators.ToListAsync();
 
             // Pass suboutput name to view if viewing specific suboutput
             if (subOutputCode.HasValue && resultIndicators.Any())
             {
                 ViewBag.SubOutputName = resultIndicators.First().SubOutput?.Name;
+            }
+
+            // Pass SubOutputs for the create form when accessed from framework level
+            if (frameworkCode.HasValue && !subOutputCode.HasValue)
+            {
+                ViewBag.SubOutputsForCreate = await _context.SubOutputs
+                    .Include(so => so.Output)
+                    .ThenInclude(o => o.Outcome)
+                    .Where(so => so.Output.Outcome.FrameworkCode == frameworkCode.Value)
+                    .OrderBy(so => so.Name)
+                    .ToListAsync();
             }
 
             return View(resultIndicators);
@@ -170,7 +169,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                                           i.Name.ToLower() == indicator.Name.Trim().ToLower());
             if (existingIndicator != null)
             {
-                ModelState.AddModelError("Name", "An indicator with this name already exists in this suboutput.");
+                ModelState.AddModelError("Name", _localizer["An indicator with this name already exists in this suboutput."]);
                 ViewData["SubOutputCode"] = new SelectList(_context.SubOutputs, "Code", "Name", indicator.SubOutputCode);
                 return View(indicator);
             }
@@ -201,7 +200,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         {
             if (string.IsNullOrWhiteSpace(Name) || Target <= 0)
             {
-                TempData["Error"] = "Name and Target are required and must be valid.";
+                TempData["Error"] = _localizer["Name and Target are required and must be valid."].Value;
                 return RedirectToAction("Index", new { subOutputCode = SubOutputCode });
             }
 
@@ -211,7 +210,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                                           i.Name.ToLower() == Name.Trim().ToLower());
             if (existingIndicator != null)
             {
-                TempData["Error"] = "An indicator with this name already exists in this suboutput.";
+                TempData["Error"] = _localizer["An indicator with this name already exists in this suboutput."].Value;
                 return RedirectToAction("Index", new { subOutputCode = SubOutputCode });
             }
 
@@ -243,7 +242,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             {
                 if (string.IsNullOrWhiteSpace(name))
                 {
-                    return Json(new { success = false, message = "Indicator name is required." });
+                    return Json(new { success = false, message = _localizer["Indicator name is required."].Value });
                 }
 
                 // Check if indicator name already exists within the same suboutput
@@ -252,7 +251,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                                               i.Name.ToLower() == name.Trim().ToLower());
                 if (existingIndicator != null)
                 {
-                    return Json(new { success = false, message = "An indicator with this name already exists in this suboutput." });
+                    return Json(new { success = false, message = _localizer["An indicator with this name already exists in this suboutput."].Value });
                 }
 
                 var indicator = new Indicator
@@ -285,12 +284,12 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                         indicatorsPerformance = Math.Round(indicator.IndicatorsPerformance, 2),
                         disbursementPerformance = Math.Round(indicator.DisbursementPerformance, 2)
                     },
-                    message = "Indicator created successfully!"
+                    message = _localizer["Indicator created successfully!"].Value
                 });
             }
             catch (Exception)
             {
-                return Json(new { success = false, message = "Could not create indicator. Please try again." });
+                return Json(new { success = false, message = _localizer["Could not create indicator. Please try again."].Value });
             }
         }
 
@@ -306,7 +305,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         {
             if (string.IsNullOrWhiteSpace(Name) || Target <= 0)
             {
-                TempData["Error"] = "Name and Target are required and must be valid.";
+                TempData["Error"] = _localizer["Name and Target are required and must be valid."].Value;
                 return RedirectToAction("Index", new { subOutputCode = SubOutputCode });
             }
 
@@ -316,7 +315,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                                           i.Name.ToLower() == Name.Trim().ToLower());
             if (existingIndicator != null)
             {
-                TempData["Error"] = "An indicator with this name already exists in this suboutput.";
+                TempData["Error"] = _localizer["An indicator with this name already exists in this suboutput."].Value;
                 return RedirectToAction("Index", new { subOutputCode = SubOutputCode });
             }
 
@@ -335,7 +334,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             // Recalculate weights
             await RedistributeWeights(indicator.SubOutputCode);
 
-            TempData["Success"] = "Indicator created. You can now add project details.";
+            TempData["Success"] = _localizer["Indicator created. You can now add project details."].Value;
 
             // Redirect to the "Create" action in the "Projects" controller.
             // Pass the newly created indicator's ID and Name so the project can be associated with it
@@ -460,11 +459,18 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 return NotFound();
             }
 
-            _context.Indicators.Remove(indicator);
-            await _context.SaveChangesAsync();
+            if (indicator.ProjectID.HasValue)
+            {
+                var monitoringService = new MonitoringService(_context);
+                await monitoringService.DeleteProjectAndRecalculateAsync(indicator.ProjectID.Value);
+            }
+            else
+            {
+                _context.Indicators.Remove(indicator);
+                await _context.SaveChangesAsync();
+            }
+
             await RedistributeWeights(indicator.SubOutputCode);
-            await UpdateSubOutputPerformance(indicator.SubOutputCode);
-            // Call recalculation BEFORE deleting the indicator
             await _planService.RecalculatePerformanceAfterIndicatorDeletion(indicator);
 
             return Ok();
@@ -487,6 +493,11 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 return NotFound();
             }
             ViewData["SubOutputCode"] = new SelectList(_context.SubOutputs, "Code", "Name", indicator.SubOutputCode);
+            if (indicator.ProjectID.HasValue)
+            {
+                var project = await _context.Projects.FindAsync(indicator.ProjectID.Value);
+                ViewBag.ProjectName = project?.ProjectName;
+            }
             return View(indicator);
         }
 
@@ -501,17 +512,24 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             }
 
             ModelState.Remove(nameof(indicator.SubOutput));
+            ModelState.Remove(nameof(indicator.Project));
+            ModelState.Remove(nameof(indicator.ProjectID));
 
             if (ModelState.IsValid)
             {
                 try
                 {
-                    // Update the indicator
-                    _context.Update(indicator);
+                    var existing = await _context.Indicators.FindAsync(id);
+                    if (existing == null) return NotFound();
+
+                    existing.Name = indicator.Name;
+                    existing.SubOutputCode = indicator.SubOutputCode;
+                    // ProjectID is immutable — not overwritten
+
                     await _context.SaveChangesAsync();
 
                     // Update related entities
-                    await UpdateSubOutputPerformance(indicator.SubOutputCode);
+                    await UpdateSubOutputPerformance(existing.SubOutputCode);
                 }
                 catch (DbUpdateConcurrencyException)
                 {
@@ -529,6 +547,11 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             }
 
             ViewData["SubOutputCode"] = new SelectList(_context.SubOutputs, "Code", "Name", indicator.SubOutputCode);
+            if (indicator.ProjectID.HasValue)
+            {
+                var project = await _context.Projects.FindAsync(indicator.ProjectID.Value);
+                ViewBag.ProjectName = project?.ProjectName;
+            }
             return View(indicator);
         }
 
@@ -574,7 +597,14 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         (indicator.Name, "Indicator", indicator.IndicatorCode)
     };
 
-            var measures = await _context.Measures.Where(m => m.IndicatorCode == id).ToListAsync();
+            // Measures are now linked to ProjectPhases; get them via the indicator's project
+            var measures = indicator.ProjectID.HasValue
+                ? await _context.Measures
+                    .Include(m => m.ProjectPhase)
+                    .Where(m => m.ProjectPhase.ProjectID == indicator.ProjectID.Value)
+                    .OrderBy(m => m.Date)
+                    .ToListAsync()
+                : new List<Measure>();
 
             var labels = new List<string>();
             var realData = new List<double>();
@@ -613,17 +643,19 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         [Permission(Permissions.ReadIndicators)]
         public async Task<IActionResult> GetMeasureChartData(int indicatorCode)
         {
-            var data = await _context.Measures
-                .Where(m => m.IndicatorCode == indicatorCode)
-                .OrderBy(m => m.Date)
-                .Select(m => new { date = m.Date.ToString("yyyy-MM-dd"), value = m.Value })
-                .ToListAsync();
-
-            // Get indicator target as baseline
-            var indicator = await _context.Indicators
+            // Get indicator to find its project
+            var indicatorForChart = await _context.Indicators
                 .FirstOrDefaultAsync(i => i.IndicatorCode == indicatorCode);
 
-            var targetValue = indicator?.Target ?? 0;
+            var data = indicatorForChart?.ProjectID.HasValue == true
+                ? await _context.Measures
+                    .Where(m => m.ProjectPhase.ProjectID == indicatorForChart.ProjectID.Value)
+                    .OrderBy(m => m.Date)
+                    .Select(m => new { date = m.Date.ToString("yyyy-MM-dd"), value = m.Value })
+                    .ToListAsync()
+                : new List<object>().Select(x => new { date = "", value = 0.0 }).ToList();
+
+            var targetValue = indicatorForChart?.Target ?? 0;
             var target = new[] { new { date = "baseline", value = targetValue } };
 
             var result = new { Real = data, Target = target };
@@ -634,10 +666,15 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         [Permission(Permissions.ReadIndicators)]
         public async Task<IActionResult> MeasureTablePartial(int indicatorCode)
         {
-            var measures = await _context.Measures
-                .Where(m => m.IndicatorCode == indicatorCode)
-                .OrderBy(m => m.Date)
-                .ToListAsync();
+            var indicatorForTable = await _context.Indicators
+                .FirstOrDefaultAsync(i => i.IndicatorCode == indicatorCode);
+
+            var measures = indicatorForTable?.ProjectID.HasValue == true
+                ? await _context.Measures
+                    .Where(m => m.ProjectPhase.ProjectID == indicatorForTable.ProjectID.Value)
+                    .OrderBy(m => m.Date)
+                    .ToListAsync()
+                : new List<Measure>();
 
             return PartialView("_MeasureTablePartial", measures);
         }
@@ -722,7 +759,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
 
             if (Math.Abs(totalWeight - 100.0) > 0.01)
             {
-                ModelState.AddModelError("", "Total weight must equal 100%.");
+                ModelState.AddModelError("", _localizer["Total weight must equal 100%."]);
                 ViewBag.SubOutputCode = subOutputCode;
                 ViewBag.FrameworkCode = frameworkCode;
                 return View(model);
@@ -748,72 +785,10 @@ namespace MonitoringAndEvaluationPlatform.Controllers
 
         // GET: Indicators/IndicatorAndProject
         [Permission(Permissions.ReadIndicators)]
-        public async Task<IActionResult> IndicatorAndProject(int? projectId, int? frameworkCode, int? subOutputCode, string searchString)
+        public IActionResult IndicatorAndProject(int? projectId, int? frameworkCode, int? subOutputCode, string searchString)
         {
-            ViewData["CurrentFilter"] = searchString;
-            ViewData["ProjectId"] = projectId;
-            ViewData["FrameworkCode"] = frameworkCode;
-            ViewData["SubOutputCode"] = subOutputCode;
-
-            // Get projects filtered by frameworkCode if provided
-            var projectsQuery = _context.Projects.AsQueryable();
-
-            if (frameworkCode.HasValue)
-            {
-                // Filter projects that are associated with indicators belonging to the specified framework
-                projectsQuery = projectsQuery.Where(p =>
-                    p.ProjectIndicators.Any(pi =>
-                        pi.Indicator.SubOutput.Output.Outcome.FrameworkCode == frameworkCode));
-            }
-
-            var projects = await projectsQuery
-                .Select(p => new { p.ProjectID, p.ProjectName })
-                .Distinct()
-                .OrderBy(p => p.ProjectName)
-                .ToListAsync();
-
-            ViewData["Projects"] = new SelectList(projects, "ProjectID", "ProjectName", projectId);
-
-            // Base query for indicators with their related projects
-            var indicatorsQuery = _context.Indicators
-                .Include(i => i.SubOutput)
-                    .ThenInclude(so => so.Output)
-                    .ThenInclude(o => o.Outcome)
-                    .ThenInclude(oc => oc.Framework)
-                .Include(i => i.ProjectIndicators)
-                    .ThenInclude(pi => pi.Project)
-                .AsQueryable();
-
-            // Apply framework filter if provided
-            if (frameworkCode.HasValue)
-            {
-                indicatorsQuery = indicatorsQuery.Where(i => i.SubOutput.Output.Outcome.FrameworkCode == frameworkCode);
-            }
-
-            // Apply subOutput filter if provided
-            if (subOutputCode.HasValue)
-            {
-                indicatorsQuery = indicatorsQuery.Where(i => i.SubOutputCode == subOutputCode);
-            }
-
-            // Apply project filter if provided
-            if (projectId.HasValue)
-            {
-                indicatorsQuery = indicatorsQuery.Where(i => i.ProjectIndicators.Any(pi => pi.ProjectId == projectId));
-            }
-
-            // Apply search filter if provided
-            if (!string.IsNullOrEmpty(searchString))
-            {
-                indicatorsQuery = indicatorsQuery.Where(i =>
-                    EF.Functions.Like(i.Name, $"%{searchString}%") ||
-                    (i.SubOutput != null && EF.Functions.Like(i.SubOutput.Name, $"%{searchString}%")) ||
-                    i.ProjectIndicators.Any(pi => EF.Functions.Like(pi.Project.ProjectName, $"%{searchString}%")));
-            }
-
-            var indicators = await indicatorsQuery.ToListAsync();
-
-            return View(indicators);
+            // Merged into Index — redirect to preserve any bookmarked/linked URLs
+            return RedirectToAction("Index", new { frameworkCode, subOutputCode, searchString, projectId });
         }
 
         // GET: Demo page for project display options
@@ -824,72 +799,10 @@ namespace MonitoringAndEvaluationPlatform.Controllers
 
         // GET: Indicators/IndicatorAndProjectTable
         [Permission(Permissions.ReadIndicators)]
-        public async Task<IActionResult> IndicatorAndProjectTable(int? projectId, int? frameworkCode, int? subOutputCode, string searchString)
+        public IActionResult IndicatorAndProjectTable(int? projectId, int? frameworkCode, int? subOutputCode, string searchString)
         {
-            ViewData["CurrentFilter"] = searchString;
-            ViewData["ProjectId"] = projectId;
-            ViewData["frameworkCode"] = frameworkCode;
-            ViewData["subOutputCode"] = subOutputCode;
-
-            // Get projects filtered by frameworkCode if provided
-            var projectsQuery = _context.Projects.AsQueryable();
-
-            if (frameworkCode.HasValue)
-            {
-                // Filter projects that are associated with indicators belonging to the specified framework
-                projectsQuery = projectsQuery.Where(p =>
-                    p.ProjectIndicators.Any(pi =>
-                        pi.Indicator.SubOutput.Output.Outcome.FrameworkCode == frameworkCode));
-            }
-
-            var projects = await projectsQuery
-                .Select(p => new { p.ProjectID, p.ProjectName })
-                .Distinct()
-                .OrderBy(p => p.ProjectName)
-                .ToListAsync();
-
-            ViewData["Projects"] = new SelectList(projects, "ProjectID", "ProjectName", projectId);
-
-            // Base query for indicators with their related projects
-            var indicatorsQuery = _context.Indicators
-                .Include(i => i.SubOutput)
-                    .ThenInclude(so => so.Output)
-                    .ThenInclude(o => o.Outcome)
-                    .ThenInclude(oc => oc.Framework)
-                .Include(i => i.ProjectIndicators)
-                    .ThenInclude(pi => pi.Project)
-                .AsQueryable();
-
-            // Apply framework filter if provided
-            if (frameworkCode.HasValue)
-            {
-                indicatorsQuery = indicatorsQuery.Where(i => i.SubOutput.Output.Outcome.FrameworkCode == frameworkCode);
-            }
-
-            // Apply subOutput filter if provided
-            if (subOutputCode.HasValue)
-            {
-                indicatorsQuery = indicatorsQuery.Where(i => i.SubOutputCode == subOutputCode);
-            }
-
-            // Apply project filter if provided
-            if (projectId.HasValue)
-            {
-                indicatorsQuery = indicatorsQuery.Where(i => i.ProjectIndicators.Any(pi => pi.ProjectId == projectId));
-            }
-
-            // Apply search filter if provided
-            if (!string.IsNullOrEmpty(searchString))
-            {
-                indicatorsQuery = indicatorsQuery.Where(i =>
-                    EF.Functions.Like(i.Name, $"%{searchString}%") ||
-                    (i.SubOutput != null && EF.Functions.Like(i.SubOutput.Name, $"%{searchString}%")) ||
-                    i.ProjectIndicators.Any(pi => EF.Functions.Like(pi.Project.ProjectName, $"%{searchString}%")));
-            }
-
-            var indicators = await indicatorsQuery.ToListAsync();
-
-            return View(indicators);
+            // Merged into Index — redirect to preserve any bookmarked/linked URLs
+            return RedirectToAction("Index", new { frameworkCode, subOutputCode, searchString, projectId });
         }
 
         // GET: Indicators/ExportExcel

@@ -84,8 +84,8 @@ namespace MonitoringAndEvaluationPlatform.Controllers
 
                 // Filter projects that have indicators belonging to the specified SubOutput
                 projectQuery = projectQuery
-                    .Where(p => p.ProjectIndicators
-                                 .Any(pi => pi.Indicator.SubOutputCode == filter.SubOutputCode.Value));
+                    .Where(p => p.Indicators
+                                 .Any(i => i.SubOutputCode == filter.SubOutputCode.Value));
             }
 
             // Apply hierarchy filters (Framework -> Outcome -> Output -> SubOutput)
@@ -93,8 +93,8 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             {
                 // SubOutput filter is most specific
                 projectQuery = projectQuery
-                    .Where(p => p.ProjectIndicators
-                                 .Any(pi => pi.Indicator.SubOutputCode == filter.SelectedSubOutputCode.Value));
+                    .Where(p => p.Indicators
+                                 .Any(i => i.SubOutputCode == filter.SelectedSubOutputCode.Value));
 
                 // Get display names for breadcrumb
                 var subOutput = await _context.SubOutputs
@@ -119,8 +119,8 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                     .ToListAsync();
 
                 projectQuery = projectQuery
-                    .Where(p => p.ProjectIndicators
-                                 .Any(pi => subOutputCodes.Contains(pi.Indicator.SubOutputCode)));
+                    .Where(p => p.Indicators
+                                 .Any(i => subOutputCodes.Contains(i.SubOutputCode)));
 
                 // Get display names
                 var output = await _context.Outputs
@@ -143,8 +143,8 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                     .ToListAsync();
 
                 projectQuery = projectQuery
-                    .Where(p => p.ProjectIndicators
-                                 .Any(pi => subOutputCodes.Contains(pi.Indicator.SubOutputCode)));
+                    .Where(p => p.Indicators
+                                 .Any(i => subOutputCodes.Contains(i.SubOutputCode)));
 
                 // Get display names
                 var outcome = await _context.Outcomes
@@ -165,8 +165,8 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                     .ToListAsync();
 
                 projectQuery = projectQuery
-                    .Where(p => p.ProjectIndicators
-                                 .Any(pi => subOutputCodes.Contains(pi.Indicator.SubOutputCode)));
+                    .Where(p => p.Indicators
+                                 .Any(i => subOutputCodes.Contains(i.SubOutputCode)));
 
                 // Get display name
                 var framework = await _context.Frameworks.FindAsync(filter.SelectedFrameworkCode.Value);
@@ -199,7 +199,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 // Filter projects by name OR by matching indicators
                 projectQuery = projectQuery
                     .Where(p => p.ProjectName.ToLower().Contains(searchTerm) ||
-                                p.ProjectIndicators.Any(pi => matchingIndicatorCodes.Contains(pi.IndicatorCode)));
+                                p.Indicators.Any(i => matchingIndicatorCodes.Contains(i.IndicatorCode)));
             }
 
             // Apply additional filters
@@ -313,11 +313,9 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             var supervisors = _context.SuperVisors.ToList();
             var projectManagers = _context.ProjectManagers.ToList();
             var goals = _context.Goals.ToList();
-            var indicators = _context.Indicators.OrderBy(i => i.IndicatorCode).ToList();
             var isArabic = CultureInfo.CurrentUICulture.TwoLetterISOLanguageName == "ar";
 
             ViewBag.Governorates = _context.Governorates.ToList();
-            ViewBag.Indicators = indicators;
 
             // Pass indicator information for auto-filling if coming from "Add & Create Project"
             ViewBag.PreSelectedIndicatorId = indicatorId;
@@ -391,10 +389,9 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         public async Task<IActionResult> Create(
             Project project,
             List<IFormFile> UploadedFiles,
-            int PlansCount,
             string? selections,
-            List<int>? SelectedIndicators,
-            string? DonorFundingBreakdown)
+            string? DonorFundingBreakdown,
+            int? LinkedIndicatorId)
         {
             try
             {
@@ -403,9 +400,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
 
                 // Remove form parameters from ModelState (they're not part of the Project model)
                 ModelState.Remove("selections");
-                ModelState.Remove("SelectedIndicators");
                 ModelState.Remove("DonorFundingBreakdown");
-                ModelState.Remove("PlansCount");
                 ModelState.Remove("IsEntireCountry");
 
                 // Explicitly read IsEntireCountry from form (checkbox sends "true" if checked, nothing if unchecked)
@@ -414,18 +409,6 @@ namespace MonitoringAndEvaluationPlatform.Controllers
 
                 // Set IsEntireCountry on project
                 project.IsEntireCountry = IsEntireCountry;
-
-                // Ensure SelectedIndicators is not null and remove duplicates
-                SelectedIndicators = SelectedIndicators?.Distinct().ToList() ?? new List<int>();
-
-                // Calculate PlansCount automatically based on the difference in months between StartDate and EndDate
-                PlansCount = CalculateMonthsDifference(project.StartDate, project.EndDate);
-
-                // Ensure PlansCount is at least 1 month
-                if (PlansCount <= 0)
-                {
-                    PlansCount = 1;
-                }
 
                 // Process location selections (skip if entire country)
                 if (!IsEntireCountry)
@@ -456,14 +439,12 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                     project,
                     selectedLocations,
                     selectedSectorCodes,
-                    SelectedIndicators,
-                    PlansCount,
                     ModelState,
                     IsEntireCountry);
 
                 if (!ModelState.IsValid)
                 {
-                    await PopulateCreateViewBagAsync(selectedSectorCodes, selectedDonorCodes, SelectedIndicators, selections, DonorFundingBreakdown);
+                    await PopulateCreateViewBagAsync(selectedSectorCodes, selectedDonorCodes, selections, DonorFundingBreakdown);
                     return View(project);
                 }
 
@@ -486,64 +467,35 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                     }
                 }
 
-                // Create action plan
-                project.ActionPlan = new ActionPlan { PlansCount = PlansCount };
-
-                // Save project and action plan
+                // Save project first to get its ID
                 _context.Projects.Add(project);
                 await _context.SaveChangesAsync();
 
-                // Create activities for the project
-                var baseActivity = new Activity
+                // Auto-link the indicator that triggered project creation (from CreateAndRedirectToProject)
+                if (LinkedIndicatorId.HasValue)
                 {
-                    Name = project.ProjectName ?? "New Project Activity",
-                    ActionPlanCode = project.ActionPlan.Code
-                };
-
-                var activitiesCreated = await _activityService.CreateActivitiesForAllTypesAsync(baseActivity);
-                if (!activitiesCreated)
-                {
-                    ModelState.AddModelError("", "Unable to create activities for the new ActionPlan.");
-                    await PopulateCreateViewBagAsync(selectedSectorCodes, selectedDonorCodes, SelectedIndicators, selections, DonorFundingBreakdown);
-                    return View(project);
-                }
-
-                // Distribute budget across plans
-                var actionPlanWithActivities = await _context.ActionPlans
-                    .Include(ap => ap.Project)
-                    .Include(ap => ap.Activities)
-                        .ThenInclude(a => a.Plans)
-                    .FirstOrDefaultAsync(ap => ap.Code == project.ActionPlan.Code);
-
-                if (actionPlanWithActivities != null)
-                {
-                    actionPlanWithActivities.DistributeBudgetEquallyToPlans();
-                    await _context.SaveChangesAsync();
+                    var indicator = await _context.Indicators.FindAsync(LinkedIndicatorId.Value);
+                    if (indicator != null)
+                    {
+                        indicator.ProjectID = project.ProjectID;
+                        await _context.SaveChangesAsync();
+                    }
                 }
 
                 // Process file uploads
                 await ProcessFileUploadsAsync(project.ProjectID, UploadedFiles);
 
-                // Link indicators to project
-                await LinkProjectIndicatorsAsync(project.ProjectID, SelectedIndicators);
-
-                // Set success message
-                var indicatorCount = SelectedIndicators?.Count ?? 0;
-                var successMessage = indicatorCount > 0
-                    ? $"Project '{project.ProjectName}' has been created successfully with {indicatorCount} indicator(s) linked and {PlansCount} month(s) planned."
-                    : $"Project '{project.ProjectName}' has been created successfully.";
-
-                this.SetSuccessMessage(successMessage);
+                this.SetSuccessMessage(string.Format(_localizer["Project '{0}' has been created successfully."].Value, project.ProjectName));
 
                 return RedirectToAction("Details", new { id = project.ProjectID });
             }
             catch (Exception ex)
             {
-                ModelState.AddModelError("", $"An error occurred while creating the project: {ex.Message}");
+                ModelState.AddModelError("", _localizer["An error occurred while creating the project."]);
                 // Get form data for preservation
                 var selectedSectorCodes = Request.Form["Sectors"].ToList();
                 var selectedDonorCodes = Request.Form["Donors"].ToList();
-                await PopulateCreateViewBagAsync(selectedSectorCodes, selectedDonorCodes, SelectedIndicators, selections, DonorFundingBreakdown);
+                await PopulateCreateViewBagAsync(selectedSectorCodes, selectedDonorCodes, selections, DonorFundingBreakdown);
                 return View(project);
             }
         }
@@ -573,9 +525,16 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 .Include(p => p.SubDistricts)
                 .Include(p => p.Communities)
                 .Include(p => p.Sectors)
-                .Include(p => p.ProjectIndicators)
-                .Include(p => p.ProjectFiles) // FIXED: Missing ProjectFiles
-                .AsNoTracking() // OPTIMIZATION: Read-only query for better performance
+                .Include(p => p.Indicators)
+                .Include(p => p.Phases)
+                    .ThenInclude(pp => pp.Measures)
+                        .ThenInclude(m => m.Files)
+                .Include(p => p.Phases)
+                    .ThenInclude(pp => pp.ActionPlan)
+                        .ThenInclude(ap => ap.Activities)
+                            .ThenInclude(a => a.Plans)
+                .Include(p => p.ProjectFiles)
+                .AsNoTracking()
                 .FirstOrDefaultAsync(m => m.ProjectID == id);
 
             if (project == null)
@@ -599,7 +558,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 .Include(p => p.ProjectManager)
                 .Include(p => p.SuperVisor)
                 .Include(p => p.Goal)
-                .Include(p => p.ProjectIndicators)
+                .Include(p => p.Indicators)
                 .FirstOrDefaultAsync(p => p.ProjectID == id.Value);
 
 
@@ -714,9 +673,6 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 isArabic ? "AR_Name" : "EN_Name"
             );
 
-            // Load indicators for selection
-            ViewBag.Indicators = await _context.Indicators.OrderBy(i => i.IndicatorCode).ToListAsync();
-
             return View(project);
         }
         [HttpPost]
@@ -745,7 +701,6 @@ namespace MonitoringAndEvaluationPlatform.Controllers
           List<IFormFile> UploadedFiles,
           List<int>? SelectedSectorCodes,
           List<int>? SelectedDonorCodes,
-          List<int>? SelectedIndicators,
           string? selections,
           string? DonorFundingBreakdown)
         {
@@ -755,7 +710,6 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             // Initialize to empty lists if null to prevent null reference exceptions and remove duplicates
             SelectedSectorCodes = SelectedSectorCodes ?? new List<int>();
             SelectedDonorCodes = SelectedDonorCodes ?? new List<int>();
-            SelectedIndicators = SelectedIndicators?.Distinct().ToList() ?? new List<int>();
 
             // Explicitly read IsEntireCountry from form (checkbox sends "true" if checked, nothing if unchecked)
             var isEntireCountryValue = Request.Form["IsEntireCountry"].ToString();
@@ -806,7 +760,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             ModelState.Remove(nameof(Project.Districts));
             ModelState.Remove(nameof(Project.SubDistricts));
             ModelState.Remove(nameof(Project.Communities));
-            ModelState.Remove(nameof(Project.ActionPlan));
+            ModelState.Remove(nameof(Project.Phases));
             ModelState.Remove(nameof(Project.Goal));
 
             if (!ModelState.IsValid)
@@ -816,7 +770,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 return View(project);
             }
 
-            // --- Include Regions, Sectors, Donors, and ProjectIndicators so Clear() will delete old join rows ---
+            // --- Include Regions, Sectors, Donors, and Indicators ---
             var dbProject = await _context.Projects
                 .Include(p => p.Sectors)
                 .Include(p => p.Donors)
@@ -827,7 +781,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 .Include(p => p.SubDistricts)
                 .Include(p => p.Communities)
                 .Include(p => p.Goal)
-                .Include(p => p.ProjectIndicators)
+                .Include(p => p.Indicators)
                 .FirstOrDefaultAsync(p => p.ProjectID == id);
 
             if (dbProject == null)
@@ -972,27 +926,6 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 dbProject.MinistryCode = null;
             }
 
-            // --- Update Project Indicators ---
-            // Clear existing indicators
-            dbProject.ProjectIndicators.Clear();
-
-            // Add selected indicators (with duplicate prevention)
-            if (SelectedIndicators != null && SelectedIndicators.Any())
-            {
-                foreach (var indicatorCode in SelectedIndicators)
-                {
-                    var indicator = await _context.Indicators.FindAsync(indicatorCode);
-                    if (indicator != null)
-                    {
-                        dbProject.ProjectIndicators.Add(new ProjectIndicator
-                        {
-                            ProjectId = dbProject.ProjectID,
-                            IndicatorCode = indicatorCode
-                        });
-                    }
-                }
-            }
-
             // --- Handle file uploads (unchanged) ---
             if (UploadedFiles != null && UploadedFiles.Count > 0)
             {
@@ -1114,27 +1047,27 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             var service = new MonitoringService(_context);
             try
             {
-                // Get project info before deletion for DisbursementPerformance recalculation
+                // Get project info before deletion for performance recalculation
                 var project = await _context.Projects
-                    .Include(p => p.ProjectIndicators)
+                    .Include(p => p.Indicators)
                     .FirstOrDefaultAsync(p => p.ProjectID == id);
 
                 if (project != null)
                 {
-                    // Capture affected indicator IDs before deletion
-                    var affectedIndicatorIds = project.ProjectIndicators
-                        .Select(pi => pi.IndicatorCode)
-                        .Distinct()
-                        .ToList();
+                    // Capture affected indicators before deletion
+                    var affectedIndicators = project.Indicators.ToList();
 
                     // Delete the project and recalculate IndicatorsPerformance (from measures)
                     await service.DeleteProjectAndRecalculateAsync(id);
 
-                    // Recalculate DisbursementPerformance for all affected levels
-                    if (affectedIndicatorIds.Any())
+                    // Recalculate performance for all affected levels
+                    if (affectedIndicators.Any())
                     {
                         var planService = new PlanService(_context);
-                        await planService.RecalculateIndicatorsPerformance(affectedIndicatorIds);
+                        foreach (var indicator in affectedIndicators)
+                        {
+                            await planService.RecalculatePerformanceAfterIndicatorDeletion(indicator);
+                        }
                     }
                 }
             }
@@ -1151,7 +1084,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         public async Task<IActionResult> DeleteSelected([FromBody] List<int> ids)
         {
             if (ids == null || !ids.Any())
-                return Json(new { success = false, message = "No projects selected." });
+                return Json(new { success = false, message = _localizer["No projects selected."].Value });
 
             var errors = new List<string>();
             var deletedCount = 0;
@@ -1164,20 +1097,17 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 try
                 {
                     var project = await _context.Projects
-                        .Include(p => p.ProjectIndicators)
+                        .Include(p => p.Indicators)
                         .FirstOrDefaultAsync(p => p.ProjectID == id);
 
                     if (project == null) continue;
 
-                    var affectedIndicatorIds = project.ProjectIndicators
-                        .Select(pi => pi.IndicatorCode)
-                        .Distinct()
-                        .ToList();
+                    var affectedIndicators = project.Indicators.ToList();
 
                     await monitoringService.DeleteProjectAndRecalculateAsync(id);
 
-                    if (affectedIndicatorIds.Any())
-                        await planService.RecalculateIndicatorsPerformance(affectedIndicatorIds);
+                    foreach (var indicator in affectedIndicators)
+                        await planService.RecalculatePerformanceAfterIndicatorDeletion(indicator);
 
                     deletedCount++;
                 }
@@ -1188,9 +1118,9 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             }
 
             if (errors.Any())
-                return Json(new { success = false, message = $"Deleted {deletedCount} project(s). Errors: {string.Join("; ", errors)}" });
+                return Json(new { success = false, message = string.Format(_localizer["Deleted {0} project(s) with errors."].Value, deletedCount) });
 
-            return Json(new { success = true, message = $"{deletedCount} project(s) deleted successfully.", deletedIds = ids });
+            return Json(new { success = true, message = string.Format(_localizer["{0} project(s) deleted successfully."].Value, deletedCount), deletedIds = ids });
         }
 
         private bool ProgramExists(int id)
@@ -1209,10 +1139,8 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                     .ToList(),
 
                 // Get already linked indicators
-                LinkedIndicators = _context.ProjectIndicators
-                .Where(pi => pi.ProjectId == projectId)
-                .Include(pi => pi.Indicator)
-                .Select(pi => pi.Indicator)
+                LinkedIndicators = _context.Indicators
+                .Where(i => i.ProjectID == projectId)
                 .ToList()
             };
 
@@ -1329,11 +1257,12 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             // Logic to link indicators to the selected project
             foreach (var indicatorCode in model.SelectedIndicatorCodes)
             {
-                _context.ProjectIndicators.Add(new ProjectIndicator
+                var indicator = await _context.Indicators.FindAsync(indicatorCode);
+                if (indicator != null && indicator.ProjectID != model.SelectedProjectId)
                 {
-                    ProjectId = model.SelectedProjectId,
-                    IndicatorCode = indicatorCode
-                });
+                    indicator.ProjectID = model.SelectedProjectId;
+                    _context.Indicators.Update(indicator);
+                }
             }
 
             await _context.SaveChangesAsync();
@@ -1516,19 +1445,10 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             foreach (var indicatorCode in selectedIndicators)
             {
                 var indicator = await _context.Indicators.FindAsync(indicatorCode);
-                if (indicator != null)
+                if (indicator != null && indicator.ProjectID != projectId)
                 {
-                    var existingLink = await _context.ProjectIndicators
-                        .FirstOrDefaultAsync(pi => pi.ProjectId == projectId && pi.IndicatorCode == indicatorCode);
-
-                    if (existingLink == null)
-                    {
-                        _context.ProjectIndicators.Add(new ProjectIndicator
-                        {
-                            ProjectId = projectId,
-                            IndicatorCode = indicatorCode
-                        });
-                    }
+                    indicator.ProjectID = projectId;
+                    _context.Indicators.Update(indicator);
                 }
             }
 
@@ -1546,13 +1466,12 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 nameof(Project.Ministries),
                 nameof(Project.Ministry),
                 nameof(Project.SuperVisor),
-                nameof(Project.ActionPlan),
+                nameof(Project.Phases),
                 nameof(Project.Communities),
                 nameof(Project.Districts),
                 nameof(Project.SubDistricts),
                 nameof(Project.Governorates),
-                nameof(Project.Goal),
-                "PlansCount"
+                nameof(Project.Goal)
             };
 
             foreach (var property in propertiesToRemove)
@@ -1561,7 +1480,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             }
         }
 
-        private async Task PopulateCreateViewBagAsync(List<string> selectedSectorCodes = null, List<string> selectedDonorCodes = null, List<int> selectedIndicators = null, string locationSelections = null, string donorFundingBreakdown = null)
+        private async Task PopulateCreateViewBagAsync(List<string> selectedSectorCodes = null, List<string> selectedDonorCodes = null, string locationSelections = null, string donorFundingBreakdown = null)
         {
             var isArabic = CultureInfo.CurrentUICulture.TwoLetterISOLanguageName == "ar";
 
@@ -1600,12 +1519,9 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 "Code",
                 isArabic ? "AR_Name" : "EN_Name"
             );
-            ViewBag.Indicators = _context.Indicators.OrderBy(i => i.IndicatorCode).ToList();
-
             // Preserve form data
             ViewBag.SelectedSectorCodes = selectedSectorCodes ?? new List<string>();
             ViewBag.SelectedDonorCodes = selectedDonorCodes ?? new List<string>();
-            ViewBag.SelectedIndicators = selectedIndicators ?? new List<int>();
             ViewBag.LocationSelections = locationSelections ?? "";
             ViewBag.DonorFundingBreakdown = donorFundingBreakdown ?? "";
         }

@@ -352,8 +352,7 @@
                         var outcomeProjects = item.Outputs
                             .SelectMany(op => op.SubOutputs)
                             .SelectMany(so => so.Indicators)
-                            .SelectMany(i => i.ProjectIndicators)
-                            .Select(pi => pi.Project)
+                            .Select(i => i.Project)
                             .Where(p => p != null)
                             .Distinct()
                             .ToList();

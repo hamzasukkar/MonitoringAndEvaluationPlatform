@@ -1,0 +1,148 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="Projects" xml:space="preserve">
+    <value>المشاريع</value>
+  </data>
+  <data name="Add Phase" xml:space="preserve">
+    <value>إضافة مرحلة</value>
+  </data>
+  <data name="Add Project Phase" xml:space="preserve">
+    <value>إضافة مرحلة للمشروع</value>
+  </data>
+  <data name="Define a new phase with its timeline and budget allocation" xml:space="preserve">
+    <value>حدد مرحلة جديدة بجدولها الزمني وتخصيص ميزانيتها</value>
+  </data>
+  <data name="Back to Project" xml:space="preserve">
+    <value>العودة إلى المشروع</value>
+  </data>
+  <data name="Project" xml:space="preserve">
+    <value>المشروع</value>
+  </data>
+  <data name="Project Dates" xml:space="preserve">
+    <value>تواريخ المشروع</value>
+  </data>
+  <data name="Remaining Budget" xml:space="preserve">
+    <value>الميزانية المتبقية</value>
+  </data>
+  <data name="Current Phases" xml:space="preserve">
+    <value>المراحل الحالية</value>
+  </data>
+  <data name="Warning: The project budget is fully allocated. You cannot add a phase with a non-zero budget." xml:space="preserve">
+    <value>تحذير: تم تخصيص ميزانية المشروع بالكامل. لا يمكنك إضافة مرحلة بميزانية غير صفرية.</value>
+  </data>
+  <data name="Phase Details" xml:space="preserve">
+    <value>تفاصيل المرحلة</value>
+  </data>
+  <data name="Fill in the phase information below" xml:space="preserve">
+    <value>أدخل معلومات المرحلة أدناه</value>
+  </data>
+  <data name="Phase Name" xml:space="preserve">
+    <value>اسم المرحلة</value>
+  </data>
+  <data name="Enter phase name (e.g., Phase 1 - Design)" xml:space="preserve">
+    <value>أدخل اسم المرحلة (مثال: المرحلة 1 - التصميم)</value>
+  </data>
+  <data name="Start Date" xml:space="preserve">
+    <value>تاريخ البدء</value>
+  </data>
+  <data name="Must be on or after" xml:space="preserve">
+    <value>يجب أن يكون في أو بعد</value>
+  </data>
+  <data name="End Date" xml:space="preserve">
+    <value>تاريخ الانتهاء</value>
+  </data>
+  <data name="Must be on or before" xml:space="preserve">
+    <value>يجب أن يكون في أو قبل</value>
+  </data>
+  <data name="Budget Allocation" xml:space="preserve">
+    <value>تخصيص الميزانية</value>
+  </data>
+  <data name="units" xml:space="preserve">
+    <value>وحدات</value>
+  </data>
+  <data name="available" xml:space="preserve">
+    <value>متاح</value>
+  </data>
+  <data name="This will be the first phase. It will automatically receive 100% weight." xml:space="preserve">
+    <value>ستكون هذه أول مرحلة وستحصل تلقائياً على وزن 100%.</value>
+  </data>
+  <data name="After adding this phase, weights will be automatically redistributed equally among all @(phaseCount + 1) phases." xml:space="preserve">
+    <value>بعد إضافة هذه المرحلة، ستُعاد توزيع الأوزان تلقائياً بالتساوي بين جميع المراحل.</value>
+  </data>
+  <data name="Cancel" xml:space="preserve">
+    <value>إلغاء</value>
+  </data>
+  <data name="Adding..." xml:space="preserve">
+    <value>جاري الإضافة...</value>
+  </data>
+  <data name="Target Quantity" xml:space="preserve">
+    <value>الكمية المستهدفة</value>
+  </data>
+  <data name="e.g. 100" xml:space="preserve">
+    <value>مثال: 100</value>
+  </data>
+  <data name="Optional: set a quantity target so that measure achievements are auto-calculated (e.g. plant 100 trees)" xml:space="preserve">
+    <value>اختياري: حدد كمية مستهدفة ليتم احتساب الإنجازات تلقائياً (مثال: زراعة 100 شجرة)</value>
+  </data>
+  <data name="Add Phase" xml:space="preserve">
+    <value>إضافة مرحلة</value>
+  </data>
+</root>

@@ -1,0 +1,423 @@
+@using MonitoringAndEvaluationPlatform.Helpers;
+@using Microsoft.AspNetCore.Mvc.Localization
+@inject IViewLocalizer Localizer
+@model IEnumerable<MonitoringAndEvaluationPlatform.Models.ProjectPhase>
+@{
+    ViewData["Title"] = "Phases Monitoring";
+    Layout = "~/Views/Shared/_DashboardHomeLayout.cshtml";
+}
+
+<!-- Dashboard Header -->
+<div class="dashboard-header">
+    <h1 class="dashboard-title">
+        <i class="fas fa-layer-group me-3"></i>
+        @Localizer["Phases Dashboard"]
+    </h1>
+    <p class="dashboard-subtitle">
+        @Localizer["Phase-level performance monitoring with budget tracking and progress analytics"]
+    </p>
+</div>
+
+<div class="container-fluid">
+    @if (!Model.Any())
+    {
+        <div class="empty-state mt-4">
+            <i class="fas fa-layer-group fa-3x text-muted mb-3"></i>
+            <h4 class="text-muted">@Localizer["No phases found"]</h4>
+        </div>
+    }
+    else
+    {
+        <div class="frameworks-analytics-container">
+            @foreach (var phase in Model)
+            {
+                var perfLevel = phase.PhasePerformance >= 80 ? "excellent" : phase.PhasePerformance >= 60 ? "good" : "critical";
+                var perfRounded = Math.Round(phase.PhasePerformance);
+                var budgetFormatted = phase.Budget.ToString("N0");
+
+                <div class="modern-framework-card">
+                    <div class="framework-card-header">
+                        <div class="framework-title-section">
+                            <h3 class="framework-title">
+                                <i class="fas fa-layer-group me-2"></i>
+                                @phase.Name
+                            </h3>
+                            <div class="phase-meta-row">
+                                <span class="framework-status-badge">
+                                    <i class="fas fa-folder-open me-1"></i>
+                                    @phase.Project?.ProjectName
+                                </span>
+                            </div>
+                        </div>
+                        <div class="framework-card-dates">
+                            <span class="date-badge"><i class="fas fa-calendar-alt me-1"></i>@phase.StartDate.ToString("MMM yyyy")</span>
+                            <span class="date-badge"><i class="fas fa-calendar-check me-1"></i>@phase.EndDate.ToString("MMM yyyy")</span>
+                        </div>
+                    </div>
+
+                    <!-- Performance Metrics -->
+                    <div class="performance-metrics-grid">
+                        <div class="performance-metric-card @perfLevel">
+                            <div class="metric-icon-container">
+                                <i class="fas fa-chart-line metric-icon"></i>
+                            </div>
+                            <div class="metric-content">
+                                <div class="metric-value">@perfRounded%</div>
+                                <div class="metric-label">@Localizer["Phase Performance"]</div>
+                                <div class="metric-progress-bar">
+                                    <div class="progress-fill" style="width: @perfRounded%"></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="performance-metric-card @(phase.Weight >= 50 ? "excellent" : phase.Weight >= 25 ? "good" : "critical")">
+                            <div class="metric-icon-container">
+                                <i class="fas fa-balance-scale metric-icon"></i>
+                            </div>
+                            <div class="metric-content">
+                                <div class="metric-value">@phase.Weight%</div>
+                                <div class="metric-label">@Localizer["Weight"]</div>
+                                <div class="metric-progress-bar">
+                                    <div class="progress-fill" style="width: @phase.Weight%"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Phase Details -->
+                    <div class="framework-navigation-section">
+                        <h5 class="navigation-title">
+                            <i class="fas fa-info-circle me-2"></i>
+                            @Localizer["Phase Details"]
+                        </h5>
+                        <div class="project-details-grid">
+                            <div class="project-detail-item">
+                                <div class="detail-icon"><i class="fas fa-money-bill-wave"></i></div>
+                                <div class="detail-content">
+                                    <div class="detail-label">@Localizer["Budget"]</div>
+                                    <div class="detail-value">@budgetFormatted</div>
+                                </div>
+                            </div>
+
+                            @if (phase.TargetQuantity.HasValue)
+                            {
+                                <div class="project-detail-item">
+                                    <div class="detail-icon"><i class="fas fa-bullseye"></i></div>
+                                    <div class="detail-content">
+                                        <div class="detail-label">@Localizer["Target Quantity"]</div>
+                                        <div class="detail-value">@phase.TargetQuantity.Value.ToString("N0")</div>
+                                    </div>
+                                </div>
+                            }
+
+                            <div class="project-detail-item">
+                                <div class="detail-icon"><i class="fas fa-tasks"></i></div>
+                                <div class="detail-content">
+                                    <div class="detail-label">@Localizer["Measures"]</div>
+                                    <div class="detail-value">@phase.Measures.Count</div>
+                                </div>
+                            </div>
+
+                            <div class="project-detail-item phase-link-item">
+                                <div class="detail-icon"><i class="fas fa-external-link-alt"></i></div>
+                                <div class="detail-content">
+                                    <div class="detail-label">@Localizer["Actions"]</div>
+                                    <div class="detail-value">
+                                        <a asp-controller="Measures" asp-action="Index" asp-route-phaseId="@phase.Id" class="btn-phase-link">
+                                            <i class="fas fa-clipboard-list me-1"></i>@Localizer["View Measures"]
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+</div>
+
+<style>
+    .frameworks-analytics-container {
+        display: flex;
+        flex-direction: column;
+        gap: 2rem;
+        margin-top: 2rem;
+    }
+
+    .modern-framework-card {
+        background: linear-gradient(135deg, rgba(255,255,255,0.95) 0%, rgba(248,249,250,0.95) 100%);
+        backdrop-filter: blur(15px);
+        -webkit-backdrop-filter: blur(15px);
+        border: 1px solid rgba(255,255,255,0.3);
+        border-radius: 24px;
+        padding: 2rem;
+        box-shadow: 0 8px 32px rgba(0,0,0,0.1), 0 4px 16px rgba(0,0,0,0.05);
+        transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
+        position: relative;
+        overflow: hidden;
+    }
+
+    .modern-framework-card::before {
+        content: '';
+        position: absolute;
+        top: 0; left: -100%;
+        width: 100%; height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+        transition: left 0.6s;
+    }
+
+    .modern-framework-card:hover::before { left: 100%; }
+
+    .modern-framework-card:hover {
+        transform: translateY(-6px) scale(1.01);
+        box-shadow: 0 20px 40px rgba(0,0,0,0.15), 0 8px 24px rgba(0,0,0,0.1);
+    }
+
+    .framework-card-header {
+        display: grid;
+        grid-template-columns: 1fr auto;
+        gap: 2rem;
+        align-items: center;
+        margin-bottom: 2rem;
+        padding-bottom: 1.5rem;
+        border-bottom: 2px solid rgba(230,230,230,0.5);
+    }
+
+    .framework-title-section { display: flex; flex-direction: column; gap: 0.75rem; }
+
+    .framework-title {
+        font-size: 1.8rem;
+        font-weight: 700;
+        margin: 0;
+        display: flex;
+        align-items: center;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+    }
+
+    .framework-title i { color: #667eea; -webkit-text-fill-color: #667eea; }
+
+    .phase-meta-row { display: flex; align-items: center; gap: 0.75rem; flex-wrap: wrap; }
+
+    .framework-status-badge {
+        display: inline-flex;
+        align-items: center;
+        padding: 0.5rem 1.25rem;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border-radius: 20px;
+        font-size: 0.9rem;
+        font-weight: 600;
+        box-shadow: 0 4px 15px rgba(102,126,234,0.3);
+        text-shadow: 0 1px 2px rgba(0,0,0,0.2);
+    }
+
+    .framework-card-dates { display: flex; gap: 0.75rem; align-items: center; flex-wrap: wrap; }
+
+    .date-badge {
+        display: inline-flex;
+        align-items: center;
+        background: rgba(102,126,234,0.1);
+        color: #667eea;
+        border: 1px solid rgba(102,126,234,0.3);
+        border-radius: 20px;
+        padding: 0.25rem 0.75rem;
+        font-size: 0.8rem;
+        font-weight: 600;
+        white-space: nowrap;
+    }
+
+    .performance-metrics-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 1.5rem;
+        margin-bottom: 2rem;
+    }
+
+    .performance-metric-card {
+        background: linear-gradient(135deg, rgba(255,255,255,0.9) 0%, rgba(248,249,250,0.9) 100%);
+        border: 1px solid rgba(255,255,255,0.5);
+        border-radius: 16px;
+        padding: 1.5rem;
+        display: flex;
+        align-items: center;
+        gap: 1.5rem;
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .performance-metric-card::after {
+        content: '';
+        position: absolute;
+        top: 0; left: 0;
+        width: 4px; height: 100%;
+    }
+
+    .performance-metric-card.excellent::after { background: linear-gradient(135deg, #4CAF50, #45a049); }
+    .performance-metric-card.good::after      { background: linear-gradient(135deg, #FF9800, #f57c00); }
+    .performance-metric-card.critical::after  { background: linear-gradient(135deg, #F44336, #d32f2f); }
+
+    .performance-metric-card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+    }
+
+    .metric-icon-container {
+        width: 60px; height: 60px;
+        border-radius: 50%;
+        display: flex; align-items: center; justify-content: center;
+    }
+
+    .performance-metric-card.excellent .metric-icon-container { background: linear-gradient(135deg, #4CAF50, #45a049); }
+    .performance-metric-card.good .metric-icon-container      { background: linear-gradient(135deg, #FF9800, #f57c00); }
+    .performance-metric-card.critical .metric-icon-container  { background: linear-gradient(135deg, #F44336, #d32f2f); }
+
+    .metric-icon { color: white; font-size: 1.5rem; text-shadow: 0 2px 4px rgba(0,0,0,0.2); }
+
+    .metric-content { flex: 1; display: flex; flex-direction: column; gap: 0.5rem; }
+
+    .metric-value { font-size: 2rem; font-weight: 700; color: #2d3748; line-height: 1; }
+
+    .metric-label { font-size: 0.9rem; color: #718096; font-weight: 500; text-transform: uppercase; letter-spacing: 0.5px; }
+
+    .metric-progress-bar {
+        width: 100%; height: 6px;
+        background: rgba(226,232,240,0.5);
+        border-radius: 3px; overflow: hidden; margin-top: 0.5rem;
+    }
+
+    .progress-fill {
+        height: 100%; border-radius: 3px;
+        transition: width 1s ease;
+        position: relative; overflow: hidden;
+    }
+
+    .performance-metric-card.excellent .progress-fill { background: linear-gradient(90deg, #4CAF50, #45a049); }
+    .performance-metric-card.good .progress-fill      { background: linear-gradient(90deg, #FF9800, #f57c00); }
+    .performance-metric-card.critical .progress-fill  { background: linear-gradient(90deg, #F44336, #d32f2f); }
+
+    .progress-fill::after {
+        content: '';
+        position: absolute; top: 0; left: -100%;
+        width: 100%; height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
+        animation: shimmer 2s infinite;
+    }
+
+    .framework-navigation-section { margin-top: 1rem; }
+
+    .navigation-title {
+        font-size: 1.2rem; font-weight: 600; color: #4a5568;
+        margin-bottom: 1.5rem; display: flex; align-items: center;
+    }
+
+    .navigation-title i { color: #667eea; }
+
+    .project-details-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+        gap: 1rem;
+    }
+
+    .project-detail-item {
+        background: linear-gradient(135deg, rgba(255,255,255,0.8) 0%, rgba(248,249,250,0.8) 100%);
+        border: 1px solid rgba(255,255,255,0.5);
+        border-radius: 12px;
+        padding: 1.25rem;
+        display: flex; align-items: center; gap: 1rem;
+        transition: all 0.3s ease;
+        position: relative; overflow: hidden;
+    }
+
+    .project-detail-item::before {
+        content: '';
+        position: absolute; top: 0; left: -100%;
+        width: 100%; height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+        transition: left 0.5s;
+    }
+
+    .project-detail-item:hover::before { left: 100%; }
+
+    .project-detail-item:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+    }
+
+    .detail-icon {
+        width: 45px; height: 45px; border-radius: 50%;
+        display: flex; align-items: center; justify-content: center;
+        font-size: 1.25rem; color: white;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        box-shadow: 0 4px 15px rgba(102,126,234,0.3);
+        flex-shrink: 0;
+    }
+
+    .detail-content { flex: 1; display: flex; flex-direction: column; gap: 0.35rem; }
+
+    .detail-label { font-size: 0.8rem; color: #718096; font-weight: 500; text-transform: uppercase; letter-spacing: 0.5px; }
+
+    .detail-value { font-size: 1rem; font-weight: 600; color: #2d3748; line-height: 1.2; }
+
+    .btn-phase-link {
+        display: inline-flex; align-items: center;
+        padding: 0.35rem 0.85rem;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white; border-radius: 12px;
+        font-size: 0.82rem; font-weight: 600;
+        text-decoration: none;
+        transition: all 0.2s ease;
+        box-shadow: 0 3px 10px rgba(102,126,234,0.3);
+    }
+
+    .btn-phase-link:hover {
+        color: white; text-decoration: none;
+        transform: translateY(-1px);
+        box-shadow: 0 5px 15px rgba(102,126,234,0.4);
+    }
+
+    .empty-state { text-align: center; padding: 4rem; }
+
+    @@keyframes shimmer { 0% { left: -100%; } 100% { left: 100%; } }
+    @@keyframes fadeInUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
+
+    .modern-framework-card { animation: fadeInUp 0.6s ease-out; }
+    .modern-framework-card:nth-child(2) { animation-delay: 0.1s; }
+    .modern-framework-card:nth-child(3) { animation-delay: 0.2s; }
+    .modern-framework-card:nth-child(4) { animation-delay: 0.3s; }
+
+    @@media (max-width: 1024px) {
+        .framework-card-header { grid-template-columns: 1fr; gap: 1.5rem; }
+        .performance-metrics-grid { grid-template-columns: 1fr; }
+        .project-details-grid { grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); }
+    }
+
+    @@media (max-width: 768px) {
+        .modern-framework-card { padding: 1.5rem; }
+        .framework-title { font-size: 1.5rem; }
+        .framework-card-header { grid-template-columns: 1fr; }
+        .project-details-grid { grid-template-columns: 1fr; gap: 0.75rem; }
+    }
+
+    @@media (max-width: 480px) {
+        .modern-framework-card { padding: 1rem; }
+        .framework-title { font-size: 1.3rem; }
+        .performance-metric-card { flex-direction: column; text-align: center; gap: 1rem; }
+        .metric-value { font-size: 1.5rem; }
+    }
+</style>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const progressBars = document.querySelectorAll('.progress-fill');
+        progressBars.forEach((bar, index) => {
+            const width = bar.style.width;
+            bar.style.width = '0%';
+            setTimeout(() => { bar.style.width = width; }, 400 + (index * 80));
+        });
+    });
+</script>

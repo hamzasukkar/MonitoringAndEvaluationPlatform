@@ -5,7 +5,7 @@
 @{
     ViewData["Title"] = "Measures";
     Layout = "~/Views/Shared/_DashboardHomeLayout.cshtml";
-    var selectedIndicator = ViewBag.SelectedIndicator as MonitoringAndEvaluationPlatform.Models.Indicator;
+    var selectedPhase = ViewBag.SelectedPhase as MonitoringAndEvaluationPlatform.Models.ProjectPhase;
     var selectedProject = ViewBag.SelectedProject as MonitoringAndEvaluationPlatform.Models.Project;
 }
 
@@ -19,7 +19,7 @@
         @Localizer["Track and monitor performance indicators with detailed measurements"]
     </p>
     <div class="dashboard-actions">
-        @if (ViewBag.SelectedIndicatorId == null)
+        @if (ViewBag.SelectedPhaseId == null)
         {
             <a asp-action="Create" class="btn btn-gradient-primary">
                 <i class="fas fa-plus me-2"></i>@Localizer["Create New Measure"]
@@ -43,12 +43,12 @@
                                 </a>
                             </li>
                             <li class="nav-item-modern">
-                                <a asp-action="Index" asp-controller="Measures" asp-route-indicatorId="@ViewBag.SelectedIndicatorId" class="nav-link-modern active" aria-current="page">
+                                <a asp-action="Index" asp-controller="Measures" asp-route-phaseId="@ViewBag.SelectedPhaseId" class="nav-link-modern active" aria-current="page">
                                     <i class="fas fa-ruler-combined me-2"></i>@Localizer["Measures"]
                                 </a>
                             </li>
                             <li class="nav-item-modern">
-                                <a asp-controller="ActionPlans" asp-action="ActionPlan" asp-route-id="@ViewBag.SelectedProjectId" class="nav-link-modern">
+                                <a asp-controller="ActionPlans" asp-action="ActionPlan" asp-route-phaseId="@ViewBag.SelectedPhaseId" class="nav-link-modern">
                                     <i class="fas fa-tasks me-2"></i>@Localizer["Action Plans"]
                                 </a>
                             </li>
@@ -59,7 +59,7 @@
         </div>
     }
 
-    @if (selectedProject != null && selectedIndicator != null)
+    @if (selectedProject != null && selectedPhase != null)
     {
         <div class="chart-card mb-4">
             <h3 class="chart-title">
@@ -70,66 +70,61 @@
                 <div class="info-section">
                     <div class="info-card">
                         <div class="info-header">
-                            <i class="fas fa-bullseye me-2"></i>
-                            <h5 class="info-title">@Localizer["Selected Indicator"]</h5>
+                            <i class="fas fa-layer-group me-2"></i>
+                            <h5 class="info-title">@Localizer["Selected Phase"]</h5>
                         </div>
                         <div class="info-content">
                             <div class="info-row">
                                 <div class="info-label">
-                                    <i class="fas fa-code me-2"></i>
-                                    @Localizer["Code"]
+                                    <i class="fas fa-tag me-2"></i>
+                                    @Localizer["Phase Name"]
                                 </div>
-                                <div class="info-value">
-                                    <span class="modern-badge badge-primary">@selectedIndicator.IndicatorCode</span>
-                                </div>
+                                <div class="info-value">@selectedPhase.Name</div>
                             </div>
                             <div class="info-row">
                                 <div class="info-label">
-                                    <i class="fas fa-tag me-2"></i>
-                                    @Localizer["Name"]
+                                    <i class="fas fa-calendar-plus me-2"></i>
+                                    @Localizer["Start Date"]
                                 </div>
-                                <div class="info-value">@selectedIndicator.Name</div>
+                                <div class="info-value">@selectedPhase.StartDate.ToString("MMM yyyy")</div>
                             </div>
-                            @if (selectedIndicator.Target > 0)
+                            <div class="info-row">
+                                <div class="info-label">
+                                    <i class="fas fa-calendar-minus me-2"></i>
+                                    @Localizer["End Date"]
+                                </div>
+                                <div class="info-value">@selectedPhase.EndDate.ToString("MMM yyyy")</div>
+                            </div>
+                            @{
+                                var phaseTotal = Model.Sum(m => m.Value);
+                            }
+                            <div class="info-row">
+                                <div class="info-label">
+                                    <i class="fas fa-chart-bar me-2"></i>
+                                    @Localizer["Total Achievement"]
+                                </div>
+                                <div class="info-value">
+                                    <span class="modern-badge badge-success">@phaseTotal.ToString("N2")%</span>
+                                </div>
+                            </div>
+                            @if (selectedPhase.TargetQuantity.HasValue)
                             {
-                                var currentValue = selectedIndicator.Measures.Sum(m => m.Value);
-                                var remaining = selectedIndicator.Target - currentValue;
-
                                 <div class="info-row">
                                     <div class="info-label">
-                                        <i class="fas fa-target me-2"></i>
-                                        @Localizer["Target"]
+                                        <i class="fas fa-bullseye me-2"></i>
+                                        @Localizer["Target Quantity"]
                                     </div>
                                     <div class="info-value">
-                                        <span class="target-value">@selectedIndicator.Target.ToString("N2")</span>
+                                        <span class="modern-badge badge-primary">@selectedPhase.TargetQuantity.Value.ToString("G") @Localizer["Unit"]</span>
                                     </div>
                                 </div>
                                 <div class="info-row">
                                     <div class="info-label">
-                                        <i class="fas fa-chart-bar me-2"></i>
-                                        @Localizer["Current Achievement"]
+                                        <i class="fas fa-info-circle me-2"></i>
+                                        @Localizer["Achievement Calculation"]
                                     </div>
-                                    <div class="info-value">
-                                        <span class="modern-badge badge-success">@currentValue.ToString("N2")</span>
-                                    </div>
-                                </div>
-                                <div class="info-row">
-                                    <div class="info-label">
-                                        <i class="fas fa-road me-2"></i>
-                                        @Localizer["Remaining to Target"]
-                                    </div>
-                                    <div class="info-value">
-                                        @if (remaining > 0)
-                                        {
-                                            <span class="remaining-value">@remaining.ToString("N2")</span>
-                                            <small class="text-muted ms-2">(@((currentValue / selectedIndicator.Target * 100).ToString("N1"))% @Localizer["achieved"])</small>
-                                        }
-                                        else
-                                        {
-                                            <span class="modern-badge badge-success">
-                                                <i class="fas fa-check-circle me-1"></i>@Localizer["Target Reached"]
-                                            </span>
-                                        }
+                                    <div class="info-value text-muted small">
+                                        @Localizer["Value = (Quantity ÷ Target Quantity) × 100%"]
                                     </div>
                                 </div>
                             }
@@ -149,12 +144,12 @@
         </div>
     }
 
-    @if (selectedIndicator != null && selectedProject == null)
+    @if (selectedPhase != null && selectedProject == null)
     {
         <div class="chart-card mb-4">
             <h3 class="chart-title">
-                <i class="fas fa-bullseye"></i>
-                @Localizer["Selected Indicator"]
+                <i class="fas fa-layer-group"></i>
+                @Localizer["Selected Phase"]
             </h3>
             <div class="chart-content">
                 <div class="info-section">
@@ -162,63 +157,11 @@
                         <div class="info-content">
                             <div class="info-row">
                                 <div class="info-label">
-                                    <i class="fas fa-code me-2"></i>
-                                    @Localizer["Code"]
-                                </div>
-                                <div class="info-value">
-                                    <span class="modern-badge badge-primary">@selectedIndicator.IndicatorCode</span>
-                                </div>
-                            </div>
-                            <div class="info-row">
-                                <div class="info-label">
                                     <i class="fas fa-tag me-2"></i>
                                     @Localizer["Name"]
                                 </div>
-                                <div class="info-value">@selectedIndicator.Name</div>
+                                <div class="info-value">@selectedPhase.Name</div>
                             </div>
-                            @if (selectedIndicator.Target > 0)
-                            {
-                                var currentValue2 = selectedIndicator.Measures.Sum(m => m.Value);
-                                var remaining2 = selectedIndicator.Target - currentValue2;
-
-                                <div class="info-row">
-                                    <div class="info-label">
-                                        <i class="fas fa-target me-2"></i>
-                                        @Localizer["Target"]
-                                    </div>
-                                    <div class="info-value">
-                                        <span class="target-value">@selectedIndicator.Target.ToString("N2")</span>
-                                    </div>
-                                </div>
-                                <div class="info-row">
-                                    <div class="info-label">
-                                        <i class="fas fa-chart-bar me-2"></i>
-                                        @Localizer["Current Achievement"]
-                                    </div>
-                                    <div class="info-value">
-                                        <span class="modern-badge badge-success">@currentValue2.ToString("N2")</span>
-                                    </div>
-                                </div>
-                                <div class="info-row">
-                                    <div class="info-label">
-                                        <i class="fas fa-road me-2"></i>
-                                        @Localizer["Remaining to Target"]
-                                    </div>
-                                    <div class="info-value">
-                                        @if (remaining2 > 0)
-                                        {
-                                            <span class="remaining-value">@remaining2.ToString("N2")</span>
-                                            <small class="text-muted ms-2">(@((currentValue2 / selectedIndicator.Target * 100).ToString("N1"))% @Localizer["achieved"])</small>
-                                        }
-                                        else
-                                        {
-                                            <span class="modern-badge badge-success">
-                                                <i class="fas fa-check-circle me-1"></i>@Localizer["Target Reached"]
-                                            </span>
-                                        }
-                                    </div>
-                                </div>
-                            }
                         </div>
                     </div>
                 </div>
@@ -226,7 +169,7 @@
         </div>
     }
 
-    @if (ViewBag.SelectedIndicatorId != null)
+    @if (ViewBag.SelectedPhaseId != null)
     {
         <!-- Inline Create Form -->
         <div class="chart-card mb-4">
@@ -235,22 +178,66 @@
                 @Localizer["Add New Measure"]
             </h3>
             <div class="chart-content">
-                <form id="inlineMeasureForm" class="row g-3">
+                <form id="inlineMeasureForm" class="row g-3"
+                      data-target-quantity="@(selectedPhase?.TargetQuantity?.ToString("G", System.Globalization.CultureInfo.InvariantCulture) ?? "")">
                     @Html.AntiForgeryToken()
+                    <div class="col-md-4">
+                        <label for="measureName" class="form-label">@Localizer["Name"] *</label>
+                        <input type="text" id="measureName" name="Name" class="form-control" placeholder="@Localizer["Measure name"]" required />
+                    </div>
                     <div class="col-md-4">
                         <label for="measureDate" class="form-label">@Localizer["Date"] *</label>
                         <input type="date" id="measureDate" name="Date" class="form-control" value="@DateTime.Today.ToString("yyyy-MM-dd")" required />
                     </div>
-                    <div class="col-md-4">
-                        <label for="measureValue" class="form-label">@Localizer["Achievement Value"] *</label>
-                        <input type="number" id="measureValue" name="Value" step="0.01" min="0" max="100" class="form-control" placeholder="0–100" required />
+                    @if (selectedPhase?.TargetQuantity.HasValue == true)
+                    {
+                        <div class="col-md-4">
+                            <label class="form-label">@Localizer["Achievement Value"]</label>
+                            <div class="input-group">
+                                <input type="number" id="measureValue" name="Value" step="0.01" min="0" max="100"
+                                       class="form-control bg-light" placeholder="@Localizer["Auto-calculated"]"
+                                       readonly tabindex="-1" />
+                                <span class="input-group-text text-muted small">%</span>
+                            </div>
+                            <div class="form-text text-info">
+                                <i class="fas fa-magic me-1"></i>@Localizer["Auto-calculated from Quantity ÷"] @selectedPhase.TargetQuantity.Value.ToString("G")
+                            </div>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="col-md-4">
+                            <label for="measureValue" class="form-label">@Localizer["Achievement Value"] *</label>
+                            <input type="number" id="measureValue" name="Value" step="0.01" min="0" max="100" class="form-control" placeholder="0–100" required />
+                        </div>
+                    }
+                    <div class="col-md-3">
+                        <label for="measureQuantity" class="form-label">
+                            @Localizer["Quantity"]@(selectedPhase?.TargetQuantity.HasValue == true ? " *" : "")
+                        </label>
+                        <input type="number" id="measureQuantity" name="Quantity" step="0.01" min="0" class="form-control"
+                               placeholder="@Localizer["How many"]"
+                               @(selectedPhase?.TargetQuantity.HasValue == true ? "required" : "") />
+                    </div>
+                    <div class="col-md-3">
+                        <label for="measureUnit" class="form-label">@Localizer["Unit"]</label>
+                        <input type="text" id="measureUnit" name="Unit" class="form-control" placeholder="@Localizer["e.g. tree, km, household"]" maxlength="100" />
+                    </div>
+                    <div class="col-md-6">
+                        <label for="measureNote" class="form-label">@Localizer["Note"]</label>
+                        <textarea id="measureNote" name="Note" class="form-control" rows="2" placeholder="@Localizer["Optional note or description"]"></textarea>
+                    </div>
+                    <div class="col-md-6">
+                        <label for="measureFile" class="form-label">@Localizer["Attachment"]</label>
+                        <input type="file" id="measureFile" name="MeasureFiles" class="form-control" multiple />
+                        <div class="form-text text-muted"><i class="fas fa-paperclip me-1"></i>@Localizer["Optional file attachment"]</div>
                     </div>
                     <div class="col-md-4 d-flex align-items-end">
                         <button type="submit" class="btn btn-gradient-primary w-100" id="addMeasureBtn">
                             <i class="fas fa-save me-2"></i>@Localizer["Add Measure"]
                         </button>
                     </div>
-                    <input type="hidden" id="indicatorCode" name="IndicatorCode" value="@ViewBag.SelectedIndicatorId" />
+                    <input type="hidden" id="phaseId" name="ProjectPhaseId" value="@ViewBag.SelectedPhaseId" />
                 </form>
             </div>
         </div>
@@ -282,15 +269,18 @@
                         <thead class="table-header">
                             <tr>
                                 <th>
-                                    <i class="fas fa-calendar me-2"></i>@Localizer["Name"]
+                                    <i class="fas fa-tag me-2"></i>@Localizer["Name"]
+                                </th>
+                                <th>
+                                    <i class="fas fa-calendar me-2"></i>@Localizer["Date"]
                                 </th>
                                 <th class="text-center">
                                     <i class="fas fa-chart-line me-2"></i>@Localizer["Value"]
                                 </th>
-                                @if (ViewBag.SelectedIndicatorId == null)
+                                @if (ViewBag.SelectedPhaseId == null)
                                 {
                                     <th>
-                                        <i class="fas fa-bullseye me-2"></i>@Html.DisplayNameFor(model => model.Indicator)
+                                        <i class="fas fa-layer-group me-2"></i>@Localizer["Phase"]
                                     </th>
                                 }
                                 <th class="text-center">
@@ -300,7 +290,30 @@
                         </thead>
                         <tbody>
                         @foreach (var item in Model) {
-                            <tr class="table-row" id="row-@item.Code">
+                            <tr class="table-row" id="row-@item.Code"
+                                data-target-quantity="@(item.ProjectPhase?.TargetQuantity?.ToString("G", System.Globalization.CultureInfo.InvariantCulture) ?? "")">
+                                <td>
+                                    <span class="fw-semibold measure-name-display">@item.Name</span>
+                                    <input type="text" class="form-control form-control-sm measure-name-edit d-none" value="@item.Name" maxlength="200" />
+                                    @if (!string.IsNullOrWhiteSpace(item.Note))
+                                    {
+                                        <div class="text-muted small measure-note-display" title="@item.Note">
+                                            <i class="fas fa-sticky-note me-1"></i>@(item.Note.Length > 60 ? item.Note[..60] + "…" : item.Note)
+                                        </div>
+                                    }
+                                    <textarea class="form-control form-control-sm measure-note-edit d-none mt-1" rows="2" maxlength="1000">@item.Note</textarea>
+                                    @if (item.Quantity.HasValue || !string.IsNullOrWhiteSpace(item.Unit))
+                                    {
+                                        <div class="text-muted small measure-quantity-display mt-1">
+                                            <i class="fas fa-ruler me-1"></i>
+                                            @(item.Quantity.HasValue ? item.Quantity.Value.ToString("G") : "") @item.Unit
+                                        </div>
+                                    }
+                                    <div class="d-none measure-quantity-unit-edit mt-1 d-flex gap-1">
+                                        <input type="number" class="form-control form-control-sm measure-quantity-edit" value="@item.Quantity" step="0.01" min="0" placeholder="@Localizer["How many"]" style="max-width:90px;" />
+                                        <input type="text" class="form-control form-control-sm measure-unit-edit" value="@item.Unit" placeholder="@Localizer["Unit"]" maxlength="100" style="max-width:100px;" />
+                                    </div>
+                                </td>
                                 <td class="measure-date-cell">
                                     <div class="d-flex align-items-center">
                                         <div class="date-icon me-3">
@@ -314,16 +327,15 @@
                                     <span class="modern-badge badge-success measure-value-display">@item.Value.ToString("N2")</span>
                                     <input type="number" class="form-control form-control-sm measure-value-edit d-none" value="@item.Value" step="0.01" min="0" max="100" />
                                 </td>
-                                @if (ViewBag.SelectedIndicatorId == null)
+                                @if (ViewBag.SelectedPhaseId == null)
                                 {
                                     <td class="indicator-cell">
                                         <div class="d-flex align-items-center">
                                             <div class="indicator-icon me-3">
-                                                <i class="fas fa-bullseye"></i>
+                                                <i class="fas fa-layer-group"></i>
                                             </div>
                                             <div>
-                                                <span class="indicator-code">[@item.Indicator.IndicatorCode]</span>
-                                                <span class="indicator-name">@Html.DisplayFor(modelItem => item.Indicator.Name)</span>
+                                                <span class="indicator-name">@item.ProjectPhase?.Name</span>
                                             </div>
                                         </div>
                                     </td>
@@ -334,19 +346,30 @@
                                                 data-code="@item.Code" title="@Localizer["Edit"]">
                                             <i class="fas fa-edit"></i>
                                         </button>
+                                        @if (item.Files != null && item.Files.Any())
+                                        {
+                                            @foreach (var f in item.Files)
+                                            {
+                                                <a href="@f.FilePath" target="_blank" class="btn btn-outline-secondary btn-sm action-btn" title="@f.FileName">
+                                                    <i class="fas fa-file-alt"></i>
+                                                </a>
+                                            }
+                                        }
                                         <button type="button" class="btn btn-outline-info btn-sm action-btn view-details-btn"
                                                 data-code="@item.Code"
+                                                data-name="@item.Name"
                                                 data-date="@item.Date.ToString("yyyy-MM-dd")"
                                                 data-value="@item.Value.ToString("N2")"
-                                                data-indicator-code="@item.Indicator.IndicatorCode"
-                                                data-indicator-name="@item.Indicator.Name"
-                                                data-indicator-target="@item.Indicator.Target"
+                                                data-note="@item.Note"
+                                                data-quantity="@item.Quantity"
+                                                data-unit="@item.Unit"
+                                                data-phase-name="@item.ProjectPhase?.Name"
                                                 title="@Localizer["View Details"]">
                                             <i class="fas fa-eye"></i>
                                         </button>
                                         <button type="button" class="btn btn-outline-success btn-sm action-btn view-chart-btn"
-                                                data-indicator-code="@item.Indicator.IndicatorCode"
-                                                data-indicator-name="@item.Indicator.Name"
+                                                data-phase-id="@item.ProjectPhaseId"
+                                                data-phase-name="@item.ProjectPhase?.Name"
                                                 title="@Localizer["View Chart"]">
                                             <i class="fas fa-chart-line"></i>
                                         </button>
@@ -380,9 +403,9 @@
                     </div>
                     <h5 class="empty-title">@Localizer["No measures found"]</h5>
                     <p class="empty-text">
-                        @if (ViewBag.SelectedIndicatorId != null)
+                        @if (ViewBag.SelectedPhaseId != null)
                         {
-                            @Localizer["No measures have been added for this indicator yet. Use the form above to add the first measure."]
+                            @Localizer["No measures have been added for this phase yet. Use the form above to add the first measure."]
                         }
                         else
                         {
@@ -407,6 +430,12 @@
             <div class="modal-body">
                 <div class="detail-item">
                     <div class="detail-label">
+                        <i class="fas fa-tag me-2"></i>@Localizer["Name"]
+                    </div>
+                    <div class="detail-value" id="modal-name"></div>
+                </div>
+                <div class="detail-item">
+                    <div class="detail-label">
                         <i class="fas fa-calendar me-2"></i>@Localizer["Date"]
                     </div>
                     <div class="detail-value" id="modal-date"></div>
@@ -417,23 +446,29 @@
                     </div>
                     <div class="detail-value" id="modal-value"></div>
                 </div>
-           @*      <div class="detail-item">
-                    <div class="detail-label">
-                        <i class="fas fa-code me-2"></i>@Localizer["Indicator Code"]
-                    </div>
-                    <div class="detail-value" id="modal-indicator-code"></div>
-                </div> *@
                 <div class="detail-item">
                     <div class="detail-label">
-                        <i class="fas fa-tag me-2"></i>@Localizer["Indicator Name"]
+                        <i class="fas fa-layer-group me-2"></i>@Localizer["Phase"]
                     </div>
                     <div class="detail-value" id="modal-indicator-name"></div>
                 </div>
-                <div class="detail-item">
+                <div id="modal-quantity-item" class="detail-item" style="display:none;">
                     <div class="detail-label">
-                        <i class="fas fa-target me-2"></i>@Localizer["Target"]
+                        <i class="fas fa-hashtag me-2"></i>@Localizer["Quantity"]
                     </div>
-                    <div class="detail-value" id="modal-indicator-target"></div>
+                    <div class="detail-value" id="modal-quantity"></div>
+                </div>
+                <div id="modal-unit-item" class="detail-item" style="display:none;">
+                    <div class="detail-label">
+                        <i class="fas fa-ruler me-2"></i>@Localizer["Unit"]
+                    </div>
+                    <div class="detail-value" id="modal-unit"></div>
+                </div>
+                <div id="modal-note-item" class="detail-item" style="display:none;">
+                    <div class="detail-label">
+                        <i class="fas fa-sticky-note me-2"></i>@Localizer["Note"]
+                    </div>
+                    <div class="detail-value" id="modal-note"></div>
                 </div>
             </div>
         </div>
@@ -912,18 +947,38 @@
             // Option 2: Handle view details button click
             $('.view-details-btn').on('click', function() {
                 const btn = $(this);
+                const name = btn.data('name');
                 const date = btn.data('date');
                 const value = btn.data('value');
-                const indicatorCode = btn.data('indicator-code');
-                const indicatorName = btn.data('indicator-name');
-                const indicatorTarget = btn.data('indicator-target');
+                const note = btn.data('note');
+                const quantity = btn.data('quantity');
+                const unit = btn.data('unit');
+                const phaseName = btn.data('phase-name');
 
                 // Populate modal
+                $('#modal-name').text(name);
                 $('#modal-date').text(date);
                 $('#modal-value').html('<span class="modern-badge badge-success">' + value + '</span>');
-                $('#modal-indicator-code').html('<span class="modern-badge badge-primary">' + indicatorCode + '</span>');
-                $('#modal-indicator-name').text(indicatorName);
-                $('#modal-indicator-target').html('<span class="target-value">' + indicatorTarget + '</span>');
+                $('#modal-indicator-name').text(phaseName);
+                if (quantity !== '' && quantity !== undefined && quantity !== null) {
+                    $('#modal-quantity').text(quantity + (unit ? ' ' + unit : ''));
+                    $('#modal-quantity-item').show();
+                    $('#modal-unit-item').hide();
+                } else if (unit) {
+                    $('#modal-quantity').text('—');
+                    $('#modal-quantity-item').hide();
+                    $('#modal-unit').text(unit);
+                    $('#modal-unit-item').show();
+                } else {
+                    $('#modal-quantity-item').hide();
+                    $('#modal-unit-item').hide();
+                }
+                if (note) {
+                    $('#modal-note').text(note);
+                    $('#modal-note-item').show();
+                } else {
+                    $('#modal-note-item').hide();
+                }
 
                 // Show modal
                 new bootstrap.Modal(document.getElementById('detailsModal')).show();
@@ -932,17 +987,17 @@
             // Option 1: Handle view chart button click
             $('.view-chart-btn').on('click', function() {
                 const btn = $(this);
-                const indicatorCode = btn.data('indicator-code');
-                const indicatorName = btn.data('indicator-name');
+                const phaseId = btn.data('phase-id');
+                const phaseName = btn.data('phase-name');
 
-                // Set indicator info
-                $('#chart-indicator-info').html('<strong><i class="fas fa-bullseye me-2"></i>' + indicatorName + '</strong> <span class="modern-badge badge-primary ms-2">' + indicatorCode + '</span>');
+                // Set phase info
+                $('#chart-indicator-info').html('<strong><i class="fas fa-layer-group me-2"></i>' + phaseName + '</strong>');
 
-                // Fetch measures for this indicator
+                // Fetch measures for this phase
                 $.ajax({
-                    url: '@Url.Action("GetMeasuresByIndicator", "Measures")',
+                    url: '@Url.Action("GetMeasuresByPhase", "Measures")',
                     type: 'GET',
-                    data: { indicatorCode: indicatorCode },
+                    data: { phaseId: phaseId },
                     success: function(response) {
                         // Prepare chart data
                         const dates = response.map(m => m.date);
@@ -1024,12 +1079,29 @@
             // Handle edit button click
             $('.edit-measure-btn').on('click', function() {
                 const row = $(this).closest('tr');
+                const rowTargetQty = parseFloat(row.data('target-quantity'));
+                const hasTargetQty = !isNaN(rowTargetQty) && rowTargetQty > 0;
 
                 // Show edit inputs and hide display values
+                row.find('.measure-name-display, .measure-note-display, .measure-quantity-display').addClass('d-none');
+                row.find('.measure-name-edit, .measure-note-edit').removeClass('d-none');
+                row.find('.measure-quantity-unit-edit').removeClass('d-none').addClass('d-flex');
                 row.find('.measure-date-display').addClass('d-none');
                 row.find('.measure-date-edit').removeClass('d-none');
                 row.find('.measure-value-display').addClass('d-none');
                 row.find('.measure-value-edit').removeClass('d-none');
+
+                // If phase has TargetQuantity, make value read-only and auto-calculate
+                if (hasTargetQty) {
+                    const valueInput = row.find('.measure-value-edit');
+                    valueInput.prop('readonly', true).addClass('bg-light');
+                    row.find('.measure-quantity-edit').on('input.autoCalc', function() {
+                        const qty = parseFloat($(this).val());
+                        if (!isNaN(qty) && qty >= 0) {
+                            valueInput.val(Math.min((qty / rowTargetQty) * 100, 100).toFixed(2));
+                        }
+                    });
+                }
 
                 // Switch button groups
                 row.find('.action-buttons-view').addClass('d-none');
@@ -1040,7 +1112,16 @@
             $('.cancel-edit-btn').on('click', function() {
                 const row = $(this).closest('tr');
 
+                // Clean up auto-calc listener and readonly state
+                row.find('.measure-quantity-edit').off('input.autoCalc');
+                row.find('.measure-value-edit').prop('readonly', false).removeClass('bg-light');
+
                 // Hide edit inputs and show display values
+                row.find('.measure-name-display').removeClass('d-none');
+                row.find('.measure-name-edit, .measure-note-edit').addClass('d-none');
+                row.find('.measure-note-display').removeClass('d-none');
+                row.find('.measure-quantity-display').removeClass('d-none');
+                row.find('.measure-quantity-unit-edit').addClass('d-none').removeClass('d-flex');
                 row.find('.measure-date-display').removeClass('d-none');
                 row.find('.measure-date-edit').addClass('d-none');
                 row.find('.measure-value-display').removeClass('d-none');
@@ -1056,23 +1137,40 @@
                 const btn = $(this);
                 const measureCode = btn.data('code');
                 const row = btn.closest('tr');
-                const editedValue = parseFloat(row.find('.measure-value-edit').val());
+                const rowTargetQty = parseFloat(row.data('target-quantity'));
+                const hasTargetQty = !isNaN(rowTargetQty) && rowTargetQty > 0;
 
-                if (editedValue < 0 || editedValue > 100) {
-                    Swal.fire({ icon: 'error', title: '@Localizer["Invalid Value"]', text: '@Localizer["Value must be between 0 and 100."]', confirmButtonColor: 'var(--danger-color)' });
-                    return;
-                }
+                let editedValue;
+                if (hasTargetQty) {
+                    const qty = parseFloat(row.find('.measure-quantity-edit').val());
+                    if (isNaN(qty) || qty < 0) {
+                        Swal.fire({ icon: 'error', title: '@Localizer["Invalid Value"]', text: '@Localizer["Quantity is required when a target is set."]', confirmButtonColor: 'var(--danger-color)' });
+                        return;
+                    }
+                    editedValue = Math.min((qty / rowTargetQty) * 100, 100);
+                    row.find('.measure-value-edit').val(editedValue.toFixed(2));
+                } else {
+                    editedValue = parseFloat(row.find('.measure-value-edit').val());
+                    if (editedValue < 0 || editedValue > 100) {
+                        Swal.fire({ icon: 'error', title: '@Localizer["Invalid Value"]', text: '@Localizer["Value must be between 0 and 100."]', confirmButtonColor: 'var(--danger-color)' });
+                        return;
+                    }
 
-                const otherTotal = getMeasureTotal(measureCode);
-                if (otherTotal + editedValue > 100) {
-                    Swal.fire({ icon: 'error', title: '@Localizer["Invalid Value"]', text: '@Localizer["Total measures value for this indicator cannot exceed 100%."]' + ' (@Localizer["Other measures total"]: ' + otherTotal.toFixed(2) + '%, @Localizer["Remaining"]: ' + (100 - otherTotal).toFixed(2) + '%)', confirmButtonColor: 'var(--danger-color)' });
-                    return;
+                    const otherTotal = getMeasureTotal(measureCode);
+                    if (otherTotal + editedValue > 100) {
+                        Swal.fire({ icon: 'error', title: '@Localizer["Invalid Value"]', text: '@Localizer["Total measures value for this indicator cannot exceed 100%."]' + ' (@Localizer["Other measures total"]: ' + otherTotal.toFixed(2) + '%, @Localizer["Remaining"]: ' + (100 - otherTotal).toFixed(2) + '%)', confirmButtonColor: 'var(--danger-color)' });
+                        return;
+                    }
                 }
 
                 const formData = {
                     Code: measureCode,
+                    Name: row.find('.measure-name-edit').val(),
                     Date: row.find('.measure-date-edit').val(),
                     Value: editedValue,
+                    Note: row.find('.measure-note-edit').val(),
+                    Quantity: row.find('.measure-quantity-edit').val(),
+                    Unit: row.find('.measure-unit-edit').val(),
                     __RequestVerificationToken: $('input[name="__RequestVerificationToken"]').val()
                 };
 
@@ -1090,10 +1188,35 @@
                         const dateValue = formData.Date;
                         const valueFormatted = parseFloat(formData.Value).toFixed(2);
 
+                        row.find('.measure-name-display').text(formData.Name);
                         row.find('.measure-date-display').text(dateValue);
                         row.find('.measure-value-display').text(valueFormatted);
 
+                        // Update quantity/unit display
+                        const qty = formData.Quantity;
+                        const unitVal = formData.Unit;
+                        if (qty || unitVal) {
+                            let qtyDisplay = row.find('.measure-quantity-display');
+                            if (qtyDisplay.length === 0) {
+                                row.find('.measure-quantity-unit-edit').before('<div class="text-muted small measure-quantity-display mt-1"><i class="fas fa-ruler me-1"></i></div>');
+                                qtyDisplay = row.find('.measure-quantity-display');
+                            }
+                            qtyDisplay.html('<i class="fas fa-ruler me-1"></i>' + (qty || '') + ' ' + (unitVal || ''));
+                        }
+
+                        // Clean up auto-calc listener and readonly state
+                        row.find('.measure-quantity-edit').off('input.autoCalc');
+                        row.find('.measure-value-edit').prop('readonly', false).removeClass('bg-light');
+
+                        // Update displayed value to reflect auto-calculated result
+                        row.find('.measure-value-display').text(parseFloat(editedValue).toFixed(2));
+
                         // Hide edit inputs and show display values
+                        row.find('.measure-name-display').removeClass('d-none');
+                        row.find('.measure-name-edit').addClass('d-none');
+                        row.find('.measure-note-edit').addClass('d-none');
+                        row.find('.measure-quantity-display').removeClass('d-none');
+                        row.find('.measure-quantity-unit-edit').addClass('d-none').removeClass('d-flex');
                         row.find('.measure-date-display').removeClass('d-none');
                         row.find('.measure-date-edit').addClass('d-none');
                         row.find('.measure-value-display').removeClass('d-none');
@@ -1136,41 +1259,75 @@
                 });
             });
 
+            // Auto-calculate value from quantity when TargetQuantity is set
+            const phaseTargetQty = parseFloat($('#inlineMeasureForm').data('target-quantity'));
+            if (!isNaN(phaseTargetQty) && phaseTargetQty > 0) {
+                $('#measureQuantity').on('input', function() {
+                    const qty = parseFloat($(this).val());
+                    if (!isNaN(qty) && qty >= 0) {
+                        const autoValue = Math.min((qty / phaseTargetQty) * 100, 100);
+                        $('#measureValue').val(autoValue.toFixed(2));
+                    } else {
+                        $('#measureValue').val('');
+                    }
+                });
+            }
+
             // Handle inline measure form submission
             $('#inlineMeasureForm').on('submit', function(e) {
                 e.preventDefault();
 
-                const rawValue = parseFloat($('#measureValue').val());
-                if (rawValue < 0 || rawValue > 100) {
-                    Swal.fire({ icon: 'error', title: '@Localizer["Invalid Value"]', text: '@Localizer["Value must be between 0 and 100."]', confirmButtonColor: 'var(--danger-color)' });
-                    return;
+                const targetQty = parseFloat($(this).data('target-quantity'));
+                const hasTargetQty = !isNaN(targetQty) && targetQty > 0;
+
+                let rawValue;
+                if (hasTargetQty) {
+                    const qty = parseFloat($('#measureQuantity').val());
+                    if (isNaN(qty) || qty < 0) {
+                        Swal.fire({ icon: 'error', title: '@Localizer["Invalid Value"]', text: '@Localizer["Quantity is required when a target is set."]', confirmButtonColor: 'var(--danger-color)' });
+                        return;
+                    }
+                    rawValue = Math.min((qty / targetQty) * 100, 100);
+                } else {
+                    rawValue = parseFloat($('#measureValue').val());
+                    if (rawValue < 0 || rawValue > 100) {
+                        Swal.fire({ icon: 'error', title: '@Localizer["Invalid Value"]', text: '@Localizer["Value must be between 0 and 100."]', confirmButtonColor: 'var(--danger-color)' });
+                        return;
+                    }
+
+                    const currentTotal = getMeasureTotal(null);
+                    if (currentTotal + rawValue > 100) {
+                        Swal.fire({ icon: 'error', title: '@Localizer["Invalid Value"]', text: '@Localizer["Total measures value for this indicator cannot exceed 100%."]' + ' (@Localizer["Current total"]: ' + currentTotal.toFixed(2) + '%, @Localizer["Remaining"]: ' + (100 - currentTotal).toFixed(2) + '%)', confirmButtonColor: 'var(--danger-color)' });
+                        return;
+                    }
                 }
 
-                const currentTotal = getMeasureTotal(null);
-                if (currentTotal + rawValue > 100) {
-                    Swal.fire({ icon: 'error', title: '@Localizer["Invalid Value"]', text: '@Localizer["Total measures value for this indicator cannot exceed 100%."]' + ' (@Localizer["Current total"]: ' + currentTotal.toFixed(2) + '%, @Localizer["Remaining"]: ' + (100 - currentTotal).toFixed(2) + '%)', confirmButtonColor: 'var(--danger-color)' });
-                    return;
+                const formData = new FormData();
+                formData.append('Name', $('#measureName').val());
+                formData.append('Date', $('#measureDate').val());
+                formData.append('Value', rawValue);
+                formData.append('Note', $('#measureNote').val());
+                if ($('#measureQuantity').val()) formData.append('Quantity', parseFloat($('#measureQuantity').val()));
+                formData.append('Unit', $('#measureUnit').val());
+                formData.append('ProjectPhaseId', parseInt($('#phaseId').val()));
+                formData.append('__RequestVerificationToken', $('input[name="__RequestVerificationToken"]').val());
+                const fileInput = document.getElementById('measureFile');
+                for (let i = 0; i < fileInput.files.length; i++) {
+                    formData.append('MeasureFiles', fileInput.files[i]);
                 }
-
-                const formData = {
-                    Date: $('#measureDate').val(),
-                    Value: rawValue,
-                    IndicatorCode: parseInt($('#indicatorCode').val())
-                };
 
                 // Disable button and show loading
                 const btn = $('#addMeasureBtn');
                 const originalText = btn.html();
                 btn.prop('disabled', true).html('<i class="fas fa-spinner fa-spin me-2"></i>@Localizer["Adding..."]');
 
-                // Add anti-forgery token to form data
-                formData.__RequestVerificationToken = $('input[name="__RequestVerificationToken"]').val();
-
                 // Send AJAX request
                 $.ajax({
                     url: '@Url.Action("CreateFromDetails", "Measures")',
                     type: 'POST',
                     data: formData,
+                    processData: false,
+                    contentType: false,
                     success: function(response) {
                         // Show success message
                         Swal.fire({
@@ -1186,8 +1343,13 @@
                         });
 
                         // Reset form
+                        $('#measureName').val('');
                         $('#measureValue').val('');
+                        $('#measureNote').val('');
+                        $('#measureQuantity').val('');
+                        $('#measureUnit').val('');
                         $('#measureDate').val('@DateTime.Today.ToString("yyyy-MM-dd")');
+                        $('#measureFile').val('');
 
                         // Reload page to show new measure
                         setTimeout(function() {

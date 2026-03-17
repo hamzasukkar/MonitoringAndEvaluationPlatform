@@ -30,63 +30,6 @@
 </div>
 
 <div class="container-fluid">
-    <!-- Project Navigation -->
-    <div class="project-nav-modern mb-4">
-        <nav class="modern-navbar">
-            <div class="navbar-container">
-                <div class="navbar-collapse" id="projectNavbar">
-                    <ul class="modern-nav-list">
-                        <li class="nav-item-modern">
-                            <a class="nav-link-modern active" aria-current="page">
-                                <i class="fas fa-project-diagram me-2"></i>@Localizer["Project"]
-                            </a>
-                        </li>
-                        @*                         <li class="nav-item">
-                            <a asp-action="LinkProjectToIndicators" asp-route-projectId="@Model.ProjectID" class="nav-link">
-                                <i class="fas fa-link me-2"></i>@Localizer["Alignement"]
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a asp-action="Create" asp-controller="LogicalFrameworks" asp-route-projectId="@Model.ProjectID" class="nav-link">
-                                <i class="fas fa-sitemap me-2"></i>@Localizer["LogicalFramework"]
-                            </a>
-                        </li> *@
-                        <li class="nav-item-modern">
-                            @if (Model.ProjectIndicators != null && Model.ProjectIndicators.Any())
-                            {
-                                var firstIndicator = Model.ProjectIndicators.First();
-                                <a asp-action="Index" asp-controller="Measures" asp-route-indicatorId="@firstIndicator.IndicatorCode" class="nav-link-modern" title="@Localizer["View measures for indicator"] [@firstIndicator.IndicatorCode]">
-                                    <i class="fas fa-ruler-combined me-2"></i>@Localizer["Measures"]
-                                </a>
-                            }
-                            else
-                            {
-                                <a asp-action="Index" asp-controller="Measures" class="nav-link-modern" title="@Localizer["No indicators linked to this project yet"]">
-                                    <i class="fas fa-ruler-combined me-2"></i>@Localizer["Measures"]
-                                </a>
-                            }
-                        </li>
-                        @*    <li class="nav-item">
-                            <a asp-controller="Plans" asp-action="ProjectPlans" asp-route-id="@Model.ProjectID" class="nav-link">
-                                <i class="fas fa-calendar-alt me-2"></i>Plans
-                            </a>
-                        </li> *@
-                        <li class="nav-item-modern">
-                            <a asp-controller="ActionPlans" asp-action="ActionPlan" asp-route-id="@Model.ProjectID" class="nav-link-modern">
-                                <i class="fas fa-tasks me-2"></i>@Localizer["Action Plans"]
-                            </a>
-                        </li>
-                        @*    <li class="nav-item">
-                            <a asp-action="Index" asp-controller="Activities" asp-route-id="@Model.ProjectID" class="nav-link">
-                                <i class="fas fa-running me-2"></i>@Localizer["Activities"]
-                            </a>
-                        </li> *@
-                    </ul>
-                </div>
-            </div>
-        </nav>
-    </div>
-
     <!-- Project Information -->
     <div class="chart-card mb-4">
         <h3 class="chart-title">
@@ -201,7 +144,7 @@
                                     <i class="fas fa-calendar-alt me-2"></i>
                                     @Localizer["Start Date"]
                                 </div>
-                                <div class="info-value">@Model.StartDate.ToString("yyyy-MM-dd")</div>
+                                <div class="info-value">@Model.StartDate.ToString("MMM yyyy")</div>
                             </div>
 
                             <div class="info-row">
@@ -209,7 +152,7 @@
                                     <i class="fas fa-calendar-check me-2"></i>
                                     @Localizer["End Date"]
                                 </div>
-                                <div class="info-value">@Model.EndDate.ToString("yyyy-MM-dd")</div>
+                                <div class="info-value">@Model.EndDate.ToString("MMM yyyy")</div>
                             </div>
 
                             <div class="info-row">
@@ -417,6 +360,185 @@
             </div>
         </div>
     </div>
+    <!-- ═══════════════════════════ PROJECT PHASES ═══════════════════════════ -->
+    <div class="chart-card mb-4" id="phases-section">
+        <h3 class="chart-title">
+            <i class="fas fa-layer-group me-2"></i>
+            @Localizer["Project Phases"]
+        </h3>
+        <div class="chart-content">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <p class="text-muted mb-0">
+                    @Localizer["Phases define execution stages with weighted contributions to overall project performance."]
+                </p>
+                <a asp-controller="ProjectPhases" asp-action="Create" asp-route-projectId="@Model.ProjectID"
+                   class="btn btn-gradient-primary btn-sm">
+                    <i class="fas fa-plus me-1"></i>@Localizer["Add Phase"]
+                </a>
+            </div>
+
+            @{
+                double totalPhaseBudget = (Model.Phases != null && Model.Phases.Any()) ? Model.Phases.Sum(pp => pp.Budget) : 0;
+                double budgetDiff = Model.EstimatedBudget - totalPhaseBudget;
+            }
+            @if (Model.Phases != null && Model.Phases.Any())
+            {
+                <!-- Budget summary -->
+                <div class="alert @(Math.Abs(budgetDiff) < 0.01 ? "alert-success" : "alert-warning") py-2 mb-3 small">
+                    <i class="fas fa-info-circle me-1"></i>
+                    @Localizer["Phase budgets total:"]: <strong>@Model.CurrencySymbol@totalPhaseBudget.ToString("N2")</strong>
+                    @if (Math.Abs(budgetDiff) >= 0.01)
+                    {
+                        <span class="ms-2">(@Localizer["Remaining"]: @Model.CurrencySymbol@budgetDiff.ToString("N2"))</span>
+                    }
+                    else
+                    {
+                        <span class="ms-2 text-success">✓ @Localizer["Fully allocated"]</span>
+                    }
+                </div>
+
+                <!-- Weight editor (inline AJAX) -->
+                <div id="weight-editor" class="mb-3 p-3 bg-light rounded border">
+                    <h6 class="mb-2"><i class="fas fa-balance-scale me-1"></i>@Localizer["Phase Weights"] <small class="text-muted">(@Localizer["must sum to 100"])</small></h6>
+                    <div class="row g-2 align-items-end" id="weight-inputs">
+                        @foreach (var ph in Model.Phases)
+                        {
+                            <div class="col-auto">
+                                <label class="form-label small mb-1">@ph.Name</label>
+                                <div class="input-group input-group-sm" style="width:120px">
+                                    <input type="number" step="0.01" min="0" max="100"
+                                           class="form-control phase-weight-input"
+                                           data-phase-id="@ph.Id"
+                                           value="@ph.Weight.ToString("0.00")" />
+                                    <span class="input-group-text">%</span>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                    <div class="mt-2 d-flex align-items-center gap-2">
+                        <button id="save-weights-btn" class="btn btn-sm btn-primary" onclick="saveWeights(@Model.ProjectID)">
+                            <i class="fas fa-save me-1"></i>@Localizer["Save Weights"]
+                        </button>
+                        <span id="weight-sum-display" class="small text-muted">
+                            @Localizer["Sum"]: <strong id="weight-sum">@Model.Phases.Sum(pp => pp.Weight).ToString("0.00")</strong>
+                        </span>
+                        <span id="weight-status" class="small"></span>
+                    </div>
+                </div>
+
+                <!-- Phases table -->
+                <div class="modern-table-container">
+                    <table class="modern-table">
+                        <thead class="table-header">
+                            <tr>
+                                <th>#</th>
+                                <th><i class="fas fa-tag me-1"></i>@Localizer["Phase Name"]</th>
+                                <th><i class="fas fa-calendar-alt me-1"></i>@Localizer["Start"]</th>
+                                <th><i class="fas fa-calendar-check me-1"></i>@Localizer["End"]</th>
+                                <th><i class="fas fa-dollar-sign me-1"></i>@Localizer["Budget"]</th>
+                                <th class="text-center"><i class="fas fa-weight me-1"></i>@Localizer["Weight %"]</th>
+                                <th class="text-center"><i class="fas fa-check-double me-1"></i>@Localizer["Total Realised"]</th>
+                                <th class="text-center"><i class="fas fa-chart-line me-1"></i>@Localizer["Performance %"]</th>
+                                <th class="text-center"><i class="fas fa-cogs me-1"></i>@Localizer["Actions"]</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @{int phaseIdx = 0;}
+                            @foreach (var phase in Model.Phases.OrderBy(pp => pp.StartDate))
+                            {
+                                phaseIdx++;
+                                <tr class="table-row">
+                                    <td>@phaseIdx</td>
+                                    <td><strong>@phase.Name</strong></td>
+                                    <td>@phase.StartDate.ToString("MMM yyyy")</td>
+                                    <td>@phase.EndDate.ToString("MMM yyyy")</td>
+                                    <td>@Model.CurrencySymbol@phase.Budget.ToString("N2")</td>
+                                    <td class="text-center">
+                                        <span class="modern-badge badge-primary">@phase.Weight.ToString("0.##")%</span>
+                                    </td>
+                                    <td class="text-center">
+                                        @{
+                                            double realisedAmount = phase.ActionPlan?.Activities
+                                                .Where(a => a.ActivityType == MonitoringAndEvaluationPlatform.Enums.ActivityType.DisbursementPerformance)
+                                                .SelectMany(a => a.Plans)
+                                                .Sum(p => (double)p.Realised) ?? 0;
+                                        }
+                                        <span class="fw-bold">@Model.CurrencySymbol@realisedAmount.ToString("N2")</span>
+                                    </td>
+                                    <td class="text-center">
+                                        <span class="modern-badge @MonitoringAndEvaluationPlatform.Helpers.ProgressBarHelper.GetBadgeClass(phase.PhasePerformance)">
+                                            @phase.PhasePerformance.ToString("0.##")%
+                                            @if (phase.PhasePerformance >= 100)
+                                            {
+                                                <i class="fas fa-check-circle ms-1"></i>
+                                            }
+                                        </span>
+                                    </td>
+                                    <td class="text-center">
+                                        @{
+                                            var phaseMeasureFiles = phase.Measures?
+                                                .SelectMany(m => m.Files ?? Enumerable.Empty<MonitoringAndEvaluationPlatform.Models.MeasureFile>())
+                                                .ToList();
+                                        }
+                                        @if (phaseMeasureFiles != null && phaseMeasureFiles.Any())
+                                        {
+                                            <div class="mb-2 d-flex flex-wrap gap-1 justify-content-center">
+                                                @foreach (var mf in phaseMeasureFiles)
+                                                {
+                                                    <a href="@mf.FilePath" target="_blank" class="text-decoration-none" title="@mf.FileName">
+                                                        <span class="d-inline-flex align-items-center gap-1 px-2 py-1 rounded-pill border bg-white text-secondary" style="font-size:0.75rem; max-width:160px;">
+                                                            <i class="fas fa-file-alt text-primary"></i>
+                                                            <span class="text-truncate" style="max-width:110px;">@mf.FileName</span>
+                                                            <i class="fas fa-download" style="font-size:0.65rem;"></i>
+                                                        </span>
+                                                    </a>
+                                                }
+                                            </div>
+                                        }
+                                        <div class="btn-group action-buttons" role="group">
+                                            <a asp-controller="Measures" asp-action="Index" asp-route-phaseId="@phase.Id"
+                                               class="btn btn-outline-info btn-sm action-btn" title="@Localizer["Measures"]">
+                                                <i class="fas fa-chart-bar"></i>
+                                            </a>
+                                            <a asp-controller="ActionPlans" asp-action="ActionPlan" asp-route-phaseId="@phase.Id"
+                                               class="btn btn-outline-secondary btn-sm action-btn" title="@Localizer["Action Plan"]">
+                                                <i class="fas fa-tasks"></i>
+                                            </a>
+                                            <a asp-controller="ProjectPhases" asp-action="Edit" asp-route-id="@phase.Id"
+                                               class="btn btn-outline-primary btn-sm action-btn" title="@Localizer["Edit"]">
+                                                <i class="fas fa-edit"></i>
+                                            </a>
+                                            <form asp-controller="ProjectPhases" asp-action="Delete" asp-route-id="@phase.Id"
+                                                  method="post" style="display:inline"
+                                                  onsubmit="return confirm('@Localizer["Delete this phase? Its measures and action plan will also be deleted."]')">
+                                                @Html.AntiForgeryToken()
+                                                <button type="submit" class="btn btn-outline-danger btn-sm action-btn" title="@Localizer["Delete"]">
+                                                    <i class="fas fa-trash-alt"></i>
+                                                </button>
+                                            </form>
+                                        </div>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+            else
+            {
+                <div class="empty-state">
+                    <div class="empty-icon"><i class="fas fa-layer-group"></i></div>
+                    <h5 class="empty-title">@Localizer["No Phases Yet"]</h5>
+                    <p class="empty-text">@Localizer["Add phases to define execution stages and track performance."]</p>
+                    <a asp-controller="ProjectPhases" asp-action="Create" asp-route-projectId="@Model.ProjectID"
+                       class="btn btn-gradient-primary mt-2">
+                        <i class="fas fa-plus me-1"></i>@Localizer["Add First Phase"]
+                    </a>
+                </div>
+            }
+        </div>
+    </div>
+
     @{
         double performance = Math.Round(@Model.performance, 2);
         double disbursementPerformance = Math.Round(@Model.DisbursementPerformance, 2);
@@ -561,8 +683,88 @@
             cancel: '@Localizer["Cancel"]',
             confirm: '@Localizer["Yes, delete it!"]'
         };
+        window.saveWeightsStrings = {
+            mustSum: '@Localizer["Weights must sum to exactly 100. Current sum:"]',
+            saving: '@Localizer["Saving..."]',
+            saved: '@Localizer["Saved!"]',
+            saveWeights: '@Localizer["Save Weights"]',
+            errorSaving: '@Localizer["Error saving weights."]',
+            networkError: '@Localizer["Network error saving weights."]'
+        };
     </script>
 
     <!-- Optimized external JavaScript -->
     <script src="~/js/project-details.js" asp-append-version="true" defer></script>
+
+    <!-- Phase weight editor -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const inputs = document.querySelectorAll('.phase-weight-input');
+            const sumEl = document.getElementById('weight-sum');
+            const statusEl = document.getElementById('weight-status');
+
+            function updateSum() {
+                if (!inputs.length || !sumEl) return;
+                let total = 0;
+                inputs.forEach(inp => total += parseFloat(inp.value) || 0);
+                sumEl.textContent = total.toFixed(2);
+                if (Math.abs(total - 100) < 0.01) {
+                    statusEl.innerHTML = '<span class="text-success"><i class="fas fa-check-circle me-1"></i>@Localizer["Valid"]</span>';
+                } else {
+                    statusEl.innerHTML = '<span class="text-danger"><i class="fas fa-exclamation-circle me-1"></i>@Localizer["Must sum to 100"]</span>';
+                }
+            }
+            inputs.forEach(inp => inp.addEventListener('input', updateSum));
+            updateSum();
+        });
+
+        async function saveWeights(projectId) {
+            const inputs = document.querySelectorAll('.phase-weight-input');
+            const phases = [];
+            inputs.forEach(inp => {
+                phases.push({ phaseId: parseInt(inp.dataset.phaseId), weight: parseFloat(inp.value) || 0 });
+            });
+
+            const total = phases.reduce((s, p) => s + p.weight, 0);
+            if (Math.abs(total - 100) > 0.01) {
+                alert(window.saveWeightsStrings.mustSum + ' ' + total.toFixed(2));
+                return;
+            }
+
+            const btn = document.getElementById('save-weights-btn');
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i>' + window.saveWeightsStrings.saving;
+
+            try {
+                const token = document.querySelector('input[name="__RequestVerificationToken"]')?.value;
+                const resp = await fetch('/ProjectPhases/UpdateWeights', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'RequestVerificationToken': token || ''
+                    },
+                    body: JSON.stringify({ phases })
+                });
+                if (resp.ok) {
+                    btn.innerHTML = '<i class="fas fa-check me-1"></i>' + window.saveWeightsStrings.saved;
+                    btn.classList.replace('btn-primary', 'btn-success');
+                    setTimeout(() => {
+                        btn.innerHTML = '<i class="fas fa-save me-1"></i>' + window.saveWeightsStrings.saveWeights;
+                        btn.classList.replace('btn-success', 'btn-primary');
+                        btn.disabled = false;
+                    }, 2000);
+                } else {
+                    const err = await resp.json();
+                    alert(err.message || window.saveWeightsStrings.errorSaving);
+                    btn.disabled = false;
+                    btn.innerHTML = '<i class="fas fa-save me-1"></i>' + window.saveWeightsStrings.saveWeights;
+                }
+            } catch (e) {
+                alert(window.saveWeightsStrings.networkError);
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fas fa-save me-1"></i>' + window.saveWeightsStrings.saveWeights;
+            }
+        }
+    </script>
+
 }
