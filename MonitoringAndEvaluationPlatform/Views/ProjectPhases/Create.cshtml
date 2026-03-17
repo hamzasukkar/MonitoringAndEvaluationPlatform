@@ -613,9 +613,11 @@
     }
 
     document.getElementById('phaseForm').addEventListener('submit', function () {
-        const btn = document.getElementById('submitBtn');
-        btn.disabled = true;
-        btn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>@Localizer["Adding..."]';
+        if ($(this).valid()) {
+            const btn = document.getElementById('submitBtn');
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>@Localizer["Adding..."]';
+        }
     });
 
     (function () {
