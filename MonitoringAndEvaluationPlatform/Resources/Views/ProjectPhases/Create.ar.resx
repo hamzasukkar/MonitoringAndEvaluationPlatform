@@ -83,7 +83,7 @@
     <value>الميزانية المتبقية</value>
   </data>
   <data name="Current Phases" xml:space="preserve">
-    <value>المراحل الحالية</value>
+    <value>الفقرات الحالية</value>
   </data>
   <data name="Warning: The project budget is fully allocated. You cannot add a phase with a non-zero budget." xml:space="preserve">
     <value>تحذير: تم تخصيص ميزانية المشروع بالكامل. لا يمكنك إضافة مرحلة بميزانية غير صفرية.</value>
@@ -125,7 +125,7 @@
     <value>ستكون هذه أول مرحلة وستحصل تلقائياً على وزن 100%.</value>
   </data>
   <data name="After adding this phase, weights will be automatically redistributed equally among all @(phaseCount + 1) phases." xml:space="preserve">
-    <value>بعد إضافة هذه المرحلة، ستُعاد توزيع الأوزان تلقائياً بالتساوي بين جميع المراحل.</value>
+    <value>بعد إضافة هذه المرحلة، ستُعاد توزيع الأوزان تلقائياً بالتساوي بين جميع الفقرات.</value>
   </data>
   <data name="Cancel" xml:space="preserve">
     <value>إلغاء</value>
