@@ -6,6 +6,8 @@
     Layout = "~/Views/Shared/_DashboardHomeLayout.cshtml";
     var project = ViewBag.Project as MonitoringAndEvaluationPlatform.Models.Project;
     int totalPhases = ViewBag.TotalPhases ?? 1;
+    double remainingBudget = ViewBag.RemainingBudget ?? (project?.EstimatedBudget ?? 0);
+    double otherBudgetSum = ViewBag.OtherBudgetSum ?? 0;
 }
 
 <!-- Dashboard Header -->
@@ -70,8 +72,10 @@
                 <i class="fas fa-dollar-sign"></i>
             </div>
             <div class="banner-content">
-                <div class="banner-label">@Localizer["Total Project Budget"]</div>
-                <div class="banner-value">@project.EstimatedBudget.ToString("N2")</div>
+                <div class="banner-label">@Localizer["Remaining Budget"]</div>
+                <div class="banner-value @(remainingBudget <= 0 ? "text-danger" : "text-success")">
+                    @remainingBudget.ToString("N2")
+                </div>
             </div>
         </div>
         <div class="banner-item">
@@ -198,14 +202,23 @@
                         <label asp-for="Budget" class="modern-label">
                             <i class="fas fa-coins me-2"></i>@Localizer["Budget Allocation"] *
                         </label>
-                        <input asp-for="Budget" type="number" step="0.01" min="0" class="modern-input" />
+                        <div class="input-with-suffix">
+                            <input asp-for="Budget" type="number" step="0.01" min="0"
+                                   max="@remainingBudget"
+                                   class="modern-input"
+                                   placeholder="0.00" id="budgetInput"
+                                   oninput="updateBudgetPreview()" />
+                            <span class="input-suffix">@Localizer["units"]</span>
+                        </div>
                         <span asp-validation-for="Budget" class="field-error"></span>
-                        @if (project != null)
-                        {
-                            <div class="field-hint">
-                                @Localizer["Total project budget"]: @project.EstimatedBudget.ToString("N2")
+                        <div class="budget-preview" id="budgetPreview">
+                            <div class="budget-bar-wrap">
+                                <div class="budget-bar-fill" id="budgetBarFill" style="width:0%"></div>
                             </div>
-                        }
+                            <div class="budget-bar-labels">
+                                <span id="budgetUsedLabel">@Model.Budget.ToString("N2")</span> / @remainingBudget.ToString("N2") @Localizer["available"]
+                            </div>
+                        </div>
                     </div>
 
                     <!-- Target Quantity -->
@@ -555,6 +568,72 @@
         gap: 0.25rem;
     }
 
+    /* Input with suffix */
+    .input-with-suffix {
+        display: flex;
+        align-items: stretch;
+        border: 2px solid #e9ecef;
+        border-radius: 10px;
+        overflow: hidden;
+        transition: all 0.3s ease;
+    }
+
+    .input-with-suffix:focus-within {
+        border-color: #fd7e14;
+        box-shadow: 0 0 0 3px rgba(253, 126, 20, 0.15);
+    }
+
+    .input-with-suffix .modern-input {
+        border: none;
+        border-radius: 0;
+        flex: 1;
+        box-shadow: none;
+    }
+
+    .input-with-suffix .modern-input:focus {
+        outline: none;
+        box-shadow: none;
+    }
+
+    .input-suffix {
+        background: #f8f9fa;
+        border-left: 1px solid #e9ecef;
+        padding: 0.75rem 1rem;
+        color: #6c757d;
+        font-size: 0.9rem;
+        display: flex;
+        align-items: center;
+        white-space: nowrap;
+    }
+
+    /* Budget Preview */
+    .budget-preview {
+        margin-top: 0.75rem;
+    }
+
+    .budget-bar-wrap {
+        height: 8px;
+        background: #e9ecef;
+        border-radius: 4px;
+        overflow: hidden;
+        margin-bottom: 0.4rem;
+    }
+
+    .budget-bar-fill {
+        height: 100%;
+        background: linear-gradient(90deg, #28a745, #20c997);
+        border-radius: 4px;
+        transition: width 0.3s ease;
+    }
+
+    .budget-bar-labels {
+        font-size: 0.82rem;
+        color: #6c757d;
+    }
+
+    .text-success { color: #28a745 !important; }
+    .text-danger  { color: #dc3545 !important; }
+
     /* Validation Alert */
     .validation-alert {
         background: rgba(220, 53, 69, 0.08);
@@ -657,6 +736,20 @@
 </style>
 
 <script>
+    const remainingBudget = @remainingBudget.ToString("0.00", System.Globalization.CultureInfo.InvariantCulture);
+
+    function updateBudgetPreview() {
+        const input = document.getElementById('budgetInput');
+        const val = parseFloat(input.value) || 0;
+        const pct = remainingBudget > 0 ? Math.min(100, (val / remainingBudget) * 100) : 0;
+        document.getElementById('budgetBarFill').style.width = pct + '%';
+        document.getElementById('budgetUsedLabel').textContent = val.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+        document.getElementById('budgetBarFill').style.background =
+            pct > 100 ? 'linear-gradient(90deg,#dc3545,#c82333)' :
+            pct > 80  ? 'linear-gradient(90deg,#fd7e14,#e96700)' :
+                        'linear-gradient(90deg,#28a745,#20c997)';
+    }
+
     function updateWeightBar() {
         const val = parseFloat(document.getElementById('weightInput').value) || 0;
         const pct = Math.min(100, Math.max(0, val));
@@ -701,8 +794,9 @@
         });
     })();
 
-    // Initialize bar on page load
+    // Initialize bars on page load
     updateWeightBar();
+    updateBudgetPreview();
 </script>
 
 @section Scripts {

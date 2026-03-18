@@ -120,8 +120,11 @@ namespace MonitoringAndEvaluationPlatform.Controllers
 
             if (phase == null) return NotFound();
 
+            var otherBudgetSum = phase.Project.Phases.Where(pp => pp.Id != id).Sum(pp => pp.Budget);
             ViewBag.Project = phase.Project;
             ViewBag.TotalPhases = phase.Project.Phases.Count;
+            ViewBag.RemainingBudget = phase.Project.EstimatedBudget - otherBudgetSum;
+            ViewBag.OtherBudgetSum = otherBudgetSum;
             return View(phase);
         }
 
@@ -171,6 +174,8 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 phase.Project = project;
                 ViewBag.Project = project;
                 ViewBag.TotalPhases = project.Phases.Count;
+                ViewBag.RemainingBudget = project.EstimatedBudget - otherBudgetSum;
+                ViewBag.OtherBudgetSum = otherBudgetSum;
                 return View(phase);
             }
 
