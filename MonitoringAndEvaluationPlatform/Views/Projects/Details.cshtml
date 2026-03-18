@@ -463,7 +463,7 @@
                                                 .SelectMany(a => a.Plans)
                                                 .Sum(p => (double)p.Realised) ?? 0;
                                         }
-                                        <span class="fw-bold">@Model.CurrencySymbol@realisedAmount.ToString("N2")</span>
+                                        <span class="@(realisedAmount > phase.Budget ? "modern-badge badge-danger" : "fw-bold")">@Model.CurrencySymbol@realisedAmount.ToString("N2")</span>
                                     </td>
                                     <td class="text-center">
                                         <span class="modern-badge @MonitoringAndEvaluationPlatform.Helpers.ProgressBarHelper.GetBadgeClass(phase.PhasePerformance)">
