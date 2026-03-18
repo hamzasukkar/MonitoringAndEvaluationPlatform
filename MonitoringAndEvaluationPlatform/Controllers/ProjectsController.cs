@@ -11,6 +11,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Localization;
 using MonitoringAndEvaluationPlatform.Attributes;
 using MonitoringAndEvaluationPlatform.Data;
+using MonitoringAndEvaluationPlatform.Enums;
 using MonitoringAndEvaluationPlatform.Models;
 using MonitoringAndEvaluationPlatform.Services;
 using MonitoringAndEvaluationPlatform.ViewModel;
@@ -481,6 +482,9 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                         await _context.SaveChangesAsync();
                     }
                 }
+
+                // Auto-create default project phases
+                await CreateDefaultProjectPhasesAsync(project);
 
                 // Process file uploads
                 await ProcessFileUploadsAsync(project.ProjectID, UploadedFiles);
@@ -1539,6 +1543,110 @@ namespace MonitoringAndEvaluationPlatform.Controllers
 
             // Return at least 1 month if the difference is 0 or negative
             return Math.Max(1, monthsDifference + 1); // +1 to include both start and end months
+        }
+
+        // ─────────────────────────────────────────────────────────────────────
+        // Auto-create 9 default implementation-tracking phases for a new project
+        // ─────────────────────────────────────────────────────────────────────
+        private async Task CreateDefaultProjectPhasesAsync(Project project)
+        {
+            var defaultPhaseNames = new[]
+            {
+                "اراضي",
+                "مباني وانشاءات ومرافق",
+                "الات ومعدات",
+                "وسائل نقل وانتقال",
+                "عدد وادوات وقوالب",
+                "اثاث ومعدات مكاتب",
+                "ثروة حيوانية",
+                "نفقات تاسيس",
+                "رواتب واجور وتعويضات"
+            };
+
+            int count = defaultPhaseNames.Length;
+            decimal equalWeight = Math.Round(100m / count, 2);
+            decimal remainder = 100m - (equalWeight * count);
+
+            for (int i = 0; i < count; i++)
+            {
+                var phase = new ProjectPhase
+                {
+                    Name = defaultPhaseNames[i],
+                    StartDate = project.StartDate,
+                    EndDate = project.EndDate,
+                    Budget = 0,
+                    Weight = equalWeight + (i == count - 1 ? remainder : 0),
+                    ProjectID = project.ProjectID
+                };
+
+                _context.ProjectPhases.Add(phase);
+                await _context.SaveChangesAsync();
+
+                // Auto-create ActionPlan with PlansCount = months in phase
+                int plansCount = ((phase.EndDate.Year - phase.StartDate.Year) * 12)
+                                 + phase.EndDate.Month - phase.StartDate.Month;
+                if (phase.EndDate.Day < phase.StartDate.Day) plansCount--;
+                if (plansCount <= 0) plansCount = 1;
+
+                var actionPlan = new ActionPlan
+                {
+                    ProjectPhaseId = phase.Id,
+                    PlansCount = plansCount
+                };
+                _context.ActionPlans.Add(actionPlan);
+                await _context.SaveChangesAsync();
+
+                // Auto-create one Activity per ActivityType with monthly Plans
+                await CreateDefaultActivitiesWithPlansAsync(actionPlan.Code, phase.StartDate, phase.EndDate, phase.Budget);
+            }
+        }
+
+        private async Task CreateDefaultActivitiesWithPlansAsync(int actionPlanCode, DateTime startDate, DateTime endDate, double budget)
+        {
+            var startMonth = new DateTime(startDate.Year, startDate.Month, 1);
+            var endMonth   = new DateTime(endDate.Year,   endDate.Month,   1);
+
+            int totalMonths = 0;
+            for (var d = startMonth; d <= endMonth; d = d.AddMonths(1))
+                totalMonths++;
+
+            foreach (ActivityType type in Enum.GetValues(typeof(ActivityType)))
+            {
+                var activity = new Activity
+                {
+                    Name = type.ToString(),
+                    ActionPlanCode = actionPlanCode,
+                    ActivityType = type
+                };
+
+                bool isFinancialType = type == ActivityType.Financial ||
+                                       type == ActivityType.DisbursementPerformance;
+                int monthlyPlanned = isFinancialType && totalMonths > 0
+                    ? (int)(budget / totalMonths)
+                    : 0;
+                int rem = isFinancialType ? (int)budget - (monthlyPlanned * totalMonths) : 0;
+
+                var current = startMonth;
+                int idx = 1;
+                while (current <= endMonth)
+                {
+                    bool isLastMonth = current == endMonth;
+                    activity.Plans.Add(new Plan
+                    {
+                        Name = $"{type}-{idx}",
+                        Date = current,
+                        Planned = monthlyPlanned + (isLastMonth ? rem : 0),
+                        Realised = 0,
+                        Activity = activity
+                    });
+                    current = current.AddMonths(1);
+                    idx++;
+                }
+
+                _context.Activities.Add(activity);
+            }
+
+            await _context.SaveChangesAsync();
         }
     }
 }

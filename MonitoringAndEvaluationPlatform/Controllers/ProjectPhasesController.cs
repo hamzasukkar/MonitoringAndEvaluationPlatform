@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Localization;
 using MonitoringAndEvaluationPlatform.Data;
 using MonitoringAndEvaluationPlatform.Enums;
 using MonitoringAndEvaluationPlatform.Models;
@@ -10,11 +11,13 @@ namespace MonitoringAndEvaluationPlatform.Controllers
     {
         private readonly ApplicationDbContext _context;
         private readonly MonitoringService _monitoringService;
+        private readonly IStringLocalizer<ProjectPhasesController> _localizer;
 
-        public ProjectPhasesController(ApplicationDbContext context, MonitoringService monitoringService)
+        public ProjectPhasesController(ApplicationDbContext context, MonitoringService monitoringService, IStringLocalizer<ProjectPhasesController> localizer)
         {
             _context = context;
             _monitoringService = monitoringService;
+            _localizer = localizer;
         }
 
         // GET: ProjectPhases/Create?projectId=5
@@ -103,7 +106,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             // Redistribute weights equally among all phases
             await RedistributeWeightsEqually(phase.ProjectID);
 
-            TempData["SuccessMessage"] = "Phase created successfully. Weights have been redistributed equally.";
+            TempData["SuccessMessage"] = _localizer["Phase created successfully. Weights have been redistributed equally."].Value;
             return RedirectToAction("Details", "Projects", new { id = phase.ProjectID, tab = "phases" });
         }
 
@@ -196,7 +199,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 throw;
             }
 
-            TempData["SuccessMessage"] = "Phase updated successfully.";
+            TempData["SuccessMessage"] = _localizer["Phase updated successfully."].Value;
             return RedirectToAction("Details", "Projects", new { id = phase.ProjectID, tab = "phases" });
         }
 
@@ -220,7 +223,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             await _monitoringService.UpdateProjectPerformanceFromPhases(projectId);
             await _monitoringService.UpdateDisbursementPerformancesForProject(projectId);
 
-            TempData["SuccessMessage"] = "Phase deleted. Weights have been redistributed equally.";
+            TempData["SuccessMessage"] = _localizer["Phase deleted. Weights have been redistributed equally."].Value;
             return RedirectToAction("Details", "Projects", new { id = projectId, tab = "phases" });
         }
 
