@@ -101,10 +101,10 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             ViewBag.PhaseBudget = phase.Budget;
             ViewBag.CurrencySymbol = project.CurrencySymbol;
 
-            // Calculate phase months for display (use phase dates, not project dates)
+            // Calculate months for display using full project dates
             var months = new List<DateTime>();
-            var currentMonth = new DateTime(phase.StartDate.Year, phase.StartDate.Month, 1);
-            var endMonth = new DateTime(phase.EndDate.Year, phase.EndDate.Month, 1);
+            var currentMonth = new DateTime(project.StartDate.Year, project.StartDate.Month, 1);
+            var endMonth = new DateTime(project.EndDate.Year, project.EndDate.Month, 1);
 
             while (currentMonth <= endMonth)
             {

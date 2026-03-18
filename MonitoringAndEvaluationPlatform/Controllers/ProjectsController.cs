@@ -1606,10 +1606,6 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             var startMonth = new DateTime(startDate.Year, startDate.Month, 1);
             var endMonth   = new DateTime(endDate.Year,   endDate.Month,   1);
 
-            int totalMonths = 0;
-            for (var d = startMonth; d <= endMonth; d = d.AddMonths(1))
-                totalMonths++;
-
             foreach (ActivityType type in Enum.GetValues(typeof(ActivityType)))
             {
                 var activity = new Activity
@@ -1619,23 +1615,15 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                     ActivityType = type
                 };
 
-                bool isFinancialType = type == ActivityType.Financial ||
-                                       type == ActivityType.DisbursementPerformance;
-                int monthlyPlanned = isFinancialType && totalMonths > 0
-                    ? (int)(budget / totalMonths)
-                    : 0;
-                int rem = isFinancialType ? (int)budget - (monthlyPlanned * totalMonths) : 0;
-
                 var current = startMonth;
                 int idx = 1;
                 while (current <= endMonth)
                 {
-                    bool isLastMonth = current == endMonth;
                     activity.Plans.Add(new Plan
                     {
                         Name = $"{type}-{idx}",
                         Date = current,
-                        Planned = monthlyPlanned + (isLastMonth ? rem : 0),
+                        Planned = 0,
                         Realised = 0,
                         Activity = activity
                     });
