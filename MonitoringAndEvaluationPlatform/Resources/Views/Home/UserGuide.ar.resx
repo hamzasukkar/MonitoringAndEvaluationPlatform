@@ -58,6 +58,10 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
+  <!-- Update badges -->
+  <data name="NEW" xml:space="preserve">
+    <value>جديد</value>
+  </data>
   <!-- Header -->
   <data name="User Guide" xml:space="preserve">
     <value>دليل المستخدم</value>
@@ -1215,6 +1219,85 @@
   </data>
   <data name="Figure 10.5: Linking Projects to Indicators" xml:space="preserve">
     <value>الشكل 10.5: ربط المشاريع بالمؤشرات</value>
+  </data>
+  <!-- Section 10.6: Project Phases -->
+  <data name="10.6 Project Phases" xml:space="preserve">
+    <value>10.6 مراحل المشروع</value>
+  </data>
+  <data name="Project Phases allow you to divide a project into sequential stages, each with its own timeline, budget, and performance tracking. Each phase automatically receives an Action Plan and a full set of Activities." xml:space="preserve">
+    <value>تتيح لك مراحل المشروع تقسيم المشروع إلى مراحل متتالية، لكل منها جدول زمني وميزانية وتتبع أداء خاص بها. تحصل كل مرحلة تلقائياً على خطة عمل ومجموعة كاملة من الأنشطة.</value>
+  </data>
+  <data name="How Phases Work" xml:space="preserve">
+    <value>كيف تعمل المراحل</value>
+  </data>
+  <data name="Phase dates must fall within the project start and end dates" xml:space="preserve">
+    <value>يجب أن تقع تواريخ المرحلة ضمن تواريخ بداية ونهاية المشروع</value>
+  </data>
+  <data name="The sum of all phase budgets cannot exceed the total project budget" xml:space="preserve">
+    <value>لا يمكن أن يتجاوز مجموع ميزانيات المراحل إجمالي ميزانية المشروع</value>
+  </data>
+  <data name="Phase weights are redistributed equally whenever a phase is added or removed" xml:space="preserve">
+    <value>تُعاد توزيع أوزان المراحل بالتساوي عند إضافة مرحلة أو حذفها</value>
+  </data>
+  <data name="Each phase automatically gets its own Action Plan and Activities with monthly Plans" xml:space="preserve">
+    <value>تحصل كل مرحلة تلقائياً على خطة عمل خاصة بها وأنشطة مع خطط شهرية</value>
+  </data>
+  <data name="Open Project Phases Tab" xml:space="preserve">
+    <value>فتح تبويب مراحل المشروع</value>
+  </data>
+  <data name="Go to the project details page and select the Phases tab." xml:space="preserve">
+    <value>انتقل إلى صفحة تفاصيل المشروع واختر تبويب المراحل.</value>
+  </data>
+  <data name="Add Phase" xml:space="preserve">
+    <value>إضافة مرحلة</value>
+  </data>
+  <data name="Click Add Phase and fill in the phase name, start date, end date, budget, and optional target quantity." xml:space="preserve">
+    <value>انقر على إضافة مرحلة واملأ اسم المرحلة وتاريخ البداية وتاريخ النهاية والميزانية والكمية المستهدفة الاختيارية.</value>
+  </data>
+  <data name="Review Auto-Created Plan" xml:space="preserve">
+    <value>مراجعة الخطة المُنشأة تلقائياً</value>
+  </data>
+  <data name="After saving, the system automatically creates an Action Plan with monthly Plans and one Activity per type (Financial, Physical, Disbursement, Field Monitoring, Impact Assessment)." xml:space="preserve">
+    <value>بعد الحفظ، يُنشئ النظام تلقائياً خطة عمل مع خطط شهرية ونشاطاً واحداً لكل نوع (المالي، المادي، الصرف، المتابعة الميدانية، تقييم الأثر).</value>
+  </data>
+  <data name="Adjust Weights if Needed" xml:space="preserve">
+    <value>تعديل الأوزان عند الحاجة</value>
+  </data>
+  <data name="Weights are set equally by default. You can edit a phase to assign a custom weight; the total across all phases must equal 100%." xml:space="preserve">
+    <value>تُضبط الأوزان بالتساوي افتراضياً. يمكنك تعديل مرحلة لتعيين وزن مخصص؛ ويجب أن يساوي المجموع الكلي لجميع المراحل 100%.</value>
+  </data>
+  <data name="Phase Name &amp; Dates" xml:space="preserve">
+    <value>اسم المرحلة والتواريخ</value>
+  </data>
+  <data name="Identify each stage by name with a specific start and end date within the project timeline." xml:space="preserve">
+    <value>حدد كل مرحلة باسم مع تاريخ بداية ونهاية محددين ضمن الجدول الزمني للمشروع.</value>
+  </data>
+  <data name="Phase Budget" xml:space="preserve">
+    <value>ميزانية المرحلة</value>
+  </data>
+  <data name="Allocate a portion of the project budget to each phase. The system prevents over-allocation." xml:space="preserve">
+    <value>خصص جزءاً من ميزانية المشروع لكل مرحلة. يمنع النظام تجاوز الميزانية المخصصة.</value>
+  </data>
+  <data name="Phase Weight" xml:space="preserve">
+    <value>وزن المرحلة</value>
+  </data>
+  <data name="Control each phase's contribution to overall project performance. All weights must sum to 100%." xml:space="preserve">
+    <value>تحكم في مساهمة كل مرحلة في الأداء الإجمالي للمشروع. يجب أن يساوي مجموع جميع الأوزان 100%.</value>
+  </data>
+  <data name="Target Quantity" xml:space="preserve">
+    <value>الكمية المستهدفة</value>
+  </data>
+  <data name="Optionally set a numeric target (e.g. km of road, number of units). Measure values are then calculated as a percentage of this target." xml:space="preserve">
+    <value>حدد اختيارياً هدفاً رقمياً (مثل كم من الطريق، عدد الوحدات). تُحسب قيم القياس عندئذٍ كنسبة مئوية من هذا الهدف.</value>
+  </data>
+  <data name="Project Phases Screenshot" xml:space="preserve">
+    <value>لقطة شاشة مراحل المشروع</value>
+  </data>
+  <data name="Screenshot: Project Phases Tab" xml:space="preserve">
+    <value>لقطة شاشة: تبويب مراحل المشروع</value>
+  </data>
+  <data name="Figure 10.6: Project Phases Management" xml:space="preserve">
+    <value>الشكل 10.6: إدارة مراحل المشروع</value>
   </data>
   <!-- Section 11: Plans & Activities -->
   <data name="Plans and Activities provide detailed tracking of project implementation at the operational level." xml:space="preserve">
