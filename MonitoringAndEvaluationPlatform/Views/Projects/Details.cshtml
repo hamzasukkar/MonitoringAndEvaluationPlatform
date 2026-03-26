@@ -84,7 +84,7 @@
                                                         </small>
                                                         <small class="text-muted ms-2">
                                                             <span class="me-1">@Model.CurrencySymbol</span>
-                                                            @projectDonor.FundingAmount.ToString("N2")
+                                                            @projectDonor.FundingAmount.ToString("0")
                                                         </small>
                                                     </div>
                                                 </div>
@@ -307,7 +307,7 @@
                                     @Localizer["Estimated Budget"]
                                 </div>
                                 <div class="info-value">
-                                    <span class="budget-amount">@Model.CurrencySymbol@Model.EstimatedBudget.ToString("N2")</span>
+                                    <span class="budget-amount">@Model.CurrencySymbol@Model.EstimatedBudget.ToString("0")</span>
                                     <small class="text-muted ms-1">(@Model.Currency)</small>
                                 </div>
                             </div>
@@ -324,7 +324,7 @@
                                             var totalDonorFunding = Model.ProjectDonors.Sum(pd => pd.FundingAmount);
                                             var fundingPercentage = Model.EstimatedBudget > 0 ? (double)(totalDonorFunding / (decimal)Model.EstimatedBudget) * 100 : 0;
                                         }
-                                        <span class="budget-amount text-success">@Model.CurrencySymbol@totalDonorFunding.ToString("N2")</span>
+                                        <span class="budget-amount text-success">@Model.CurrencySymbol@totalDonorFunding.ToString("0")</span>
                                         <div class="mt-1">
                                             <small class="text-muted">
                                                 <i class="fas fa-chart-pie me-1"></i>
@@ -344,7 +344,7 @@
                                             var remainingBudget = (decimal)Model.EstimatedBudget - totalDonorFunding;
                                             var remainingPercentage = Model.EstimatedBudget > 0 ? (double)(remainingBudget / (decimal)Model.EstimatedBudget) * 100 : 0;
                                         }
-                                        <span class="budget-amount @(remainingBudget > 0 ? "text-warning" : "text-success")">@Model.CurrencySymbol@remainingBudget.ToString("N2")</span>
+                                        <span class="budget-amount @(remainingBudget > 0 ? "text-warning" : "text-success")">@Model.CurrencySymbol@remainingBudget.ToString("0")</span>
                                         <div class="mt-1">
                                             <small class="text-muted">
                                                 <i class="fas fa-chart-pie me-1"></i>
@@ -386,10 +386,10 @@
                 <!-- Budget summary -->
                 <div class="alert @(Math.Abs(budgetDiff) < 0.01 ? "alert-success" : "alert-warning") py-2 mb-3 small">
                     <i class="fas fa-info-circle me-1"></i>
-                    @Localizer["Phase budgets total:"]: <strong>@Model.CurrencySymbol@totalPhaseBudget.ToString("N2")</strong>
+                    @Localizer["Phase budgets total:"]: <strong>@Model.CurrencySymbol@totalPhaseBudget.ToString("0")</strong>
                     @if (Math.Abs(budgetDiff) >= 0.01)
                     {
-                        <span class="ms-2">(@Localizer["Remaining"]: @Model.CurrencySymbol@budgetDiff.ToString("N2"))</span>
+                        <span class="ms-2">(@Localizer["Remaining"]: @Model.CurrencySymbol@budgetDiff.ToString("0"))</span>
                     }
                     else
                     {
@@ -452,7 +452,7 @@
                                     <td><strong>@phase.Name</strong></td>
                                     <td>@phase.StartDate.ToString("MMM yyyy")</td>
                                     <td>@phase.EndDate.ToString("MMM yyyy")</td>
-                                    <td>@Model.CurrencySymbol@phase.Budget.ToString("N2")</td>
+                                    <td>@Model.CurrencySymbol@phase.Budget.ToString("0")</td>
                                     <td class="text-center">
                                         <span class="modern-badge badge-primary">@phase.Weight.ToString("0.##")%</span>
                                     </td>
@@ -463,7 +463,7 @@
                                                 .SelectMany(a => a.Plans)
                                                 .Sum(p => (double)p.Realised) ?? 0;
                                         }
-                                        <span class="@(realisedAmount > phase.Budget ? "modern-badge badge-danger" : "fw-bold")">@Model.CurrencySymbol@realisedAmount.ToString("N2")</span>
+                                        <span class="@(realisedAmount > phase.Budget ? "modern-badge badge-danger" : "fw-bold")">@Model.CurrencySymbol@realisedAmount.ToString("0")</span>
                                     </td>
                                     <td class="text-center">
                                         <span class="modern-badge @MonitoringAndEvaluationPlatform.Helpers.ProgressBarHelper.GetBadgeClass(phase.PhasePerformance)">
