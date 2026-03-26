@@ -58,6 +58,10 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
+  <!-- Update badges -->
+  <data name="NEW" xml:space="preserve">
+    <value>NEW</value>
+  </data>
   <!-- Section: Header -->
   <data name="User Guide" xml:space="preserve">
     <value>User Guide</value>
@@ -1215,6 +1219,85 @@
   </data>
   <data name="Figure 10.5: Linking Projects to Indicators" xml:space="preserve">
     <value>Figure 10.5: Linking Projects to Indicators</value>
+  </data>
+  <!-- Section 10.6: Project Phases -->
+  <data name="10.6 Project Phases" xml:space="preserve">
+    <value>10.6 Project Phases</value>
+  </data>
+  <data name="Project Phases allow you to divide a project into sequential stages, each with its own timeline, budget, and performance tracking. Each phase automatically receives an Action Plan and a full set of Activities." xml:space="preserve">
+    <value>Project Phases allow you to divide a project into sequential stages, each with its own timeline, budget, and performance tracking. Each phase automatically receives an Action Plan and a full set of Activities.</value>
+  </data>
+  <data name="How Phases Work" xml:space="preserve">
+    <value>How Phases Work</value>
+  </data>
+  <data name="Phase dates must fall within the project start and end dates" xml:space="preserve">
+    <value>Phase dates must fall within the project start and end dates</value>
+  </data>
+  <data name="The sum of all phase budgets cannot exceed the total project budget" xml:space="preserve">
+    <value>The sum of all phase budgets cannot exceed the total project budget</value>
+  </data>
+  <data name="Phase weights are redistributed equally whenever a phase is added or removed" xml:space="preserve">
+    <value>Phase weights are redistributed equally whenever a phase is added or removed</value>
+  </data>
+  <data name="Each phase automatically gets its own Action Plan and Activities with monthly Plans" xml:space="preserve">
+    <value>Each phase automatically gets its own Action Plan and Activities with monthly Plans</value>
+  </data>
+  <data name="Open Project Phases Tab" xml:space="preserve">
+    <value>Open Project Phases Tab</value>
+  </data>
+  <data name="Go to the project details page and select the Phases tab." xml:space="preserve">
+    <value>Go to the project details page and select the Phases tab.</value>
+  </data>
+  <data name="Add Phase" xml:space="preserve">
+    <value>Add Phase</value>
+  </data>
+  <data name="Click Add Phase and fill in the phase name, start date, end date, budget, and optional target quantity." xml:space="preserve">
+    <value>Click Add Phase and fill in the phase name, start date, end date, budget, and optional target quantity.</value>
+  </data>
+  <data name="Review Auto-Created Plan" xml:space="preserve">
+    <value>Review Auto-Created Plan</value>
+  </data>
+  <data name="After saving, the system automatically creates an Action Plan with monthly Plans and one Activity per type (Financial, Physical, Disbursement, Field Monitoring, Impact Assessment)." xml:space="preserve">
+    <value>After saving, the system automatically creates an Action Plan with monthly Plans and one Activity per type (Financial, Physical, Disbursement, Field Monitoring, Impact Assessment).</value>
+  </data>
+  <data name="Adjust Weights if Needed" xml:space="preserve">
+    <value>Adjust Weights if Needed</value>
+  </data>
+  <data name="Weights are set equally by default. You can edit a phase to assign a custom weight; the total across all phases must equal 100%." xml:space="preserve">
+    <value>Weights are set equally by default. You can edit a phase to assign a custom weight; the total across all phases must equal 100%.</value>
+  </data>
+  <data name="Phase Name &amp; Dates" xml:space="preserve">
+    <value>Phase Name &amp; Dates</value>
+  </data>
+  <data name="Identify each stage by name with a specific start and end date within the project timeline." xml:space="preserve">
+    <value>Identify each stage by name with a specific start and end date within the project timeline.</value>
+  </data>
+  <data name="Phase Budget" xml:space="preserve">
+    <value>Phase Budget</value>
+  </data>
+  <data name="Allocate a portion of the project budget to each phase. The system prevents over-allocation." xml:space="preserve">
+    <value>Allocate a portion of the project budget to each phase. The system prevents over-allocation.</value>
+  </data>
+  <data name="Phase Weight" xml:space="preserve">
+    <value>Phase Weight</value>
+  </data>
+  <data name="Control each phase's contribution to overall project performance. All weights must sum to 100%." xml:space="preserve">
+    <value>Control each phase's contribution to overall project performance. All weights must sum to 100%.</value>
+  </data>
+  <data name="Target Quantity" xml:space="preserve">
+    <value>Target Quantity</value>
+  </data>
+  <data name="Optionally set a numeric target (e.g. km of road, number of units). Measure values are then calculated as a percentage of this target." xml:space="preserve">
+    <value>Optionally set a numeric target (e.g. km of road, number of units). Measure values are then calculated as a percentage of this target.</value>
+  </data>
+  <data name="Project Phases Screenshot" xml:space="preserve">
+    <value>Project Phases Screenshot</value>
+  </data>
+  <data name="Screenshot: Project Phases Tab" xml:space="preserve">
+    <value>Screenshot: Project Phases Tab</value>
+  </data>
+  <data name="Figure 10.6: Project Phases Management" xml:space="preserve">
+    <value>Figure 10.6: Project Phases Management</value>
   </data>
   <!-- Section 11: Plans & Activities -->
   <data name="Plans and Activities provide detailed tracking of project implementation at the operational level." xml:space="preserve">
