@@ -82,6 +82,15 @@
   <data name="Deleted" xml:space="preserve">
     <value>Deleted</value>
   </data>
+  <data name="Create" xml:space="preserve">
+    <value>Create</value>
+  </data>
+  <data name="Update" xml:space="preserve">
+    <value>Update</value>
+  </data>
+  <data name="Delete" xml:space="preserve">
+    <value>Delete</value>
+  </data>
   <data name="Search" xml:space="preserve">
     <value>Search</value>
   </data>
@@ -306,5 +315,26 @@
   </data>
   <data name="LoginFailed" xml:space="preserve">
     <value>Login Failed</value>
+  </data>
+  <data name="ApplicationUser" xml:space="preserve">
+    <value>System User</value>
+  </data>
+  <data name="Dictionary`2" xml:space="preserve">
+    <value>Data Dictionary</value>
+  </data>
+  <data name="IdentityRole" xml:space="preserve">
+    <value>User Role</value>
+  </data>
+  <data name="IdentityUserRole`1" xml:space="preserve">
+    <value>User Role Assignment</value>
+  </data>
+  <data name="ProjectManager" xml:space="preserve">
+    <value>Project Manager</value>
+  </data>
+  <data name="ProjectPhase" xml:space="preserve">
+    <value>Project Phase</value>
+  </data>
+  <data name="SuperVisor" xml:space="preserve">
+    <value>Supervisor</value>
   </data>
 </root>

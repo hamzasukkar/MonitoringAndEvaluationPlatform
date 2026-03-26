@@ -106,7 +106,7 @@
                         <option value="">@Localizer["AllEntities"]</option>
                         @foreach (var entity in Model.AvailableEntities)
                         {
-                            <option value="@entity" selected="@(entity == Model.EntityFilter)">@entity</option>
+                            <option value="@entity" selected="@(entity == Model.EntityFilter)">@Localizer[entity]</option>
                         }
                     </select>
                 </div>
@@ -116,7 +116,7 @@
                         <option value="">@Localizer["AllActions"]</option>
                         @foreach (var action in Model.AvailableActions)
                         {
-                            <option value="@action" selected="@(action == Model.ActionFilter)">@action</option>
+                            <option value="@action" selected="@(action == Model.ActionFilter)">@Localizer[action]</option>
                         }
                     </select>
                 </div>
@@ -222,7 +222,7 @@
                                     </span>
                                 </td>
                                 <td>
-                                    <strong>@log.EntityName</strong>
+                                    <strong>@Localizer[log.EntityName]</strong>
                                 </td>
                                 <td>
                                     <a asp-action="EntityHistory" asp-route-entityName="@log.EntityName" asp-route-entityId="@log.EntityId">

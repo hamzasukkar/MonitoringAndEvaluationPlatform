@@ -82,6 +82,15 @@
   <data name="Deleted" xml:space="preserve">
     <value>حذف</value>
   </data>
+  <data name="Create" xml:space="preserve">
+    <value>إنشاء</value>
+  </data>
+  <data name="Update" xml:space="preserve">
+    <value>تعديل</value>
+  </data>
+  <data name="Delete" xml:space="preserve">
+    <value>حذف</value>
+  </data>
   <data name="Search" xml:space="preserve">
     <value>بحث</value>
   </data>
@@ -306,5 +315,26 @@
   </data>
   <data name="LoginFailed" xml:space="preserve">
     <value>فشل تسجيل الدخول</value>
+  </data>
+  <data name="ApplicationUser" xml:space="preserve">
+    <value>مستخدم النظام</value>
+  </data>
+  <data name="Dictionary`2" xml:space="preserve">
+    <value>قاموس البيانات</value>
+  </data>
+  <data name="IdentityRole" xml:space="preserve">
+    <value>دور المستخدم</value>
+  </data>
+  <data name="IdentityUserRole`1" xml:space="preserve">
+    <value>تعيين دور المستخدم</value>
+  </data>
+  <data name="ProjectManager" xml:space="preserve">
+    <value>مدير المشروع</value>
+  </data>
+  <data name="ProjectPhase" xml:space="preserve">
+    <value>مرحلة المشروع</value>
+  </data>
+  <data name="SuperVisor" xml:space="preserve">
+    <value>المشرف</value>
   </data>
 </root>
