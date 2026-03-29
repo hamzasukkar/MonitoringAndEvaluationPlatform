@@ -405,7 +405,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             workbook.SaveAs(stream);
             stream.Position = 0;
 
-            var filePrefix = isRtl ? "المخرجات_الفرعية" : "SubOutputs";
+            var filePrefix = isRtl ? "البرامج_الفرعية" : "SubOutputs";
             var fileName = $"{filePrefix}_{DateTime.Now:yyyyMMdd_HHmmss}.xlsx";
             return File(stream.ToArray(), "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", fileName);
         }
@@ -482,7 +482,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             });
 
             var pdfBytes = document.GeneratePdf();
-            var filePrefix = isRtl ? "المخرجات_الفرعية" : "SubOutputs";
+            var filePrefix = isRtl ? "البرامج_الفرعية" : "SubOutputs";
             var fileName = $"{filePrefix}_{DateTime.Now:yyyyMMdd_HHmmss}.pdf";
             return File(pdfBytes, "application/pdf", fileName);
         }
@@ -554,7 +554,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             workbook.SaveAs(stream);
             stream.Position = 0;
 
-            var filePrefix = isRtl ? "المخرجات_الفرعية_المشاريع" : "SubOutputs_Projects";
+            var filePrefix = isRtl ? "البرامج_الفرعية_المشاريع" : "SubOutputs_Projects";
             var fileName = $"{filePrefix}_{DateTime.Now:yyyyMMdd_HHmmss}.xlsx";
             return File(stream.ToArray(), "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", fileName);
         }
@@ -628,7 +628,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             });
 
             var pdfBytes = document.GeneratePdf();
-            var filePrefix = isRtl ? "المخرجات_الفرعية_المشاريع" : "SubOutputs_Projects";
+            var filePrefix = isRtl ? "البرامج_الفرعية_المشاريع" : "SubOutputs_Projects";
             var fileName = $"{filePrefix}_{DateTime.Now:yyyyMMdd_HHmmss}.pdf";
             return File(pdfBytes, "application/pdf", fileName);
         }

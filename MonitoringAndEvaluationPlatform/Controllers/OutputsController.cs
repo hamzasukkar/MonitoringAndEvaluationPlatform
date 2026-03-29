@@ -349,7 +349,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             workbook.SaveAs(stream);
             stream.Position = 0;
 
-            var filePrefix = isRtl ? "المخرجات" : "Outputs";
+            var filePrefix = isRtl ? "البرامج" : "Outputs";
             var fileName = $"{filePrefix}_{DateTime.Now:yyyyMMdd_HHmmss}.xlsx";
             return File(stream.ToArray(), "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", fileName);
         }
@@ -426,7 +426,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             });
 
             var pdfBytes = document.GeneratePdf();
-            var filePrefix = isRtl ? "المخرجات" : "Outputs";
+            var filePrefix = isRtl ? "البرامج" : "Outputs";
             var fileName = $"{filePrefix}_{DateTime.Now:yyyyMMdd_HHmmss}.pdf";
             return File(pdfBytes, "application/pdf", fileName);
         }

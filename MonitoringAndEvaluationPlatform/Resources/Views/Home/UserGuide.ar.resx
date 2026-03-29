@@ -95,7 +95,7 @@
     <value>النتائج</value>
   </data>
   <data name="Outputs &amp; SubOutputs" xml:space="preserve">
-    <value>المخرجات والمخرجات الفرعية</value>
+    <value>البرامج والبرامج الفرعية</value>
   </data>
   <data name="Indicators" xml:space="preserve">
     <value>المؤشرات</value>
@@ -174,7 +174,7 @@
     <value>المنصة منظمة في خمسة أقسام رئيسية يمكن الوصول إليها من الشريط الجانبي:</value>
   </data>
   <data name="Manage frameworks, outcomes, outputs, sub-outputs, and indicators." xml:space="preserve">
-    <value>إدارة الأطر والنتائج والمخرجات والمخرجات الفرعية والمؤشرات.</value>
+    <value>إدارة الأطر والنتائج والبرامج والبرامج الفرعية والمؤشرات.</value>
   </data>
   <data name="Configure ministries, donors, sectors, project managers, supervisors, and locations." xml:space="preserve">
     <value>تكوين الوزارات والمانحين والقطاعات ومديري المشاريع والمشرفين والمواقع.</value>
@@ -477,13 +477,13 @@
     <value>السياسة</value>
   </data>
   <data name="SubOutputs" xml:space="preserve">
-    <value>المخرجات الفرعية</value>
+    <value>البرامج الفرعية</value>
   </data>
   <data name="Indicators &amp; Projects" xml:space="preserve">
     <value>المؤشرات والمشاريع</value>
   </data>
   <data name="Outputs" xml:space="preserve">
-    <value>المخرجات</value>
+    <value>البرامج</value>
   </data>
   <data name="4.2 Viewing Frameworks" xml:space="preserve">
     <value>4.2 عرض الأطر</value>
@@ -531,7 +531,7 @@
     <value>الطريقة 2: الإنشاء الشامل</value>
   </data>
   <data name="Use the comprehensive creation form to build an entire framework hierarchy at once, including outcomes, outputs, sub-outputs, and indicators." xml:space="preserve">
-    <value>استخدم نموذج الإنشاء الشامل لبناء تسلسل هرمي كامل للإطار دفعة واحدة، بما في ذلك النتائج والمخرجات والمخرجات الفرعية والمؤشرات.</value>
+    <value>استخدم نموذج الإنشاء الشامل لبناء تسلسل هرمي كامل للإطار دفعة واحدة، بما في ذلك النتائج والبرامج والبرامج الفرعية والمؤشرات.</value>
   </data>
   <data name="Comprehensive Framework Creation Screenshot" xml:space="preserve">
     <value>لقطة شاشة إنشاء إطار شامل</value>
@@ -552,7 +552,7 @@
     <value>تحذير</value>
   </data>
   <data name="Deleting a framework will remove all associated outcomes, outputs, sub-outputs, and indicators. This action cannot be undone." xml:space="preserve">
-    <value>سيؤدي حذف السياسة إلى إزالة جميع النتائج والمخرجات والمخرجات الفرعية والمؤشرات المرتبطة. لا يمكن التراجع عن هذا الإجراء.</value>
+    <value>سيؤدي حذف السياسة إلى إزالة جميع النتائج والبرامج والبرامج الفرعية والمؤشرات المرتبطة. لا يمكن التراجع عن هذا الإجراء.</value>
   </data>
   <data name="4.5 Exporting Frameworks" xml:space="preserve">
     <value>4.5 تصدير الأطر</value>
@@ -656,25 +656,25 @@
   </data>
   <!-- Section 6: Outputs & SubOutputs -->
   <data name="Outputs are the deliverables under each outcome. SubOutputs provide further breakdown of outputs." xml:space="preserve">
-    <value>المخرجات هي التسليمات تحت كل نتيجة. توفر المخرجات الفرعية تفصيلاً إضافياً للمخرجات.</value>
+    <value>البرامج هي التسليمات تحت كل نتيجة. توفر البرامج الفرعية تفصيلاً إضافياً للمخرجات.</value>
   </data>
   <data name="6.1 Managing Outputs" xml:space="preserve">
-    <value>6.1 إدارة المخرجات</value>
+    <value>6.1 إدارة البرامج</value>
   </data>
   <data name="Filter outputs by framework and outcome. Each output displays its name, performance, and weight." xml:space="preserve">
-    <value>تصفية المخرجات حسب السياسة والنتيجة. يعرض كل مخرج اسمه وأداءه ووزنه.</value>
+    <value>تصفية البرامج حسب السياسة والنتيجة. يعرض كل مخرج اسمه وأداءه ووزنه.</value>
   </data>
   <data name="Outputs List Screenshot" xml:space="preserve">
-    <value>لقطة شاشة قائمة المخرجات</value>
+    <value>لقطة شاشة قائمة البرامج</value>
   </data>
   <data name="Screenshot: Outputs List" xml:space="preserve">
-    <value>لقطة شاشة: قائمة المخرجات</value>
+    <value>لقطة شاشة: قائمة البرامج</value>
   </data>
   <data name="Figure 6.1: Outputs List View" xml:space="preserve">
-    <value>الشكل 6.1: عرض قائمة المخرجات</value>
+    <value>الشكل 6.1: عرض قائمة البرامج</value>
   </data>
   <data name="6.2 Creating Outputs" xml:space="preserve">
-    <value>6.2 إنشاء المخرجات</value>
+    <value>6.2 إنشاء البرامج</value>
   </data>
   <data name="Select Framework and Outcome" xml:space="preserve">
     <value>اختر السياسة والنتيجة</value>
@@ -689,25 +689,25 @@
     <value>أدخل اسم المخرج في نموذج الإنشاء المباشر وانقر حفظ.</value>
   </data>
   <data name="6.3 Managing SubOutputs" xml:space="preserve">
-    <value>6.3 إدارة المخرجات الفرعية</value>
+    <value>6.3 إدارة البرامج الفرعية</value>
   </data>
   <data name="SubOutputs provide additional detail under outputs. They work the same way as outputs with inline creation, editing, and weight adjustment." xml:space="preserve">
-    <value>توفر المخرجات الفرعية تفاصيل إضافية تحت المخرجات. تعمل بنفس طريقة المخرجات مع الإنشاء والتعديل المباشر وضبط الأوزان.</value>
+    <value>توفر البرامج الفرعية تفاصيل إضافية تحت البرامج. تعمل بنفس طريقة البرامج مع الإنشاء والتعديل المباشر وضبط الأوزان.</value>
   </data>
   <data name="SubOutputs List Screenshot" xml:space="preserve">
-    <value>لقطة شاشة قائمة المخرجات الفرعية</value>
+    <value>لقطة شاشة قائمة البرامج الفرعية</value>
   </data>
   <data name="Screenshot: SubOutputs List" xml:space="preserve">
-    <value>لقطة شاشة: قائمة المخرجات الفرعية</value>
+    <value>لقطة شاشة: قائمة البرامج الفرعية</value>
   </data>
   <data name="Figure 6.2: SubOutputs Management" xml:space="preserve">
-    <value>الشكل 6.2: إدارة المخرجات الفرعية</value>
+    <value>الشكل 6.2: إدارة البرامج الفرعية</value>
   </data>
   <data name="6.4 Adjusting Output/SubOutput Weights" xml:space="preserve">
-    <value>6.4 ضبط أوزان المخرجات/المخرجات الفرعية</value>
+    <value>6.4 ضبط أوزان البرامج/البرامج الفرعية</value>
   </data>
   <data name="Like outcomes, outputs and sub-outputs have weights that determine their contribution to the parent level performance. Use the Adjust Weights button to modify." xml:space="preserve">
-    <value>مثل النتائج، للمخرجات والمخرجات الفرعية أوزان تحدد مساهمتها في أداء المستوى الأعلى. استخدم زر ضبط الأوزان للتعديل.</value>
+    <value>مثل النتائج، للمخرجات والبرامج الفرعية أوزان تحدد مساهمتها في أداء المستوى الأعلى. استخدم زر ضبط الأوزان للتعديل.</value>
   </data>
   <data name="6.5 Projects List by SubOutput" xml:space="preserve">
     <value>6.5 قائمة المشاريع حسب البرنامج الفرعي</value>
@@ -726,7 +726,7 @@
   </data>
   <!-- Section 7: Indicators -->
   <data name="Indicators measure the performance and progress of projects and strategic objectives. They are linked to sub-outputs and have measurable targets." xml:space="preserve">
-    <value>تقيس المؤشرات أداء وتقدم المشاريع والأهداف الاستراتيجية. وهي مرتبطة بالمخرجات الفرعية ولها أهداف قابلة للقياس.</value>
+    <value>تقيس المؤشرات أداء وتقدم المشاريع والأهداف الاستراتيجية. وهي مرتبطة بالبرامج الفرعية ولها أهداف قابلة للقياس.</value>
   </data>
   <data name="7.1 Understanding Indicators" xml:space="preserve">
     <value>7.1 فهم المؤشرات</value>
@@ -1443,10 +1443,10 @@
     <value>أداء كل نتيجة ضمن السياسة</value>
   </data>
   <data name="Performance of outputs within an outcome" xml:space="preserve">
-    <value>أداء المخرجات ضمن النتيجة</value>
+    <value>أداء البرامج ضمن النتيجة</value>
   </data>
   <data name="Performance of sub-outputs within an output" xml:space="preserve">
-    <value>أداء المخرجات الفرعية ضمن المخرج</value>
+    <value>أداء البرامج الفرعية ضمن المخرج</value>
   </data>
   <data name="Individual indicator measurements and trends" xml:space="preserve">
     <value>قياسات واتجاهات المؤشرات الفردية</value>
@@ -1507,10 +1507,10 @@
     <value>قائمة النتائج</value>
   </data>
   <data name="Outputs list" xml:space="preserve">
-    <value>قائمة المخرجات</value>
+    <value>قائمة البرامج</value>
   </data>
   <data name="SubOutputs list and projects list" xml:space="preserve">
-    <value>قائمة المخرجات الفرعية وقائمة المشاريع</value>
+    <value>قائمة البرامج الفرعية وقائمة المشاريع</value>
   </data>
   <data name="Indicators list" xml:space="preserve">
     <value>قائمة المؤشرات</value>
@@ -1818,7 +1818,7 @@
     <value>18.3 المتوسطات المرجحة</value>
   </data>
   <data name="Performance at each hierarchy level is calculated as a weighted average of its children. Weights can be adjusted at every level (Outcomes, Outputs, SubOutputs, Indicators)." xml:space="preserve">
-    <value>يتم حساب الأداء عند كل مستوى هرمي كمتوسط مرجح لعناصره الفرعية. يمكن ضبط الأوزان عند كل مستوى (النتائج، المخرجات، المخرجات الفرعية، المؤشرات).</value>
+    <value>يتم حساب الأداء عند كل مستوى هرمي كمتوسط مرجح لعناصره الفرعية. يمكن ضبط الأوزان عند كل مستوى (النتائج، البرامج، البرامج الفرعية، المؤشرات).</value>
   </data>
   <data name="Formula" xml:space="preserve">
     <value>الصيغة</value>

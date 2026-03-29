@@ -125,7 +125,7 @@
     <value>استخدم نموذج الإنشاء السريع في الأعلى لإضافة أطر عمل جديدة بسرعة.</value>
   </data>
   <data name="HELP_FRAMEWORKS_HOWTO_3" xml:space="preserve">
-    <value>انقر على اسم إطار العمل لعرض تسلسله الهرمي المفصل من النتائج والمخرجات والمؤشرات.</value>
+    <value>انقر على اسم إطار العمل لعرض تسلسله الهرمي المفصل من النتائج والبرامج والمؤشرات.</value>
   </data>
   <data name="HELP_FRAMEWORKS_FAQ_Q1" xml:space="preserve">
     <value>ما هو الهيكل الهرمي؟</value>
@@ -137,7 +137,7 @@
     <value>كيف يتم حساب الأداء؟</value>
   </data>
   <data name="HELP_FRAMEWORKS_FAQ_A2" xml:space="preserve">
-    <value>يتم حساب الأداء من خطط مستوى المشروع وينتشر صعوداً عبرالمشاريع والمخرجات الفرعية والمخرجات والنتائج إلى مستوى إطار العمل.</value>
+    <value>يتم حساب الأداء من خطط مستوى المشروع وينتشر صعوداً عبرالمشاريع والبرامج الفرعية والبرامج والنتائج إلى مستوى إطار العمل.</value>
   </data>
   <data name="HELP_FRAMEWORKS_TIP_1" xml:space="preserve">
     <value>استخدم الشريط الجانبي للتصفية لعرض الأطر حسب الوزارة أو الجهة المانحة أو القطاع.</value>
@@ -192,7 +192,7 @@
     <value>اختر إطار عمل لعرض بيانات المراقبة على مستويات التسلسل الهرمي المختلفة.</value>
   </data>
   <data name="HELP_MONITORING_HOWTO_2" xml:space="preserve">
-    <value>تنقل عبر النتائج والمخرجات والمخرجات الفرعية والمؤشرات لرؤية الأداء التفصيلي.</value>
+    <value>تنقل عبر النتائج والبرامج والبرامج الفرعية والمؤشرات لرؤية الأداء التفصيلي.</value>
   </data>
   <data name="HELP_MONITORING_HOWTO_3" xml:space="preserve">
     <value>أدخل القيم المخططة والمحققة في قسم القياسات لتحديث حسابات الأداء.</value>
@@ -221,7 +221,7 @@
     <value>مساعدةالمشاريع</value>
   </data>
   <data name="HELP_INDICATORS_OVERVIEW" xml:space="preserve">
-    <value>المؤشرات هي مقاييس أداء قابلة للقياس تتتبع التقدم نحو النتائج والمخرجات. لكل مؤشر قيمة مستهدفة ويمكن ربطه بمشاريع متعددة.</value>
+    <value>المؤشرات هي مقاييس أداء قابلة للقياس تتتبع التقدم نحو النتائج والبرامج. لكل مؤشر قيمة مستهدفة ويمكن ربطه بمشاريع متعددة.</value>
   </data>
   <data name="HELP_INDICATORS_HOWTO_1" xml:space="preserve">
     <value>انقر على "إضافة مؤشر" لإنشاء مؤشر جديد باسمه وقيمته المستهدفة.</value>
@@ -265,16 +265,16 @@
     <value>انقر على اسم النتيجة لعرض وإدارة مخرجاتها.</value>
   </data>
   <data name="HELP_OUTCOMES_HOWTO_3" xml:space="preserve">
-    <value>استخدم "ضبط الأوزان" للتحكم في كيفية مساهمة المخرجات في أداء النتيجة.</value>
+    <value>استخدم "ضبط الأوزان" للتحكم في كيفية مساهمة البرامج في أداء النتيجة.</value>
   </data>
   <data name="HELP_OUTCOMES_FAQ_Q1" xml:space="preserve">
-    <value>ما هي العلاقة بين النتائج والمخرجات؟</value>
+    <value>ما هي العلاقة بين النتائج والبرامج؟</value>
   </data>
   <data name="HELP_OUTCOMES_FAQ_A1" xml:space="preserve">
-    <value>تتحقق النتائج من خلال المخرجات. يمكن أن يكون لكل نتيجة مخرجات متعددة، ويتم حساب أداء النتيجة من مخرجاتها المرجحة.</value>
+    <value>تتحقق النتائج من خلال البرامج. يمكن أن يكون لكل نتيجة مخرجات متعددة، ويتم حساب أداء النتيجة من مخرجاتها المرجحة.</value>
   </data>
   <data name="HELP_OUTCOMES_FAQ_Q2" xml:space="preserve">
-    <value>هل يمكنني نقل المخرجات بين النتائج؟</value>
+    <value>هل يمكنني نقل البرامج بين النتائج؟</value>
   </data>
   <data name="HELP_OUTCOMES_FAQ_A2" xml:space="preserve">
     <value>نعم، يمكنك تحرير مخرج وتغيير النتيجة الأصلية لإعادة تنظيم هيكل إطار عملك.</value>
@@ -288,10 +288,10 @@
 
   <!-- Outputs Help Content -->
   <data name="HELP_OUTPUTS_TITLE" xml:space="preserve">
-    <value>مساعدة المخرجات</value>
+    <value>مساعدة البرامج</value>
   </data>
   <data name="HELP_OUTPUTS_OVERVIEW" xml:space="preserve">
-    <value>المخرجات هي المنجزات التي تساهم في تحقيق النتائج. تحتوي على مخرجات فرعية ترتبط بمؤشرات ومشاريع محددة.</value>
+    <value>البرامج هي المنجزات التي تساهم في تحقيق النتائج. تحتوي على مخرجات فرعية ترتبط بمؤشرات ومشاريع محددة.</value>
   </data>
   <data name="HELP_OUTPUTS_HOWTO_1" xml:space="preserve">
     <value>من عرض النتيجة، انقر على "إضافة برنامج" لإنشاء مخرج جديد.</value>
@@ -300,10 +300,10 @@
     <value>انقر على اسم المخرج لعرض مخرجاته الفرعية ومؤشراته.</value>
   </data>
   <data name="HELP_OUTPUTS_HOWTO_3" xml:space="preserve">
-    <value>اضبط أوزان المخرجات الفرعية من عرض المخرج للتحكم في التجميع.</value>
+    <value>اضبط أوزان البرامج الفرعية من عرض المخرج للتحكم في التجميع.</value>
   </data>
   <data name="HELP_OUTPUTS_FAQ_Q1" xml:space="preserve">
-    <value>كم عدد المخرجات التي يجب أن تحتويها النتيجة؟</value>
+    <value>كم عدد البرامج التي يجب أن تحتويها النتيجة؟</value>
   </data>
   <data name="HELP_OUTPUTS_FAQ_A1" xml:space="preserve">
     <value>لا يوجد حد صارم، ولكن عادةً 3-7 مخرجات لكل نتيجة توفر توازناً جيداً بين التفصيل وسهولة الإدارة.</value>
@@ -312,10 +312,10 @@
     <value>ماذا لو لم يكن للمخرج مخرجات فرعية؟</value>
   </data>
   <data name="HELP_OUTPUTS_FAQ_A2" xml:space="preserve">
-    <value>يجب أن تحتوي المخرجات على مخرج فرعي واحد على الأقل للاتصال بالمؤشرات. أنشئ مخرجات فرعية لتتبع أداء المخرج بشكل صحيح.</value>
+    <value>يجب أن تحتوي البرامج على مخرج فرعي واحد على الأقل للاتصال بالمؤشرات. أنشئ مخرجات فرعية لتتبع أداء المخرج بشكل صحيح.</value>
   </data>
   <data name="HELP_OUTPUTS_TIP_1" xml:space="preserve">
-    <value>تساعد رموز المخرجات في إعداد التقارير وتصدير البيانات. استخدم اصطلاحات تسمية متسقة.</value>
+    <value>تساعد رموز البرامج في إعداد التقارير وتصدير البيانات. استخدم اصطلاحات تسمية متسقة.</value>
   </data>
   <data name="HELP_OUTPUTS_TIP_2" xml:space="preserve">
     <value>يعرض شريط أداء المخرج المتوسط المرجح لجميع مخرجاته الفرعية.</value>
@@ -323,10 +323,10 @@
 
   <!-- SubOutputs Help Content -->
   <data name="HELP_SUBOUTPUTS_TITLE" xml:space="preserve">
-    <value>مساعدة المخرجات الفرعية</value>
+    <value>مساعدة البرامج الفرعية</value>
   </data>
   <data name="HELP_SUBOUTPUTS_OVERVIEW" xml:space="preserve">
-    <value>تقسم المخرجات الفرعية المخرجات إلى مكونات أكثر تحديداً وترتبط مباشرة بالمؤشرات. تمثل المستوى الأكثر تفصيلاً من إطار النتائج قبلالمشاريع.</value>
+    <value>تقسم البرامج الفرعية البرامج إلى مكونات أكثر تحديداً وترتبط مباشرة بالمؤشرات. تمثل المستوى الأكثر تفصيلاً من إطار النتائج قبلالمشاريع.</value>
   </data>
   <data name="HELP_SUBOUTPUTS_HOWTO_1" xml:space="preserve">
     <value>من عرض المخرج، انقر على "إضافة برنامج فرعي" لإنشاء مخرج فرعي جديد.</value>
@@ -338,22 +338,22 @@
     <value>استخدم عرض قائمة المشاريع لرؤية جميع المشاريع المرتبطة من خلال مؤشرات هذا البرنامج الفرعي.</value>
   </data>
   <data name="HELP_SUBOUTPUTS_FAQ_Q1" xml:space="preserve">
-    <value>ما هو الغرض من المخرجات الفرعية؟</value>
+    <value>ما هو الغرض من البرامج الفرعية؟</value>
   </data>
   <data name="HELP_SUBOUTPUTS_FAQ_A1" xml:space="preserve">
-    <value>توفر المخرجات الفرعية طبقة إضافية من التنظيم بين المخرجات والمؤشرات، مما يسمح بتتبع وإعداد تقارير أكثر تفصيلاً.</value>
+    <value>توفر البرامج الفرعية طبقة إضافية من التنظيم بين البرامج والمؤشرات، مما يسمح بتتبع وإعداد تقارير أكثر تفصيلاً.</value>
   </data>
   <data name="HELP_SUBOUTPUTS_FAQ_Q2" xml:space="preserve">
     <value>كيف أرى جميع المشاريع لمخرج فرعي؟</value>
   </data>
   <data name="HELP_SUBOUTPUTS_FAQ_A2" xml:space="preserve">
-    <value>انتقل إلى المخرجات الفرعية ← قائمة المشاريع لرؤية جميع المشاريع المرتبطة من خلال مؤشرات البرنامج الفرعي.</value>
+    <value>انتقل إلى البرامج الفرعية ← قائمة المشاريع لرؤية جميع المشاريع المرتبطة من خلال مؤشرات البرنامج الفرعي.</value>
   </data>
   <data name="HELP_SUBOUTPUTS_TIP_1" xml:space="preserve">
-    <value>احتفظ بأسماء المخرجات الفرعية محددة وقابلة للقياس لجعل إعداد التقارير أوضح.</value>
+    <value>احتفظ بأسماء البرامج الفرعية محددة وقابلة للقياس لجعل إعداد التقارير أوضح.</value>
   </data>
   <data name="HELP_SUBOUTPUTS_TIP_2" xml:space="preserve">
-    <value>استخدم أوزانالمشاريع داخل المخرجات الفرعية لتحديد أولويات مقاييس الأداء الرئيسية.</value>
+    <value>استخدم أوزانالمشاريع داخل البرامج الفرعية لتحديد أولويات مقاييس الأداء الرئيسية.</value>
   </data>
 
   <!-- Dashboard Help Content -->
@@ -411,7 +411,7 @@
     <value>ماذا يحدث عند تحديث قياس؟</value>
   </data>
   <data name="HELP_MEASURES_FAQ_A1" xml:space="preserve">
-    <value>تنتشر حسابات الأداء تلقائياً صعوداً عبرالمشاريع والمخرجات الفرعية والمخرجات والنتائج والأطر.</value>
+    <value>تنتشر حسابات الأداء تلقائياً صعوداً عبرالمشاريع والبرامج الفرعية والبرامج والنتائج والأطر.</value>
   </data>
   <data name="HELP_MEASURES_FAQ_Q2" xml:space="preserve">
     <value>هل يمكن أن يحتوي المشروع على قياسات متعددة لنفس المؤشر؟</value>
