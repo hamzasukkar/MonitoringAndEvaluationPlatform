@@ -1448,7 +1448,7 @@ public class DashboardController : Controller
                             header.Cell().Background(Colors.Indigo.Darken2).Padding(5)
                                 .Text(isRtl ? "الأداء (%)" : "Performance (%)").FontColor(Colors.White).Bold();
                             header.Cell().Background(Colors.Indigo.Darken2).Padding(5)
-                                .Text(isRtl ? "المؤشرات" : "Indicators").FontColor(Colors.White).Bold();
+                                .Text(isRtl ? "المشاريع" : "Indicators").FontColor(Colors.White).Bold();
                             header.Cell().Background(Colors.Indigo.Darken2).Padding(5)
                                 .Text(isRtl ? "المشاريع" : "Projects").FontColor(Colors.White).Bold();
                         });
