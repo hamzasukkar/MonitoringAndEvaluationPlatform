@@ -10,7 +10,8 @@
 
 @if (backButtonInfo.ShouldDisplay)
 {
-    <a href="@backButtonInfo.Url" class="back-button" title="@Localizer[backButtonInfo.Text]">
+    <a href="@backButtonInfo.Url" class="back-button" title="@Localizer[backButtonInfo.Text]"
+       onclick="if(document.referrer) { history.back(); return false; }">
         <i class="@backButtonInfo.IconClass"></i>
         <span class="back-button-text">@Localizer[backButtonInfo.Text]</span>
     </a>
