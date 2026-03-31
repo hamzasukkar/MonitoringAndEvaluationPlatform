@@ -498,36 +498,45 @@
                             <div class="form-text mb-2">@Localizer["Select the phases to include in this project (at least one required)"]</div>
                             @{
                                 var isArabicCulture = System.Globalization.CultureInfo.CurrentUICulture.TwoLetterISOLanguageName == "ar";
-                                // (arabicName, englishName) — arabic name is always used as the form value
-                                var availablePhases = new (string Ar, string En)[]
+                                var phaseArNames = new string[]
                                 {
-                                    ("اراضي",                         "Land"),
-                                    ("مباني وانشاءات ومرافق",         "Buildings, Constructions & Facilities"),
-                                    ("الات ومعدات",                   "Machinery & Equipment"),
-                                    ("وسائل نقل وانتقال",             "Transportation Means"),
-                                    ("عدد وادوات وقوالب",             "Tools, Instruments & Molds"),
-                                    ("اثاث ومعدات مكاتب",             "Furniture & Office Equipment"),
-                                    ("ثروة حيوانية",                  "Livestock"),
-                                    ("نفقات تاسيس",                   "Establishment Expenses"),
-                                    ("رواتب واجور وتعويضات",          "Salaries, Wages & Compensations"),
+                                    "اراضي",
+                                    "مباني وانشاءات ومرافق",
+                                    "الات ومعدات",
+                                    "وسائل نقل وانتقال",
+                                    "عدد وادوات وقوالب",
+                                    "اثاث ومعدات مكاتب",
+                                    "ثروة حيوانية",
+                                    "نفقات تاسيس",
+                                    "رواتب واجور وتعويضات"
                                 };
-                                int phaseIdx = 0;
+                                var phaseEnNames = new string[]
+                                {
+                                    "Land",
+                                    "Buildings, Constructions & Facilities",
+                                    "Machinery & Equipment",
+                                    "Transportation Means",
+                                    "Tools, Instruments & Molds",
+                                    "Furniture & Office Equipment",
+                                    "Livestock",
+                                    "Establishment Expenses",
+                                    "Salaries, Wages & Compensations"
+                                };
                             }
                             <div class="row g-2 p-3 border rounded bg-light">
-                                @foreach (var phase in availablePhases)
+                                @for (int pi = 0; pi < phaseArNames.Length; pi++)
                                 {
-                                    phaseIdx++;
                                     <div class="col-md-4 col-6">
                                         <label class="d-flex align-items-center gap-2 mb-0"
                                                style="cursor:pointer; width:fit-content;"
-                                               for="phase_@phaseIdx">
+                                               for="phase_@pi">
                                             <input class="phase-checkbox flex-shrink-0"
                                                    type="checkbox"
                                                    name="SelectedPhases"
-                                                   value="@phase.Ar"
-                                                   id="phase_@phaseIdx"
+                                                   value="@phaseArNames[pi]"
+                                                   id="phase_@pi"
                                                    style="width:1.1em; height:1.1em; cursor:pointer;" />
-                                            <span class="small">@(isArabicCulture ? phase.Ar : phase.En)</span>
+                                            <span class="small">@(isArabicCulture ? phaseArNames[pi] : phaseEnNames[pi])</span>
                                         </label>
                                     </div>
                                 }
