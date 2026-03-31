@@ -403,6 +403,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 ModelState.Remove("selections");
                 ModelState.Remove("DonorFundingBreakdown");
                 ModelState.Remove("IsEntireCountry");
+                ModelState.Remove("SelectedPhases");
 
                 // Explicitly read IsEntireCountry from form (checkbox sends "true" if checked, nothing if unchecked)
                 var isEntireCountryValue = Request.Form["IsEntireCountry"].ToString();
@@ -434,6 +435,11 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                         ModelState.AddModelError("ProjectName", _localizer["A project with this name already exists."]);
                     }
                 }
+
+                // Read selected phases and validate at least one is chosen
+                var selectedPhases = Request.Form["SelectedPhases"].ToList();
+                if (!selectedPhases.Any())
+                    ModelState.AddModelError("SelectedPhases", _localizer["Please select at least one phase."]);
 
                 // Validate project creation
                 _validationService.ValidateProjectCreation(
@@ -483,8 +489,8 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                     }
                 }
 
-                // Auto-create default project phases
-                await CreateDefaultProjectPhasesAsync(project);
+                // Create only the user-selected project phases
+                await CreateDefaultProjectPhasesAsync(project, selectedPhases);
 
                 // Process file uploads
                 await ProcessFileUploadsAsync(project.ProjectID, UploadedFiles);
@@ -1548,9 +1554,9 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         // ─────────────────────────────────────────────────────────────────────
         // Auto-create 9 default implementation-tracking phases for a new project
         // ─────────────────────────────────────────────────────────────────────
-        private async Task CreateDefaultProjectPhasesAsync(Project project)
+        private async Task CreateDefaultProjectPhasesAsync(Project project, List<string>? selectedPhaseNames = null)
         {
-            var defaultPhaseNames = new[]
+            var allPhaseNames = new[]
             {
                 "اراضي",
                 "مباني وانشاءات ومرافق",
@@ -1562,6 +1568,11 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 "نفقات تاسيس",
                 "رواتب واجور وتعويضات"
             };
+
+            // Use only selected phases; fall back to all if none provided (e.g. legacy calls)
+            var defaultPhaseNames = (selectedPhaseNames != null && selectedPhaseNames.Any())
+                ? allPhaseNames.Where(n => selectedPhaseNames.Contains(n)).ToArray()
+                : allPhaseNames;
 
             int count = defaultPhaseNames.Length;
             decimal equalWeight = Math.Round(100m / count, 2);

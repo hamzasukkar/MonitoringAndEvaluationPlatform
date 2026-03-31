@@ -489,6 +489,58 @@
                                     </div>
                                     <div class="form-text">@Localizer["Maximum file size: 10MB. Allowed types: PDF, DOC, XLS, JPG, PNG"]</div>
                                 </div>
+                        <!-- Phase Selection -->
+                        <div class="mb-4">
+                            <label class="form-label fw-bold">
+                                <i class="fas fa-tasks me-2"></i>
+                                @Localizer["Project Phases"] <span class="text-danger">*</span>
+                            </label>
+                            <div class="form-text mb-2">@Localizer["Select the phases to include in this project (at least one required)"]</div>
+                            @{
+                                var isArabicCulture = System.Globalization.CultureInfo.CurrentUICulture.TwoLetterISOLanguageName == "ar";
+                                // (arabicName, englishName) — arabic name is always used as the form value
+                                var availablePhases = new (string Ar, string En)[]
+                                {
+                                    ("اراضي",                         "Land"),
+                                    ("مباني وانشاءات ومرافق",         "Buildings, Constructions & Facilities"),
+                                    ("الات ومعدات",                   "Machinery & Equipment"),
+                                    ("وسائل نقل وانتقال",             "Transportation Means"),
+                                    ("عدد وادوات وقوالب",             "Tools, Instruments & Molds"),
+                                    ("اثاث ومعدات مكاتب",             "Furniture & Office Equipment"),
+                                    ("ثروة حيوانية",                  "Livestock"),
+                                    ("نفقات تاسيس",                   "Establishment Expenses"),
+                                    ("رواتب واجور وتعويضات",          "Salaries, Wages & Compensations"),
+                                };
+                                int phaseIdx = 0;
+                            }
+                            <div class="row g-2 p-3 border rounded bg-light">
+                                @foreach (var phase in availablePhases)
+                                {
+                                    phaseIdx++;
+                                    <div class="col-md-4 col-6">
+                                        <label class="d-flex align-items-center gap-2 mb-0"
+                                               style="cursor:pointer; width:fit-content;"
+                                               for="phase_@phaseIdx">
+                                            <input class="phase-checkbox flex-shrink-0"
+                                                   type="checkbox"
+                                                   name="SelectedPhases"
+                                                   value="@phase.Ar"
+                                                   id="phase_@phaseIdx"
+                                                   style="width:1.1em; height:1.1em; cursor:pointer;" />
+                                            <span class="small">@(isArabicCulture ? phase.Ar : phase.En)</span>
+                                        </label>
+                                    </div>
+                                }
+                            </div>
+                            @if (ViewData.ModelState.ContainsKey("SelectedPhases") && ViewData.ModelState["SelectedPhases"]!.Errors.Count > 0)
+                            {
+                                <div class="text-danger small mt-1">
+                                    <i class="fas fa-exclamation-triangle me-1"></i>
+                                    @ViewData.ModelState["SelectedPhases"]!.Errors[0].ErrorMessage
+                                </div>
+                            }
+                        </div>
+
                         <!-- Form Actions -->
                         <div class="d-grid gap-2 d-md-flex justify-content-md-end mt-4 pt-4 border-top">
                             <a href="@Url.Action("Index")" class="btn btn-outline-secondary btn-lg px-4">
