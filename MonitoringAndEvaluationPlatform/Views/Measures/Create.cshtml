@@ -9,6 +9,10 @@
     var targetDate = DateTime.Today.ToString("yyyy-MM-dd");
     var selectedPhase = ViewBag.SelectedPhase as MonitoringAndEvaluationPlatform.Models.ProjectPhase;
     var preSelectedPhaseId = ViewBag.PreSelectedPhaseId as int?;
+    var existingPhaseType = ViewBag.ExistingPhaseType as MeasureType?;
+    bool isQuantitative = existingPhaseType == MeasureType.Quantitative;
+    bool isQualitative  = existingPhaseType == MeasureType.Qualitative;
+    bool isFirstMeasure = existingPhaseType == null;
 }
 
 <!-- Dashboard Header -->
@@ -142,7 +146,41 @@
                         }
                     </div>
 
-                    <!-- Date and Value Row -->
+                    @if (isFirstMeasure)
+                    {
+                        <!-- First measure: user picks type via radio buttons -->
+                        <div class="form-group full-width">
+                            <label class="modern-label">
+                                <i class="fas fa-sliders-h"></i>
+                                @Localizer["Achievement Type"] *
+                            </label>
+                            <div class="d-flex gap-3 mt-1">
+                                <label class="d-flex align-items-center gap-2" style="cursor:pointer;">
+                                    <input type="radio" name="MeasureType" id="typeQualitative" value="0"
+                                           class="form-check-input flex-shrink-0" style="width:1.1em;height:1.1em;cursor:pointer;" checked />
+                                    <span><strong>@Localizer["Qualitative"]</strong> — @Localizer["enter value directly"]</span>
+                                </label>
+                                <label class="d-flex align-items-center gap-2" style="cursor:pointer;">
+                                    <input type="radio" name="MeasureType" id="typeQuantitative" value="1"
+                                           class="form-check-input flex-shrink-0" style="width:1.1em;height:1.1em;cursor:pointer;" />
+                                    <span><strong>@Localizer["Quantitative"]</strong> — @Localizer["enter quantity, value auto-calculated"]</span>
+                                </label>
+                            </div>
+                        </div>
+                    }
+                    else
+                    {
+                        <!-- Subsequent measures: type locked, show badge -->
+                        <div class="form-group full-width">
+                            <span class="modern-badge @(isQuantitative ? "badge-primary" : "badge-info")">
+                                <i class="fas @(isQuantitative ? "fa-hashtag" : "fa-comment-alt") me-1"></i>
+                                @(isQuantitative ? Localizer["Quantitative"] : Localizer["Qualitative"])
+                            </span>
+                            <span class="text-muted small ms-2">@Localizer["Type is set by the first measure of this phase"]</span>
+                        </div>
+                    }
+
+                    <!-- Date -->
                     <div class="form-group">
                         <label asp-for="Date" class="modern-label">
                             <i class="fas fa-calendar"></i>
@@ -150,47 +188,64 @@
                         </label>
                         <input asp-for="Date" type="date" value="@targetDate" class="modern-input" required />
                         <span asp-validation-for="Date" class="field-error"></span>
-                        <div class="field-info">
-                            @Localizer["Date when this progress was achieved"]
-                        </div>
+                        <div class="field-info">@Localizer["Date when this progress was achieved"]</div>
                     </div>
 
-                    <div class="form-group">
+                    <!-- Value: shown for Qualitative or first measure (toggled by JS when first) -->
+                    <div class="form-group" id="valueField" @(isQuantitative ? "style=display:none" : "")>
                         <label asp-for="Value" class="modern-label">
                             <i class="fas fa-chart-line"></i>
                             @Localizer["Achievement Value"] *
                         </label>
                         <div class="input-with-icon">
-                            <input asp-for="Value" type="number" step="0.01" min="0" max="100" class="modern-input" placeholder="0–100" required />
-                            <div class="input-icon">
-                                <i class="fas fa-trophy"></i>
-                            </div>
+                            @if (isQuantitative)
+                            {
+                                <input asp-for="Value" type="number" step="0.01" min="0" max="100" class="modern-input" placeholder="0–100" id="valueInput" />
+                            }
+                            else
+                            {
+                                <input asp-for="Value" type="number" step="0.01" min="0" max="100" class="modern-input" placeholder="0–100" id="valueInput" required />
+                            }
+                            <div class="input-icon"><i class="fas fa-trophy"></i></div>
                         </div>
                         <span asp-validation-for="Value" class="field-error"></span>
-                        <div class="field-info">
-                            @Localizer["Enter the achieved percentage (0–100%)"]
-                        </div>
+                        <div class="field-info">@Localizer["Enter the achieved percentage (0–100%)"]</div>
                     </div>
 
-                    <!-- Quantity and Unit -->
-                    <div class="form-group">
+                    <!-- Quantity: hidden by default on first measure (Qualitative is default radio) -->
+                    <div class="form-group" id="quantityField" @(isQualitative || isFirstMeasure ? "style=display:none" : "")>
                         <label asp-for="Quantity" class="modern-label">
                             <i class="fas fa-hashtag"></i>
-                            @Localizer["Quantity"]
+                            @Localizer["Quantity"] @(isQuantitative ? "*" : "")
                         </label>
-                        <input asp-for="Quantity" type="number" step="0.01" min="0" class="modern-input" placeholder="@Localizer["How many"]" />
+                        @if (isQuantitative)
+                        {
+                            <input asp-for="Quantity" type="number" step="0.01" min="0" class="modern-input" placeholder="@Localizer["How many"]" id="quantityInput" required />
+                        }
+                        else
+                        {
+                            <input asp-for="Quantity" type="number" step="0.01" min="0" class="modern-input" placeholder="@Localizer["How many"]" id="quantityInput" />
+                        }
                         <span asp-validation-for="Quantity" class="field-error"></span>
-                        <div class="field-info">@Localizer["Optional: number of units achieved"]</div>
+                        <div class="field-info">
+                            @if (selectedPhase?.TargetQuantity.HasValue == true)
+                            {
+                                <span class="text-info"><i class="fas fa-magic me-1"></i>@Localizer["Auto-calculated from Quantity ÷"] @selectedPhase.TargetQuantity.Value.ToString("G")</span>
+                            }
+                            else
+                            {
+                                @Localizer["Number of units achieved"]
+                            }
+                        </div>
                     </div>
-
-                    <div class="form-group">
+                    <div class="form-group" id="unitField" @(isQualitative || isFirstMeasure ? "style=display:none" : "")>
                         <label asp-for="Unit" class="modern-label">
                             <i class="fas fa-ruler"></i>
                             @Localizer["Unit"]
                         </label>
                         <input asp-for="Unit" type="text" class="modern-input" placeholder="@Localizer["e.g. tree, km, household"]" maxlength="100" />
                         <span asp-validation-for="Unit" class="field-error"></span>
-                        <div class="field-info">@Localizer["Optional: unit of measurement"]</div>
+                        <div class="field-info">@Localizer["Unit of measurement (e.g. tree, km, household)"]</div>
                     </div>
 
                     <!-- Note (optional) -->
@@ -763,6 +818,26 @@
 <!-- Custom JavaScript -->
 <script>
     document.addEventListener('DOMContentLoaded', function() {
+        @if (isFirstMeasure)
+        {
+            <text>
+        // Radio toggle for first measure
+        const phaseTargetQty = @(selectedPhase?.TargetQuantity.HasValue == true ? selectedPhase.TargetQuantity.Value.ToString("G", System.Globalization.CultureInfo.InvariantCulture) : "NaN");
+        function applyTypeMode(isQuant) {
+            const hasTargetQty = !isNaN(phaseTargetQty) && phaseTargetQty > 0;
+            // Hide value only when quantitative AND phase has a target quantity (auto-calculated)
+            document.getElementById('valueField').style.display    = (isQuant && hasTargetQty) ? 'none' : '';
+            document.getElementById('quantityField').style.display = isQuant ? '' : 'none';
+            document.getElementById('unitField').style.display     = isQuant ? '' : 'none';
+            document.getElementById('valueInput').required         = !isQuant || !hasTargetQty;
+            document.getElementById('quantityInput').required      = isQuant;
+        }
+        document.querySelectorAll('input[name="MeasureType"]').forEach(function(r) {
+            r.addEventListener('change', function() { applyTypeMode(this.value === '1'); });
+        });
+            </text>
+        }
+
         // Form validation feedback
         const form = document.getElementById('measureForm');
         const submitBtn = document.getElementById('submitBtn');

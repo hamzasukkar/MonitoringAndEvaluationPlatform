@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Localization;
 using MonitoringAndEvaluationPlatform.Data;
+using MonitoringAndEvaluationPlatform.Enums;
 using MonitoringAndEvaluationPlatform.Models;
 
 namespace MonitoringAndEvaluationPlatform.Controllers
@@ -45,6 +46,17 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                     return BadRequest(_localizer["Value must be between 0 and 100."]);
             }
 
+            var measureType = dto.Quantity.HasValue ? MeasureType.Quantitative : MeasureType.Qualitative;
+
+            // Enforce: all measures in a phase must share the same type
+            var existingType = await _context.Measures
+                .Where(m => m.ProjectPhaseId == dto.PhaseId)
+                .Select(m => (MeasureType?)m.MeasureType)
+                .FirstOrDefaultAsync();
+
+            if (existingType.HasValue && existingType.Value != measureType)
+                return BadRequest(_localizer["A phase cannot mix Qualitative and Quantitative measures."]);
+
             var existingTotal = await _context.Measures
                 .Where(m => m.ProjectPhaseId == dto.PhaseId)
                 .SumAsync(m => m.Value);
@@ -55,7 +67,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             if (existingTotal + dto.Value > 100)
                 return BadRequest(_localizer["Total measures value for this phase cannot exceed 100%."]);
 
-            await _monitoringService.AddMeasureToPhase(dto.PhaseId, dto.Value, dto.Name, dto.Note, dto.Quantity, dto.Unit);
+            await _monitoringService.AddMeasureToPhase(dto.PhaseId, dto.Value, dto.Name, dto.Note, dto.Quantity, dto.Unit, measureType);
             return Ok(_localizer["Measure added and Phase Performance updated"]);
         }
 
@@ -112,6 +124,13 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 ViewBag.SelectedPhaseId = phaseId.Value;
                 ViewBag.SelectedProject = phase?.Project;
                 ViewBag.SelectedProjectId = phase?.ProjectID;
+
+                // Pass the type locked by the first existing measure (null = no measures yet)
+                ViewBag.ExistingPhaseType = await _context.Measures
+                    .Where(m => m.ProjectPhaseId == phaseId.Value)
+                    .OrderBy(m => m.Date)
+                    .Select(m => (MeasureType?)m.MeasureType)
+                    .FirstOrDefaultAsync();
             }
 
             ViewData["PhaseId"] = new SelectList(
@@ -213,6 +232,13 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 ViewBag.SelectedProject = phase?.Project;
                 ViewBag.SelectedProjectId = phase?.ProjectID;
 
+                // Pass the type locked by the first existing measure (null = no measures yet)
+                ViewBag.ExistingPhaseType = await _context.Measures
+                    .Where(m => m.ProjectPhaseId == phaseId.Value)
+                    .OrderBy(m => m.Date)
+                    .Select(m => (MeasureType?)m.MeasureType)
+                    .FirstOrDefaultAsync();
+
                 ViewData["Phases"] = new SelectList(
                     _context.ProjectPhases.Include(pp => pp.Project),
                     "Id", "Name", phaseId.Value);
@@ -242,8 +268,27 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 ModelState.Remove(nameof(measure.Value));
             }
 
+            // Derive MeasureType from Quantity if not explicitly set
+            if (measure.MeasureType == MeasureType.Qualitative && measure.Quantity.HasValue)
+                measure.MeasureType = MeasureType.Quantitative;
+
             if (ModelState.IsValid)
             {
+                // Enforce: all measures in a phase must share the same type
+                var existingType = await _context.Measures
+                    .Where(m => m.ProjectPhaseId == measure.ProjectPhaseId)
+                    .Select(m => (MeasureType?)m.MeasureType)
+                    .FirstOrDefaultAsync();
+
+                if (existingType.HasValue && existingType.Value != measure.MeasureType)
+                {
+                    ModelState.AddModelError("MeasureType", _localizer["A phase cannot mix Qualitative and Quantitative measures."]);
+                    ViewData["Phases"] = new SelectList(
+                        _context.ProjectPhases.Include(pp => pp.Project),
+                        "Id", "Name", measure.ProjectPhaseId);
+                    return View(measure);
+                }
+
                 var existingTotal = await _context.Measures
                     .Where(m => m.ProjectPhaseId == measure.ProjectPhaseId)
                     .SumAsync(m => m.Value);
@@ -303,6 +348,19 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 existingMeasure.Note = measure.Note;
                 existingMeasure.Quantity = measure.Quantity;
                 existingMeasure.Unit = measure.Unit;
+
+                var newType = measure.Quantity.HasValue ? MeasureType.Quantitative : MeasureType.Qualitative;
+
+                // Enforce: all other measures in this phase must share the same type
+                var conflictingType = await _context.Measures
+                    .Where(m => m.ProjectPhaseId == existingMeasure.ProjectPhaseId && m.Code != id)
+                    .Select(m => (MeasureType?)m.MeasureType)
+                    .FirstOrDefaultAsync();
+
+                if (conflictingType.HasValue && conflictingType.Value != newType)
+                    return BadRequest(new { message = _localizer["A phase cannot mix Qualitative and Quantitative measures."].Value });
+
+                existingMeasure.MeasureType = newType;
 
                 // Auto-calculate Value from Quantity if phase has a TargetQuantity
                 double computedValue;

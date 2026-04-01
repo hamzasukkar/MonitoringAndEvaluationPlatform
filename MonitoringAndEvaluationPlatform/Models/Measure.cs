@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using MonitoringAndEvaluationPlatform.Enums;
 
 namespace MonitoringAndEvaluationPlatform.Models
 {
@@ -23,6 +24,12 @@ namespace MonitoringAndEvaluationPlatform.Models
 
         [StringLength(100)]
         public string? Unit { get; set; }
+
+        /// <summary>
+        /// Qualitative: Value entered directly by the user.
+        /// Quantitative: Value auto-calculated from Quantity ÷ TargetQuantity.
+        /// </summary>
+        public MeasureType MeasureType { get; set; } = MeasureType.Qualitative;
 
         public int ProjectPhaseId { get; set; }
         public virtual ProjectPhase ProjectPhase { get; set; } = null!;
