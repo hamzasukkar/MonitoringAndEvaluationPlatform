@@ -224,9 +224,19 @@
                                         <i class="fas fa-chart-bar"></i>
                                     </div>
                                     <div>
-                                        <span id="name-display-@item.IndicatorCode" class="indicator-name-link">
-                                            @item.Name
-                                        </span>
+                                        @if (item.Project != null)
+                                        {
+                                            <a id="name-display-@item.IndicatorCode" class="indicator-name-link"
+                                               asp-action="Details" asp-controller="Projects" asp-route-id="@item.Project.ProjectID">
+                                                @item.Name
+                                            </a>
+                                        }
+                                        else
+                                        {
+                                            <span id="name-display-@item.IndicatorCode" class="indicator-name-link">
+                                                @item.Name
+                                            </span>
+                                        }
                                         <input type="text" class="form-control d-none" id="name-input-@item.IndicatorCode" 
                                                value="@item.Name" />
                                         <small class="text-muted d-block">
