@@ -470,25 +470,6 @@
 
                                     </div>
 
-                                <!-- Files Upload -->
-                                <h6 class="text-primary mb-3">
-                                    <i class="fas fa-file-upload me-2"></i>@Localizer["Project Documents"]
-                                </h6>
-                                <div class="mb-4">
-                                    <label class="form-label fw-bold">@Localizer["Upload Files"]</label>
-                                    <div class="file-upload-wrapper">
-                                        <div class="file-upload-area" id="fileUploadArea">
-                                            <i class="fas fa-cloud-upload-alt fa-3x text-muted mb-3"></i>
-                                            <p class="mb-2">@Localizer["Drag and drop files here or click to browse"]</p>
-                                            <input type="file" name="UploadedFiles" id="fileInput" multiple class="file-input-hidden" accept=".pdf,.doc,.docx,.xls,.xlsx,.jpg,.jpeg,.png" />
-                                            <button type="button" class="btn btn-outline-primary" onclick="document.getElementById('fileInput').click()">
-                                                <i class="fas fa-folder-open me-2"></i>@Localizer["Browse Files"]
-                                            </button>
-                                        </div>
-                                        <div id="selectedFilesList" class="selected-files-list mt-3"></div>
-                                    </div>
-                                    <div class="form-text">@Localizer["Maximum file size: 10MB. Allowed types: PDF, DOC, XLS, JPG, PNG"]</div>
-                                </div>
                         <!-- Phase Selection -->
                         <div class="mb-4">
                             <label class="form-label fw-bold">
@@ -557,6 +538,26 @@
                                 </div>
                             }
                         </div>
+
+                                <!-- Files Upload -->
+                                <h6 class="text-primary mb-3">
+                                    <i class="fas fa-file-upload me-2"></i>@Localizer["Project Documents"]
+                                </h6>
+                                <div class="mb-4">
+                                    <label class="form-label fw-bold">@Localizer["Upload Files"]</label>
+                                    <div class="file-upload-wrapper">
+                                        <div class="file-upload-area" id="fileUploadArea">
+                                            <i class="fas fa-cloud-upload-alt fa-3x text-muted mb-3"></i>
+                                            <p class="mb-2">@Localizer["Drag and drop files here or click to browse"]</p>
+                                            <input type="file" name="UploadedFiles" id="fileInput" multiple class="file-input-hidden" accept=".pdf,.doc,.docx,.xls,.xlsx,.jpg,.jpeg,.png" />
+                                            <button type="button" class="btn btn-outline-primary" onclick="document.getElementById('fileInput').click()">
+                                                <i class="fas fa-folder-open me-2"></i>@Localizer["Browse Files"]
+                                            </button>
+                                        </div>
+                                        <div id="selectedFilesList" class="selected-files-list mt-3"></div>
+                                    </div>
+                                    <div class="form-text">@Localizer["Maximum file size: 10MB. Allowed types: PDF, DOC, XLS, JPG, PNG"]</div>
+                                </div>
 
                         <!-- Form Actions -->
                         <div class="d-grid gap-2 d-md-flex justify-content-md-end mt-4 pt-4 border-top">
