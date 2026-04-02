@@ -318,6 +318,8 @@
                                 <th class="text-center">
                                     <i class="fas fa-chart-line me-2"></i>@Localizer["Value"]
                                 </th>
+                                <th></th>
+                                <th></th>
                                 <th class="text-center">
                                     <i class="fas fa-sliders-h me-2"></i>@Localizer["Type"]
                                 </th>
@@ -346,13 +348,6 @@
                                         </div>
                                     }
                                     <textarea class="form-control form-control-sm measure-note-edit d-none mt-1" rows="2" maxlength="1000">@item.Note</textarea>
-                                    @if (item.Quantity.HasValue || !string.IsNullOrWhiteSpace(item.Unit))
-                                    {
-                                        <div class="text-muted small measure-quantity-display mt-1">
-                                            <i class="fas fa-ruler me-1"></i>
-                                            @(item.Quantity.HasValue ? item.Quantity.Value.ToString("G") : "") @item.Unit
-                                        </div>
-                                    }
                                     <div class="d-none measure-quantity-unit-edit mt-1 d-flex gap-1">
                                         <input type="number" class="form-control form-control-sm measure-quantity-edit" value="@item.Quantity" step="0.01" min="0" placeholder="@Localizer["How many"]" style="max-width:90px;" />
                                         <input type="text" class="form-control form-control-sm measure-unit-edit" value="@item.Unit" placeholder="@Localizer["Unit"]" maxlength="100" style="max-width:100px;" />
@@ -368,8 +363,24 @@
                                     </div>
                                 </td>
                                 <td class="text-center">
-                                    <span class="modern-badge badge-success measure-value-display">@item.Value.ToString("N2")</span>
+                                    @if (item.MeasureType == MonitoringAndEvaluationPlatform.Enums.MeasureType.Quantitative && item.Quantity.HasValue)
+                                    {
+                                        <span class="modern-badge badge-success measure-value-display" data-value="@item.Value">@item.Quantity.Value.ToString("G")</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="modern-badge badge-success measure-value-display" data-value="@item.Value">@item.Value.ToString("0.##")</span>
+                                    }
                                     <input type="number" class="form-control form-control-sm measure-value-edit d-none" value="@item.Value" step="0.01" min="0" max="100" />
+                                </td>
+                                <td class="text-center">
+                                    @if (item.MeasureType == MonitoringAndEvaluationPlatform.Enums.MeasureType.Quantitative)
+                                    {
+                                        <span class="modern-badge badge-warning">@item.Value.ToString("0.##")%</span>
+                                    }
+                                </td>
+                                <td class="text-center">
+                                    <span class="text-muted small">@item.Unit</span>
                                 </td>
                                 <td class="text-center">
                                     @if (item.MeasureType == MonitoringAndEvaluationPlatform.Enums.MeasureType.Quantitative)
@@ -1002,7 +1013,7 @@
             $('.table-row').each(function() {
                 const rowCode = $(this).attr('id').replace('row-', '');
                 if (excludeCode && rowCode == excludeCode) return;
-                const val = parseFloat($(this).find('.measure-value-display').text());
+                const val = parseFloat($(this).find('.measure-value-display').data('value'));
                 if (!isNaN(val)) total += val;
             });
             return total;
@@ -1257,11 +1268,12 @@
                     success: function(response) {
                         // Update display values
                         const dateValue = formData.Date;
-                        const valueFormatted = parseFloat(formData.Value).toFixed(2);
+                        const numericValue = parseFloat(formData.Value);
+                        const valueFormatted = parseFloat(numericValue.toFixed(2)).toString();
 
                         row.find('.measure-name-display').text(formData.Name);
                         row.find('.measure-date-display').text(dateValue);
-                        row.find('.measure-value-display').text(valueFormatted);
+                        row.find('.measure-value-display').text(valueFormatted).attr('data-value', numericValue);
 
                         // Update quantity/unit display
                         const qty = formData.Quantity;
@@ -1280,7 +1292,8 @@
                         row.find('.measure-value-edit').prop('readonly', false).removeClass('bg-light');
 
                         // Update displayed value to reflect auto-calculated result
-                        row.find('.measure-value-display').text(parseFloat(editedValue).toFixed(2));
+                        const finalValue = parseFloat(editedValue);
+                        row.find('.measure-value-display').text(parseFloat(finalValue.toFixed(2)).toString()).attr('data-value', finalValue);
 
                         // Hide edit inputs and show display values
                         row.find('.measure-name-display').removeClass('d-none');
