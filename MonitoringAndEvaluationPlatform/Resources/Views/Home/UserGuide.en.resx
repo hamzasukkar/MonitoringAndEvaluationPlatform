@@ -839,6 +839,79 @@
   <data name="7.6 Measures" xml:space="preserve">
     <value>7.6 Measures</value>
   </data>
+  <data name="Measures record the actual achievement for a project phase against a specific indicator. Each measure belongs to a phase and uses one of two achievement types: Qualitative or Quantitative." xml:space="preserve">
+    <value>Measures record the actual achievement for a project phase against a specific indicator. Each measure belongs to a phase and uses one of two achievement types: Qualitative or Quantitative.</value>
+  </data>
+  <data name="Qualitative" xml:space="preserve">
+    <value>Qualitative</value>
+  </data>
+  <data name="Achievement is entered directly as a percentage (0–100). Use this when progress is judged rather than counted — for example, 'training session 70% complete'." xml:space="preserve">
+    <value>Achievement is entered directly as a percentage (0–100). Use this when progress is judged rather than counted — for example, 'training session 70% complete'.</value>
+  </data>
+  <data name="Quantitative" xml:space="preserve">
+    <value>Quantitative</value>
+  </data>
+  <data name="Achievement is measured by counting physical units (beneficiaries, metres, households, etc.). Enter a quantity and the system calculates the percentage: Achievement % = (Quantity ÷ Phase Target) × 100." xml:space="preserve">
+    <value>Achievement is measured by counting physical units (beneficiaries, metres, households, etc.). Enter a quantity and the system calculates the percentage: Achievement % = (Quantity ÷ Phase Target) × 100.</value>
+  </data>
+  <data name="Phase Type Lock" xml:space="preserve">
+    <value>Phase Type Lock</value>
+  </data>
+  <data name="The measure type (Qualitative or Quantitative) is set by the first measure added to a phase and cannot be changed afterward. All subsequent measures in the same phase must use the same type. Delete all phase measures first if you need to switch types." xml:space="preserve">
+    <value>The measure type (Qualitative or Quantitative) is set by the first measure added to a phase and cannot be changed afterward. All subsequent measures in the same phase must use the same type. Delete all phase measures first if you need to switch types.</value>
+  </data>
+  <data name="7.6.1 Qualitative Measures" xml:space="preserve">
+    <value>7.6.1 Qualitative Measures</value>
+  </data>
+  <data name="Use Qualitative when achievement is expressed as a percentage judgment rather than a physical count." xml:space="preserve">
+    <value>Use Qualitative when achievement is expressed as a percentage judgment rather than a physical count.</value>
+  </data>
+  <data name="Select Phase &amp; Type" xml:space="preserve">
+    <value>Select Phase &amp; Type</value>
+  </data>
+  <data name="Open the Measures page for the project phase, click Add Measure, and select 'Qualitative'." xml:space="preserve">
+    <value>Open the Measures page for the project phase, click Add Measure, and select 'Qualitative'.</value>
+  </data>
+  <data name="Enter Achievement Value" xml:space="preserve">
+    <value>Enter Achievement Value</value>
+  </data>
+  <data name="Enter the achievement percentage directly (e.g., 70 for 70%). This value is stored and displayed as-is." xml:space="preserve">
+    <value>Enter the achievement percentage directly (e.g., 70 for 70%). This value is stored and displayed as-is.</value>
+  </data>
+  <data name="View Phase Total" xml:space="preserve">
+    <value>View Phase Total</value>
+  </data>
+  <data name="The Selected Phase Total sums all qualitative values entered for the phase, capped at 100%." xml:space="preserve">
+    <value>The Selected Phase Total sums all qualitative values entered for the phase, capped at 100%.</value>
+  </data>
+  <data name="7.6.2 Quantitative Measures" xml:space="preserve">
+    <value>7.6.2 Quantitative Measures</value>
+  </data>
+  <data name="Use Quantitative when achievement is measured by counting physical units against a fixed phase target." xml:space="preserve">
+    <value>Use Quantitative when achievement is measured by counting physical units against a fixed phase target.</value>
+  </data>
+  <data name="Open the Measures page for the project phase, click Add Measure, and select 'Quantitative'." xml:space="preserve">
+    <value>Open the Measures page for the project phase, click Add Measure, and select 'Quantitative'.</value>
+  </data>
+  <data name="Enter Phase Target (First Measure Only)" xml:space="preserve">
+    <value>Enter Phase Target (First Measure Only)</value>
+  </data>
+  <data name="On your first Quantitative measure, enter the total target quantity for the phase (e.g., 1000 beneficiaries). This target is stored at the phase level and used to calculate all future measure percentages automatically. Choose carefully — it cannot easily be changed once measures are recorded." xml:space="preserve">
+    <value>On your first Quantitative measure, enter the total target quantity for the phase (e.g., 1000 beneficiaries). This target is stored at the phase level and used to calculate all future measure percentages automatically. Choose carefully — it cannot easily be changed once measures are recorded.</value>
+  </data>
+  <data name="Enter Quantity Achieved" xml:space="preserve">
+    <value>Enter Quantity Achieved</value>
+  </data>
+  <data name="Enter the number of units achieved in this period (e.g., 300 beneficiaries). The system calculates: Achievement % = (300 ÷ 1000) × 100 = 30%." xml:space="preserve">
+    <value>Enter the number of units achieved in this period (e.g., 300 beneficiaries). The system calculates: Achievement % = (300 ÷ 1000) × 100 = 30%.</value>
+  </data>
+  <data name="View Performance" xml:space="preserve">
+    <value>View Performance</value>
+  </data>
+  <data name="Performance recalculates automatically. The Measures list shows the Quantity and Achievement % separately. The phase total accumulates across all measure entries." xml:space="preserve">
+    <value>Performance recalculates automatically. The Measures list shows the Quantity and Achievement % separately. The phase total accumulates across all measure entries.</value>
+  </data>
+  <!-- old keys kept for compatibility -->
   <data name="Measures link projects to indicators with planned and realized values. To add a measure:" xml:space="preserve">
     <value>Measures link projects to indicators with planned and realized values. To add a measure:</value>
   </data>
@@ -853,9 +926,6 @@
   </data>
   <data name="Click 'Add Measure' and select the project, then enter planned and realized values." xml:space="preserve">
     <value>Click 'Add Measure' and select the project, then enter planned and realized values.</value>
-  </data>
-  <data name="View Performance" xml:space="preserve">
-    <value>View Performance</value>
   </data>
   <data name="Performance will automatically recalculate based on the new measure." xml:space="preserve">
     <value>Performance will automatically recalculate based on the new measure.</value>

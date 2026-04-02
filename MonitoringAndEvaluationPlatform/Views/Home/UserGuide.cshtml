@@ -41,7 +41,7 @@
             <a href="#frameworks" class="toc-link">4. @Localizer["Results Framework"]</a>
             <a href="#outcomes" class="toc-link">5. @Localizer["Outcomes"]</a>
             <a href="#outputs" class="toc-link">6. @Localizer["Outputs & SubOutputs"]</a>
-            <a href="#indicators" class="toc-link">7. @Localizer["Indicators"]</a>
+            <a href="#indicators" class="toc-link">7. @Localizer["Indicators"] <span class="toc-new-badge">@Localizer["NEW"]</span></a>
             <a href="#framework-goals" class="toc-link">8. @Localizer["Framework Goals"]</a>
             <a href="#setup" class="toc-link">9. @Localizer["Set Up"]</a>
             <a href="#projects" class="toc-link">10. @Localizer["Projects"] <span class="toc-new-badge">@Localizer["NEW"]</span></a>
@@ -805,28 +805,85 @@
                     <p class="screenshot-caption">@Localizer["Figure 7.4: Indicators & Projects View"]</p>
                 </div>
 
-                <h3>@Localizer["7.6 Measures"]</h3>
-                <p>@Localizer["Measures link projects to indicators with planned and realized values. To add a measure:"]</p>
+                <h3>@Localizer["7.6 Measures"] <span class="section-new-badge">@Localizer["NEW"]</span></h3>
+                <p>@Localizer["Measures record the actual achievement for a project phase against a specific indicator. Each measure belongs to a phase and uses one of two achievement types: Qualitative or Quantitative."]</p>
+
+                <div class="feature-grid">
+                    <div class="feature-item">
+                        <div class="feature-icon"><i class="fas fa-percentage"></i></div>
+                        <h4>@Localizer["Qualitative"]</h4>
+                        <p>@Localizer["Achievement is entered directly as a percentage (0–100). Use this when progress is judged rather than counted — for example, 'training session 70% complete'."]</p>
+                    </div>
+                    <div class="feature-item">
+                        <div class="feature-icon"><i class="fas fa-sort-numeric-up"></i></div>
+                        <h4>@Localizer["Quantitative"]</h4>
+                        <p>@Localizer["Achievement is measured by counting physical units (beneficiaries, metres, households, etc.). Enter a quantity and the system calculates the percentage: Achievement % = (Quantity ÷ Phase Target) × 100."]</p>
+                    </div>
+                </div>
+
+                <div class="info-box warning-box">
+                    <div class="info-icon"><i class="fas fa-lock"></i></div>
+                    <div class="info-content">
+                        <h4>@Localizer["Phase Type Lock"]</h4>
+                        <p>@Localizer["The measure type (Qualitative or Quantitative) is set by the first measure added to a phase and cannot be changed afterward. All subsequent measures in the same phase must use the same type. Delete all phase measures first if you need to switch types."]</p>
+                    </div>
+                </div>
+
+                <h3>@Localizer["7.6.1 Qualitative Measures"]</h3>
+                <p>@Localizer["Use Qualitative when achievement is expressed as a percentage judgment rather than a physical count."]</p>
                 <div class="step-list">
                     <div class="step">
                         <div class="step-number">1</div>
                         <div class="step-content">
-                            <h4>@Localizer["Open Indicator Details"]</h4>
-                            <p>@Localizer["Navigate to the indicator you want to add a measure for."]</p>
+                            <h4>@Localizer["Select Phase & Type"]</h4>
+                            <p>@Localizer["Open the Measures page for the project phase, click Add Measure, and select 'Qualitative'."]</p>
                         </div>
                     </div>
                     <div class="step">
                         <div class="step-number">2</div>
                         <div class="step-content">
-                            <h4>@Localizer["Add Measure"]</h4>
-                            <p>@Localizer["Click 'Add Measure' and select the project, then enter planned and realized values."]</p>
+                            <h4>@Localizer["Enter Achievement Value"]</h4>
+                            <p>@Localizer["Enter the achievement percentage directly (e.g., 70 for 70%). This value is stored and displayed as-is."]</p>
                         </div>
                     </div>
                     <div class="step">
                         <div class="step-number">3</div>
                         <div class="step-content">
+                            <h4>@Localizer["View Phase Total"]</h4>
+                            <p>@Localizer["The Selected Phase Total sums all qualitative values entered for the phase, capped at 100%."]</p>
+                        </div>
+                    </div>
+                </div>
+
+                <h3>@Localizer["7.6.2 Quantitative Measures"]</h3>
+                <p>@Localizer["Use Quantitative when achievement is measured by counting physical units against a fixed phase target."]</p>
+                <div class="step-list">
+                    <div class="step">
+                        <div class="step-number">1</div>
+                        <div class="step-content">
+                            <h4>@Localizer["Select Phase & Type"]</h4>
+                            <p>@Localizer["Open the Measures page for the project phase, click Add Measure, and select 'Quantitative'."]</p>
+                        </div>
+                    </div>
+                    <div class="step">
+                        <div class="step-number">2</div>
+                        <div class="step-content">
+                            <h4>@Localizer["Enter Phase Target (First Measure Only)"]</h4>
+                            <p>@Localizer["On your first Quantitative measure, enter the total target quantity for the phase (e.g., 1000 beneficiaries). This target is stored at the phase level and used to calculate all future measure percentages automatically. Choose carefully — it cannot easily be changed once measures are recorded."]</p>
+                        </div>
+                    </div>
+                    <div class="step">
+                        <div class="step-number">3</div>
+                        <div class="step-content">
+                            <h4>@Localizer["Enter Quantity Achieved"]</h4>
+                            <p>@Localizer["Enter the number of units achieved in this period (e.g., 300 beneficiaries). The system calculates: Achievement % = (300 ÷ 1000) × 100 = 30%."]</p>
+                        </div>
+                    </div>
+                    <div class="step">
+                        <div class="step-number">4</div>
+                        <div class="step-content">
                             <h4>@Localizer["View Performance"]</h4>
-                            <p>@Localizer["Performance will automatically recalculate based on the new measure."]</p>
+                            <p>@Localizer["Performance recalculates automatically. The Measures list shows the Quantity and Achievement % separately. The phase total accumulates across all measure entries."]</p>
                         </div>
                     </div>
                 </div>

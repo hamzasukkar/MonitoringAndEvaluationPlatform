@@ -757,4 +757,39 @@ Calculation:
   <data name="HELP_FrameworkGoals_TIP_2" xml:space="preserve">
     <value>**Export Options:** Use the Excel and PDF export buttons to download goal data for reporting. The Timeline view shows a visual comparison of progress across all years from starting to target year.</value>
   </data>
+
+  <!-- Measures Help Content -->
+  <data name="HELP_MEASURES_TITLE" xml:space="preserve">
+    <value>Measures Help — Qualitative &amp; Quantitative Achievements</value>
+  </data>
+  <data name="HELP_MEASURES_OVERVIEW" xml:space="preserve">
+    <value>Measures record the actual achievement for a project phase against a specific indicator. Each phase uses one of two types: **Qualitative** (you enter the achievement percentage directly) or **Quantitative** (you enter a count and the system calculates the percentage against a fixed phase target). The type is set by the first measure added to a phase and cannot be changed afterward.</value>
+  </data>
+  <data name="HELP_MEASURES_HOWTO_1" xml:space="preserve">
+    <value>**Qualitative:** Select the phase, choose "Qualitative", enter the achievement value as a percentage (0–100). Each measure entry directly represents a percentage of completion. The total achievement for the phase is the sum of all measure values, capped at 100%.</value>
+  </data>
+  <data name="HELP_MEASURES_HOWTO_2" xml:space="preserve">
+    <value>**Quantitative:** Select the phase, choose "Quantitative", enter the Phase Target (total units to be achieved — entered only once for the first measure), then enter the Quantity achieved in this period. The system calculates: Achievement % = (Quantity ÷ Phase Target) × 100. For example, if the target is 1,000 beneficiaries and you achieved 300 this period, the achievement is 30%.</value>
+  </data>
+  <data name="HELP_MEASURES_HOWTO_3" xml:space="preserve">
+    <value>Add supporting files (photos, reports) as attachments to each measure entry. Use the inline form on the Measures page or the dedicated Create Measure page for full details.</value>
+  </data>
+  <data name="HELP_MEASURES_FAQ_Q1" xml:space="preserve">
+    <value>What is the difference between Qualitative and Quantitative achievement?</value>
+  </data>
+  <data name="HELP_MEASURES_FAQ_A1" xml:space="preserve">
+    <value>**Qualitative** is used when achievement is judged as a percentage — for example, "a training event was 70% complete". You enter the percentage directly. **Quantitative** is used when achievement is measured by counting physical units — for example, number of beneficiaries, metres of road, or households served. You enter the actual count and the system converts it to a percentage using the phase target.</value>
+  </data>
+  <data name="HELP_MEASURES_FAQ_Q2" xml:space="preserve">
+    <value>Can I change the measure type after the first entry?</value>
+  </data>
+  <data name="HELP_MEASURES_FAQ_A2" xml:space="preserve">
+    <value>No. The type (Qualitative or Quantitative) is locked to the phase once the first measure is added. All subsequent measures in the same phase must use the same type. If you need to switch types, all existing measures for that phase must be deleted first.</value>
+  </data>
+  <data name="HELP_MEASURES_TIP_1" xml:space="preserve">
+    <value>**Phase Target (Quantitative only):** Enter the total target quantity once on your first measure entry. It is stored at the phase level and used to calculate all future measure percentages automatically. Choose the target carefully — it cannot easily be changed after measures are recorded.</value>
+  </data>
+  <data name="HELP_MEASURES_TIP_2" xml:space="preserve">
+    <value>**Total Achievement:** The "Selected Phase Total" at the top of the list shows the cumulative achievement across all measures in the phase. For Quantitative phases this is the sum of individual achievement percentages; for Qualitative phases it is the direct sum of entered values. Both are capped at 100%.</value>
+  </data>
 </root>

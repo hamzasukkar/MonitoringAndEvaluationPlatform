@@ -8,6 +8,7 @@
     ViewData["Title"] = "Project Details";
     Layout = "~/Views/Shared/_DashboardHomeLayout.cshtml";
     var culture = Context.Features.Get<IRequestCultureFeature>().RequestCulture.Culture.Name;
+    ViewData["HelpFeature"] = "PROJECTS";
 }
 
 <!-- Dashboard Header -->
@@ -20,6 +21,7 @@
         @Localizer["Comprehensive project overview with performance metrics and detailed information"];
     </p>
     <div class="dashboard-actions">
+        @await Html.PartialAsync("_HelpButton")
         <a asp-action="Edit" asp-route-id="@Model?.ProjectID" class="btn btn-gradient-primary me-2">
             <i class="fas fa-edit me-1"></i>@Localizer["Edit"]
         </a>
@@ -766,3 +768,5 @@
     </script>
 
 }
+
+@await Html.PartialAsync("_HelpModal")

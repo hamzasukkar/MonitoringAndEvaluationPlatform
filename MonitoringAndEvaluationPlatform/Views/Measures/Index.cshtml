@@ -6,6 +6,7 @@
 @{
     ViewData["Title"] = "Measures";
     Layout = "~/Views/Shared/_DashboardHomeLayout.cshtml";
+    ViewData["HelpFeature"] = "MEASURES";
     var selectedPhase = ViewBag.SelectedPhase as MonitoringAndEvaluationPlatform.Models.ProjectPhase;
     var selectedProject = ViewBag.SelectedProject as MonitoringAndEvaluationPlatform.Models.Project;
     var existingPhaseType = ViewBag.ExistingPhaseType as MeasureType?;
@@ -24,6 +25,7 @@
         @Localizer["Track and monitor performance indicators with detailed measurements"]
     </p>
     <div class="dashboard-actions">
+        @await Html.PartialAsync("_HelpButton")
         @if (ViewBag.SelectedPhaseId == null)
         {
             <a asp-action="Create" class="btn btn-gradient-primary">
@@ -1573,3 +1575,5 @@
         });
     </script>
 }
+
+@await Html.PartialAsync("_HelpModal")
