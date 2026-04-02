@@ -230,11 +230,11 @@
                         <div class="field-info">
                             @if (selectedPhase?.TargetQuantity.HasValue == true)
                             {
-                                <span class="text-info"><i class="fas fa-magic me-1"></i>@Localizer["Auto-calculated from Quantity ÷"] @selectedPhase.TargetQuantity.Value.ToString("G")</span>
+                                <span class="text-info"><i class="fas fa-magic me-1"></i>@Localizer["Achieved quantity"] — @Localizer["Auto-calculated from Quantity ÷"] @selectedPhase.TargetQuantity.Value.ToString("G")</span>
                             }
                             else
                             {
-                                @Localizer["Number of units achieved"]
+                                <span class="text-warning"><i class="fas fa-info-circle me-1"></i>@Localizer["No target set — quantity is used directly as achievement % (0–100)"]</span>
                             }
                         </div>
                     </div>
@@ -822,14 +822,11 @@
         {
             <text>
         // Radio toggle for first measure
-        const phaseTargetQty = @(selectedPhase?.TargetQuantity.HasValue == true ? selectedPhase.TargetQuantity.Value.ToString("G", System.Globalization.CultureInfo.InvariantCulture) : "NaN");
         function applyTypeMode(isQuant) {
-            const hasTargetQty = !isNaN(phaseTargetQty) && phaseTargetQty > 0;
-            // Hide value only when quantitative AND phase has a target quantity (auto-calculated)
-            document.getElementById('valueField').style.display    = (isQuant && hasTargetQty) ? 'none' : '';
+            document.getElementById('valueField').style.display    = isQuant ? 'none' : '';
             document.getElementById('quantityField').style.display = isQuant ? '' : 'none';
             document.getElementById('unitField').style.display     = isQuant ? '' : 'none';
-            document.getElementById('valueInput').required         = !isQuant || !hasTargetQty;
+            document.getElementById('valueInput').required         = !isQuant;
             document.getElementById('quantityInput').required      = isQuant;
         }
         document.querySelectorAll('input[name="MeasureType"]').forEach(function(r) {

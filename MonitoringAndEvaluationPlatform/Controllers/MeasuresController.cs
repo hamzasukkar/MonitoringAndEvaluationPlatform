@@ -36,14 +36,15 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             if (phase == null) return NotFound();
 
             // Auto-calculate Value from Quantity if phase has a TargetQuantity
-            if (dto.Quantity.HasValue && phase.TargetQuantity.HasValue && phase.TargetQuantity.Value > 0)
+            if (dto.Quantity.HasValue)
             {
+                if (!phase.TargetQuantity.HasValue || phase.TargetQuantity.Value <= 0)
+                    return BadRequest(_localizer["Phase target is required for Quantitative measures."]);
                 dto.Value = Math.Min((dto.Quantity.Value / phase.TargetQuantity.Value) * 100.0, 100.0);
             }
-            else
+            else if (dto.Value <= 0 || dto.Value > 100)
             {
-                if (dto.Value <= 0 || dto.Value > 100)
-                    return BadRequest(_localizer["Value must be between 0 and 100."]);
+                return BadRequest(_localizer["Value must be between 0 and 100."]);
             }
 
             var measureType = dto.Quantity.HasValue ? MeasureType.Quantitative : MeasureType.Qualitative;
@@ -158,21 +159,34 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         // POST: CreateFromDetails (AJAX inline creation)
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> CreateFromDetails(Measure measure, List<IFormFile>? MeasureFiles)
+        public async Task<IActionResult> CreateFromDetails(Measure measure, List<IFormFile>? MeasureFiles, double? PhaseTargetQuantity)
         {
             ModelState.Remove(nameof(measure.ProjectPhase));
 
+            // Derive MeasureType from Quantity
+            measure.MeasureType = measure.Quantity.HasValue ? MeasureType.Quantitative : MeasureType.Qualitative;
+
             // Auto-calculate Value from Quantity if phase has a TargetQuantity
             var phase = await _context.ProjectPhases.FindAsync(measure.ProjectPhaseId);
-            if (measure.Quantity.HasValue && phase?.TargetQuantity.HasValue == true && phase.TargetQuantity.Value > 0)
+
+            // Save user-supplied target quantity to the phase (first Quantitative measure)
+            if (PhaseTargetQuantity.HasValue && PhaseTargetQuantity.Value > 0 && phase != null && !phase.TargetQuantity.HasValue)
             {
-                measure.Value = Math.Min((measure.Quantity.Value / phase.TargetQuantity.Value) * 100.0, 100.0);
+                phase.TargetQuantity = PhaseTargetQuantity.Value;
+                _context.Update(phase);
+            }
+
+            if (measure.Quantity.HasValue)
+            {
+                var effectiveTarget = phase?.TargetQuantity.HasValue == true ? phase.TargetQuantity.Value : PhaseTargetQuantity;
+                if (!effectiveTarget.HasValue || effectiveTarget.Value <= 0)
+                    return BadRequest(new { message = _localizer["Phase target is required for Quantitative measures."].Value });
+                measure.Value = Math.Min((measure.Quantity.Value / effectiveTarget.Value) * 100.0, 100.0);
                 ModelState.Remove(nameof(measure.Value));
             }
-            else
+            else if (measure.Value <= 0 || measure.Value > 100)
             {
-                if (measure.Value <= 0 || measure.Value > 100)
-                    return BadRequest(new { message = _localizer["Value must be between 0 and 100."].Value });
+                return BadRequest(new { message = _localizer["Value must be between 0 and 100."].Value });
             }
 
             var existingTotal = await _context.Measures
@@ -262,8 +276,14 @@ namespace MonitoringAndEvaluationPlatform.Controllers
 
             // Auto-calculate Value from Quantity if phase has a TargetQuantity
             var phase = await _context.ProjectPhases.FindAsync(measure.ProjectPhaseId);
-            if (measure.Quantity.HasValue && phase?.TargetQuantity.HasValue == true && phase.TargetQuantity.Value > 0)
+            if (measure.Quantity.HasValue)
             {
+                if (phase == null || !phase.TargetQuantity.HasValue || phase.TargetQuantity.Value <= 0)
+                {
+                    ModelState.AddModelError("Quantity", _localizer["Phase target is required for Quantitative measures."]);
+                    ViewData["Phases"] = new SelectList(_context.ProjectPhases.Include(pp => pp.Project), "Id", "Name", measure.ProjectPhaseId);
+                    return View(measure);
+                }
                 measure.Value = Math.Min((measure.Quantity.Value / phase.TargetQuantity.Value) * 100.0, 100.0);
                 ModelState.Remove(nameof(measure.Value));
             }

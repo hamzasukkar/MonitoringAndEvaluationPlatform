@@ -238,10 +238,28 @@
                         @if (selectedPhase?.TargetQuantity.HasValue == true)
                         {
                             <div class="form-text text-info">
-                                <i class="fas fa-magic me-1"></i>@Localizer["Auto-calculated from Quantity ÷"] @selectedPhase.TargetQuantity.Value.ToString("G")
+                                <i class="fas fa-magic me-1"></i>@Localizer["Achieved quantity"] — @Localizer["Auto-calculated from Quantity ÷"] @selectedPhase.TargetQuantity.Value.ToString("G")
+                            </div>
+                        }
+                        else
+                        {
+                            <div class="form-text text-warning">
+                                <i class="fas fa-info-circle me-1"></i>@Localizer["No target set — quantity is used directly as achievement % (0–100)"]
                             </div>
                         }
                     </div>
+                    @if (inlineIsFirst)
+                    {
+                        <!-- Phase Target field: only when setting type for the first time -->
+                        <div class="col-md-3" id="inlineTargetQtyField" style="display:none">
+                            <label for="measureTargetQty" class="form-label">@Localizer["Phase Target"]</label>
+                            <input type="number" id="measureTargetQty" name="PhaseTargetQuantity" step="0.01" min="0.01"
+                                   class="form-control" placeholder="@Localizer["e.g. 1000"]" />
+                            <div class="form-text text-muted">
+                                <i class="fas fa-bullseye me-1"></i>@Localizer["Total goal for this phase"]
+                            </div>
+                        </div>
+                    }
                     <div class="col-md-3" id="inlineUnitField" @(inlineIsQualitative || inlineIsFirst ? "style=display:none" : "")>
                         <label for="measureUnit" class="form-label">@Localizer["Unit"]</label>
                         <input type="text" id="measureUnit" name="Unit" class="form-control" placeholder="@Localizer["e.g. tree, km, household"]" maxlength="100" />
@@ -1317,13 +1335,13 @@
                 <text>
             // Radio toggle for first measure (inline form)
             function applyInlineTypeMode(isQuant) {
-                const hasTargetQty = !isNaN(phaseTargetQty) && phaseTargetQty > 0;
-                // Hide value only when quantitative AND phase has a target quantity (auto-calculated)
-                $('#inlineValueField').toggle(!isQuant || !hasTargetQty);
+                $('#inlineValueField').toggle(!isQuant);
                 $('#inlineQuantityField').toggle(isQuant);
+                $('#inlineTargetQtyField').toggle(isQuant);
                 $('#inlineUnitField').toggle(isQuant);
-                $('#measureValue').prop('required', !isQuant || !hasTargetQty);
+                $('#measureValue').prop('required', !isQuant);
                 $('#measureQuantity').prop('required', isQuant);
+                $('#measureTargetQty').prop('required', isQuant);
             }
             $('input[name="inlineMeasureType"]').on('change', function() {
                 applyInlineTypeMode($(this).val() === '1');
@@ -1349,17 +1367,23 @@
             $('#inlineMeasureForm').on('submit', function(e) {
                 e.preventDefault();
 
-                const targetQty = parseFloat($(this).data('target-quantity'));
-                const hasTargetQty = !isNaN(targetQty) && targetQty > 0;
+                const phaseTargetFromData = parseFloat($(this).data('target-quantity'));
+                const userEnteredTarget = parseFloat($('#measureTargetQty').val());
+                const effectiveTarget = (!isNaN(phaseTargetFromData) && phaseTargetFromData > 0)
+                    ? phaseTargetFromData
+                    : ((!isNaN(userEnteredTarget) && userEnteredTarget > 0) ? userEnteredTarget : NaN);
+                const hasTargetQty = !isNaN(effectiveTarget) && effectiveTarget > 0;
 
                 let rawValue;
-                if (hasTargetQty) {
+                const isQuantMode = $('#inlineQuantityField').is(':visible');
+
+                if (isQuantMode) {
                     const qty = parseFloat($('#measureQuantity').val());
                     if (isNaN(qty) || qty < 0) {
-                        Swal.fire({ icon: 'error', title: '@Localizer["Invalid Value"]', text: '@Localizer["Quantity is required when a target is set."]', confirmButtonColor: 'var(--danger-color)' });
+                        Swal.fire({ icon: 'error', title: '@Localizer["Invalid Value"]', text: '@Localizer["Please enter a valid quantity."]', confirmButtonColor: 'var(--danger-color)' });
                         return;
                     }
-                    rawValue = Math.min((qty / targetQty) * 100, 100);
+                    rawValue = hasTargetQty ? Math.min((qty / effectiveTarget) * 100, 100) : Math.min(qty, 100);
                 } else {
                     rawValue = parseFloat($('#measureValue').val());
                     if (isNaN(rawValue) || rawValue < 0 || rawValue > 100) {
@@ -1380,6 +1404,7 @@
                 formData.append('Value', rawValue);
                 formData.append('Note', $('#measureNote').val());
                 if ($('#measureQuantity').val()) formData.append('Quantity', parseFloat($('#measureQuantity').val()));
+                if (!isNaN(userEnteredTarget) && userEnteredTarget > 0) formData.append('PhaseTargetQuantity', userEnteredTarget);
                 formData.append('Unit', $('#measureUnit').val());
                 formData.append('ProjectPhaseId', parseInt($('#phaseId').val()));
                 formData.append('__RequestVerificationToken', $('input[name="__RequestVerificationToken"]').val());
