@@ -109,7 +109,7 @@
                                     @Localizer["Total Achievement"]
                                 </div>
                                 <div class="info-value">
-                                    <span class="modern-badge badge-success">@phaseTotal.ToString("N2")%</span>
+                                    <span class="modern-badge badge-success">@phaseTotal.ToString("0.##")%</span>
                                 </div>
                             </div>
                             @if (selectedPhase.TargetQuantity.HasValue)
@@ -428,7 +428,7 @@
                                                 data-code="@item.Code"
                                                 data-name="@item.Name"
                                                 data-date="@item.Date.ToString("yyyy-MM-dd")"
-                                                data-value="@item.Value.ToString("N2")"
+                                                data-value="@item.Value.ToString("0.##")"
                                                 data-note="@item.Note"
                                                 data-quantity="@item.Quantity"
                                                 data-unit="@item.Unit"
