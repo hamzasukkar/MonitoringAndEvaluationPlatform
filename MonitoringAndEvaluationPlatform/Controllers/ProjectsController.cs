@@ -452,6 +452,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 if (!ModelState.IsValid)
                 {
                     await PopulateCreateViewBagAsync(selectedSectorCodes, selectedDonorCodes, selections, DonorFundingBreakdown);
+                    ViewBag.PreSelectedIndicatorId = LinkedIndicatorId;
                     return View(project);
                 }
 
@@ -506,6 +507,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 var selectedSectorCodes = Request.Form["Sectors"].ToList();
                 var selectedDonorCodes = Request.Form["Donors"].ToList();
                 await PopulateCreateViewBagAsync(selectedSectorCodes, selectedDonorCodes, selections, DonorFundingBreakdown);
+                ViewBag.PreSelectedIndicatorId = LinkedIndicatorId;
                 return View(project);
             }
         }
