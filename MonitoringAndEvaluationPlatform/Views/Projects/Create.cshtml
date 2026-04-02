@@ -523,6 +523,14 @@
                                     "Salaries, Wages & Compensations"
                                 };
                             }
+                            <div class="mb-2">
+                                <button type="button" id="selectAllPhases" class="btn btn-sm btn-outline-secondary">
+                                    <i class="fas fa-check-double me-1"></i>@Localizer["Select All"]
+                                </button>
+                                <button type="button" id="deselectAllPhases" class="btn btn-sm btn-outline-secondary ms-2">
+                                    <i class="fas fa-times me-1"></i>@Localizer["Deselect All"]
+                                </button>
+                            </div>
                             <div class="row g-2 p-3 border rounded bg-light">
                                 @for (int pi = 0; pi < phaseArNames.Length; pi++)
                                 {
@@ -1020,6 +1028,13 @@ projectManagerMustBeSelected: '@Html.Raw(System.Text.Encodings.Web.JavaScriptEnc
     let selections = [];
 
     // Handle Entire Country checkbox
+    $("#selectAllPhases").click(function() {
+        $(".phase-checkbox").prop("checked", true);
+    });
+    $("#deselectAllPhases").click(function() {
+        $(".phase-checkbox").prop("checked", false);
+    });
+
     $("#entireCountryCheckbox").change(function() {
         const isChecked = $(this).is(':checked');
 
