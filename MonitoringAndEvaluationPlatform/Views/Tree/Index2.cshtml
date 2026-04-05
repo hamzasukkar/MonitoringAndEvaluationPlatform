@@ -287,19 +287,8 @@
         margin-top: 0.5rem;
     }
 
-    .performance-badge {
-        background: var(--success-color);
-        color: white;
-        padding: 0.25rem 0.5rem;
-        border-radius: 12px;
-        font-weight: 600;
-        font-size: 0.8rem;
-        flex: 1;
-    }
-
+    .performance-badge,
     .disbursement-badge {
-        background: #0dcaf0;
-        color: #000;
         padding: 0.25rem 0.5rem;
         border-radius: 12px;
         font-weight: 600;
@@ -493,6 +482,17 @@ document.addEventListener('DOMContentLoaded', function() {
     const indLabel = '@Localizer["IP"]';
     const disLabel = '@Localizer["DP"]';
 
+    // Returns inline style string matching ProgressBarHelper thresholds
+    function perfStyle(valueStr) {
+        const val = parseFloat(valueStr);
+        let bg, color;
+        if (val >= 80)      { bg = '#28a745'; color = '#fff'; }
+        else if (val >= 60) { bg = '#ffc107'; color = '#000'; }
+        else if (val >= 40) { bg = '#fd7e14'; color = '#fff'; }
+        else                { bg = '#dc3545'; color = '#fff'; }
+        return `background:${bg};color:${color};`;
+    }
+
     loadHierarchyData();
 
     function loadHierarchyData() {
@@ -561,15 +561,15 @@ document.addEventListener('DOMContentLoaded', function() {
 
         const translatedType = typeTranslations[node.type] || node.type;
 
-        const indHidden = currentMode === 'disbursement' ? ' style="display:none"' : '';
-        const disHidden = currentMode === 'indicators' ? ' style="display:none"' : '';
+        const indHidden = currentMode === 'disbursement' ? 'display:none;' : '';
+        const disHidden = currentMode === 'indicators' ? 'display:none;' : '';
 
         nodeDiv.innerHTML = `
             <div class="node-title">${node.name}</div>
             <div class="node-type">${translatedType}</div>
             <div class="node-metrics">
-                <div class="performance-badge indicators-badge"${indHidden}><span class="badge-label">${indLabel}:</span> ${node.indicatorsPerformance}</div>
-                <div class="disbursement-badge"${disHidden}><span class="badge-label">${disLabel}:</span> ${node.disbursementPerformance}</div>
+                <div class="performance-badge indicators-badge" style="${perfStyle(node.indicatorsPerformance)}${indHidden}"><span class="badge-label">${indLabel}:</span> ${node.indicatorsPerformance}</div>
+                <div class="disbursement-badge" style="${perfStyle(node.disbursementPerformance)}${disHidden}"><span class="badge-label">${disLabel}:</span> ${node.disbursementPerformance}</div>
                 <div class="weight-badge">${weightLabel}: ${node.weight}</div>
             </div>
             ${hasChildren ? '<div class="expand-icon collapsed"></div>' : ''}
