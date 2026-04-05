@@ -698,17 +698,16 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
     <script>
-        // Real-time search functionality
+        // Search on Enter key only
         const frameworkSearchInput = document.getElementById('frameworkSearchInput');
         const frameworkSearchForm = document.getElementById('frameworkSearchForm');
-        let frameworkSearchTimeout;
 
         if (frameworkSearchInput && frameworkSearchForm) {
-            frameworkSearchInput.addEventListener('input', function() {
-                clearTimeout(frameworkSearchTimeout);
-                frameworkSearchTimeout = setTimeout(function() {
+            frameworkSearchInput.addEventListener('keydown', function(e) {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
                     frameworkSearchForm.submit();
-                }, 500); // Wait 500ms after user stops typing
+                }
             });
         }
 

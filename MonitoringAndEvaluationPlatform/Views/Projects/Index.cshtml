@@ -1578,50 +1578,18 @@
     }
     // ─────────────────────────────────────────────────────────────────────────
 
-    // Search functionality with instant search
+    // Search on Enter key only
     $(document).ready(function() {
-        let searchTimeout;
-        const debounceDelay = 800; // milliseconds to wait after typing stops
-        const minChars = 2; // minimum characters before searching
-        let lastSearchValue = $('#projectSearch').val() || '';
-
-        // Search on Enter key (immediate)
         $('#projectSearch').on('keypress', function(e) {
             if (e.which === 13) {
                 e.preventDefault();
-                clearTimeout(searchTimeout);
                 $('#hierarchyFilterForm').submit();
-            }
-        });
-
-        // Instant search with debounce - submit after user stops typing
-        $('#projectSearch').on('input', function() {
-            clearTimeout(searchTimeout);
-            const searchValue = $(this).val().trim();
-
-            // Show/hide clear button
-            if (searchValue.length > 0) {
-                if ($('.search-clear-btn').length === 0) {
-                    $(this).after('<button type="button" class="search-clear-btn" id="clearSearch"><i class="fas fa-times"></i></button>');
-                }
-            } else {
-                $('.search-clear-btn').remove();
-            }
-
-            // Only auto-submit if minimum characters reached or clearing search
-            if (searchValue.length >= minChars || (searchValue.length === 0 && lastSearchValue.length > 0)) {
-                searchTimeout = setTimeout(function() {
-                    lastSearchValue = searchValue;
-                    $('#hierarchyFilterForm').submit();
-                }, debounceDelay);
             }
         });
 
         // Clear search button
         $(document).on('click', '#clearSearch', function() {
-            clearTimeout(searchTimeout);
             $('#projectSearch').val('');
-            lastSearchValue = '';
             $('#hierarchyFilterForm').submit();
         });
     });

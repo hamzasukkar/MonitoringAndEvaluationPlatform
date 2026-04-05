@@ -516,17 +516,16 @@
             }
         }
 
-        // Real-time search functionality
+        // Search on Enter key only
         const searchInput = document.getElementById('searchInput');
         const searchForm = document.getElementById('searchForm');
-        let searchTimeout;
 
         if (searchInput && searchForm) {
-            searchInput.addEventListener('input', function() {
-                clearTimeout(searchTimeout);
-                searchTimeout = setTimeout(function() {
+            searchInput.addEventListener('keydown', function(e) {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
                     searchForm.submit();
-                }, 500); // Wait 500ms after user stops typing
+                }
             });
         }
 
