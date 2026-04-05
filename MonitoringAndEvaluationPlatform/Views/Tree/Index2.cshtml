@@ -570,6 +570,18 @@ document.addEventListener('DOMContentLoaded', function() {
         container.innerHTML = '';
         container.appendChild(orgChart);
         attachEventListeners();
+
+        // Expand the first level (direct children of the root node) by default
+        orgChart.querySelectorAll(':scope > .node-container > .children-container').forEach(children => {
+            children.classList.remove('collapsed');
+            const icon = children.closest('.node-container').querySelector('.expand-icon');
+            if (icon) {
+                icon.classList.remove('collapsed');
+                icon.classList.add('expanded');
+                const symbol = icon.querySelector('.expand-symbol');
+                if (symbol) symbol.textContent = '−';
+            }
+        });
     }
 
     function createNodeElement(node) {
