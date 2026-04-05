@@ -24,6 +24,17 @@
             </p>
         </div>
         <div class="tree-controls">
+            <div class="btn-group me-2" role="group" id="performanceModeGroup">
+                <button type="button" class="btn btn-sm btn-success active" data-mode="indicators" title="@Localizer["Indicators Performance"]">
+                    <i class="fas fa-chart-line me-1"></i>@Localizer["Indicators"]
+                </button>
+                <button type="button" class="btn btn-sm btn-outline-success" data-mode="both" title="@Localizer["Both"]">
+                    <i class="fas fa-layer-group me-1"></i>@Localizer["Both"]
+                </button>
+                <button type="button" class="btn btn-sm btn-outline-info" data-mode="disbursement" title="@Localizer["Disbursement Performance"]">
+                    <i class="fas fa-dollar-sign me-1"></i>@Localizer["Disbursement"]
+                </button>
+            </div>
             <button class="btn btn-outline-primary btn-sm me-2" id="expandAll">
                 <i class="fas fa-expand-arrows-alt me-1"></i>
                 @Localizer["Expand All"]
@@ -286,6 +297,16 @@
         flex: 1;
     }
 
+    .disbursement-badge {
+        background: #0dcaf0;
+        color: #000;
+        padding: 0.25rem 0.5rem;
+        border-radius: 12px;
+        font-weight: 600;
+        font-size: 0.8rem;
+        flex: 1;
+    }
+
     .weight-badge {
         background: rgba(200, 168, 95, 0.2);
         color: var(--accent-gold-color);
@@ -423,6 +444,34 @@ document.addEventListener('DOMContentLoaded', function() {
     const collapseAllBtn = document.getElementById('collapseAll');
     const exportBtn = document.getElementById('exportChart');
 
+    let currentMode = 'indicators'; // 'indicators' | 'disbursement' | 'both'
+
+    document.querySelectorAll('#performanceModeGroup [data-mode]').forEach(btn => {
+        btn.addEventListener('click', function () {
+            currentMode = this.dataset.mode;
+
+            // Update active state styles
+            document.querySelectorAll('#performanceModeGroup [data-mode]').forEach(b => {
+                const isInfo = b.dataset.mode === 'disbursement';
+                b.className = b.className
+                    .replace(/\bbtn-(success|info|outline-success|outline-info)\b/g, '');
+                if (b === this) {
+                    b.classList.add(isInfo ? 'btn-info' : 'btn-success');
+                } else {
+                    b.classList.add(isInfo ? 'btn-outline-info' : 'btn-outline-success');
+                }
+            });
+
+            // Show/hide badges on existing nodes without re-rendering
+            document.querySelectorAll('.indicators-badge').forEach(el => {
+                el.style.display = currentMode === 'disbursement' ? 'none' : '';
+            });
+            document.querySelectorAll('.disbursement-badge').forEach(el => {
+                el.style.display = currentMode === 'indicators' ? 'none' : '';
+            });
+        });
+    });
+
     // Localization map for node types
     const typeTranslations = {
         'Framework': '@Localizer["Framework"]',
@@ -504,11 +553,15 @@ document.addEventListener('DOMContentLoaded', function() {
 
         const translatedType = typeTranslations[node.type] || node.type;
 
+        const indHidden = currentMode === 'disbursement' ? ' style="display:none"' : '';
+        const disHidden = currentMode === 'indicators' ? ' style="display:none"' : '';
+
         nodeDiv.innerHTML = `
             <div class="node-title">${node.name}</div>
             <div class="node-type">${translatedType}</div>
             <div class="node-metrics">
-                <div class="performance-badge">${node.indicatorsPerformance}</div>
+                <div class="performance-badge indicators-badge"${indHidden}>${node.indicatorsPerformance}</div>
+                <div class="disbursement-badge"${disHidden}>${node.disbursementPerformance}</div>
                 <div class="weight-badge">${weightLabel}: ${node.weight}</div>
             </div>
             ${hasChildren ? '<div class="expand-icon collapsed"></div>' : ''}

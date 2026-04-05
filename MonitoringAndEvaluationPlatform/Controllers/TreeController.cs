@@ -50,7 +50,8 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 name = f.Name,
                 type = "Framework",
                 weight = 1.0,
-                IndicatorsPerformance =Math.Round(f.IndicatorsPerformance,0).ToString()+"%"
+                IndicatorsPerformance = Math.Round(f.IndicatorsPerformance, 0).ToString() + "%",
+                DisbursementPerformance = Math.Round(f.DisbursementPerformance, 0).ToString() + "%"
             }
                 }
                 .Concat(f.Outcomes.SelectMany(o => new[]
@@ -62,7 +63,8 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 name = o.Name,
                 type = "Outcome",
                 weight = o.Weight,
-                IndicatorsPerformance = Math.Round(o.IndicatorsPerformance,0).ToString()+"%"
+                IndicatorsPerformance = Math.Round(o.IndicatorsPerformance, 0).ToString() + "%",
+                DisbursementPerformance = Math.Round(o.DisbursementPerformance, 0).ToString() + "%"
             }
                 }
                 .Concat(o.Outputs.SelectMany(op => new[]
@@ -74,7 +76,8 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 name = op.Name,
                 type = "Output",
                 weight = op.Weight,
-                IndicatorsPerformance = Math.Round(op.IndicatorsPerformance, 0).ToString()+"%"
+                IndicatorsPerformance = Math.Round(op.IndicatorsPerformance, 0).ToString() + "%",
+                DisbursementPerformance = Math.Round(op.DisbursementPerformance, 0).ToString() + "%"
             }
                 }
                 .Concat(op.SubOutputs.SelectMany(so => new[]
@@ -86,7 +89,8 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 name = so.Name,
                 type = "SubOutput",
                 weight = so.Weight,
-                IndicatorsPerformance = Math.Round(so.IndicatorsPerformance, 0).ToString()+"%"
+                IndicatorsPerformance = Math.Round(so.IndicatorsPerformance, 0).ToString() + "%",
+                DisbursementPerformance = Math.Round(so.DisbursementPerformance, 0).ToString() + "%"
             }
                 }
                 .Concat(so.Indicators.Select(i => new
@@ -96,7 +100,8 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                     name = i.Name,
                     type = "Indicator",
                     weight = i.Weight,
-                    IndicatorsPerformance = Math.Round(i.IndicatorsPerformance, 0).ToString() + "%"
+                    IndicatorsPerformance = Math.Round(i.IndicatorsPerformance, 0).ToString() + "%",
+                    DisbursementPerformance = Math.Round(i.DisbursementPerformance, 0).ToString() + "%"
                 })))))))));
 
             return Json(data);
