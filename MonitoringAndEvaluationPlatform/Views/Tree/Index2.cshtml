@@ -482,6 +482,19 @@ document.addEventListener('DOMContentLoaded', function() {
     const indLabel = '@Localizer["IP"]';
     const disLabel = '@Localizer["DP"]';
 
+    // Returns the navigation URL for a given node
+    function getNodeUrl(node) {
+        const code = parseInt(node.id.replace(/\D/g, ''));
+        switch (node.type) {
+            case 'Framework':  return `/Outcomes?frameworkCode=${code}`;
+            case 'Outcome':    return `/Outputs?outcomeCode=${code}`;
+            case 'Output':     return `/SubOutputs?outputCode=${code}`;
+            case 'SubOutput':  return `/Indicators?subOutputCode=${code}`;
+            case 'Indicator':  return `/Indicators/Details/${code}`;
+            default:           return null;
+        }
+    }
+
     // Returns inline style string matching ProgressBarHelper thresholds
     function perfStyle(valueStr) {
         const val = parseFloat(valueStr);
@@ -574,6 +587,16 @@ document.addEventListener('DOMContentLoaded', function() {
             </div>
             ${hasChildren ? '<div class="expand-icon collapsed"></div>' : ''}
         `;
+
+        const url = getNodeUrl(node);
+        if (url) {
+            nodeDiv.addEventListener('click', function (e) {
+                // Let expand-icon handle its own click via stopPropagation
+                if (e.target.closest('.expand-icon')) return;
+                window.location.href = url;
+            });
+            nodeDiv.title = url;
+        }
 
         nodeContainer.appendChild(nodeDiv);
 
