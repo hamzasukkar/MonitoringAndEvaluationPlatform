@@ -161,6 +161,15 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 // Recalculate weights
                 await RedistributeWeights(outputCode);
 
+                // Reload subOutput to get updated weight after redistribution
+                await _context.Entry(subOutput).ReloadAsync();
+
+                // Fetch all subOutputs with updated weights so the client can refresh existing rows
+                var allSubOutputs = await _context.SubOutputs
+                    .Where(s => s.OutputCode == outputCode)
+                    .Select(s => new { code = s.Code, weight = Math.Round(s.Weight, 2) })
+                    .ToListAsync();
+
                 return Json(new
                 {
                     success = true,
@@ -173,6 +182,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                         disbursementPerformance = Math.Round(subOutput.DisbursementPerformance, 2),
                         outputName = subOutput.Output?.Name ?? ""
                     },
+                    allSubOutputs,
                     message = "SubOutput created successfully!"
                 });
             }

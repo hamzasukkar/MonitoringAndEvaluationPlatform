@@ -491,7 +491,7 @@
                                                 {
                                                     string subOutputIndicatorsClass = ProgressBarHelper.GetProgressBarClass(subOutput.IndicatorsPerformance);
                                                     string subOutputDisbursementClass = ProgressBarHelper.GetProgressBarClass(subOutput.DisbursementPerformance);
-                                                    <tr>
+                                                    <tr data-suboutput-code="@subOutput.Code">
                                                         <td>
                                                             <a asp-controller="Indicators" asp-action="Index" asp-route-subOutputCode="@subOutput.Code" class="suboutput-name-link">
                                                                 @subOutput.Name
@@ -755,10 +755,20 @@
                         const table = document.getElementById(`suboutputs-table-${outputCode}`);
                         table.classList.remove('d-none');
 
+                        // Update weights of all existing suboutput rows
+                        if (response.allSubOutputs) {
+                            response.allSubOutputs.forEach(function(s) {
+                                const row = document.querySelector(`#suboutputs-tbody-${outputCode} tr[data-suboutput-code="${s.code}"]`);
+                                if (row) {
+                                    row.querySelector('.badge.bg-info').textContent = s.weight + '%';
+                                }
+                            });
+                        }
+
                         // Add new row to the table
                         const tbody = document.getElementById(`suboutputs-tbody-${outputCode}`);
                         const newRow = `
-                            <tr style="background-color: rgba(40, 167, 69, 0.1);">
+                            <tr style="background-color: rgba(40, 167, 69, 0.1);" data-suboutput-code="${response.subOutput.code}">
                                 <td>
                                     <a href="/Indicators?subOutputCode=${response.subOutput.code}" class="suboutput-name-link">
                                         ${response.subOutput.name}
