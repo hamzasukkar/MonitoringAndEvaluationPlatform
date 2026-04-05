@@ -97,11 +97,18 @@
 
 <!-- Tree Container Card -->
 <div class="card">
-    <div class="card-header">
+    <div class="card-header d-flex justify-content-between align-items-center flex-wrap gap-2">
         <h5 class="mb-0">
             <i class="fas fa-tree me-2"></i>
             @Localizer["Organizational Chart View"]
         </h5>
+        <div class="input-group" style="max-width:280px;">
+            <span class="input-group-text"><i class="fas fa-search"></i></span>
+            <input type="text" id="treeSearch" class="form-control form-control-sm" placeholder="@Localizer["Search nodes..."]">
+            <button class="btn btn-outline-secondary btn-sm" id="treeSearchClear" type="button" style="display:none;">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
     </div>
     <div class="card-body p-0">
         <div id="treeContainer" class="tree-visualization">
@@ -310,6 +317,24 @@
         font-size: 0.75rem;
         font-weight: 500;
         flex: 1;
+    }
+
+    /* Search highlight / dim */
+    .tree-node.search-highlight {
+        outline: 3px solid var(--accent-gold-color);
+        box-shadow: 0 0 14px rgba(200, 168, 95, 0.6);
+    }
+
+    .tree-node.search-dim {
+        opacity: 0.25;
+        filter: grayscale(60%);
+    }
+
+    .node-title mark {
+        background: rgba(200, 168, 95, 0.45);
+        color: inherit;
+        border-radius: 3px;
+        padding: 0 2px;
     }
 
     /* Expand/Collapse Icon */
@@ -704,6 +729,98 @@ document.addEventListener('DOMContentLoaded', function() {
             window.print();
         }
     }
+
+    // ── Search ──────────────────────────────────────────────────────────────
+    const searchInput = document.getElementById('treeSearch');
+    const searchClear = document.getElementById('treeSearchClear');
+
+    searchInput.addEventListener('input', function () {
+        const q = this.value.trim().toLowerCase();
+        searchClear.style.display = q ? '' : 'none';
+        applySearch(q);
+    });
+
+    searchClear.addEventListener('click', function () {
+        searchInput.value = '';
+        searchClear.style.display = 'none';
+        applySearch('');
+    });
+
+    function applySearch(q) {
+        const allNodes = document.querySelectorAll('.tree-node');
+
+        if (!q) {
+            // Clear all states and restore original titles
+            allNodes.forEach(n => {
+                n.classList.remove('search-highlight', 'search-dim');
+                const titleEl = n.querySelector('.node-title');
+                if (titleEl && titleEl.dataset.originalText !== undefined) {
+                    titleEl.textContent = titleEl.dataset.originalText;
+                }
+            });
+            return;
+        }
+
+        // Collect matching node containers
+        const matchedContainers = new Set();
+        allNodes.forEach(nodeDiv => {
+            const titleEl = nodeDiv.querySelector('.node-title');
+            if (!titleEl) return;
+
+            // Save original text once
+            if (titleEl.dataset.originalText === undefined) {
+                titleEl.dataset.originalText = titleEl.textContent;
+            }
+            const text = titleEl.dataset.originalText;
+            const matches = text.toLowerCase().includes(q);
+
+            if (matches) {
+                matchedContainers.add(nodeDiv.closest('.node-container'));
+                // Highlight matched substring
+                const regex = new RegExp(`(${q.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, 'gi');
+                titleEl.innerHTML = text.replace(regex, '<mark>$1</mark>');
+            } else {
+                titleEl.textContent = text;
+            }
+        });
+
+        // Collect all ancestors of matched nodes
+        const visibleContainers = new Set(matchedContainers);
+        matchedContainers.forEach(container => {
+            let parent = container.parentElement;
+            while (parent) {
+                if (parent.classList.contains('node-container')) visibleContainers.add(parent);
+                parent = parent.parentElement;
+            }
+        });
+
+        // Expand ancestors so matched nodes are visible
+        visibleContainers.forEach(container => {
+            const children = container.querySelector('.children-container');
+            const icon = container.querySelector('.expand-icon');
+            if (children && children.classList.contains('collapsed')) {
+                children.classList.remove('collapsed');
+                if (icon) {
+                    icon.classList.remove('collapsed');
+                    icon.classList.add('expanded');
+                    const symbol = icon.querySelector('.expand-symbol');
+                    if (symbol) symbol.textContent = '−';
+                }
+            }
+        });
+
+        // Apply highlight / dim
+        allNodes.forEach(nodeDiv => {
+            const container = nodeDiv.closest('.node-container');
+            nodeDiv.classList.remove('search-highlight', 'search-dim');
+            if (matchedContainers.has(container)) {
+                nodeDiv.classList.add('search-highlight');
+            } else {
+                nodeDiv.classList.add('search-dim');
+            }
+        });
+    }
+    // ────────────────────────────────────────────────────────────────────────
 
     function hideLoadingSpinner() {
         const loadingContainer = document.querySelector('.loading-container');
