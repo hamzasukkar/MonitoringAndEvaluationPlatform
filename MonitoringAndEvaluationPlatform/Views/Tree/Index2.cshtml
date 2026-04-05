@@ -307,6 +307,12 @@
         flex: 1;
     }
 
+    .badge-label {
+        font-size: 0.7rem;
+        opacity: 0.85;
+        font-weight: 500;
+    }
+
     .weight-badge {
         background: rgba(200, 168, 95, 0.2);
         color: var(--accent-gold-color);
@@ -484,6 +490,8 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Localized "Weight" label
     const weightLabel = '@Localizer["Weight"]';
+    const indLabel = '@Localizer["IP"]';
+    const disLabel = '@Localizer["DP"]';
 
     loadHierarchyData();
 
@@ -560,8 +568,8 @@ document.addEventListener('DOMContentLoaded', function() {
             <div class="node-title">${node.name}</div>
             <div class="node-type">${translatedType}</div>
             <div class="node-metrics">
-                <div class="performance-badge indicators-badge"${indHidden}>${node.indicatorsPerformance}</div>
-                <div class="disbursement-badge"${disHidden}>${node.disbursementPerformance}</div>
+                <div class="performance-badge indicators-badge"${indHidden}><span class="badge-label">${indLabel}:</span> ${node.indicatorsPerformance}</div>
+                <div class="disbursement-badge"${disHidden}><span class="badge-label">${disLabel}:</span> ${node.disbursementPerformance}</div>
                 <div class="weight-badge">${weightLabel}: ${node.weight}</div>
             </div>
             ${hasChildren ? '<div class="expand-icon collapsed"></div>' : ''}
