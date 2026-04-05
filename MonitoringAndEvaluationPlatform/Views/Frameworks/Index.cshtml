@@ -554,7 +554,7 @@
                                                         {
                                                             string outcomeIndicatorsClass = ProgressBarHelper.GetProgressBarClass(outcome.IndicatorsPerformance);
                                                             string outcomeDisbursementClass = ProgressBarHelper.GetProgressBarClass(outcome.DisbursementPerformance);
-                                                            <tr>
+                                                            <tr data-outcome-code="@outcome.Code">
                                                                 <td>
                                                                     <a asp-controller="Outputs" asp-action="Index" asp-route-outcomeCode="@outcome.Code" class="outcome-name-link">
                                                                         @outcome.Name
@@ -1097,11 +1097,19 @@
                             showConfirmButton: false
                         });
 
+                        // Update weights of all existing outcome rows
+                        if (response.allOutcomes) {
+                            response.allOutcomes.forEach(function(o) {
+                                $(`#outcomes-row-${frameworkCode} tr[data-outcome-code="${o.code}"] .badge.bg-info`)
+                                    .text(o.weight + '%');
+                            });
+                        }
+
                         // Add new row to the outcomes table
                         const outcomesTable = $(`#outcomes-row-${frameworkCode} .outcomes-table tbody`);
                         if (outcomesTable.length) {
                             const newRow = `
-                                <tr class="new-outcome-row">
+                                <tr class="new-outcome-row" data-outcome-code="${response.outcome.code}">
                                     <td>
                                         <a href="/Outputs?outcomeCode=${response.outcome.code}" class="outcome-name-link">
                                             ${response.outcome.name}
