@@ -337,12 +337,22 @@
         transform: scale(1.1);
     }
 
-    .expand-icon.collapsed::before {
-        content: '+';
+    .expand-icon .expand-symbol {
+        font-size: 12px;
+        font-weight: bold;
+        line-height: 1;
     }
 
-    .expand-icon.expanded::before {
-        content: '−';
+    .expand-icon .expand-count {
+        font-size: 9px;
+        font-weight: 600;
+        line-height: 1;
+        opacity: 0.85;
+    }
+
+    .expand-icon {
+        flex-direction: column;
+        gap: 1px;
     }
 
     /* Children Container */
@@ -585,7 +595,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 <div class="disbursement-badge" style="${perfStyle(node.disbursementPerformance)}${disHidden}"><span class="badge-label">${disLabel}:</span> ${node.disbursementPerformance}</div>
                 <div class="weight-badge">${weightLabel}: ${node.weight}</div>
             </div>
-            ${hasChildren ? '<div class="expand-icon collapsed"></div>' : ''}
+            ${hasChildren ? `<div class="expand-icon collapsed"><span class="expand-symbol">+</span><span class="expand-count">${node.children.length}</span></div>` : ''}
         `;
 
         const url = getNodeUrl(node);
@@ -637,14 +647,17 @@ document.addEventListener('DOMContentLoaded', function() {
 
         const isCollapsed = icon.classList.contains('collapsed');
 
+        const symbol = icon.querySelector('.expand-symbol');
         if (isCollapsed) {
             childrenContainer.classList.remove('collapsed');
             icon.classList.remove('collapsed');
             icon.classList.add('expanded');
+            if (symbol) symbol.textContent = '−';
         } else {
             childrenContainer.classList.add('collapsed');
             icon.classList.remove('expanded');
             icon.classList.add('collapsed');
+            if (symbol) symbol.textContent = '+';
         }
     }
 
@@ -655,6 +668,8 @@ document.addEventListener('DOMContentLoaded', function() {
         document.querySelectorAll('.expand-icon').forEach(icon => {
             icon.classList.remove('collapsed');
             icon.classList.add('expanded');
+            const symbol = icon.querySelector('.expand-symbol');
+            if (symbol) symbol.textContent = '−';
         });
     }
 
@@ -665,6 +680,8 @@ document.addEventListener('DOMContentLoaded', function() {
         document.querySelectorAll('.expand-icon').forEach(icon => {
             icon.classList.remove('expanded');
             icon.classList.add('collapsed');
+            const symbol = icon.querySelector('.expand-symbol');
+            if (symbol) symbol.textContent = '+';
         });
     }
 
