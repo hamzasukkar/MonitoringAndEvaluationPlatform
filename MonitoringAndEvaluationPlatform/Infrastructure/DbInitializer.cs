@@ -282,6 +282,11 @@ namespace MonitoringAndEvaluationPlatform.Infrastructure
                     context.Donors.AddRange(donors);
                     context.SaveChanges();
                 }
+                else if (!context.Donors.Any(d => d.Partner == "موازنة أستثمارية"))
+                {
+                    context.Donors.Add(new Donor { Partner = "موازنة أستثمارية", donorCategory = DonorCategory.Local });
+                    context.SaveChanges();
+                }
                 if (!context.SuperVisors.Any())
                 {
                     var superVisors = new List<SuperVisor>
