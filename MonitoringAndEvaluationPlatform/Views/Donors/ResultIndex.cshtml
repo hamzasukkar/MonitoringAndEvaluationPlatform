@@ -1,11 +1,37 @@
 ﻿@model IEnumerable<MonitoringAndEvaluationPlatform.Models.Donor>
 @using MonitoringAndEvaluationPlatform.Helpers
+@using MonitoringAndEvaluationPlatform.Enums
 @using Microsoft.AspNetCore.Mvc.Localization
 @inject IViewLocalizer Localizer
 @using Microsoft.AspNetCore.Localization
 
 @{
-    ViewData["Title"] = "International Cooperation Partners";
+    var donorCategory = (DonorCategory)ViewData["DonorCategory"];
+    string titleKey = donorCategory switch
+    {
+        DonorCategory.UNOrganizations => "UN Organizations",
+        DonorCategory.Countries => "Countries",
+        DonorCategory.InternationalNonGovernmentalOrganizations => "International Non-Governmental Organizations",
+        DonorCategory.Local => "Local Organizations",
+        _ => "Partners"
+    };
+    string subtitleKey = donorCategory switch
+    {
+        DonorCategory.UNOrganizations => "View and manage UN organizations performance metrics",
+        DonorCategory.Countries => "View and manage countries performance metrics",
+        DonorCategory.InternationalNonGovernmentalOrganizations => "View and manage international non-governmental organizations performance metrics",
+        DonorCategory.Local => "View and manage local organizations performance metrics",
+        _ => "View and manage partners performance metrics"
+    };
+    string iconClass = donorCategory switch
+    {
+        DonorCategory.UNOrganizations => "fas fa-globe me-3",
+        DonorCategory.Countries => "fas fa-flag me-3",
+        DonorCategory.InternationalNonGovernmentalOrganizations => "fas fa-hands-helping me-3",
+        DonorCategory.Local => "fas fa-building me-3",
+        _ => "fas fa-handshake me-3"
+    };
+    ViewData["Title"] = Localizer[titleKey].Value;
     Layout = "~/Views/Shared/_DashboardHomeLayout.cshtml";
     var culture = Context.Features.Get<IRequestCultureFeature>().RequestCulture.Culture.Name;
 }
@@ -15,11 +41,11 @@
     <div class="d-flex justify-content-between align-items-center">
         <div>
             <h1 class="dashboard-title">
-                <i class="fas fa-handshake me-3"></i>
-                @Localizer["International Cooperation Partners"]
+                <i class="@iconClass"></i>
+                @Localizer[titleKey]
             </h1>
             <p class="dashboard-subtitle">
-                @Localizer["View and manage international cooperation partners performance metrics"]
+                @Localizer[subtitleKey]
             </p>
         </div>
     </div>
@@ -28,8 +54,8 @@
 <!-- Partners Table -->
 <div class="chart-card">
     <div class="chart-title">
-        <i class="fas fa-handshake"></i>
-        @Localizer["Partners"] (@Model.Count())
+        <i class="@iconClass.Replace(" me-3", "")"></i>
+        @Localizer[titleKey] (@Model.Count())
     </div>
 
     @if (Model.Any())

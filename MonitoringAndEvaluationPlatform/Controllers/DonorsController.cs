@@ -38,7 +38,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         public async Task<IActionResult> ResultIndex(DonorCategory donorCategory)
         {
             var donors = _context.Donors.Where(d => d.donorCategory == donorCategory);
-
+            ViewData["DonorCategory"] = donorCategory;
             return View(await donors.ToListAsync());
         }
 
