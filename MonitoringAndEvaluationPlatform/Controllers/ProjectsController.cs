@@ -308,7 +308,10 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         public async Task<IActionResult> Create(int? indicatorId, string indicatorName)
         {
             // Retrieve related data
-            var donors = _context.Donors.ToList();
+            var donors = _context.Donors.ToList()
+                .OrderBy(d => d.Partner == "موازنة أستثمارية" ? 0 : 1)
+                .ThenBy(d => d.Partner)
+                .ToList();
             var sectors = _context.Sectors.ToList();
             var ministries = _context.Ministries.ToList();
             var supervisors = _context.SuperVisors.ToList();
@@ -436,9 +439,17 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                     }
                 }
 
-                // Read selected phases and validate at least one is chosen
+                // Check if any selected donor is "موازنة أستثمارية" (single-phase mode)
+                bool hasInvestmentBudgetDonor = false;
+                if (selectedDonorCodes.Any())
+                {
+                    hasInvestmentBudgetDonor = await _context.Donors
+                        .AnyAsync(d => selectedDonorCodes.Contains(d.Code.ToString()) && d.Partner == "موازنة أستثمارية");
+                }
+
+                // Read selected phases and validate at least one is chosen (skip for investment budget donor)
                 var selectedPhases = Request.Form["SelectedPhases"].ToList();
-                if (!selectedPhases.Any())
+                if (!hasInvestmentBudgetDonor && !selectedPhases.Any())
                     ModelState.AddModelError("SelectedPhases", _localizer["Please select at least one phase."]);
 
                 // Validate project creation
@@ -490,8 +501,8 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                     }
                 }
 
-                // Create only the user-selected project phases
-                await CreateDefaultProjectPhasesAsync(project, selectedPhases);
+                // Create project phases: single phase for "موازنة أستثمارية" donor, otherwise user-selected phases
+                await CreateDefaultProjectPhasesAsync(project, hasInvestmentBudgetDonor ? null : selectedPhases, hasInvestmentBudgetDonor);
 
                 // Process file uploads
                 await ProcessFileUploadsAsync(project.ProjectID, UploadedFiles);
@@ -1529,7 +1540,11 @@ namespace MonitoringAndEvaluationPlatform.Controllers
 
             ViewBag.ProjectManager = new SelectList(_context.ProjectManagers, "Code", "Name");
             ViewBag.SuperVisor = new SelectList(_context.SuperVisors, "Code", "Name");
-            ViewBag.Donor = new SelectList(_context.Donors, "Code", "Partner");
+            ViewBag.Donor = new SelectList(
+                _context.Donors.AsEnumerable()
+                    .OrderBy(d => d.Partner == "موازنة أستثمارية" ? 0 : 1)
+                    .ThenBy(d => d.Partner),
+                "Code", "Partner");
             ViewBag.Goals = new SelectList(
                 _context.Goals,
                 "Code",
@@ -1558,10 +1573,40 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         }
 
         // ─────────────────────────────────────────────────────────────────────
-        // Auto-create 9 default implementation-tracking phases for a new project
+        // Auto-create default implementation-tracking phases for a new project.
+        // When singlePhaseMode is true (i.e. donor is "موازنة أستثمارية"), only
+        // one phase spanning the full project duration is created.
         // ─────────────────────────────────────────────────────────────────────
-        private async Task CreateDefaultProjectPhasesAsync(Project project, List<string>? selectedPhaseNames = null)
+        private async Task CreateDefaultProjectPhasesAsync(Project project, List<string>? selectedPhaseNames = null, bool singlePhaseMode = false)
         {
+            if (singlePhaseMode)
+            {
+                // Create a single phase covering the entire project duration
+                var singlePhase = new ProjectPhase
+                {
+                    Name = "موازنة أستثمارية",
+                    StartDate = project.StartDate,
+                    EndDate = project.EndDate,
+                    Budget = 0,
+                    Weight = 100,
+                    ProjectID = project.ProjectID
+                };
+                _context.ProjectPhases.Add(singlePhase);
+                await _context.SaveChangesAsync();
+
+                int plansCount = ((singlePhase.EndDate.Year - singlePhase.StartDate.Year) * 12)
+                                 + singlePhase.EndDate.Month - singlePhase.StartDate.Month;
+                if (singlePhase.EndDate.Day < singlePhase.StartDate.Day) plansCount--;
+                if (plansCount <= 0) plansCount = 1;
+
+                var actionPlan = new ActionPlan { ProjectPhaseId = singlePhase.Id, PlansCount = plansCount };
+                _context.ActionPlans.Add(actionPlan);
+                await _context.SaveChangesAsync();
+
+                await CreateDefaultActivitiesWithPlansAsync(actionPlan.Code, singlePhase.StartDate, singlePhase.EndDate, singlePhase.Budget);
+                return;
+            }
+
             var allPhaseNames = new[]
             {
                 "اراضي",

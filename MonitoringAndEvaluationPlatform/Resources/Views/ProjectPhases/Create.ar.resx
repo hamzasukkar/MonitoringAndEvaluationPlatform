@@ -62,13 +62,13 @@
     <value>المشاريع</value>
   </data>
   <data name="Add Phase" xml:space="preserve">
-    <value>إضافة مرحلة</value>
+    <value>إضافة فقرة</value>
   </data>
   <data name="Add Project Phase" xml:space="preserve">
-    <value>إضافة مرحلة للمشروع</value>
+    <value>إضافة فقرة للمشروع</value>
   </data>
   <data name="Define a new phase with its timeline and budget allocation" xml:space="preserve">
-    <value>حدد مرحلة جديدة بجدولها الزمني وتخصيص ميزانيتها</value>
+    <value>حدد فقرة جديدة بجدولها الزمني وتخصيص ميزانيتها</value>
   </data>
   <data name="Back to Project" xml:space="preserve">
     <value>العودة إلى المشروع</value>
@@ -86,19 +86,19 @@
     <value>الفقرات الحالية</value>
   </data>
   <data name="Warning: The project budget is fully allocated. You cannot add a phase with a non-zero budget." xml:space="preserve">
-    <value>تحذير: تم تخصيص ميزانية المشروع بالكامل. لا يمكنك إضافة مرحلة بميزانية غير صفرية.</value>
+    <value>تحذير: تم تخصيص ميزانية المشروع بالكامل. لا يمكنك إضافة فقرة بميزانية غير صفرية.</value>
   </data>
   <data name="Phase Details" xml:space="preserve">
-    <value>تفاصيل المرحلة</value>
+    <value>تفاصيل الفقرة</value>
   </data>
   <data name="Fill in the phase information below" xml:space="preserve">
-    <value>أدخل معلومات المرحلة أدناه</value>
+    <value>أدخل معلومات الفقرة أدناه</value>
   </data>
   <data name="Phase Name" xml:space="preserve">
-    <value>اسم المرحلة</value>
+    <value>اسم الفقرة</value>
   </data>
   <data name="Enter phase name (e.g., Phase 1 - Design)" xml:space="preserve">
-    <value>أدخل اسم المرحلة (مثال: المرحلة 1 - التصميم)</value>
+    <value>أدخل اسم الفقرة (مثال: الفقرة 1 - التصميم)</value>
   </data>
   <data name="Start Date" xml:space="preserve">
     <value>تاريخ البدء</value>
@@ -122,10 +122,10 @@
     <value>متاح</value>
   </data>
   <data name="This will be the first phase. It will automatically receive 100% weight." xml:space="preserve">
-    <value>ستكون هذه أول مرحلة وستحصل تلقائياً على وزن 100%.</value>
+    <value>ستكون هذه أول فقرة وستحصل تلقائياً على وزن 100%.</value>
   </data>
   <data name="After adding this phase, weights will be automatically redistributed equally among all @(phaseCount + 1) phases." xml:space="preserve">
-    <value>بعد إضافة هذه المرحلة، ستُعاد توزيع الأوزان تلقائياً بالتساوي بين جميع الفقرات.</value>
+    <value>بعد إضافة هذه الفقرة، ستُعاد توزيع الأوزان تلقائياً بالتساوي بين جميع الفقرات.</value>
   </data>
   <data name="Cancel" xml:space="preserve">
     <value>إلغاء</value>
@@ -143,6 +143,6 @@
     <value>اختياري: حدد كمية مستهدفة ليتم احتساب الإنجازات تلقائياً (مثال: زراعة 100 شجرة)</value>
   </data>
   <data name="Add Phase" xml:space="preserve">
-    <value>إضافة مرحلة</value>
+    <value>إضافة فقرة</value>
   </data>
 </root>

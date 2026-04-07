@@ -840,7 +840,7 @@
     <value>7.6 القياسات</value>
   </data>
   <data name="Measures record the actual achievement for a project phase against a specific indicator. Each measure belongs to a phase and uses one of two achievement types: Qualitative or Quantitative." xml:space="preserve">
-    <value>تسجّل القياسات الإنجاز الفعلي لمرحلة المشروع مقارنةً بمؤشر محدد. ينتمي كل قياس إلى مرحلة ويستخدم أحد نوعين: نوعي (Qualitative) أو كمي (Quantitative).</value>
+    <value>تسجّل القياسات الإنجاز الفعلي لفقرة المشروع مقارنةً بمؤشر محدد. ينتمي كل قياس إلى فقرة ويستخدم أحد نوعين: نوعي (Qualitative) أو كمي (Quantitative).</value>
   </data>
   <data name="Qualitative" xml:space="preserve">
     <value>نوعي</value>
@@ -852,13 +852,13 @@
     <value>كمي</value>
   </data>
   <data name="Achievement is measured by counting physical units (beneficiaries, metres, households, etc.). Enter a quantity and the system calculates the percentage: Achievement % = (Quantity ÷ Phase Target) × 100." xml:space="preserve">
-    <value>يُقاس الإنجاز بعد الوحدات المادية (المستفيدون، الأمتار، الأسر، إلخ). أدخل الكمية ويحسب النظام النسبة: نسبة الإنجاز = (الكمية ÷ الهدف الكلي للمرحلة) × 100.</value>
+    <value>يُقاس الإنجاز بعد الوحدات المادية (المستفيدون، الأمتار، الأسر، إلخ). أدخل الكمية ويحسب النظام النسبة: نسبة الإنجاز = (الكمية ÷ الهدف الكلي للفقرة) × 100.</value>
   </data>
   <data name="Phase Type Lock" xml:space="preserve">
-    <value>قفل نوع المرحلة</value>
+    <value>قفل نوع الفقرة</value>
   </data>
   <data name="The measure type (Qualitative or Quantitative) is set by the first measure added to a phase and cannot be changed afterward. All subsequent measures in the same phase must use the same type. Delete all phase measures first if you need to switch types." xml:space="preserve">
-    <value>يُحدَّد نوع القياس (نوعي أو كمي) بأول قياس يُضاف للمرحلة ولا يمكن تغييره لاحقاً. يجب أن تستخدم جميع القياسات اللاحقة في المرحلة ذاتها النوع نفسه. احذف جميع قياسات المرحلة أولاً إذا احتجت إلى التبديل.</value>
+    <value>يُحدَّد نوع القياس (نوعي أو كمي) بأول قياس يُضاف للفقرة ولا يمكن تغييره لاحقاً. يجب أن تستخدم جميع القياسات اللاحقة في الفقرة ذاتها النوع نفسه. احذف جميع قياسات الفقرة أولاً إذا احتجت إلى التبديل.</value>
   </data>
   <data name="7.6.1 Qualitative Measures" xml:space="preserve">
     <value>7.6.1 القياسات النوعية</value>
@@ -867,10 +867,10 @@
     <value>استخدم النوعي عندما يُعبَّر عن الإنجاز كنسبة تقديرية لا بعدٍّ فعلي.</value>
   </data>
   <data name="Select Phase &amp; Type" xml:space="preserve">
-    <value>اختر المرحلة والنوع</value>
+    <value>اختر الفقرة والنوع</value>
   </data>
   <data name="Open the Measures page for the project phase, click Add Measure, and select 'Qualitative'." xml:space="preserve">
-    <value>افتح صفحة القياسات لمرحلة المشروع، انقر "إضافة قياس"، ثم اختر "نوعي".</value>
+    <value>افتح صفحة القياسات لفقرة المشروع، انقر "إضافة قياس"، ثم اختر "نوعي".</value>
   </data>
   <data name="Enter Achievement Value" xml:space="preserve">
     <value>أدخل قيمة الإنجاز</value>
@@ -879,25 +879,25 @@
     <value>أدخل نسبة الإنجاز مباشرةً (مثلاً 70 لـ 70%). تُخزَّن هذه القيمة وتُعرض كما هي.</value>
   </data>
   <data name="View Phase Total" xml:space="preserve">
-    <value>عرض إجمالي المرحلة</value>
+    <value>عرض إجمالي الفقرة</value>
   </data>
   <data name="The Selected Phase Total sums all qualitative values entered for the phase, capped at 100%." xml:space="preserve">
-    <value>يجمع "إجمالي المرحلة المختارة" جميع القيم النوعية المُدخلة للمرحلة، بحد أقصى 100%.</value>
+    <value>يجمع "إجمالي الفقرة المختارة" جميع القيم النوعية المُدخلة للفقرة، بحد أقصى 100%.</value>
   </data>
   <data name="7.6.2 Quantitative Measures" xml:space="preserve">
     <value>7.6.2 القياسات الكمية</value>
   </data>
   <data name="Use Quantitative when achievement is measured by counting physical units against a fixed phase target." xml:space="preserve">
-    <value>استخدم الكمي عندما يُقاس الإنجاز بعد الوحدات المادية مقارنةً بهدف كلي ثابت للمرحلة.</value>
+    <value>استخدم الكمي عندما يُقاس الإنجاز بعد الوحدات المادية مقارنةً بهدف كلي ثابت للفقرة.</value>
   </data>
   <data name="Open the Measures page for the project phase, click Add Measure, and select 'Quantitative'." xml:space="preserve">
-    <value>افتح صفحة القياسات لمرحلة المشروع، انقر "إضافة قياس"، ثم اختر "كمي".</value>
+    <value>افتح صفحة القياسات لفقرة المشروع، انقر "إضافة قياس"، ثم اختر "كمي".</value>
   </data>
   <data name="Enter Phase Target (First Measure Only)" xml:space="preserve">
-    <value>أدخل الهدف الكلي للمرحلة (أول قياس فقط)</value>
+    <value>أدخل الهدف الكلي للفقرة (أول قياس فقط)</value>
   </data>
   <data name="On your first Quantitative measure, enter the total target quantity for the phase (e.g., 1000 beneficiaries). This target is stored at the phase level and used to calculate all future measure percentages automatically. Choose carefully — it cannot easily be changed once measures are recorded." xml:space="preserve">
-    <value>في أول قياس كمي، أدخل الكمية الإجمالية المستهدفة للمرحلة (مثلاً 1000 مستفيد). يُخزَّن الهدف على مستوى المرحلة ويُستخدم لحساب نسب جميع القياسات اللاحقة تلقائياً. اختره بعناية — لا يمكن تغييره بسهولة بعد تسجيل القياسات.</value>
+    <value>في أول قياس كمي، أدخل الكمية الإجمالية المستهدفة للفقرة (مثلاً 1000 مستفيد). يُخزَّن الهدف على مستوى الفقرة ويُستخدم لحساب نسب جميع القياسات اللاحقة تلقائياً. اختره بعناية — لا يمكن تغييره بسهولة بعد تسجيل القياسات.</value>
   </data>
   <data name="Enter Quantity Achieved" xml:space="preserve">
     <value>أدخل الكمية المنجزة</value>
@@ -909,7 +909,7 @@
     <value>عرض الأداء</value>
   </data>
   <data name="Performance recalculates automatically. The Measures list shows the Quantity and Achievement % separately. The phase total accumulates across all measure entries." xml:space="preserve">
-    <value>يُعاد حساب الأداء تلقائياً. تُظهر قائمة القياسات الكمية والنسبة المئوية بشكل منفصل. يتراكم إجمالي المرحلة عبر جميع إدخالات القياس.</value>
+    <value>يُعاد حساب الأداء تلقائياً. تُظهر قائمة القياسات الكمية والنسبة المئوية بشكل منفصل. يتراكم إجمالي الفقرة عبر جميع إدخالات القياس.</value>
   </data>
   <!-- old keys kept for compatibility -->
   <data name="Measures link projects to indicators with planned and realized values. To add a measure:" xml:space="preserve">
@@ -1295,22 +1295,22 @@
     <value>10.6 مراحل المشروع</value>
   </data>
   <data name="Project Phases allow you to divide a project into sequential stages, each with its own timeline, budget, and performance tracking. Each phase automatically receives an Action Plan and a full set of Activities." xml:space="preserve">
-    <value>تتيح لك مراحل المشروع تقسيم المشروع إلى مراحل متتالية، لكل منها جدول زمني وميزانية وتتبع أداء خاص بها. تحصل كل مرحلة تلقائياً على خطة عمل ومجموعة كاملة من الأنشطة.</value>
+    <value>تتيح لك مراحل المشروع تقسيم المشروع إلى مراحل متتالية، لكل منها جدول زمني وميزانية وتتبع أداء خاص بها. تحصل كل فقرة تلقائياً على خطة عمل ومجموعة كاملة من الأنشطة.</value>
   </data>
   <data name="How Phases Work" xml:space="preserve">
     <value>كيف تعمل المراحل</value>
   </data>
   <data name="Phase dates must fall within the project start and end dates" xml:space="preserve">
-    <value>يجب أن تقع تواريخ المرحلة ضمن تواريخ بداية ونهاية المشروع</value>
+    <value>يجب أن تقع تواريخ الفقرة ضمن تواريخ بداية ونهاية المشروع</value>
   </data>
   <data name="The sum of all phase budgets cannot exceed the total project budget" xml:space="preserve">
     <value>لا يمكن أن يتجاوز مجموع ميزانيات المراحل إجمالي ميزانية المشروع</value>
   </data>
   <data name="Phase weights are redistributed equally whenever a phase is added or removed" xml:space="preserve">
-    <value>تُعاد توزيع أوزان المراحل بالتساوي عند إضافة مرحلة أو حذفها</value>
+    <value>تُعاد توزيع أوزان المراحل بالتساوي عند إضافة فقرة أو حذفها</value>
   </data>
   <data name="Each phase automatically gets its own Action Plan and Activities with monthly Plans" xml:space="preserve">
-    <value>تحصل كل مرحلة تلقائياً على خطة عمل خاصة بها وأنشطة مع خطط شهرية</value>
+    <value>تحصل كل فقرة تلقائياً على خطة عمل خاصة بها وأنشطة مع خطط شهرية</value>
   </data>
   <data name="Open Project Phases Tab" xml:space="preserve">
     <value>فتح تبويب مراحل المشروع</value>
@@ -1319,10 +1319,10 @@
     <value>انتقل إلى صفحة تفاصيل المشروع واختر تبويب المراحل.</value>
   </data>
   <data name="Add Phase" xml:space="preserve">
-    <value>إضافة مرحلة</value>
+    <value>إضافة فقرة</value>
   </data>
   <data name="Click Add Phase and fill in the phase name, start date, end date, budget, and optional target quantity." xml:space="preserve">
-    <value>انقر على إضافة مرحلة واملأ اسم المرحلة وتاريخ البداية وتاريخ النهاية والميزانية والكمية المستهدفة الاختيارية.</value>
+    <value>انقر على إضافة فقرة واملأ اسم الفقرة وتاريخ البداية وتاريخ النهاية والميزانية والكمية المستهدفة الاختيارية.</value>
   </data>
   <data name="Review Auto-Created Plan" xml:space="preserve">
     <value>مراجعة الخطة المُنشأة تلقائياً</value>
@@ -1334,25 +1334,25 @@
     <value>تعديل الأوزان عند الحاجة</value>
   </data>
   <data name="Weights are set equally by default. You can edit a phase to assign a custom weight; the total across all phases must equal 100%." xml:space="preserve">
-    <value>تُضبط الأوزان بالتساوي افتراضياً. يمكنك تعديل مرحلة لتعيين وزن مخصص؛ ويجب أن يساوي المجموع الكلي لجميع المراحل 100%.</value>
+    <value>تُضبط الأوزان بالتساوي افتراضياً. يمكنك تعديل فقرة لتعيين وزن مخصص؛ ويجب أن يساوي المجموع الكلي لجميع المراحل 100%.</value>
   </data>
   <data name="Phase Name &amp; Dates" xml:space="preserve">
-    <value>اسم المرحلة والتواريخ</value>
+    <value>اسم الفقرة والتواريخ</value>
   </data>
   <data name="Identify each stage by name with a specific start and end date within the project timeline." xml:space="preserve">
-    <value>حدد كل مرحلة باسم مع تاريخ بداية ونهاية محددين ضمن الجدول الزمني للمشروع.</value>
+    <value>حدد كل فقرة باسم مع تاريخ بداية ونهاية محددين ضمن الجدول الزمني للمشروع.</value>
   </data>
   <data name="Phase Budget" xml:space="preserve">
-    <value>ميزانية المرحلة</value>
+    <value>ميزانية الفقرة</value>
   </data>
   <data name="Allocate a portion of the project budget to each phase. The system prevents over-allocation." xml:space="preserve">
-    <value>خصص جزءاً من ميزانية المشروع لكل مرحلة. يمنع النظام تجاوز الميزانية المخصصة.</value>
+    <value>خصص جزءاً من ميزانية المشروع لكل فقرة. يمنع النظام تجاوز الميزانية المخصصة.</value>
   </data>
   <data name="Phase Weight" xml:space="preserve">
-    <value>وزن المرحلة</value>
+    <value>وزن الفقرة</value>
   </data>
   <data name="Control each phase's contribution to overall project performance. All weights must sum to 100%." xml:space="preserve">
-    <value>تحكم في مساهمة كل مرحلة في الأداء الإجمالي للمشروع. يجب أن يساوي مجموع جميع الأوزان 100%.</value>
+    <value>تحكم في مساهمة كل فقرة في الأداء الإجمالي للمشروع. يجب أن يساوي مجموع جميع الأوزان 100%.</value>
   </data>
   <data name="Target Quantity" xml:space="preserve">
     <value>الكمية المستهدفة</value>
