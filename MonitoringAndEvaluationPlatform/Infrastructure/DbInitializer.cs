@@ -262,6 +262,7 @@ namespace MonitoringAndEvaluationPlatform.Infrastructure
                 {
                     var donors = new List<Donor>
                     {
+                       new Donor { Partner = "OCHA",    donorCategory = DonorCategory.UNOrganizations },
                         new Donor { Partner = "OCHA",    donorCategory = DonorCategory.UNOrganizations },
                         new Donor { Partner = "UNHCR 2", donorCategory = DonorCategory.UNOrganizations },
                         new Donor { Partner = "WFP",     donorCategory = DonorCategory.UNOrganizations },
@@ -276,6 +277,7 @@ namespace MonitoringAndEvaluationPlatform.Infrastructure
                         new Donor { Partner = "MSF",     donorCategory = DonorCategory.InternationalNonGovernmentalOrganizations },
                         new Donor { Partner = "NRC",     donorCategory = DonorCategory.InternationalNonGovernmentalOrganizations },
                         new Donor { Partner = "UN-OCHA", donorCategory = DonorCategory.UNOrganizations },
+                        new Donor { Partner = "موازنة أستثمارية", donorCategory = DonorCategory.Local },
                     };
                     context.Donors.AddRange(donors);
                     context.SaveChanges();
