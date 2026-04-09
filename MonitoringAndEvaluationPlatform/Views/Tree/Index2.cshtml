@@ -154,6 +154,31 @@
     </div>
 </div>
 
+<!-- Node Type Filter -->
+<div class="type-filter-bar mb-4">
+    <div class="type-filter-inner">
+        <span class="type-filter-label">
+            <i class="fas fa-layer-group me-1"></i>
+            @Localizer["Show Levels"]
+        </span>
+        <button class="btn btn-sm type-filter-btn active" data-ntype="Outcome" style="--type-color:#dc3545;">
+            <span class="type-filter-dot"></span>@Localizer["Outcome"]
+        </button>
+        <button class="btn btn-sm type-filter-btn active" data-ntype="Output" style="--type-color:#007bff;">
+            <span class="type-filter-dot"></span>@Localizer["Output"]
+        </button>
+        <button class="btn btn-sm type-filter-btn active" data-ntype="SubOutput" style="--type-color:#28a745;">
+            <span class="type-filter-dot"></span>@Localizer["Sub-Output"]
+        </button>
+        <button class="btn btn-sm type-filter-btn active" data-ntype="Indicator" style="--type-color:#fd7e14;">
+            <span class="type-filter-dot"></span>@Localizer["Indicator"]
+        </button>
+        <button class="btn btn-sm btn-outline-secondary" id="typeFilterReset" title="@Localizer["Show All Levels"]">
+            <i class="fas fa-eye me-1"></i>@Localizer["All"]
+        </button>
+    </div>
+</div>
+
 <!-- Tree Container Card -->
 <div class="card">
     <div class="card-header d-flex justify-content-between align-items-center flex-wrap gap-2">
@@ -284,6 +309,66 @@
     }
 
     .node-container.perf-hidden {
+        display: none;
+    }
+
+    /* Node Type Filter Bar */
+    .type-filter-bar {
+        background: var(--secondary-card-background);
+        border: 1px solid var(--border-color);
+        border-radius: 10px;
+        padding: 0.65rem 1.25rem;
+    }
+
+    .type-filter-inner {
+        display: flex;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+    }
+
+    .type-filter-label {
+        font-size: 0.875rem;
+        font-weight: 600;
+        color: var(--text-light-color);
+        white-space: nowrap;
+        margin-right: 0.25rem;
+    }
+
+    .type-filter-btn {
+        border: 2px solid var(--type-color, var(--border-color));
+        color: var(--type-color, var(--text-light-color));
+        background: transparent;
+        font-size: 0.8rem;
+        padding: 0.25rem 0.7rem;
+        border-radius: 20px;
+        display: flex;
+        align-items: center;
+        gap: 0.35rem;
+        transition: all 0.2s ease;
+        opacity: 0.45;
+    }
+
+    .type-filter-btn.active {
+        background: var(--type-color, var(--border-color));
+        color: #fff;
+        opacity: 1;
+    }
+
+    .type-filter-dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background: currentColor;
+        flex-shrink: 0;
+    }
+
+    .type-filter-btn.active .type-filter-dot {
+        background: #fff;
+    }
+
+    /* Hidden via type filter */
+    .node-container.type-hidden {
         display: none;
     }
 
@@ -720,8 +805,9 @@ document.addEventListener('DOMContentLoaded', function() {
                 el.style.display = currentMode === 'indicators' ? 'none' : '';
             });
 
-            // Re-apply threshold with updated visible badge
+            // Re-apply threshold and type filter with updated visible badge
             if (typeof applyThreshold === 'function') applyThreshold();
+            if (typeof applyTypeFilter === 'function') applyTypeFilter();
         });
     });
 
@@ -787,6 +873,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 renderOrganizationalChart(hierarchyStructure);
                 hideLoadingSpinner();
                 updateStatsStrip(data);
+                applyTypeFilter();
+                applyThreshold();
             })
             .catch(error => {
                 console.error('Error fetching hierarchy data:', error);
@@ -1024,6 +1112,49 @@ document.addEventListener('DOMContentLoaded', function() {
     document.getElementById('thresholdReset').addEventListener('click', function () {
         thresholdSlider.value = 0;
         applyThreshold();
+    });
+    // ────────────────────────────────────────────────────────────────────────
+
+    // ── Node Type Filter ────────────────────────────────────────────────────
+    // Track which types are visible (all on by default)
+    const hiddenTypes = new Set();
+
+    function applyTypeFilter() {
+        document.querySelectorAll('.node-container').forEach(container => {
+            const nodeDiv = container.querySelector(':scope > .tree-node');
+            if (!nodeDiv) return;
+
+            // Detect type from CSS class (framework / outcome / output / suboutput / indicator)
+            let type = null;
+            if (nodeDiv.classList.contains('outcome'))   type = 'Outcome';
+            else if (nodeDiv.classList.contains('output'))    type = 'Output';
+            else if (nodeDiv.classList.contains('suboutput')) type = 'SubOutput';
+            else if (nodeDiv.classList.contains('indicator')) type = 'Indicator';
+
+            if (!type) return; // Framework — never filtered
+
+            container.classList.toggle('type-hidden', hiddenTypes.has(type));
+        });
+    }
+
+    document.querySelectorAll('.type-filter-btn').forEach(btn => {
+        btn.addEventListener('click', function () {
+            const type = this.dataset.ntype;
+            if (hiddenTypes.has(type)) {
+                hiddenTypes.delete(type);
+                this.classList.add('active');
+            } else {
+                hiddenTypes.add(type);
+                this.classList.remove('active');
+            }
+            applyTypeFilter();
+        });
+    });
+
+    document.getElementById('typeFilterReset').addEventListener('click', function () {
+        hiddenTypes.clear();
+        document.querySelectorAll('.type-filter-btn').forEach(b => b.classList.add('active'));
+        applyTypeFilter();
     });
     // ────────────────────────────────────────────────────────────────────────
 
