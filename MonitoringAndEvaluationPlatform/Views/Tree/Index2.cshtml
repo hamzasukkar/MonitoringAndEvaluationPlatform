@@ -14,7 +14,7 @@
 <!-- Dashboard Header -->
 <div class="dashboard-header">
     <div class="d-flex justify-content-between align-items-center">
-        <div>
+        <div class="dashboard-title-block">
             <h1 class="dashboard-title">
                 <i class="fas fa-sitemap me-3"></i>
                 @Localizer["Framework Hierarchy Tree"]
@@ -575,6 +575,7 @@
         min-width: 220px;
         max-width: 320px;
         text-align: center;
+        direction: ltr;
         cursor: pointer;
         transition: all 0.3s ease;
         box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
@@ -852,57 +853,99 @@
     }
 
     /* ── RTL Support ──────────────────────────────────────────────────────── */
+
+    /* Header & controls */
     html[dir="rtl"] .dashboard-header .d-flex {
-        flex-direction: row-reverse;
+        direction: rtl;
+    }
+
+    html[dir="rtl"] .dashboard-title-block {
+        direction: rtl;
+        text-align: right !important;
+    }
+
+    html[dir="rtl"] .dashboard-title-block .dashboard-title,
+    html[dir="rtl"] .dashboard-title-block .dashboard-subtitle {
+        display: block;
+        text-align: right !important;
+        direction: rtl;
+    }
+
+    html[dir="rtl"] .dashboard-title-block .dashboard-title .fas {
+        margin-right: 0 !important;
+        margin-left: 0.75rem !important;
     }
 
     html[dir="rtl"] .tree-controls {
         flex-direction: row-reverse;
     }
 
+    /* Tree node: flip accent border to right edge */
+    html[dir="rtl"] .tree-node {
+        text-align: right;
+        direction: rtl;
+    }
+
     html[dir="rtl"] .tree-node.framework,
     html[dir="rtl"] .tree-node.outcome,
     html[dir="rtl"] .tree-node.output,
     html[dir="rtl"] .tree-node.suboutput,
-    html[dir="rtl"] .tree-node.indicator {
+    html[dir="rtl"] .tree-node.indicator,
+    html[dir="rtl"] .tree-node.project,
+    html[dir="rtl"] .tree-node.phase {
         border-left: 2px solid var(--border-color);
         border-right: 4px solid;
     }
 
-    html[dir="rtl"] .tree-node.framework  { border-right-color: #6f42c1; }
-    html[dir="rtl"] .tree-node.outcome    { border-right-color: #dc3545; }
-    html[dir="rtl"] .tree-node.output     { border-right-color: #007bff; }
-    html[dir="rtl"] .tree-node.suboutput  { border-right-color: #28a745; }
-    html[dir="rtl"] .tree-node.indicator  { border-right-color: #fd7e14; }
+    html[dir="rtl"] .tree-node.framework  { border-right-color: #6f42c1; background: linear-gradient(225deg, rgba(111, 66, 193, 0.1) 0%, var(--secondary-card-background) 100%); }
+    html[dir="rtl"] .tree-node.outcome    { border-right-color: #dc3545; background: linear-gradient(225deg, rgba(220, 53, 69, 0.1) 0%, var(--secondary-card-background) 100%); }
+    html[dir="rtl"] .tree-node.output     { border-right-color: #007bff; background: linear-gradient(225deg, rgba(0, 123, 255, 0.1) 0%, var(--secondary-card-background) 100%); }
+    html[dir="rtl"] .tree-node.suboutput  { border-right-color: #28a745; background: linear-gradient(225deg, rgba(40, 167, 69, 0.1) 0%, var(--secondary-card-background) 100%); }
+    html[dir="rtl"] .tree-node.indicator  { border-right-color: #fd7e14; background: linear-gradient(225deg, rgba(253, 126, 20, 0.1) 0%, var(--secondary-card-background) 100%); }
+    html[dir="rtl"] .tree-node.project    { border-right-color: #9c27b0; background: linear-gradient(225deg, rgba(156, 39, 176, 0.1) 0%, var(--secondary-card-background) 100%); }
+    html[dir="rtl"] .tree-node.phase      { border-right-color: #e91e63; background: linear-gradient(225deg, rgba(233, 30, 99, 0.1) 0%, var(--secondary-card-background) 100%); }
 
+    /* Node text */
     html[dir="rtl"] .node-title,
     html[dir="rtl"] .node-type {
         text-align: right;
         direction: rtl;
     }
 
+    /* Metrics row: reverse badge order */
+    html[dir="rtl"] .node-metrics {
+        flex-direction: row-reverse;
+    }
+
+    /* Expand icon: move to top-left */
     html[dir="rtl"] .expand-icon {
         right: auto;
         left: 8px;
     }
 
+    /* Progress bar: fill grows right→left */
     html[dir="rtl"] .node-progress-fill {
         margin-left: auto;
         margin-right: 0;
     }
 
-    html[dir="rtl"] .stats-strip-inner {
+    /* Children flow right-to-left */
+    html[dir="rtl"] .children-container {
         flex-direction: row-reverse;
     }
 
+    /* Stats / filters bars — direction:rtl inherited from <html> already reverses flex row */
+    html[dir="rtl"] .stats-strip-inner,
     html[dir="rtl"] .filters-bar-inner {
-        flex-direction: row-reverse;
+        direction: rtl;
     }
 
+    /* Search card header */
     html[dir="rtl"] .card-header.d-flex {
         flex-direction: row-reverse;
     }
 
+    /* Zoom scales from top-right in RTL */
     html[dir="rtl"] #zoomWrapper {
         transform-origin: top right;
     }
