@@ -781,8 +781,9 @@
         border-color: #5a5c69;
     }
 
-    .donor-amount {
-        font-size: 1.1rem;
+    .donor-amount-input {
+        font-size: 0.9rem;
+        font-weight: 600;
         color: #5a5c69;
     }
 
@@ -1573,6 +1574,9 @@ projectManagerMustBeSelected: '@Html.Raw(System.Text.Encodings.Web.JavaScriptEnc
         donorFundingSection.show();
         donorContributionList.empty();
 
+        const symbol = getCurrencySymbol();
+        const budget = parseFloat($('[name="EstimatedBudget"]').val()) || 0;
+
         // Create cards with sliders for each selected donor
         selectedDonors.forEach(donor => {
             const currentPercentage = donorFundingData[donor.value] || 0;
@@ -1603,13 +1607,14 @@ projectManagerMustBeSelected: '@Html.Raw(System.Text.Encodings.Web.JavaScriptEnc
                                 '</div>' +
                             '</div>' +
                             '<div class="col-md-2">' +
-                                '<div class="text-end">' +
-                                    '<strong class="donor-amount" data-donor="' + donor.value + '">$0.00</strong>' +
-                                    '<br>' +
-                                    '<small class="text-muted">' + localizedStrings.amount + '</small>' +
+                                '<label class="form-label small mb-1">' + localizedStrings.amount + '</label>' +
+                                '<div class="input-group input-group-sm">' +
+                                    '<span class="input-group-text currency-symbol-badge">' + symbol + '</span>' +
+                                    '<input type="number" class="form-control donor-amount-input" data-donor="' + donor.value + '" min="0" step="0.01" value="' + ((budget * currentPercentage) / 100).toFixed(2) + '">' +
                                 '</div>' +
                             '</div>' +
                             '<div class="col-md-1">' +
+                                '<label class="form-label small mb-1 d-none d-md-block">&nbsp;</label>' +
                                 '<button type="button" class="btn btn-outline-danger btn-sm remove-donor-btn" data-donor="' + donor.value + '">' +
                                     '<i class="fas fa-times"></i>' +
                                 '</button>' +
@@ -1665,6 +1670,25 @@ projectManagerMustBeSelected: '@Html.Raw(System.Text.Encodings.Web.JavaScriptEnc
         $(this).val(percentage.toFixed(1));
     });
 
+    // Handle amount input changes → derive percentage from amount
+    $(document).on('input', '.donor-amount-input', function() {
+        const donorValue = String($(this).data('donor'));
+        const amount = parseFloat($(this).val()) || 0;
+        const budget = parseFloat($('[name="EstimatedBudget"]').val()) || 0;
+
+        let percentage = budget > 0 ? (amount / budget) * 100 : 0;
+        if (percentage < 0) percentage = 0;
+        if (percentage > 100) percentage = 100;
+
+        donorFundingData[donorValue] = percentage;
+
+        // Sync percentage input and slider (without triggering their handlers)
+        $(`.donor-percentage-input[data-donor="${donorValue}"]`).val(percentage.toFixed(1));
+        $(`.donor-slider[data-donor="${donorValue}"]`).val(percentage);
+
+        calculateDonorTotals();
+    });
+
     // Handle remove donor button
     $(document).on('click', '.remove-donor-btn', function() {
         const donorValue = String($(this).data('donor'));
@@ -1718,8 +1742,13 @@ projectManagerMustBeSelected: '@Html.Raw(System.Text.Encodings.Web.JavaScriptEnc
             totalPercentage += percentage;
             totalAmount += amount;
 
-            // Update the display for this donor
-            $(`.donor-amount[data-donor="${donor.value}"]`).text(symbol + amount.toFixed(2));
+            // Update the amount input for this donor (only if user is not currently editing it)
+            const $amountInput = $(`.donor-amount-input[data-donor="${donor.value}"]`);
+            if (!$amountInput.is(':focus')) {
+                $amountInput.val(amount.toFixed(2));
+            }
+            // Update currency symbol badge
+            $('.currency-symbol-badge').text(symbol);
         });
 
         // Update total displays
