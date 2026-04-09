@@ -32,14 +32,31 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             return View();
         }
 
-        public IActionResult GetFrameworkHierarchy(int id)
+        public IActionResult GetFrameworkHierarchy(int id, bool includePhases = false)
         {
-            var data = _context.Frameworks
-                .Include(f => f.Outcomes)
-                .ThenInclude(o => o.Outputs)
-                .ThenInclude(op => op.SubOutputs)
-                .ThenInclude(so => so.Indicators)
-                .Where(i=>i.Code== id)
+            IQueryable<Framework> query;
+
+            if (includePhases)
+            {
+                query = _context.Frameworks
+                    .Include(f => f.Outcomes)
+                    .ThenInclude(o => o.Outputs)
+                    .ThenInclude(op => op.SubOutputs)
+                    .ThenInclude(so => so.Indicators)
+                    .ThenInclude(i => i.Project)
+                    .ThenInclude(p => p!.Phases);
+            }
+            else
+            {
+                query = _context.Frameworks
+                    .Include(f => f.Outcomes)
+                    .ThenInclude(o => o.Outputs)
+                    .ThenInclude(op => op.SubOutputs)
+                    .ThenInclude(so => so.Indicators);
+            }
+
+            var data = query
+                .Where(f => f.Code == id)
                 .ToList()
                 .SelectMany(f => new[]
                 {
@@ -93,15 +110,45 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 DisbursementPerformance = Math.Round(so.DisbursementPerformance, 0).ToString() + "%"
             }
                 }
-                .Concat(so.Indicators.Select(i => new
+                .Concat(so.Indicators.SelectMany(i =>
                 {
-                    id = $"I{i.IndicatorCode}",
-                    pid = $"S{so.Code}",
-                    name = i.Name,
-                    type = "Indicator",
-                    weight = i.Weight,
-                    IndicatorsPerformance = Math.Round(i.IndicatorsPerformance, 0).ToString() + "%",
-                    DisbursementPerformance = Math.Round(i.DisbursementPerformance, 0).ToString() + "%"
+                    var indicatorNode = new
+                    {
+                        id = $"I{i.IndicatorCode}",
+                        pid = $"S{so.Code}",
+                        name = i.Name,
+                        type = "Indicator",
+                        weight = i.Weight,
+                        IndicatorsPerformance = Math.Round(i.IndicatorsPerformance, 0).ToString() + "%",
+                        DisbursementPerformance = Math.Round(i.DisbursementPerformance, 0).ToString() + "%"
+                    };
+
+                    if (!includePhases || i.Project == null)
+                        return new[] { indicatorNode }.AsEnumerable();
+
+                    var projectNode = new
+                    {
+                        id = $"P{i.Project.ProjectID}",
+                        pid = $"I{i.IndicatorCode}",
+                        name = i.Project.ProjectName,
+                        type = "Project",
+                        weight = 1.0,
+                        IndicatorsPerformance = Math.Round(i.Project.performance, 0).ToString() + "%",
+                        DisbursementPerformance = Math.Round(i.Project.DisbursementPerformance, 0).ToString() + "%"
+                    };
+
+                    var phaseNodes = i.Project.Phases.Select(ph => new
+                    {
+                        id = $"Ph{ph.Id}",
+                        pid = $"P{i.Project.ProjectID}",
+                        name = ph.Name,
+                        type = "Phase",
+                        weight = (double)ph.Weight,
+                        IndicatorsPerformance = Math.Round(ph.PhasePerformance, 0).ToString() + "%",
+                        DisbursementPerformance = Math.Round(ph.PhasePerformance, 0).ToString() + "%"
+                    });
+
+                    return new[] { indicatorNode, projectNode }.Concat(phaseNodes).AsEnumerable();
                 })))))))));
 
             return Json(data);
