@@ -337,6 +337,29 @@
         padding: 0 2px;
     }
 
+    /* Mini Progress Bar */
+    .node-progress-bar {
+        margin: 0.6rem -1.25rem -1rem -1.25rem;
+        border-radius: 0 0 10px 10px;
+        overflow: hidden;
+    }
+
+    .node-progress-track {
+        height: 5px;
+        background: rgba(0, 0, 0, 0.1);
+        position: relative;
+    }
+
+    .node-progress-track + .node-progress-track {
+        margin-top: 2px;
+    }
+
+    .node-progress-fill {
+        height: 100%;
+        min-width: 2px;
+        transition: width 0.8s ease;
+    }
+
     /* Expand/Collapse Icon */
     .expand-icon {
         position: absolute;
@@ -492,11 +515,11 @@ document.addEventListener('DOMContentLoaded', function() {
                 }
             });
 
-            // Show/hide badges on existing nodes without re-rendering
-            document.querySelectorAll('.indicators-badge').forEach(el => {
+            // Show/hide badges and progress bars on existing nodes without re-rendering
+            document.querySelectorAll('.indicators-badge, .indicators-progress').forEach(el => {
                 el.style.display = currentMode === 'disbursement' ? 'none' : '';
             });
-            document.querySelectorAll('.disbursement-badge').forEach(el => {
+            document.querySelectorAll('.disbursement-badge, .disbursement-progress').forEach(el => {
                 el.style.display = currentMode === 'indicators' ? 'none' : '';
             });
         });
@@ -539,6 +562,14 @@ document.addEventListener('DOMContentLoaded', function() {
         else if (val >= 40) { bg = '#fd7e14'; color = '#fff'; }
         else                { bg = '#dc3545'; color = '#fff'; }
         return `background:${bg};color:${color};`;
+    }
+
+    function perfBgColor(valueStr) {
+        const val = parseFloat(valueStr);
+        if (val >= 80)      return '#28a745';
+        else if (val >= 60) return '#ffc107';
+        else if (val >= 40) return '#fd7e14';
+        else                return '#dc3545';
     }
 
     loadHierarchyData();
@@ -624,6 +655,9 @@ document.addEventListener('DOMContentLoaded', function() {
         const indHidden = currentMode === 'disbursement' ? 'display:none;' : '';
         const disHidden = currentMode === 'indicators' ? 'display:none;' : '';
 
+        const indWidth = Math.min(parseFloat(node.indicatorsPerformance) || 0, 100);
+        const disWidth = Math.min(parseFloat(node.disbursementPerformance) || 0, 100);
+
         nodeDiv.innerHTML = `
             <div class="node-title">${node.name}</div>
             <div class="node-type">${translatedType}</div>
@@ -631,6 +665,14 @@ document.addEventListener('DOMContentLoaded', function() {
                 <div class="performance-badge indicators-badge" style="${perfStyle(node.indicatorsPerformance)}${indHidden}"><span class="badge-label">${indLabel}:</span> ${node.indicatorsPerformance}</div>
                 <div class="disbursement-badge" style="${perfStyle(node.disbursementPerformance)}${disHidden}"><span class="badge-label">${disLabel}:</span> ${node.disbursementPerformance}</div>
                 <div class="weight-badge">${weightLabel}: ${node.weight}</div>
+            </div>
+            <div class="node-progress-bar">
+                <div class="node-progress-track indicators-progress" style="${indHidden}" title="${node.indicatorsPerformance}">
+                    <div class="node-progress-fill" style="width:${indWidth}%;background:${perfBgColor(node.indicatorsPerformance)};"></div>
+                </div>
+                <div class="node-progress-track disbursement-progress" style="${disHidden}" title="${node.disbursementPerformance}">
+                    <div class="node-progress-fill" style="width:${disWidth}%;background:${perfBgColor(node.disbursementPerformance)};"></div>
+                </div>
             </div>
             ${hasChildren ? `<div class="expand-icon collapsed"><span class="expand-symbol">+</span><span class="expand-count">${node.children.length}</span></div>` : ''}
         `;
