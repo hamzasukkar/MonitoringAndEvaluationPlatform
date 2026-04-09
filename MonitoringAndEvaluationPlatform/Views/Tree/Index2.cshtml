@@ -131,6 +131,29 @@
     </div>
 </div>
 
+<!-- Performance Threshold Filter -->
+<div class="threshold-bar mb-4">
+    <div class="threshold-bar-inner">
+        <label class="threshold-label" for="perfThreshold">
+            <i class="fas fa-filter me-1"></i>
+            @Localizer["Min Performance"]
+        </label>
+        <input type="range" id="perfThreshold" min="0" max="100" step="5" value="0" class="threshold-slider">
+        <span class="threshold-value-badge" id="thresholdValueBadge">0%</span>
+        <div class="threshold-mode-group">
+            <button class="btn btn-sm threshold-mode-btn active" data-tmode="dim" title="@Localizer["Dim nodes below threshold"]">
+                <i class="fas fa-eye-slash me-1"></i>@Localizer["Dim"]
+            </button>
+            <button class="btn btn-sm threshold-mode-btn" data-tmode="hide" title="@Localizer["Hide nodes below threshold"]">
+                <i class="fas fa-times-circle me-1"></i>@Localizer["Hide"]
+            </button>
+        </div>
+        <button class="btn btn-sm btn-outline-secondary" id="thresholdReset" title="@Localizer["Reset Filter"]">
+            <i class="fas fa-undo"></i>
+        </button>
+    </div>
+</div>
+
 <!-- Tree Container Card -->
 <div class="card">
     <div class="card-header d-flex justify-content-between align-items-center flex-wrap gap-2">
@@ -187,6 +210,81 @@
         display: flex;
         align-items: center;
         gap: 0.5rem;
+    }
+
+    /* Performance Threshold Filter Bar */
+    .threshold-bar {
+        background: var(--secondary-card-background);
+        border: 1px solid var(--border-color);
+        border-radius: 10px;
+        padding: 0.65rem 1.25rem;
+    }
+
+    .threshold-bar-inner {
+        display: flex;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 0.75rem;
+    }
+
+    .threshold-label {
+        font-size: 0.875rem;
+        font-weight: 600;
+        color: var(--text-light-color);
+        white-space: nowrap;
+        margin: 0;
+    }
+
+    .threshold-slider {
+        flex: 1;
+        min-width: 120px;
+        max-width: 280px;
+        accent-color: var(--accent-gold-color);
+        cursor: pointer;
+        height: 4px;
+    }
+
+    .threshold-value-badge {
+        background: var(--accent-gold-color);
+        color: var(--primary-background-color);
+        border-radius: 12px;
+        padding: 0.2rem 0.6rem;
+        font-size: 0.8rem;
+        font-weight: 700;
+        min-width: 3rem;
+        text-align: center;
+    }
+
+    .threshold-mode-group {
+        display: flex;
+        gap: 0.25rem;
+    }
+
+    .threshold-mode-btn {
+        border: 1px solid var(--border-color);
+        color: var(--text-light-color);
+        background: transparent;
+        font-size: 0.8rem;
+        padding: 0.25rem 0.6rem;
+        border-radius: 6px;
+        transition: all 0.2s ease;
+    }
+
+    .threshold-mode-btn.active {
+        background: var(--accent-gold-color);
+        color: var(--primary-background-color);
+        border-color: var(--accent-gold-color);
+    }
+
+    /* Dim / hide states applied by JS */
+    .tree-node.perf-dim {
+        opacity: 0.2;
+        filter: grayscale(70%);
+        transition: opacity 0.3s ease, filter 0.3s ease;
+    }
+
+    .node-container.perf-hidden {
+        display: none;
     }
 
     /* Node Count Statistics Strip */
@@ -621,6 +719,9 @@ document.addEventListener('DOMContentLoaded', function() {
             document.querySelectorAll('.disbursement-badge, .disbursement-progress').forEach(el => {
                 el.style.display = currentMode === 'indicators' ? 'none' : '';
             });
+
+            // Re-apply threshold with updated visible badge
+            if (typeof applyThreshold === 'function') applyThreshold();
         });
     });
 
@@ -871,6 +972,59 @@ document.addEventListener('DOMContentLoaded', function() {
         }
         applyZoom();
     }, { passive: false });
+    // ────────────────────────────────────────────────────────────────────────
+
+    // ── Performance Threshold Filter ────────────────────────────────────────
+    let thresholdMode = 'dim'; // 'dim' | 'hide'
+    const thresholdSlider = document.getElementById('perfThreshold');
+    const thresholdBadge  = document.getElementById('thresholdValueBadge');
+
+    function getNodePerf(nodeDiv) {
+        // Read the current visible performance badge value
+        const badge = nodeDiv.querySelector('.indicators-badge') || nodeDiv.querySelector('.disbursement-badge');
+        if (!badge) return 100;
+        return parseFloat(badge.textContent.replace('%', '')) || 0;
+    }
+
+    function applyThreshold() {
+        const threshold = parseInt(thresholdSlider.value, 10);
+        thresholdBadge.textContent = threshold + '%';
+
+        document.querySelectorAll('.node-container').forEach(container => {
+            const nodeDiv = container.querySelector(':scope > .tree-node');
+            if (!nodeDiv) return;
+
+            // Framework nodes are never filtered
+            if (nodeDiv.classList.contains('framework')) return;
+
+            const perf = getNodePerf(nodeDiv);
+            const below = perf < threshold;
+
+            if (thresholdMode === 'dim') {
+                container.classList.remove('perf-hidden');
+                nodeDiv.classList.toggle('perf-dim', below);
+            } else {
+                nodeDiv.classList.remove('perf-dim');
+                container.classList.toggle('perf-hidden', below);
+            }
+        });
+    }
+
+    thresholdSlider.addEventListener('input', applyThreshold);
+
+    document.querySelectorAll('.threshold-mode-btn').forEach(btn => {
+        btn.addEventListener('click', function () {
+            document.querySelectorAll('.threshold-mode-btn').forEach(b => b.classList.remove('active'));
+            this.classList.add('active');
+            thresholdMode = this.dataset.tmode;
+            applyThreshold();
+        });
+    });
+
+    document.getElementById('thresholdReset').addEventListener('click', function () {
+        thresholdSlider.value = 0;
+        applyThreshold();
+    });
     // ────────────────────────────────────────────────────────────────────────
 
     function toggleNodeExpansion(icon) {
