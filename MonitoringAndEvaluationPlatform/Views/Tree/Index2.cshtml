@@ -51,6 +51,31 @@
     </div>
 </div>
 
+<!-- Node Count Statistics Bar -->
+<div class="stats-strip mb-4" id="statsStrip" style="display:none;">
+    <div class="stats-strip-inner">
+        <span class="stats-item">
+            <span class="stats-dot" style="background:#dc3545;"></span>
+            <span id="statOutcomes">0</span> @Localizer["Outcomes"]
+        </span>
+        <span class="stats-sep">·</span>
+        <span class="stats-item">
+            <span class="stats-dot" style="background:#007bff;"></span>
+            <span id="statOutputs">0</span> @Localizer["Outputs"]
+        </span>
+        <span class="stats-sep">·</span>
+        <span class="stats-item">
+            <span class="stats-dot" style="background:#28a745;"></span>
+            <span id="statSubOutputs">0</span> @Localizer["Sub-Outputs"]
+        </span>
+        <span class="stats-sep">·</span>
+        <span class="stats-item">
+            <span class="stats-dot" style="background:#fd7e14;"></span>
+            <span id="statIndicators">0</span> @Localizer["Indicators"]
+        </span>
+    </div>
+</div>
+
 <!-- Legend Card -->
 <div class="card mb-4">
     <div class="card-header">
@@ -151,6 +176,50 @@
         display: flex;
         align-items: center;
         gap: 0.5rem;
+    }
+
+    /* Node Count Statistics Strip */
+    .stats-strip {
+        background: var(--secondary-card-background);
+        border: 1px solid var(--border-color);
+        border-radius: 10px;
+        padding: 0.65rem 1.25rem;
+    }
+
+    .stats-strip-inner {
+        display: flex;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+        font-size: 0.9rem;
+        color: var(--text-light-color);
+    }
+
+    .stats-item {
+        display: flex;
+        align-items: center;
+        gap: 0.4rem;
+        font-weight: 500;
+    }
+
+    .stats-item span:nth-child(2) {
+        font-weight: 700;
+        color: var(--accent-gold-color);
+        font-size: 1rem;
+    }
+
+    .stats-dot {
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        flex-shrink: 0;
+    }
+
+    .stats-sep {
+        color: var(--border-color);
+        font-weight: 300;
+        font-size: 1.1rem;
+        line-height: 1;
     }
 
     /* Legend Styling */
@@ -586,6 +655,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 const hierarchyStructure = buildHierarchy(data);
                 renderOrganizationalChart(hierarchyStructure);
                 hideLoadingSpinner();
+                updateStatsStrip(data);
             })
             .catch(error => {
                 console.error('Error fetching hierarchy data:', error);
@@ -863,6 +933,16 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
     // ────────────────────────────────────────────────────────────────────────
+
+    function updateStatsStrip(flatData) {
+        const counts = { Outcome: 0, Output: 0, SubOutput: 0, Indicator: 0 };
+        flatData.forEach(n => { if (counts[n.type] !== undefined) counts[n.type]++; });
+        document.getElementById('statOutcomes').textContent   = counts.Outcome;
+        document.getElementById('statOutputs').textContent    = counts.Output;
+        document.getElementById('statSubOutputs').textContent = counts.SubOutput;
+        document.getElementById('statIndicators').textContent = counts.Indicator;
+        document.getElementById('statsStrip').style.display = '';
+    }
 
     function hideLoadingSpinner() {
         const loadingContainer = document.querySelector('.loading-container');
