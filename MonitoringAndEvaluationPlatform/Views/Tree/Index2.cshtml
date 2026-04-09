@@ -557,10 +557,18 @@
         border-radius: 4px;
         font-size: 0.75rem;
         font-weight: 500;
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
         margin-bottom: 0.75rem;
         display: inline-block;
+    }
+
+    html:not([dir="rtl"]) .node-type {
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    html[dir="rtl"] .node-type {
+        direction: rtl;
+        unicode-bidi: embed;
     }
 
     .node-metrics {
@@ -772,6 +780,7 @@
     }
 </style>
 
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     const frameworkCode = @ViewData["FrameworkCode"];
@@ -960,8 +969,8 @@ document.addEventListener('DOMContentLoaded', function() {
         const disWidth = Math.min(parseFloat(node.disbursementPerformance) || 0, 100);
 
         nodeDiv.innerHTML = `
-            <div class="node-title">${node.name}</div>
-            <div class="node-type">${translatedType}</div>
+            <div class="node-title" dir="auto">${node.name}</div>
+            <div class="node-type" dir="auto">${translatedType}</div>
             <div class="node-metrics">
                 <div class="performance-badge indicators-badge" style="${perfStyle(node.indicatorsPerformance)}${indHidden}"><span class="badge-label">${indLabel}:</span> ${node.indicatorsPerformance}</div>
                 <div class="disbursement-badge" style="${perfStyle(node.disbursementPerformance)}${disHidden}"><span class="badge-label">${disLabel}:</span> ${node.disbursementPerformance}</div>
@@ -1232,11 +1241,69 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     function exportChart() {
-        // Simple export functionality - opens print dialog
-        const chartContainer = document.querySelector('.org-chart');
-        if (chartContainer) {
-            window.print();
-        }
+        const wrapper = document.getElementById('zoomWrapper');
+        if (!wrapper) return;
+
+        const btn = exportBtn;
+        const originalHTML = btn.innerHTML;
+        btn.disabled = true;
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i>@Localizer["Exporting..."]';
+
+        // Temporarily reset zoom so the full tree is captured at 1:1
+        const savedZoom = zoomLevel;
+        wrapper.style.transition = 'none';
+        wrapper.style.transform  = 'scale(1)';
+
+        // Expand all nodes temporarily for a complete capture
+        const collapsedBefore = [];
+        document.querySelectorAll('.children-container:not(.expanded)').forEach(c => {
+            collapsedBefore.push(c);
+            c.style.transition = 'none';
+            c.style.maxHeight  = 'none';
+            c.style.opacity    = '1';
+            c.classList.add('expanded');
+        });
+
+        // Wait one frame for layout to settle
+        requestAnimationFrame(() => {
+            html2canvas(wrapper, {
+                backgroundColor: getComputedStyle(document.documentElement)
+                    .getPropertyValue('--secondary-card-background').trim() || '#ffffff',
+                scale: 2,           // Retina-quality
+                useCORS: true,
+                logging: false,
+                scrollX: 0,
+                scrollY: 0,
+                windowWidth:  wrapper.scrollWidth,
+                windowHeight: wrapper.scrollHeight,
+            }).then(canvas => {
+                // Download
+                const link = document.createElement('a');
+                link.download = 'framework-tree.png';
+                link.href = canvas.toDataURL('image/png');
+                link.click();
+            }).catch(err => {
+                console.error('Export failed:', err);
+            }).finally(() => {
+                // Restore zoom
+                wrapper.style.transform  = `scale(${savedZoom})`;
+                wrapper.style.transition = '';
+
+                // Re-collapse nodes that were collapsed before
+                collapsedBefore.forEach(c => {
+                    c.style.transition = 'none';
+                    c.style.maxHeight  = '0';
+                    c.style.opacity    = '0';
+                    c.classList.remove('expanded');
+                    requestAnimationFrame(() => requestAnimationFrame(() => {
+                        c.style.transition = '';
+                    }));
+                });
+
+                btn.disabled = false;
+                btn.innerHTML = originalHTML;
+            });
+        });
     }
 
     // ── Search ──────────────────────────────────────────────────────────────
