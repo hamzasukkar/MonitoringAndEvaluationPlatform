@@ -47,6 +47,17 @@
                 <i class="fas fa-download me-1"></i>
                 @Localizer["Export"]
             </button>
+            <div class="btn-group ms-2" role="group" id="zoomControls">
+                <button class="btn btn-outline-secondary btn-sm" id="zoomOut" title="@Localizer["Zoom Out"]">
+                    <i class="fas fa-search-minus"></i>
+                </button>
+                <button class="btn btn-outline-secondary btn-sm" id="zoomReset" title="@Localizer["Reset Zoom"]">
+                    <span id="zoomLabel">100%</span>
+                </button>
+                <button class="btn btn-outline-secondary btn-sm" id="zoomIn" title="@Localizer["Zoom In"]">
+                    <i class="fas fa-search-plus"></i>
+                </button>
+            </div>
         </div>
     </div>
 </div>
@@ -249,8 +260,22 @@
         min-height: 600px;
         background-color: var(--secondary-card-background);
         position: relative;
-        overflow-x: auto;
+        overflow: auto;
         padding: 2rem;
+    }
+
+    #zoomWrapper {
+        transform-origin: top center;
+        transition: transform 0.2s ease;
+        display: inline-block;
+        min-width: 100%;
+    }
+
+    #zoomLabel {
+        display: inline-block;
+        min-width: 3rem;
+        font-size: 0.75rem;
+        font-weight: 600;
     }
 
     /* Loading State */
@@ -693,8 +718,12 @@ document.addEventListener('DOMContentLoaded', function() {
             orgChart.appendChild(createNodeElement(node));
         });
 
+        const zoomWrapper = document.createElement('div');
+        zoomWrapper.id = 'zoomWrapper';
+        zoomWrapper.appendChild(orgChart);
+
         container.innerHTML = '';
-        container.appendChild(orgChart);
+        container.appendChild(zoomWrapper);
         attachEventListeners();
 
         // Expand the first level (direct children of the root node) by default
@@ -787,6 +816,49 @@ document.addEventListener('DOMContentLoaded', function() {
         collapseAllBtn.addEventListener('click', collapseAllNodes);
         exportBtn.addEventListener('click', exportChart);
     }
+
+    // ── Zoom ────────────────────────────────────────────────────────────────
+    let zoomLevel = 1.0;
+    const ZOOM_STEP = 0.1;
+    const ZOOM_MIN  = 0.3;
+    const ZOOM_MAX  = 2.0;
+
+    function applyZoom() {
+        const wrapper = document.getElementById('zoomWrapper');
+        if (!wrapper) return;
+        wrapper.style.transform = `scale(${zoomLevel})`;
+        document.getElementById('zoomLabel').textContent = Math.round(zoomLevel * 100) + '%';
+        document.getElementById('zoomIn').disabled  = zoomLevel >= ZOOM_MAX;
+        document.getElementById('zoomOut').disabled = zoomLevel <= ZOOM_MIN;
+    }
+
+    document.getElementById('zoomIn').addEventListener('click', function () {
+        zoomLevel = Math.min(ZOOM_MAX, +(zoomLevel + ZOOM_STEP).toFixed(1));
+        applyZoom();
+    });
+
+    document.getElementById('zoomOut').addEventListener('click', function () {
+        zoomLevel = Math.max(ZOOM_MIN, +(zoomLevel - ZOOM_STEP).toFixed(1));
+        applyZoom();
+    });
+
+    document.getElementById('zoomReset').addEventListener('click', function () {
+        zoomLevel = 1.0;
+        applyZoom();
+    });
+
+    // Mouse-wheel zoom on the tree container (Ctrl + scroll)
+    document.getElementById('treeContainer').addEventListener('wheel', function (e) {
+        if (!e.ctrlKey) return;
+        e.preventDefault();
+        if (e.deltaY < 0) {
+            zoomLevel = Math.min(ZOOM_MAX, +(zoomLevel + ZOOM_STEP).toFixed(1));
+        } else {
+            zoomLevel = Math.max(ZOOM_MIN, +(zoomLevel - ZOOM_STEP).toFixed(1));
+        }
+        applyZoom();
+    }, { passive: false });
+    // ────────────────────────────────────────────────────────────────────────
 
     function toggleNodeExpansion(icon) {
         const nodeContainer = icon.closest('.node-container');
