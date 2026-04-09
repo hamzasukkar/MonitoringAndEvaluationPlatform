@@ -505,10 +505,15 @@
         gap: 15px;
         margin-top: 25px;
         position: relative;
+        overflow: hidden;
+        max-height: 0;
+        transition: max-height 0.4s ease, opacity 0.3s ease;
+        opacity: 0;
     }
 
-    .children-container.collapsed {
-        display: none;
+    .children-container.expanded {
+        max-height: none;
+        opacity: 1;
     }
 
     /* Connecting Lines */
@@ -726,9 +731,12 @@ document.addEventListener('DOMContentLoaded', function() {
         container.appendChild(zoomWrapper);
         attachEventListeners();
 
-        // Expand the first level (direct children of the root node) by default
+        // Expand the first level (direct children of the root node) by default — no animation on initial load
         orgChart.querySelectorAll(':scope > .node-container > .children-container').forEach(children => {
-            children.classList.remove('collapsed');
+            children.style.transition = 'none';
+            children.style.maxHeight = 'none';
+            children.style.opacity = '1';
+            children.classList.add('expanded');
             const icon = children.closest('.node-container').querySelector('.expand-icon');
             if (icon) {
                 icon.classList.remove('collapsed');
@@ -736,6 +744,11 @@ document.addEventListener('DOMContentLoaded', function() {
                 const symbol = icon.querySelector('.expand-symbol');
                 if (symbol) symbol.textContent = '−';
             }
+            // Re-enable transition after paint
+            requestAnimationFrame(() => requestAnimationFrame(() => {
+                children.style.transition = '';
+                children.style.maxHeight = '';
+            }));
         });
     }
 
@@ -790,7 +803,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
         if (hasChildren) {
             const childrenContainer = document.createElement('div');
-            childrenContainer.className = 'children-container collapsed';
+            childrenContainer.className = 'children-container';
 
             node.children.forEach(child => {
                 childrenContainer.appendChild(createNodeElement(child));
@@ -867,15 +880,30 @@ document.addEventListener('DOMContentLoaded', function() {
         if (!childrenContainer) return;
 
         const isCollapsed = icon.classList.contains('collapsed');
-
         const symbol = icon.querySelector('.expand-symbol');
+
         if (isCollapsed) {
-            childrenContainer.classList.remove('collapsed');
+            // Expand: measure full height, animate to it, then free to 'none'
+            childrenContainer.style.maxHeight = childrenContainer.scrollHeight + 'px';
+            childrenContainer.style.opacity = '1';
+            childrenContainer.classList.add('expanded');
             icon.classList.remove('collapsed');
             icon.classList.add('expanded');
             if (symbol) symbol.textContent = '−';
+            childrenContainer.addEventListener('transitionend', function onEnd() {
+                childrenContainer.removeEventListener('transitionend', onEnd);
+                if (childrenContainer.classList.contains('expanded')) {
+                    childrenContainer.style.maxHeight = 'none';
+                }
+            });
         } else {
-            childrenContainer.classList.add('collapsed');
+            // Collapse: snapshot height → animate to 0
+            childrenContainer.style.maxHeight = childrenContainer.scrollHeight + 'px';
+            childrenContainer.style.opacity = '0';
+            childrenContainer.classList.remove('expanded');
+            requestAnimationFrame(() => requestAnimationFrame(() => {
+                childrenContainer.style.maxHeight = '0';
+            }));
             icon.classList.remove('expanded');
             icon.classList.add('collapsed');
             if (symbol) symbol.textContent = '+';
@@ -884,7 +912,13 @@ document.addEventListener('DOMContentLoaded', function() {
 
     function expandAllNodes() {
         document.querySelectorAll('.children-container').forEach(container => {
-            container.classList.remove('collapsed');
+            container.style.transition = 'none';
+            container.style.maxHeight = 'none';
+            container.style.opacity = '1';
+            container.classList.add('expanded');
+            requestAnimationFrame(() => requestAnimationFrame(() => {
+                container.style.transition = '';
+            }));
         });
         document.querySelectorAll('.expand-icon').forEach(icon => {
             icon.classList.remove('collapsed');
@@ -896,7 +930,13 @@ document.addEventListener('DOMContentLoaded', function() {
 
     function collapseAllNodes() {
         document.querySelectorAll('.children-container').forEach(container => {
-            container.classList.add('collapsed');
+            container.style.transition = 'none';
+            container.style.maxHeight = '0';
+            container.style.opacity = '0';
+            container.classList.remove('expanded');
+            requestAnimationFrame(() => requestAnimationFrame(() => {
+                container.style.transition = '';
+            }));
         });
         document.querySelectorAll('.expand-icon').forEach(icon => {
             icon.classList.remove('expanded');
@@ -978,12 +1018,18 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
 
-        // Expand ancestors so matched nodes are visible
+        // Expand ancestors so matched nodes are visible (instant, no animation)
         visibleContainers.forEach(container => {
             const children = container.querySelector('.children-container');
             const icon = container.querySelector('.expand-icon');
-            if (children && children.classList.contains('collapsed')) {
-                children.classList.remove('collapsed');
+            if (children && !children.classList.contains('expanded')) {
+                children.style.transition = 'none';
+                children.style.maxHeight = 'none';
+                children.style.opacity = '1';
+                children.classList.add('expanded');
+                requestAnimationFrame(() => requestAnimationFrame(() => {
+                    children.style.transition = '';
+                }));
                 if (icon) {
                     icon.classList.remove('collapsed');
                     icon.classList.add('expanded');
