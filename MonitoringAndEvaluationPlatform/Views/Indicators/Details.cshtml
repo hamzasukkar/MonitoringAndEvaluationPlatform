@@ -176,112 +176,184 @@
     }
 </div>
 
-<!-- Performance Chart Section -->
-<div class="charts-grid">
-    <div class="chart-card">
-        <h3 class="chart-title">
+<!-- Performance Trend Chart Section -->
+<div class="chart-card mb-4">
+    <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-3">
+        <h3 class="chart-title mb-0">
             <i class="fas fa-chart-line"></i>
-            @Localizer["Indicator Performance Over Time"]
+            @Localizer["Indicator Performance Trend"]
         </h3>
-        <div style="position: relative; height: 400px; width: 100%;">
-            <canvas id="MeasureChart"></canvas>
+        <div class="d-flex gap-2 flex-wrap align-items-center">
+            <!-- Period toggle -->
+            <div class="btn-group btn-group-sm" role="group">
+                <button type="button" class="btn btn-primary active" id="btnMonthly">
+                    <i class="fas fa-calendar-alt me-1"></i>@Localizer["Monthly"]
+                </button>
+                <button type="button" class="btn btn-outline-primary" id="btnQuarterly">
+                    <i class="fas fa-calendar me-1"></i>@Localizer["Quarterly"]
+                </button>
+            </div>
+            <!-- Phase toggle -->
+            <button type="button" class="btn btn-sm btn-outline-secondary" id="btnTogglePhases">
+                <i class="fas fa-layer-group me-1"></i>@Localizer["Show Phases"]
+            </button>
+            <!-- Export -->
+            <button type="button" class="btn btn-sm btn-outline-dark" id="btnExportTrend">
+                <i class="fas fa-download me-1"></i>@Localizer["Export PNG"]
+            </button>
+        </div>
+    </div>
+
+    <!-- Threshold legend -->
+    <div class="d-flex gap-3 mb-3 flex-wrap" style="font-size:0.8rem;">
+        <span><span style="display:inline-block;width:12px;height:12px;background:#28a745;border-radius:2px;margin-right:4px;"></span>@Localizer["Good"] ≥80%</span>
+        <span><span style="display:inline-block;width:12px;height:12px;background:#ffc107;border-radius:2px;margin-right:4px;"></span>@Localizer["Moderate"] ≥60%</span>
+        <span><span style="display:inline-block;width:12px;height:12px;background:#fd7e14;border-radius:2px;margin-right:4px;"></span>@Localizer["Low"] ≥40%</span>
+        <span><span style="display:inline-block;width:12px;height:12px;background:#dc3545;border-radius:2px;margin-right:4px;"></span>@Localizer["Critical"] &lt;40%</span>
+    </div>
+
+    <div id="trendChartNoData" class="text-center py-5" style="display:none;">
+        <i class="fas fa-chart-line fa-3x text-muted mb-3"></i>
+        <p class="text-muted">@Localizer["No performance data available for this indicator yet."]</p>
+    </div>
+
+    <div style="position: relative; height: 400px; width: 100%;">
+        <canvas id="trendChart"></canvas>
+    </div>
+
+    <!-- Summary stats row -->
+    <div class="row g-3 mt-2" id="trendSummary" style="display:none;">
+        <div class="col-sm-3">
+            <div class="text-center p-2 rounded" style="background:var(--secondary-card-background);">
+                <div class="fw-bold fs-5" id="trendAvg">—</div>
+                <small class="text-muted">@Localizer["Avg Performance"]</small>
+            </div>
+        </div>
+        <div class="col-sm-3">
+            <div class="text-center p-2 rounded" style="background:var(--secondary-card-background);">
+                <div class="fw-bold fs-5" id="trendPeak">—</div>
+                <small class="text-muted">@Localizer["Peak"]</small>
+            </div>
+        </div>
+        <div class="col-sm-3">
+            <div class="text-center p-2 rounded" style="background:var(--secondary-card-background);">
+                <div class="fw-bold fs-5" id="trendLatest">—</div>
+                <small class="text-muted">@Localizer["Latest"]</small>
+            </div>
+        </div>
+        <div class="col-sm-3">
+            <div class="text-center p-2 rounded" style="background:var(--secondary-card-background);">
+                <div class="fw-bold fs-5" id="trendTrend">—</div>
+                <small class="text-muted">@Localizer["Trend"]</small>
+            </div>
         </div>
     </div>
 </div>
 
-@* <div>
-    <a asp-action="Edit" asp-route-id="@Model?.Indicator.IndicatorCode">Edit</a> |
-    <a asp-action="Index">Back to List</a>
-</div> *@
-
 <script>
-    async function loadChart(indicatorCode) {
-        const response = await fetch(`/Indicators/GetMeasureChartData?indicatorCode=${indicatorCode}`);
-        const data = await response.json();
-        const ctx = document.getElementById('MeasureChart').getContext('2d');
+(function () {
+    const indicatorCode = @Model.Indicator.IndicatorCode;
+    let trendChart = null;
+    let trendData = null;
+    let currentPeriod = 'monthly';
+    let showPhases = false;
 
-        const sortedReal = data.real.sort((a, b) => new Date(a.date) - new Date(b.date));
-        const realData = sortedReal.map(p => ({ x: p.date, y: p.value }));
+    const PHASE_COLORS = ['#6f42c1','#007bff','#28a745','#fd7e14','#dc3545','#17a2b8','#e83e8c'];
 
-        let cumulative = 0;
-        const cumulativeRealData = sortedReal.map(p => {
-            cumulative += p.value;
-            return { x: p.date, y: +(cumulative.toFixed(2)) };
-        });
+    function getThresholdDatasets(labels) {
+        return [
+            { label: '80%', data: labels.map(() => 80), borderColor: 'rgba(40,167,69,0.5)', borderDash: [6, 4], borderWidth: 1.5, pointRadius: 0, fill: false, order: 10 },
+            { label: '60%', data: labels.map(() => 60), borderColor: 'rgba(255,193,7,0.5)', borderDash: [6, 4], borderWidth: 1.5, pointRadius: 0, fill: false, order: 10 },
+            { label: '40%', data: labels.map(() => 40), borderColor: 'rgba(220,53,69,0.5)', borderDash: [6, 4], borderWidth: 1.5, pointRadius: 0, fill: false, order: 10 }
+        ];
+    }
 
-        const targetPoint = data.target.length > 0 ? data.target[0] : null;
+    function buildDatasets(periodKey) {
+        const root = getComputedStyle(document.documentElement);
+        const primary = root.getPropertyValue('--primary-color').trim() || '#2196F3';
 
-        let logicalTargetData = [];
-        if (realData.length > 0 && targetPoint) {
-            const startDate = new Date(Math.min(...realData.map(p => new Date(p.x))));
-            const endDate = new Date(targetPoint.date);
-            const targetValue = targetPoint.value;
-            let months = (endDate.getFullYear() - startDate.getFullYear()) * 12 + (endDate.getMonth() - startDate.getMonth());
-            if (months < 1) months = 1;
+        const aggregated = trendData[periodKey];
+        const labels = aggregated.map(p => p.label);
+        const values = aggregated.map(p => p.performance);
 
-            const minRealValue = Math.min(...realData.map(p => p.y));
-            const increment = (targetValue - minRealValue) / months;
+        const datasets = [];
 
-            for (let i = 0; i <= months; i++) {
-                const date = new Date(startDate);
-                date.setMonth(date.getMonth() + i);
-                logicalTargetData.push({
-                    x: date.toISOString().split('T')[0],
-                    y: +(minRealValue + increment * i).toFixed(2)
+        if (showPhases && trendData.phases.length > 0) {
+            trendData.phases.forEach((phase, idx) => {
+                const phasePoints = phase[periodKey];
+                // Align phase data to the global label set
+                const phaseValues = labels.map(lbl => {
+                    const pt = phasePoints.find(p => p.label === lbl);
+                    return pt ? pt.performance : null;
                 });
-            }
+                datasets.push({
+                    label: phase.name,
+                    data: phaseValues,
+                    borderColor: PHASE_COLORS[idx % PHASE_COLORS.length],
+                    backgroundColor: PHASE_COLORS[idx % PHASE_COLORS.length] + '15',
+                    tension: 0.4,
+                    fill: false,
+                    pointRadius: 4,
+                    pointHoverRadius: 7,
+                    spanGaps: true,
+                    order: idx + 1
+                });
+            });
+        } else {
+            datasets.push({
+                label: '@Localizer["Performance %"]',
+                data: values,
+                borderColor: primary,
+                backgroundColor: primary + '25',
+                tension: 0.4,
+                fill: true,
+                pointRadius: 5,
+                pointHoverRadius: 8,
+                pointBackgroundColor: values.map(v =>
+                    v >= 80 ? '#28a745' : v >= 60 ? '#ffc107' : v >= 40 ? '#fd7e14' : '#dc3545'),
+                pointBorderColor: '#fff',
+                pointBorderWidth: 2,
+                order: 1
+            });
         }
 
-        // Get CSS custom properties for consistent theming
-        const rootStyles = getComputedStyle(document.documentElement);
-        const primaryColor = rootStyles.getPropertyValue('--primary-color') || '#2196F3';
-        const primaryDark = rootStyles.getPropertyValue('--primary-dark') || '#1976D2';
-        const primaryLight = rootStyles.getPropertyValue('--primary-light') || '#42A5F5';
+        datasets.push(...getThresholdDatasets(labels));
+        return { labels, datasets };
+    }
 
-        new Chart(ctx, {
+    function updateSummary(periodKey) {
+        const values = trendData[periodKey].map(p => p.performance);
+        if (!values.length) return;
+        const avg = (values.reduce((a, b) => a + b, 0) / values.length).toFixed(1);
+        const peak = Math.max(...values).toFixed(1);
+        const latest = values[values.length - 1].toFixed(1);
+        const trend = values.length >= 2
+            ? (values[values.length - 1] - values[values.length - 2]).toFixed(1)
+            : '—';
+
+        document.getElementById('trendAvg').textContent = avg + '%';
+        document.getElementById('trendPeak').textContent = peak + '%';
+        document.getElementById('trendLatest').textContent = latest + '%';
+        const trendEl = document.getElementById('trendTrend');
+        if (trend !== '—') {
+            const num = parseFloat(trend);
+            trendEl.textContent = (num >= 0 ? '▲ +' : '▼ ') + trend + '%';
+            trendEl.style.color = num >= 0 ? '#28a745' : '#dc3545';
+        } else {
+            trendEl.textContent = '—';
+        }
+        document.getElementById('trendSummary').style.display = '';
+    }
+
+    function renderChart(periodKey) {
+        const { labels, datasets } = buildDatasets(periodKey);
+
+        const ctx = document.getElementById('trendChart').getContext('2d');
+        if (trendChart) trendChart.destroy();
+
+        trendChart = new Chart(ctx, {
             type: 'line',
-            data: {
-                datasets: [
-                    {
-                        label: '@Localizer["Real Values"]',
-                        data: realData,
-                        borderColor: primaryColor,
-                        backgroundColor: primaryColor + '20',
-                        tension: 0.4,
-                        fill: true,
-                        pointRadius: 5,
-                        pointHoverRadius: 8,
-                        pointBackgroundColor: primaryColor,
-                        pointBorderColor: '#fff',
-                        pointBorderWidth: 2
-                    },
-                    {
-                        label: '@Localizer["Cumulative Real"]',
-                        data: cumulativeRealData,
-                        borderColor: primaryDark,
-                        backgroundColor: primaryDark + '20',
-                        tension: 0.4,
-                        fill: false,
-                        borderDash: [8, 4],
-                        pointRadius: 5,
-                        pointHoverRadius: 8,
-                        pointBackgroundColor: primaryDark,
-                        pointBorderColor: '#fff',
-                        pointBorderWidth: 2
-                    },
-                    {
-                        label: '@Localizer["Target"]',
-                        data: logicalTargetData,
-                        borderColor: primaryLight,
-                        backgroundColor: primaryLight + '20',
-                        borderDash: [12, 6],
-                        pointRadius: 0,
-                        tension: 0.4,
-                        fill: false,
-                        borderWidth: 3
-                    }
-                ]
-            },
+            data: { labels, datasets },
             options: {
                 responsive: true,
                 maintainAspectRatio: false,
@@ -290,96 +362,103 @@
                         display: true,
                         position: 'top',
                         labels: {
+                            filter: item => !['80%','60%','40%'].includes(item.text),
                             usePointStyle: true,
-                            padding: 25,
-                            font: {
-                                size: 13,
-                                family: 'Inter, sans-serif',
-                                weight: '500'
-                            }
+                            padding: 20,
+                            font: { size: 13, family: 'Inter, sans-serif', weight: '500' }
                         }
                     },
                     tooltip: {
                         mode: 'index',
                         intersect: false,
-                        backgroundColor: 'rgba(255, 255, 255, 0.95)',
+                        filter: item => !['80%','60%','40%'].includes(item.dataset.label),
+                        backgroundColor: 'rgba(255,255,255,0.97)',
                         titleColor: '#333',
-                        bodyColor: '#666',
-                        borderColor: primaryColor,
-                        borderWidth: 2,
-                        cornerRadius: 12,
-                        padding: 15,
-                        titleFont: {
-                            size: 14,
-                            weight: 'bold'
-                        },
-                        bodyFont: {
-                            size: 13
-                        },
-                        displayColors: true,
-                        usePointStyle: true
+                        bodyColor: '#555',
+                        borderColor: '#ddd',
+                        borderWidth: 1,
+                        cornerRadius: 10,
+                        padding: 14,
+                        callbacks: {
+                            label: ctx => ` ${ctx.dataset.label}: ${ctx.parsed.y != null ? ctx.parsed.y.toFixed(1) + '%' : 'N/A'}`
+                        }
                     }
                 },
                 scales: {
                     x: {
-                        type: 'time',
-                        time: { unit: 'month', tooltipFormat: 'MMM dd, yyyy' },
-                        title: {
-                            display: true,
-                            text: '@Localizer["Date"]',
-                            font: {
-                                size: 14,
-                                weight: 'bold',
-                                family: 'Inter, sans-serif'
-                            },
-                            color: '#666'
-                        },
-                        grid: {
-                            color: 'rgba(0, 0, 0, 0.08)',
-                            drawBorder: false
-                        },
-                        ticks: {
-                            font: {
-                                size: 12,
-                                family: 'Inter, sans-serif'
-                            },
-                            color: '#999'
-                        }
+                        title: { display: true, text: periodKey === 'monthly' ? '@Localizer["Month"]' : '@Localizer["Quarter"]', color: '#666', font: { size: 13, weight: 'bold' } },
+                        grid: { color: 'rgba(0,0,0,0.06)' },
+                        ticks: { color: '#999', font: { size: 12 } }
                     },
                     y: {
-                        title: {
-                            display: true,
-                            text: '@Localizer["Value"]',
-                            font: {
-                                size: 14,
-                                weight: 'bold',
-                                family: 'Inter, sans-serif'
-                            },
-                            color: '#666'
-                        },
-                        grid: {
-                            color: 'rgba(0, 0, 0, 0.08)',
-                            drawBorder: false
-                        },
+                        min: 0,
+                        max: 100,
+                        title: { display: true, text: '@Localizer["Performance (%)"]', color: '#666', font: { size: 13, weight: 'bold' } },
+                        grid: { color: 'rgba(0,0,0,0.06)' },
                         ticks: {
-                            font: {
-                                size: 12,
-                                family: 'Inter, sans-serif'
-                            },
-                            color: '#999'
+                            color: '#999',
+                            font: { size: 12 },
+                            callback: v => v + '%',
+                            stepSize: 20
                         }
                     }
                 },
-                interaction: {
-                    mode: 'nearest',
-                    axis: 'x',
-                    intersect: false
-                }
+                interaction: { mode: 'nearest', axis: 'x', intersect: false }
             }
         });
+
+        updateSummary(periodKey);
     }
 
-    loadChart(@Model.Indicator.IndicatorCode);
+    async function loadTrendData() {
+        const res = await fetch(`/Indicators/TrendData?indicatorCode=${indicatorCode}`);
+        trendData = await res.json();
+
+        if (!trendData.monthly || trendData.monthly.length === 0) {
+            document.getElementById('trendChartNoData').style.display = '';
+            document.getElementById('trendChart').style.display = 'none';
+            return;
+        }
+
+        renderChart('monthly');
+    }
+
+    document.getElementById('btnMonthly').addEventListener('click', function () {
+        currentPeriod = 'monthly';
+        this.classList.add('active'); this.classList.replace('btn-outline-primary','btn-primary');
+        const q = document.getElementById('btnQuarterly');
+        q.classList.remove('active'); q.classList.replace('btn-primary','btn-outline-primary');
+        if (trendData) renderChart('monthly');
+    });
+
+    document.getElementById('btnQuarterly').addEventListener('click', function () {
+        currentPeriod = 'quarterly';
+        this.classList.add('active'); this.classList.replace('btn-outline-primary','btn-primary');
+        const m = document.getElementById('btnMonthly');
+        m.classList.remove('active'); m.classList.replace('btn-primary','btn-outline-primary');
+        if (trendData) renderChart('quarterly');
+    });
+
+    document.getElementById('btnTogglePhases').addEventListener('click', function () {
+        showPhases = !showPhases;
+        this.innerHTML = showPhases
+            ? '<i class="fas fa-layer-group me-1"></i>@Localizer["Hide Phases"]'
+            : '<i class="fas fa-layer-group me-1"></i>@Localizer["Show Phases"]';
+        this.classList.toggle('btn-secondary', showPhases);
+        this.classList.toggle('btn-outline-secondary', !showPhases);
+        if (trendData) renderChart(currentPeriod);
+    });
+
+    document.getElementById('btnExportTrend').addEventListener('click', function () {
+        if (!trendChart) return;
+        const link = document.createElement('a');
+        link.download = 'indicator-trend-@(Model.Indicator.IndicatorCode).png';
+        link.href = trendChart.toBase64Image('image/png', 1);
+        link.click();
+    });
+
+    loadTrendData();
+})();
 </script>
 
 @section Modals {

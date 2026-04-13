@@ -663,6 +663,71 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             return Json(result);
         }
 
+        [HttpGet]
+        [Permission(Permissions.ReadIndicators)]
+        public async Task<IActionResult> TrendData(int indicatorCode)
+        {
+            var indicator = await _context.Indicators
+                .FirstOrDefaultAsync(i => i.IndicatorCode == indicatorCode);
+
+            if (indicator == null || !indicator.ProjectID.HasValue)
+                return Json(new { monthly = Array.Empty<object>(), quarterly = Array.Empty<object>(), phases = Array.Empty<object>() });
+
+            var measures = await _context.Measures
+                .Include(m => m.ProjectPhase)
+                .Where(m => m.ProjectPhase.ProjectID == indicator.ProjectID.Value)
+                .OrderBy(m => m.Date)
+                .ToListAsync();
+
+            if (!measures.Any())
+                return Json(new { monthly = Array.Empty<object>(), quarterly = Array.Empty<object>(), phases = Array.Empty<object>() });
+
+            var monthly = measures
+                .GroupBy(m => new { m.Date.Year, m.Date.Month })
+                .OrderBy(g => g.Key.Year).ThenBy(g => g.Key.Month)
+                .Select(g => new
+                {
+                    period = $"{g.Key.Year}-{g.Key.Month:D2}",
+                    label = new DateTime(g.Key.Year, g.Key.Month, 1).ToString("MMM yyyy"),
+                    performance = Math.Round(g.Average(m => m.Value), 1)
+                }).ToList();
+
+            var quarterly = measures
+                .GroupBy(m => new { m.Date.Year, Quarter = (m.Date.Month - 1) / 3 + 1 })
+                .OrderBy(g => g.Key.Year).ThenBy(g => g.Key.Quarter)
+                .Select(g => new
+                {
+                    period = $"{g.Key.Year}-Q{g.Key.Quarter}",
+                    label = $"Q{g.Key.Quarter} {g.Key.Year}",
+                    performance = Math.Round(g.Average(m => m.Value), 1)
+                }).ToList();
+
+            var phases = measures
+                .GroupBy(m => new { m.ProjectPhase.Id, m.ProjectPhase.Name })
+                .Select(pg => new
+                {
+                    name = pg.Key.Name,
+                    monthly = pg
+                        .GroupBy(m => new { m.Date.Year, m.Date.Month })
+                        .OrderBy(g => g.Key.Year).ThenBy(g => g.Key.Month)
+                        .Select(g => new
+                        {
+                            label = new DateTime(g.Key.Year, g.Key.Month, 1).ToString("MMM yyyy"),
+                            performance = Math.Round(g.Average(m => m.Value), 1)
+                        }).ToList(),
+                    quarterly = pg
+                        .GroupBy(m => new { m.Date.Year, Quarter = (m.Date.Month - 1) / 3 + 1 })
+                        .OrderBy(g => g.Key.Year).ThenBy(g => g.Key.Quarter)
+                        .Select(g => new
+                        {
+                            label = $"Q{g.Key.Quarter} {g.Key.Year}",
+                            performance = Math.Round(g.Average(m => m.Value), 1)
+                        }).ToList()
+                }).ToList();
+
+            return Json(new { monthly, quarterly, phases });
+        }
+
         [Permission(Permissions.ReadIndicators)]
         public async Task<IActionResult> MeasureTablePartial(int indicatorCode)
         {
