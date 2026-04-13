@@ -176,27 +176,44 @@
     }
 </div>
 
-<!-- Performance Trend Chart Section -->
+<!-- Performance Chart Section -->
 <div class="chart-card mb-4">
+
+    <!-- Top toolbar -->
     <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-3">
         <h3 class="chart-title mb-0">
             <i class="fas fa-chart-line"></i>
             @Localizer["Indicator Performance Trend"]
         </h3>
         <div class="d-flex gap-2 flex-wrap align-items-center">
-            <!-- Period toggle -->
-            <div class="btn-group btn-group-sm" role="group">
-                <button type="button" class="btn btn-primary active" id="btnMonthly">
-                    <i class="fas fa-calendar-alt me-1"></i>@Localizer["Monthly"]
+            <!-- View mode -->
+            <div class="btn-group btn-group-sm" role="group" id="viewModeGroup">
+                <button type="button" class="btn btn-success active" id="btnViewNew" title="@Localizer["New Chart"]">
+                    <i class="fas fa-star me-1"></i>@Localizer["New"]
                 </button>
-                <button type="button" class="btn btn-outline-primary" id="btnQuarterly">
-                    <i class="fas fa-calendar me-1"></i>@Localizer["Quarterly"]
+                <button type="button" class="btn btn-outline-success" id="btnViewBoth" title="@Localizer["Both Charts"]">
+                    <i class="fas fa-columns me-1"></i>@Localizer["Both"]
+                </button>
+                <button type="button" class="btn btn-outline-success" id="btnViewOld" title="@Localizer["Old Chart"]">
+                    <i class="fas fa-history me-1"></i>@Localizer["Old"]
                 </button>
             </div>
-            <!-- Phase toggle -->
-            <button type="button" class="btn btn-sm btn-outline-secondary" id="btnTogglePhases">
-                <i class="fas fa-layer-group me-1"></i>@Localizer["Show Phases"]
-            </button>
+            <!-- Separator -->
+            <span class="text-muted" id="newChartControls" style="display:contents;">
+                <!-- Period toggle -->
+                <div class="btn-group btn-group-sm" role="group">
+                    <button type="button" class="btn btn-primary active" id="btnMonthly">
+                        <i class="fas fa-calendar-alt me-1"></i>@Localizer["Monthly"]
+                    </button>
+                    <button type="button" class="btn btn-outline-primary" id="btnQuarterly">
+                        <i class="fas fa-calendar me-1"></i>@Localizer["Quarterly"]
+                    </button>
+                </div>
+                <!-- Phase toggle -->
+                <button type="button" class="btn btn-sm btn-outline-secondary" id="btnTogglePhases">
+                    <i class="fas fa-layer-group me-1"></i>@Localizer["Show Phases"]
+                </button>
+            </span>
             <!-- Export -->
             <button type="button" class="btn btn-sm btn-outline-dark" id="btnExportTrend">
                 <i class="fas fa-download me-1"></i>@Localizer["Export PNG"]
@@ -204,50 +221,60 @@
         </div>
     </div>
 
-    <!-- Threshold legend -->
-    <div class="d-flex gap-3 mb-3 flex-wrap" style="font-size:0.8rem;">
-        <span><span style="display:inline-block;width:12px;height:12px;background:#28a745;border-radius:2px;margin-right:4px;"></span>@Localizer["Good"] ≥80%</span>
-        <span><span style="display:inline-block;width:12px;height:12px;background:#ffc107;border-radius:2px;margin-right:4px;"></span>@Localizer["Moderate"] ≥60%</span>
-        <span><span style="display:inline-block;width:12px;height:12px;background:#fd7e14;border-radius:2px;margin-right:4px;"></span>@Localizer["Low"] ≥40%</span>
-        <span><span style="display:inline-block;width:12px;height:12px;background:#dc3545;border-radius:2px;margin-right:4px;"></span>@Localizer["Critical"] &lt;40%</span>
+    <!-- NEW chart panel -->
+    <div id="panelNew">
+        <!-- Threshold legend -->
+        <div class="d-flex gap-3 mb-3 flex-wrap" style="font-size:0.8rem;">
+            <span><span style="display:inline-block;width:12px;height:12px;background:#28a745;border-radius:2px;margin-right:4px;"></span>@Localizer["Good"] ≥80%</span>
+            <span><span style="display:inline-block;width:12px;height:12px;background:#ffc107;border-radius:2px;margin-right:4px;"></span>@Localizer["Moderate"] ≥60%</span>
+            <span><span style="display:inline-block;width:12px;height:12px;background:#fd7e14;border-radius:2px;margin-right:4px;"></span>@Localizer["Low"] ≥40%</span>
+            <span><span style="display:inline-block;width:12px;height:12px;background:#dc3545;border-radius:2px;margin-right:4px;"></span>@Localizer["Critical"] &lt;40%</span>
+        </div>
+        <div id="trendChartNoData" class="text-center py-5" style="display:none;">
+            <i class="fas fa-chart-line fa-3x text-muted mb-3"></i>
+            <p class="text-muted">@Localizer["No performance data available for this indicator yet."]</p>
+        </div>
+        <div style="position:relative; height:400px; width:100%;">
+            <canvas id="trendChart"></canvas>
+        </div>
+        <div class="row g-3 mt-2" id="trendSummary" style="display:none;">
+            <div class="col-sm-3">
+                <div class="text-center p-2 rounded" style="background:var(--secondary-card-background);">
+                    <div class="fw-bold fs-5" id="trendAvg">—</div>
+                    <small class="text-muted">@Localizer["Avg Performance"]</small>
+                </div>
+            </div>
+            <div class="col-sm-3">
+                <div class="text-center p-2 rounded" style="background:var(--secondary-card-background);">
+                    <div class="fw-bold fs-5" id="trendPeak">—</div>
+                    <small class="text-muted">@Localizer["Peak"]</small>
+                </div>
+            </div>
+            <div class="col-sm-3">
+                <div class="text-center p-2 rounded" style="background:var(--secondary-card-background);">
+                    <div class="fw-bold fs-5" id="trendLatest">—</div>
+                    <small class="text-muted">@Localizer["Latest"]</small>
+                </div>
+            </div>
+            <div class="col-sm-3">
+                <div class="text-center p-2 rounded" style="background:var(--secondary-card-background);">
+                    <div class="fw-bold fs-5" id="trendTrend">—</div>
+                    <small class="text-muted">@Localizer["Trend"]</small>
+                </div>
+            </div>
+        </div>
     </div>
 
-    <div id="trendChartNoData" class="text-center py-5" style="display:none;">
-        <i class="fas fa-chart-line fa-3x text-muted mb-3"></i>
-        <p class="text-muted">@Localizer["No performance data available for this indicator yet."]</p>
+    <!-- OLD chart panel -->
+    <div id="panelOld" style="display:none;">
+        <p class="text-muted small mb-2">
+            <i class="fas fa-info-circle me-1"></i>@Localizer["Original chart: raw Measure values plotted per date, with cumulative sum and target ramp."]
+        </p>
+        <div style="position:relative; height:400px; width:100%;">
+            <canvas id="oldChart"></canvas>
+        </div>
     </div>
 
-    <div style="position: relative; height: 400px; width: 100%;">
-        <canvas id="trendChart"></canvas>
-    </div>
-
-    <!-- Summary stats row -->
-    <div class="row g-3 mt-2" id="trendSummary" style="display:none;">
-        <div class="col-sm-3">
-            <div class="text-center p-2 rounded" style="background:var(--secondary-card-background);">
-                <div class="fw-bold fs-5" id="trendAvg">—</div>
-                <small class="text-muted">@Localizer["Avg Performance"]</small>
-            </div>
-        </div>
-        <div class="col-sm-3">
-            <div class="text-center p-2 rounded" style="background:var(--secondary-card-background);">
-                <div class="fw-bold fs-5" id="trendPeak">—</div>
-                <small class="text-muted">@Localizer["Peak"]</small>
-            </div>
-        </div>
-        <div class="col-sm-3">
-            <div class="text-center p-2 rounded" style="background:var(--secondary-card-background);">
-                <div class="fw-bold fs-5" id="trendLatest">—</div>
-                <small class="text-muted">@Localizer["Latest"]</small>
-            </div>
-        </div>
-        <div class="col-sm-3">
-            <div class="text-center p-2 rounded" style="background:var(--secondary-card-background);">
-                <div class="fw-bold fs-5" id="trendTrend">—</div>
-                <small class="text-muted">@Localizer["Trend"]</small>
-            </div>
-        </div>
-    </div>
 </div>
 
 <script>
@@ -410,6 +437,99 @@
         updateSummary(periodKey);
     }
 
+    // ── OLD CHART ─────────────────────────────────────────────────────────────
+    let oldChart = null;
+    let oldChartLoaded = false;
+
+    async function loadOldChart() {
+        if (oldChartLoaded) return;
+        oldChartLoaded = true;
+        const res = await fetch(`/Indicators/GetMeasureChartData?indicatorCode=${indicatorCode}`);
+        const data = await res.json();
+        const ctx = document.getElementById('oldChart').getContext('2d');
+        const sorted = (data.real || []).sort((a, b) => new Date(a.date) - new Date(b.date));
+        const realData = sorted.map(p => ({ x: p.date, y: p.value }));
+        let cum = 0;
+        const cumData = sorted.map(p => { cum += p.value; return { x: p.date, y: +cum.toFixed(2) }; });
+        const tp = (data.target || [])[0];
+        let targetLine = [];
+        if (realData.length && tp) {
+            const s = new Date(Math.min(...realData.map(p => new Date(p.x))));
+            const e = new Date(tp.date);
+            let months = (e.getFullYear() - s.getFullYear()) * 12 + (e.getMonth() - s.getMonth());
+            if (months < 1) months = 1;
+            const min = Math.min(...realData.map(p => p.y));
+            const step = (tp.value - min) / months;
+            for (let i = 0; i <= months; i++) {
+                const d = new Date(s); d.setMonth(d.getMonth() + i);
+                targetLine.push({ x: d.toISOString().split('T')[0], y: +(min + step * i).toFixed(2) });
+            }
+        }
+        const root = getComputedStyle(document.documentElement);
+        const primary = root.getPropertyValue('--primary-color').trim() || '#2196F3';
+        const primaryDark = root.getPropertyValue('--primary-dark').trim() || '#1976D2';
+        oldChart = new Chart(ctx, {
+            type: 'line',
+            data: { datasets: [
+                { label: '@Localizer["Real Values"]', data: realData, borderColor: primary, backgroundColor: primary + '20', tension: 0.4, fill: true, pointRadius: 5, pointHoverRadius: 8, pointBackgroundColor: primary, pointBorderColor: '#fff', pointBorderWidth: 2 },
+                { label: '@Localizer["Cumulative Real"]', data: cumData, borderColor: primaryDark, borderDash: [8, 4], tension: 0.4, fill: false, pointRadius: 4, pointBackgroundColor: primaryDark, pointBorderColor: '#fff', pointBorderWidth: 2 },
+                { label: '@Localizer["Target"]', data: targetLine, borderColor: '#adb5bd', borderDash: [12, 6], pointRadius: 0, fill: false, borderWidth: 2 }
+            ]},
+            options: {
+                responsive: true, maintainAspectRatio: false,
+                plugins: {
+                    legend: { position: 'top', labels: { usePointStyle: true, padding: 20, font: { size: 13, family: 'Inter, sans-serif', weight: '500' } } },
+                    tooltip: { mode: 'index', intersect: false, backgroundColor: 'rgba(255,255,255,0.97)', titleColor: '#333', bodyColor: '#555', borderColor: '#ddd', borderWidth: 1, cornerRadius: 10, padding: 14 }
+                },
+                scales: {
+                    x: { type: 'time', time: { unit: 'month', tooltipFormat: 'MMM yyyy' }, title: { display: true, text: '@Localizer["Date"]', color: '#666', font: { size: 13, weight: 'bold' } }, grid: { color: 'rgba(0,0,0,0.06)' }, ticks: { color: '#999', font: { size: 12 } } },
+                    y: { title: { display: true, text: '@Localizer["Value"]', color: '#666', font: { size: 13, weight: 'bold' } }, grid: { color: 'rgba(0,0,0,0.06)' }, ticks: { color: '#999', font: { size: 12 } } }
+                }
+            }
+        });
+    }
+
+    // ── VIEW MODE ─────────────────────────────────────────────────────────────
+    let viewMode = 'new'; // 'new' | 'old' | 'both'
+
+    function applyViewMode(mode) {
+        viewMode = mode;
+        const panelNew = document.getElementById('panelNew');
+        const panelOld = document.getElementById('panelOld');
+        const controls = document.getElementById('newChartControls');
+
+        // Reset btn styles
+        ['btnViewNew','btnViewBoth','btnViewOld'].forEach(id => {
+            const b = document.getElementById(id);
+            b.classList.remove('active');
+            b.classList.replace('btn-success', 'btn-outline-success');
+        });
+        const active = document.getElementById(mode === 'new' ? 'btnViewNew' : mode === 'both' ? 'btnViewBoth' : 'btnViewOld');
+        active.classList.add('active');
+        active.classList.replace('btn-outline-success', 'btn-success');
+
+        if (mode === 'new') {
+            panelNew.style.display = '';
+            panelOld.style.display = 'none';
+            controls.style.display = 'contents';
+        } else if (mode === 'old') {
+            panelNew.style.display = 'none';
+            panelOld.style.display = '';
+            controls.style.display = 'none';
+            loadOldChart();
+        } else { // both
+            panelNew.style.display = '';
+            panelOld.style.display = '';
+            controls.style.display = 'contents';
+            loadOldChart();
+        }
+    }
+
+    document.getElementById('btnViewNew').addEventListener('click', () => applyViewMode('new'));
+    document.getElementById('btnViewBoth').addEventListener('click', () => applyViewMode('both'));
+    document.getElementById('btnViewOld').addEventListener('click', () => applyViewMode('old'));
+
+    // ── TREND CHART EVENTS ────────────────────────────────────────────────────
     async function loadTrendData() {
         const res = await fetch(`/Indicators/TrendData?indicatorCode=${indicatorCode}`);
         trendData = await res.json();
@@ -450,10 +570,11 @@
     });
 
     document.getElementById('btnExportTrend').addEventListener('click', function () {
-        if (!trendChart) return;
+        const chart = viewMode === 'old' ? oldChart : trendChart;
+        if (!chart) return;
         const link = document.createElement('a');
-        link.download = 'indicator-trend-@(Model.Indicator.IndicatorCode).png';
-        link.href = trendChart.toBase64Image('image/png', 1);
+        link.download = 'indicator-@(Model.Indicator.IndicatorCode)-' + viewMode + '.png';
+        link.href = chart.toBase64Image('image/png', 1);
         link.click();
     });
 

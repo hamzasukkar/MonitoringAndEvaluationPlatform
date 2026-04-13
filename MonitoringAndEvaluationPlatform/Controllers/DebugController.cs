@@ -144,6 +144,28 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             return Redirect($"/Indicators/Details/{indicator.IndicatorCode}");
         }
 
+        /// <summary>Side-by-side comparison of the old chart vs the new trend chart.</summary>
+        [HttpGet]
+        public async Task<IActionResult> ChartComparison(int? indicatorCode)
+        {
+            // Default to the demo indicator if no code supplied
+            if (!indicatorCode.HasValue)
+            {
+                var demo = await _context.Indicators
+                    .FirstOrDefaultAsync(i => i.Name == "[DEMO] Test Indicator – Trend Chart");
+                if (demo == null)
+                    return Content("No indicator found. Visit /Debug/SeedTrendDemo first to create demo data, then return here.");
+                indicatorCode = demo.IndicatorCode;
+            }
+
+            var indicator = await _context.Indicators.FindAsync(indicatorCode.Value);
+            if (indicator == null) return NotFound();
+
+            ViewBag.IndicatorCode = indicatorCode.Value;
+            ViewBag.IndicatorName = indicator.Name;
+            return View();
+        }
+
         /// <summary>Removes all [DEMO] data created by SeedTrendDemo.</summary>
         [HttpGet]
         public async Task<IActionResult> CleanTrendDemo()
