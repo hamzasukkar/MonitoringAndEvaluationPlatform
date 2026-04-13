@@ -11,6 +11,9 @@
 }
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns"></script>
+<script src="https://cdn.jsdelivr.net/npm/hammerjs@2.0.8/hammer.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-zoom@2.0.1/dist/chartjs-plugin-zoom.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-annotation@3.1.0/dist/chartjs-plugin-annotation.min.js"></script>
 
 <!-- Modern Dashboard Header -->
 <div class="dashboard-header">
@@ -218,6 +221,18 @@
             <button type="button" class="btn btn-sm btn-outline-dark" id="btnExportTrend">
                 <i class="fas fa-download me-1"></i>@Localizer["Export PNG"]
             </button>
+            <!-- Reset Zoom (hidden until zoomed) -->
+            <button type="button" class="btn btn-sm btn-outline-secondary" id="btnResetZoom" title="@Localizer["Reset Zoom"]" style="display:none;">
+                <i class="fas fa-search-minus"></i>
+            </button>
+            <!-- Fullscreen -->
+            <button type="button" class="btn btn-sm btn-outline-secondary" id="btnFullscreen" title="@Localizer["Fullscreen"]">
+                <i class="fas fa-expand"></i>
+            </button>
+            <!-- Annotate mode toggle -->
+            <button type="button" class="btn btn-sm btn-outline-warning" id="btnAnnotate" title="@Localizer["Annotate"]">
+                <i class="fas fa-thumbtack"></i>
+            </button>
         </div>
     </div>
 
@@ -277,40 +292,142 @@
 
 </div>
 
+<!-- Measure Detail Side Panel (offcanvas) -->
+<div class="offcanvas offcanvas-end" tabindex="-1" id="measureDetailPanel" style="width:380px;">
+    <div class="offcanvas-header border-bottom">
+        <h5 class="offcanvas-title">
+            <i class="fas fa-list-ul me-2 text-primary"></i>
+            <span id="panelPeriodTitle"></span>
+        </h5>
+        <button type="button" class="btn-close" data-bs-dismiss="offcanvas"></button>
+    </div>
+    <div class="offcanvas-body" id="measureDetailBody"></div>
+</div>
+
+<style>
+.chart-card.is-fullscreen {
+    position: fixed !important;
+    inset: 0 !important;
+    z-index: 9999 !important;
+    margin: 0 !important;
+    border-radius: 0 !important;
+    overflow-y: auto;
+    padding: 20px;
+    background: var(--card-background, #fff);
+}
+</style>
+
 <script>
 (function () {
     const indicatorCode = @Model.Indicator.IndicatorCode;
     let trendChart = null;
-    let trendData = null;
+    let trendData   = null;
     let currentPeriod = 'monthly';
-    let showPhases = false;
+    let showPhases    = false;
+    let annotateMode  = false;
+    let viewMode      = 'new';
 
     const PHASE_COLORS = ['#6f42c1','#007bff','#28a745','#fd7e14','#dc3545','#17a2b8','#e83e8c'];
 
+    // Raw measures from server — used by the detail side panel
+    const rawMeasures = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(
+        Model.Measures.Select(m => new {
+            name  = m.Name,
+            value = m.Value,
+            date  = m.Date.ToString("yyyy-MM-dd"),
+            phase = m.ProjectPhase != null ? m.ProjectPhase.Name : "Unknown",
+            note  = m.Note ?? "",
+            month   = m.Date.ToString("MMM yyyy"),
+            quarter = "Q" + (((m.Date.Month - 1) / 3) + 1).ToString() + " " + m.Date.Year.ToString()
+        })
+    ));
+
+    // Annotations stored per indicator in localStorage
+    let chartAnnotations = {};
+    try { chartAnnotations = JSON.parse(localStorage.getItem('chart_ann_' + indicatorCode) || '{}'); } catch(e) {}
+    function saveAnnotations() { localStorage.setItem('chart_ann_' + indicatorCode, JSON.stringify(chartAnnotations)); }
+
+    // ── CROSSHAIR PLUGIN ──────────────────────────────────────────────────────
+    const crosshairPlugin = {
+        id: 'crosshairSync',
+        afterEvent(chart, args) {
+            if (args.event.type === 'mousemove') {
+                chart._chX  = args.event.x;
+                chart._chIn = args.inChartArea;
+            } else if (args.event.type === 'mouseout') {
+                chart._chX = null; chart._chIn = false;
+            }
+            args.changed = true;
+        },
+        afterDraw(chart) {
+            if (!chart._chIn || chart._chX == null) return;
+            const { ctx, chartArea } = chart;
+            const x = chart._chX;
+            if (x < chartArea.left || x > chartArea.right) return;
+            ctx.save();
+            ctx.beginPath();
+            ctx.moveTo(x, chartArea.top);
+            ctx.lineTo(x, chartArea.bottom);
+            ctx.lineWidth = 1;
+            ctx.strokeStyle = 'rgba(80,80,80,0.4)';
+            ctx.setLineDash([5, 5]);
+            ctx.stroke();
+            ctx.restore();
+        }
+    };
+    Chart.register(crosshairPlugin);
+
+    // ── HELPERS ───────────────────────────────────────────────────────────────
+    function escHtml(s) {
+        return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+    }
+
     function getThresholdDatasets(labels) {
         return [
-            { label: '80%', data: labels.map(() => 80), borderColor: 'rgba(40,167,69,0.5)', borderDash: [6, 4], borderWidth: 1.5, pointRadius: 0, fill: false, order: 10 },
-            { label: '60%', data: labels.map(() => 60), borderColor: 'rgba(255,193,7,0.5)', borderDash: [6, 4], borderWidth: 1.5, pointRadius: 0, fill: false, order: 10 },
-            { label: '40%', data: labels.map(() => 40), borderColor: 'rgba(220,53,69,0.5)', borderDash: [6, 4], borderWidth: 1.5, pointRadius: 0, fill: false, order: 10 }
+            { label: '80%', data: labels.map(() => 80), borderColor: 'rgba(40,167,69,0.5)',  borderDash: [6,4], borderWidth: 1.5, pointRadius: 0, fill: false, order: 10 },
+            { label: '60%', data: labels.map(() => 60), borderColor: 'rgba(255,193,7,0.5)',   borderDash: [6,4], borderWidth: 1.5, pointRadius: 0, fill: false, order: 10 },
+            { label: '40%', data: labels.map(() => 40), borderColor: 'rgba(220,53,69,0.5)',   borderDash: [6,4], borderWidth: 1.5, pointRadius: 0, fill: false, order: 10 }
         ];
     }
 
+    function buildAnnotationConfig(labels) {
+        const result = {};
+        Object.entries(chartAnnotations).forEach(([label, text], i) => {
+            const idx = labels.indexOf(label);
+            if (idx === -1) return;
+            let yPt = 0;
+            if (trendData) {
+                const pt = trendData[currentPeriod].find(p => p.label === label);
+                if (pt) yPt = pt.performance;
+            }
+            result['dot_' + i] = {
+                type: 'point', xValue: idx, yValue: yPt,
+                radius: 8, backgroundColor: 'rgba(255,193,7,0.6)',
+                borderColor: '#e6a800', borderWidth: 2
+            };
+            result['ann_' + i] = {
+                type: 'label', xValue: idx, yValue: Math.min(yPt + 12, 96),
+                content: ['📌 ' + text],
+                backgroundColor: 'rgba(255,193,7,0.92)', color: '#333',
+                borderRadius: 4, font: { size: 11 },
+                padding: { top: 3, bottom: 3, left: 6, right: 6 }
+            };
+        });
+        return result;
+    }
+
     function buildDatasets(periodKey) {
-        const root = getComputedStyle(document.documentElement);
+        const root    = getComputedStyle(document.documentElement);
         const primary = root.getPropertyValue('--primary-color').trim() || '#2196F3';
-
         const aggregated = trendData[periodKey];
-        const labels = aggregated.map(p => p.label);
-        const values = aggregated.map(p => p.performance);
-
+        const labels  = aggregated.map(p => p.label);
+        const values  = aggregated.map(p => p.performance);
         const datasets = [];
 
         if (showPhases && trendData.phases.length > 0) {
             trendData.phases.forEach((phase, idx) => {
-                const phasePoints = phase[periodKey];
-                // Align phase data to the global label set
                 const phaseValues = labels.map(lbl => {
-                    const pt = phasePoints.find(p => p.label === lbl);
+                    const pt = phase[periodKey].find(p => p.label === lbl);
                     return pt ? pt.performance : null;
                 });
                 datasets.push({
@@ -318,32 +435,21 @@
                     data: phaseValues,
                     borderColor: PHASE_COLORS[idx % PHASE_COLORS.length],
                     backgroundColor: PHASE_COLORS[idx % PHASE_COLORS.length] + '15',
-                    tension: 0.4,
-                    fill: false,
-                    pointRadius: 4,
-                    pointHoverRadius: 7,
-                    spanGaps: true,
-                    order: idx + 1
+                    tension: 0.4, fill: false, pointRadius: 4, pointHoverRadius: 7,
+                    spanGaps: true, order: idx + 1
                 });
             });
         } else {
             datasets.push({
                 label: '@Localizer["Performance %"]',
                 data: values,
-                borderColor: primary,
-                backgroundColor: primary + '25',
-                tension: 0.4,
-                fill: true,
-                pointRadius: 5,
-                pointHoverRadius: 8,
+                borderColor: primary, backgroundColor: primary + '25',
+                tension: 0.4, fill: true, pointRadius: 5, pointHoverRadius: 8,
                 pointBackgroundColor: values.map(v =>
                     v >= 80 ? '#28a745' : v >= 60 ? '#ffc107' : v >= 40 ? '#fd7e14' : '#dc3545'),
-                pointBorderColor: '#fff',
-                pointBorderWidth: 2,
-                order: 1
+                pointBorderColor: '#fff', pointBorderWidth: 2, order: 1
             });
         }
-
         datasets.push(...getThresholdDatasets(labels));
         return { labels, datasets };
     }
@@ -351,30 +457,51 @@
     function updateSummary(periodKey) {
         const values = trendData[periodKey].map(p => p.performance);
         if (!values.length) return;
-        const avg = (values.reduce((a, b) => a + b, 0) / values.length).toFixed(1);
-        const peak = Math.max(...values).toFixed(1);
+        const avg    = (values.reduce((a, b) => a + b, 0) / values.length).toFixed(1);
+        const peak   = Math.max(...values).toFixed(1);
         const latest = values[values.length - 1].toFixed(1);
-        const trend = values.length >= 2
-            ? (values[values.length - 1] - values[values.length - 2]).toFixed(1)
-            : '—';
-
-        document.getElementById('trendAvg').textContent = avg + '%';
-        document.getElementById('trendPeak').textContent = peak + '%';
+        const diff   = values.length >= 2 ? (values[values.length - 1] - values[values.length - 2]).toFixed(1) : '—';
+        document.getElementById('trendAvg').textContent    = avg    + '%';
+        document.getElementById('trendPeak').textContent   = peak   + '%';
         document.getElementById('trendLatest').textContent = latest + '%';
-        const trendEl = document.getElementById('trendTrend');
-        if (trend !== '—') {
-            const num = parseFloat(trend);
-            trendEl.textContent = (num >= 0 ? '▲ +' : '▼ ') + trend + '%';
-            trendEl.style.color = num >= 0 ? '#28a745' : '#dc3545';
-        } else {
-            trendEl.textContent = '—';
-        }
+        const tEl = document.getElementById('trendTrend');
+        if (diff !== '—') {
+            const n = parseFloat(diff);
+            tEl.textContent = (n >= 0 ? '▲ +' : '▼ ') + diff + '%';
+            tEl.style.color = n >= 0 ? '#28a745' : '#dc3545';
+        } else { tEl.textContent = '—'; }
         document.getElementById('trendSummary').style.display = '';
     }
 
+    // ── DETAIL SIDE PANEL ─────────────────────────────────────────────────────
+    function showDetailPanel(label, periodKey) {
+        const filtered = rawMeasures.filter(m => periodKey === 'monthly' ? m.month === label : m.quarter === label);
+        document.getElementById('panelPeriodTitle').textContent = label;
+        const body = document.getElementById('measureDetailBody');
+        if (!filtered.length) {
+            body.innerHTML = '<p class="text-muted py-4 text-center"><i class="fas fa-inbox fa-2x mb-2 d-block"></i>No measures for this period.</p>';
+        } else {
+            const avg   = (filtered.reduce((s, m) => s + m.value, 0) / filtered.length).toFixed(1);
+            const color = v => v >= 80 ? '#28a745' : v >= 60 ? '#ffc107' : v >= 40 ? '#fd7e14' : '#dc3545';
+            body.innerHTML =
+                `<div class="alert alert-secondary py-2 mb-3 small">
+                    <strong>${filtered.length}</strong> @Localizer["measure(s)"] &nbsp;|&nbsp; @Localizer["Avg"]: <strong>${avg}%</strong>
+                 </div>` +
+                filtered.map(m => `
+                <div class="mb-3 p-3 rounded border" style="background:var(--secondary-card-background,#f8f9fa);">
+                    <div class="fw-semibold">${escHtml(m.name)}</div>
+                    <div class="fw-bold fs-5" style="color:${color(m.value)}">${m.value}%</div>
+                    <div class="text-muted small mt-1">${escHtml(m.phase)} &nbsp;•&nbsp; ${m.date}</div>
+                    ${m.note ? `<div class="fst-italic text-muted small mt-1">${escHtml(m.note)}</div>` : ''}
+                </div>`).join('');
+        }
+        const el = document.getElementById('measureDetailPanel');
+        (bootstrap.Offcanvas.getInstance(el) || new bootstrap.Offcanvas(el)).show();
+    }
+
+    // ── RENDER NEW CHART ──────────────────────────────────────────────────────
     function renderChart(periodKey) {
         const { labels, datasets } = buildDatasets(periodKey);
-
         const ctx = document.getElementById('trendChart').getContext('2d');
         if (trendChart) trendChart.destroy();
 
@@ -384,32 +511,58 @@
             options: {
                 responsive: true,
                 maintainAspectRatio: false,
+                onClick(evt, elements) {
+                    if (!elements.length) return;
+                    const idx   = elements[0].index;
+                    const label = labels[idx];
+                    if (annotateMode) {
+                        if (chartAnnotations[label]) {
+                            // Second click in annotate mode removes the annotation
+                            delete chartAnnotations[label];
+                            saveAnnotations();
+                            renderChart(periodKey);
+                        } else {
+                            const text = window.prompt('@Localizer["Annotation text:"]', '');
+                            if (text) { chartAnnotations[label] = text; saveAnnotations(); renderChart(periodKey); }
+                        }
+                    } else {
+                        showDetailPanel(label, periodKey);
+                    }
+                },
                 plugins: {
                     legend: {
-                        display: true,
-                        position: 'top',
+                        display: true, position: 'top',
                         labels: {
                             filter: item => !['80%','60%','40%'].includes(item.text),
-                            usePointStyle: true,
-                            padding: 20,
+                            usePointStyle: true, padding: 20,
                             font: { size: 13, family: 'Inter, sans-serif', weight: '500' }
                         }
                     },
                     tooltip: {
-                        mode: 'index',
-                        intersect: false,
+                        mode: 'index', intersect: false,
                         filter: item => !['80%','60%','40%'].includes(item.dataset.label),
-                        backgroundColor: 'rgba(255,255,255,0.97)',
-                        titleColor: '#333',
-                        bodyColor: '#555',
-                        borderColor: '#ddd',
-                        borderWidth: 1,
-                        cornerRadius: 10,
-                        padding: 14,
+                        backgroundColor: 'rgba(255,255,255,0.97)', titleColor: '#333',
+                        bodyColor: '#555', borderColor: '#ddd', borderWidth: 1,
+                        cornerRadius: 10, padding: 14,
                         callbacks: {
-                            label: ctx => ` ${ctx.dataset.label}: ${ctx.parsed.y != null ? ctx.parsed.y.toFixed(1) + '%' : 'N/A'}`
+                            label: ctx => ` ${ctx.dataset.label}: ${ctx.parsed.y != null ? ctx.parsed.y.toFixed(1) + '%' : 'N/A'}`,
+                            afterBody(items) {
+                                const lbl   = labels[items[0]?.dataIndex];
+                                const count = rawMeasures.filter(m => currentPeriod === 'monthly' ? m.month === lbl : m.quarter === lbl).length;
+                                return count ? [`  ↳ ${count} @Localizer["measure(s)"] — click to view`] : [];
+                            }
                         }
-                    }
+                    },
+                    zoom: {
+                        zoom: {
+                            wheel: { enabled: true, speed: 0.1 },
+                            pinch: { enabled: true },
+                            mode: 'x',
+                            onZoom() { document.getElementById('btnResetZoom').style.display = ''; }
+                        },
+                        pan: { enabled: true, mode: 'x' }
+                    },
+                    annotation: { annotations: buildAnnotationConfig(labels) }
                 },
                 scales: {
                     x: {
@@ -418,16 +571,10 @@
                         ticks: { color: '#999', font: { size: 12 } }
                     },
                     y: {
-                        min: 0,
-                        max: 100,
+                        min: 0, max: 100,
                         title: { display: true, text: '@Localizer["Performance (%)"]', color: '#666', font: { size: 13, weight: 'bold' } },
                         grid: { color: 'rgba(0,0,0,0.06)' },
-                        ticks: {
-                            color: '#999',
-                            font: { size: 12 },
-                            callback: v => v + '%',
-                            stepSize: 20
-                        }
+                        ticks: { color: '#999', font: { size: 12 }, callback: v => v + '%', stepSize: 20 }
                     }
                 },
                 interaction: { mode: 'nearest', axis: 'x', intersect: false }
@@ -438,15 +585,15 @@
     }
 
     // ── OLD CHART ─────────────────────────────────────────────────────────────
-    let oldChart = null;
+    let oldChart      = null;
     let oldChartLoaded = false;
 
     async function loadOldChart() {
         if (oldChartLoaded) return;
         oldChartLoaded = true;
-        const res = await fetch(`/Indicators/GetMeasureChartData?indicatorCode=${indicatorCode}`);
+        const res  = await fetch(`/Indicators/GetMeasureChartData?indicatorCode=${indicatorCode}`);
         const data = await res.json();
-        const ctx = document.getElementById('oldChart').getContext('2d');
+        const ctx  = document.getElementById('oldChart').getContext('2d');
         const sorted = (data.real || []).sort((a, b) => new Date(a.date) - new Date(b.date));
         const realData = sorted.map(p => ({ x: p.date, y: p.value }));
         let cum = 0;
@@ -458,28 +605,34 @@
             const e = new Date(tp.date);
             let months = (e.getFullYear() - s.getFullYear()) * 12 + (e.getMonth() - s.getMonth());
             if (months < 1) months = 1;
-            const min = Math.min(...realData.map(p => p.y));
-            const step = (tp.value - min) / months;
+            const minY = Math.min(...realData.map(p => p.y));
+            const step = (tp.value - minY) / months;
             for (let i = 0; i <= months; i++) {
                 const d = new Date(s); d.setMonth(d.getMonth() + i);
-                targetLine.push({ x: d.toISOString().split('T')[0], y: +(min + step * i).toFixed(2) });
+                targetLine.push({ x: d.toISOString().split('T')[0], y: +(minY + step * i).toFixed(2) });
             }
         }
-        const root = getComputedStyle(document.documentElement);
-        const primary = root.getPropertyValue('--primary-color').trim() || '#2196F3';
-        const primaryDark = root.getPropertyValue('--primary-dark').trim() || '#1976D2';
+        const root       = getComputedStyle(document.documentElement);
+        const primary    = root.getPropertyValue('--primary-color').trim()  || '#2196F3';
+        const primaryDark = root.getPropertyValue('--primary-dark').trim()  || '#1976D2';
         oldChart = new Chart(ctx, {
             type: 'line',
             data: { datasets: [
-                { label: '@Localizer["Real Values"]', data: realData, borderColor: primary, backgroundColor: primary + '20', tension: 0.4, fill: true, pointRadius: 5, pointHoverRadius: 8, pointBackgroundColor: primary, pointBorderColor: '#fff', pointBorderWidth: 2 },
-                { label: '@Localizer["Cumulative Real"]', data: cumData, borderColor: primaryDark, borderDash: [8, 4], tension: 0.4, fill: false, pointRadius: 4, pointBackgroundColor: primaryDark, pointBorderColor: '#fff', pointBorderWidth: 2 },
-                { label: '@Localizer["Target"]', data: targetLine, borderColor: '#adb5bd', borderDash: [12, 6], pointRadius: 0, fill: false, borderWidth: 2 }
+                { label: '@Localizer["Real Values"]',     data: realData,   borderColor: primary,     backgroundColor: primary + '20',     tension: 0.4, fill: true,  pointRadius: 5, pointHoverRadius: 8, pointBackgroundColor: primary,     pointBorderColor: '#fff', pointBorderWidth: 2 },
+                { label: '@Localizer["Cumulative Real"]', data: cumData,    borderColor: primaryDark, borderDash: [8,4],                   tension: 0.4, fill: false, pointRadius: 4, pointBackgroundColor: primaryDark, pointBorderColor: '#fff', pointBorderWidth: 2 },
+                { label: '@Localizer["Target"]',          data: targetLine, borderColor: '#adb5bd',   borderDash: [12,6], pointRadius: 0,  fill: false, borderWidth: 2 }
             ]},
             options: {
                 responsive: true, maintainAspectRatio: false,
                 plugins: {
                     legend: { position: 'top', labels: { usePointStyle: true, padding: 20, font: { size: 13, family: 'Inter, sans-serif', weight: '500' } } },
-                    tooltip: { mode: 'index', intersect: false, backgroundColor: 'rgba(255,255,255,0.97)', titleColor: '#333', bodyColor: '#555', borderColor: '#ddd', borderWidth: 1, cornerRadius: 10, padding: 14 }
+                    tooltip: { mode: 'index', intersect: false, backgroundColor: 'rgba(255,255,255,0.97)', titleColor: '#333', bodyColor: '#555', borderColor: '#ddd', borderWidth: 1, cornerRadius: 10, padding: 14 },
+                    zoom: {
+                        zoom: { wheel: { enabled: true, speed: 0.1 }, pinch: { enabled: true }, mode: 'x',
+                            onZoom() { document.getElementById('btnResetZoom').style.display = ''; }
+                        },
+                        pan: { enabled: true, mode: 'x' }
+                    }
                 },
                 scales: {
                     x: { type: 'time', time: { unit: 'month', tooltipFormat: 'MMM yyyy' }, title: { display: true, text: '@Localizer["Date"]', color: '#666', font: { size: 13, weight: 'bold' } }, grid: { color: 'rgba(0,0,0,0.06)' }, ticks: { color: '#999', font: { size: 12 } } },
@@ -490,15 +643,11 @@
     }
 
     // ── VIEW MODE ─────────────────────────────────────────────────────────────
-    let viewMode = 'new'; // 'new' | 'old' | 'both'
-
     function applyViewMode(mode) {
         viewMode = mode;
         const panelNew = document.getElementById('panelNew');
         const panelOld = document.getElementById('panelOld');
         const controls = document.getElementById('newChartControls');
-
-        // Reset btn styles
         ['btnViewNew','btnViewBoth','btnViewOld'].forEach(id => {
             const b = document.getElementById(id);
             b.classList.remove('active');
@@ -507,42 +656,21 @@
         const active = document.getElementById(mode === 'new' ? 'btnViewNew' : mode === 'both' ? 'btnViewBoth' : 'btnViewOld');
         active.classList.add('active');
         active.classList.replace('btn-outline-success', 'btn-success');
-
         if (mode === 'new') {
-            panelNew.style.display = '';
-            panelOld.style.display = 'none';
-            controls.style.display = 'contents';
+            panelNew.style.display = ''; panelOld.style.display = 'none'; controls.style.display = 'contents';
         } else if (mode === 'old') {
-            panelNew.style.display = 'none';
-            panelOld.style.display = '';
-            controls.style.display = 'none';
+            panelNew.style.display = 'none'; panelOld.style.display = ''; controls.style.display = 'none';
             loadOldChart();
-        } else { // both
-            panelNew.style.display = '';
-            panelOld.style.display = '';
-            controls.style.display = 'contents';
+        } else {
+            panelNew.style.display = ''; panelOld.style.display = ''; controls.style.display = 'contents';
             loadOldChart();
         }
     }
-
-    document.getElementById('btnViewNew').addEventListener('click', () => applyViewMode('new'));
+    document.getElementById('btnViewNew').addEventListener('click',  () => applyViewMode('new'));
     document.getElementById('btnViewBoth').addEventListener('click', () => applyViewMode('both'));
-    document.getElementById('btnViewOld').addEventListener('click', () => applyViewMode('old'));
+    document.getElementById('btnViewOld').addEventListener('click',  () => applyViewMode('old'));
 
-    // ── TREND CHART EVENTS ────────────────────────────────────────────────────
-    async function loadTrendData() {
-        const res = await fetch(`/Indicators/TrendData?indicatorCode=${indicatorCode}`);
-        trendData = await res.json();
-
-        if (!trendData.monthly || trendData.monthly.length === 0) {
-            document.getElementById('trendChartNoData').style.display = '';
-            document.getElementById('trendChart').style.display = 'none';
-            return;
-        }
-
-        renderChart('monthly');
-    }
-
+    // ── PERIOD & PHASE TOGGLES ────────────────────────────────────────────────
     document.getElementById('btnMonthly').addEventListener('click', function () {
         currentPeriod = 'monthly';
         this.classList.add('active'); this.classList.replace('btn-outline-primary','btn-primary');
@@ -550,7 +678,6 @@
         q.classList.remove('active'); q.classList.replace('btn-primary','btn-outline-primary');
         if (trendData) renderChart('monthly');
     });
-
     document.getElementById('btnQuarterly').addEventListener('click', function () {
         currentPeriod = 'quarterly';
         this.classList.add('active'); this.classList.replace('btn-outline-primary','btn-primary');
@@ -558,17 +685,17 @@
         m.classList.remove('active'); m.classList.replace('btn-primary','btn-outline-primary');
         if (trendData) renderChart('quarterly');
     });
-
     document.getElementById('btnTogglePhases').addEventListener('click', function () {
         showPhases = !showPhases;
         this.innerHTML = showPhases
             ? '<i class="fas fa-layer-group me-1"></i>@Localizer["Hide Phases"]'
             : '<i class="fas fa-layer-group me-1"></i>@Localizer["Show Phases"]';
-        this.classList.toggle('btn-secondary', showPhases);
+        this.classList.toggle('btn-secondary',         showPhases);
         this.classList.toggle('btn-outline-secondary', !showPhases);
         if (trendData) renderChart(currentPeriod);
     });
 
+    // ── EXPORT ────────────────────────────────────────────────────────────────
     document.getElementById('btnExportTrend').addEventListener('click', function () {
         const chart = viewMode === 'old' ? oldChart : trendChart;
         if (!chart) return;
@@ -577,6 +704,75 @@
         link.href = chart.toBase64Image('image/png', 1);
         link.click();
     });
+
+    // ── RESET ZOOM ────────────────────────────────────────────────────────────
+    document.getElementById('btnResetZoom').addEventListener('click', function () {
+        if (trendChart) trendChart.resetZoom();
+        if (oldChart && viewMode !== 'new') oldChart.resetZoom();
+        this.style.display = 'none';
+    });
+
+    // ── FULLSCREEN ────────────────────────────────────────────────────────────
+    const chartCard = document.querySelector('.chart-card.mb-4');
+    const btnFS     = document.getElementById('btnFullscreen');
+    btnFS.addEventListener('click', () => {
+        if (!document.fullscreenElement && !chartCard.classList.contains('is-fullscreen')) {
+            chartCard.requestFullscreen().catch(() => {
+                chartCard.classList.add('is-fullscreen');
+                updateFSBtn();
+            });
+        } else if (document.fullscreenElement) {
+            document.exitFullscreen();
+        } else {
+            chartCard.classList.remove('is-fullscreen');
+            updateFSBtn();
+        }
+    });
+    document.addEventListener('fullscreenchange', () => {
+        updateFSBtn();
+        setTimeout(() => { if (trendChart) trendChart.resize(); if (oldChart) oldChart.resize(); }, 120);
+    });
+    function updateFSBtn() {
+        const fs = !!document.fullscreenElement || chartCard.classList.contains('is-fullscreen');
+        btnFS.innerHTML = fs ? '<i class="fas fa-compress"></i>' : '<i class="fas fa-expand"></i>';
+        btnFS.title     = fs ? '@Localizer["Exit Fullscreen"]' : '@Localizer["Fullscreen"]';
+    }
+
+    // ── ANNOTATE ─────────────────────────────────────────────────────────────
+    document.getElementById('btnAnnotate').addEventListener('click', function () {
+        annotateMode = !annotateMode;
+        this.classList.toggle('btn-warning',         annotateMode);
+        this.classList.toggle('btn-outline-warning', !annotateMode);
+        document.getElementById('trendChart').style.cursor = annotateMode ? 'crosshair' : 'pointer';
+    });
+
+    // ── CROSSHAIR SYNC (Both mode) ─────────────────────────────────────────
+    document.getElementById('trendChart').addEventListener('mousemove', e => {
+        if (viewMode !== 'both' || !oldChart) return;
+        oldChart._chX = e.offsetX; oldChart._chIn = true; oldChart.draw();
+    });
+    document.getElementById('trendChart').addEventListener('mouseleave', () => {
+        if (!oldChart) return; oldChart._chX = null; oldChart._chIn = false; oldChart.draw();
+    });
+    document.getElementById('oldChart').addEventListener('mousemove', e => {
+        if (viewMode !== 'both' || !trendChart) return;
+        trendChart._chX = e.offsetX; trendChart._chIn = true; trendChart.draw();
+    });
+    document.getElementById('oldChart').addEventListener('mouseleave', () => {
+        if (!trendChart) return; trendChart._chX = null; trendChart._chIn = false; trendChart.draw();
+    });
+
+    // ── LOAD DATA ─────────────────────────────────────────────────────────────
+    async function loadTrendData() {
+        const res = await fetch(`/Indicators/TrendData?indicatorCode=${indicatorCode}`);
+        trendData = await res.json();
+        if (!trendData.monthly || trendData.monthly.length === 0) {
+            document.getElementById('trendChartNoData').style.display = '';
+            document.getElementById('trendChart').style.display = 'none';
+            return;
+        }
+        renderChart('monthly');
+    }
 
     loadTrendData();
 })();
