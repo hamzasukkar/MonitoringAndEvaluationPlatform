@@ -249,7 +249,7 @@
             <i class="fas fa-chart-line fa-3x text-muted mb-3"></i>
             <p class="text-muted">@Localizer["No performance data available for this indicator yet."]</p>
         </div>
-        <div style="position:relative; height:400px; width:100%;">
+        <div id="trendChartContainer" style="position:relative; height:400px; width:100%;">
             <canvas id="trendChart"></canvas>
         </div>
         <div class="row g-3 mt-2" id="trendSummary" style="display:none;">
@@ -285,7 +285,7 @@
         <p class="text-muted small mb-2">
             <i class="fas fa-info-circle me-1"></i>@Localizer["Original chart: raw Measure values plotted per date, with cumulative sum and target ramp."]
         </p>
-        <div style="position:relative; height:400px; width:100%;">
+        <div id="oldChartContainer" style="position:relative; height:400px; width:100%;">
             <canvas id="oldChart"></canvas>
         </div>
     </div>
@@ -305,15 +305,45 @@
 </div>
 
 <style>
+/* ── Fullscreen: CSS-fallback path (.is-fullscreen) ── */
 .chart-card.is-fullscreen {
     position: fixed !important;
     inset: 0 !important;
     z-index: 9999 !important;
     margin: 0 !important;
     border-radius: 0 !important;
+    padding: 20px !important;
+    background: var(--card-background, #fff);
+    display: flex !important;
+    flex-direction: column !important;
     overflow-y: auto;
+}
+/* ── Fullscreen: native Fullscreen API path ── */
+.chart-card:fullscreen {
     padding: 20px;
     background: var(--card-background, #fff);
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+}
+/* Panels grow to fill remaining space */
+.chart-card.is-fullscreen #panelNew,
+.chart-card:fullscreen    #panelNew,
+.chart-card.is-fullscreen #panelOld,
+.chart-card:fullscreen    #panelOld {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+}
+/* Chart canvas containers stretch inside the panel */
+.chart-card.is-fullscreen #trendChartContainer,
+.chart-card:fullscreen    #trendChartContainer,
+.chart-card.is-fullscreen #oldChartContainer,
+.chart-card:fullscreen    #oldChartContainer {
+    flex: 1 !important;
+    height: auto !important;
+    min-height: 200px;
 }
 </style>
 
@@ -718,24 +748,29 @@
     btnFS.addEventListener('click', () => {
         if (!document.fullscreenElement && !chartCard.classList.contains('is-fullscreen')) {
             chartCard.requestFullscreen().catch(() => {
+                // Native fullscreen blocked — use CSS fallback
                 chartCard.classList.add('is-fullscreen');
-                updateFSBtn();
+                applyFSLayout(true);
             });
         } else if (document.fullscreenElement) {
             document.exitFullscreen();
         } else {
             chartCard.classList.remove('is-fullscreen');
-            updateFSBtn();
+            applyFSLayout(false);
         }
     });
     document.addEventListener('fullscreenchange', () => {
-        updateFSBtn();
-        setTimeout(() => { if (trendChart) trendChart.resize(); if (oldChart) oldChart.resize(); }, 120);
+        const entering = !!document.fullscreenElement;
+        applyFSLayout(entering);
     });
-    function updateFSBtn() {
-        const fs = !!document.fullscreenElement || chartCard.classList.contains('is-fullscreen');
-        btnFS.innerHTML = fs ? '<i class="fas fa-compress"></i>' : '<i class="fas fa-expand"></i>';
-        btnFS.title     = fs ? '@Localizer["Exit Fullscreen"]' : '@Localizer["Fullscreen"]';
+    function applyFSLayout(entering) {
+        btnFS.innerHTML = entering ? '<i class="fas fa-compress"></i>' : '<i class="fas fa-expand"></i>';
+        btnFS.title     = entering ? '@Localizer["Exit Fullscreen"]' : '@Localizer["Fullscreen"]';
+        // Force chart.js to pick up new container dimensions after the CSS transition
+        setTimeout(() => {
+            if (trendChart) trendChart.resize();
+            if (oldChart)   oldChart.resize();
+        }, 100);
     }
 
     // ── ANNOTATE ─────────────────────────────────────────────────────────────
