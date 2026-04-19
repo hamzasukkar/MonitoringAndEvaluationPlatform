@@ -504,6 +504,10 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 // Process file uploads
                 await ProcessFileUploadsAsync(project.ProjectID, UploadedFiles);
 
+                // Calculate initial DisbursementPerformance across all levels
+                var monitoringService = new MonitoringService(_context);
+                await monitoringService.UpdateDisbursementPerformancesForProject(project.ProjectID);
+
                 this.SetSuccessMessage(string.Format(_localizer["Project '{0}' has been created successfully."].Value, project.ProjectName));
 
                 return RedirectToAction("Details", new { id = project.ProjectID });
@@ -985,6 +989,10 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             {
                 return NotFound();
             }
+
+            // Recalculate DisbursementPerformance across all levels since EstimatedBudget may have changed
+            var monitoringService = new MonitoringService(_context);
+            await monitoringService.UpdateDisbursementPerformancesForProject(id);
 
             return RedirectToAction(nameof(Index));
         }
