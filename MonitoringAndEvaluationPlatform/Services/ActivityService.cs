@@ -1,6 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using MonitoringAndEvaluationPlatform.Data;
-using MonitoringAndEvaluationPlatform.Enums;
 using MonitoringAndEvaluationPlatform.Models;
 
 namespace MonitoringAndEvaluationPlatform.Services
@@ -29,7 +28,7 @@ namespace MonitoringAndEvaluationPlatform.Services
             {
                 var plan = new Plan
                 {
-                    Name = $"{activity.ActivityType}-{i}", // Example: DisbursementPerformance-1
+                    Name = $"{activity.Name}-{i}",
                     Date = DateTime.Now,
                     Planned = 0,
                     Realised = 0,
@@ -54,31 +53,26 @@ namespace MonitoringAndEvaluationPlatform.Services
                 return false; // ActionPlan not found
             }
 
-            foreach (ActivityType type in Enum.GetValues(typeof(ActivityType)))
+            var activity = new Activity
             {
-                var activity = new Activity
+                Name = baseActivity.Name,
+                ActionPlanCode = baseActivity.ActionPlanCode,
+            };
+
+            for (int i = 1; i <= actionPlan.PlansCount; i++)
+            {
+                var plan = new Plan
                 {
-                    Name = $"{baseActivity.Name}-{type}", // Example: "Road Construction-DisbursementPerformance"
-                    ActionPlanCode = baseActivity.ActionPlanCode,
-                    ActivityType = type
+                    Name = $"{baseActivity.Name}-{i}",
+                    Date = DateTime.Now,
+                    Planned = 0,
+                    Realised = 0,
+                    Activity = activity
                 };
-
-                for (int i = 1; i <= actionPlan.PlansCount; i++)
-                {
-                    var plan = new Plan
-                    {
-                        Name = $"{type}-{i}",
-                        Date = DateTime.Now,
-                        Planned = 0,
-                        Realised = 0,
-                        Activity = activity
-                    };
-                    activity.Plans.Add(plan);
-                }
-
-                _context.Activities.Add(activity);
+                activity.Plans.Add(plan);
             }
 
+            _context.Activities.Add(activity);
             await _context.SaveChangesAsync();
             return true;
         }

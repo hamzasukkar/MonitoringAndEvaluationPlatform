@@ -242,8 +242,8 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             viewModel.ProjectScatterData = projects.Select(p => new ProjectScatterDataItem
             {
                 ProjectName = p.ProjectName,
-                FinancialProgress = p.Financial, // Assuming 'Financial' is percentage (0-100)
-                PhysicalProgress = p.Physical,   // Assuming 'Physical' is percentage (0-100)
+                FinancialProgress = p.DisbursementPerformance,
+                PhysicalProgress = p.performance,
                 Budget = p.RealBudget
             }).ToList();
 
@@ -271,9 +271,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                         TotalBudget = m.Projects.Sum(p => p.EstimatedBudget),
                         AmountSpent = ministryProjects.Sum(p => p.Phases?.SelectMany(pp => pp.ActionPlan?.Activities ?? Enumerable.Empty<Activity>()).SelectMany(a => a.Plans).Sum(plan => plan.Realised) ?? 0),
                         IndicatorsPerformance = Math.Round(m.IndicatorsPerformance, 2),
-                        DisbursementPerformance = Math.Round(m.DisbursementPerformance, 2),
-                        FieldMonitoring = Math.Round(m.FieldMonitoring, 2),
-                        ImpactAssessment = Math.Round(m.ImpactAssessment, 2)
+                        DisbursementPerformance = Math.Round(m.DisbursementPerformance, 2)
                     };
                 })
                 .OrderByDescending(m => m.ProjectCount)
@@ -294,9 +292,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                         TotalBudget = s.Projects.Sum(p => p.EstimatedBudget),
                         AmountSpent = sectorProjects.Sum(p => p.Phases?.SelectMany(pp => pp.ActionPlan?.Activities ?? Enumerable.Empty<Activity>()).SelectMany(a => a.Plans).Sum(plan => plan.Realised) ?? 0),
                         IndicatorsPerformance = Math.Round(s.IndicatorsPerformance, 2),
-                        DisbursementPerformance = Math.Round(s.DisbursementPerformance, 2),
-                        FieldMonitoring = Math.Round(s.FieldMonitoring, 2),
-                        ImpactAssessment = Math.Round(s.ImpactAssessment, 2)
+                        DisbursementPerformance = Math.Round(s.DisbursementPerformance, 2)
                     };
                 })
                 .OrderByDescending(s => s.ProjectCount)
@@ -316,9 +312,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                         TotalBudget = d.Projects.Sum(p => p.EstimatedBudget),
                         AmountSpent = donorProjects.Sum(p => p.Phases?.SelectMany(pp => pp.ActionPlan?.Activities ?? Enumerable.Empty<Activity>()).SelectMany(a => a.Plans).Sum(plan => plan.Realised) ?? 0),
                         IndicatorsPerformance = Math.Round(d.IndicatorsPerformance, 2),
-                        DisbursementPerformance = Math.Round(d.DisbursementPerformance, 2),
-                        FieldMonitoring = Math.Round(d.FieldMonitoring, 2),
-                        ImpactAssessment = Math.Round(d.ImpactAssessment, 2)
+                        DisbursementPerformance = Math.Round(d.DisbursementPerformance, 2)
                     };
                 })
                 .OrderByDescending(d => d.ProjectCount)
@@ -336,9 +330,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                         TotalBudget = supervisorProjects.Sum(p => p.EstimatedBudget),
                         AmountSpent = supervisorProjects.Sum(p => p.Phases?.SelectMany(pp => pp.ActionPlan?.Activities ?? Enumerable.Empty<Activity>()).SelectMany(a => a.Plans).Sum(plan => plan.Realised) ?? 0),
                         IndicatorsPerformance = supervisorProjects.Any() ? Math.Round(supervisorProjects.Average(p => p.performance), 2) : 0,
-                        DisbursementPerformance = supervisorProjects.Any() ? Math.Round(supervisorProjects.Average(p => p.DisbursementPerformance), 2) : 0,
-                        FieldMonitoring = supervisorProjects.Any() ? Math.Round(supervisorProjects.Average(p => p.FieldMonitoring), 2) : 0,
-                        ImpactAssessment = supervisorProjects.Any() ? Math.Round(supervisorProjects.Average(p => p.ImpactAssessment), 2) : 0
+                        DisbursementPerformance = supervisorProjects.Any() ? Math.Round(supervisorProjects.Average(p => p.DisbursementPerformance), 2) : 0
                     };
                 })
                 .Where(s => s.ProjectCount > 0)
@@ -357,9 +349,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                         TotalBudget = pmProjects.Sum(p => p.EstimatedBudget),
                         AmountSpent = pmProjects.Sum(p => p.Phases?.SelectMany(pp => pp.ActionPlan?.Activities ?? Enumerable.Empty<Activity>()).SelectMany(a => a.Plans).Sum(plan => plan.Realised) ?? 0),
                         IndicatorsPerformance = pmProjects.Any() ? Math.Round(pmProjects.Average(p => p.performance), 2) : 0,
-                        DisbursementPerformance = pmProjects.Any() ? Math.Round(pmProjects.Average(p => p.DisbursementPerformance), 2) : 0,
-                        FieldMonitoring = pmProjects.Any() ? Math.Round(pmProjects.Average(p => p.FieldMonitoring), 2) : 0,
-                        ImpactAssessment = pmProjects.Any() ? Math.Round(pmProjects.Average(p => p.ImpactAssessment), 2) : 0
+                        DisbursementPerformance = pmProjects.Any() ? Math.Round(pmProjects.Average(p => p.DisbursementPerformance), 2) : 0
                     };
                 })
                 .Where(pm => pm.ProjectCount > 0)
@@ -387,9 +377,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                         TotalBudget = allGovProjects.Sum(p => p.EstimatedBudget),
                         AmountSpent = allGovProjects.Sum(p => p.Phases?.SelectMany(pp => pp.ActionPlan?.Activities ?? Enumerable.Empty<Activity>()).SelectMany(a => a.Plans).Sum(plan => plan.Realised) ?? 0),
                         IndicatorsPerformance = Math.Round(allGovProjects.Average(p => p.performance), 2),
-                        DisbursementPerformance = Math.Round(allGovProjects.Average(p => p.DisbursementPerformance), 2),
-                        FieldMonitoring = Math.Round(allGovProjects.Average(p => p.FieldMonitoring), 2),
-                        ImpactAssessment = Math.Round(allGovProjects.Average(p => p.ImpactAssessment), 2)
+                        DisbursementPerformance = Math.Round(allGovProjects.Average(p => p.DisbursementPerformance), 2)
                     };
                 })
                 .Where(g => g != null)
@@ -407,9 +395,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                     TotalBudget = nationalProjects.Sum(p => p.EstimatedBudget),
                     AmountSpent = nationalProjects.Sum(p => p.Phases?.SelectMany(pp => pp.ActionPlan?.Activities ?? Enumerable.Empty<Activity>()).SelectMany(a => a.Plans).Sum(plan => plan.Realised) ?? 0),
                     IndicatorsPerformance = Math.Round(nationalProjects.Average(p => p.performance), 2),
-                    DisbursementPerformance = Math.Round(nationalProjects.Average(p => p.DisbursementPerformance), 2),
-                    FieldMonitoring = Math.Round(nationalProjects.Average(p => p.FieldMonitoring), 2),
-                    ImpactAssessment = Math.Round(nationalProjects.Average(p => p.ImpactAssessment), 2)
+                    DisbursementPerformance = Math.Round(nationalProjects.Average(p => p.DisbursementPerformance), 2)
                 });
             }
 

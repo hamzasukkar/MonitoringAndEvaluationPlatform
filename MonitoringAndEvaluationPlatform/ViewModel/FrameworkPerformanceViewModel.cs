@@ -7,7 +7,5 @@ namespace MonitoringAndEvaluationPlatform.ViewModel
         public double OverallPerformance { get; set; }
         public double IndicatorsPerformance { get; set; }
         public double DisbursementPerformance { get; set; }
-        public double FieldMonitoring { get; set; }
-        public double ImpactAssessment { get; set; }
     }
 }

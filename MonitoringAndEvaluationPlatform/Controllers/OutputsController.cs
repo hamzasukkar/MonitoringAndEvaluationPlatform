@@ -149,9 +149,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                     Name = name.Trim(),
                     OutcomeCode = outcomeCode,
                     IndicatorsPerformance = 0,
-                    DisbursementPerformance = 0,
-                    FieldMonitoring = 0,
-                    ImpactAssessment = 0
+                    DisbursementPerformance = 0
                 };
 
                 _context.Add(output);
@@ -214,7 +212,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             // Recalculate outcome performance (IndicatorsPerformance - cascades up to framework)
             await _performanceService.UpdateOutcomePerformance(outcomeCode);
 
-            // Recalculate outcome performance (DisbursementPerformance, FieldMonitoring, ImpactAssessment - cascades up to framework)
+            // Recalculate outcome performance (DisbursementPerformance - cascades up to framework)
             await _performanceService.UpdateOutcomeDisbursementPerformance(outcomeCode);
 
             return Ok();

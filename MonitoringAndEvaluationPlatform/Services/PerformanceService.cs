@@ -135,22 +135,10 @@ namespace MonitoringAndEvaluationPlatform.Services
                     i => i.DisbursementPerformance,
                     i => i.Weight
                 );
-                subOutput.FieldMonitoring = (int)CalculateWeightedPerformance(
-                    indicatorsWithProjects,
-                    i => i.FieldMonitoring,
-                    i => i.Weight
-                );
-                subOutput.ImpactAssessment = (int)CalculateWeightedPerformance(
-                    indicatorsWithProjects,
-                    i => i.ImpactAssessment,
-                    i => i.Weight
-                );
             }
             else
             {
                 subOutput.DisbursementPerformance = 0;
-                subOutput.FieldMonitoring = 0;
-                subOutput.ImpactAssessment = 0;
             }
 
             _context.SubOutputs.Update(subOutput);
@@ -182,22 +170,10 @@ namespace MonitoringAndEvaluationPlatform.Services
                     so => so.DisbursementPerformance,
                     so => so.Weight
                 );
-                output.FieldMonitoring = (int)CalculateWeightedPerformance(
-                    subOutputsWithProjects,
-                    so => so.FieldMonitoring,
-                    so => so.Weight
-                );
-                output.ImpactAssessment = (int)CalculateWeightedPerformance(
-                    subOutputsWithProjects,
-                    so => so.ImpactAssessment,
-                    so => so.Weight
-                );
             }
             else
             {
                 output.DisbursementPerformance = 0;
-                output.FieldMonitoring = 0;
-                output.ImpactAssessment = 0;
             }
 
             _context.Outputs.Update(output);
@@ -230,22 +206,10 @@ namespace MonitoringAndEvaluationPlatform.Services
                     o => o.DisbursementPerformance,
                     o => o.Weight
                 );
-                outcome.FieldMonitoring = (int)CalculateWeightedPerformance(
-                    outputsWithProjects,
-                    o => o.FieldMonitoring,
-                    o => o.Weight
-                );
-                outcome.ImpactAssessment = (int)CalculateWeightedPerformance(
-                    outputsWithProjects,
-                    o => o.ImpactAssessment,
-                    o => o.Weight
-                );
             }
             else
             {
                 outcome.DisbursementPerformance = 0;
-                outcome.FieldMonitoring = 0;
-                outcome.ImpactAssessment = 0;
             }
 
             _context.Outcomes.Update(outcome);
@@ -279,22 +243,10 @@ namespace MonitoringAndEvaluationPlatform.Services
                     oc => oc.DisbursementPerformance,
                     oc => oc.Weight
                 );
-                framework.FieldMonitoring = (int)CalculateWeightedPerformance(
-                    outcomesWithProjects,
-                    oc => oc.FieldMonitoring,
-                    oc => oc.Weight
-                );
-                framework.ImpactAssessment = (int)CalculateWeightedPerformance(
-                    outcomesWithProjects,
-                    oc => oc.ImpactAssessment,
-                    oc => oc.Weight
-                );
             }
             else
             {
                 framework.DisbursementPerformance = 0;
-                framework.FieldMonitoring = 0;
-                framework.ImpactAssessment = 0;
             }
 
             _context.Frameworks.Update(framework);

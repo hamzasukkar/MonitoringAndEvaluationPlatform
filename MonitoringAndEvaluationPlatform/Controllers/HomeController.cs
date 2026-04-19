@@ -33,11 +33,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 Name = f.Name,
                 IndicatorsPerformance = f.IndicatorsPerformance,
                 DisbursementPerformance = f.DisbursementPerformance,
-                FieldMonitoring = f.FieldMonitoring,
-                ImpactAssessment = f.ImpactAssessment,
-                // Calculate overall performance as average of all performance metrics
-                OverallPerformance = (f.IndicatorsPerformance + f.DisbursementPerformance +
-                                     f.FieldMonitoring + f.ImpactAssessment) / 4.0
+                OverallPerformance = (f.IndicatorsPerformance + f.DisbursementPerformance) / 2.0
             }).ToList();
 
             var donorsPerformance = donors.Select(d => new DonorPerformanceViewModel
@@ -46,11 +42,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 Partner = d.Partner,
                 IndicatorsPerformance = d.IndicatorsPerformance,
                 DisbursementPerformance = d.DisbursementPerformance,
-                FieldMonitoring = d.FieldMonitoring,
-                ImpactAssessment = d.ImpactAssessment,
-                // Calculate overall performance as average of all performance metrics
-                OverallPerformance = (d.IndicatorsPerformance + d.DisbursementPerformance +
-                                     d.FieldMonitoring + d.ImpactAssessment) / 4.0
+                OverallPerformance = (d.IndicatorsPerformance + d.DisbursementPerformance) / 2.0
             }).ToList();
 
             var sectorsPerformance = sectors.Select(s => new SectorPerformanceViewModel
@@ -59,11 +51,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 Name = s.EN_Name ?? s.AR_Name,
                 IndicatorsPerformance = s.IndicatorsPerformance,
                 DisbursementPerformance = s.DisbursementPerformance,
-                FieldMonitoring = s.FieldMonitoring,
-                ImpactAssessment = s.ImpactAssessment,
-                // Calculate overall performance as average of all performance metrics
-                OverallPerformance = (s.IndicatorsPerformance + s.DisbursementPerformance +
-                                     s.FieldMonitoring + s.ImpactAssessment) / 4.0
+                OverallPerformance = (s.IndicatorsPerformance + s.DisbursementPerformance) / 2.0
             }).ToList();
 
             // Get projects by ministry count
@@ -139,9 +127,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                     ProjectID = p.ProjectID,
                     ProjectName = p.ProjectName,
                     Performance = p.performance,
-                    DisbursementPerformance = p.DisbursementPerformance,
-                    FieldMonitoring = p.FieldMonitoring,
-                    ImpactAssessment = p.ImpactAssessment
+                    DisbursementPerformance = p.DisbursementPerformance
                 })
                 .ToList();
 

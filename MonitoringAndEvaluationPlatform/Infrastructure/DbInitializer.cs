@@ -351,8 +351,6 @@ namespace MonitoringAndEvaluationPlatform.Infrastructure
                         Name = "Health Framework",
                         IndicatorsPerformance = 80,
                         DisbursementPerformance = 90,
-                        FieldMonitoring = 85,
-                        ImpactAssessment = 75,
                         Outcomes = new List<Outcome>
                         {
                             new Outcome
@@ -360,8 +358,6 @@ namespace MonitoringAndEvaluationPlatform.Infrastructure
                                 Name = "Reduced Child Mortality",
                                 IndicatorsPerformance = 78,
                                 DisbursementPerformance = 88,
-                                FieldMonitoring = 82,
-                                ImpactAssessment = 70,
                                 Weight = 0.4,
                                 Outputs = new List<Output>
                                 {
@@ -370,8 +366,6 @@ namespace MonitoringAndEvaluationPlatform.Infrastructure
                                         Name = "Improved Vaccination Coverage",
                                         IndicatorsPerformance = 75,
                                         DisbursementPerformance = 85,
-                                        FieldMonitoring = 80,
-                                        ImpactAssessment = 65,
                                         Weight = 0.6,
                                         SubOutputs = new List<SubOutput>
                                         {
@@ -380,8 +374,6 @@ namespace MonitoringAndEvaluationPlatform.Infrastructure
                                                 Name = "Increase in Immunization Rates",
                                                 IndicatorsPerformance = 77,
                                                 DisbursementPerformance = 87,
-                                                FieldMonitoring = 81,
-                                                ImpactAssessment = 68,
                                                 Weight = 0.7,
                                                 Indicators = new List<Indicator>
                                                 {

@@ -75,13 +75,13 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             var phase = phaseActionPlan.ProjectPhase;
             var project = phase.Project;
 
-            // Map to ViewModel
-            var viewModel = phaseActionPlan.Activities
-                .GroupBy(a => a.ActivityType.ToString())
-                .Select(group => new ActivityPlanViewModel
+            // Map to ViewModel — all activities are now implicitly DisbursementPerformance
+            var viewModel = new List<ActivityPlanViewModel>
+            {
+                new ActivityPlanViewModel
                 {
-                    ActivityType = group.Key,
-                    Activities = group.Select(activity => new ActivityRow
+                    ActivityType = "DisbursementPerformance",
+                    Activities = phaseActionPlan.Activities.Select(activity => new ActivityRow
                     {
                         ActivityName = activity.Name,
                         Plans = activity.Plans.OrderBy(p => p.Date).Select(plan => new PlanDetail
@@ -92,7 +92,8 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                             RealisedValue = plan.Realised
                         }).ToList()
                     }).ToList()
-                }).ToList();
+                }
+            };
 
             ViewBag.PhaseId = phaseId;
             ViewBag.ProjectID = project.ProjectID;

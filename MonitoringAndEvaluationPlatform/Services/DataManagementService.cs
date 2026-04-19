@@ -491,31 +491,31 @@ namespace MonitoringAndEvaluationPlatform.Services
                 if (resetProjectPerformance)
                 {
                     totalReset += await _context.Database.ExecuteSqlRawAsync(
-                        "UPDATE [Projects] SET performance = 0, DisbursementPerformance = 0, FieldMonitoring = 0, ImpactAssessment = 0, Financial = 0, Physical = 0");
+                        "UPDATE [Projects] SET performance = 0, DisbursementPerformance = 0");
 
                     totalReset += await _context.Database.ExecuteSqlRawAsync(
-                        "UPDATE [Indicators] SET DisbursementPerformance = 0, FieldMonitoring = 0, ImpactAssessment = 0");
+                        "UPDATE [Indicators] SET DisbursementPerformance = 0");
 
                     totalReset += await _context.Database.ExecuteSqlRawAsync(
-                        "UPDATE [SubOutputs] SET DisbursementPerformance = 0, FieldMonitoring = 0, ImpactAssessment = 0");
+                        "UPDATE [SubOutputs] SET DisbursementPerformance = 0");
 
                     totalReset += await _context.Database.ExecuteSqlRawAsync(
-                        "UPDATE [Outputs] SET DisbursementPerformance = 0, FieldMonitoring = 0, ImpactAssessment = 0");
+                        "UPDATE [Outputs] SET DisbursementPerformance = 0");
 
                     totalReset += await _context.Database.ExecuteSqlRawAsync(
-                        "UPDATE [Outcomes] SET DisbursementPerformance = 0, FieldMonitoring = 0, ImpactAssessment = 0");
+                        "UPDATE [Outcomes] SET DisbursementPerformance = 0");
 
                     totalReset += await _context.Database.ExecuteSqlRawAsync(
-                        "UPDATE [Frameworks] SET DisbursementPerformance = 0, FieldMonitoring = 0, ImpactAssessment = 0");
+                        "UPDATE [Frameworks] SET DisbursementPerformance = 0");
 
                     totalReset += await _context.Database.ExecuteSqlRawAsync(
-                        "UPDATE [Donors] SET DisbursementPerformance = 0, FieldMonitoring = 0, ImpactAssessment = 0");
+                        "UPDATE [Donors] SET DisbursementPerformance = 0");
 
                     totalReset += await _context.Database.ExecuteSqlRawAsync(
-                        "UPDATE [Sectors] SET DisbursementPerformance = 0, FieldMonitoring = 0, ImpactAssessment = 0");
+                        "UPDATE [Sectors] SET DisbursementPerformance = 0");
 
                     totalReset += await _context.Database.ExecuteSqlRawAsync(
-                        "UPDATE [Ministries] SET DisbursementPerformance = 0, FieldMonitoring = 0, ImpactAssessment = 0");
+                        "UPDATE [Ministries] SET DisbursementPerformance = 0");
                 }
 
                 if (recalculateHierarchy && !resetProjectPerformance)

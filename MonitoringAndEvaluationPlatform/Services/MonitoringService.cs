@@ -293,10 +293,6 @@ public class MonitoringService
             .ToList();
 
         project.DisbursementPerformance = CalcDisbursementPerf(allPlans, project.EstimatedBudget);
-        project.FieldMonitoring = CalcPerf(allPlans, ActivityType.FieldMonitoring);
-        project.ImpactAssessment = CalcPerf(allPlans, ActivityType.ImpactAssessment);
-        project.Physical = (int)CalcPerf(allPlans, ActivityType.Physical);
-        project.Financial = (int)CalcPerf(allPlans, ActivityType.Financial);
 
         _context.Projects.Update(project);
         await _context.SaveChangesAsync();
@@ -309,8 +305,6 @@ public class MonitoringService
         foreach (var indicator in indicators)
         {
             indicator.DisbursementPerformance = project.DisbursementPerformance;
-            indicator.FieldMonitoring = project.FieldMonitoring;
-            indicator.ImpactAssessment = project.ImpactAssessment;
             _context.Indicators.Update(indicator);
         }
         await _context.SaveChangesAsync();
@@ -331,18 +325,9 @@ public class MonitoringService
             await UpdateDonorDisbursementPerformanceByCode(donor.Code);
     }
 
-    private double CalcPerf(List<Plan> plans, ActivityType type)
-    {
-        var typed = plans.Where(p => p.Activity?.ActivityType == type).ToList();
-        double totalPlanned = typed.Sum(p => p.Planned);
-        double totalRealised = typed.Sum(p => p.Realised);
-        return totalPlanned > 0 ? (totalRealised / totalPlanned) * 100 : 0;
-    }
-
     private double CalcDisbursementPerf(List<Plan> plans, double estimatedBudget)
     {
-        var typed = plans.Where(p => p.Activity?.ActivityType == ActivityType.DisbursementPerformance).ToList();
-        double totalRealised = typed.Sum(p => p.Realised);
+        double totalRealised = plans.Sum(p => p.Realised);
         return estimatedBudget > 0 ? (totalRealised / estimatedBudget) * 100 : 0;
     }
 
@@ -356,8 +341,6 @@ public class MonitoringService
             .ToListAsync();
 
         subOutput.DisbursementPerformance = indicators.Any() ? indicators.Average(i => i.DisbursementPerformance) : 0;
-        subOutput.FieldMonitoring = indicators.Any() ? indicators.Average(i => i.FieldMonitoring) : 0;
-        subOutput.ImpactAssessment = indicators.Any() ? indicators.Average(i => i.ImpactAssessment) : 0;
 
         await _context.SaveChangesAsync();
 
@@ -375,8 +358,6 @@ public class MonitoringService
             .ToListAsync();
 
         output.DisbursementPerformance = subOutputs.Any() ? subOutputs.Average(s => s.DisbursementPerformance) : 0;
-        output.FieldMonitoring = subOutputs.Any() ? subOutputs.Average(s => s.FieldMonitoring) : 0;
-        output.ImpactAssessment = subOutputs.Any() ? subOutputs.Average(s => s.ImpactAssessment) : 0;
 
         await _context.SaveChangesAsync();
 
@@ -394,8 +375,6 @@ public class MonitoringService
             .ToListAsync();
 
         outcome.DisbursementPerformance = outputs.Any() ? outputs.Average(o => o.DisbursementPerformance) : 0;
-        outcome.FieldMonitoring = outputs.Any() ? outputs.Average(o => o.FieldMonitoring) : 0;
-        outcome.ImpactAssessment = outputs.Any() ? outputs.Average(o => o.ImpactAssessment) : 0;
 
         await _context.SaveChangesAsync();
 
@@ -413,8 +392,6 @@ public class MonitoringService
             .ToListAsync();
 
         framework.DisbursementPerformance = outcomes.Any() ? outcomes.Average(o => o.DisbursementPerformance) : 0;
-        framework.FieldMonitoring = outcomes.Any() ? outcomes.Average(o => o.FieldMonitoring) : 0;
-        framework.ImpactAssessment = outcomes.Any() ? outcomes.Average(o => o.ImpactAssessment) : 0;
 
         await _context.SaveChangesAsync();
     }
@@ -427,8 +404,6 @@ public class MonitoringService
         if (ministry == null) return;
 
         ministry.DisbursementPerformance = ministry.Projects.Any() ? ministry.Projects.Average(p => p.DisbursementPerformance) : 0;
-        ministry.FieldMonitoring = ministry.Projects.Any() ? ministry.Projects.Average(p => p.FieldMonitoring) : 0;
-        ministry.ImpactAssessment = ministry.Projects.Any() ? ministry.Projects.Average(p => p.ImpactAssessment) : 0;
 
         _context.Ministries.Update(ministry);
         await _context.SaveChangesAsync();
@@ -442,8 +417,6 @@ public class MonitoringService
         if (sector == null) return;
 
         sector.DisbursementPerformance = sector.Projects.Any() ? sector.Projects.Average(p => p.DisbursementPerformance) : 0;
-        sector.FieldMonitoring = sector.Projects.Any() ? sector.Projects.Average(p => p.FieldMonitoring) : 0;
-        sector.ImpactAssessment = sector.Projects.Any() ? sector.Projects.Average(p => p.ImpactAssessment) : 0;
 
         _context.Sectors.Update(sector);
         await _context.SaveChangesAsync();
@@ -457,8 +430,6 @@ public class MonitoringService
         if (donor == null) return;
 
         donor.DisbursementPerformance = donor.Projects.Any() ? donor.Projects.Average(p => p.DisbursementPerformance) : 0;
-        donor.FieldMonitoring = donor.Projects.Any() ? donor.Projects.Average(p => p.FieldMonitoring) : 0;
-        donor.ImpactAssessment = donor.Projects.Any() ? donor.Projects.Average(p => p.ImpactAssessment) : 0;
 
         _context.Donors.Update(donor);
         await _context.SaveChangesAsync();

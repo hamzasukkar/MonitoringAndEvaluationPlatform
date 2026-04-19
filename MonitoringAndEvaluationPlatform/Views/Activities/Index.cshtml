@@ -70,10 +70,10 @@
             <div id="@collapseId" class="accordion-collapse collapse @(i == 0 ? "show" : "")" aria-labelledby="heading@i" data-bs-parent="#actionPlanAccordion">
                 <div class="accordion-body">
                     <ul class="list-group">
-                        @foreach (var activity in actionPlanGroup.OrderBy(a => a.ActivityType))
+                        @foreach (var activity in actionPlanGroup.OrderBy(a => a.Name))
                         {
                             <li class="list-group-item">
-                                <strong>@activity.ActivityType:</strong> @activity.Name
+                                <strong>@activity.Name</strong>
                                 <ul>
                                     @foreach (var plan in activity.Plans)
                                     {

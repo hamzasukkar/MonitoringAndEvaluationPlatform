@@ -1,5 +1,4 @@
-﻿using Microsoft.Build.Evaluation;
-using MonitoringAndEvaluationPlatform.Enums;
+using Microsoft.Build.Evaluation;
 using System.ComponentModel.DataAnnotations;
 
 namespace MonitoringAndEvaluationPlatform.Models
@@ -12,8 +11,6 @@ namespace MonitoringAndEvaluationPlatform.Models
         public string Name { get; set; }
 
         public ICollection<Plan> Plans { get; set; } = new List<Plan>();
-
-        public ActivityType ActivityType { get; set; }
 
         public int ActionPlanCode { get; set; }
 

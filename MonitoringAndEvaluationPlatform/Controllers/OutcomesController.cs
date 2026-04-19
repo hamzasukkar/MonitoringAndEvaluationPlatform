@@ -150,9 +150,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                     Name = name.Trim(),
                     FrameworkCode = frameworkCode,
                     IndicatorsPerformance = 0,
-                    DisbursementPerformance = 0,
-                    FieldMonitoring = 0,
-                    ImpactAssessment = 0
+                    DisbursementPerformance = 0
                 };
 
                 _context.Add(outcome);
@@ -226,7 +224,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             // Recalculate framework performance (IndicatorsPerformance)
             await _performanceService.UpdateFrameworkPerformance(frameworkCode);
 
-            // Recalculate framework performance (DisbursementPerformance, FieldMonitoring, ImpactAssessment)
+            // Recalculate framework performance (DisbursementPerformance)
             await _performanceService.UpdateFrameworkDisbursementPerformance(frameworkCode);
 
             return Ok();

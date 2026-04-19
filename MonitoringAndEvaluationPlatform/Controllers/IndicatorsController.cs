@@ -260,9 +260,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                     Target = 0,
                     SubOutputCode = subOutputCode,
                     IndicatorsPerformance = 0,
-                    DisbursementPerformance = 0,
-                    FieldMonitoring = 0,
-                    ImpactAssessment = 0
+                    DisbursementPerformance = 0
                 };
 
                 _context.Indicators.Add(indicator);

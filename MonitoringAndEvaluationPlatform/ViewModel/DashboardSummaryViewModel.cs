@@ -50,8 +50,6 @@ namespace MonitoringAndEvaluationPlatform.ViewModel
         public double OverallPerformance { get; set; }
         public double IndicatorsPerformance { get; set; }
         public double DisbursementPerformance { get; set; }
-        public double FieldMonitoring { get; set; }
-        public double ImpactAssessment { get; set; }
     }
 
     public class SectorPerformanceViewModel
@@ -61,8 +59,6 @@ namespace MonitoringAndEvaluationPlatform.ViewModel
         public double OverallPerformance { get; set; }
         public double IndicatorsPerformance { get; set; }
         public double DisbursementPerformance { get; set; }
-        public double FieldMonitoring { get; set; }
-        public double ImpactAssessment { get; set; }
     }
 
     public class ProjectPerformanceViewModel
@@ -71,8 +67,6 @@ namespace MonitoringAndEvaluationPlatform.ViewModel
         public string ProjectName { get; set; }
         public double Performance { get; set; }
         public double DisbursementPerformance { get; set; }
-        public double FieldMonitoring { get; set; }
-        public double ImpactAssessment { get; set; }
     }
 
     public class GovernorateMapDataViewModel

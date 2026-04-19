@@ -2,7 +2,6 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Localization;
 using MonitoringAndEvaluationPlatform.Data;
-using MonitoringAndEvaluationPlatform.Enums;
 using MonitoringAndEvaluationPlatform.Models;
 
 namespace MonitoringAndEvaluationPlatform.Controllers
@@ -231,7 +230,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         }
 
         // ─────────────────────────────────────────────────────────────────────
-        // HELPER: Create one Activity per ActivityType with one Plan per month
+        // HELPER: Create one Activity with one Plan per month
         // All Planned values start at 0 (no automatic distribution)
         // ─────────────────────────────────────────────────────────────────────
         private async Task CreateActivitiesWithPlans(int actionPlanCode, DateTime startDate, DateTime endDate, double budget)
@@ -239,34 +238,29 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             var startMonth = new DateTime(startDate.Year, startDate.Month, 1);
             var endMonth   = new DateTime(endDate.Year,   endDate.Month,   1);
 
-            foreach (ActivityType type in Enum.GetValues(typeof(ActivityType)))
+            var activity = new Activity
             {
-                var activity = new Activity
-                {
-                    Name = type.ToString(),
-                    ActionPlanCode = actionPlanCode,
-                    ActivityType = type
-                };
+                Name = "DisbursementPerformance",
+                ActionPlanCode = actionPlanCode,
+            };
 
-                var current = startMonth;
-                int i = 1;
-                while (current <= endMonth)
+            var current = startMonth;
+            int i = 1;
+            while (current <= endMonth)
+            {
+                activity.Plans.Add(new Plan
                 {
-                    activity.Plans.Add(new Plan
-                    {
-                        Name = $"{type}-{i}",
-                        Date = current,
-                        Planned = 0,
-                        Realised = 0,
-                        Activity = activity
-                    });
-                    current = current.AddMonths(1);
-                    i++;
-                }
-
-                _context.Activities.Add(activity);
+                    Name = $"Plan-{i}",
+                    Date = current,
+                    Planned = 0,
+                    Realised = 0,
+                    Activity = activity
+                });
+                current = current.AddMonths(1);
+                i++;
             }
 
+            _context.Activities.Add(activity);
             await _context.SaveChangesAsync();
         }
 

@@ -1,6 +1,5 @@
 using Microsoft.EntityFrameworkCore;
 using MonitoringAndEvaluationPlatform.Data;
-using MonitoringAndEvaluationPlatform.Enums;
 using MonitoringAndEvaluationPlatform.Models;
 
 public class PlanService
@@ -85,12 +84,6 @@ public class PlanService
         subOutput.DisbursementPerformance = indicatorsWithProjects.Any()
             ? indicatorsWithProjects.Average(i => i.DisbursementPerformance)
             : 0;
-        subOutput.FieldMonitoring = indicatorsWithProjects.Any()
-            ? indicatorsWithProjects.Average(i => i.FieldMonitoring)
-            : 0;
-        subOutput.ImpactAssessment = indicatorsWithProjects.Any()
-            ? indicatorsWithProjects.Average(i => i.ImpactAssessment)
-            : 0;
 
         _context.SubOutputs.Update(subOutput);
         await _context.SaveChangesAsync();
@@ -107,8 +100,6 @@ public class PlanService
                 var activeSubOutputs = output.SubOutputs.Where(so => so.Indicators.Any(i => i.ProjectID != null)).ToList();
                 output.IndicatorsPerformance = activeSubOutputs.Any() ? activeSubOutputs.Average(so => so.IndicatorsPerformance) : 0;
                 output.DisbursementPerformance = activeSubOutputs.Any() ? activeSubOutputs.Average(so => so.DisbursementPerformance) : 0;
-                output.FieldMonitoring = activeSubOutputs.Any() ? activeSubOutputs.Average(so => so.FieldMonitoring) : 0;
-                output.ImpactAssessment = activeSubOutputs.Any() ? activeSubOutputs.Average(so => so.ImpactAssessment) : 0;
                 _context.Outputs.Update(output);
                 await _context.SaveChangesAsync();
 
@@ -123,8 +114,6 @@ public class PlanService
                         var activeOutputs = outcome.Outputs.Where(o => o.SubOutputs != null).ToList();
                         outcome.IndicatorsPerformance = activeOutputs.Any() ? activeOutputs.Average(o => o.IndicatorsPerformance) : 0;
                         outcome.DisbursementPerformance = activeOutputs.Any() ? activeOutputs.Average(o => o.DisbursementPerformance) : 0;
-                        outcome.FieldMonitoring = activeOutputs.Any() ? activeOutputs.Average(o => o.FieldMonitoring) : 0;
-                        outcome.ImpactAssessment = activeOutputs.Any() ? activeOutputs.Average(o => o.ImpactAssessment) : 0;
                         _context.Outcomes.Update(outcome);
                         await _context.SaveChangesAsync();
 
@@ -138,8 +127,6 @@ public class PlanService
                             {
                                 framework.IndicatorsPerformance = framework.Outcomes.Any() ? framework.Outcomes.Average(oc => oc.IndicatorsPerformance) : 0;
                                 framework.DisbursementPerformance = framework.Outcomes.Any() ? framework.Outcomes.Average(oc => oc.DisbursementPerformance) : 0;
-                                framework.FieldMonitoring = framework.Outcomes.Any() ? framework.Outcomes.Average(oc => oc.FieldMonitoring) : 0;
-                                framework.ImpactAssessment = framework.Outcomes.Any() ? framework.Outcomes.Average(oc => oc.ImpactAssessment) : 0;
                                 _context.Frameworks.Update(framework);
                                 await _context.SaveChangesAsync();
                             }

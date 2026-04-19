@@ -570,7 +570,6 @@
                                     <td class="text-center">
                                         @{
                                             double realisedAmount = phase.ActionPlan?.Activities
-                                                .Where(a => a.ActivityType == MonitoringAndEvaluationPlatform.Enums.ActivityType.DisbursementPerformance)
                                                 .SelectMany(a => a.Plans)
                                                 .Sum(p => (double)p.Realised) ?? 0;
                                         }
@@ -674,28 +673,6 @@
                 </div>
             </div>
         </div>
-     @*    <div class="col-md-3">
-            <div class="card shadow-sm h-100">
-                <div class="card-body text-center">
-                    <h6 class="card-title text-muted">@Localizer["Field Monitoring"]</h6>
-                    <div class="progress-circle progress-@((int)Model.FieldMonitoring)" data-value="@Model.FieldMonitoring">
-                        <span class="progress-circle-value">@Model.FieldMonitoring%</span>
-                    </div>
-                    <p class="text-muted mt-2 mb-0">@Localizer["Field activities completion"]</p>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-3">
-            <div class="card shadow-sm h-100">
-                <div class="card-body text-center">
-                    <h6 class="card-title text-muted">@Localizer["Impact Assessment"]</h6>
-                    <div class="progress-circle progress-@((int)Model.ImpactAssessment)" data-value="@Model.ImpactAssessment">
-                        <span class="progress-circle-value">@Model.ImpactAssessment%</span>
-                    </div>
-                    <p class="text-muted mt-2 mb-0">@Localizer["Impact measurement"]</p>
-                </div>
-            </div>
-        </div> *@
     </div>
 
     <!-- Project Files Section -->

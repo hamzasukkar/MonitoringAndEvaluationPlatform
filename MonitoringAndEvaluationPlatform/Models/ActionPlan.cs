@@ -30,7 +30,7 @@ namespace MonitoringAndEvaluationPlatform.Models
         {
             if (ProjectPhase?.Project?.EstimatedBudget > 0)
             {
-                var allPlans = Activities.Where(a => a.ActivityType == Enums.ActivityType.DisbursementPerformance).SelectMany(a => a.Plans).ToList();
+                var allPlans = Activities.SelectMany(a => a.Plans).ToList();
                 if (allPlans.Count > 0)
                 {
                     int equalPlannedValue = (int)(ProjectPhase.Project.EstimatedBudget / allPlans.Count);

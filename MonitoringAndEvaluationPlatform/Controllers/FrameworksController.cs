@@ -171,9 +171,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 {
                     Name = name.Trim(),
                     IndicatorsPerformance = 0,
-                    DisbursementPerformance = 0,
-                    FieldMonitoring = 0,
-                    ImpactAssessment = 0
+                    DisbursementPerformance = 0
                 };
 
                 _context.Add(framework);
@@ -306,9 +304,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                     {
                         Name = model.FrameworkName.Trim(),
                         IndicatorsPerformance = 0,
-                        DisbursementPerformance = 0,
-                        FieldMonitoring = 0,
-                        ImpactAssessment = 0
+                        DisbursementPerformance = 0
                     };
 
                     _context.Frameworks.Add(framework);
@@ -325,9 +321,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                                 Name = model.Outcomes[i].Name.Trim(),
                                 FrameworkCode = framework.Code,
                                 IndicatorsPerformance = 0,
-                                DisbursementPerformance = 0,
-                                FieldMonitoring = 0,
-                                ImpactAssessment = 0
+                                DisbursementPerformance = 0
                             };
 
                             _context.Outcomes.Add(outcome);
@@ -348,9 +342,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                                 Name = model.Outputs[i].Name.Trim(),
                                 OutcomeCode = outcomeMapping[model.Outputs[i].OutcomeIndex],
                                 IndicatorsPerformance = 0,
-                                DisbursementPerformance = 0,
-                                FieldMonitoring = 0,
-                                ImpactAssessment = 0
+                                DisbursementPerformance = 0
                             };
 
                             _context.Outputs.Add(output);
@@ -371,9 +363,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                                 Name = model.SubOutputs[i].Name.Trim(),
                                 OutputCode = outputMapping[model.SubOutputs[i].OutputIndex],
                                 IndicatorsPerformance = 0,
-                                DisbursementPerformance = 0,
-                                FieldMonitoring = 0,
-                                ImpactAssessment = 0
+                                DisbursementPerformance = 0
                             };
 
                             _context.SubOutputs.Add(subOutput);
@@ -397,8 +387,6 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                                 Source = model.Indicators[i].Source?.Trim() ?? string.Empty,
                                 IndicatorsPerformance = 0,
                                 DisbursementPerformance = 0,
-                                FieldMonitoring = 0,
-                                ImpactAssessment = 0,
                                 IsCommon = false,
                                 Active = true,
                                 TargetYear = DateTime.Now.AddYears(1),

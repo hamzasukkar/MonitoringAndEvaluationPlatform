@@ -13,7 +13,5 @@ namespace MonitoringAndEvaluationPlatform.Models
         public ICollection<ProjectDonor> ProjectDonors { get; set; } = new List<ProjectDonor>();
         public double IndicatorsPerformance { get; set; } = 0;
         public double DisbursementPerformance { get; set; } = 0;
-        public double FieldMonitoring { get; set; } = 0;
-        public double ImpactAssessment { get; set; } = 0;
     }
 }

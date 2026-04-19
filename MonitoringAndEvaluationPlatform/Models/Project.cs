@@ -80,10 +80,6 @@ namespace MonitoringAndEvaluationPlatform.Models
 
         public double performance { get; set; }
         public double DisbursementPerformance { get; set; }
-        public double FieldMonitoring { get; set; }
-        public double ImpactAssessment { get; set; }
-        public int Financial { get; set; }
-        public int Physical { get; set; }
 
         // Project Phases — the new intermediate layer
         public virtual ICollection<ProjectPhase> Phases { get; set; } = new List<ProjectPhase>();

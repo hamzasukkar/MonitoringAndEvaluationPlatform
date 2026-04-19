@@ -11,7 +11,6 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Localization;
 using MonitoringAndEvaluationPlatform.Attributes;
 using MonitoringAndEvaluationPlatform.Data;
-using MonitoringAndEvaluationPlatform.Enums;
 using MonitoringAndEvaluationPlatform.Models;
 using MonitoringAndEvaluationPlatform.Services;
 using MonitoringAndEvaluationPlatform.ViewModel;
@@ -1658,7 +1657,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 _context.ActionPlans.Add(actionPlan);
                 await _context.SaveChangesAsync();
 
-                // Auto-create one Activity per ActivityType with monthly Plans
+                // Auto-create one Activity with monthly Plans
                 await CreateDefaultActivitiesWithPlansAsync(actionPlan.Code, phase.StartDate, phase.EndDate, phase.Budget);
             }
         }
@@ -1668,34 +1667,29 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             var startMonth = new DateTime(startDate.Year, startDate.Month, 1);
             var endMonth   = new DateTime(endDate.Year,   endDate.Month,   1);
 
-            foreach (ActivityType type in Enum.GetValues(typeof(ActivityType)))
+            var activity = new Activity
             {
-                var activity = new Activity
-                {
-                    Name = type.ToString(),
-                    ActionPlanCode = actionPlanCode,
-                    ActivityType = type
-                };
+                Name = "DisbursementPerformance",
+                ActionPlanCode = actionPlanCode,
+            };
 
-                var current = startMonth;
-                int idx = 1;
-                while (current <= endMonth)
+            var current = startMonth;
+            int idx = 1;
+            while (current <= endMonth)
+            {
+                activity.Plans.Add(new Plan
                 {
-                    activity.Plans.Add(new Plan
-                    {
-                        Name = $"{type}-{idx}",
-                        Date = current,
-                        Planned = 0,
-                        Realised = 0,
-                        Activity = activity
-                    });
-                    current = current.AddMonths(1);
-                    idx++;
-                }
-
-                _context.Activities.Add(activity);
+                    Name = $"Plan-{idx}",
+                    Date = current,
+                    Planned = 0,
+                    Realised = 0,
+                    Activity = activity
+                });
+                current = current.AddMonths(1);
+                idx++;
             }
 
+            _context.Activities.Add(activity);
             await _context.SaveChangesAsync();
         }
     }

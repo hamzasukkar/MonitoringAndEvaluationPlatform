@@ -132,7 +132,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Code,Name,ActivityType,ActionPlanCode")] Activity activity)
+        public async Task<IActionResult> Edit(int id, [Bind("Code,Name,ActionPlanCode")] Activity activity)
         {
             if (id != activity.Code)
             {

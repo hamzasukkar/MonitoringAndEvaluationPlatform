@@ -1,5 +1,4 @@
 ﻿using System.ComponentModel.DataAnnotations;
-using MonitoringAndEvaluationPlatform.Enums;
 
 namespace MonitoringAndEvaluationPlatform.Models
 {
@@ -12,8 +11,6 @@ namespace MonitoringAndEvaluationPlatform.Models
         public string Source { get; set; } = string.Empty;
         public double IndicatorsPerformance { get; set; } = 0;
         public double DisbursementPerformance { get; set; } = 0;
-        public double FieldMonitoring { get; set; } = 0;
-        public double ImpactAssessment { get; set; } = 0;
 
         public int TargetCode { get; set; }
         virtual public Target Target { get; set; }
