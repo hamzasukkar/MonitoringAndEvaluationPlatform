@@ -124,15 +124,15 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         // GET: Plans
         public async Task<IActionResult> Index()
         {
-            var applicationDbContext = _context.Plans.Include(p => p.Activity);
+            var applicationDbContext = _context.Plans.Include(p => p.ActionPlan);
             return View(await applicationDbContext.ToListAsync());
         }
 
         public async Task<IActionResult> ProjectPlans(int? id)
         {
-            ViewBag.ProjectId =id;
+            ViewBag.ProjectId = id;
 
-            var applicationDbContext = _context.Plans.Include(p => p.Activity);
+            var applicationDbContext = _context.Plans.Include(p => p.ActionPlan);
             return View(await applicationDbContext.ToListAsync());
         }
 
@@ -145,7 +145,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             }
 
             var plan = await _context.Plans
-                .Include(p => p.Activity)
+                .Include(p => p.ActionPlan)
                 .FirstOrDefaultAsync(m => m.Code == id);
             if (plan == null)
             {
@@ -158,7 +158,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         // GET: Plans/Create
         public IActionResult Create()
         {
-            ViewData["ActivityCode"] = new SelectList(_context.Activities, "Code", "Code");
+            ViewData["ActionPlanCode"] = new SelectList(_context.ActionPlans, "Code", "Code");
             return View();
         }
 
@@ -167,9 +167,9 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Code,Name,Date,Planned,Realised,ActivityCode")] Plan plan)
+        public async Task<IActionResult> Create([Bind("Code,Name,Date,Planned,Realised,ActionPlanCode")] Plan plan)
         {
-            ModelState.Remove(nameof(plan.Activity));
+            ModelState.Remove(nameof(plan.ActionPlan));
 
             if (ModelState.IsValid)
             {
@@ -177,7 +177,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["ActivityCode"] = new SelectList(_context.Activities, "Code", "Code", plan.ActivityCode);
+            ViewData["ActionPlanCode"] = new SelectList(_context.ActionPlans, "Code", "Code", plan.ActionPlanCode);
             return View(plan);
         }
 
@@ -194,7 +194,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             {
                 return NotFound();
             }
-            ViewData["ActivityCode"] = new SelectList(_context.Activities, "Code", "Code", plan.ActivityCode);
+            ViewData["ActionPlanCode"] = new SelectList(_context.ActionPlans, "Code", "Code", plan.ActionPlanCode);
             return View(plan);
         }
 
@@ -204,14 +204,14 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
 
-        public async Task<IActionResult> Edit(int id, [Bind("Code,Name,Date,Planned,Realised,ActivityCode")] Plan plan)
+        public async Task<IActionResult> Edit(int id, [Bind("Code,Name,Date,Planned,Realised,ActionPlanCode")] Plan plan)
         {
             if (id != plan.Code)
             {
                 return NotFound();
             }
 
-            ModelState.Remove(nameof(plan.Activity));
+            ModelState.Remove(nameof(plan.ActionPlan));
             if (ModelState.IsValid)
             {
                 try
@@ -244,7 +244,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             }
 
             var plan = await _context.Plans
-                .Include(p => p.Activity)
+                .Include(p => p.ActionPlan)
                 .FirstOrDefaultAsync(m => m.Code == id);
             if (plan == null)
             {

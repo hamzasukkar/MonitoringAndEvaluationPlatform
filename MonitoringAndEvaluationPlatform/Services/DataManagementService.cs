@@ -218,9 +218,8 @@ namespace MonitoringAndEvaluationPlatform.Services
                     GroupName = "Project Data",
                     Description = "Projects with associated action plans, activities, files, and relationships",
                     DangerLevel = "High",
-                    Tables = new List<string> { "Projects", "ActionPlans", "Activities", "ProjectDonors", "ProjectFiles" },
+                    Tables = new List<string> { "Projects", "ActionPlans", "ProjectDonors", "ProjectFiles" },
                     TotalRecords = await _context.Projects.CountAsync() + await _context.ActionPlans.CountAsync() +
-                                   await _context.Activities.CountAsync() +
                                    await _context.ProjectDonors.CountAsync() + await _context.ProjectFiles.CountAsync()
                 },
                 new TableGroupViewModel
@@ -289,7 +288,7 @@ namespace MonitoringAndEvaluationPlatform.Services
             {
                 ("audit", new[] { "AuditLogs" }),
                 ("performance", new[] { "Plans", "Measures" }),
-                ("projects", new[] { "ProjectFiles", "ProjectDonors", "ProjectIndicators", "Activities", "ActionPlans", "Projects" }),
+                ("projects", new[] { "ProjectFiles", "ProjectDonors", "ProjectIndicators", "Plans", "ActionPlans", "Projects" }),
                 ("sdg", new[] { "sDGIndicators", "Targets", "Goals" }),
                 ("framework", new[] { "FrameworkGoalFiles", "FrameworkGoalYearlyValues", "FrameworkGoals", "Indicators", "SubOutputs", "Outputs", "Outcomes", "Frameworks" }),
                 ("reference", new[] { "ProjectManagers", "SuperVisors", "Ministries", "Sectors", "Donors" }),
@@ -333,8 +332,7 @@ namespace MonitoringAndEvaluationPlatform.Services
             var query = _context.Projects
                 .Include(p => p.Phases)
                     .ThenInclude(pp => pp.ActionPlan)
-                        .ThenInclude(ap => ap.Activities)
-                            .ThenInclude(a => a.Plans)
+                        .ThenInclude(ap => ap.Plans)
                 .Include(p => p.Indicators)
                 .Include(p => p.ProjectFiles)
                 .Include(p => p.Ministry)
@@ -352,8 +350,8 @@ namespace MonitoringAndEvaluationPlatform.Services
                     ProjectId = p.ProjectID,
                     ProjectName = p.ProjectName,
                     ActionPlanCount = p.Phases.Count(pp => pp.ActionPlan != null),
-                    ActivityCount = p.Phases.Where(pp => pp.ActionPlan != null).SelectMany(pp => pp.ActionPlan!.Activities).Count(),
-                    PlanCount = p.Phases.Where(pp => pp.ActionPlan != null).SelectMany(pp => pp.ActionPlan!.Activities).SelectMany(a => a.Plans).Count(),
+                    ActivityCount = 0,
+                    PlanCount = p.Phases.Where(pp => pp.ActionPlan != null).SelectMany(pp => pp.ActionPlan!.Plans).Count(),
                     IndicatorCount = p.Indicators.Count,
                     FileCount = p.ProjectFiles.Count,
                     StartDate = p.StartDate,
@@ -381,8 +379,7 @@ namespace MonitoringAndEvaluationPlatform.Services
                     var project = await _context.Projects
                         .Include(p => p.Phases)
                             .ThenInclude(pp => pp.ActionPlan)
-                                .ThenInclude(ap => ap.Activities)
-                                    .ThenInclude(a => a.Plans)
+                                .ThenInclude(ap => ap.Plans)
                         .Include(p => p.Indicators)
                         .Include(p => p.ProjectDonors)
                         .Include(p => p.ProjectFiles)
@@ -404,13 +401,8 @@ namespace MonitoringAndEvaluationPlatform.Services
                     {
                         if (phase.ActionPlan != null)
                         {
-                            foreach (var activity in phase.ActionPlan.Activities)
-                            {
-                                _context.Plans.RemoveRange(activity.Plans);
-                                totalDeleted += activity.Plans.Count;
-                            }
-                            _context.Activities.RemoveRange(phase.ActionPlan.Activities);
-                            totalDeleted += phase.ActionPlan.Activities.Count;
+                            _context.Plans.RemoveRange(phase.ActionPlan.Plans);
+                            totalDeleted += phase.ActionPlan.Plans.Count;
                             _context.ActionPlans.Remove(phase.ActionPlan);
                             totalDeleted++;
                         }

@@ -24,17 +24,15 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         private readonly ApplicationDbContext _context;
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly RoleManager<IdentityRole> _roleManager;
-        private readonly IActivityService _activityService;
         private readonly PlanService _planService;
         private readonly IProjectValidationService _validationService;
         private readonly IStringLocalizer<ProjectsController> _localizer;
 
-        public ProjectsController(ApplicationDbContext context, UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager, IActivityService activityService, PlanService planService, IProjectValidationService validationService, IStringLocalizer<ProjectsController> localizer)
+        public ProjectsController(ApplicationDbContext context, UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager, PlanService planService, IProjectValidationService validationService, IStringLocalizer<ProjectsController> localizer)
         {
             _context = context;
             _userManager = userManager;
             _roleManager = roleManager;
-            _activityService = activityService;
             _planService = planService;
             _validationService = validationService;
             _localizer = localizer;
@@ -557,8 +555,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                         .ThenInclude(m => m.Files)
                 .Include(p => p.Phases)
                     .ThenInclude(pp => pp.ActionPlan)
-                        .ThenInclude(ap => ap.Activities)
-                            .ThenInclude(a => a.Plans)
+                        .ThenInclude(ap => ap.Plans)
                 .Include(p => p.ProjectFiles)
                 .AsNoTracking()
                 .FirstOrDefaultAsync(m => m.ProjectID == id);
@@ -1602,7 +1599,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 _context.ActionPlans.Add(actionPlan);
                 await _context.SaveChangesAsync();
 
-                await CreateDefaultActivitiesWithPlansAsync(actionPlan.Code, singlePhase.StartDate, singlePhase.EndDate, singlePhase.Budget);
+                await CreateDefaultPlansForActionPlanAsync(actionPlan.Code, singlePhase.StartDate, singlePhase.EndDate);
                 return;
             }
 
@@ -1657,39 +1654,32 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 _context.ActionPlans.Add(actionPlan);
                 await _context.SaveChangesAsync();
 
-                // Auto-create one Activity with monthly Plans
-                await CreateDefaultActivitiesWithPlansAsync(actionPlan.Code, phase.StartDate, phase.EndDate, phase.Budget);
+                // Auto-create monthly Plans directly on ActionPlan
+                await CreateDefaultPlansForActionPlanAsync(actionPlan.Code, phase.StartDate, phase.EndDate);
             }
         }
 
-        private async Task CreateDefaultActivitiesWithPlansAsync(int actionPlanCode, DateTime startDate, DateTime endDate, double budget)
+        private async Task CreateDefaultPlansForActionPlanAsync(int actionPlanCode, DateTime startDate, DateTime endDate)
         {
             var startMonth = new DateTime(startDate.Year, startDate.Month, 1);
             var endMonth   = new DateTime(endDate.Year,   endDate.Month,   1);
-
-            var activity = new Activity
-            {
-                Name = "DisbursementPerformance",
-                ActionPlanCode = actionPlanCode,
-            };
 
             var current = startMonth;
             int idx = 1;
             while (current <= endMonth)
             {
-                activity.Plans.Add(new Plan
+                _context.Plans.Add(new Plan
                 {
-                    Name = $"Plan-{idx}",
+                    Name = $"Plan {idx}",
                     Date = current,
                     Planned = 0,
                     Realised = 0,
-                    Activity = activity
+                    ActionPlanCode = actionPlanCode
                 });
                 current = current.AddMonths(1);
                 idx++;
             }
 
-            _context.Activities.Add(activity);
             await _context.SaveChangesAsync();
         }
     }

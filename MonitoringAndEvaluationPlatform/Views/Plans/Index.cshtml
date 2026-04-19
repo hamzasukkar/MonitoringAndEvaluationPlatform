@@ -26,7 +26,7 @@
                 @Html.DisplayNameFor(model => model.Realised)
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.Activity)
+                @Html.DisplayNameFor(model => model.ActionPlan)
             </th>
             <th></th>
         </tr>
@@ -47,7 +47,7 @@
                 @Html.DisplayFor(modelItem => item.Realised)
             </td>
             <td>
-                @Html.DisplayFor(modelItem => item.Activity.Code)
+                @Html.DisplayFor(modelItem => item.ActionPlan.Code)
             </td>
             <td>
                 <a asp-action="Edit" asp-route-id="@item.Code">Edit</a> |

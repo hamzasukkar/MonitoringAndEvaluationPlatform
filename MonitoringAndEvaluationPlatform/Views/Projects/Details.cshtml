@@ -569,8 +569,7 @@
                                     </td>
                                     <td class="text-center">
                                         @{
-                                            double realisedAmount = phase.ActionPlan?.Activities
-                                                .SelectMany(a => a.Plans)
+                                            double realisedAmount = phase.ActionPlan?.Plans
                                                 .Sum(p => (double)p.Realised) ?? 0;
                                         }
                                         <span class="@(realisedAmount > phase.Budget ? "modern-badge badge-danger" : "fw-bold")">@Model.CurrencySymbol@realisedAmount.ToString("0")</span>

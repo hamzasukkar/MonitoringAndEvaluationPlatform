@@ -39,8 +39,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         {
             // Fetch action plan for this specific phase
             var phaseActionPlan = await _context.ActionPlans
-                .Include(ap => ap.Activities)
-                    .ThenInclude(a => a.Plans)
+                .Include(ap => ap.Plans)
                 .Include(ap => ap.ProjectPhase)
                     .ThenInclude(pp => pp.Project)
                 .FirstOrDefaultAsync(ap => ap.ProjectPhaseId == phaseId);
@@ -63,8 +62,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 await _context.SaveChangesAsync();
 
                 phaseActionPlan = await _context.ActionPlans
-                    .Include(ap => ap.Activities)
-                        .ThenInclude(a => a.Plans)
+                    .Include(ap => ap.Plans)
                     .Include(ap => ap.ProjectPhase)
                         .ThenInclude(pp => pp.Project)
                     .FirstOrDefaultAsync(ap => ap.Code == newPlan.Code);
@@ -75,23 +73,26 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             var phase = phaseActionPlan.ProjectPhase;
             var project = phase.Project;
 
-            // Map to ViewModel — all activities are now implicitly DisbursementPerformance
+            // Map to ViewModel — plans are now directly on the ActionPlan
             var viewModel = new List<ActivityPlanViewModel>
             {
                 new ActivityPlanViewModel
                 {
                     ActivityType = "DisbursementPerformance",
-                    Activities = phaseActionPlan.Activities.Select(activity => new ActivityRow
+                    Activities = new List<ActivityRow>
                     {
-                        ActivityName = activity.Name,
-                        Plans = activity.Plans.OrderBy(p => p.Date).Select(plan => new PlanDetail
+                        new ActivityRow
                         {
-                            PlanCode = plan.Code,
-                            Date = plan.Date,
-                            PlannedValue = plan.Planned,
-                            RealisedValue = plan.Realised
-                        }).ToList()
-                    }).ToList()
+                            ActivityName = "DisbursementPerformance",
+                            Plans = phaseActionPlan.Plans.OrderBy(p => p.Date).Select(plan => new PlanDetail
+                            {
+                                PlanCode = plan.Code,
+                                Date = plan.Date,
+                                PlannedValue = plan.Planned,
+                                RealisedValue = plan.Realised
+                            }).ToList()
+                        }
+                    }
                 }
             };
 
@@ -153,12 +154,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             {
                 _context.Add(actionPlan);
                 await _context.SaveChangesAsync();
-                return RedirectToRoute(new
-                {
-                    controller = "Activities",
-                    action = "Create",
-                    id = 5
-                });
+                return RedirectToAction(nameof(Index));
             }
             ViewData["ProjectPhaseId"] = new SelectList(
                 _context.ProjectPhases.Include(pp => pp.Project),

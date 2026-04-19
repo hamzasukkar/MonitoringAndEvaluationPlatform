@@ -24,7 +24,6 @@ namespace MonitoringAndEvaluationPlatform.Data
         public DbSet<MeasureFile> MeasureFiles { get; set; } = default!;
         public DbSet<SuperVisor> SuperVisors { get; set; } = default!;
         public DbSet<ProjectManager> ProjectManagers { get; set; } = default!;
-        public DbSet<Activity> Activities { get; set; } = default!;
         public DbSet<Plan> Plans { get; set; } = default!;
         public DbSet<ActionPlan> ActionPlans { get; set; } = default!;
         public DbSet<ProjectDonor> ProjectDonors { get; set; } = default!;
@@ -75,6 +74,13 @@ namespace MonitoringAndEvaluationPlatform.Data
                 .HasOne(ap => ap.ProjectPhase)
                 .WithOne(pp => pp.ActionPlan)
                 .HasForeignKey<ActionPlan>(ap => ap.ProjectPhaseId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            // Plan → ActionPlan (many-to-one)
+            modelBuilder.Entity<Plan>()
+                .HasOne(p => p.ActionPlan)
+                .WithMany(ap => ap.Plans)
+                .HasForeignKey(p => p.ActionPlanCode)
                 .OnDelete(DeleteBehavior.Cascade);
 
             // Indicator → Project (many-to-one, replaces old ProjectIndicator many-to-many)

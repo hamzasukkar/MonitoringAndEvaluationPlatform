@@ -230,37 +230,28 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         }
 
         // ─────────────────────────────────────────────────────────────────────
-        // HELPER: Create one Activity with one Plan per month
+        // HELPER: Create one Plan per month directly on the ActionPlan
         // All Planned values start at 0 (no automatic distribution)
         // ─────────────────────────────────────────────────────────────────────
-        private async Task CreateActivitiesWithPlans(int actionPlanCode, DateTime startDate, DateTime endDate, double budget)
+        private async Task CreatePlansForActionPlan(int actionPlanCode, DateTime startDate, DateTime endDate)
         {
             var startMonth = new DateTime(startDate.Year, startDate.Month, 1);
             var endMonth   = new DateTime(endDate.Year,   endDate.Month,   1);
-
-            var activity = new Activity
-            {
-                Name = "DisbursementPerformance",
-                ActionPlanCode = actionPlanCode,
-            };
-
             var current = startMonth;
             int i = 1;
             while (current <= endMonth)
             {
-                activity.Plans.Add(new Plan
+                _context.Plans.Add(new Plan
                 {
-                    Name = $"Plan-{i}",
+                    Name = $"Plan {i}",
                     Date = current,
                     Planned = 0,
                     Realised = 0,
-                    Activity = activity
+                    ActionPlanCode = actionPlanCode
                 });
                 current = current.AddMonths(1);
                 i++;
             }
-
-            _context.Activities.Add(activity);
             await _context.SaveChangesAsync();
         }
 

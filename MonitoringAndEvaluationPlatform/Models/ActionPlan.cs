@@ -12,12 +12,12 @@ namespace MonitoringAndEvaluationPlatform.Models
         public int ProjectPhaseId { get; set; }
         public virtual ProjectPhase ProjectPhase { get; set; } = null!;
 
-        public ICollection<Activity> Activities { get; set; } = new List<Activity>();
+        public ICollection<Plan> Plans { get; set; } = new List<Plan>();
 
         public void UpdatePerformance()
         {
-            double totalPlanned = Activities.SelectMany(a => a.Plans).Sum(p => p.Planned);
-            double totalRealised = Activities.SelectMany(a => a.Plans).Sum(p => p.Realised);
+            double totalPlanned = Plans.Sum(p => p.Planned);
+            double totalRealised = Plans.Sum(p => p.Realised);
 
             if (ProjectPhase?.Project != null)
             {
@@ -30,7 +30,7 @@ namespace MonitoringAndEvaluationPlatform.Models
         {
             if (ProjectPhase?.Project?.EstimatedBudget > 0)
             {
-                var allPlans = Activities.SelectMany(a => a.Plans).ToList();
+                var allPlans = Plans.ToList();
                 if (allPlans.Count > 0)
                 {
                     int equalPlannedValue = (int)(ProjectPhase.Project.EstimatedBudget / allPlans.Count);

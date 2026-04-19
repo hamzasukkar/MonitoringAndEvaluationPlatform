@@ -18,15 +18,15 @@ namespace MonitoringAndEvaluationPlatform.Models
 
         public int Realised { get; set; }
 
-        public int ActivityCode { get; set; }
+        public int ActionPlanCode { get; set; }
 
-        virtual public Activity Activity { get; set; }
+        virtual public ActionPlan ActionPlan { get; set; }
 
         public void UpdatePerformance()
         {
-            if (Activity?.ActionPlan != null) // Ensure ActionPlan exists
+            if (ActionPlan != null)
             {
-                Activity.ActionPlan.UpdatePerformance();
+                ActionPlan.UpdatePerformance();
             }
         }
     }

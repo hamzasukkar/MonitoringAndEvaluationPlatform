@@ -276,8 +276,7 @@ public class MonitoringService
         var project = await _context.Projects
             .Include(p => p.Phases)
                 .ThenInclude(pp => pp.ActionPlan)
-                    .ThenInclude(ap => ap.Activities)
-                        .ThenInclude(a => a.Plans)
+                    .ThenInclude(ap => ap.Plans)
             .Include(p => p.Ministries)
             .Include(p => p.Sectors)
             .Include(p => p.Donors)
@@ -288,8 +287,7 @@ public class MonitoringService
         // Aggregate plans across all phases
         var allPlans = project.Phases
             .Where(pp => pp.ActionPlan != null)
-            .SelectMany(pp => pp.ActionPlan!.Activities)
-            .SelectMany(a => a.Plans)
+            .SelectMany(pp => pp.ActionPlan!.Plans)
             .ToList();
 
         project.DisbursementPerformance = CalcDisbursementPerf(allPlans, project.EstimatedBudget);
@@ -336,8 +334,7 @@ public class MonitoringService
     {
         double totalRealised = projects.Sum(p => p.Phases
             .Where(ph => ph.ActionPlan != null)
-            .SelectMany(ph => ph.ActionPlan!.Activities)
-            .SelectMany(a => a.Plans)
+            .SelectMany(ph => ph.ActionPlan!.Plans)
             .Sum(pl => pl.Realised));
         double totalBudget = projects.Sum(p => p.EstimatedBudget);
         return totalBudget > 0 ? (totalRealised / totalBudget) * 100 : 0;
@@ -348,8 +345,7 @@ public class MonitoringService
         return await _context.Projects
             .Include(p => p.Phases)
                 .ThenInclude(ph => ph.ActionPlan)
-                    .ThenInclude(ap => ap.Activities)
-                        .ThenInclude(a => a.Plans)
+                    .ThenInclude(ap => ap.Plans)
             .Where(p => projectIds.Contains(p.ProjectID))
             .ToListAsync();
     }

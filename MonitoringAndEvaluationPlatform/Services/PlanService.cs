@@ -13,10 +13,9 @@ public class PlanService
 
     public async Task UpdatePlanAsync(Plan plan)
     {
-        // Load plan → activity → actionPlan → projectPhase → project
+        // Load plan → actionPlan → projectPhase → project
         var existingPlan = await _context.Plans
-            .Include(p => p.Activity)
-            .ThenInclude(a => a.ActionPlan)
+            .Include(p => p.ActionPlan)
             .ThenInclude(ap => ap.ProjectPhase)
             .ThenInclude(pp => pp.Project)
             .FirstOrDefaultAsync(p => p.Code == plan.Code);
@@ -29,7 +28,7 @@ public class PlanService
         _context.Plans.Update(existingPlan);
         await _context.SaveChangesAsync();
 
-        var project = existingPlan.Activity.ActionPlan.ProjectPhase.Project;
+        var project = existingPlan.ActionPlan.ProjectPhase.Project;
 
         // Update all performance types for this project (cascades through phases)
         var monitoringService = new MonitoringService(_context);
