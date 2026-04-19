@@ -331,16 +331,42 @@ public class MonitoringService
         return estimatedBudget > 0 ? (totalRealised / estimatedBudget) * 100 : 0;
     }
 
+    // Σ Realised / Σ EstimatedBudget × 100 for a set of projects
+    private double CalcDisbursementPerfForProjects(IEnumerable<Project> projects)
+    {
+        double totalRealised = projects.Sum(p => p.Phases
+            .Where(ph => ph.ActionPlan != null)
+            .SelectMany(ph => ph.ActionPlan!.Activities)
+            .SelectMany(a => a.Plans)
+            .Sum(pl => pl.Realised));
+        double totalBudget = projects.Sum(p => p.EstimatedBudget);
+        return totalBudget > 0 ? (totalRealised / totalBudget) * 100 : 0;
+    }
+
+    private async Task<List<Project>> GetProjectsForIndicators(IEnumerable<int> projectIds)
+    {
+        return await _context.Projects
+            .Include(p => p.Phases)
+                .ThenInclude(ph => ph.ActionPlan)
+                    .ThenInclude(ap => ap.Activities)
+                        .ThenInclude(a => a.Plans)
+            .Where(p => projectIds.Contains(p.ProjectID))
+            .ToListAsync();
+    }
+
     private async Task UpdateSubOutputDisbursementPerformance(int subOutputCode)
     {
         var subOutput = await _context.SubOutputs.FirstOrDefaultAsync(s => s.Code == subOutputCode);
         if (subOutput == null) return;
 
-        var indicators = await _context.Indicators
+        var projectIds = await _context.Indicators
             .Where(i => i.SubOutputCode == subOutputCode && i.ProjectID != null)
+            .Select(i => i.ProjectID!.Value)
+            .Distinct()
             .ToListAsync();
 
-        subOutput.DisbursementPerformance = indicators.Any() ? indicators.Average(i => i.DisbursementPerformance) : 0;
+        var projects = await GetProjectsForIndicators(projectIds);
+        subOutput.DisbursementPerformance = projects.Any() ? CalcDisbursementPerfForProjects(projects) : 0;
 
         await _context.SaveChangesAsync();
 
@@ -353,11 +379,19 @@ public class MonitoringService
         var output = await _context.Outputs.FirstOrDefaultAsync(o => o.Code == outputCode);
         if (output == null) return;
 
-        var subOutputs = await _context.SubOutputs
+        var subOutputCodes = await _context.SubOutputs
             .Where(s => s.OutputCode == outputCode)
+            .Select(s => s.Code)
             .ToListAsync();
 
-        output.DisbursementPerformance = subOutputs.Any() ? subOutputs.Average(s => s.DisbursementPerformance) : 0;
+        var projectIds = await _context.Indicators
+            .Where(i => subOutputCodes.Contains(i.SubOutputCode) && i.ProjectID != null)
+            .Select(i => i.ProjectID!.Value)
+            .Distinct()
+            .ToListAsync();
+
+        var projects = await GetProjectsForIndicators(projectIds);
+        output.DisbursementPerformance = projects.Any() ? CalcDisbursementPerfForProjects(projects) : 0;
 
         await _context.SaveChangesAsync();
 
@@ -370,11 +404,22 @@ public class MonitoringService
         var outcome = await _context.Outcomes.FirstOrDefaultAsync(o => o.Code == outcomeCode);
         if (outcome == null) return;
 
-        var outputs = await _context.Outputs
-            .Where(o => o.OutcomeCode == outcomeCode)
+        var subOutputCodes = await _context.SubOutputs
+            .Where(s => _context.Outputs
+                .Where(o => o.OutcomeCode == outcomeCode)
+                .Select(o => o.Code)
+                .Contains(s.OutputCode))
+            .Select(s => s.Code)
             .ToListAsync();
 
-        outcome.DisbursementPerformance = outputs.Any() ? outputs.Average(o => o.DisbursementPerformance) : 0;
+        var projectIds = await _context.Indicators
+            .Where(i => subOutputCodes.Contains(i.SubOutputCode) && i.ProjectID != null)
+            .Select(i => i.ProjectID!.Value)
+            .Distinct()
+            .ToListAsync();
+
+        var projects = await GetProjectsForIndicators(projectIds);
+        outcome.DisbursementPerformance = projects.Any() ? CalcDisbursementPerfForProjects(projects) : 0;
 
         await _context.SaveChangesAsync();
 
@@ -387,11 +432,27 @@ public class MonitoringService
         var framework = await _context.Frameworks.FirstOrDefaultAsync(f => f.Code == frameworkCode);
         if (framework == null) return;
 
-        var outcomes = await _context.Outcomes
+        var outcomeCodes = await _context.Outcomes
             .Where(o => o.FrameworkCode == frameworkCode)
+            .Select(o => o.Code)
             .ToListAsync();
 
-        framework.DisbursementPerformance = outcomes.Any() ? outcomes.Average(o => o.DisbursementPerformance) : 0;
+        var subOutputCodes = await _context.SubOutputs
+            .Where(s => _context.Outputs
+                .Where(o => outcomeCodes.Contains(o.OutcomeCode))
+                .Select(o => o.Code)
+                .Contains(s.OutputCode))
+            .Select(s => s.Code)
+            .ToListAsync();
+
+        var projectIds = await _context.Indicators
+            .Where(i => subOutputCodes.Contains(i.SubOutputCode) && i.ProjectID != null)
+            .Select(i => i.ProjectID!.Value)
+            .Distinct()
+            .ToListAsync();
+
+        var projects = await GetProjectsForIndicators(projectIds);
+        framework.DisbursementPerformance = projects.Any() ? CalcDisbursementPerfForProjects(projects) : 0;
 
         await _context.SaveChangesAsync();
     }
@@ -403,7 +464,8 @@ public class MonitoringService
             .FirstOrDefaultAsync(m => m.Code == ministryCode);
         if (ministry == null) return;
 
-        ministry.DisbursementPerformance = ministry.Projects.Any() ? ministry.Projects.Average(p => p.DisbursementPerformance) : 0;
+        var projects = await GetProjectsForIndicators(ministry.Projects.Select(p => p.ProjectID));
+        ministry.DisbursementPerformance = projects.Any() ? CalcDisbursementPerfForProjects(projects) : 0;
 
         _context.Ministries.Update(ministry);
         await _context.SaveChangesAsync();
@@ -416,7 +478,8 @@ public class MonitoringService
             .FirstOrDefaultAsync(s => s.Code == sectorCode);
         if (sector == null) return;
 
-        sector.DisbursementPerformance = sector.Projects.Any() ? sector.Projects.Average(p => p.DisbursementPerformance) : 0;
+        var projects = await GetProjectsForIndicators(sector.Projects.Select(p => p.ProjectID));
+        sector.DisbursementPerformance = projects.Any() ? CalcDisbursementPerfForProjects(projects) : 0;
 
         _context.Sectors.Update(sector);
         await _context.SaveChangesAsync();
@@ -429,7 +492,8 @@ public class MonitoringService
             .FirstOrDefaultAsync(d => d.Code == donorCode);
         if (donor == null) return;
 
-        donor.DisbursementPerformance = donor.Projects.Any() ? donor.Projects.Average(p => p.DisbursementPerformance) : 0;
+        var projects = await GetProjectsForIndicators(donor.Projects.Select(p => p.ProjectID));
+        donor.DisbursementPerformance = projects.Any() ? CalcDisbursementPerfForProjects(projects) : 0;
 
         _context.Donors.Update(donor);
         await _context.SaveChangesAsync();
