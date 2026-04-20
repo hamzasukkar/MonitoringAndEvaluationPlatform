@@ -126,21 +126,10 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                     if (!includePhases || i.Project == null)
                         return new[] { indicatorNode }.AsEnumerable();
 
-                    var projectNode = new
-                    {
-                        id = $"P{i.Project.ProjectID}",
-                        pid = $"I{i.IndicatorCode}",
-                        name = i.Project.ProjectName,
-                        type = "Project",
-                        weight = 1.0,
-                        IndicatorsPerformance = Math.Round(i.Project.performance, 0).ToString() + "%",
-                        DisbursementPerformance = Math.Round(i.Project.DisbursementPerformance, 0).ToString() + "%"
-                    };
-
                     var phaseNodes = i.Project.Phases.Select(ph => new
                     {
                         id = $"Ph{ph.Id}",
-                        pid = $"P{i.Project.ProjectID}",
+                        pid = $"I{i.IndicatorCode}",
                         name = ph.Name,
                         type = "Phase",
                         weight = (double)ph.Weight,
@@ -148,7 +137,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                         DisbursementPerformance = Math.Round(ph.PhasePerformance, 0).ToString() + "%"
                     });
 
-                    return new[] { indicatorNode, projectNode }.Concat(phaseNodes).AsEnumerable();
+                    return new[] { indicatorNode }.Concat(phaseNodes).AsEnumerable();
                 })))))))));
 
             return Json(data);

@@ -129,12 +129,6 @@
             </div>
             <div class="col-md-2 col-sm-6 mb-2 phases-legend" style="display:none;">
                 <div class="legend-item">
-                    <div class="legend-color" style="background:#9c27b0;"></div>
-                    <span>@Localizer["Project"]</span>
-                </div>
-            </div>
-            <div class="col-md-2 col-sm-6 mb-2 phases-legend" style="display:none;">
-                <div class="legend-item">
                     <div class="legend-color" style="background:#e91e63;"></div>
                     <span>@Localizer["Phase"]</span>
                 </div>
@@ -998,7 +992,6 @@ document.addEventListener('DOMContentLoaded', function() {
         'Outcome': '@Localizer["Outcome"]',
         'Output': '@Localizer["Output"]',
         'SubOutput': '@Localizer["Sub-Output"]',
-        'Project': '@Localizer["Project"]',
         'Phase': '@Localizer["Phase"]',
         'Sub-Output': '@Localizer["Sub-Output"]',
         'Indicator': '@Localizer["Indicator"]'
@@ -1018,7 +1011,6 @@ document.addEventListener('DOMContentLoaded', function() {
             case 'Output':     return `/SubOutputs?outputCode=${code}`;
             case 'SubOutput':  return `/Indicators?subOutputCode=${code}`;
             case 'Indicator':  return `/Indicators/Details/${code}`;
-            case 'Project':    return `/Projects/Details/${code}`;
             case 'Phase':      return `/Measures?phaseId=${code}`;
             default:           return null;
         }
@@ -1330,7 +1322,6 @@ document.addEventListener('DOMContentLoaded', function() {
             else if (nodeDiv.classList.contains('output'))    type = 'Output';
             else if (nodeDiv.classList.contains('suboutput')) type = 'SubOutput';
             else if (nodeDiv.classList.contains('indicator')) type = 'Indicator';
-            else if (nodeDiv.classList.contains('project'))   type = 'Project';
             else if (nodeDiv.classList.contains('phase'))     type = 'Phase';
 
             if (!type) return; // Framework — never filtered
