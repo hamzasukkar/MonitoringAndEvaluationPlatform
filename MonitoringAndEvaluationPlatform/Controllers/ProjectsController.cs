@@ -309,7 +309,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         {
             // Retrieve related data
             var donors = _context.Donors.ToList()
-                .OrderBy(d => d.Partner == "موازنة أستثمارية" ? 0 : 1)
+                .OrderBy(d => d.IsInvestmentBudget ? 0 : 1)
                 .ThenBy(d => d.Partner)
                 .ToList();
             var sectors = _context.Sectors.ToList();
@@ -366,6 +366,10 @@ namespace MonitoringAndEvaluationPlatform.Controllers
 
             // Prepare dropdown and multiselect data
             ViewBag.Donor = new SelectList(donors, "Code", "Partner");
+            ViewBag.InvestmentBudgetDonorCodes = donors
+                .Where(d => d.IsInvestmentBudget)
+                .Select(d => d.Code.ToString())
+                .ToList();
             ViewBag.SectorList = new MultiSelectList(sectors, "Code", "AR_Name", firstSectorCode.HasValue ? new List<int> { firstSectorCode.Value } : new List<int>());
             ViewBag.MinistryList = new SelectList(ministries, "Code", isArabic ? "MinistryDisplayName_AR" : "MinistryDisplayName_EN", userMinistryCode);
             ViewBag.Ministries = ministries; // Pass full ministry list with Logo property
@@ -439,17 +443,13 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                     }
                 }
 
-                // Check if any selected donor is "موازنة أستثمارية" (single-phase mode)
-                bool hasInvestmentBudgetDonor = false;
-                if (selectedDonorCodes.Any())
-                {
-                    hasInvestmentBudgetDonor = await _context.Donors
-                        .AnyAsync(d => selectedDonorCodes.Contains(d.Code.ToString()) && d.Partner == "موازنة أستثمارية");
-                }
+                // Check if any selected donor is "موازنة أستثمارية"
+                bool hasInvestmentBudgetDonor = selectedDonorCodes.Any() && await _context.Donors
+                    .AnyAsync(d => selectedDonorCodes.Contains(d.Code.ToString()) && d.IsInvestmentBudget);
 
-                // Read selected phases and validate at least one is chosen (skip for investment budget donor)
+                // Read selected phases; required only when donor is "موازنة أستثمارية"; otherwise one phase is auto-created
                 var selectedPhases = Request.Form["SelectedPhases"].ToList();
-                if (!hasInvestmentBudgetDonor && !selectedPhases.Any())
+                if (hasInvestmentBudgetDonor && !selectedPhases.Any())
                     ModelState.AddModelError("SelectedPhases", _localizer["Please select at least one phase."]);
 
                 // Validate project creation
@@ -501,8 +501,8 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                     }
                 }
 
-                // Create project phases: single phase for "موازنة أستثمارية" donor, otherwise user-selected phases
-                await CreateDefaultProjectPhasesAsync(project, hasInvestmentBudgetDonor ? null : selectedPhases, hasInvestmentBudgetDonor);
+                // Create project phases: user-selected phases for "موازنة أستثمارية" donor; single auto-created phase for all others
+                await CreateDefaultProjectPhasesAsync(project, hasInvestmentBudgetDonor ? selectedPhases : null, !hasInvestmentBudgetDonor);
 
                 // Process file uploads
                 await ProcessFileUploadsAsync(project.ProjectID, UploadedFiles);
@@ -1540,11 +1540,16 @@ namespace MonitoringAndEvaluationPlatform.Controllers
 
             ViewBag.ProjectManager = new SelectList(_context.ProjectManagers, "Code", "Name");
             ViewBag.SuperVisor = new SelectList(_context.SuperVisors, "Code", "Name");
+            var allDonors = _context.Donors.AsEnumerable().ToList();
             ViewBag.Donor = new SelectList(
-                _context.Donors.AsEnumerable()
-                    .OrderBy(d => d.Partner == "موازنة أستثمارية" ? 0 : 1)
+                allDonors
+                    .OrderBy(d => d.IsInvestmentBudget ? 0 : 1)
                     .ThenBy(d => d.Partner),
                 "Code", "Partner");
+            ViewBag.InvestmentBudgetDonorCodes = allDonors
+                .Where(d => d.IsInvestmentBudget)
+                .Select(d => d.Code.ToString())
+                .ToList();
             ViewBag.Goals = new SelectList(
                 _context.Goals,
                 "Code",
