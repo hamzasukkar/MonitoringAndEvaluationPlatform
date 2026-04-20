@@ -1,0 +1,427 @@
+@model MonitoringAndEvaluationPlatform.ViewModel.FinancialAnalysisViewModel
+@using MonitoringAndEvaluationPlatform.ViewModel
+@using Microsoft.AspNetCore.Mvc.Localization
+@inject IViewLocalizer Localizer
+@using Microsoft.AspNetCore.Localization
+
+@{
+    ViewData["Title"] = "التحليل المالي للمشاريع";
+    Layout = "~/Views/Shared/_DashboardHomeLayout.cshtml";
+    var requestCultureFeature = ViewContext.HttpContext.Features.Get<IRequestCultureFeature>();
+    var culture = requestCultureFeature?.RequestCulture?.Culture?.Name ?? "ar";
+    var isRtl = culture.StartsWith("ar", StringComparison.OrdinalIgnoreCase);
+
+    string FormatBudget(double val) => val >= 1_000_000
+        ? $"{(val / 1_000_000):0.##}M"
+        : val >= 1_000
+            ? $"{(val / 1_000):0.##}K"
+            : $"{val:0.##}";
+
+    string StatusBadge(SpendingStatus s) => s switch
+    {
+        SpendingStatus.OverBudget    => "danger",
+        SpendingStatus.OnTarget      => "success",
+        SpendingStatus.UnderSpending => "warning",
+        _                            => "secondary"
+    };
+    string StatusLabel(SpendingStatus s) => s switch
+    {
+        SpendingStatus.OverBudget    => isRtl ? "تجاوز الميزانية" : "Over Budget",
+        SpendingStatus.OnTarget      => isRtl ? "ضمن الهدف"      : "On Target",
+        SpendingStatus.UnderSpending => isRtl ? "تحت الصرف"      : "Under Spending",
+        _                            => isRtl ? "لم يبدأ"        : "Not Started"
+    };
+}
+
+<style>
+    .stat-card { border-radius: 12px; transition: transform .2s; }
+    .stat-card:hover { transform: translateY(-3px); }
+    .status-card { border-left: 5px solid; border-radius: 10px; }
+    .status-card.danger  { border-color: #dc3545; }
+    .status-card.success { border-color: #198754; }
+    .status-card.warning { border-color: #ffc107; }
+    .status-card.secondary { border-color: #6c757d; }
+    .spending-bar { height: 8px; border-radius: 4px; }
+    #projectsTable th { cursor: pointer; user-select: none; white-space: nowrap; }
+    #projectsTable th:after { content: " ⇅"; opacity: .4; font-size: .75em; }
+    #projectsTable th.asc:after  { content: " ↑"; opacity: 1; }
+    #projectsTable th.desc:after { content: " ↓"; opacity: 1; }
+</style>
+
+<!-- Header -->
+<div class="dashboard-header">
+    <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
+        <div>
+            <h1 class="dashboard-title">
+                <i class="fas fa-chart-bar me-3"></i>
+                @(isRtl ? "التحليل المالي للمشاريع" : "Financial Analysis Report")
+            </h1>
+            <p class="dashboard-subtitle">
+                @(isRtl ? "مقارنة الميزانية المخططة مقابل الفعلية وتصنيف المشاريع حسب نسبة الصرف"
+                        : "Estimated vs. actual budget comparison and project classification by spending rate")
+            </p>
+        </div>
+        <div class="d-flex gap-2 flex-wrap">
+            <button onclick="window.print()" class="btn btn-outline-secondary">
+                <i class="fas fa-print me-2"></i>@(isRtl ? "طباعة" : "Print")
+            </button>
+            <a asp-action="Index" class="btn btn-outline-primary">
+                <i class="fas fa-arrow-left me-2"></i>@(isRtl ? "العودة للتقارير" : "Back to Reports")
+            </a>
+        </div>
+    </div>
+</div>
+
+<div class="container-fluid pb-4">
+
+    <!-- ── Summary Cards ── -->
+    <div class="row g-3 mb-4">
+        <div class="col-xl-3 col-md-6">
+            <div class="card stat-card shadow-sm h-100 border-0 bg-primary text-white">
+                <div class="card-body text-center py-4">
+                    <i class="fas fa-folder-open fa-2x mb-2 opacity-75"></i>
+                    <div class="fs-1 fw-bold">@Model.Projects.Count</div>
+                    <div class="small opacity-75">@(isRtl ? "إجمالي المشاريع" : "Total Projects")</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-3 col-md-6">
+            <div class="card stat-card shadow-sm h-100 border-0 bg-info text-white">
+                <div class="card-body text-center py-4">
+                    <i class="fas fa-dollar-sign fa-2x mb-2 opacity-75"></i>
+                    <div class="fs-2 fw-bold">$@FormatBudget(Model.TotalEstimatedBudget)</div>
+                    <div class="small opacity-75">@(isRtl ? "إجمالي الميزانية المخططة" : "Total Estimated Budget")</div>
+
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-3 col-md-6">
+            <div class="card stat-card shadow-sm h-100 border-0 bg-success text-white">
+                <div class="card-body text-center py-4">
+                    <i class="fas fa-coins fa-2x mb-2 opacity-75"></i>
+                    <div class="fs-2 fw-bold">$@FormatBudget(Model.TotalRealBudget)</div>
+                    <div class="small opacity-75">@(isRtl ? "إجمالي الصرف الفعلي (من الخطط)" : "Total Actual Spending (from Plans)")</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-3 col-md-6">
+            @{
+                var avgColor = Model.AverageSpendingRate > 100 ? "danger"
+                             : Model.AverageSpendingRate >= 80 ? "success" : "warning";
+            }
+            <div class="card stat-card shadow-sm h-100 border-0 bg-@avgColor text-white">
+                <div class="card-body text-center py-4">
+                    <i class="fas fa-percentage fa-2x mb-2 opacity-75"></i>
+                    <div class="fs-1 fw-bold">@Model.AverageSpendingRate%</div>
+                    <div class="small opacity-75">@(isRtl ? "متوسط نسبة الصرف" : "Average Spending Rate")</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ── Status Classification Cards ── -->
+    <div class="row g-3 mb-4">
+        <div class="col-xl-3 col-md-6">
+            <div class="card status-card danger shadow-sm h-100">
+                <div class="card-body d-flex align-items-center gap-3 p-3">
+                    <div class="rounded-circle bg-danger bg-opacity-10 p-3 text-danger fs-4">
+                        <i class="fas fa-exclamation-triangle"></i>
+                    </div>
+                    <div>
+                        <div class="fs-2 fw-bold text-danger">@Model.OverBudgetCount</div>
+                        <div class="text-muted small">@(isRtl ? "تجاوز الميزانية" : "Over Budget") (>100%)</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-3 col-md-6">
+            <div class="card status-card success shadow-sm h-100">
+                <div class="card-body d-flex align-items-center gap-3 p-3">
+                    <div class="rounded-circle bg-success bg-opacity-10 p-3 text-success fs-4">
+                        <i class="fas fa-check-circle"></i>
+                    </div>
+                    <div>
+                        <div class="fs-2 fw-bold text-success">@Model.OnTargetCount</div>
+                        <div class="text-muted small">@(isRtl ? "ضمن الهدف" : "On Target") (80–100%)</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-3 col-md-6">
+            <div class="card status-card warning shadow-sm h-100">
+                <div class="card-body d-flex align-items-center gap-3 p-3">
+                    <div class="rounded-circle bg-warning bg-opacity-10 p-3 text-warning fs-4">
+                        <i class="fas fa-arrow-down"></i>
+                    </div>
+                    <div>
+                        <div class="fs-2 fw-bold text-warning">@Model.UnderSpendingCount</div>
+                        <div class="text-muted small">@(isRtl ? "تحت الصرف" : "Under Spending") (<80%)</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-3 col-md-6">
+            <div class="card status-card secondary shadow-sm h-100">
+                <div class="card-body d-flex align-items-center gap-3 p-3">
+                    <div class="rounded-circle bg-secondary bg-opacity-10 p-3 text-secondary fs-4">
+                        <i class="fas fa-hourglass-start"></i>
+                    </div>
+                    <div>
+                        <div class="fs-2 fw-bold text-secondary">@Model.NotStartedCount</div>
+                        <div class="text-muted small">@(isRtl ? "لم يبدأ الصرف" : "Not Started") (0%)</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ── Charts ── -->
+    <div class="row g-3 mb-4">
+        <!-- Bar chart: top 15 projects -->
+        <div class="col-xl-8">
+            <div class="card shadow-sm border-0 h-100">
+                <div class="card-header bg-white border-0 pt-3 pb-0">
+                    <h6 class="fw-bold mb-0">
+                        <i class="fas fa-chart-bar me-2 text-primary"></i>
+                        @(isRtl ? "الميزانية المخططة مقابل الفعلية (أعلى 15 مشروع)" : "Estimated vs. Real Budget — Top 15 Projects")
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <canvas id="budgetBarChart" height="300"></canvas>
+                </div>
+            </div>
+        </div>
+        <!-- Pie chart: distribution -->
+        <div class="col-xl-4">
+            <div class="card shadow-sm border-0 h-100">
+                <div class="card-header bg-white border-0 pt-3 pb-0">
+                    <h6 class="fw-bold mb-0">
+                        <i class="fas fa-chart-pie me-2 text-primary"></i>
+                        @(isRtl ? "توزيع المشاريع حسب حالة الصرف" : "Project Distribution by Spending Status")
+                    </h6>
+                </div>
+                <div class="card-body d-flex align-items-center justify-content-center">
+                    <canvas id="statusPieChart" style="max-height:280px;"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ── Projects Table ── -->
+    <div class="card shadow-sm border-0">
+        <div class="card-header bg-white border-0 pt-3 d-flex justify-content-between align-items-center flex-wrap gap-2">
+            <h6 class="fw-bold mb-0">
+                <i class="fas fa-table me-2 text-primary"></i>
+                @(isRtl ? "تفاصيل المشاريع" : "Project Details")
+            </h6>
+            <div class="d-flex gap-2 flex-wrap align-items-center">
+                <!-- Status filter -->
+                <select id="statusFilter" class="form-select form-select-sm" style="width:180px">
+                    <option value="">@(isRtl ? "جميع الحالات" : "All Statuses")</option>
+                    <option value="OverBudget">@(isRtl ? "تجاوز الميزانية" : "Over Budget")</option>
+                    <option value="OnTarget">@(isRtl ? "ضمن الهدف" : "On Target")</option>
+                    <option value="UnderSpending">@(isRtl ? "تحت الصرف" : "Under Spending")</option>
+                    <option value="NotStarted">@(isRtl ? "لم يبدأ" : "Not Started")</option>
+                </select>
+                <!-- Search -->
+                <input type="text" id="tableSearch" class="form-control form-control-sm"
+                       placeholder="@(isRtl ? "بحث..." : "Search...")" style="width:200px" />
+            </div>
+        </div>
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0" id="projectsTable">
+                    <thead class="table-light">
+                        <tr>
+                            <th data-col="name">@(isRtl ? "اسم المشروع" : "Project Name")</th>
+                            <th data-col="ministry">@(isRtl ? "الوزارة" : "Ministry")</th>
+                            <th data-col="estimated" class="text-end">@(isRtl ? "الميزانية المخططة" : "Estimated Budget")</th>
+                            <th data-col="real" class="text-end">@(isRtl ? "الصرف الفعلي" : "Actual Spending")</th>
+                            <th data-col="variance" class="text-end">@(isRtl ? "الفجوة" : "Variance")</th>
+                            <th data-col="rate">@(isRtl ? "نسبة الصرف" : "Spending Rate")</th>
+                            <th data-col="status">@(isRtl ? "الحالة" : "Status")</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var p in Model.Projects)
+                        {
+                            var badge   = StatusBadge(p.Status);
+                            var label   = StatusLabel(p.Status);
+                            var barPct  = Math.Min(p.SpendingRate, 100);
+                            var barColor = badge == "danger" ? "#dc3545"
+                                         : badge == "success" ? "#198754"
+                                         : badge == "warning" ? "#ffc107" : "#6c757d";
+                            var varClass = p.BudgetVariance > 0 ? "text-danger"
+                                         : p.BudgetVariance < 0 ? "text-success" : "";
+                            <tr data-status="@p.Status">
+                                <td>
+                                    <a asp-controller="Projects" asp-action="Details"
+                                       asp-route-id="@p.ProjectID" class="text-decoration-none fw-semibold">
+                                        @p.ProjectName
+                                    </a>
+                                </td>
+                                <td class="text-muted small">@p.MinistryName</td>
+                                <td class="text-end">
+                                    <span class="fw-semibold">@p.EstimatedBudget.ToString("N0")</span>
+                                    <span class="text-muted small ms-1">@p.Currency</span>
+                                </td>
+                                <td class="text-end">
+                                    <span class="fw-semibold">@p.RealBudget.ToString("N0")</span>
+                                    <span class="text-muted small ms-1">@p.Currency</span>
+                                </td>
+                                <td class="text-end @varClass">
+                                    @(p.BudgetVariance >= 0 ? "+" : "")@p.BudgetVariance.ToString("N0")
+                                </td>
+                                <td style="min-width:130px">
+                                    <div class="d-flex align-items-center gap-2">
+                                        <div class="flex-grow-1 bg-light rounded" style="height:8px">
+                                            <div style="width:@(barPct)%;height:8px;background:@barColor;border-radius:4px;transition:width .4s"></div>
+                                        </div>
+                                        <span class="small fw-bold" style="min-width:42px;text-align:end">@p.SpendingRate%</span>
+                                    </div>
+                                </td>
+                                <td>
+                                    <span class="badge bg-@badge bg-opacity-15 text-@badge border border-@badge px-2 py-1">
+                                        @label
+                                    </span>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div class="card-footer bg-white text-muted small text-end">
+            <span id="rowCount">@Model.Projects.Count</span> @(isRtl ? "مشروع" : "projects")
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script>
+(function () {
+    // ── Data from server ──
+    const projects = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(
+        Model.Projects.Take(15).Select(p => new {
+            name      = p.ProjectName.Length > 25 ? p.ProjectName[..22] + "…" : p.ProjectName,
+            estimated = p.EstimatedBudget,
+            real      = p.RealBudget
+        })
+    ));
+
+    const statusCounts = {
+        over:    @Model.OverBudgetCount,
+        on:      @Model.OnTargetCount,
+        under:   @Model.UnderSpendingCount,
+        none:    @Model.NotStartedCount
+    };
+
+    const isRtl = @(isRtl ? "true" : "false");
+    const labels = isRtl
+        ? { over: 'تجاوز الميزانية', on: 'ضمن الهدف', under: 'تحت الصرف', none: 'لم يبدأ' }
+        : { over: 'Over Budget',     on: 'On Target',  under: 'Under Spending', none: 'Not Started' };
+
+    // ── Bar Chart ──
+    new Chart(document.getElementById('budgetBarChart'), {
+        type: 'bar',
+        data: {
+            labels: projects.map(p => p.name),
+            datasets: [
+                {
+                    label: isRtl ? 'الميزانية المخططة' : 'Estimated Budget',
+                    data: projects.map(p => p.estimated),
+                    backgroundColor: 'rgba(13,110,253,0.7)',
+                    borderRadius: 4
+                },
+                {
+                    label: isRtl ? 'الصرف الفعلي (من الخطط)' : 'Actual Spending (from Plans)',
+                    data: projects.map(p => p.real),
+                    backgroundColor: 'rgba(25,135,84,0.7)',
+                    borderRadius: 4
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { legend: { position: 'top' } },
+            scales: {
+                x: { ticks: { font: { size: 11 } } },
+                y: {
+                    ticks: {
+                        callback: v => v >= 1e6 ? (v/1e6).toFixed(1)+'M'
+                                      : v >= 1e3 ? (v/1e3).toFixed(0)+'K' : v
+                    }
+                }
+            }
+        }
+    });
+
+    // ── Pie Chart ──
+    new Chart(document.getElementById('statusPieChart'), {
+        type: 'doughnut',
+        data: {
+            labels: [labels.over, labels.on, labels.under, labels.none],
+            datasets: [{
+                data: [statusCounts.over, statusCounts.on, statusCounts.under, statusCounts.none],
+                backgroundColor: ['#dc3545','#198754','#ffc107','#6c757d'],
+                borderWidth: 2,
+                borderColor: '#fff'
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: { position: 'bottom', labels: { padding: 12, font: { size: 12 } } }
+            },
+            cutout: '60%'
+        }
+    });
+
+    // ── Table filter & search ──
+    const tbody   = document.querySelector('#projectsTable tbody');
+    const rows    = Array.from(tbody.querySelectorAll('tr'));
+    const counter = document.getElementById('rowCount');
+
+    function applyFilters() {
+        const status = document.getElementById('statusFilter').value;
+        const q      = document.getElementById('tableSearch').value.toLowerCase();
+        let visible  = 0;
+        rows.forEach(r => {
+            const matchStatus = !status || r.dataset.status === status;
+            const matchSearch = !q || r.textContent.toLowerCase().includes(q);
+            const show = matchStatus && matchSearch;
+            r.style.display = show ? '' : 'none';
+            if (show) visible++;
+        });
+        counter.textContent = visible;
+    }
+
+    document.getElementById('statusFilter').addEventListener('change', applyFilters);
+    document.getElementById('tableSearch').addEventListener('input', applyFilters);
+
+    // ── Table sort ──
+    let sortCol = '', sortDir = 1;
+    document.querySelectorAll('#projectsTable th[data-col]').forEach(th => {
+        th.addEventListener('click', () => {
+            const col = th.dataset.col;
+            if (sortCol === col) sortDir *= -1;
+            else { sortCol = col; sortDir = 1; }
+            document.querySelectorAll('#projectsTable th').forEach(h => h.classList.remove('asc','desc'));
+            th.classList.add(sortDir === 1 ? 'asc' : 'desc');
+
+            const colIdx = { name:0, ministry:1, estimated:2, real:3, variance:4, rate:5, status:6 }[col];
+            const sorted = rows.slice().sort((a, b) => {
+                const av = a.cells[colIdx].textContent.replace(/[^0-9.\-]/g,'');
+                const bv = b.cells[colIdx].textContent.replace(/[^0-9.\-]/g,'');
+                const na = parseFloat(av), nb = parseFloat(bv);
+                if (!isNaN(na) && !isNaN(nb)) return (na - nb) * sortDir;
+                return av.localeCompare(bv) * sortDir;
+            });
+            sorted.forEach(r => tbody.appendChild(r));
+        });
+    });
+})();
+</script>
+}

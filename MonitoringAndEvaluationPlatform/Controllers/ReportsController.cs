@@ -400,5 +400,46 @@ namespace MonitoringAndEvaluationPlatform.Controllers
 
             return View(viewModel);
         }
+
+        [Permission(Permissions.ViewControlPanel)]
+        public async Task<IActionResult> FinancialAnalysis()
+        {
+            var isArabic = CultureInfo.CurrentUICulture.TwoLetterISOLanguageName == "ar";
+
+            var projects = await _context.Projects
+                .Select(p => new ProjectFinancialItem
+                {
+                    ProjectID    = p.ProjectID,
+                    ProjectName  = p.ProjectName,
+                    MinistryName = p.Ministries.Select(m => isArabic
+                        ? m.MinistryDisplayName_AR
+                        : m.MinistryDisplayName_EN).FirstOrDefault() ?? "",
+                    EstimatedBudget = p.EstimatedBudget,
+                    RealBudget = p.Phases
+                        .Where(ph => ph.ActionPlan != null)
+                        .SelectMany(ph => ph.ActionPlan!.Plans)
+                        .Sum(plan => (double)plan.Realised),
+                    Currency = p.Currency ?? "USD"
+                })
+                .OrderByDescending(p => p.EstimatedBudget)
+                .ToListAsync();
+
+            var vm = new FinancialAnalysisViewModel
+            {
+                Projects             = projects,
+                TotalEstimatedBudget = projects.Sum(p => p.EstimatedBudget),
+                TotalRealBudget      = projects.Sum(p => p.RealBudget),
+                AverageSpendingRate  = projects.Any(p => p.EstimatedBudget > 0)
+                    ? Math.Round(projects.Where(p => p.EstimatedBudget > 0)
+                        .Average(p => p.SpendingRate), 1)
+                    : 0,
+                UnderSpendingCount = projects.Count(p => p.Status == SpendingStatus.UnderSpending),
+                OnTargetCount      = projects.Count(p => p.Status == SpendingStatus.OnTarget),
+                OverBudgetCount    = projects.Count(p => p.Status == SpendingStatus.OverBudget),
+                NotStartedCount    = projects.Count(p => p.Status == SpendingStatus.NotStarted),
+            };
+
+            return View(vm);
+        }
     }
 }
