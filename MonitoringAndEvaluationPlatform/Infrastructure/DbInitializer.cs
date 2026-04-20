@@ -277,15 +277,25 @@ namespace MonitoringAndEvaluationPlatform.Infrastructure
                         new Donor { Partner = "MSF",     donorCategory = DonorCategory.InternationalNonGovernmentalOrganizations },
                         new Donor { Partner = "NRC",     donorCategory = DonorCategory.InternationalNonGovernmentalOrganizations },
                         new Donor { Partner = "UN-OCHA", donorCategory = DonorCategory.UNOrganizations },
-                        new Donor { Partner = "موازنة أستثمارية", donorCategory = DonorCategory.Local },
+                        new Donor { Partner = "موازنة أستثمارية", donorCategory = DonorCategory.Local, IsInvestmentBudget = true },
                     };
                     context.Donors.AddRange(donors);
                     context.SaveChanges();
                 }
                 else if (!context.Donors.Any(d => d.Partner == "موازنة أستثمارية"))
                 {
-                    context.Donors.Add(new Donor { Partner = "موازنة أستثمارية", donorCategory = DonorCategory.Local });
+                    context.Donors.Add(new Donor { Partner = "موازنة أستثمارية", donorCategory = DonorCategory.Local, IsInvestmentBudget = true });
                     context.SaveChanges();
+                }
+                else
+                {
+                    // Ensure existing "موازنة أستثمارية" donor has the flag set
+                    var investmentDonor = context.Donors.FirstOrDefault(d => d.Partner == "موازنة أستثمارية");
+                    if (investmentDonor != null && !investmentDonor.IsInvestmentBudget)
+                    {
+                        investmentDonor.IsInvestmentBudget = true;
+                        context.SaveChanges();
+                    }
                 }
                 if (!context.SuperVisors.Any())
                 {

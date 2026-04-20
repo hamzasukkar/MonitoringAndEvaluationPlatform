@@ -399,11 +399,12 @@
                                                 @if (ViewBag.Donor != null)
                                                 {
                                                     var donorSelectList = ViewBag.Donor as SelectList;
+                                                    var investmentCodes = ViewBag.InvestmentBudgetDonorCodes as List<string> ?? new List<string>();
                                                     if (donorSelectList != null)
                                                     {
                                                         @foreach (var item in donorSelectList)
                                                         {
-                                                            if (item.Text.Trim() == "موازنة أستثمارية")
+                                                            if (investmentCodes.Contains(item.Value))
                                                             {
                                                                 <option value="@item.Value" data-investment-budget="true">@item.Text</option>
                                                             }
@@ -477,18 +478,13 @@
 
                                     </div>
 
-                        <!-- Phase Selection -->
-                        <div class="mb-4" id="phaseSelectionSection">
+                        <!-- Phase Selection (visible only when "موازنة أستثمارية" donor is selected) -->
+                        <div class="mb-4" id="phaseSelectionSection" style="display:none">
                             <label class="form-label fw-bold">
                                 <i class="fas fa-tasks me-2"></i>
                                 @Localizer["Project Phases"] <span class="text-danger">*</span>
                             </label>
                             <div class="form-text mb-2">@Localizer["Select the phases to include in this project (at least one required)"]</div>
-                            <!-- Shown when "موازنة أستثمارية" donor is selected -->
-                            <div id="investmentBudgetPhaseNotice" class="alert alert-info d-none">
-                                <i class="fas fa-info-circle me-2"></i>
-                                @Localizer["A single phase will be created automatically for the Investment Budget donor."]
-                            </div>
                             <div id="phaseCheckboxesWrapper">
                             @{
                                 var isArabicCulture = System.Globalization.CultureInfo.CurrentUICulture.TwoLetterISOLanguageName == "ar";
@@ -1529,7 +1525,7 @@ projectManagerMustBeSelected: '@Html.Raw(System.Text.Encodings.Web.JavaScriptEnc
         const $selectedOption = $('#availableDonorSelect option:selected');
         const donorValue = $('#availableDonorSelect').val();
         const donorText = $selectedOption.text();
-        const isInvestmentBudget = $selectedOption.data('investment-budget') === true;
+        const isInvestmentBudget = !!$selectedOption.data('investment-budget');
 
         if (!donorValue || donorValue === '') {
             alert(localizedStrings.pleaseSelectDonorFirst);
@@ -1556,6 +1552,7 @@ projectManagerMustBeSelected: '@Html.Raw(System.Text.Encodings.Web.JavaScriptEnc
         updateDonorFundingSection();
         updateSelectedDonorsInput();
         updatePhaseSelectionForDonors();
+        updateDonorSelectRestrictions();
 
         // Reset dropdown
         $('#availableDonorSelect').val('');
@@ -1703,18 +1700,39 @@ projectManagerMustBeSelected: '@Html.Raw(System.Text.Encodings.Web.JavaScriptEnc
         updateDonorFundingSection();
         updateSelectedDonorsInput();
         updatePhaseSelectionForDonors();
+        updateDonorSelectRestrictions();
     });
 
-    // Toggle phase section based on whether "موازنة أستثمارية" donor is selected
+    // Toggle phase section: show ONLY when "موازنة أستثمارية" is selected; otherwise hide and clear checkboxes
     function updatePhaseSelectionForDonors() {
-        const hasInvestmentBudget = selectedDonors.some(d => d.isInvestmentBudget === true);
+        const hasInvestmentBudget = selectedDonors.some(d => !!d.isInvestmentBudget);
         if (hasInvestmentBudget) {
+            $('#phaseSelectionSection').show();
+        } else {
             $('#phaseSelectionSection').hide();
             // Uncheck all phase checkboxes so they don't get submitted
             $('.phase-checkbox').prop('checked', false);
-        } else {
-            $('#phaseSelectionSection').show();
         }
+    }
+
+    // Restrict donor selection based on current state:
+    // - If "موازنة أستثمارية" is selected → hide the Add button (no more donors allowed)
+    // - If any other donor is selected → hide "موازنة أستثمارية" option from dropdown
+    function updateDonorSelectRestrictions() {
+        const hasInvestmentBudget = selectedDonors.some(d => !!d.isInvestmentBudget);
+        const hasOtherDonors = selectedDonors.some(d => !d.isInvestmentBudget);
+
+        // Hide add button when investment budget is selected
+        if (hasInvestmentBudget) {
+            $('#addDonorBtn').hide();
+            $('#availableDonorSelect').hide();
+        } else {
+            $('#addDonorBtn').show();
+            $('#availableDonorSelect').show();
+        }
+
+        // Hide/show "موازنة أستثمارية" option based on whether other donors exist
+        $('#availableDonorSelect option[data-investment-budget]').toggle(!hasOtherDonors);
     }
 
     // Update the hidden select input for form submission
@@ -2009,6 +2027,8 @@ projectManagerMustBeSelected: '@Html.Raw(System.Text.Encodings.Web.JavaScriptEnc
         // Update UI
         updateDonorFundingSection();
         updateSelectedDonorsInput();
+        updatePhaseSelectionForDonors();
+        updateDonorSelectRestrictions();
     }
 
     // =====================

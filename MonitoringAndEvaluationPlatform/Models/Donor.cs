@@ -8,6 +8,7 @@ namespace MonitoringAndEvaluationPlatform.Models
         [Key]
         public int Code { get; set; }
         public string Partner { get; set; }
+        public bool IsInvestmentBudget { get; set; } = false;
         public DonorCategory donorCategory { get; set; }
         public ICollection<Project> Projects { get; set; } = new List<Project>();
         public ICollection<ProjectDonor> ProjectDonors { get; set; } = new List<ProjectDonor>();
