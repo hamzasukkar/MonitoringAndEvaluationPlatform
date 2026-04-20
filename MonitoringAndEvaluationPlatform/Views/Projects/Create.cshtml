@@ -1552,6 +1552,7 @@ projectManagerMustBeSelected: '@Html.Raw(System.Text.Encodings.Web.JavaScriptEnc
         updateDonorFundingSection();
         updateSelectedDonorsInput();
         updatePhaseSelectionForDonors();
+        updateDonorSelectRestrictions();
 
         // Reset dropdown
         $('#availableDonorSelect').val('');
@@ -1699,6 +1700,7 @@ projectManagerMustBeSelected: '@Html.Raw(System.Text.Encodings.Web.JavaScriptEnc
         updateDonorFundingSection();
         updateSelectedDonorsInput();
         updatePhaseSelectionForDonors();
+        updateDonorSelectRestrictions();
     });
 
     // Toggle phase section: show ONLY when "موازنة أستثمارية" is selected; otherwise hide and clear checkboxes
@@ -1711,6 +1713,26 @@ projectManagerMustBeSelected: '@Html.Raw(System.Text.Encodings.Web.JavaScriptEnc
             // Uncheck all phase checkboxes so they don't get submitted
             $('.phase-checkbox').prop('checked', false);
         }
+    }
+
+    // Restrict donor selection based on current state:
+    // - If "موازنة أستثمارية" is selected → hide the Add button (no more donors allowed)
+    // - If any other donor is selected → hide "موازنة أستثمارية" option from dropdown
+    function updateDonorSelectRestrictions() {
+        const hasInvestmentBudget = selectedDonors.some(d => !!d.isInvestmentBudget);
+        const hasOtherDonors = selectedDonors.some(d => !d.isInvestmentBudget);
+
+        // Hide add button when investment budget is selected
+        if (hasInvestmentBudget) {
+            $('#addDonorBtn').hide();
+            $('#availableDonorSelect').hide();
+        } else {
+            $('#addDonorBtn').show();
+            $('#availableDonorSelect').show();
+        }
+
+        // Hide/show "موازنة أستثمارية" option based on whether other donors exist
+        $('#availableDonorSelect option[data-investment-budget]').toggle(!hasOtherDonors);
     }
 
     // Update the hidden select input for form submission
@@ -2005,6 +2027,8 @@ projectManagerMustBeSelected: '@Html.Raw(System.Text.Encodings.Web.JavaScriptEnc
         // Update UI
         updateDonorFundingSection();
         updateSelectedDonorsInput();
+        updatePhaseSelectionForDonors();
+        updateDonorSelectRestrictions();
     }
 
     // =====================
