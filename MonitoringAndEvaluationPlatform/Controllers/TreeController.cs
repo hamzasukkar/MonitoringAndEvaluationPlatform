@@ -1,7 +1,9 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
@@ -10,30 +12,71 @@ using MonitoringAndEvaluationPlatform.Models;
 
 namespace MonitoringAndEvaluationPlatform.Controllers
 {
+    [Authorize]
     public class TreeController : Controller
     {
         private readonly ApplicationDbContext _context;
+        private readonly UserManager<ApplicationUser> _userManager;
 
-        public TreeController(ApplicationDbContext context)
+        public TreeController(ApplicationDbContext context, UserManager<ApplicationUser> userManager)
         {
             _context = context;
+            _userManager = userManager;
+        }
+
+        private async Task<(bool IsAdmin, int? MinistryCode)> GetScopeAsync()
+        {
+            if (User.IsInRole(UserRoles.SystemAdministrator))
+            {
+                return (true, null);
+            }
+
+            var user = await _userManager.GetUserAsync(User);
+            return (false, user?.MinistryCode);
         }
 
         // GET: Frameworks1
         public async Task<IActionResult> Index(int id)
         {
+            var framework = await _context.Frameworks.FindAsync(id);
+            if (framework == null) return NotFound();
+
+            var (isAdmin, scopedMinistryCode) = await GetScopeAsync();
+            if (!isAdmin && framework.MinistryCode != scopedMinistryCode)
+            {
+                return Forbid();
+            }
+
             ViewData["FrameworkCode"] = id;
             return View();
         }
 
         public async Task<IActionResult> Index2(int id)
         {
+            var framework = await _context.Frameworks.FindAsync(id);
+            if (framework == null) return NotFound();
+
+            var (isAdmin, scopedMinistryCode) = await GetScopeAsync();
+            if (!isAdmin && framework.MinistryCode != scopedMinistryCode)
+            {
+                return Forbid();
+            }
+
             ViewData["FrameworkCode"] = id;
             return View();
         }
 
-        public IActionResult GetFrameworkHierarchy(int id, bool includePhases = false)
+        public async Task<IActionResult> GetFrameworkHierarchy(int id, bool includePhases = false)
         {
+            var framework = await _context.Frameworks.FindAsync(id);
+            if (framework == null) return NotFound();
+
+            var (isAdmin, scopedMinistryCode) = await GetScopeAsync();
+            if (!isAdmin && framework.MinistryCode != scopedMinistryCode)
+            {
+                return Forbid();
+            }
+
             IQueryable<Framework> query;
 
             if (includePhases)

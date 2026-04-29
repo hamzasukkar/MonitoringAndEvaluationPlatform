@@ -8,6 +8,7 @@ using MonitoringAndEvaluationPlatform.Enums;
 using System.Globalization;
 using System.Linq;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using MonitoringAndEvaluationPlatform.Attributes;
 using MonitoringAndEvaluationPlatform.Models;
 using ClosedXML.Excel;
@@ -20,15 +21,45 @@ using QuestPDF.Infrastructure;
 public class DashboardController : Controller
 {
     private readonly ApplicationDbContext _context;
+    private readonly UserManager<ApplicationUser> _userManager;
 
-    public DashboardController(ApplicationDbContext context)
+    public DashboardController(ApplicationDbContext context, UserManager<ApplicationUser> userManager)
     {
         _context = context;
+        _userManager = userManager;
+    }
+
+    private async Task<(bool IsAdmin, int? MinistryCode)> GetScopeAsync()
+    {
+        if (User.IsInRole(UserRoles.SystemAdministrator))
+        {
+            return (true, null);
+        }
+
+        var user = await _userManager.GetUserAsync(User);
+        return (false, user?.MinistryCode);
+    }
+
+    private IQueryable<Framework> ApplyFrameworkScope(IQueryable<Framework> query, bool isAdmin, int? scopedMinistryCode)
+    {
+        if (isAdmin) return query;
+        return scopedMinistryCode is null
+            ? query.Where(_ => false)
+            : query.Where(f => f.MinistryCode == scopedMinistryCode);
+    }
+
+    private IQueryable<Project> ApplyProjectScope(IQueryable<Project> query, bool isAdmin, int? scopedMinistryCode)
+    {
+        if (isAdmin) return query;
+        return scopedMinistryCode is null
+            ? query.Where(_ => false)
+            : query.Where(p => p.MinistryCode == scopedMinistryCode);
     }
 
     public async Task<IActionResult> FrameworkPerformance()
     {
-        var frameworks = await _context.Frameworks.ToListAsync();
+        var (isAdmin, scopedMinistryCode) = await GetScopeAsync();
+        var frameworks = await ApplyFrameworkScope(_context.Frameworks, isAdmin, scopedMinistryCode).ToListAsync();
         ViewBag.Frameworks = frameworks;
         return View();
     }
@@ -37,7 +68,8 @@ public class DashboardController : Controller
     [HttpGet]
     public async Task<IActionResult> FrameworksPerformanceGauge(int? frameworkCode = null, int? ministryCode = null)
     {
-        var frameworksQuery = _context.Frameworks
+        var (isAdmin, scopedMinistryCode) = await GetScopeAsync();
+        var frameworksQuery = ApplyFrameworkScope(_context.Frameworks, isAdmin, scopedMinistryCode)
             .Include(f => f.Outcomes)
                 .ThenInclude(o => o.Outputs)
                     .ThenInclude(op => op.SubOutputs)
@@ -94,9 +126,17 @@ public class DashboardController : Controller
     [HttpGet]
     public async Task<IActionResult> IndicatorTrend(int indicatorCode)
     {
+        var (isAdmin, scopedMinistryCode) = await GetScopeAsync();
         // Measures are now on ProjectPhase, not directly on Indicator.
         var indicator = await _context.Indicators
+            .Include(i => i.SubOutput).ThenInclude(so => so.Output).ThenInclude(o => o.Outcome).ThenInclude(oc => oc.Framework)
             .FirstOrDefaultAsync(i => i.IndicatorCode == indicatorCode);
+
+        if (indicator == null) return NotFound();
+        if (!isAdmin && indicator.SubOutput?.Output?.Outcome?.Framework?.MinistryCode != scopedMinistryCode)
+        {
+            return Forbid();
+        }
 
         List<object> real;
         if (indicator?.ProjectID != null)
@@ -120,15 +160,17 @@ public class DashboardController : Controller
 
 
     [HttpGet]
-    public IActionResult OutcomeProgress(int? frameworkCode)
+    public async Task<IActionResult> OutcomeProgress(int? frameworkCode)
     {
+        var (isAdmin, scopedMinistryCode) = await GetScopeAsync();
+
         // For the dropdown
-        ViewBag.Frameworks = _context.Frameworks
+        ViewBag.Frameworks = await ApplyFrameworkScope(_context.Frameworks, isAdmin, scopedMinistryCode)
             .Select(f => new SelectListItem
             {
                 Value = f.Code.ToString(),
                 Text = f.Name
-            }).ToList();
+            }).ToListAsync();
 
         var outcomesQuery = _context.Outcomes
             .Include(o => o.Outputs)
@@ -138,6 +180,13 @@ public class DashboardController : Controller
 
         if (frameworkCode.HasValue)
             outcomesQuery = outcomesQuery.Where(o => o.FrameworkCode == frameworkCode.Value);
+
+        if (!isAdmin)
+        {
+            outcomesQuery = scopedMinistryCode is null
+                ? outcomesQuery.Where(_ => false)
+                : outcomesQuery.Where(o => o.Framework.MinistryCode == scopedMinistryCode);
+        }
 
         var outcomes = outcomesQuery.ToList();
 
@@ -169,14 +218,15 @@ public class DashboardController : Controller
             Outcomes = items
         });
     }
-    public IActionResult FrameworkOutcomeDashboard(int? frameworkCode)
+    public async Task<IActionResult> FrameworkOutcomeDashboard(int? frameworkCode)
     {
-        var allFrameworks = _context.Frameworks
+        var (isAdmin, scopedMinistryCode) = await GetScopeAsync();
+        var allFrameworks = await ApplyFrameworkScope(_context.Frameworks, isAdmin, scopedMinistryCode)
             .Include(f => f.Outcomes)
                 .ThenInclude(o => o.Outputs)
                     .ThenInclude(op => op.SubOutputs)
                         .ThenInclude(so => so.Indicators)
-            .ToList();
+            .ToListAsync();
 
         var frameworkItems = allFrameworks.Select(f =>
         {
@@ -231,12 +281,12 @@ public class DashboardController : Controller
             Frameworks = frameworkItems,
             Outcomes = outcomeItems,
             SelectedFrameworkCode = frameworkCode,
-            FrameworkOptions = _context.Frameworks
+            FrameworkOptions = await ApplyFrameworkScope(_context.Frameworks, isAdmin, scopedMinistryCode)
                 .Select(f => new SelectListItem
                 {
                     Value = f.Code.ToString(),
                     Text = f.Name
-                }).ToList()
+                }).ToListAsync()
         };
 
         return View(model);
@@ -245,14 +295,15 @@ public class DashboardController : Controller
 
 
     [HttpGet]
-    public IActionResult FrameworkProgress()
+    public async Task<IActionResult> FrameworkProgress()
     {
-        var frameworks = _context.Frameworks
+        var (isAdmin, scopedMinistryCode) = await GetScopeAsync();
+        var frameworks = await ApplyFrameworkScope(_context.Frameworks, isAdmin, scopedMinistryCode)
             .Include(f => f.Outcomes)
                 .ThenInclude(o => o.Outputs)
                     .ThenInclude(op => op.SubOutputs)
                         .ThenInclude(so => so.Indicators)
-            .ToList();
+            .ToListAsync();
 
         var items = frameworks.Select(f =>
         {
@@ -284,7 +335,8 @@ public class DashboardController : Controller
 
     public async Task<IActionResult> Gauge()
     {
-        var frameworks = await _context.Frameworks.ToListAsync();
+        var (isAdmin, scopedMinistryCode) = await GetScopeAsync();
+        var frameworks = await ApplyFrameworkScope(_context.Frameworks, isAdmin, scopedMinistryCode).ToListAsync();
         return View(frameworks);
     }
 
@@ -296,6 +348,12 @@ public class DashboardController : Controller
         var framework = await _context.Frameworks.FindAsync(id);
         if (framework == null)
             return NotFound();
+
+        var (isAdmin, scopedMinistryCode) = await GetScopeAsync();
+        if (!isAdmin && framework.MinistryCode != scopedMinistryCode)
+        {
+            return Forbid();
+        }
 
         double rate = framework.IndicatorsPerformance; // Your logic
 
@@ -382,29 +440,53 @@ public class DashboardController : Controller
 
     public async Task<IActionResult> Test4()
     {
+        var (isAdmin, scopedMinistryCode) = await GetScopeAsync();
+        var frameworksQ = ApplyFrameworkScope(_context.Frameworks, isAdmin, scopedMinistryCode);
+        var projectsQ = ApplyProjectScope(_context.Projects, isAdmin, scopedMinistryCode);
+        var outcomesQ = isAdmin
+            ? _context.Outcomes
+            : (scopedMinistryCode is null
+                ? _context.Outcomes.Where(_ => false)
+                : _context.Outcomes.Where(o => o.Framework.MinistryCode == scopedMinistryCode));
+        var outputsQ = isAdmin
+            ? _context.Outputs
+            : (scopedMinistryCode is null
+                ? _context.Outputs.Where(_ => false)
+                : _context.Outputs.Where(o => o.Outcome.Framework.MinistryCode == scopedMinistryCode));
+        var subOutputsQ = isAdmin
+            ? _context.SubOutputs
+            : (scopedMinistryCode is null
+                ? _context.SubOutputs.Where(_ => false)
+                : _context.SubOutputs.Where(s => s.Output.Outcome.Framework.MinistryCode == scopedMinistryCode));
+        var indicatorsQ = isAdmin
+            ? _context.Indicators
+            : (scopedMinistryCode is null
+                ? _context.Indicators.Where(_ => false)
+                : _context.Indicators.Where(i => i.SubOutput.Output.Outcome.Framework.MinistryCode == scopedMinistryCode));
+
         var viewModel = new DataSuggestionViewModel
         {
-            Frameworks = await _context.Frameworks
+            Frameworks = await frameworksQ
                .Select(f => new SelectListItem { Value = f.Code.ToString(), Text = f.Name })
                .ToListAsync(),
 
-            Outcomes = await _context.Outcomes
+            Outcomes = await outcomesQ
                .Select(o => new SelectListItem { Value = o.Code.ToString(), Text = o.Name })
                .ToListAsync(),
 
-            Outputs = await _context.Outputs
+            Outputs = await outputsQ
                .Select(o => new SelectListItem { Value = o.Code.ToString(), Text = o.Name })
                .ToListAsync(),
 
-            SubOutputs = await _context.SubOutputs
+            SubOutputs = await subOutputsQ
                .Select(s => new SelectListItem { Value = s.Code.ToString(), Text = s.Name })
                .ToListAsync(),
 
-            Indicators = await _context.Indicators
+            Indicators = await indicatorsQ
                .Select(i => new SelectListItem { Value = i.IndicatorCode.ToString(), Text = i.Name })
                .ToListAsync(),
 
-            Projects = await _context.Projects
+            Projects = await projectsQ
                .Select(p => new SelectListItem { Value = p.ProjectID.ToString(), Text = p.ProjectName })
                .ToListAsync(),
 
@@ -438,16 +520,25 @@ public class DashboardController : Controller
 
     public async Task<IActionResult> Index()
     {
+        var (isAdmin, scopedMinistryCode) = await GetScopeAsync();
+        var frameworksQ = ApplyFrameworkScope(_context.Frameworks, isAdmin, scopedMinistryCode);
+        var projectsQ = ApplyProjectScope(_context.Projects, isAdmin, scopedMinistryCode);
+        var indicatorsQ = isAdmin
+            ? _context.Indicators
+            : (scopedMinistryCode is null
+                ? _context.Indicators.Where(_ => false)
+                : _context.Indicators.Where(i => i.SubOutput.Output.Outcome.Framework.MinistryCode == scopedMinistryCode));
+
         var model = new DashboardSummaryViewModel
         {
-            TotalFrameworks = await _context.Frameworks.CountAsync(),
-            Frameworks = await _context.Frameworks.ToListAsync(),
+            TotalFrameworks = await frameworksQ.CountAsync(),
+            Frameworks = await frameworksQ.ToListAsync(),
 
-            TotlalMinistries = await _context.Indicators.CountAsync(),
+            TotlalMinistries = await indicatorsQ.CountAsync(),
             Ministries = await _context.Ministries.ToListAsync(),
 
-            TotalProjects = await _context.Projects.CountAsync(),
-            Projects = await _context.Projects.ToListAsync(),
+            TotalProjects = await projectsQ.CountAsync(),
+            Projects = await projectsQ.ToListAsync(),
 
             TotalGovernorate = await _context.Governorates.CountAsync(),
             Governorates = await _context.Governorates.ToListAsync(),
@@ -461,10 +552,12 @@ public class DashboardController : Controller
 
 
     [HttpGet]
-    public IActionResult ProjectProgress2(int? regionId, int? sectorId, int? donorId)
+    public async Task<IActionResult> ProjectProgress2(int? regionId, int? sectorId, int? donorId)
     {
+        var (isAdmin, scopedMinistryCode) = await GetScopeAsync();
+
         // Base query for projects
-        var query = _context.Projects
+        var query = ApplyProjectScope(_context.Projects, isAdmin, scopedMinistryCode)
             .Include(p => p.Indicators)
             .Include(p => p.Donors)
             .AsQueryable();
@@ -515,7 +608,9 @@ public class DashboardController : Controller
 
     public async Task<IActionResult> ProjectProgress(int? regionId, int? sectorId, int? donorId)
     {
-        var projectsQuery = _context.Projects
+        var (isAdmin, scopedMinistryCode) = await GetScopeAsync();
+
+        var projectsQuery = ApplyProjectScope(_context.Projects, isAdmin, scopedMinistryCode)
             .Include(p => p.Indicators)
             .AsQueryable();
 
@@ -584,6 +679,12 @@ public class DashboardController : Controller
         if (framework == null)
             return NotFound();
 
+        var (isAdmin, scopedMinistryCode) = await GetScopeAsync();
+        if (!isAdmin && framework.MinistryCode != scopedMinistryCode)
+        {
+            return Forbid();
+        }
+
         // Aggregate all indicators under this framework
         var indicators = framework.Outcomes
             .SelectMany(o => o.Outputs)
@@ -615,7 +716,8 @@ public class DashboardController : Controller
         var subDistrictCodes = subDistrictCode?.Split(',', StringSplitOptions.RemoveEmptyEntries).ToList();
         var communityCodes = communityCode?.Split(',', StringSplitOptions.RemoveEmptyEntries).ToList();
 
-        var frameworkQuery = _context.Frameworks.AsQueryable();
+        var (isAdmin, scopedMinistryCode) = await GetScopeAsync();
+        var frameworkQuery = ApplyFrameworkScope(_context.Frameworks, isAdmin, scopedMinistryCode);
 
         // Prioritize the most specific geographic filter
         if (frameworkCode.HasValue)
@@ -752,6 +854,12 @@ public class DashboardController : Controller
         if (framework == null)
             return Json(new List<object>());
 
+        var (isAdmin, scopedMinistryCode) = await GetScopeAsync();
+        if (!isAdmin && framework.MinistryCode != scopedMinistryCode)
+        {
+            return Json(new List<object>());
+        }
+
         var currentCulture = CultureInfo.CurrentUICulture.TwoLetterISOLanguageName;
         var ministries = framework.Outcomes
              .SelectMany(o => o.Outputs)
@@ -792,6 +900,12 @@ public class DashboardController : Controller
             return Json(new List<object>());
         }
 
+        var (isAdmin, scopedMinistryCode) = await GetScopeAsync();
+        if (!isAdmin && framework.MinistryCode != scopedMinistryCode)
+        {
+            return Json(new List<object>());
+        }
+
         var projects = framework.Outcomes
             .SelectMany(o => o.Outputs)
             .SelectMany(op => op.SubOutputs)
@@ -812,7 +926,8 @@ public class DashboardController : Controller
     [HttpGet]
     public async Task<IActionResult> GetProjectsByGovernorate(string governorateCode)
     {
-        var projectsByGovernorate = await _context.Projects
+        var (isAdmin, scopedMinistryCode) = await GetScopeAsync();
+        var projectsByGovernorate = await ApplyProjectScope(_context.Projects, isAdmin, scopedMinistryCode)
             .Where(p => p.IsEntireCountry || p.Governorates.Any(g => g.Code == governorateCode))
             .Select(p => new
             {
@@ -833,6 +948,24 @@ public class DashboardController : Controller
         var codes = governorateCodes.Split(',')
                                     .ToList();
 
+        var (isAdmin, scopedMinistryCode) = await GetScopeAsync();
+        if (!isAdmin)
+        {
+            // A non-admin can only see their own ministry; only return it if it has matching projects
+            if (scopedMinistryCode is null) return Json(new List<object>());
+            var currentCultureNonAdmin = CultureInfo.CurrentUICulture.TwoLetterISOLanguageName;
+            var ownMinistry = await _context.Ministries
+                .Where(m => m.Code == scopedMinistryCode &&
+                            m.Projects.Any(p => p.IsEntireCountry || p.Governorates.Any(g => codes.Contains(g.Code))))
+                .Select(m => new
+                {
+                    id = m.Code,
+                    name = currentCultureNonAdmin == "ar" ? m.MinistryDisplayName_AR : m.MinistryDisplayName_EN
+                })
+                .ToListAsync();
+            return Json(ownMinistry);
+        }
+
         var currentCulture = CultureInfo.CurrentUICulture.TwoLetterISOLanguageName;
         var ministries = await _context.Ministries
             .Where(m => m.Projects.Any(p => p.IsEntireCountry || p.Governorates.Any(g => codes.Contains(g.Code))))
@@ -850,12 +983,10 @@ public class DashboardController : Controller
     [HttpGet]
     public async Task<IActionResult> GetFrameworksByGovernorates(string governorateCodes)
     {
-        // The governorateCodes parameter will be a comma-separated string,
-        // so we need to split it and parse it into a list of integers.
-        var codes = governorateCodes.Split(',')
-                                    .ToList();
+        var codes = governorateCodes.Split(',').ToList();
 
-        var frameworks = await _context.Frameworks
+        var (isAdmin, scopedMinistryCode) = await GetScopeAsync();
+        var frameworks = await ApplyFrameworkScope(_context.Frameworks, isAdmin, scopedMinistryCode)
             .Where(f => f.Outcomes.Any(o => o.Outputs.Any(op => op.SubOutputs.Any(so => so.Indicators.Any(i => i.Project != null && (i.Project.IsEntireCountry || i.Project.Governorates.Any(g => codes.Contains(g.Code))))))))
             .Select(f => new
             {
@@ -871,7 +1002,13 @@ public class DashboardController : Controller
     [HttpGet]
     public async Task<IActionResult> GetFrameworksByMinistry(int ministryCode)
     {
-        var frameworks = await _context.Frameworks
+        var (isAdmin, scopedMinistryCode) = await GetScopeAsync();
+        if (!isAdmin && scopedMinistryCode != ministryCode)
+        {
+            return Json(new List<object>());
+        }
+
+        var frameworks = await ApplyFrameworkScope(_context.Frameworks, isAdmin, scopedMinistryCode)
             .Where(f => f.Outcomes.Any(o => o.Outputs.Any(op => op.SubOutputs.Any(so => so.Indicators.Any(i => i.Project != null && i.Project.Ministries.Any(min => min.Code == ministryCode))))))
             .Select(f => new
             {
@@ -887,7 +1024,13 @@ public class DashboardController : Controller
     [HttpGet]
     public async Task<IActionResult> GetProjectsByMinistry(int ministryCode)
     {
-        var projects = await _context.Projects
+        var (isAdmin, scopedMinistryCode) = await GetScopeAsync();
+        if (!isAdmin && scopedMinistryCode != ministryCode)
+        {
+            return Json(new List<object>());
+        }
+
+        var projects = await ApplyProjectScope(_context.Projects, isAdmin, scopedMinistryCode)
             .Where(p => p.Ministries.Any(m => m.Code == ministryCode))
             .Select(p => new
             {
@@ -903,7 +1046,15 @@ public class DashboardController : Controller
     [HttpGet]
     public async Task<IActionResult> GetFrameworksByProject(int projectCode)
     {
-        var frameworks = await _context.Frameworks
+        var (isAdmin, scopedMinistryCode) = await GetScopeAsync();
+        var project = await _context.Projects.FindAsync(projectCode);
+        if (project == null) return Json(new List<object>());
+        if (!isAdmin && project.MinistryCode != scopedMinistryCode)
+        {
+            return Json(new List<object>());
+        }
+
+        var frameworks = await ApplyFrameworkScope(_context.Frameworks, isAdmin, scopedMinistryCode)
             .Where(f => f.Outcomes.Any(o => o.Outputs.Any(op => op.SubOutputs.Any(so => so.Indicators.Any(i => i.ProjectID == projectCode)))))
             .Select(f => new
             {
@@ -919,6 +1070,14 @@ public class DashboardController : Controller
     [HttpGet]
     public async Task<IActionResult> GetMinistriesByProject(int projectCode)
     {
+        var (isAdmin, scopedMinistryCode) = await GetScopeAsync();
+        var project = await _context.Projects.FindAsync(projectCode);
+        if (project == null) return Json(new List<object>());
+        if (!isAdmin && project.MinistryCode != scopedMinistryCode)
+        {
+            return Json(new List<object>());
+        }
+
         var currentCulture = CultureInfo.CurrentUICulture.TwoLetterISOLanguageName;
         var ministries = await _context.Ministries
             .Where(m => m.Projects.Any(p => p.ProjectID == projectCode))
@@ -934,8 +1093,17 @@ public class DashboardController : Controller
     }
 
     [HttpGet]
-    public IActionResult GetGovernoratesByFramework(int frameworkCode)
+    public async Task<IActionResult> GetGovernoratesByFramework(int frameworkCode)
     {
+        var framework = await _context.Frameworks.FindAsync(frameworkCode);
+        if (framework == null) return Json(new List<object>());
+
+        var (isAdmin, scopedMinistryCode) = await GetScopeAsync();
+        if (!isAdmin && framework.MinistryCode != scopedMinistryCode)
+        {
+            return Json(new List<object>());
+        }
+
         // Collect governorates from projects that are linked via ProjectIndicators to indicators in the framework
         var governorates = _context.Indicators
             .Where(i => i.SubOutput.Output.Outcome.Framework.Code == frameworkCode && i.Project != null)
@@ -957,6 +1125,15 @@ public class DashboardController : Controller
         if (projectCode == 0)
             return Json(new List<object>());
 
+        var project = await _context.Projects.FindAsync(projectCode);
+        if (project == null) return Json(new List<object>());
+
+        var (isAdmin, scopedMinistryCode) = await GetScopeAsync();
+        if (!isAdmin && project.MinistryCode != scopedMinistryCode)
+        {
+            return Json(new List<object>());
+        }
+
         var governorates = await _context.Projects
             .Where(p => p.ProjectID == projectCode)
             .SelectMany(p => p.Governorates) // many-to-many navigation property
@@ -974,7 +1151,13 @@ public class DashboardController : Controller
     [HttpGet]
     public async Task<IActionResult> GetGovernoratesByMinistry(int ministryCode)
     {
-        var governorates = await _context.Projects
+        var (isAdmin, scopedMinistryCode) = await GetScopeAsync();
+        if (!isAdmin && scopedMinistryCode != ministryCode)
+        {
+            return Json(new List<object>());
+        }
+
+        var governorates = await ApplyProjectScope(_context.Projects, isAdmin, scopedMinistryCode)
             .Where(p => p.Ministries.Any(m => m.Code == ministryCode))
             .SelectMany(p => p.Governorates) // many-to-many Project ↔ Governorate
             .Select(g => new
@@ -995,7 +1178,8 @@ public class DashboardController : Controller
         if (codes == null || !codes.Any())
             return Json(new List<object>());
 
-        var frameworks = await _context.Frameworks
+        var (isAdmin, scopedMinistryCode) = await GetScopeAsync();
+        var frameworks = await ApplyFrameworkScope(_context.Frameworks, isAdmin, scopedMinistryCode)
             .Where(f => f.Outcomes.Any(o => o.Outputs.Any(op => op.SubOutputs.Any(so => so.Indicators.Any(i => i.Project != null && (i.Project.IsEntireCountry || i.Project.Communities.Any(c => codes.Contains(c.Code))))))))
             .Select(f => new { code = f.Code, name = f.Name })
             .Distinct()
@@ -1010,9 +1194,18 @@ public class DashboardController : Controller
         if (codes == null || !codes.Any())
             return Json(new List<object>());
 
+        var (isAdmin, scopedMinistryCode) = await GetScopeAsync();
         var currentCulture = CultureInfo.CurrentUICulture.TwoLetterISOLanguageName;
-        var ministries = await _context.Ministries
-            .Where(m => m.Projects.Any(p => p.IsEntireCountry || p.Communities.Any(c => codes.Contains(c.Code))))
+        var ministriesQuery = _context.Ministries
+            .Where(m => m.Projects.Any(p => p.IsEntireCountry || p.Communities.Any(c => codes.Contains(c.Code))));
+
+        if (!isAdmin)
+        {
+            if (scopedMinistryCode is null) return Json(new List<object>());
+            ministriesQuery = ministriesQuery.Where(m => m.Code == scopedMinistryCode);
+        }
+
+        var ministries = await ministriesQuery
             .Select(m => new { id = m.Code, name = currentCulture == "ar" ? m.MinistryDisplayName_AR : m.MinistryDisplayName_EN })
             .Distinct()
             .ToListAsync();
@@ -1027,7 +1220,8 @@ public class DashboardController : Controller
         if (codes == null || !codes.Any())
             return Json(new List<object>());
 
-        var projects = await _context.Projects
+        var (isAdmin, scopedMinistryCode) = await GetScopeAsync();
+        var projects = await ApplyProjectScope(_context.Projects, isAdmin, scopedMinistryCode)
             .Where(p => p.IsEntireCountry || p.Communities.Any(c => codes.Contains(c.Code)))
             .Select(p => new { id = p.ProjectID, name = p.ProjectName })
             .Distinct()
@@ -1040,7 +1234,8 @@ public class DashboardController : Controller
     [HttpGet]
     public async Task<IActionResult> FrameworkGoalsTimeline(int? goalId, int? frameworkCode)
     {
-        var frameworks = await _context.Frameworks.ToListAsync();
+        var (isAdmin, scopedMinistryCode) = await GetScopeAsync();
+        var frameworks = await ApplyFrameworkScope(_context.Frameworks, isAdmin, scopedMinistryCode).ToListAsync();
         ViewBag.Frameworks = frameworks;
         ViewBag.SelectedGoalId = goalId;
         ViewBag.SelectedFrameworkCode = frameworkCode;
@@ -1051,6 +1246,15 @@ public class DashboardController : Controller
     [HttpGet]
     public async Task<IActionResult> GetGoalsByFramework(int frameworkCode)
     {
+        var framework = await _context.Frameworks.FindAsync(frameworkCode);
+        if (framework == null) return Json(new List<object>());
+
+        var (isAdmin, scopedMinistryCode) = await GetScopeAsync();
+        if (!isAdmin && framework.MinistryCode != scopedMinistryCode)
+        {
+            return Json(new List<object>());
+        }
+
         var goals = await _context.FrameworkGoals
             .Where(fg => fg.FrameworkCode == frameworkCode)
             .Select(fg => new
@@ -1075,6 +1279,12 @@ public class DashboardController : Controller
         if (goal == null)
         {
             return NotFound();
+        }
+
+        var (isAdmin, scopedMinistryCode) = await GetScopeAsync();
+        if (!isAdmin && goal.Framework?.MinistryCode != scopedMinistryCode)
+        {
+            return Forbid();
         }
 
         // Generate time series data from StartingYear to TargetYear
@@ -1510,7 +1720,8 @@ public class DashboardController : Controller
         var subDistrictCodes = subDistrictCode?.Split(',', StringSplitOptions.RemoveEmptyEntries).ToList();
         var communityCodes = communityCode?.Split(',', StringSplitOptions.RemoveEmptyEntries).ToList();
 
-        var frameworkQuery = _context.Frameworks.AsQueryable();
+        var (isAdmin, scopedMinistryCode) = await GetScopeAsync();
+        var frameworkQuery = ApplyFrameworkScope(_context.Frameworks, isAdmin, scopedMinistryCode);
 
         if (frameworkCode.HasValue)
         {

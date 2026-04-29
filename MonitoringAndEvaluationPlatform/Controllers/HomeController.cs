@@ -1,5 +1,7 @@
 using System.Diagnostics;
 using System.Globalization;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using MonitoringAndEvaluationPlatform.Models;
 using MonitoringAndEvaluationPlatform.Data;
@@ -8,20 +10,47 @@ using Microsoft.EntityFrameworkCore;
 
 namespace MonitoringAndEvaluationPlatform.Controllers
 {
+    [Authorize]
     public class HomeController : Controller
     {
         private readonly ILogger<HomeController> _logger;
         private readonly ApplicationDbContext _context;
+        private readonly UserManager<ApplicationUser> _userManager;
 
-        public HomeController(ILogger<HomeController> logger, ApplicationDbContext context)
+        public HomeController(ILogger<HomeController> logger, ApplicationDbContext context, UserManager<ApplicationUser> userManager)
         {
             _logger = logger;
             _context = context;
+            _userManager = userManager;
+        }
+
+        private async Task<(bool IsAdmin, int? MinistryCode)> GetScopeAsync()
+        {
+            if (User.IsInRole(UserRoles.SystemAdministrator))
+            {
+                return (true, null);
+            }
+
+            var user = await _userManager.GetUserAsync(User);
+            return (false, user?.MinistryCode);
         }
 
         public async Task<IActionResult> Index()
         {
-            var frameworks = await _context.Frameworks.ToListAsync();
+            var (isAdmin, scopedMinistryCode) = await GetScopeAsync();
+            var frameworksQuery = _context.Frameworks.AsQueryable();
+            var projectsQuery = _context.Projects.AsQueryable();
+            if (!isAdmin)
+            {
+                frameworksQuery = scopedMinistryCode is null
+                    ? frameworksQuery.Where(_ => false)
+                    : frameworksQuery.Where(f => f.MinistryCode == scopedMinistryCode);
+                projectsQuery = scopedMinistryCode is null
+                    ? projectsQuery.Where(_ => false)
+                    : projectsQuery.Where(p => p.MinistryCode == scopedMinistryCode);
+            }
+
+            var frameworks = await frameworksQuery.ToListAsync();
             var ministries = await _context.Ministries.ToListAsync();
             var governorates = await _context.Governorates.ToListAsync();
             var donors = await _context.Donors.ToListAsync();
@@ -56,7 +85,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
 
             // Get projects by ministry count
             var currentCulture = CultureInfo.CurrentUICulture.TwoLetterISOLanguageName;
-            var projectsByMinistry = await _context.Projects
+            var projectsByMinistry = await projectsQuery
                 .Include(p => p.Ministries)
                 .SelectMany(p => p.Ministries.Select(m => new { Ministry = m }))
                 .GroupBy(x => currentCulture == "ar"
@@ -66,7 +95,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 .ToDictionaryAsync(x => x.Ministry, x => x.Count);
 
             // Get projects by governorate count
-            var projectsByGovernorate = await _context.Projects
+            var projectsByGovernorate = await projectsQuery
                 .Include(p => p.Governorates)
                 .SelectMany(p => p.Governorates.Select(g => new { Governorate = g }))
                 .GroupBy(x => x.Governorate.EN_Name ?? x.Governorate.AR_Name)
@@ -74,7 +103,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 .ToDictionaryAsync(x => x.Governorate, x => x.Count);
 
             // Get projects by donor count
-            var projectsByDonor = await _context.Projects
+            var projectsByDonor = await projectsQuery
                 .Include(p => p.Donors)
                 .SelectMany(p => p.Donors.Select(d => new { Donor = d }))
                 .GroupBy(x => x.Donor.Partner)
@@ -82,7 +111,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 .ToDictionaryAsync(x => x.Donor, x => x.Count);
 
             // Get projects by sector count
-            var projectsBySector = await _context.Projects
+            var projectsBySector = await projectsQuery
                 .Include(p => p.Sectors)
                 .SelectMany(p => p.Sectors.Select(s => new { Sector = s }))
                 .GroupBy(x => x.Sector.EN_Name ?? x.Sector.AR_Name)
@@ -91,7 +120,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
 
             // Calculate monthly performance (based on project completion over the year)
             var currentYear = DateTime.Now.Year;
-            var projects = await _context.Projects
+            var projects = await projectsQuery
                 .Where(p => p.StartDate.Year <= currentYear && p.EndDate.Year >= currentYear)
                 .ToListAsync();
 
@@ -118,7 +147,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             }
 
             // Get all projects performance data (top 10 for chart display)
-            var allProjects = await _context.Projects.ToListAsync();
+            var allProjects = await projectsQuery.ToListAsync();
             var projectsPerformance = allProjects
                 .OrderByDescending(p => p.performance)
                 .Take(10)
@@ -135,7 +164,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             var governoratesMapData = new List<GovernorateMapDataViewModel>();
             foreach (var governorate in governorates)
             {
-                var governorateProjects = await _context.Projects
+                var governorateProjects = await projectsQuery
                     .Include(p => p.Governorates)
                     .Where(p => p.Governorates.Any(g => g.Code == governorate.Code))
                     .ToListAsync();
@@ -156,7 +185,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
 
             // Get recent activities based on recent projects
             var recentActivities = new List<RecentActivityViewModel>();
-            var recentProjects = await _context.Projects
+            var recentProjects = await projectsQuery
                 .OrderByDescending(p => p.StartDate)
                 .Take(5)
                 .ToListAsync();
@@ -180,8 +209,8 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 TotlalMinistries = ministries.Count,
                 Ministries = ministries.Take(5).ToList(),
                 ProjectsByMinistry = projectsByMinistry,
-                TotalProjects = await _context.Projects.CountAsync(),
-                Projects = await _context.Projects
+                TotalProjects = await projectsQuery.CountAsync(),
+                Projects = await projectsQuery
                     .Include(p => p.Sectors)
                     .Include(p => p.Ministries)
                     .Include(p => p.Donors)

@@ -2,6 +2,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
@@ -11,16 +13,30 @@ using MonitoringAndEvaluationPlatform.ViewModel;
 
 namespace MonitoringAndEvaluationPlatform.Controllers
 {
+    [Authorize]
     public class MonitoringController : Controller
     {
         private readonly ApplicationDbContext _context;
+        private readonly UserManager<ApplicationUser> _userManager;
 
-        public MonitoringController(ApplicationDbContext context)
+        public MonitoringController(ApplicationDbContext context, UserManager<ApplicationUser> userManager)
         {
             _context = context;
+            _userManager = userManager;
         }
 
-        public IActionResult FrameworkDashboard(List<int> selectedMinistryIds)
+        private async Task<(bool IsAdmin, int? MinistryCode)> GetScopeAsync()
+        {
+            if (User.IsInRole(UserRoles.SystemAdministrator))
+            {
+                return (true, null);
+            }
+
+            var user = await _userManager.GetUserAsync(User);
+            return (false, user?.MinistryCode);
+        }
+
+        public async Task<IActionResult> FrameworkDashboard(List<int> selectedMinistryIds)
         {
             // 1) Load all ministries (for the filter dropdown, etc.)
             var allMinistries = _context.Ministries.ToList();
@@ -34,6 +50,14 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                                 .ThenInclude(i => i.Project)
                                     .ThenInclude(p => p.Ministries)
                 .AsQueryable();
+
+            var (isAdmin, scopedMinistryCode) = await GetScopeAsync();
+            if (!isAdmin)
+            {
+                frameworks = scopedMinistryCode is null
+                    ? frameworks.Where(_ => false)
+                    : frameworks.Where(f => f.MinistryCode == scopedMinistryCode);
+            }
 
             if (selectedMinistryIds != null && selectedMinistryIds.Any())
             {
@@ -63,28 +87,47 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         {
             ViewBag.MinistryList = _context.Ministries.Distinct().ToList();
 
-            var frameworks = await _context.Frameworks
+            var query = _context.Frameworks
                 .Include(i => i.Outcomes)
                 .ThenInclude(i => i.Outputs)
                 .ThenInclude(i => i.SubOutputs)
                 .ThenInclude(i => i.Indicators)
                 .ThenInclude(i => i.Project)
-                .ToListAsync();
+                .AsQueryable();
+
+            var (isAdmin, scopedMinistryCode) = await GetScopeAsync();
+            if (!isAdmin)
+            {
+                query = scopedMinistryCode is null
+                    ? query.Where(_ => false)
+                    : query.Where(f => f.MinistryCode == scopedMinistryCode);
+            }
+
+            var frameworks = await query.ToListAsync();
             return View(frameworks);
         }
 
         // GET: Monitoring
         public async Task<IActionResult> Index(int? frameworkCode)
         {
-            var frameworks = await _context.Frameworks
+            var query = _context.Frameworks
                 .Include(i => i.Outcomes)
                 .ThenInclude(i => i.Outputs)
                 .ThenInclude(i => i.SubOutputs)
                 .ThenInclude(i => i.Indicators)
                 .ThenInclude(i => i.Project)
                     .ThenInclude(p => p.Phases)
-                .OrderByDescending(f => f.IndicatorsPerformance)
-                .ToListAsync();
+                .AsQueryable();
+
+            var (isAdmin, scopedMinistryCode) = await GetScopeAsync();
+            if (!isAdmin)
+            {
+                query = scopedMinistryCode is null
+                    ? query.Where(_ => false)
+                    : query.Where(f => f.MinistryCode == scopedMinistryCode);
+            }
+
+            var frameworks = await query.OrderByDescending(f => f.IndicatorsPerformance).ToListAsync();
             return View(frameworks);
         }
 
@@ -101,6 +144,14 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             if (frameworkCode.HasValue)
             {
                 outcomesQuery = outcomesQuery.Where(o => o.FrameworkCode == frameworkCode.Value);
+            }
+
+            var (isAdmin, scopedMinistryCode) = await GetScopeAsync();
+            if (!isAdmin)
+            {
+                outcomesQuery = scopedMinistryCode is null
+                    ? outcomesQuery.Where(_ => false)
+                    : outcomesQuery.Where(o => o.Framework.MinistryCode == scopedMinistryCode);
             }
 
             var outcomes = await outcomesQuery.ToListAsync();
@@ -145,6 +196,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                         .ThenInclude(i => i.Project)
                             .ThenInclude(p => p.Phases)
                 .Include(o => o.Outcome)
+                    .ThenInclude(oc => oc.Framework)
                 .AsQueryable();
 
             if (frameworkCode.HasValue)
@@ -155,6 +207,14 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             if (outcomeCode.HasValue)
             {
                 outputsQuery = outputsQuery.Where(o => o.OutcomeCode == outcomeCode.Value);
+            }
+
+            var (isAdmin, scopedMinistryCode) = await GetScopeAsync();
+            if (!isAdmin)
+            {
+                outputsQuery = scopedMinistryCode is null
+                    ? outputsQuery.Where(_ => false)
+                    : outputsQuery.Where(o => o.Outcome.Framework.MinistryCode == scopedMinistryCode);
             }
 
             var outputs = await outputsQuery.ToListAsync();
@@ -197,6 +257,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                         .ThenInclude(p => p.Phases)
                 .Include(so => so.Output)
                     .ThenInclude(o => o.Outcome)
+                        .ThenInclude(oc => oc.Framework)
                 .AsQueryable();
 
             if (frameworkCode.HasValue)
@@ -212,6 +273,14 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             if (outputCode.HasValue)
             {
                 subOutputsQuery = subOutputsQuery.Where(so => so.OutputCode == outputCode.Value);
+            }
+
+            var (isAdmin, scopedMinistryCode) = await GetScopeAsync();
+            if (!isAdmin)
+            {
+                subOutputsQuery = scopedMinistryCode is null
+                    ? subOutputsQuery.Where(_ => false)
+                    : subOutputsQuery.Where(so => so.Output.Outcome.Framework.MinistryCode == scopedMinistryCode);
             }
 
             var subOutputs = await subOutputsQuery.ToListAsync();
@@ -281,6 +350,14 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 projectsQuery = projectsQuery.Where(p => p.Indicators.Any(i => i.SubOutput.Output.Outcome.FrameworkCode == frameworkCode.Value));
             }
 
+            var (isAdmin, scopedMinistryCode) = await GetScopeAsync();
+            if (!isAdmin)
+            {
+                projectsQuery = scopedMinistryCode is null
+                    ? projectsQuery.Where(_ => false)
+                    : projectsQuery.Where(p => p.MinistryCode == scopedMinistryCode);
+            }
+
             List<Project> projects = await projectsQuery.Distinct().ToListAsync();
 
             return View(projects);
@@ -315,6 +392,14 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             else if (frameworkCode.HasValue)
             {
                 phasesQuery = phasesQuery.Where(pp => pp.Project.Indicators.Any(i => i.SubOutput.Output.Outcome.FrameworkCode == frameworkCode.Value));
+            }
+
+            var (isAdmin, scopedMinistryCode) = await GetScopeAsync();
+            if (!isAdmin)
+            {
+                phasesQuery = scopedMinistryCode is null
+                    ? phasesQuery.Where(_ => false)
+                    : phasesQuery.Where(pp => pp.Project.MinistryCode == scopedMinistryCode);
             }
 
             var phases = await phasesQuery.OrderBy(pp => pp.Project.ProjectName).ThenBy(pp => pp.StartDate).ToListAsync();
@@ -354,6 +439,14 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             else if (frameworkCode.HasValue)
             {
                 indicatorsQuery = indicatorsQuery.Where(i => i.SubOutput.Output.Outcome.FrameworkCode == frameworkCode.Value);
+            }
+
+            var (isAdmin, scopedMinistryCode) = await GetScopeAsync();
+            if (!isAdmin)
+            {
+                indicatorsQuery = scopedMinistryCode is null
+                    ? indicatorsQuery.Where(_ => false)
+                    : indicatorsQuery.Where(i => i.SubOutput.Output.Outcome.Framework.MinistryCode == scopedMinistryCode);
             }
 
             var indicators = await indicatorsQuery.ToListAsync();

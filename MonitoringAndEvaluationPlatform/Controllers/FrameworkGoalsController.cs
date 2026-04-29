@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
@@ -24,158 +25,220 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         private readonly ApplicationDbContext _context;
         private readonly IStringLocalizer<FrameworkGoalsController> _localizer;
         private readonly IWebHostEnvironment _webHostEnvironment;
+        private readonly UserManager<ApplicationUser> _userManager;
 
-        public FrameworkGoalsController(ApplicationDbContext context, IStringLocalizer<FrameworkGoalsController> localizer, IWebHostEnvironment webHostEnvironment)
+        public FrameworkGoalsController(
+            ApplicationDbContext context,
+            IStringLocalizer<FrameworkGoalsController> localizer,
+            IWebHostEnvironment webHostEnvironment,
+            UserManager<ApplicationUser> userManager)
         {
             _context = context;
             _localizer = localizer;
             _webHostEnvironment = webHostEnvironment;
+            _userManager = userManager;
+        }
+
+        private async Task<(bool IsAdmin, int? MinistryCode)> GetScopeAsync()
+        {
+            if (User.IsInRole(UserRoles.SystemAdministrator))
+            {
+                return (true, null);
+            }
+
+            var user = await _userManager.GetUserAsync(User);
+            return (false, user?.MinistryCode);
+        }
+
+        private async Task<List<Framework>> GetScopedFrameworksAsync()
+        {
+            var (isAdmin, scopedMinistryCode) = await GetScopeAsync();
+            IQueryable<Framework> query = _context.Frameworks;
+            if (!isAdmin)
+            {
+                query = scopedMinistryCode is null
+                    ? query.Where(_ => false)
+                    : query.Where(f => f.MinistryCode == scopedMinistryCode);
+            }
+            return await query.ToListAsync();
+        }
+
+        private async Task<IQueryable<FrameworkGoal>> GetScopedGoalsQueryAsync()
+        {
+            var (isAdmin, scopedMinistryCode) = await GetScopeAsync();
+            IQueryable<FrameworkGoal> query = _context.FrameworkGoals;
+            if (!isAdmin)
+            {
+                query = scopedMinistryCode is null
+                    ? query.Where(_ => false)
+                    : query.Where(fg => fg.Framework.MinistryCode == scopedMinistryCode);
+            }
+            return query;
+        }
+
+        private async Task<bool> GoalBelongsToScopeAsync(int goalId)
+        {
+            var (isAdmin, scopedMinistryCode) = await GetScopeAsync();
+            if (isAdmin) return true;
+            if (scopedMinistryCode is null) return false;
+
+            return await _context.FrameworkGoals
+                .Where(fg => fg.ID == goalId)
+                .AnyAsync(fg => fg.Framework.MinistryCode == scopedMinistryCode);
         }
 
         // GET: FrameworkGoals
         [Permission(Permissions.ReadStrategies)]
         public async Task<IActionResult> Index(int? frameworkCode)
         {
-            ViewBag.Frameworks = await _context.Frameworks.ToListAsync();
+            ViewBag.Frameworks = await GetScopedFrameworksAsync();
 
-            IQueryable<FrameworkGoal> goalsQuery = _context.FrameworkGoals
-                .Include(fg => fg.Framework)
-                .Include(fg => fg.YearlyValues)
-                .Include(fg => fg.ManualExpectedTargets);
-
+            var goalsQuery = await GetScopedGoalsQueryAsync();
             if (frameworkCode.HasValue)
             {
                 goalsQuery = goalsQuery.Where(fg => fg.FrameworkCode == frameworkCode.Value);
                 ViewBag.SelectedFrameworkCode = frameworkCode.Value;
             }
 
-            var goals = await goalsQuery.OrderByDescending(fg => fg.ID).ToListAsync();
+            var goals = await goalsQuery
+                .Include(fg => fg.Framework)
+                .Include(fg => fg.YearlyValues)
+                .Include(fg => fg.ManualExpectedTargets)
+                .OrderByDescending(fg => fg.ID)
+                .ToListAsync();
             return View(goals);
         }
 
         // GET: FrameworkGoals/ProgressView
         public async Task<IActionResult> ProgressView(int? frameworkCode)
         {
-            ViewBag.Frameworks = await _context.Frameworks.ToListAsync();
+            ViewBag.Frameworks = await GetScopedFrameworksAsync();
 
-            IQueryable<FrameworkGoal> goalsQuery = _context.FrameworkGoals
-                .Include(fg => fg.Framework);
-
+            var goalsQuery = await GetScopedGoalsQueryAsync();
             if (frameworkCode.HasValue)
             {
                 goalsQuery = goalsQuery.Where(fg => fg.FrameworkCode == frameworkCode.Value);
                 ViewBag.SelectedFrameworkCode = frameworkCode.Value;
             }
 
-            var goals = await goalsQuery.OrderByDescending(fg => fg.ID).ToListAsync();
+            var goals = await goalsQuery
+                .Include(fg => fg.Framework)
+                .OrderByDescending(fg => fg.ID)
+                .ToListAsync();
             return View(goals);
         }
 
         // GET: FrameworkGoals/CircularGaugeView
         public async Task<IActionResult> CircularGaugeView(int? frameworkCode)
         {
-            ViewBag.Frameworks = await _context.Frameworks.ToListAsync();
+            ViewBag.Frameworks = await GetScopedFrameworksAsync();
 
-            IQueryable<FrameworkGoal> goalsQuery = _context.FrameworkGoals
-                .Include(fg => fg.Framework);
-
+            var goalsQuery = await GetScopedGoalsQueryAsync();
             if (frameworkCode.HasValue)
             {
                 goalsQuery = goalsQuery.Where(fg => fg.FrameworkCode == frameworkCode.Value);
                 ViewBag.SelectedFrameworkCode = frameworkCode.Value;
             }
 
-            var goals = await goalsQuery.OrderByDescending(fg => fg.ID).ToListAsync();
+            var goals = await goalsQuery
+                .Include(fg => fg.Framework)
+                .OrderByDescending(fg => fg.ID)
+                .ToListAsync();
             return View(goals);
         }
 
         // GET: FrameworkGoals/TimelineView
         public async Task<IActionResult> TimelineView(int? frameworkCode)
         {
-            ViewBag.Frameworks = await _context.Frameworks.ToListAsync();
+            ViewBag.Frameworks = await GetScopedFrameworksAsync();
 
-            IQueryable<FrameworkGoal> goalsQuery = _context.FrameworkGoals
-                .Include(fg => fg.Framework);
-
+            var goalsQuery = await GetScopedGoalsQueryAsync();
             if (frameworkCode.HasValue)
             {
                 goalsQuery = goalsQuery.Where(fg => fg.FrameworkCode == frameworkCode.Value);
                 ViewBag.SelectedFrameworkCode = frameworkCode.Value;
             }
 
-            var goals = await goalsQuery.OrderByDescending(fg => fg.ID).ToListAsync();
+            var goals = await goalsQuery
+                .Include(fg => fg.Framework)
+                .OrderByDescending(fg => fg.ID)
+                .ToListAsync();
             return View(goals);
         }
 
         // GET: FrameworkGoals/ValueProgressView
         public async Task<IActionResult> ValueProgressView(int? frameworkCode)
         {
-            ViewBag.Frameworks = await _context.Frameworks.ToListAsync();
+            ViewBag.Frameworks = await GetScopedFrameworksAsync();
 
-            IQueryable<FrameworkGoal> goalsQuery = _context.FrameworkGoals
-                .Include(fg => fg.Framework);
-
+            var goalsQuery = await GetScopedGoalsQueryAsync();
             if (frameworkCode.HasValue)
             {
                 goalsQuery = goalsQuery.Where(fg => fg.FrameworkCode == frameworkCode.Value);
                 ViewBag.SelectedFrameworkCode = frameworkCode.Value;
             }
 
-            var goals = await goalsQuery.OrderByDescending(fg => fg.ID).ToListAsync();
+            var goals = await goalsQuery
+                .Include(fg => fg.Framework)
+                .OrderByDescending(fg => fg.ID)
+                .ToListAsync();
             return View(goals);
         }
 
         // GET: FrameworkGoals/StatusBadgesView
         public async Task<IActionResult> StatusBadgesView(int? frameworkCode)
         {
-            ViewBag.Frameworks = await _context.Frameworks.ToListAsync();
+            ViewBag.Frameworks = await GetScopedFrameworksAsync();
 
-            IQueryable<FrameworkGoal> goalsQuery = _context.FrameworkGoals
-                .Include(fg => fg.Framework);
-
+            var goalsQuery = await GetScopedGoalsQueryAsync();
             if (frameworkCode.HasValue)
             {
                 goalsQuery = goalsQuery.Where(fg => fg.FrameworkCode == frameworkCode.Value);
                 ViewBag.SelectedFrameworkCode = frameworkCode.Value;
             }
 
-            var goals = await goalsQuery.OrderByDescending(fg => fg.ID).ToListAsync();
+            var goals = await goalsQuery
+                .Include(fg => fg.Framework)
+                .OrderByDescending(fg => fg.ID)
+                .ToListAsync();
             return View(goals);
         }
 
         // GET: FrameworkGoals/MetricsGridView
         public async Task<IActionResult> MetricsGridView(int? frameworkCode)
         {
-            ViewBag.Frameworks = await _context.Frameworks.ToListAsync();
+            ViewBag.Frameworks = await GetScopedFrameworksAsync();
 
-            IQueryable<FrameworkGoal> goalsQuery = _context.FrameworkGoals
-                .Include(fg => fg.Framework);
-
+            var goalsQuery = await GetScopedGoalsQueryAsync();
             if (frameworkCode.HasValue)
             {
                 goalsQuery = goalsQuery.Where(fg => fg.FrameworkCode == frameworkCode.Value);
                 ViewBag.SelectedFrameworkCode = frameworkCode.Value;
             }
 
-            var goals = await goalsQuery.OrderByDescending(fg => fg.ID).ToListAsync();
+            var goals = await goalsQuery
+                .Include(fg => fg.Framework)
+                .OrderByDescending(fg => fg.ID)
+                .ToListAsync();
             return View(goals);
         }
 
         // GET: FrameworkGoals/ChartsView
         public async Task<IActionResult> ChartsView(int? frameworkCode)
         {
-            ViewBag.Frameworks = await _context.Frameworks.ToListAsync();
+            ViewBag.Frameworks = await GetScopedFrameworksAsync();
 
-            IQueryable<FrameworkGoal> goalsQuery = _context.FrameworkGoals
-                .Include(fg => fg.Framework);
-
+            var goalsQuery = await GetScopedGoalsQueryAsync();
             if (frameworkCode.HasValue)
             {
                 goalsQuery = goalsQuery.Where(fg => fg.FrameworkCode == frameworkCode.Value);
                 ViewBag.SelectedFrameworkCode = frameworkCode.Value;
             }
 
-            var goals = await goalsQuery.OrderByDescending(fg => fg.ID).ToListAsync();
+            var goals = await goalsQuery
+                .Include(fg => fg.Framework)
+                .OrderByDescending(fg => fg.ID)
+                .ToListAsync();
             return View(goals);
         }
 
@@ -210,6 +273,12 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 if (framework == null)
                 {
                     return Json(new { success = false, message = _localizer["Invalid framework selected."].Value });
+                }
+
+                var (isAdmin, scopedMinistryCode) = await GetScopeAsync();
+                if (!isAdmin && framework.MinistryCode != scopedMinistryCode)
+                {
+                    return Json(new { success = false, message = _localizer["You are not authorized to modify this framework."].Value });
                 }
 
                 // Validate year order
@@ -300,6 +369,11 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                     return Json(new { success = false, message = _localizer["Goal not found."].Value });
                 }
 
+                if (!await GoalBelongsToScopeAsync(id))
+                {
+                    return Json(new { success = false, message = _localizer["You are not authorized to modify this goal."].Value });
+                }
+
                 // Validate year order (current year must be after starting year and up to target year)
                 if (currentYear <= goal.StartingYear || currentYear > goal.TargetYear)
                 {
@@ -368,6 +442,11 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 if (goal == null)
                 {
                     return Json(new { success = false, message = _localizer["Goal not found."].Value });
+                }
+
+                if (!await GoalBelongsToScopeAsync(model.Id))
+                {
+                    return Json(new { success = false, message = _localizer["You are not authorized to modify this goal."].Value });
                 }
 
                 // Validate current year is within range (current year must be after starting year and up to target year)
@@ -493,6 +572,11 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                     return Json(new { success = false, message = _localizer["Goal not found."].Value });
                 }
 
+                if (!await GoalBelongsToScopeAsync(goalId))
+                {
+                    return Json(new { success = false, message = _localizer["You are not authorized to view this goal."].Value });
+                }
+
                 var yearlyValues = goal.YearlyValues
                     .OrderBy(yv => yv.Year)
                     .Select(yv => new
@@ -534,6 +618,11 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 if (goal == null)
                 {
                     return Json(new { success = false, message = _localizer["Goal not found."].Value });
+                }
+
+                if (!await GoalBelongsToScopeAsync(goalId))
+                {
+                    return Json(new { success = false, message = _localizer["You are not authorized to modify this goal."].Value });
                 }
 
                 // Validate year is within range
@@ -586,6 +675,11 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                     return Json(new { success = false, message = _localizer["Goal not found."].Value });
                 }
 
+                if (!await GoalBelongsToScopeAsync(goalId))
+                {
+                    return Json(new { success = false, message = _localizer["You are not authorized to view this goal."].Value });
+                }
+
                 return Json(new { success = true, notes = goal.Notes ?? "" });
             }
             catch (Exception ex)
@@ -608,6 +702,11 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                     return Json(new { success = false, message = _localizer["Goal not found."].Value });
                 }
 
+                if (!await GoalBelongsToScopeAsync(goalId))
+                {
+                    return Json(new { success = false, message = _localizer["You are not authorized to modify this goal."].Value });
+                }
+
                 goal.Notes = notes ?? "";
                 _context.Update(goal);
                 await _context.SaveChangesAsync();
@@ -626,6 +725,11 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         {
             try
             {
+                if (!await GoalBelongsToScopeAsync(goalId))
+                {
+                    return Json(new { success = false, message = _localizer["You are not authorized to view this goal."].Value });
+                }
+
                 var attachments = await _context.FrameworkGoalFiles
                     .Where(f => f.FrameworkGoalID == goalId)
                     .OrderByDescending(f => f.UploadedDate)
@@ -663,6 +767,11 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 if (goal == null)
                 {
                     return Json(new { success = false, message = _localizer["Goal not found."].Value });
+                }
+
+                if (!await GoalBelongsToScopeAsync(goalId))
+                {
+                    return Json(new { success = false, message = _localizer["You are not authorized to modify this goal."].Value });
                 }
 
                 // Create uploads folder if it doesn't exist
@@ -727,6 +836,11 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                     return Json(new { success = false, message = _localizer["Attachment not found."].Value });
                 }
 
+                if (!await GoalBelongsToScopeAsync(attachment.FrameworkGoalID))
+                {
+                    return Json(new { success = false, message = _localizer["You are not authorized to modify this goal."].Value });
+                }
+
                 // Delete physical file
                 var filePath = Path.Combine(_webHostEnvironment.WebRootPath, attachment.FilePath.TrimStart('/').Replace('/', Path.DirectorySeparatorChar));
                 if (System.IO.File.Exists(filePath))
@@ -757,6 +871,11 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 if (goal == null)
                 {
                     return Json(new { success = false, message = _localizer["Goal not found."].Value });
+                }
+
+                if (!await GoalBelongsToScopeAsync(id))
+                {
+                    return Json(new { success = false, message = _localizer["You are not authorized to delete this goal."].Value });
                 }
 
                 _context.FrameworkGoals.Remove(goal);
@@ -992,15 +1111,17 @@ namespace MonitoringAndEvaluationPlatform.Controllers
 
         private async Task<List<FrameworkGoal>> GetFilteredGoals(int? frameworkCode)
         {
-            IQueryable<FrameworkGoal> query = _context.FrameworkGoals
-                .Include(fg => fg.Framework);
+            var query = await GetScopedGoalsQueryAsync();
 
             if (frameworkCode.HasValue)
             {
                 query = query.Where(fg => fg.FrameworkCode == frameworkCode.Value);
             }
 
-            return await query.OrderByDescending(fg => fg.ID).ToListAsync();
+            return await query
+                .Include(fg => fg.Framework)
+                .OrderByDescending(fg => fg.ID)
+                .ToListAsync();
         }
 
         private static string GetPerformanceColor(double performance)

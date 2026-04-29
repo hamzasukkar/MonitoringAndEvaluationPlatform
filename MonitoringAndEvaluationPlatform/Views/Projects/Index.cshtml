@@ -23,7 +23,7 @@
         </div>
         <div class="dashboard-actions d-flex gap-2 align-items-center">
             @await Html.PartialAsync("_HelpButton")
-            @if (User.IsInRole("SystemAdministrator"))
+            @if ((User.IsInRole("SystemAdministrator") || User.IsInRole("MinistryStrategyManager")))
             {
                 <button type="button" id="deleteSelectedBtn" class="btn btn-danger d-none" onclick="deleteSelectedProjects()">
                     <i class="fas fa-trash-alt me-2"></i>@Localizer["Delete Selected"] (<span id="selectedCount">0</span>)
@@ -469,7 +469,7 @@
                         <table class="modern-table">
                             <thead class="table-header">
                                 <tr>
-                                    @if (User.IsInRole("SystemAdministrator"))
+                                    @if ((User.IsInRole("SystemAdministrator") || User.IsInRole("MinistryStrategyManager")))
                                     {
                                         <th style="width:48px; text-align:center;">
                                             <input type="checkbox" id="selectAllCheckbox" class="project-checkbox" title="@Localizer["Select All"]" style="width:18px;height:18px;cursor:pointer;" />
@@ -533,7 +533,7 @@
                                     }
 
                                     <tr id="row_@item.ProjectID" class="table-row" data-performance="@performance" data-disbursement="@disbursement">
-                                        @if (User.IsInRole("SystemAdministrator"))
+                                        @if ((User.IsInRole("SystemAdministrator") || User.IsInRole("MinistryStrategyManager")))
                                         {
                                             <td style="text-align:center; vertical-align:middle;">
                                                 <input type="checkbox" class="project-row-checkbox" data-id="@item.ProjectID" style="width:18px;height:18px;cursor:pointer;" />

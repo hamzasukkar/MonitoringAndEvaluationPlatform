@@ -61,7 +61,7 @@ namespace MonitoringAndEvaluationPlatform.Services
             }
 
             // Validate budget reasonableness
-            if (project.EstimatedBudget > 1000000000) // 1 billion
+            if (project.EstimatedBudget > 100000000000) // 100 billion
             {
                 modelState.AddModelError(nameof(project.EstimatedBudget), "Estimated budget seems unusually high. Please verify the amount.");
             }

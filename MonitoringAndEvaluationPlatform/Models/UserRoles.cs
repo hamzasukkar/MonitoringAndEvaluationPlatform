@@ -6,5 +6,6 @@ namespace MonitoringAndEvaluationPlatform.Models
         public const string MinistriesUser = "MinistriesUser";
         public const string DataEntry = "DataEntry";
         public const string ReadingUser = "ReadingUser";
+        public const string MinistryStrategyManager = "MinistryStrategyManager";
     }
 }

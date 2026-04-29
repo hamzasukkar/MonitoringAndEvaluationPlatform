@@ -72,6 +72,13 @@ namespace MonitoringAndEvaluationPlatform.Infrastructure
                         await roleManager.CreateAsync(new IdentityRole(dataEntryRoleName));
                     }
 
+                    // Ensure MinistryStrategyManager role exists
+                    string strategyManagerRoleName = UserRoles.MinistryStrategyManager;
+                    if (!await roleManager.RoleExistsAsync(strategyManagerRoleName))
+                    {
+                        await roleManager.CreateAsync(new IdentityRole(strategyManagerRoleName));
+                    }
+
                     foreach (var ministry in ministries)
                     {
                         string userName = ministry.MinistryUserName;
@@ -87,7 +94,8 @@ namespace MonitoringAndEvaluationPlatform.Infrastructure
                                 UserName = userName,
                                 Email = email,
                                 EmailConfirmed = true,
-                                MinistryName = ministry.MinistryDisplayName_EN
+                                MinistryName = ministry.MinistryDisplayName_EN,
+                                MinistryCode = ministry.Code
                             };
 
                             var result = await userManager.CreateAsync(user, defaultPassword);
@@ -121,7 +129,8 @@ namespace MonitoringAndEvaluationPlatform.Infrastructure
                                 UserName = dataEntryUserName,
                                 Email = dataEntryEmail,
                                 EmailConfirmed = true,
-                                MinistryName = ministry.MinistryDisplayName_EN
+                                MinistryName = ministry.MinistryDisplayName_EN,
+                                MinistryCode = ministry.Code
                             };
 
                             var result = await userManager.CreateAsync(dataEntryUser, defaultPassword);
@@ -140,6 +149,40 @@ namespace MonitoringAndEvaluationPlatform.Infrastructure
                             if (!await userManager.IsInRoleAsync(existingDataEntryUser, dataEntryRoleName))
                             {
                                 await userManager.AddToRoleAsync(existingDataEntryUser, dataEntryRoleName);
+                            }
+                        }
+
+                        // Create Strategy Manager (admin owner) user for each ministry
+                        string strategyManagerUserName = $"{ministry.MinistryUserName}_SM";
+                        string strategyManagerEmail = $"{strategyManagerUserName.ToLower()}@example.com";
+
+                        var existingStrategyManagerUser = await userManager.FindByNameAsync(strategyManagerUserName);
+                        if (existingStrategyManagerUser == null)
+                        {
+                            var strategyManagerUser = new ApplicationUser
+                            {
+                                UserName = strategyManagerUserName,
+                                Email = strategyManagerEmail,
+                                EmailConfirmed = true,
+                                MinistryName = ministry.MinistryDisplayName_EN,
+                                MinistryCode = ministry.Code
+                            };
+
+                            var result = await userManager.CreateAsync(strategyManagerUser, defaultPassword);
+                            if (result.Succeeded)
+                            {
+                                await userManager.AddToRoleAsync(strategyManagerUser, strategyManagerRoleName);
+                            }
+                            else
+                            {
+                                Console.WriteLine($"⚠️ Failed to create strategy manager user {strategyManagerUserName}: {string.Join(", ", result.Errors.Select(e => e.Description))}");
+                            }
+                        }
+                        else
+                        {
+                            if (!await userManager.IsInRoleAsync(existingStrategyManagerUser, strategyManagerRoleName))
+                            {
+                                await userManager.AddToRoleAsync(existingStrategyManagerUser, strategyManagerRoleName);
                             }
                         }
                     }

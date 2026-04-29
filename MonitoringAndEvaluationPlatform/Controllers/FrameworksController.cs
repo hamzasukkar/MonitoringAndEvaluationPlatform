@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Localization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
@@ -24,11 +25,30 @@ namespace MonitoringAndEvaluationPlatform.Controllers
     {
         private readonly ApplicationDbContext _context;
         private readonly IStringLocalizer<FrameworksController> _localizer;
+        private readonly UserManager<ApplicationUser> _userManager;
 
-        public FrameworksController(ApplicationDbContext context, IStringLocalizer<FrameworksController> localizer)
+        public FrameworksController(
+            ApplicationDbContext context,
+            IStringLocalizer<FrameworksController> localizer,
+            UserManager<ApplicationUser> userManager)
         {
             _context = context;
             _localizer = localizer;
+            _userManager = userManager;
+        }
+
+        // Returns the MinistryCode the current user is restricted to, or null when
+        // the user is an admin (unrestricted). Non-admin users without a MinistryCode
+        // are restricted to no frameworks.
+        private async Task<(bool IsAdmin, int? MinistryCode)> GetScopeAsync()
+        {
+            if (User.IsInRole(UserRoles.SystemAdministrator))
+            {
+                return (true, null);
+            }
+
+            var user = await _userManager.GetUserAsync(User);
+            return (false, user?.MinistryCode);
         }
 
         [HttpPost]
@@ -66,6 +86,19 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                             .ThenInclude(so => so.Indicators)
                                 .ThenInclude(i => i.Project)
                 .AsQueryable();
+
+            var (isAdmin, scopedMinistryCode) = await GetScopeAsync();
+            if (!isAdmin)
+            {
+                if (scopedMinistryCode is null)
+                {
+                    frameworksQuery = frameworksQuery.Where(f => false);
+                }
+                else
+                {
+                    frameworksQuery = frameworksQuery.Where(f => f.MinistryCode == scopedMinistryCode);
+                }
+            }
 
             if (!string.IsNullOrEmpty(searchString))
             {
@@ -166,12 +199,19 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                     return Json(new { success = false, message = _localizer["A framework with this name already exists."].Value });
                 }
 
+                var (isAdmin, scopedMinistryCode) = await GetScopeAsync();
+                if (!isAdmin && scopedMinistryCode is null)
+                {
+                    return Json(new { success = false, message = _localizer["You are not assigned to a ministry."].Value });
+                }
+
                 // Create new framework
                 var framework = new Framework
                 {
                     Name = name.Trim(),
                     IndicatorsPerformance = 0,
-                    DisbursementPerformance = 0
+                    DisbursementPerformance = 0,
+                    MinistryCode = isAdmin ? null : scopedMinistryCode
                 };
 
                 _context.Add(framework);
@@ -205,6 +245,12 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             var framework = await _context.Frameworks.FindAsync(id);
             if (framework == null) return NotFound();
 
+            var (isAdmin, scopedMinistryCode) = await GetScopeAsync();
+            if (!isAdmin && framework.MinistryCode != scopedMinistryCode)
+            {
+                return Forbid();
+            }
+
             framework.Name = name;
             _context.Update(framework);
             await _context.SaveChangesAsync();
@@ -218,6 +264,12 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         {
             var framework = await _context.Frameworks.FindAsync(id);
             if (framework == null) return NotFound();
+
+            var (isAdmin, scopedMinistryCode) = await GetScopeAsync();
+            if (!isAdmin && framework.MinistryCode != scopedMinistryCode)
+            {
+                return Forbid();
+            }
 
             // Collect all project IDs linked to indicators under this framework
             var projectIds = await (
@@ -251,7 +303,15 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         [Permission(Permissions.ReadStrategies)]
         public async Task<IActionResult>Monitoring()
         {
-            return View(await _context.Frameworks.ToListAsync());
+            var (isAdmin, scopedMinistryCode) = await GetScopeAsync();
+            IQueryable<Framework> query = _context.Frameworks;
+            if (!isAdmin)
+            {
+                query = scopedMinistryCode is null
+                    ? query.Where(f => false)
+                    : query.Where(f => f.MinistryCode == scopedMinistryCode);
+            }
+            return View(await query.ToListAsync());
         }
 
         private async Task RedistributeWeights(int subOutputCode)
@@ -297,6 +357,16 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         {
             try
             {
+                var (isAdmin, scopedMinistryCode) = await GetScopeAsync();
+                if (!isAdmin && scopedMinistryCode is null)
+                {
+                    return Json(new
+                    {
+                        success = false,
+                        message = _localizer["You are not assigned to a ministry."].Value
+                    });
+                }
+
                 using (var transaction = await _context.Database.BeginTransactionAsync())
                 {
                     // Create Framework
@@ -304,7 +374,8 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                     {
                         Name = model.FrameworkName.Trim(),
                         IndicatorsPerformance = 0,
-                        DisbursementPerformance = 0
+                        DisbursementPerformance = 0,
+                        MinistryCode = isAdmin ? null : scopedMinistryCode
                     };
 
                     _context.Frameworks.Add(framework);
@@ -588,6 +659,14 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                         .ThenInclude(op => op.SubOutputs)
                             .ThenInclude(so => so.Indicators)
                                 .ThenInclude(i => i.Project);
+
+            var (isAdmin, scopedMinistryCode) = await GetScopeAsync();
+            if (!isAdmin)
+            {
+                query = scopedMinistryCode is null
+                    ? query.Where(f => false)
+                    : query.Where(f => f.MinistryCode == scopedMinistryCode);
+            }
 
             if (!string.IsNullOrEmpty(searchString))
             {

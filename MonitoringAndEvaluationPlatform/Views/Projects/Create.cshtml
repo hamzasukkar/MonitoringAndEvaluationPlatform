@@ -242,6 +242,10 @@
                                                oninput="this.setCustomValidity('')" />
                                     </div>
                                     <div class="form-text">@Localizer["Enter the total estimated budget for this project"]</div>
+                                    <div id="estimatedBudgetArabicWords" class="form-text mt-1 text-primary fw-bold" dir="rtl" style="display:none;">
+                                        <i class="fas fa-language me-1"></i>
+                                        <span id="estimatedBudgetArabicWordsValue"></span>
+                                    </div>
                                     <span asp-validation-for="EstimatedBudget" class="invalid-feedback d-block"></span>
                                 </div>
 
@@ -1499,6 +1503,57 @@ projectManagerMustBeSelected: '@Html.Raw(System.Text.Encodings.Web.JavaScriptEnc
 
     // Recalculate when budget changes
     $('[name="EstimatedBudget"]').on('input change', updateUsdEquivalent);
+
+    // Arabic words conversion for the estimated budget
+    function convertNumberToArabicWords(num) {
+        if (!isFinite(num) || num < 1000) {
+            return '';
+        }
+        num = Math.floor(num);
+        const billions = Math.floor(num / 1000000000);
+        const afterBillions = num % 1000000000;
+        const millions = Math.floor(afterBillions / 1000000);
+        const afterMillions = afterBillions % 1000000;
+        const thousands = Math.floor(afterMillions / 1000);
+        const remainder = afterMillions % 1000;
+
+        const parts = [];
+        if (billions > 0) {
+            parts.push(billions === 1 ? 'مليار' : billions + ' مليار');
+        }
+        if (millions > 0) {
+            parts.push(millions === 1 ? 'مليون' : millions + ' مليون');
+        }
+        if (thousands > 0) {
+            if (thousands === 1) {
+                parts.push('ألف');
+            } else if (thousands === 10) {
+                parts.push('عشرة آلاف');
+            } else {
+                parts.push(thousands + ' ألف');
+            }
+        }
+        if (remainder > 0) {
+            parts.push(remainder.toString());
+        }
+        return parts.join(' و');
+    }
+
+    function updateBudgetArabicWords() {
+        const value = parseFloat($('[name="EstimatedBudget"]').val());
+        const $box = $('#estimatedBudgetArabicWords');
+        const $val = $('#estimatedBudgetArabicWordsValue');
+        if (isNaN(value) || value < 1000) {
+            $box.hide();
+            $val.text('');
+            return;
+        }
+        $val.text(convertNumberToArabicWords(value));
+        $box.show();
+    }
+
+    $('[name="EstimatedBudget"]').on('input change', updateBudgetArabicWords);
+    updateBudgetArabicWords();
 
     function updateUsdEquivalent() {
         const budget = parseFloat($('[name="EstimatedBudget"]').val());

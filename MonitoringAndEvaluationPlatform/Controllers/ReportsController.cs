@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using MonitoringAndEvaluationPlatform.Attributes;
@@ -13,10 +14,23 @@ namespace MonitoringAndEvaluationPlatform.Controllers
     public class ReportsController : Controller
     {
         private readonly ApplicationDbContext _context;
+        private readonly UserManager<ApplicationUser> _userManager;
 
-        public ReportsController(ApplicationDbContext context)
+        public ReportsController(ApplicationDbContext context, UserManager<ApplicationUser> userManager)
         {
             _context = context;
+            _userManager = userManager;
+        }
+
+        private async Task<(bool IsAdmin, int? MinistryCode)> GetScopeAsync()
+        {
+            if (User.IsInRole(UserRoles.SystemAdministrator))
+            {
+                return (true, null);
+            }
+
+            var user = await _userManager.GetUserAsync(User);
+            return (false, user?.MinistryCode);
         }
 
         [Permission(Permissions.ViewControlPanel)]
@@ -24,8 +38,21 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         {
             var viewModel = new ReportsDashboardViewModel();
 
+            var (isAdmin, scopedMinistryCode) = await GetScopeAsync();
+            var frameworksQuery = _context.Frameworks.AsQueryable();
+            var projectsQuery = _context.Projects.AsQueryable();
+            if (!isAdmin)
+            {
+                frameworksQuery = scopedMinistryCode is null
+                    ? frameworksQuery.Where(_ => false)
+                    : frameworksQuery.Where(f => f.MinistryCode == scopedMinistryCode);
+                projectsQuery = scopedMinistryCode is null
+                    ? projectsQuery.Where(_ => false)
+                    : projectsQuery.Where(p => p.MinistryCode == scopedMinistryCode);
+            }
+
             // Get all data with includes
-            var frameworks = await _context.Frameworks
+            var frameworks = await frameworksQuery
                 .Include(f => f.Outcomes)
                     .ThenInclude(o => o.Outputs)
                         .ThenInclude(op => op.SubOutputs)
@@ -33,7 +60,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                                 .ThenInclude(i => i.Project)
                 .ToListAsync();
 
-            var projects = await _context.Projects
+            var projects = await projectsQuery
                 .Include(p => p.Sectors)
                 .Include(p => p.Ministry)
                 .Include(p => p.Donors)
@@ -406,7 +433,16 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         {
             var isArabic = CultureInfo.CurrentUICulture.TwoLetterISOLanguageName == "ar";
 
-            var projects = await _context.Projects
+            var (isAdmin, scopedMinistryCode) = await GetScopeAsync();
+            var projectsQuery = _context.Projects.AsQueryable();
+            if (!isAdmin)
+            {
+                projectsQuery = scopedMinistryCode is null
+                    ? projectsQuery.Where(_ => false)
+                    : projectsQuery.Where(p => p.MinistryCode == scopedMinistryCode);
+            }
+
+            var projects = await projectsQuery
                 .Select(p => new ProjectFinancialItem
                 {
                     ProjectID    = p.ProjectID,

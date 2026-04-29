@@ -38,6 +38,28 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             _localizer = localizer;
         }
 
+        private async Task<(bool IsAdmin, int? MinistryCode)> GetScopeAsync()
+        {
+            if (User.IsInRole(UserRoles.SystemAdministrator))
+            {
+                return (true, null);
+            }
+
+            var user = await _userManager.GetUserAsync(User);
+            return (false, user?.MinistryCode);
+        }
+
+        private async Task<bool> ProjectBelongsToScopeAsync(int projectId)
+        {
+            var (isAdmin, scopedMinistryCode) = await GetScopeAsync();
+            if (isAdmin) return true;
+            if (scopedMinistryCode is null) return false;
+
+            return await _context.Projects
+                .Where(p => p.ProjectID == projectId)
+                .AnyAsync(p => p.MinistryCode == scopedMinistryCode);
+        }
+
 
         public async Task<IActionResult> ActionPlan()
         {
@@ -67,6 +89,16 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 projectQuery = projectQuery
                     .Where(p => p.Ministries
                                  .Any(m => m.MinistryDisplayName_AR == user.MinistryName || m.MinistryDisplayName_EN == user.MinistryName || m.MinistryUserName == user.MinistryName));
+                filter.IsMinistryUser = true;
+            }
+
+            // Restrict by MinistryCode for any non-admin (authoritative scoping)
+            var (isAdmin, scopedMinistryCode) = await GetScopeAsync();
+            if (!isAdmin)
+            {
+                projectQuery = scopedMinistryCode is null
+                    ? projectQuery.Where(_ => false)
+                    : projectQuery.Where(p => p.MinistryCode == scopedMinistryCode);
                 filter.IsMinistryUser = true;
             }
 
@@ -457,6 +489,20 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                     ModelState,
                     IsEntireCountry);
 
+                // Force MinistryCode to current user's ministry for non-admins (prevents form tampering)
+                var (isAdminCreate, scopedMinistryCodeCreate) = await GetScopeAsync();
+                if (!isAdminCreate)
+                {
+                    if (scopedMinistryCodeCreate is null)
+                    {
+                        ModelState.AddModelError("", _localizer["You are not assigned to a ministry."]);
+                    }
+                    else
+                    {
+                        project.MinistryCode = scopedMinistryCodeCreate;
+                    }
+                }
+
                 if (!ModelState.IsValid)
                 {
                     await PopulateCreateViewBagAsync(selectedSectorCodes, selectedDonorCodes, selections, DonorFundingBreakdown);
@@ -569,6 +615,12 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 return NotFound();
             }
 
+            var (isAdminDetails, scopedMinistryCodeDetails) = await GetScopeAsync();
+            if (!isAdminDetails && project.MinistryCode != scopedMinistryCodeDetails)
+            {
+                return Forbid();
+            }
+
             return View(project);
         }
 
@@ -587,6 +639,14 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 .Include(p => p.Goal)
                 .Include(p => p.Indicators)
                 .FirstOrDefaultAsync(p => p.ProjectID == id.Value);
+
+            if (project == null) return NotFound();
+
+            var (isAdminEditGet, scopedMinistryCodeEditGet) = await GetScopeAsync();
+            if (!isAdminEditGet && project.MinistryCode != scopedMinistryCodeEditGet)
+            {
+                return Forbid();
+            }
 
 
             // Explicitly load other collections only if needed later in the view
@@ -705,13 +765,19 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
         [Permission(Permissions.EditProject)]
-        public IActionResult UpdateProjectName(int projectId, string projectName)
+        public async Task<IActionResult> UpdateProjectName(int projectId, string projectName)
         {
-            var project = _context.Projects.Find(projectId);
+            var project = await _context.Projects.FindAsync(projectId);
             if (project == null) return NotFound();
 
+            var (isAdmin, scopedMinistryCode) = await GetScopeAsync();
+            if (!isAdmin && project.MinistryCode != scopedMinistryCode)
+            {
+                return Forbid();
+            }
+
             project.ProjectName = projectName;
-            _context.SaveChanges();
+            await _context.SaveChangesAsync();
             return Ok();
         }
 
@@ -733,6 +799,23 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         {
             if (id != project.ProjectID)
                 return NotFound();
+
+            // Authorization: ensure caller owns this project (or is admin)
+            var existingMinistryCode = await _context.Projects
+                .Where(p => p.ProjectID == id)
+                .Select(p => p.MinistryCode)
+                .FirstOrDefaultAsync();
+            var (isAdminEditPost, scopedMinistryCodeEditPost) = await GetScopeAsync();
+            if (!isAdminEditPost && existingMinistryCode != scopedMinistryCodeEditPost)
+            {
+                return Forbid();
+            }
+
+            // Force MinistryCode to current user's ministry for non-admins (prevents form tampering)
+            if (!isAdminEditPost)
+            {
+                project.MinistryCode = scopedMinistryCodeEditPost;
+            }
 
             // Initialize to empty lists if null to prevent null reference exceptions and remove duplicates
             SelectedSectorCodes = SelectedSectorCodes ?? new List<int>();
@@ -1068,6 +1151,12 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 return NotFound();
             }
 
+            var (isAdmin, scopedMinistryCode) = await GetScopeAsync();
+            if (!isAdmin && program.MinistryCode != scopedMinistryCode)
+            {
+                return Forbid();
+            }
+
             return View(program);
         }
 
@@ -1085,6 +1174,12 @@ namespace MonitoringAndEvaluationPlatform.Controllers
 
                 if (project != null)
                 {
+                    var (isAdmin, scopedMinistryCode) = await GetScopeAsync();
+                    if (!isAdmin && project.MinistryCode != scopedMinistryCode)
+                    {
+                        return Forbid();
+                    }
+
                     // Capture affected indicators before deletion
                     var affectedIndicators = project.Indicators.ToList();
 
@@ -1160,8 +1255,13 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         }
 
         [Permission(Permissions.EditProject)]
-        public IActionResult LinkProjectToIndicators(int projectId)
+        public async Task<IActionResult> LinkProjectToIndicators(int projectId)
         {
+            if (!await ProjectBelongsToScopeAsync(projectId))
+            {
+                return Forbid();
+            }
+
             var model = new LinkProjectIndicatorViewModel
             {
                 SelectedProjectId = projectId,
@@ -1185,6 +1285,11 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             if (file == null)
             {
                 return NotFound();
+            }
+
+            if (!await ProjectBelongsToScopeAsync(file.ProjectId))
+            {
+                return Forbid();
             }
 
             // Delete the physical file
@@ -1212,6 +1317,11 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 return NotFound();
             }
 
+            if (!await ProjectBelongsToScopeAsync(file.ProjectId))
+            {
+                return Forbid();
+            }
+
             var filePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", file.FilePath.TrimStart('/'));
             if (!System.IO.File.Exists(filePath))
             {
@@ -1235,6 +1345,11 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             if (file == null)
             {
                 return NotFound();
+            }
+
+            if (!await ProjectBelongsToScopeAsync(file.ProjectId))
+            {
+                return Forbid();
             }
 
             var filePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", file.FilePath.TrimStart('/'));
@@ -1283,6 +1398,11 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             {
                 // Re-load dropdowns
                 return View(model);
+            }
+
+            if (!await ProjectBelongsToScopeAsync(model.SelectedProjectId))
+            {
+                return Forbid();
             }
 
             // Logic to link indicators to the selected project

@@ -38,6 +38,28 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             _localizer = localizer;
         }
 
+        private async Task<(bool IsAdmin, int? MinistryCode)> GetScopeAsync()
+        {
+            if (User.IsInRole(UserRoles.SystemAdministrator))
+            {
+                return (true, null);
+            }
+
+            var user = await _userManager.GetUserAsync(User);
+            return (false, user?.MinistryCode);
+        }
+
+        private async Task<bool> SubOutputBelongsToScopeAsync(int subOutputCode)
+        {
+            var (isAdmin, scopedMinistryCode) = await GetScopeAsync();
+            if (isAdmin) return true;
+            if (scopedMinistryCode is null) return false;
+
+            return await _context.SubOutputs
+                .Where(s => s.Code == subOutputCode)
+                .AnyAsync(s => s.Output.Outcome.Framework.MinistryCode == scopedMinistryCode);
+        }
+
         // GET: Indicators
         [Permission(Permissions.ReadIndicators)]
         public async Task<IActionResult> Index(int? frameworkCode, int? subOutputCode, string searchString)
@@ -84,6 +106,15 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                      i.Project.Ministry.MinistryUserName == userMinistryName));
             }
 
+            // Restrict to ancestor framework's ministry for non-admins
+            var (isAdmin, scopedMinistryCode) = await GetScopeAsync();
+            if (!isAdmin)
+            {
+                indicators = scopedMinistryCode is null
+                    ? indicators.Where(_ => false)
+                    : indicators.Where(i => i.SubOutput.Output.Outcome.Framework.MinistryCode == scopedMinistryCode);
+            }
+
             // Apply search filter
             if (!string.IsNullOrEmpty(searchString))
             {
@@ -104,12 +135,20 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             // Pass SubOutputs for the create form when accessed from framework level
             if (frameworkCode.HasValue && !subOutputCode.HasValue)
             {
-                ViewBag.SubOutputsForCreate = await _context.SubOutputs
+                var subOutputsQuery = _context.SubOutputs
                     .Include(so => so.Output)
                     .ThenInclude(o => o.Outcome)
-                    .Where(so => so.Output.Outcome.FrameworkCode == frameworkCode.Value)
-                    .OrderBy(so => so.Name)
-                    .ToListAsync();
+                    .ThenInclude(oc => oc.Framework)
+                    .Where(so => so.Output.Outcome.FrameworkCode == frameworkCode.Value);
+
+                if (!isAdmin)
+                {
+                    subOutputsQuery = scopedMinistryCode is null
+                        ? subOutputsQuery.Where(_ => false)
+                        : subOutputsQuery.Where(so => so.Output.Outcome.Framework.MinistryCode == scopedMinistryCode);
+                }
+
+                ViewBag.SubOutputsForCreate = await subOutputsQuery.OrderBy(so => so.Name).ToListAsync();
             }
 
             return View(resultIndicators);
@@ -140,12 +179,25 @@ namespace MonitoringAndEvaluationPlatform.Controllers
 
         // GET: Indicators/Create
         [Permission(Permissions.AddIndicator)]
-        public IActionResult Create(int? id)
+        public async Task<IActionResult> Create(int? id)
         {
+            var (isAdmin, scopedMinistryCode) = await GetScopeAsync();
+            IQueryable<SubOutput> subOutputsQuery = _context.SubOutputs
+                .Include(s => s.Output).ThenInclude(o => o.Outcome).ThenInclude(oc => oc.Framework);
+
+            if (!isAdmin)
+            {
+                subOutputsQuery = scopedMinistryCode is null
+                    ? subOutputsQuery.Where(_ => false)
+                    : subOutputsQuery.Where(s => s.Output.Outcome.Framework.MinistryCode == scopedMinistryCode);
+            }
+
+            var subOutputs = await subOutputsQuery.ToListAsync();
+
             // Populate dropdown only if no SubOutput is preselected
             ViewData["SubOutputCode"] = id == null
-                ? new SelectList(_context.SubOutputs, "Code", "Name")
-                : new SelectList(_context.SubOutputs, "Code", "Name", id);
+                ? new SelectList(subOutputs, "Code", "Name")
+                : new SelectList(subOutputs, "Code", "Name", id);
 
             // Pass the selected framework code to the view
             ViewBag.SelectedSubOutputCode = id;
@@ -162,6 +214,11 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         public async Task<IActionResult> Create(Indicator indicator)
         {
             ModelState.Remove(nameof(indicator.SubOutput));
+
+            if (!await SubOutputBelongsToScopeAsync(indicator.SubOutputCode))
+            {
+                return Forbid();
+            }
 
             // Check if indicator name already exists within the same suboutput
             var existingIndicator = await _context.Indicators
@@ -204,6 +261,11 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 return RedirectToAction("Index", new { subOutputCode = SubOutputCode });
             }
 
+            if (!await SubOutputBelongsToScopeAsync(SubOutputCode))
+            {
+                return Forbid();
+            }
+
             // Check if indicator name already exists within the same suboutput
             var existingIndicator = await _context.Indicators
                 .FirstOrDefaultAsync(i => i.SubOutputCode == SubOutputCode &&
@@ -243,6 +305,11 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 if (string.IsNullOrWhiteSpace(name))
                 {
                     return Json(new { success = false, message = _localizer["Indicator name is required."].Value });
+                }
+
+                if (!await SubOutputBelongsToScopeAsync(subOutputCode))
+                {
+                    return Json(new { success = false, message = _localizer["You are not authorized to modify this suboutput."].Value });
                 }
 
                 // Check if indicator name already exists within the same suboutput
@@ -305,6 +372,11 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             {
                 TempData["Error"] = _localizer["Name and Target are required and must be valid."].Value;
                 return RedirectToAction("Index", new { subOutputCode = SubOutputCode });
+            }
+
+            if (!await SubOutputBelongsToScopeAsync(SubOutputCode))
+            {
+                return Forbid();
             }
 
             // Check if indicator name already exists within the same suboutput
@@ -441,6 +513,11 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             var indicator = await _context.Indicators.FindAsync(id);
             if (indicator == null) return NotFound();
 
+            if (!await SubOutputBelongsToScopeAsync(indicator.SubOutputCode))
+            {
+                return Forbid();
+            }
+
             var newName = data.GetProperty("name").GetString();
             indicator.Name = newName;
             await _context.SaveChangesAsync();
@@ -455,6 +532,11 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             if (indicator == null)
             {
                 return NotFound();
+            }
+
+            if (!await SubOutputBelongsToScopeAsync(indicator.SubOutputCode))
+            {
+                return Forbid();
             }
 
             if (indicator.ProjectID.HasValue)
@@ -490,7 +572,23 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             {
                 return NotFound();
             }
-            ViewData["SubOutputCode"] = new SelectList(_context.SubOutputs, "Code", "Name", indicator.SubOutputCode);
+
+            if (!await SubOutputBelongsToScopeAsync(indicator.SubOutputCode))
+            {
+                return Forbid();
+            }
+
+            var (isAdmin, scopedMinistryCode) = await GetScopeAsync();
+            IQueryable<SubOutput> subOutputsQuery = _context.SubOutputs
+                .Include(s => s.Output).ThenInclude(o => o.Outcome).ThenInclude(oc => oc.Framework);
+            if (!isAdmin)
+            {
+                subOutputsQuery = scopedMinistryCode is null
+                    ? subOutputsQuery.Where(_ => false)
+                    : subOutputsQuery.Where(s => s.Output.Outcome.Framework.MinistryCode == scopedMinistryCode);
+            }
+            ViewData["SubOutputCode"] = new SelectList(await subOutputsQuery.ToListAsync(), "Code", "Name", indicator.SubOutputCode);
+
             if (indicator.ProjectID.HasValue)
             {
                 var project = await _context.Projects.FindAsync(indicator.ProjectID.Value);
@@ -519,6 +617,12 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 {
                     var existing = await _context.Indicators.FindAsync(id);
                     if (existing == null) return NotFound();
+
+                    if (!await SubOutputBelongsToScopeAsync(existing.SubOutputCode) ||
+                        !await SubOutputBelongsToScopeAsync(indicator.SubOutputCode))
+                    {
+                        return Forbid();
+                    }
 
                     existing.Name = indicator.Name;
                     existing.SubOutputCode = indicator.SubOutputCode;
@@ -570,6 +674,11 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 return NotFound();
             }
 
+            if (!await SubOutputBelongsToScopeAsync(indicator.SubOutputCode))
+            {
+                return Forbid();
+            }
+
             return View(indicator);
         }
         [Permission(Permissions.ReadIndicators)]
@@ -584,6 +693,12 @@ namespace MonitoringAndEvaluationPlatform.Controllers
 
             if (indicator == null)
                 return NotFound();
+
+            var (isAdmin, scopedMinistryCode) = await GetScopeAsync();
+            if (!isAdmin && indicator.SubOutput?.Output?.Outcome?.Framework?.MinistryCode != scopedMinistryCode)
+            {
+                return Forbid();
+            }
 
             // Build the hierarchy model
             var hierarchy = new List<(string Name, string Type, int Code)>
@@ -797,6 +912,11 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         [Permission(Permissions.ModifyIndicator)]
         public async Task<IActionResult> AdjustWeights(int frameworkCode, int subOutputCode)
         {
+            if (!await SubOutputBelongsToScopeAsync(subOutputCode))
+            {
+                return Forbid();
+            }
+
             var indicators = await _context.Indicators
                 .Where(i => i.SubOutputCode == subOutputCode)
                 .ToListAsync();
@@ -818,6 +938,11 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         [Permission(Permissions.ModifyIndicator)]
         public async Task<IActionResult> AdjustWeights(List<IndicatorViewModel> model, int frameworkCode, int subOutputCode)
         {
+            if (!await SubOutputBelongsToScopeAsync(subOutputCode))
+            {
+                return Forbid();
+            }
+
             double totalWeight = model.Sum(i => i.Weight);
 
             if (Math.Abs(totalWeight - 100.0) > 0.01)

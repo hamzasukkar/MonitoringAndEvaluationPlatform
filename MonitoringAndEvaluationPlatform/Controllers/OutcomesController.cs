@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
@@ -26,12 +27,29 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         private readonly ApplicationDbContext _context;
         private readonly IPerformanceService _performanceService;
         private readonly IStringLocalizer<OutcomesController> _localizer;
+        private readonly UserManager<ApplicationUser> _userManager;
 
-        public OutcomesController(ApplicationDbContext context, IPerformanceService performanceService, IStringLocalizer<OutcomesController> localizer)
+        public OutcomesController(
+            ApplicationDbContext context,
+            IPerformanceService performanceService,
+            IStringLocalizer<OutcomesController> localizer,
+            UserManager<ApplicationUser> userManager)
         {
             _context = context;
             _performanceService = performanceService;
             _localizer = localizer;
+            _userManager = userManager;
+        }
+
+        private async Task<(bool IsAdmin, int? MinistryCode)> GetScopeAsync()
+        {
+            if (User.IsInRole(UserRoles.SystemAdministrator))
+            {
+                return (true, null);
+            }
+
+            var user = await _userManager.GetUserAsync(User);
+            return (false, user?.MinistryCode);
         }
 
         // GET: Outcomes
@@ -67,6 +85,14 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                             .ThenInclude(so => so.Indicators)
                                 .ThenInclude(i => i.Project)
                     .Where(m => m.FrameworkCode == frameworkCode);
+            }
+
+            var (isAdmin, scopedMinistryCode) = await GetScopeAsync();
+            if (!isAdmin)
+            {
+                outcomesQuery = scopedMinistryCode is null
+                    ? outcomesQuery.Where(_ => false)
+                    : outcomesQuery.Where(o => o.Framework.MinistryCode == scopedMinistryCode);
             }
 
             // Apply hierarchical search
@@ -136,6 +162,18 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                     return Json(new { success = false, message = "Outcome name is required." });
                 }
 
+                var framework = await _context.Frameworks.FindAsync(frameworkCode);
+                if (framework == null)
+                {
+                    return Json(new { success = false, message = "Framework not found." });
+                }
+
+                var (isAdmin, scopedMinistryCode) = await GetScopeAsync();
+                if (!isAdmin && framework.MinistryCode != scopedMinistryCode)
+                {
+                    return Json(new { success = false, message = "You are not authorized to modify this framework." });
+                }
+
                 // Check if outcome name already exists within the same framework
                 var existingOutcome = await _context.Outcomes
                     .FirstOrDefaultAsync(o => o.FrameworkCode == frameworkCode &&
@@ -194,8 +232,16 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         [Permission(Permissions.ModifyOutcome)]
         public async Task<IActionResult> UpdateName(int id, string name)
         {
-            var outcome = await _context.Outcomes.FindAsync(id);
+            var outcome = await _context.Outcomes
+                .Include(o => o.Framework)
+                .FirstOrDefaultAsync(o => o.Code == id);
             if (outcome == null) return NotFound();
+
+            var (isAdmin, scopedMinistryCode) = await GetScopeAsync();
+            if (!isAdmin && outcome.Framework?.MinistryCode != scopedMinistryCode)
+            {
+                return Forbid();
+            }
 
             outcome.Name = name;
             _context.Update(outcome);
@@ -209,8 +255,16 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         [Permission(Permissions.DeleteOutcome)]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var outcome = await _context.Outcomes.FindAsync(id);
+            var outcome = await _context.Outcomes
+                .Include(o => o.Framework)
+                .FirstOrDefaultAsync(o => o.Code == id);
             if (outcome == null) return NotFound();
+
+            var (isAdmin, scopedMinistryCode) = await GetScopeAsync();
+            if (!isAdmin && outcome.Framework?.MinistryCode != scopedMinistryCode)
+            {
+                return Forbid();
+            }
 
             // Store the frameworkCode before deletion for recalculation
             int frameworkCode = outcome.FrameworkCode;
@@ -239,9 +293,18 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         [Permission(Permissions.ReadOutcomes)]
         public async Task<IActionResult> FramworkOutcomes(int? id)
         {
-            var applicationDbContext = _context.Outcomes.Where(m => m.FrameworkCode == id);
-            ViewData["FrameworkName"] = _context.Frameworks.Where(i => i.Code == id).FirstOrDefault().Name;
-            return View(await applicationDbContext.ToListAsync());
+            var (isAdmin, scopedMinistryCode) = await GetScopeAsync();
+            var framework = await _context.Frameworks.FirstOrDefaultAsync(f => f.Code == id);
+            if (framework == null) return NotFound();
+
+            if (!isAdmin && framework.MinistryCode != scopedMinistryCode)
+            {
+                return Forbid();
+            }
+
+            var query = _context.Outcomes.Where(m => m.FrameworkCode == id);
+            ViewData["FrameworkName"] = framework.Name;
+            return View(await query.ToListAsync());
         }
 
         private async Task RedistributeWeights(int frameworkCode)
@@ -275,6 +338,15 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         [Permission(Permissions.ModifyOutcome)]
         public async Task<IActionResult> AdjustWeights(int frameworkCode)
         {
+            var framework = await _context.Frameworks.FindAsync(frameworkCode);
+            if (framework == null) return NotFound();
+
+            var (isAdmin, scopedMinistryCode) = await GetScopeAsync();
+            if (!isAdmin && framework.MinistryCode != scopedMinistryCode)
+            {
+                return Forbid();
+            }
+
             var outcomes = await _context.Outcomes
                 .Where(i => i.FrameworkCode == frameworkCode)
                 .ToListAsync();
@@ -295,6 +367,15 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         [Permission(Permissions.ModifyOutcome)]
         public async Task<IActionResult> AdjustWeights(List<OutcomesViewModel> model,int frameworkCode)
         {
+            var framework = await _context.Frameworks.FindAsync(frameworkCode);
+            if (framework == null) return NotFound();
+
+            var (isAdmin, scopedMinistryCode) = await GetScopeAsync();
+            if (!isAdmin && framework.MinistryCode != scopedMinistryCode)
+            {
+                return Forbid();
+            }
+
             double totalWeight = model.Sum(i => i.Weight);
 
             if (Math.Abs(totalWeight - 100.0) > 0.01)
@@ -495,6 +576,14 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             if (frameworkCode.HasValue)
             {
                 query = query.Where(o => o.FrameworkCode == frameworkCode.Value);
+            }
+
+            var (isAdmin, scopedMinistryCode) = await GetScopeAsync();
+            if (!isAdmin)
+            {
+                query = scopedMinistryCode is null
+                    ? query.Where(_ => false)
+                    : query.Where(o => o.Framework.MinistryCode == scopedMinistryCode);
             }
 
             return await query.OrderByDescending(o => o.IndicatorsPerformance).ToListAsync();

@@ -76,9 +76,11 @@ namespace MonitoringAndEvaluationPlatform.Infrastructure
                 Permissions.ReadStrategies => userRoles.Contains(UserRoles.SystemAdministrator) ||
                                             userRoles.Contains(UserRoles.MinistriesUser) ||
                                             userRoles.Contains(UserRoles.DataEntry) ||
-                                            userRoles.Contains(UserRoles.ReadingUser),
+                                            userRoles.Contains(UserRoles.ReadingUser) ||
+                                            userRoles.Contains(UserRoles.MinistryStrategyManager),
                 Permissions.AddStrategy or Permissions.ModifyStrategy or Permissions.DeleteStrategy =>
-                    userRoles.Contains(UserRoles.SystemAdministrator),
+                    userRoles.Contains(UserRoles.SystemAdministrator) ||
+                    userRoles.Contains(UserRoles.MinistryStrategyManager),
 
                 // Policy Management - Only System Administrator
                 Permissions.ReadPolicies => userRoles.Contains(UserRoles.SystemAdministrator) ||
@@ -107,11 +109,13 @@ namespace MonitoringAndEvaluationPlatform.Infrastructure
                 // Project Management - SystemAdmin, MinistriesUser, DataEntry can read; SystemAdmin, MinistriesUser, and DataEntry can modify
                 Permissions.ReadProjects => userRoles.Contains(UserRoles.SystemAdministrator) ||
                                           userRoles.Contains(UserRoles.MinistriesUser) ||
-                                          userRoles.Contains(UserRoles.DataEntry),
+                                          userRoles.Contains(UserRoles.DataEntry) ||
+                                          userRoles.Contains(UserRoles.MinistryStrategyManager),
                 Permissions.AddProject or Permissions.EditProject or Permissions.DeleteProject =>
                     userRoles.Contains(UserRoles.SystemAdministrator) ||
                     userRoles.Contains(UserRoles.MinistriesUser) ||
-                    userRoles.Contains(UserRoles.DataEntry),
+                    userRoles.Contains(UserRoles.DataEntry) ||
+                    userRoles.Contains(UserRoles.MinistryStrategyManager),
 
                 // Project Forms - SystemAdmin, MinistriesUser, DataEntry can read; Only DataEntry can modify
                 Permissions.ReadProjectForms => userRoles.Contains(UserRoles.SystemAdministrator) ||
@@ -184,33 +188,41 @@ namespace MonitoringAndEvaluationPlatform.Infrastructure
                 Permissions.ReadOutcomes => userRoles.Contains(UserRoles.SystemAdministrator) ||
                                           userRoles.Contains(UserRoles.MinistriesUser) ||
                                           userRoles.Contains(UserRoles.DataEntry) ||
-                                          userRoles.Contains(UserRoles.ReadingUser),
+                                          userRoles.Contains(UserRoles.ReadingUser) ||
+                                          userRoles.Contains(UserRoles.MinistryStrategyManager),
                 Permissions.AddOutcome or Permissions.ModifyOutcome or Permissions.DeleteOutcome =>
-                    userRoles.Contains(UserRoles.SystemAdministrator),
+                    userRoles.Contains(UserRoles.SystemAdministrator) ||
+                    userRoles.Contains(UserRoles.MinistryStrategyManager),
 
                 // Output Management - Same as Strategy Management
                 Permissions.ReadOutputs => userRoles.Contains(UserRoles.SystemAdministrator) ||
                                          userRoles.Contains(UserRoles.MinistriesUser) ||
                                          userRoles.Contains(UserRoles.DataEntry) ||
-                                         userRoles.Contains(UserRoles.ReadingUser),
+                                         userRoles.Contains(UserRoles.ReadingUser) ||
+                                         userRoles.Contains(UserRoles.MinistryStrategyManager),
                 Permissions.AddOutput or Permissions.ModifyOutput or Permissions.DeleteOutput =>
-                    userRoles.Contains(UserRoles.SystemAdministrator),
+                    userRoles.Contains(UserRoles.SystemAdministrator) ||
+                    userRoles.Contains(UserRoles.MinistryStrategyManager),
 
                 // SubOutput Management - Same as Strategy Management
                 Permissions.ReadSubOutputs => userRoles.Contains(UserRoles.SystemAdministrator) ||
                                             userRoles.Contains(UserRoles.MinistriesUser) ||
                                             userRoles.Contains(UserRoles.DataEntry) ||
-                                            userRoles.Contains(UserRoles.ReadingUser),
+                                            userRoles.Contains(UserRoles.ReadingUser) ||
+                                            userRoles.Contains(UserRoles.MinistryStrategyManager),
                 Permissions.AddSubOutput or Permissions.ModifySubOutput or Permissions.DeleteSubOutput =>
-                    userRoles.Contains(UserRoles.SystemAdministrator),
+                    userRoles.Contains(UserRoles.SystemAdministrator) ||
+                    userRoles.Contains(UserRoles.MinistryStrategyManager),
 
                 // Indicator Management - Same as Strategy Management
                 Permissions.ReadIndicators => userRoles.Contains(UserRoles.SystemAdministrator) ||
                                             userRoles.Contains(UserRoles.MinistriesUser) ||
                                             userRoles.Contains(UserRoles.DataEntry) ||
-                                            userRoles.Contains(UserRoles.ReadingUser),
+                                            userRoles.Contains(UserRoles.ReadingUser) ||
+                                            userRoles.Contains(UserRoles.MinistryStrategyManager),
                 Permissions.AddIndicator or Permissions.ModifyIndicator or Permissions.DeleteIndicator =>
-                    userRoles.Contains(UserRoles.SystemAdministrator),
+                    userRoles.Contains(UserRoles.SystemAdministrator) ||
+                    userRoles.Contains(UserRoles.MinistryStrategyManager),
 
                 // Indicator Analysis - SystemAdmin and MinistriesUser only
                 Permissions.IndicatorAnalysis =>

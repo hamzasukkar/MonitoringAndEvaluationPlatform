@@ -56,7 +56,7 @@
                 if (user != null)
                 {
                     var roles = await UserManager.GetRolesAsync(user);
-                    if (roles.Contains("SystemAdministrator"))
+                    if (roles.Contains("SystemAdministrator") || roles.Contains("MinistryStrategyManager"))
                     {
                         <button onclick="toggleInlineCreate()" class="btn btn-primary btn-lg shadow-sm" id="createGoalBtn">
                             <i class="fas fa-plus me-2"></i>@Localizer["Add New Goal"]
@@ -367,7 +367,7 @@
                                                 if (user != null)
                                                 {
                                                     var roles = await UserManager.GetRolesAsync(user);
-                                                    if (roles.Contains("SystemAdministrator"))
+                                                    if (roles.Contains("SystemAdministrator") || roles.Contains("MinistryStrategyManager"))
                                                     {
                                                         <button onclick="showEditModal(@item.Goal.ID, @item.Goal.CurrentYear, @item.Goal.BaseValueForCurrentYear.ToString(System.Globalization.CultureInfo.InvariantCulture), @item.Goal.StartingYear, @item.Goal.TargetYear)" class="btn btn-sm btn-outline-warning ms-2">
                                                             <i class="fas fa-edit"></i> @Localizer["Update"]
@@ -555,7 +555,7 @@
                     if (bulkUser != null)
                     {
                         var bulkRoles = await UserManager.GetRolesAsync(bulkUser);
-                        if (bulkRoles.Contains("SystemAdministrator"))
+                        if (bulkRoles.Contains("SystemAdministrator") || bulkRoles.Contains("MinistryStrategyManager"))
                         {
                             <button type="button" class="btn btn-sm btn-danger" onclick="bulkDelete()">
                                 <i class="fas fa-trash me-1"></i>@Localizer["Delete Selected"]
@@ -902,7 +902,7 @@
                                         if (user != null)
                                         {
                                             var roles = await UserManager.GetRolesAsync(user);
-                                            if (roles.Contains("SystemAdministrator"))
+                                            if (roles.Contains("SystemAdministrator") || roles.Contains("MinistryStrategyManager"))
                                             {
                                                 <button onclick="showEditModal(@goal.ID, @goal.CurrentYear, @goal.BaseValueForCurrentYear.ToString(System.Globalization.CultureInfo.InvariantCulture), @goal.StartingYear, @goal.TargetYear)"
                                                         class="btn btn-sm btn-warning me-2"
@@ -1375,7 +1375,7 @@
                     if (notesUser != null)
                     {
                         var notesRoles = await UserManager.GetRolesAsync(notesUser);
-                        if (notesRoles.Contains("SystemAdministrator"))
+                        if (notesRoles.Contains("SystemAdministrator") || notesRoles.Contains("MinistryStrategyManager"))
                         {
                             <button type="button" class="btn btn-sm btn-outline-primary" id="editNotesBtn" onclick="toggleNotesEdit()">
                                 <i class="fas fa-edit"></i>
@@ -1410,7 +1410,7 @@
                     if (attachUser != null)
                     {
                         var attachRoles = await UserManager.GetRolesAsync(attachUser);
-                        if (attachRoles.Contains("SystemAdministrator"))
+                        if (attachRoles.Contains("SystemAdministrator") || attachRoles.Contains("MinistryStrategyManager"))
                         {
                             <button type="button" class="btn btn-sm btn-outline-success" onclick="document.getElementById('attachmentFileInput').click()">
                                 <i class="fas fa-plus"></i>
@@ -1440,7 +1440,7 @@
                     if (currentUser != null)
                     {
                         var currentUserRoles = await UserManager.GetRolesAsync(currentUser);
-                        if (currentUserRoles.Contains("SystemAdministrator"))
+                        if (currentUserRoles.Contains("SystemAdministrator") || currentUserRoles.Contains("MinistryStrategyManager"))
                         {
                             <button type="button" class="btn btn-warning" id="sidebarEditBtn">
                                 <i class="fas fa-edit me-2"></i>@Localizer["Edit Goal"]
