@@ -6,8 +6,7 @@
     Layout = "~/Views/Shared/_DashboardHomeLayout.cshtml";
     ViewData["HelpFeature"] = "Ministries";
     var breakdown = ViewBag.Breakdown as List<dynamic>;
-    var totalWeightedTarget = (double)ViewBag.TotalWeightedTarget;
-    var totalWeightedAchieved = (double)ViewBag.TotalWeightedAchieved;
+    var projectCount = (int)ViewBag.ProjectCount;
     var calculatedPerformance = (double)ViewBag.CalculatedPerformance;
 }
 
@@ -43,13 +42,11 @@
                         <h5 class="alert-heading">
                             <i class="fas fa-info-circle me-2"></i>@Localizer["How Performance is Calculated"]
                         </h5>
-                        <p class="mb-2">@Localizer["Ministry performance is calculated by aggregating all indicators from all projects associated with the ministry, weighted by their importance:"]</p>
+                        <p class="mb-2">@Localizer["Ministry performance is the simple average of the performance of all projects linked to this ministry:"]</p>
                         <ul class="mb-0">
-                            <li>@Localizer["Each indicator has a weight (default = 1) and a target value"]</li>
-                            <li>@Localizer["Achieved values come from measures entered for each indicator"]</li>
-                            <li>@Localizer["Weighted Target = Target × Weight"]</li>
-                            <li>@Localizer["Weighted Achieved = Sum of Measures × Weight"]</li>
-                            <li>@Localizer["Performance % = (Total Weighted Achieved / Total Weighted Target) × 100"]</li>
+                            <li>@Localizer["Each project's performance is the weighted average of its phase performances (weighted by phase weight)."]</li>
+                            <li>@Localizer["Each indicator inherits the performance of the project it belongs to."]</li>
+                            <li>@Localizer["Ministry Performance = Average of all project performance values."]</li>
                         </ul>
                     </div>
 
@@ -58,16 +55,26 @@
                         <div class="col-md-4">
                             <div class="card bg-light">
                                 <div class="card-body text-center">
-                                    <h6 class="text-muted">@Localizer["Total Weighted Target"]</h6>
-                                    <h3 class="text-primary">@totalWeightedTarget.ToString("N2")</h3>
+                                    <h6 class="text-muted">@Localizer["Projects Count"]</h6>
+                                    <h3 class="text-primary">@projectCount</h3>
                                 </div>
                             </div>
                         </div>
                         <div class="col-md-4">
                             <div class="card bg-light">
                                 <div class="card-body text-center">
-                                    <h6 class="text-muted">@Localizer["Total Weighted Achieved"]</h6>
-                                    <h3 class="text-success">@totalWeightedAchieved.ToString("N2")</h3>
+                                    <h6 class="text-muted">@Localizer["Sum of Project Performance"]</h6>
+                                    @{
+                                        double sumProjectPerformance = 0;
+                                        if (breakdown != null)
+                                        {
+                                            foreach (var p in breakdown)
+                                            {
+                                                sumProjectPerformance += (double)p.ProjectPerformance;
+                                            }
+                                        }
+                                    }
+                                    <h3 class="text-success">@sumProjectPerformance.ToString("N2")</h3>
                                 </div>
                             </div>
                         </div>
@@ -87,7 +94,7 @@
                             <h5 class="card-title"><i class="fas fa-calculator me-2"></i>@Localizer["Calculation Formula"]</h5>
                             <div class="formula-display bg-light p-3 rounded">
                                 <code class="d-block text-center" style="font-size: 1.1em;">
-                                    @Localizer["Performance"] = (@totalWeightedAchieved.ToString("N2") / @totalWeightedTarget.ToString("N2")) × 100 = <strong>@calculatedPerformance.ToString("N2")%</strong>
+                                    @Localizer["Performance"] = @sumProjectPerformance.ToString("N2") / @projectCount = <strong>@calculatedPerformance.ToString("N2")%</strong>
                                 </code>
                             </div>
                         </div>
@@ -107,12 +114,18 @@
                 @foreach (var project in breakdown)
                 {
                     <div class="card mb-4 shadow-sm">
-                        <div class="card-header bg-secondary text-white">
+                        <div class="card-header bg-secondary text-white d-flex justify-content-between align-items-center">
                             <h5 class="mb-0">
                                 <i class="fas fa-folder-open me-2"></i>
                                 @project.ProjectName
                                 <span class="badge bg-light text-dark ms-2">@Localizer["Project ID:"] @project.ProjectId</span>
                             </h5>
+                            @{
+                                double projPerf = (double)project.ProjectPerformance;
+                            }
+                            <span class="badge bg-@(projPerf >= 100 ? "success" : projPerf >= 70 ? "warning" : "danger") fs-6">
+                                @Localizer["Project Performance"]: @projPerf.ToString("N2")%
+                            </span>
                         </div>
                         <div class="card-body">
                             <div class="table-responsive">
@@ -123,8 +136,6 @@
                                             <th class="text-center">@Localizer["Weight"]</th>
                                             <th class="text-center">@Localizer["Target"]</th>
                                             <th class="text-center">@Localizer["Achieved"]</th>
-                                            <th class="text-center">@Localizer["Weighted Target"]</th>
-                                            <th class="text-center">@Localizer["Weighted Achieved"]</th>
                                             <th class="text-center">@Localizer["Performance"]</th>
                                             <th class="text-center">@Localizer["Measures"]</th>
                                         </tr>
@@ -141,20 +152,12 @@
                                                 <td class="text-center"><span class="badge bg-info">@indicator.Weight</span></td>
                                                 <td class="text-center">@indicator.Target.ToString("N2")</td>
                                                 <td class="text-center text-success"><strong>@indicator.Achieved.ToString("N2")</strong></td>
-                                                <td class="text-center bg-light">
-                                                    @indicator.WeightedTarget.ToString("N2")
-                                                    <br />
-                                                    <small class="text-muted">(@indicator.Target × @indicator.Weight)</small>
-                                                </td>
-                                                <td class="text-center bg-light">
-                                                    @indicator.WeightedAchieved.ToString("N2")
-                                                    <br />
-                                                    <small class="text-muted">(@indicator.Achieved.ToString("N2") × @indicator.Weight)</small>
-                                                </td>
                                                 <td class="text-center">
                                                     <span class="badge bg-@(indicator.Performance >= 100 ? "success" : indicator.Performance >= 70 ? "warning" : "danger") fs-6">
                                                         @indicator.Performance.ToString("N2")%
                                                     </span>
+                                                    <br />
+                                                    <small class="text-muted">(@Localizer["from project"])</small>
                                                 </td>
                                                 <td class="text-center">
                                                     @if (indicator.Measures != null && indicator.Measures.Count > 0)
@@ -197,36 +200,6 @@
                                             </tr>
                                         }
                                     </tbody>
-                                    <tfoot class="table-light">
-                                        <tr>
-                                            <td colspan="4" class="text-end"><strong>@Localizer["Project Contribution:"]</strong></td>
-                                            <td class="text-center">
-                                                <strong>
-                                                    @{
-                                                        double projectWeightedTarget = 0;
-                                                        foreach (var ind in project.Indicators)
-                                                        {
-                                                            projectWeightedTarget += (double)ind.WeightedTarget;
-                                                        }
-                                                    }
-                                                    @projectWeightedTarget.ToString("N2")
-                                                </strong>
-                                            </td>
-                                            <td class="text-center">
-                                                <strong>
-                                                    @{
-                                                        double projectWeightedAchieved = 0;
-                                                        foreach (var ind in project.Indicators)
-                                                        {
-                                                            projectWeightedAchieved += (double)ind.WeightedAchieved;
-                                                        }
-                                                    }
-                                                    @projectWeightedAchieved.ToString("N2")
-                                                </strong>
-                                            </td>
-                                            <td colspan="2"></td>
-                                        </tr>
-                                    </tfoot>
                                 </table>
                             </div>
                         </div>

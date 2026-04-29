@@ -287,33 +287,32 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 return NotFound();
             }
 
-            // Calculate the performance breakdown
+            // Calculate the performance breakdown.
+            // Per-indicator Performance % = project.performance (passthrough — same as
+            // how indicator performance is computed everywhere else in the system,
+            // see MonitoringService.UpdateIndicatorsForProject).
+            // Final Ministry Performance = simple average of project performances,
+            // mirroring MonitoringService.UpdateMinistryPerformanceByMinistryCode.
             var breakdown = new List<dynamic>();
-            double totalWeightedTarget = 0.0;
-            double totalWeightedAchieved = 0.0;
 
             foreach (var project in ministry.Projects)
             {
-                // Get all measures for this project (from all phases)
                 var projectMeasures = project.Phases.SelectMany(pp => pp.Measures).ToList();
-                double measuresSum = projectMeasures.Sum(m => m.Value);
+                double projectPerformance = project.performance;
 
                 var projectBreakdown = new
                 {
                     ProjectId = project.ProjectID,
                     ProjectName = project.ProjectName,
+                    ProjectPerformance = projectPerformance,
                     Indicators = project.Indicators.Select(i => new
                     {
                         IndicatorCode = i.IndicatorCode,
                         IndicatorName = i.Name,
                         Weight = i.Weight > 0 ? i.Weight : 1,
                         Target = i.Target,
-                        Achieved = measuresSum,
-                        WeightedTarget = i.Target * (i.Weight > 0 ? i.Weight : 1),
-                        WeightedAchieved = measuresSum * (i.Weight > 0 ? i.Weight : 1),
-                        Performance = i.Target > 0
-                            ? (measuresSum / i.Target) * 100
-                            : 0,
+                        Achieved = projectMeasures.Sum(m => m.Value),
+                        Performance = projectPerformance,
                         Measures = projectMeasures.Select(m => new
                         {
                             MeasureCode = m.Code,
@@ -324,22 +323,14 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 };
 
                 breakdown.Add(projectBreakdown);
-
-                // Aggregate totals
-                foreach (var indicator in projectBreakdown.Indicators)
-                {
-                    totalWeightedTarget += indicator.WeightedTarget;
-                    totalWeightedAchieved += indicator.WeightedAchieved;
-                }
             }
 
-            double calculatedPerformance = totalWeightedTarget > 0
-                ? (totalWeightedAchieved / totalWeightedTarget) * 100
+            double calculatedPerformance = ministry.Projects.Any()
+                ? ministry.Projects.Average(p => p.performance)
                 : 0;
 
             ViewBag.Breakdown = breakdown;
-            ViewBag.TotalWeightedTarget = totalWeightedTarget;
-            ViewBag.TotalWeightedAchieved = totalWeightedAchieved;
+            ViewBag.ProjectCount = ministry.Projects.Count;
             ViewBag.CalculatedPerformance = Math.Round(calculatedPerformance, 2);
 
             return View(ministry);
