@@ -310,7 +310,7 @@
                                     @Localizer["Estimated Budget"]
                                 </div>
                                 <div class="info-value">
-                                    <span class="budget-amount">@Model.CurrencySymbol@Model.EstimatedBudget.ToString("0")</span>
+                                    <span class="budget-amount">@Model.CurrencySymbol@Model.EstimatedBudget.ToString("N0", System.Globalization.CultureInfo.InvariantCulture)</span>
                                     <small class="text-muted ms-1">(@Model.Currency)</small>
                                     @if (Model.EstimatedBudget >= 1000)
                                     {
@@ -336,7 +336,7 @@
                                             var totalDonorFunding = Model.ProjectDonors.Sum(pd => pd.FundingAmount);
                                             var fundingPercentage = Model.EstimatedBudget > 0 ? (double)(totalDonorFunding / (decimal)Model.EstimatedBudget) * 100 : 0;
                                         }
-                                        <span class="budget-amount text-success">@Model.CurrencySymbol@totalDonorFunding.ToString("0")</span>
+                                        <span class="budget-amount text-success">@Model.CurrencySymbol@totalDonorFunding.ToString("N0", System.Globalization.CultureInfo.InvariantCulture)</span>
                                         <div class="mt-1">
                                             <small class="text-muted">
                                                 <i class="fas fa-chart-pie me-1"></i>
@@ -356,7 +356,7 @@
                                             var remainingBudget = (decimal)Model.EstimatedBudget - totalDonorFunding;
                                             var remainingPercentage = Model.EstimatedBudget > 0 ? (double)(remainingBudget / (decimal)Model.EstimatedBudget) * 100 : 0;
                                         }
-                                        <span class="budget-amount @(remainingBudget > 0 ? "text-warning" : "text-success")">@Model.CurrencySymbol@remainingBudget.ToString("0")</span>
+                                        <span class="budget-amount @(remainingBudget > 0 ? "text-warning" : "text-success")">@Model.CurrencySymbol@remainingBudget.ToString("N0", System.Globalization.CultureInfo.InvariantCulture)</span>
                                         <div class="mt-1">
                                             <small class="text-muted">
                                                 <i class="fas fa-chart-pie me-1"></i>

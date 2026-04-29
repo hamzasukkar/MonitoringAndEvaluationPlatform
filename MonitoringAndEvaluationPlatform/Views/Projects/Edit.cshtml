@@ -136,7 +136,9 @@
                                             <option value="EUR">&euro; EUR</option>
                                             <option value="SYP">SYP</option>
                                         </select>
-                                        <input asp-for="EstimatedBudget" class="form-control form-control-lg" min="0.01" step="0.01" required />
+                                        <input asp-for="EstimatedBudget" type="text" inputmode="decimal" autocomplete="off" class="form-control form-control-lg" placeholder="0.00"
+                                               value="@(Model?.EstimatedBudget > 0 ? Model.EstimatedBudget.ToString("N0", System.Globalization.CultureInfo.InvariantCulture) : "")"
+                                               required />
                                     </div>
                                     <div id="estimatedBudgetArabicWords" class="form-text mt-1 text-primary fw-bold" dir="rtl" style="display:none;">
                                         <i class="fas fa-language me-1"></i>
@@ -1194,6 +1196,76 @@
         fetchExchangeRate();
     });
 
+    // ===== Thousand-separator formatting for Estimated Budget =====
+    function parseBudget($el) {
+        const v = $el.val();
+        if (!v) return NaN;
+        return parseFloat(v.replace(/,/g, ''));
+    }
+
+    function formatBudgetInput(input) {
+        const oldValue = input.value;
+        const cursorPos = input.selectionStart || 0;
+        const charsBeforeCursor = oldValue.substring(0, cursorPos);
+        const digitsBeforeCursor = (charsBeforeCursor.match(/[\d.]/g) || []).length;
+
+        let cleaned = oldValue.replace(/[^\d.]/g, '');
+        const firstDot = cleaned.indexOf('.');
+        if (firstDot !== -1) {
+            cleaned = cleaned.substring(0, firstDot + 1) +
+                      cleaned.substring(firstDot + 1).replace(/\./g, '');
+        }
+
+        let formatted;
+        if (cleaned === '' || cleaned === '.') {
+            formatted = cleaned;
+        } else {
+            const parts = cleaned.split('.');
+            const intStr = parts[0];
+            const intFormatted = intStr ? Number(intStr).toLocaleString('en-US') : '';
+            formatted = parts.length > 1 ? intFormatted + '.' + parts[1] : intFormatted;
+        }
+
+        input.value = formatted;
+
+        let newPos = 0;
+        let count = 0;
+        for (let i = 0; i < formatted.length; i++) {
+            if (count >= digitsBeforeCursor) break;
+            if (/[\d.]/.test(formatted[i])) count++;
+            newPos = i + 1;
+        }
+        if (input.setSelectionRange) {
+            try { input.setSelectionRange(newPos, newPos); } catch (e) { /* ignore */ }
+        }
+    }
+
+    // Override jQuery validate's number/range to accept comma-separated digits
+    if (window.jQuery && jQuery.validator) {
+        const _origNumber = jQuery.validator.methods.number;
+        jQuery.validator.methods.number = function (value, element) {
+            return _origNumber.call(this, (value || '').replace(/,/g, ''), element);
+        };
+        const _origRange = jQuery.validator.methods.range;
+        jQuery.validator.methods.range = function (value, element, param) {
+            return _origRange.call(this, (value || '').replace(/,/g, ''), element, param);
+        };
+    }
+
+    // Format on input
+    $('[name="EstimatedBudget"]').on('input', function () {
+        formatBudgetInput(this);
+    });
+
+    // Strip commas before form submission so the model binder gets a clean number
+    $('[name="EstimatedBudget"]').closest('form').each(function () {
+        this.addEventListener('submit', function () {
+            const el = this.querySelector('[name="EstimatedBudget"]');
+            if (el) el.value = (el.value || '').replace(/,/g, '');
+        }, true);
+    });
+    // ================================================================
+
     // Recalculate when budget changes
     $('[name="EstimatedBudget"]').on('input change', updateUsdEquivalent);
 
@@ -1233,7 +1305,7 @@
     }
 
     function updateBudgetArabicWords() {
-        const value = parseFloat($('[name="EstimatedBudget"]').val());
+        const value = parseBudget($('[name="EstimatedBudget"]'));
         const $box = $('#estimatedBudgetArabicWords');
         const $val = $('#estimatedBudgetArabicWordsValue');
         if (isNaN(value) || value < 1000) {
@@ -1249,7 +1321,7 @@
     updateBudgetArabicWords();
 
     function updateUsdEquivalent() {
-        const budget = parseFloat($('[name="EstimatedBudget"]').val());
+        const budget = parseBudget($('[name="EstimatedBudget"]'));
         const rate = parseFloat($('#exchangeRateInput').val());
         if (budget > 0 && rate > 0) {
             const usd = budget / rate;
@@ -1533,7 +1605,7 @@
 
     // Calculate totals and update displays
     function calculateDonorTotals() {
-        const budget = parseFloat($('[name="EstimatedBudget"]').val()) || 0;
+        const budget = parseBudget($('[name="EstimatedBudget"]')) || 0;
         const symbol = getCurrencySymbol();
         let totalPercentage = 0;
         let totalAmount = 0;
