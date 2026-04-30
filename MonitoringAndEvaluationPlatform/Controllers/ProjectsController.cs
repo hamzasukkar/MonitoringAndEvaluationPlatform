@@ -1645,11 +1645,11 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             var user = await _userManager.GetUserAsync(User);
             int? userMinistryCode = null;
             bool isMinistryUser = false;
+            var ministries = _context.Ministries.ToList();
 
             // Check if the user is associated with a Ministry (and not SystemAdministrator)
             if (user?.MinistryName != null && !User.IsInRole(UserRoles.SystemAdministrator))
             {
-                var ministries = _context.Ministries.ToList();
                 var userMinistry = ministries.FirstOrDefault(m => m.MinistryDisplayName_AR == user.MinistryName || m.MinistryDisplayName_EN == user.MinistryName || m.MinistryUserName == user.MinistryName);
                 if (userMinistry != null)
                 {
@@ -1658,7 +1658,8 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 }
             }
 
-            ViewBag.MinistryList = new SelectList(_context.Ministries, "Code", isArabic ? "MinistryDisplayName_AR" : "MinistryDisplayName_EN", userMinistryCode);
+            ViewBag.MinistryList = new SelectList(ministries, "Code", isArabic ? "MinistryDisplayName_AR" : "MinistryDisplayName_EN", userMinistryCode);
+            ViewBag.Ministries = ministries; // Drives the rich dropdown items (with logo) in Create.cshtml
             ViewBag.IsMinistryUser = isMinistryUser;
             ViewBag.UserMinistryCode = userMinistryCode;
 
