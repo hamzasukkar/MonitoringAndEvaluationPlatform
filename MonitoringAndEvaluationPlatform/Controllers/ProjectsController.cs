@@ -529,19 +529,35 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                     }
                 }
 
-                // Save project first to get its ID
-                _context.Projects.Add(project);
-                await _context.SaveChangesAsync();
-
-                // Auto-link the indicator that triggered project creation (from CreateAndRedirectToProject)
+                // Save project + link the originating indicator atomically.
+                // If the connection drops mid-flow, both must roll back — otherwise we end
+                // up with an orphan project that the duplicate-name check then blocks the
+                // user from re-creating.
+                Indicator? indicatorToLink = null;
                 if (LinkedIndicatorId.HasValue)
                 {
-                    var indicator = await _context.Indicators.FindAsync(LinkedIndicatorId.Value);
-                    if (indicator != null)
+                    indicatorToLink = await _context.Indicators.FindAsync(LinkedIndicatorId.Value);
+                    if (indicatorToLink == null)
                     {
-                        indicator.ProjectID = project.ProjectID;
+                        ModelState.AddModelError("", _localizer["The indicator this project should link to could not be found. Please try again."]);
+                        await PopulateCreateViewBagAsync(selectedSectorCodes, selectedDonorCodes, selections, DonorFundingBreakdown);
+                        ViewBag.PreSelectedIndicatorId = LinkedIndicatorId;
+                        return View(project);
+                    }
+                }
+
+                using (var tx = await _context.Database.BeginTransactionAsync())
+                {
+                    _context.Projects.Add(project);
+                    await _context.SaveChangesAsync();
+
+                    if (indicatorToLink != null)
+                    {
+                        indicatorToLink.ProjectID = project.ProjectID;
                         await _context.SaveChangesAsync();
                     }
+
+                    await tx.CommitAsync();
                 }
 
                 // Create project phases: user-selected phases for "موازنة أستثمارية" donor; single auto-created phase for all others
