@@ -572,6 +572,12 @@ namespace MonitoringAndEvaluationPlatform.Controllers
 
                 this.SetSuccessMessage(string.Format(_localizer["Project '{0}' has been created successfully."].Value, project.ProjectName));
 
+                // Tell the redirect target to clear the locally cached draft. Must match the
+                // scoped key the Create view used (see Create.cshtml form-draft init).
+                TempData["ClearDraftKey"] = LinkedIndicatorId.HasValue
+                    ? $"draft:project:create:fromIndicator:{LinkedIndicatorId.Value}"
+                    : "draft:project:create";
+
                 return RedirectToAction("Details", new { id = project.ProjectID });
             }
             catch (Exception ex)
@@ -1092,6 +1098,9 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             // Recalculate DisbursementPerformance across all levels since EstimatedBudget may have changed
             var monitoringService = new MonitoringService(_context);
             await monitoringService.UpdateDisbursementPerformancesForProject(id);
+
+            // Tell the redirect target to clear the locally cached draft for this form.
+            TempData["ClearDraftKey"] = $"draft:project:edit:{id}";
 
             return RedirectToAction(nameof(Index));
         }

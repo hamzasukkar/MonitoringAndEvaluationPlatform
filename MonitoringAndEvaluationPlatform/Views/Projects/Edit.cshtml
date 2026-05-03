@@ -892,6 +892,19 @@
 </style>
 
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="~/js/form-draft.js" asp-append-version="true"></script>
+<script>
+    // Persist the in-progress edit to localStorage so a connection drop or refresh
+    // doesn't lose the user's input. Cleared when the edit succeeds (see Index.cshtml).
+    document.addEventListener('DOMContentLoaded', function () {
+        new FormDraft({
+            form: 'form.needs-validation',
+            key: 'draft:project:edit:@Model.ProjectID',
+            restoredText: '@Html.Raw(System.Text.Encodings.Web.JavaScriptEncoder.Default.Encode(Localizer["Unsaved draft restored"].Value))',
+            discardText: '@Html.Raw(System.Text.Encodings.Web.JavaScriptEncoder.Default.Encode(Localizer["Discard draft"].Value))'
+        }).init();
+    });
+</script>
 
 <script>
     // Localized strings for JavaScript

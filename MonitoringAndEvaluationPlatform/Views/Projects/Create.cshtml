@@ -1011,6 +1011,24 @@
 </style>
 
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="~/js/form-draft.js" asp-append-version="true"></script>
+<script>
+    // Persist the in-progress form to localStorage so a connection drop or refresh
+    // doesn't lose the user's input. Cleared when the create succeeds (see Details.cshtml).
+    // Scope the key by the originating indicator so a plain "New Project" draft cannot
+    // clobber the indicator-pre-filled project name when arriving via the
+    // "Create Project from Indicator" flow.
+    document.addEventListener('DOMContentLoaded', function () {
+        var indicatorId = '@(ViewBag.PreSelectedIndicatorId ?? "")';
+        var draftKey = indicatorId ? 'draft:project:create:fromIndicator:' + indicatorId : 'draft:project:create';
+        new FormDraft({
+            form: 'form.needs-validation',
+            key: draftKey,
+            restoredText: '@Html.Raw(System.Text.Encodings.Web.JavaScriptEncoder.Default.Encode(Localizer["Unsaved draft restored"].Value))',
+            discardText: '@Html.Raw(System.Text.Encodings.Web.JavaScriptEncoder.Default.Encode(Localizer["Discard draft"].Value))'
+        }).init();
+    });
+</script>
 <script>
     // Localized strings for JavaScript
     const localizedStrings = {

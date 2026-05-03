@@ -860,4 +860,11 @@
 
 }
 
+@if (TempData["ClearDraftKey"] is string clearDraftKey && !string.IsNullOrEmpty(clearDraftKey))
+{
+    <script>
+        try { localStorage.removeItem('@Html.Raw(System.Text.Encodings.Web.JavaScriptEncoder.Default.Encode(clearDraftKey))'); } catch (e) {}
+    </script>
+}
+
 @await Html.PartialAsync("_HelpModal")
