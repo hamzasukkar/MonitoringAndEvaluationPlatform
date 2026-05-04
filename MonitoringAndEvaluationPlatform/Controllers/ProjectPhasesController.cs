@@ -117,10 +117,79 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             return RedirectToAction("Details", "Projects", new { id = phase.ProjectID, tab = "phases" });
         }
 
+        // POST: ProjectPhases/SyncPhases
+        // Adds any newly-checked phase names and removes any unchecked ones.
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> SyncPhases(int projectId, List<string>? SelectedPhases, string? returnTo)
+        {
+            var project = await _context.Projects
+                .Include(p => p.Phases)
+                .FirstOrDefaultAsync(p => p.ProjectID == projectId);
+
+            if (project == null) return NotFound();
+
+            var selected = (SelectedPhases ?? new List<string>())
+                .Select(s => s?.Trim())
+                .Where(s => !string.IsNullOrEmpty(s))
+                .Cast<string>()
+                .Distinct()
+                .ToList();
+
+            if (!selected.Any())
+            {
+                TempData["PhaseError"] = _localizer["Please select at least one phase."].Value;
+                return RedirectBackToCaller(returnTo, projectId);
+            }
+
+            var existingNames = project.Phases.Select(p => p.Name).ToHashSet();
+            var phasesToRemove = project.Phases.Where(p => !selected.Contains(p.Name)).ToList();
+            var namesToAdd = selected.Where(n => !existingNames.Contains(n)).ToList();
+
+            if (phasesToRemove.Any())
+            {
+                _context.ProjectPhases.RemoveRange(phasesToRemove);
+                await _context.SaveChangesAsync();
+            }
+
+            foreach (var name in namesToAdd)
+            {
+                var phase = new ProjectPhase
+                {
+                    Name = name,
+                    StartDate = project.StartDate,
+                    EndDate = project.EndDate,
+                    Budget = 0,
+                    Weight = 0,
+                    ProjectID = projectId
+                };
+                _context.ProjectPhases.Add(phase);
+                await _context.SaveChangesAsync();
+
+                int plansCount = ((phase.EndDate.Year - phase.StartDate.Year) * 12)
+                                 + phase.EndDate.Month - phase.StartDate.Month;
+                if (phase.EndDate.Day < phase.StartDate.Day) plansCount--;
+                if (plansCount <= 0) plansCount = 1;
+
+                var actionPlan = new ActionPlan { ProjectPhaseId = phase.Id, PlansCount = plansCount };
+                _context.ActionPlans.Add(actionPlan);
+                await _context.SaveChangesAsync();
+
+                await CreatePlansForActionPlan(actionPlan.Code, phase.StartDate, phase.EndDate);
+            }
+
+            await RedistributeWeightsEqually(projectId);
+            await _monitoringService.UpdateProjectPerformanceFromPhases(projectId);
+            await _monitoringService.UpdateDisbursementPerformancesForProject(projectId);
+
+            TempData["PhaseSuccess"] = _localizer["Phases updated. Weights redistributed equally."].Value;
+            return RedirectBackToCaller(returnTo, projectId);
+        }
+
         // POST: ProjectPhases/Delete/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Delete(int id)
+        public async Task<IActionResult> Delete(int id, string? returnTo = null)
         {
             var phase = await _context.ProjectPhases.FindAsync(id);
             if (phase == null) return NotFound();
@@ -137,7 +206,20 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             await _monitoringService.UpdateProjectPerformanceFromPhases(projectId);
             await _monitoringService.UpdateDisbursementPerformancesForProject(projectId);
 
-            TempData["SuccessMessage"] = _localizer["Phase deleted. Weights have been redistributed equally."].Value;
+            var message = _localizer["Phase deleted. Weights have been redistributed equally."].Value;
+            if (returnTo == "edit")
+            {
+                TempData["PhaseSuccess"] = message;
+                return RedirectToAction("Edit", "Projects", new { id = projectId });
+            }
+            TempData["SuccessMessage"] = message;
+            return RedirectToAction("Details", "Projects", new { id = projectId, tab = "phases" });
+        }
+
+        private IActionResult RedirectBackToCaller(string? returnTo, int projectId)
+        {
+            if (returnTo == "edit")
+                return RedirectToAction("Edit", "Projects", new { id = projectId });
             return RedirectToAction("Details", "Projects", new { id = projectId, tab = "phases" });
         }
 

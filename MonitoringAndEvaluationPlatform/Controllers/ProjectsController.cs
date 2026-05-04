@@ -660,6 +660,9 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 .Include(p => p.SuperVisor)
                 .Include(p => p.Goal)
                 .Include(p => p.Indicators)
+                .Include(p => p.Phases)
+                    .ThenInclude(pp => pp.ActionPlan)
+                        .ThenInclude(ap => ap.Plans)
                 .FirstOrDefaultAsync(p => p.ProjectID == id.Value);
 
             if (project == null) return NotFound();

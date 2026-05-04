@@ -477,4 +477,25 @@
   <data name="Delete" xml:space="preserve">
     <value>حذف</value>
   </data>
+  <data name="Project Phases" xml:space="preserve">
+    <value>مراحل المشروع</value>
+  </data>
+  <data name="Check the phases to include in this project. Unchecking a phase will remove it along with its measures and action plan." xml:space="preserve">
+    <value>اختر الفقرات التي تريد تضمينها في هذا المشروع. إلغاء تحديد الفقرة سيؤدي إلى حذفها مع قياساتها وخطة عملها.</value>
+  </data>
+  <data name="Select All" xml:space="preserve">
+    <value>تحديد الكل</value>
+  </data>
+  <data name="Deselect All" xml:space="preserve">
+    <value>إلغاء تحديد الكل</value>
+  </data>
+  <data name="Saving will redistribute weights equally across the selected phases." xml:space="preserve">
+    <value>سيتم إعادة توزيع الأوزان بالتساوي على الفقرات المحددة عند الحفظ.</value>
+  </data>
+  <data name="Save Phases" xml:space="preserve">
+    <value>حفظ الفقرات</value>
+  </data>
+  <data name="Save phase selection? Unchecked phases will be deleted along with their measures and action plans." xml:space="preserve">
+    <value>حفظ تحديد الفقرات؟ سيتم حذف الفقرات غير المحددة مع قياساتها وخطط عملها.</value>
+  </data>
 </root>
