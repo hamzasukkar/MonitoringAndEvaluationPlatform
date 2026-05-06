@@ -1522,7 +1522,7 @@ public class DashboardController : Controller
                 // Header
                 page.Header().Column(col =>
                 {
-                    col.Item().Text(isRtl ? "ملخص لوحة المعلومات" : "Dashboard Summary Report")
+                    col.Item().Text(isRtl ? "لوحة المعلومات" : "Dashboard Summary Report")
                         .FontSize(20).Bold().FontColor(Colors.Indigo.Darken2);
                     col.Item().Text($"{(isRtl ? "تاريخ التصدير:" : "Export Date:")} {DateTime.Now:yyyy-MM-dd HH:mm}")
                         .FontSize(10).FontColor(Colors.Grey.Darken1);
