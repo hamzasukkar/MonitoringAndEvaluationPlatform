@@ -313,7 +313,6 @@ namespace MonitoringAndEvaluationPlatform.Controllers
 
         // ─────────────────────────────────────────────────────────────────────
         // HELPER: Create one Plan per month directly on the ActionPlan
-        // All Planned values start at 0 (no automatic distribution)
         // ─────────────────────────────────────────────────────────────────────
         private async Task CreatePlansForActionPlan(int actionPlanCode, DateTime startDate, DateTime endDate)
         {
@@ -327,7 +326,6 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 {
                     Name = $"Plan {i}",
                     Date = current,
-                    Planned = 0,
                     Realised = 0,
                     ActionPlanCode = actionPlanCode
                 });

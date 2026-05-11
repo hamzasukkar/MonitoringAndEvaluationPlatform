@@ -53,7 +53,7 @@ namespace MonitoringAndEvaluationPlatform.Services
                 "Goals", "Targets", "sDGIndicators",
                 "Ministries", "Sectors", "Donors", "SuperVisors", "ProjectManagers",
                 "Governorates", "Districts", "SubDistricts", "Communities",
-                "Projects", "ProjectPhases", "ActionPlans", "Activities", "Plans", "Measures",
+                "Projects", "ProjectPhases", "ActionPlans", "Plans", "Measures",
                 "ProjectDonors", "ProjectFiles",
                 "FrameworkGoals", "FrameworkGoalYearlyValues", "FrameworkGoalFiles"
             };
@@ -350,7 +350,6 @@ namespace MonitoringAndEvaluationPlatform.Services
                     ProjectId = p.ProjectID,
                     ProjectName = p.ProjectName,
                     ActionPlanCount = p.Phases.Count(pp => pp.ActionPlan != null),
-                    ActivityCount = 0,
                     PlanCount = p.Phases.Where(pp => pp.ActionPlan != null).SelectMany(pp => pp.ActionPlan!.Plans).Count(),
                     IndicatorCount = p.Indicators.Count,
                     FileCount = p.ProjectFiles.Count,
@@ -471,7 +470,7 @@ namespace MonitoringAndEvaluationPlatform.Services
                 if (resetPlans)
                 {
                     totalReset += await _context.Database.ExecuteSqlRawAsync(
-                        "UPDATE [Plans] SET Planned = 0, Realised = 0");
+                        "UPDATE [Plans] SET Realised = 0");
                 }
 
                 if (resetMeasures)

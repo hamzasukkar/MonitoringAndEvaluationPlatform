@@ -109,9 +109,6 @@
   <data name="Projects" xml:space="preserve">
     <value>Projects</value>
   </data>
-  <data name="Plans &amp; Activities" xml:space="preserve">
-    <value>Plans &amp; Activities</value>
-  </data>
   <data name="Monitoring" xml:space="preserve">
     <value>Monitoring</value>
   </data>
@@ -1294,8 +1291,8 @@
   <data name="10.6 Project Phases" xml:space="preserve">
     <value>10.6 Project Phases</value>
   </data>
-  <data name="Project Phases allow you to divide a project into sequential stages, each with its own timeline, budget, and performance tracking. Each phase automatically receives an Action Plan and a full set of Activities." xml:space="preserve">
-    <value>Project Phases allow you to divide a project into sequential stages, each with its own timeline, budget, and performance tracking. Each phase automatically receives an Action Plan and a full set of Activities.</value>
+  <data name="Project Phases allow you to divide a project into sequential stages, each with its own timeline, budget, and performance tracking. Each phase automatically receives an Action Plan with monthly Plan entries." xml:space="preserve">
+    <value>Project Phases allow you to divide a project into sequential stages, each with its own timeline, budget, and performance tracking. Each phase automatically receives an Action Plan with monthly Plan entries.</value>
   </data>
   <data name="How Phases Work" xml:space="preserve">
     <value>How Phases Work</value>
@@ -1309,8 +1306,8 @@
   <data name="Phase weights are redistributed equally whenever a phase is added or removed" xml:space="preserve">
     <value>Phase weights are redistributed equally whenever a phase is added or removed</value>
   </data>
-  <data name="Each phase automatically gets its own Action Plan and Activities with monthly Plans" xml:space="preserve">
-    <value>Each phase automatically gets its own Action Plan and Activities with monthly Plans</value>
+  <data name="Each phase automatically gets its own Action Plan with one monthly Plan entry per month" xml:space="preserve">
+    <value>Each phase automatically gets its own Action Plan with one monthly Plan entry per month</value>
   </data>
   <data name="Open Project Phases Tab" xml:space="preserve">
     <value>Open Project Phases Tab</value>
@@ -1327,8 +1324,8 @@
   <data name="Review Auto-Created Plan" xml:space="preserve">
     <value>Review Auto-Created Plan</value>
   </data>
-  <data name="After saving, the system automatically creates an Action Plan with monthly Plans and one Activity per type (Financial, Physical, Disbursement, Field Monitoring, Impact Assessment)." xml:space="preserve">
-    <value>After saving, the system automatically creates an Action Plan with monthly Plans and one Activity per type (Financial, Physical, Disbursement, Field Monitoring, Impact Assessment).</value>
+  <data name="After saving, the system automatically creates an Action Plan with one Plan entry for every month between the phase start and end dates." xml:space="preserve">
+    <value>After saving, the system automatically creates an Action Plan with one Plan entry for every month between the phase start and end dates.</value>
   </data>
   <data name="Adjust Weights if Needed" xml:space="preserve">
     <value>Adjust Weights if Needed</value>
@@ -1369,15 +1366,18 @@
   <data name="Figure 10.6: Project Phases Management" xml:space="preserve">
     <value>Figure 10.6: Project Phases Management</value>
   </data>
-  <!-- Section 11: Plans & Activities -->
-  <data name="Plans and Activities provide detailed tracking of project implementation at the operational level." xml:space="preserve">
-    <value>Plans and Activities provide detailed tracking of project implementation at the operational level.</value>
+  <!-- Section 11: Plans -->
+  <data name="Plans" xml:space="preserve">
+    <value>Plans</value>
+  </data>
+  <data name="Plans provide detailed monthly tracking of project disbursement at the operational level." xml:space="preserve">
+    <value>Plans provide detailed monthly tracking of project disbursement at the operational level.</value>
   </data>
   <data name="11.1 Action Plans" xml:space="preserve">
     <value>11.1 Action Plans</value>
   </data>
-  <data name="Action plans organize project work into manageable groups of activities." xml:space="preserve">
-    <value>Action plans organize project work into manageable groups of activities.</value>
+  <data name="Each project phase automatically receives one Action Plan containing a monthly Plan entry for every month between the phase start and end dates." xml:space="preserve">
+    <value>Each project phase automatically receives one Action Plan containing a monthly Plan entry for every month between the phase start and end dates.</value>
   </data>
   <data name="Action Plans Screenshot" xml:space="preserve">
     <value>Action Plans Screenshot</value>
@@ -1388,101 +1388,44 @@
   <data name="Figure 11.1: Action Plans View" xml:space="preserve">
     <value>Figure 11.1: Action Plans View</value>
   </data>
-  <data name="11.2 Activities" xml:space="preserve">
-    <value>11.2 Activities</value>
+  <data name="11.2 Updating Realised Values" xml:space="preserve">
+    <value>11.2 Updating Realised Values</value>
   </data>
-  <data name="Activities are the specific tasks within an action plan. Each activity has its own set of plans." xml:space="preserve">
-    <value>Activities are the specific tasks within an action plan. Each activity has its own set of plans.</value>
+  <data name="Each monthly Plan entry holds a Realised value representing the amount disbursed that month. Update it inline directly in the Action Plan table:" xml:space="preserve">
+    <value>Each monthly Plan entry holds a Realised value representing the amount disbursed that month. Update it inline directly in the Action Plan table:</value>
   </data>
-  <data name="Navigate to Activity" xml:space="preserve">
-    <value>Navigate to Activity</value>
+  <data name="Navigate to Action Plan" xml:space="preserve">
+    <value>Navigate to Action Plan</value>
   </data>
-  <data name="Open the project and go to its action plan, then select an activity." xml:space="preserve">
-    <value>Open the project and go to its action plan, then select an activity.</value>
-  </data>
-  <data name="Create Activity" xml:space="preserve">
-    <value>Create Activity</value>
-  </data>
-  <data name="Click Create New Activity and fill in the name and details." xml:space="preserve">
-    <value>Click Create New Activity and fill in the name and details.</value>
-  </data>
-  <data name="Activities Screenshot" xml:space="preserve">
-    <value>Activities Screenshot</value>
-  </data>
-  <data name="Screenshot: Activities List" xml:space="preserve">
-    <value>Screenshot: Activities List</value>
-  </data>
-  <data name="Figure 11.2: Activities Management" xml:space="preserve">
-    <value>Figure 11.2: Activities Management</value>
-  </data>
-  <data name="11.3 Plan Types" xml:space="preserve">
-    <value>11.3 Plan Types</value>
-  </data>
-  <data name="Each activity can have multiple plan types with planned and realized values:" xml:space="preserve">
-    <value>Each activity can have multiple plan types with planned and realized values:</value>
-  </data>
-  <data name="Financial" xml:space="preserve">
-    <value>Financial</value>
-  </data>
-  <data name="Budget allocation and spending tracking." xml:space="preserve">
-    <value>Budget allocation and spending tracking.</value>
-  </data>
-  <data name="Physical" xml:space="preserve">
-    <value>Physical</value>
-  </data>
-  <data name="Physical progress of deliverables." xml:space="preserve">
-    <value>Physical progress of deliverables.</value>
-  </data>
-  <data name="Disbursement" xml:space="preserve">
-    <value>Disbursement</value>
-  </data>
-  <data name="Fund disbursement performance." xml:space="preserve">
-    <value>Fund disbursement performance.</value>
-  </data>
-  <data name="Field Monitoring" xml:space="preserve">
-    <value>Field Monitoring</value>
-  </data>
-  <data name="On-site verification and monitoring results." xml:space="preserve">
-    <value>On-site verification and monitoring results.</value>
-  </data>
-  <data name="Impact Assessment" xml:space="preserve">
-    <value>Impact Assessment</value>
-  </data>
-  <data name="A fifth plan type for tracking outcome-level impact evaluation results." xml:space="preserve">
-    <value>A fifth plan type for tracking outcome-level impact evaluation results.</value>
-  </data>
-  <data name="11.4 Updating Plan Values" xml:space="preserve">
-    <value>11.4 Updating Plan Values</value>
-  </data>
-  <data name="Plan values can be updated inline directly in the table:" xml:space="preserve">
-    <value>Plan values can be updated inline directly in the table:</value>
-  </data>
-  <data name="Navigate to Plans" xml:space="preserve">
-    <value>Navigate to Plans</value>
-  </data>
-  <data name="Open the project plans page or activity details." xml:space="preserve">
-    <value>Open the project plans page or activity details.</value>
+  <data name="Open the project, choose a phase, and open its Action Plan." xml:space="preserve">
+    <value>Open the project, choose a phase, and open its Action Plan.</value>
   </data>
   <data name="Click on Value" xml:space="preserve">
     <value>Click on Value</value>
   </data>
-  <data name="Click on the planned or realized value cell to edit it." xml:space="preserve">
-    <value>Click on the planned or realized value cell to edit it.</value>
+  <data name="Click on the Realised value cell for the month you want to update." xml:space="preserve">
+    <value>Click on the Realised value cell for the month you want to update.</value>
   </data>
   <data name="Enter New Value" xml:space="preserve">
     <value>Enter New Value</value>
   </data>
-  <data name="Type the new value. Performance calculations update automatically." xml:space="preserve">
-    <value>Type the new value. Performance calculations update automatically.</value>
+  <data name="Type the new value and press Enter. Disbursement performance is recalculated automatically and cascades up the framework hierarchy." xml:space="preserve">
+    <value>Type the new value and press Enter. Disbursement performance is recalculated automatically and cascades up the framework hierarchy.</value>
+  </data>
+  <data name="How Disbursement Is Calculated" xml:space="preserve">
+    <value>How Disbursement Is Calculated</value>
+  </data>
+  <data name="Project disbursement performance = (sum of all Realised values across phases / Project Estimated Budget) × 100. Time-phased planned targets are not used." xml:space="preserve">
+    <value>Project disbursement performance = (sum of all Realised values across phases / Project Estimated Budget) × 100. Time-phased planned targets are not used.</value>
   </data>
   <data name="Plans Update Screenshot" xml:space="preserve">
     <value>Plans Update Screenshot</value>
   </data>
-  <data name="Screenshot: Updating Plan Values" xml:space="preserve">
-    <value>Screenshot: Updating Plan Values</value>
+  <data name="Screenshot: Updating Realised Values" xml:space="preserve">
+    <value>Screenshot: Updating Realised Values</value>
   </data>
-  <data name="Figure 11.3: Inline Plan Value Update" xml:space="preserve">
-    <value>Figure 11.3: Inline Plan Value Update</value>
+  <data name="Figure 11.2: Inline Realised Value Update" xml:space="preserve">
+    <value>Figure 11.2: Inline Realised Value Update</value>
   </data>
   <!-- Section 12: Monitoring -->
   <data name="The Monitoring section provides real-time performance tracking at every level of the hierarchy." xml:space="preserve">

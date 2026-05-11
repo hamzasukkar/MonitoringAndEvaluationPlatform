@@ -45,7 +45,7 @@
             <a href="#framework-goals" class="toc-link">8. @Localizer["Framework Goals"]</a>
             <a href="#setup" class="toc-link">9. @Localizer["Set Up"]</a>
             <a href="#projects" class="toc-link">10. @Localizer["Projects"] <span class="toc-new-badge">@Localizer["NEW"]</span></a>
-            <a href="#plans" class="toc-link">11. @Localizer["Plans & Activities"]</a>
+            <a href="#plans" class="toc-link">11. @Localizer["Plans"]</a>
             <a href="#monitoring" class="toc-link">12. @Localizer["Monitoring"]</a>
             <a href="#reports" class="toc-link">13. @Localizer["Reports & Export"]</a>
             <a href="#admin" class="toc-link">14. @Localizer["Administration"]</a>
@@ -1279,7 +1279,7 @@
                 </div>
 
                 <h3>@Localizer["10.6 Project Phases"] <span class="section-new-badge">@Localizer["NEW"]</span></h3>
-                <p>@Localizer["Project Phases allow you to divide a project into sequential stages, each with its own timeline, budget, and performance tracking. Each phase automatically receives an Action Plan and a full set of Activities."]</p>
+                <p>@Localizer["Project Phases allow you to divide a project into sequential stages, each with its own timeline, budget, and performance tracking. Each phase automatically receives an Action Plan with monthly Plan entries."]</p>
 
                 <div class="info-box">
                     <div class="info-icon"><i class="fas fa-info-circle"></i></div>
@@ -1289,7 +1289,7 @@
                             <li>@Localizer["Phase dates must fall within the project start and end dates"]</li>
                             <li>@Localizer["The sum of all phase budgets cannot exceed the total project budget"]</li>
                             <li>@Localizer["Phase weights are redistributed equally whenever a phase is added or removed"]</li>
-                            <li>@Localizer["Each phase automatically gets its own Action Plan and Activities with monthly Plans"]</li>
+                            <li>@Localizer["Each phase automatically gets its own Action Plan with one monthly Plan entry per month"]</li>
                         </ul>
                     </div>
                 </div>
@@ -1313,7 +1313,7 @@
                         <div class="step-number">3</div>
                         <div class="step-content">
                             <h4>@Localizer["Review Auto-Created Plan"]</h4>
-                            <p>@Localizer["After saving, the system automatically creates an Action Plan with monthly Plans and one Activity per type (Financial, Physical, Disbursement, Field Monitoring, Impact Assessment)."]</p>
+                            <p>@Localizer["After saving, the system automatically creates an Action Plan with one Plan entry for every month between the phase start and end dates."]</p>
                         </div>
                     </div>
                     <div class="step">
@@ -1362,17 +1362,17 @@
             </div>
         </section>
 
-        <!-- ==================== Section 11: Plans & Activities ==================== -->
+        <!-- ==================== Section 11: Plans ==================== -->
         <section id="plans" class="guide-section">
             <div class="section-header">
                 <span class="section-number">11</span>
-                <h2>@Localizer["Plans & Activities"]</h2>
+                <h2>@Localizer["Plans"]</h2>
             </div>
             <div class="section-content">
-                <p>@Localizer["Plans and Activities provide detailed tracking of project implementation at the operational level."]</p>
+                <p>@Localizer["Plans provide detailed monthly tracking of project disbursement at the operational level."]</p>
 
                 <h3>@Localizer["11.1 Action Plans"]</h3>
-                <p>@Localizer["Action plans organize project work into manageable groups of activities."]</p>
+                <p>@Localizer["Each project phase automatically receives one Action Plan containing a monthly Plan entry for every month between the phase start and end dates."]</p>
 
                 <div class="screenshot-placeholder">
                     <div class="screenshot-frame">
@@ -1386,95 +1386,37 @@
                     <p class="screenshot-caption">@Localizer["Figure 11.1: Action Plans View"]</p>
                 </div>
 
-                <h3>@Localizer["11.2 Activities"]</h3>
-                <p>@Localizer["Activities are the specific tasks within an action plan. Each activity has its own set of plans."]</p>
-
+                <h3>@Localizer["11.2 Updating Realised Values"]</h3>
+                <p>@Localizer["Each monthly Plan entry holds a Realised value representing the amount disbursed that month. Update it inline directly in the Action Plan table:"]</p>
                 <div class="step-list">
                     <div class="step">
                         <div class="step-number">1</div>
                         <div class="step-content">
-                            <h4>@Localizer["Navigate to Activity"]</h4>
-                            <p>@Localizer["Open the project and go to its action plan, then select an activity."]</p>
-                        </div>
-                    </div>
-                    <div class="step">
-                        <div class="step-number">2</div>
-                        <div class="step-content">
-                            <h4>@Localizer["Create Activity"]</h4>
-                            <p>@Localizer["Click Create New Activity and fill in the name and details."]</p>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="screenshot-placeholder">
-                    <div class="screenshot-frame">
-                        <img src="~/images/guide/activities.png" alt="@Localizer["Activities Screenshot"]" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';" />
-                        <div class="screenshot-missing">
-                            <i class="fas fa-image"></i>
-                            <span>@Localizer["Screenshot: Activities List"]</span>
-                            <small>activities.png</small>
-                        </div>
-                    </div>
-                    <p class="screenshot-caption">@Localizer["Figure 11.2: Activities Management"]</p>
-                </div>
-
-                <h3>@Localizer["11.3 Plan Types"]</h3>
-                <p>@Localizer["Each activity can have multiple plan types with planned and realized values:"]</p>
-
-                <div class="feature-grid">
-                    <div class="feature-item">
-                        <div class="feature-icon"><i class="fas fa-money-bill-wave"></i></div>
-                        <h4>@Localizer["Financial"]</h4>
-                        <p>@Localizer["Budget allocation and spending tracking."]</p>
-                    </div>
-                    <div class="feature-item">
-                        <div class="feature-icon"><i class="fas fa-cog"></i></div>
-                        <h4>@Localizer["Physical"]</h4>
-                        <p>@Localizer["Physical progress of deliverables."]</p>
-                    </div>
-                    <div class="feature-item">
-                        <div class="feature-icon"><i class="fas fa-hand-holding-usd"></i></div>
-                        <h4>@Localizer["Disbursement"]</h4>
-                        <p>@Localizer["Fund disbursement performance."]</p>
-                    </div>
-                    <div class="feature-item">
-                        <div class="feature-icon"><i class="fas fa-clipboard-check"></i></div>
-                        <h4>@Localizer["Field Monitoring"]</h4>
-                        <p>@Localizer["On-site verification and monitoring results."]</p>
-                    </div>
-                </div>
-
-                <div class="info-box">
-                    <div class="info-icon"><i class="fas fa-calculator"></i></div>
-                    <div class="info-content">
-                        <h4>@Localizer["Impact Assessment"]</h4>
-                        <p>@Localizer["A fifth plan type for tracking outcome-level impact evaluation results."]</p>
-                    </div>
-                </div>
-
-                <h3>@Localizer["11.4 Updating Plan Values"]</h3>
-                <p>@Localizer["Plan values can be updated inline directly in the table:"]</p>
-                <div class="step-list">
-                    <div class="step">
-                        <div class="step-number">1</div>
-                        <div class="step-content">
-                            <h4>@Localizer["Navigate to Plans"]</h4>
-                            <p>@Localizer["Open the project plans page or activity details."]</p>
+                            <h4>@Localizer["Navigate to Action Plan"]</h4>
+                            <p>@Localizer["Open the project, choose a phase, and open its Action Plan."]</p>
                         </div>
                     </div>
                     <div class="step">
                         <div class="step-number">2</div>
                         <div class="step-content">
                             <h4>@Localizer["Click on Value"]</h4>
-                            <p>@Localizer["Click on the planned or realized value cell to edit it."]</p>
+                            <p>@Localizer["Click on the Realised value cell for the month you want to update."]</p>
                         </div>
                     </div>
                     <div class="step">
                         <div class="step-number">3</div>
                         <div class="step-content">
                             <h4>@Localizer["Enter New Value"]</h4>
-                            <p>@Localizer["Type the new value. Performance calculations update automatically."]</p>
+                            <p>@Localizer["Type the new value and press Enter. Disbursement performance is recalculated automatically and cascades up the framework hierarchy."]</p>
                         </div>
+                    </div>
+                </div>
+
+                <div class="info-box">
+                    <div class="info-icon"><i class="fas fa-info-circle"></i></div>
+                    <div class="info-content">
+                        <h4>@Localizer["How Disbursement Is Calculated"]</h4>
+                        <p>@Localizer["Project disbursement performance = (sum of all Realised values across phases / Project Estimated Budget) × 100. Time-phased planned targets are not used."]</p>
                     </div>
                 </div>
 
@@ -1483,11 +1425,11 @@
                         <img src="~/images/guide/plans-update.png" alt="@Localizer["Plans Update Screenshot"]" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';" />
                         <div class="screenshot-missing">
                             <i class="fas fa-image"></i>
-                            <span>@Localizer["Screenshot: Updating Plan Values"]</span>
+                            <span>@Localizer["Screenshot: Updating Realised Values"]</span>
                             <small>plans-update.png</small>
                         </div>
                     </div>
-                    <p class="screenshot-caption">@Localizer["Figure 11.3: Inline Plan Value Update"]</p>
+                    <p class="screenshot-caption">@Localizer["Figure 11.2: Inline Realised Value Update"]</p>
                 </div>
             </div>
         </section>

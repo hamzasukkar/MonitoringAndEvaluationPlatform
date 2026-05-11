@@ -123,12 +123,6 @@
   <data name="Action Plans" xml:space="preserve">
     <value>خطط العمل</value>
   </data>
-  <data name="Activities" xml:space="preserve">
-    <value>أنشطة</value>
-  </data>
-  <data name="Activity" xml:space="preserve">
-    <value>نشاط</value>
-  </data>
   <data name="Actual Spending" xml:space="preserve">
     <value>الإنفاق الفعلي</value>
   </data>
@@ -147,29 +141,14 @@
   <data name="Estimated Budget" xml:space="preserve">
     <value>الميزانية التقديرية</value>
   </data>
-  <data name="FieldMonitoring" xml:space="preserve">
-    <value>المراقبة الميدانية</value>
-  </data>
-  <data name="Financial" xml:space="preserve">
-    <value>المالي</value>
-  </data>
-  <data name="Framework" xml:space="preserve">
-    <value>نطاق</value>
-  </data>
-  <data name="ImpactAssessment" xml:space="preserve">
-    <value>تقييم الأثر</value>
-  </data>
   <data name="Measures" xml:space="preserve">
     <value>المقايس</value>
-  </data>
-  <data name="Physical" xml:space="preserve">
-    <value>المادي</value>
   </data>
   <data name="Plan" xml:space="preserve">
     <value>خطة</value>
   </data>
-  <data name="Planned" xml:space="preserve">
-    <value>مخطط</value>
+  <data name="Type" xml:space="preserve">
+    <value>النوع</value>
   </data>
   <data name="Project" xml:space="preserve">
     <value>المشروع</value>
@@ -195,17 +174,8 @@
   <data name="Select Plan/Month" xml:space="preserve">
     <value>القيمة المحققة</value>
   </data>
-  <data name="Subtotal Planned" xml:space="preserve">
-    <value>المجموع الفرعي المخطط له</value>
-  </data>
-  <data name="Subtotal Realised" xml:space="preserve">
-    <value>المجموع الفرعي المحقق</value>
-  </data>
   <data name="Total" xml:space="preserve">
     <value>المجموع</value>
-  </data>
-  <data name="Total Planned" xml:space="preserve">
-    <value>إجمالي المخطط</value>
   </data>
   <data name="Total Realised" xml:space="preserve">
     <value>إجمالي المحقق</value>
@@ -230,14 +200,5 @@
   </data>
   <data name="Phase" xml:space="preserve">
     <value>الفقرة</value>
-  </data>
-  <data name="Add Activity" xml:space="preserve">
-    <value>إضافة نشاط</value>
-  </data>
-  <data name="No Activities Yet" xml:space="preserve">
-    <value>لا توجد أنشطة بعد</value>
-  </data>
-  <data name="No activities have been added to this action plan yet. Add your first activity to start tracking progress." xml:space="preserve">
-    <value>لم يتم إضافة أي أنشطة إلى خطة العمل هذه بعد. أضف نشاطك الأول لبدء تتبع التقدم.</value>
   </data>
 </root>

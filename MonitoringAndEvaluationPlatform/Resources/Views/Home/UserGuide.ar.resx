@@ -109,9 +109,6 @@
   <data name="Projects" xml:space="preserve">
     <value>المشاريع</value>
   </data>
-  <data name="Plans &amp; Activities" xml:space="preserve">
-    <value>الخطط والأنشطة</value>
-  </data>
   <data name="Monitoring" xml:space="preserve">
     <value>المراقبة</value>
   </data>
@@ -1294,8 +1291,8 @@
   <data name="10.6 Project Phases" xml:space="preserve">
     <value>10.6 مراحل المشروع</value>
   </data>
-  <data name="Project Phases allow you to divide a project into sequential stages, each with its own timeline, budget, and performance tracking. Each phase automatically receives an Action Plan and a full set of Activities." xml:space="preserve">
-    <value>تتيح لك مراحل المشروع تقسيم المشروع إلى مراحل متتالية، لكل منها جدول زمني وميزانية وتتبع أداء خاص بها. تحصل كل فقرة تلقائياً على خطة عمل ومجموعة كاملة من الأنشطة.</value>
+  <data name="Project Phases allow you to divide a project into sequential stages, each with its own timeline, budget, and performance tracking. Each phase automatically receives an Action Plan with monthly Plan entries." xml:space="preserve">
+    <value>تتيح لك مراحل المشروع تقسيم المشروع إلى مراحل متتالية، لكل منها جدول زمني وميزانية وتتبع أداء خاص بها. تحصل كل فقرة تلقائياً على خطة عمل مع مدخلات خطة شهرية.</value>
   </data>
   <data name="How Phases Work" xml:space="preserve">
     <value>كيف تعمل المراحل</value>
@@ -1309,8 +1306,8 @@
   <data name="Phase weights are redistributed equally whenever a phase is added or removed" xml:space="preserve">
     <value>تُعاد توزيع أوزان المراحل بالتساوي عند إضافة فقرة أو حذفها</value>
   </data>
-  <data name="Each phase automatically gets its own Action Plan and Activities with monthly Plans" xml:space="preserve">
-    <value>تحصل كل فقرة تلقائياً على خطة عمل خاصة بها وأنشطة مع خطط شهرية</value>
+  <data name="Each phase automatically gets its own Action Plan with one monthly Plan entry per month" xml:space="preserve">
+    <value>تحصل كل فقرة تلقائياً على خطة عمل خاصة بها مع مدخل خطة واحد لكل شهر</value>
   </data>
   <data name="Open Project Phases Tab" xml:space="preserve">
     <value>فتح تبويب مراحل المشروع</value>
@@ -1327,8 +1324,8 @@
   <data name="Review Auto-Created Plan" xml:space="preserve">
     <value>مراجعة الخطة المُنشأة تلقائياً</value>
   </data>
-  <data name="After saving, the system automatically creates an Action Plan with monthly Plans and one Activity per type (Financial, Physical, Disbursement, Field Monitoring, Impact Assessment)." xml:space="preserve">
-    <value>بعد الحفظ، يُنشئ النظام تلقائياً خطة عمل مع خطط شهرية ونشاطاً واحداً لكل نوع (المالي، المادي، الصرف، المتابعة الميدانية، تقييم الأثر).</value>
+  <data name="After saving, the system automatically creates an Action Plan with one Plan entry for every month between the phase start and end dates." xml:space="preserve">
+    <value>بعد الحفظ، يُنشئ النظام تلقائياً خطة عمل مع مدخل خطة واحد لكل شهر بين تاريخ بداية الفقرة وتاريخ نهايتها.</value>
   </data>
   <data name="Adjust Weights if Needed" xml:space="preserve">
     <value>تعديل الأوزان عند الحاجة</value>
@@ -1369,15 +1366,18 @@
   <data name="Figure 10.6: Project Phases Management" xml:space="preserve">
     <value>الشكل 10.6: إدارة مراحل المشروع</value>
   </data>
-  <!-- Section 11: Plans & Activities -->
-  <data name="Plans and Activities provide detailed tracking of project implementation at the operational level." xml:space="preserve">
-    <value>توفر الخطط والأنشطة تتبعاً تفصيلياً لتنفيذ المشاريع على المستوى التشغيلي.</value>
+  <!-- Section 11: Plans -->
+  <data name="Plans" xml:space="preserve">
+    <value>الخطط</value>
+  </data>
+  <data name="Plans provide detailed monthly tracking of project disbursement at the operational level." xml:space="preserve">
+    <value>توفر الخطط تتبعاً شهرياً تفصيلياً لصرف المشروع على المستوى التشغيلي.</value>
   </data>
   <data name="11.1 Action Plans" xml:space="preserve">
     <value>11.1 خطط العمل</value>
   </data>
-  <data name="Action plans organize project work into manageable groups of activities." xml:space="preserve">
-    <value>تنظم خطط العمل أعمال المشروع في مجموعات قابلة للإدارة من الأنشطة.</value>
+  <data name="Each project phase automatically receives one Action Plan containing a monthly Plan entry for every month between the phase start and end dates." xml:space="preserve">
+    <value>تحصل كل فقرة من فقرات المشروع تلقائياً على خطة عمل واحدة تحتوي على مدخل خطة شهري لكل شهر بين تاريخ بداية الفقرة وتاريخ نهايتها.</value>
   </data>
   <data name="Action Plans Screenshot" xml:space="preserve">
     <value>لقطة شاشة خطط العمل</value>
@@ -1388,101 +1388,44 @@
   <data name="Figure 11.1: Action Plans View" xml:space="preserve">
     <value>الشكل 11.1: عرض خطط العمل</value>
   </data>
-  <data name="11.2 Activities" xml:space="preserve">
-    <value>11.2 الأنشطة</value>
+  <data name="11.2 Updating Realised Values" xml:space="preserve">
+    <value>11.2 تحديث القيم المحققة</value>
   </data>
-  <data name="Activities are the specific tasks within an action plan. Each activity has its own set of plans." xml:space="preserve">
-    <value>الأنشطة هي المهام المحددة ضمن خطة العمل. لكل نشاط مجموعته الخاصة من الخطط.</value>
+  <data name="Each monthly Plan entry holds a Realised value representing the amount disbursed that month. Update it inline directly in the Action Plan table:" xml:space="preserve">
+    <value>يحمل كل مدخل خطة شهري قيمة محققة تمثل المبلغ المصروف في ذلك الشهر. حدّثها مباشرة في جدول خطة العمل:</value>
   </data>
-  <data name="Navigate to Activity" xml:space="preserve">
-    <value>انتقل إلى النشاط</value>
+  <data name="Navigate to Action Plan" xml:space="preserve">
+    <value>انتقل إلى خطة العمل</value>
   </data>
-  <data name="Open the project and go to its action plan, then select an activity." xml:space="preserve">
-    <value>افتح المشروع وانتقل إلى خطة العمل، ثم اختر نشاطاً.</value>
-  </data>
-  <data name="Create Activity" xml:space="preserve">
-    <value>إنشاء نشاط</value>
-  </data>
-  <data name="Click Create New Activity and fill in the name and details." xml:space="preserve">
-    <value>انقر إنشاء نشاط جديد واملأ الاسم والتفاصيل.</value>
-  </data>
-  <data name="Activities Screenshot" xml:space="preserve">
-    <value>لقطة شاشة الأنشطة</value>
-  </data>
-  <data name="Screenshot: Activities List" xml:space="preserve">
-    <value>لقطة شاشة: قائمة الأنشطة</value>
-  </data>
-  <data name="Figure 11.2: Activities Management" xml:space="preserve">
-    <value>الشكل 11.2: إدارة الأنشطة</value>
-  </data>
-  <data name="11.3 Plan Types" xml:space="preserve">
-    <value>11.3 أنواع الخطط</value>
-  </data>
-  <data name="Each activity can have multiple plan types with planned and realized values:" xml:space="preserve">
-    <value>يمكن أن يكون لكل نشاط أنواع خطط متعددة مع قيم مخططة ومحققة:</value>
-  </data>
-  <data name="Financial" xml:space="preserve">
-    <value>مالي</value>
-  </data>
-  <data name="Budget allocation and spending tracking." xml:space="preserve">
-    <value>تخصيص الميزانية وتتبع الإنفاق.</value>
-  </data>
-  <data name="Physical" xml:space="preserve">
-    <value>مادي</value>
-  </data>
-  <data name="Physical progress of deliverables." xml:space="preserve">
-    <value>التقدم المادي للتسليمات.</value>
-  </data>
-  <data name="Disbursement" xml:space="preserve">
-    <value>الصرف</value>
-  </data>
-  <data name="Fund disbursement performance." xml:space="preserve">
-    <value>أداء صرف الأموال.</value>
-  </data>
-  <data name="Field Monitoring" xml:space="preserve">
-    <value>المراقبة الميدانية</value>
-  </data>
-  <data name="On-site verification and monitoring results." xml:space="preserve">
-    <value>نتائج التحقق والمراقبة الميدانية.</value>
-  </data>
-  <data name="Impact Assessment" xml:space="preserve">
-    <value>تقييم الأثر</value>
-  </data>
-  <data name="A fifth plan type for tracking outcome-level impact evaluation results." xml:space="preserve">
-    <value>نوع خطة خامس لتتبع نتائج تقييم الأثر على مستوى النتائج.</value>
-  </data>
-  <data name="11.4 Updating Plan Values" xml:space="preserve">
-    <value>11.4 تحديث قيم الخطط</value>
-  </data>
-  <data name="Plan values can be updated inline directly in the table:" xml:space="preserve">
-    <value>يمكن تحديث قيم الخطط مباشرة في الجدول:</value>
-  </data>
-  <data name="Navigate to Plans" xml:space="preserve">
-    <value>انتقل إلى الخطط</value>
-  </data>
-  <data name="Open the project plans page or activity details." xml:space="preserve">
-    <value>افتح صفحة خطط المشروع أو تفاصيل النشاط.</value>
+  <data name="Open the project, choose a phase, and open its Action Plan." xml:space="preserve">
+    <value>افتح المشروع، اختر فقرة، وافتح خطة عملها.</value>
   </data>
   <data name="Click on Value" xml:space="preserve">
     <value>انقر على القيمة</value>
   </data>
-  <data name="Click on the planned or realized value cell to edit it." xml:space="preserve">
-    <value>انقر على خلية القيمة المخططة أو المحققة لتعديلها.</value>
+  <data name="Click on the Realised value cell for the month you want to update." xml:space="preserve">
+    <value>انقر على خلية القيمة المحققة للشهر الذي تريد تحديثه.</value>
   </data>
   <data name="Enter New Value" xml:space="preserve">
     <value>أدخل القيمة الجديدة</value>
   </data>
-  <data name="Type the new value. Performance calculations update automatically." xml:space="preserve">
-    <value>اكتب القيمة الجديدة. تتحدث حسابات الأداء تلقائياً.</value>
+  <data name="Type the new value and press Enter. Disbursement performance is recalculated automatically and cascades up the framework hierarchy." xml:space="preserve">
+    <value>اكتب القيمة الجديدة واضغط Enter. يُعاد حساب أداء الصرف تلقائياً ويُتسلسل صعوداً في تسلسل الإطار الهرمي.</value>
+  </data>
+  <data name="How Disbursement Is Calculated" xml:space="preserve">
+    <value>كيف يُحسب الصرف</value>
+  </data>
+  <data name="Project disbursement performance = (sum of all Realised values across phases / Project Estimated Budget) × 100. Time-phased planned targets are not used." xml:space="preserve">
+    <value>أداء صرف المشروع = (مجموع جميع القيم المحققة عبر المراحل / الميزانية التقديرية للمشروع) × 100. لا تُستخدم الأهداف المخططة المرحلية.</value>
   </data>
   <data name="Plans Update Screenshot" xml:space="preserve">
     <value>لقطة شاشة تحديث الخطط</value>
   </data>
-  <data name="Screenshot: Updating Plan Values" xml:space="preserve">
-    <value>لقطة شاشة: تحديث قيم الخطط</value>
+  <data name="Screenshot: Updating Realised Values" xml:space="preserve">
+    <value>لقطة شاشة: تحديث القيم المحققة</value>
   </data>
-  <data name="Figure 11.3: Inline Plan Value Update" xml:space="preserve">
-    <value>الشكل 11.3: تحديث قيم الخطط المباشر</value>
+  <data name="Figure 11.2: Inline Realised Value Update" xml:space="preserve">
+    <value>الشكل 11.2: تحديث القيمة المحققة المباشر</value>
   </data>
   <!-- Sections 12-20 -->
   <data name="The Monitoring section provides real-time performance tracking at every level of the hierarchy." xml:space="preserve">

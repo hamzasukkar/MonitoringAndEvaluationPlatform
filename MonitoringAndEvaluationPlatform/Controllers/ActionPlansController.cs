@@ -73,28 +73,12 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             var phase = phaseActionPlan.ProjectPhase;
             var project = phase.Project;
 
-            // Map to ViewModel — plans are now directly on the ActionPlan
-            var viewModel = new List<ActivityPlanViewModel>
+            var viewModel = phaseActionPlan.Plans.OrderBy(p => p.Date).Select(plan => new PlanDetail
             {
-                new ActivityPlanViewModel
-                {
-                    ActivityType = "DisbursementPerformance",
-                    Activities = new List<ActivityRow>
-                    {
-                        new ActivityRow
-                        {
-                            ActivityName = "DisbursementPerformance",
-                            Plans = phaseActionPlan.Plans.OrderBy(p => p.Date).Select(plan => new PlanDetail
-                            {
-                                PlanCode = plan.Code,
-                                Date = plan.Date,
-                                PlannedValue = plan.Planned,
-                                RealisedValue = plan.Realised
-                            }).ToList()
-                        }
-                    }
-                }
-            };
+                PlanCode = plan.Code,
+                Date = plan.Date,
+                RealisedValue = plan.Realised
+            }).ToList();
 
             ViewBag.PhaseId = phaseId;
             ViewBag.ProjectID = project.ProjectID;

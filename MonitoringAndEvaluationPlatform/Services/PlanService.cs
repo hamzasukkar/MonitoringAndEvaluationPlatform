@@ -23,7 +23,6 @@ public class PlanService
         if (existingPlan == null)
             throw new Exception("Plan not found.");
 
-        existingPlan.Planned = plan.Planned;
         existingPlan.Realised = plan.Realised;
         _context.Plans.Update(existingPlan);
         await _context.SaveChangesAsync();

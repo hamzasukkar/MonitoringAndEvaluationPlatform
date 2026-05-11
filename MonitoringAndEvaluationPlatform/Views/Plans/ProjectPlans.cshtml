@@ -63,7 +63,7 @@
                         <tr>
                             <th>@Html.DisplayNameFor(model => model.Name)</th>
                             <th>@Html.DisplayNameFor(model => model.Date)</th>
-                            <th>Planned vs Realized</th>
+                            <th>@Html.DisplayNameFor(model => model.Realised)</th>
                             <th>@Html.DisplayNameFor(model => model.ActionPlan)</th>
                             <th class="text-end">Actions</th>
                         </tr>
@@ -74,21 +74,7 @@
                             <tr>
                                 <td>@Html.DisplayFor(modelItem => item.Name)</td>
                                 <td>@Html.DisplayFor(modelItem => item.Date)</td>
-                                <td>
-                                    <div class="progress" style="height: 20px;">
-                                        @{
-                                            var percentage = item.Planned > 0 ? (item.Realised / item.Planned) * 100 : 0;
-                                            var progressClass = percentage >= 100 ? "bg-success" : percentage >= 75 ? "bg-primary" : percentage >= 50 ? "bg-warning" : "bg-danger";
-                                        }
-                                        <div class="progress-bar @progressClass" role="progressbar"
-                                             style="width: @(percentage > 100 ? 100 : percentage)%;"
-                                             aria-valuenow="@percentage" aria-valuemin="0" aria-valuemax="100">
-                                            <small class="text-white fw-bold">
-                                                @item.Realised/@item.Planned (@percentage.ToString("0")%)
-                                            </small>
-                                        </div>
-                                    </div>
-                                </td>
+                                <td>@Html.DisplayFor(modelItem => item.Realised)</td>
                                 <td>@Html.DisplayFor(modelItem => item.ActionPlan.Code)</td>
                                 <td class="text-end">
                                     <div class="btn-group" role="group">

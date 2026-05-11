@@ -1,13 +1,12 @@
-﻿@model List<MonitoringAndEvaluationPlatform.ViewModel.ActivityPlanViewModel>
+﻿@model List<MonitoringAndEvaluationPlatform.ViewModel.PlanDetail>
 @using Microsoft.AspNetCore.Mvc.Localization
 @inject IViewLocalizer Localizer
 @using Microsoft.AspNetCore.Localization
 @{
     ViewData["Title"] = "Project Action Plan";
     Layout = "~/Views/Shared/_DashboardHomeLayout.cshtml";
-    int projectTotalPlannedCost = Model.Sum(ag => ag.Activities.Sum(a => a.TotalEstimatedCost));
-    int projectTotalRealisedCost = Model.Sum(ag => ag.Activities.Sum(a => a.TotalRealisedCost));
-    int maxPlans = Model.Any() ? Model.Max(m => m.PlansCount) : 0;
+    int projectTotalRealisedCost = Model.Sum(p => p.RealisedValue);
+    var projectMonths = ViewBag.ProjectMonths as List<DateTime>;
 }
 
 <!-- Dashboard Header -->
@@ -45,10 +44,6 @@
         </div>
         
         <div class="header-actions">
-            <a href="@Url.Action("Create", "Activities", new { actionPlanCode = ViewBag.ActionPlanCode })" class="action-btn primary">
-                <i class="fas fa-plus"></i>
-                @Localizer["Add Activity"]
-            </a>
             <a href="@Url.Action("Details", "Projects", new { id = ViewBag.ProjectID, tab = "phases" })" class="action-btn secondary">
                 <i class="fas fa-arrow-left"></i>
                 @Localizer["Back to Project"]
@@ -88,21 +83,6 @@
 <div class="totals-section">
     <div class="total-metric-card">
         <div class="metric-header">
-            <div class="metric-icon planned">
-                <i class="fas fa-chart-line"></i>
-            </div>
-            <div>
-                <div class="metric-title">@Localizer["Total Planned"]</div>
-                <div class="metric-subtitle">@Localizer["Estimated Budget"]</div>
-            </div>
-        </div>
-        <div class="metric-value">
-            @ViewBag.CurrencySymbol@((ViewBag.PhaseBudget as double? ?? 0).ToString("N0"))
-        </div>
-    </div>
-
-    <div class="total-metric-card">
-        <div class="metric-header">
             <div class="metric-icon realised">
                 <i class="fas fa-dollar-sign"></i>
             </div>
@@ -138,43 +118,12 @@
                         </label>
                         <select class="form-select" id="planSelect">
                             <option value="">@Localizer["-- Select Plan --"]</option>
-                            @{
-                                var projectMonthsList = ViewBag.ProjectMonths as List<DateTime>;
-                            }
-                            @foreach (var activityGroup in Model)
+                            @foreach (var plan in Model)
                             {
-                                @if (@activityGroup.ActivityType == "DisbursementPerformance")
-                                {
-                                    @foreach (var activity in activityGroup.Activities)
-                                    {
-                                        var activityName = activity.ActivityName;
-                                        string displayName = activityName;
-
-                                        if (activityName.Contains("-"))
-                                        {
-                                            var parts = activityName.Split(new[] { '-' }, 2);
-                                            if (parts.Length == 2)
-                                            {
-                                                var prefix = parts[0];
-                                                var keyToLocalize = parts[1];
-                                                var localizedValue = @Localizer[keyToLocalize];
-                                                displayName = $"{prefix}-{localizedValue.Value}";
-                                            }
-                                        }
-
-                                        <optgroup label="@displayName">
-                                            @foreach (var plan in activity.Plans)
-                                            {
-                                                <option value="@plan.PlanCode"
-                                                        data-planned="@plan.PlannedValue"
-                                                        data-realised="@plan.RealisedValue"
-                                                        data-activity="@displayName">
-                                                    @plan.Date.ToString("MMM yyyy")
-                                                </option>
-                                            }
-                                        </optgroup>
-                                    }
-                                }
+                                <option value="@plan.PlanCode"
+                                        data-realised="@plan.RealisedValue">
+                                    @plan.Date.ToString("MMM yyyy")
+                                </option>
                             }
                         </select>
                     </div>
@@ -218,234 +167,78 @@
     </div>
 </div>
 
-<!-- Activity Plans Section -->
+<!-- Disbursement Plan Section -->
 <div class="modern-activity-section">
-
-@foreach (var activityGroup in Model)
-{
-    @if (@activityGroup.ActivityType == "DisbursementPerformance")
-    {
-        <div class="modern-activity-card">
-            <div class="activity-header">
-                <div class="activity-title">
-                    <i class="fas fa-wallet"></i>
-                    @Localizer[@activityGroup.ActivityType]
-                </div>
-                <div class="activity-badge">
-                    @activityGroup.Activities.Count @Localizer["Activities"]
-                </div>
+    <div class="modern-activity-card">
+        <div class="activity-header">
+            <div class="activity-title">
+                <i class="fas fa-wallet"></i>
+                @Localizer["DisbursementPerformance"]
             </div>
-            
-            <div class="modern-table-container">
-                <table class="modern-action-table">
-                    <thead>
-                        <tr>
-                            <th>@Localizer["Activity"]</th>
-                            <th>@Localizer["Framework"]</th>
-                            @{
-                                var projectMonths = ViewBag.ProjectMonths as List<DateTime>;
-                            }
-                            @if (projectMonths != null && projectMonths.Any())
-                            {
-                                @foreach (var month in projectMonths)
-                                {
-                                    <th>@month.ToString("MMM yyyy")</th>
-                                }
-                            }
-                            else
-                            {
-                                @for (int i = 1; i <= maxPlans; i++)
-                                {
-                                    <th>@Localizer["Plan"] @i</th>
-                                }
-                            }
-                            <th>@Localizer["Total"]</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @foreach (var activity in activityGroup.Activities)
+        </div>
+
+        <div class="modern-table-container">
+            <table class="modern-action-table">
+                <thead>
+                    <tr>
+                        <th>@Localizer["Type"]</th>
+                        @if (projectMonths != null && projectMonths.Any())
                         {
-                            <tr>
-                                <td rowspan="3" class="activity-name-cell align-middle">
-                                    @{
-                                        var activityName = activity.ActivityName;
-                                        string displayName = activityName;
-
-                                        if (activityName.Contains("-"))
-                                        {
-                                            var parts = activityName.Split(new[] { '-' }, 2);
-                                            if (parts.Length == 2)
-                                            {
-                                                var prefix = parts[0];
-                                                var keyToLocalize = parts[1];
-                                                var localizedValue = @Localizer[keyToLocalize];
-                                                displayName = $"{prefix}-{localizedValue.Value}";
-                                            }
-                                        }
-                                    }
-                                    @displayName
-                                </td>
-                                <td class="framework-label-cell"></td>
-                                @if (projectMonths != null && projectMonths.Any())
-                                {
-                                    @foreach (var month in projectMonths)
-                                    {
-                                        <td></td>
-                                    }
-                                }
-                                else
-                                {
-                                    @foreach (var plan in activity.Plans)
-                                    {
-                                        <td></td>
-                                    }
-                                    @for (int i = activity.Plans.Count; i < maxPlans; i++)
-                                    {
-                                        <td></td>
-                                    }
-                                }
-                                <td class="total-cost-cell">-</td>
-                            </tr>
-                            <tr>
-                                <td class="framework-label-cell">@Localizer["Planned"]</td>
-                                @if (projectMonths != null && projectMonths.Any())
-                                {
-                                    @foreach (var month in projectMonths)
-                                    {
-                                        var plannedPlan = activity.Plans.FirstOrDefault(p => p.Date.Year == month.Year && p.Date.Month == month.Month);
-                                        @if (plannedPlan != null)
-                                        {
-                                            <td class="editable-plan-cell" contenteditable="true"
-                                                data-plan-code="@plannedPlan.PlanCode"
-                                                data-value-type="Planned">
-                                                @plannedPlan.PlannedValue
-                                            </td>
-                                        }
-                                        else
-                                        {
-                                            <td class="empty-plan-cell"></td>
-                                        }
-                                    }
-                                }
-                                else
-                                {
-                                    @foreach (var plan in activity.Plans)
-                                    {
-                                        <td class="editable-plan-cell" contenteditable="true"
-                                            data-plan-code="@plan.PlanCode"
-                                            data-value-type="Planned">
-                                            @plan.PlannedValue
-                                        </td>
-                                    }
-                                    @for (int i = activity.Plans.Count; i < maxPlans; i++)
-                                    {
-                                        <td></td>
-                                    }
-                                }
-                                <td class="total-cost-cell">@activity.TotalEstimatedCost.ToString("N0")</td>
-                            </tr>
-                            <tr>
-                                <td class="framework-label-cell">@Localizer["Realised"]</td>
-                                @if (projectMonths != null && projectMonths.Any())
-                                {
-                                    @foreach (var month in projectMonths)
-                                    {
-                                        var realisedPlan = activity.Plans.FirstOrDefault(p => p.Date.Year == month.Year && p.Date.Month == month.Month);
-                                        @if (realisedPlan != null)
-                                        {
-                                            <td class="editable-plan-cell" contenteditable="true"
-                                                data-plan-code="@realisedPlan.PlanCode"
-                                                data-value-type="Realised">
-                                                @realisedPlan.RealisedValue
-                                            </td>
-                                        }
-                                        else
-                                        {
-                                            <td class="empty-plan-cell"></td>
-                                        }
-                                    }
-                                }
-                                else
-                                {
-                                    @foreach (var plan in activity.Plans)
-                                    {
-                                        <td class="editable-plan-cell" contenteditable="true"
-                                            data-plan-code="@plan.PlanCode"
-                                            data-value-type="Realised">
-                                            @plan.RealisedValue
-                                        </td>
-                                    }
-                                    @for (int i = activity.Plans.Count; i < maxPlans; i++)
-                                    {
-                                        <td></td>
-                                    }
-                                }
-                                <td class="total-cost-cell">@activity.TotalRealisedCost.ToString("N0")</td>
-                            </tr>
+                            @foreach (var month in projectMonths)
+                            {
+                                <th>@month.ToString("MMM yyyy")</th>
+                            }
                         }
-                    
-                    <tfoot>
-                        <tr class="subtotal-row">
-                            <td colspan="2">@Localizer["Subtotal Planned"]</td>
-                            @if (projectMonths != null && projectMonths.Any())
+                        else
+                        {
+                            @foreach (var plan in Model)
                             {
-                                @foreach (var subMonth in projectMonths)
+                                <th>@plan.Date.ToString("MMM yyyy")</th>
+                            }
+                        }
+                        <th>@Localizer["Total"]</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td class="framework-label-cell">@Localizer["Realised"]</td>
+                        @if (projectMonths != null && projectMonths.Any())
+                        {
+                            @foreach (var month in projectMonths)
+                            {
+                                var realisedPlan = Model.FirstOrDefault(p => p.Date.Year == month.Year && p.Date.Month == month.Month);
+                                @if (realisedPlan != null)
                                 {
-                                    <td>@activityGroup.Activities.Sum(a => a.Plans.FirstOrDefault(p => p.Date.Year == subMonth.Year && p.Date.Month == subMonth.Month)?.PlannedValue ?? 0)</td>
+                                    <td class="editable-plan-cell" contenteditable="true"
+                                        data-plan-code="@realisedPlan.PlanCode"
+                                        data-value-type="Realised">
+                                        @realisedPlan.RealisedValue
+                                    </td>
+                                }
+                                else
+                                {
+                                    <td class="empty-plan-cell"></td>
                                 }
                             }
-                            else
+                        }
+                        else
+                        {
+                            @foreach (var plan in Model)
                             {
-                                @for (int i = 0; i < maxPlans; i++)
-                                {
-                                    <td>@activityGroup.Activities.Sum(a => a.Plans.Count > i ? a.Plans[i].PlannedValue : 0)</td>
-                                }
+                                <td class="editable-plan-cell" contenteditable="true"
+                                    data-plan-code="@plan.PlanCode"
+                                    data-value-type="Realised">
+                                    @plan.RealisedValue
+                                </td>
                             }
-                            <td>@activityGroup.Activities.Sum(a => a.TotalEstimatedCost).ToString("N0")</td>
-                        </tr>
-                        <tr class="subtotal-row">
-                            <td colspan="2">@Localizer["Subtotal Realised"]</td>
-                            @if (projectMonths != null && projectMonths.Any())
-                            {
-                                @foreach (var subMonth in projectMonths)
-                                {
-                                    <td>@activityGroup.Activities.Sum(a => a.Plans.FirstOrDefault(p => p.Date.Year == subMonth.Year && p.Date.Month == subMonth.Month)?.RealisedValue ?? 0)</td>
-                                }
-                            }
-                            else
-                            {
-                                @for (int i = 0; i < maxPlans; i++)
-                                {
-                                    <td>@activityGroup.Activities.Sum(a => a.Plans.Count > i ? a.Plans[i].RealisedValue : 0)</td>
-                                }
-                            }
-                            <td>@activityGroup.Activities.Sum(a => a.TotalRealisedCost).ToString("N0")</td>
-                        </tr>
-                    </tfoot>
-                </table>
-            </div>
+                        }
+                        <td class="total-cost-cell">@projectTotalRealisedCost.ToString("N0")</td>
+                    </tr>
+                </tbody>
+            </table>
         </div>
-    }
-}
-
-</div>
-
-@if (!Model.Any())
-{
-    <div class="empty-state-card">
-        <div class="empty-state-icon">
-            <i class="fas fa-clipboard-list"></i>
-        </div>
-        <h3 class="empty-state-title">@Localizer["No Activities Yet"]</h3>
-        <p class="empty-state-text">
-            @Localizer["No activities have been added to this action plan yet. Add your first activity to start tracking progress."]
-        </p>
-        <a href="@Url.Action("Create", "Activities", new { actionPlanCode = ViewBag.ActionPlanCode })"
-           class="btn btn-primary mt-3">
-            <i class="fas fa-plus me-2"></i>@Localizer["Add Activity"]
-        </a>
     </div>
-}
+</div>
 
 @section Scripts {
     <style>

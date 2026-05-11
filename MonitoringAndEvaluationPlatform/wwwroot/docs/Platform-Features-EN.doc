@@ -68,8 +68,7 @@ tr:nth-child(even) { background: #f7fafc; }
 <div class="toc-item">&nbsp;&nbsp;&nbsp;&nbsp;4.1 Projects Module</div>
 <div class="toc-item">&nbsp;&nbsp;&nbsp;&nbsp;4.2 Indicators Module</div>
 <div class="toc-item">&nbsp;&nbsp;&nbsp;&nbsp;4.3 Action Plans</div>
-<div class="toc-item">&nbsp;&nbsp;&nbsp;&nbsp;4.4 Activities Tracking</div>
-<div class="toc-item">&nbsp;&nbsp;&nbsp;&nbsp;4.5 Measures &amp; Milestones</div>
+<div class="toc-item">&nbsp;&nbsp;&nbsp;&nbsp;4.4 Measures &amp; Milestones</div>
 <div class="toc-item"><span class="toc-section">5. User Experience Features</span></div>
 <div class="toc-item">&nbsp;&nbsp;&nbsp;&nbsp;5.1 Contextual Help System <span class="badge-new">NEW</span></div>
 <div class="toc-item">&nbsp;&nbsp;&nbsp;&nbsp;5.2 About Platform Page <span class="badge-new">NEW</span></div>
@@ -261,19 +260,7 @@ tr:nth-child(even) { background: #f7fafc; }
 <li>Link resources and budget to actions</li>
 </ul>
 
-<h3>4.4 Activities Tracking</h3>
-<p>Activities represent the specific tasks and events undertaken to implement projects and achieve indicators.</p>
-
-<h4>Features:</h4>
-<ul>
-<li>Record project activities with detailed descriptions</li>
-<li>Track activity status and completion</li>
-<li>Assign activities to team members</li>
-<li>Link activities to deliverables</li>
-<li>Activity timeline and calendar view</li>
-</ul>
-
-<h3>4.5 Measures &amp; Milestones</h3>
+<h3>4.4 Measures &amp; Milestones</h3>
 <p>Measures provide the quantitative data that feeds into indicator calculations, while milestones mark significant project achievements.</p>
 
 <h4>Features:</h4>
@@ -310,7 +297,7 @@ tr:nth-child(even) { background: #f7fafc; }
 </div>
 
 <h4>Covered Features:</h4>
-<p>The help system provides documentation for all 16 major platform features including Frameworks, Projects, Indicators, Monitoring, Outcomes, Outputs, SubOutputs, Measures, Action Plans, Activities, Ministries, Donors, Sectors, Locations, Dashboard, and Home page.</p>
+<p>The help system provides documentation for all 15 major platform features including Frameworks, Projects, Indicators, Monitoring, Outcomes, Outputs, SubOutputs, Measures, Action Plans, Ministries, Donors, Sectors, Locations, Dashboard, and Home page.</p>
 
 <h3>5.2 About Platform Page <span class="badge-new">NEW</span></h3>
 <p>A dedicated marketing and information page that showcases the platform's capabilities to stakeholders and new users.</p>

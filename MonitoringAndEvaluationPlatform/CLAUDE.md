@@ -25,7 +25,7 @@ ASP.NET Core 8 MVC application for monitoring and evaluating development project
 ### Domain Hierarchy
 
 ```
-Framework → Outcome → Output → SubOutput → Indicator → Project → ActionPlan → Activity → Plan
+Framework → Outcome → Output → SubOutput → Indicator → Project → ActionPlan → Plan
 ```
 
 Key entities:
@@ -34,7 +34,7 @@ Key entities:
 - **Indicator** – Measurable metrics with weights; linked to projects via `ProjectIndicator`
 - **Project** – Implementation units linked to Ministry, Sector, Donor, Supervisor, and geographic locations
 - **Measure** – Joins projects to indicators with planned/realized values
-- **ActionPlan / Activity / Plan** – Granular tracking (Financial, Physical, DisbursementPerformance, FieldMonitoring, ImpactAssessment)
+- **ActionPlan / Plan** – One ActionPlan per ProjectPhase; Plans are monthly entries with a `Realised` value used for disbursement performance
 - **FrameworkGoal / FrameworkGoalYearlyValue** – Strategic goal tracking with yearly values and file attachments
 
 ### Location Hierarchy
@@ -56,7 +56,6 @@ Key entities:
 | `PlanService` | — | Updates plans, cascades performance up the hierarchy via `UpdateProjectPerformance()` |
 | `MonitoringService` | — | Monitoring data management and performance calculations |
 | `PerformanceService` | `IPerformanceService` | Weighted-average performance aggregation (Project → Indicator → SubOutput → Output → Outcome → Framework) |
-| `ActivityService` | `IActivityService` | Activity CRUD and relationships |
 | `AuditService` | `IAuditService` | Audit log writes; backed by `AuditInterceptor` (EF Core interceptor) |
 | `DataManagementService` | `IDataManagementService` | Export (Excel/PDF), backup, data deletion, value reset |
 | `ChatbotService` | `IChatbotService` | Groq LLM API integration (model: `llama-3.3-70b-versatile`) |
@@ -67,10 +66,10 @@ Key entities:
 
 ---
 
-## Controllers (28 total)
+## Controllers
 
 **Hierarchy:** FrameworksController, OutcomesController, OutputsController, SubOutputsController, IndicatorsController
-**Projects:** ProjectsController, MeasuresController, ActionPlansController, ActivitiesController, PlansController
+**Projects:** ProjectsController, MeasuresController, ActionPlansController, PlansController
 **Lookups:** MinistriesController, SectorsController, DonorsController, ProjectManagersController, SuperVisorsController, LocationController
 **Reporting / Monitoring:** DashboardController, MonitoringController, ReportsController, TreeController
 **Strategic:** FrameworkGoalsController

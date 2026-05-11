@@ -46,9 +46,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                     var plan = await _context.Plans.FindAsync(update.PlanCode);
                     if (plan == null) continue;
 
-                    if (update.ValueType == "Planned")
-                        plan.Planned = update.NewValue;
-                    else if (update.ValueType == "Realised")
+                    if (update.ValueType == "Realised")
                         plan.Realised = update.NewValue;
                 }
                 await _context.SaveChangesAsync();
@@ -58,9 +56,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 var lastPlan = await _context.Plans.FindAsync(lastUpdate.PlanCode);
                 if (lastPlan != null)
                 {
-                    if (lastUpdate.ValueType == "Planned")
-                        lastPlan.Planned = lastUpdate.NewValue;
-                    else if (lastUpdate.ValueType == "Realised")
+                    if (lastUpdate.ValueType == "Realised")
                         lastPlan.Realised = lastUpdate.NewValue;
 
                     await _planService.UpdatePlanAsync(lastPlan);
@@ -98,11 +94,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 }
 
                 // Update the correct property based on valueType
-                if (valueType == "Planned")
-                {
-                    plan.Planned = parsedValue;
-                }
-                else if (valueType == "Realised")
+                if (valueType == "Realised")
                 {
                     plan.Realised = parsedValue;
                 }
@@ -167,7 +159,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Code,Name,Date,Planned,Realised,ActionPlanCode")] Plan plan)
+        public async Task<IActionResult> Create([Bind("Code,Name,Date,Realised,ActionPlanCode")] Plan plan)
         {
             ModelState.Remove(nameof(plan.ActionPlan));
 
@@ -204,7 +196,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
 
-        public async Task<IActionResult> Edit(int id, [Bind("Code,Name,Date,Planned,Realised,ActionPlanCode")] Plan plan)
+        public async Task<IActionResult> Edit(int id, [Bind("Code,Name,Date,Realised,ActionPlanCode")] Plan plan)
         {
             if (id != plan.Code)
             {

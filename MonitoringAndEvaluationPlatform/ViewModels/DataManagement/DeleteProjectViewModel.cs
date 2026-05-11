@@ -12,7 +12,6 @@ namespace MonitoringAndEvaluationPlatform.ViewModels.DataManagement
         public int ProjectId { get; set; }
         public string ProjectName { get; set; } = string.Empty;
         public int ActionPlanCount { get; set; }
-        public int ActivityCount { get; set; }
         public int PlanCount { get; set; }
         public int IndicatorCount { get; set; }
         public int FileCount { get; set; }

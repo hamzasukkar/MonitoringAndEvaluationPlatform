@@ -78,7 +78,6 @@
                                             <th width="50"></th>
                                             <th>@Localizer["Project Name"]</th>
                                             <th>@Localizer["Ministry"]</th>
-                                            <th class="text-center">@Localizer["Activities"]</th>
                                             <th class="text-center">@Localizer["Plans"]</th>
                                             <th class="text-center">@Localizer["Indicators"]</th>
                                             <th>@Localizer["Dates"]</th>
@@ -99,9 +98,6 @@
                                                     </label>
                                                 </td>
                                                 <td>@(project.MinistryName ?? "-")</td>
-                                                <td class="text-center">
-                                                    <span class="badge bg-secondary">@project.ActivityCount</span>
-                                                </td>
                                                 <td class="text-center">
                                                     <span class="badge bg-info">@project.PlanCount</span>
                                                 </td>

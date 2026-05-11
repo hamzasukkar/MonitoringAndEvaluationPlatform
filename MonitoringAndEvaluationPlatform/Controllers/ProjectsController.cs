@@ -1834,7 +1834,6 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 {
                     Name = $"Plan {idx}",
                     Date = current,
-                    Planned = 0,
                     Realised = 0,
                     ActionPlanCode = actionPlanCode
                 });

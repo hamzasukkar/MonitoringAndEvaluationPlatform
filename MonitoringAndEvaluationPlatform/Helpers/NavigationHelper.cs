@@ -219,22 +219,6 @@ namespace MonitoringAndEvaluationPlatform.Helpers
                     }
                     break;
 
-                // Activities
-                case "activities.index":
-                case "activities.create":
-                case "activities.edit":
-                    var activityProjectId = viewData["ProjectID"]?.ToString() ?? routeData.Values["projectId"]?.ToString();
-                    if (!string.IsNullOrEmpty(activityProjectId))
-                    {
-                        return new BackButtonInfo
-                        {
-                            ShouldDisplay = true,
-                            Url = urlHelper.Action("Details", "Projects", new { id = activityProjectId }) ?? $"/Projects/Details/{activityProjectId}",
-                            Text = "Back"
-                        };
-                    }
-                    break;
-
                 // Plans
                 case "plans.index":
                 case "plans.create":
