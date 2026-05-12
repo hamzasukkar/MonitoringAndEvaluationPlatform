@@ -132,7 +132,7 @@
   </data>
   <!-- Plan Performance Section -->
   <data name="PlanPerformanceIntro" xml:space="preserve">
-    <value>الخطط هي أدنى مستوى لتتبع الأداء. تتتبع كل خطة القيم المخططة مقابل المحققة لأنواع الأنشطة المختلفة.</value>
+    <value>الخطط (إدخالات شهرية ضمن خطة عمل كل مرحلة) والقياسات (المسجَّلة لكل مرحلة) هي مدخلات المستوى الأدنى. تُغذِّي أداء المرحلة وأداء الصرف.</value>
   </data>
   <data name="ActivityTypes" xml:space="preserve">
     <value>أنواع الأنشطة</value>
@@ -169,7 +169,7 @@
   </data>
   <!-- Project Performance Section -->
   <data name="ProjectPerformanceIntro" xml:space="preserve">
-    <value>يُحسب أداء المشروع بتجميع بيانات الخطة من جميع الأنشطة داخل المشروع. يُحسب كل نوع أداء بشكل منفصل.</value>
+    <value>يتتبع كل مشروع قيمتين منفصلتين للأداء: الأداء الإجمالي (متوسط مرجح لأداء المراحل، الذي يأتي من القياسات) وأداء الصرف (يستند إلى قيم "المتحقق" في الخطط مقارنةً بالميزانية المقدَّرة).</value>
   </data>
   <data name="Formula" xml:space="preserve">
     <value>الصيغة</value>
@@ -209,19 +209,19 @@
   </data>
   <!-- Indicator Performance Section -->
   <data name="IndicatorPerformanceIntro" xml:space="preserve">
-    <value>يُشتق أداء المؤشر من المتوسط المرجح لجميع المشاريع المرتبطة بذلك البرنامج.</value>
+    <value>كل مؤشر مرتبط بمشروع واحد فقط. يُنقل أداء المؤشر مباشرةً من المشروع المرتبط — لا يُطبَّق أي متوسط مرجح على هذا المستوى.</value>
   </data>
   <data name="CalculationDetails" xml:space="preserve">
     <value>تفاصيل الحساب</value>
   </data>
   <data name="IndicatorCalcDetail1" xml:space="preserve">
-    <value>لكل مشروع وزن مخصص له (افتراضي: 1 إذا لم يُحدد)</value>
+    <value>كل مؤشر يحمل أداء المشروع الإجمالي وأداء الصرف للمشروع المرتبط به مباشرةً.</value>
   </data>
   <data name="IndicatorCalcDetail2" xml:space="preserve">
-    <value>أداء البرنامج هو المتوسط المرجح لجميع المشاريع المرتبطة</value>
+    <value>المؤشرات غير المرتبطة بأي مشروع تأخذ أداءً افتراضيًا قدره 0 وتُستثنى من المتوسطات المرجحة في المستويات الأعلى.</value>
   </data>
   <data name="IndicatorCalcDetail3" xml:space="preserve">
-    <value>المشاريع ذات الأوزان الأعلى تساهم أكثر في الأداء الكلي للمؤشر</value>
+    <value>تُستخدم أوزان المؤشرات على مستوى المخرج الفرعي لحساب المتوسط المرجح عبر المؤشرات.</value>
   </data>
   <!-- Hierarchy Propagation Section -->
   <data name="HierarchyPropagationIntro" xml:space="preserve">
@@ -377,5 +377,33 @@
   </data>
   <data name="ChartDisplay" xml:space="preserve">
     <value>الرسوم البيانية للأداء والتصورات</value>
+  </data>
+  <!-- Updated Formula Sections -->
+  <data name="Phases" xml:space="preserve">
+    <value>المراحل</value>
+  </data>
+  <data name="ProjectOverallPerformance" xml:space="preserve">
+    <value>الأداء الإجمالي للمشروع (مرجح بالمراحل)</value>
+  </data>
+  <data name="PhasePerformanceDesc" xml:space="preserve">
+    <value>قيمة أداء المرحلة i (مجموع قيم القياسات الخاصة بها)</value>
+  </data>
+  <data name="PhaseWeightDesc" xml:space="preserve">
+    <value>وزن المرحلة i كنسبة مئوية (مجموع أوزان جميع المراحل = 100)</value>
+  </data>
+  <data name="ProjectPerformanceWeightedDesc" xml:space="preserve">
+    <value>متوسط مرجح لأداء المراحل باستخدام وزن كل مرحلة</value>
+  </data>
+  <data name="IndicatorPassthroughNote" xml:space="preserve">
+    <value>كل مؤشر مرتبط بمشروع واحد فقط، لذا فإن أداء المؤشر يُنقل مباشرة من المشروع المرتبط به.</value>
+  </data>
+  <data name="PhasePerformanceTitle" xml:space="preserve">
+    <value>أداء المرحلة (من القياسات)</value>
+  </data>
+  <data name="PhasePerformanceDescText" xml:space="preserve">
+    <value>يُقسَّم كل مشروع إلى مراحل. أداء المرحلة هو مجموع قيم جميع القياسات المسجَّلة لها.</value>
+  </data>
+  <data name="PlanPerformanceNote" xml:space="preserve">
+    <value>لكل مشروع خطة عمل واحدة لكل مرحلة، مع إدخالات خطة شهرية تحمل قيمة "المتحقق". يُحسب أداء الصرف مرة واحدة عبر جميع خطط جميع المراحل.</value>
   </data>
 </root>

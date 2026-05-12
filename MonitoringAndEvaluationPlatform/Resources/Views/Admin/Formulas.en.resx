@@ -132,7 +132,7 @@
   </data>
   <!-- Plan Performance Section -->
   <data name="PlanPerformanceIntro" xml:space="preserve">
-    <value>Plans are the lowest level of performance tracking. Each plan tracks planned vs. realized values for different activity types.</value>
+    <value>Plans (monthly entries under each phase's Action Plan) and Measures (recorded against each phase) are the lowest level inputs. They feed into Phase Performance and Disbursement Performance.</value>
   </data>
   <data name="ActivityTypes" xml:space="preserve">
     <value>Activity Types</value>
@@ -169,7 +169,7 @@
   </data>
   <!-- Project Performance Section -->
   <data name="ProjectPerformanceIntro" xml:space="preserve">
-    <value>Project performance is calculated by aggregating plan data from all activities within the project. Each performance type is calculated separately.</value>
+    <value>Each project tracks two distinct performance values: overall Performance (weighted average of phase performances, which come from Measures) and Disbursement Performance (based on Plan realised values vs. estimated budget).</value>
   </data>
   <data name="Formula" xml:space="preserve">
     <value>Formula</value>
@@ -209,19 +209,19 @@
   </data>
   <!-- Indicator Performance Section -->
   <data name="IndicatorPerformanceIntro" xml:space="preserve">
-    <value>Indicator performance is derived from the weighted average of all projects linked to that indicator.</value>
+    <value>Each indicator is linked to exactly one project. The indicator's performance is a direct passthrough from its linked project — no weighted average is applied at this level.</value>
   </data>
   <data name="CalculationDetails" xml:space="preserve">
     <value>Calculation Details</value>
   </data>
   <data name="IndicatorCalcDetail1" xml:space="preserve">
-    <value>Each project has a weight assigned to it (default: 1 if not specified)</value>
+    <value>Every indicator carries the project's overall Performance and Disbursement Performance directly.</value>
   </data>
   <data name="IndicatorCalcDetail2" xml:space="preserve">
-    <value>The indicator's performance is the weighted average of all linked projects</value>
+    <value>Indicators with no linked project default to a performance of 0 and are excluded from upstream weighted averages.</value>
   </data>
   <data name="IndicatorCalcDetail3" xml:space="preserve">
-    <value>Projects with higher weights contribute more to the indicator's overall performance</value>
+    <value>Indicator-level weights are used at the SubOutput level to compute the weighted average across indicators.</value>
   </data>
   <!-- Hierarchy Propagation Section -->
   <data name="HierarchyPropagationIntro" xml:space="preserve">
@@ -377,5 +377,33 @@
   </data>
   <data name="ChartDisplay" xml:space="preserve">
     <value>Performance charts and visualizations</value>
+  </data>
+  <!-- Updated Formula Sections -->
+  <data name="Phases" xml:space="preserve">
+    <value>Phases</value>
+  </data>
+  <data name="ProjectOverallPerformance" xml:space="preserve">
+    <value>Overall Project Performance (Phase-weighted)</value>
+  </data>
+  <data name="PhasePerformanceDesc" xml:space="preserve">
+    <value>Performance value of phase i (sum of its measure values)</value>
+  </data>
+  <data name="PhaseWeightDesc" xml:space="preserve">
+    <value>Weight of phase i as a percentage (sum of all phase weights = 100)</value>
+  </data>
+  <data name="ProjectPerformanceWeightedDesc" xml:space="preserve">
+    <value>Weighted average of phase performances using each phase's weight</value>
+  </data>
+  <data name="IndicatorPassthroughNote" xml:space="preserve">
+    <value>Each indicator is linked to exactly one project, so the indicator's performance is a direct passthrough from its project.</value>
+  </data>
+  <data name="PhasePerformanceTitle" xml:space="preserve">
+    <value>Phase Performance (from Measures)</value>
+  </data>
+  <data name="PhasePerformanceDescText" xml:space="preserve">
+    <value>Each project is divided into phases. A phase's performance is the sum of all measure values recorded against it.</value>
+  </data>
+  <data name="PlanPerformanceNote" xml:space="preserve">
+    <value>Each project has one Action Plan per phase, with monthly Plan entries holding a Realised value. Disbursement performance is computed once across all plans of all phases.</value>
   </data>
 </root>
