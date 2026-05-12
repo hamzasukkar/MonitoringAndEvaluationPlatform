@@ -9,12 +9,19 @@
     var outcomeCode = ViewData["outcomeCode"] as int?;
     var outputCode = ViewData["outputCode"] as int?;
     var subOutputCode = ViewData["subOutputCode"] as int?;
+    var projectCode = ViewData["projectCode"] as int?;
     var currentLevel = ViewData["breadcrumbLevel"] as string ?? "";
 
     Framework framework = null;
     Outcome outcome = null;
     Output output = null;
     SubOutput subOutput = null;
+    Project project = null;
+
+    if (projectCode.HasValue)
+    {
+        project = await Context.Projects.FirstOrDefaultAsync(p => p.ProjectID == projectCode.Value);
+    }
 
     // Get hierarchy data based on available parameters
     if (subOutputCode.HasValue)
@@ -71,49 +78,15 @@
             <div class="breadcrumb-level">
                 <a href="@Url.Action("Index", "Frameworks")" class="breadcrumb-link framework-level">
                     <div class="breadcrumb-icon">
-                        <i class="fas fa-layer-group"></i>
+                        <i class="fas fa-sitemap"></i>
                     </div>
                     <div class="breadcrumb-content">
                         <span class="breadcrumb-label">@Localizer["Frameworks"]</span>
+                        <span class="breadcrumb-title">@framework.Name</span>
                     </div>
                 </a>
             </div>
             
-            <!-- Framework Name -->
-            @if (currentLevel != "framework")
-            {
-                <div class="breadcrumb-separator">
-                    <i class="fas fa-chevron-right"></i>
-                </div>
-                <div class="breadcrumb-level">
-                    <a href="@Url.Action("Index", "Outcomes", new { frameworkCode = framework.Code })" 
-                       class="breadcrumb-link framework-item">
-                        <div class="breadcrumb-icon">
-                            <i class="fas fa-sitemap"></i>
-                        </div>
-                        <div class="breadcrumb-content">
-                            <span class="breadcrumb-title">@framework.Name</span>
-                        </div>
-                    </a>
-                </div>
-            }
-            else
-            {
-                <div class="breadcrumb-separator">
-                    <i class="fas fa-chevron-right"></i>
-                </div>
-                <div class="breadcrumb-level active">
-                    <div class="breadcrumb-link framework-item active">
-                        <div class="breadcrumb-icon">
-                            <i class="fas fa-sitemap"></i>
-                        </div>
-                        <div class="breadcrumb-content">
-                            <span class="breadcrumb-title">@framework.Name</span>
-                        </div>
-                    </div>
-                </div>
-            }
-
             <!-- Outcome Level -->
             @if (outcome != null)
             {
@@ -126,7 +99,7 @@
                         <a href="@Url.Action("Index", "Outputs", new { frameworkCode = framework.Code, outcomeCode = outcome.Code })" 
                            class="breadcrumb-link outcome-level">
                             <div class="breadcrumb-icon">
-                                <i class="fas fa-trophy"></i>
+                                <i class="fas fa-bullseye"></i>
                             </div>
                             <div class="breadcrumb-content">
                                 <span class="breadcrumb-label">@Localizer["Outcome"]</span>
@@ -140,7 +113,7 @@
                     <div class="breadcrumb-level active">
                         <div class="breadcrumb-link outcome-level active">
                             <div class="breadcrumb-icon">
-                                <i class="fas fa-trophy"></i>
+                                <i class="fas fa-bullseye"></i>
                             </div>
                             <div class="breadcrumb-content">
                                 <span class="breadcrumb-label">@Localizer["Outcome"]</span>
@@ -163,7 +136,7 @@
                         <a href="@Url.Action("Index", "SubOutputs", new { frameworkCode = framework.Code, outputCode = output.Code })" 
                            class="breadcrumb-link output-level">
                             <div class="breadcrumb-icon">
-                                <i class="fas fa-tasks"></i>
+                                <i class="fas fa-layer-group"></i>
                             </div>
                             <div class="breadcrumb-content">
                                 <span class="breadcrumb-label">@Localizer["Output"]</span>
@@ -177,7 +150,7 @@
                     <div class="breadcrumb-level active">
                         <div class="breadcrumb-link output-level active">
                             <div class="breadcrumb-icon">
-                                <i class="fas fa-tasks"></i>
+                                <i class="fas fa-layer-group"></i>
                             </div>
                             <div class="breadcrumb-content">
                                 <span class="breadcrumb-label">@Localizer["Output"]</span>
@@ -234,13 +207,50 @@
                 <div class="breadcrumb-level active">
                     <div class="breadcrumb-link indicators-level active">
                         <div class="breadcrumb-icon">
-                            <i class="fas fa-chart-line"></i>
+                            <i class="fas fa-chart-bar"></i>
                         </div>
                         <div class="breadcrumb-content">
                             <span class="breadcrumb-title">@Localizer["Indicators"]</span>
                         </div>
                     </div>
                 </div>
+            }
+
+            <!-- Project Level -->
+            @if (project != null)
+            {
+                <div class="breadcrumb-separator">
+                    <i class="fas fa-chevron-right"></i>
+                </div>
+                @if (currentLevel != "project")
+                {
+                    <div class="breadcrumb-level">
+                        <a href="@Url.Action("Details", "Projects", new { id = project.ProjectID })"
+                           class="breadcrumb-link project-level">
+                            <div class="breadcrumb-icon">
+                                <i class="fas fa-project-diagram"></i>
+                            </div>
+                            <div class="breadcrumb-content">
+                                <span class="breadcrumb-label">@Localizer["Project"]</span>
+                                <span class="breadcrumb-title">@project.ProjectName</span>
+                            </div>
+                        </a>
+                    </div>
+                }
+                else
+                {
+                    <div class="breadcrumb-level active">
+                        <div class="breadcrumb-link project-level active">
+                            <div class="breadcrumb-icon">
+                                <i class="fas fa-project-diagram"></i>
+                            </div>
+                            <div class="breadcrumb-content">
+                                <span class="breadcrumb-label">@Localizer["Project"]</span>
+                                <span class="breadcrumb-title">@project.ProjectName</span>
+                            </div>
+                        </div>
+                    </div>
+                }
             }
         </div>
     </nav>
@@ -303,11 +313,6 @@
             color: white;
         }
 
-        .framework-item .breadcrumb-icon {
-            background: linear-gradient(135deg, #17a2b8 0%, #138496 100%);
-            color: white;
-        }
-
         .outcome-level .breadcrumb-icon {
             background: linear-gradient(135deg, #fd7e14 0%, #e55a4e 100%);
             color: white;
@@ -325,6 +330,11 @@
 
         .indicators-level .breadcrumb-icon {
             background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+            color: white;
+        }
+
+        .project-level .breadcrumb-icon {
+            background: linear-gradient(135deg, #20c997 0%, #198754 100%);
             color: white;
         }
 
