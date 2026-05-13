@@ -1128,15 +1128,6 @@
                         </ul>
                     </li>
                     <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" href="#" id="ProjectsDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                            <i class="fas fa-project-diagram me-1"></i> @Localizer["Projects"]
-                        </a>
-                        <ul class="dropdown-menu" aria-labelledby="ProjectsDropdown">
-                            <li><a class="dropdown-item" asp-controller="Projects" asp-action="Index"><i class="fas fa-list me-2"></i>@Localizer["All Projects"]</a></li>
-                            <li><a class="dropdown-item" asp-controller="Monitoring" asp-action="Projects"><i class="fas fa-chart-line me-2"></i>@Localizer["Project Monitoring"]</a></li>
-                        </ul>
-                    </li>
-                    <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                             <i class="fas fa-user me-2"></i>
                             @if (SignInManager.IsSignedIn(User))
