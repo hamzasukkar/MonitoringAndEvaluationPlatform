@@ -972,12 +972,12 @@
                                         </li>
                                         <li>
                                             <a class="dropdown-item" asp-controller="Outputs" asp-action="Index" asp-route-frameworkCode="@framework.Code">
-                                                <i class="fas fa-project-diagram"></i>@Localizer["Outputs"]
+                                                <i class="fas fa-layer-group"></i>@Localizer["Outputs"]
                                             </a>
                                         </li>
                                         <li>
                                             <a class="dropdown-item" asp-controller="SubOutputs" asp-action="Index" asp-route-frameworkCode="@framework.Code">
-                                                <i class="fas fa-project-diagram"></i>@Localizer["SubOutputs"]
+                                                <i class="fas fa-list-ul"></i>@Localizer["SubOutputs"]
                                             </a>
                                         </li>
                                       @*   <li>
@@ -987,7 +987,7 @@
                                         </li> *@
                                         <li>
                                             <a class="dropdown-item" asp-controller="Indicators" asp-action="IndicatorAndProjectTable" asp-route-frameworkCode="@framework.Code">
-                                                <i class="fas fa-chart-line"></i>@Localizer["Indicators & Projects"]
+                                                <i class="fas fa-chart-bar me"></i>@Localizer["Indicators & Projects"]
                                             </a>
                                         </li>
                                     </ul>
@@ -1090,7 +1090,7 @@
                         </a>
                         <ul class="dropdown-menu p-2" aria-labelledby="SectorsDropdown" style="max-height: 300px; overflow-y: auto; min-width: 250px;">
                             <li class="ministry-item">
-                                <a class="dropdown-item" asp-controller="Ministries" asp-action="ResultIndex">
+                                <a class="dropdown-item" asp-controller="Sectors" asp-action="ResultIndex" asp-route-code="1">
                                     @Localizer["Public"]
                                 </a>
                                 <a class="dropdown-item" asp-controller="Sectors" asp-action="ResultIndex" asp-route-code="2">
