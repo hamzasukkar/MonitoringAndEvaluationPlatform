@@ -1188,15 +1188,21 @@
                     </li>
                 }
                 <li>
-                    <a href="/Projects/Index" class="sidebar-link @(Context.Request.Path.Value.Contains("Projects") ? "active" : "")">
+                    <a href="/Projects/Index" class="sidebar-link @(Context.Request.Path.Value.Contains("Projects") && !Context.Request.Path.Value.Contains("Monitoring") ? "active" : "")">
                         <i class="fas fa-project-diagram"></i>
                         <span>@Localizer["Projects"]</span>
                     </a>
                 </li>
                 <li>
-                    <a href="/Monitoring/Index" class="sidebar-link @(Context.Request.Path.Value.Contains("Monitoring") ? "active" : "")">
+                    <a href="/Monitoring/Index" class="sidebar-link @(Context.Request.Path.Value.Contains("Monitoring") && !Context.Request.Path.Value.Contains("Monitoring/Projects") ? "active" : "")">
                         <i class="fas fa-chart-area me"></i>
                         <span>@Localizer["Monitoring"]</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="/Monitoring/Projects" class="sidebar-link @(Context.Request.Path.Value.Contains("Monitoring/Projects") ? "active" : "")">
+                        <i class="fas fa-project-diagram me"></i>
+                        <span>@Localizer["Project Monitoring"]</span>
                     </a>
                 </li>
                 <li>
