@@ -310,6 +310,7 @@
                 sectionKey: current.key,
                 title: current.title,
                 newHtml: newHtml,
+                originalHtml: current.originalHtml,
                 note: document.getElementById("guideNote").value || null
             })
         })

@@ -51,7 +51,7 @@ namespace MonitoringAndEvaluationPlatform.Services
                 .ToListAsync();
         }
 
-        public async Task<string?> SaveSectionAsync(string sectionKey, string title, string newHtml, string? user, string? note)
+        public async Task<string?> SaveSectionAsync(string sectionKey, string title, string newHtml, string? originalHtml, string? user, string? note)
         {
             var section = await _context.GuideSections
                 .FirstOrDefaultAsync(s => s.SectionKey == sectionKey);
@@ -70,6 +70,22 @@ namespace MonitoringAndEvaluationPlatform.Services
                 };
                 _context.GuideSections.Add(section);
                 await _context.SaveChangesAsync();
+
+                // First edit: keep the original default content as a
+                // restorable baseline so it can always be reverted to.
+                if (!string.IsNullOrWhiteSpace(originalHtml)
+                    && !string.Equals(originalHtml, newHtml, StringComparison.Ordinal))
+                {
+                    _context.GuideSectionVersions.Add(new GuideSectionVersion
+                    {
+                        GuideSectionId = section.Id,
+                        ContentHtml = originalHtml,
+                        SavedAt = DateTime.UtcNow,
+                        SavedBy = user,
+                        Note = "النسخة الأصلية قبل أول تعديل"
+                    });
+                    await _context.SaveChangesAsync();
+                }
             }
             else
             {

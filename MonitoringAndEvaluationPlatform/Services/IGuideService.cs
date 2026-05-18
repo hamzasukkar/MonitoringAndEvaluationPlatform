@@ -12,10 +12,12 @@ namespace MonitoringAndEvaluationPlatform.Services
 
         /// <summary>
         /// Stores a new version: pushes the current content into history,
-        /// upserts the section, and writes a disk backup. Returns the
-        /// previous HTML (or null if this section had no override yet).
+        /// upserts the section, and writes a disk backup. On the first edit
+        /// of a section, <paramref name="originalHtml"/> (the default content
+        /// shown before editing) is captured as a restorable baseline version.
+        /// Returns the previous HTML (or null if this section had no override yet).
         /// </summary>
-        Task<string?> SaveSectionAsync(string sectionKey, string title, string newHtml, string? user, string? note);
+        Task<string?> SaveSectionAsync(string sectionKey, string title, string newHtml, string? originalHtml, string? user, string? note);
 
         Task<GuideSection?> GetSectionAsync(string sectionKey);
 

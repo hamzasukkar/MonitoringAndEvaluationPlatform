@@ -25,6 +25,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             public string SectionKey { get; set; } = string.Empty;
             public string Title { get; set; } = string.Empty;
             public string NewHtml { get; set; } = string.Empty;
+            public string? OriginalHtml { get; set; }
             public string? Note { get; set; }
         }
 
@@ -42,6 +43,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 request.SectionKey.Trim(),
                 request.Title?.Trim() ?? string.Empty,
                 request.NewHtml,
+                request.OriginalHtml,
                 User?.Identity?.Name,
                 request.Note);
 
