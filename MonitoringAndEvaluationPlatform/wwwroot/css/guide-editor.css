@@ -1,0 +1,227 @@
+/* ===== User Guide inline editor (admin only) ===== */
+
+.guide-edit-fab {
+    position: fixed;
+    bottom: 24px;
+    inset-inline-end: 24px;
+    z-index: 1080;
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+
+.guide-edit-fab .btn {
+    box-shadow: 0 4px 14px rgba(0, 0, 0, .25);
+    border-radius: 999px;
+    font-weight: 600;
+}
+
+/* Highlight sections while edit mode is on */
+body.guide-edit-on .guide-section {
+    position: relative;
+    outline: 2px dashed transparent;
+    transition: outline-color .15s ease;
+}
+
+body.guide-edit-on .guide-section:hover {
+    outline-color: #6366f1;
+}
+
+.guide-section-edit-btn {
+    position: absolute;
+    top: 10px;
+    inset-inline-end: 10px;
+    z-index: 5;
+    display: none;
+    gap: 6px;
+}
+
+body.guide-edit-on .guide-section .guide-section-edit-btn {
+    display: inline-flex;
+}
+
+.guide-section-edit-btn .btn {
+    border-radius: 8px;
+    font-size: .8rem;
+    padding: 4px 10px;
+}
+
+.guide-section-overridden::after {
+    content: "📝 محتوى معدّل";
+    position: absolute;
+    top: 10px;
+    inset-inline-start: 10px;
+    font-size: .7rem;
+    background: #eef2ff;
+    color: #4338ca;
+    padding: 2px 8px;
+    border-radius: 6px;
+    display: none;
+}
+
+body.guide-edit-on .guide-section-overridden::after {
+    display: inline-block;
+}
+
+/* ===== Editor modal ===== */
+.guide-modal-backdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(15, 23, 42, .6);
+    z-index: 1090;
+    display: none;
+}
+
+.guide-modal-backdrop.show {
+    display: block;
+}
+
+.guide-modal {
+    position: fixed;
+    inset: 3vh 3vw;
+    background: #fff;
+    z-index: 1095;
+    border-radius: 14px;
+    display: none;
+    flex-direction: column;
+    overflow: hidden;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, .35);
+}
+
+.guide-modal.show {
+    display: flex;
+}
+
+.guide-modal-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 14px 20px;
+    background: #1e293b;
+    color: #fff;
+}
+
+.guide-modal-header h3 {
+    margin: 0;
+    font-size: 1.05rem;
+}
+
+.guide-modal-tabs {
+    display: flex;
+    gap: 6px;
+    padding: 10px 20px 0;
+    background: #f1f5f9;
+}
+
+.guide-modal-tabs button {
+    border: none;
+    background: transparent;
+    padding: 8px 16px;
+    border-radius: 8px 8px 0 0;
+    font-weight: 600;
+    cursor: pointer;
+    color: #475569;
+}
+
+.guide-modal-tabs button.active {
+    background: #fff;
+    color: #4338ca;
+}
+
+.guide-modal-body {
+    flex: 1;
+    overflow: auto;
+    padding: 16px 20px;
+    background: #fff;
+}
+
+.guide-pane {
+    display: none;
+}
+
+.guide-pane.active {
+    display: block;
+}
+
+/* Compare view */
+.guide-compare {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+}
+
+.guide-compare .col h4 {
+    font-size: .9rem;
+    color: #64748b;
+    margin-bottom: 8px;
+    padding-bottom: 6px;
+    border-bottom: 2px solid #e2e8f0;
+}
+
+.guide-compare .col-old h4 { color: #b91c1c; }
+.guide-compare .col-new h4 { color: #15803d; }
+
+.guide-compare .render-box {
+    border: 1px solid #e2e8f0;
+    border-radius: 10px;
+    padding: 14px;
+    max-height: 60vh;
+    overflow: auto;
+    background: #fff;
+}
+
+.guide-diff-legend {
+    display: flex;
+    gap: 16px;
+    font-size: .8rem;
+    margin: 4px 0 12px;
+    color: #475569;
+}
+
+.guide-diff-legend span { display: inline-flex; align-items: center; gap: 6px; }
+.guide-diff-swatch { width: 14px; height: 14px; border-radius: 3px; display: inline-block; }
+
+.guide-diff ins {
+    background: #dcfce7;
+    color: #14532d;
+    text-decoration: none;
+    border-radius: 3px;
+    padding: 0 2px;
+}
+
+.guide-diff del {
+    background: #fee2e2;
+    color: #7f1d1d;
+    border-radius: 3px;
+    padding: 0 2px;
+}
+
+.guide-modal-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 14px 20px;
+    border-top: 1px solid #e2e8f0;
+    background: #f8fafc;
+}
+
+.guide-modal-footer .note-input {
+    flex: 1;
+    max-width: 420px;
+}
+
+.guide-confirm-box {
+    background: #fffbeb;
+    border: 1px solid #fde68a;
+    border-radius: 10px;
+    padding: 12px 14px;
+    margin-top: 14px;
+    display: none;
+}
+
+.guide-confirm-box.show { display: block; }
+
+@media (max-width: 900px) {
+    .guide-compare { grid-template-columns: 1fr; }
+}

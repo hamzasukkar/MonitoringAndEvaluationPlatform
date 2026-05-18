@@ -1,0 +1,97 @@
+@using MonitoringAndEvaluationPlatform.Models
+@{
+    ViewData["Title"] = "سجل نسخ دليل المستخدم";
+    Layout = "~/Views/Shared/_DashboardHomeLayout.cshtml";
+    var sections = ViewBag.Sections as List<GuideSection> ?? new List<GuideSection>();
+    var versions = ViewBag.Versions as List<GuideSectionVersion> ?? new List<GuideSectionVersion>();
+    var current = ViewBag.CurrentSection as GuideSection;
+    var selectedKey = ViewBag.SelectedKey as string;
+}
+
+<div class="container-fluid py-4" dir="rtl">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="mb-0"><i class="fas fa-history me-2"></i>سجل نسخ دليل المستخدم</h2>
+        <a class="btn btn-outline-primary" asp-controller="Home" asp-action="UserGuide">
+            <i class="fas fa-book-open me-1"></i>العودة إلى الدليل
+        </a>
+    </div>
+
+    @if (TempData["GuideSuccess"] != null)
+    {
+        <div class="alert alert-success">@TempData["GuideSuccess"]</div>
+    }
+    @if (TempData["GuideError"] != null)
+    {
+        <div class="alert alert-danger">@TempData["GuideError"]</div>
+    }
+
+    <div class="row">
+        <div class="col-md-3">
+            <div class="list-group">
+                @if (!sections.Any())
+                {
+                    <div class="list-group-item text-muted">لا توجد أقسام معدّلة بعد. عدّل أي قسم من صفحة الدليل لتظهر هنا.</div>
+                }
+                @foreach (var s in sections)
+                {
+                    <a class="list-group-item list-group-item-action @(s.SectionKey == selectedKey ? "active" : "")"
+                       asp-action="History" asp-route-sectionKey="@s.SectionKey">
+                        <div class="fw-bold">@(string.IsNullOrWhiteSpace(s.Title) ? s.SectionKey : s.Title)</div>
+                        <small>آخر تعديل: @s.UpdatedAt.ToLocalTime().ToString("yyyy-MM-dd HH:mm") · @s.UpdatedBy</small>
+                    </a>
+                }
+            </div>
+        </div>
+
+        <div class="col-md-9">
+            @if (current == null)
+            {
+                <div class="alert alert-info">اختر قسماً من القائمة لعرض سجل نسخه.</div>
+            }
+            else
+            {
+                <div class="card mb-3">
+                    <div class="card-header bg-light fw-bold">
+                        المحتوى الحالي — @(string.IsNullOrWhiteSpace(current.Title) ? current.SectionKey : current.Title)
+                    </div>
+                    <div class="card-body" style="max-height:320px;overflow:auto;">
+                        @Html.Raw(current.ContentHtml)
+                    </div>
+                </div>
+
+                <h5 class="mb-3">النسخ السابقة (@versions.Count)</h5>
+                @if (!versions.Any())
+                {
+                    <div class="alert alert-secondary">لا توجد نسخ سابقة لهذا القسم بعد.</div>
+                }
+                @foreach (var v in versions)
+                {
+                    <div class="card mb-3">
+                        <div class="card-header d-flex justify-content-between align-items-center">
+                            <span>
+                                <i class="fas fa-clock me-1"></i>@v.SavedAt.ToLocalTime().ToString("yyyy-MM-dd HH:mm")
+                                · بواسطة @(string.IsNullOrWhiteSpace(v.SavedBy) ? "غير معروف" : v.SavedBy)
+                                @if (!string.IsNullOrWhiteSpace(v.Note))
+                                {
+                                    <span class="badge bg-info text-dark ms-2">@v.Note</span>
+                                }
+                            </span>
+                            <form asp-action="Restore" method="post" class="m-0"
+                                  onsubmit="return confirm('سيتم استبدال المحتوى الحالي بهذه النسخة. المحتوى الحالي سيُحفظ في السجل. متابعة؟');">
+                                @Html.AntiForgeryToken()
+                                <input type="hidden" name="versionId" value="@v.Id" />
+                                <input type="hidden" name="sectionKey" value="@current.SectionKey" />
+                                <button type="submit" class="btn btn-sm btn-warning">
+                                    <i class="fas fa-rotate-left me-1"></i>استعادة هذه النسخة
+                                </button>
+                            </form>
+                        </div>
+                        <div class="card-body" style="max-height:280px;overflow:auto;background:#fcfcfd;">
+                            @Html.Raw(v.ContentHtml)
+                        </div>
+                    </div>
+                }
+            }
+        </div>
+    </div>
+</div>

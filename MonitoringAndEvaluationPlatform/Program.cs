@@ -92,6 +92,9 @@ builder.Services.AddScoped<IProjectValidationService, ProjectValidationService>(
 builder.Services.AddScoped<INotificationService, NotificationService>();
 builder.Services.AddScoped<IAuditService, AuditService>();
 builder.Services.AddScoped<IDataManagementService, DataManagementService>();
+builder.Services.AddScoped<IGuideService, GuideService>();
+// Lets the guide editor send the anti-forgery token on JSON POSTs via header.
+builder.Services.AddAntiforgery(o => o.HeaderName = "RequestVerificationToken");
 builder.Services.AddScoped<MonitoringAndEvaluationPlatform.Helpers.INavigationHelper, MonitoringAndEvaluationPlatform.Helpers.NavigationHelper>();
 builder.Services.Configure<ChatbotSettings>(builder.Configuration.GetSection("Chatbot"));
 builder.Services.AddHttpClient();

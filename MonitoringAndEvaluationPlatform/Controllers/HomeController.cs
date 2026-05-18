@@ -6,7 +6,9 @@ using Microsoft.AspNetCore.Mvc;
 using MonitoringAndEvaluationPlatform.Models;
 using MonitoringAndEvaluationPlatform.Data;
 using MonitoringAndEvaluationPlatform.ViewModel;
+using MonitoringAndEvaluationPlatform.Services;
 using Microsoft.EntityFrameworkCore;
+using System.Text.Json;
 
 namespace MonitoringAndEvaluationPlatform.Controllers
 {
@@ -16,12 +18,14 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         private readonly ILogger<HomeController> _logger;
         private readonly ApplicationDbContext _context;
         private readonly UserManager<ApplicationUser> _userManager;
+        private readonly IGuideService _guideService;
 
-        public HomeController(ILogger<HomeController> logger, ApplicationDbContext context, UserManager<ApplicationUser> userManager)
+        public HomeController(ILogger<HomeController> logger, ApplicationDbContext context, UserManager<ApplicationUser> userManager, IGuideService guideService)
         {
             _logger = logger;
             _context = context;
             _userManager = userManager;
+            _guideService = guideService;
         }
 
         private async Task<(bool IsAdmin, int? MinistryCode)> GetScopeAsync()
@@ -255,8 +259,11 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             return View();
         }
 
-        public IActionResult UserGuide()
+        public async Task<IActionResult> UserGuide()
         {
+            var overrides = await _guideService.GetOverridesAsync();
+            ViewBag.GuideOverridesJson = JsonSerializer.Serialize(overrides);
+            ViewBag.CanEditGuide = User.IsInRole(UserRoles.SystemAdministrator);
             return View();
         }
 

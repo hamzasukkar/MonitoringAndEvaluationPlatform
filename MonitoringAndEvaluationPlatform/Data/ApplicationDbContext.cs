@@ -40,6 +40,8 @@ namespace MonitoringAndEvaluationPlatform.Data
         public DbSet<FrameworkGoalFile> FrameworkGoalFiles { get; set; }
         public DbSet<FrameworkGoalManualExpectedTarget> FrameworkGoalManualExpectedTargets { get; set; }
         public DbSet<AuditLog> AuditLogs { get; set; }
+        public DbSet<GuideSection> GuideSections { get; set; } = default!;
+        public DbSet<GuideSectionVersion> GuideSectionVersions { get; set; } = default!;
 
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -209,6 +211,17 @@ namespace MonitoringAndEvaluationPlatform.Data
 
             modelBuilder.Entity<AuditLog>()
                 .HasIndex(a => new { a.EntityName, a.EntityId });
+
+            // One override row per guide section.
+            modelBuilder.Entity<GuideSection>()
+                .HasIndex(g => g.SectionKey)
+                .IsUnique();
+
+            modelBuilder.Entity<GuideSectionVersion>()
+                .HasOne(v => v.GuideSection)
+                .WithMany(s => s.Versions)
+                .HasForeignKey(v => v.GuideSectionId)
+                .OnDelete(DeleteBehavior.Cascade);
         }
     }
 }

@@ -1,11 +1,16 @@
 @using Microsoft.AspNetCore.Mvc.Localization
 @inject IViewLocalizer Localizer
+@inject Microsoft.AspNetCore.Antiforgery.IAntiforgery Antiforgery
 @{
     ViewData["Title"] = Localizer["User Guide"];
     Layout = "~/Views/Shared/_DashboardHomeLayout.cshtml";
+    var guideToken = Antiforgery.GetAndStoreTokens(Context).RequestToken;
+    var guideCanEdit = (ViewBag.CanEditGuide as bool?) ?? false;
+    var guideOverridesJson = (ViewBag.GuideOverridesJson as string) ?? "{}";
 }
 
 <link rel="stylesheet" href="~/css/user-guide.css" />
+<link rel="stylesheet" href="~/css/guide-editor.css" />
 
 <!-- User Guide Header -->
 <div class="guide-header">
@@ -2035,6 +2040,19 @@
             });
         });
     </script>
+
+    <script>
+        window.__guideEditor = {
+            overrides: @Html.Raw(guideOverridesJson),
+            canEdit: @(guideCanEdit ? "true" : "false"),
+            saveUrl: '@Url.Action("SaveSection", "Guide")',
+            historyUrl: '@Url.Action("History", "Guide")',
+            token: '@guideToken',
+            tinymceUrl: 'https://cdn.jsdelivr.net/npm/tinymce@7/tinymce.min.js',
+            tinymceBase: 'https://cdn.jsdelivr.net/npm/tinymce@7'
+        };
+    </script>
+    <script src="~/js/guide-editor.js" asp-append-version="true"></script>
 }
 
 <!-- New-Update Badge Styles -->
