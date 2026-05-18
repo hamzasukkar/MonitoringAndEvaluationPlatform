@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Http;
 using MonitoringAndEvaluationPlatform.Models;
 
 namespace MonitoringAndEvaluationPlatform.Services
@@ -27,5 +28,13 @@ namespace MonitoringAndEvaluationPlatform.Services
 
         /// <summary>Restores a historical version as the current content.</summary>
         Task<bool> RestoreVersionAsync(int versionId, string? user);
+
+        /// <summary>
+        /// Saves an uploaded screenshot into wwwroot/images/guide, overwriting
+        /// the existing slot file. The stored name is taken from the slot's
+        /// existing filename (only the base name is honoured; any path is
+        /// stripped). Returns the public URL on success.
+        /// </summary>
+        Task<(bool Ok, string? Error, string? Url)> SaveGuideImageAsync(string slotFileName, IFormFile file);
     }
 }

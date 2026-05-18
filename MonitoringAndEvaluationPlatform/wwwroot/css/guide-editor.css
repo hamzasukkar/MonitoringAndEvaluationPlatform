@@ -225,3 +225,66 @@ body.guide-edit-on .guide-section-overridden::after {
 @media (max-width: 900px) {
     .guide-compare { grid-template-columns: 1fr; }
 }
+
+/* ===== Image slots: click-to-upload (edit mode) ===== */
+body.guide-edit-on .screenshot-frame {
+    position: relative;
+    cursor: pointer;
+    outline: 2px dashed transparent;
+    transition: outline-color .15s ease;
+}
+
+body.guide-edit-on .screenshot-frame:hover {
+    outline-color: #6366f1;
+}
+
+.guide-img-upload-hint {
+    display: none;
+}
+
+body.guide-edit-on .screenshot-frame .guide-img-upload-hint {
+    display: flex;
+    position: absolute;
+    inset: 0;
+    z-index: 4;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    background: rgba(30, 41, 59, .55);
+    color: #fff;
+    font-weight: 600;
+    opacity: 0;
+    transition: opacity .15s ease;
+    pointer-events: none;
+    border-radius: 8px;
+}
+
+body.guide-edit-on .screenshot-frame:hover .guide-img-upload-hint {
+    opacity: 1;
+}
+
+.guide-img-upload-hint i {
+    font-size: 1.8rem;
+}
+
+.guide-img-status {
+    display: none;
+    position: absolute;
+    inset-inline: 0;
+    bottom: 0;
+    z-index: 6;
+    margin: 0;
+    padding: 8px 12px;
+    text-align: center;
+    font-size: .85rem;
+    font-weight: 600;
+    color: #065f46;
+    background: #d1fae5;
+    border-radius: 0 0 8px 8px;
+}
+
+.guide-img-status.error {
+    color: #7f1d1d;
+    background: #fee2e2;
+}

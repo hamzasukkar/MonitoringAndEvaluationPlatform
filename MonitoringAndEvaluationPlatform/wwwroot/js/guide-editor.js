@@ -16,7 +16,9 @@
         if (cfg.canEdit) {
             buildToolbar();
             buildModal();
+            buildImageInput();
             decorateSections();
+            decorateImageSlots();
         }
     });
 
@@ -320,6 +322,7 @@
                 current.el.innerHTML = newHtml;
                 current.el.classList.add("guide-section-overridden");
                 decorateSections();
+                decorateImageSlots();
                 document.getElementById("guideStatus").textContent = "تم الحفظ بنجاح.";
                 setTimeout(closeEditor, 600);
             })
@@ -327,5 +330,114 @@
                 document.getElementById("guideStatus").textContent = "فشل الحفظ. حاول مجدداً.";
             })
             .finally(function () { btn.disabled = false; });
+    }
+
+    /* ---- 9. Image slots: click to upload (edit mode, admin) ---- */
+    var imgInput = null;          // shared hidden file input
+    var targetFrame = null;       // .screenshot-frame being uploaded to
+
+    function buildImageInput() {
+        imgInput = document.createElement("input");
+        imgInput.type = "file";
+        imgInput.accept = "image/png,image/jpeg,image/webp";
+        imgInput.style.display = "none";
+        document.body.appendChild(imgInput);
+        imgInput.addEventListener("change", function () {
+            if (imgInput.files && imgInput.files[0]) {
+                uploadImage(imgInput.files[0]);
+            }
+            imgInput.value = "";
+        });
+    }
+
+    // The slot's canonical name comes from its existing <img src>.
+    function slotName(img) {
+        try {
+            var path = new URL(img.src, window.location.origin).pathname;
+            return decodeURIComponent(path.substring(path.lastIndexOf("/") + 1));
+        } catch (e) {
+            var s = img.getAttribute("src") || "";
+            return s.split("/").pop().split("?")[0];
+        }
+    }
+
+    function decorateImageSlots() {
+        document.querySelectorAll(".screenshot-frame").forEach(function (frame) {
+            if (frame.dataset.guideImgReady) return;
+            frame.dataset.guideImgReady = "1";
+
+            var hint = document.createElement("div");
+            hint.className = "guide-img-upload-hint";
+            hint.innerHTML = '<i class="fas fa-camera"></i><span>اضغط لرفع صورة</span>';
+            frame.appendChild(hint);
+
+            frame.addEventListener("click", function (ev) {
+                if (!document.body.classList.contains("guide-edit-on")) return;
+                ev.preventDefault();
+                targetFrame = frame;
+                imgInput.click();
+            });
+        });
+    }
+
+    function uploadImage(file) {
+        if (!targetFrame) return;
+
+        var allowed = ["image/png", "image/jpeg", "image/webp"];
+        if (allowed.indexOf(file.type) < 0) {
+            flashFrame(targetFrame, "صيغة غير مدعومة. المسموح: PNG أو JPG أو WebP.", true);
+            return;
+        }
+        if (file.size > 5 * 1024 * 1024) {
+            flashFrame(targetFrame, "حجم الصورة يتجاوز 5 ميغابايت.", true);
+            return;
+        }
+
+        var img = targetFrame.querySelector("img");
+        if (!img) return;
+        var name = slotName(img);
+        var frame = targetFrame;
+
+        var fd = new FormData();
+        fd.append("slotFileName", name);
+        fd.append("file", file);
+
+        flashFrame(frame, "جارٍ الرفع...", false);
+
+        fetch(cfg.uploadUrl, {
+            method: "POST",
+            headers: { "RequestVerificationToken": cfg.token },
+            body: fd
+        })
+            .then(function (r) { return r.json().then(function (d) { return { ok: r.ok, d: d }; }); })
+            .then(function (res) {
+                if (!res.ok || !res.d.ok) {
+                    flashFrame(frame, (res.d && res.d.message) || "فشل رفع الصورة.", true);
+                    return;
+                }
+                // Show the new image and dismiss the "missing" placeholder.
+                img.src = res.d.url + "?v=" + Date.now();
+                img.style.display = "";
+                var missing = frame.querySelector(".screenshot-missing");
+                if (missing) missing.style.display = "none";
+                flashFrame(frame, "تم رفع الصورة بنجاح.", false);
+            })
+            .catch(function () {
+                flashFrame(frame, "تعذّر الاتصال بالخادم.", true);
+            });
+    }
+
+    function flashFrame(frame, msg, isError) {
+        var box = frame.querySelector(".guide-img-status");
+        if (!box) {
+            box = document.createElement("div");
+            box.className = "guide-img-status";
+            frame.appendChild(box);
+        }
+        box.textContent = msg;
+        box.classList.toggle("error", !!isError);
+        box.style.display = "block";
+        clearTimeout(box._t);
+        box._t = setTimeout(function () { box.style.display = "none"; }, 3500);
     }
 })();

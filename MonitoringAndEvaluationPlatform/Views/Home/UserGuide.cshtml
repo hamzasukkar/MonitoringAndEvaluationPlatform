@@ -2046,6 +2046,7 @@
             overrides: @Html.Raw(guideOverridesJson),
             canEdit: @(guideCanEdit ? "true" : "false"),
             saveUrl: '@Url.Action("SaveSection", "Guide")',
+            uploadUrl: '@Url.Action("UploadImage", "Guide")',
             historyUrl: '@Url.Action("History", "Guide")',
             token: '@guideToken',
             tinymceUrl: 'https://cdn.jsdelivr.net/npm/tinymce@7/tinymce.min.js',

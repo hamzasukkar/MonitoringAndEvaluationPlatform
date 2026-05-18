@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using MonitoringAndEvaluationPlatform.Data;
 using MonitoringAndEvaluationPlatform.Models;
@@ -141,6 +142,79 @@ namespace MonitoringAndEvaluationPlatform.Services
 
             await WriteDiskBackupAsync(section.SectionKey, section.ContentHtml);
             return true;
+        }
+
+        private static readonly string[] AllowedImageExtensions = { ".png", ".jpg", ".jpeg", ".webp" };
+        private const long MaxImageBytes = 5 * 1024 * 1024;
+
+        public async Task<(bool Ok, string? Error, string? Url)> SaveGuideImageAsync(string slotFileName, IFormFile file)
+        {
+            if (file == null || file.Length == 0)
+                return (false, "لم يتم اختيار ملف.", null);
+
+            if (file.Length > MaxImageBytes)
+                return (false, "حجم الصورة يتجاوز 5 ميغابايت.", null);
+
+            // Only the base name is trusted - never a caller-supplied path.
+            var name = Path.GetFileName(slotFileName ?? string.Empty);
+            if (string.IsNullOrWhiteSpace(name))
+                return (false, "اسم الصورة غير صالح.", null);
+
+            var ext = Path.GetExtension(name).ToLowerInvariant();
+            if (Array.IndexOf(AllowedImageExtensions, ext) < 0)
+                return (false, "صيغة غير مدعومة. المسموح: PNG أو JPG أو WebP.", null);
+
+            // The bytes themselves must look like one of the allowed formats.
+            if (!await HasValidImageSignatureAsync(file))
+                return (false, "الملف ليس صورة PNG/JPG/WebP صالحة.", null);
+
+            var dir = Path.Combine(_env.WebRootPath, "images", "guide");
+            Directory.CreateDirectory(dir);
+
+            var fullPath = Path.Combine(dir, name);
+
+            // Defense in depth: the resolved path must stay inside images/guide.
+            var dirFull = Path.GetFullPath(dir + Path.DirectorySeparatorChar);
+            if (!Path.GetFullPath(fullPath).StartsWith(dirFull, StringComparison.OrdinalIgnoreCase))
+                return (false, "مسار غير مسموح.", null);
+
+            try
+            {
+                using var stream = new FileStream(fullPath, FileMode.Create, FileAccess.Write);
+                await file.CopyToAsync(stream);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Failed to save guide image {Name}", name);
+                return (false, "تعذّر حفظ الصورة على الخادم.", null);
+            }
+
+            return (true, null, $"/images/guide/{name}");
+        }
+
+        private static async Task<bool> HasValidImageSignatureAsync(IFormFile file)
+        {
+            var head = new byte[12];
+            await using (var s = file.OpenReadStream())
+            {
+                var read = await s.ReadAsync(head.AsMemory(0, head.Length));
+                if (read < 12) return false;
+            }
+
+            // PNG: 89 50 4E 47 0D 0A 1A 0A
+            if (head[0] == 0x89 && head[1] == 0x50 && head[2] == 0x4E && head[3] == 0x47)
+                return true;
+
+            // JPEG: FF D8 FF
+            if (head[0] == 0xFF && head[1] == 0xD8 && head[2] == 0xFF)
+                return true;
+
+            // WebP: "RIFF" .... "WEBP"
+            if (head[0] == 'R' && head[1] == 'I' && head[2] == 'F' && head[3] == 'F'
+                && head[8] == 'W' && head[9] == 'E' && head[10] == 'B' && head[11] == 'P')
+                return true;
+
+            return false;
         }
 
         /// <summary>

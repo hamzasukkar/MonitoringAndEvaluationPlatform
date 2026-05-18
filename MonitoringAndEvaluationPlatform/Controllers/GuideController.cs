@@ -66,6 +66,18 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             });
         }
 
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        [RequestSizeLimit(6 * 1024 * 1024)]
+        public async Task<IActionResult> UploadImage(string slotFileName, IFormFile file)
+        {
+            var (ok, error, url) = await _guideService.SaveGuideImageAsync(slotFileName, file);
+            if (!ok)
+                return BadRequest(new { ok = false, message = error });
+
+            return Json(new { ok = true, url });
+        }
+
         [HttpGet]
         public async Task<IActionResult> History(string? sectionKey)
         {
