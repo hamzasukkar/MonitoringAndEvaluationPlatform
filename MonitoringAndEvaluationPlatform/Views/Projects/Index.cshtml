@@ -186,6 +186,202 @@
     </form>
 </div>
 
+@{
+    // ── Active-filter chips ──────────────────────────────────────────────
+    // Build the full set of current filters as repeated query keys, then each
+    // chip's remove-link rebuilds that set with one value dropped.
+    var baseRoute = new Dictionary<string, string>();
+    if (!string.IsNullOrEmpty(Model.SearchQuery)) baseRoute["SearchQuery"] = Model.SearchQuery;
+    if (Model.SelectedFrameworkCode.HasValue) baseRoute["SelectedFrameworkCode"] = Model.SelectedFrameworkCode.ToString();
+    if (Model.SelectedOutcomeCode.HasValue) baseRoute["SelectedOutcomeCode"] = Model.SelectedOutcomeCode.ToString();
+    if (Model.SelectedOutputCode.HasValue) baseRoute["SelectedOutputCode"] = Model.SelectedOutputCode.ToString();
+    if (Model.SelectedSubOutputCode.HasValue) baseRoute["SelectedSubOutputCode"] = Model.SelectedSubOutputCode.ToString();
+    if (Model.SubOutputCode.HasValue) baseRoute["SubOutputCode"] = Model.SubOutputCode.ToString();
+    if (Model.StartDateFrom.HasValue) baseRoute["StartDateFrom"] = Model.StartDateFrom.Value.ToString("yyyy-MM-dd");
+    if (Model.StartDateTo.HasValue) baseRoute["StartDateTo"] = Model.StartDateTo.Value.ToString("yyyy-MM-dd");
+    if (Model.EndDateFrom.HasValue) baseRoute["EndDateFrom"] = Model.EndDateFrom.Value.ToString("yyyy-MM-dd");
+    if (Model.EndDateTo.HasValue) baseRoute["EndDateTo"] = Model.EndDateTo.Value.ToString("yyyy-MM-dd");
+    for (int i = 0; i < Model.SelectedMinistries.Count; i++) baseRoute[$"SelectedMinistries[{i}]"] = Model.SelectedMinistries[i].ToString();
+    for (int i = 0; i < Model.SelectedDonors.Count; i++) baseRoute[$"SelectedDonors[{i}]"] = Model.SelectedDonors[i].ToString();
+    for (int i = 0; i < Model.SelectedSectors.Count; i++) baseRoute[$"SelectedSectors[{i}]"] = Model.SelectedSectors[i].ToString();
+    for (int i = 0; i < Model.SelectedGovernorates.Count; i++) baseRoute[$"SelectedGovernorates[{i}]"] = Model.SelectedGovernorates[i];
+
+    // Helper: produce a route dict with a single key removed (for list filters,
+    // we drop the whole list and re-add every value except the removed one).
+    Func<string, object, Dictionary<string, string>> routeWithout = (listName, removeValue) =>
+    {
+        var rd = new Dictionary<string, string>(baseRoute);
+        // Drop all indexed entries for this list
+        var keysToRemove = rd.Keys.Where(k => k.StartsWith(listName + "[")).ToList();
+        foreach (var k in keysToRemove) rd.Remove(k);
+        return rd;
+    };
+
+    bool hasAnyChip = baseRoute.Count > 0;
+}
+
+@if (hasAnyChip)
+{
+    <div class="active-filters-bar">
+        <span class="active-filters-label"><i class="fas fa-filter me-1"></i>@Localizer["Active Filters"]:</span>
+
+        @* Search *@
+        @if (!string.IsNullOrEmpty(Model.SearchQuery))
+        {
+            var rd = new Dictionary<string, string>(baseRoute); rd.Remove("SearchQuery");
+            <a asp-action="Index" asp-all-route-data="rd" class="filter-chip">
+                <span class="chip-key">@Localizer["Search"]</span>
+                <span class="chip-val">@Model.SearchQuery</span>
+                <i class="fas fa-times chip-x"></i>
+            </a>
+        }
+
+        @* Framework hierarchy — show the deepest selected level only *@
+        @if (Model.SelectedSubOutputCode.HasValue && !string.IsNullOrEmpty(Model.SubOutputName))
+        {
+            var rd = new Dictionary<string, string>(baseRoute); rd.Remove("SelectedSubOutputCode");
+            <a asp-action="Index" asp-all-route-data="rd" class="filter-chip">
+                <span class="chip-key">@Localizer["SubOutput"]</span>
+                <span class="chip-val">@Model.SubOutputName</span>
+                <i class="fas fa-times chip-x"></i>
+            </a>
+        }
+        else if (Model.SelectedOutputCode.HasValue && !string.IsNullOrEmpty(Model.OutputName))
+        {
+            var rd = new Dictionary<string, string>(baseRoute); rd.Remove("SelectedOutputCode");
+            <a asp-action="Index" asp-all-route-data="rd" class="filter-chip">
+                <span class="chip-key">@Localizer["Output"]</span>
+                <span class="chip-val">@Model.OutputName</span>
+                <i class="fas fa-times chip-x"></i>
+            </a>
+        }
+        else if (Model.SelectedOutcomeCode.HasValue && !string.IsNullOrEmpty(Model.OutcomeName))
+        {
+            var rd = new Dictionary<string, string>(baseRoute); rd.Remove("SelectedOutcomeCode");
+            <a asp-action="Index" asp-all-route-data="rd" class="filter-chip">
+                <span class="chip-key">@Localizer["Outcome"]</span>
+                <span class="chip-val">@Model.OutcomeName</span>
+                <i class="fas fa-times chip-x"></i>
+            </a>
+        }
+        else if (Model.SelectedFrameworkCode.HasValue && !string.IsNullOrEmpty(Model.FrameworkName))
+        {
+            var rd = new Dictionary<string, string>(baseRoute); rd.Remove("SelectedFrameworkCode");
+            <a asp-action="Index" asp-all-route-data="rd" class="filter-chip">
+                <span class="chip-key">@Localizer["Framework"]</span>
+                <span class="chip-val">@Model.FrameworkName</span>
+                <i class="fas fa-times chip-x"></i>
+            </a>
+        }
+
+        @* Ministries *@
+        @foreach (var code in Model.SelectedMinistries)
+        {
+            var m = Model.Ministries.FirstOrDefault(x => x.Code == code);
+            if (m == null) { continue; }
+            var name = culture.StartsWith("ar") ? m.MinistryDisplayName_AR : m.MinistryDisplayName_EN;
+            var rd = new Dictionary<string, string>(routeWithout("SelectedMinistries", code));
+            var idx = 0;
+            foreach (var other in Model.SelectedMinistries.Where(c => c != code)) { rd[$"SelectedMinistries[{idx++}]"] = other.ToString(); }
+            <a asp-action="Index" asp-all-route-data="rd" class="filter-chip">
+                <span class="chip-key">@Localizer["Ministry"]</span>
+                <span class="chip-val">@name</span>
+                <i class="fas fa-times chip-x"></i>
+            </a>
+        }
+
+        @* Donors *@
+        @foreach (var code in Model.SelectedDonors)
+        {
+            var d = Model.Donors.FirstOrDefault(x => x.Code == code);
+            if (d == null) { continue; }
+            var rd = new Dictionary<string, string>(routeWithout("SelectedDonors", code));
+            var idx = 0;
+            foreach (var other in Model.SelectedDonors.Where(c => c != code)) { rd[$"SelectedDonors[{idx++}]"] = other.ToString(); }
+            <a asp-action="Index" asp-all-route-data="rd" class="filter-chip">
+                <span class="chip-key">@Localizer["Donor"]</span>
+                <span class="chip-val">@d.Partner</span>
+                <i class="fas fa-times chip-x"></i>
+            </a>
+        }
+
+        @* Sectors *@
+        @foreach (var code in Model.SelectedSectors)
+        {
+            var s = Model.Sectors.FirstOrDefault(x => x.Code == code);
+            if (s == null) { continue; }
+            var name = culture.StartsWith("ar") ? s.AR_Name : s.EN_Name;
+            var rd = new Dictionary<string, string>(routeWithout("SelectedSectors", code));
+            var idx = 0;
+            foreach (var other in Model.SelectedSectors.Where(c => c != code)) { rd[$"SelectedSectors[{idx++}]"] = other.ToString(); }
+            <a asp-action="Index" asp-all-route-data="rd" class="filter-chip">
+                <span class="chip-key">@Localizer["Sector"]</span>
+                <span class="chip-val">@name</span>
+                <i class="fas fa-times chip-x"></i>
+            </a>
+        }
+
+        @* Governorates *@
+        @foreach (var code in Model.SelectedGovernorates)
+        {
+            var g = Model.Governorates.FirstOrDefault(x => x.Code == code);
+            if (g == null) { continue; }
+            var name = culture.StartsWith("ar") ? g.AR_Name : g.EN_Name;
+            var rd = new Dictionary<string, string>(routeWithout("SelectedGovernorates", code));
+            var idx = 0;
+            foreach (var other in Model.SelectedGovernorates.Where(c => c != code)) { rd[$"SelectedGovernorates[{idx++}]"] = other; }
+            <a asp-action="Index" asp-all-route-data="rd" class="filter-chip">
+                <span class="chip-key">@Localizer["Governorate"]</span>
+                <span class="chip-val">@name</span>
+                <i class="fas fa-times chip-x"></i>
+            </a>
+        }
+
+        @* Date filters *@
+        @if (Model.StartDateFrom.HasValue)
+        {
+            var rd = new Dictionary<string, string>(baseRoute); rd.Remove("StartDateFrom");
+            <a asp-action="Index" asp-all-route-data="rd" class="filter-chip">
+                <span class="chip-key">@Localizer["Start Date"] @Localizer["From"]</span>
+                <span class="chip-val">@Model.StartDateFrom.Value.ToString("MMM yyyy")</span>
+                <i class="fas fa-times chip-x"></i>
+            </a>
+        }
+        @if (Model.StartDateTo.HasValue)
+        {
+            var rd = new Dictionary<string, string>(baseRoute); rd.Remove("StartDateTo");
+            <a asp-action="Index" asp-all-route-data="rd" class="filter-chip">
+                <span class="chip-key">@Localizer["Start Date"] @Localizer["To"]</span>
+                <span class="chip-val">@Model.StartDateTo.Value.ToString("MMM yyyy")</span>
+                <i class="fas fa-times chip-x"></i>
+            </a>
+        }
+        @if (Model.EndDateFrom.HasValue)
+        {
+            var rd = new Dictionary<string, string>(baseRoute); rd.Remove("EndDateFrom");
+            <a asp-action="Index" asp-all-route-data="rd" class="filter-chip">
+                <span class="chip-key">@Localizer["End Date"] @Localizer["From"]</span>
+                <span class="chip-val">@Model.EndDateFrom.Value.ToString("MMM yyyy")</span>
+                <i class="fas fa-times chip-x"></i>
+            </a>
+        }
+        @if (Model.EndDateTo.HasValue)
+        {
+            var rd = new Dictionary<string, string>(baseRoute); rd.Remove("EndDateTo");
+            <a asp-action="Index" asp-all-route-data="rd" class="filter-chip">
+                <span class="chip-key">@Localizer["End Date"] @Localizer["To"]</span>
+                <span class="chip-val">@Model.EndDateTo.Value.ToString("MMM yyyy")</span>
+                <i class="fas fa-times chip-x"></i>
+            </a>
+        }
+
+        @* Clear all *@
+        <a asp-action="Index" class="filter-chip filter-chip-clear-all">
+            <i class="fas fa-times-circle me-1"></i>@Localizer["Clear All"]
+        </a>
+    </div>
+}
+
 <!-- Summary Statistics Cards -->
 <div class="summary-cards-container">
     <div class="row g-3">
@@ -1149,6 +1345,76 @@
         font-size: 0.8rem;
         font-weight: 600;
         white-space: nowrap;
+    }
+
+    /* Active-filter chips bar */
+    .active-filters-bar {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.85rem 30px;
+        background: linear-gradient(135deg, rgba(30, 41, 59, 0.35) 0%, rgba(51, 65, 85, 0.35) 100%);
+        border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    .active-filters-label {
+        color: rgba(255, 255, 255, 0.75);
+        font-size: 0.8rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        margin-right: 0.25rem;
+    }
+
+    .filter-chip {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.4rem;
+        padding: 0.3rem 0.7rem;
+        border-radius: 16px;
+        background: rgba(255, 255, 255, 0.12);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        color: #e2e8f0;
+        font-size: 0.8rem;
+        text-decoration: none;
+        transition: all 0.2s ease;
+    }
+
+    .filter-chip:hover {
+        background: rgba(239, 68, 68, 0.2);
+        border-color: rgba(239, 68, 68, 0.5);
+        color: #fff;
+    }
+
+    .filter-chip .chip-key {
+        font-weight: 600;
+        opacity: 0.7;
+    }
+
+    .filter-chip .chip-val {
+        font-weight: 600;
+    }
+
+    .filter-chip .chip-x {
+        font-size: 0.7rem;
+        opacity: 0.6;
+    }
+
+    .filter-chip:hover .chip-x {
+        opacity: 1;
+    }
+
+    .filter-chip-clear-all {
+        background: rgba(239, 68, 68, 0.15);
+        border-color: rgba(239, 68, 68, 0.4);
+        color: #fca5a5;
+        font-weight: 600;
+    }
+
+    .filter-chip-clear-all:hover {
+        background: rgba(239, 68, 68, 0.3);
+        color: #fff;
     }
 
     /* Ministry / Framework relation badges */
