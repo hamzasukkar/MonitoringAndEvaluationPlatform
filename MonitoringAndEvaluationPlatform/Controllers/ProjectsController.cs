@@ -3,7 +3,9 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
+using ClosedXML.Excel;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Localization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
@@ -77,6 +79,35 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             filter.Frameworks = await _context.Frameworks.ToListAsync();
             filter.Governorates = await _context.Governorates.ToListAsync();
 
+            // Build the filtered query (shared with ExportExcel)
+            var projectQuery = await BuildFilteredProjectsQueryAsync(filter);
+
+            // Finalize and assign filtered results (eager-load Ministries and the
+            // Indicator -> SubOutput -> Output -> Outcome -> Framework chain so the
+            // view can show each project's ministries and frameworks)
+            filter.Projects = await projectQuery
+                .Include(p => p.Ministries)
+                .Include(p => p.Indicators)
+                    .ThenInclude(i => i.SubOutput)
+                        .ThenInclude(so => so.Output)
+                            .ThenInclude(o => o.Outcome)
+                                .ThenInclude(oc => oc.Framework)
+                .ToListAsync();
+
+            // Calculate summary statistics based on performance
+            filter.TotalProjects = filter.Projects.Count;
+            filter.NotStartedProjects = filter.Projects.Count(p => p.performance == 0);
+            filter.InProgressProjects = filter.Projects.Count(p => p.performance > 0 && p.performance < 100);
+            filter.CompletedProjects = filter.Projects.Count(p => p.performance >= 100);
+            filter.TotalBudget = filter.Projects.Sum(p => p.EstimatedBudget);
+
+            return View(filter);
+        }
+
+        // Builds the filtered project query shared by Index and ExportExcel.
+        // Mutates the supplied filter to set IsMinistryUser and the hierarchy display names.
+        private async Task<IQueryable<Project>> BuildFilteredProjectsQueryAsync(ProgramFilterViewModel filter)
+        {
             // Get the logged-in user
             var user = await _userManager.GetUserAsync(User);
 
@@ -279,10 +310,17 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 projectQuery = projectQuery.Where(p => p.EndDate <= filter.EndDateTo.Value);
             }
 
-            // Finalize and assign filtered results (eager-load Ministries and the
-            // Indicator -> SubOutput -> Output -> Outcome -> Framework chain so the
-            // view can show each project's ministries and frameworks)
-            filter.Projects = await projectQuery
+            return projectQuery;
+        }
+
+        // GET: Projects/ExportExcel — exports the currently filtered project list to Excel.
+        [HttpGet]
+        [Permission(Permissions.ReadProjects)]
+        public async Task<IActionResult> ExportExcel(ProgramFilterViewModel filter)
+        {
+            var projectQuery = await BuildFilteredProjectsQueryAsync(filter);
+
+            var projects = await projectQuery
                 .Include(p => p.Ministries)
                 .Include(p => p.Indicators)
                     .ThenInclude(i => i.SubOutput)
@@ -291,14 +329,81 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                                 .ThenInclude(oc => oc.Framework)
                 .ToListAsync();
 
-            // Calculate summary statistics based on performance
-            filter.TotalProjects = filter.Projects.Count;
-            filter.NotStartedProjects = filter.Projects.Count(p => p.performance == 0);
-            filter.InProgressProjects = filter.Projects.Count(p => p.performance > 0 && p.performance < 100);
-            filter.CompletedProjects = filter.Projects.Count(p => p.performance >= 100);
-            filter.TotalBudget = filter.Projects.Sum(p => p.EstimatedBudget);
+            var culture = Request.HttpContext.Features.Get<IRequestCultureFeature>()?.RequestCulture.Culture.Name ?? "en";
+            var isRtl = culture.StartsWith("ar");
 
-            return View(filter);
+            using var workbook = new XLWorkbook();
+            var worksheet = workbook.Worksheets.Add(_localizer["Projects"].Value);
+
+            if (isRtl)
+            {
+                worksheet.RightToLeft = true;
+            }
+
+            // Header row
+            worksheet.Cell(1, 1).Value = _localizer["Project Name"].Value;
+            worksheet.Cell(1, 2).Value = _localizer["Ministry"].Value;
+            worksheet.Cell(1, 3).Value = _localizer["Framework"].Value;
+            worksheet.Cell(1, 4).Value = _localizer["Start Date"].Value;
+            worksheet.Cell(1, 5).Value = _localizer["End Date"].Value;
+            worksheet.Cell(1, 6).Value = _localizer["Status"].Value;
+            worksheet.Cell(1, 7).Value = _localizer["Performance"].Value + " (%)";
+            worksheet.Cell(1, 8).Value = _localizer["Disbursement"].Value + " (%)";
+            worksheet.Cell(1, 9).Value = _localizer["Estimated Budget"].Value;
+
+            // Style header
+            var headerRange = worksheet.Range(1, 1, 1, 9);
+            headerRange.Style.Font.Bold = true;
+            headerRange.Style.Fill.BackgroundColor = XLColor.FromHtml("#4472C4");
+            headerRange.Style.Font.FontColor = XLColor.White;
+            headerRange.Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
+
+            // Data rows
+            int row = 2;
+            foreach (var project in projects)
+            {
+                var ministries = string.Join(", ", (project.Ministries ?? new List<Ministry>())
+                    .Select(m => isRtl ? m.MinistryDisplayName_AR : m.MinistryDisplayName_EN)
+                    .Where(n => !string.IsNullOrWhiteSpace(n))
+                    .Distinct());
+
+                var frameworks = string.Join(", ", (project.Indicators ?? new List<Indicator>())
+                    .Select(i => i.SubOutput?.Output?.Outcome?.Framework?.Name)
+                    .Where(n => !string.IsNullOrWhiteSpace(n))
+                    .Distinct());
+
+                var performance = Math.Round(project.performance, 2);
+                string status = performance == 0
+                    ? _localizer["Not Started"].Value
+                    : performance < 100 ? _localizer["In Progress"].Value : _localizer["Completed"].Value;
+
+                worksheet.Cell(row, 1).Value = project.ProjectName;
+                worksheet.Cell(row, 2).Value = ministries;
+                worksheet.Cell(row, 3).Value = frameworks;
+                worksheet.Cell(row, 4).Value = project.StartDate;
+                worksheet.Cell(row, 4).Style.DateFormat.Format = "yyyy-MM-dd";
+                worksheet.Cell(row, 5).Value = project.EndDate;
+                worksheet.Cell(row, 5).Style.DateFormat.Format = "yyyy-MM-dd";
+                worksheet.Cell(row, 6).Value = status;
+                worksheet.Cell(row, 7).Value = performance;
+                worksheet.Cell(row, 8).Value = Math.Round(project.DisbursementPerformance, 2);
+                worksheet.Cell(row, 9).Value = project.EstimatedBudget;
+                row++;
+            }
+
+            worksheet.Columns().AdjustToContents();
+
+            var dataRange = worksheet.Range(1, 1, Math.Max(row - 1, 1), 9);
+            dataRange.Style.Border.OutsideBorder = XLBorderStyleValues.Thin;
+            dataRange.Style.Border.InsideBorder = XLBorderStyleValues.Thin;
+
+            using var stream = new MemoryStream();
+            workbook.SaveAs(stream);
+            stream.Position = 0;
+
+            var filePrefix = isRtl ? "المشاريع" : "Projects";
+            var fileName = $"{filePrefix}_{DateTime.Now:yyyyMMdd_HHmmss}.xlsx";
+            return File(stream.ToArray(), "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", fileName);
         }
 
         // APIs for cascading
