@@ -725,6 +725,37 @@
                                 </tr>
                             </thead>
                             <tbody id="projectsTableBody">
+                                @{
+                                    var hasSelectColumn = User.IsInRole("SystemAdministrator") || User.IsInRole("MinistryStrategyManager");
+                                    var emptyColspan = hasSelectColumn ? 10 : 9;
+                                    var hasActiveFilters = hasAnyChip;
+                                }
+                                @if (!Model.Projects.Any())
+                                {
+                                    <tr class="empty-state-row">
+                                        <td colspan="@emptyColspan">
+                                            <div class="empty-state">
+                                                <i class="fas fa-folder-open empty-state-icon"></i>
+                                                @if (hasActiveFilters)
+                                                {
+                                                    <div class="empty-state-title">@Localizer["No projects match these filters"]</div>
+                                                    <div class="empty-state-text">@Localizer["Try adjusting or clearing your filters to see more results."]</div>
+                                                    <a asp-action="Index" class="btn btn-outline-secondary btn-sm mt-2">
+                                                        <i class="fas fa-times-circle me-1"></i>@Localizer["Clear All"]
+                                                    </a>
+                                                }
+                                                else
+                                                {
+                                                    <div class="empty-state-title">@Localizer["No projects yet"]</div>
+                                                    <div class="empty-state-text">@Localizer["Get started by creating your first project."]</div>
+                                                    <a asp-action="Create" class="btn btn-gradient-primary btn-sm mt-2">
+                                                        <i class="fas fa-plus me-1"></i>@Localizer["Create New Project"]
+                                                    </a>
+                                                }
+                                            </div>
+                                        </td>
+                                    </tr>
+                                }
                                 @foreach (var item in Model.Projects)
                                 {
                                     double performance = Math.Round(@item.performance, 2);
@@ -1345,6 +1376,41 @@
         font-size: 0.8rem;
         font-weight: 600;
         white-space: nowrap;
+    }
+
+    /* Empty state */
+    .empty-state-row td {
+        padding: 0 !important;
+        background: rgba(255, 255, 255, 0.95);
+    }
+
+    .empty-state {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        padding: 3.5rem 1.5rem;
+        color: #64748b;
+    }
+
+    .empty-state-icon {
+        font-size: 3rem;
+        color: #cbd5e1;
+        margin-bottom: 1rem;
+    }
+
+    .empty-state-title {
+        font-size: 1.15rem;
+        font-weight: 700;
+        color: #334155;
+        margin-bottom: 0.35rem;
+    }
+
+    .empty-state-text {
+        font-size: 0.9rem;
+        color: #64748b;
+        margin-bottom: 0.5rem;
     }
 
     /* Active-filter chips bar */
