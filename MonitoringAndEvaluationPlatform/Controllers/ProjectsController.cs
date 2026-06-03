@@ -279,8 +279,17 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 projectQuery = projectQuery.Where(p => p.EndDate <= filter.EndDateTo.Value);
             }
 
-            // Finalize and assign filtered results
-            filter.Projects = await projectQuery.ToListAsync();
+            // Finalize and assign filtered results (eager-load Ministries and the
+            // Indicator -> SubOutput -> Output -> Outcome -> Framework chain so the
+            // view can show each project's ministries and frameworks)
+            filter.Projects = await projectQuery
+                .Include(p => p.Ministries)
+                .Include(p => p.Indicators)
+                    .ThenInclude(i => i.SubOutput)
+                        .ThenInclude(so => so.Output)
+                            .ThenInclude(o => o.Outcome)
+                                .ThenInclude(oc => oc.Framework)
+                .ToListAsync();
 
             // Calculate summary statistics based on performance
             filter.TotalProjects = filter.Projects.Count;

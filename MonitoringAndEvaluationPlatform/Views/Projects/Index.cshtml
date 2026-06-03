@@ -478,6 +478,12 @@
                                     <th>
                                         <i class="fas fa-project-diagram me-2"></i>@Localizer["Project Name"]
                                     </th>
+                                    <th>
+                                        <i class="fas fa-landmark me-2"></i>@Localizer["Ministry"]
+                                    </th>
+                                    <th>
+                                        <i class="fas fa-sitemap me-2"></i>@Localizer["Framework"]
+                                    </th>
                                     <th class="text-center">
                                         <i class="fas fa-calendar-alt me-2"></i>@Localizer["Start Date"]
                                     </th>
@@ -548,6 +554,46 @@
                                                     <a href="@Url.Action("Details", "Projects", new { id = item.ProjectID })" class="project-name fw-semibold">@item.ProjectName</a>
                                                 </div>
                                             </div>
+                                        </td>
+                                        <td>
+                                            @{
+                                                var ministryNames = (item.Ministries ?? new List<MonitoringAndEvaluationPlatform.Models.Ministry>())
+                                                    .Select(m => culture.StartsWith("ar") ? m.MinistryDisplayName_AR : m.MinistryDisplayName_EN)
+                                                    .Where(n => !string.IsNullOrWhiteSpace(n))
+                                                    .Distinct()
+                                                    .ToList();
+                                            }
+                                            @if (ministryNames.Any())
+                                            {
+                                                foreach (var name in ministryNames)
+                                                {
+                                                    <span class="relation-badge relation-badge-ministry">@name</span>
+                                                }
+                                            }
+                                            else
+                                            {
+                                                <span class="text-muted small">@Localizer["—"]</span>
+                                            }
+                                        </td>
+                                        <td>
+                                            @{
+                                                var frameworkNames = (item.Indicators ?? new List<MonitoringAndEvaluationPlatform.Models.Indicator>())
+                                                    .Select(i => i.SubOutput?.Output?.Outcome?.Framework?.Name)
+                                                    .Where(n => !string.IsNullOrWhiteSpace(n))
+                                                    .Distinct()
+                                                    .ToList();
+                                            }
+                                            @if (frameworkNames.Any())
+                                            {
+                                                foreach (var name in frameworkNames)
+                                                {
+                                                    <span class="relation-badge relation-badge-framework">@name</span>
+                                                }
+                                            }
+                                            else
+                                            {
+                                                <span class="text-muted small">@Localizer["—"]</span>
+                                            }
                                         </td>
                                         <td class="text-center">
                                             <span class="date-cell">@item.StartDate.ToString("MMM yyyy")</span>
@@ -1081,6 +1127,29 @@
         font-size: 0.8rem;
         font-weight: 600;
         white-space: nowrap;
+    }
+
+    /* Ministry / Framework relation badges */
+    .relation-badge {
+        display: inline-block;
+        padding: 0.2rem 0.6rem;
+        margin: 0.1rem 0.15rem 0.1rem 0;
+        border-radius: 12px;
+        font-size: 0.78rem;
+        font-weight: 600;
+        line-height: 1.3;
+    }
+
+    .relation-badge-ministry {
+        background: rgba(99, 102, 241, 0.12);
+        color: #4f46e5;
+        border: 1px solid rgba(99, 102, 241, 0.3);
+    }
+
+    .relation-badge-framework {
+        background: rgba(16, 185, 129, 0.12);
+        color: #059669;
+        border: 1px solid rgba(16, 185, 129, 0.3);
     }
 
     .status-not-started {
