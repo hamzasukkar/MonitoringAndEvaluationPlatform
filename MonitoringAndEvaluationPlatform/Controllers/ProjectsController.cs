@@ -1012,6 +1012,17 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             ModelState.Remove(nameof(Project.Phases));
             ModelState.Remove(nameof(Project.Goal));
 
+            // Exchange rate is only meaningful when a non-USD rate is supplied; if no rate
+            // was entered, drop the optional date and any binding/validation noise on these
+            // fields so an optional currency detail can never block a save.
+            if (!project.ExchangeRate.HasValue || project.ExchangeRate <= 0)
+            {
+                project.ExchangeRate = null;
+                project.ExchangeRateDate = null;
+            }
+            ModelState.Remove(nameof(Project.ExchangeRate));
+            ModelState.Remove(nameof(Project.ExchangeRateDate));
+
             if (!ModelState.IsValid)
             {
                 // If validation fails, re‐populate all dropdowns with the already‐selected codes:
@@ -1041,6 +1052,9 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             dbProject.StartDate = project.StartDate;
             dbProject.EndDate = project.EndDate;
             dbProject.EstimatedBudget = project.EstimatedBudget;
+            dbProject.Currency = project.Currency;
+            dbProject.ExchangeRate = project.ExchangeRate;
+            dbProject.ExchangeRateDate = project.ExchangeRateDate;
             dbProject.RealBudget = project.RealBudget;
             dbProject.IsEntireCountry = project.IsEntireCountry;
 
