@@ -320,7 +320,8 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             int? outputCode,
             int? subOutputCode,
             int? indicatorCode,
-            int? ministryCode)
+            int? ministryCode,
+            string? search)
         {
             // Query projects linked via Indicator.ProjectID
             var projectsQuery = _context.Projects
@@ -364,6 +365,12 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 projectsQuery = projectsQuery.Where(p => p.Ministries.Any(m => m.Code == ministryCode.Value));
             }
 
+            if (!string.IsNullOrWhiteSpace(search))
+            {
+                var term = search.Trim();
+                projectsQuery = projectsQuery.Where(p => p.ProjectName.Contains(term));
+            }
+
             // Build the ministry filter dropdown. Non-admins are scoped to their own ministry.
             var ministriesQuery = _context.Ministries.AsQueryable();
             if (!isAdmin)
@@ -377,6 +384,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 .OrderBy(m => m.MinistryDisplayName_EN)
                 .ToListAsync();
             ViewBag.SelectedMinistryCode = ministryCode;
+            ViewBag.SearchTerm = search;
 
             List<Project> projects = await projectsQuery.Distinct().ToListAsync();
 
