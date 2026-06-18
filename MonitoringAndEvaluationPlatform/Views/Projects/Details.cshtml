@@ -640,6 +640,21 @@
                                 </tr>
                             }
                         </tbody>
+                        <tfoot>
+                            <tr class="table-row fw-bold" style="border-top:2px solid var(--primary-color);">
+                                <td colspan="4" class="text-end">@Localizer["Total"]</td>
+                                <td>@Model.CurrencySymbol@totalPhaseBudget.ToString("0")</td>
+                                <td class="text-center">@Model.Phases.Sum(pp => pp.Weight).ToString("0.##")%</td>
+                                <td class="text-center">
+                                    @{
+                                        double totalRealisedAll = Model.Phases.Sum(p => p.ActionPlan?.Plans.Sum(pl => (double)pl.Realised) ?? 0);
+                                    }
+                                    @Model.CurrencySymbol@totalRealisedAll.ToString("0")
+                                </td>
+                                <td></td>
+                                <td></td>
+                            </tr>
+                        </tfoot>
                     </table>
                 </div>
             }
