@@ -5,7 +5,7 @@
 @{
     ViewData["Title"] = "Project Action Plan";
     Layout = "~/Views/Shared/_DashboardHomeLayout.cshtml";
-    int projectTotalRealisedCost = Model.Sum(p => p.RealisedValue);
+    long projectTotalRealisedCost = Model.Sum(p => (long)p.RealisedValue);
     var projectMonths = ViewBag.ProjectMonths as List<DateTime>;
 }
 

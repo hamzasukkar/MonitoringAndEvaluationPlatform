@@ -694,6 +694,13 @@
                         <span class="progress-circle-value">@disbursementPerformance%</span>
                     </div>
                     <p class="text-muted mt-2 mb-0">@Localizer["Budget utilization"]</p>
+                    @if (User.IsInRole(MonitoringAndEvaluationPlatform.Models.UserRoles.SystemAdministrator))
+                    {
+                        @Html.AntiForgeryToken()
+                        <button type="button" class="btn btn-sm btn-warning mt-2" onclick="previewDisbursementCorrection(@Model.ProjectID)">
+                            <i class="fas fa-wrench me-1"></i>@Localizer["Correct"]
+                        </button>
+                    }
                 </div>
             </div>
         </div>
@@ -799,6 +806,20 @@
             errorSaving: '@Localizer["Error saving weights."]',
             networkError: '@Localizer["Network error saving weights."]'
         };
+        window.correctDisbursementStrings = {
+            title: '@Localizer["Correct Disbursement Performance"]',
+            currentLabel: '@Localizer["Current (stored)"]',
+            correctedLabel: '@Localizer["Corrected"]',
+            totalRealisedLabel: '@Localizer["Total Realised"]',
+            estimatedBudgetLabel: '@Localizer["Estimated Budget"]',
+            note: '@Localizer["Confirming will recalculate this project and update the figures at higher hierarchy levels (SubOutput, Output, Outcome, Framework, Ministry, Sector, Donor)."]',
+            confirm: '@Localizer["Apply Correction"]',
+            cancel: '@Localizer["Cancel"]',
+            applying: '@Localizer["Applying..."]',
+            success: '@Localizer["Disbursement performance corrected."]',
+            errorLoading: '@Localizer["Could not load preview."]',
+            errorApplying: '@Localizer["Could not apply correction."]'
+        };
     </script>
 
     <!-- Optimized external JavaScript -->
@@ -869,6 +890,71 @@
                 alert(window.saveWeightsStrings.networkError);
                 btn.disabled = false;
                 btn.innerHTML = '<i class="fas fa-save me-1"></i>' + window.saveWeightsStrings.saveWeights;
+            }
+        }
+
+        // Manager-only: preview current vs corrected disbursement %, then apply on confirm.
+        async function previewDisbursementCorrection(projectId) {
+            const s = window.correctDisbursementStrings;
+            let preview;
+            try {
+                const resp = await fetch('/Projects/PreviewDisbursementCorrection?id=' + projectId, {
+                    headers: { 'Accept': 'application/json' }
+                });
+                if (!resp.ok) throw new Error('load');
+                preview = await resp.json();
+            } catch (e) {
+                Swal.fire({ icon: 'error', title: s.errorLoading });
+                return;
+            }
+
+            const fmtPct = v => (v ?? 0).toFixed(2) + '%';
+            const fmtNum = v => (v ?? 0).toLocaleString(undefined, { maximumFractionDigits: 0 });
+            const changed = Math.abs((preview.corrected ?? 0) - (preview.current ?? 0)) >= 0.01;
+
+            const html =
+                '<table style="width:100%;text-align:start;border-collapse:collapse">' +
+                '<tr><td style="padding:4px 8px;color:#6c757d">' + s.currentLabel + '</td>' +
+                '<td style="padding:4px 8px;text-align:end"><strong>' + fmtPct(preview.current) + '</strong></td></tr>' +
+                '<tr><td style="padding:4px 8px;color:#6c757d">' + s.correctedLabel + '</td>' +
+                '<td style="padding:4px 8px;text-align:end"><strong style="color:' + (changed ? '#fd7e14' : '#28a745') + '">' + fmtPct(preview.corrected) + '</strong></td></tr>' +
+                '<tr><td style="padding:4px 8px;color:#6c757d">' + s.totalRealisedLabel + '</td>' +
+                '<td style="padding:4px 8px;text-align:end">' + fmtNum(preview.totalRealised) + '</td></tr>' +
+                '<tr><td style="padding:4px 8px;color:#6c757d">' + s.estimatedBudgetLabel + '</td>' +
+                '<td style="padding:4px 8px;text-align:end">' + fmtNum(preview.estimatedBudget) + '</td></tr>' +
+                '</table>' +
+                '<p class="text-muted mt-3 mb-0" style="font-size:0.8rem">' + s.note + '</p>';
+
+            const result = await Swal.fire({
+                title: s.title,
+                html: html,
+                icon: changed ? 'warning' : 'info',
+                showCancelButton: true,
+                confirmButtonText: s.confirm,
+                cancelButtonText: s.cancel,
+                confirmButtonColor: '#fd7e14'
+            });
+            if (!result.isConfirmed) return;
+
+            try {
+                const token = document.querySelector('input[name="__RequestVerificationToken"]')?.value;
+                const resp = await fetch('/Projects/CorrectDisbursementPerformance', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'RequestVerificationToken': token || ''
+                    },
+                    body: JSON.stringify({ projectId })
+                });
+                if (resp.ok) {
+                    await Swal.fire({ icon: 'success', title: s.success, timer: 1200, showConfirmButton: false });
+                    location.reload();
+                } else {
+                    const err = await resp.json().catch(() => ({}));
+                    Swal.fire({ icon: 'error', title: err.message || s.errorApplying });
+                }
+            } catch (e) {
+                Swal.fire({ icon: 'error', title: s.errorApplying });
             }
         }
     </script>

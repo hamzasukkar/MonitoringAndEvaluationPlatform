@@ -323,9 +323,34 @@ public class MonitoringService
             await UpdateDonorDisbursementPerformanceByCode(donor.Code);
     }
 
+    // Read-only: computes the corrected disbursement % for a project WITHOUT saving.
+    // Used by the manager "Correct" preview on the Project Details page.
+    public async Task<DisbursementPreview?> PreviewProjectDisbursementPerformance(int projectId)
+    {
+        var project = await _context.Projects
+            .Include(p => p.Phases).ThenInclude(pp => pp.ActionPlan).ThenInclude(ap => ap.Plans)
+            .AsNoTracking()
+            .FirstOrDefaultAsync(p => p.ProjectID == projectId);
+
+        if (project == null) return null;
+
+        var allPlans = project.Phases
+            .Where(pp => pp.ActionPlan != null)
+            .SelectMany(pp => pp.ActionPlan!.Plans)
+            .ToList();
+
+        return new DisbursementPreview
+        {
+            Current = project.DisbursementPerformance,
+            Corrected = CalcDisbursementPerf(allPlans, project.EstimatedBudget),
+            TotalRealised = allPlans.Sum(p => (double)p.Realised),
+            EstimatedBudget = project.EstimatedBudget
+        };
+    }
+
     private double CalcDisbursementPerf(List<Plan> plans, double estimatedBudget)
     {
-        double totalRealised = plans.Sum(p => p.Realised);
+        double totalRealised = plans.Sum(p => (double)p.Realised);
         return estimatedBudget > 0 ? (totalRealised / estimatedBudget) * 100 : 0;
     }
 
@@ -335,7 +360,7 @@ public class MonitoringService
         double totalRealised = projects.Sum(p => p.Phases
             .Where(ph => ph.ActionPlan != null)
             .SelectMany(ph => ph.ActionPlan!.Plans)
-            .Sum(pl => pl.Realised));
+            .Sum(pl => (double)pl.Realised));
         double totalBudget = projects.Sum(p => p.EstimatedBudget);
         return totalBudget > 0 ? (totalRealised / totalBudget) * 100 : 0;
     }
@@ -623,4 +648,13 @@ public class MonitoringService
         var totalWeight = items.Sum(weightSelector);
         return totalWeight > 0 ? items.Sum(i => valueSelector(i) * weightSelector(i)) / totalWeight : 0;
     }
+}
+
+// Result of a read-only disbursement-performance correction preview.
+public class DisbursementPreview
+{
+    public double Current { get; set; }
+    public double Corrected { get; set; }
+    public double TotalRealised { get; set; }
+    public double EstimatedBudget { get; set; }
 }

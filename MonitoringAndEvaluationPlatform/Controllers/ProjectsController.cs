@@ -760,6 +760,36 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             return View(project);
         }
 
+        // GET: Projects/PreviewDisbursementCorrection?id=5  (AJAX, SystemAdministrator only)
+        // Read-only: returns the current (possibly wrong) vs corrected disbursement % without saving.
+        [HttpGet]
+        [Authorize(Roles = UserRoles.SystemAdministrator)]
+        public async Task<IActionResult> PreviewDisbursementCorrection(int id)
+        {
+            var preview = await new MonitoringService(_context).PreviewProjectDisbursementPerformance(id);
+            if (preview == null) return NotFound(new { message = "Project not found." });
+            return Json(preview);
+        }
+
+        // POST: Projects/CorrectDisbursementPerformance  (AJAX, SystemAdministrator only)
+        // Recalculates the project's disbursement % and cascades the corrected value up the hierarchy.
+        [HttpPost]
+        [Authorize(Roles = UserRoles.SystemAdministrator)]
+        public async Task<IActionResult> CorrectDisbursementPerformance([FromBody] CorrectDisbursementDto dto)
+        {
+            if (dto == null || dto.ProjectId <= 0)
+                return BadRequest(new { message = "Invalid project." });
+
+            var exists = await _context.Projects.AnyAsync(p => p.ProjectID == dto.ProjectId);
+            if (!exists) return NotFound(new { message = "Project not found." });
+
+            await new MonitoringService(_context).UpdateDisbursementPerformancesForProject(dto.ProjectId);
+
+            var updated = await _context.Projects.AsNoTracking()
+                .FirstOrDefaultAsync(p => p.ProjectID == dto.ProjectId);
+            return Ok(new { message = "Disbursement performance corrected.", value = updated?.DisbursementPerformance });
+        }
+
 
         // GET: Programs/Edit/5
         [Permission(Permissions.EditProject)]
@@ -1971,5 +2001,11 @@ namespace MonitoringAndEvaluationPlatform.Controllers
 
             await _context.SaveChangesAsync();
         }
+    }
+
+    // Payload for the manager "Correct Disbursement Performance" action.
+    public class CorrectDisbursementDto
+    {
+        public int ProjectId { get; set; }
     }
 }
