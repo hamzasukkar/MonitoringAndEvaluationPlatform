@@ -212,7 +212,7 @@
                                     <td class="editable-plan-cell" contenteditable="true"
                                         data-plan-code="@realisedPlan.PlanCode"
                                         data-value-type="Realised">
-                                        @realisedPlan.RealisedValue
+                                        @(realisedPlan.RealisedValue == 0 ? "" : realisedPlan.RealisedValue.ToString())
                                     </td>
                                 }
                                 else
@@ -228,7 +228,7 @@
                                 <td class="editable-plan-cell" contenteditable="true"
                                     data-plan-code="@plan.PlanCode"
                                     data-value-type="Realised">
-                                    @plan.RealisedValue
+                                    @(plan.RealisedValue == 0 ? "" : plan.RealisedValue.ToString())
                                 </td>
                             }
                         }
@@ -903,8 +903,8 @@
                 var newValue = cell.text().trim();
                 var originalValue = cell.data('original-value');
 
-                // Validate: must be a number
-                if (isNaN(newValue) || newValue === '') {
+                // Validate: must be a number (empty is allowed and treated as 0/blank)
+                if (newValue !== '' && isNaN(newValue)) {
                     cell.addClass('error');
                     cell.text(currentOriginalValue);
                     setTimeout(() => cell.removeClass('error'), 1500);
@@ -956,10 +956,11 @@
                 var updates = [];
                 $('.editable-plan-cell.modified').each(function() {
                     var cell = $(this);
+                    var t = cell.text().trim();
                     updates.push({
                         planCode: cell.data('plan-code'),
                         valueType: cell.data('value-type'),
-                        newValue: parseInt(cell.text().trim(), 10)
+                        newValue: t === '' ? 0 : parseInt(t, 10)
                     });
                 });
 
