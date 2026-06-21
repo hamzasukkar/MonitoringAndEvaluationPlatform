@@ -72,6 +72,9 @@
   <data name="Tips" xml:space="preserve">
     <value>Tips</value>
   </data>
+  <data name="Formulas" xml:space="preserve">
+    <value>Formulas</value>
+  </data>
   <data name="Close" xml:space="preserve">
     <value>Close</value>
   </data>
@@ -179,6 +182,9 @@
   </data>
   <data name="HELP_PROJECTS_TIP_2" xml:space="preserve">
     <value>Export project lists to Excel for detailed offline analysis and reporting.</value>
+  </data>
+  <data name="HELP_PROJECTS_FORMULAS" xml:space="preserve">
+    <value>&lt;div class="help-formula-block mb-4"&gt;&lt;h6 class="fw-bold"&gt;&lt;i class="fas fa-chart-line me-1 text-primary"&gt;&lt;/i&gt; Performance&lt;/h6&gt;&lt;p class="mb-1"&gt;Overall project performance is the weighted average of all phase performances:&lt;/p&gt;&lt;code class="d-block p-2 my-2 bg-light border rounded" dir="ltr"&gt;Performance = Σ(Phase Performance × Phase Weight) ÷ Σ(Phase Weight)&lt;/code&gt;&lt;ul class="small text-muted mb-0"&gt;&lt;li&gt;Each phase's performance = the sum of its measure values.&lt;/li&gt;&lt;li&gt;Phase weights are set in the Phases section and always sum to 100.&lt;/li&gt;&lt;/ul&gt;&lt;/div&gt;&lt;div class="help-formula-block"&gt;&lt;h6 class="fw-bold"&gt;&lt;i class="fas fa-wallet me-1 text-success"&gt;&lt;/i&gt; Disbursement&lt;/h6&gt;&lt;p class="mb-1"&gt;Budget utilization — the share of the estimated budget actually spent (realised):&lt;/p&gt;&lt;code class="d-block p-2 my-2 bg-light border rounded" dir="ltr"&gt;Disbursement = (Σ Realised ÷ Estimated Budget) × 100&lt;/code&gt;&lt;ul class="small text-muted mb-0"&gt;&lt;li&gt;Σ Realised = total realised amounts across every phase's action plan.&lt;/li&gt;&lt;li&gt;Estimated Budget is the project's total planned budget.&lt;/li&gt;&lt;/ul&gt;&lt;/div&gt;</value>
   </data>
 
   <!-- Monitoring Help Content -->

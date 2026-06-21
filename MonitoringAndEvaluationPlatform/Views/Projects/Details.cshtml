@@ -647,9 +647,9 @@
                                 <td class="text-center">@Model.Phases.Sum(pp => pp.Weight).ToString("0.##")%</td>
                                 <td class="text-center">
                                     @{
-                                        double totalRealisedAll = Model.Phases.Sum(p => p.ActionPlan?.Plans.Sum(pl => (double)pl.Realised) ?? 0);
+                                        double footerTotalRealised = Model.Phases.Sum(p => p.ActionPlan?.Plans.Sum(pl => (double)pl.Realised) ?? 0);
                                     }
-                                    @Model.CurrencySymbol@totalRealisedAll.ToString("0")
+                                    @Model.CurrencySymbol@footerTotalRealised.ToString("0")
                                 </td>
                                 <td></td>
                                 <td></td>
@@ -672,28 +672,138 @@
     @{
         double performance = Math.Round(@Model.performance, 2);
         double disbursementPerformance = Math.Round(@Model.DisbursementPerformance, 2);
+
+        // Figures used by the ⓘ formula popovers (computed from this project's own data).
+        var orderedPhases = (Model.Phases ?? new List<MonitoringAndEvaluationPlatform.Models.ProjectPhase>())
+            .OrderBy(p => p.StartDate).ToList();
+        double totalPhaseWeight = orderedPhases.Sum(p => (double)p.Weight);
+        double sumPerfTimesWeight = orderedPhases.Sum(p => p.PhasePerformance * (double)p.Weight);
+        double totalRealisedAll = orderedPhases.Sum(p => p.ActionPlan?.Plans.Sum(pl => (double)pl.Realised) ?? 0);
     }
     <!-- Performance Metrics -->
     <div class="row mb-4">
         <div class="col-md-6">
             <div class="card shadow-sm h-100">
                 <div class="card-body text-center">
-                    <h6 class="card-title text-muted">@Localizer["Performance"]</h6>
+                    <h6 class="card-title text-muted">
+                        @Localizer["Performance"]
+                        <button type="button" class="metric-info-btn" data-metric="performance" tabindex="0"
+                                aria-label="@Localizer["How is this calculated?"]" title="@Localizer["How is this calculated?"]">
+                            <i class="fas fa-circle-info"></i>
+                        </button>
+                    </h6>
                     <div class="progress-circle progress-@((int)performance)" data-value="@performance">
                         <span class="progress-circle-value">@performance%</span>
                     </div>
                     <p class="text-muted mt-2 mb-0">@Localizer["Overall project performance"]</p>
+                    <div id="performance-formula-content" class="d-none" data-popover-title="@Localizer["How Performance is calculated"]">
+                        <div class="metric-formula">
+                            <p class="mb-1">@Localizer["Weighted average of all phase performances:"]</p>
+                            <code class="metric-formula-code">@Localizer["Performance = Σ(Phase Performance × Phase Weight) ÷ Σ(Phase Weight)"]</code>
+                            @if (orderedPhases.Any() && totalPhaseWeight > 0)
+                            {
+                                <div class="metric-mode-toggle btn-group btn-group-sm" role="group">
+                                    <button type="button" class="btn btn-outline-secondary metric-mode-btn" data-mode="summary">@Localizer["Summary"]</button>
+                                    <button type="button" class="btn btn-outline-secondary metric-mode-btn active" data-mode="detailed">@Localizer["Detailed"]</button>
+                                </div>
+                                <div class="metric-mode-block d-none" data-mode="summary">
+                                    <code class="metric-formula-code">= @sumPerfTimesWeight.ToString("0.##") ÷ @totalPhaseWeight.ToString("0.##") = @performance%</code>
+                                </div>
+                                <div class="metric-mode-block" data-mode="detailed">
+                                    <div class="metric-formula-scroll">
+                                        <table class="metric-formula-table">
+                                            <thead>
+                                                <tr>
+                                                    <th>@Localizer["Phase Name"]</th>
+                                                    <th class="text-end">@Localizer["Performance %"]</th>
+                                                    <th class="text-end">@Localizer["Weight %"]</th>
+                                                    <th class="text-end">@Localizer["Perf × Weight"]</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                @foreach (var p in orderedPhases)
+                                                {
+                                                    <tr>
+                                                        <td>@p.Name</td>
+                                                        <td class="text-end">@p.PhasePerformance.ToString("0.##")</td>
+                                                        <td class="text-end">@p.Weight.ToString("0.##")</td>
+                                                        <td class="text-end">@((p.PhasePerformance * (double)p.Weight).ToString("0.##"))</td>
+                                                    </tr>
+                                                }
+                                            </tbody>
+                                            <tfoot>
+                                                <tr class="fw-bold">
+                                                    <td>@Localizer["Total"]</td>
+                                                    <td></td>
+                                                    <td class="text-end">@totalPhaseWeight.ToString("0.##")</td>
+                                                    <td class="text-end">@sumPerfTimesWeight.ToString("0.##")</td>
+                                                </tr>
+                                            </tfoot>
+                                        </table>
+                                    </div>
+                                    <code class="metric-formula-code">= @sumPerfTimesWeight.ToString("0.##") ÷ @totalPhaseWeight.ToString("0.##") = @performance%</code>
+                                </div>
+                            }
+                            else
+                            {
+                                <p class="mt-2 mb-0 small text-muted">@Localizer["No phase weights to calculate."]</p>
+                            }
+                            <p class="mt-2 mb-0 small text-muted">@Localizer["Each phase's performance is the sum of its measure values; phase weights sum to 100."]</p>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
         <div class="col-md-6">
             <div class="card shadow-sm h-100">
                 <div class="card-body text-center">
-                    <h6 class="card-title text-muted">@Localizer["Disbursement"]</h6>
+                    <h6 class="card-title text-muted">
+                        @Localizer["Disbursement"]
+                        <button type="button" class="metric-info-btn" data-metric="disbursement" tabindex="0"
+                                aria-label="@Localizer["How is this calculated?"]" title="@Localizer["How is this calculated?"]">
+                            <i class="fas fa-circle-info"></i>
+                        </button>
+                    </h6>
                     <div class="progress-circle progress-@((int)Model.DisbursementPerformance)" data-value="@Model.DisbursementPerformance">
                         <span class="progress-circle-value">@disbursementPerformance%</span>
                     </div>
                     <p class="text-muted mt-2 mb-0">@Localizer["Budget utilization"]</p>
+                    <div id="disbursement-formula-content" class="d-none" data-popover-title="@Localizer["How Disbursement is calculated"]">
+                        <div class="metric-formula">
+                            <p class="mb-1">@Localizer["Share of the estimated budget that has been spent (realised):"]</p>
+                            <code class="metric-formula-code">@Localizer["Disbursement = (Σ Realised ÷ Estimated Budget) × 100"]</code>
+                            @if (Model.EstimatedBudget > 0)
+                            {
+                                <div class="metric-mode-toggle btn-group btn-group-sm" role="group">
+                                    <button type="button" class="btn btn-outline-secondary metric-mode-btn" data-mode="summary">@Localizer["Summary"]</button>
+                                    <button type="button" class="btn btn-outline-secondary metric-mode-btn active" data-mode="detailed">@Localizer["Detailed"]</button>
+                                </div>
+                                <div class="metric-mode-block d-none" data-mode="summary">
+                                    <code class="metric-formula-code">= (@Model.CurrencySymbol@totalRealisedAll.ToString("N0") ÷ @Model.CurrencySymbol@Model.EstimatedBudget.ToString("N0")) × 100 = @disbursementPerformance%</code>
+                                </div>
+                                <div class="metric-mode-block" data-mode="detailed">
+                                    <table class="metric-formula-table mt-2">
+                                        <tbody>
+                                            <tr>
+                                                <td>Σ @Localizer["Total Realised"]</td>
+                                                <td class="text-end">@Model.CurrencySymbol@totalRealisedAll.ToString("N0")</td>
+                                            </tr>
+                                            <tr>
+                                                <td>@Localizer["Estimated Budget"]</td>
+                                                <td class="text-end">@Model.CurrencySymbol@Model.EstimatedBudget.ToString("N0")</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                    <code class="metric-formula-code">= (@Model.CurrencySymbol@totalRealisedAll.ToString("N0") ÷ @Model.CurrencySymbol@Model.EstimatedBudget.ToString("N0")) × 100 = @disbursementPerformance%</code>
+                                </div>
+                                <p class="mt-2 mb-0 small text-muted">@Localizer["Σ Realised = total realised across all phases."]</p>
+                            }
+                            else
+                            {
+                                <p class="mt-2 mb-0 small text-muted">@Localizer["Estimated budget is 0 — disbursement is 0%."]</p>
+                            }
+                        </div>
+                    </div>
                     @if (User.IsInRole(MonitoringAndEvaluationPlatform.Models.UserRoles.SystemAdministrator))
                     {
                         @Html.AntiForgeryToken()
@@ -784,6 +894,63 @@
 @section Styles {
     <!-- Optimized external CSS -->
     <link rel="stylesheet" href="~/css/project-details.css" asp-append-version="true" />
+    <style>
+        /* Small inline "how is this calculated?" info button next to a metric percentage */
+        .metric-info-btn {
+            border: none;
+            background: transparent;
+            padding: 0;
+            margin-inline-start: 4px;
+            color: #adb5bd;
+            font-size: 0.85rem;
+            line-height: 1;
+            cursor: pointer;
+            vertical-align: middle;
+            transition: color 0.15s ease, transform 0.15s ease;
+        }
+        .metric-info-btn:hover,
+        .metric-info-btn:focus {
+            color: var(--primary-color, #6f42c1);
+            transform: scale(1.12);
+            outline: none;
+        }
+        /* Popover body holding the formula */
+        .metric-formula-popover { max-width: 320px; }
+        .metric-formula-code {
+            display: block;
+            background: #f8f9fa;
+            border: 1px solid #e9ecef;
+            border-radius: 6px;
+            padding: 6px 10px;
+            margin: 4px 0;
+            color: #d6336c;
+            font-size: 0.82rem;
+            direction: ltr;
+            text-align: center;
+        }
+        /* Per-figure breakdown table inside the formula popover */
+        .metric-formula-scroll { max-height: 160px; overflow: auto; margin: 6px 0; }
+        .metric-formula-table {
+            width: 100%;
+            font-size: 0.78rem;
+            border-collapse: collapse;
+        }
+        .metric-formula-table th,
+        .metric-formula-table td {
+            padding: 3px 6px;
+            border-bottom: 1px solid #eef0f2;
+            white-space: nowrap;
+        }
+        .metric-formula-table thead th {
+            color: #6c757d;
+            font-weight: 600;
+            border-bottom: 1px solid #dee2e6;
+        }
+        .metric-formula-table tfoot td { border-top: 1px solid #dee2e6; }
+        /* Summary / Detailed toggle inside the popover */
+        .metric-mode-toggle { display: flex; justify-content: center; margin: 8px 0 4px; }
+        .metric-mode-toggle .btn { padding: 2px 12px; font-size: 0.72rem; }
+    </style>
 }
 
 @section Scripts {
@@ -957,6 +1124,46 @@
                 Swal.fire({ icon: 'error', title: s.errorApplying });
             }
         }
+
+        // Initialize the inline "how is this calculated?" formula popovers.
+        document.addEventListener('DOMContentLoaded', function () {
+            if (typeof bootstrap === 'undefined' || !bootstrap.Popover) return;
+            document.querySelectorAll('.metric-info-btn').forEach(function (btn) {
+                var contentEl = document.getElementById(btn.dataset.metric + '-formula-content');
+                if (!contentEl) return;
+                new bootstrap.Popover(btn, {
+                    html: true,
+                    sanitize: false,
+                    trigger: 'focus',
+                    placement: 'top',
+                    container: 'body',
+                    title: contentEl.dataset.popoverTitle || '',
+                    content: contentEl.innerHTML,
+                    customClass: 'metric-formula-popover'
+                });
+            });
+        });
+
+        // Keep the info icon focused when clicking a toggle, so the (focus-triggered)
+        // popover does not close before the toggle registers.
+        document.addEventListener('mousedown', function (e) {
+            if (e.target.closest('.metric-mode-btn')) e.preventDefault();
+        });
+
+        // Summary/Detailed toggle inside the formula popovers (resets each open).
+        document.addEventListener('click', function (e) {
+            var modeBtn = e.target.closest('.metric-mode-btn');
+            if (!modeBtn) return;
+            var root = modeBtn.closest('.popover') || modeBtn.closest('.metric-formula');
+            if (!root) return;
+            var mode = modeBtn.dataset.mode;
+            root.querySelectorAll('.metric-mode-btn').forEach(function (b) {
+                b.classList.toggle('active', b.dataset.mode === mode);
+            });
+            root.querySelectorAll('.metric-mode-block').forEach(function (blk) {
+                blk.classList.toggle('d-none', blk.dataset.mode !== mode);
+            });
+        });
     </script>
 
 }

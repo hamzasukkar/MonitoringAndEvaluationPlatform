@@ -4,6 +4,9 @@
     var featureKey = ViewData["HelpFeature"]?.ToString() ?? "GENERAL";
     var currentCulture = System.Globalization.CultureInfo.CurrentUICulture.Name;
     var isRtl = currentCulture.StartsWith("ar");
+    // Optional "Formulas" tab: only rendered when the feature defines formula help content.
+    var formulasKey = $"HELP_{featureKey}_FORMULAS";
+    var hasFormulas = !Localizer.GetString(formulasKey).ResourceNotFound;
 }
 
 <div class="modal fade" id="helpModal" tabindex="-1" aria-labelledby="helpModalLabel" aria-hidden="true" dir="@(isRtl ? "rtl" : "ltr")">
@@ -39,6 +42,14 @@
                             <i class="fas fa-lightbulb me-1"></i>@Localizer["Tips"]
                         </button>
                     </li>
+                    @if (hasFormulas)
+                    {
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link" id="formulas-tab" data-bs-toggle="tab" data-bs-target="#formulas-pane" type="button" role="tab" aria-controls="formulas-pane" aria-selected="false">
+                                <i class="fas fa-calculator me-1"></i>@Localizer["Formulas"]
+                            </button>
+                        </li>
+                    }
                 </ul>
                 <div class="tab-content help-tab-content" id="helpTabContent">
                     <!-- Overview Tab -->
@@ -123,6 +134,16 @@
                             </div>
                         </div>
                     </div>
+
+                    @if (hasFormulas)
+                    {
+                        <!-- Formulas Tab -->
+                        <div class="tab-pane fade" id="formulas-pane" role="tabpanel" aria-labelledby="formulas-tab" tabindex="0">
+                            <div class="help-section help-formulas">
+                                @Localizer[formulasKey]
+                            </div>
+                        </div>
+                    }
                 </div>
             </div>
             <div class="modal-footer help-modal-footer">

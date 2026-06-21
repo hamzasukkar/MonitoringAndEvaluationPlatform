@@ -420,4 +420,46 @@
   <data name="Could not apply correction." xml:space="preserve">
     <value>تعذّر تطبيق التصحيح.</value>
   </data>
+  <data name="How is this calculated?" xml:space="preserve">
+    <value>كيف تُحتسب هذه القيمة؟</value>
+  </data>
+  <data name="How Performance is calculated" xml:space="preserve">
+    <value>كيف يُحتسب الأداء</value>
+  </data>
+  <data name="Weighted average of all phase performances:" xml:space="preserve">
+    <value>المتوسط المرجّح لأداء جميع المراحل:</value>
+  </data>
+  <data name="Each phase's performance is the sum of its measure values; phase weights sum to 100." xml:space="preserve">
+    <value>أداء كل مرحلة هو مجموع قيم قياساتها؛ ومجموع أوزان المراحل يساوي 100.</value>
+  </data>
+  <data name="How Disbursement is calculated" xml:space="preserve">
+    <value>كيف يُحتسب الصرف</value>
+  </data>
+  <data name="Share of the estimated budget that has been spent (realised):" xml:space="preserve">
+    <value>حصة الموازنة التقديرية التي تم صرفها (المتحقق):</value>
+  </data>
+  <data name="Total realised across all phases, divided by the estimated budget." xml:space="preserve">
+    <value>إجمالي المتحقق عبر جميع المراحل مقسومًا على الموازنة التقديرية.</value>
+  </data>
+  <data name="Total" xml:space="preserve">
+    <value>الإجمالي</value>
+  </data>
+  <data name="Perf × Weight" xml:space="preserve">
+    <value>الأداء × الوزن</value>
+  </data>
+  <data name="Summary" xml:space="preserve">
+    <value>موجز</value>
+  </data>
+  <data name="Detailed" xml:space="preserve">
+    <value>تفصيلي</value>
+  </data>
+  <data name="No phase weights to calculate." xml:space="preserve">
+    <value>لا توجد أوزان مراحل للاحتساب.</value>
+  </data>
+  <data name="Σ Realised = total realised across all phases." xml:space="preserve">
+    <value>Σ المتحقق = إجمالي المتحقق عبر جميع المراحل.</value>
+  </data>
+  <data name="Estimated budget is 0 — disbursement is 0%." xml:space="preserve">
+    <value>الموازنة التقديرية تساوي 0 — نسبة الصرف 0%.</value>
+  </data>
 </root>

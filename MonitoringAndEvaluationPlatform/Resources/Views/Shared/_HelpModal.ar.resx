@@ -72,6 +72,9 @@
   <data name="Tips" xml:space="preserve">
     <value>نصائح</value>
   </data>
+  <data name="Formulas" xml:space="preserve">
+    <value>المعادلات</value>
+  </data>
   <data name="Close" xml:space="preserve">
     <value>إغلاق</value>
   </data>
@@ -179,6 +182,9 @@
   </data>
   <data name="HELP_PROJECTS_TIP_2" xml:space="preserve">
     <value>صدّر قوائم المشاريع إلى Excel للتحليل والتقارير التفصيلية.</value>
+  </data>
+  <data name="HELP_PROJECTS_FORMULAS" xml:space="preserve">
+    <value>&lt;div class="help-formula-block mb-4"&gt;&lt;h6 class="fw-bold"&gt;&lt;i class="fas fa-chart-line me-1 text-primary"&gt;&lt;/i&gt; الأداء&lt;/h6&gt;&lt;p class="mb-1"&gt;أداء المشروع الإجمالي هو المتوسط المرجّح لأداء جميع المراحل:&lt;/p&gt;&lt;code class="d-block p-2 my-2 bg-light border rounded" dir="ltr"&gt;Performance = Σ(Phase Performance × Phase Weight) ÷ Σ(Phase Weight)&lt;/code&gt;&lt;ul class="small text-muted mb-0"&gt;&lt;li&gt;أداء كل مرحلة = مجموع قيم القياسات الخاصة بها.&lt;/li&gt;&lt;li&gt;أوزان المراحل تُحدَّد في قسم المراحل ومجموعها دائمًا 100.&lt;/li&gt;&lt;/ul&gt;&lt;/div&gt;&lt;div class="help-formula-block"&gt;&lt;h6 class="fw-bold"&gt;&lt;i class="fas fa-wallet me-1 text-success"&gt;&lt;/i&gt; الصرف&lt;/h6&gt;&lt;p class="mb-1"&gt;نسبة استخدام الموازنة — حصة الموازنة التقديرية التي تم صرفها فعليًا (المتحقق):&lt;/p&gt;&lt;code class="d-block p-2 my-2 bg-light border rounded" dir="ltr"&gt;Disbursement = (Σ Realised ÷ Estimated Budget) × 100&lt;/code&gt;&lt;ul class="small text-muted mb-0"&gt;&lt;li&gt;Σ المتحقق = إجمالي المبالغ المتحققة عبر خطة عمل كل مرحلة.&lt;/li&gt;&lt;li&gt;الموازنة التقديرية هي إجمالي الموازنة المخطّطة للمشروع.&lt;/li&gt;&lt;/ul&gt;&lt;/div&gt;</value>
   </data>
 
   <!-- Monitoring Help Content -->
