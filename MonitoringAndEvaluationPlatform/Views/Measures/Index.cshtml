@@ -382,7 +382,7 @@
                                 <td class="text-center">
                                     @if (item.MeasureType == MonitoringAndEvaluationPlatform.Enums.MeasureType.Quantitative)
                                     {
-                                        <span class="modern-badge badge-warning">@item.Value.ToString("0.##")%</span>
+                                        <span class="modern-badge badge-warning measure-percentage-display">@item.Value.ToString("0.##")%</span>
                                     }
                                 </td>
                                 <td class="text-center">
@@ -1326,7 +1326,14 @@
 
                         // Update displayed value to reflect auto-calculated result
                         const finalValue = parseFloat(editedValue);
-                        row.find('.measure-value-display').text(parseFloat(finalValue.toFixed(2)).toString()).attr('data-value', finalValue);
+                        const qtyNum = parseFloat(qty);
+                        // Value column shows the quantity for quantitative rows, otherwise the achievement value
+                        const valueDisplayText = !isNaN(qtyNum)
+                            ? parseFloat(qtyNum.toFixed(2)).toString()
+                            : parseFloat(finalValue.toFixed(2)).toString();
+                        row.find('.measure-value-display').text(valueDisplayText).attr('data-value', finalValue);
+                        // Percentage column always reflects the achievement value
+                        row.find('.measure-percentage-display').text(parseFloat(finalValue.toFixed(2)).toString() + '%');
 
                         // Hide edit inputs and show display values
                         row.find('.measure-name-display').removeClass('d-none');
