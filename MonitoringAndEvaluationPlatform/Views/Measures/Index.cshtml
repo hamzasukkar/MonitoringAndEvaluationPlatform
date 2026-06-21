@@ -196,12 +196,12 @@
                             <div class="d-flex gap-3">
                                 <label class="d-flex align-items-center gap-2" style="cursor:pointer;">
                                     <input type="radio" name="inlineMeasureType" id="inlineTypeQualitative" value="0"
-                                           class="form-check-input flex-shrink-0" style="width:1.1em;height:1.1em;cursor:pointer;" checked />
+                                           class="form-check-input flex-shrink-0" style="width:1.1em;height:1.1em;cursor:pointer;" />
                                     <span><strong>@Localizer["Qualitative"]</strong></span>
                                 </label>
                                 <label class="d-flex align-items-center gap-2" style="cursor:pointer;">
                                     <input type="radio" name="inlineMeasureType" id="inlineTypeQuantitative" value="1"
-                                           class="form-check-input flex-shrink-0" style="width:1.1em;height:1.1em;cursor:pointer;" />
+                                           class="form-check-input flex-shrink-0" style="width:1.1em;height:1.1em;cursor:pointer;" checked />
                                     <span><strong>@Localizer["Quantitative"]</strong></span>
                                 </label>
                             </div>
@@ -276,7 +276,7 @@
                         <div class="form-text text-muted"><i class="fas fa-paperclip me-1"></i>@Localizer["Optional file attachment"]</div>
                     </div>
                     <div class="col-md-4 d-flex align-items-end">
-                        <button type="submit" class="btn btn-gradient-primary w-100" id="addMeasureBtn">
+                        <button type="submit" class="btn btn-gradient-primary" id="addMeasureBtn">
                             <i class="fas fa-save me-2"></i>@Localizer["Add Measure"]
                         </button>
                     </div>
@@ -582,6 +582,33 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
     <style>
+        /* On-brand "Add Measure" submit button (green theme + gold accent) */
+        #addMeasureBtn {
+            font-weight: 600;
+            padding: 0.45rem 1.4rem;
+            border: none;
+            border-bottom: 2px solid var(--accent-gold-color, #C8A85F);
+            border-radius: 10px;
+            color: #fff;
+            background: linear-gradient(135deg, var(--primary-color, #1A3B33) 0%, var(--primary-light, #2A4C44) 100%);
+            box-shadow: 0 3px 10px rgba(26, 59, 51, 0.3);
+            transition: transform 0.2s ease, box-shadow 0.2s ease, filter 0.2s ease;
+        }
+
+        #addMeasureBtn i {
+            color: var(--accent-gold-color, #C8A85F);
+        }
+
+        #addMeasureBtn:hover:not(:disabled) {
+            transform: translateY(-1px);
+            filter: brightness(1.08);
+            box-shadow: 0 6px 16px rgba(26, 59, 51, 0.45);
+        }
+
+        #addMeasureBtn:disabled {
+            opacity: 0.75;
+        }
+
         /* Modern Project Navigation */
         .project-nav-modern {
             background: rgba(255, 255, 255, 0.95);
@@ -1365,6 +1392,8 @@
             $('input[name="inlineMeasureType"]').on('change', function() {
                 applyInlineTypeMode($(this).val() === '1');
             });
+            // Sync initial field visibility with the default-checked type (Quantitative)
+            applyInlineTypeMode($('input[name="inlineMeasureType"]:checked').val() === '1');
                 </text>
             }
 
