@@ -12,7 +12,7 @@ namespace MonitoringAndEvaluationPlatform.Models
         [DisplayFormat(DataFormatString = "{0:MMM yyyy}")]
         public DateTime Date { get; set; }
 
-        public int Realised { get; set; }
+        public long Realised { get; set; }
 
         public int ActionPlanCode { get; set; }
 

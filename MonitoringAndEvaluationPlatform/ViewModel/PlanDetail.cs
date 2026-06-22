@@ -4,6 +4,6 @@ namespace MonitoringAndEvaluationPlatform.ViewModel
     {
         public int PlanCode { get; set; }
         public DateTime Date { get; set; }
-        public int RealisedValue { get; set; }
+        public long RealisedValue { get; set; }
     }
 }

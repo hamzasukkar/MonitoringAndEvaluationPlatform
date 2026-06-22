@@ -212,7 +212,7 @@
                                     <td class="editable-plan-cell" contenteditable="true"
                                         data-plan-code="@realisedPlan.PlanCode"
                                         data-value-type="Realised">
-                                        @(realisedPlan.RealisedValue == 0 ? "" : realisedPlan.RealisedValue.ToString())
+                                        @(realisedPlan.RealisedValue == 0 ? "" : realisedPlan.RealisedValue.ToString("N0", System.Globalization.CultureInfo.InvariantCulture))
                                     </td>
                                 }
                                 else
@@ -228,7 +228,7 @@
                                 <td class="editable-plan-cell" contenteditable="true"
                                     data-plan-code="@plan.PlanCode"
                                     data-value-type="Realised">
-                                    @(plan.RealisedValue == 0 ? "" : plan.RealisedValue.ToString())
+                                    @(plan.RealisedValue == 0 ? "" : plan.RealisedValue.ToString("N0", System.Globalization.CultureInfo.InvariantCulture))
                                 </td>
                             }
                         }
@@ -869,6 +869,18 @@
         $(document).ready(function () {
             let currentOriginalValue;
 
+            // Strip thousand separators to get the raw numeric string
+            function stripSep(s) {
+                return (s == null ? '' : s.toString()).replace(/,/g, '').trim();
+            }
+
+            // Format a raw numeric string with thousand separators (empty/0 -> '')
+            function fmtSep(s) {
+                var raw = stripSep(s);
+                if (raw === '' || raw === '0' || isNaN(raw)) return raw === '0' ? '' : raw;
+                return Number(raw).toLocaleString('en-US');
+            }
+
             function updateSaveBar() {
                 var count = $('.editable-plan-cell.modified').length;
                 $('#changeCount').text(count);
@@ -882,11 +894,14 @@
             // On focus: store the current value and select all text
             $('body').on('focus', '.editable-plan-cell', function () {
                 var cell = $(this);
-                // Store the original server value on first edit
+                var raw = stripSep(cell.text());
+                // Store the original server value (raw, without separators) on first edit
                 if (cell.data('original-value') === undefined) {
-                    cell.data('original-value', cell.text().trim());
+                    cell.data('original-value', raw);
                 }
-                currentOriginalValue = cell.text().trim();
+                currentOriginalValue = raw;
+                // Show the raw number while editing so separators don't get in the way
+                cell.text(raw === '0' ? '' : raw);
                 var el = this;
                 setTimeout(function () {
                     var range = document.createRange();
@@ -900,16 +915,19 @@
             // On blur: validate and mark as modified (no auto-save)
             $('body').on('blur', '.editable-plan-cell', function () {
                 var cell = $(this);
-                var newValue = cell.text().trim();
+                var newValue = stripSep(cell.text());
                 var originalValue = cell.data('original-value');
 
                 // Validate: must be a number (empty is allowed and treated as 0/blank)
                 if (newValue !== '' && isNaN(newValue)) {
                     cell.addClass('error');
-                    cell.text(currentOriginalValue);
+                    cell.text(fmtSep(currentOriginalValue));
                     setTimeout(() => cell.removeClass('error'), 1500);
                     return;
                 }
+
+                // Re-apply thousand separators for display
+                cell.text(fmtSep(newValue));
 
                 // Check if value differs from original server value
                 if (newValue === String(originalValue)) {
@@ -930,10 +948,10 @@
                     var cell = $(this);
                     var originalValue = cell.data('original-value');
                     if (originalValue !== undefined) {
-                        cell.text(originalValue);
+                        cell.text(fmtSep(originalValue));
                         cell.removeClass('modified');
                     } else {
-                        cell.text(currentOriginalValue);
+                        cell.text(fmtSep(currentOriginalValue));
                     }
                     cell.blur();
                     updateSaveBar();
@@ -944,7 +962,7 @@
             $('#discardBtn').on('click', function() {
                 $('.editable-plan-cell.modified').each(function() {
                     var cell = $(this);
-                    cell.text(cell.data('original-value'));
+                    cell.text(fmtSep(cell.data('original-value')));
                     cell.removeClass('modified');
                     cell.removeData('original-value');
                 });
@@ -956,7 +974,7 @@
                 var updates = [];
                 $('.editable-plan-cell.modified').each(function() {
                     var cell = $(this);
-                    var t = cell.text().trim();
+                    var t = stripSep(cell.text());
                     updates.push({
                         planCode: cell.data('plan-code'),
                         valueType: cell.data('value-type'),

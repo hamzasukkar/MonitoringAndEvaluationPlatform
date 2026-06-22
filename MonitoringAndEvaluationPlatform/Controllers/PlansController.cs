@@ -15,7 +15,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
     {
         public int PlanCode { get; set; }
         public string ValueType { get; set; }
-        public int NewValue { get; set; }
+        public long NewValue { get; set; }
     }
 
     public class PlansController : Controller
@@ -78,7 +78,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 return Json(new { success = false, message = "Invalid Plan Code." });
             }
 
-            if (!int.TryParse(newValue, out int parsedValue))
+            if (!long.TryParse(newValue, out long parsedValue))
             {
                 return Json(new { success = false, message = "Invalid number. Please enter a whole number." });
             }
