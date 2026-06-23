@@ -186,6 +186,11 @@
                                        title="@Localizer["Performance Breakdown"]">
                                         <i class="fas fa-chart-pie"></i>
                                     </a>
+                                    <a href="@Url.Action("Index", "BudgetMatrix", new { ministryCode = item.Code })"
+                                       class="btn btn-outline-success btn-sm action-btn"
+                                       title="@Localizer["Budget Matrix"]">
+                                        <i class="fas fa-table"></i>
+                                    </a>
                                     @if (User.IsInRole(UserRoles.SystemAdministrator))
                                     {
                                         <button class="btn btn-outline-primary btn-sm action-btn"

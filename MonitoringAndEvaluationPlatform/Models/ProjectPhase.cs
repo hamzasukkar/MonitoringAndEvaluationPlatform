@@ -5,6 +5,23 @@ namespace MonitoringAndEvaluationPlatform.Models
 {
     public class ProjectPhase
     {
+        /// <summary>
+        /// The canonical budget category ("الفقرات") names used as default project phases.
+        /// Single source of truth shared between phase creation and reporting pages.
+        /// </summary>
+        public static readonly string[] DefaultCategoryNames =
+        {
+            "اراضي",
+            "مباني وانشاءات ومرافق",
+            "الات ومعدات",
+            "وسائل نقل وانتقال",
+            "عدد وادوات وقوالب",
+            "اثاث ومعدات مكاتب",
+            "ثروة حيوانية",
+            "نفقات تاسيس",
+            "رواتب واجور وتعويضات"
+        };
+
         [Key]
         public int Id { get; set; }
 

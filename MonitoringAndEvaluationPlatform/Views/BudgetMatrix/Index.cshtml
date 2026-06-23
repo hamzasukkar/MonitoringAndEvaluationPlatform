@@ -1,0 +1,144 @@
+@using System.Globalization
+@using Microsoft.AspNetCore.Mvc.Localization
+@inject IViewLocalizer Localizer
+@model MonitoringAndEvaluationPlatform.ViewModel.BudgetMatrixViewModel
+@{
+    ViewData["Title"] = Localizer["Projects Budget Matrix"];
+    Layout = "~/Views/Shared/_DashboardHomeLayout.cshtml";
+    var inv = CultureInfo.InvariantCulture;
+}
+
+<!-- Dashboard Header -->
+<div class="dashboard-header">
+    <div class="header-content">
+        <div class="page-title-section">
+            <div class="page-breadcrumb">
+                <a href="@Url.Action("Index", "Home")" class="breadcrumb-link">
+                    <i class="fas fa-home"></i>
+                    @Localizer["Home"]
+                </a>
+                <i class="fas fa-chevron-right breadcrumb-separator"></i>
+                <a href="@Url.Action("Index", "Ministries")" class="breadcrumb-link">@Localizer["Ministries"]</a>
+                <i class="fas fa-chevron-right breadcrumb-separator"></i>
+                <span class="current-page">@Localizer["Budget Matrix"]</span>
+            </div>
+            <h1 class="page-title">
+                @Localizer["Projects Budget & Disbursement Matrix by Category"]
+                @if (!string.IsNullOrEmpty(ViewBag.MinistryName as string))
+                {
+                    <span class="text-primary">— @ViewBag.MinistryName</span>
+                }
+            </h1>
+            <p class="page-description">@Localizer["View each project's budget and disbursement distributed across categories"]</p>
+        </div>
+    </div>
+</div>
+
+<div class="chart-card" dir="rtl">
+    <div class="chart-title">
+        <i class="fas fa-table"></i>
+        @Localizer["Budget & Disbursement Matrix"] (@Model.Projects.Count)
+    </div>
+
+    @if (!Model.Projects.Any())
+    {
+        <div class="alert alert-info text-center">
+            <i class="fas fa-inbox me-2"></i>@Localizer["No projects to display."]
+        </div>
+    }
+    else
+    {
+        <div class="table-responsive">
+            <table class="table table-bordered table-sm align-middle text-center budget-matrix">
+                <thead class="table-light">
+                    <tr>
+                        <th rowspan="2" class="align-middle project-name-col">@Localizer["Project Name"]</th>
+                        <th rowspan="2" class="align-middle"></th>
+                        <th colspan="@Model.Categories.Count">@Localizer["Categories"]</th>
+                    </tr>
+                    <tr>
+                        @foreach (var category in Model.Categories)
+                        {
+                            <th class="category-col">@category</th>
+                        }
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var project in Model.Projects)
+                    {
+                        <tr>
+                            <td rowspan="2" class="align-middle fw-bold project-name-col">@project.ProjectName</td>
+                            <td class="row-label">@Localizer["Budget"]</td>
+                            @foreach (var category in Model.Categories)
+                            {
+                                <td>@project.Budget[category].ToString("N0", inv)</td>
+                            }
+                        </tr>
+                        <tr>
+                            <td class="row-label">@Localizer["Disbursement"]</td>
+                            @foreach (var category in Model.Categories)
+                            {
+                                <td>@project.Disbursement[category].ToString("N0", inv)</td>
+                            }
+                        </tr>
+                    }
+                </tbody>
+                <tfoot class="table-light fw-bold">
+                    <tr>
+                        <td colspan="2" class="row-label">@Localizer["Total Budget"]</td>
+                        @foreach (var category in Model.Categories)
+                        {
+                            <td>@Model.Projects.Sum(p => p.Budget[category]).ToString("N0", inv)</td>
+                        }
+                    </tr>
+                    <tr>
+                        <td colspan="2" class="row-label">@Localizer["Total Disbursement"]</td>
+                        @foreach (var category in Model.Categories)
+                        {
+                            <td>@Model.Projects.Sum(p => p.Disbursement[category]).ToString("N0", inv)</td>
+                        }
+                    </tr>
+                    <tr>
+                        <td colspan="2" class="row-label">@Localizer["Disbursement Performance by Category"]</td>
+                        @foreach (var category in Model.Categories)
+                        {
+                            var totalBudget = Model.Projects.Sum(p => p.Budget[category]);
+                            var totalDisb = Model.Projects.Sum(p => p.Disbursement[category]);
+                            var performance = totalDisb != 0 ? (totalBudget / totalDisb) * 100 : 0;
+                            <td>@performance.ToString("0.##", inv)%</td>
+                        }
+                    </tr>
+                </tfoot>
+            </table>
+        </div>
+    }
+</div>
+
+<style>
+    .budget-matrix th,
+    .budget-matrix td {
+        white-space: nowrap;
+        vertical-align: middle;
+    }
+
+    .budget-matrix thead th {
+        background-color: #f1f3f5;
+        font-weight: 600;
+    }
+
+    .budget-matrix .project-name-col {
+        background-color: #fafafa;
+        text-align: right;
+        min-width: 140px;
+    }
+
+    .budget-matrix .row-label {
+        background-color: #fafafa;
+        font-weight: 600;
+        text-align: right;
+    }
+
+    .budget-matrix .category-col {
+        min-width: 90px;
+    }
+</style>

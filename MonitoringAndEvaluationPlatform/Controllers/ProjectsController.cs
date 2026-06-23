@@ -1923,18 +1923,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 return;
             }
 
-            var allPhaseNames = new[]
-            {
-                "اراضي",
-                "مباني وانشاءات ومرافق",
-                "الات ومعدات",
-                "وسائل نقل وانتقال",
-                "عدد وادوات وقوالب",
-                "اثاث ومعدات مكاتب",
-                "ثروة حيوانية",
-                "نفقات تاسيس",
-                "رواتب واجور وتعويضات"
-            };
+            var allPhaseNames = ProjectPhase.DefaultCategoryNames;
 
             // Use only selected phases; fall back to all if none provided (e.g. legacy calls)
             var defaultPhaseNames = (selectedPhaseNames != null && selectedPhaseNames.Any())
