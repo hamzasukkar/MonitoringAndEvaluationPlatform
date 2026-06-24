@@ -91,7 +91,7 @@
                 <div class="metric-subtitle">@Localizer["Actual Spending"]</div>
             </div>
         </div>
-        <div class="metric-value">
+        <div class="metric-value money-words" data-words-value="@projectTotalRealisedCost">
             @ViewBag.CurrencySymbol@projectTotalRealisedCost.ToString("N0")
         </div>
     </div>
@@ -232,7 +232,7 @@
                                 </td>
                             }
                         }
-                        <td class="total-cost-cell">@projectTotalRealisedCost.ToString("N0")</td>
+                        <td class="total-cost-cell money-words" data-words-value="@projectTotalRealisedCost">@projectTotalRealisedCost.ToString("N0")</td>
                     </tr>
                 </tbody>
             </table>
@@ -869,9 +869,16 @@
         $(document).ready(function () {
             let currentOriginalValue;
 
-            // Strip thousand separators to get the raw numeric string
+            // Strip thousand separators to get the raw numeric string.
+            // Also normalizes Arabic-Indic digits and the Arabic separators (٬ ٫) so
+            // server-rendered values in Arabic culture parse correctly.
             function stripSep(s) {
-                return (s == null ? '' : s.toString()).replace(/,/g, '').trim();
+                return (s == null ? '' : s.toString())
+                    .replace(/[٠-٩]/g, function (d) { return d.charCodeAt(0) - 0x0660; })
+                    .replace(/[۰-۹]/g, function (d) { return d.charCodeAt(0) - 0x06F0; })
+                    .replace(/٫/g, '.')
+                    .replace(/[,٬]/g, '')
+                    .trim();
             }
 
             // Format a raw numeric string with thousand separators (empty/0 -> '')
@@ -957,6 +964,14 @@
                     $('#saveBar').removeClass('visible');
                 }
             }
+
+            // Show the Arabic-words hint on hover too (not only while editing)
+            $('body').on('mouseenter', '.editable-plan-cell', function () {
+                if (document.activeElement !== this) showCellWordsHint(this);
+            });
+            $('body').on('mouseleave', '.editable-plan-cell', function () {
+                if (document.activeElement !== this) hideCellWordsHint();
+            });
 
             // On focus: store the current value and select all text
             $('body').on('focus', '.editable-plan-cell', function () {
