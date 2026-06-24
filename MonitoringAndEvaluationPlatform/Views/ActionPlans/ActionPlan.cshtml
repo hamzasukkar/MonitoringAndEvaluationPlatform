@@ -881,6 +881,73 @@
                 return Number(raw).toLocaleString('en-US');
             }
 
+            // Convert a number to Arabic words for the inline reading hint (e.g. 1000 -> "ألف")
+            function convertNumberToArabicWords(num) {
+                if (!isFinite(num) || num < 1000) {
+                    return '';
+                }
+                num = Math.floor(num);
+                const billions = Math.floor(num / 1000000000);
+                const afterBillions = num % 1000000000;
+                const millions = Math.floor(afterBillions / 1000000);
+                const afterMillions = afterBillions % 1000000;
+                const thousands = Math.floor(afterMillions / 1000);
+                const remainder = afterMillions % 1000;
+
+                const parts = [];
+                if (billions > 0) {
+                    parts.push(billions === 1 ? 'مليار' : billions + ' مليار');
+                }
+                if (millions > 0) {
+                    parts.push(millions === 1 ? 'مليون' : millions + ' مليون');
+                }
+                if (thousands > 0) {
+                    if (thousands === 1) {
+                        parts.push('ألف');
+                    } else if (thousands === 10) {
+                        parts.push('عشرة آلاف');
+                    } else {
+                        parts.push(thousands + ' ألف');
+                    }
+                }
+                if (remainder > 0) {
+                    parts.push(remainder.toString());
+                }
+                return parts.join(' و');
+            }
+
+            // Floating hint that shows the typed number in Arabic words under the cell
+            var $cellWordsHint = $('<div id="cellWordsHint"></div>').css({
+                position: 'fixed',
+                display: 'none',
+                zIndex: 3000,
+                background: '#0d6efd',
+                color: '#fff',
+                padding: '4px 10px',
+                borderRadius: '8px',
+                fontSize: '0.8rem',
+                fontWeight: '600',
+                direction: 'rtl',
+                boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
+                pointerEvents: 'none',
+                whiteSpace: 'nowrap'
+            }).appendTo('body');
+
+            function showCellWordsHint(cellEl) {
+                var words = convertNumberToArabicWords(parseFloat(stripSep($(cellEl).text())));
+                if (!words) { $cellWordsHint.hide(); return; }
+                var rect = cellEl.getBoundingClientRect();
+                $cellWordsHint.text(words).css({
+                    top: (rect.bottom + 4) + 'px',
+                    left: rect.left + 'px',
+                    display: 'block'
+                });
+            }
+
+            function hideCellWordsHint() {
+                $cellWordsHint.hide();
+            }
+
             function updateSaveBar() {
                 var count = $('.editable-plan-cell.modified').length;
                 $('#changeCount').text(count);
@@ -900,8 +967,9 @@
                     cell.data('original-value', raw);
                 }
                 currentOriginalValue = raw;
-                // Show the raw number while editing so separators don't get in the way
-                cell.text(raw === '0' ? '' : raw);
+                // Keep thousand separators visible while editing (formatted live on input)
+                cell.text(raw === '0' ? '' : fmtSep(raw));
+                showCellWordsHint(this);
                 var el = this;
                 setTimeout(function () {
                     var range = document.createRange();
@@ -912,8 +980,47 @@
                 }, 0);
             });
 
+            // While typing: re-apply thousand separators live (not only on blur),
+            // preserving the caret position relative to the digits entered.
+            $('body').on('input', '.editable-plan-cell', function () {
+                var cell = this;
+                var sel = window.getSelection();
+                if (!sel || !sel.rangeCount) return;
+                var caret = sel.getRangeAt(0).startOffset;
+                var oldText = cell.textContent;
+
+                // Number of digit characters before the caret
+                var digitsBefore = (oldText.slice(0, caret).match(/\d/g) || []).length;
+
+                // Keep digits only, then regroup with separators
+                var cleaned = oldText.replace(/[^\d]/g, '');
+                var formatted = cleaned === '' ? '' : Number(cleaned).toLocaleString('en-US');
+
+                if (formatted === oldText) return;
+                cell.textContent = formatted;
+
+                // Restore caret after the same number of digits
+                var pos = 0, count = 0;
+                for (var i = 0; i < formatted.length; i++) {
+                    if (count >= digitsBefore) break;
+                    if (/\d/.test(formatted[i])) count++;
+                    pos = i + 1;
+                }
+                var node = cell.firstChild;
+                if (node) {
+                    var r = document.createRange();
+                    r.setStart(node, Math.min(pos, node.length));
+                    r.collapse(true);
+                    sel.removeAllRanges();
+                    sel.addRange(r);
+                }
+
+                showCellWordsHint(cell);
+            });
+
             // On blur: validate and mark as modified (no auto-save)
             $('body').on('blur', '.editable-plan-cell', function () {
+                hideCellWordsHint();
                 var cell = $(this);
                 var newValue = stripSep(cell.text());
                 var originalValue = cell.data('original-value');

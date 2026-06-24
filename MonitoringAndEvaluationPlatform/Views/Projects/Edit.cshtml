@@ -1775,12 +1775,12 @@
             totalAmount += amount;
 
             // Update the display for this donor
-            $(`.donor-amount[data-donor="${donor.value}"]`).text(symbol + amount.toFixed(2));
+            $(`.donor-amount[data-donor="${donor.value}"]`).text(symbol + amount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }));
         });
 
         // Update total displays
         $('#totalPercentage').text(totalPercentage.toFixed(1));
-        $('#totalFundingAmount').text(totalAmount.toFixed(2));
+        $('#totalFundingAmount').text(totalAmount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }));
 
         // Update status message
         const statusElement = $('#percentageStatus');

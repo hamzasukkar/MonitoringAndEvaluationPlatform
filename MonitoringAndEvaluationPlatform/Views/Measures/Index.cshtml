@@ -122,7 +122,7 @@
                                         @Localizer["Target Quantity"]
                                     </div>
                                     <div class="info-value">
-                                        <span class="modern-badge badge-primary">@selectedPhase.TargetQuantity.Value.ToString("G") @Localizer["Unit"]</span>
+                                        <span class="modern-badge badge-primary">@selectedPhase.TargetQuantity.Value.ToString("N0") @Localizer["Unit"]</span>
                                     </div>
                                 </div>
                                 <div class="info-row">
@@ -301,7 +301,7 @@
             @Localizer["Measures List"]
             @if (Model.Any())
             {
-                <span class="modern-badge badge-primary ms-2">@Model.Count()</span>
+                <span class="modern-badge badge-primary ms-2">@Model.Count().ToString("N0")</span>
             }
         </h3>
         <div class="chart-content">
@@ -371,7 +371,7 @@
                                 <td class="text-center">
                                     @if (item.MeasureType == MonitoringAndEvaluationPlatform.Enums.MeasureType.Quantitative && item.Quantity.HasValue)
                                     {
-                                        <span class="modern-badge badge-success measure-value-display" data-value="@item.Value">@item.Quantity.Value.ToString("G")</span>
+                                        <span class="modern-badge badge-success measure-value-display" data-value="@item.Value">@item.Quantity.Value.ToString("#,##0.##")</span>
                                     }
                                     else
                                     {
