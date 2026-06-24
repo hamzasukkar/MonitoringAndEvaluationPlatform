@@ -193,6 +193,19 @@
         <button class="btn btn-sm btn-outline-secondary" id="thresholdReset" title="@Localizer["Reset Filter"]">
             <i class="fas fa-undo"></i>
         </button>
+
+        <div class="type-filter-divider"></div>
+
+        <!-- Cell spacing -->
+        <label class="threshold-label" for="cellSpacing">
+            <i class="fas fa-arrows-alt-h me-1"></i>
+            @Localizer["Cell Spacing"]
+        </label>
+        <input type="range" id="cellSpacing" min="0" max="60" step="5" value="15" class="threshold-slider">
+        <span class="threshold-value-badge" id="cellSpacingBadge">15px</span>
+        <button class="btn btn-sm btn-outline-secondary" id="cellSpacingReset" title="@Localizer["Reset Spacing"]">
+            <i class="fas fa-undo"></i>
+        </button>
     </div>
 </div>
 
@@ -760,8 +773,8 @@
         display: flex;
         flex-wrap: wrap;
         justify-content: center;
-        gap: 15px;
-        margin-top: 25px;
+        gap: var(--node-gap, 15px);
+        margin-top: calc(10px + var(--node-gap, 15px));
         position: relative;
         overflow: hidden;
         max-height: 0;
@@ -778,11 +791,11 @@
     .node-container::before {
         content: '';
         position: absolute;
-        top: -25px;
+        top: calc(-10px - var(--node-gap, 15px));
         left: 50%;
         transform: translateX(-50%);
         width: 2px;
-        height: 25px;
+        height: calc(10px + var(--node-gap, 15px));
         background: var(--border-color);
         opacity: 0.6;
     }
@@ -1305,6 +1318,25 @@ document.addEventListener('DOMContentLoaded', function() {
         thresholdSlider.value = 0;
         applyThreshold();
     });
+    // ────────────────────────────────────────────────────────────────────────
+
+    // ── Cell Spacing Control ────────────────────────────────────────────────
+    const DEFAULT_SPACING = 15;
+    const spacingSlider = document.getElementById('cellSpacing');
+    const spacingBadge  = document.getElementById('cellSpacingBadge');
+
+    function applyCellSpacing() {
+        const val = parseInt(spacingSlider.value, 10);
+        spacingBadge.textContent = val + 'px';
+        document.documentElement.style.setProperty('--node-gap', val + 'px');
+    }
+
+    spacingSlider.addEventListener('input', applyCellSpacing);
+    document.getElementById('cellSpacingReset').addEventListener('click', function () {
+        spacingSlider.value = DEFAULT_SPACING;
+        applyCellSpacing();
+    });
+    applyCellSpacing();
     // ────────────────────────────────────────────────────────────────────────
 
     // ── Node Type Filter ────────────────────────────────────────────────────
