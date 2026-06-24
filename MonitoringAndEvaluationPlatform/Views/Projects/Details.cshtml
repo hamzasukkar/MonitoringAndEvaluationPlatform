@@ -310,7 +310,7 @@
                                     @Localizer["Estimated Budget"]
                                 </div>
                                 <div class="info-value">
-                                    <span class="budget-amount">@Model.CurrencySymbol@Model.EstimatedBudget.ToString("N0", System.Globalization.CultureInfo.InvariantCulture)</span>
+                                    <span class="budget-amount">@Model.CurrencySymbol@BudgetUnitHelper.ToScaledString(Model.EstimatedBudget, Model.BudgetUnit)</span>
                                     <small class="text-muted ms-1">(@Model.Currency)</small>
                                     @if (Model.EstimatedBudget >= 1000)
                                     {

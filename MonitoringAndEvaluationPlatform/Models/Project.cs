@@ -31,6 +31,9 @@ namespace MonitoringAndEvaluationPlatform.Models
         [Display(Name = "Currency")]
         public string Currency { get; set; } = "USD";
 
+        [Display(Name = "Budget Unit")]
+        public BudgetUnit BudgetUnit { get; set; } = BudgetUnit.Ones;
+
         [Display(Name = "Exchange Rate (1 USD = X SYP)")]
         [Range(0.01, double.MaxValue)]
         [Column(TypeName = "decimal(18,2)")]

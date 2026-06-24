@@ -13,6 +13,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Localization;
 using MonitoringAndEvaluationPlatform.Attributes;
 using MonitoringAndEvaluationPlatform.Data;
+using MonitoringAndEvaluationPlatform.Helpers;
 using MonitoringAndEvaluationPlatform.Models;
 using MonitoringAndEvaluationPlatform.Services;
 using MonitoringAndEvaluationPlatform.ViewModel;
@@ -624,6 +625,10 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                     return View(project);
                 }
 
+                // The budget is entered in the chosen unit (e.g. "5" + Millions). Scale it up to the
+                // full monetary value now, before donor funding and any other budget-based calculations.
+                project.EstimatedBudget *= project.BudgetUnit.Multiplier();
+
                 // Process sectors
                 var selectedSectors = _context.Sectors
                     .Where(s => selectedSectorCodes.Contains(s.Code.ToString()))
@@ -1081,8 +1086,10 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             dbProject.ProjectName = project.ProjectName;
             dbProject.StartDate = project.StartDate;
             dbProject.EndDate = project.EndDate;
-            dbProject.EstimatedBudget = project.EstimatedBudget;
+            // The budget is entered in the chosen unit; scale it up to the full stored value.
+            dbProject.EstimatedBudget = project.EstimatedBudget * project.BudgetUnit.Multiplier();
             dbProject.Currency = project.Currency;
+            dbProject.BudgetUnit = project.BudgetUnit;
             dbProject.ExchangeRate = project.ExchangeRate;
             dbProject.ExchangeRateDate = project.ExchangeRateDate;
             dbProject.RealBudget = project.RealBudget;

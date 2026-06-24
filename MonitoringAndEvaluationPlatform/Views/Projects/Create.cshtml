@@ -238,9 +238,15 @@
                                             <option value="SYP">SYP</option>
                                         </select>
                                         <input asp-for="EstimatedBudget" type="text" inputmode="decimal" autocomplete="off" class="form-control form-control-lg @ValidationClass("EstimatedBudget")" placeholder="0.00"
-                                               value="@(Model?.EstimatedBudget > 0 ? Model.EstimatedBudget.ToString("N0", System.Globalization.CultureInfo.InvariantCulture) : "")"
+                                               value="@(Model?.EstimatedBudget > 0 ? (Model.EstimatedBudget / MonitoringAndEvaluationPlatform.Helpers.BudgetUnitHelper.Multiplier(Model.BudgetUnit)).ToString("#,##0.##", System.Globalization.CultureInfo.InvariantCulture) : "")"
                                                oninvalid="this.setCustomValidity('@Localizer["Please enter a value greater than or equal to 0.01."]')"
                                                oninput="this.setCustomValidity('')" />
+                                        <select asp-for="BudgetUnit" class="form-select" style="max-width: 130px;" id="budgetUnitSelect">
+                                            <option value="Ones">@Localizer["Ones"]</option>
+                                            <option value="Thousands">@Localizer["Thousands"]</option>
+                                            <option value="Millions">@Localizer["Millions"]</option>
+                                            <option value="Billions">@Localizer["Billions"]</option>
+                                        </select>
                                     </div>
                                     <div class="form-text">@Localizer["Enter the total estimated budget for this project"]</div>
                                     <div id="estimatedBudgetArabicWords" class="form-text mt-1 text-primary fw-bold" dir="rtl" style="display:none;">
@@ -1520,10 +1526,18 @@ projectManagerMustBeSelected: '@Html.Raw(System.Text.Encodings.Web.JavaScriptEnc
     });
 
     // ===== Thousand-separator formatting for Estimated Budget =====
+    // Budget is entered in a chosen unit; parseBudget returns the FULL monetary value
+    // so every downstream calc (USD equivalent, Arabic words, donor totals) stays correct.
+    const BUDGET_UNIT_MULT = { Ones: 1, Thousands: 1000, Millions: 1000000, Billions: 1000000000 };
+    function currentBudgetUnitMult() {
+        return BUDGET_UNIT_MULT[$('#budgetUnitSelect').val()] || 1;
+    }
     function parseBudget($el) {
         const v = $el.val();
         if (!v) return NaN;
-        return parseFloat(v.replace(/,/g, ''));
+        const n = parseFloat(v.replace(/,/g, ''));
+        if (isNaN(n)) return NaN;
+        return n * currentBudgetUnitMult();
     }
 
     function formatBudgetInput(input) {
@@ -1578,6 +1592,11 @@ projectManagerMustBeSelected: '@Html.Raw(System.Text.Encodings.Web.JavaScriptEnc
     // Format on input
     $('[name="EstimatedBudget"]').on('input', function () {
         formatBudgetInput(this);
+    });
+
+    // Changing the budget unit rescales the full value; re-run all budget-dependent calcs.
+    $('#budgetUnitSelect').on('change', function () {
+        $('[name="EstimatedBudget"]').trigger('change');
     });
 
     // Strip commas before form submission so the model binder gets a clean number
