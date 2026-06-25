@@ -134,6 +134,38 @@
                 </div>
             </div>
         </div>
+        <hr class="my-2" />
+        <div class="row align-items-center">
+            <div class="col-12 col-md-auto mb-2">
+                <small class="text-muted fw-bold">
+                    <i class="fas fa-traffic-light me-1"></i>@Localizer["Performance Status"]
+                </small>
+            </div>
+            <div class="col-md-2 col-sm-6 mb-2">
+                <div class="legend-item">
+                    <div class="legend-color perf-good-color"></div>
+                    <span>@Localizer["Good"] (&ge;80%)</span>
+                </div>
+            </div>
+            <div class="col-md-2 col-sm-6 mb-2">
+                <div class="legend-item">
+                    <div class="legend-color perf-mid-color"></div>
+                    <span>@Localizer["Average"] (60–79%)</span>
+                </div>
+            </div>
+            <div class="col-md-2 col-sm-6 mb-2">
+                <div class="legend-item">
+                    <div class="legend-color perf-low-color"></div>
+                    <span>@Localizer["Low"] (40–59%)</span>
+                </div>
+            </div>
+            <div class="col-md-2 col-sm-6 mb-2">
+                <div class="legend-item">
+                    <div class="legend-color perf-bad-color"></div>
+                    <span>@Localizer["Critical"] (&lt;40%)</span>
+                </div>
+            </div>
+        </div>
     </div>
 </div>
 
@@ -206,6 +238,26 @@
         <button class="btn btn-sm btn-outline-secondary" id="cellSpacingReset" title="@Localizer["Reset Spacing"]">
             <i class="fas fa-undo"></i>
         </button>
+
+        <div class="type-filter-divider"></div>
+
+        <!-- Density presets -->
+        <span class="threshold-label">
+            <i class="fas fa-text-height me-1"></i>
+            @Localizer["Density"]
+        </span>
+        <div class="btn-group btn-group-sm" id="densityPresets" role="group">
+            <button type="button" class="btn btn-outline-secondary density-btn" data-density="5">@Localizer["Compact"]</button>
+            <button type="button" class="btn btn-outline-secondary density-btn active" data-density="15">@Localizer["Comfortable"]</button>
+            <button type="button" class="btn btn-outline-secondary density-btn" data-density="35">@Localizer["Spacious"]</button>
+        </div>
+
+        <div class="type-filter-divider"></div>
+
+        <!-- Status colors toggle -->
+        <button type="button" class="btn btn-sm btn-outline-secondary active" id="statusColorToggle" title="@Localizer["Color nodes by performance"]">
+            <i class="fas fa-traffic-light me-1"></i>@Localizer["Status Colors"]
+        </button>
     </div>
 </div>
 
@@ -223,6 +275,7 @@
                 <i class="fas fa-times"></i>
             </button>
         </div>
+        <span id="searchCount" class="search-count-badge" style="display:none;"></span>
     </div>
     <div class="card-body p-0">
         <div id="treeContainer" class="tree-visualization">
@@ -702,6 +755,53 @@
         padding: 0 2px;
     }
 
+    /* ── Status colors (by performance) — a top strip on each node ── */
+    .tree-node::after {
+        content: '';
+        position: absolute;
+        top: 0; left: 0; right: 0;
+        height: 5px;
+        border-radius: 12px 12px 0 0;
+        background: transparent;
+        transition: background 0.3s ease;
+        pointer-events: none;
+    }
+    body.status-colors-on .tree-node.perf-good::after { background: #28a745; }
+    body.status-colors-on .tree-node.perf-mid::after  { background: #ffc107; }
+    body.status-colors-on .tree-node.perf-low::after  { background: #fd7e14; }
+    body.status-colors-on .tree-node.perf-bad::after  { background: #dc3545; }
+
+    /* ── Path-to-root highlight on hover ── */
+    .tree-node.path-active {
+        outline: 3px solid rgba(13, 110, 253, 0.85);
+        outline-offset: 2px;
+    }
+
+    /* ── Search result navigation ── */
+    .search-count-badge {
+        display: inline-flex;
+        align-items: center;
+        margin-inline-start: 6px;
+        padding: 2px 10px;
+        border-radius: 12px;
+        font-size: 0.8rem;
+        font-weight: 600;
+        background: rgba(13, 110, 253, 0.12);
+        color: #0d6efd;
+        white-space: nowrap;
+    }
+    @@keyframes searchFocusPulse {
+        0%, 100% { box-shadow: 0 0 0 0 rgba(13, 110, 253, 0.5); }
+        50%      { box-shadow: 0 0 0 10px rgba(13, 110, 253, 0); }
+    }
+    .tree-node.search-focus { animation: searchFocusPulse 1s ease 2; }
+
+    /* ── Status legend swatches ── */
+    .legend-color.perf-good-color { background: #28a745; }
+    .legend-color.perf-mid-color  { background: #ffc107; }
+    .legend-color.perf-low-color  { background: #fd7e14; }
+    .legend-color.perf-bad-color  { background: #dc3545; }
+
     /* Mini Progress Bar */
     .node-progress-bar {
         margin: 0.6rem -1.25rem -1rem -1.25rem;
@@ -993,9 +1093,10 @@ document.addEventListener('DOMContentLoaded', function() {
                 el.style.display = currentMode === 'indicators' ? 'none' : '';
             });
 
-            // Re-apply threshold and type filter with updated visible badge
+            // Re-apply threshold, type filter and status colors with updated visible badge
             if (typeof applyThreshold === 'function') applyThreshold();
             if (typeof applyTypeFilter === 'function') applyTypeFilter();
+            if (typeof applyStatusColors === 'function') applyStatusColors();
         });
     });
 
@@ -1061,8 +1162,12 @@ document.addEventListener('DOMContentLoaded', function() {
                 renderOrganizationalChart(hierarchyStructure);
                 hideLoadingSpinner();
                 updateStatsStrip(data);
-                applyTypeFilter();
-                applyThreshold();
+                if (typeof applyPrefsAfterRender === 'function') {
+                    applyPrefsAfterRender();
+                } else {
+                    applyTypeFilter();
+                    applyThreshold();
+                }
             })
             .catch(error => {
                 console.error('Error fetching hierarchy data:', error);
@@ -1530,12 +1635,14 @@ document.addEventListener('DOMContentLoaded', function() {
         const q = this.value.trim().toLowerCase();
         searchClear.style.display = q ? '' : 'none';
         applySearch(q);
+        if (typeof updateSearchNav === 'function') updateSearchNav(q);
     });
 
     searchClear.addEventListener('click', function () {
         searchInput.value = '';
         searchClear.style.display = 'none';
         applySearch('');
+        if (typeof updateSearchNav === 'function') updateSearchNav('');
     });
 
     function applySearch(q) {
@@ -1618,6 +1725,133 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
     }
+    // ────────────────────────────────────────────────────────────────────────
+
+    // ── UX Enhancements: status colors, path highlight, density, search nav, prefs ──
+    const PREFS_KEY = 'treeIndex2Prefs';
+
+    function loadPrefs() {
+        try { return JSON.parse(localStorage.getItem(PREFS_KEY)) || {}; } catch (e) { return {}; }
+    }
+    function savePrefs() {
+        try {
+            localStorage.setItem(PREFS_KEY, JSON.stringify({
+                spacing: parseInt(spacingSlider.value, 10),
+                threshold: parseInt(thresholdSlider.value, 10),
+                thresholdMode: thresholdMode,
+                hiddenTypes: Array.from(hiddenTypes),
+                zoom: zoomLevel,
+                statusColors: document.body.classList.contains('status-colors-on')
+            }));
+        } catch (e) { }
+    }
+    window.addEventListener('beforeunload', savePrefs);
+
+    // Status colors by performance (same thresholds as perfStyle)
+    function perfStatusClass(val) {
+        if (val >= 80) return 'perf-good';
+        if (val >= 60) return 'perf-mid';
+        if (val >= 40) return 'perf-low';
+        return 'perf-bad';
+    }
+    function applyStatusColors() {
+        document.querySelectorAll('.tree-node').forEach(nodeDiv => {
+            nodeDiv.classList.remove('perf-good', 'perf-mid', 'perf-low', 'perf-bad');
+            if (nodeDiv.classList.contains('framework')) return;
+            nodeDiv.classList.add(perfStatusClass(getNodePerf(nodeDiv)));
+        });
+    }
+    const statusColorToggle = document.getElementById('statusColorToggle');
+    function setStatusColors(on) {
+        document.body.classList.toggle('status-colors-on', on);
+        statusColorToggle.classList.toggle('active', on);
+    }
+    statusColorToggle.addEventListener('click', function () {
+        setStatusColors(!document.body.classList.contains('status-colors-on'));
+        savePrefs();
+    });
+
+    // Path-to-root highlight on hover (delegated — survives dynamic nodes)
+    const treeContainerEl = document.getElementById('treeContainer');
+    treeContainerEl.addEventListener('mouseover', function (e) {
+        const node = e.target.closest('.tree-node');
+        if (!node) return;
+        let c = node.closest('.node-container');
+        while (c) {
+            const nd = c.querySelector(':scope > .tree-node');
+            if (nd) nd.classList.add('path-active');
+            c = c.parentElement ? c.parentElement.closest('.node-container') : null;
+        }
+    });
+    treeContainerEl.addEventListener('mouseout', function (e) {
+        if (!e.target.closest('.tree-node')) return;
+        document.querySelectorAll('.tree-node.path-active').forEach(n => n.classList.remove('path-active'));
+    });
+
+    // Density presets (Compact / Comfortable / Spacious) drive the spacing slider
+    function syncDensityActive(v) {
+        document.querySelectorAll('#densityPresets .density-btn').forEach(b =>
+            b.classList.toggle('active', parseInt(b.dataset.density, 10) === v));
+    }
+    document.querySelectorAll('#densityPresets .density-btn').forEach(btn => {
+        btn.addEventListener('click', function () {
+            const v = parseInt(this.dataset.density, 10);
+            spacingSlider.value = v;
+            applyCellSpacing();
+            syncDensityActive(v);
+            savePrefs();
+        });
+    });
+    spacingSlider.addEventListener('input', function () {
+        syncDensityActive(parseInt(spacingSlider.value, 10));
+    });
+
+    // Search navigation: result count + scroll to (and pulse) the first match
+    const searchCountEl = document.getElementById('searchCount');
+    const matchesLabel = '@Localizer["matches"]';
+    function updateSearchNav(q) {
+        document.querySelectorAll('.tree-node.search-focus').forEach(n => n.classList.remove('search-focus'));
+        if (!q) { searchCountEl.style.display = 'none'; return; }
+        const matches = document.querySelectorAll('.tree-node.search-highlight');
+        searchCountEl.style.display = '';
+        searchCountEl.textContent = matches.length + ' ' + matchesLabel;
+        if (matches.length) {
+            const first = matches[0];
+            first.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'center' });
+            first.classList.add('search-focus');
+            setTimeout(() => first.classList.remove('search-focus'), 2200);
+        }
+    }
+
+    // Restore preferences that depend on the rendered tree
+    function applyPrefsAfterRender() {
+        const p = loadPrefs();
+        applyStatusColors();
+        setStatusColors(p.statusColors !== false); // default ON
+        if (p.threshold != null) { thresholdSlider.value = p.threshold; thresholdBadge.textContent = p.threshold + '%'; }
+        if (p.thresholdMode) {
+            thresholdMode = p.thresholdMode;
+            document.querySelectorAll('.threshold-mode-btn[data-tmode]').forEach(b =>
+                b.classList.toggle('active', b.dataset.tmode === thresholdMode));
+        }
+        if (Array.isArray(p.hiddenTypes)) {
+            hiddenTypes.clear();
+            p.hiddenTypes.forEach(t => hiddenTypes.add(t));
+            document.querySelectorAll('.type-filter-btn').forEach(b =>
+                b.classList.toggle('active', !hiddenTypes.has(b.dataset.ntype)));
+        }
+        applyThreshold();
+        applyTypeFilter();
+        if (p.zoom) { zoomLevel = p.zoom; applyZoom(); }
+    }
+    window.applyPrefsAfterRender = applyPrefsAfterRender;
+
+    // Restore DOM-independent prefs immediately (cell spacing + density)
+    (function () {
+        const p = loadPrefs();
+        if (p.spacing != null) { spacingSlider.value = p.spacing; applyCellSpacing(); }
+        syncDensityActive(parseInt(spacingSlider.value, 10));
+    })();
     // ────────────────────────────────────────────────────────────────────────
 
     function updateStatsStrip(flatData) {
