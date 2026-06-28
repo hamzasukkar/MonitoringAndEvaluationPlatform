@@ -203,21 +203,21 @@
         <div class="stat-card total position-relative">
             <i class="fas fa-project-diagram stat-icon"></i>
             <div class="stat-label">@Localizer["Total Projects"]</div>
-            <div class="stat-value text-primary">@ViewBag.TotalProjects</div>
+            <div class="stat-value text-primary">@(((int)(ViewBag.TotalProjects ?? 0)).ToString("N0"))</div>
         </div>
     </div>
     <div class="col-md-3 mb-3">
         <div class="stat-card active position-relative">
             <i class="fas fa-tasks stat-icon"></i>
             <div class="stat-label">@Localizer["Active Projects"]</div>
-            <div class="stat-value text-success">@ViewBag.ActiveProjects</div>
+            <div class="stat-value text-success">@(((int)(ViewBag.ActiveProjects ?? 0)).ToString("N0"))</div>
         </div>
     </div>
     <div class="col-md-3 mb-3">
         <div class="stat-card completed position-relative">
             <i class="fas fa-check-circle stat-icon"></i>
             <div class="stat-label">@Localizer["Completed Projects"]</div>
-            <div class="stat-value text-secondary">@ViewBag.CompletedProjects</div>
+            <div class="stat-value text-secondary">@(((int)(ViewBag.CompletedProjects ?? 0)).ToString("N0"))</div>
         </div>
     </div>
     <div class="col-md-3 mb-3">

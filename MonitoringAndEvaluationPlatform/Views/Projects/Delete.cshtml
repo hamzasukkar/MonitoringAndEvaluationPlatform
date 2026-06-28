@@ -22,13 +22,13 @@
             @Html.DisplayNameFor(model => model.EstimatedBudget)
         </dt>
         <dd class = "col-sm-10">
-            @Model.CurrencySymbol@Model.EstimatedBudget.ToString("N2") (@Model.Currency)
+            @Model.CurrencySymbol@MonitoringAndEvaluationPlatform.Helpers.BudgetUnitHelper.ToScaledString(Model.EstimatedBudget, Model.BudgetUnit) (@Model.Currency)
         </dd>
         <dt class = "col-sm-2">
             @Html.DisplayNameFor(model => model.RealBudget)
         </dt>
         <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.RealBudget)
+            @Model.CurrencySymbol@Model.RealBudget.ToString("N0", System.Globalization.CultureInfo.InvariantCulture)
         </dd>
         <dt class = "col-sm-2">
             @Html.DisplayNameFor(model => model.ProjectManager)

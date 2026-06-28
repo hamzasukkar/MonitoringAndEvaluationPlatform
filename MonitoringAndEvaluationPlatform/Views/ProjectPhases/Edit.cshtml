@@ -84,7 +84,7 @@
             </div>
             <div class="banner-content">
                 <div class="banner-label">@Localizer["Total Phases"]</div>
-                <div class="banner-value">@totalPhases</div>
+                <div class="banner-value">@totalPhases.ToString("N0")</div>
             </div>
         </div>
     </div>
@@ -116,7 +116,7 @@
         </div>
         <div class="perf-content">
             <div class="perf-label">@Localizer["Measures Count"]</div>
-            <div class="perf-value">@(Model.Measures?.Count ?? 0)</div>
+            <div class="perf-value">@((Model.Measures?.Count ?? 0).ToString("N0"))</div>
         </div>
     </div>
 </div>

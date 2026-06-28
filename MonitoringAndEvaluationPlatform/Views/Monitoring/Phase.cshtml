@@ -110,25 +110,6 @@
                                 </div>
                             }
 
-                            <div class="project-detail-item">
-                                <div class="detail-icon"><i class="fas fa-tasks"></i></div>
-                                <div class="detail-content">
-                                    <div class="detail-label">@Localizer["Measures"]</div>
-                                    <div class="detail-value">@phase.Measures.Count</div>
-                                </div>
-                            </div>
-
-                            <div class="project-detail-item phase-link-item">
-                                <div class="detail-icon"><i class="fas fa-external-link-alt"></i></div>
-                                <div class="detail-content">
-                                    <div class="detail-label">@Localizer["Actions"]</div>
-                                    <div class="detail-value">
-                                        <a asp-controller="Measures" asp-action="Index" asp-route-phaseId="@phase.Id" class="btn-phase-link">
-                                            <i class="fas fa-clipboard-list me-1"></i>@Localizer["View Measures"]
-                                        </a>
-                                    </div>
-                                </div>
-                            </div>
                         </div>
                     </div>
                 </div>

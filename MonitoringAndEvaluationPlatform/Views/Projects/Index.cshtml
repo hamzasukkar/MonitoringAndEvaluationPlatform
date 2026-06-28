@@ -51,9 +51,6 @@
             <a asp-action="ExportExcel" asp-all-route-data="exportRouteData" class="btn btn-success">
                 <i class="fas fa-file-excel me-2"></i>@Localizer["Export to Excel"]
             </a>
-            <a asp-action="Create" class="btn btn-gradient-primary">
-                <i class="fas fa-plus me-2"></i>@Localizer["Create New Project"]
-            </a>
         </div>
     </div>
 
@@ -391,7 +388,7 @@
                     <i class="fas fa-project-diagram"></i>
                 </div>
                 <div class="summary-card-content">
-                    <div class="summary-card-value">@Model.TotalProjects</div>
+                    <div class="summary-card-value">@Model.TotalProjects.ToString("N0")</div>
                     <div class="summary-card-label">@Localizer["Total Projects"]</div>
                 </div>
             </div>
@@ -402,7 +399,7 @@
                     <i class="fas fa-clock"></i>
                 </div>
                 <div class="summary-card-content">
-                    <div class="summary-card-value">@Model.NotStartedProjects</div>
+                    <div class="summary-card-value">@Model.NotStartedProjects.ToString("N0")</div>
                     <div class="summary-card-label">@Localizer["Not Started"]</div>
                 </div>
             </div>
@@ -413,7 +410,7 @@
                     <i class="fas fa-spinner"></i>
                 </div>
                 <div class="summary-card-content">
-                    <div class="summary-card-value">@Model.InProgressProjects</div>
+                    <div class="summary-card-value">@Model.InProgressProjects.ToString("N0")</div>
                     <div class="summary-card-label">@Localizer["In Progress"]</div>
                 </div>
             </div>
@@ -424,7 +421,7 @@
                     <i class="fas fa-check-circle"></i>
                 </div>
                 <div class="summary-card-content">
-                    <div class="summary-card-value">@Model.CompletedProjects</div>
+                    <div class="summary-card-value">@Model.CompletedProjects.ToString("N0")</div>
                     <div class="summary-card-label">@Localizer["Completed"]</div>
                 </div>
             </div>
@@ -748,9 +745,6 @@
                                                 {
                                                     <div class="empty-state-title">@Localizer["No projects yet"]</div>
                                                     <div class="empty-state-text">@Localizer["Get started by creating your first project."]</div>
-                                                    <a asp-action="Create" class="btn btn-gradient-primary btn-sm mt-2">
-                                                        <i class="fas fa-plus me-1"></i>@Localizer["Create New Project"]
-                                                    </a>
                                                 }
                                             </div>
                                         </td>
