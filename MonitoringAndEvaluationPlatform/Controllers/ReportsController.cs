@@ -477,5 +477,69 @@ namespace MonitoringAndEvaluationPlatform.Controllers
 
             return View(vm);
         }
+
+        // Governorate Map report — Phase 1: click a governorate on the Syria map to list its projects.
+        [Permission(Permissions.ViewControlPanel)]
+        public async Task<IActionResult> GovernorateMap()
+        {
+            var isArabic = CultureInfo.CurrentCulture.Name.StartsWith("ar");
+
+            var (isAdmin, scopedMinistryCode) = await GetScopeAsync();
+            var projectsQuery = _context.Projects.AsQueryable();
+            if (!isAdmin)
+            {
+                projectsQuery = scopedMinistryCode is null
+                    ? projectsQuery.Where(_ => false)
+                    : projectsQuery.Where(p => p.MinistryCode == scopedMinistryCode);
+            }
+
+            var projects = await projectsQuery
+                .Include(p => p.Ministry)
+                .Include(p => p.Governorates)
+                .ToListAsync();
+
+            GeoProjectItem ToItem(Project p, bool isNational) => new GeoProjectItem
+            {
+                ProjectID = p.ProjectID,
+                ProjectName = p.ProjectName,
+                Ministry = p.Ministry == null
+                    ? string.Empty
+                    : (isArabic ? p.Ministry.MinistryDisplayName_AR : p.Ministry.MinistryDisplayName_EN),
+                EstimatedBudget = p.EstimatedBudget,
+                Currency = p.Currency ?? "USD",
+                Performance = Math.Round(p.performance, 2),
+                DisbursementPerformance = Math.Round(p.DisbursementPerformance, 2),
+                StartDate = p.StartDate.ToString("yyyy-MM-dd"),
+                EndDate = p.EndDate.ToString("yyyy-MM-dd"),
+                IsNational = isNational
+            };
+
+            var governorates = await _context.Governorates.ToListAsync();
+            var nationalProjects = projects.Where(p => p.IsEntireCountry).ToList();
+
+            var viewModel = new GovernorateMapViewModel
+            {
+                TotalProjects = projects.Count,
+                NationalProjects = nationalProjects.Select(p => ToItem(p, true)).ToList(),
+                Governorates = governorates
+                    .Select(g => new GovernorateProjectsItem
+                    {
+                        Code = g.Code,
+                        NameEn = g.EN_Name,
+                        NameAr = g.AR_Name,
+                        // Projects located in this governorate, plus nationwide projects (counted everywhere)
+                        Projects = projects
+                            .Where(p => p.Governorates.Any(pg => pg.Code == g.Code))
+                            .Select(p => ToItem(p, false))
+                            .Concat(nationalProjects.Select(p => ToItem(p, true)))
+                            .GroupBy(p => p.ProjectID)
+                            .Select(grp => grp.First())
+                            .ToList()
+                    })
+                    .ToList()
+            };
+
+            return View(viewModel);
+        }
     }
 }
