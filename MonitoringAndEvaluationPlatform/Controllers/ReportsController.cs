@@ -478,7 +478,8 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             return View(vm);
         }
 
-        // Governorate Map report — Phase 1: click a governorate on the Syria map to list its projects.
+        // Governorate Map report — Syria map with cascading Strategy/Ministry/Project filters.
+        // Clicking a governorate lists its projects; all filtering is done client-side from the flat Projects list.
         [Permission(Permissions.ViewControlPanel)]
         public async Task<IActionResult> GovernorateMap()
         {
@@ -486,11 +487,15 @@ namespace MonitoringAndEvaluationPlatform.Controllers
 
             var (isAdmin, scopedMinistryCode) = await GetScopeAsync();
             var projectsQuery = _context.Projects.AsQueryable();
+            var frameworksQuery = _context.Frameworks.AsQueryable();
             if (!isAdmin)
             {
                 projectsQuery = scopedMinistryCode is null
                     ? projectsQuery.Where(_ => false)
                     : projectsQuery.Where(p => p.MinistryCode == scopedMinistryCode);
+                frameworksQuery = scopedMinistryCode is null
+                    ? frameworksQuery.Where(_ => false)
+                    : frameworksQuery.Where(f => f.MinistryCode == scopedMinistryCode);
             }
 
             var projects = await projectsQuery
@@ -498,43 +503,76 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 .Include(p => p.Governorates)
                 .ToListAsync();
 
-            GeoProjectItem ToItem(Project p, bool isNational) => new GeoProjectItem
+            // Build projectId -> set of strategy (framework) codes via the indicators hierarchy.
+            var frameworks = await frameworksQuery
+                .Include(f => f.Outcomes)
+                    .ThenInclude(o => o.Outputs)
+                        .ThenInclude(op => op.SubOutputs)
+                            .ThenInclude(so => so.Indicators)
+                .ToListAsync();
+
+            var projectFrameworks = new Dictionary<int, HashSet<int>>();
+            foreach (var f in frameworks)
             {
-                ProjectID = p.ProjectID,
-                ProjectName = p.ProjectName,
-                Ministry = p.Ministry == null
-                    ? string.Empty
-                    : (isArabic ? p.Ministry.MinistryDisplayName_AR : p.Ministry.MinistryDisplayName_EN),
-                EstimatedBudget = p.EstimatedBudget,
-                Currency = p.Currency ?? "USD",
-                Performance = Math.Round(p.performance, 2),
-                DisbursementPerformance = Math.Round(p.DisbursementPerformance, 2),
-                StartDate = p.StartDate.ToString("yyyy-MM-dd"),
-                EndDate = p.EndDate.ToString("yyyy-MM-dd"),
-                IsNational = isNational
-            };
+                var projectIds = f.Outcomes
+                    .SelectMany(o => o.Outputs)
+                    .SelectMany(op => op.SubOutputs)
+                    .SelectMany(so => so.Indicators)
+                    .Where(i => i.ProjectID.HasValue)
+                    .Select(i => i.ProjectID!.Value)
+                    .Distinct();
+                foreach (var pid in projectIds)
+                {
+                    if (!projectFrameworks.TryGetValue(pid, out var set))
+                    {
+                        set = new HashSet<int>();
+                        projectFrameworks[pid] = set;
+                    }
+                    set.Add(f.Code);
+                }
+            }
 
             var governorates = await _context.Governorates.ToListAsync();
-            var nationalProjects = projects.Where(p => p.IsEntireCountry).ToList();
+            var ministries = await _context.Ministries.ToListAsync();
 
             var viewModel = new GovernorateMapViewModel
             {
                 TotalProjects = projects.Count,
-                NationalProjects = nationalProjects.Select(p => ToItem(p, true)).ToList(),
                 Governorates = governorates
-                    .Select(g => new GovernorateProjectsItem
+                    .Select(g => new GovernorateRef { Code = g.Code, NameEn = g.EN_Name, NameAr = g.AR_Name })
+                    .ToList(),
+                Strategies = frameworks
+                    .Select(f => new StrategyRef { Code = f.Code, Name = f.Name })
+                    .OrderBy(s => s.Name)
+                    .ToList(),
+                Ministries = ministries
+                    .Select(m => new MinistryRef
                     {
-                        Code = g.Code,
-                        NameEn = g.EN_Name,
-                        NameAr = g.AR_Name,
-                        // Projects located in this governorate, plus nationwide projects (counted everywhere)
-                        Projects = projects
-                            .Where(p => p.Governorates.Any(pg => pg.Code == g.Code))
-                            .Select(p => ToItem(p, false))
-                            .Concat(nationalProjects.Select(p => ToItem(p, true)))
-                            .GroupBy(p => p.ProjectID)
-                            .Select(grp => grp.First())
-                            .ToList()
+                        Code = m.Code,
+                        Name = isArabic ? m.MinistryDisplayName_AR : m.MinistryDisplayName_EN
+                    })
+                    .OrderBy(m => m.Name)
+                    .ToList(),
+                Projects = projects
+                    .Select(p => new GeoProjectItem
+                    {
+                        ProjectID = p.ProjectID,
+                        ProjectName = p.ProjectName,
+                        MinistryCode = p.MinistryCode,
+                        Ministry = p.Ministry == null
+                            ? string.Empty
+                            : (isArabic ? p.Ministry.MinistryDisplayName_AR : p.Ministry.MinistryDisplayName_EN),
+                        EstimatedBudget = p.EstimatedBudget,
+                        Currency = p.Currency ?? "USD",
+                        Performance = Math.Round(p.performance, 2),
+                        DisbursementPerformance = Math.Round(p.DisbursementPerformance, 2),
+                        StartDate = p.StartDate.ToString("yyyy-MM-dd"),
+                        EndDate = p.EndDate.ToString("yyyy-MM-dd"),
+                        IsNational = p.IsEntireCountry,
+                        FrameworkCodes = projectFrameworks.TryGetValue(p.ProjectID, out var fc)
+                            ? fc.ToList()
+                            : new List<int>(),
+                        GovernorateCodes = p.Governorates.Select(g => g.Code).ToList()
                     })
                     .ToList()
             };

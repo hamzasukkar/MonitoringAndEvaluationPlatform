@@ -20,16 +20,28 @@
     .governorate { fill: #e3f2fd; stroke: #1976d2; stroke-width: 1.5; cursor: pointer; transition: all 0.3s ease; }
     .governorate:hover { fill: #4caf50 !important; stroke: #2e7d32; stroke-width: 3; filter: drop-shadow(0 4px 8px rgba(0,0,0,0.35)); }
     .governorate.active { fill: #1976d2 !important; stroke: #0d47a1; stroke-width: 3; }
-    .governorate.active:hover { fill: #4caf50 !important; }
     .governorate.has-projects-low { fill: #cfe8ff; }
     .governorate.has-projects-medium { fill: #90caf9; }
     .governorate.has-projects-high { fill: #42a5f5; }
     .governorate.has-projects-very-high { fill: #1976d2; }
+    /* Project highlight wins over the colour/active classes */
+    .governorate.highlight { fill: #ff9800 !important; stroke: #e65100; stroke-width: 3; filter: drop-shadow(0 3px 6px rgba(230,81,0,.4)); }
     .map-tooltip { position: absolute; background: rgba(0,0,0,0.85); color: #fff; padding: 10px 15px; border-radius: 8px; font-size: .9rem; pointer-events: none; opacity: 0; transition: opacity .2s ease; z-index: 1000; max-width: 250px; }
     .map-tooltip.visible { opacity: 1; }
     .map-tooltip .tooltip-title { font-weight: 600; margin-bottom: 5px; border-bottom: 1px solid rgba(255,255,255,.3); padding-bottom: 5px; }
     .chart-card { background: #fff; border-radius: 14px; box-shadow: 0 2px 12px rgba(0,0,0,.06); padding: 1.25rem; }
     .chart-title { font-weight: 700; font-size: 1.05rem; margin-bottom: .75rem; color: #1f2937; }
+    .filter-bar { display: flex; flex-wrap: wrap; gap: .75rem; align-items: center; }
+    /* Keep the filter card above the map so its dropdowns are never covered */
+    .filter-card { position: relative; z-index: 1050; }
+    .filter-dropdown .dropdown-menu { min-width: 300px; max-width: 360px; border: 1px solid #cbd5e1; box-shadow: 0 8px 24px rgba(0,0,0,.18); border-radius: 10px; background-color: #ffffff !important; opacity: 1 !important; z-index: 2000; }
+    .filter-dropdown .dropdown-menu.show { display: block; }
+    .filter-list { max-height: 260px; overflow-y: auto; min-height: 40px; }
+    .filter-item { display: flex; align-items: center; gap: .55rem; padding: .4rem .55rem; border-radius: 6px; cursor: pointer; margin: 0; font-size: .9rem; color: #1f2937; }
+    .filter-item:hover { background: #eff6ff; }
+    .filter-item input { flex-shrink: 0; width: 1.05em; height: 1.05em; cursor: pointer; }
+    .filter-item span { flex: 1; line-height: 1.3; word-break: break-word; }
+    .filter-empty { color: #94a3b8; font-size: .85rem; padding: .75rem; text-align: center; }
 </style>
 
 <!-- Header -->
@@ -41,8 +53,8 @@
                 @(isRtl ? "خريطة المشاريع حسب المحافظة" : "Projects by Governorate Map")
             </h1>
             <p class="dashboard-subtitle">
-                @(isRtl ? "اضغط على أي محافظة لعرض المشاريع الموجودة فيها"
-                        : "Click on any governorate to view its projects")
+                @(isRtl ? "صفِّ حسب الاستراتيجية والوزارة والمشروع، أو اضغط على محافظة لعرض مشاريعها"
+                        : "Filter by strategy, ministry and project, or click a governorate to view its projects")
             </p>
         </div>
         <div class="d-flex gap-2 flex-wrap">
@@ -57,6 +69,49 @@
 </div>
 
 <div class="container-fluid pb-4">
+    <!-- Filter bar -->
+    <div class="chart-card filter-card mb-3">
+        <div class="filter-bar">
+            <!-- Strategies -->
+            <div class="dropdown filter-dropdown">
+                <button class="btn btn-outline-primary dropdown-toggle" type="button" data-bs-toggle="dropdown" data-bs-auto-close="outside" aria-expanded="false">
+                    <i class="fas fa-sitemap me-1"></i>@(isRtl ? "الاستراتيجيات" : "Strategies")
+                    <span class="badge bg-primary ms-1" id="stratCount" style="display:none;">0</span>
+                </button>
+                <div class="dropdown-menu p-2">
+                    <input type="text" class="form-control form-control-sm mb-2 filter-search" data-target="stratList" placeholder="@(isRtl ? "بحث..." : "Search...")">
+                    <div id="stratList" class="filter-list"></div>
+                </div>
+            </div>
+            <!-- Ministries -->
+            <div class="dropdown filter-dropdown">
+                <button class="btn btn-outline-success dropdown-toggle" type="button" data-bs-toggle="dropdown" data-bs-auto-close="outside" aria-expanded="false">
+                    <i class="fas fa-building me-1"></i>@(isRtl ? "الوزارات" : "Ministries")
+                    <span class="badge bg-success ms-1" id="minCount" style="display:none;">0</span>
+                </button>
+                <div class="dropdown-menu p-2">
+                    <input type="text" class="form-control form-control-sm mb-2 filter-search" data-target="minList" placeholder="@(isRtl ? "بحث..." : "Search...")">
+                    <div id="minList" class="filter-list"></div>
+                </div>
+            </div>
+            <!-- Projects -->
+            <div class="dropdown filter-dropdown">
+                <button class="btn btn-outline-danger dropdown-toggle" type="button" data-bs-toggle="dropdown" data-bs-auto-close="outside" aria-expanded="false">
+                    <i class="fas fa-project-diagram me-1"></i>@(isRtl ? "المشاريع" : "Projects")
+                    <span class="badge bg-danger ms-1" id="projCount" style="display:none;">0</span>
+                </button>
+                <div class="dropdown-menu p-2">
+                    <input type="text" class="form-control form-control-sm mb-2 filter-search" data-target="projList" placeholder="@(isRtl ? "بحث..." : "Search...")">
+                    <div id="projList" class="filter-list"></div>
+                </div>
+            </div>
+
+            <button class="btn btn-outline-secondary" id="clearFiltersBtn" type="button">
+                <i class="fas fa-times me-1"></i>@(isRtl ? "مسح الفلاتر" : "Clear filters")
+            </button>
+        </div>
+    </div>
+
     <!-- Map -->
     <div class="chart-card mb-4">
         <div class="chart-title d-flex justify-content-between align-items-center">
@@ -85,7 +140,7 @@
         <div id="projectsTableWrapper">
             <div class="text-center text-muted py-5">
                 <i class="fas fa-mouse-pointer fa-3x mb-3"></i>
-                <p>@(isRtl ? "اختر محافظة من الخريطة لعرض مشاريعها" : "Select a governorate from the map to view its projects")</p>
+                <p>@(isRtl ? "اختر محافظة من الخريطة، أو مشروعاً من الفلاتر، لعرض المشاريع" : "Select a governorate from the map, or a project from the filters, to view projects")</p>
             </div>
         </div>
     </div>
@@ -95,8 +150,17 @@
     <script>
         const isRtlLang = @(isRtl ? "true" : "false");
 
-        // Projects per governorate (matched to the SVG paths by Arabic name below)
+        // ---- Server data ----
         const governoratesData = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.Governorates));
+        const allProjects      = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.Projects));
+        const strategiesData   = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.Strategies));
+        const ministriesData   = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.Ministries));
+
+        // ---- Selection state ----
+        const selectedStrategies = new Set();
+        const selectedMinistries = new Set();
+        const selectedProjects   = new Set();
+        let activeGovCode = null; // last clicked governorate
 
         // Maps SVG path IDs -> governorate names (same layout as the existing report map)
         const governorateMapping = {
@@ -116,30 +180,46 @@
             'path14': { nameEn: 'Quneitra',     nameAr: 'القنيطرة' }
         };
 
-        function findGovData(nameAr) {
-            return governoratesData.find(g => g.NameAr === nameAr);
+        // ---- Lookup helpers ----
+        function govByNameAr(nameAr) { return governoratesData.find(g => g.NameAr === nameAr); }
+        function govCodeFromNameAr(nameAr) { const g = govByNameAr(nameAr); return g ? g.Code : null; }
+        function nameArFromGovCode(code) { const g = governoratesData.find(x => x.Code === code); return g ? g.NameAr : null; }
+
+        // ---- Filter predicates ----
+        function matchesStrategy(p) {
+            return selectedStrategies.size === 0 || p.FrameworkCodes.some(c => selectedStrategies.has(c));
+        }
+        function matchesMinistry(p) {
+            return selectedMinistries.size === 0 || (p.MinistryCode != null && selectedMinistries.has(p.MinistryCode));
+        }
+        // Projects passing the active strategy + ministry filters
+        function activeFilteredProjects() {
+            return allProjects.filter(p => matchesStrategy(p) && matchesMinistry(p));
+        }
+        // Projects (strategy+ministry filtered) that belong to a governorate (national counted everywhere)
+        function projectsInGov(govCode) {
+            return activeFilteredProjects().filter(p => p.IsNational || p.GovernorateCodes.includes(govCode));
         }
 
+        // ---- Money / badges ----
         function fmtMoney(v, currency) {
             const sym = currency === 'EUR' ? '€' : currency === 'SYP' ? 'SYP ' : '$';
             return sym + (v || 0).toLocaleString();
         }
-
         function perfBadge(v) {
             const cls = v >= 75 ? 'bg-success' : v >= 50 ? 'bg-warning text-dark' : 'bg-danger';
             return `<span class="badge ${cls}">${v}%</span>`;
         }
 
-        function renderProjects(govName, govData) {
+        // ---- Table ----
+        function renderProjectTable(title, projects) {
             const wrapper = document.getElementById('projectsTableWrapper');
-            document.getElementById('tableTitle').textContent =
-                (isRtlLang ? 'مشاريع محافظة ' : 'Projects in ') + govName;
+            document.getElementById('tableTitle').textContent = title;
 
-            const projects = govData ? govData.Projects : [];
             if (!projects || projects.length === 0) {
                 wrapper.innerHTML = `<div class="text-center text-muted py-5">
                     <i class="fas fa-folder-open fa-2x mb-3"></i>
-                    <p>${isRtlLang ? 'لا توجد مشاريع في هذه المحافظة' : 'No projects in this governorate'}</p>
+                    <p>${isRtlLang ? 'لا توجد مشاريع مطابقة' : 'No matching projects'}</p>
                 </div>`;
                 return;
             }
@@ -177,12 +257,22 @@
                 </div>`;
         }
 
+        function resetTablePlaceholder() {
+            document.getElementById('tableTitle').textContent = isRtlLang ? 'المشاريع' : 'Projects';
+            document.getElementById('projectsTableWrapper').innerHTML = `
+                <div class="text-center text-muted py-5">
+                    <i class="fas fa-mouse-pointer fa-3x mb-3"></i>
+                    <p>${isRtlLang ? 'اختر محافظة من الخريطة، أو مشروعاً من الفلاتر، لعرض المشاريع' : 'Select a governorate from the map, or a project from the filters, to view projects'}</p>
+                </div>`;
+        }
+
+        // ---- Map colouring ----
         function colorizeMap() {
-            const counts = governoratesData.map(g => g.Projects.length);
+            const counts = governoratesData.map(g => projectsInGov(g.Code).length);
             const max = Math.max(...counts, 1);
             document.querySelectorAll('.governorate').forEach(path => {
-                const gov = findGovData(path.dataset.nameAr);
-                const n = gov ? gov.Projects.length : 0;
+                const code = govCodeFromNameAr(path.dataset.nameAr);
+                const n = code ? projectsInGov(code).length : 0;
                 path.classList.remove('has-projects-low', 'has-projects-medium', 'has-projects-high', 'has-projects-very-high');
                 if (n === 0) return;
                 const ratio = n / max;
@@ -193,6 +283,162 @@
             });
         }
 
+        // ---- Project-selection highlight + table ----
+        function applyProjectSelection() {
+            document.querySelectorAll('.governorate').forEach(p => p.classList.remove('highlight'));
+
+            if (selectedProjects.size === 0) {
+                // Fall back to the active governorate (if any), else placeholder
+                if (activeGovCode) {
+                    const nameAr = nameArFromGovCode(activeGovCode);
+                    const name = isRtlLang ? nameAr : (governoratesData.find(g => g.Code === activeGovCode)?.NameEn || nameAr);
+                    renderProjectTable((isRtlLang ? 'مشاريع محافظة ' : 'Projects in ') + name, projectsInGov(activeGovCode));
+                } else {
+                    resetTablePlaceholder();
+                }
+                document.getElementById('resetMapBtn').style.display = activeGovCode ? 'inline-block' : 'none';
+                return;
+            }
+
+            const chosen = allProjects.filter(p => selectedProjects.has(p.ProjectID));
+            const govCodes = new Set();
+            let anyNational = false;
+            chosen.forEach(p => {
+                if (p.IsNational) anyNational = true;
+                p.GovernorateCodes.forEach(c => govCodes.add(c));
+            });
+
+            document.querySelectorAll('.governorate').forEach(path => {
+                const code = govCodeFromNameAr(path.dataset.nameAr);
+                if (anyNational || (code && govCodes.has(code))) path.classList.add('highlight');
+            });
+
+            renderProjectTable(isRtlLang ? 'المشاريع المختارة' : 'Selected projects', chosen);
+            document.getElementById('resetMapBtn').style.display = 'inline-block';
+        }
+
+        // ---- Filter UI rendering ----
+        function renderList(containerId, items, prefix, selectedSet) {
+            const c = document.getElementById(containerId);
+            if (!items.length) {
+                c.innerHTML = `<div class="filter-empty">${isRtlLang ? 'لا يوجد' : 'None'}</div>`;
+                return;
+            }
+            c.innerHTML = items.map(it => `
+                <label class="filter-item">
+                    <input class="filter-cb" type="checkbox" value="${it.code}" ${selectedSet.has(it.code) ? 'checked' : ''}>
+                    <span>${it.name}</span>
+                </label>`).join('');
+        }
+
+        function updateBadge(spanId, size) {
+            const el = document.getElementById(spanId);
+            el.textContent = size;
+            el.style.display = size > 0 ? 'inline-block' : 'none';
+        }
+
+        function rebuildMinistryOptions() {
+            // Ministries that have >=1 project within the selected strategies (or all if no strategy filter)
+            let eligible;
+            if (selectedStrategies.size === 0) {
+                eligible = ministriesData;
+            } else {
+                const codes = new Set(
+                    allProjects.filter(p => matchesStrategy(p) && p.MinistryCode != null).map(p => p.MinistryCode)
+                );
+                eligible = ministriesData.filter(m => codes.has(m.Code));
+            }
+            // Prune now-invalid selections
+            [...selectedMinistries].forEach(c => { if (!eligible.some(m => m.Code === c)) selectedMinistries.delete(c); });
+            renderList('minList', eligible.map(m => ({ code: m.Code, name: m.Name })), 'min', selectedMinistries);
+            updateBadge('minCount', selectedMinistries.size);
+            applySearch('minList');
+        }
+
+        function rebuildProjectOptions() {
+            const items = activeFilteredProjects();
+            [...selectedProjects].forEach(id => { if (!items.some(p => p.ProjectID === id)) selectedProjects.delete(id); });
+            renderList('projList', items.map(p => ({ code: p.ProjectID, name: p.ProjectName })), 'proj', selectedProjects);
+            updateBadge('projCount', selectedProjects.size);
+            applySearch('projList');
+        }
+
+        function applySearch(listId) {
+            const input = document.querySelector(`.filter-search[data-target="${listId}"]`);
+            const term = (input?.value || '').trim().toLowerCase();
+            document.querySelectorAll(`#${listId} .filter-item`).forEach(row => {
+                const txt = row.querySelector('span')?.textContent.toLowerCase() || '';
+                row.style.display = term && !txt.includes(term) ? 'none' : 'flex';
+            });
+        }
+
+        // ---- Wire filter events ----
+        document.getElementById('stratList').addEventListener('change', e => {
+            if (!e.target.classList.contains('filter-cb')) return;
+            const code = Number(e.target.value);
+            e.target.checked ? selectedStrategies.add(code) : selectedStrategies.delete(code);
+            updateBadge('stratCount', selectedStrategies.size);
+            rebuildMinistryOptions();
+            rebuildProjectOptions();
+            colorizeMap();
+            applyProjectSelection();
+        });
+
+        document.getElementById('minList').addEventListener('change', e => {
+            if (!e.target.classList.contains('filter-cb')) return;
+            const code = Number(e.target.value);
+            e.target.checked ? selectedMinistries.add(code) : selectedMinistries.delete(code);
+            updateBadge('minCount', selectedMinistries.size);
+            rebuildProjectOptions();
+            colorizeMap();
+            applyProjectSelection();
+        });
+
+        document.getElementById('projList').addEventListener('change', e => {
+            if (!e.target.classList.contains('filter-cb')) return;
+            const id = Number(e.target.value);
+            e.target.checked ? selectedProjects.add(id) : selectedProjects.delete(id);
+            updateBadge('projCount', selectedProjects.size);
+            applyProjectSelection();
+        });
+
+        document.querySelectorAll('.filter-search').forEach(inp => {
+            inp.addEventListener('input', () => applySearch(inp.dataset.target));
+            inp.addEventListener('click', e => e.stopPropagation());
+        });
+
+        document.getElementById('clearFiltersBtn').addEventListener('click', () => {
+            selectedStrategies.clear();
+            selectedMinistries.clear();
+            selectedProjects.clear();
+            activeGovCode = null;
+            document.querySelectorAll('.governorate').forEach(p => p.classList.remove('active', 'highlight'));
+            renderList('stratList', strategiesData.map(s => ({ code: s.Code, name: s.Name })), 'strat', selectedStrategies);
+            rebuildMinistryOptions();
+            rebuildProjectOptions();
+            updateBadge('stratCount', 0);
+            ['stratList', 'minList', 'projList'].forEach(applySearch);
+            colorizeMap();
+            resetTablePlaceholder();
+            document.getElementById('resetMapBtn').style.display = 'none';
+        });
+
+        document.getElementById('resetMapBtn').addEventListener('click', function () {
+            activeGovCode = null;
+            selectedProjects.clear();
+            updateBadge('projCount', 0);
+            rebuildProjectOptions();
+            document.querySelectorAll('.governorate').forEach(p => p.classList.remove('active', 'highlight'));
+            this.style.display = 'none';
+            resetTablePlaceholder();
+        });
+
+        // Initial filter lists
+        renderList('stratList', strategiesData.map(s => ({ code: s.Code, name: s.Name })), 'strat', selectedStrategies);
+        rebuildMinistryOptions();
+        rebuildProjectOptions();
+
+        // ---- Map ----
         function initializeMap() {
             colorizeMap();
             const mapTooltip = document.getElementById('mapTooltip');
@@ -200,8 +446,8 @@
             document.querySelectorAll('.governorate').forEach(path => {
                 path.addEventListener('mouseenter', function () {
                     const name = isRtlLang ? this.dataset.nameAr : this.dataset.nameEn;
-                    const gov = findGovData(this.dataset.nameAr);
-                    const n = gov ? gov.Projects.length : 0;
+                    const code = govCodeFromNameAr(this.dataset.nameAr);
+                    const n = code ? projectsInGov(code).length : 0;
                     mapTooltip.innerHTML = `<div class="tooltip-title">${name}</div>
                         <div>${isRtlLang ? 'المشاريع' : 'Projects'}: <strong>${n}</strong></div>`;
                     mapTooltip.classList.add('visible');
@@ -216,23 +462,14 @@
                 path.addEventListener('click', function () {
                     document.querySelectorAll('.governorate').forEach(p => p.classList.remove('active'));
                     this.classList.add('active');
+                    const code = govCodeFromNameAr(this.dataset.nameAr);
+                    activeGovCode = code;
                     const name = isRtlLang ? this.dataset.nameAr : this.dataset.nameEn;
-                    renderProjects(name, findGovData(this.dataset.nameAr));
+                    renderProjectTable((isRtlLang ? 'مشاريع محافظة ' : 'Projects in ') + name, projectsInGov(code));
                     document.getElementById('resetMapBtn').style.display = 'inline-block';
                 });
             });
         }
-
-        document.getElementById('resetMapBtn').addEventListener('click', function () {
-            document.querySelectorAll('.governorate').forEach(p => p.classList.remove('active'));
-            this.style.display = 'none';
-            document.getElementById('tableTitle').textContent = isRtlLang ? 'المشاريع' : 'Projects';
-            document.getElementById('projectsTableWrapper').innerHTML = `
-                <div class="text-center text-muted py-5">
-                    <i class="fas fa-mouse-pointer fa-3x mb-3"></i>
-                    <p>${isRtlLang ? 'اختر محافظة من الخريطة لعرض مشاريعها' : 'Select a governorate from the map to view its projects'}</p>
-                </div>`;
-        });
 
         fetch('/images/syria-map.svg')
             .then(r => r.text())
