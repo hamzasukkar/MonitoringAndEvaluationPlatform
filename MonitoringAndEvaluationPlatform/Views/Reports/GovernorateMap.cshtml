@@ -106,6 +106,13 @@
                 </div>
             </div>
 
+            <div class="form-check form-switch d-flex align-items-center ms-2">
+                <input class="form-check-input" type="checkbox" id="nationalToggle" checked>
+                <label class="form-check-label ms-2" for="nationalToggle">
+                    @(isRtl ? "عرض مشاريع مستوى القطر" : "Show country-wide projects")
+                </label>
+            </div>
+
             <button class="btn btn-outline-secondary" id="clearFiltersBtn" type="button">
                 <i class="fas fa-times me-1"></i>@(isRtl ? "مسح الفلاتر" : "Clear filters")
             </button>
@@ -161,6 +168,7 @@
         const selectedMinistries = new Set();
         const selectedProjects   = new Set();
         let activeGovCode = null; // last clicked governorate
+        let includeNational = true; // toggle: show/hide country-wide projects
 
         // Maps SVG path IDs -> governorate names (same layout as the existing report map)
         const governorateMapping = {
@@ -194,7 +202,9 @@
         }
         // Projects passing the active strategy + ministry filters
         function activeFilteredProjects() {
-            return allProjects.filter(p => matchesStrategy(p) && matchesMinistry(p));
+            return allProjects.filter(p =>
+                (includeNational || !p.IsNational) &&
+                matchesStrategy(p) && matchesMinistry(p));
         }
         // Projects (strategy+ministry filtered) that belong to a governorate (national counted everywhere)
         function projectsInGov(govCode) {
@@ -472,11 +482,20 @@
             inp.addEventListener('click', e => e.stopPropagation());
         });
 
+        document.getElementById('nationalToggle').addEventListener('change', e => {
+            includeNational = e.target.checked;
+            rebuildProjectOptions(); // prunes now-invalid national selections
+            colorizeMap();
+            applyProjectSelection();
+        });
+
         document.getElementById('clearFiltersBtn').addEventListener('click', () => {
             selectedStrategies.clear();
             selectedMinistries.clear();
             selectedProjects.clear();
             activeGovCode = null;
+            includeNational = true;
+            document.getElementById('nationalToggle').checked = true;
             document.querySelectorAll('.governorate').forEach(p => p.classList.remove('active', 'highlight'));
             renderList('stratList', strategiesData.map(s => ({ code: s.Code, name: s.Name })), 'strat', selectedStrategies);
             rebuildMinistryOptions();
