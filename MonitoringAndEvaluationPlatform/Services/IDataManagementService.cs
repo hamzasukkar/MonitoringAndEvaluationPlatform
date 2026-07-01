@@ -6,6 +6,7 @@ namespace MonitoringAndEvaluationPlatform.Services
     {
         Task<DataManagementIndexViewModel> GetIndexStatisticsAsync();
         Task<string> GenerateDatabaseBackupScriptAsync(bool includeIdentityData, bool includeAuditLogs);
+        Task<(string FilePath, string FileName)> CreateNativeDatabaseBackupAsync();
         Task<ClearDataViewModel> GetTableGroupsAsync();
         Task<int> ClearTablesAsync(List<string> groupKeys);
         Task<DeleteProjectViewModel> GetProjectsForDeletionAsync(string? searchTerm = null);

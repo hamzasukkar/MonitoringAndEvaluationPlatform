@@ -78,6 +78,34 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             }
         }
 
+        // POST: DataManagement/ExecuteNativeBackup
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ExecuteNativeBackup(string password, string confirmationPhrase)
+        {
+            if (!await ValidateSecurityConfirmation(password, confirmationPhrase, "BACKUP DATABASE"))
+            {
+                TempData["ErrorMessage"] = "Invalid password or confirmation phrase.";
+                return RedirectToAction(nameof(Backup));
+            }
+
+            try
+            {
+                var (filePath, fileName) = await _dataManagementService.CreateNativeDatabaseBackupAsync();
+
+                var bytes = await System.IO.File.ReadAllBytesAsync(filePath);
+
+                await LogAuditAction("NativeBackup", "Database", $"Created native .bak: {fileName}");
+
+                return File(bytes, "application/octet-stream", fileName);
+            }
+            catch (Exception ex)
+            {
+                TempData["ErrorMessage"] = $"Native backup failed: {ex.Message}";
+                return RedirectToAction(nameof(Backup));
+            }
+        }
+
         // GET: DataManagement/ClearData
         public async Task<IActionResult> ClearData()
         {

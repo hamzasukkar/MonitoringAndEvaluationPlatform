@@ -124,4 +124,19 @@
   <data name="The backup script can be executed on SQL Server to restore data." xml:space="preserve">
     <value>يمكن تنفيذ برنامج النسخ الاحتياطي على SQL Server لاستعادة البيانات.</value>
   </data>
+  <data name="Backup Type" xml:space="preserve">
+    <value>نوع النسخة الاحتياطية</value>
+  </data>
+  <data name="SQL Script (data only)" xml:space="preserve">
+    <value>برنامج SQL نصي (البيانات فقط)</value>
+  </data>
+  <data name="Native SQL Server Backup (.bak)" xml:space="preserve">
+    <value>نسخة احتياطية أصلية لـ SQL Server (‎.bak)</value>
+  </data>
+  <data name="The full database is saved to the server and downloaded" xml:space="preserve">
+    <value>يتم حفظ قاعدة البيانات كاملة على الخادم وتنزيلها</value>
+  </data>
+  <data name="Generate .bak Backup" xml:space="preserve">
+    <value>إنشاء نسخة احتياطية ‎.bak</value>
+  </data>
 </root>
