@@ -212,11 +212,34 @@
         }
 
         // ---- Table ----
+        // Column definitions: label + sort key (null = not sortable)
+        const tableColumns = [
+            { labelAr: '#',          labelEn: '#',              key: null },
+            { labelAr: 'اسم المشروع', labelEn: 'Project Name',   key: p => (p.ProjectName || '').toLowerCase() },
+            { labelAr: 'النطاق',      labelEn: 'Scope',          key: p => (p.IsNational ? 1 : 0) },
+            { labelAr: 'الجهة',       labelEn: 'Ministry',       key: p => (p.Ministry || '').toLowerCase() },
+            { labelAr: 'الميزانية',   labelEn: 'Budget',         key: p => (p.EstimatedBudget || 0) },
+            { labelAr: 'الأداء',      labelEn: 'Performance',    key: p => (p.Performance || 0) },
+            { labelAr: 'الصرف',       labelEn: 'Disbursement',   key: p => (p.DisbursementPerformance || 0) },
+            { labelAr: 'البداية',     labelEn: 'Start',          key: p => (p.StartDate || '') },
+            { labelAr: 'النهاية',     labelEn: 'End',            key: p => (p.EndDate || '') }
+        ];
+
+        // Table render state (kept so header clicks can re-sort in place)
+        let tableProjects = [];
+        let sortColIndex = null;
+        let sortDir = 1; // 1 = ascending, -1 = descending
+
         function renderProjectTable(title, projects) {
             const wrapper = document.getElementById('projectsTableWrapper');
             document.getElementById('tableTitle').textContent = title;
 
-            if (!projects || projects.length === 0) {
+            // New data set -> reset sort
+            tableProjects = projects ? projects.slice() : [];
+            sortColIndex = null;
+            sortDir = 1;
+
+            if (!tableProjects.length) {
                 wrapper.innerHTML = `<div class="text-center text-muted py-5">
                     <i class="fas fa-folder-open fa-2x mb-3"></i>
                     <p>${isRtlLang ? 'لا توجد مشاريع مطابقة' : 'No matching projects'}</p>
@@ -224,12 +247,41 @@
                 return;
             }
 
-            const h = isRtlLang
-                ? ['#', 'اسم المشروع', 'النطاق', 'الجهة', 'الميزانية', 'الأداء', 'الصرف', 'البداية', 'النهاية']
-                : ['#', 'Project Name', 'Scope', 'Ministry', 'Budget', 'Performance', 'Disbursement', 'Start', 'End'];
+            drawTable();
+        }
+
+        function drawTable() {
+            const wrapper = document.getElementById('projectsTableWrapper');
+
+            // Apply current sort (stable) if a column is selected
+            const rowsData = tableProjects.slice();
+            if (sortColIndex !== null) {
+                const keyFn = tableColumns[sortColIndex].key;
+                rowsData
+                    .map((p, i) => ({ p, i }))
+                    .sort((a, b) => {
+                        const ka = keyFn(a.p), kb = keyFn(b.p);
+                        if (ka < kb) return -1 * sortDir;
+                        if (ka > kb) return 1 * sortDir;
+                        return a.i - b.i; // stable
+                    })
+                    .forEach((o, idx) => rowsData[idx] = o.p);
+            }
+
+            const headCells = tableColumns.map((col, ci) => {
+                const label = isRtlLang ? col.labelAr : col.labelEn;
+                if (!col.key) return `<th>${label}</th>`;
+                let icon = '<i class="fas fa-sort text-muted ms-1"></i>';
+                if (ci === sortColIndex) {
+                    icon = sortDir === 1
+                        ? '<i class="fas fa-sort-up ms-1"></i>'
+                        : '<i class="fas fa-sort-down ms-1"></i>';
+                }
+                return `<th class="sortable-th" data-col="${ci}" style="cursor:pointer; user-select:none; white-space:nowrap;">${label}${icon}</th>`;
+            }).join('');
 
             let rows = '';
-            projects.forEach((p, i) => {
+            rowsData.forEach((p, i) => {
                 const scope = p.IsNational
                     ? `<span class="badge bg-info"><i class="fas fa-flag me-1"></i>${isRtlLang ? 'على مستوى القطر' : 'Country-wide'}</span>`
                     : `<span class="badge bg-secondary"><i class="fas fa-map-marker-alt me-1"></i>${isRtlLang ? 'على مستوى المحافظة' : 'Governorate-level'}</span>`;
@@ -248,13 +300,26 @@
 
             wrapper.innerHTML = `
                 <p class="text-muted mb-2">${isRtlLang ? 'عدد المشاريع' : 'Total projects'}:
-                    <strong>${projects.length}</strong></p>
+                    <strong>${tableProjects.length}</strong></p>
                 <div class="table-responsive">
                     <table class="table table-hover align-middle">
-                        <thead class="table-light"><tr>${h.map(x => `<th>${x}</th>`).join('')}</tr></thead>
+                        <thead class="table-light"><tr>${headCells}</tr></thead>
                         <tbody>${rows}</tbody>
                     </table>
                 </div>`;
+
+            wrapper.querySelectorAll('.sortable-th').forEach(th => {
+                th.addEventListener('click', () => {
+                    const ci = Number(th.dataset.col);
+                    if (ci === sortColIndex) {
+                        sortDir *= -1; // toggle direction
+                    } else {
+                        sortColIndex = ci;
+                        sortDir = 1;
+                    }
+                    drawTable();
+                });
+            });
         }
 
         function resetTablePlaceholder() {
