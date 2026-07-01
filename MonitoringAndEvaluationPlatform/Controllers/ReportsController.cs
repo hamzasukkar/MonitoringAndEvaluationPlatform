@@ -501,6 +501,9 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             var projects = await projectsQuery
                 .Include(p => p.Ministry)
                 .Include(p => p.Governorates)
+                .Include(p => p.Phases)
+                    .ThenInclude(pp => pp.ActionPlan)
+                        .ThenInclude(ap => ap.Plans)
                 .ToListAsync();
 
             // Build projectId -> set of strategy (framework) codes via the indicators hierarchy.
@@ -566,6 +569,10 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                         Currency = p.Currency ?? "USD",
                         Performance = Math.Round(p.performance, 2),
                         DisbursementPerformance = Math.Round(p.DisbursementPerformance, 2),
+                        TotalRealised = p.Phases
+                            .Where(pp => pp.ActionPlan != null)
+                            .SelectMany(pp => pp.ActionPlan!.Plans)
+                            .Sum(pl => (double)pl.Realised),
                         StartDate = p.StartDate.ToString("yyyy-MM-dd"),
                         EndDate = p.EndDate.ToString("yyyy-MM-dd"),
                         IsNational = p.IsEntireCountry,

@@ -41,6 +41,7 @@ namespace MonitoringAndEvaluationPlatform.ViewModel
         public string Currency { get; set; } = "USD";
         public double Performance { get; set; }
         public double DisbursementPerformance { get; set; }
+        public double TotalRealised { get; set; }
         public string StartDate { get; set; } = string.Empty;
         public string EndDate { get; set; } = string.Empty;
         public bool IsNational { get; set; }

@@ -231,6 +231,7 @@
             { labelAr: 'الميزانية',   labelEn: 'Budget',         key: p => (p.EstimatedBudget || 0) },
             { labelAr: 'الأداء',      labelEn: 'Performance',    key: p => (p.Performance || 0) },
             { labelAr: 'الصرف',       labelEn: 'Disbursement',   key: p => (p.DisbursementPerformance || 0) },
+            { labelAr: 'إجمالي المنجز', labelEn: 'Total Disbursed', key: p => (p.TotalRealised || 0) },
             { labelAr: 'البداية',     labelEn: 'Start',          key: p => (p.StartDate || '') },
             { labelAr: 'النهاية',     labelEn: 'End',            key: p => (p.EndDate || '') }
         ];
@@ -303,6 +304,7 @@
                     <td>${fmtMoney(p.EstimatedBudget, p.Currency)}</td>
                     <td>${perfBadge(p.Performance)}</td>
                     <td>${perfBadge(p.DisbursementPerformance)}</td>
+                    <td>${fmtMoney(p.TotalRealised, p.Currency)}</td>
                     <td>${p.StartDate}</td>
                     <td>${p.EndDate}</td>
                 </tr>`;
