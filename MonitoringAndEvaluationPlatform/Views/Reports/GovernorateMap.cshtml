@@ -216,6 +216,16 @@
             const sym = currency === 'EUR' ? '€' : currency === 'SYP' ? 'SYP ' : '$';
             return sym + (v || 0).toLocaleString();
         }
+        // Sum a money field across projects, grouped per currency (e.g. "$1,000 + €500")
+        function fmtMoneySum(projects, valFn) {
+            const byCur = {};
+            projects.forEach(p => {
+                const cur = p.Currency || 'USD';
+                byCur[cur] = (byCur[cur] || 0) + (valFn(p) || 0);
+            });
+            const parts = Object.keys(byCur).map(cur => fmtMoney(byCur[cur], cur));
+            return parts.length ? parts.join(' + ') : fmtMoney(0, 'USD');
+        }
         function perfBadge(v) {
             const cls = v >= 75 ? 'bg-success' : v >= 50 ? 'bg-warning text-dark' : 'bg-danger';
             return `<span class="badge ${cls}">${v}%</span>`;
@@ -310,6 +320,23 @@
                 </tr>`;
             });
 
+            // Totals footer over the currently displayed projects
+            const n = rowsData.length;
+            const avgPerf = n ? (rowsData.reduce((s, p) => s + (p.Performance || 0), 0) / n) : 0;
+            const avgDisb = n ? (rowsData.reduce((s, p) => s + (p.DisbursementPerformance || 0), 0) / n) : 0;
+            const footer = `<tr class="table-light fw-bold">
+                <td>${isRtlLang ? 'الإجمالي' : 'Total'}</td>
+                <td>${n} ${isRtlLang ? 'مشروع' : 'projects'}</td>
+                <td></td>
+                <td></td>
+                <td>${fmtMoneySum(rowsData, p => p.EstimatedBudget)}</td>
+                <td>${perfBadge(Math.round(avgPerf * 10) / 10)}</td>
+                <td>${perfBadge(Math.round(avgDisb * 10) / 10)}</td>
+                <td>${fmtMoneySum(rowsData, p => p.TotalRealised)}</td>
+                <td></td>
+                <td></td>
+            </tr>`;
+
             wrapper.innerHTML = `
                 <p class="text-muted mb-2">${isRtlLang ? 'عدد المشاريع' : 'Total projects'}:
                     <strong>${tableProjects.length}</strong></p>
@@ -317,6 +344,7 @@
                     <table class="table table-hover align-middle">
                         <thead class="table-light"><tr>${headCells}</tr></thead>
                         <tbody>${rows}</tbody>
+                        <tfoot>${footer}</tfoot>
                     </table>
                 </div>`;
 
