@@ -200,6 +200,18 @@
         function matchesMinistry(p) {
             return selectedMinistries.size === 0 || (p.MinistryCode != null && selectedMinistries.has(p.MinistryCode));
         }
+        function matchesProjectPick(p) {
+            return selectedProjects.size === 0 || selectedProjects.has(p.ProjectID);
+        }
+        // Projects passing all facet filters except the one being rebuilt
+        // (a list is narrowed by the other two facets, never by its own selection)
+        function projectsMatching(exceptFacet) {
+            return allProjects.filter(p =>
+                (includeNational || !p.IsNational) &&
+                (exceptFacet === 'strategy' || matchesStrategy(p)) &&
+                (exceptFacet === 'ministry' || matchesMinistry(p)) &&
+                (exceptFacet === 'project'  || matchesProjectPick(p)));
+        }
         // Projects passing the active strategy + ministry filters
         function activeFilteredProjects() {
             return allProjects.filter(p =>
@@ -442,14 +454,31 @@
             el.style.display = size > 0 ? 'inline-block' : 'none';
         }
 
-        function rebuildMinistryOptions() {
-            // Ministries that have >=1 project within the selected strategies (or all if no strategy filter)
+        function rebuildStrategyOptions() {
+            // Strategies that have >=1 project within the selected ministries/projects (or all if no other filter)
             let eligible;
-            if (selectedStrategies.size === 0) {
+            if (selectedMinistries.size === 0 && selectedProjects.size === 0) {
+                eligible = strategiesData;
+            } else {
+                const codes = new Set();
+                projectsMatching('strategy').forEach(p => p.FrameworkCodes.forEach(c => codes.add(c)));
+                eligible = strategiesData.filter(s => codes.has(s.Code));
+            }
+            // Prune now-invalid selections
+            [...selectedStrategies].forEach(c => { if (!eligible.some(s => s.Code === c)) selectedStrategies.delete(c); });
+            renderList('stratList', eligible.map(s => ({ code: s.Code, name: s.Name })), 'strat', selectedStrategies);
+            updateBadge('stratCount', selectedStrategies.size);
+            applySearch('stratList');
+        }
+
+        function rebuildMinistryOptions() {
+            // Ministries that have >=1 project within the selected strategies/projects (or all if no other filter)
+            let eligible;
+            if (selectedStrategies.size === 0 && selectedProjects.size === 0) {
                 eligible = ministriesData;
             } else {
                 const codes = new Set(
-                    allProjects.filter(p => matchesStrategy(p) && p.MinistryCode != null).map(p => p.MinistryCode)
+                    projectsMatching('ministry').filter(p => p.MinistryCode != null).map(p => p.MinistryCode)
                 );
                 eligible = ministriesData.filter(m => codes.has(m.Code));
             }
@@ -461,7 +490,7 @@
         }
 
         function rebuildProjectOptions() {
-            const items = activeFilteredProjects();
+            const items = projectsMatching('project');
             [...selectedProjects].forEach(id => { if (!items.some(p => p.ProjectID === id)) selectedProjects.delete(id); });
             renderList('projList', items.map(p => ({ code: p.ProjectID, name: p.ProjectName })), 'proj', selectedProjects);
             updateBadge('projCount', selectedProjects.size);
@@ -494,6 +523,7 @@
             const code = Number(e.target.value);
             e.target.checked ? selectedMinistries.add(code) : selectedMinistries.delete(code);
             updateBadge('minCount', selectedMinistries.size);
+            rebuildStrategyOptions();
             rebuildProjectOptions();
             colorizeMap();
             applyProjectSelection();
@@ -504,6 +534,8 @@
             const id = Number(e.target.value);
             e.target.checked ? selectedProjects.add(id) : selectedProjects.delete(id);
             updateBadge('projCount', selectedProjects.size);
+            rebuildStrategyOptions();
+            rebuildMinistryOptions();
             applyProjectSelection();
         });
 
@@ -515,6 +547,8 @@
         document.getElementById('nationalToggle').addEventListener('change', e => {
             includeNational = e.target.checked;
             rebuildProjectOptions(); // prunes now-invalid national selections
+            rebuildStrategyOptions();
+            rebuildMinistryOptions();
             colorizeMap();
             applyProjectSelection();
         });
@@ -527,10 +561,9 @@
             includeNational = true;
             document.getElementById('nationalToggle').checked = true;
             document.querySelectorAll('.governorate').forEach(p => p.classList.remove('active', 'highlight'));
-            renderList('stratList', strategiesData.map(s => ({ code: s.Code, name: s.Name })), 'strat', selectedStrategies);
+            rebuildStrategyOptions();
             rebuildMinistryOptions();
             rebuildProjectOptions();
-            updateBadge('stratCount', 0);
             ['stratList', 'minList', 'projList'].forEach(applySearch);
             colorizeMap();
             resetTablePlaceholder();
@@ -541,6 +574,8 @@
             activeGovCode = null;
             selectedProjects.clear();
             updateBadge('projCount', 0);
+            rebuildStrategyOptions();
+            rebuildMinistryOptions();
             rebuildProjectOptions();
             document.querySelectorAll('.governorate').forEach(p => p.classList.remove('active', 'highlight'));
             this.style.display = 'none';
@@ -548,7 +583,7 @@
         });
 
         // Initial filter lists
-        renderList('stratList', strategiesData.map(s => ({ code: s.Code, name: s.Name })), 'strat', selectedStrategies);
+        rebuildStrategyOptions();
         rebuildMinistryOptions();
         rebuildProjectOptions();
 
