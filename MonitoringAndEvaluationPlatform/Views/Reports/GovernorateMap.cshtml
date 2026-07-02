@@ -41,6 +41,7 @@
     .filter-item:hover { background: #eff6ff; }
     .filter-item input { flex-shrink: 0; width: 1.05em; height: 1.05em; cursor: pointer; }
     .filter-item span { flex: 1; line-height: 1.3; word-break: break-word; }
+    .filter-item .filter-count { flex: 0 0 auto; background: #e0e7ff; color: #3730a3; border-radius: 999px; font-size: .75rem; font-weight: 600; padding: .05rem .5rem; min-width: 1.6em; text-align: center; }
     .filter-empty { color: #94a3b8; font-size: .85rem; padding: .75rem; text-align: center; }
 </style>
 
@@ -440,6 +441,7 @@
                 <label class="filter-item">
                     <input class="filter-cb" type="checkbox" value="${it.code}" ${selectedSet.has(it.code) ? 'checked' : ''}>
                     <span>${it.name}</span>
+                    ${it.count != null ? `<span class="filter-count">${it.count}</span>` : ''}
                 </label>`).join('');
         }
 
@@ -468,18 +470,22 @@
 
         function rebuildMinistryOptions() {
             // Ministries that have >=1 project within the selected strategies/projects (or all if no other filter)
+            const counts = {};
+            projectsMatching('ministry').forEach(p => {
+                if (p.MinistryCode != null) counts[p.MinistryCode] = (counts[p.MinistryCode] || 0) + 1;
+            });
             let eligible;
             if (selectedStrategies.size === 0 && selectedProjects.size === 0) {
                 eligible = ministriesData;
             } else {
-                const codes = new Set(
-                    projectsMatching('ministry').filter(p => p.MinistryCode != null).map(p => p.MinistryCode)
-                );
-                eligible = ministriesData.filter(m => codes.has(m.Code));
+                eligible = ministriesData.filter(m => counts[m.Code]);
             }
             // Prune now-invalid selections
             [...selectedMinistries].forEach(c => { if (!eligible.some(m => m.Code === c)) selectedMinistries.delete(c); });
-            renderList('minList', eligible.map(m => ({ code: m.Code, name: m.Name })), 'min', selectedMinistries);
+            const items = eligible
+                .map(m => ({ code: m.Code, name: m.Name, count: counts[m.Code] || 0 }))
+                .sort((a, b) => b.count - a.count || a.name.localeCompare(b.name));
+            renderList('minList', items, 'min', selectedMinistries);
             updateBadge('minCount', selectedMinistries.size);
             applySearch('minList');
         }
