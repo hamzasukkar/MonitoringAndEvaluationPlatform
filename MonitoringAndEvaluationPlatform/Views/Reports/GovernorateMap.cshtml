@@ -212,15 +212,10 @@
                 (exceptFacet === 'ministry' || matchesMinistry(p)) &&
                 (exceptFacet === 'project'  || matchesProjectPick(p)));
         }
-        // Projects passing the active strategy + ministry filters
-        function activeFilteredProjects() {
-            return allProjects.filter(p =>
-                (includeNational || !p.IsNational) &&
-                matchesStrategy(p) && matchesMinistry(p));
-        }
-        // Projects (strategy+ministry filtered) that belong to a governorate (national counted everywhere)
+        // Projects passing all active filters (incl. selected projects) that belong to a governorate
+        // (national counted everywhere)
         function projectsInGov(govCode) {
-            return activeFilteredProjects().filter(p => p.IsNational || p.GovernorateCodes.includes(govCode));
+            return projectsMatching().filter(p => p.IsNational || p.GovernorateCodes.includes(govCode));
         }
 
         // ---- Money / badges ----
@@ -536,6 +531,7 @@
             updateBadge('projCount', selectedProjects.size);
             rebuildStrategyOptions();
             rebuildMinistryOptions();
+            colorizeMap();
             applyProjectSelection();
         });
 
@@ -577,6 +573,7 @@
             rebuildStrategyOptions();
             rebuildMinistryOptions();
             rebuildProjectOptions();
+            colorizeMap();
             document.querySelectorAll('.governorate').forEach(p => p.classList.remove('active', 'highlight'));
             this.style.display = 'none';
             resetTablePlaceholder();
