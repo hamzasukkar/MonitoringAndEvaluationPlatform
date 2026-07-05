@@ -43,6 +43,7 @@
     .filter-item span { flex: 1; line-height: 1.3; word-break: break-word; }
     .filter-item .filter-count { flex: 0 0 auto; background: #e0e7ff; color: #3730a3; border-radius: 999px; font-size: .75rem; font-weight: 600; padding: .05rem .5rem; min-width: 1.6em; text-align: center; }
     .filter-empty { color: #94a3b8; font-size: .85rem; padding: .75rem; text-align: center; }
+    .year-select { width: auto; min-width: 5.2rem; }
 </style>
 
 <!-- Header -->
@@ -105,6 +106,15 @@
                     <input type="text" class="form-control form-control-sm mb-2 filter-search" data-target="projList" placeholder="@(isRtl ? "بحث..." : "Search...")">
                     <div id="projList" class="filter-list"></div>
                 </div>
+            </div>
+
+            <!-- Year range (projects active within the period) -->
+            <div class="d-flex align-items-center gap-1 ms-2 year-range">
+                <i class="far fa-calendar-alt text-muted me-1"></i>
+                <label class="small text-muted mb-0" for="yearFrom">@(isRtl ? "من" : "From")</label>
+                <select id="yearFrom" class="form-select form-select-sm year-select"></select>
+                <label class="small text-muted mb-0" for="yearTo">@(isRtl ? "إلى" : "To")</label>
+                <select id="yearTo" class="form-select form-select-sm year-select"></select>
             </div>
 
             <div class="form-check form-switch d-flex align-items-center ms-2">
@@ -170,6 +180,7 @@
         const selectedProjects   = new Set();
         let activeGovCode = null; // last clicked governorate
         let includeNational = true; // toggle: show/hide country-wide projects
+        let yearFrom = null, yearTo = null; // year-range filter (null = unbounded)
 
         // Maps SVG path IDs -> governorate names (same layout as the existing report map)
         const governorateMapping = {
@@ -204,11 +215,25 @@
         function matchesProjectPick(p) {
             return selectedProjects.size === 0 || selectedProjects.has(p.ProjectID);
         }
+        function projectYear(s) {
+            const y = parseInt((s || '').slice(0, 4), 10);
+            return isNaN(y) ? null : y;
+        }
+        // Project period [start year, end year] overlaps the selected [from, to] range
+        function matchesYears(p) {
+            if (yearFrom == null && yearTo == null) return true;
+            const ps = projectYear(p.StartDate), pe = projectYear(p.EndDate);
+            const lo = (yearFrom != null && yearTo != null) ? Math.min(yearFrom, yearTo) : yearFrom;
+            const hi = (yearFrom != null && yearTo != null) ? Math.max(yearFrom, yearTo) : yearTo;
+            return (lo == null || pe == null || pe >= lo) &&
+                   (hi == null || ps == null || ps <= hi);
+        }
         // Projects passing all facet filters except the one being rebuilt
         // (a list is narrowed by the other two facets, never by its own selection)
         function projectsMatching(exceptFacet) {
             return allProjects.filter(p =>
                 (includeNational || !p.IsNational) &&
+                matchesYears(p) &&
                 (exceptFacet === 'strategy' || matchesStrategy(p)) &&
                 (exceptFacet === 'ministry' || matchesMinistry(p)) &&
                 (exceptFacet === 'project'  || matchesProjectPick(p)));
@@ -323,8 +348,8 @@
                     <td>${perfBadge(p.Performance)}</td>
                     <td>${perfBadge(p.DisbursementPerformance)}</td>
                     <td>${fmtMoney(p.TotalRealised, p.Currency)}</td>
-                    <td>${p.StartDate}</td>
-                    <td>${p.EndDate}</td>
+                    <td>${projectYear(p.StartDate) ?? ''}</td>
+                    <td>${projectYear(p.EndDate) ?? ''}</td>
                 </tr>`;
             });
 
@@ -546,6 +571,35 @@
             inp.addEventListener('click', e => e.stopPropagation());
         });
 
+        // ---- Year-range filter ----
+        function initYearFilter() {
+            const years = new Set();
+            allProjects.forEach(p => {
+                const s = projectYear(p.StartDate), e = projectYear(p.EndDate);
+                if (s != null) years.add(s);
+                if (e != null) years.add(e);
+            });
+            const sorted = [...years].sort((a, b) => a - b);
+            const opts = `<option value="">${isRtlLang ? 'الكل' : 'All'}</option>` +
+                sorted.map(y => `<option value="${y}">${y}</option>`).join('');
+            document.getElementById('yearFrom').innerHTML = opts;
+            document.getElementById('yearTo').innerHTML = opts;
+        }
+
+        function onYearChange() {
+            const f = document.getElementById('yearFrom').value;
+            const t = document.getElementById('yearTo').value;
+            yearFrom = f ? Number(f) : null;
+            yearTo = t ? Number(t) : null;
+            rebuildStrategyOptions();
+            rebuildMinistryOptions();
+            rebuildProjectOptions();
+            colorizeMap();
+            applyProjectSelection();
+        }
+        document.getElementById('yearFrom').addEventListener('change', onYearChange);
+        document.getElementById('yearTo').addEventListener('change', onYearChange);
+
         document.getElementById('nationalToggle').addEventListener('change', e => {
             includeNational = e.target.checked;
             rebuildProjectOptions(); // prunes now-invalid national selections
@@ -562,6 +616,10 @@
             activeGovCode = null;
             includeNational = true;
             document.getElementById('nationalToggle').checked = true;
+            yearFrom = null;
+            yearTo = null;
+            document.getElementById('yearFrom').value = '';
+            document.getElementById('yearTo').value = '';
             document.querySelectorAll('.governorate').forEach(p => p.classList.remove('active', 'highlight'));
             rebuildStrategyOptions();
             rebuildMinistryOptions();
@@ -586,6 +644,7 @@
         });
 
         // Initial filter lists
+        initYearFilter();
         rebuildStrategyOptions();
         rebuildMinistryOptions();
         rebuildProjectOptions();
