@@ -1212,9 +1212,15 @@
                     </a>
                 </li>
                 <li>
-                    <a href="/Reports/Index" class="sidebar-link @(Context.Request.Path.Value.Contains("Reports") ? "active" : "")">
+                    <a href="/Reports/Index" class="sidebar-link @(Context.Request.Path.Value.Contains("Reports") && !Context.Request.Path.Value.Contains("GovernorateMap") ? "active" : "")">
                         <i class="fas fa-chart-bar"></i>
                         <span>@Localizer["Reports"]</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="/Reports/GovernorateMap" class="sidebar-link @(Context.Request.Path.Value.Contains("GovernorateMap") ? "active" : "")">
+                        <i class="fas fa-map-marked-alt"></i>
+                        <span>@Localizer["Governorate Map"]</span>
                     </a>
                 </li>
                 @if (User.IsInRole("SystemAdministrator"))
