@@ -44,6 +44,11 @@
     .filter-item .filter-count { flex: 0 0 auto; background: #e0e7ff; color: #3730a3; border-radius: 999px; font-size: .75rem; font-weight: 600; padding: .05rem .5rem; min-width: 1.6em; text-align: center; }
     .filter-empty { color: #94a3b8; font-size: .85rem; padding: .75rem; text-align: center; }
     .year-select { width: auto; min-width: 5.2rem; }
+    /* RTL fix: the LTR Bootstrap build gives the switch input a negative margin-left,
+       which overlaps the label under dir="rtl" — neutralize it and space via flex gap */
+    [dir="rtl"] .filter-bar .form-switch { padding-left: 0; gap: .5rem; }
+    [dir="rtl"] .filter-bar .form-switch .form-check-input { margin-left: 0; }
+    [dir="rtl"] .filter-bar .form-switch .form-check-label { margin-left: 0 !important; }
 </style>
 
 <!-- Header -->
