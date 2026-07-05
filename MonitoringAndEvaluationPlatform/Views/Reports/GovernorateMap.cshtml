@@ -263,6 +263,13 @@
             const cls = v >= 75 ? 'bg-success' : v >= 50 ? 'bg-warning text-dark' : 'bg-danger';
             return `<span class="badge ${cls}">${v}%</span>`;
         }
+        // Framework/strategy name lookup (a project may belong to several frameworks)
+        const strategyNameByCode = Object.fromEntries(strategiesData.map(s => [s.Code, s.Name]));
+        function frameworkNames(p) {
+            return (p.FrameworkCodes || [])
+                .map(c => strategyNameByCode[c])
+                .filter(Boolean);
+        }
 
         // ---- Table ----
         // Column definitions: label + sort key (null = not sortable)
@@ -271,6 +278,7 @@
             { labelAr: 'اسم المشروع', labelEn: 'Project Name',   key: p => (p.ProjectName || '').toLowerCase() },
             { labelAr: 'النطاق',      labelEn: 'Scope',          key: p => (p.IsNational ? 1 : 0) },
             { labelAr: 'الجهة',       labelEn: 'Ministry',       key: p => (p.Ministry || '').toLowerCase() },
+            { labelAr: 'الاستراتيجية', labelEn: 'Framework',      key: p => frameworkNames(p).join(', ').toLowerCase() },
             { labelAr: 'الميزانية',   labelEn: 'Budget',         key: p => (p.EstimatedBudget || 0) },
             { labelAr: 'الأداء',      labelEn: 'Performance',    key: p => (p.Performance || 0) },
             { labelAr: 'الصرف',       labelEn: 'Disbursement',   key: p => (p.DisbursementPerformance || 0) },
@@ -339,11 +347,16 @@
                 const scope = p.IsNational
                     ? `<span class="badge bg-info"><i class="fas fa-flag me-1"></i>${isRtlLang ? 'على مستوى القطر' : 'Country-wide'}</span>`
                     : `<span class="badge bg-secondary"><i class="fas fa-map-marker-alt me-1"></i>${isRtlLang ? 'على مستوى المحافظة' : 'Governorate-level'}</span>`;
+                const fwNames = frameworkNames(p);
+                const fwCell = fwNames.length
+                    ? fwNames.map(n => `<span class="badge bg-light text-dark border">${n}</span>`).join(' ')
+                    : '-';
                 rows += `<tr>
                     <td>${i + 1}</td>
                     <td><a href="/Projects/Details/${p.ProjectID}">${p.ProjectName}</a></td>
                     <td>${scope}</td>
                     <td>${p.Ministry || '-'}</td>
+                    <td>${fwCell}</td>
                     <td>${fmtMoney(p.EstimatedBudget, p.Currency)}</td>
                     <td>${perfBadge(p.Performance)}</td>
                     <td>${perfBadge(p.DisbursementPerformance)}</td>
