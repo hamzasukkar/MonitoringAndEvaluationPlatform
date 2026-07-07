@@ -501,6 +501,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             var projects = await projectsQuery
                 .Include(p => p.Ministry)
                 .Include(p => p.Governorates)
+                .Include(p => p.Communities)
                 .Include(p => p.Phases)
                     .ThenInclude(pp => pp.ActionPlan)
                         .ThenInclude(ap => ap.Plans)
@@ -579,7 +580,10 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                         FrameworkCodes = projectFrameworks.TryGetValue(p.ProjectID, out var fc)
                             ? fc.ToList()
                             : new List<int>(),
-                        GovernorateCodes = p.Governorates.Select(g => g.Code).ToList()
+                        GovernorateCodes = p.Governorates.Select(g => g.Code).ToList(),
+                        Communities = p.Communities
+                            .Select(c => isArabic ? c.AR_Name : c.EN_Name)
+                            .ToList()
                     })
                     .ToList()
             };

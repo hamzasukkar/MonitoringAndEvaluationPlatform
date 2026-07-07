@@ -283,6 +283,7 @@
             { labelAr: 'اسم المشروع', labelEn: 'Project Name',   key: p => (p.ProjectName || '').toLowerCase() },
             { labelAr: 'النطاق',      labelEn: 'Scope',          key: p => (p.IsNational ? 1 : 0) },
             { labelAr: 'الجهة',       labelEn: 'Ministry',       key: p => (p.Ministry || '').toLowerCase() },
+            { labelAr: 'الناحية',     labelEn: 'Community',      key: p => (p.Communities || []).join(', ').toLowerCase() },
             { labelAr: 'الاستراتيجية', labelEn: 'Framework',      key: p => frameworkNames(p).join(', ').toLowerCase() },
             { labelAr: 'الميزانية',   labelEn: 'Budget',         key: p => (p.EstimatedBudget || 0) },
             { labelAr: 'الأداء',      labelEn: 'Performance',    key: p => (p.Performance || 0) },
@@ -361,6 +362,7 @@
                     <td><a href="/Projects/Details/${p.ProjectID}">${p.ProjectName}</a></td>
                     <td>${scope}</td>
                     <td>${p.Ministry || '-'}</td>
+                    <td>${(p.Communities && p.Communities.length) ? p.Communities.join(', ') : '-'}</td>
                     <td>${fwCell}</td>
                     <td>${fmtMoney(p.EstimatedBudget, p.Currency)}</td>
                     <td>${perfBadge(p.Performance)}</td>
@@ -378,6 +380,7 @@
             const footer = `<tr class="table-light fw-bold">
                 <td>${isRtlLang ? 'الإجمالي' : 'Total'}</td>
                 <td>${n} ${isRtlLang ? 'مشروع' : 'projects'}</td>
+                <td></td>
                 <td></td>
                 <td></td>
                 <td>${fmtMoneySum(rowsData, p => p.EstimatedBudget)}</td>
