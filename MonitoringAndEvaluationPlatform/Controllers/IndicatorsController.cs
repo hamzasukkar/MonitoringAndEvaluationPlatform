@@ -62,8 +62,20 @@ namespace MonitoringAndEvaluationPlatform.Controllers
 
         // GET: Indicators
         [Permission(Permissions.ReadIndicators)]
-        public async Task<IActionResult> Index(int? frameworkCode, int? subOutputCode, string searchString)
+        public async Task<IActionResult> Index(int? frameworkCode, int? subOutputCode, string searchString,
+            int? outcomeCode, int? outputCode, string performanceBand, string disbursementBand,
+            string sortColumn = "Name", string sortDirection = "asc", int page = 1, int pageSize = 10)
         {
+            // If navigating from a SubOutput link (no framework in the URL), derive the framework
+            // so the cascade filter dropdowns can still populate.
+            if (!frameworkCode.HasValue && subOutputCode.HasValue)
+            {
+                frameworkCode = await _context.SubOutputs
+                    .Where(s => s.Code == subOutputCode.Value)
+                    .Select(s => (int?)s.Output.Outcome.FrameworkCode)
+                    .FirstOrDefaultAsync();
+            }
+
             ViewData["CurrentFilter"] = searchString;
             ViewData["subOutputCode"] = subOutputCode;
             ViewData["frameworkCode"] = frameworkCode;
@@ -124,22 +136,96 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                     (i.Project != null && EF.Functions.Like(i.Project.ProjectName, $"%{searchString}%")));
             }
 
-            var resultIndicators = await indicators.ToListAsync();
-
-            // Pass suboutput name to view if viewing specific suboutput
-            if (subOutputCode.HasValue && resultIndicators.Any())
+            // Apply hierarchy (Outcome / Output) filters
+            if (outcomeCode.HasValue)
             {
-                ViewBag.SubOutputName = resultIndicators.First().SubOutput?.Name;
+                indicators = indicators.Where(i => i.SubOutput.Output.OutcomeCode == outcomeCode.Value);
+            }
+            if (outputCode.HasValue)
+            {
+                indicators = indicators.Where(i => i.SubOutput.OutputCode == outputCode.Value);
             }
 
-            // Pass SubOutputs for the create form when accessed from framework level
-            if (frameworkCode.HasValue && !subOutputCode.HasValue)
+            // Apply performance band filters (High >= 75, Medium 50-74, Low < 50)
+            indicators = performanceBand?.ToLower() switch
             {
+                "high" => indicators.Where(i => i.IndicatorsPerformance >= 75),
+                "medium" => indicators.Where(i => i.IndicatorsPerformance >= 50 && i.IndicatorsPerformance < 75),
+                "low" => indicators.Where(i => i.IndicatorsPerformance < 50),
+                _ => indicators,
+            };
+            indicators = disbursementBand?.ToLower() switch
+            {
+                "high" => indicators.Where(i => i.DisbursementPerformance >= 75),
+                "medium" => indicators.Where(i => i.DisbursementPerformance >= 50 && i.DisbursementPerformance < 75),
+                "low" => indicators.Where(i => i.DisbursementPerformance < 50),
+                _ => indicators,
+            };
+
+            // Sanitize paging/sorting inputs
+            if (page < 1) page = 1;
+            if (pageSize < 5 || pageSize > 100) pageSize = 10;
+            sortDirection = sortDirection == "desc" ? "desc" : "asc";
+
+            var totalRecords = await indicators.CountAsync();
+            var totalPages = (int)Math.Ceiling(totalRecords / (double)pageSize);
+            page = Math.Min(page, Math.Max(totalPages, 1));
+
+            bool ascending = sortDirection == "asc";
+            indicators = sortColumn?.ToLower() switch
+            {
+                "weight" => ascending
+                    ? indicators.OrderBy(i => i.Weight).ThenBy(i => i.IndicatorCode)
+                    : indicators.OrderByDescending(i => i.Weight).ThenBy(i => i.IndicatorCode),
+                "indicatorsperformance" => ascending
+                    ? indicators.OrderBy(i => i.IndicatorsPerformance).ThenBy(i => i.IndicatorCode)
+                    : indicators.OrderByDescending(i => i.IndicatorsPerformance).ThenBy(i => i.IndicatorCode),
+                "disbursementperformance" => ascending
+                    ? indicators.OrderBy(i => i.DisbursementPerformance).ThenBy(i => i.IndicatorCode)
+                    : indicators.OrderByDescending(i => i.DisbursementPerformance).ThenBy(i => i.IndicatorCode),
+                _ => ascending
+                    ? indicators.OrderBy(i => i.Name).ThenBy(i => i.IndicatorCode)
+                    : indicators.OrderByDescending(i => i.Name).ThenBy(i => i.IndicatorCode),
+            };
+
+            var resultIndicators = await indicators
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync();
+
+            // Pass suboutput name to view if viewing specific suboutput
+            if (subOutputCode.HasValue)
+            {
+                ViewBag.SubOutputName = await _context.SubOutputs
+                    .Where(s => s.Code == subOutputCode.Value)
+                    .Select(s => s.Name)
+                    .FirstOrDefaultAsync();
+            }
+
+            // Build the cascade filter dropdown option lists (framework-scoped)
+            var outcomes = new List<Outcome>();
+            var outputs = new List<Output>();
+            var subOutputs = new List<SubOutput>();
+
+            if (frameworkCode.HasValue)
+            {
+                outcomes = await _context.Outcomes
+                    .Where(o => o.FrameworkCode == frameworkCode.Value)
+                    .OrderBy(o => o.Name)
+                    .ToListAsync();
+
+                var outputsQuery = _context.Outputs
+                    .Where(o => o.Outcome.FrameworkCode == frameworkCode.Value);
+                if (outcomeCode.HasValue)
+                    outputsQuery = outputsQuery.Where(o => o.OutcomeCode == outcomeCode.Value);
+                outputs = await outputsQuery.OrderBy(o => o.Name).ToListAsync();
+
                 var subOutputsQuery = _context.SubOutputs
-                    .Include(so => so.Output)
-                    .ThenInclude(o => o.Outcome)
-                    .ThenInclude(oc => oc.Framework)
                     .Where(so => so.Output.Outcome.FrameworkCode == frameworkCode.Value);
+                if (outputCode.HasValue)
+                    subOutputsQuery = subOutputsQuery.Where(so => so.OutputCode == outputCode.Value);
+                else if (outcomeCode.HasValue)
+                    subOutputsQuery = subOutputsQuery.Where(so => so.Output.OutcomeCode == outcomeCode.Value);
 
                 if (!isAdmin)
                 {
@@ -148,10 +234,41 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                         : subOutputsQuery.Where(so => so.Output.Outcome.Framework.MinistryCode == scopedMinistryCode);
                 }
 
-                ViewBag.SubOutputsForCreate = await subOutputsQuery.OrderBy(so => so.Name).ToListAsync();
+                subOutputs = await subOutputsQuery.OrderBy(so => so.Name).ToListAsync();
+
+                // Reuse the framework-level suboutput list for the inline create form dropdown
+                if (!subOutputCode.HasValue)
+                {
+                    ViewBag.SubOutputsForCreate = await _context.SubOutputs
+                        .Where(so => so.Output.Outcome.FrameworkCode == frameworkCode.Value)
+                        .Where(so => isAdmin || (scopedMinistryCode != null && so.Output.Outcome.Framework.MinistryCode == scopedMinistryCode))
+                        .OrderBy(so => so.Name)
+                        .ToListAsync();
+                }
             }
 
-            return View(resultIndicators);
+            var viewModel = new IndicatorListViewModel
+            {
+                Indicators = resultIndicators,
+                FrameworkCode = frameworkCode,
+                OutcomeCode = outcomeCode,
+                OutputCode = outputCode,
+                SubOutputCode = subOutputCode,
+                SearchString = searchString,
+                PerformanceBand = performanceBand,
+                DisbursementBand = disbursementBand,
+                Outcomes = outcomes,
+                Outputs = outputs,
+                SubOutputs = subOutputs,
+                SortColumn = sortColumn,
+                SortDirection = sortDirection,
+                CurrentPage = page,
+                PageSize = pageSize,
+                TotalRecords = totalRecords,
+                TotalPages = totalPages
+            };
+
+            return View(viewModel);
         }
 
 
@@ -996,9 +1113,11 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         // GET: Indicators/ExportExcel
         [HttpGet]
         [Permission(Permissions.ReadIndicators)]
-        public async Task<IActionResult> ExportExcel(int? frameworkCode, int? subOutputCode)
+        public async Task<IActionResult> ExportExcel(int? frameworkCode, int? subOutputCode, string searchString,
+            int? outcomeCode, int? outputCode, string performanceBand, string disbursementBand)
         {
-            var indicators = await GetFilteredIndicators(frameworkCode, subOutputCode);
+            var indicators = await GetFilteredIndicators(frameworkCode, subOutputCode, searchString,
+                outcomeCode, outputCode, performanceBand, disbursementBand);
             var culture = Request.HttpContext.Features.Get<IRequestCultureFeature>()?.RequestCulture.Culture.Name ?? "en";
             var isRtl = culture.StartsWith("ar");
 
@@ -1047,9 +1166,11 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         // GET: Indicators/ExportPdf
         [HttpGet]
         [Permission(Permissions.ReadIndicators)]
-        public async Task<IActionResult> ExportPdf(int? frameworkCode, int? subOutputCode)
+        public async Task<IActionResult> ExportPdf(int? frameworkCode, int? subOutputCode, string searchString,
+            int? outcomeCode, int? outputCode, string performanceBand, string disbursementBand)
         {
-            var indicators = await GetFilteredIndicators(frameworkCode, subOutputCode);
+            var indicators = await GetFilteredIndicators(frameworkCode, subOutputCode, searchString,
+                outcomeCode, outputCode, performanceBand, disbursementBand);
             var culture = Request.HttpContext.Features.Get<IRequestCultureFeature>()?.RequestCulture.Culture.Name ?? "en";
             var isRtl = culture.StartsWith("ar");
 
@@ -1120,15 +1241,68 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             return File(pdfBytes, "application/pdf", fileName);
         }
 
-        private async Task<List<Indicator>> GetFilteredIndicators(int? frameworkCode, int? subOutputCode)
+        private async Task<List<Indicator>> GetFilteredIndicators(int? frameworkCode, int? subOutputCode, string searchString = null,
+            int? outcomeCode = null, int? outputCode = null, string performanceBand = null, string disbursementBand = null)
         {
             var query = _context.Indicators.Include(i => i.SubOutput).AsQueryable();
 
             if (frameworkCode.HasValue)
                 query = query.Where(i => i.SubOutput.Output.Outcome.FrameworkCode == frameworkCode.Value);
 
+            if (outcomeCode.HasValue)
+                query = query.Where(i => i.SubOutput.Output.OutcomeCode == outcomeCode.Value);
+
+            if (outputCode.HasValue)
+                query = query.Where(i => i.SubOutput.OutputCode == outputCode.Value);
+
             if (subOutputCode.HasValue)
                 query = query.Where(i => i.SubOutputCode == subOutputCode.Value);
+
+            // Filter by ministry if user is a ministry user (same rules as Index)
+            var currentUser = await _userManager.GetUserAsync(User);
+            var isMinistryUser = User.IsInRole(UserRoles.MinistriesUser) || User.IsInRole(UserRoles.DataEntry);
+            var userMinistryName = currentUser?.MinistryName;
+
+            if (isMinistryUser && !string.IsNullOrEmpty(userMinistryName))
+            {
+                query = query.Where(i =>
+                    i.Project != null && i.Project.Ministry != null &&
+                    (i.Project.Ministry.MinistryDisplayName_AR == userMinistryName ||
+                     i.Project.Ministry.MinistryDisplayName_EN == userMinistryName ||
+                     i.Project.Ministry.MinistryUserName == userMinistryName));
+            }
+
+            // Restrict to ancestor framework's ministry for non-admins
+            var (isAdmin, scopedMinistryCode) = await GetScopeAsync();
+            if (!isAdmin)
+            {
+                query = scopedMinistryCode is null
+                    ? query.Where(_ => false)
+                    : query.Where(i => i.SubOutput.Output.Outcome.Framework.MinistryCode == scopedMinistryCode);
+            }
+
+            if (!string.IsNullOrEmpty(searchString))
+            {
+                query = query.Where(i =>
+                    EF.Functions.Like(i.Name, $"%{searchString}%") ||
+                    (i.SubOutput != null && EF.Functions.Like(i.SubOutput.Name, $"%{searchString}%")) ||
+                    (i.Project != null && EF.Functions.Like(i.Project.ProjectName, $"%{searchString}%")));
+            }
+
+            query = performanceBand?.ToLower() switch
+            {
+                "high" => query.Where(i => i.IndicatorsPerformance >= 75),
+                "medium" => query.Where(i => i.IndicatorsPerformance >= 50 && i.IndicatorsPerformance < 75),
+                "low" => query.Where(i => i.IndicatorsPerformance < 50),
+                _ => query,
+            };
+            query = disbursementBand?.ToLower() switch
+            {
+                "high" => query.Where(i => i.DisbursementPerformance >= 75),
+                "medium" => query.Where(i => i.DisbursementPerformance >= 50 && i.DisbursementPerformance < 75),
+                "low" => query.Where(i => i.DisbursementPerformance < 50),
+                _ => query,
+            };
 
             return await query.OrderByDescending(i => i.IndicatorsPerformance).ToListAsync();
         }
