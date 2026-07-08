@@ -67,6 +67,72 @@ namespace MonitoringAndEvaluationPlatform.Data
             }
         }
 
+        // Ensures every governorate has a same-named District → SubDistrict → Community chain,
+        // so a project location can be recorded at the "entire governorate" level.
+        // Idempotent: each level is looked up by name within its parent before creating.
+        public static void EnsureGovernorateLocationChains(ApplicationDbContext context)
+        {
+            var governorates = context.Governorates.ToList();
+            foreach (var gov in governorates)
+            {
+                var district = context.Districts
+                    .FirstOrDefault(d => d.GovernorateCode == gov.Code && d.AR_Name == gov.AR_Name);
+                if (district == null)
+                {
+                    district = new District
+                    {
+                        Code = GenerateUnusedChildCode(gov.Code, c => context.Districts.Any(d => d.Code == c)),
+                        GovernorateCode = gov.Code,
+                        AR_Name = gov.AR_Name,
+                        EN_Name = gov.EN_Name
+                    };
+                    context.Districts.Add(district);
+                    context.SaveChanges();
+                }
 
+                var subDistrict = context.SubDistricts
+                    .FirstOrDefault(s => s.DistrictCode == district.Code && s.AR_Name == gov.AR_Name);
+                if (subDistrict == null)
+                {
+                    subDistrict = new SubDistrict
+                    {
+                        Code = GenerateUnusedChildCode(district.Code, c => context.SubDistricts.Any(s => s.Code == c)),
+                        DistrictCode = district.Code,
+                        AR_Name = gov.AR_Name,
+                        EN_Name = gov.EN_Name
+                    };
+                    context.SubDistricts.Add(subDistrict);
+                    context.SaveChanges();
+                }
+
+                var community = context.Communities
+                    .FirstOrDefault(c => c.SubDistrictCode == subDistrict.Code && c.AR_Name == gov.AR_Name);
+                if (community == null)
+                {
+                    var commCode = "CG" + gov.Code; // e.g. CGSY02 — distinct from the seeded C#### scheme
+                    while (context.Communities.Any(c => c.Code == commCode))
+                        commCode += "X";
+                    context.Communities.Add(new Community
+                    {
+                        Code = commCode,
+                        SubDistrictCode = subDistrict.Code,
+                        AR_Name = gov.AR_Name,
+                        EN_Name = gov.EN_Name
+                    });
+                    context.SaveChanges();
+                }
+            }
+        }
+
+        // Appends a 2-digit suffix, probing from "99" downward until an unused code is found.
+        private static string GenerateUnusedChildCode(string parentCode, Func<string, bool> exists)
+        {
+            for (int suffix = 99; suffix >= 0; suffix--)
+            {
+                var candidate = parentCode + suffix.ToString("D2");
+                if (!exists(candidate)) return candidate;
+            }
+            throw new InvalidOperationException($"No free child location code available under {parentCode}");
+        }
     }
 }

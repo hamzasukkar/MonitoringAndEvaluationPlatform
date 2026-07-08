@@ -184,6 +184,7 @@ using (var scope = app.Services.CreateScope())
     ApplicationDbInitializer.SeedDistrictsFromJson(dbContext);
     ApplicationDbInitializer.SeedSubDistrictsFromJson(dbContext);
     ApplicationDbInitializer.SeedCommunitiesFromJson(dbContext);
+    ApplicationDbInitializer.EnsureGovernorateLocationChains(dbContext);
 
     // Create roles if they don't exist
     var rolesToCreate = new[]

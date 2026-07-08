@@ -447,6 +447,34 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             return Json(comms);
         }
 
+        // Resolves the same-named District → SubDistrict → Community chain of a governorate,
+        // used by the "Add Entire Governorate" button. Matching is on AR_Name (the canonical name).
+        public async Task<JsonResult> GetGovernorateChain(string governorateCode)
+        {
+            var currentCulture = CultureInfo.CurrentUICulture.TwoLetterISOLanguageName;
+            var gov = await _context.Governorates.FindAsync(governorateCode);
+            if (gov == null) return Json(new { found = false });
+
+            var district = await _context.Districts
+                .FirstOrDefaultAsync(d => d.GovernorateCode == gov.Code && d.AR_Name == gov.AR_Name);
+            var subDistrict = district == null ? null : await _context.SubDistricts
+                .FirstOrDefaultAsync(s => s.DistrictCode == district.Code && s.AR_Name == gov.AR_Name);
+            var community = subDistrict == null ? null : await _context.Communities
+                .FirstOrDefaultAsync(c => c.SubDistrictCode == subDistrict.Code && c.AR_Name == gov.AR_Name);
+
+            if (district == null || subDistrict == null || community == null)
+                return Json(new { found = false });
+
+            return Json(new
+            {
+                found = true,
+                governorate = new { code = gov.Code, name = currentCulture == "ar" ? gov.AR_Name : gov.EN_Name },
+                district = new { code = district.Code, name = currentCulture == "ar" ? district.AR_Name : district.EN_Name },
+                subDistrict = new { code = subDistrict.Code, name = currentCulture == "ar" ? subDistrict.AR_Name : subDistrict.EN_Name },
+                community = new { code = community.Code, name = currentCulture == "ar" ? community.AR_Name : community.EN_Name }
+            });
+        }
+
         // GET: Programs/Create
         [Permission(Permissions.AddProject)]
         public async Task<IActionResult> Create(int? indicatorId, string indicatorName)
