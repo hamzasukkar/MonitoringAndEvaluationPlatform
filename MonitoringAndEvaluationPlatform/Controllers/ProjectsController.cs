@@ -518,6 +518,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             {
                 EstimatedBudget = 0,
                 RealBudget = 0,
+                Currency = "SYP",
                 StartDate = DateTime.Today,
                 EndDate = DateTime.Today.AddYears(1),
                 //DonorCode = donors.FirstOrDefault()?.Code ?? 0,//To Check
