@@ -324,6 +324,25 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 .OrderByDescending(s => s.ProjectCount)
                 .ToList();
 
+            // Public Sector Type Reports (counts use the scoped projects list so ministry scoping is respected)
+            var publicSectorTypes = await _context.PublicSectorTypes.ToListAsync();
+            viewModel.TotalPublicSectorTypes = publicSectorTypes.Count;
+            viewModel.PublicSectorTypeReports = publicSectorTypes
+                .Select(t => {
+                    var typeProjects = projects.Where(p => p.PublicSectorTypeCode == t.Code).ToList();
+                    return new CategoryReportItem
+                    {
+                        Name = isArabic ? t.AR_Name : t.EN_Name,
+                        NameAr = t.AR_Name,
+                        ProjectCount = typeProjects.Count,
+                        TotalBudget = typeProjects.Sum(p => p.EstimatedBudget),
+                        AmountSpent = typeProjects.Sum(p => p.Phases?.Where(pp => pp.ActionPlan != null).SelectMany(pp => pp.ActionPlan!.Plans).Sum(plan => (double)plan.Realised) ?? 0)
+                    };
+                })
+                .Where(t => t.ProjectCount > 0)
+                .OrderByDescending(t => t.ProjectCount)
+                .ToList();
+
             // Donor Reports
             viewModel.TotalDonors = donors.Count;
             viewModel.DonorReports = donors

@@ -201,6 +201,7 @@
     for (int i = 0; i < Model.SelectedMinistries.Count; i++) baseRoute[$"SelectedMinistries[{i}]"] = Model.SelectedMinistries[i].ToString();
     for (int i = 0; i < Model.SelectedDonors.Count; i++) baseRoute[$"SelectedDonors[{i}]"] = Model.SelectedDonors[i].ToString();
     for (int i = 0; i < Model.SelectedSectors.Count; i++) baseRoute[$"SelectedSectors[{i}]"] = Model.SelectedSectors[i].ToString();
+    for (int i = 0; i < Model.SelectedPublicSectorTypes.Count; i++) baseRoute[$"SelectedPublicSectorTypes[{i}]"] = Model.SelectedPublicSectorTypes[i].ToString();
     for (int i = 0; i < Model.SelectedGovernorates.Count; i++) baseRoute[$"SelectedGovernorates[{i}]"] = Model.SelectedGovernorates[i];
 
     // Helper: produce a route dict with a single key removed (for list filters,
@@ -313,6 +314,22 @@
             foreach (var other in Model.SelectedSectors.Where(c => c != code)) { rd[$"SelectedSectors[{idx++}]"] = other.ToString(); }
             <a asp-action="Index" asp-all-route-data="rd" class="filter-chip">
                 <span class="chip-key">@Localizer["Sector"]</span>
+                <span class="chip-val">@name</span>
+                <i class="fas fa-times chip-x"></i>
+            </a>
+        }
+
+        @* Public Sector Types *@
+        @foreach (var code in Model.SelectedPublicSectorTypes)
+        {
+            var t = Model.PublicSectorTypes.FirstOrDefault(x => x.Code == code);
+            if (t == null) { continue; }
+            var name = culture.StartsWith("ar") ? t.AR_Name : t.EN_Name;
+            var rd = new Dictionary<string, string>(routeWithout("SelectedPublicSectorTypes", code));
+            var idx = 0;
+            foreach (var other in Model.SelectedPublicSectorTypes.Where(c => c != code)) { rd[$"SelectedPublicSectorTypes[{idx++}]"] = other.ToString(); }
+            <a asp-action="Index" asp-all-route-data="rd" class="filter-chip">
+                <span class="chip-key">@Localizer["Public Sector Type"]</span>
                 <span class="chip-val">@name</span>
                 <i class="fas fa-times chip-x"></i>
             </a>
@@ -528,6 +545,32 @@
                                             else
                                             {
                                                 @sector.EN_Name
+                                            }
+                                        </label>
+                                    </div>
+                                }
+                            </div>
+                        </div>
+
+                        <!-- Public Sector Type Filter -->
+                        <div class="mb-4">
+                            <h6 class="filter-section-title">@Localizer["Public Sector Type"]</h6>
+                            <div class="filter-options-modern">
+                                @foreach (var publicSectorType in Model.PublicSectorTypes)
+                                {
+                                    <div class="modern-checkbox">
+                                        <input class="modern-checkbox-input" type="checkbox" name="SelectedPublicSectorTypes"
+                                               value="@publicSectorType.Code" id="public-sector-type-@publicSectorType.Code"
+                                        @(Model.SelectedPublicSectorTypes.Contains(publicSectorType.Code) ? "checked" : "")>
+                                        <label class="modern-checkbox-label" for="public-sector-type-@publicSectorType.Code">
+                                            <span class="checkbox-custom"></span>
+                                            @if (culture.StartsWith("ar"))
+                                            {
+                                                @publicSectorType.AR_Name
+                                            }
+                                            else
+                                            {
+                                                @publicSectorType.EN_Name
                                             }
                                         </label>
                                     </div>

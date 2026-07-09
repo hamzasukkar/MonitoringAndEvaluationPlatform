@@ -19,6 +19,7 @@ namespace MonitoringAndEvaluationPlatform.Data
         public DbSet<Project> Projects { get; set; } = default!;
         public DbSet<ProjectPhase> ProjectPhases { get; set; } = default!;
         public DbSet<Sector> Sectors { get; set; } = default!;
+        public DbSet<PublicSectorType> PublicSectorTypes { get; set; } = default!;
         public DbSet<Donor> Donors { get; set; } = default!;
         public DbSet<Measure> Measures { get; set; } = default!;
         public DbSet<MeasureFile> MeasureFiles { get; set; } = default!;
@@ -97,6 +98,14 @@ namespace MonitoringAndEvaluationPlatform.Data
                 .HasMany(p => p.Sectors)
                 .WithMany(r => r.Projects)
                 .UsingEntity(j => j.ToTable("ProjectSectors"));
+
+            // Project → PublicSectorType (many-to-one, only set when the Public sector is selected)
+            modelBuilder.Entity<Project>()
+                .HasOne(p => p.PublicSectorType)
+                .WithMany(t => t.Projects)
+                .HasForeignKey(p => p.PublicSectorTypeCode)
+                .IsRequired(false)
+                .OnDelete(DeleteBehavior.Restrict);
 
             // Configure explicit ProjectDonor relationship
             modelBuilder.Entity<ProjectDonor>()

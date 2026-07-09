@@ -15,6 +15,11 @@ namespace MonitoringAndEvaluationPlatform.Models
         public string ProjectName { get; set; } = string.Empty;
 
         public ICollection<Sector>? Sectors { get; set; } = new List<Sector>();
+
+        [Display(Name = "Public Sector Type")]
+        public int? PublicSectorTypeCode { get; set; }
+        public virtual PublicSectorType? PublicSectorType { get; set; }
+
         public ICollection<Donor>? Donors { get; set; } = new List<Donor>();
         public ICollection<ProjectDonor> ProjectDonors { get; set; } = new List<ProjectDonor>();
         public ICollection<Ministry> Ministries { get; set; } = new List<Ministry>();

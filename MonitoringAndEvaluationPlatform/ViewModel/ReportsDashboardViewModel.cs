@@ -45,6 +45,7 @@ namespace MonitoringAndEvaluationPlatform.ViewModel
         // Reports by Category
         public List<CategoryReportItem> MinistryReports { get; set; } = new List<CategoryReportItem>();
         public List<CategoryReportItem> SectorReports { get; set; } = new List<CategoryReportItem>();
+        public List<CategoryReportItem> PublicSectorTypeReports { get; set; } = new List<CategoryReportItem>();
         public List<CategoryReportItem> DonorReports { get; set; } = new List<CategoryReportItem>();
         public List<CategoryReportItem> SupervisorReports { get; set; } = new List<CategoryReportItem>();
         public List<CategoryReportItem> ProjectManagerReports { get; set; } = new List<CategoryReportItem>();
@@ -53,6 +54,7 @@ namespace MonitoringAndEvaluationPlatform.ViewModel
         // Totals for category summaries
         public int TotalMinistries { get; set; }
         public int TotalSectors { get; set; }
+        public int TotalPublicSectorTypes { get; set; }
         public int TotalDonors { get; set; }
         public int TotalSupervisors { get; set; }
         public int TotalProjectManagers { get; set; }

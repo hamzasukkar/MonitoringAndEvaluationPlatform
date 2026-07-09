@@ -318,6 +318,19 @@
                                     <div id="sectors-validation-error" class="invalid-feedback d-block" style="display: none;"></div>
                                 </div>
 
+                                <div class="mb-4 @(HasError("PublicSectorTypeCode") ? "has-validation-error" : "")" id="public-sector-type-container" style="display: none;">
+                                    <label asp-for="PublicSectorTypeCode" class="form-label fw-bold">
+                                        <i class="fas fa-sitemap me-2"></i>
+                                        @Localizer["Public Sector Type"] <span class="text-danger">*</span>
+                                    </label>
+                                    <select asp-for="PublicSectorTypeCode" class="form-select @ValidationClass("PublicSectorTypeCode")" asp-items="ViewBag.PublicSectorTypeList">
+                                        <option value="">-- @Localizer["Select Public Sector Type"] --</option>
+                                    </select>
+                                    <div class="form-text">@Localizer["Required when the Public sector is selected"]</div>
+                                    <div id="public-sector-type-validation-error" class="invalid-feedback d-block" style="display: none;"></div>
+                                    <span asp-validation-for="PublicSectorTypeCode" class="invalid-feedback d-block"></span>
+                                </div>
+
                                 <div class="mb-4 @(HasError("ProjectManagerCode") ? "has-validation-error" : "")">
                                     <label asp-for="ProjectManagerCode" class="form-label fw-bold">
                                         <i class="fas fa-user-tie me-2"></i>
@@ -1067,10 +1080,33 @@ projectManagerMustBeSelected: '@Html.Raw(System.Text.Encodings.Web.JavaScriptEnc
         clearAll: '@Html.Raw(System.Text.Encodings.Web.JavaScriptEncoder.Default.Encode(Localizer["Clear All"].Value))',
         remove: '@Html.Raw(System.Text.Encodings.Web.JavaScriptEncoder.Default.Encode(Localizer["Remove"].Value))',
         pleaseSelectGovernorateFirst: '@Html.Raw(System.Text.Encodings.Web.JavaScriptEncoder.Default.Encode(Localizer["Please select a governorate first."].Value))',
-        governorateChainNotFound: '@Html.Raw(System.Text.Encodings.Web.JavaScriptEncoder.Default.Encode(Localizer["No matching locations found for this governorate."].Value))'
+        governorateChainNotFound: '@Html.Raw(System.Text.Encodings.Web.JavaScriptEncoder.Default.Encode(Localizer["No matching locations found for this governorate."].Value))',
+        publicSectorTypeRequired: '@Html.Raw(System.Text.Encodings.Web.JavaScriptEncoder.Default.Encode(Localizer["Please select a public sector type."].Value))'
     };
 
     let selections = [];
+
+    // ── Public Sector Type dependent dropdown ──
+    // Shown (and required) only while the Public sector is selected in the Sectors multiselect.
+    const publicSectorCode = @Html.Raw(Json.Serialize(ViewBag.PublicSectorCode));
+
+    function isPublicSectorSelected() {
+        const selectedSectors = $('select[name="Sectors"]').val() || [];
+        return publicSectorCode != null && selectedSectors.includes(String(publicSectorCode));
+    }
+
+    function togglePublicSectorType() {
+        if (isPublicSectorSelected()) {
+            $('#public-sector-type-container').show();
+        } else {
+            $('#public-sector-type-container').hide();
+            $('select[name="PublicSectorTypeCode"]').val('');
+            $('#public-sector-type-validation-error').hide();
+        }
+    }
+
+    $('select[name="Sectors"]').on('change', togglePublicSectorType);
+    togglePublicSectorType();
 
     // Handle Entire Country checkbox
     $("#selectAllPhases").click(function() {
@@ -2032,6 +2068,17 @@ projectManagerMustBeSelected: '@Html.Raw(System.Text.Encodings.Web.JavaScriptEnc
             removeFieldError('select[name="Sectors"]', '#sectors-container');
         }
 
+        // Public sector type is required when the Public sector is selected
+        if (isPublicSectorSelected() && !$('select[name="PublicSectorTypeCode"]').val()) {
+            errorMessages.push(localizedStrings.publicSectorTypeRequired);
+            $('#public-sector-type-validation-error').text(localizedStrings.publicSectorTypeRequired).show();
+            addFieldError('select[name="PublicSectorTypeCode"]', '#public-sector-type-container');
+            isValid = false;
+        } else {
+            $('#public-sector-type-validation-error').hide();
+            removeFieldError('select[name="PublicSectorTypeCode"]', '#public-sector-type-container');
+        }
+
         // Check if project manager is selected
         const projectManager = $('select[name="ProjectManagerCode"]').val();
         if (!projectManager) {
@@ -2144,6 +2191,9 @@ projectManagerMustBeSelected: '@Html.Raw(System.Text.Encodings.Web.JavaScriptEnc
         if (selectedDonorCodes && selectedDonorCodes.length > 0) {
             restoreDonorSelections(selectedDonorCodes, donorFundingBreakdown);
         }
+
+        // Re-evaluate the Public Sector Type dropdown visibility after sectors were reselected
+        togglePublicSectorType();
     }
 
     // Function to restore location selections in the UI

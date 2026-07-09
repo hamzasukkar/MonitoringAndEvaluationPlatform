@@ -1,0 +1,485 @@
+@model IEnumerable<MonitoringAndEvaluationPlatform.Models.PublicSectorType>
+@using MonitoringAndEvaluationPlatform.Models
+@using Microsoft.AspNetCore.Mvc.Localization
+@inject IViewLocalizer Localizer
+@using Microsoft.AspNetCore.Localization
+@{
+    var requestCultureFeature = Context.Features.Get<IRequestCultureFeature>();
+    var culture = requestCultureFeature.RequestCulture.Culture.Name;
+}
+
+@{
+    ViewData["Title"] = "Public Sector Types";
+    Layout = "~/Views/Shared/_DashboardHomeLayout.cshtml";
+}
+
+<!-- Dashboard Header -->
+<div class="dashboard-header">
+    <div class="header-content">
+        <div class="page-title-section">
+            <div class="page-breadcrumb">
+                <a href="@Url.Action("Index", "Home")" class="breadcrumb-link">
+                    <i class="fas fa-home"></i>
+                    @Localizer["Home"]
+                </a>
+                <i class="fas fa-chevron-right breadcrumb-separator"></i>
+                <span class="current-page">@Localizer["Public Sector Types"]</span>
+            </div>
+            <h1 class="page-title">@Localizer["Public Sector Type Management"]</h1>
+            <p class="page-description">@Localizer["Manage the sub-classification of the Public sector"]</p>
+        </div>
+    </div>
+</div>
+
+@await Html.PartialAsync("_ManagementNavigation")
+
+@if (User.IsInRole(UserRoles.SystemAdministrator))
+{
+    <!-- Quick Add Section -->
+    <div class="chart-card mb-4">
+        <div class="chart-title">
+            <i class="fas fa-sitemap"></i>
+            @Localizer["Add New Public Sector Type"]
+        </div>
+        <form id="createTypeForm" class="row g-3">
+            @Html.AntiForgeryToken()
+            <div class="col-md-4">
+                <label for="EN_Name" class="form-label fw-bold">
+                    <i class="fas fa-globe me-2"></i>@Localizer["English Name"]
+                </label>
+                <input type="text" name="EN_Name" class="form-control form-control-lg" required
+                       placeholder="@Localizer["Enter English name"]" />
+            </div>
+            <div class="col-md-4">
+                <label for="AR_Name" class="form-label fw-bold">
+                    <i class="fas fa-language me-2"></i>@Localizer["Arabic Name"]
+                </label>
+                <input type="text" name="AR_Name" class="form-control form-control-lg" required
+                       placeholder="@Localizer["Enter Arabic name"]" dir="rtl" />
+            </div>
+            <div class="col-md-4 d-flex align-items-end">
+                <div class="d-grid w-100">
+                    <button type="submit" class="btn btn-primary btn-lg">
+                        <i class="fas fa-plus-circle me-2"></i>@Localizer["Create a New Entity"]
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
+}
+
+<!-- Public Sector Types Table -->
+<div class="chart-card">
+    <div class="chart-title">
+        <i class="fas fa-sitemap"></i>
+        @Localizer["Public Sector Types"] (@Model.Count())
+    </div>
+
+    @if (Model.Any())
+    {
+        <div class="table-responsive">
+            <table class="table table-hover modern-table">
+                <thead class="table-header">
+                    <tr>
+                        <th class="sortable-header">
+                            <div class="header-link">
+                                <i class="fas fa-globe me-2"></i>@Localizer["English Name"]
+                            </div>
+                        </th>
+                        <th class="sortable-header">
+                            <div class="header-link">
+                                <i class="fas fa-language me-2"></i>@Localizer["Arabic Name"]
+                            </div>
+                        </th>
+                        <th class="text-center">
+                            <div class="header-link">
+                                <i class="fas fa-cogs me-2"></i>@Localizer["Actions"]
+                            </div>
+                        </th>
+                    </tr>
+                </thead>
+                <tbody id="typesTableBody">
+                    @foreach (var item in Model)
+                    {
+                        <tr id="type-row-@item.Code" class="table-row">
+                            <td class="sector-name-cell">
+                                <div class="d-flex align-items-center">
+                                    <div class="sector-icon me-3">
+                                        <i class="fas fa-sitemap"></i>
+                                    </div>
+                                    <div>
+                                        <span id="type-enname-@item.Code" class="sector-name-text sector-clickable" onclick="viewTypeProjects(@item.Code)">
+                                            @item.EN_Name
+                                        </span>
+                                        <input type="text" id="type-enname-input-@item.Code"
+                                               class="form-control d-none" value="@item.EN_Name" />
+                                        <small class="text-muted d-block">
+                                            <i class="fas fa-hashtag me-1"></i>ID: @item.Code
+                                        </small>
+                                    </div>
+                                </div>
+                            </td>
+                            <td class="sector-arabic-cell">
+                                <div class="arabic-text">
+                                    <span id="type-arname-@item.Code" class="sector-name-text sector-clickable" dir="rtl" onclick="viewTypeProjects(@item.Code)">
+                                        @item.AR_Name
+                                    </span>
+                                    <input type="text" id="type-arname-input-@item.Code"
+                                           class="form-control d-none" value="@item.AR_Name" dir="rtl" />
+                                </div>
+                            </td>
+                            <td class="text-center">
+                                <div class="btn-group action-buttons" role="group">
+                                    @if (User.IsInRole(UserRoles.SystemAdministrator))
+                                    {
+                                        <button class="btn btn-outline-primary btn-sm action-btn"
+                                                id="edit-btn-@item.Code"
+                                                onclick="toggleTypeEdit(@item.Code)" title="@Localizer["Edit"]">
+                                            <i class="fas fa-edit"></i>
+                                        </button>
+                                        <button class="btn btn-outline-danger btn-sm action-btn" title="@Localizer["Delete"]"
+                                                onclick="deleteType(@item.Code)">
+                                            <i class="fas fa-trash-alt"></i>
+                                        </button>
+                                    }
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+    else
+    {
+        <div class="text-center py-5">
+            <div class="stat-icon warning mx-auto mb-3" style="width: 80px; height: 80px; font-size: 2rem;">
+                <i class="fas fa-sitemap"></i>
+            </div>
+            <h4 class="text-muted">@Localizer["No public sector types found"]</h4>
+            <p class="text-muted">@Localizer["Create your first public sector type to get started"]</p>
+        </div>
+    }
+</div>
+
+@section Scripts {
+    <!-- SweetAlert2 -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <style>
+        .modern-table {
+            background: transparent;
+            border: none;
+            border-radius: 15px;
+            overflow: hidden;
+        }
+
+        .table-header {
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-dark) 100%);
+            color: white;
+        }
+
+        .table-header th {
+            border: none;
+            padding: 20px 15px;
+            font-weight: 600;
+            font-size: 0.95rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .header-link {
+            color: #000000 !important;
+            text-decoration: none !important;
+            display: flex;
+            align-items: center;
+            justify-content: flex-start;
+            transition: all 0.3s ease;
+        }
+
+        .table-row {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border: none;
+            transition: all 0.3s ease;
+        }
+
+        .table-row:hover {
+            background: rgba(255, 255, 255, 1);
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+        }
+
+        .table-row td {
+            border: none;
+            padding: 20px 15px;
+            vertical-align: middle;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+        }
+
+        .sector-name-cell {
+            min-width: 250px;
+        }
+
+        .sector-icon {
+            width: 45px;
+            height: 45px;
+            background: linear-gradient(135deg, var(--secondary-color), var(--accent-color));
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.2rem;
+        }
+
+        .sector-name-text {
+            color: #333;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 1.1rem;
+            transition: color 0.3s ease;
+        }
+
+        .sector-clickable {
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .sector-clickable:hover {
+            color: var(--primary-color) !important;
+            text-decoration: underline;
+            transform: scale(1.02);
+        }
+
+        .arabic-text {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            text-align: right;
+            direction: rtl;
+        }
+
+        .action-buttons {
+            gap: 5px;
+        }
+
+        .action-btn {
+            width: 35px;
+            height: 35px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+            border-width: 1px;
+        }
+
+        .table-responsive {
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+        .form-control-lg {
+            border: 2px solid rgba(0, 0, 0, 0.1);
+            border-radius: 10px;
+            transition: all 0.3s ease;
+        }
+    </style>
+
+<script>
+    $(document).ready(function() {
+
+        // Create Public Sector Type Form Submission
+        $('#createTypeForm').on('submit', function(e) {
+            e.preventDefault();
+
+            const enName = $('input[name="EN_Name"]').val().trim();
+            const arName = $('input[name="AR_Name"]').val().trim();
+
+            if (!enName || !arName) {
+                Swal.fire('Error', '@Localizer["Both English and Arabic names are required"]', 'error');
+                return;
+            }
+
+            $.ajax({
+                url: '@Url.Action("CreateInline")',
+                type: 'POST',
+                data: {
+                    EN_Name: enName,
+                    AR_Name: arName,
+                    __RequestVerificationToken: $('input[name="__RequestVerificationToken"]').val()
+                },
+                success: function(response) {
+                    if (response.success) {
+                        const t = response.publicSectorType;
+                        const newRow = `
+                            <tr id="type-row-${t.code}" class="table-row">
+                                <td class="sector-name-cell">
+                                    <div class="d-flex align-items-center">
+                                        <div class="sector-icon me-3">
+                                            <i class="fas fa-sitemap"></i>
+                                        </div>
+                                        <div>
+                                            <span id="type-enname-${t.code}" class="sector-name-text sector-clickable" onclick="viewTypeProjects(${t.code})">
+                                                ${t.eN_Name}
+                                            </span>
+                                            <input type="text" id="type-enname-input-${t.code}"
+                                                   class="form-control d-none" value="${t.eN_Name}" />
+                                            <small class="text-muted d-block">
+                                                <i class="fas fa-hashtag me-1"></i>ID: ${t.code}
+                                            </small>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td class="sector-arabic-cell">
+                                    <div class="arabic-text">
+                                        <span id="type-arname-${t.code}" class="sector-name-text sector-clickable" dir="rtl" onclick="viewTypeProjects(${t.code})">
+                                            ${t.aR_Name}
+                                        </span>
+                                        <input type="text" id="type-arname-input-${t.code}"
+                                               class="form-control d-none" value="${t.aR_Name}" dir="rtl" />
+                                    </div>
+                                </td>
+                                <td class="text-center">
+                                    <div class="btn-group action-buttons" role="group">
+                                        <button class="btn btn-outline-primary btn-sm action-btn"
+                                                id="edit-btn-${t.code}"
+                                                onclick="toggleTypeEdit(${t.code})" title="@Localizer["Edit"]">
+                                            <i class="fas fa-edit"></i>
+                                        </button>
+                                        <button class="btn btn-outline-danger btn-sm action-btn" title="@Localizer["Delete"]"
+                                                onclick="deleteType(${t.code})">
+                                            <i class="fas fa-trash-alt"></i>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>`;
+
+                        $('#typesTableBody').append(newRow);
+                        $('#createTypeForm')[0].reset();
+
+                        Swal.fire({
+                            icon: 'success',
+                            title: '@Localizer["Success!"]',
+                            text: '@Localizer["Public sector type created successfully"]',
+                            timer: 2000,
+                            showConfirmButton: false
+                        });
+                    } else {
+                        Swal.fire('Error', response.message, 'error');
+                    }
+                },
+                error: function() {
+                    Swal.fire('Error', '@Localizer["An error occurred while creating the public sector type"]', 'error');
+                }
+            });
+        });
+
+    }); // End document ready
+
+    // Delete Public Sector Type - Global function
+    function deleteType(id) {
+        Swal.fire({
+            title: '@Localizer["Are you sure?"]',
+            text: "@Localizer["You won't be able to revert this!"]",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#d33',
+            cancelButtonColor: '#3085d6',
+            confirmButtonText: '@Localizer["Yes, delete it!"]',
+            cancelButtonText: '@Localizer["Cancel"]'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                $.ajax({
+                    url: '@Url.Action("InlineDelete")',
+                    type: 'POST',
+                    data: { id: id },
+                    success: function(response) {
+                        if (response.success) {
+                            $(`#type-row-${id}`).fadeOut(function() {
+                                $(this).remove();
+                            });
+                            Swal.fire({
+                                icon: 'success',
+                                title: '@Localizer["Deleted!"]',
+                                text: '@Localizer["Public sector type has been deleted."]',
+                                timer: 2000,
+                                showConfirmButton: false
+                            });
+                        } else {
+                            Swal.fire('Error', response.message || 'Unknown error', 'error');
+                        }
+                    },
+                    error: function(xhr, status, error) {
+                        Swal.fire('Error', '@Localizer["An error occurred while deleting"]', 'error');
+                    }
+                });
+            }
+        });
+    }
+
+    // Toggle Public Sector Type Inline Edit - Global function
+    function toggleTypeEdit(code) {
+        const enNameSpan = $(`#type-enname-${code}`);
+        const enNameInput = $(`#type-enname-input-${code}`);
+        const arNameSpan = $(`#type-arname-${code}`);
+        const arNameInput = $(`#type-arname-input-${code}`);
+        const button = $(`#edit-btn-${code}`);
+
+        const isEditing = enNameInput.hasClass('d-none') === false;
+
+        if (isEditing) {
+            // Save via AJAX
+            const newEnName = enNameInput.val();
+            const newArName = arNameInput.val();
+
+            $.ajax({
+                url: '@Url.Action("QuickUpdate")',
+                type: 'POST',
+                data: {
+                    id: code,
+                    enName: newEnName,
+                    arName: newArName
+                },
+                success: function (response) {
+                    if (response.success) {
+                        enNameSpan.text(newEnName);
+                        arNameSpan.text(newArName);
+                        enNameInput.addClass('d-none');
+                        arNameInput.addClass('d-none');
+                        enNameSpan.removeClass('d-none');
+                        arNameSpan.removeClass('d-none');
+                        button.html('<i class="fas fa-edit"></i>');
+                        button.removeClass('btn-success').addClass('btn-outline-primary');
+                        Swal.fire({
+                            icon: 'success',
+                            title: '@Localizer["Updated!"]',
+                            text: '@Localizer["Public sector type updated successfully"]',
+                            timer: 1500,
+                            showConfirmButton: false
+                        });
+                    } else {
+                        Swal.fire('Error', response.message, 'error');
+                    }
+                },
+                error: function() {
+                    Swal.fire('Error', '@Localizer["An error occurred while updating"]', 'error');
+                }
+            });
+        } else {
+            // Enter edit mode
+            enNameInput.removeClass('d-none');
+            arNameInput.removeClass('d-none');
+            enNameSpan.addClass('d-none');
+            arNameSpan.addClass('d-none');
+            button.html('<i class="fas fa-save"></i>');
+            button.removeClass('btn-outline-primary').addClass('btn-success');
+            enNameInput.focus();
+        }
+    }
+
+    // Navigate to Projects filtered by Public Sector Type - Global function
+    function viewTypeProjects(typeCode) {
+        window.location.href = '@Url.Action("Index", "Projects")?SelectedPublicSectorTypes=' + typeCode;
+    }
+</script>}

@@ -179,6 +179,28 @@
                                     }
                                 </div>
                             </div>
+
+                            @if (Model.PublicSectorType != null)
+                            {
+                                <div class="info-row">
+                                    <div class="info-label">
+                                        <i class="fas fa-sitemap me-2"></i>
+                                        @Localizer["Public Sector Type"]
+                                    </div>
+                                    <div class="info-value">
+                                        <span class="modern-badge badge-secondary me-1">
+                                            @if (culture.StartsWith("ar"))
+                                            {
+                                                @Model.PublicSectorType.AR_Name
+                                            }
+                                            else
+                                            {
+                                                @Model.PublicSectorType.EN_Name
+                                            }
+                                        </span>
+                                    </div>
+                                </div>
+                            }
                         </div>
                     </div>
                 </div>

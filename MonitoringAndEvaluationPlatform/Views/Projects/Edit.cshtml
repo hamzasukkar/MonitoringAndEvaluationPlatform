@@ -280,6 +280,20 @@
                                     <div class="form-text">@Localizer["Hold Ctrl/Cmd to select multiple sectors"]</div>
                                 </div>
 
+                                <div class="mb-4" id="public-sector-type-container" style="display: none;">
+                                    <label asp-for="PublicSectorTypeCode" class="form-label fw-bold">
+                                        <i class="fas fa-sitemap me-2"></i>
+                                        @Localizer["Public Sector Type"]
+                                    </label>
+                                    <select asp-for="PublicSectorTypeCode"
+                                            class="form-select"
+                                            asp-items="ViewBag.PublicSectorTypeList">
+                                        <option value="">-- @Localizer["Select Public Sector Type"] --</option>
+                                    </select>
+                                    <div class="form-text">@Localizer["Optional — sub-classification of the Public sector"]</div>
+                                    <span asp-validation-for="PublicSectorTypeCode" class="invalid-feedback d-block"></span>
+                                </div>
+
                                 <div class="mb-4">
                                     <label asp-for="ProjectManagerCode" class="form-label fw-bold">
                                         <i class="fas fa-user-tie me-2"></i>
@@ -1251,6 +1265,27 @@
 
         setTimeout(() => $("#location-validation-alert").fadeOut(), 3000);
     }
+
+    // ── Public Sector Type dependent dropdown ──
+    // Shown (and required) only while the Public sector is selected in the Sectors multiselect.
+    const publicSectorCode = @Html.Raw(Json.Serialize(ViewBag.PublicSectorCode));
+
+    function isPublicSectorSelected() {
+        const selectedSectors = $('select[name="SelectedSectorCodes"]').val() || [];
+        return publicSectorCode != null && selectedSectors.includes(String(publicSectorCode));
+    }
+
+    function togglePublicSectorType() {
+        if (isPublicSectorSelected()) {
+            $('#public-sector-type-container').show();
+        } else {
+            $('#public-sector-type-container').hide();
+            $('select[name="PublicSectorTypeCode"]').val('');
+        }
+    }
+
+    $('select[name="SelectedSectorCodes"]').on('change', togglePublicSectorType);
+    $(togglePublicSectorType); // initial state on document ready (existing Public project shows its saved type)
 
     // Prevent submitting if no locations have been added (unless entire country is checked)
     $('form.needs-validation').on('submit', function (e) {

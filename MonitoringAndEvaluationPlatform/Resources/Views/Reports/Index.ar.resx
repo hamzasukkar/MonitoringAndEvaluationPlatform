@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <root>
   <!-- 
     Microsoft ResX Schema 
@@ -590,5 +590,17 @@
   </data>
   <data name="provincial" xml:space="preserve">
     <value>محافظة</value>
+  </data>
+  <data name="Total Public Sector Types" xml:space="preserve">
+    <value>إجمالي أنواع القطاع العام</value>
+  </data>
+  <data name="Projects with Public Sector Type" xml:space="preserve">
+    <value>مشاريع بنوع قطاع عام</value>
+  </data>
+  <data name="Public Sector Type" xml:space="preserve">
+    <value>نوع القطاع العام</value>
+  </data>
+  <data name="Projects by Public Sector Type" xml:space="preserve">
+    <value>المشاريع حسب نوع القطاع العام</value>
   </data>
 </root>
