@@ -1799,10 +1799,12 @@
 
     // Handle remove donor button
     $(document).on('click', '.remove-donor-btn', function() {
-        const donorValue = $(this).data('donor');
+        // jQuery .data() coerces numeric-looking values to Number, but selectedDonors[i].value
+        // is always a String — compare as strings so the filter actually removes the donor.
+        const donorValue = String($(this).data('donor'));
 
         // Remove from selected donors array
-        selectedDonors = selectedDonors.filter(d => d.value !== donorValue);
+        selectedDonors = selectedDonors.filter(d => String(d.value) !== donorValue);
 
         // Remove from funding data
         delete donorFundingData[donorValue];
