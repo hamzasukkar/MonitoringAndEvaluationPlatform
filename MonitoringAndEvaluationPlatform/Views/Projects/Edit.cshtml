@@ -531,7 +531,7 @@
 
                         <!-- Form Actions -->
                         <div class="d-grid gap-2 d-md-flex justify-content-md-end mt-4 pt-4 border-top">
-                            <a href="@Url.Action("Index")" class="btn btn-outline-secondary btn-lg px-4">
+                            <a href="@Url.Action("Details", new { id = Model.ProjectID })" class="btn btn-outline-secondary btn-lg px-4">
                                 <i class="fas fa-arrow-left me-2"></i>@Localizer["Cancel"]
                             </a>
                             <button type="submit" class="btn btn-primary btn-lg px-4">

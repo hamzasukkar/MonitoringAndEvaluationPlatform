@@ -1330,7 +1330,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             // Tell the redirect target to clear the locally cached draft for this form.
             TempData["ClearDraftKey"] = $"draft:project:edit:{id}";
 
-            return RedirectToAction(nameof(Index));
+            return RedirectToAction("Details", new { id });
         }
 
 
