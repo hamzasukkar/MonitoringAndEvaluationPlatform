@@ -30,11 +30,15 @@ var connectionString = builder.Configuration.GetConnectionString("DefaultConnect
 // Register HttpContextAccessor for AuditInterceptor
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddScoped<AuditInterceptor>();
+builder.Services.AddScoped<TimestampInterceptor>();
 
 builder.Services.AddDbContext<ApplicationDbContext>((serviceProvider, options) =>
 {
     options.UseSqlServer(connectionString);
-    options.AddInterceptors(serviceProvider.GetRequiredService<AuditInterceptor>());
+    // TimestampInterceptor must run before AuditInterceptor so audit logs capture the stamped values
+    options.AddInterceptors(
+        serviceProvider.GetRequiredService<TimestampInterceptor>(),
+        serviceProvider.GetRequiredService<AuditInterceptor>());
 });
 builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 

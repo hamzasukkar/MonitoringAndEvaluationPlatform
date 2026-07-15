@@ -748,6 +748,10 @@
                                     <th class="text-center">
                                         <i class="fas fa-calendar-check me-2"></i>@Localizer["End Date"]
                                     </th>
+                                    <th class="text-center sortable-header" onclick="sortProjectsTable('lastmodified')" style="cursor: pointer;">
+                                        <i class="fas fa-history me-2"></i>@Localizer["Last Modified"]
+                                        <i class="fas fa-sort ms-2" id="lastmodified-sort-icon"></i>
+                                    </th>
                                     <th class="text-center">
                                         <i class="fas fa-info-circle me-2"></i>@Localizer["Status"]
                                     </th>
@@ -767,7 +771,7 @@
                             <tbody id="projectsTableBody">
                                 @{
                                     var hasSelectColumn = User.IsInRole("SystemAdministrator") || User.IsInRole("MinistryStrategyManager");
-                                    var emptyColspan = hasSelectColumn ? 10 : 9;
+                                    var emptyColspan = hasSelectColumn ? 11 : 10;
                                     var hasActiveFilters = hasAnyChip;
                                 }
                                 @if (!Model.Projects.Any())
@@ -824,7 +828,7 @@
                                         statusIcon = "fa-check-circle";
                                     }
 
-                                    <tr id="row_@item.ProjectID" class="table-row" data-performance="@performance" data-disbursement="@disbursement">
+                                    <tr id="row_@item.ProjectID" class="table-row" data-performance="@performance" data-disbursement="@disbursement" data-lastmodified="@(new DateTimeOffset(DateTime.SpecifyKind(item.LastModifiedAt, DateTimeKind.Utc)).ToUnixTimeMilliseconds())">
                                         @if ((User.IsInRole("SystemAdministrator") || User.IsInRole("MinistryStrategyManager")))
                                         {
                                             <td style="text-align:center; vertical-align:middle;">
@@ -886,6 +890,9 @@
                                         </td>
                                         <td class="text-center">
                                             <span class="date-cell">@item.EndDate.ToString("MMM yyyy")</span>
+                                        </td>
+                                        <td class="text-center">
+                                            <span class="date-cell">@DateTime.SpecifyKind(item.LastModifiedAt, DateTimeKind.Utc).ToLocalTime().ToString("yyyy-MM-dd HH:mm")</span>
                                         </td>
                                         <td class="text-center">
                                             <span class="status-badge @statusClass">
@@ -1911,6 +1918,7 @@
         // Reset all icons
         document.getElementById('performance-sort-icon').className = 'fas fa-sort ms-2';
         document.getElementById('disbursement-sort-icon').className = 'fas fa-sort ms-2';
+        document.getElementById('lastmodified-sort-icon').className = 'fas fa-sort ms-2';
 
         // Set active icon
         const iconId = `${activeColumn}-sort-icon`;

@@ -4,7 +4,7 @@ using MonitoringAndEvaluationPlatform.Attributes;
 
 namespace MonitoringAndEvaluationPlatform.Models
 {
-    public class Project
+    public class Project : IHasTimestamps
     {
         [Key]
         public int ProjectID { get; set; }
@@ -106,5 +106,11 @@ namespace MonitoringAndEvaluationPlatform.Models
 
         [Display(Name = "Entire Country")]
         public bool IsEntireCountry { get; set; } = false;
+
+        [Display(Name = "Created At")]
+        public DateTime CreatedAt { get; set; }
+
+        [Display(Name = "Last Modified")]
+        public DateTime LastModifiedAt { get; set; }
     }
 }

@@ -190,7 +190,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             // Get recent activities based on recent projects
             var recentActivities = new List<RecentActivityViewModel>();
             var recentProjects = await projectsQuery
-                .OrderByDescending(p => p.StartDate)
+                .OrderByDescending(p => p.LastModifiedAt)
                 .Take(5)
                 .ToListAsync();
 
@@ -199,9 +199,9 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 recentActivities.Add(new RecentActivityViewModel
                 {
                     ActivityType = "project",
-                    ActivityTitle = $"Project '{project.ProjectName}' started",
-                    ActivityDate = project.StartDate,
-                    Icon = "fa-project-diagram"
+                    ActivityTitle = $"Project '{project.ProjectName}' edited",
+                    ActivityDate = project.LastModifiedAt,
+                    Icon = "fa-pen"
                 });
             }
 
