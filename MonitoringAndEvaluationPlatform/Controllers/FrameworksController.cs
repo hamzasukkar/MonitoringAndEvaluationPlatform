@@ -77,7 +77,9 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             filter.Ministries = await _context.Ministries.ToListAsync();
             filter.Donors = await _context.Donors.ToListAsync();
             filter.Sectors = await _context.Sectors.ToListAsync();
-            filter.IsMinistryUser = false; // Assuming this logic is handled elsewhere
+
+            var (isAdmin, scopedMinistryCode) = await GetScopeAsync();
+            filter.IsMinistryUser = !isAdmin; // non-admins are tied to one ministry -> hide the ministry filter
 
             IQueryable<Framework> frameworksQuery = _context.Frameworks
                 .Include(f => f.Outcomes)
@@ -87,7 +89,6 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                                 .ThenInclude(i => i.Project)
                 .AsQueryable();
 
-            var (isAdmin, scopedMinistryCode) = await GetScopeAsync();
             if (!isAdmin)
             {
                 if (scopedMinistryCode is null)
@@ -96,7 +97,13 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 }
                 else
                 {
-                    frameworksQuery = frameworksQuery.Where(f => f.MinistryCode == scopedMinistryCode);
+                    // A framework belongs to the ministry if EITHER its own MinistryCode matches
+                    // OR one of its indicators' projects belongs to that ministry.
+                    frameworksQuery = frameworksQuery.Where(f =>
+                        f.MinistryCode == scopedMinistryCode ||
+                        f.Outcomes.Any(o => o.Outputs.Any(op => op.SubOutputs.Any(so =>
+                            so.Indicators.Any(i => i.Project != null &&
+                                i.Project.Ministries.Any(min => min.Code == scopedMinistryCode))))));
                 }
             }
 
@@ -114,7 +121,9 @@ namespace MonitoringAndEvaluationPlatform.Controllers
 
             if (filter.SelectedMinistries != null && filter.SelectedMinistries.Any())
             {
+                // Match either the framework's own MinistryCode or its projects' ministries.
                 frameworksQuery = frameworksQuery.Where(f =>
+                    (f.MinistryCode != null && filter.SelectedMinistries.Contains(f.MinistryCode.Value)) ||
                     f.Outcomes.Any(o =>
                         o.Outputs.Any(op =>
                             op.SubOutputs.Any(so =>
