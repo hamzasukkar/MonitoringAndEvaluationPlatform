@@ -609,5 +609,131 @@ namespace MonitoringAndEvaluationPlatform.Controllers
 
             return View(viewModel);
         }
+
+        // District Map report — Leaflet map of Syria's districts (ADM2) with the same cascading
+        // Strategy/Ministry/Project filters as GovernorateMap. Districts are joined to the GeoJSON
+        // boundaries (wwwroot/geo/syr_admin2.json) by PCode (District.Code).
+        [Permission(Permissions.ViewControlPanel)]
+        public async Task<IActionResult> DistrictMap()
+        {
+            var isArabic = CultureInfo.CurrentCulture.Name.StartsWith("ar");
+
+            var (isAdmin, scopedMinistryCode) = await GetScopeAsync();
+            var projectsQuery = _context.Projects.AsQueryable();
+            var frameworksQuery = _context.Frameworks.AsQueryable();
+            if (!isAdmin)
+            {
+                projectsQuery = scopedMinistryCode is null
+                    ? projectsQuery.Where(_ => false)
+                    : projectsQuery.Where(p => p.MinistryCode == scopedMinistryCode);
+                frameworksQuery = scopedMinistryCode is null
+                    ? frameworksQuery.Where(_ => false)
+                    : frameworksQuery.Where(f => f.MinistryCode == scopedMinistryCode);
+            }
+
+            var projects = await projectsQuery
+                .Include(p => p.Ministry)
+                .Include(p => p.Governorates)
+                .Include(p => p.Districts)
+                .Include(p => p.Communities)
+                .Include(p => p.Phases)
+                    .ThenInclude(pp => pp.ActionPlan)
+                        .ThenInclude(ap => ap.Plans)
+                .ToListAsync();
+
+            // Build projectId -> set of strategy (framework) codes via the indicators hierarchy.
+            var frameworks = await frameworksQuery
+                .Include(f => f.Outcomes)
+                    .ThenInclude(o => o.Outputs)
+                        .ThenInclude(op => op.SubOutputs)
+                            .ThenInclude(so => so.Indicators)
+                .ToListAsync();
+
+            var projectFrameworks = new Dictionary<int, HashSet<int>>();
+            foreach (var f in frameworks)
+            {
+                var projectIds = f.Outcomes
+                    .SelectMany(o => o.Outputs)
+                    .SelectMany(op => op.SubOutputs)
+                    .SelectMany(so => so.Indicators)
+                    .Where(i => i.ProjectID.HasValue)
+                    .Select(i => i.ProjectID!.Value)
+                    .Distinct();
+                foreach (var pid in projectIds)
+                {
+                    if (!projectFrameworks.TryGetValue(pid, out var set))
+                    {
+                        set = new HashSet<int>();
+                        projectFrameworks[pid] = set;
+                    }
+                    set.Add(f.Code);
+                }
+            }
+
+            var governorates = await _context.Governorates.ToListAsync();
+            var districts = await _context.Districts.ToListAsync();
+            var ministries = await _context.Ministries.ToListAsync();
+
+            var viewModel = new DistrictMapViewModel
+            {
+                TotalProjects = projects.Count,
+                Districts = districts
+                    .Select(d => new DistrictRef
+                    {
+                        Code = d.Code,
+                        NameEn = d.EN_Name,
+                        NameAr = d.AR_Name,
+                        GovernorateCode = d.GovernorateCode
+                    })
+                    .ToList(),
+                Governorates = governorates
+                    .Select(g => new GovernorateRef { Code = g.Code, NameEn = g.EN_Name, NameAr = g.AR_Name })
+                    .ToList(),
+                Strategies = frameworks
+                    .Select(f => new StrategyRef { Code = f.Code, Name = f.Name })
+                    .OrderBy(s => s.Name)
+                    .ToList(),
+                Ministries = ministries
+                    .Select(m => new MinistryRef
+                    {
+                        Code = m.Code,
+                        Name = isArabic ? m.MinistryDisplayName_AR : m.MinistryDisplayName_EN
+                    })
+                    .OrderBy(m => m.Name)
+                    .ToList(),
+                Projects = projects
+                    .Select(p => new GeoProjectItem
+                    {
+                        ProjectID = p.ProjectID,
+                        ProjectName = p.ProjectName,
+                        MinistryCode = p.MinistryCode,
+                        Ministry = p.Ministry == null
+                            ? string.Empty
+                            : (isArabic ? p.Ministry.MinistryDisplayName_AR : p.Ministry.MinistryDisplayName_EN),
+                        EstimatedBudget = p.EstimatedBudget,
+                        Currency = p.Currency ?? "USD",
+                        Performance = Math.Round(p.performance, 2),
+                        DisbursementPerformance = Math.Round(p.DisbursementPerformance, 2),
+                        TotalRealised = p.Phases
+                            .Where(pp => pp.ActionPlan != null)
+                            .SelectMany(pp => pp.ActionPlan!.Plans)
+                            .Sum(pl => (double)pl.Realised),
+                        StartDate = p.StartDate.ToString("yyyy-MM-dd"),
+                        EndDate = p.EndDate.ToString("yyyy-MM-dd"),
+                        IsNational = p.IsEntireCountry,
+                        FrameworkCodes = projectFrameworks.TryGetValue(p.ProjectID, out var fc)
+                            ? fc.ToList()
+                            : new List<int>(),
+                        GovernorateCodes = p.Governorates.Select(g => g.Code).ToList(),
+                        DistrictCodes = p.Districts.Select(d => d.Code).ToList(),
+                        Communities = p.Communities
+                            .Select(c => isArabic ? c.AR_Name : c.EN_Name)
+                            .ToList()
+                    })
+                    .ToList()
+            };
+
+            return View(viewModel);
+        }
     }
 }

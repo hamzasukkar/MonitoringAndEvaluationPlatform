@@ -49,6 +49,7 @@ namespace MonitoringAndEvaluationPlatform.ViewModel
         // Relationships used for client-side filtering / highlighting
         public List<int> FrameworkCodes { get; set; } = new();
         public List<string> GovernorateCodes { get; set; } = new();
+        public List<string> DistrictCodes { get; set; } = new();
         public List<string> Communities { get; set; } = new();
     }
 }
