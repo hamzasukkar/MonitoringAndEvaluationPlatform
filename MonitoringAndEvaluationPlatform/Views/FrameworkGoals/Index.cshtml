@@ -88,8 +88,8 @@
                 <input type="text" id="searchGoal" class="form-control" placeholder="@Localizer["Type to search..."]" oninput="applyFilters()">
             </div>
 
-            <!-- Framework Filter -->
-            <div class="col-md-6 col-lg-3">
+            <!-- Framework Filter (hidden when a specific framework is already selected via the URL) -->
+            <div class="col-md-6 col-lg-3@(ViewBag.SelectedFrameworkCode != null ? " d-none" : "")">
                 <label class="form-label">
                     <i class="fas fa-sitemap me-1"></i>@Localizer["Framework"]
                 </label>
@@ -440,13 +440,29 @@
                 </div>
                 <div class="col-md-6 mb-3">
                     <label class="form-label">@Localizer["Framework"] <span class="text-danger">*</span></label>
-                    <select class="form-select" id="frameworkCode" name="FrameworkCode" required>
-                        <option value="">@Localizer["Select Framework"]</option>
-                        @foreach (var framework in ViewBag.Frameworks)
+                    @if (ViewBag.SelectedFrameworkCode != null)
+                    {
+                        string selectedFrameworkName = "";
+                        foreach (var framework in ViewBag.Frameworks)
                         {
-                            <option value="@framework.Code">@framework.Name</option>
+                            if (framework.Code == ViewBag.SelectedFrameworkCode)
+                            {
+                                selectedFrameworkName = framework.Name;
+                            }
                         }
-                    </select>
+                        <input type="hidden" id="frameworkCode" name="FrameworkCode" value="@ViewBag.SelectedFrameworkCode" />
+                        <input type="text" class="form-control" value="@selectedFrameworkName" readonly />
+                    }
+                    else
+                    {
+                        <select class="form-select" id="frameworkCode" name="FrameworkCode" required>
+                            <option value="">@Localizer["Select Framework"]</option>
+                            @foreach (var framework in ViewBag.Frameworks)
+                            {
+                                <option value="@framework.Code">@framework.Name</option>
+                            }
+                        </select>
+                    }
                 </div>
             </div>
             <div class="row">
