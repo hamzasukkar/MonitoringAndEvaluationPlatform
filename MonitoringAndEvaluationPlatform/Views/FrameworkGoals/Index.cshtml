@@ -13,6 +13,16 @@
     Layout = "~/Views/Shared/_DashboardHomeLayout.cshtml";
     ViewData["HelpFeature"] = "FrameworkGoals";
     var culture = Context.Features.Get<IRequestCultureFeature>().RequestCulture.Culture.Name;
+
+    // Resolve the selected framework's name once (used by the header label and the create-goal badge)
+    string selectedFrameworkName = "";
+    if (ViewBag.SelectedFrameworkCode != null)
+    {
+        foreach (var fw in ViewBag.Frameworks)
+        {
+            if (fw.Code == ViewBag.SelectedFrameworkCode) { selectedFrameworkName = fw.Name; }
+        }
+    }
 }
 
 <!-- Dashboard Header -->
@@ -67,6 +77,15 @@
         </div>
     </div>
 </div>
+
+@if (ViewBag.SelectedFrameworkCode != null)
+{
+    <div class="d-flex align-items-center mb-3">
+        <i class="fas fa-sitemap me-2 text-info fs-4"></i>
+        <span class="fw-bold me-2">@Localizer["Framework"]:</span>
+        <span class="badge bg-info fs-6">@selectedFrameworkName</span>
+    </div>
+}
 
 <!-- Advanced Filter Section -->
 <div class="card shadow-sm mb-4">
@@ -442,16 +461,10 @@
                     <label class="form-label">@Localizer["Framework"] <span class="text-danger">*</span></label>
                     @if (ViewBag.SelectedFrameworkCode != null)
                     {
-                        string selectedFrameworkName = "";
-                        foreach (var framework in ViewBag.Frameworks)
-                        {
-                            if (framework.Code == ViewBag.SelectedFrameworkCode)
-                            {
-                                selectedFrameworkName = framework.Name;
-                            }
-                        }
                         <input type="hidden" id="frameworkCode" name="FrameworkCode" value="@ViewBag.SelectedFrameworkCode" />
-                        <input type="text" class="form-control" value="@selectedFrameworkName" readonly />
+                        <div class="form-control-plaintext">
+                            <span class="badge bg-info fs-6"><i class="fas fa-sitemap me-1"></i>@selectedFrameworkName</span>
+                        </div>
                     }
                     else
                     {
