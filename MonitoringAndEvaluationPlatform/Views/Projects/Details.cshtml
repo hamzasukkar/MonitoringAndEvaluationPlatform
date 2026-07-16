@@ -26,6 +26,12 @@
         <a asp-action="Edit" asp-route-id="@Model?.ProjectID" class="btn btn-gradient-primary me-2">
             <i class="fas fa-edit me-1"></i>@Localizer["Edit"]
         </a>
+        @if (User.IsInRole(MonitoringAndEvaluationPlatform.Models.UserRoles.SystemAdministrator))
+        {
+            <a asp-controller="AuditLogs" asp-action="ProjectHistory" asp-route-projectId="@Model?.ProjectID" class="btn btn-light me-2">
+                <i class="fas fa-history me-1"></i>@Localizer["History"]
+            </a>
+        }
         <a asp-action="Index" class="btn btn-light">
             <i class="fas fa-arrow-left me-1"></i>@Localizer["Back to List"]
         </a>

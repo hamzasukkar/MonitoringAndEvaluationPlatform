@@ -1,10 +1,27 @@
 @model MonitoringAndEvaluationPlatform.Models.AuditLog
 @using Microsoft.AspNetCore.Mvc.Localization
+@using MonitoringAndEvaluationPlatform.Helpers
 @inject IViewLocalizer Localizer
 
 @{
     ViewData["Title"] = Localizer["AuditLogDetails"];
     Layout = "~/Views/Shared/_DashboardHomeLayout.cshtml";
+}
+
+@{
+    var entityDisplayName = AuditLogDisplayHelper.ExtractDisplayName(Model);
+    var entityTypeText = Localizer[Model.EntityName].Value;
+    var entityRef = !string.IsNullOrEmpty(entityDisplayName)
+        ? $"{entityTypeText} «{entityDisplayName}»"
+        : $"{entityTypeText} #{Model.EntityId}";
+    var summaryKey = Model.Action switch
+    {
+        "Create" => "SummaryCreate",
+        "Update" => "SummaryUpdate",
+        "Delete" => "SummaryDelete",
+        _ => null
+    };
+    var entityUrl = AuditLogDisplayHelper.TryGetEntityUrl(Model);
 }
 
 <div class="container-fluid py-4">
@@ -18,12 +35,28 @@
                 <p class="text-muted">@Localizer["DetailedViewOfChange"]</p>
             </div>
             <div>
+                @if (entityUrl != null)
+                {
+                    <a href="@entityUrl" class="btn btn-primary btn-lg me-2">
+                        <i class="fas fa-external-link-alt me-2"></i>@Localizer["OpenRecord"]
+                    </a>
+                }
                 <a asp-action="Index" class="btn btn-secondary btn-lg">
                     <i class="fas fa-arrow-left me-2"></i>@Localizer["BackToList"]
                 </a>
             </div>
         </div>
     </div>
+
+    <!-- Summary -->
+    @if (summaryKey != null)
+    {
+        <div class="alert alert-light border summary-line mb-4">
+            <i class="fas fa-info-circle me-2 text-primary"></i>
+            @Localizer[summaryKey, Model.UserName ?? Localizer["System"].Value, entityRef]
+            <span class="text-muted">— @Model.Timestamp.ToLocalTime().ToString("yyyy-MM-dd HH:mm")</span>
+        </div>
+    }
 
     <div class="row">
         <!-- Main Info -->
@@ -54,13 +87,20 @@
                                         _ => "bg-secondary"
                                     };
                                 }
-                                <span class="badge @actionClass fs-6">@Model.Action</span>
+                                <span class="badge @actionClass fs-6">@Localizer[Model.Action]</span>
                             </td>
                         </tr>
                         <tr>
                             <th>@Localizer["Entity"]</th>
-                            <td><strong>@Model.EntityName</strong></td>
+                            <td><strong>@entityTypeText</strong></td>
                         </tr>
+                        @if (!string.IsNullOrEmpty(entityDisplayName))
+                        {
+                            <tr>
+                                <th>@Localizer["EntityDisplayName"]</th>
+                                <td><strong>@entityDisplayName</strong></td>
+                            </tr>
+                        }
                         <tr>
                             <th>@Localizer["EntityId"]</th>
                             <td>
@@ -71,15 +111,22 @@
                         </tr>
                         @if (!string.IsNullOrEmpty(Model.ChangedColumns))
                         {
-                            <tr>
-                                <th>@Localizer["ChangedFields"]</th>
-                                <td>
-                                    @foreach (var col in Model.ChangedColumns.Split(','))
-                                    {
-                                        <span class="badge bg-secondary me-1">@col.Trim()</span>
-                                    }
-                                </td>
-                            </tr>
+                            var meaningfulColumns = Model.ChangedColumns.Split(',')
+                                .Select(c => c.Trim())
+                                .Where(c => c.Length > 0 && !AuditLogDisplayHelper.IsNoiseField(c))
+                                .ToList();
+                            if (meaningfulColumns.Count > 0)
+                            {
+                                <tr>
+                                    <th>@Localizer["ChangedFields"]</th>
+                                    <td>
+                                        @foreach (var col in meaningfulColumns)
+                                        {
+                                            <span class="badge bg-secondary me-1 mb-1">@Localizer[col]</span>
+                                        }
+                                    </td>
+                                </tr>
+                            }
                         }
                     </table>
                 </div>
@@ -105,7 +152,7 @@
                                 }
                                 else
                                 {
-                                    <span class="text-muted">System</span>
+                                    <span class="text-muted">@Localizer["System"]</span>
                                 }
                             </td>
                         </tr>
@@ -119,7 +166,21 @@
                         </tr>
                         <tr>
                             <th>@Localizer["UserAgent"]</th>
-                            <td><small class="text-muted text-break">@(Model.UserAgent ?? "N/A")</small></td>
+                            <td>
+                                @{
+                                    var friendlyAgent = AuditLogDisplayHelper.FormatUserAgent(Model.UserAgent);
+                                }
+                                @if (friendlyAgent != null)
+                                {
+                                    <span title="@Model.UserAgent">
+                                        <i class="fas fa-globe me-1 text-muted"></i>@friendlyAgent
+                                    </span>
+                                }
+                                else
+                                {
+                                    <small class="text-muted text-break">@(Model.UserAgent ?? "N/A")</small>
+                                }
+                            </td>
                         </tr>
                     </table>
                 </div>
@@ -128,35 +189,85 @@
     </div>
 
     <!-- Values Comparison -->
-    <div class="row">
-        @if (!string.IsNullOrEmpty(Model.OldValues))
-        {
-            <div class="col-md-6">
+    @{
+        var changes = AuditLogDisplayHelper.ParseChanges(Model.OldValues, Model.NewValues, excludeNoise: false);
+        var showOldColumn = Model.Action != "Create";
+        var showNewColumn = Model.Action != "Delete";
+    }
+    @if (!string.IsNullOrEmpty(Model.OldValues) || !string.IsNullOrEmpty(Model.NewValues))
+    {
+        <div class="row">
+            <div class="col-12">
                 <div class="card mb-4">
-                    <div class="card-header bg-danger text-white">
-                        <h5 class="mb-0"><i class="fas fa-minus-circle me-2"></i>@Localizer["OldValues"]</h5>
+                    <div class="card-header">
+                        <h5 class="mb-0"><i class="fas fa-exchange-alt me-2"></i>@Localizer["ChangesComparison"]</h5>
                     </div>
                     <div class="card-body">
-                        <pre class="bg-light p-3 rounded" style="max-height: 400px; overflow-y: auto; white-space: pre-wrap; word-break: break-all;">@FormatJson(Model.OldValues)</pre>
-                    </div>
-                </div>
-            </div>
-        }
+                        @if (changes.Any())
+                        {
+                            <div class="table-responsive">
+                                <table class="table table-hover align-middle">
+                                    <thead>
+                                        <tr>
+                                            <th style="width: 25%;">@Localizer["Field"]</th>
+                                            @if (showOldColumn)
+                                            {
+                                                <th>@Localizer["OldValue"]</th>
+                                            }
+                                            @if (showNewColumn)
+                                            {
+                                                <th>@Localizer["NewValue"]</th>
+                                            }
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach (var change in changes)
+                                        {
+                                            <tr>
+                                                <td><strong>@Localizer[change.Field]</strong></td>
+                                                @if (showOldColumn)
+                                                {
+                                                    <td class="value-old">@(string.IsNullOrEmpty(change.OldValue) ? "—" : change.OldValue)</td>
+                                                }
+                                                @if (showNewColumn)
+                                                {
+                                                    <td class="value-new">@(string.IsNullOrEmpty(change.NewValue) ? "—" : change.NewValue)</td>
+                                                }
+                                            </tr>
+                                        }
+                                    </tbody>
+                                </table>
+                            </div>
+                        }
+                        else
+                        {
+                            <p class="text-muted mb-0">@Localizer["NoEffectiveChanges"]</p>
+                        }
 
-        @if (!string.IsNullOrEmpty(Model.NewValues))
-        {
-            <div class="col-md-6">
-                <div class="card mb-4">
-                    <div class="card-header bg-success text-white">
-                        <h5 class="mb-0"><i class="fas fa-plus-circle me-2"></i>@Localizer["NewValues"]</h5>
-                    </div>
-                    <div class="card-body">
-                        <pre class="bg-light p-3 rounded" style="max-height: 400px; overflow-y: auto; white-space: pre-wrap; word-break: break-all;">@FormatJson(Model.NewValues)</pre>
+                        <details class="mt-3">
+                            <summary class="text-muted" style="cursor: pointer;">@Localizer["ShowRawJson"]</summary>
+                            <div class="row mt-2">
+                                @if (!string.IsNullOrEmpty(Model.OldValues))
+                                {
+                                    <div class="col-md-6">
+                                        <h6 class="text-danger">@Localizer["OldValues"]</h6>
+                                        <pre class="bg-light p-3 rounded" style="max-height: 400px; overflow-y: auto; white-space: pre-wrap; word-break: break-all;">@FormatJson(Model.OldValues)</pre>
+                                    </div>
+                                }
+                                @if (!string.IsNullOrEmpty(Model.NewValues))
+                                {
+                                    <div class="col-md-6">
+                                        <h6 class="text-success">@Localizer["NewValues"]</h6>
+                                        <pre class="bg-light p-3 rounded" style="max-height: 400px; overflow-y: auto; white-space: pre-wrap; word-break: break-all;">@FormatJson(Model.NewValues)</pre>
+                                    </div>
+                                }
+                            </div>
+                        </details>
                     </div>
                 </div>
             </div>
-        }
-    </div>
+        </div>
+    }
 </div>
 
 @functions {
@@ -194,5 +305,21 @@
     pre {
         font-size: 0.85rem;
         margin: 0;
+    }
+
+    .value-old {
+        color: #c53030;
+        background-color: rgba(197, 48, 48, 0.06);
+    }
+
+    .value-new {
+        color: #276749;
+        font-weight: 600;
+        background-color: rgba(39, 103, 73, 0.06);
+    }
+
+    .summary-line {
+        font-size: 1.05rem;
+        border-radius: 12px;
     }
 </style>

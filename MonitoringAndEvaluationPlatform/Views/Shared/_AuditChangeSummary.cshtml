@@ -1,0 +1,87 @@
+@model MonitoringAndEvaluationPlatform.ViewModels.AuditChangeSummaryViewModel
+@using Microsoft.AspNetCore.Mvc.Localization
+@using MonitoringAndEvaluationPlatform.Helpers
+@inject IViewLocalizer Localizer
+
+@{
+    var log = Model.Log;
+
+    string DisplayValue(string? value)
+    {
+        return value switch
+        {
+            null or "" => "—",
+            "true" => Localizer["Yes"].Value,
+            "false" => Localizer["No"].Value,
+            _ => AuditLogDisplayHelper.Truncate(value, Model.TruncateLength)
+        };
+    }
+}
+
+@if (log.Action == "Update")
+{
+    var changes = AuditLogDisplayHelper.ParseChanges(log.OldValues, log.NewValues);
+    if (changes.Count == 0)
+    {
+        <span class="text-muted">-</span>
+    }
+    else
+    {
+        var maxShown = Model.Full ? int.MaxValue : Model.MaxShown;
+        foreach (var change in changes.Take(maxShown))
+        {
+            <div class="change-line">
+                <span class="change-field">@Localizer[change.Field]:</span>
+                <span class="change-old">@DisplayValue(change.OldValue)</span>
+                <i class="fas fa-long-arrow-alt-right change-arrow text-muted"></i>
+                <span class="change-new">@DisplayValue(change.NewValue)</span>
+            </div>
+        }
+        @if (changes.Count > maxShown)
+        {
+            if (Model.AllowExpand)
+            {
+                <button type="button" class="badge bg-secondary border-0 expand-toggle">
+                    +@(changes.Count - maxShown) @Localizer["MoreChanges"]
+                </button>
+            }
+            else
+            {
+                <a asp-controller="AuditLogs" asp-action="Details" asp-route-id="@log.Id" class="badge bg-secondary text-decoration-none">
+                    +@(changes.Count - maxShown) @Localizer["MoreChanges"]
+                </a>
+            }
+        }
+    }
+}
+else if (log.Action == "Create" || log.Action == "Delete")
+{
+    @if (log.Action == "Create")
+    {
+        <span class="badge bg-success-subtle text-success border border-success">@Localizer["NewRecord"]</span>
+    }
+    else
+    {
+        <span class="badge bg-danger-subtle text-danger border border-danger">@Localizer["RecordDeleted"]</span>
+    }
+
+    @if (Model.Full)
+    {
+        var values = AuditLogDisplayHelper.ParseChanges(log.OldValues, log.NewValues);
+        <div class="mt-2">
+            @foreach (var change in values)
+            {
+                <div class="change-line">
+                    <span class="change-field">@Localizer[change.Field]:</span>
+                    <span class="@(log.Action == "Create" ? "change-new" : "change-old")">
+                        @DisplayValue(change.NewValue ?? change.OldValue)
+                    </span>
+                </div>
+            }
+        </div>
+    }
+}
+else
+{
+    <span class="text-muted">-</span>
+}

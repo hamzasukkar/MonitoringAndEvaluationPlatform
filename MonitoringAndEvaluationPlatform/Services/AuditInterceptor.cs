@@ -54,6 +54,8 @@ namespace MonitoringAndEvaluationPlatform.Services
                     .FirstOrDefault(p => p.Metadata.IsPrimaryKey());
                 auditLog.EntityId = primaryKey?.CurrentValue?.ToString() ?? "Unknown";
 
+                auditLog.EntityDisplayName = GetEntityDisplayName(entry);
+
                 switch (entry.State)
                 {
                     case EntityState.Added:
@@ -66,8 +68,11 @@ namespace MonitoringAndEvaluationPlatform.Services
                     case EntityState.Modified:
                         auditLog.Action = "Update";
                         var modifiedProperties = entry.Properties
-                            .Where(p => p.IsModified)
+                            .Where(p => p.IsModified && !Equals(p.OriginalValue, p.CurrentValue))
                             .ToList();
+
+                        if (!modifiedProperties.Any())
+                            continue;
 
                         auditLog.OldValues = SerializeProperties(modifiedProperties
                             .ToDictionary(p => p.Metadata.Name, p => p.OriginalValue));
@@ -97,6 +102,24 @@ namespace MonitoringAndEvaluationPlatform.Services
             }
 
             return await base.SavingChangesAsync(eventData, result, cancellationToken);
+        }
+
+        private static string? GetEntityDisplayName(Microsoft.EntityFrameworkCore.ChangeTracking.EntityEntry entry)
+        {
+            var typeName = entry.Entity.GetType().Name;
+            var candidateNames = new[] { $"{typeName}Name", "Name", "Title", "UserName", "MinistryDisplayName" };
+
+            foreach (var candidate in candidateNames)
+            {
+                var property = entry.Properties.FirstOrDefault(p =>
+                    string.Equals(p.Metadata.Name, candidate, StringComparison.OrdinalIgnoreCase));
+
+                var value = (property?.CurrentValue ?? property?.OriginalValue)?.ToString();
+                if (!string.IsNullOrWhiteSpace(value))
+                    return value.Length > 256 ? value.Substring(0, 256) : value;
+            }
+
+            return null;
         }
 
         private string? SerializeProperties(Dictionary<string, object?> properties)

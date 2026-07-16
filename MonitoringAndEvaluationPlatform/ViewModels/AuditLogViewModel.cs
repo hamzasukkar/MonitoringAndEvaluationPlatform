@@ -23,6 +23,9 @@ namespace MonitoringAndEvaluationPlatform.ViewModels
         public string? SortColumn { get; set; } = "Timestamp";
         public string? SortDirection { get; set; } = "desc";
 
+        // When false (default) Authentication logs are hidden unless an entity filter is set
+        public bool IncludeAuthentication { get; set; }
+
         // Statistics
         public int TotalAuditLogs { get; set; }
         public int TodayLogs { get; set; }

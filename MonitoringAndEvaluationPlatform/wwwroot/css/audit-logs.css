@@ -1,0 +1,212 @@
+/* Shared styles for audit log pages (Index, UserActivity, EntityHistory, partial) */
+
+.entity-link {
+    text-decoration: none;
+    color: inherit;
+}
+
+.entity-link:hover strong {
+    color: var(--primary-color, #2196F3);
+    text-decoration: underline;
+}
+
+.change-line {
+    font-size: 0.85rem;
+    margin-bottom: 2px;
+}
+
+td .change-line {
+    white-space: nowrap;
+}
+
+.change-field {
+    color: #718096;
+    font-weight: 600;
+}
+
+.change-old {
+    color: #c53030;
+    text-decoration: line-through;
+    opacity: 0.75;
+}
+
+.change-new {
+    color: #276749;
+    font-weight: 700;
+}
+
+.change-arrow {
+    font-size: 0.75rem;
+    margin: 0 4px;
+}
+
+[dir="rtl"] .change-arrow {
+    transform: scaleX(-1);
+}
+
+/* Timeline (EntityHistory, ProjectHistory) */
+.timeline {
+    position: relative;
+    padding-left: 30px;
+}
+
+.timeline::before {
+    content: '';
+    position: absolute;
+    left: 15px;
+    top: 0;
+    bottom: 0;
+    width: 2px;
+    background: #e2e8f0;
+}
+
+.timeline-item {
+    position: relative;
+    padding-bottom: 1.5rem;
+}
+
+.timeline-marker {
+    position: absolute;
+    left: -23px;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 0.75rem;
+}
+
+.timeline-content {
+    background: #f8f9fa;
+    padding: 1rem;
+    border-radius: 8px;
+    margin-left: 15px;
+}
+
+.timeline-day {
+    background-color: #eef2f7;
+    color: #4a5568;
+    font-weight: 700;
+    font-size: 0.9rem;
+    padding: 0.4rem 0.75rem;
+    border-radius: 8px;
+    margin: 0 0 1rem 15px;
+}
+
+[dir="rtl"] .timeline {
+    padding-right: 30px;
+    padding-left: 0;
+}
+
+[dir="rtl"] .timeline::before {
+    right: 15px;
+    left: auto;
+}
+
+[dir="rtl"] .timeline-marker {
+    right: -23px;
+    left: auto;
+}
+
+[dir="rtl"] .timeline-content {
+    margin-right: 15px;
+    margin-left: 0;
+}
+
+[dir="rtl"] .timeline-day {
+    margin: 0 15px 1rem 0;
+}
+
+/* Excel-like pivot table (ProjectHistory) */
+.pivot-wrap {
+    overflow: auto;
+    max-height: 70vh;
+}
+
+.pivot-table th,
+.pivot-table td {
+    white-space: nowrap;
+    font-size: 0.85rem;
+    vertical-align: middle;
+}
+
+.pivot-table thead th {
+    position: sticky;
+    top: 0;
+    background-color: #f8f9fa;
+    z-index: 2;
+    font-weight: 600;
+}
+
+.pivot-table .sticky-col {
+    position: sticky;
+    inset-inline-start: 0;
+    background-color: #fff;
+    z-index: 1;
+}
+
+.pivot-table thead .sticky-col {
+    z-index: 3;
+    background-color: #f8f9fa;
+}
+
+.cell-old {
+    color: #c53030;
+    text-decoration: line-through;
+    font-size: 0.75rem;
+    opacity: 0.75;
+}
+
+.cell-new {
+    color: #276749;
+    font-weight: 700;
+}
+
+.pivot-table tr.row-create td {
+    background-color: rgba(39, 103, 73, 0.07);
+}
+
+.pivot-table tr.row-delete td {
+    background-color: rgba(197, 48, 48, 0.07);
+}
+
+/* Day-group separator rows */
+tr.date-separator td {
+    background-color: #eef2f7;
+    color: #4a5568;
+    font-weight: 700;
+    font-size: 0.9rem;
+    padding: 0.4rem 0.75rem;
+    border-bottom: none;
+}
+
+/* Clickable rows with an expandable details row underneath */
+tr.log-row {
+    cursor: pointer;
+}
+
+tr.expand-row > td {
+    background-color: #f8fafc;
+    border-top: none;
+    padding: 0.75rem 1.25rem;
+}
+
+tr.expand-row .change-line {
+    white-space: normal;
+}
+
+.expand-toggle {
+    cursor: pointer;
+}
+
+.expand-chevron {
+    font-size: 0.7rem;
+    color: #a0aec0;
+    transition: transform 0.15s ease;
+}
+
+tr.log-row.expanded .expand-chevron {
+    transform: rotate(180deg);
+}

@@ -307,4 +307,76 @@
   <data name="LoginFailed" xml:space="preserve">
     <value>Login Failed</value>
   </data>
+  <data name="ChangesColumn" xml:space="preserve">
+    <value>Changes</value>
+  </data>
+  <data name="NewRecord" xml:space="preserve">
+    <value>New record</value>
+  </data>
+  <data name="RecordDeleted" xml:space="preserve">
+    <value>Record deleted</value>
+  </data>
+  <data name="MoreChanges" xml:space="preserve">
+    <value>more changes</value>
+  </data>
+  <data name="ProjectName" xml:space="preserve">
+    <value>Project Name</value>
+  </data>
+  <data name="EstimatedBudget" xml:space="preserve">
+    <value>Estimated Budget</value>
+  </data>
+  <data name="RealBudget" xml:space="preserve">
+    <value>Real Budget</value>
+  </data>
+  <data name="Currency" xml:space="preserve">
+    <value>Currency</value>
+  </data>
+  <data name="BudgetUnit" xml:space="preserve">
+    <value>Budget Unit</value>
+  </data>
+  <data name="ExchangeRate" xml:space="preserve">
+    <value>Exchange Rate</value>
+  </data>
+  <data name="ExchangeRateDate" xml:space="preserve">
+    <value>Exchange Rate Date</value>
+  </data>
+  <data name="StartDate" xml:space="preserve">
+    <value>Start Date</value>
+  </data>
+  <data name="EndDate" xml:space="preserve">
+    <value>End Date</value>
+  </data>
+  <data name="MinistryCode" xml:space="preserve">
+    <value>Ministry</value>
+  </data>
+  <data name="ProjectManagerCode" xml:space="preserve">
+    <value>Project Manager</value>
+  </data>
+  <data name="SuperVisorCode" xml:space="preserve">
+    <value>Supervisor</value>
+  </data>
+  <data name="GoalCode" xml:space="preserve">
+    <value>Goal</value>
+  </data>
+  <data name="IsEntireCountry" xml:space="preserve">
+    <value>Entire Country</value>
+  </data>
+  <data name="Realised" xml:space="preserve">
+    <value>Realised Value</value>
+  </data>
+  <data name="Planned" xml:space="preserve">
+    <value>Planned Value</value>
+  </data>
+  <data name="Yesterday" xml:space="preserve">
+    <value>Yesterday</value>
+  </data>
+  <data name="JustNow" xml:space="preserve">
+    <value>Just now</value>
+  </data>
+  <data name="MinutesAgo" xml:space="preserve">
+    <value>{0} minutes ago</value>
+  </data>
+  <data name="HoursAgo" xml:space="preserve">
+    <value>{0} hours ago</value>
+  </data>
 </root>

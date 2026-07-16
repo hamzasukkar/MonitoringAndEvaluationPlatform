@@ -918,6 +918,13 @@
                                                         onclick="deleteProject(@item.ProjectID)" title="@Localizer["Delete Project"]">
                                                     <i class="fas fa-trash-alt"></i>
                                                 </button>
+                                                @if (User.IsInRole("SystemAdministrator"))
+                                                {
+                                                    <a asp-controller="AuditLogs" asp-action="ProjectHistory" asp-route-projectId="@item.ProjectID"
+                                                       class="btn btn-outline-secondary btn-sm action-btn" title="@Localizer["Project History"]">
+                                                        <i class="fas fa-history"></i>
+                                                    </a>
+                                                }
                                             </div>
                                         </td>
                                     </tr>

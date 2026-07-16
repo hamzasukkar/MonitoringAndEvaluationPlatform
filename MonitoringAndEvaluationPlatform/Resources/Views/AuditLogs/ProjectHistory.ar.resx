@@ -1,0 +1,286 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="ProjectHistory" xml:space="preserve">
+    <value>سجل تغييرات المشروع</value>
+  </data>
+  <data name="AllChangesForProject" xml:space="preserve">
+    <value>جميع التغييرات للمشروع</value>
+  </data>
+  <data name="BackToProject" xml:space="preserve">
+    <value>العودة إلى المشروع</value>
+  </data>
+  <data name="Values" xml:space="preserve">
+    <value>القيم</value>
+  </data>
+  <data name="OldValues" xml:space="preserve">
+    <value>القيم القديمة</value>
+  </data>
+  <data name="NewValues" xml:space="preserve">
+    <value>القيم الجديدة</value>
+  </data>
+  <data name="changes" xml:space="preserve">
+    <value>تغييرات</value>
+  </data>
+  <data name="By" xml:space="preserve">
+    <value>بواسطة</value>
+  </data>
+  <data name="NoHistoryFound" xml:space="preserve">
+    <value>لم يتم العثور على سجل لهذا المشروع</value>
+  </data>
+  <data name="Details" xml:space="preserve">
+    <value>التفاصيل</value>
+  </data>
+  <data name="ChangedFields" xml:space="preserve">
+    <value>الحقول المعدلة</value>
+  </data>
+  <data name="Project" xml:space="preserve">
+    <value>المشروع</value>
+  </data>
+  <data name="ProjectPhase" xml:space="preserve">
+    <value>مرحلة المشروع</value>
+  </data>
+  <data name="Measure" xml:space="preserve">
+    <value>القياس</value>
+  </data>
+  <data name="ActionPlan" xml:space="preserve">
+    <value>خطة العمل</value>
+  </data>
+  <data name="Plan" xml:space="preserve">
+    <value>الخطة</value>
+  </data>
+  <data name="ProjectDonor" xml:space="preserve">
+    <value>مانح المشروع</value>
+  </data>
+  <data name="ProjectFile" xml:space="preserve">
+    <value>ملف المشروع</value>
+  </data>
+  <data name="Indicator" xml:space="preserve">
+    <value>المؤشر</value>
+  </data>
+  <data name="Field" xml:space="preserve">
+    <value>الحقل</value>
+  </data>
+  <data name="Yes" xml:space="preserve">
+    <value>نعم</value>
+  </data>
+  <data name="No" xml:space="preserve">
+    <value>لا</value>
+  </data>
+  <data name="ProjectName" xml:space="preserve">
+    <value>اسم المشروع</value>
+  </data>
+  <data name="EstimatedBudget" xml:space="preserve">
+    <value>الموازنة التقديرية</value>
+  </data>
+  <data name="RealBudget" xml:space="preserve">
+    <value>الموازنة الفعلية</value>
+  </data>
+  <data name="Currency" xml:space="preserve">
+    <value>العملة</value>
+  </data>
+  <data name="BudgetUnit" xml:space="preserve">
+    <value>وحدة الموازنة</value>
+  </data>
+  <data name="ExchangeRate" xml:space="preserve">
+    <value>سعر الصرف</value>
+  </data>
+  <data name="ExchangeRateDate" xml:space="preserve">
+    <value>تاريخ سعر الصرف</value>
+  </data>
+  <data name="StartDate" xml:space="preserve">
+    <value>تاريخ البدء</value>
+  </data>
+  <data name="EndDate" xml:space="preserve">
+    <value>تاريخ الانتهاء</value>
+  </data>
+  <data name="performance" xml:space="preserve">
+    <value>الأداء</value>
+  </data>
+  <data name="DisbursementPerformance" xml:space="preserve">
+    <value>أداء الصرف</value>
+  </data>
+  <data name="MinistryCode" xml:space="preserve">
+    <value>الوزارة</value>
+  </data>
+  <data name="ProjectManagerCode" xml:space="preserve">
+    <value>مدير المشروع</value>
+  </data>
+  <data name="SuperVisorCode" xml:space="preserve">
+    <value>المشرف</value>
+  </data>
+  <data name="GoalCode" xml:space="preserve">
+    <value>الهدف</value>
+  </data>
+  <data name="PublicSectorTypeCode" xml:space="preserve">
+    <value>نوع القطاع العام</value>
+  </data>
+  <data name="IsEntireCountry" xml:space="preserve">
+    <value>كامل البلاد</value>
+  </data>
+  <data name="CreatedAt" xml:space="preserve">
+    <value>تاريخ الإنشاء</value>
+  </data>
+  <data name="LastModifiedAt" xml:space="preserve">
+    <value>آخر تعديل</value>
+  </data>
+  <data name="ProjectID" xml:space="preserve">
+    <value>رقم المشروع</value>
+  </data>
+  <data name="Name" xml:space="preserve">
+    <value>الاسم</value>
+  </data>
+  <data name="Code" xml:space="preserve">
+    <value>الرمز</value>
+  </data>
+  <data name="Date" xml:space="preserve">
+    <value>التاريخ</value>
+  </data>
+  <data name="Planned" xml:space="preserve">
+    <value>المخطط</value>
+  </data>
+  <data name="Realised" xml:space="preserve">
+    <value>المتحقق</value>
+  </data>
+  <data name="Target" xml:space="preserve">
+    <value>الهدف المستهدف</value>
+  </data>
+  <data name="TargetYear" xml:space="preserve">
+    <value>سنة الهدف</value>
+  </data>
+  <data name="Weight" xml:space="preserve">
+    <value>الوزن</value>
+  </data>
+  <data name="IndicatorCode" xml:space="preserve">
+    <value>رمز المؤشر</value>
+  </data>
+  <data name="ProjectPhaseId" xml:space="preserve">
+    <value>مرحلة المشروع</value>
+  </data>
+  <data name="ActionPlanCode" xml:space="preserve">
+    <value>خطة العمل</value>
+  </data>
+  <data name="FundingPercentage" xml:space="preserve">
+    <value>نسبة التمويل</value>
+  </data>
+  <data name="FundingAmount" xml:space="preserve">
+    <value>مبلغ التمويل</value>
+  </data>
+  <data name="DonorCode" xml:space="preserve">
+    <value>المانح</value>
+  </data>
+  <data name="FilePath" xml:space="preserve">
+    <value>مسار الملف</value>
+  </data>
+  <data name="FileName" xml:space="preserve">
+    <value>اسم الملف</value>
+  </data>
+  <data name="Create" xml:space="preserve">
+    <value>إنشاء</value>
+  </data>
+  <data name="Update" xml:space="preserve">
+    <value>تعديل</value>
+  </data>
+  <data name="Delete" xml:space="preserve">
+    <value>حذف</value>
+  </data>
+  <data name="Today" xml:space="preserve">
+    <value>اليوم</value>
+  </data>
+  <data name="Yesterday" xml:space="preserve">
+    <value>أمس</value>
+  </data>
+  <data name="JustNow" xml:space="preserve">
+    <value>الآن</value>
+  </data>
+  <data name="MinutesAgo" xml:space="preserve">
+    <value>منذ {0} دقيقة</value>
+  </data>
+  <data name="HoursAgo" xml:space="preserve">
+    <value>منذ {0} ساعة</value>
+  </data>
+  <data name="FilterAll" xml:space="preserve">
+    <value>الكل</value>
+  </data>
+  <data name="TableView" xml:space="preserve">
+    <value>جدول</value>
+  </data>
+  <data name="TimelineView" xml:space="preserve">
+    <value>خط زمني</value>
+  </data>
+  <data name="Action" xml:space="preserve">
+    <value>الإجراء</value>
+  </data>
+  <data name="Item" xml:space="preserve">
+    <value>العنصر</value>
+  </data>
+  <data name="User" xml:space="preserve">
+    <value>المستخدم</value>
+  </data>
+  <data name="PhasePerformance" xml:space="preserve">
+    <value>أداء المرحلة</value>
+  </data>
+  <data name="Budget" xml:space="preserve">
+    <value>الموازنة</value>
+  </data>
+  <data name="TargetQuantity" xml:space="preserve">
+    <value>الكمية المستهدفة</value>
+  </data>
+</root>

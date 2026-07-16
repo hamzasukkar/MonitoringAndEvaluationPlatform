@@ -1,5 +1,7 @@
 @model List<MonitoringAndEvaluationPlatform.Models.AuditLog>
 @using Microsoft.AspNetCore.Mvc.Localization
+@using MonitoringAndEvaluationPlatform.Helpers
+@using MonitoringAndEvaluationPlatform.ViewModels
 @inject IViewLocalizer Localizer
 
 @{
@@ -7,7 +9,12 @@
     Layout = "~/Views/Shared/_DashboardHomeLayout.cshtml";
     var entityName = ViewBag.EntityName as string;
     var entityId = ViewBag.EntityId as string;
+    var entityDisplayName = Model
+        .Select(AuditLogDisplayHelper.ExtractDisplayName)
+        .FirstOrDefault(n => !string.IsNullOrEmpty(n));
 }
+
+<link rel="stylesheet" href="~/css/audit-logs.css" asp-append-version="true" />
 
 <div class="container-fluid py-4">
     <!-- Header -->
@@ -18,7 +25,12 @@
                     <i class="fas fa-history me-3"></i>@Localizer["EntityHistory"]
                 </h1>
                 <p class="text-muted">
-                    @Localizer["AllChangesFor"] <strong>@entityName</strong> (ID: @entityId)
+                    @Localizer["AllChangesFor"] <span class="badge bg-light text-dark border">@Localizer[entityName ?? ""]</span>
+                    @if (!string.IsNullOrEmpty(entityDisplayName))
+                    {
+                        <strong>@entityDisplayName</strong>
+                    }
+                    <small>(#@entityId)</small>
                 </p>
             </div>
             <div>
@@ -63,8 +75,15 @@
                                 <div class="d-flex justify-content-between align-items-start mb-2">
                                     <div>
                                         <span class="badge bg-@actionClass me-2">@log.Action</span>
+                                        @{
+                                            var relative = AuditLogDisplayHelper.GetRelativeTime(log.Timestamp);
+                                        }
                                         <small class="text-muted">
                                             @log.Timestamp.ToLocalTime().ToString("yyyy-MM-dd HH:mm:ss")
+                                            @if (relative.Key != "TimeOnly")
+                                            {
+                                                <span>(@Localizer[relative.Key, relative.Value])</span>
+                                            }
                                         </small>
                                     </div>
                                     <a asp-action="Details" asp-route-id="@log.Id" class="btn btn-sm btn-outline-info">
@@ -75,16 +94,7 @@
                                     <strong>@Localizer["By"]:</strong>
                                     @(log.UserName ?? "System")
                                 </p>
-                                @if (!string.IsNullOrEmpty(log.ChangedColumns))
-                                {
-                                    <p class="mb-0">
-                                        <strong>@Localizer["ChangedFields"]:</strong>
-                                        @foreach (var col in log.ChangedColumns.Split(','))
-                                        {
-                                            <span class="badge bg-light text-dark me-1">@col.Trim()</span>
-                                        }
-                                    </p>
-                                }
+                                <partial name="_AuditChangeSummary" model="new AuditChangeSummaryViewModel { Log = log, MaxShown = 5, TruncateLength = 60 }" />
                             </div>
                         </div>
                     }
@@ -107,43 +117,4 @@
         box-shadow: 0 2px 8px rgba(0,0,0,0.1);
     }
 
-    .timeline {
-        position: relative;
-        padding-left: 30px;
-    }
-
-    .timeline::before {
-        content: '';
-        position: absolute;
-        left: 15px;
-        top: 0;
-        bottom: 0;
-        width: 2px;
-        background: #e2e8f0;
-    }
-
-    .timeline-item {
-        position: relative;
-        padding-bottom: 1.5rem;
-    }
-
-    .timeline-marker {
-        position: absolute;
-        left: -23px;
-        width: 30px;
-        height: 30px;
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        color: white;
-        font-size: 0.75rem;
-    }
-
-    .timeline-content {
-        background: #f8f9fa;
-        padding: 1rem;
-        border-radius: 8px;
-        margin-left: 15px;
-    }
 </style>
