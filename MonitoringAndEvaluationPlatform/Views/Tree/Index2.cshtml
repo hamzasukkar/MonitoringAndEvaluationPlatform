@@ -11,6 +11,7 @@
     var culture = Context.Features.Get<IRequestCultureFeature>().RequestCulture.Culture.Name;
 }
 
+<div id="treeStage">
 <!-- Dashboard Header -->
 <div class="dashboard-header">
     <div class="d-flex justify-content-between align-items-center">
@@ -58,6 +59,9 @@
                     <i class="fas fa-search-plus"></i>
                 </button>
             </div>
+            <button class="btn btn-outline-secondary btn-sm ms-2" id="fullscreenToggle" title="@Localizer["Full Screen"]">
+                <i class="fas fa-expand"></i>
+            </button>
         </div>
     </div>
 </div>
@@ -262,7 +266,7 @@
 </div>
 
 <!-- Tree Container Card -->
-<div class="card">
+<div class="card tree-card">
     <div class="card-header d-flex justify-content-between align-items-center flex-wrap gap-2">
         <h5 class="mb-0">
             <i class="fas fa-tree me-2"></i>
@@ -289,6 +293,7 @@
             </div>
         </div>
     </div>
+</div>
 </div>
 
 <style>
@@ -319,6 +324,69 @@
         align-items: center;
         gap: 0.5rem;
     }
+
+    /* ── Full Screen Mode ───────────────────────────────────────────────────
+       .tree-stage-fs is toggled by JS on both native fullscreen and the
+       CSS-only fallback (.tree-stage-fallback) for browsers that refuse the API. */
+    #treeStage.tree-stage-fs {
+        /* A fullscreen element gets a black backdrop by default — match body */
+        background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-dark) 100%);
+        width: 100%;
+        height: 100%;
+        padding: 1rem;
+        display: flex;
+        flex-direction: column;
+        overflow: hidden; /* scrolling happens inside the tree only */
+    }
+
+    #treeStage.tree-stage-fallback {
+        position: fixed;
+        inset: 0;
+        z-index: 2000;
+    }
+
+    /* Shrink the chrome above the tree to reclaim vertical space */
+    #treeStage.tree-stage-fs .dashboard-title-block {
+        display: none;
+    }
+
+    #treeStage.tree-stage-fs .dashboard-header {
+        margin-bottom: 0.5rem;
+        padding: 0.5rem 1rem;
+        border-radius: 12px;
+    }
+
+    #treeStage.tree-stage-fs .stats-strip,
+    #treeStage.tree-stage-fs .filters-bar,
+    #treeStage.tree-stage-fs > .card {
+        margin-bottom: 0.5rem !important;
+    }
+
+    #treeStage.tree-stage-fs > .card .card-body {
+        padding: 0.5rem 1rem;
+    }
+
+    /* Tree card takes the remaining height — min-height:0 lets flex children shrink */
+    #treeStage.tree-stage-fs .tree-card {
+        flex: 1 1 auto;
+        min-height: 0;
+        display: flex;
+        flex-direction: column;
+        margin-bottom: 0 !important;
+    }
+
+    #treeStage.tree-stage-fs .tree-card .card-body {
+        flex: 1 1 auto;
+        min-height: 0;
+        display: flex;
+        flex-direction: column;
+    }
+
+    #treeStage.tree-stage-fs .tree-card .tree-visualization {
+        flex: 1 1 auto;
+        min-height: 0;
+    }
+    /* ──────────────────────────────────────────────────────────────────────── */
 
     /* Unified Filters Bar */
     .filters-bar {
@@ -1370,6 +1438,60 @@ document.addEventListener('DOMContentLoaded', function() {
         }
         applyZoom();
     }, { passive: false });
+    // ────────────────────────────────────────────────────────────────────────
+
+    // ── Full Screen ─────────────────────────────────────────────────────────
+    const stageEl = document.getElementById('treeStage');
+    const fsBtn   = document.getElementById('fullscreenToggle');
+    const fsEnterLabel = '@Localizer["Full Screen"]';
+    const fsExitLabel  = '@Localizer["Exit Full Screen"]';
+
+    function isNativeFs() {
+        return (document.fullscreenElement || document.webkitFullscreenElement) === stageEl;
+    }
+
+    function setFsUI(on) {
+        stageEl.classList.toggle('tree-stage-fs', on);
+        fsBtn.querySelector('i').className = on ? 'fas fa-compress' : 'fas fa-expand';
+        fsBtn.title = on ? fsExitLabel : fsEnterLabel;
+        fsBtn.classList.toggle('active', on);
+    }
+
+    function exitFallback() {
+        stageEl.classList.remove('tree-stage-fallback');
+        setFsUI(false);
+    }
+
+    fsBtn.addEventListener('click', function () {
+        if (stageEl.classList.contains('tree-stage-fs')) {
+            if (isNativeFs()) {
+                (document.exitFullscreen || document.webkitExitFullscreen).call(document);
+            } else {
+                exitFallback();
+            }
+            return;
+        }
+        const req = stageEl.requestFullscreen || stageEl.webkitRequestFullscreen;
+        if (req) {
+            // Older webkitRequestFullscreen returns undefined — Promise.resolve covers both
+            Promise.resolve(req.call(stageEl)).catch(() => {
+                stageEl.classList.add('tree-stage-fallback');
+                setFsUI(true);
+            });
+        } else {
+            stageEl.classList.add('tree-stage-fallback');
+            setFsUI(true);
+        }
+    });
+
+    // Native enter/exit (including ESC) keeps the button state in sync
+    document.addEventListener('fullscreenchange',       () => setFsUI(isNativeFs()));
+    document.addEventListener('webkitfullscreenchange', () => setFsUI(isNativeFs()));
+
+    // ESC leaves the CSS-only fallback
+    document.addEventListener('keydown', function (e) {
+        if (e.key === 'Escape' && stageEl.classList.contains('tree-stage-fallback')) exitFallback();
+    });
     // ────────────────────────────────────────────────────────────────────────
 
     // ── Performance Threshold Filter ────────────────────────────────────────
