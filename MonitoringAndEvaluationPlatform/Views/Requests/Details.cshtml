@@ -1,0 +1,194 @@
+@model MonitoringAndEvaluationPlatform.Models.Request
+@using MonitoringAndEvaluationPlatform.Enums
+@using MonitoringAndEvaluationPlatform.Models
+@using Microsoft.AspNetCore.Mvc.Localization
+@inject IViewLocalizer Localizer
+
+@{
+    ViewData["Title"] = Model.RequestNumber;
+    Layout = "~/Views/Shared/_DashboardHomeLayout.cshtml";
+    var canManage = User.IsInRole(UserRoles.SystemAdministrator);
+}
+
+@functions {
+    string StatusClass(RequestStatus s) => s switch
+    {
+        RequestStatus.New => "bg-primary",
+        RequestStatus.InProgress => "bg-warning text-dark",
+        RequestStatus.OnHold => "bg-secondary",
+        RequestStatus.Completed => "bg-success",
+        RequestStatus.Cancelled => "bg-dark",
+        _ => "bg-light text-dark"
+    };
+
+    string PriorityClass(RequestPriority p) => p switch
+    {
+        RequestPriority.High => "bg-danger",
+        RequestPriority.Medium => "bg-warning text-dark",
+        RequestPriority.Low => "bg-success",
+        _ => "bg-light text-dark"
+    };
+}
+
+<div class="container-fluid py-4">
+    <div class="dashboard-header mb-4">
+        <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
+            <div>
+                <h1 class="display-5 mb-2">
+                    <i class="fas fa-file-alt me-3"></i>@Model.RequestNumber
+                </h1>
+                <p class="text-muted mb-0">@Model.Title</p>
+            </div>
+            <div class="d-flex gap-2">
+                @if (canManage)
+                {
+                    <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-primary">
+                        <i class="fas fa-edit me-2"></i>@Localizer["Edit"]
+                    </a>
+                }
+                <a asp-action="MyRequests" class="btn btn-outline-secondary">
+                    <i class="fas fa-list me-2"></i>@Localizer["MyRequests"]
+                </a>
+            </div>
+        </div>
+    </div>
+
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            <i class="fas fa-check-circle me-2"></i>@TempData["SuccessMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+
+    <div class="row g-4">
+        <div class="col-lg-8">
+            <div class="card mb-4">
+                <div class="card-header"><strong>@Localizer["RequestDetails"]</strong></div>
+                <div class="card-body">
+                    <dl class="row mb-0">
+                        <dt class="col-sm-4">@Localizer["Status"]</dt>
+                        <dd class="col-sm-8">
+                            <span class="badge @StatusClass(Model.Status)">@Localizer["Status" + Model.Status.ToString()]</span>
+                        </dd>
+
+                        <dt class="col-sm-4">@Localizer["Priority"]</dt>
+                        <dd class="col-sm-8">
+                            <span class="badge @PriorityClass(Model.Priority)">@Localizer["Priority" + Model.Priority.ToString()]</span>
+                        </dd>
+
+                        <dt class="col-sm-4">@Localizer["Category"]</dt>
+                        <dd class="col-sm-8">@Localizer["Category" + Model.Category.ToString()]</dd>
+
+                        <dt class="col-sm-4">@Localizer["Description"]</dt>
+                        <dd class="col-sm-8">@(string.IsNullOrWhiteSpace(Model.Description) ? "-" : Model.Description)</dd>
+
+                        <dt class="col-sm-4">@Localizer["Notes"]</dt>
+                        <dd class="col-sm-8">@(string.IsNullOrWhiteSpace(Model.Notes) ? "-" : Model.Notes)</dd>
+
+                        <dt class="col-sm-4">@Localizer["Progress"]</dt>
+                        <dd class="col-sm-8">
+                            <div class="progress" style="height:20px;">
+                                <div class="progress-bar" role="progressbar"
+                                     style="width:@(Model.CompletionPercentage)%;"
+                                     aria-valuenow="@Model.CompletionPercentage" aria-valuemin="0" aria-valuemax="100">
+                                    @Model.CompletionPercentage%
+                                </div>
+                            </div>
+                        </dd>
+                    </dl>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <strong><i class="fas fa-paperclip me-2"></i>@Localizer["Attachments"]</strong>
+                    <span class="badge bg-secondary">@Model.Files.Count</span>
+                </div>
+                <div class="card-body">
+                    @if (!Model.Files.Any())
+                    {
+                        <p class="text-muted mb-0">@Localizer["NoAttachments"]</p>
+                    }
+                    else
+                    {
+                        <div class="list-group">
+                            @foreach (var file in Model.Files)
+                            {
+                                var isImage = file.FileName != null &&
+                                    (file.FileName.EndsWith(".jpg", StringComparison.OrdinalIgnoreCase)
+                                  || file.FileName.EndsWith(".jpeg", StringComparison.OrdinalIgnoreCase)
+                                  || file.FileName.EndsWith(".png", StringComparison.OrdinalIgnoreCase)
+                                  || file.FileName.EndsWith(".gif", StringComparison.OrdinalIgnoreCase)
+                                  || file.FileName.EndsWith(".webp", StringComparison.OrdinalIgnoreCase));
+
+                                <div class="list-group-item d-flex justify-content-between align-items-center">
+                                    <div class="d-flex align-items-center gap-3">
+                                        @if (isImage)
+                                        {
+                                            <a href="@file.FilePath" target="_blank">
+                                                <img src="@file.FilePath" alt="@file.FileName"
+                                                     style="width:64px;height:64px;object-fit:cover;border-radius:6px;" />
+                                            </a>
+                                        }
+                                        else
+                                        {
+                                            <i class="fas fa-file fa-2x text-secondary"></i>
+                                        }
+                                        <a href="@file.FilePath" target="_blank" download="@file.FileName">@file.FileName</a>
+                                    </div>
+                                    @if (canManage)
+                                    {
+                                        <form asp-action="DeleteFile" asp-route-id="@file.Id" method="post"
+                                              onsubmit="return confirm('@Localizer["ConfirmDeleteAttachment"]');">
+                                            @Html.AntiForgeryToken()
+                                            <button type="submit" class="btn btn-sm btn-outline-danger">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
+                                        </form>
+                                    }
+                                </div>
+                            }
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-4">
+            <div class="card">
+                <div class="card-header"><strong>@Localizer["Tracking"]</strong></div>
+                <div class="card-body">
+                    <dl class="row mb-0">
+                        <dt class="col-6">@Localizer["RequestDate"]</dt>
+                        <dd class="col-6">@Model.RequestDate.ToString("yyyy-MM-dd")</dd>
+
+                        <dt class="col-6">@Localizer["MeetingDate"]</dt>
+                        <dd class="col-6">@(Model.MeetingDate?.ToString("yyyy-MM-dd") ?? "-")</dd>
+
+                        <dt class="col-6">@Localizer["StartDate"]</dt>
+                        <dd class="col-6">@(Model.StartDate?.ToString("yyyy-MM-dd") ?? "-")</dd>
+
+                        <dt class="col-6">@Localizer["ActualCompletionDate"]</dt>
+                        <dd class="col-6">@(Model.ActualCompletionDate?.ToString("yyyy-MM-dd") ?? "-")</dd>
+
+                        <dt class="col-6">@Localizer["RequestingParty"]</dt>
+                        <dd class="col-6">@(Model.RequestingParty ?? "-")</dd>
+
+                        <dt class="col-6">@Localizer["SubmittedBy"]</dt>
+                        <dd class="col-6">@(Model.SubmittedByUser?.UserName ?? "-")</dd>
+
+                        <dt class="col-6">@Localizer["AssignedTo"]</dt>
+                        <dd class="col-6">@(Model.AssignedToUser?.UserName ?? "-")</dd>
+
+                        <dt class="col-6">@Localizer["CreatedAt"]</dt>
+                        <dd class="col-6">@Model.CreatedAt.ToString("yyyy-MM-dd HH:mm")</dd>
+
+                        <dt class="col-6">@Localizer["LastModified"]</dt>
+                        <dd class="col-6">@Model.LastModifiedAt.ToString("yyyy-MM-dd HH:mm")</dd>
+                    </dl>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

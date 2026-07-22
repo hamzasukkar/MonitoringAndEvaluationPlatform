@@ -229,6 +229,16 @@ namespace MonitoringAndEvaluationPlatform.Infrastructure
                     userRoles.Contains(UserRoles.SystemAdministrator) ||
                     userRoles.Contains(UserRoles.MinistriesUser),
 
+                // Requests - anyone working in the system may submit and read;
+                // only SystemAdministrator manages or deletes.
+                Permissions.ReadRequests or Permissions.SubmitRequest =>
+                    userRoles.Contains(UserRoles.SystemAdministrator) ||
+                    userRoles.Contains(UserRoles.MinistriesUser) ||
+                    userRoles.Contains(UserRoles.DataEntry) ||
+                    userRoles.Contains(UserRoles.MinistryStrategyManager),
+                Permissions.ManageRequests or Permissions.DeleteRequest =>
+                    userRoles.Contains(UserRoles.SystemAdministrator),
+
                 _ => false
             };
         }

@@ -104,5 +104,11 @@ namespace MonitoringAndEvaluationPlatform.Models
 
         // Additional permissions for indicators analysis
         public const string IndicatorAnalysis = "IndicatorAnalysis";
+
+        // Interface 20 - Requests Management
+        public const string ReadRequests = "ReadRequests";
+        public const string SubmitRequest = "SubmitRequest";
+        public const string ManageRequests = "ManageRequests";
+        public const string DeleteRequest = "DeleteRequest";
     }
 }

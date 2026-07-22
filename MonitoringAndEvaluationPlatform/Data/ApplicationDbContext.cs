@@ -43,11 +43,45 @@ namespace MonitoringAndEvaluationPlatform.Data
         public DbSet<AuditLog> AuditLogs { get; set; }
         public DbSet<GuideSection> GuideSections { get; set; } = default!;
         public DbSet<GuideSectionVersion> GuideSectionVersions { get; set; } = default!;
+        public DbSet<Request> Requests { get; set; } = default!;
+        public DbSet<RequestFile> RequestFiles { get; set; } = default!;
 
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
+
+            // Request number is the business key surfaced to users; keep it unique so a
+            // concurrent insert fails loudly instead of duplicating a number.
+            modelBuilder.Entity<Request>()
+                .HasIndex(r => r.RequestNumber)
+                .IsUnique();
+
+            // Restrict on both user links: cascading from ApplicationUser through two
+            // paths would create multiple cascade paths on SQL Server.
+            modelBuilder.Entity<Request>()
+                .HasOne(r => r.SubmittedByUser)
+                .WithMany()
+                .HasForeignKey(r => r.SubmittedByUserId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<Request>()
+                .HasOne(r => r.AssignedToUser)
+                .WithMany()
+                .HasForeignKey(r => r.AssignedToUserId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<Request>()
+                .HasOne(r => r.Ministry)
+                .WithMany()
+                .HasForeignKey(r => r.MinistryCode)
+                .OnDelete(DeleteBehavior.SetNull);
+
+            modelBuilder.Entity<RequestFile>()
+                .HasOne(f => f.Request)
+                .WithMany(r => r.Files)
+                .HasForeignKey(f => f.RequestId)
+                .OnDelete(DeleteBehavior.Cascade);
 
             // Measure primary key
             modelBuilder.Entity<Measure>()

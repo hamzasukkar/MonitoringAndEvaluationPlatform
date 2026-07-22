@@ -153,6 +153,10 @@ namespace MonitoringAndEvaluationPlatform.Services
                 Permissions.AddIndicator or Permissions.ModifyIndicator or Permissions.DeleteIndicator => roleName == UserRoles.SystemAdministrator,
                 Permissions.IndicatorAnalysis => roleName is UserRoles.SystemAdministrator or UserRoles.MinistriesUser,
 
+                // Requests Management
+                Permissions.ReadRequests or Permissions.SubmitRequest => roleName is UserRoles.SystemAdministrator or UserRoles.MinistriesUser or UserRoles.DataEntry,
+                Permissions.ManageRequests or Permissions.DeleteRequest => roleName == UserRoles.SystemAdministrator,
+
                 _ => false
             };
         }

@@ -1,0 +1,254 @@
+@model IEnumerable<MonitoringAndEvaluationPlatform.Models.Request>
+@using MonitoringAndEvaluationPlatform.Enums
+@using Microsoft.AspNetCore.Mvc.Localization
+@inject IViewLocalizer Localizer
+
+@{
+    ViewData["Title"] = Localizer["RequestsManagement"];
+    Layout = "~/Views/Shared/_DashboardHomeLayout.cshtml";
+}
+
+@functions {
+    string StatusClass(RequestStatus s) => s switch
+    {
+        RequestStatus.New => "bg-primary",
+        RequestStatus.InProgress => "bg-warning text-dark",
+        RequestStatus.OnHold => "bg-secondary",
+        RequestStatus.Completed => "bg-success",
+        RequestStatus.Cancelled => "bg-dark",
+        _ => "bg-light text-dark"
+    };
+
+    string PriorityClass(RequestPriority p) => p switch
+    {
+        RequestPriority.High => "bg-danger",
+        RequestPriority.Medium => "bg-warning text-dark",
+        RequestPriority.Low => "bg-success",
+        _ => "bg-light text-dark"
+    };
+}
+
+<div class="container-fluid py-4">
+    <div class="dashboard-header mb-4">
+        <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
+            <div>
+                <h1 class="display-5 mb-2">
+                    <i class="fas fa-clipboard-list me-3"></i>@Localizer["RequestsManagement"]
+                </h1>
+                <p class="text-muted mb-0">@Localizer["TrackAndManageRequests"]</p>
+            </div>
+            <div>
+                <a asp-action="Create" class="btn btn-primary btn-lg">
+                    <i class="fas fa-plus me-2"></i>@Localizer["NewRequest"]
+                </a>
+            </div>
+        </div>
+    </div>
+
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            <i class="fas fa-check-circle me-2"></i>@TempData["SuccessMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+
+    <!-- Stat cards (replaces the Excel dashboard sheet) -->
+    <div class="row g-3 mb-4">
+        <div class="col-6 col-md-2">
+            <div class="stat-card">
+                <div class="stat-icon bg-primary"><i class="fas fa-inbox"></i></div>
+                <div class="stat-content">
+                    <h3>@ViewBag.TotalCount</h3>
+                    <p>@Localizer["Total"]</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-6 col-md-2">
+            <div class="stat-card">
+                <div class="stat-icon bg-primary"><i class="fas fa-star"></i></div>
+                <div class="stat-content">
+                    <h3>@ViewBag.NewCount</h3>
+                    <p>@Localizer["StatusNew"]</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-6 col-md-2">
+            <div class="stat-card">
+                <div class="stat-icon bg-warning"><i class="fas fa-spinner"></i></div>
+                <div class="stat-content">
+                    <h3>@ViewBag.InProgressCount</h3>
+                    <p>@Localizer["StatusInProgress"]</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-6 col-md-2">
+            <div class="stat-card">
+                <div class="stat-icon bg-secondary"><i class="fas fa-pause"></i></div>
+                <div class="stat-content">
+                    <h3>@ViewBag.OnHoldCount</h3>
+                    <p>@Localizer["StatusOnHold"]</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-6 col-md-2">
+            <div class="stat-card">
+                <div class="stat-icon bg-success"><i class="fas fa-check"></i></div>
+                <div class="stat-content">
+                    <h3>@ViewBag.CompletedCount</h3>
+                    <p>@Localizer["StatusCompleted"]</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-6 col-md-2">
+            <div class="stat-card">
+                <div class="stat-icon bg-info"><i class="fas fa-percent"></i></div>
+                <div class="stat-content">
+                    <h3>@ViewBag.CompletionRate%</h3>
+                    <p>@Localizer["CompletionRate"]</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Filters -->
+    <div class="card mb-4">
+        <div class="card-body">
+            <form asp-action="Index" method="get" class="row g-2 align-items-end">
+                <div class="col-md-4">
+                    <label class="form-label">@Localizer["Search"]</label>
+                    <input type="text" name="searchTerm" value="@ViewBag.SearchTerm"
+                           class="form-control" placeholder="@Localizer["SearchPlaceholder"]" />
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label">@Localizer["Status"]</label>
+                    <select name="status" class="form-select">
+                        <option value="">@Localizer["All"]</option>
+                        @foreach (RequestStatus s in Enum.GetValues(typeof(RequestStatus)))
+                        {
+                            <option value="@((int)s)" selected="@(ViewBag.Status != null && (RequestStatus)ViewBag.Status == s)">
+                                @Localizer["Status" + s.ToString()]
+                            </option>
+                        }
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label">@Localizer["Priority"]</label>
+                    <select name="priority" class="form-select">
+                        <option value="">@Localizer["All"]</option>
+                        @foreach (RequestPriority p in Enum.GetValues(typeof(RequestPriority)))
+                        {
+                            <option value="@((int)p)" selected="@(ViewBag.Priority != null && (RequestPriority)ViewBag.Priority == p)">
+                                @Localizer["Priority" + p.ToString()]
+                            </option>
+                        }
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label">@Localizer["Category"]</label>
+                    <select name="category" class="form-select">
+                        <option value="">@Localizer["All"]</option>
+                        @foreach (RequestCategory c in Enum.GetValues(typeof(RequestCategory)))
+                        {
+                            <option value="@((int)c)" selected="@(ViewBag.Category != null && (RequestCategory)ViewBag.Category == c)">
+                                @Localizer["Category" + c.ToString()]
+                            </option>
+                        }
+                    </select>
+                </div>
+                <div class="col-md-2 d-flex gap-2">
+                    <button type="submit" class="btn btn-primary flex-grow-1">
+                        <i class="fas fa-filter me-1"></i>@Localizer["Filter"]
+                    </button>
+                    <a asp-action="Index" class="btn btn-outline-secondary">
+                        <i class="fas fa-times"></i>
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Table -->
+    <div class="card">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th>@Localizer["RequestNumber"]</th>
+                        <th>@Localizer["Title"]</th>
+                        <th>@Localizer["RequestDate"]</th>
+                        <th>@Localizer["RequestingParty"]</th>
+                        <th>@Localizer["Category"]</th>
+                        <th>@Localizer["Priority"]</th>
+                        <th>@Localizer["Status"]</th>
+                        <th>@Localizer["AssignedTo"]</th>
+                        <th>@Localizer["Progress"]</th>
+                        <th>@Localizer["Attachments"]</th>
+                        <th class="text-end">@Localizer["Actions"]</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (!Model.Any())
+                    {
+                        <tr>
+                            <td colspan="11" class="text-center text-muted py-4">
+                                <i class="fas fa-inbox fa-2x d-block mb-2"></i>
+                                @Localizer["NoRequestsFound"]
+                            </td>
+                        </tr>
+                    }
+                    else
+                    {
+                        @foreach (var item in Model)
+                        {
+                            <tr>
+                                <td><strong>@item.RequestNumber</strong></td>
+                                <td>@item.Title</td>
+                                <td>@item.RequestDate.ToString("yyyy-MM-dd")</td>
+                                <td>@item.RequestingParty</td>
+                                <td>@Localizer["Category" + item.Category.ToString()]</td>
+                                <td><span class="badge @PriorityClass(item.Priority)">@Localizer["Priority" + item.Priority.ToString()]</span></td>
+                                <td><span class="badge @StatusClass(item.Status)">@Localizer["Status" + item.Status.ToString()]</span></td>
+                                <td>@(item.AssignedToUser?.UserName ?? "-")</td>
+                                <td style="min-width:120px;">
+                                    <div class="progress" style="height:18px;">
+                                        <div class="progress-bar" role="progressbar"
+                                             style="width:@(item.CompletionPercentage)%;"
+                                             aria-valuenow="@item.CompletionPercentage" aria-valuemin="0" aria-valuemax="100">
+                                            @item.CompletionPercentage%
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>
+                                    @if (item.Files.Any())
+                                    {
+                                        <span class="badge bg-info"><i class="fas fa-paperclip me-1"></i>@item.Files.Count</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="text-muted">-</span>
+                                    }
+                                </td>
+                                <td class="text-end text-nowrap">
+                                    <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-sm btn-outline-primary">
+                                        <i class="fas fa-eye"></i>
+                                    </a>
+                                    <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-outline-secondary">
+                                        <i class="fas fa-edit"></i>
+                                    </a>
+                                    <form asp-action="Delete" asp-route-id="@item.Id" method="post" class="d-inline"
+                                          onsubmit="return confirm('@Localizer["ConfirmDelete"]');">
+                                        @Html.AntiForgeryToken()
+                                        <button type="submit" class="btn btn-sm btn-outline-danger">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </form>
+                                </td>
+                            </tr>
+                        }
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
