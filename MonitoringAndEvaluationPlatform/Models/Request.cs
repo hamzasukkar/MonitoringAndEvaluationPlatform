@@ -34,6 +34,11 @@ namespace MonitoringAndEvaluationPlatform.Models
         public string? SubmittedByUserId { get; set; }
         public virtual ApplicationUser? SubmittedByUser { get; set; }
 
+        /// <summary>The named employee who wrote the request (not a system account).</summary>
+        [Display(Name = "Request Employee")]
+        public int? RequestEmployeeId { get; set; }
+        public virtual RequestEmployee? RequestEmployee { get; set; }
+
         [Required]
         [StringLength(200, MinimumLength = 3)]
         [Display(Name = "Title")]
@@ -77,7 +82,13 @@ namespace MonitoringAndEvaluationPlatform.Models
         public int? MinistryCode { get; set; }
         public virtual Ministry? Ministry { get; set; }
 
+        [Display(Name = "Target Version")]
+        public int? PlatformVersionId { get; set; }
+        public virtual PlatformVersion? PlatformVersion { get; set; }
+
         public ICollection<RequestFile> Files { get; set; } = new List<RequestFile>();
+
+        public ICollection<RequestComment> Comments { get; set; } = new List<RequestComment>();
 
         [Display(Name = "Created At")]
         public DateTime CreatedAt { get; set; }

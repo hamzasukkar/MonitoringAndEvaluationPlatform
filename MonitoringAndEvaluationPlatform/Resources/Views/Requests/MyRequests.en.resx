@@ -250,4 +250,22 @@
   <data name="NoRequestsYet" xml:space="preserve">
     <value>You have not submitted any requests yet</value>
   </data>
+  <data name="TargetVersion" xml:space="preserve">
+    <value>Target Version</value>
+  </data>
+  <data name="NoVersion" xml:space="preserve">
+    <value>No version</value>
+  </data>
+  <data name="TargetVersionHint" xml:space="preserve">
+    <value>The release this request will ship in</value>
+  </data>
+  <data name="RequestEmployee" xml:space="preserve">
+    <value>Request Employee</value>
+  </data>
+  <data name="NoEmployee" xml:space="preserve">
+    <value>No employee</value>
+  </data>
+  <data name="RequestEmployeeHint" xml:space="preserve">
+    <value>Select the employee who wrote this request</value>
+  </data>
 </root>

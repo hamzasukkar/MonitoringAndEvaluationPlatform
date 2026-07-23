@@ -36,11 +36,15 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             string searchTerm = "",
             RequestStatus? status = null,
             RequestPriority? priority = null,
-            RequestCategory? category = null)
+            RequestCategory? category = null,
+            int? versionId = null,
+            int? employeeId = null)
         {
             var query = _context.Requests
                 .Include(r => r.SubmittedByUser)
                 .Include(r => r.AssignedToUser)
+                .Include(r => r.PlatformVersion)
+                .Include(r => r.RequestEmployee)
                 .Include(r => r.Files)
                 .AsQueryable();
 
@@ -55,6 +59,8 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             if (status.HasValue) query = query.Where(r => r.Status == status.Value);
             if (priority.HasValue) query = query.Where(r => r.Priority == priority.Value);
             if (category.HasValue) query = query.Where(r => r.Category == category.Value);
+            if (versionId.HasValue) query = query.Where(r => r.PlatformVersionId == versionId.Value);
+            if (employeeId.HasValue) query = query.Where(r => r.RequestEmployeeId == employeeId.Value);
 
             var requests = await query
                 .OrderByDescending(r => r.RequestDate)
@@ -81,6 +87,20 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             ViewBag.Status = status;
             ViewBag.Priority = priority;
             ViewBag.Category = category;
+            ViewBag.VersionId = versionId;
+            ViewBag.VersionFilter = new SelectList(
+                await _context.PlatformVersions
+                    .OrderByDescending(v => v.Id)
+                    .Select(v => new { v.Id, v.VersionNumber })
+                    .ToListAsync(),
+                "Id", "VersionNumber", versionId);
+            ViewBag.EmployeeId = employeeId;
+            ViewBag.EmployeeFilter = new SelectList(
+                await _context.RequestEmployees
+                    .OrderBy(e => e.Name)
+                    .Select(e => new { e.Id, e.Name })
+                    .ToListAsync(),
+                "Id", "Name", employeeId);
 
             return View(requests);
         }
@@ -137,6 +157,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
 
             var requests = await _context.Requests
                 .Include(r => r.AssignedToUser)
+                .Include(r => r.RequestEmployee)
                 .Include(r => r.Files)
                 .Where(r => r.SubmittedByUserId == userId)
                 .OrderByDescending(r => r.RequestDate)
@@ -158,11 +179,25 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 .Include(r => r.SubmittedByUser)
                 .Include(r => r.AssignedToUser)
                 .Include(r => r.Ministry)
+                .Include(r => r.PlatformVersion)
+                .Include(r => r.RequestEmployee)
                 .Include(r => r.Files)
+                .Include(r => r.Comments).ThenInclude(c => c.AuthorUser)
+                .Include(r => r.Comments).ThenInclude(c => c.OnBehalfOfEmployee)
                 .FirstOrDefaultAsync(r => r.Id == id);
 
             if (request == null) return NotFound();
             if (!CanView(request)) return Forbid();
+
+            // The discussion thread and quick-status control are open to anyone who
+            // can view the request (submitter, assignee, admin).
+            ViewBag.CanInteract = true;
+            ViewBag.CurrentUserId = _userManager.GetUserId(User);
+            ViewBag.IsAdmin = User.IsInRole(UserRoles.SystemAdministrator);
+            ViewBag.CommentEmployees = new SelectList(
+                await _context.RequestEmployees.OrderBy(e => e.Name)
+                    .Select(e => new { e.Id, e.Name }).ToListAsync(),
+                "Id", "Name");
 
             return View(request);
         }
@@ -179,7 +214,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
 
             if (request == null) return NotFound();
 
-            await PopulateLookupsAsync();
+            await PopulateLookupsAsync(request.PlatformVersionId);
             return View(request);
         }
 
@@ -196,7 +231,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
 
             if (!ModelState.IsValid)
             {
-                await PopulateLookupsAsync();
+                await PopulateLookupsAsync(request.PlatformVersionId);
                 return View(request);
             }
 
@@ -218,6 +253,8 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             existing.CompletionPercentage = request.CompletionPercentage;
             existing.Notes = request.Notes;
             existing.MinistryCode = request.MinistryCode;
+            existing.PlatformVersionId = request.PlatformVersionId;
+            existing.RequestEmployeeId = request.RequestEmployeeId;
 
             await _context.SaveChangesAsync();
             await ProcessFileUploadsAsync(existing.Id, UploadedFiles);
@@ -252,6 +289,90 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 _localizer["Request '{0}' has been deleted."].Value, request.RequestNumber));
 
             return RedirectToAction(nameof(Index));
+        }
+
+        // ---------------------------------------------------------------- Discussion / quick status
+
+        // POST: Requests/QuickStatus — status change for anyone who can view the request.
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        [Permission(Permissions.ReadRequests)]
+        public async Task<IActionResult> QuickStatus(int requestId, RequestStatus status)
+        {
+            var request = await _context.Requests.FirstOrDefaultAsync(r => r.Id == requestId);
+            if (request == null) return NotFound();
+            if (!CanView(request)) return Forbid();
+
+            request.Status = status;
+            await _context.SaveChangesAsync();
+
+            this.SetSuccessMessage(_localizer["Status updated."].Value);
+            return RedirectToAction(nameof(Details), new { id = requestId });
+        }
+
+        // POST: Requests/AddComment — testing feedback or a reply.
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        [Permission(Permissions.ReadRequests)]
+        public async Task<IActionResult> AddComment(
+            int requestId, int? parentId, CommentKind kind, int? onBehalfOfEmployeeId, string? body)
+        {
+            var request = await _context.Requests.FirstOrDefaultAsync(r => r.Id == requestId);
+            if (request == null) return NotFound();
+            if (!CanView(request)) return Forbid();
+
+            // A general comment/reply must carry text; a "passed" test may stand alone.
+            if (string.IsNullOrWhiteSpace(body) && kind != CommentKind.TestPassed)
+            {
+                this.SetErrorMessage(_localizer["The comment cannot be empty."].Value);
+                return RedirectToAction(nameof(Details), new { id = requestId });
+            }
+
+            // A reply is always a plain comment regardless of the posted kind.
+            if (parentId.HasValue)
+            {
+                var parentExists = await _context.RequestComments
+                    .AnyAsync(c => c.Id == parentId.Value && c.RequestId == requestId);
+                if (!parentExists) return NotFound();
+                kind = CommentKind.Comment;
+            }
+
+            _context.RequestComments.Add(new RequestComment
+            {
+                RequestId = requestId,
+                ParentCommentId = parentId,
+                AuthorUserId = _userManager.GetUserId(User),
+                OnBehalfOfEmployeeId = onBehalfOfEmployeeId,
+                Kind = kind,
+                Body = string.IsNullOrWhiteSpace(body) ? null : body.Trim()
+            });
+            await _context.SaveChangesAsync();
+
+            this.SetSuccessMessage(_localizer["Comment added."].Value);
+            return RedirectToAction(nameof(Details), new { id = requestId });
+        }
+
+        // POST: Requests/DeleteComment — the author or an admin only.
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        [Permission(Permissions.ReadRequests)]
+        public async Task<IActionResult> DeleteComment(int id)
+        {
+            var comment = await _context.RequestComments
+                .Include(c => c.Replies)
+                .FirstOrDefaultAsync(c => c.Id == id);
+            if (comment == null) return NotFound();
+
+            var isAuthor = comment.AuthorUserId == _userManager.GetUserId(User);
+            if (!isAuthor && !User.IsInRole(UserRoles.SystemAdministrator)) return Forbid();
+
+            // Remove replies first (parent FK is NoAction, so no automatic cascade).
+            _context.RequestComments.RemoveRange(comment.Replies);
+            _context.RequestComments.Remove(comment);
+            await _context.SaveChangesAsync();
+
+            this.SetSuccessMessage(_localizer["Comment deleted."].Value);
+            return RedirectToAction(nameof(Details), new { id = comment.RequestId });
         }
 
         // ---------------------------------------------------------------- Attachments
@@ -369,7 +490,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 || request.AssignedToUserId == userId;
         }
 
-        private async Task PopulateLookupsAsync()
+        private async Task PopulateLookupsAsync(int? includeVersionId = null)
         {
             var users = await _userManager.Users
                 .OrderBy(u => u.UserName)
@@ -385,6 +506,29 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 ministries.OrderBy(m => isArabic ? m.MinistryDisplayName_AR : m.MinistryDisplayName_EN),
                 "Code",
                 isArabic ? "MinistryDisplayName_AR" : "MinistryDisplayName_EN");
+
+            // Only unreleased versions are assignment targets (a released version's
+            // scope is frozen) — but keep the request's current version in the list
+            // even if released, so re-saving the form doesn't silently detach it.
+            var versions = await _context.PlatformVersions
+                .Where(v => v.Status != VersionStatus.Released || v.Id == includeVersionId)
+                .OrderByDescending(v => v.Id)
+                .Select(v => new { v.Id, Label = v.VersionNumber + " — " + v.Title })
+                .ToListAsync();
+
+            ViewBag.Versions = new SelectList(versions, "Id", "Label", includeVersionId);
+
+            // Named requester employees (not system accounts) for the "who wrote it" picker.
+            var employees = await _context.RequestEmployees
+                .OrderBy(e => e.Name)
+                .Select(e => new
+                {
+                    e.Id,
+                    Label = e.JobTitle != null ? e.Name + " — " + e.JobTitle : e.Name
+                })
+                .ToListAsync();
+
+            ViewBag.Employees = new SelectList(employees, "Id", "Label");
         }
     }
 }

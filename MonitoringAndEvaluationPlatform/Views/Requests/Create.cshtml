@@ -80,6 +80,14 @@
                         </select>
                     </div>
 
+                    <div class="col-md-4">
+                        <label asp-for="RequestEmployeeId" class="form-label">@Localizer["RequestEmployee"]</label>
+                        <select asp-for="RequestEmployeeId" asp-items="ViewBag.Employees" class="form-select">
+                            <option value="">@Localizer["NoEmployee"]</option>
+                        </select>
+                        <div class="form-text">@Localizer["RequestEmployeeHint"]</div>
+                    </div>
+
                     <div class="col-12">
                         <label for="UploadedFiles" class="form-label">@Localizer["Attachments"]</label>
                         <input type="file" id="UploadedFiles" name="UploadedFiles" class="form-control" multiple />

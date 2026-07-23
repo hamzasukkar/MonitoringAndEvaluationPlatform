@@ -1,0 +1,205 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="VersionsManagement" xml:space="preserve">
+    <value>إدارة الإصدارات</value>
+  </data>
+  <data name="VersionsHint" xml:space="preserve">
+    <value>تخطيط إصدارات المنصة وربط الطلبات بها</value>
+  </data>
+  <data name="WhatsNew" xml:space="preserve">
+    <value>ما الجديد</value>
+  </data>
+  <data name="WhatsNewHint" xml:space="preserve">
+    <value>التحديثات والتحسينات في كل إصدار من المنصة</value>
+  </data>
+  <data name="NewVersion" xml:space="preserve">
+    <value>إصدار جديد</value>
+  </data>
+  <data name="NewVersionHint" xml:space="preserve">
+    <value>عرّف رقم الإصدار واسمه، ثم أسند الطلبات إليه من صفحة تعديل الطلب</value>
+  </data>
+  <data name="EditVersion" xml:space="preserve">
+    <value>تعديل الإصدار</value>
+  </data>
+  <data name="VersionDetails" xml:space="preserve">
+    <value>بيانات الإصدار</value>
+  </data>
+  <data name="AllVersions" xml:space="preserve">
+    <value>كل الإصدارات</value>
+  </data>
+  <data name="VersionNumber" xml:space="preserve">
+    <value>رقم الإصدار</value>
+  </data>
+  <data name="Title" xml:space="preserve">
+    <value>الاسم</value>
+  </data>
+  <data name="TitlePlaceholder" xml:space="preserve">
+    <value>مثال: تحديث صفحات الاستراتيجيات</value>
+  </data>
+  <data name="Description" xml:space="preserve">
+    <value>الوصف</value>
+  </data>
+  <data name="DescriptionPlaceholder" xml:space="preserve">
+    <value>أبرز ملامح هذا الإصدار (يظهر في صفحة ما الجديد)</value>
+  </data>
+  <data name="Status" xml:space="preserve">
+    <value>الحالة</value>
+  </data>
+  <data name="PlannedDate" xml:space="preserve">
+    <value>التاريخ المخطط</value>
+  </data>
+  <data name="ReleaseDate" xml:space="preserve">
+    <value>تاريخ الإطلاق</value>
+  </data>
+  <data name="Requests" xml:space="preserve">
+    <value>الطلبات</value>
+  </data>
+  <data name="Progress" xml:space="preserve">
+    <value>نسبة الإنجاز</value>
+  </data>
+  <data name="Actions" xml:space="preserve">
+    <value>إجراءات</value>
+  </data>
+  <data name="CreatedAt" xml:space="preserve">
+    <value>تاريخ الإنشاء</value>
+  </data>
+  <data name="LastModified" xml:space="preserve">
+    <value>آخر تعديل</value>
+  </data>
+  <data name="VStatusPlanned" xml:space="preserve">
+    <value>مخطط</value>
+  </data>
+  <data name="VStatusInDevelopment" xml:space="preserve">
+    <value>قيد التطوير</value>
+  </data>
+  <data name="VStatusReleased" xml:space="preserve">
+    <value>صادر</value>
+  </data>
+  <data name="ReleaseVersion" xml:space="preserve">
+    <value>إطلاق الإصدار</value>
+  </data>
+  <data name="ConfirmRelease" xml:space="preserve">
+    <value>هل تريد إطلاق هذا الإصدار؟ سيظهر في صفحة ما الجديد.</value>
+  </data>
+  <data name="ConfirmReleaseIncomplete" xml:space="preserve">
+    <value>تنبيه: {0} من الطلبات المرتبطة غير منجزة ولن تظهر في ما الجديد. هل تريد الإطلاق؟</value>
+  </data>
+  <data name="IncompleteRequestsWarning" xml:space="preserve">
+    <value>{0} من الطلبات المرتبطة غير منجزة بعد</value>
+  </data>
+  <data name="ReleasedViaReleaseHint" xml:space="preserve">
+    <value>حالة «صادر» تُضبط من زر الإطلاق فقط</value>
+  </data>
+  <data name="ReleasedReadOnlyStatusHint" xml:space="preserve">
+    <value>هذا الإصدار صادر — حالته لا تتغير من هنا</value>
+  </data>
+  <data name="LinkedRequests" xml:space="preserve">
+    <value>الطلبات المرتبطة</value>
+  </data>
+  <data name="NoLinkedRequests" xml:space="preserve">
+    <value>لا توجد طلبات مرتبطة بهذا الإصدار — أسندها من صفحة تعديل الطلب</value>
+  </data>
+  <data name="RequestNumber" xml:space="preserve">
+    <value>رقم الطلب</value>
+  </data>
+  <data name="AssignedTo" xml:space="preserve">
+    <value>المسؤول عن التنفيذ</value>
+  </data>
+  <data name="RequestsCompleted" xml:space="preserve">
+    <value>طلب منجز</value>
+  </data>
+  <data name="StatusNew" xml:space="preserve">
+    <value>جديد</value>
+  </data>
+  <data name="StatusInProgress" xml:space="preserve">
+    <value>قيد التنفيذ</value>
+  </data>
+  <data name="StatusOnHold" xml:space="preserve">
+    <value>معلّق</value>
+  </data>
+  <data name="StatusCompleted" xml:space="preserve">
+    <value>منجز</value>
+  </data>
+  <data name="StatusCancelled" xml:space="preserve">
+    <value>ملغى</value>
+  </data>
+  <data name="Save" xml:space="preserve">
+    <value>حفظ</value>
+  </data>
+  <data name="Cancel" xml:space="preserve">
+    <value>إلغاء</value>
+  </data>
+  <data name="Edit" xml:space="preserve">
+    <value>تعديل</value>
+  </data>
+  <data name="NoVersionsYet" xml:space="preserve">
+    <value>لا توجد إصدارات بعد — أنشئ أول إصدار</value>
+  </data>
+  <data name="ConfirmDeleteVersion" xml:space="preserve">
+    <value>هل تريد حذف هذا الإصدار؟ الطلبات المرتبطة لن تُحذف وستصبح بلا إصدار.</value>
+  </data>
+  <data name="NoReleasesYet" xml:space="preserve">
+    <value>لم يصدر أي تحديث بعد</value>
+  </data>
+  <data name="NoChangesListed" xml:space="preserve">
+    <value>لا توجد تغييرات مدرجة في هذا الإصدار</value>
+  </data>
+</root>

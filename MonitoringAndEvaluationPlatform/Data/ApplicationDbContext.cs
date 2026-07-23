@@ -45,6 +45,9 @@ namespace MonitoringAndEvaluationPlatform.Data
         public DbSet<GuideSectionVersion> GuideSectionVersions { get; set; } = default!;
         public DbSet<Request> Requests { get; set; } = default!;
         public DbSet<RequestFile> RequestFiles { get; set; } = default!;
+        public DbSet<PlatformVersion> PlatformVersions { get; set; } = default!;
+        public DbSet<RequestEmployee> RequestEmployees { get; set; } = default!;
+        public DbSet<RequestComment> RequestComments { get; set; } = default!;
 
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -82,6 +85,52 @@ namespace MonitoringAndEvaluationPlatform.Data
                 .WithMany(r => r.Files)
                 .HasForeignKey(f => f.RequestId)
                 .OnDelete(DeleteBehavior.Cascade);
+
+            // Platform versions: unique version number; deleting a version detaches
+            // its requests rather than deleting them.
+            modelBuilder.Entity<PlatformVersion>()
+                .HasIndex(v => v.VersionNumber)
+                .IsUnique();
+
+            modelBuilder.Entity<Request>()
+                .HasOne(r => r.PlatformVersion)
+                .WithMany(v => v.Requests)
+                .HasForeignKey(r => r.PlatformVersionId)
+                .OnDelete(DeleteBehavior.SetNull);
+
+            // Deleting an employee detaches their requests rather than deleting them.
+            modelBuilder.Entity<Request>()
+                .HasOne(r => r.RequestEmployee)
+                .WithMany(e => e.Requests)
+                .HasForeignKey(r => r.RequestEmployeeId)
+                .OnDelete(DeleteBehavior.SetNull);
+
+            // Comments die with their request.
+            modelBuilder.Entity<RequestComment>()
+                .HasOne(c => c.Request)
+                .WithMany(r => r.Comments)
+                .HasForeignKey(c => c.RequestId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            // Self-reference for replies: NoAction avoids a second cascade path on
+            // SQL Server (the Request cascade already removes the whole thread).
+            modelBuilder.Entity<RequestComment>()
+                .HasOne(c => c.ParentComment)
+                .WithMany(c => c.Replies)
+                .HasForeignKey(c => c.ParentCommentId)
+                .OnDelete(DeleteBehavior.NoAction);
+
+            modelBuilder.Entity<RequestComment>()
+                .HasOne(c => c.AuthorUser)
+                .WithMany()
+                .HasForeignKey(c => c.AuthorUserId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<RequestComment>()
+                .HasOne(c => c.OnBehalfOfEmployee)
+                .WithMany()
+                .HasForeignKey(c => c.OnBehalfOfEmployeeId)
+                .OnDelete(DeleteBehavior.SetNull);
 
             // Measure primary key
             modelBuilder.Entity<Measure>()

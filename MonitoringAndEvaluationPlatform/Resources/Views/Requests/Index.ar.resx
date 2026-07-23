@@ -250,4 +250,22 @@
   <data name="NoRequestsYet" xml:space="preserve">
     <value>لم تقدّم أي طلب بعد</value>
   </data>
+  <data name="TargetVersion" xml:space="preserve">
+    <value>الإصدار المستهدف</value>
+  </data>
+  <data name="NoVersion" xml:space="preserve">
+    <value>بدون إصدار</value>
+  </data>
+  <data name="TargetVersionHint" xml:space="preserve">
+    <value>الإصدار الذي سيُنفَّذ فيه هذا الطلب</value>
+  </data>
+  <data name="RequestEmployee" xml:space="preserve">
+    <value>الموظف كاتب الطلب</value>
+  </data>
+  <data name="NoEmployee" xml:space="preserve">
+    <value>بدون موظف</value>
+  </data>
+  <data name="RequestEmployeeHint" xml:space="preserve">
+    <value>اختر الموظف الذي كتب هذا الطلب</value>
+  </data>
 </root>

@@ -1147,7 +1147,10 @@
                             @if ((await AuthorizationService.AuthorizeAsync(User, Permissions.ManageRequests)).Succeeded)
                             {
                                 <li><a asp-action="Index" asp-controller="Requests" class="dropdown-item"><i class="fas fa-clipboard-list me-2"></i>@Localizer["RequestsManagement"]</a></li>
+                                <li><a asp-action="Index" asp-controller="RequestEmployees" class="dropdown-item"><i class="fas fa-address-book me-2"></i>@Localizer["RequestEmployees"]</a></li>
+                                <li><a asp-action="Index" asp-controller="PlatformVersions" class="dropdown-item"><i class="fas fa-code-branch me-2"></i>@Localizer["VersionsManagement"]</a></li>
                             }
+                            <li><a asp-action="WhatsNew" asp-controller="PlatformVersions" class="dropdown-item"><i class="fas fa-bullhorn me-2"></i>@Localizer["WhatsNew"]</a></li>
                             <li><hr class="dropdown-divider"></li>
                             <li><a asp-action="Index" asp-controller="admin" class="dropdown-item"><i class="fas fa-cog me-2"></i>@Localizer["Settings"]</a></li>
                             <li><hr class="dropdown-divider"></li>

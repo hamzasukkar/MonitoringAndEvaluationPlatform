@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using MonitoringAndEvaluationPlatform.Data;
 
@@ -11,9 +12,11 @@ using MonitoringAndEvaluationPlatform.Data;
 namespace MonitoringAndEvaluationPlatform.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260722122942_AddPlatformVersions")]
+    partial class AddPlatformVersions
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -1341,9 +1344,6 @@ namespace MonitoringAndEvaluationPlatform.Migrations
                     b.Property<DateTime>("RequestDate")
                         .HasColumnType("datetime2");
 
-                    b.Property<int?>("RequestEmployeeId")
-                        .HasColumnType("int");
-
                     b.Property<string>("RequestNumber")
                         .IsRequired()
                         .HasMaxLength(20)
@@ -1375,90 +1375,12 @@ namespace MonitoringAndEvaluationPlatform.Migrations
 
                     b.HasIndex("PlatformVersionId");
 
-                    b.HasIndex("RequestEmployeeId");
-
                     b.HasIndex("RequestNumber")
                         .IsUnique();
 
                     b.HasIndex("SubmittedByUserId");
 
                     b.ToTable("Requests");
-                });
-
-            modelBuilder.Entity("MonitoringAndEvaluationPlatform.Models.RequestComment", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("AuthorUserId")
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<string>("Body")
-                        .HasMaxLength(2000)
-                        .HasColumnType("nvarchar(2000)");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<int>("Kind")
-                        .HasColumnType("int");
-
-                    b.Property<DateTime>("LastModifiedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<int?>("OnBehalfOfEmployeeId")
-                        .HasColumnType("int");
-
-                    b.Property<int?>("ParentCommentId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("RequestId")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("AuthorUserId");
-
-                    b.HasIndex("OnBehalfOfEmployeeId");
-
-                    b.HasIndex("ParentCommentId");
-
-                    b.HasIndex("RequestId");
-
-                    b.ToTable("RequestComments");
-                });
-
-            modelBuilder.Entity("MonitoringAndEvaluationPlatform.Models.RequestEmployee", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("Email")
-                        .HasMaxLength(200)
-                        .HasColumnType("nvarchar(200)");
-
-                    b.Property<string>("JobTitle")
-                        .HasMaxLength(200)
-                        .HasColumnType("nvarchar(200)");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasMaxLength(200)
-                        .HasColumnType("nvarchar(200)");
-
-                    b.Property<string>("PhoneNumber")
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("RequestEmployees");
                 });
 
             modelBuilder.Entity("MonitoringAndEvaluationPlatform.Models.RequestFile", b =>
@@ -2099,11 +2021,6 @@ namespace MonitoringAndEvaluationPlatform.Migrations
                         .HasForeignKey("PlatformVersionId")
                         .OnDelete(DeleteBehavior.SetNull);
 
-                    b.HasOne("MonitoringAndEvaluationPlatform.Models.RequestEmployee", "RequestEmployee")
-                        .WithMany("Requests")
-                        .HasForeignKey("RequestEmployeeId")
-                        .OnDelete(DeleteBehavior.SetNull);
-
                     b.HasOne("MonitoringAndEvaluationPlatform.Models.ApplicationUser", "SubmittedByUser")
                         .WithMany()
                         .HasForeignKey("SubmittedByUserId")
@@ -2115,41 +2032,7 @@ namespace MonitoringAndEvaluationPlatform.Migrations
 
                     b.Navigation("PlatformVersion");
 
-                    b.Navigation("RequestEmployee");
-
                     b.Navigation("SubmittedByUser");
-                });
-
-            modelBuilder.Entity("MonitoringAndEvaluationPlatform.Models.RequestComment", b =>
-                {
-                    b.HasOne("MonitoringAndEvaluationPlatform.Models.ApplicationUser", "AuthorUser")
-                        .WithMany()
-                        .HasForeignKey("AuthorUserId")
-                        .OnDelete(DeleteBehavior.Restrict);
-
-                    b.HasOne("MonitoringAndEvaluationPlatform.Models.RequestEmployee", "OnBehalfOfEmployee")
-                        .WithMany()
-                        .HasForeignKey("OnBehalfOfEmployeeId")
-                        .OnDelete(DeleteBehavior.SetNull);
-
-                    b.HasOne("MonitoringAndEvaluationPlatform.Models.RequestComment", "ParentComment")
-                        .WithMany("Replies")
-                        .HasForeignKey("ParentCommentId")
-                        .OnDelete(DeleteBehavior.NoAction);
-
-                    b.HasOne("MonitoringAndEvaluationPlatform.Models.Request", "Request")
-                        .WithMany("Comments")
-                        .HasForeignKey("RequestId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("AuthorUser");
-
-                    b.Navigation("OnBehalfOfEmployee");
-
-                    b.Navigation("ParentComment");
-
-                    b.Navigation("Request");
                 });
 
             modelBuilder.Entity("MonitoringAndEvaluationPlatform.Models.RequestFile", b =>
@@ -2328,19 +2211,7 @@ namespace MonitoringAndEvaluationPlatform.Migrations
 
             modelBuilder.Entity("MonitoringAndEvaluationPlatform.Models.Request", b =>
                 {
-                    b.Navigation("Comments");
-
                     b.Navigation("Files");
-                });
-
-            modelBuilder.Entity("MonitoringAndEvaluationPlatform.Models.RequestComment", b =>
-                {
-                    b.Navigation("Replies");
-                });
-
-            modelBuilder.Entity("MonitoringAndEvaluationPlatform.Models.RequestEmployee", b =>
-                {
-                    b.Navigation("Requests");
                 });
 
             modelBuilder.Entity("MonitoringAndEvaluationPlatform.Models.SubDistrict", b =>

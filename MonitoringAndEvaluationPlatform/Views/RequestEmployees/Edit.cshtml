@@ -1,0 +1,41 @@
+@model MonitoringAndEvaluationPlatform.Models.RequestEmployee
+@using Microsoft.AspNetCore.Mvc.Localization
+@inject IViewLocalizer Localizer
+
+@{
+    ViewData["Title"] = Localizer["EditEmployee"];
+    Layout = "~/Views/Shared/_DashboardHomeLayout.cshtml";
+}
+
+<div class="container-fluid py-4">
+    <div class="dashboard-header mb-4">
+        <h1 class="display-5 mb-2">
+            <i class="fas fa-user-edit me-3"></i>@Localizer["EditEmployee"]
+            <span class="badge bg-secondary align-middle fs-6">@Model.Name</span>
+        </h1>
+    </div>
+
+    <div class="card">
+        <div class="card-body">
+            <form asp-action="Edit" asp-route-id="@Model.Id" method="post">
+                @Html.AntiForgeryToken()
+                <input type="hidden" asp-for="Id" />
+                <div asp-validation-summary="ModelOnly" class="alert alert-danger" role="alert"></div>
+
+                <partial name="_EmployeeFields" model="Model" />
+
+                <hr class="my-4" />
+                <div class="d-flex gap-2">
+                    <button type="submit" class="btn btn-primary btn-lg">
+                        <i class="fas fa-save me-2"></i>@Localizer["Save"]
+                    </button>
+                    <a asp-action="Index" class="btn btn-outline-secondary btn-lg">@Localizer["Cancel"]</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

@@ -250,4 +250,79 @@
   <data name="NoRequestsYet" xml:space="preserve">
     <value>لم تقدّم أي طلب بعد</value>
   </data>
+  <data name="TargetVersion" xml:space="preserve">
+    <value>الإصدار المستهدف</value>
+  </data>
+  <data name="NoVersion" xml:space="preserve">
+    <value>بدون إصدار</value>
+  </data>
+  <data name="TargetVersionHint" xml:space="preserve">
+    <value>الإصدار الذي سيُنفَّذ فيه هذا الطلب</value>
+  </data>
+  <data name="RequestEmployee" xml:space="preserve">
+    <value>الموظف كاتب الطلب</value>
+  </data>
+  <data name="NoEmployee" xml:space="preserve">
+    <value>بدون موظف</value>
+  </data>
+  <data name="RequestEmployeeHint" xml:space="preserve">
+    <value>اختر الموظف الذي كتب هذا الطلب</value>
+  </data>
+  <data name="Discussion" xml:space="preserve">
+    <value>النقاش والاختبار</value>
+  </data>
+  <data name="NoComments" xml:space="preserve">
+    <value>لا توجد تعليقات بعد</value>
+  </data>
+  <data name="AddComment" xml:space="preserve">
+    <value>إضافة تعليق</value>
+  </data>
+  <data name="CommentType" xml:space="preserve">
+    <value>نوع التعليق</value>
+  </data>
+  <data name="KindComment" xml:space="preserve">
+    <value>تعليق / رد</value>
+  </data>
+  <data name="KindTestPassed" xml:space="preserve">
+    <value>اجتاز الاختبار — لا ملاحظات</value>
+  </data>
+  <data name="KindTestHasNotes" xml:space="preserve">
+    <value>يوجد ملاحظات</value>
+  </data>
+  <data name="OnBehalfOf" xml:space="preserve">
+    <value>باسم الموظف</value>
+  </data>
+  <data name="Myself" xml:space="preserve">
+    <value>باسمي (المستخدم الحالي)</value>
+  </data>
+  <data name="WriteComment" xml:space="preserve">
+    <value>اكتب تعليقك أو ملاحظاتك...</value>
+  </data>
+  <data name="PassedMayBeEmpty" xml:space="preserve">
+    <value>يمكن ترك النص فارغاً عند اختيار «اجتاز الاختبار».</value>
+  </data>
+  <data name="RecordedBy" xml:space="preserve">
+    <value>سجّله</value>
+  </data>
+  <data name="Reply" xml:space="preserve">
+    <value>ردّ</value>
+  </data>
+  <data name="WriteReply" xml:space="preserve">
+    <value>اكتب ردّك...</value>
+  </data>
+  <data name="Send" xml:space="preserve">
+    <value>إرسال</value>
+  </data>
+  <data name="Delete" xml:space="preserve">
+    <value>حذف</value>
+  </data>
+  <data name="ConfirmDeleteComment" xml:space="preserve">
+    <value>هل تريد حذف هذا التعليق؟</value>
+  </data>
+  <data name="ChangeStatus" xml:space="preserve">
+    <value>تغيير الحالة</value>
+  </data>
+  <data name="Unknown" xml:space="preserve">
+    <value>غير معروف</value>
+  </data>
 </root>

@@ -250,4 +250,79 @@
   <data name="NoRequestsYet" xml:space="preserve">
     <value>You have not submitted any requests yet</value>
   </data>
+  <data name="TargetVersion" xml:space="preserve">
+    <value>Target Version</value>
+  </data>
+  <data name="NoVersion" xml:space="preserve">
+    <value>No version</value>
+  </data>
+  <data name="TargetVersionHint" xml:space="preserve">
+    <value>The release this request will ship in</value>
+  </data>
+  <data name="RequestEmployee" xml:space="preserve">
+    <value>Request Employee</value>
+  </data>
+  <data name="NoEmployee" xml:space="preserve">
+    <value>No employee</value>
+  </data>
+  <data name="RequestEmployeeHint" xml:space="preserve">
+    <value>Select the employee who wrote this request</value>
+  </data>
+  <data name="Discussion" xml:space="preserve">
+    <value>Discussion &amp; Testing</value>
+  </data>
+  <data name="NoComments" xml:space="preserve">
+    <value>No comments yet</value>
+  </data>
+  <data name="AddComment" xml:space="preserve">
+    <value>Add Comment</value>
+  </data>
+  <data name="CommentType" xml:space="preserve">
+    <value>Comment type</value>
+  </data>
+  <data name="KindComment" xml:space="preserve">
+    <value>Comment / Reply</value>
+  </data>
+  <data name="KindTestPassed" xml:space="preserve">
+    <value>Passed — no notes</value>
+  </data>
+  <data name="KindTestHasNotes" xml:space="preserve">
+    <value>Has notes</value>
+  </data>
+  <data name="OnBehalfOf" xml:space="preserve">
+    <value>On behalf of</value>
+  </data>
+  <data name="Myself" xml:space="preserve">
+    <value>As myself (current user)</value>
+  </data>
+  <data name="WriteComment" xml:space="preserve">
+    <value>Write your comment or notes...</value>
+  </data>
+  <data name="PassedMayBeEmpty" xml:space="preserve">
+    <value>Text may be left empty when choosing "Passed".</value>
+  </data>
+  <data name="RecordedBy" xml:space="preserve">
+    <value>recorded by</value>
+  </data>
+  <data name="Reply" xml:space="preserve">
+    <value>Reply</value>
+  </data>
+  <data name="WriteReply" xml:space="preserve">
+    <value>Write your reply...</value>
+  </data>
+  <data name="Send" xml:space="preserve">
+    <value>Send</value>
+  </data>
+  <data name="Delete" xml:space="preserve">
+    <value>Delete</value>
+  </data>
+  <data name="ConfirmDeleteComment" xml:space="preserve">
+    <value>Delete this comment?</value>
+  </data>
+  <data name="ChangeStatus" xml:space="preserve">
+    <value>Change status</value>
+  </data>
+  <data name="Unknown" xml:space="preserve">
+    <value>Unknown</value>
+  </data>
 </root>

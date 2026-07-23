@@ -91,6 +91,21 @@
                     </div>
 
                     <div class="col-md-4">
+                        <label asp-for="PlatformVersionId" class="form-label">@Localizer["TargetVersion"]</label>
+                        <select asp-for="PlatformVersionId" asp-items="ViewBag.Versions" class="form-select">
+                            <option value="">@Localizer["NoVersion"]</option>
+                        </select>
+                        <div class="form-text">@Localizer["TargetVersionHint"]</div>
+                    </div>
+
+                    <div class="col-md-4">
+                        <label asp-for="RequestEmployeeId" class="form-label">@Localizer["RequestEmployee"]</label>
+                        <select asp-for="RequestEmployeeId" asp-items="ViewBag.Employees" class="form-select">
+                            <option value="">@Localizer["NoEmployee"]</option>
+                        </select>
+                    </div>
+
+                    <div class="col-md-4">
                         <label asp-for="MeetingDate" class="form-label">@Localizer["MeetingDate"]</label>
                         <input asp-for="MeetingDate" type="date" class="form-control" />
                     </div>

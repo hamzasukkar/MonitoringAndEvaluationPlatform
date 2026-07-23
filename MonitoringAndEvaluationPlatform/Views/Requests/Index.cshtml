@@ -115,7 +115,7 @@
     <div class="card mb-4">
         <div class="card-body">
             <form asp-action="Index" method="get" class="row g-2 align-items-end">
-                <div class="col-md-4">
+                <div class="col-md-2">
                     <label class="form-label">@Localizer["Search"]</label>
                     <input type="text" name="searchTerm" value="@ViewBag.SearchTerm"
                            class="form-control" placeholder="@Localizer["SearchPlaceholder"]" />
@@ -156,6 +156,18 @@
                         }
                     </select>
                 </div>
+                <div class="col-md-2">
+                    <label class="form-label">@Localizer["TargetVersion"]</label>
+                    <select name="versionId" class="form-select" asp-items="ViewBag.VersionFilter">
+                        <option value="">@Localizer["All"]</option>
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label">@Localizer["RequestEmployee"]</label>
+                    <select name="employeeId" class="form-select" asp-items="ViewBag.EmployeeFilter">
+                        <option value="">@Localizer["All"]</option>
+                    </select>
+                </div>
                 <div class="col-md-2 d-flex gap-2">
                     <button type="submit" class="btn btn-primary flex-grow-1">
                         <i class="fas fa-filter me-1"></i>@Localizer["Filter"]
@@ -178,9 +190,11 @@
                         <th>@Localizer["Title"]</th>
                         <th>@Localizer["RequestDate"]</th>
                         <th>@Localizer["RequestingParty"]</th>
+                        <th>@Localizer["RequestEmployee"]</th>
                         <th>@Localizer["Category"]</th>
                         <th>@Localizer["Priority"]</th>
                         <th>@Localizer["Status"]</th>
+                        <th>@Localizer["TargetVersion"]</th>
                         <th>@Localizer["AssignedTo"]</th>
                         <th>@Localizer["Progress"]</th>
                         <th>@Localizer["Attachments"]</th>
@@ -191,7 +205,7 @@
                     @if (!Model.Any())
                     {
                         <tr>
-                            <td colspan="11" class="text-center text-muted py-4">
+                            <td colspan="13" class="text-center text-muted py-4">
                                 <i class="fas fa-inbox fa-2x d-block mb-2"></i>
                                 @Localizer["NoRequestsFound"]
                             </td>
@@ -206,9 +220,20 @@
                                 <td>@item.Title</td>
                                 <td>@item.RequestDate.ToString("yyyy-MM-dd")</td>
                                 <td>@item.RequestingParty</td>
+                                <td>@(item.RequestEmployee?.Name ?? "-")</td>
                                 <td>@Localizer["Category" + item.Category.ToString()]</td>
                                 <td><span class="badge @PriorityClass(item.Priority)">@Localizer["Priority" + item.Priority.ToString()]</span></td>
                                 <td><span class="badge @StatusClass(item.Status)">@Localizer["Status" + item.Status.ToString()]</span></td>
+                                <td>
+                                    @if (item.PlatformVersion != null)
+                                    {
+                                        <span class="badge bg-dark" dir="ltr">@item.PlatformVersion.VersionNumber</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="text-muted">-</span>
+                                    }
+                                </td>
                                 <td>@(item.AssignedToUser?.UserName ?? "-")</td>
                                 <td style="min-width:120px;">
                                     <div class="progress" style="height:18px;">
