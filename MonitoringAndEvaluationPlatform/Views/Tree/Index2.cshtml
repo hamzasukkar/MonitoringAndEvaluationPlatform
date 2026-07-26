@@ -211,6 +211,15 @@
 
         <div class="type-filter-divider"></div>
 
+        <!-- Connecting lines toggle -->
+        <label class="phases-toggle-label" for="showLinesToggle">
+            <input type="checkbox" id="showLinesToggle" class="phases-toggle-cb">
+            <i class="fas fa-project-diagram"></i>
+            @Localizer["Show Connecting Lines"]
+        </label>
+
+        <div class="type-filter-divider"></div>
+
         <!-- Performance threshold -->
         <label class="threshold-label" for="perfThreshold">
             <i class="fas fa-filter me-1"></i>
@@ -955,21 +964,29 @@
         opacity: 1;
     }
 
-    /* Connecting Lines */
-    .node-container::before {
-        content: '';
+    /* ── Connecting Lines (optional — toggled by #showLinesToggle → body.tree-lines-on) ──
+       Smooth bezier curves fanning from each parent to its children, drawn on an
+       SVG overlay (#treeConnectors) that sits behind the node boxes. The curves are
+       recomputed by drawConnectors() whenever the layout changes. */
+    #zoomWrapper { position: relative; }
+
+    .tree-connectors {
         position: absolute;
-        top: calc(-10px - var(--node-gap, 15px));
-        left: 50%;
-        transform: translateX(-50%);
-        width: 2px;
-        height: calc(10px + var(--node-gap, 15px));
-        background: var(--border-color);
-        opacity: 0.6;
+        top: 0;
+        left: 0;
+        pointer-events: none;
+        overflow: visible;
+        z-index: 1;
     }
 
-    .org-chart > .node-container:first-child::before {
-        display: none;
+    /* Node boxes paint above the curves so the lines tuck behind them */
+    .org-chart { position: relative; z-index: 2; }
+
+    .tree-conn-path {
+        fill: none;
+        stroke: var(--tree-conn-color, #9fa8da);
+        stroke-width: 2;
+        stroke-linecap: round;
     }
 
     /* Responsive Design */
@@ -1260,6 +1277,88 @@ document.addEventListener('DOMContentLoaded', function() {
         loadHierarchyData(this.checked);
     });
 
+    // Toggle connecting lines — redraw (or clear) the SVG overlay
+    document.getElementById('showLinesToggle').addEventListener('change', function () {
+        document.body.classList.toggle('tree-lines-on', this.checked);
+        scheduleConnectors();
+        savePrefs();
+    });
+
+    // ── Connecting curves (SVG bezier overlay) ──────────────────────────────
+    // Draw a smooth curve from each parent's bottom-center to each visible
+    // child's top-center. Coordinates are taken relative to #zoomWrapper and
+    // divided by the current zoom so they map to the wrapper's unscaled space
+    // (the SVG lives inside the wrapper, so the zoom transform scales it too).
+    function drawConnectors(scaleOverride) {
+        const wrapper = document.getElementById('zoomWrapper');
+        const svg = document.getElementById('treeConnectors');
+        if (!wrapper || !svg) return;
+
+        if (!document.body.classList.contains('tree-lines-on')) {
+            svg.replaceChildren();
+            return;
+        }
+
+        const scale = scaleOverride || zoomLevel || 1;
+        const wrapRect = wrapper.getBoundingClientRect();
+        const W = wrapRect.width / scale;
+        const H = wrapRect.height / scale;
+        svg.setAttribute('width', W);
+        svg.setAttribute('height', H);
+        svg.setAttribute('viewBox', `0 0 ${W} ${H}`);
+        svg.style.width = W + 'px';
+        svg.style.height = H + 'px';
+
+        const NS = 'http://www.w3.org/2000/svg';
+        const frag = document.createDocumentFragment();
+
+        document.querySelectorAll('.node-container > .children-container.expanded').forEach(cc => {
+            const parentNode = cc.parentElement.querySelector(':scope > .tree-node');
+            if (!parentNode) return;
+            const pr = parentNode.getBoundingClientRect();
+            if (pr.width === 0) return; // parent hidden
+
+            const startX = (pr.left + pr.width / 2 - wrapRect.left) / scale;
+            const startY = (pr.bottom - wrapRect.top) / scale;
+
+            cc.querySelectorAll(':scope > .node-container').forEach(childContainer => {
+                const childNode = childContainer.querySelector(':scope > .tree-node');
+                if (!childNode) return;
+                const cr = childNode.getBoundingClientRect();
+                if (cr.width === 0) return; // child hidden via type/threshold filter
+
+                const endX = (cr.left + cr.width / 2 - wrapRect.left) / scale;
+                const endY = (cr.top - wrapRect.top) / scale;
+                const midY = (startY + endY) / 2;
+
+                const path = document.createElementNS(NS, 'path');
+                path.setAttribute('class', 'tree-conn-path');
+                path.setAttribute('d', `M ${startX} ${startY} C ${startX} ${midY} ${endX} ${midY} ${endX} ${endY}`);
+                frag.appendChild(path);
+            });
+        });
+
+        svg.replaceChildren(frag);
+    }
+
+    let connRAF = null;
+    function scheduleConnectors() {
+        if (connRAF) cancelAnimationFrame(connRAF);
+        connRAF = requestAnimationFrame(() => drawConnectors());
+    }
+
+    // Keep the curves glued to the boxes while an expand/collapse animation runs
+    function followConnectors(duration = 450) {
+        const start = performance.now();
+        (function step(now) {
+            drawConnectors();
+            if (now - start < duration) requestAnimationFrame(step);
+        })(start);
+    }
+
+    window.addEventListener('resize', scheduleConnectors);
+    // ────────────────────────────────────────────────────────────────────────
+
     function buildHierarchy(flatData) {
         const nodeMap = {};
         const rootNodes = [];
@@ -1292,6 +1391,12 @@ document.addEventListener('DOMContentLoaded', function() {
 
         const zoomWrapper = document.createElement('div');
         zoomWrapper.id = 'zoomWrapper';
+
+        // SVG overlay for the connecting curves (behind the node boxes)
+        const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+        svg.id = 'treeConnectors';
+        svg.setAttribute('class', 'tree-connectors');
+        zoomWrapper.appendChild(svg);
         zoomWrapper.appendChild(orgChart);
 
         container.innerHTML = '';
@@ -1317,6 +1422,9 @@ document.addEventListener('DOMContentLoaded', function() {
                 children.style.maxHeight = '';
             }));
         });
+
+        // Draw the connecting curves once the initial layout has settled
+        requestAnimationFrame(() => requestAnimationFrame(scheduleConnectors));
     }
 
     function createNodeElement(node) {
@@ -1455,6 +1563,8 @@ document.addEventListener('DOMContentLoaded', function() {
         fsBtn.querySelector('i').className = on ? 'fas fa-compress' : 'fas fa-expand';
         fsBtn.title = on ? fsExitLabel : fsEnterLabel;
         fsBtn.classList.toggle('active', on);
+        // The tree area resizes — realign the curves for a moment
+        followConnectors(400);
     }
 
     function exitFallback() {
@@ -1528,6 +1638,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 container.classList.toggle('perf-hidden', below);
             }
         });
+        scheduleConnectors();
     }
 
     thresholdSlider.addEventListener('input', applyThreshold);
@@ -1556,6 +1667,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const val = parseInt(spacingSlider.value, 10);
         spacingBadge.textContent = val + 'px';
         document.documentElement.style.setProperty('--node-gap', val + 'px');
+        scheduleConnectors();
     }
 
     spacingSlider.addEventListener('input', applyCellSpacing);
@@ -1587,6 +1699,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
             container.classList.toggle('type-hidden', hiddenTypes.has(type));
         });
+        scheduleConnectors();
     }
 
     document.querySelectorAll('.type-filter-btn').forEach(btn => {
@@ -1645,6 +1758,9 @@ document.addEventListener('DOMContentLoaded', function() {
             icon.classList.add('collapsed');
             if (symbol) symbol.textContent = '+';
         }
+
+        // Keep the curves aligned throughout the expand/collapse animation
+        followConnectors();
     }
 
     function expandAllNodes() {
@@ -1663,6 +1779,7 @@ document.addEventListener('DOMContentLoaded', function() {
             const symbol = icon.querySelector('.expand-symbol');
             if (symbol) symbol.textContent = '−';
         });
+        followConnectors();
     }
 
     function collapseAllNodes() {
@@ -1681,6 +1798,7 @@ document.addEventListener('DOMContentLoaded', function() {
             const symbol = icon.querySelector('.expand-symbol');
             if (symbol) symbol.textContent = '+';
         });
+        followConnectors();
     }
 
     function exportChart() {
@@ -1709,6 +1827,8 @@ document.addEventListener('DOMContentLoaded', function() {
 
         // Wait one frame for layout to settle
         requestAnimationFrame(() => {
+            // Redraw the curves at 1:1 to match the temporarily un-zoomed capture
+            drawConnectors(1);
             html2canvas(wrapper, {
                 backgroundColor: getComputedStyle(document.documentElement)
                     .getPropertyValue('--secondary-card-background').trim() || '#ffffff',
@@ -1745,6 +1865,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
                 btn.disabled = false;
                 btn.innerHTML = originalHTML;
+                scheduleConnectors();
             });
         });
     }
@@ -1846,6 +1967,9 @@ document.addEventListener('DOMContentLoaded', function() {
                 nodeDiv.classList.add('search-dim');
             }
         });
+
+        // Search may have expanded ancestors — refresh the curves
+        scheduleConnectors();
     }
     // ────────────────────────────────────────────────────────────────────────
 
@@ -1863,7 +1987,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 thresholdMode: thresholdMode,
                 hiddenTypes: Array.from(hiddenTypes),
                 zoom: zoomLevel,
-                statusColors: document.body.classList.contains('status-colors-on')
+                statusColors: document.body.classList.contains('status-colors-on'),
+                treeLines: document.body.classList.contains('tree-lines-on')
             }));
         } catch (e) { }
     }
@@ -1968,11 +2093,15 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     window.applyPrefsAfterRender = applyPrefsAfterRender;
 
-    // Restore DOM-independent prefs immediately (cell spacing + density)
+    // Restore DOM-independent prefs immediately (cell spacing + density + connecting lines)
     (function () {
         const p = loadPrefs();
         if (p.spacing != null) { spacingSlider.value = p.spacing; applyCellSpacing(); }
         syncDensityActive(parseInt(spacingSlider.value, 10));
+        // Connecting lines — hidden by default (only ON when explicitly saved as true)
+        const linesOn = p.treeLines === true;
+        document.body.classList.toggle('tree-lines-on', linesOn);
+        document.getElementById('showLinesToggle').checked = linesOn;
     })();
     // ────────────────────────────────────────────────────────────────────────
 
