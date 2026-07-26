@@ -1,0 +1,193 @@
+@using Microsoft.EntityFrameworkCore
+@using Microsoft.AspNetCore.Mvc.Localization
+@using MonitoringAndEvaluationPlatform.Data
+@inject ApplicationDbContext _context
+@inject IViewLocalizer Localizer
+
+@{
+    var msdIsArabic = System.Globalization.CultureInfo.CurrentUICulture.TwoLetterISOLanguageName == "ar";
+
+    // All strategies, ordered like policiesDropdown does.
+    var msdFrameworks = _context.Frameworks
+        .OrderByDescending(f => f.IndicatorsPerformance)
+        .Select(f => new { f.Code, f.Name, f.IndicatorsPerformance, f.MinistryCode })
+        .ToList();
+
+    // Indirect strategy <-> ministry links, through each indicator's project.
+    // Same relationship FrameworksController.Index uses when scoping frameworks to a ministry.
+    var msdProjectLinks = _context.Indicators
+        .Where(i => i.Project != null)
+        .SelectMany(i => i.Project.Ministries.Select(m => new
+        {
+            FrameworkCode = i.SubOutput.Output.Outcome.FrameworkCode,
+            MinistryCode = m.Code
+        }))
+        .Distinct()
+        .ToList();
+
+    var msdLinksByMinistry = msdProjectLinks
+        .GroupBy(l => l.MinistryCode)
+        .ToDictionary(g => g.Key, g => g.Select(l => l.FrameworkCode).ToHashSet());
+
+    var msdMinistries = _context.Ministries
+        .ToList()
+        .OrderBy(m => msdIsArabic ? m.MinistryDisplayName_AR : m.MinistryDisplayName_EN)
+        .ToList();
+}
+
+<li class="nav-item dropdown">
+    <a class="nav-link dropdown-toggle" href="#" id="ministryStrategiesDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+        <i class="fas fa-landmark me-1"></i> @Localizer["Ministries & Strategies"]
+    </a>
+    <ul class="dropdown-menu msd-menu" aria-labelledby="ministryStrategiesDropdown">
+        <li class="msd-search-container">
+            <div class="px-3 py-2">
+                <input type="text" class="form-control form-control-sm msd-search-input"
+                       placeholder="@Localizer["Search..."]"
+                       onclick="event.stopPropagation();" />
+            </div>
+        </li>
+        <li><hr class="dropdown-divider my-1"></li>
+
+        @foreach (var ministry in msdMinistries)
+        {
+            msdLinksByMinistry.TryGetValue(ministry.Code, out var msdLinked);
+
+            var msdStrategies = msdFrameworks
+                .Where(f => f.MinistryCode == ministry.Code || (msdLinked != null && msdLinked.Contains(f.Code)))
+                .ToList();
+
+            // Ministries without any strategy are hidden entirely.
+            if (msdStrategies.Count == 0)
+            {
+                continue;
+            }
+
+            var msdMinistryName = msdIsArabic ? ministry.MinistryDisplayName_AR : ministry.MinistryDisplayName_EN;
+            var msdStrategyNames = string.Join(" | ", msdStrategies.Select(f => f.Name));
+
+            <li class="dropdown-submenu dropend msd-ministry-item" data-msd-strategies="@msdStrategyNames">
+                <a class="dropdown-item dropdown-toggle" href="#" id="msd-ministry-@ministry.Code">
+                    @if (!string.IsNullOrEmpty(ministry.Logo))
+                    {
+                        <span class="ministry-logo me-1">@ministry.Logo</span>
+                    }
+                    @msdMinistryName
+                </a>
+                <ul class="dropdown-menu msd-strategy-menu" aria-labelledby="msd-ministry-@ministry.Code">
+                    @foreach (var framework in msdStrategies)
+                    {
+                        var msdPerformanceClass = framework.IndicatorsPerformance > 0 ? "has-performance" : "";
+
+                        <li class="dropdown-submenu dropend msd-strategy-item">
+                            <a class="dropdown-item dropdown-toggle @msdPerformanceClass" href="#" id="msd-fw-@ministry.Code-@framework.Code">
+                                @framework.Name
+                            </a>
+                            <ul class="dropdown-menu" aria-labelledby="msd-fw-@ministry.Code-@framework.Code">
+                                <li>
+                                    <a class="dropdown-item" asp-controller="FrameworkGoals" asp-action="Index" asp-route-frameworkCode="@framework.Code">
+                                        <i class="fas fa-flag-checkered"></i>@Localizer["FrameworkGoals"]
+                                    </a>
+                                </li>
+                                <li>
+                                    <a class="dropdown-item" asp-controller="Outcomes" asp-action="Index" asp-route-frameworkCode="@framework.Code">
+                                        <i class="fas fa-bullseye"></i>@Localizer["Outcomes"]
+                                    </a>
+                                </li>
+                                <li>
+                                    <a class="dropdown-item" asp-controller="Outputs" asp-action="Index" asp-route-frameworkCode="@framework.Code">
+                                        <i class="fas fa-project-diagram"></i>@Localizer["Outputs"]
+                                    </a>
+                                </li>
+                                <li>
+                                    <a class="dropdown-item" asp-controller="SubOutputs" asp-action="Index" asp-route-frameworkCode="@framework.Code">
+                                        <i class="fas fa-code-branch"></i>@Localizer["SubOutputs"]
+                                    </a>
+                                </li>
+                                <li>
+                                    <a class="dropdown-item" asp-controller="Indicators" asp-action="Index" asp-route-frameworkCode="@framework.Code">
+                                        <i class="fas fa-chart-line"></i>@Localizer["Indicators"]
+                                    </a>
+                                </li>
+                            </ul>
+                        </li>
+                    }
+                </ul>
+            </li>
+        }
+    </ul>
+</li>
+
+<style>
+    /* Ministries & Strategies dropdown. The msd- prefix keeps these rules and the
+       search script from colliding with the policies / ministries dropdowns. */
+    .msd-menu {
+        min-width: 300px;
+        padding-top: 0;
+    }
+
+    .msd-search-container {
+        position: sticky;
+        top: 0;
+        background: white;
+        z-index: 10;
+    }
+
+    .msd-search-input {
+        border-radius: 20px;
+        border: 1px solid #dee2e6;
+        padding: 8px 15px;
+        font-size: 0.875rem;
+    }
+
+        .msd-search-input:focus {
+            border-color: #0d6efd;
+            box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.15);
+        }
+
+    .msd-strategy-menu {
+        min-width: 280px;
+    }
+
+    .msd-ministry-item.msd-hidden {
+        display: none !important;
+    }
+</style>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const msdSearchInput = document.querySelector('.msd-search-input');
+        if (!msdSearchInput) {
+            return;
+        }
+
+        const msdItems = document.querySelectorAll('.msd-ministry-item');
+
+        msdSearchInput.addEventListener('input', function (e) {
+            const searchTerm = e.target.value.toLowerCase().trim();
+
+            msdItems.forEach(function (item) {
+                // Match on the ministry name and on any of its strategy names.
+                const ministryName = item.querySelector('.dropdown-item').textContent.toLowerCase().trim();
+                const strategyNames = (item.dataset.msdStrategies || '').toLowerCase();
+
+                if (searchTerm === '' || ministryName.includes(searchTerm) || strategyNames.includes(searchTerm)) {
+                    item.classList.remove('msd-hidden');
+                } else {
+                    item.classList.add('msd-hidden');
+                }
+            });
+        });
+
+        // Clear the filter when the dropdown closes.
+        const msdDropdown = document.getElementById('ministryStrategiesDropdown');
+        if (msdDropdown) {
+            msdDropdown.addEventListener('hidden.bs.dropdown', function () {
+                msdSearchInput.value = '';
+                msdItems.forEach(function (item) {
+                    item.classList.remove('msd-hidden');
+                });
+            });
+        }
+    });
+</script>

@@ -120,7 +120,7 @@
             <div class="title">@Localizer["AppTitle"]</div>
             <div class="nav-links">
                 <ul class="nav">
-                    <li class="nav-item dropdown">
+                    <li class="nav-item dropdown" style="display:none;">
                         <a class="nav-link dropdown-toggle" href="#" id="policiesDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                             <i class="fas fa-sitemap me-1"></i> @Localizer["National Development Strategy"]
                         </a>
@@ -185,6 +185,7 @@
                             </div>
                         </ul>
                   </li>
+                    @await Html.PartialAsync("_MinistryStrategiesDropdown")
                     <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle" href="#" id="MinistriesandAgenciesDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                             <i class="fas fa-sitemap me-1"></i> @Localizer["Ministries and Agencies"]

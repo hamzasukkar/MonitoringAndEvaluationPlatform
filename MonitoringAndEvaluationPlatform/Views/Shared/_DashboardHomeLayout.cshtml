@@ -945,7 +945,7 @@
                             <i class="fas fa-info-circle me-1"></i> @Localizer["About"]
                         </a>
                     </li> *@
-                    <li class="nav-item dropdown">
+                    <li class="nav-item dropdown" style="display:none;">
                         <a class="nav-link dropdown-toggle" href="#" id="policiesDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                             <i class="fas fa-sitemap me-1"></i> @Localizer["National Development Strategy"]
                         </a>
@@ -997,6 +997,7 @@
                             }
                         </ul>
                     </li>
+                    @await Html.PartialAsync("_MinistryStrategiesDropdown")
                     <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle" href="#" id="SDGsDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                             <img src="/img/SDG Wheel_Transparent_WEB.png" alt="SDGs" class="me-2" style="width:24px; height:24px;" />
