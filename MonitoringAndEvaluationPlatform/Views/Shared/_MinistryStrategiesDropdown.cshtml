@@ -67,7 +67,7 @@
             var msdStrategyNames = string.Join(" | ", msdStrategies.Select(f => f.Name));
 
             <li class="dropdown-submenu dropend msd-ministry-item" data-msd-strategies="@msdStrategyNames">
-                <a class="dropdown-item dropdown-toggle" href="#" id="msd-ministry-@ministry.Code">
+                <a class="dropdown-item" asp-controller="Frameworks" asp-action="Index" asp-route-SelectedMinistries="@ministry.Code" id="msd-ministry-@ministry.Code">
                     @if (!string.IsNullOrEmpty(ministry.Logo))
                     {
                         <span class="ministry-logo me-1">@ministry.Logo</span>
