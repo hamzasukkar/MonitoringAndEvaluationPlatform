@@ -13,6 +13,12 @@
     Layout = "~/Views/Shared/_DashboardHomeLayout.cshtml";
     ViewData["HelpFeature"] = "FRAMEWORKS";
     var culture = Context.Features.Get<IRequestCultureFeature>().RequestCulture.Culture.Name;
+    var isArabic = System.Globalization.CultureInfo.CurrentUICulture.TwoLetterISOLanguageName == "ar";
+    var userMinistryCode = ViewBag.UserMinistryCode as int?;
+    var isAdminUser = User.IsInRole(UserRoles.SystemAdministrator);
+
+    string MinistryName(Ministry ministry) =>
+        isArabic ? ministry.MinistryDisplayName_AR : ministry.MinistryDisplayName_EN;
 
     string GetMatchColorClass(string type)
     {
@@ -91,7 +97,7 @@
         <form id="createFrameworkForm" class="inline-create-form">
             @Html.AntiForgeryToken()
             <div class="row g-3">
-                <div class="col-md-8">
+                <div class="col-md-5">
                     <div class="form-floating">
                         <input type="text" class="form-control form-control-modern" id="frameworkName"
                                placeholder="@Localizer["Enter framework name"]" required>
@@ -101,6 +107,26 @@
                     </div>
                 </div>
                 <div class="col-md-4">
+                    <div class="form-floating">
+                        @* Ministry users are locked onto their own ministry; the server enforces
+                           this too, so a tampered value is ignored rather than trusted. *@
+                        <select class="form-select form-control-modern" id="frameworkMinistry" required
+                                @(Model.IsMinistryUser ? "disabled" : "")>
+                            <option value="">@Localizer["Select Ministry"]</option>
+                            @foreach (var ministry in Model.Ministries)
+                            {
+                                var selected = userMinistryCode == ministry.Code;
+                                <option value="@ministry.Code" selected="@selected">
+                                    @(string.IsNullOrEmpty(ministry.Logo) ? "" : ministry.Logo + " ")@MinistryName(ministry)
+                                </option>
+                            }
+                        </select>
+                        <label for="frameworkMinistry">
+                            <i class="fas fa-landmark me-2"></i>@Localizer["Ministry"]
+                        </label>
+                    </div>
+                </div>
+                <div class="col-md-3">
                     <div class="d-flex gap-2 h-100">
                         <button type="submit" class="btn btn-success btn-modern flex-fill">
                             <div class="btn-content">
@@ -362,6 +388,9 @@
                                         }
                                     </a>
                                 </th>
+                                <th>
+                                    <i class="fas fa-landmark me-2"></i>@Localizer["Ministry"]
+                                </th>
                                 <th class="sortable-header text-center">
                                     <a asp-action="Index"
                                        asp-route-sortOrder="@ViewData["IndicatorsSortParm"]"
@@ -448,6 +477,54 @@
                                             </div>
                                         </div>
                                     </td>
+                                    <td class="framework-ministry-cell">
+                                        <span id="fw-ministry-@item.Code" class="fw-ministry-view">
+                                            @if (item.Ministry != null)
+                                            {
+                                                <span class="ministry-badge">
+                                                    @if (!string.IsNullOrEmpty(item.Ministry.Logo))
+                                                    {
+                                                        <span class="ministry-logo me-1">@item.Ministry.Logo</span>
+                                                    }
+                                                    @MinistryName(item.Ministry)
+                                                </span>
+                                            }
+                                            else
+                                            {
+                                                <span class="ministry-badge ministry-badge-empty">
+                                                    <i class="fas fa-unlink me-1"></i>@Localizer["Not linked"]
+                                                </span>
+                                            }
+                                        </span>
+                                        @* Reassigning a strategy transfers ownership, so only admins get the editor. *@
+                                        @if (isAdminUser)
+                                        {
+                                            <button type="button" class="btn btn-link btn-sm p-0 ms-2 fw-ministry-edit-btn"
+                                                    onclick="toggleFrameworkMinistryEdit(@item.Code)" title="@Localizer["Change Ministry"]">
+                                                <i class="fas fa-pen"></i>
+                                            </button>
+                                            <div id="fw-ministry-edit-container-@item.Code" class="d-none mt-1">
+                                                <div class="d-flex align-items-center gap-2">
+                                                    <select id="fw-ministry-select-@item.Code" class="form-select form-select-sm">
+                                                        <option value="">@Localizer["Select Ministry"]</option>
+                                                        @foreach (var ministry in Model.Ministries)
+                                                        {
+                                                            var selected = item.MinistryCode == ministry.Code;
+                                                            <option value="@ministry.Code" selected="@selected">
+                                                                @(string.IsNullOrEmpty(ministry.Logo) ? "" : ministry.Logo + " ")@MinistryName(ministry)
+                                                            </option>
+                                                        }
+                                                    </select>
+                                                    <button type="button" class="btn btn-success btn-sm" onclick="saveFrameworkMinistry(@item.Code)" title="@Localizer["Save"]">
+                                                        <i class="fas fa-check"></i>
+                                                    </button>
+                                                    <button type="button" class="btn btn-outline-secondary btn-sm" onclick="cancelFrameworkMinistryEdit(@item.Code)" title="@Localizer["Cancel"]">
+                                                        <i class="fas fa-times"></i>
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        }
+                                    </td>
                                     <td class="text-center">
                                         <div class="performance-metric">
                                             @await Html.PartialAsync("_ProgressBar", Tuple.Create(IndicatorsPerformance, indicatorsClass))
@@ -497,7 +574,7 @@
                                 </tr>
                                 <!-- Expandable Outcomes Row -->
                                 <tr id="outcomes-row-@item.Code" class="outcomes-row" style="display: none;">
-                                    <td colspan="4" class="p-0">
+                                    <td colspan="5" class="p-0">
                                         <div class="outcomes-container">
                                             <div class="outcomes-header d-flex justify-content-between align-items-center">
                                                 <span>
@@ -586,7 +663,7 @@
                                 </tr>
                                 <!-- Expandable Indicators Row -->
                                 <tr id="indicators-row-@item.Code" class="indicators-row" style="display: none;">
-                                    <td colspan="4" class="p-0">
+                                    <td colspan="5" class="p-0">
                                         <div class="indicators-container">
                                             <div class="indicators-header">
                                                 <i class="fas fa-chart-line me-2"></i>
@@ -753,6 +830,22 @@
                 return;
             }
 
+            // A ministry user's dropdown is disabled and the server forces their own
+            // ministry, so only validate the choice when they can actually make one.
+            const ministrySelect = $('#frameworkMinistry');
+            const frameworkMinistry = ministrySelect.val();
+            if (!ministrySelect.prop('disabled') && !frameworkMinistry) {
+                Swal.fire({
+                    icon: 'warning',
+                    title: '@Localizer["Validation Error"]',
+                    text: '@Localizer["Please select a ministry"]',
+                    customClass: {
+                        popup: 'swal2-modern'
+                    }
+                });
+                return;
+            }
+
             // Show loading state
             const submitBtn = $(this).find('button[type="submit"]');
             const btnContent = submitBtn.find('.btn-content');
@@ -772,6 +865,7 @@
                 type: 'POST',
                 data: {
                     Name: frameworkName,
+                    MinistryCode: frameworkMinistry,
                     __RequestVerificationToken: $('input[name="__RequestVerificationToken"]').val()
                 },
                 success: function(response) {
@@ -829,6 +923,12 @@
         // Add framework to table dynamically
         function addFrameworkToTable(framework) {
             const tableBody = $('.modern-table tbody');
+            const ministryLogo = framework.ministryLogo
+                ? `<span class="ministry-logo me-1">${framework.ministryLogo}</span>`
+                : '';
+            const ministryCell = framework.ministryName
+                ? `<span class="ministry-badge">${ministryLogo}${framework.ministryName}</span>`
+                : `<span class="ministry-badge ministry-badge-empty"><i class="fas fa-unlink me-1"></i>@Localizer["Not linked"]</span>`;
             const newRow = `
                 <tr id="framework-row-${framework.code}" class="table-row new-framework-row" style="opacity: 0; transform: translateX(-20px);">
                     <td class="framework-name-cell">
@@ -846,6 +946,9 @@
                                        class="form-control fw-name-edit d-none" value="${framework.name}" />
                             </div>
                         </div>
+                    </td>
+                    <td class="framework-ministry-cell">
+                        <span id="fw-ministry-${framework.code}" class="fw-ministry-view">${ministryCell}</span>
                     </td>
                     <td class="text-center">
                         <div class="performance-metric">
@@ -909,6 +1012,9 @@
                                             <i class="fas fa-sitemap me-2"></i>@Localizer["Framework Name"]
                                             <i class="fas fa-sort ms-2 text-muted"></i>
                                         </a>
+                                    </th>
+                                    <th>
+                                        <i class="fas fa-landmark me-2"></i>@Localizer["Ministry"]
                                     </th>
                                     <th class="sortable-header text-center">
                                         <a href="#" class="header-link">
@@ -1001,6 +1107,72 @@
 
             editContainer.addClass('d-none');
             viewSpan.removeClass('d-none');
+        }
+
+        // Ministry reassignment - rendered for administrators only; UpdateMinistry
+        // rejects anyone else server-side.
+        function toggleFrameworkMinistryEdit(code) {
+            $(`#fw-ministry-${code}`).addClass('d-none');
+            $(`.fw-ministry-edit-btn`, `#framework-row-${code}`).addClass('d-none');
+            $(`#fw-ministry-edit-container-${code}`).removeClass('d-none');
+        }
+
+        function cancelFrameworkMinistryEdit(code) {
+            $(`#fw-ministry-edit-container-${code}`).addClass('d-none');
+            $(`#fw-ministry-${code}`).removeClass('d-none');
+            $(`.fw-ministry-edit-btn`, `#framework-row-${code}`).removeClass('d-none');
+        }
+
+        function saveFrameworkMinistry(code) {
+            const select = $(`#fw-ministry-select-${code}`);
+            const ministryCode = select.val();
+
+            if (!ministryCode) {
+                Swal.fire({
+                    icon: 'warning',
+                    title: '@Localizer["Validation Error"]',
+                    text: '@Localizer["Please select a ministry"]'
+                });
+                return;
+            }
+
+            $.ajax({
+                url: '/Frameworks/UpdateMinistry',
+                type: 'POST',
+                data: { id: code, ministryCode: ministryCode },
+                success: function (response) {
+                    if (!response.success) {
+                        Swal.fire({
+                            icon: 'error',
+                            title: '@Localizer["Error"]',
+                            text: response.message || '@Localizer["Could not update the ministry."]'
+                        });
+                        return;
+                    }
+
+                    const logo = response.ministryLogo
+                        ? `<span class="ministry-logo me-1">${response.ministryLogo}</span>`
+                        : '';
+                    $(`#fw-ministry-${code}`)
+                        .html(`<span class="ministry-badge">${logo}${response.ministryName}</span>`);
+                    cancelFrameworkMinistryEdit(code);
+
+                    Swal.fire({
+                        icon: 'success',
+                        title: '@Localizer["Saved!"]',
+                        text: '@Localizer["Ministry updated successfully."]',
+                        timer: 2000,
+                        showConfirmButton: false
+                    });
+                },
+                error: function () {
+                    Swal.fire({
+                        icon: 'error',
+                        title: '@Localizer["Error"]',
+                        text: '@Localizer["Could not update the ministry."]'
+                    });
+                }
+            });
         }
 
         function toggleOutcomes(code) {
@@ -1581,7 +1753,39 @@
         .framework-name-cell {
             min-width: 300px;
         }
-        
+
+        .framework-ministry-cell {
+            min-width: 200px;
+            white-space: nowrap;
+        }
+
+        .ministry-badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 4px 10px;
+            border-radius: 20px;
+            background: rgba(13, 110, 253, 0.08);
+            color: #0d6efd;
+            font-size: 0.875rem;
+            font-weight: 600;
+        }
+
+        .ministry-badge-empty {
+            background: rgba(108, 117, 125, 0.1);
+            color: #6c757d;
+            font-weight: 500;
+        }
+
+        .fw-ministry-edit-btn {
+            color: #6c757d;
+            opacity: 0;
+            transition: opacity 0.2s ease;
+        }
+
+        .table-row:hover .fw-ministry-edit-btn {
+            opacity: 1;
+        }
+
         .framework-icon {
             width: 45px;
             height: 45px;

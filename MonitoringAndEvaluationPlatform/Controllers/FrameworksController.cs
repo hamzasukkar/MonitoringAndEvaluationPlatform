@@ -51,6 +51,59 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             return (false, user?.MinistryCode);
         }
 
+        // Resolves the MinistryCode a framework should be saved with.
+        // A non-admin is always forced onto their own ministry - whatever they posted is ignored,
+        // so a tampered request cannot assign a strategy to another ministry.
+        // An admin must pick an existing ministry explicitly.
+        private async Task<(bool Ok, int? MinistryCode, string? Error)> ResolveMinistryCodeAsync(
+            int? postedMinistryCode, bool isAdmin, int? scopedMinistryCode)
+        {
+            if (!isAdmin)
+            {
+                if (scopedMinistryCode is null)
+                {
+                    return (false, null, _localizer["You are not assigned to a ministry."].Value);
+                }
+
+                return (true, scopedMinistryCode, null);
+            }
+
+            if (postedMinistryCode is null)
+            {
+                return (false, null, _localizer["Please select a ministry."].Value);
+            }
+
+            var ministryExists = await _context.Ministries.AnyAsync(m => m.Code == postedMinistryCode);
+            if (!ministryExists)
+            {
+                return (false, null, _localizer["The selected ministry does not exist."].Value);
+            }
+
+            return (true, postedMinistryCode, null);
+        }
+
+        // Ministry name in the active UI culture, for JSON responses the views render directly.
+        private static string GetMinistryDisplayName(Ministry? ministry)
+        {
+            if (ministry == null)
+            {
+                return string.Empty;
+            }
+
+            return System.Globalization.CultureInfo.CurrentUICulture.TwoLetterISOLanguageName == "ar"
+                ? ministry.MinistryDisplayName_AR
+                : ministry.MinistryDisplayName_EN;
+        }
+
+        // Loads the ministries shown in the strategy creation dropdowns, plus the
+        // scope flags the views use to lock the dropdown for ministry users.
+        private async Task PopulateMinistrySelectionAsync(bool isAdmin, int? scopedMinistryCode)
+        {
+            ViewBag.Ministries = await _context.Ministries.ToListAsync();
+            ViewBag.IsMinistryUser = !isAdmin;
+            ViewBag.UserMinistryCode = scopedMinistryCode;
+        }
+
         [HttpPost]
         public IActionResult SetLanguage(string culture, string returnUrl)
         {
@@ -80,8 +133,10 @@ namespace MonitoringAndEvaluationPlatform.Controllers
 
             var (isAdmin, scopedMinistryCode) = await GetScopeAsync();
             filter.IsMinistryUser = !isAdmin; // non-admins are tied to one ministry -> hide the ministry filter
+            ViewBag.UserMinistryCode = scopedMinistryCode; // preselects + locks the inline create dropdown
 
             IQueryable<Framework> frameworksQuery = _context.Frameworks
+                .Include(f => f.Ministry)
                 .Include(f => f.Outcomes)
                     .ThenInclude(o => o.Outputs)
                         .ThenInclude(op => op.SubOutputs)
@@ -192,7 +247,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
         [Permission(Permissions.AddStrategy)]
-        public async Task<IActionResult> CreateInline(string name)
+        public async Task<IActionResult> CreateInline(string name, int? ministryCode)
         {
             try
             {
@@ -209,9 +264,12 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 }
 
                 var (isAdmin, scopedMinistryCode) = await GetScopeAsync();
-                if (!isAdmin && scopedMinistryCode is null)
+                var (ministryOk, resolvedMinistryCode, ministryError) =
+                    await ResolveMinistryCodeAsync(ministryCode, isAdmin, scopedMinistryCode);
+
+                if (!ministryOk)
                 {
-                    return Json(new { success = false, message = _localizer["You are not assigned to a ministry."].Value });
+                    return Json(new { success = false, message = ministryError });
                 }
 
                 // Create new framework
@@ -220,11 +278,13 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                     Name = name.Trim(),
                     IndicatorsPerformance = 0,
                     DisbursementPerformance = 0,
-                    MinistryCode = isAdmin ? null : scopedMinistryCode
+                    MinistryCode = resolvedMinistryCode
                 };
 
                 _context.Add(framework);
                 await _context.SaveChangesAsync();
+
+                var ministry = await _context.Ministries.FindAsync(resolvedMinistryCode);
 
                 // Return the created framework data for frontend update
                 return Json(new
@@ -235,7 +295,10 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                         code = framework.Code,
                         name = framework.Name,
                         indicatorsPerformance = Math.Round(framework.IndicatorsPerformance, 2),
-                        disbursementPerformance = Math.Round(framework.DisbursementPerformance, 2)
+                        disbursementPerformance = Math.Round(framework.DisbursementPerformance, 2),
+                        ministryCode = framework.MinistryCode,
+                        ministryName = GetMinistryDisplayName(ministry),
+                        ministryLogo = ministry?.Logo ?? string.Empty
                     },
                     message = _localizer["Framework created successfully!"]
                 });
@@ -265,6 +328,46 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             await _context.SaveChangesAsync();
 
             return Ok();
+        }
+
+        // Reassigns a strategy to another ministry. Admin only: reassignment transfers
+        // ownership, so a ministry user must not be able to hand their strategy over
+        // to another ministry - or claim one that is not theirs.
+        [HttpPost]
+        [Permission(Permissions.ModifyStrategy)]
+        public async Task<IActionResult> UpdateMinistry(int id, int? ministryCode)
+        {
+            var framework = await _context.Frameworks.FindAsync(id);
+            if (framework == null) return NotFound();
+
+            var (isAdmin, _) = await GetScopeAsync();
+            if (!isAdmin)
+            {
+                return Forbid();
+            }
+
+            if (ministryCode is null)
+            {
+                return Json(new { success = false, message = _localizer["Please select a ministry."].Value });
+            }
+
+            var ministry = await _context.Ministries.FindAsync(ministryCode);
+            if (ministry == null)
+            {
+                return Json(new { success = false, message = _localizer["The selected ministry does not exist."].Value });
+            }
+
+            framework.MinistryCode = ministry.Code;
+            _context.Update(framework);
+            await _context.SaveChangesAsync();
+
+            return Json(new
+            {
+                success = true,
+                ministryCode = ministry.Code,
+                ministryName = GetMinistryDisplayName(ministry),
+                ministryLogo = ministry.Logo ?? string.Empty
+            });
         }
 
         [HttpPost]
@@ -353,8 +456,10 @@ namespace MonitoringAndEvaluationPlatform.Controllers
 
         // GET: Frameworks/CreateComprehensive
         [Permission(Permissions.AddStrategy)]
-        public IActionResult CreateComprehensive()
+        public async Task<IActionResult> CreateComprehensive()
         {
+            var (isAdmin, scopedMinistryCode) = await GetScopeAsync();
+            await PopulateMinistrySelectionAsync(isAdmin, scopedMinistryCode);
             return View();
         }
 
@@ -367,13 +472,12 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             try
             {
                 var (isAdmin, scopedMinistryCode) = await GetScopeAsync();
-                if (!isAdmin && scopedMinistryCode is null)
+                var (ministryOk, resolvedMinistryCode, ministryError) =
+                    await ResolveMinistryCodeAsync(model.MinistryCode, isAdmin, scopedMinistryCode);
+
+                if (!ministryOk)
                 {
-                    return Json(new
-                    {
-                        success = false,
-                        message = _localizer["You are not assigned to a ministry."].Value
-                    });
+                    return Json(new { success = false, message = ministryError });
                 }
 
                 using (var transaction = await _context.Database.BeginTransactionAsync())
@@ -384,7 +488,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                         Name = model.FrameworkName.Trim(),
                         IndicatorsPerformance = 0,
                         DisbursementPerformance = 0,
-                        MinistryCode = isAdmin ? null : scopedMinistryCode
+                        MinistryCode = resolvedMinistryCode
                     };
 
                     _context.Frameworks.Add(framework);
@@ -850,6 +954,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
     public class ComprehensiveFrameworkModel
     {
         public string FrameworkName { get; set; } = string.Empty;
+        public int? MinistryCode { get; set; }
         public List<OutcomeModel> Outcomes { get; set; } = new List<OutcomeModel>();
         public List<OutputModel> Outputs { get; set; } = new List<OutputModel>();
         public List<SubOutputModel> SubOutputs { get; set; } = new List<SubOutputModel>();
