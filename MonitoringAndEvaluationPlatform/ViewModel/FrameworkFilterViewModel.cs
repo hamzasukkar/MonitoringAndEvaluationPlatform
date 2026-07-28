@@ -12,7 +12,30 @@ namespace MonitoringAndEvaluationPlatform.ViewModel
         public List<Framework> Frameworks { get; set; } = new List<Framework>();
         public List<Sector> Sectors { get; set; } = new List<Sector>();
 
+        // Ministries shown per framework in the list, keyed by framework code: the owning
+        // ministry plus any reached through its indicators' projects - the same union the
+        // ministry filter and scoping use in FrameworksController.Index.
+        public Dictionary<int, List<Ministry>> FrameworkMinistries { get; set; } = new Dictionary<int, List<Ministry>>();
+
+        // Landing view: one row per ministry that owns at least one strategy.
+        public List<MinistryStrategyGroup> MinistryGroups { get; set; } = new List<MinistryStrategyGroup>();
+
+        // Strategies that belong to no ministry at all. They would be unreachable from the
+        // ministries landing view, so it gets a row for them too.
+        public int UnassignedStrategyCount { get; set; }
+
+        // True on the landing view (ministries table), false once a ministry, the unassigned
+        // bucket, or a search narrows the page down to a strategy list.
+        public bool ShowMinistries { get; set; }
+        public bool UnassignedOnly { get; set; }
+
         public bool IsMinistryUser { get; set; } = false;
+    }
+
+    public class MinistryStrategyGroup
+    {
+        public Ministry Ministry { get; set; } = default!;
+        public int StrategyCount { get; set; }
     }
 
 }

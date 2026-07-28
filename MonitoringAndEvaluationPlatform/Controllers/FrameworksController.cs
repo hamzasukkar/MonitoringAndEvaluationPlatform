@@ -82,6 +82,40 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             return (true, postedMinistryCode, null);
         }
 
+        private const string ViewModeCookieName = "FrameworksViewMode";
+        private const string ViewModeMinistries = "ministries";
+        private const string ViewModeStrategies = "strategies";
+
+        // Which of the two list layouts the user gets: the ministries table or the flat list of
+        // every strategy. An explicit ?viewMode= wins and is remembered; otherwise the remembered
+        // choice applies; otherwise ministry users start on their own strategy list, since a
+        // ministries table would only ever hold their single row.
+        private string ResolveViewMode(string? requestedViewMode, bool isAdmin)
+        {
+            if (string.Equals(requestedViewMode, ViewModeMinistries, StringComparison.OrdinalIgnoreCase)
+                || string.Equals(requestedViewMode, ViewModeStrategies, StringComparison.OrdinalIgnoreCase))
+            {
+                var mode = requestedViewMode!.ToLowerInvariant();
+
+                // Only an explicit choice is persisted. Drilling into a ministry narrows the
+                // page temporarily and must not overwrite the preference.
+                Response.Cookies.Append(
+                    ViewModeCookieName,
+                    mode,
+                    new CookieOptions { Expires = DateTimeOffset.UtcNow.AddYears(1) });
+
+                return mode;
+            }
+
+            var remembered = Request.Cookies[ViewModeCookieName];
+            if (remembered == ViewModeMinistries || remembered == ViewModeStrategies)
+            {
+                return remembered;
+            }
+
+            return isAdmin ? ViewModeMinistries : ViewModeStrategies;
+        }
+
         // Ministry name in the active UI culture, for JSON responses the views render directly.
         private static string GetMinistryDisplayName(Ministry? ministry)
         {
@@ -93,6 +127,68 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             return System.Globalization.CultureInfo.CurrentUICulture.TwoLetterISOLanguageName == "ar"
                 ? ministry.MinistryDisplayName_AR
                 : ministry.MinistryDisplayName_EN;
+        }
+
+        // Ministries to show against each framework in the list: the owning ministry plus
+        // any reached through its indicators' projects. This is the same union used to scope
+        // frameworks and to apply the SelectedMinistries filter above, so a badge in the
+        // table always matches what clicking it filters to.
+        private async Task<Dictionary<int, List<Ministry>>> BuildFrameworkMinistriesAsync(
+            List<Framework> frameworks, List<Ministry> allMinistries)
+        {
+            var result = new Dictionary<int, List<Ministry>>();
+            if (frameworks.Count == 0)
+            {
+                return result;
+            }
+
+            var frameworkCodes = frameworks.Select(f => f.Code).ToList();
+
+            // Project.Ministries is not part of the Index include chain, so the indirect
+            // links need their own projection query.
+            var indirectLinks = await _context.Indicators
+                .Where(i => i.Project != null
+                    && frameworkCodes.Contains(i.SubOutput.Output.Outcome.FrameworkCode))
+                .SelectMany(i => i.Project!.Ministries.Select(m => new
+                {
+                    FrameworkCode = i.SubOutput.Output.Outcome.FrameworkCode,
+                    MinistryCode = m.Code
+                }))
+                .Distinct()
+                .ToListAsync();
+
+            var codesByFramework = indirectLinks
+                .GroupBy(l => l.FrameworkCode)
+                .ToDictionary(g => g.Key, g => g.Select(l => l.MinistryCode).ToList());
+
+            var ministriesByCode = allMinistries
+                .GroupBy(m => m.Code)
+                .ToDictionary(g => g.Key, g => g.First());
+
+            var isArabic = System.Globalization.CultureInfo.CurrentUICulture.TwoLetterISOLanguageName == "ar";
+
+            foreach (var framework in frameworks)
+            {
+                var codes = new List<int>();
+                if (framework.MinistryCode is int owner)
+                {
+                    codes.Add(owner);
+                }
+
+                if (codesByFramework.TryGetValue(framework.Code, out var linked))
+                {
+                    codes.AddRange(linked);
+                }
+
+                result[framework.Code] = codes
+                    .Distinct()
+                    .Where(ministriesByCode.ContainsKey)
+                    .Select(code => ministriesByCode[code])
+                    .OrderBy(m => isArabic ? m.MinistryDisplayName_AR : m.MinistryDisplayName_EN)
+                    .ToList();
+            }
+
+            return result;
         }
 
         // Loads the ministries shown in the strategy creation dropdowns, plus the
@@ -117,7 +213,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
 
         // GET: Frameworks
         [Permission(Permissions.ReadStrategies)]
-        public async Task<IActionResult> Index(string sortOrder, string searchString, FrameworkFilterViewModel filter)
+        public async Task<IActionResult> Index(string sortOrder, string searchString, FrameworkFilterViewModel filter, bool unassignedOnly = false, string? viewMode = null)
         {
             ViewData["CurrentSort"] = sortOrder;
             // هنا قمنا بتغيير الفرز الافتراضي ليكون تنازليًا حسب أداءالمشاريع
@@ -135,8 +231,9 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             filter.IsMinistryUser = !isAdmin; // non-admins are tied to one ministry -> hide the ministry filter
             ViewBag.UserMinistryCode = scopedMinistryCode; // preselects + locks the inline create dropdown
 
+            // Ministry names come from BuildFrameworkMinistriesAsync below, so the Ministry
+            // navigation does not need eager loading here.
             IQueryable<Framework> frameworksQuery = _context.Frameworks
-                .Include(f => f.Ministry)
                 .Include(f => f.Outcomes)
                     .ThenInclude(o => o.Outputs)
                         .ThenInclude(op => op.SubOutputs)
@@ -231,6 +328,44 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             }
 
             filter.Frameworks = await frameworksQuery.ToListAsync();
+            filter.FrameworkMinistries = await BuildFrameworkMinistriesAsync(filter.Frameworks, filter.Ministries);
+
+            // Strategies that belong to no ministry at all - neither an owning MinistryCode
+            // nor a ministry reached through their projects.
+            filter.UnassignedStrategyCount = filter.Frameworks
+                .Count(f => !filter.FrameworkMinistries.TryGetValue(f.Code, out var ms) || ms.Count == 0);
+
+            filter.UnassignedOnly = unassignedOnly;
+            if (unassignedOnly)
+            {
+                filter.Frameworks = filter.Frameworks
+                    .Where(f => !filter.FrameworkMinistries.TryGetValue(f.Code, out var ms) || ms.Count == 0)
+                    .ToList();
+            }
+
+            // One row per ministry that has at least one strategy, built by inverting the
+            // framework -> ministries map. A non-admin is narrowed to their own ministry: a
+            // strategy shared with another ministry would otherwise surface that ministry as
+            // a row on their landing page.
+            var isArabicUi = System.Globalization.CultureInfo.CurrentUICulture.TwoLetterISOLanguageName == "ar";
+            filter.MinistryGroups = filter.FrameworkMinistries
+                .SelectMany(entry => entry.Value.Select(ministry => new { FrameworkCode = entry.Key, Ministry = ministry }))
+                .Where(x => isAdmin || x.Ministry.Code == scopedMinistryCode)
+                .GroupBy(x => x.Ministry.Code)
+                .Select(g => new MinistryStrategyGroup
+                {
+                    Ministry = g.First().Ministry,
+                    StrategyCount = g.Select(x => x.FrameworkCode).Distinct().Count()
+                })
+                .OrderBy(g => isArabicUi ? g.Ministry.MinistryDisplayName_AR : g.Ministry.MinistryDisplayName_EN)
+                .ToList();
+
+            // The ministries table shows only when that layout is selected AND nothing narrows
+            // the page: a search, a ministry, or the unassigned bucket always means a strategy list.
+            filter.ShowMinistries = ResolveViewMode(viewMode, isAdmin) == ViewModeMinistries
+                && !unassignedOnly
+                && string.IsNullOrEmpty(searchString)
+                && (filter.SelectedMinistries == null || !filter.SelectedMinistries.Any());
 
             // Build detailed search results if search string is provided
             if (!string.IsNullOrEmpty(searchString))

@@ -20,6 +20,38 @@
     string MinistryName(Ministry ministry) =>
         isArabic ? ministry.MinistryDisplayName_AR : ministry.MinistryDisplayName_EN;
 
+    // Filters the list to one ministry while keeping the search, sort, donor and sector
+    // filters that are already applied. Built by hand because asp-route-* cannot express
+    // the repeated SelectedDonors / SelectedSector keys.
+    string MinistryFilterUrl(int ministryCode)
+    {
+        var parts = new List<string> { $"SelectedMinistries={ministryCode}" };
+
+        var currentSearch = ViewData["CurrentFilter"] as string;
+        if (!string.IsNullOrEmpty(currentSearch))
+        {
+            parts.Add($"searchString={Uri.EscapeDataString(currentSearch)}");
+        }
+
+        var currentSort = ViewData["CurrentSort"] as string;
+        if (!string.IsNullOrEmpty(currentSort))
+        {
+            parts.Add($"sortOrder={Uri.EscapeDataString(currentSort)}");
+        }
+
+        foreach (var donorCode in Model.SelectedDonors)
+        {
+            parts.Add($"SelectedDonors={donorCode}");
+        }
+
+        foreach (var sectorCode in Model.SelectedSector)
+        {
+            parts.Add($"SelectedSector={sectorCode}");
+        }
+
+        return $"{Url.Action("Index", "Frameworks")}?{string.Join("&", parts)}";
+    }
+
     string GetMatchColorClass(string type)
     {
         return type.ToLower() switch
@@ -61,7 +93,19 @@
                 @Localizer["Comprehensive overview of monitoring frameworks and their performance metrics"]
             </p>
         </div>
-        <div class="d-flex gap-2">
+        <div class="d-flex gap-2 align-items-center">
+            @* Layout switch. Both links are deliberately clean of filters: picking a layout
+               also clears any ministry / search narrowing. The choice is remembered server-side. *@
+            <div class="btn-group view-mode-toggle" role="group" aria-label="@Localizer["View"]">
+                <a href="@Url.Action("Index", "Frameworks")?viewMode=ministries"
+                   class="btn btn-lg @(Model.ShowMinistries ? "btn-primary" : "btn-outline-secondary")">
+                    <i class="fas fa-landmark me-2"></i>@Localizer["By Ministry"]
+                </a>
+                <a href="@Url.Action("Index", "Frameworks")?viewMode=strategies"
+                   class="btn btn-lg @(Model.ShowMinistries ? "btn-outline-secondary" : "btn-primary")">
+                    <i class="fas fa-list me-2"></i>@Localizer["All Strategies"]
+                </a>
+            </div>
             @await Html.PartialAsync("_HelpButton")
             @if (SignInManager.IsSignedIn(User))
             {
@@ -249,7 +293,88 @@
     </div>
 }
 
+@* Landing view: one row per ministry. Picking a ministry (or searching) switches the
+   page to the strategy list below. *@
+@if (Model.ShowMinistries)
+{
+    <div class="chart-card">
+        <div class="chart-title">
+            <i class="fas fa-landmark"></i>
+            @Localizer["Ministries"] (@Model.MinistryGroups.Count)
+        </div>
+
+        @if (Model.MinistryGroups.Any() || Model.UnassignedStrategyCount > 0)
+        {
+            <div class="table-responsive">
+                <table class="table table-hover modern-table">
+                    <thead class="table-header">
+                        <tr>
+                            <th><i class="fas fa-landmark me-2"></i>@Localizer["Ministry"]</th>
+                            <th class="text-center"><i class="fas fa-sitemap me-2"></i>@Localizer["Strategies"]</th>
+                            <th class="text-center"></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var group in Model.MinistryGroups)
+                        {
+                            <tr class="table-row ministry-row"
+                                onclick="window.location.href='@Url.Action("Index", "Frameworks")?SelectedMinistries=@group.Ministry.Code'">
+                                <td>
+                                    <a class="ministry-row-link"
+                                       href="@Url.Action("Index", "Frameworks")?SelectedMinistries=@group.Ministry.Code">
+                                        @if (!string.IsNullOrEmpty(group.Ministry.Logo))
+                                        {
+                                            <span class="ministry-row-logo me-2">@group.Ministry.Logo</span>
+                                        }
+                                        @MinistryName(group.Ministry)
+                                    </a>
+                                </td>
+                                <td class="text-center">
+                                    <span class="badge bg-primary">@group.StrategyCount</span>
+                                </td>
+                                <td class="text-center">
+                                    <i class="fas @(isArabic ? "fa-chevron-left" : "fa-chevron-right") text-muted"></i>
+                                </td>
+                            </tr>
+                        }
+
+                        @* Strategies with no ministry at all would otherwise be unreachable from here. *@
+                        @if (Model.UnassignedStrategyCount > 0)
+                        {
+                            <tr class="table-row ministry-row"
+                                onclick="window.location.href='@Url.Action("Index", "Frameworks")?unassignedOnly=true'">
+                                <td>
+                                    <a class="ministry-row-link text-muted"
+                                       href="@Url.Action("Index", "Frameworks")?unassignedOnly=true">
+                                        <span class="ministry-row-logo me-2"><i class="fas fa-unlink"></i></span>
+                                        @Localizer["Unassigned"]
+                                    </a>
+                                </td>
+                                <td class="text-center">
+                                    <span class="badge bg-secondary">@Model.UnassignedStrategyCount</span>
+                                </td>
+                                <td class="text-center">
+                                    <i class="fas @(isArabic ? "fa-chevron-left" : "fa-chevron-right") text-muted"></i>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+        else
+        {
+            <div class="text-center py-5">
+                <i class="fas fa-landmark fa-3x text-muted mb-3"></i>
+                <p class="text-muted">@Localizer["No ministries found"]</p>
+            </div>
+        }
+    </div>
+}
+
 <!-- Frameworks Grid -->
+@if (!Model.ShowMinistries)
+{
 <div class="row">
     <!-- Filter Sidebar -->
     <div class="col-lg-3 col-md-4 mb-4">
@@ -478,16 +603,24 @@
                                         </div>
                                     </td>
                                     <td class="framework-ministry-cell">
+                                        @{
+                                            Model.FrameworkMinistries.TryGetValue(item.Code, out var itemMinistries);
+                                            itemMinistries ??= new List<Ministry>();
+                                        }
                                         <span id="fw-ministry-@item.Code" class="fw-ministry-view">
-                                            @if (item.Ministry != null)
+                                            @if (itemMinistries.Count > 0)
                                             {
-                                                <span class="ministry-badge">
-                                                    @if (!string.IsNullOrEmpty(item.Ministry.Logo))
-                                                    {
-                                                        <span class="ministry-logo me-1">@item.Ministry.Logo</span>
-                                                    }
-                                                    @MinistryName(item.Ministry)
-                                                </span>
+                                                @foreach (var ministry in itemMinistries)
+                                                {
+                                                    <a class="ministry-badge" href="@MinistryFilterUrl(ministry.Code)"
+                                                       title="@Localizer["Filter by this ministry"]">
+                                                        @if (!string.IsNullOrEmpty(ministry.Logo))
+                                                        {
+                                                            <span class="ministry-logo me-1">@ministry.Logo</span>
+                                                        }
+                                                        @MinistryName(ministry)
+                                                    </a>
+                                                }
                                             }
                                             else
                                             {
@@ -504,6 +637,9 @@
                                                 <i class="fas fa-pen"></i>
                                             </button>
                                             <div id="fw-ministry-edit-container-@item.Code" class="d-none mt-1">
+                                                @* The badges above do not distinguish the owner from project-derived
+                                                   ministries, so the editor states what it actually changes. *@
+                                                <div class="small text-muted mb-1">@Localizer["Owner Ministry"]</div>
                                                 <div class="d-flex align-items-center gap-2">
                                                     <select id="fw-ministry-select-@item.Code" class="form-select form-select-sm">
                                                         <option value="">@Localizer["Select Ministry"]</option>
@@ -769,6 +905,7 @@
         </div>
     </div>
 </div>
+}
 
 @section Scripts {
     <!-- SweetAlert2 -->
@@ -880,9 +1017,21 @@
                                 popup: 'swal2-modern'
                             }
                         }).then(() => {
-                            // Add new framework to table with animation
-                            addFrameworkToTable(response.framework);
-                            toggleInlineCreate();
+                            @if (Model.ShowMinistries)
+                            {
+                                // The ministries landing view has no strategy table to append
+                                // to, so go straight to the new strategy's ministry.
+                                <text>
+                                window.location.href = '@Url.Action("Index", "Frameworks")?SelectedMinistries=' + response.framework.ministryCode;
+                                </text>
+                            }
+                            else
+                            {
+                                <text>
+                                addFrameworkToTable(response.framework);
+                                toggleInlineCreate();
+                                </text>
+                            }
                         });
                     } else {
                         Swal.fire({
@@ -926,8 +1075,11 @@
             const ministryLogo = framework.ministryLogo
                 ? `<span class="ministry-logo me-1">${framework.ministryLogo}</span>`
                 : '';
+            // A brand new framework has only its owning ministry and no projects yet, so
+            // one badge - clickable like the server-rendered ones.
+            const ministryFilterUrl = `@Url.Action("Index", "Frameworks")?SelectedMinistries=${framework.ministryCode}`;
             const ministryCell = framework.ministryName
-                ? `<span class="ministry-badge">${ministryLogo}${framework.ministryName}</span>`
+                ? `<a class="ministry-badge" href="${ministryFilterUrl}" title="@Localizer["Filter by this ministry"]">${ministryLogo}${framework.ministryName}</a>`
                 : `<span class="ministry-badge ministry-badge-empty"><i class="fas fa-unlink me-1"></i>@Localizer["Not linked"]</span>`;
             const newRow = `
                 <tr id="framework-row-${framework.code}" class="table-row new-framework-row" style="opacity: 0; transform: translateX(-20px);">
@@ -1150,20 +1302,15 @@
                         return;
                     }
 
-                    const logo = response.ministryLogo
-                        ? `<span class="ministry-logo me-1">${response.ministryLogo}</span>`
-                        : '';
-                    $(`#fw-ministry-${code}`)
-                        .html(`<span class="ministry-badge">${logo}${response.ministryName}</span>`);
-                    cancelFrameworkMinistryEdit(code);
-
+                    // The cell can hold several badges (owner + ministries reached through
+                    // projects), so reload rather than patch it down to a single one.
                     Swal.fire({
                         icon: 'success',
                         title: '@Localizer["Saved!"]',
                         text: '@Localizer["Ministry updated successfully."]',
-                        timer: 2000,
+                        timer: 1500,
                         showConfirmButton: false
-                    });
+                    }).then(() => location.reload());
                 },
                 error: function () {
                     Swal.fire({
@@ -1754,20 +1901,53 @@
             min-width: 300px;
         }
 
+        /* Ministries landing table - the whole row drills into that ministry. */
+        .ministry-row {
+            cursor: pointer;
+        }
+
+        .ministry-row-link {
+            display: inline-flex;
+            align-items: center;
+            color: #333;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 1.05rem;
+        }
+
+        .ministry-row:hover .ministry-row-link {
+            color: var(--primary-color);
+        }
+
+        .ministry-row-logo {
+            font-size: 1.4rem;
+        }
+
+        /* A framework can list several ministries, so the badges wrap. */
         .framework-ministry-cell {
             min-width: 200px;
-            white-space: nowrap;
         }
 
         .ministry-badge {
             display: inline-flex;
             align-items: center;
             padding: 4px 10px;
+            margin: 2px 0;
             border-radius: 20px;
             background: rgba(13, 110, 253, 0.08);
             color: #0d6efd;
             font-size: 0.875rem;
             font-weight: 600;
+        }
+
+        a.ministry-badge {
+            text-decoration: none;
+            transition: background 0.2s ease, color 0.2s ease;
+        }
+
+        a.ministry-badge:hover {
+            background: rgba(13, 110, 253, 0.18);
+            color: var(--primary-dark, #0a58ca);
         }
 
         .ministry-badge-empty {
