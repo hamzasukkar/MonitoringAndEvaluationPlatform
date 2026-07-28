@@ -922,7 +922,8 @@
 
     <!-- Help System CSS -->
     <link rel="stylesheet" href="~/css/help-system.css" asp-append-version="true" />
-    <link rel="stylesheet" href="~/css/chatbot-widget.css" asp-append-version="true" />
+    @* Chatbot hidden - uncomment to re-enable *@
+    @*<link rel="stylesheet" href="~/css/chatbot-widget.css" asp-append-version="true" />*@
 
     @await RenderSectionAsync("Styles", required: false)
 </head>
@@ -1504,7 +1505,8 @@
 
     <!-- Help Modal Section -->
     @await RenderSectionAsync("Modals", required: false)
-    @await Html.PartialAsync("_ChatbotWidget")
-    <script src="~/js/chatbot-widget.js" asp-append-version="true"></script>
+    @* Chatbot hidden - uncomment to re-enable *@
+    @*@await Html.PartialAsync("_ChatbotWidget")*@
+    @*<script src="~/js/chatbot-widget.js" asp-append-version="true"></script>*@
 </body>
 </html>
