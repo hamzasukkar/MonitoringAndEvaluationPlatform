@@ -90,6 +90,9 @@ namespace MonitoringAndEvaluationPlatform.Models
 
         public ICollection<RequestComment> Comments { get; set; } = new List<RequestComment>();
 
+        /// <summary>Formal test sign-offs — one per named employee who verified the request.</summary>
+        public ICollection<RequestTest> Tests { get; set; } = new List<RequestTest>();
+
         [Display(Name = "Created At")]
         public DateTime CreatedAt { get; set; }
 

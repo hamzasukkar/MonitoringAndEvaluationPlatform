@@ -325,4 +325,37 @@
   <data name="Unknown" xml:space="preserve">
     <value>غير معروف</value>
   </data>
+  <data name="TestSignOff" xml:space="preserve">
+    <value>إقرار التجريب</value>
+  </data>
+  <data name="TestSignOffHint" xml:space="preserve">
+    <value>الموظفون الذين جرّبوا هذا الطلب وأكدوا أنه يعمل بشكل صحيح.</value>
+  </data>
+  <data name="NoTestsYet" xml:space="preserve">
+    <value>لم يُسجَّل أي تجريب بعد.</value>
+  </data>
+  <data name="TestedBy" xml:space="preserve">
+    <value>الموظف الذي جرّب</value>
+  </data>
+  <data name="SelectEmployee" xml:space="preserve">
+    <value>اختر الموظف…</value>
+  </data>
+  <data name="TestNote" xml:space="preserve">
+    <value>ملاحظة (اختياري)</value>
+  </data>
+  <data name="TestNotePlaceholder" xml:space="preserve">
+    <value>مثال: تم التجريب على النسخة التجريبية</value>
+  </data>
+  <data name="RecordTest" xml:space="preserve">
+    <value>تسجيل تجريب</value>
+  </data>
+  <data name="Remove" xml:space="preserve">
+    <value>إزالة</value>
+  </data>
+  <data name="ConfirmRemoveTest" xml:space="preserve">
+    <value>هل تريد إزالة سجل التجريب هذا؟</value>
+  </data>
+  <data name="AllEmployeesTested" xml:space="preserve">
+    <value>جميع الموظفين سجّلوا تجريبهم لهذا الطلب.</value>
+  </data>
 </root>

@@ -185,6 +185,97 @@
             </div>
 
             @{
+                var testEmployees = ViewBag.TestEmployees as SelectList;
+                var canAddTest = canManage && testEmployees != null && testEmployees.Any();
+            }
+
+            <!-- Formal test sign-off: one tick per named employee -->
+            <div class="card mt-4">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <strong><i class="fas fa-clipboard-check me-2"></i>@Localizer["TestSignOff"]</strong>
+                    <span class="badge bg-success">@Model.Tests.Count</span>
+                </div>
+                <div class="card-body">
+                    <p class="text-muted small">@Localizer["TestSignOffHint"]</p>
+
+                    @if (!Model.Tests.Any())
+                    {
+                        <p class="text-muted mb-0">@Localizer["NoTestsYet"]</p>
+                    }
+                    else
+                    {
+                        <div class="list-group mb-3">
+                            @foreach (var t in Model.Tests.OrderBy(t => t.CreatedAt))
+                            {
+                                <div class="list-group-item d-flex justify-content-between align-items-start">
+                                    <div>
+                                        <i class="fas fa-check-circle text-success me-2"></i>
+                                        <strong>@t.RequestEmployee.Name</strong>
+                                        @if (!string.IsNullOrWhiteSpace(t.RequestEmployee.JobTitle))
+                                        {
+                                            <small class="text-muted">— @t.RequestEmployee.JobTitle</small>
+                                        }
+                                        @if (t.RecordedByUser != null)
+                                        {
+                                            <small class="text-muted d-block">@Localizer["RecordedBy"]: @t.RecordedByUser.UserName</small>
+                                        }
+                                        @if (!string.IsNullOrWhiteSpace(t.Note))
+                                        {
+                                            <p class="mb-0 mt-1 small" style="white-space:pre-wrap;">@t.Note</p>
+                                        }
+                                    </div>
+                                    <div class="text-end text-nowrap ms-3">
+                                        <small class="text-muted d-block">@t.CreatedAt.ToString("yyyy-MM-dd HH:mm")</small>
+                                        @if (canManage)
+                                        {
+                                            <form asp-action="RemoveTest" asp-route-id="@t.Id" method="post" class="d-inline"
+                                                  onsubmit="return confirm('@Localizer["ConfirmRemoveTest"]');">
+                                                @Html.AntiForgeryToken()
+                                                <button type="submit" class="btn btn-link btn-sm text-danger p-0">@Localizer["Remove"]</button>
+                                            </form>
+                                        }
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    }
+
+                    @if (canManage)
+                    {
+                        <hr />
+                        @if (canAddTest)
+                        {
+                            <form asp-action="RecordTest" method="post" class="row g-2 align-items-end">
+                                @Html.AntiForgeryToken()
+                                <input type="hidden" name="requestId" value="@Model.Id" />
+                                <div class="col-md-5">
+                                    <label class="form-label small mb-1">@Localizer["TestedBy"]</label>
+                                    <select name="requestEmployeeId" class="form-select form-select-sm" required
+                                            asp-items="ViewBag.TestEmployees">
+                                        <option value="">@Localizer["SelectEmployee"]</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-5">
+                                    <label class="form-label small mb-1">@Localizer["TestNote"]</label>
+                                    <input type="text" name="note" maxlength="500" class="form-control form-control-sm"
+                                           placeholder="@Localizer["TestNotePlaceholder"]" />
+                                </div>
+                                <div class="col-md-2">
+                                    <button type="submit" class="btn btn-success btn-sm w-100">
+                                        <i class="fas fa-check me-1"></i>@Localizer["RecordTest"]
+                                    </button>
+                                </div>
+                            </form>
+                        }
+                        else
+                        {
+                            <p class="text-muted small mb-0">@Localizer["AllEmployeesTested"]</p>
+                        }
+                    }
+                </div>
+            </div>
+
+            @{
                 var topComments = Model.Comments
                     .Where(c => c.ParentCommentId == null)
                     .OrderBy(c => c.CreatedAt).ToList();

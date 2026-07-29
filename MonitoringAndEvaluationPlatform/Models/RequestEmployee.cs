@@ -32,5 +32,8 @@ namespace MonitoringAndEvaluationPlatform.Models
         public string? JobTitle { get; set; }
 
         public ICollection<Request> Requests { get; set; } = new List<Request>();
+
+        /// <summary>Test sign-offs this employee recorded. Blocks deletion while non-empty.</summary>
+        public ICollection<RequestTest> Tests { get; set; } = new List<RequestTest>();
     }
 }

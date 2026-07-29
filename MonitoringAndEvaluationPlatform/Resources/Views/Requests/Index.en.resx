@@ -268,4 +268,28 @@
   <data name="RequestEmployeeHint" xml:space="preserve">
     <value>Select the employee who wrote this request</value>
   </data>
+  <data name="Tested" xml:space="preserve">
+    <value>Tested</value>
+  </data>
+  <data name="RecordTest" xml:space="preserve">
+    <value>Record a test</value>
+  </data>
+  <data name="TestedBy" xml:space="preserve">
+    <value>Tested by</value>
+  </data>
+  <data name="SelectEmployee" xml:space="preserve">
+    <value>Select an employee…</value>
+  </data>
+  <data name="TestNote" xml:space="preserve">
+    <value>Note (optional)</value>
+  </data>
+  <data name="TestNotePlaceholder" xml:space="preserve">
+    <value>e.g. tested on the staging server</value>
+  </data>
+  <data name="AlreadyTested" xml:space="preserve">
+    <value>already tested</value>
+  </data>
+  <data name="NoEmployeesYet" xml:space="preserve">
+    <value>Add employees first to record tests.</value>
+  </data>
 </root>

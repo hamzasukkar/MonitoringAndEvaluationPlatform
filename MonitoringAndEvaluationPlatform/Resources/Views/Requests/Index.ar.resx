@@ -268,4 +268,28 @@
   <data name="RequestEmployeeHint" xml:space="preserve">
     <value>اختر الموظف الذي كتب هذا الطلب</value>
   </data>
+  <data name="Tested" xml:space="preserve">
+    <value>تم التجريب</value>
+  </data>
+  <data name="RecordTest" xml:space="preserve">
+    <value>تسجيل تجريب</value>
+  </data>
+  <data name="TestedBy" xml:space="preserve">
+    <value>الموظف الذي جرّب</value>
+  </data>
+  <data name="SelectEmployee" xml:space="preserve">
+    <value>اختر الموظف…</value>
+  </data>
+  <data name="TestNote" xml:space="preserve">
+    <value>ملاحظة (اختياري)</value>
+  </data>
+  <data name="TestNotePlaceholder" xml:space="preserve">
+    <value>مثال: تم التجريب على النسخة التجريبية</value>
+  </data>
+  <data name="AlreadyTested" xml:space="preserve">
+    <value>جرّبه مسبقاً</value>
+  </data>
+  <data name="NoEmployeesYet" xml:space="preserve">
+    <value>أضف موظفين أولاً لتتمكن من تسجيل التجريب.</value>
+  </data>
 </root>

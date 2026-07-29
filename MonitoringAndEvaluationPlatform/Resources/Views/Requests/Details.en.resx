@@ -325,4 +325,37 @@
   <data name="Unknown" xml:space="preserve">
     <value>Unknown</value>
   </data>
+  <data name="TestSignOff" xml:space="preserve">
+    <value>Test sign-off</value>
+  </data>
+  <data name="TestSignOffHint" xml:space="preserve">
+    <value>Employees who tried this request and confirmed it works correctly.</value>
+  </data>
+  <data name="NoTestsYet" xml:space="preserve">
+    <value>No test has been recorded yet.</value>
+  </data>
+  <data name="TestedBy" xml:space="preserve">
+    <value>Tested by</value>
+  </data>
+  <data name="SelectEmployee" xml:space="preserve">
+    <value>Select an employee…</value>
+  </data>
+  <data name="TestNote" xml:space="preserve">
+    <value>Note (optional)</value>
+  </data>
+  <data name="TestNotePlaceholder" xml:space="preserve">
+    <value>e.g. tested on the staging server</value>
+  </data>
+  <data name="RecordTest" xml:space="preserve">
+    <value>Record a test</value>
+  </data>
+  <data name="Remove" xml:space="preserve">
+    <value>Remove</value>
+  </data>
+  <data name="ConfirmRemoveTest" xml:space="preserve">
+    <value>Remove this test record?</value>
+  </data>
+  <data name="AllEmployeesTested" xml:space="preserve">
+    <value>Every employee has already recorded a test on this request.</value>
+  </data>
 </root>

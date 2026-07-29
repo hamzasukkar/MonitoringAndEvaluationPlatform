@@ -33,7 +33,8 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 .Select(e => new EmployeeRow
                 {
                     Employee = e,
-                    RequestCount = e.Requests.Count
+                    RequestCount = e.Requests.Count,
+                    TestCount = e.Tests.Count
                 })
                 .OrderBy(e => e.Employee.Name)
                 .ToListAsync();
@@ -106,6 +107,19 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             var employee = await _context.RequestEmployees.FindAsync(id);
             if (employee == null) return NotFound();
 
+            // Test sign-offs are this employee's own verification record and their FK is
+            // Restrict, so deleting here would throw a raw FK violation. Block it with a
+            // clear message instead.
+            var testCount = await _context.RequestTests.CountAsync(t => t.RequestEmployeeId == id);
+            if (testCount > 0)
+            {
+                this.SetErrorMessage(string.Format(
+                    _localizer["'{0}' cannot be deleted: {1} recorded test(s) reference them. Remove those tests first."].Value,
+                    employee.Name, testCount));
+
+                return RedirectToAction(nameof(Index));
+            }
+
             // Linked requests are detached automatically (FK is SetNull).
             _context.RequestEmployees.Remove(employee);
             await _context.SaveChangesAsync();
@@ -120,6 +134,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         {
             public RequestEmployee Employee { get; set; } = default!;
             public int RequestCount { get; set; }
+            public int TestCount { get; set; }
         }
     }
 }

@@ -46,6 +46,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 .Include(r => r.PlatformVersion)
                 .Include(r => r.RequestEmployee)
                 .Include(r => r.Files)
+                .Include(r => r.Tests).ThenInclude(t => t.RequestEmployee)
                 .AsQueryable();
 
             if (!string.IsNullOrWhiteSpace(searchTerm))
@@ -101,6 +102,15 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                     .Select(e => new { e.Id, e.Name })
                     .ToListAsync(),
                 "Id", "Name", employeeId);
+
+            // Full employee list for the shared "record a test" modal. Kept separate from
+            // EmployeeFilter so the filter's selected value does not leak into the modal.
+            ViewBag.TestEmployees = new SelectList(
+                await _context.RequestEmployees
+                    .OrderBy(e => e.Name)
+                    .Select(e => new { e.Id, e.Name })
+                    .ToListAsync(),
+                "Id", "Name");
 
             return View(requests);
         }
@@ -184,6 +194,8 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 .Include(r => r.Files)
                 .Include(r => r.Comments).ThenInclude(c => c.AuthorUser)
                 .Include(r => r.Comments).ThenInclude(c => c.OnBehalfOfEmployee)
+                .Include(r => r.Tests).ThenInclude(t => t.RequestEmployee)
+                .Include(r => r.Tests).ThenInclude(t => t.RecordedByUser)
                 .FirstOrDefaultAsync(r => r.Id == id);
 
             if (request == null) return NotFound();
@@ -196,6 +208,16 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             ViewBag.IsAdmin = User.IsInRole(UserRoles.SystemAdministrator);
             ViewBag.CommentEmployees = new SelectList(
                 await _context.RequestEmployees.OrderBy(e => e.Name)
+                    .Select(e => new { e.Id, e.Name }).ToListAsync(),
+                "Id", "Name");
+
+            // Only employees who have not ticked this request yet are valid picks, so the
+            // duplicate case is unreachable from the form and the unique index is a backstop.
+            var testedIds = request.Tests.Select(t => t.RequestEmployeeId).ToList();
+            ViewBag.TestEmployees = new SelectList(
+                await _context.RequestEmployees
+                    .Where(e => !testedIds.Contains(e.Id))
+                    .OrderBy(e => e.Name)
                     .Select(e => new { e.Id, e.Name }).ToListAsync(),
                 "Id", "Name");
 
@@ -375,6 +397,92 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             return RedirectToAction(nameof(Details), new { id = comment.RequestId });
         }
 
+        // ---------------------------------------------------------------- Testing sign-off
+
+        // POST: Requests/RecordTest — a named employee ticks "I tried this and it works".
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        [Permission(Permissions.ManageRequests)]
+        public async Task<IActionResult> RecordTest(
+            int requestId, int requestEmployeeId, string? note, string? returnUrl)
+        {
+            var requestExists = await _context.Requests.AnyAsync(r => r.Id == requestId);
+            if (!requestExists) return NotFound();
+
+            var employee = await _context.RequestEmployees
+                .FirstOrDefaultAsync(e => e.Id == requestEmployeeId);
+
+            if (employee == null)
+            {
+                this.SetErrorMessage(_localizer["Select the employee who tested the request."].Value);
+                return BackTo(returnUrl, requestId);
+            }
+
+            // The unique index is the real guard; this check turns the common case into a
+            // friendly message instead of an exception page.
+            var already = await _context.RequestTests
+                .AnyAsync(t => t.RequestId == requestId && t.RequestEmployeeId == requestEmployeeId);
+
+            if (already)
+            {
+                this.SetErrorMessage(string.Format(
+                    _localizer["'{0}' has already recorded a test on this request."].Value, employee.Name));
+                return BackTo(returnUrl, requestId);
+            }
+
+            _context.RequestTests.Add(new RequestTest
+            {
+                RequestId = requestId,
+                RequestEmployeeId = requestEmployeeId,
+                RecordedByUserId = _userManager.GetUserId(User),
+                Note = string.IsNullOrWhiteSpace(note) ? null : note.Trim()
+            });
+
+            try
+            {
+                await _context.SaveChangesAsync();
+            }
+            catch (DbUpdateException)
+            {
+                // Two concurrent submits raced past the check above and hit the unique index.
+                this.SetErrorMessage(string.Format(
+                    _localizer["'{0}' has already recorded a test on this request."].Value, employee.Name));
+                return BackTo(returnUrl, requestId);
+            }
+
+            this.SetSuccessMessage(string.Format(
+                _localizer["Test by '{0}' has been recorded."].Value, employee.Name));
+
+            return BackTo(returnUrl, requestId);
+        }
+
+        // POST: Requests/RemoveTest — undo a tick. ManageRequests is the whole
+        // authorization story: a tick has no "author" who could self-service it,
+        // unlike a comment.
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        [Permission(Permissions.ManageRequests)]
+        public async Task<IActionResult> RemoveTest(int id, string? returnUrl)
+        {
+            var test = await _context.RequestTests
+                .Include(t => t.RequestEmployee)
+                .FirstOrDefaultAsync(t => t.Id == id);
+
+            if (test == null) return NotFound();
+
+            // Read what the redirect and the message need before the entity is removed.
+            var requestId = test.RequestId;
+            var employeeName = test.RequestEmployee.Name;
+
+            _context.RequestTests.Remove(test);
+            await _context.SaveChangesAsync();
+
+            this.SetSuccessMessage(string.Format(
+                _localizer["Test by '{0}' has been removed."].Value, employeeName));
+
+            return BackTo(returnUrl, requestId);
+        }
+
         // ---------------------------------------------------------------- Attachments
 
         // POST: Requests/DeleteFile/5
@@ -488,6 +596,21 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             var userId = _userManager.GetUserId(User);
             return request.SubmittedByUserId == userId
                 || request.AssignedToUserId == userId;
+        }
+
+        /// <summary>
+        /// Returns to the page the tick was recorded from — the Index keeps its filters in
+        /// the query string — and falls back to Details. Url.IsLocalUrl blocks an open
+        /// redirect; unlike LocalRedirect it degrades instead of throwing.
+        /// </summary>
+        private IActionResult BackTo(string? returnUrl, int requestId)
+        {
+            if (!string.IsNullOrWhiteSpace(returnUrl) && Url.IsLocalUrl(returnUrl))
+            {
+                return Redirect(returnUrl);
+            }
+
+            return RedirectToAction(nameof(Details), new { id = requestId });
         }
 
         private async Task PopulateLookupsAsync(int? includeVersionId = null)

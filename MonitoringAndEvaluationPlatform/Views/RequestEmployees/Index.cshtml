@@ -30,6 +30,14 @@
         </div>
     }
 
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            <i class="fas fa-exclamation-circle me-2"></i>@TempData["ErrorMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+
     <div class="card">
         <div class="table-responsive">
             <table class="table table-hover align-middle mb-0">
@@ -40,6 +48,7 @@
                         <th>@Localizer["PhoneNumber"]</th>
                         <th>@Localizer["Email"]</th>
                         <th>@Localizer["Requests"]</th>
+                        <th>@Localizer["Tests"]</th>
                         <th class="text-end">@Localizer["Actions"]</th>
                     </tr>
                 </thead>
@@ -47,7 +56,7 @@
                     @if (!Model.Any())
                     {
                         <tr>
-                            <td colspan="6" class="text-center text-muted py-4">
+                            <td colspan="7" class="text-center text-muted py-4">
                                 <i class="fas fa-address-book fa-2x d-block mb-2"></i>
                                 @Localizer["NoEmployeesYet"]
                             </td>
@@ -67,6 +76,16 @@
                                     {
                                         <a asp-controller="Requests" asp-action="Index" asp-route-employeeId="@row.Employee.Id"
                                            class="badge bg-info text-decoration-none">@row.RequestCount</a>
+                                    }
+                                    else
+                                    {
+                                        <span class="text-muted">0</span>
+                                    }
+                                </td>
+                                <td>
+                                    @if (row.TestCount > 0)
+                                    {
+                                        <span class="badge bg-success">@row.TestCount</span>
                                     }
                                     else
                                     {

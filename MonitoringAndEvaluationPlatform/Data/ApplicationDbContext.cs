@@ -48,6 +48,7 @@ namespace MonitoringAndEvaluationPlatform.Data
         public DbSet<PlatformVersion> PlatformVersions { get; set; } = default!;
         public DbSet<RequestEmployee> RequestEmployees { get; set; } = default!;
         public DbSet<RequestComment> RequestComments { get; set; } = default!;
+        public DbSet<RequestTest> RequestTests { get; set; } = default!;
 
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -131,6 +132,36 @@ namespace MonitoringAndEvaluationPlatform.Data
                 .WithMany()
                 .HasForeignKey(c => c.OnBehalfOfEmployeeId)
                 .OnDelete(DeleteBehavior.SetNull);
+
+            // Test sign-offs die with their request. This is the only cascading path
+            // into RequestTests, so SQL Server sees no multiple cascade paths.
+            modelBuilder.Entity<RequestTest>()
+                .HasOne(t => t.Request)
+                .WithMany(r => r.Tests)
+                .HasForeignKey(t => t.RequestId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            // The named employee is the identity of the tick, so the FK is required and
+            // SetNull is impossible. Restrict keeps the verification record intact;
+            // RequestEmployeesController.Delete blocks the delete with a clear message
+            // instead of silently erasing who signed off on what.
+            modelBuilder.Entity<RequestTest>()
+                .HasOne(t => t.RequestEmployee)
+                .WithMany(e => e.Tests)
+                .HasForeignKey(t => t.RequestEmployeeId)
+                .IsRequired()
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<RequestTest>()
+                .HasOne(t => t.RecordedByUser)
+                .WithMany()
+                .HasForeignKey(t => t.RecordedByUserId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            // One tick per employee per request — the real guard against a double submit.
+            modelBuilder.Entity<RequestTest>()
+                .HasIndex(t => new { t.RequestId, t.RequestEmployeeId })
+                .IsUnique();
 
             // Measure primary key
             modelBuilder.Entity<Measure>()
