@@ -103,6 +103,12 @@
         <div class="row">
             <div class="col-md-2 col-sm-6 mb-2">
                 <div class="legend-item">
+                    <div class="legend-color ministry-color"></div>
+                    <span>@Localizer["Ministry"]</span>
+                </div>
+            </div>
+            <div class="col-md-2 col-sm-6 mb-2">
+                <div class="legend-item">
                     <div class="legend-color framework-color"></div>
                     <span>@Localizer["Framework"]</span>
                 </div>
@@ -641,6 +647,7 @@
         box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
     }
 
+    .ministry-color { background-color: #17a2b8; }
     .framework-color { background-color: #6f42c1; }
     .outcome-color { background-color: #dc3545; }
     .output-color { background-color: #007bff; }
@@ -726,6 +733,11 @@
     }
 
     /* Node Type Colors */
+    .tree-node.ministry {
+        border-left: 4px solid #17a2b8;
+        background: linear-gradient(135deg, rgba(23, 162, 184, 0.1) 0%, var(--secondary-card-background) 100%);
+    }
+
     .tree-node.framework {
         border-left: 4px solid #6f42c1;
         background: linear-gradient(135deg, rgba(111, 66, 193, 0.1) 0%, var(--secondary-card-background) 100%);
@@ -1078,6 +1090,7 @@
         direction: rtl;
     }
 
+    html[dir="rtl"] .tree-node.ministry,
     html[dir="rtl"] .tree-node.framework,
     html[dir="rtl"] .tree-node.outcome,
     html[dir="rtl"] .tree-node.output,
@@ -1089,6 +1102,7 @@
         border-right: 4px solid;
     }
 
+    html[dir="rtl"] .tree-node.ministry   { border-right-color: #17a2b8; background: linear-gradient(225deg, rgba(23, 162, 184, 0.1) 0%, var(--secondary-card-background) 100%); }
     html[dir="rtl"] .tree-node.framework  { border-right-color: #6f42c1; background: linear-gradient(225deg, rgba(111, 66, 193, 0.1) 0%, var(--secondary-card-background) 100%); }
     html[dir="rtl"] .tree-node.outcome    { border-right-color: #dc3545; background: linear-gradient(225deg, rgba(220, 53, 69, 0.1) 0%, var(--secondary-card-background) 100%); }
     html[dir="rtl"] .tree-node.output     { border-right-color: #007bff; background: linear-gradient(225deg, rgba(0, 123, 255, 0.1) 0%, var(--secondary-card-background) 100%); }
@@ -1187,6 +1201,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Localization map for node types
     const typeTranslations = {
+        'Ministry': '@Localizer["Ministry"]',
         'Framework': '@Localizer["Framework"]',
         'Outcome': '@Localizer["Outcome"]',
         'Output': '@Localizer["Output"]',
@@ -1624,8 +1639,8 @@ document.addEventListener('DOMContentLoaded', function() {
             const nodeDiv = container.querySelector(':scope > .tree-node');
             if (!nodeDiv) return;
 
-            // Framework nodes are never filtered
-            if (nodeDiv.classList.contains('framework')) return;
+            // Framework/Ministry nodes are never filtered
+            if (nodeDiv.classList.contains('framework') || nodeDiv.classList.contains('ministry')) return;
 
             const perf = getNodePerf(nodeDiv);
             const below = perf < threshold;
@@ -2004,7 +2019,7 @@ document.addEventListener('DOMContentLoaded', function() {
     function applyStatusColors() {
         document.querySelectorAll('.tree-node').forEach(nodeDiv => {
             nodeDiv.classList.remove('perf-good', 'perf-mid', 'perf-low', 'perf-bad');
-            if (nodeDiv.classList.contains('framework')) return;
+            if (nodeDiv.classList.contains('framework') || nodeDiv.classList.contains('ministry')) return;
             nodeDiv.classList.add(perfStatusClass(getNodePerf(nodeDiv)));
         });
     }

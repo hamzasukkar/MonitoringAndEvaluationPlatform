@@ -77,6 +77,11 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 return Forbid();
             }
 
+            Ministry? ministry = framework.MinistryCode.HasValue
+                ? await _context.Ministries.FindAsync(framework.MinistryCode.Value)
+                : null;
+            bool isArabic = System.Globalization.CultureInfo.CurrentUICulture.TwoLetterISOLanguageName == "ar";
+
             IQueryable<Framework> query;
 
             if (includePhases)
@@ -98,7 +103,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                     .ThenInclude(so => so.Indicators);
             }
 
-            var data = query
+            var frameworkNodes = query
                 .Where(f => f.Code == id)
                 .ToList()
                 .SelectMany(f => new[]
@@ -106,7 +111,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             new
             {
                 id = $"F{f.Code}",
-                pid = "",
+                pid = ministry != null ? $"M{ministry.Code}" : "",
                 name = f.Name,
                 type = "Framework",
                 weight = 1.0,
@@ -183,7 +188,23 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                     return new[] { indicatorNode }.Concat(phaseNodes).AsEnumerable();
                 })))))))));
 
-            return Json(data);
+            if (ministry == null)
+            {
+                return Json(frameworkNodes);
+            }
+
+            var ministryNode = new
+            {
+                id = $"M{ministry.Code}",
+                pid = "",
+                name = isArabic ? ministry.MinistryDisplayName_AR : ministry.MinistryDisplayName_EN,
+                type = "Ministry",
+                weight = 1.0,
+                IndicatorsPerformance = Math.Round(ministry.IndicatorsPerformance, 0).ToString() + "%",
+                DisbursementPerformance = Math.Round(ministry.DisbursementPerformance, 0).ToString() + "%"
+            };
+
+            return Json(new object[] { ministryNode }.Concat(frameworkNodes));
         }
 
 
