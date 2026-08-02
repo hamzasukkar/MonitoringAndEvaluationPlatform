@@ -306,15 +306,20 @@ namespace MonitoringAndEvaluationPlatform.Infrastructure
                 {
                     var publicSectorTypes = new List<PublicSectorType>
                     {
-                        new PublicSectorType { EN_Name = "Irrigation and Agriculture",         AR_Name = "الري والزراعة" },
-                        new PublicSectorType { EN_Name = "Extractive Industry",                AR_Name = "الصناعة الاستخراجية" },
-                        new PublicSectorType { EN_Name = "Manufacturing Industry",             AR_Name = "الصناعة التحويلية" },
-                        new PublicSectorType { EN_Name = "Electricity and Water",              AR_Name = "الكهرباء والماء" },
-                        new PublicSectorType { EN_Name = "Building and Construction",          AR_Name = "البناء والتشييد" },
-                        new PublicSectorType { EN_Name = "Trade",                              AR_Name = "التجارة" },
-                        new PublicSectorType { EN_Name = "Transport and Communications",       AR_Name = "النقل والمواصلات" },
-                        new PublicSectorType { EN_Name = "Finance, Insurance and Real Estate", AR_Name = "المال والتأمين والعقارات" },
-                        new PublicSectorType { EN_Name = "Services",                           AR_Name = "الخدمات" },
+                        new PublicSectorType { EN_Name = "Irrigation and Agriculture",                    AR_Name = "الري والزراعة" },
+                        new PublicSectorType { EN_Name = "Extractive Industry",                           AR_Name = "الصناعة الاستخراجية" },
+                        new PublicSectorType { EN_Name = "Manufacturing Industry",                        AR_Name = "الصناعة التحويلية" },
+                        new PublicSectorType { EN_Name = "Electricity",                                   AR_Name = "الكهرباء" },
+                        new PublicSectorType { EN_Name = "Water Resources",                               AR_Name = "الموارد المائية" },
+                        new PublicSectorType { EN_Name = "Building and Construction",                     AR_Name = "البناء والتشييد" },
+                        new PublicSectorType { EN_Name = "Trade",                                         AR_Name = "التجارة" },
+                        new PublicSectorType { EN_Name = "Transport and Communications",                  AR_Name = "النقل والمواصلات" },
+                        new PublicSectorType { EN_Name = "Finance, Insurance and Real Estate",            AR_Name = "المال والتأمين والعقارات" },
+                        new PublicSectorType { EN_Name = "Health",                                        AR_Name = "الصحة" },
+                        new PublicSectorType { EN_Name = "Education",                                     AR_Name = "التعليم" },
+                        new PublicSectorType { EN_Name = "Culture",                                       AR_Name = "الثقافة" },
+                        new PublicSectorType { EN_Name = "Communications and Information Technology",     AR_Name = "الاتصالات وتكنولوجيا المعلومات" },
+                        new PublicSectorType { EN_Name = "Tourism",                                       AR_Name = "السياحة" },
                     };
                     context.PublicSectorTypes.AddRange(publicSectorTypes);
                     context.SaveChanges();
