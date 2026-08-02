@@ -58,6 +58,9 @@
                 <button class="btn btn-outline-secondary btn-sm" id="zoomIn" title="@Localizer["Zoom In"]">
                     <i class="fas fa-search-plus"></i>
                 </button>
+                <button class="btn btn-outline-secondary btn-sm" id="zoomFit" title="@Localizer["Fit to Screen"]">
+                    <i class="fas fa-compress"></i>
+                </button>
             </div>
             <button class="btn btn-outline-secondary btn-sm ms-2" id="fullscreenToggle" title="@Localizer["Full Screen"]">
                 <i class="fas fa-expand"></i>
@@ -235,6 +238,32 @@
 
         <div class="type-filter-divider"></div>
 
+        <!-- Compact nodes toggle -->
+        <label class="phases-toggle-label" for="compactToggle">
+            <input type="checkbox" id="compactToggle" class="phases-toggle-cb">
+            <i class="fas fa-compress-alt"></i>
+            @Localizer["Compact Nodes"]
+        </label>
+
+        <div class="type-filter-divider"></div>
+
+        <!-- Depth limit -->
+        <label class="threshold-label" for="depthLimit">
+            <i class="fas fa-stream me-1"></i>
+            @Localizer["Depth"]
+        </label>
+        <select id="depthLimit" class="depth-select">
+            <option value="0" selected>@Localizer["All"]</option>
+            <option value="1">1</option>
+            <option value="2">2</option>
+            <option value="3">3</option>
+            <option value="4">4</option>
+            <option value="5">5</option>
+            <option value="6">6</option>
+        </select>
+
+        <div class="type-filter-divider"></div>
+
         <!-- Performance threshold -->
         <label class="threshold-label" for="perfThreshold">
             <i class="fas fa-filter me-1"></i>
@@ -288,6 +317,9 @@
         </button>
     </div>
 </div>
+
+<!-- Focus (drill-down) breadcrumb — only shown while a branch is focused -->
+<div class="focus-bar mb-3" id="focusBreadcrumb" style="display:none;"></div>
 
 <!-- Tree Container Card -->
 <div class="card tree-card">
@@ -1219,6 +1251,155 @@
         transform-origin: top right;
     }
     /* ────────────────────────────────────────────────────────────────────── */
+
+    /* ── Large-tree readability: compact nodes, drag-to-pan, depth, focus ──── */
+
+    /* Depth selector — sized to match the other inline filter controls */
+    .depth-select {
+        background: var(--secondary-card-background);
+        color: var(--text-light-color);
+        border: 1px solid var(--border-color);
+        border-radius: 6px;
+        font-size: 0.8rem;
+        font-weight: 600;
+        padding: 0.2rem 0.4rem;
+        cursor: pointer;
+    }
+
+    /* Drag-to-pan: grab cursor on the canvas, but nodes keep their own pointer */
+    .tree-visualization { cursor: grab; }
+    .tree-visualization.tree-panning { cursor: grabbing; user-select: none; }
+    .tree-visualization.tree-panning .tree-node { cursor: grabbing; }
+
+    /* Compact nodes — strip the metrics down to the title so many more fit on screen.
+       The performance badges stay in the DOM (display:none keeps textContent readable)
+       so the threshold filter and status colours still work. */
+    body.tree-compact .tree-node {
+        min-width: 130px;
+        max-width: 200px;
+        padding: 0.45rem 0.65rem;
+        margin: 0.25rem;
+        border-radius: 8px;
+    }
+
+    body.tree-compact .node-type,
+    body.tree-compact .node-metrics,
+    body.tree-compact .node-progress-bar {
+        display: none;
+    }
+
+    body.tree-compact .node-title {
+        font-size: 0.78rem;
+        margin-bottom: 0;
+        line-height: 1.25;
+    }
+
+    body.tree-compact .expand-icon {
+        width: 18px;
+        height: 18px;
+        font-size: 0.6rem;
+        top: 4px;
+        right: 4px;
+    }
+
+    html[dir="rtl"] body.tree-compact .expand-icon {
+        right: auto;
+        left: 4px;
+    }
+
+    /* Focus (drill-down) button — sits opposite the expand icon, revealed on hover */
+    .node-focus-btn {
+        position: absolute;
+        top: 6px;
+        left: 6px;
+        width: 20px;
+        height: 20px;
+        padding: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.62rem;
+        line-height: 1;
+        border: 1px solid var(--border-color);
+        border-radius: 50%;
+        background: var(--secondary-card-background);
+        color: var(--text-light-color);
+        cursor: pointer;
+        opacity: 0;
+        transition: opacity 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+        z-index: 3;
+    }
+
+    html[dir="rtl"] .node-focus-btn {
+        left: auto;
+        right: 6px;
+    }
+
+    .tree-node:hover .node-focus-btn { opacity: 1; }
+
+    .node-focus-btn:hover {
+        color: var(--accent-gold-color);
+        border-color: var(--accent-gold-color);
+    }
+
+    body.tree-compact .node-focus-btn {
+        width: 16px;
+        height: 16px;
+        top: 4px;
+        left: 4px;
+        font-size: 0.55rem;
+    }
+
+    html[dir="rtl"] body.tree-compact .node-focus-btn {
+        left: auto;
+        right: 4px;
+    }
+
+    /* Focus breadcrumb bar */
+    .focus-bar {
+        display: flex;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 0.4rem;
+        padding: 0.6rem 0.9rem;
+        background: var(--secondary-card-background);
+        border: 1px solid var(--border-color);
+        border-radius: 10px;
+    }
+
+    html[dir="rtl"] .focus-bar { direction: rtl; }
+
+    .focus-crumb {
+        background: none;
+        border: none;
+        padding: 0.1rem 0.3rem;
+        font-size: 0.82rem;
+        font-weight: 600;
+        color: var(--text-light-color);
+        cursor: pointer;
+        border-radius: 4px;
+        max-width: 260px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    .focus-crumb:hover {
+        color: var(--accent-gold-color);
+        background: rgba(200, 168, 95, 0.12);
+    }
+
+    .focus-crumb.current {
+        color: var(--accent-gold-color);
+        cursor: default;
+    }
+
+    .focus-crumb-sep {
+        color: var(--text-light-color);
+        opacity: 0.5;
+        font-size: 0.8rem;
+    }
+    /* ────────────────────────────────────────────────────────────────────── */
 </style>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
@@ -1278,6 +1459,8 @@ document.addEventListener('DOMContentLoaded', function() {
     const weightLabel = '@Localizer["Weight"]';
     const indLabel = '@Localizer["IP"]';
     const disLabel = '@Localizer["DP"]';
+    const focusLabel = '@Localizer["Focus on this branch"]';
+    const showAllLabel = '@Localizer["Show All"]';
 
     // Returns the navigation URL for a given node
     function getNodeUrl(node) {
@@ -1314,6 +1497,38 @@ document.addEventListener('DOMContentLoaded', function() {
 
     loadHierarchyData(false);
 
+    // ── Focus (drill-down) state ────────────────────────────────────────────
+    // The full tree is kept in memory so focusing a branch is a pure re-render
+    // with no extra request, and so the breadcrumb can walk back up to the root.
+    let fullHierarchy = [];
+    let nodeIndexById = {};
+    let parentIdById = {};
+    let focusedNodeId = null;
+
+    function indexHierarchy(nodes) {
+        nodeIndexById = {};
+        parentIdById = {};
+        (function walk(list, parentId) {
+            list.forEach(n => {
+                nodeIndexById[n.id] = n;
+                parentIdById[n.id] = parentId;
+                if (n.children && n.children.length) walk(n.children, n.id);
+            });
+        })(nodes, null);
+    }
+
+    // Flatten a node subtree back to a list, for the stats strip
+    function flattenNodes(nodes) {
+        const out = [];
+        (function walk(list) {
+            list.forEach(n => {
+                out.push(n);
+                if (n.children && n.children.length) walk(n.children);
+            });
+        })(nodes);
+        return out;
+    }
+
     function loadHierarchyData(includePhases) {
         fetch(`/Tree/GetFrameworkHierarchy/${frameworkCode}?includePhases=${includePhases}`)
             .then(response => {
@@ -1322,7 +1537,11 @@ document.addEventListener('DOMContentLoaded', function() {
             })
             .then(data => {
                 const hierarchyStructure = buildHierarchy(data);
+                fullHierarchy = hierarchyStructure;
+                indexHierarchy(hierarchyStructure);
+                focusedNodeId = null;
                 renderOrganizationalChart(hierarchyStructure);
+                renderFocusBreadcrumb();
                 hideLoadingSpinner();
                 updateStatsStrip(data);
                 if (typeof applyPrefsAfterRender === 'function') {
@@ -1368,6 +1587,71 @@ document.addEventListener('DOMContentLoaded', function() {
         followConnectors();
         savePrefs();
     });
+
+    // Toggle compact nodes — boxes shrink, so the whole layout reflows
+    document.getElementById('compactToggle').addEventListener('change', function () {
+        document.body.classList.toggle('tree-compact', this.checked);
+        followConnectors();
+        savePrefs();
+    });
+
+    // ── Depth limit ─────────────────────────────────────────────────────────
+    // Expands every branch down to the chosen level and collapses everything below,
+    // which keeps deep hierarchies readable without hiding whole node types.
+    const depthSelect = document.getElementById('depthLimit');
+
+    // Open/close a children-container instantly, mirroring expandAll/collapseAll
+    function setContainerOpen(container, open) {
+        container.style.transition = 'none';
+        container.style.maxHeight = open ? 'none' : '0';
+        container.style.opacity = open ? '1' : '0';
+        container.classList.toggle('expanded', open);
+
+        const icon = container.parentElement.querySelector(':scope > .tree-node .expand-icon');
+        if (icon) {
+            icon.classList.toggle('expanded', open);
+            icon.classList.toggle('collapsed', !open);
+            const symbol = icon.querySelector('.expand-symbol');
+            if (symbol) symbol.textContent = open ? '−' : '+';
+        }
+
+        requestAnimationFrame(() => requestAnimationFrame(() => {
+            container.style.transition = '';
+        }));
+    }
+
+    // Depth of a .node-container: the root rendered node is 1
+    function nodeDepth(nodeContainer) {
+        let depth = 1;
+        let p = nodeContainer.parentElement;
+        while (p) {
+            if (p.classList && p.classList.contains('node-container')) depth++;
+            p = p.parentElement;
+        }
+        return depth;
+    }
+
+    // Called after every render; a value of 0 ("All") means "leave expansion alone"
+    function applyDepthLimit() {
+        const maxDepth = parseInt(depthSelect.value, 10) || 0;
+        if (!maxDepth) return;
+        document.querySelectorAll('.node-container').forEach(nc => {
+            const cc = nc.querySelector(':scope > .children-container');
+            if (!cc) return;
+            setContainerOpen(cc, nodeDepth(nc) < maxDepth);
+        });
+        followConnectors();
+    }
+
+    depthSelect.addEventListener('change', function () {
+        if (parseInt(this.value, 10) === 0) {
+            expandAllNodes(); // "All" — no depth cap, so open everything
+        } else {
+            applyDepthLimit();
+        }
+        savePrefs();
+    });
+    // ────────────────────────────────────────────────────────────────────────
 
     // ── Connecting curves (SVG bezier overlay) ──────────────────────────────
     // Draw a smooth curve from each parent to each of its visible children:
@@ -1536,6 +1820,79 @@ document.addEventListener('DOMContentLoaded', function() {
         requestAnimationFrame(() => requestAnimationFrame(scheduleConnectors));
     }
 
+    // ── Focus (drill-down) ──────────────────────────────────────────────────
+    // Re-renders the chart with one branch as the temporary root, so a huge tree
+    // can be explored one branch at a time. The breadcrumb walks back up.
+    function renderFocusedTree(roots) {
+        renderOrganizationalChart(roots);
+        renderFocusBreadcrumb();
+        updateStatsStrip(flattenNodes(roots));
+        applyPrefsAfterRender();
+    }
+
+    function focusNode(id) {
+        const node = nodeIndexById[id];
+        if (!node) return;
+        focusedNodeId = id;
+        renderFocusedTree([node]);
+    }
+
+    function clearFocus() {
+        focusedNodeId = null;
+        renderFocusedTree(fullHierarchy);
+    }
+
+    function renderFocusBreadcrumb() {
+        const bar = document.getElementById('focusBreadcrumb');
+        if (!bar) return;
+
+        if (!focusedNodeId) {
+            bar.style.display = 'none';
+            bar.replaceChildren();
+            return;
+        }
+
+        // Walk from the focused node up to the real root
+        const chain = [];
+        let id = focusedNodeId;
+        while (id && nodeIndexById[id]) {
+            chain.unshift(nodeIndexById[id]);
+            id = parentIdById[id];
+        }
+
+        const frag = document.createDocumentFragment();
+
+        const home = document.createElement('button');
+        home.type = 'button';
+        home.className = 'btn btn-sm btn-outline-secondary';
+        home.innerHTML = '<i class="fas fa-home me-1"></i>';
+        home.appendChild(document.createTextNode(showAllLabel));
+        home.addEventListener('click', clearFocus);
+        frag.appendChild(home);
+
+        chain.forEach((n, i) => {
+            const sep = document.createElement('span');
+            sep.className = 'focus-crumb-sep';
+            sep.textContent = '›';
+            frag.appendChild(sep);
+
+            const isLast = i === chain.length - 1;
+            const crumb = document.createElement(isLast ? 'span' : 'button');
+            crumb.className = 'focus-crumb' + (isLast ? ' current' : '');
+            crumb.textContent = n.name; // textContent — names are user-entered data
+            crumb.title = n.name;
+            if (!isLast) {
+                crumb.type = 'button';
+                crumb.addEventListener('click', () => focusNode(n.id));
+            }
+            frag.appendChild(crumb);
+        });
+
+        bar.replaceChildren(frag);
+        bar.style.display = '';
+    }
+    // ────────────────────────────────────────────────────────────────────────
+
     function createNodeElement(node) {
         const nodeContainer = document.createElement('div');
         nodeContainer.className = 'node-container';
@@ -1571,13 +1928,15 @@ document.addEventListener('DOMContentLoaded', function() {
                 </div>
             </div>
             ${hasChildren ? `<div class="expand-icon collapsed"><span class="expand-symbol">+</span><span class="expand-count">${node.children.length}</span></div>` : ''}
+            ${hasChildren ? `<button type="button" class="node-focus-btn" title="${focusLabel}"><i class="fas fa-crosshairs"></i></button>` : ''}
         `;
 
         const url = getNodeUrl(node);
         if (url) {
             nodeDiv.addEventListener('click', function (e) {
-                // Let expand-icon handle its own click via stopPropagation
+                // Let the expand icon and focus button handle their own clicks
                 if (e.target.closest('.expand-icon')) return;
+                if (e.target.closest('.node-focus-btn')) return;
                 window.location.href = url;
             });
             nodeDiv.title = url;
@@ -1600,19 +1959,30 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     function attachEventListeners() {
-        // Toggle node expansion
+        // Toggle node expansion — re-bound after every render, the nodes are recreated
         document.querySelectorAll('.expand-icon').forEach(icon => {
             icon.addEventListener('click', function(e) {
                 e.stopPropagation();
                 toggleNodeExpansion(this);
             });
         });
-
-        // Control buttons
-        expandAllBtn.addEventListener('click', expandAllNodes);
-        collapseAllBtn.addEventListener('click', collapseAllNodes);
-        exportBtn.addEventListener('click', exportChart);
     }
+
+    // Static control buttons live outside the chart, so they are bound once —
+    // binding them per render would stack duplicate handlers on every re-render.
+    expandAllBtn.addEventListener('click', expandAllNodes);
+    collapseAllBtn.addEventListener('click', collapseAllNodes);
+    exportBtn.addEventListener('click', exportChart);
+
+    // Focus buttons are delegated, so they survive re-renders without rebinding
+    document.getElementById('treeContainer').addEventListener('click', function (e) {
+        const btn = e.target.closest('.node-focus-btn');
+        if (!btn) return;
+        e.preventDefault();
+        e.stopPropagation();
+        const nc = btn.closest('.node-container');
+        if (nc && nc.dataset.nodeId) focusNode(nc.dataset.nodeId);
+    });
 
     // ── Zoom ────────────────────────────────────────────────────────────────
     let zoomLevel = 1.0;
@@ -1644,6 +2014,32 @@ document.addEventListener('DOMContentLoaded', function() {
         applyZoom();
     });
 
+    // Fit the whole tree into the visible area. .org-chart's scroll size is the
+    // unscaled layout size (the scale transform lives on #zoomWrapper, its parent),
+    // so it can be measured without touching the current zoom.
+    function fitToScreen() {
+        const container = document.getElementById('treeContainer');
+        const orgChart = container && container.querySelector('.org-chart');
+        if (!orgChart) return;
+
+        const w = orgChart.scrollWidth;
+        const h = orgChart.scrollHeight;
+        if (!w || !h) return;
+
+        const cs = getComputedStyle(container);
+        const availW = container.clientWidth - parseFloat(cs.paddingLeft) - parseFloat(cs.paddingRight);
+        const availH = container.clientHeight - parseFloat(cs.paddingTop) - parseFloat(cs.paddingBottom);
+        if (availW <= 0 || availH <= 0) return;
+
+        const scale = Math.min(availW / w, availH / h);
+        zoomLevel = Math.max(ZOOM_MIN, Math.min(ZOOM_MAX, Math.floor(scale * 100) / 100));
+        applyZoom();
+        container.scrollTop = 0;
+        savePrefs();
+    }
+
+    document.getElementById('zoomFit').addEventListener('click', fitToScreen);
+
     // Mouse-wheel zoom on the tree container (Ctrl + scroll)
     document.getElementById('treeContainer').addEventListener('wheel', function (e) {
         if (!e.ctrlKey) return;
@@ -1655,6 +2051,52 @@ document.addEventListener('DOMContentLoaded', function() {
         }
         applyZoom();
     }, { passive: false });
+
+    // ── Drag to pan ─────────────────────────────────────────────────────────
+    // Grab anywhere on the canvas and drag to scroll, instead of hunting for the
+    // scrollbars. A click that follows an actual drag is swallowed in the capture
+    // phase so dragging over a node never navigates away.
+    (function enableDragPan() {
+        const panEl = document.getElementById('treeContainer');
+        const DRAG_THRESHOLD = 5; // px before it counts as a pan rather than a click
+        let panning = false, panMoved = false;
+        let startX = 0, startY = 0, startScrollLeft = 0, startScrollTop = 0;
+
+        panEl.addEventListener('pointerdown', function (e) {
+            if (e.button !== 0) return;
+            // Let the interactive bits keep their own behaviour
+            if (e.target.closest('.expand-icon') || e.target.closest('.node-focus-btn')) return;
+            panning = true;
+            panMoved = false;
+            startX = e.clientX;
+            startY = e.clientY;
+            startScrollLeft = panEl.scrollLeft;
+            startScrollTop = panEl.scrollTop;
+        });
+
+        window.addEventListener('pointermove', function (e) {
+            if (!panning) return;
+            const dx = e.clientX - startX;
+            const dy = e.clientY - startY;
+            if (!panMoved && Math.abs(dx) + Math.abs(dy) < DRAG_THRESHOLD) return;
+            panMoved = true;
+            panEl.classList.add('tree-panning');
+            panEl.scrollLeft = startScrollLeft - dx;
+            panEl.scrollTop = startScrollTop - dy;
+        });
+
+        window.addEventListener('pointerup', function () {
+            panning = false;
+            panEl.classList.remove('tree-panning');
+        });
+
+        panEl.addEventListener('click', function (e) {
+            if (!panMoved) return;
+            e.stopPropagation();
+            e.preventDefault();
+            panMoved = false;
+        }, true);
+    })();
     // ────────────────────────────────────────────────────────────────────────
 
     // ── Full Screen ─────────────────────────────────────────────────────────
@@ -2098,7 +2540,9 @@ document.addEventListener('DOMContentLoaded', function() {
                 zoom: zoomLevel,
                 statusColors: document.body.classList.contains('status-colors-on'),
                 treeLines: document.body.classList.contains('tree-lines-on'),
-                horizontal: document.body.classList.contains('tree-horizontal')
+                horizontal: document.body.classList.contains('tree-horizontal'),
+                compact: document.body.classList.contains('tree-compact'),
+                depth: parseInt(depthSelect.value, 10) || 0
             }));
         } catch (e) { }
     }
@@ -2199,6 +2643,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
         applyThreshold();
         applyTypeFilter();
+        applyDepthLimit(); // no-op when the depth selector is on "All"
         if (p.zoom) { zoomLevel = p.zoom; applyZoom(); }
     }
     window.applyPrefsAfterRender = applyPrefsAfterRender;
@@ -2216,6 +2661,12 @@ document.addEventListener('DOMContentLoaded', function() {
         const horizontalOn = p.horizontal === true;
         document.body.classList.toggle('tree-horizontal', horizontalOn);
         document.getElementById('horizontalToggle').checked = horizontalOn;
+        // Compact nodes — full-size by default
+        const compactOn = p.compact === true;
+        document.body.classList.toggle('tree-compact', compactOn);
+        document.getElementById('compactToggle').checked = compactOn;
+        // Depth limit — "All" by default; applyDepthLimit() runs after each render
+        if (p.depth != null) depthSelect.value = String(p.depth);
     })();
     // ────────────────────────────────────────────────────────────────────────
 
