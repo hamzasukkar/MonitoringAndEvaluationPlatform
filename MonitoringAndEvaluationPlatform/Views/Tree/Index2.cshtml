@@ -12,6 +12,13 @@
 }
 
 <div id="treeStage">
+<!-- Fullscreen-only hint: the toolbar is collapsed, move the pointer up to reveal it -->
+<div class="chrome-hint" id="chromeHint" title="@Localizer["Move the pointer to the top to show the tools"]">
+    <i class="fas fa-chevron-down"></i>
+</div>
+
+<!-- All chrome above the tree — collapsed as one unit in fullscreen (display:contents otherwise) -->
+<div id="treeChrome">
 <!-- Dashboard Header -->
 <div class="dashboard-header">
     <div class="d-flex justify-content-between align-items-center">
@@ -65,6 +72,9 @@
             <button class="btn btn-outline-secondary btn-sm ms-2" id="fullscreenToggle" title="@Localizer["Full Screen"]">
                 <i class="fas fa-expand"></i>
             </button>
+            <button class="btn btn-outline-secondary btn-sm ms-2 chrome-pin-btn" id="chromePinToggle" title="@Localizer["Pin toolbars"]">
+                <i class="fas fa-thumbtack"></i>
+            </button>
         </div>
     </div>
 </div>
@@ -95,7 +105,7 @@
 </div>
 
 <!-- Legend Card -->
-<div class="card mb-4">
+<div class="card mb-4" id="legendCard">
     <div class="card-header">
         <h5 class="mb-0">
             <i class="fas fa-info-circle me-2"></i>
@@ -320,6 +330,7 @@
 
 <!-- Focus (drill-down) breadcrumb — only shown while a branch is focused -->
 <div class="focus-bar mb-3" id="focusBreadcrumb" style="display:none;"></div>
+</div><!-- /#treeChrome -->
 
 <!-- Tree Container Card -->
 <div class="card tree-card">
@@ -442,6 +453,105 @@
         flex: 1 1 auto;
         min-height: 0;
     }
+
+    /* Auto-hiding chrome: in fullscreen everything above the tree collapses to
+       zero height and slides back in when the pointer approaches the top edge.
+       Outside fullscreen #treeChrome is display:contents, so the wrapper is
+       completely transparent to layout and normal mode is unchanged. */
+    #treeStage.tree-stage-fs { position: relative; }
+
+    #treeChrome { display: contents; }
+
+    #treeStage.tree-stage-fs #treeChrome {
+        display: block;
+        /* overflow:hidden zeroes this flex item's automatic minimum size, which would
+           let the column flex container squeeze it below the height measureChrome()
+           sets — clipping the bars. Never shrink the toolbars; .tree-card
+           (flex: 1 1 auto) absorbs the leftover space instead. */
+        flex: 0 0 auto;
+        max-height: 0;
+        opacity: 0;
+        overflow: hidden;
+        pointer-events: none;
+        transition: max-height 0.28s ease, opacity 0.2s ease;
+    }
+
+    #treeStage.tree-stage-fs.chrome-visible #treeChrome {
+        opacity: 1;
+        pointer-events: auto;
+        /* max-height and overflow-y are set inline by measureChrome() so the bars
+           expand to their real height instead of being clipped by a fixed cap */
+    }
+
+    /* The tree card's own header (title + search) rides along with the same state */
+    #treeStage.tree-stage-fs .tree-card > .card-header {
+        /* Same reason as #treeChrome: overflow:hidden makes this shrinkable inside
+           .tree-card's column flex, so pin its size or .card-body would crush it */
+        flex: 0 0 auto;
+        max-height: 0;
+        padding-top: 0;
+        padding-bottom: 0;
+        border-bottom-width: 0;
+        opacity: 0;
+        overflow: hidden;
+        pointer-events: none;
+        transition: max-height 0.28s ease, opacity 0.2s ease, padding 0.28s ease;
+    }
+
+    #treeStage.tree-stage-fs.chrome-visible .tree-card > .card-header {
+        max-height: 12rem;
+        padding-top: 0.5rem;
+        padding-bottom: 0.5rem;
+        border-bottom-width: 1px;
+        opacity: 1;
+        pointer-events: auto;
+    }
+
+    /* Reveal hint — a slim strip at the very top, only while collapsed */
+    .chrome-hint { display: none; }
+
+    #treeStage.tree-stage-fs .chrome-hint {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 14px;
+        font-size: 0.6rem;
+        color: var(--accent-gold-color);
+        background: linear-gradient(180deg, rgba(200, 168, 95, 0.22) 0%, transparent 100%);
+        opacity: 0.75;
+        pointer-events: none;
+        transition: opacity 0.2s ease;
+        z-index: 5;
+    }
+
+    #treeStage.tree-stage-fs.chrome-visible .chrome-hint { opacity: 0; }
+
+    /* Compact the chrome in fullscreen so every bar fits on screen at once.
+       The legend is nested inside #treeChrome, so the `> .card` trimming above no
+       longer reaches it — these rules restore that and tighten it further. */
+    #treeStage.tree-stage-fs #legendCard { margin-bottom: 0.5rem !important; }
+    #treeStage.tree-stage-fs #legendCard .card-header { padding: 0.35rem 0.9rem; }
+    #treeStage.tree-stage-fs #legendCard .card-header h5 { font-size: 0.9rem; }
+    #treeStage.tree-stage-fs #legendCard .card-body { padding: 0.4rem 0.9rem; }
+    #treeStage.tree-stage-fs #legendCard .legend-item { font-size: 0.75rem; }
+    #treeStage.tree-stage-fs #legendCard [class*="col-"] { margin-bottom: 0.1rem !important; }
+    #treeStage.tree-stage-fs #legendCard hr { margin: 0.3rem 0 !important; }
+
+    #treeStage.tree-stage-fs .stats-strip,
+    #treeStage.tree-stage-fs .filters-bar { padding: 0.4rem 0.9rem; }
+
+    #treeStage.tree-stage-fs .focus-bar {
+        padding: 0.35rem 0.7rem;
+        margin-bottom: 0.5rem !important;
+    }
+
+    /* Pin button — only meaningful in fullscreen */
+    .chrome-pin-btn { display: none; }
+    #treeStage.tree-stage-fs .chrome-pin-btn { display: inline-block; }
     /* ──────────────────────────────────────────────────────────────────────── */
 
     /* Unified Filters Bar */
@@ -1592,6 +1702,7 @@ document.addEventListener('DOMContentLoaded', function() {
     document.getElementById('compactToggle').addEventListener('change', function () {
         document.body.classList.toggle('tree-compact', this.checked);
         followConnectors();
+        remeasureChromeIfOpen(); // the filters bar may rewrap to a different height
         savePrefs();
     });
 
@@ -1849,6 +1960,7 @@ document.addEventListener('DOMContentLoaded', function() {
         if (!focusedNodeId) {
             bar.style.display = 'none';
             bar.replaceChildren();
+            remeasureChromeIfOpen(); // the bar lives inside the collapsible chrome
             return;
         }
 
@@ -1890,6 +2002,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
         bar.replaceChildren(frag);
         bar.style.display = '';
+        remeasureChromeIfOpen(); // the bar lives inside the collapsible chrome
     }
     // ────────────────────────────────────────────────────────────────────────
 
@@ -2111,12 +2224,88 @@ document.addEventListener('DOMContentLoaded', function() {
 
     function setFsUI(on) {
         stageEl.classList.toggle('tree-stage-fs', on);
+        // Every fullscreen session starts unpinned and collapsed, and neither the
+        // class nor the inline height may leak back into normal mode
+        stageEl.classList.remove('chrome-visible');
+        setChromePinned(false);
+        document.getElementById('treeChrome').style.maxHeight = '';
         fsBtn.querySelector('i').className = on ? 'fas fa-compress' : 'fas fa-expand';
         fsBtn.title = on ? fsExitLabel : fsEnterLabel;
         fsBtn.classList.toggle('active', on);
         // The tree area resizes — realign the curves for a moment
         followConnectors(400);
     }
+
+    // ── Auto-hiding chrome (fullscreen only) ────────────────────────────────
+    const CHROME_REVEAL_PX = 64; // distance from the top edge that counts as "approaching"
+    // Anything the pointer may rest on without the toolbar sliding away again
+    const CHROME_SEL = '#treeChrome, .tree-card > .card-header';
+    const chromeEl = document.getElementById('treeChrome');
+    const pinBtn = document.getElementById('chromePinToggle');
+    const pinLabel = '@Localizer["Pin toolbars"]';
+    const unpinLabel = '@Localizer["Unpin toolbars"]';
+    let chromePinned = false;
+
+    // Expand to the chrome's real height so no bar is cut off — same scrollHeight
+    // measurement toggleNodeExpansion uses. A cap still applies on very short
+    // screens so the toolbars can never swallow the tree; only then does it scroll.
+    function measureChrome() {
+        const natural = chromeEl.scrollHeight;
+        const cap = Math.max(160, stageEl.clientHeight - 180);
+        const h = Math.min(natural, cap);
+        chromeEl.style.maxHeight = h + 'px';
+        chromeEl.style.overflowY = natural > cap ? 'auto' : 'hidden';
+    }
+
+    // Re-measure when something inside the chrome changes height while it is open
+    function remeasureChromeIfOpen() {
+        if (stageEl.classList.contains('chrome-visible')) measureChrome();
+    }
+
+    function setChromeVisible(on) {
+        if (chromePinned && !on) return; // pinned — never auto-hide
+        // mousemove fires constantly — bail out unless the state actually changes,
+        // otherwise every event would kick off another followConnectors loop
+        if (stageEl.classList.contains('chrome-visible') === on) return;
+        stageEl.classList.toggle('chrome-visible', on);
+        if (on) measureChrome(); else chromeEl.style.maxHeight = '';
+        followConnectors(350);
+    }
+
+    function setChromePinned(on) {
+        chromePinned = on;
+        pinBtn.classList.toggle('active', on);
+        pinBtn.title = on ? unpinLabel : pinLabel;
+        if (on) setChromeVisible(true);
+    }
+
+    pinBtn.addEventListener('click', function () {
+        const next = !chromePinned;
+        setChromePinned(next);
+        if (!next) setChromeVisible(false); // unpinning collapses immediately
+    });
+
+    stageEl.addEventListener('mousemove', function (e) {
+        if (!stageEl.classList.contains('tree-stage-fs')) return;
+        if (chromePinned) return; // pinned — nothing to do per event
+        // Don't pop the toolbar open in the middle of a drag-pan
+        if (document.querySelector('.tree-visualization.tree-panning')) return;
+        const nearTop = (e.clientY - stageEl.getBoundingClientRect().top) < CHROME_REVEAL_PX;
+        setChromeVisible(nearTop || !!e.target.closest(CHROME_SEL));
+    });
+
+    // Keyboard users and the search box: stay open while focus sits inside the chrome
+    stageEl.addEventListener('focusin', function (e) {
+        if (stageEl.classList.contains('tree-stage-fs') && e.target.closest(CHROME_SEL)) {
+            setChromeVisible(true);
+        }
+    });
+
+    // The bars rewrap on resize, so the measured height has to follow
+    window.addEventListener('resize', function () {
+        if (stageEl.classList.contains('chrome-visible')) measureChrome();
+    });
+    // ────────────────────────────────────────────────────────────────────────
 
     function exitFallback() {
         stageEl.classList.remove('tree-stage-fallback');
