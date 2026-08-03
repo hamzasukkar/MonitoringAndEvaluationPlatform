@@ -3,6 +3,15 @@
 @{
     ViewData["Title"] = "Create Comprehensive Framework";
     Layout = "~/Views/Shared/_DashboardHomeLayout.cshtml";
+
+    var isArabic = System.Globalization.CultureInfo.CurrentUICulture.TwoLetterISOLanguageName == "ar";
+    var ministries = ViewBag.Ministries as List<Ministry> ?? new List<Ministry>();
+    var isMinistryUser = ViewBag.IsMinistryUser is true;
+    var userMinistryCode = ViewBag.UserMinistryCode as int?;
+
+    string MinistryOptionText(Ministry ministry) =>
+        (string.IsNullOrEmpty(ministry.Logo) ? "" : ministry.Logo + " ")
+        + (isArabic ? ministry.MinistryDisplayName_AR : ministry.MinistryDisplayName_EN);
 }
 
 <!-- Dashboard Header -->
@@ -134,11 +143,29 @@
 
             <div class="wizard-card-content">
                 <div class="row">
-                    <div class="col-12">
+                    <div class="col-md-7">
                         <div class="form-floating mb-4">
                             <input type="text" class="form-control form-control-modern" id="frameworkName" name="FrameworkName" placeholder="@Localizer["Enter framework name"]" required>
                             <label for="frameworkName">
                                 <i class="fas fa-sitemap me-2"></i>@Localizer["Framework Name"] *
+                            </label>
+                        </div>
+                    </div>
+                    <div class="col-md-5">
+                        <div class="form-floating mb-4">
+                            @* Ministry users are locked onto their own ministry; the server enforces
+                               this too, so a tampered value is ignored rather than trusted. *@
+                            <select class="form-select form-control-modern" id="frameworkMinistry" name="MinistryCode" required
+                                    @(isMinistryUser ? "disabled" : "")>
+                                <option value="">@Localizer["Select Ministry"]</option>
+                                @foreach (var ministry in ministries)
+                                {
+                                    var selected = userMinistryCode == ministry.Code;
+                                    <option value="@ministry.Code" selected="@selected">@MinistryOptionText(ministry)</option>
+                                }
+                            </select>
+                            <label for="frameworkMinistry">
+                                <i class="fas fa-landmark me-2"></i>@Localizer["Ministry"] *
                             </label>
                         </div>
                     </div>
@@ -298,11 +325,27 @@
             </div>
             <div class="section-content">
                 <div class="row">
-                    <div class="col-md-8">
+                    <div class="col-md-7">
                         <div class="form-floating">
                             <input type="text" class="form-control form-control-modern" id="singleFrameworkName" name="FrameworkName" placeholder="@Localizer["Enter framework name"]" required>
                             <label for="singleFrameworkName">
                                 <i class="fas fa-sitemap me-2"></i>@Localizer["Framework Name"] *
+                            </label>
+                        </div>
+                    </div>
+                    <div class="col-md-5">
+                        <div class="form-floating">
+                            <select class="form-select form-control-modern" id="singleFrameworkMinistry" name="MinistryCode" required
+                                    @(isMinistryUser ? "disabled" : "")>
+                                <option value="">@Localizer["Select Ministry"]</option>
+                                @foreach (var ministry in ministries)
+                                {
+                                    var selected = userMinistryCode == ministry.Code;
+                                    <option value="@ministry.Code" selected="@selected">@MinistryOptionText(ministry)</option>
+                                }
+                            </select>
+                            <label for="singleFrameworkMinistry">
+                                <i class="fas fa-landmark me-2"></i>@Localizer["Ministry"] *
                             </label>
                         </div>
                     </div>

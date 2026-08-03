@@ -17,6 +17,10 @@ namespace MonitoringAndEvaluationPlatform.Models
         [Display(Name = "Entity ID")]
         public string EntityId { get; set; } = string.Empty;
 
+        [StringLength(256)]
+        [Display(Name = "Entity Display Name")]
+        public string? EntityDisplayName { get; set; }
+
         [Required]
         [StringLength(20)]
         [Display(Name = "Action")]

@@ -133,7 +133,7 @@
     <value>الإجراءات</value>
   </data>
   <data name="Measures" xml:space="preserve">
-    <value>الإنجازات</value>
+    <value>خطة عمل</value>
   </data>
   <data name="Select SubOutput" xml:space="preserve">
     <value>اختر البرنامج الفرعي</value>
@@ -226,7 +226,7 @@
     <value>البحث</value>
   </data>
   <data name="View and manage all indicator performance metrics across development frameworks" xml:space="preserve">
-    <value>عرض وإدارة جميع مقاييس أداءالمشاريع عبر أطر التطوير</value>
+    <value>عرض وإدارة جميع مقاييس أداءالمشاريع عبر الأهداف الاستراتيجية</value>
   </data>
   <data name="Enter indicator name" xml:space="preserve">
     <value>أدخل اسم المشروع</value>
@@ -268,7 +268,7 @@
     <value>عرض المشروع</value>
   </data>
   <data name="Action Plan" xml:space="preserve">
-    <value>خطة العمل</value>
+    <value>التتبع والإنفاق</value>
   </data>
   <data name="Edit" xml:space="preserve">
     <value>تعديل</value>
@@ -320,5 +320,50 @@
   </data>
   <data name="remaining" xml:space="preserve">
     <value>متبقي</value>
+  </data>
+  <data name="Per Page" xml:space="preserve">
+    <value>لكل صفحة</value>
+  </data>
+  <data name="Showing" xml:space="preserve">
+    <value>عرض</value>
+  </data>
+  <data name="of" xml:space="preserve">
+    <value>من</value>
+  </data>
+  <data name="Filter Indicators" xml:space="preserve">
+    <value>تصفية المؤشرات</value>
+  </data>
+  <data name="Outcome" xml:space="preserve">
+    <value>النتيجة</value>
+  </data>
+  <data name="Output" xml:space="preserve">
+    <value>المخرج</value>
+  </data>
+  <data name="Performance" xml:space="preserve">
+    <value>الأداء</value>
+  </data>
+  <data name="Disbursement" xml:space="preserve">
+    <value>الإنفاق</value>
+  </data>
+  <data name="All" xml:space="preserve">
+    <value>الكل</value>
+  </data>
+  <data name="All Outcomes" xml:space="preserve">
+    <value>كل النتائج</value>
+  </data>
+  <data name="All Outputs" xml:space="preserve">
+    <value>كل المخرجات</value>
+  </data>
+  <data name="All SubOutputs" xml:space="preserve">
+    <value>كل المخرجات الفرعية</value>
+  </data>
+  <data name="High (≥75%)" xml:space="preserve">
+    <value>مرتفع (≥75%)</value>
+  </data>
+  <data name="Medium (50–74%)" xml:space="preserve">
+    <value>متوسط (50–74%)</value>
+  </data>
+  <data name="Low (&lt;50%)" xml:space="preserve">
+    <value>منخفض (&lt;50%)</value>
   </data>
 </root>

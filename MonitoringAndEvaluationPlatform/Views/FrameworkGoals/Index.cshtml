@@ -13,6 +13,16 @@
     Layout = "~/Views/Shared/_DashboardHomeLayout.cshtml";
     ViewData["HelpFeature"] = "FrameworkGoals";
     var culture = Context.Features.Get<IRequestCultureFeature>().RequestCulture.Culture.Name;
+
+    // Resolve the selected framework's name once (used by the header label and the create-goal badge)
+    string selectedFrameworkName = "";
+    if (ViewBag.SelectedFrameworkCode != null)
+    {
+        foreach (var fw in ViewBag.Frameworks)
+        {
+            if (fw.Code == ViewBag.SelectedFrameworkCode) { selectedFrameworkName = fw.Name; }
+        }
+    }
 }
 
 <!-- Dashboard Header -->
@@ -68,6 +78,15 @@
     </div>
 </div>
 
+@if (ViewBag.SelectedFrameworkCode != null)
+{
+    <div class="d-flex align-items-center mb-3">
+        <i class="fas fa-sitemap me-2 text-info fs-4"></i>
+        <span class="fw-bold me-2">@Localizer["Framework"]:</span>
+        <span class="badge bg-info fs-6">@selectedFrameworkName</span>
+    </div>
+}
+
 <!-- Advanced Filter Section -->
 <div class="card shadow-sm mb-4">
     <div class="card-header bg-light d-flex justify-content-between align-items-center">
@@ -88,8 +107,8 @@
                 <input type="text" id="searchGoal" class="form-control" placeholder="@Localizer["Type to search..."]" oninput="applyFilters()">
             </div>
 
-            <!-- Framework Filter -->
-            <div class="col-md-6 col-lg-3">
+            <!-- Framework Filter (hidden when a specific framework is already selected via the URL) -->
+            <div class="col-md-6 col-lg-3@(ViewBag.SelectedFrameworkCode != null ? " d-none" : "")">
                 <label class="form-label">
                     <i class="fas fa-sitemap me-1"></i>@Localizer["Framework"]
                 </label>
@@ -440,13 +459,23 @@
                 </div>
                 <div class="col-md-6 mb-3">
                     <label class="form-label">@Localizer["Framework"] <span class="text-danger">*</span></label>
-                    <select class="form-select" id="frameworkCode" name="FrameworkCode" required>
-                        <option value="">@Localizer["Select Framework"]</option>
-                        @foreach (var framework in ViewBag.Frameworks)
-                        {
-                            <option value="@framework.Code">@framework.Name</option>
-                        }
-                    </select>
+                    @if (ViewBag.SelectedFrameworkCode != null)
+                    {
+                        <input type="hidden" id="frameworkCode" name="FrameworkCode" value="@ViewBag.SelectedFrameworkCode" />
+                        <div class="form-control-plaintext">
+                            <span class="badge bg-info fs-6"><i class="fas fa-sitemap me-1"></i>@selectedFrameworkName</span>
+                        </div>
+                    }
+                    else
+                    {
+                        <select class="form-select" id="frameworkCode" name="FrameworkCode" required>
+                            <option value="">@Localizer["Select Framework"]</option>
+                            @foreach (var framework in ViewBag.Frameworks)
+                            {
+                                <option value="@framework.Code">@framework.Name</option>
+                            }
+                        </select>
+                    }
                 </div>
             </div>
             <div class="row">

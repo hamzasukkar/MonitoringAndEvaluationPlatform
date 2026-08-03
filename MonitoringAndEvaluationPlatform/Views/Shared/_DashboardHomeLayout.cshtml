@@ -1,5 +1,7 @@
 @using Microsoft.AspNetCore.Identity
 @using Microsoft.AspNetCore.Mvc.Localization
+@using Microsoft.AspNetCore.Authorization
+@inject IAuthorizationService AuthorizationService
 @inject SignInManager<ApplicationUser> SignInManager
 @inject UserManager<ApplicationUser> UserManager
 @using Microsoft.EntityFrameworkCore
@@ -920,7 +922,8 @@
 
     <!-- Help System CSS -->
     <link rel="stylesheet" href="~/css/help-system.css" asp-append-version="true" />
-    <link rel="stylesheet" href="~/css/chatbot-widget.css" asp-append-version="true" />
+    @* Chatbot hidden - uncomment to re-enable *@
+    @*<link rel="stylesheet" href="~/css/chatbot-widget.css" asp-append-version="true" />*@
 
     @await RenderSectionAsync("Styles", required: false)
 </head>
@@ -943,7 +946,7 @@
                             <i class="fas fa-info-circle me-1"></i> @Localizer["About"]
                         </a>
                     </li> *@
-                    <li class="nav-item dropdown">
+                    <li class="nav-item dropdown" style="display:none;">
                         <a class="nav-link dropdown-toggle" href="#" id="policiesDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                             <i class="fas fa-sitemap me-1"></i> @Localizer["National Development Strategy"]
                         </a>
@@ -995,6 +998,7 @@
                             }
                         </ul>
                     </li>
+                    @await Html.PartialAsync("_MinistryStrategiesDropdown")
                     <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle" href="#" id="SDGsDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                             <img src="/img/SDG Wheel_Transparent_WEB.png" alt="SDGs" class="me-2" style="width:24px; height:24px;" />
@@ -1137,6 +1141,19 @@
                             }
                         </a>
                         <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
+                            @if ((await AuthorizationService.AuthorizeAsync(User, Permissions.SubmitRequest)).Succeeded)
+                            {
+                                <li><a asp-action="Create" asp-controller="Requests" class="dropdown-item"><i class="fas fa-paper-plane me-2"></i>@Localizer["SubmitRequest"]</a></li>
+                                <li><a asp-action="MyRequests" asp-controller="Requests" class="dropdown-item"><i class="fas fa-list-check me-2"></i>@Localizer["MyRequests"]</a></li>
+                            }
+                            @if ((await AuthorizationService.AuthorizeAsync(User, Permissions.ManageRequests)).Succeeded)
+                            {
+                                <li><a asp-action="Index" asp-controller="Requests" class="dropdown-item"><i class="fas fa-clipboard-list me-2"></i>@Localizer["RequestsManagement"]</a></li>
+                                <li><a asp-action="Index" asp-controller="RequestEmployees" class="dropdown-item"><i class="fas fa-address-book me-2"></i>@Localizer["RequestEmployees"]</a></li>
+                                <li><a asp-action="Index" asp-controller="PlatformVersions" class="dropdown-item"><i class="fas fa-code-branch me-2"></i>@Localizer["VersionsManagement"]</a></li>
+                            }
+                            <li><a asp-action="WhatsNew" asp-controller="PlatformVersions" class="dropdown-item"><i class="fas fa-bullhorn me-2"></i>@Localizer["WhatsNew"]</a></li>
+                            <li><hr class="dropdown-divider"></li>
                             <li><a asp-action="Index" asp-controller="admin" class="dropdown-item"><i class="fas fa-cog me-2"></i>@Localizer["Settings"]</a></li>
                             <li><hr class="dropdown-divider"></li>
                             <li>
@@ -1212,9 +1229,21 @@
                     </a>
                 </li>
                 <li>
-                    <a href="/Reports/Index" class="sidebar-link @(Context.Request.Path.Value.Contains("Reports") ? "active" : "")">
+                    <a href="/Reports/Index" class="sidebar-link @(Context.Request.Path.Value.Contains("Reports") && !Context.Request.Path.Value.Contains("GovernorateMap") && !Context.Request.Path.Value.Contains("DistrictMap") ? "active" : "")">
                         <i class="fas fa-chart-bar"></i>
                         <span>@Localizer["Reports"]</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="/Reports/GovernorateMap" class="sidebar-link @(Context.Request.Path.Value.Contains("GovernorateMap") ? "active" : "")">
+                        <i class="fas fa-map-marked-alt"></i>
+                        <span>@Localizer["Governorate Map"]</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="/Reports/DistrictMap" class="sidebar-link @(Context.Request.Path.Value.Contains("DistrictMap") ? "active" : "")">
+                        <i class="fas fa-map"></i>
+                        <span>@Localizer["District Map"]</span>
                     </a>
                 </li>
                 @if (User.IsInRole("SystemAdministrator"))
@@ -1476,7 +1505,8 @@
 
     <!-- Help Modal Section -->
     @await RenderSectionAsync("Modals", required: false)
-    @await Html.PartialAsync("_ChatbotWidget")
-    <script src="~/js/chatbot-widget.js" asp-append-version="true"></script>
+    @* Chatbot hidden - uncomment to re-enable *@
+    @*@await Html.PartialAsync("_ChatbotWidget")*@
+    @*<script src="~/js/chatbot-widget.js" asp-append-version="true"></script>*@
 </body>
 </html>

@@ -109,5 +109,112 @@ namespace MonitoringAndEvaluationPlatform.Controllers
 
             return View(model);
         }
+
+        [HttpGet]
+        public async Task<IActionResult> ExportToExcel(int? ministryCode)
+        {
+            var (isAdmin, scopedMinistryCode) = await GetScopeAsync();
+            int? effectiveMinistry = isAdmin ? ministryCode : scopedMinistryCode;
+
+            var query = _context.Projects
+                .Include(p => p.Phases)
+                    .ThenInclude(ph => ph.ActionPlan)
+                        .ThenInclude(ap => ap.Plans)
+                .AsQueryable();
+
+            if (isAdmin)
+            {
+                if (effectiveMinistry is not null)
+                    query = query.Where(p => p.MinistryCode == effectiveMinistry);
+            }
+            else
+            {
+                query = effectiveMinistry is null
+                    ? query.Where(_ => false)
+                    : query.Where(p => p.MinistryCode == effectiveMinistry);
+            }
+
+            var projects = await query.OrderBy(p => p.ProjectName).ToListAsync();
+            var categories = ProjectPhase.DefaultCategoryNames.ToList();
+
+            using (var workbook = new ClosedXML.Excel.XLWorkbook())
+            {
+                var worksheet = workbook.Worksheets.Add("Budget Matrix");
+                var row = 1;
+
+                // Header
+                worksheet.Cell(row, 1).Value = "Project Name";
+                worksheet.Cell(row, 2).Value = "Type";
+                for (int i = 0; i < categories.Count; i++)
+                {
+                    worksheet.Cell(row, 3 + i).Value = categories[i];
+                }
+                worksheet.Row(row).Style.Font.Bold = true;
+                worksheet.Row(row).Style.Fill.BackgroundColor = ClosedXML.Excel.XLColor.FromArgb(102, 126, 234);
+                worksheet.Row(row).Style.Font.FontColor = ClosedXML.Excel.XLColor.White;
+
+                row++;
+
+                // Data
+                foreach (var project in projects)
+                {
+                    var budgetRow = row;
+                    worksheet.Cell(row, 1).Value = project.ProjectName;
+                    worksheet.Cell(row, 2).Value = "Budget";
+                    for (int i = 0; i < categories.Count; i++)
+                    {
+                        var phase = project.Phases?.FirstOrDefault(ph => ph.Name == categories[i]);
+                        worksheet.Cell(row, 3 + i).Value = phase?.Budget ?? 0;
+                    }
+                    row++;
+
+                    worksheet.Cell(row, 1).Value = project.ProjectName;
+                    worksheet.Cell(row, 2).Value = "Disbursement";
+                    for (int i = 0; i < categories.Count; i++)
+                    {
+                        var phase = project.Phases?.FirstOrDefault(ph => ph.Name == categories[i]);
+                        var disb = phase?.ActionPlan?.Plans.Sum(pl => (double)pl.Realised) ?? 0;
+                        worksheet.Cell(row, 3 + i).Value = disb;
+                    }
+                    row++;
+                }
+
+                // Totals
+                worksheet.Cell(row, 1).Value = "Total";
+                worksheet.Cell(row, 2).Value = "Budget";
+                for (int i = 0; i < categories.Count; i++)
+                {
+                    var total = projects.Sum(p => p.Phases?.FirstOrDefault(ph => ph.Name == categories[i])?.Budget ?? 0);
+                    worksheet.Cell(row, 3 + i).Value = total;
+                }
+                worksheet.Row(row).Style.Font.Bold = true;
+                row++;
+
+                worksheet.Cell(row, 1).Value = "Total";
+                worksheet.Cell(row, 2).Value = "Disbursement";
+                for (int i = 0; i < categories.Count; i++)
+                {
+                    var total = projects.Sum(p => p.Phases?.FirstOrDefault(ph => ph.Name == categories[i])?.ActionPlan?.Plans.Sum(pl => (double)pl.Realised) ?? 0);
+                    worksheet.Cell(row, 3 + i).Value = total;
+                }
+                worksheet.Row(row).Style.Font.Bold = true;
+
+                // Format columns
+                for (int i = 3; i < 3 + categories.Count; i++)
+                {
+                    worksheet.Column(i).Width = 15;
+                    worksheet.Column(i).Style.NumberFormat.Format = "#,##0";
+                }
+                worksheet.Column(1).Width = 25;
+                worksheet.Column(2).Width = 12;
+
+                var stream = new System.IO.MemoryStream();
+                workbook.SaveAs(stream);
+                stream.Position = 0;
+
+                return File(stream, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                    $"BudgetMatrix_{DateTime.Now:yyyyMMdd_HHmmss}.xlsx");
+            }
+        }
     }
 }

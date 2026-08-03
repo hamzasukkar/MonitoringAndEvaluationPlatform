@@ -1,0 +1,81 @@
+@model IEnumerable<MonitoringAndEvaluationPlatform.Models.PlatformVersion>
+@using MonitoringAndEvaluationPlatform.Enums
+@using Microsoft.AspNetCore.Mvc.Localization
+@inject IViewLocalizer Localizer
+
+@{
+    ViewData["Title"] = Localizer["WhatsNew"];
+    Layout = "~/Views/Shared/_DashboardHomeLayout.cshtml";
+}
+
+@functions {
+    string CategoryIcon(RequestCategory c) => c switch
+    {
+        RequestCategory.NewRequest => "fa-plus-circle text-primary",
+        RequestCategory.Modification => "fa-pen text-warning",
+        RequestCategory.TechnicalSupport => "fa-wrench text-secondary",
+        RequestCategory.Inquiry => "fa-question-circle text-info",
+        RequestCategory.Complaint => "fa-triangle-exclamation text-danger",
+        _ => "fa-circle-check text-success"
+    };
+}
+
+<div class="container py-4" style="max-width: 900px;">
+    <div class="dashboard-header mb-4 text-center">
+        <h1 class="display-5 mb-2">
+            <i class="fas fa-bullhorn me-3"></i>@Localizer["WhatsNew"]
+        </h1>
+        <p class="text-muted mb-0">@Localizer["WhatsNewHint"]</p>
+    </div>
+
+    @if (!Model.Any())
+    {
+        <div class="card">
+            <div class="card-body text-center text-muted py-5">
+                <i class="fas fa-hourglass-half fa-3x d-block mb-3"></i>
+                @Localizer["NoReleasesYet"]
+            </div>
+        </div>
+    }
+    else
+    {
+        @foreach (var v in Model)
+        {
+            <div class="card mb-4">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <div>
+                        <span class="badge bg-success fs-6 me-2" dir="ltr">@v.VersionNumber</span>
+                        <strong>@v.Title</strong>
+                    </div>
+                    <span class="text-muted">
+                        <i class="fas fa-calendar me-1"></i>@(v.ReleaseDate?.ToString("yyyy-MM-dd") ?? "-")
+                    </span>
+                </div>
+                <div class="card-body">
+                    @if (!string.IsNullOrWhiteSpace(v.Description))
+                    {
+                        <p class="mb-3">@v.Description</p>
+                    }
+
+                    @if (v.Requests.Any())
+                    {
+                        <ul class="list-group list-group-flush">
+                            @foreach (var r in v.Requests)
+                            {
+                                <li class="list-group-item d-flex align-items-center gap-2">
+                                    <i class="fas @CategoryIcon(r.Category)"></i>
+                                    <span>@r.Title</span>
+                                    <span class="badge bg-light text-muted ms-auto" dir="ltr">@r.RequestNumber</span>
+                                </li>
+                            }
+                        </ul>
+                    }
+                    else
+                    {
+                        <p class="text-muted mb-0">@Localizer["NoChangesListed"]</p>
+                    }
+                </div>
+            </div>
+        }
+    }
+</div>

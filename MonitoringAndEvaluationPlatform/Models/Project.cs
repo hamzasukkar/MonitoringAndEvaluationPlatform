@@ -4,7 +4,7 @@ using MonitoringAndEvaluationPlatform.Attributes;
 
 namespace MonitoringAndEvaluationPlatform.Models
 {
-    public class Project
+    public class Project : IHasTimestamps
     {
         [Key]
         public int ProjectID { get; set; }
@@ -15,6 +15,11 @@ namespace MonitoringAndEvaluationPlatform.Models
         public string ProjectName { get; set; } = string.Empty;
 
         public ICollection<Sector>? Sectors { get; set; } = new List<Sector>();
+
+        [Display(Name = "Public Sector Type")]
+        public int? PublicSectorTypeCode { get; set; }
+        public virtual PublicSectorType? PublicSectorType { get; set; }
+
         public ICollection<Donor>? Donors { get; set; } = new List<Donor>();
         public ICollection<ProjectDonor> ProjectDonors { get; set; } = new List<ProjectDonor>();
         public ICollection<Ministry> Ministries { get; set; } = new List<Ministry>();
@@ -101,5 +106,11 @@ namespace MonitoringAndEvaluationPlatform.Models
 
         [Display(Name = "Entire Country")]
         public bool IsEntireCountry { get; set; } = false;
+
+        [Display(Name = "Created At")]
+        public DateTime CreatedAt { get; set; }
+
+        [Display(Name = "Last Modified")]
+        public DateTime LastModifiedAt { get; set; }
     }
 }

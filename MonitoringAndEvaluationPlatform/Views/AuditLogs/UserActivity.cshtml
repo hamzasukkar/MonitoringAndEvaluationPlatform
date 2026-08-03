@@ -1,5 +1,8 @@
 @model List<MonitoringAndEvaluationPlatform.Models.AuditLog>
 @using Microsoft.AspNetCore.Mvc.Localization
+@using System.Globalization
+@using MonitoringAndEvaluationPlatform.Helpers
+@using MonitoringAndEvaluationPlatform.ViewModels
 @inject IViewLocalizer Localizer
 
 @{
@@ -12,6 +15,8 @@
     var pageSize = (int)ViewBag.PageSize;
     var totalPages = (int)ViewBag.TotalPages;
 }
+
+<link rel="stylesheet" href="~/css/audit-logs.css" asp-append-version="true" />
 
 <div class="container-fluid py-4">
     <!-- Header -->
@@ -46,12 +51,14 @@
                             <th>@Localizer["Timestamp"]</th>
                             <th>@Localizer["Action"]</th>
                             <th>@Localizer["Entity"]</th>
-                            <th>@Localizer["EntityId"]</th>
-                            <th>@Localizer["ChangedFields"]</th>
+                            <th>@Localizer["ChangesColumn"]</th>
                             <th class="text-center">@Localizer["Details"]</th>
                         </tr>
                     </thead>
                     <tbody>
+                        @{
+                            DateTime? previousDay = null;
+                        }
                         @foreach (var log in Model)
                         {
                             var actionClass = log.Action switch
@@ -69,10 +76,26 @@
                                 _ => "fa-question"
                             };
 
-                            <tr>
-                                <td>
+                            var localDay = log.Timestamp.ToLocalTime().Date;
+                            if (previousDay != localDay)
+                            {
+                                previousDay = localDay;
+                                var dayKey = AuditLogDisplayHelper.GetDayKey(log.Timestamp);
+                                <tr class="date-separator">
+                                    <td colspan="5">
+                                        <i class="far fa-calendar-alt me-1"></i>
+                                        @(dayKey != null ? Localizer[dayKey].Value : localDay.ToString("D", CultureInfo.CurrentUICulture))
+                                    </td>
+                                </tr>
+                            }
+                            var relative = AuditLogDisplayHelper.GetRelativeTime(log.Timestamp);
+
+                            <tr class="log-row">
+                                <td title="@log.Timestamp.ToLocalTime().ToString("yyyy-MM-dd HH:mm:ss")">
                                     <small class="text-muted">
-                                        @log.Timestamp.ToLocalTime().ToString("yyyy-MM-dd HH:mm:ss")
+                                        @(relative.Key == "TimeOnly"
+                                            ? log.Timestamp.ToLocalTime().ToString("HH:mm")
+                                            : Localizer[relative.Key, relative.Value].Value)
                                     </small>
                                 </td>
                                 <td>
@@ -80,26 +103,38 @@
                                         <i class="fas @actionIcon me-1"></i>@log.Action
                                     </span>
                                 </td>
-                                <td><strong>@log.EntityName</strong></td>
                                 <td>
-                                    <a asp-action="EntityHistory" asp-route-entityName="@log.EntityName" asp-route-entityId="@log.EntityId">
-                                        @log.EntityId
+                                    @{
+                                        var displayName = AuditLogDisplayHelper.ExtractDisplayName(log);
+                                    }
+                                    <div>
+                                        <span class="badge bg-light text-dark border">@Localizer[log.EntityName]</span>
+                                    </div>
+                                    <a asp-action="EntityHistory" asp-route-entityName="@log.EntityName" asp-route-entityId="@log.EntityId" class="entity-link">
+                                        @if (!string.IsNullOrEmpty(displayName))
+                                        {
+                                            <strong>@AuditLogDisplayHelper.Truncate(displayName, 60)</strong>
+                                            <small class="text-muted">#@log.EntityId</small>
+                                        }
+                                        else
+                                        {
+                                            <strong>#@log.EntityId</strong>
+                                        }
                                     </a>
                                 </td>
                                 <td>
-                                    @if (!string.IsNullOrEmpty(log.ChangedColumns))
-                                    {
-                                        <small class="text-muted">@log.ChangedColumns</small>
-                                    }
-                                    else
-                                    {
-                                        <span class="text-muted">-</span>
-                                    }
+                                    <partial name="_AuditChangeSummary" model="new AuditChangeSummaryViewModel { Log = log, MaxShown = 3, AllowExpand = true }" />
                                 </td>
                                 <td class="text-center">
                                     <a asp-action="Details" asp-route-id="@log.Id" class="btn btn-sm btn-info">
                                         <i class="fas fa-eye"></i>
                                     </a>
+                                    <i class="fas fa-chevron-down expand-chevron ms-1"></i>
+                                </td>
+                            </tr>
+                            <tr class="expand-row" hidden>
+                                <td colspan="5">
+                                    <partial name="_AuditChangeSummary" model="new AuditChangeSummaryViewModel { Log = log, Full = true, TruncateLength = 300 }" />
                                 </td>
                             </tr>
                         }
@@ -150,4 +185,30 @@
         font-weight: 600;
         border-bottom: 2px solid #dee2e6;
     }
+
 </style>
+
+<script>
+    (function () {
+        function toggleExpand(row) {
+            var next = row.nextElementSibling;
+            if (!next || !next.classList.contains("expand-row")) return;
+            next.hidden = !next.hidden;
+            row.classList.toggle("expanded", !next.hidden);
+        }
+
+        document.querySelectorAll("tr.log-row").forEach(function (row) {
+            row.addEventListener("click", function (e) {
+                if (e.target.closest("a, button")) return;
+                toggleExpand(row);
+            });
+        });
+
+        document.querySelectorAll(".expand-toggle").forEach(function (btn) {
+            btn.addEventListener("click", function () {
+                var row = btn.closest("tr.log-row");
+                if (row) toggleExpand(row);
+            });
+        });
+    })();
+</script>

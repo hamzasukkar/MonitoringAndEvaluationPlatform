@@ -124,4 +124,19 @@
   <data name="The backup script can be executed on SQL Server to restore data." xml:space="preserve">
     <value>The backup script can be executed on SQL Server to restore data.</value>
   </data>
+  <data name="Backup Type" xml:space="preserve">
+    <value>Backup Type</value>
+  </data>
+  <data name="SQL Script (data only)" xml:space="preserve">
+    <value>SQL Script (data only)</value>
+  </data>
+  <data name="Native SQL Server Backup (.bak)" xml:space="preserve">
+    <value>Native SQL Server Backup (.bak)</value>
+  </data>
+  <data name="The full database is saved to the server and downloaded" xml:space="preserve">
+    <value>The full database is saved to the server and downloaded</value>
+  </data>
+  <data name="Generate .bak Backup" xml:space="preserve">
+    <value>Generate .bak Backup</value>
+  </data>
 </root>

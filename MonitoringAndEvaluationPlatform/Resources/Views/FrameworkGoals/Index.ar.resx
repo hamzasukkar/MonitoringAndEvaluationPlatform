@@ -121,7 +121,7 @@
     <value>أهداف</value>
   </data>
   <data name="Manage goals and targets for monitoring frameworks" xml:space="preserve">
-    <value>إدارة الأهداف والغايات لأطر المراقبة</value>
+    <value>إدارة الأهداف والغايات لأهداف استراتيجية المراقبة</value>
   </data>
   <data name="Add New Goal" xml:space="preserve">
     <value>إضافة هدف جديد</value>
@@ -130,22 +130,22 @@
     <value>إلغاء</value>
   </data>
   <data name="Filter by Framework" xml:space="preserve">
-    <value>تصفية حسب السياسة</value>
+    <value>تصفية حسب الهدف الاستراتيجي</value>
   </data>
   <data name="All Frameworks" xml:space="preserve">
     <value>جميع السياسات</value>
   </data>
   <data name="Create New Framework Goal" xml:space="preserve">
-    <value>إنشاء هدف إطار جديد</value>
+    <value>إنشاء هدف هدف استراتيجي جديد</value>
   </data>
   <data name="Goal Name" xml:space="preserve">
     <value>اسم الهدف</value>
   </data>
   <data name="Framework" xml:space="preserve">
-    <value>السياسة</value>
+    <value>الهدف الاستراتيجي</value>
   </data>
   <data name="Select Framework" xml:space="preserve">
-    <value>اختر السياسة</value>
+    <value>اختر الهدف الاستراتيجي</value>
   </data>
   <data name="Starting Year" xml:space="preserve">
     <value>سنة البداية</value>
@@ -220,16 +220,16 @@
     <value>يرجى ملء جميع الحقول المطلوبة.</value>
   </data>
   <data name="Invalid framework selected." xml:space="preserve">
-    <value>تم تحديد إطار غير صالح.</value>
+    <value>تم تحديد هدف استراتيجي غير صالح.</value>
   </data>
   <data name="Years must be in ascending order: Starting Year &lt; Current Year &lt; Target Year." xml:space="preserve">
     <value>يجب أن تكون السنوات بترتيب تصاعدي: سنة البداية &lt; السنة الحالية &lt; السنة المستهدفة.</value>
   </data>
   <data name="Framework Goal created successfully!" xml:space="preserve">
-    <value>تم إنشاء هدف السياسة بنجاح!</value>
+    <value>تم إنشاء هدف الاستراتيجية بنجاح!</value>
   </data>
   <data name="An error occurred while creating the framework goal. Please try again." xml:space="preserve">
-    <value>حدث خطأ أثناء إنشاء هدف السياسة. يرجى المحاولة مرة أخرى.</value>
+    <value>حدث خطأ أثناء إنشاء هدف الاستراتيجية. يرجى المحاولة مرة أخرى.</value>
   </data>
   <data name="Goal not found." xml:space="preserve">
     <value>الهدف غير موجود.</value>
@@ -259,7 +259,7 @@
     <value>عرض تقدم الأهداف</value>
   </data>
   <data name="Visual progress indicators for framework goals" xml:space="preserve">
-    <value>مؤشرات التقدم المرئية لأهداف السياسة</value>
+    <value>مؤشرات التقدم المرئية لأهداف الاستراتيجية</value>
   </data>
   <data name="Table View" xml:space="preserve">
     <value>عرض الجدول</value>
@@ -274,7 +274,7 @@
     <value>مقاييس التقدم الدائرية</value>
   </data>
   <data name="Visual circular progress indicators for framework goals" xml:space="preserve">
-    <value>مؤشرات التقدم الدائرية المرئية لأهداف السياسة</value>
+    <value>مؤشرات التقدم الدائرية المرئية لأهداف الاستراتيجية</value>
   </data>
   <data name="Time Progress" xml:space="preserve">
     <value>تقدم الوقت</value>
@@ -529,7 +529,7 @@
     <value>توزيع حالة الأهداف</value>
   </data>
   <data name="Goals by Framework" xml:space="preserve">
-    <value>الأهداف حسب السياسة</value>
+    <value>الأهداف حسب الهدف الاستراتيجي</value>
   </data>
   <data name="On-Track" xml:space="preserve">
     <value>على المسار الصحيح</value>
@@ -816,9 +816,6 @@
   <data name="Calculation Explanation" xml:space="preserve">
     <value>شرح الحساب</value>
   </data>
-  <data name="Goal Type" xml:space="preserve">
-    <value>نوع الهدف</value>
-  </data>
   <data name="Type" xml:space="preserve">
     <value>النوع</value>
   </data>
@@ -837,26 +834,14 @@
   <data name="Number of Years" xml:space="preserve">
     <value>عدد السنوات</value>
   </data>
-  <data name="Years" xml:space="preserve">
-    <value>سنوات</value>
-  </data>
   <data name="Total Required Change" xml:space="preserve">
     <value>إجمالي التغيير المطلوب</value>
-  </data>
-  <data name="Required Change" xml:space="preserve">
-    <value>التغيير المطلوب</value>
   </data>
   <data name="Annual Change Rate" xml:space="preserve">
     <value>معدل التغيير السنوي</value>
   </data>
   <data name="Years Elapsed" xml:space="preserve">
     <value>السنوات المنقضية</value>
-  </data>
-  <data name="Actual Change" xml:space="preserve">
-    <value>التغيير الفعلي</value>
-  </data>
-  <data name="Expected Change" xml:space="preserve">
-    <value>التغيير المتوقع</value>
   </data>
   <data name="Performance Percentage" xml:space="preserve">
     <value>نسبة الأداء</value>

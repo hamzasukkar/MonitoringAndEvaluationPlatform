@@ -307,4 +307,106 @@
   <data name="LoginFailed" xml:space="preserve">
     <value>فشل تسجيل الدخول</value>
   </data>
+  <data name="EntityDisplayName" xml:space="preserve">
+    <value>اسم الكيان</value>
+  </data>
+  <data name="ChangesComparison" xml:space="preserve">
+    <value>مقارنة التغييرات</value>
+  </data>
+  <data name="Field" xml:space="preserve">
+    <value>الحقل</value>
+  </data>
+  <data name="OldValue" xml:space="preserve">
+    <value>القيمة القديمة</value>
+  </data>
+  <data name="NewValue" xml:space="preserve">
+    <value>القيمة الجديدة</value>
+  </data>
+  <data name="ShowRawJson" xml:space="preserve">
+    <value>عرض البيانات الخام (JSON)</value>
+  </data>
+  <data name="NoEffectiveChanges" xml:space="preserve">
+    <value>لا توجد تغييرات فعلية في القيم</value>
+  </data>
+  <data name="SummaryCreate" xml:space="preserve">
+    <value>قام {0} بإنشاء {1}</value>
+  </data>
+  <data name="SummaryUpdate" xml:space="preserve">
+    <value>قام {0} بتعديل {1}</value>
+  </data>
+  <data name="SummaryDelete" xml:space="preserve">
+    <value>قام {0} بحذف {1}</value>
+  </data>
+  <data name="OpenRecord" xml:space="preserve">
+    <value>فتح السجل</value>
+  </data>
+  <data name="System" xml:space="preserve">
+    <value>النظام</value>
+  </data>
+  <data name="Create" xml:space="preserve">
+    <value>إنشاء</value>
+  </data>
+  <data name="Update" xml:space="preserve">
+    <value>تعديل</value>
+  </data>
+  <data name="Delete" xml:space="preserve">
+    <value>حذف</value>
+  </data>
+  <data name="ProjectName" xml:space="preserve">
+    <value>اسم المشروع</value>
+  </data>
+  <data name="EstimatedBudget" xml:space="preserve">
+    <value>الميزانية التقديرية</value>
+  </data>
+  <data name="RealBudget" xml:space="preserve">
+    <value>الميزانية الفعلية</value>
+  </data>
+  <data name="Currency" xml:space="preserve">
+    <value>العملة</value>
+  </data>
+  <data name="BudgetUnit" xml:space="preserve">
+    <value>وحدة الميزانية</value>
+  </data>
+  <data name="ExchangeRate" xml:space="preserve">
+    <value>سعر الصرف</value>
+  </data>
+  <data name="ExchangeRateDate" xml:space="preserve">
+    <value>تاريخ سعر الصرف</value>
+  </data>
+  <data name="StartDate" xml:space="preserve">
+    <value>تاريخ البداية</value>
+  </data>
+  <data name="EndDate" xml:space="preserve">
+    <value>تاريخ النهاية</value>
+  </data>
+  <data name="MinistryCode" xml:space="preserve">
+    <value>رمز الوزارة</value>
+  </data>
+  <data name="ProjectManagerCode" xml:space="preserve">
+    <value>رمز مدير المشروع</value>
+  </data>
+  <data name="SuperVisorCode" xml:space="preserve">
+    <value>رمز المشرف</value>
+  </data>
+  <data name="GoalCode" xml:space="preserve">
+    <value>رمز الهدف</value>
+  </data>
+  <data name="IsEntireCountry" xml:space="preserve">
+    <value>كامل البلاد</value>
+  </data>
+  <data name="Realised" xml:space="preserve">
+    <value>القيمة المحققة</value>
+  </data>
+  <data name="Planned" xml:space="preserve">
+    <value>القيمة المخططة</value>
+  </data>
+  <data name="CreatedAt" xml:space="preserve">
+    <value>تاريخ الإنشاء</value>
+  </data>
+  <data name="LastModifiedAt" xml:space="preserve">
+    <value>آخر تعديل</value>
+  </data>
+  <data name="performance" xml:space="preserve">
+    <value>الأداء</value>
+  </data>
 </root>

@@ -274,7 +274,7 @@
                     <div class="activity-title">@activity.ActivityTitle</div>
                     <div class="activity-time">
                         @{
-                            var timeSpan = DateTime.Now - activity.ActivityDate;
+                            var timeSpan = DateTime.UtcNow - DateTime.SpecifyKind(activity.ActivityDate, DateTimeKind.Utc);
                             string timeAgo;
                             if (timeSpan.TotalDays >= 365)
                             {

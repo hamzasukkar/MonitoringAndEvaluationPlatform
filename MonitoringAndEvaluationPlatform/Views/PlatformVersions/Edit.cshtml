@@ -1,0 +1,93 @@
+@model MonitoringAndEvaluationPlatform.Models.PlatformVersion
+@using MonitoringAndEvaluationPlatform.Enums
+@using Microsoft.AspNetCore.Mvc.Localization
+@inject IViewLocalizer Localizer
+
+@{
+    ViewData["Title"] = Localizer["EditVersion"];
+    Layout = "~/Views/Shared/_DashboardHomeLayout.cshtml";
+    var isReleased = Model.Status == VersionStatus.Released;
+}
+
+<div class="container-fluid py-4">
+    <div class="dashboard-header mb-4">
+        <h1 class="display-5 mb-2">
+            <i class="fas fa-edit me-3"></i>@Localizer["EditVersion"]
+            <span class="badge bg-secondary align-middle fs-6" dir="ltr">@Model.VersionNumber</span>
+        </h1>
+    </div>
+
+    @if (isReleased)
+    {
+        <div class="alert alert-info">
+            <i class="fas fa-info-circle me-2"></i>@Localizer["ReleasedReadOnlyStatusHint"]
+        </div>
+    }
+
+    <div class="card">
+        <div class="card-body">
+            <form asp-action="Edit" asp-route-id="@Model.Id" method="post">
+                @Html.AntiForgeryToken()
+                <input type="hidden" asp-for="Id" />
+                <div asp-validation-summary="ModelOnly" class="alert alert-danger" role="alert"></div>
+
+                <div class="row g-3">
+                    <div class="col-md-3">
+                        <label asp-for="VersionNumber" class="form-label">@Localizer["VersionNumber"] <span class="text-danger">*</span></label>
+                        <input asp-for="VersionNumber" class="form-control" dir="ltr" />
+                        <span asp-validation-for="VersionNumber" class="text-danger small"></span>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label asp-for="Title" class="form-label">@Localizer["Title"] <span class="text-danger">*</span></label>
+                        <input asp-for="Title" class="form-control" />
+                        <span asp-validation-for="Title" class="text-danger small"></span>
+                    </div>
+
+                    <div class="col-md-3">
+                        <label asp-for="Status" class="form-label">@Localizer["Status"]</label>
+                        @if (isReleased)
+                        {
+                            <input class="form-control" value="@Localizer["VStatusReleased"]" disabled />
+                            <input type="hidden" asp-for="Status" />
+                        }
+                        else
+                        {
+                            <select asp-for="Status" class="form-select">
+                                <option value="@((int)VersionStatus.Planned)">@Localizer["VStatusPlanned"]</option>
+                                <option value="@((int)VersionStatus.InDevelopment)">@Localizer["VStatusInDevelopment"]</option>
+                            </select>
+                            <div class="form-text">@Localizer["ReleasedViaReleaseHint"]</div>
+                        }
+                    </div>
+
+                    <div class="col-md-3">
+                        <label asp-for="PlannedDate" class="form-label">@Localizer["PlannedDate"]</label>
+                        <input asp-for="PlannedDate" type="date" class="form-control" />
+                    </div>
+
+                    <div class="col-md-9">
+                        <label asp-for="Description" class="form-label">@Localizer["Description"]</label>
+                        <textarea asp-for="Description" rows="3" class="form-control"></textarea>
+                        <span asp-validation-for="Description" class="text-danger small"></span>
+                    </div>
+                </div>
+
+                <hr class="my-4" />
+
+                <div class="d-flex gap-2">
+                    <button type="submit" class="btn btn-primary btn-lg">
+                        <i class="fas fa-save me-2"></i>@Localizer["Save"]
+                    </button>
+                    <a asp-action="Details" asp-route-id="@Model.Id" class="btn btn-outline-secondary btn-lg">
+                        @Localizer["Cancel"]
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

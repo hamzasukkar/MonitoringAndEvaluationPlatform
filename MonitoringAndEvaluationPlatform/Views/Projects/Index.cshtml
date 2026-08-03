@@ -201,6 +201,7 @@
     for (int i = 0; i < Model.SelectedMinistries.Count; i++) baseRoute[$"SelectedMinistries[{i}]"] = Model.SelectedMinistries[i].ToString();
     for (int i = 0; i < Model.SelectedDonors.Count; i++) baseRoute[$"SelectedDonors[{i}]"] = Model.SelectedDonors[i].ToString();
     for (int i = 0; i < Model.SelectedSectors.Count; i++) baseRoute[$"SelectedSectors[{i}]"] = Model.SelectedSectors[i].ToString();
+    for (int i = 0; i < Model.SelectedPublicSectorTypes.Count; i++) baseRoute[$"SelectedPublicSectorTypes[{i}]"] = Model.SelectedPublicSectorTypes[i].ToString();
     for (int i = 0; i < Model.SelectedGovernorates.Count; i++) baseRoute[$"SelectedGovernorates[{i}]"] = Model.SelectedGovernorates[i];
 
     // Helper: produce a route dict with a single key removed (for list filters,
@@ -313,6 +314,22 @@
             foreach (var other in Model.SelectedSectors.Where(c => c != code)) { rd[$"SelectedSectors[{idx++}]"] = other.ToString(); }
             <a asp-action="Index" asp-all-route-data="rd" class="filter-chip">
                 <span class="chip-key">@Localizer["Sector"]</span>
+                <span class="chip-val">@name</span>
+                <i class="fas fa-times chip-x"></i>
+            </a>
+        }
+
+        @* Public Sector Types *@
+        @foreach (var code in Model.SelectedPublicSectorTypes)
+        {
+            var t = Model.PublicSectorTypes.FirstOrDefault(x => x.Code == code);
+            if (t == null) { continue; }
+            var name = culture.StartsWith("ar") ? t.AR_Name : t.EN_Name;
+            var rd = new Dictionary<string, string>(routeWithout("SelectedPublicSectorTypes", code));
+            var idx = 0;
+            foreach (var other in Model.SelectedPublicSectorTypes.Where(c => c != code)) { rd[$"SelectedPublicSectorTypes[{idx++}]"] = other.ToString(); }
+            <a asp-action="Index" asp-all-route-data="rd" class="filter-chip">
+                <span class="chip-key">@Localizer["Public Sector Type"]</span>
                 <span class="chip-val">@name</span>
                 <i class="fas fa-times chip-x"></i>
             </a>
@@ -535,6 +552,32 @@
                             </div>
                         </div>
 
+                        <!-- Public Sector Type Filter -->
+                        <div class="mb-4">
+                            <h6 class="filter-section-title">@Localizer["Public Sector Type"]</h6>
+                            <div class="filter-options-modern">
+                                @foreach (var publicSectorType in Model.PublicSectorTypes)
+                                {
+                                    <div class="modern-checkbox">
+                                        <input class="modern-checkbox-input" type="checkbox" name="SelectedPublicSectorTypes"
+                                               value="@publicSectorType.Code" id="public-sector-type-@publicSectorType.Code"
+                                        @(Model.SelectedPublicSectorTypes.Contains(publicSectorType.Code) ? "checked" : "")>
+                                        <label class="modern-checkbox-label" for="public-sector-type-@publicSectorType.Code">
+                                            <span class="checkbox-custom"></span>
+                                            @if (culture.StartsWith("ar"))
+                                            {
+                                                @publicSectorType.AR_Name
+                                            }
+                                            else
+                                            {
+                                                @publicSectorType.EN_Name
+                                            }
+                                        </label>
+                                    </div>
+                                }
+                            </div>
+                        </div>
+
                         <!-- Governorate Filter -->
                         <div class="mb-4">
                             <h6 class="filter-section-title">@Localizer["Governorate"]</h6>
@@ -705,6 +748,10 @@
                                     <th class="text-center">
                                         <i class="fas fa-calendar-check me-2"></i>@Localizer["End Date"]
                                     </th>
+                                    <th class="text-center sortable-header" onclick="sortProjectsTable('lastmodified')" style="cursor: pointer;">
+                                        <i class="fas fa-history me-2"></i>@Localizer["Last Modified"]
+                                        <i class="fas fa-sort ms-2" id="lastmodified-sort-icon"></i>
+                                    </th>
                                     <th class="text-center">
                                         <i class="fas fa-info-circle me-2"></i>@Localizer["Status"]
                                     </th>
@@ -724,7 +771,7 @@
                             <tbody id="projectsTableBody">
                                 @{
                                     var hasSelectColumn = User.IsInRole("SystemAdministrator") || User.IsInRole("MinistryStrategyManager");
-                                    var emptyColspan = hasSelectColumn ? 10 : 9;
+                                    var emptyColspan = hasSelectColumn ? 11 : 10;
                                     var hasActiveFilters = hasAnyChip;
                                 }
                                 @if (!Model.Projects.Any())
@@ -781,7 +828,7 @@
                                         statusIcon = "fa-check-circle";
                                     }
 
-                                    <tr id="row_@item.ProjectID" class="table-row" data-performance="@performance" data-disbursement="@disbursement">
+                                    <tr id="row_@item.ProjectID" class="table-row" data-performance="@performance" data-disbursement="@disbursement" data-lastmodified="@(new DateTimeOffset(DateTime.SpecifyKind(item.LastModifiedAt, DateTimeKind.Utc)).ToUnixTimeMilliseconds())">
                                         @if ((User.IsInRole("SystemAdministrator") || User.IsInRole("MinistryStrategyManager")))
                                         {
                                             <td style="text-align:center; vertical-align:middle;">
@@ -845,6 +892,9 @@
                                             <span class="date-cell">@item.EndDate.ToString("MMM yyyy")</span>
                                         </td>
                                         <td class="text-center">
+                                            <span class="date-cell">@DateTime.SpecifyKind(item.LastModifiedAt, DateTimeKind.Utc).ToLocalTime().ToString("yyyy-MM-dd HH:mm")</span>
+                                        </td>
+                                        <td class="text-center">
                                             <span class="status-badge @statusClass">
                                                 <i class="fas @statusIcon me-1"></i>@statusText
                                             </span>
@@ -868,6 +918,13 @@
                                                         onclick="deleteProject(@item.ProjectID)" title="@Localizer["Delete Project"]">
                                                     <i class="fas fa-trash-alt"></i>
                                                 </button>
+                                                @if (User.IsInRole("SystemAdministrator"))
+                                                {
+                                                    <a asp-controller="AuditLogs" asp-action="ProjectHistory" asp-route-projectId="@item.ProjectID"
+                                                       class="btn btn-outline-secondary btn-sm action-btn" title="@Localizer["Project History"]">
+                                                        <i class="fas fa-history"></i>
+                                                    </a>
+                                                }
                                             </div>
                                         </td>
                                     </tr>
@@ -1868,6 +1925,7 @@
         // Reset all icons
         document.getElementById('performance-sort-icon').className = 'fas fa-sort ms-2';
         document.getElementById('disbursement-sort-icon').className = 'fas fa-sort ms-2';
+        document.getElementById('lastmodified-sort-icon').className = 'fas fa-sort ms-2';
 
         // Set active icon
         const iconId = `${activeColumn}-sort-icon`;

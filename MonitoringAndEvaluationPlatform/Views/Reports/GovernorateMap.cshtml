@@ -1,0 +1,787 @@
+@model MonitoringAndEvaluationPlatform.ViewModel.GovernorateMapViewModel
+@using Microsoft.AspNetCore.Mvc.Localization
+@inject IViewLocalizer Localizer
+@using Microsoft.AspNetCore.Localization
+
+@{
+    var requestCultureFeature = ViewContext.HttpContext.Features.Get<IRequestCultureFeature>();
+    var culture = requestCultureFeature?.RequestCulture?.Culture?.Name ?? "ar";
+    var isRtl = culture.StartsWith("ar", StringComparison.OrdinalIgnoreCase);
+    ViewData["Title"] = isRtl ? "خريطة المشاريع حسب المحافظة" : "Projects by Governorate Map";
+    Layout = "~/Views/Shared/_DashboardHomeLayout.cshtml";
+}
+
+<style>
+    .syria-map-container { position: relative; width: 100%; padding: 1rem; }
+    .syria-map-wrapper { width: 100%; min-height: 400px; display: flex; align-items: center; justify-content: center; }
+    .map-loading { text-align: center; color: #6c757d; }
+    .map-loading i { color: #2196F3; }
+    .syria-map { width: 100%; height: auto; max-height: 500px; }
+    .governorate { fill: #e3f2fd; stroke: #1976d2; stroke-width: 1.5; cursor: pointer; transition: all 0.3s ease; }
+    .governorate:hover { fill: #4caf50 !important; stroke: #2e7d32; stroke-width: 3; filter: drop-shadow(0 4px 8px rgba(0,0,0,0.35)); }
+    .governorate.active { fill: #1976d2 !important; stroke: #0d47a1; stroke-width: 3; }
+    .governorate.has-projects-low { fill: #cfe8ff; }
+    .governorate.has-projects-medium { fill: #90caf9; }
+    .governorate.has-projects-high { fill: #42a5f5; }
+    .governorate.has-projects-very-high { fill: #1976d2; }
+    /* Project highlight wins over the colour/active classes */
+    .governorate.highlight { fill: #ff9800 !important; stroke: #e65100; stroke-width: 3; filter: drop-shadow(0 3px 6px rgba(230,81,0,.4)); }
+    .map-tooltip { position: absolute; background: rgba(0,0,0,0.85); color: #fff; padding: 10px 15px; border-radius: 8px; font-size: .9rem; pointer-events: none; opacity: 0; transition: opacity .2s ease; z-index: 1000; max-width: 250px; }
+    .map-tooltip.visible { opacity: 1; }
+    .map-tooltip .tooltip-title { font-weight: 600; margin-bottom: 5px; border-bottom: 1px solid rgba(255,255,255,.3); padding-bottom: 5px; }
+    /* Fullscreen toggle (inside .syria-map-container so it stays clickable in fullscreen) */
+    .map-fullscreen-btn { position: absolute; top: .75rem; inset-inline-end: .75rem; z-index: 10; background: #fff; }
+    /* Colour legend (inside .syria-map-container so it stays visible in fullscreen) */
+    .map-legend { position: absolute; bottom: .75rem; inset-inline-start: .75rem; z-index: 10; background: rgba(255,255,255,.95); border: 1px solid #cbd5e1; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,.12); padding: .6rem .75rem; font-size: .78rem; color: #1f2937; line-height: 1.5; }
+    .map-legend .legend-title { font-weight: 700; margin-bottom: .3rem; }
+    .map-legend .legend-row { display: flex; align-items: center; gap: .45rem; }
+    .map-legend .legend-swatch { width: 14px; height: 14px; border-radius: 3px; border: 1px solid rgba(0,0,0,.15); flex-shrink: 0; }
+    .map-legend .legend-note { color: #6b7280; font-size: .7rem; margin-top: .3rem; max-width: 200px; }
+    .syria-map-container:fullscreen { background: #fff; display: flex; align-items: center; justify-content: center; }
+    .syria-map-container:fullscreen .syria-map { max-height: 96vh; height: 96vh; width: auto; }
+    .syria-map-container:-webkit-full-screen { background: #fff; display: flex; align-items: center; justify-content: center; }
+    .syria-map-container:-webkit-full-screen .syria-map { max-height: 96vh; height: 96vh; width: auto; }
+    .chart-card { background: #fff; border-radius: 14px; box-shadow: 0 2px 12px rgba(0,0,0,.06); padding: 1.25rem; }
+    .chart-title { font-weight: 700; font-size: 1.05rem; margin-bottom: .75rem; color: #1f2937; }
+    .filter-bar { display: flex; flex-wrap: wrap; gap: .75rem; align-items: center; }
+    /* Keep the filter card above the map so its dropdowns are never covered */
+    .filter-card { position: relative; z-index: 1050; }
+    .filter-dropdown .dropdown-menu { min-width: 300px; max-width: 360px; border: 1px solid #cbd5e1; box-shadow: 0 8px 24px rgba(0,0,0,.18); border-radius: 10px; background-color: #ffffff !important; opacity: 1 !important; z-index: 2000; }
+    .filter-dropdown .dropdown-menu.show { display: block; }
+    .filter-list { max-height: 260px; overflow-y: auto; min-height: 40px; }
+    .filter-item { display: flex; align-items: center; gap: .55rem; padding: .4rem .55rem; border-radius: 6px; cursor: pointer; margin: 0; font-size: .9rem; color: #1f2937; }
+    .filter-item:hover { background: #eff6ff; }
+    .filter-item input { flex-shrink: 0; width: 1.05em; height: 1.05em; cursor: pointer; }
+    .filter-item span { flex: 1; line-height: 1.3; word-break: break-word; }
+    .filter-item .filter-count { flex: 0 0 auto; background: #e0e7ff; color: #3730a3; border-radius: 999px; font-size: .75rem; font-weight: 600; padding: .05rem .5rem; min-width: 1.6em; text-align: center; }
+    .filter-empty { color: #94a3b8; font-size: .85rem; padding: .75rem; text-align: center; }
+    .year-select { width: auto; min-width: 5.2rem; }
+    /* RTL fix: the LTR Bootstrap build gives the switch input a negative margin-left,
+       which overlaps the label under dir="rtl" — neutralize it and space via flex gap */
+    [dir="rtl"] .filter-bar .form-switch { padding-left: 0; gap: .5rem; }
+    [dir="rtl"] .filter-bar .form-switch .form-check-input { margin-left: 0; }
+    [dir="rtl"] .filter-bar .form-switch .form-check-label { margin-left: 0 !important; }
+</style>
+
+<!-- Header -->
+<div class="dashboard-header">
+    <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
+        <div>
+            <h1 class="dashboard-title">
+                <i class="fas fa-map-marked-alt me-3"></i>
+                @(isRtl ? "خريطة المشاريع حسب المحافظة" : "Projects by Governorate Map")
+            </h1>
+            <p class="dashboard-subtitle">
+                @(isRtl ? "صفِّ حسب الهدف الاستراتيجي والوزارة والمشروع، أو اضغط على محافظة لعرض مشاريعها"
+                        : "Filter by strategy, ministry and project, or click a governorate to view its projects")
+            </p>
+        </div>
+        <div class="d-flex gap-2 flex-wrap">
+            <button onclick="window.print()" class="btn btn-outline-secondary">
+                <i class="fas fa-print me-2"></i>@(isRtl ? "طباعة" : "Print")
+            </button>
+            <a asp-action="Index" class="btn btn-outline-primary">
+                <i class="fas fa-arrow-left me-2"></i>@(isRtl ? "العودة للتقارير" : "Back to Reports")
+            </a>
+        </div>
+    </div>
+</div>
+
+<div class="container-fluid pb-4">
+    <!-- Filter bar -->
+    <div class="chart-card filter-card mb-3">
+        <div class="filter-bar">
+            <!-- Strategies -->
+            <div class="dropdown filter-dropdown">
+                <button class="btn btn-outline-primary dropdown-toggle" type="button" data-bs-toggle="dropdown" data-bs-auto-close="outside" aria-expanded="false">
+                    <i class="fas fa-sitemap me-1"></i>@(isRtl ? "الأهداف الاستراتيجية" : "Strategies")
+                    <span class="badge bg-primary ms-1" id="stratCount" style="display:none;">0</span>
+                </button>
+                <div class="dropdown-menu p-2">
+                    <input type="text" class="form-control form-control-sm mb-2 filter-search" data-target="stratList" placeholder="@(isRtl ? "بحث..." : "Search...")">
+                    <div id="stratList" class="filter-list"></div>
+                </div>
+            </div>
+            <!-- Ministries -->
+            <div class="dropdown filter-dropdown">
+                <button class="btn btn-outline-success dropdown-toggle" type="button" data-bs-toggle="dropdown" data-bs-auto-close="outside" aria-expanded="false">
+                    <i class="fas fa-building me-1"></i>@(isRtl ? "الوزارات" : "Ministries")
+                    <span class="badge bg-success ms-1" id="minCount" style="display:none;">0</span>
+                </button>
+                <div class="dropdown-menu p-2">
+                    <input type="text" class="form-control form-control-sm mb-2 filter-search" data-target="minList" placeholder="@(isRtl ? "بحث..." : "Search...")">
+                    <div id="minList" class="filter-list"></div>
+                </div>
+            </div>
+            <!-- Projects -->
+            <div class="dropdown filter-dropdown">
+                <button class="btn btn-outline-danger dropdown-toggle" type="button" data-bs-toggle="dropdown" data-bs-auto-close="outside" aria-expanded="false">
+                    <i class="fas fa-project-diagram me-1"></i>@(isRtl ? "المشاريع" : "Projects")
+                    <span class="badge bg-danger ms-1" id="projCount" style="display:none;">0</span>
+                </button>
+                <div class="dropdown-menu p-2">
+                    <input type="text" class="form-control form-control-sm mb-2 filter-search" data-target="projList" placeholder="@(isRtl ? "بحث..." : "Search...")">
+                    <div id="projList" class="filter-list"></div>
+                </div>
+            </div>
+
+            <!-- Year range (projects active within the period) -->
+            <div class="d-flex align-items-center gap-1 ms-2 year-range">
+                <i class="far fa-calendar-alt text-muted me-1"></i>
+                <label class="small text-muted mb-0" for="yearFrom">@(isRtl ? "من" : "From")</label>
+                <select id="yearFrom" class="form-select form-select-sm year-select"></select>
+                <label class="small text-muted mb-0" for="yearTo">@(isRtl ? "إلى" : "To")</label>
+                <select id="yearTo" class="form-select form-select-sm year-select"></select>
+            </div>
+
+            <div class="form-check form-switch d-flex align-items-center ms-2">
+                <input class="form-check-input" type="checkbox" id="nationalToggle" checked>
+                <label class="form-check-label ms-2" for="nationalToggle">
+                    @(isRtl ? "عرض مشاريع مستوى القطر" : "Show country-wide projects")
+                </label>
+            </div>
+
+            <button class="btn btn-outline-secondary" id="clearFiltersBtn" type="button">
+                <i class="fas fa-times me-1"></i>@(isRtl ? "مسح الفلاتر" : "Clear filters")
+            </button>
+        </div>
+    </div>
+
+    <!-- Map -->
+    <div class="chart-card mb-4">
+        <div class="chart-title d-flex justify-content-between align-items-center">
+            <div><i class="fas fa-map me-2"></i>@(isRtl ? "خريطة سوريا" : "Syria Map")</div>
+            <button class="btn btn-sm btn-outline-secondary" id="resetMapBtn" style="display:none;">
+                <i class="fas fa-undo me-1"></i>@(isRtl ? "إلغاء التحديد" : "Clear selection")
+            </button>
+        </div>
+        <div class="syria-map-container">
+            <button id="fullscreenBtn" type="button" class="btn btn-sm btn-outline-secondary map-fullscreen-btn"
+                    title="@(isRtl ? "ملء الشاشة" : "Full screen")">
+                <i class="fas fa-expand"></i>
+            </button>
+            <div id="syriaMapContainer" class="syria-map-wrapper">
+                <div class="map-loading">
+                    <i class="fas fa-spinner fa-spin fa-2x"></i>
+                    <p>@(isRtl ? "جاري تحميل الخريطة..." : "Loading map...")</p>
+                </div>
+            </div>
+            <div id="mapTooltip" class="map-tooltip"></div>
+            <!-- Colour legend: choropleth is relative to the busiest governorate under the current filters -->
+            <div class="map-legend">
+                <div class="legend-title">@(isRtl ? "عدد المشاريع" : "Project count")</div>
+                <div class="legend-row"><span class="legend-swatch" style="background:#e3f2fd"></span><span>@(isRtl ? "لا مشاريع" : "No projects")</span></div>
+                <div class="legend-row"><span class="legend-swatch" style="background:#cfe8ff"></span><span>@(isRtl ? "قليل" : "Low")</span></div>
+                <div class="legend-row"><span class="legend-swatch" style="background:#90caf9"></span><span>@(isRtl ? "متوسط" : "Medium")</span></div>
+                <div class="legend-row"><span class="legend-swatch" style="background:#42a5f5"></span><span>@(isRtl ? "مرتفع" : "High")</span></div>
+                <div class="legend-row"><span class="legend-swatch" style="background:#1976d2"></span><span>@(isRtl ? "الأعلى" : "Highest")</span></div>
+                <div class="legend-row"><span class="legend-swatch" style="background:#ff9800"></span><span>@(isRtl ? "مشاريع مختارة" : "Selected projects")</span></div>
+                <div class="legend-note">@(isRtl ? "التدرج نسبي: مقارنةً بالمحافظة الأعلى ضمن الفلاتر الحالية" : "Relative scale: compared to the busiest governorate under current filters")</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Projects table -->
+    <div class="chart-card">
+        <div class="chart-title">
+            <i class="fas fa-project-diagram me-2"></i>
+            <span id="tableTitle">@(isRtl ? "المشاريع" : "Projects")</span>
+        </div>
+        <div id="projectsTableWrapper">
+            <div class="text-center text-muted py-5">
+                <i class="fas fa-mouse-pointer fa-3x mb-3"></i>
+                <p>@(isRtl ? "اختر محافظة من الخريطة، أو مشروعاً من الفلاتر، لعرض المشاريع" : "Select a governorate from the map, or a project from the filters, to view projects")</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        const isRtlLang = @(isRtl ? "true" : "false");
+
+        // ---- Server data ----
+        const governoratesData = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.Governorates));
+        const allProjects      = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.Projects));
+        const strategiesData   = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.Strategies));
+        const ministriesData   = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.Ministries));
+
+        // ---- Selection state ----
+        const selectedStrategies = new Set();
+        const selectedMinistries = new Set();
+        const selectedProjects   = new Set();
+        let activeGovCode = null; // last clicked governorate
+        let includeNational = true; // toggle: show/hide country-wide projects
+        let yearFrom = null, yearTo = null; // year-range filter (null = unbounded)
+
+        // Maps SVG path IDs -> governorate names (same layout as the existing report map)
+        const governorateMapping = {
+            'path1':  { nameEn: 'Damascus',     nameAr: 'دمشق' },
+            'path2':  { nameEn: 'Aleppo',       nameAr: 'حلب' },
+            'path3':  { nameEn: 'Rif Dimashq',  nameAr: 'ريف دمشق' },
+            'path4':  { nameEn: 'Homs',         nameAr: 'حمص' },
+            'path5':  { nameEn: 'Hama',         nameAr: 'حماة' },
+            'path6':  { nameEn: 'Latakia',      nameAr: 'اللاذقية' },
+            'path7':  { nameEn: 'Idlib',        nameAr: 'إدلب' },
+            'path8':  { nameEn: 'Al-Hasakah',   nameAr: 'الحسكة' },
+            'path9':  { nameEn: 'Deir ez-Zor',  nameAr: 'دير الزور' },
+            'path10': { nameEn: 'Tartus',       nameAr: 'طرطوس' },
+            'path11': { nameEn: 'Ar-Raqqah',    nameAr: 'الرقة' },
+            'path12': { nameEn: 'Daraa',        nameAr: 'درعا' },
+            'path13': { nameEn: 'As-Suwayda',   nameAr: 'السويداء' },
+            'path14': { nameEn: 'Quneitra',     nameAr: 'القنيطرة' }
+        };
+
+        // ---- Lookup helpers ----
+        function govByNameAr(nameAr) { return governoratesData.find(g => g.NameAr === nameAr); }
+        function govCodeFromNameAr(nameAr) { const g = govByNameAr(nameAr); return g ? g.Code : null; }
+        function nameArFromGovCode(code) { const g = governoratesData.find(x => x.Code === code); return g ? g.NameAr : null; }
+
+        // ---- Filter predicates ----
+        function matchesStrategy(p) {
+            return selectedStrategies.size === 0 || p.FrameworkCodes.some(c => selectedStrategies.has(c));
+        }
+        function matchesMinistry(p) {
+            return selectedMinistries.size === 0 || (p.MinistryCode != null && selectedMinistries.has(p.MinistryCode));
+        }
+        function matchesProjectPick(p) {
+            return selectedProjects.size === 0 || selectedProjects.has(p.ProjectID);
+        }
+        function projectYear(s) {
+            const y = parseInt((s || '').slice(0, 4), 10);
+            return isNaN(y) ? null : y;
+        }
+        // Project period [start year, end year] overlaps the selected [from, to] range
+        function matchesYears(p) {
+            if (yearFrom == null && yearTo == null) return true;
+            const ps = projectYear(p.StartDate), pe = projectYear(p.EndDate);
+            const lo = (yearFrom != null && yearTo != null) ? Math.min(yearFrom, yearTo) : yearFrom;
+            const hi = (yearFrom != null && yearTo != null) ? Math.max(yearFrom, yearTo) : yearTo;
+            return (lo == null || pe == null || pe >= lo) &&
+                   (hi == null || ps == null || ps <= hi);
+        }
+        // Projects passing all facet filters except the one being rebuilt
+        // (a list is narrowed by the other two facets, never by its own selection)
+        function projectsMatching(exceptFacet) {
+            return allProjects.filter(p =>
+                (includeNational || !p.IsNational) &&
+                matchesYears(p) &&
+                (exceptFacet === 'strategy' || matchesStrategy(p)) &&
+                (exceptFacet === 'ministry' || matchesMinistry(p)) &&
+                (exceptFacet === 'project'  || matchesProjectPick(p)));
+        }
+        // Projects passing all active filters (incl. selected projects) that belong to a governorate
+        // (national counted everywhere)
+        function projectsInGov(govCode) {
+            return projectsMatching().filter(p => p.IsNational || p.GovernorateCodes.includes(govCode));
+        }
+
+        // ---- Money / badges ----
+        function fmtMoney(v, currency) {
+            const sym = currency === 'EUR' ? '€' : currency === 'SYP' ? 'SYP ' : '$';
+            return sym + (v || 0).toLocaleString();
+        }
+        // Sum a money field across projects, grouped per currency (e.g. "$1,000 + €500")
+        function fmtMoneySum(projects, valFn) {
+            const byCur = {};
+            projects.forEach(p => {
+                const cur = p.Currency || 'USD';
+                byCur[cur] = (byCur[cur] || 0) + (valFn(p) || 0);
+            });
+            const parts = Object.keys(byCur).map(cur => fmtMoney(byCur[cur], cur));
+            return parts.length ? parts.join(' + ') : fmtMoney(0, 'USD');
+        }
+        function perfBadge(v) {
+            const cls = v >= 75 ? 'bg-success' : v >= 50 ? 'bg-warning text-dark' : 'bg-danger';
+            return `<span class="badge ${cls}">${v}%</span>`;
+        }
+        // Framework/strategy name lookup (a project may belong to several frameworks)
+        const strategyNameByCode = Object.fromEntries(strategiesData.map(s => [s.Code, s.Name]));
+        function frameworkNames(p) {
+            return (p.FrameworkCodes || [])
+                .map(c => strategyNameByCode[c])
+                .filter(Boolean);
+        }
+
+        // ---- Table ----
+        // Column definitions: label + sort key (null = not sortable)
+        const tableColumns = [
+            { labelAr: '#',          labelEn: '#',              key: null },
+            { labelAr: 'اسم المشروع', labelEn: 'Project Name',   key: p => (p.ProjectName || '').toLowerCase() },
+            { labelAr: 'النطاق',      labelEn: 'Scope',          key: p => (p.IsNational ? 1 : 0) },
+            { labelAr: 'الجهة',       labelEn: 'Ministry',       key: p => (p.Ministry || '').toLowerCase() },
+            { labelAr: 'الناحية',     labelEn: 'Community',      key: p => (p.Communities || []).join(', ').toLowerCase() },
+            { labelAr: 'الهدف الاستراتيجي', labelEn: 'Framework',      key: p => frameworkNames(p).join(', ').toLowerCase() },
+            { labelAr: 'الميزانية',   labelEn: 'Budget',         key: p => (p.EstimatedBudget || 0) },
+            { labelAr: 'الأداء',      labelEn: 'Performance',    key: p => (p.Performance || 0) },
+            { labelAr: 'الصرف',       labelEn: 'Disbursement',   key: p => (p.DisbursementPerformance || 0) },
+            { labelAr: 'إجمالي المنجز', labelEn: 'Total Disbursed', key: p => (p.TotalRealised || 0) },
+            { labelAr: 'البداية',     labelEn: 'Start',          key: p => (p.StartDate || '') },
+            { labelAr: 'النهاية',     labelEn: 'End',            key: p => (p.EndDate || '') }
+        ];
+
+        // Table render state (kept so header clicks can re-sort in place)
+        let tableProjects = [];
+        let sortColIndex = null;
+        let sortDir = 1; // 1 = ascending, -1 = descending
+
+        function renderProjectTable(title, projects) {
+            const wrapper = document.getElementById('projectsTableWrapper');
+            document.getElementById('tableTitle').textContent = title;
+
+            // New data set -> reset sort
+            tableProjects = projects ? projects.slice() : [];
+            sortColIndex = null;
+            sortDir = 1;
+
+            if (!tableProjects.length) {
+                wrapper.innerHTML = `<div class="text-center text-muted py-5">
+                    <i class="fas fa-folder-open fa-2x mb-3"></i>
+                    <p>${isRtlLang ? 'لا توجد مشاريع مطابقة' : 'No matching projects'}</p>
+                </div>`;
+                return;
+            }
+
+            drawTable();
+        }
+
+        function drawTable() {
+            const wrapper = document.getElementById('projectsTableWrapper');
+
+            // Apply current sort (stable) if a column is selected
+            const rowsData = tableProjects.slice();
+            if (sortColIndex !== null) {
+                const keyFn = tableColumns[sortColIndex].key;
+                rowsData
+                    .map((p, i) => ({ p, i }))
+                    .sort((a, b) => {
+                        const ka = keyFn(a.p), kb = keyFn(b.p);
+                        if (ka < kb) return -1 * sortDir;
+                        if (ka > kb) return 1 * sortDir;
+                        return a.i - b.i; // stable
+                    })
+                    .forEach((o, idx) => rowsData[idx] = o.p);
+            }
+
+            const headCells = tableColumns.map((col, ci) => {
+                const label = isRtlLang ? col.labelAr : col.labelEn;
+                if (!col.key) return `<th>${label}</th>`;
+                let icon = '<i class="fas fa-sort text-muted ms-1"></i>';
+                if (ci === sortColIndex) {
+                    icon = sortDir === 1
+                        ? '<i class="fas fa-sort-up ms-1"></i>'
+                        : '<i class="fas fa-sort-down ms-1"></i>';
+                }
+                return `<th class="sortable-th" data-col="${ci}" style="cursor:pointer; user-select:none; white-space:nowrap;">${label}${icon}</th>`;
+            }).join('');
+
+            let rows = '';
+            rowsData.forEach((p, i) => {
+                const scope = p.IsNational
+                    ? `<span class="badge bg-info"><i class="fas fa-flag me-1"></i>${isRtlLang ? 'على مستوى القطر' : 'Country-wide'}</span>`
+                    : `<span class="badge bg-secondary"><i class="fas fa-map-marker-alt me-1"></i>${isRtlLang ? 'على مستوى المحافظة' : 'Governorate-level'}</span>`;
+                const fwNames = frameworkNames(p);
+                const fwCell = fwNames.length
+                    ? fwNames.map(n => `<span class="badge bg-light text-dark border">${n}</span>`).join(' ')
+                    : '-';
+                rows += `<tr>
+                    <td>${i + 1}</td>
+                    <td><a href="/Projects/Details/${p.ProjectID}">${p.ProjectName}</a></td>
+                    <td>${scope}</td>
+                    <td>${p.Ministry || '-'}</td>
+                    <td>${(p.Communities && p.Communities.length) ? p.Communities.join(', ') : '-'}</td>
+                    <td>${fwCell}</td>
+                    <td>${fmtMoney(p.EstimatedBudget, p.Currency)}</td>
+                    <td>${perfBadge(p.Performance)}</td>
+                    <td>${perfBadge(p.DisbursementPerformance)}</td>
+                    <td>${fmtMoney(p.TotalRealised, p.Currency)}</td>
+                    <td>${projectYear(p.StartDate) ?? ''}</td>
+                    <td>${projectYear(p.EndDate) ?? ''}</td>
+                </tr>`;
+            });
+
+            // Totals footer over the currently displayed projects
+            const n = rowsData.length;
+            const avgPerf = n ? (rowsData.reduce((s, p) => s + (p.Performance || 0), 0) / n) : 0;
+            const avgDisb = n ? (rowsData.reduce((s, p) => s + (p.DisbursementPerformance || 0), 0) / n) : 0;
+            const footer = `<tr class="table-light fw-bold">
+                <td>${isRtlLang ? 'الإجمالي' : 'Total'}</td>
+                <td>${n} ${isRtlLang ? 'مشروع' : 'projects'}</td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td>${fmtMoneySum(rowsData, p => p.EstimatedBudget)}</td>
+                <td>${perfBadge(Math.round(avgPerf * 10) / 10)}</td>
+                <td>${perfBadge(Math.round(avgDisb * 10) / 10)}</td>
+                <td>${fmtMoneySum(rowsData, p => p.TotalRealised)}</td>
+                <td></td>
+                <td></td>
+            </tr>`;
+
+            wrapper.innerHTML = `
+                <p class="text-muted mb-2">${isRtlLang ? 'عدد المشاريع' : 'Total projects'}:
+                    <strong>${tableProjects.length}</strong></p>
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle">
+                        <thead class="table-light"><tr>${headCells}</tr></thead>
+                        <tbody>${rows}</tbody>
+                        <tfoot>${footer}</tfoot>
+                    </table>
+                </div>`;
+
+            wrapper.querySelectorAll('.sortable-th').forEach(th => {
+                th.addEventListener('click', () => {
+                    const ci = Number(th.dataset.col);
+                    if (ci === sortColIndex) {
+                        sortDir *= -1; // toggle direction
+                    } else {
+                        sortColIndex = ci;
+                        sortDir = 1;
+                    }
+                    drawTable();
+                });
+            });
+        }
+
+        function resetTablePlaceholder() {
+            document.getElementById('tableTitle').textContent = isRtlLang ? 'المشاريع' : 'Projects';
+            document.getElementById('projectsTableWrapper').innerHTML = `
+                <div class="text-center text-muted py-5">
+                    <i class="fas fa-mouse-pointer fa-3x mb-3"></i>
+                    <p>${isRtlLang ? 'اختر محافظة من الخريطة، أو مشروعاً من الفلاتر، لعرض المشاريع' : 'Select a governorate from the map, or a project from the filters, to view projects'}</p>
+                </div>`;
+        }
+
+        // ---- Map colouring ----
+        function colorizeMap() {
+            const counts = governoratesData.map(g => projectsInGov(g.Code).length);
+            const max = Math.max(...counts, 1);
+            document.querySelectorAll('.governorate').forEach(path => {
+                const code = govCodeFromNameAr(path.dataset.nameAr);
+                const n = code ? projectsInGov(code).length : 0;
+                path.classList.remove('has-projects-low', 'has-projects-medium', 'has-projects-high', 'has-projects-very-high');
+                if (n === 0) return;
+                const ratio = n / max;
+                if (ratio > 0.75) path.classList.add('has-projects-very-high');
+                else if (ratio > 0.5) path.classList.add('has-projects-high');
+                else if (ratio > 0.25) path.classList.add('has-projects-medium');
+                else path.classList.add('has-projects-low');
+            });
+        }
+
+        // ---- Project-selection highlight + table ----
+        function applyProjectSelection() {
+            document.querySelectorAll('.governorate').forEach(p => p.classList.remove('highlight'));
+
+            if (selectedProjects.size === 0) {
+                // Fall back to the active governorate (if any), else placeholder
+                if (activeGovCode) {
+                    const nameAr = nameArFromGovCode(activeGovCode);
+                    const name = isRtlLang ? nameAr : (governoratesData.find(g => g.Code === activeGovCode)?.NameEn || nameAr);
+                    renderProjectTable((isRtlLang ? 'مشاريع محافظة ' : 'Projects in ') + name, projectsInGov(activeGovCode));
+                } else {
+                    resetTablePlaceholder();
+                }
+                document.getElementById('resetMapBtn').style.display = activeGovCode ? 'inline-block' : 'none';
+                return;
+            }
+
+            const chosen = allProjects.filter(p => selectedProjects.has(p.ProjectID));
+            const govCodes = new Set();
+            let anyNational = false;
+            chosen.forEach(p => {
+                if (p.IsNational) anyNational = true;
+                p.GovernorateCodes.forEach(c => govCodes.add(c));
+            });
+
+            document.querySelectorAll('.governorate').forEach(path => {
+                const code = govCodeFromNameAr(path.dataset.nameAr);
+                if (anyNational || (code && govCodes.has(code))) path.classList.add('highlight');
+            });
+
+            renderProjectTable(isRtlLang ? 'المشاريع المختارة' : 'Selected projects', chosen);
+            document.getElementById('resetMapBtn').style.display = 'inline-block';
+        }
+
+        // ---- Filter UI rendering ----
+        function renderList(containerId, items, prefix, selectedSet) {
+            const c = document.getElementById(containerId);
+            if (!items.length) {
+                c.innerHTML = `<div class="filter-empty">${isRtlLang ? 'لا يوجد' : 'None'}</div>`;
+                return;
+            }
+            c.innerHTML = items.map(it => `
+                <label class="filter-item">
+                    <input class="filter-cb" type="checkbox" value="${it.code}" ${selectedSet.has(it.code) ? 'checked' : ''}>
+                    <span>${it.name}</span>
+                    ${it.count != null ? `<span class="filter-count">${it.count}</span>` : ''}
+                </label>`).join('');
+        }
+
+        function updateBadge(spanId, size) {
+            const el = document.getElementById(spanId);
+            el.textContent = size;
+            el.style.display = size > 0 ? 'inline-block' : 'none';
+        }
+
+        function rebuildStrategyOptions() {
+            // Strategies that have >=1 project within the selected ministries/projects (or all if no other filter)
+            let eligible;
+            if (selectedMinistries.size === 0 && selectedProjects.size === 0) {
+                eligible = strategiesData;
+            } else {
+                const codes = new Set();
+                projectsMatching('strategy').forEach(p => p.FrameworkCodes.forEach(c => codes.add(c)));
+                eligible = strategiesData.filter(s => codes.has(s.Code));
+            }
+            // Prune now-invalid selections
+            [...selectedStrategies].forEach(c => { if (!eligible.some(s => s.Code === c)) selectedStrategies.delete(c); });
+            renderList('stratList', eligible.map(s => ({ code: s.Code, name: s.Name })), 'strat', selectedStrategies);
+            updateBadge('stratCount', selectedStrategies.size);
+            applySearch('stratList');
+        }
+
+        function rebuildMinistryOptions() {
+            // Ministries that have >=1 project within the selected strategies/projects (or all if no other filter)
+            const counts = {};
+            projectsMatching('ministry').forEach(p => {
+                if (p.MinistryCode != null) counts[p.MinistryCode] = (counts[p.MinistryCode] || 0) + 1;
+            });
+            let eligible;
+            if (selectedStrategies.size === 0 && selectedProjects.size === 0) {
+                eligible = ministriesData;
+            } else {
+                eligible = ministriesData.filter(m => counts[m.Code]);
+            }
+            // Prune now-invalid selections
+            [...selectedMinistries].forEach(c => { if (!eligible.some(m => m.Code === c)) selectedMinistries.delete(c); });
+            const items = eligible
+                .map(m => ({ code: m.Code, name: m.Name, count: counts[m.Code] || 0 }))
+                .sort((a, b) => b.count - a.count || a.name.localeCompare(b.name));
+            renderList('minList', items, 'min', selectedMinistries);
+            updateBadge('minCount', selectedMinistries.size);
+            applySearch('minList');
+        }
+
+        function rebuildProjectOptions() {
+            const items = projectsMatching('project');
+            [...selectedProjects].forEach(id => { if (!items.some(p => p.ProjectID === id)) selectedProjects.delete(id); });
+            renderList('projList', items.map(p => ({ code: p.ProjectID, name: p.ProjectName })), 'proj', selectedProjects);
+            updateBadge('projCount', selectedProjects.size);
+            applySearch('projList');
+        }
+
+        function applySearch(listId) {
+            const input = document.querySelector(`.filter-search[data-target="${listId}"]`);
+            const term = (input?.value || '').trim().toLowerCase();
+            document.querySelectorAll(`#${listId} .filter-item`).forEach(row => {
+                const txt = row.querySelector('span')?.textContent.toLowerCase() || '';
+                row.style.display = term && !txt.includes(term) ? 'none' : 'flex';
+            });
+        }
+
+        // ---- Wire filter events ----
+        document.getElementById('stratList').addEventListener('change', e => {
+            if (!e.target.classList.contains('filter-cb')) return;
+            const code = Number(e.target.value);
+            e.target.checked ? selectedStrategies.add(code) : selectedStrategies.delete(code);
+            updateBadge('stratCount', selectedStrategies.size);
+            rebuildMinistryOptions();
+            rebuildProjectOptions();
+            colorizeMap();
+            applyProjectSelection();
+        });
+
+        document.getElementById('minList').addEventListener('change', e => {
+            if (!e.target.classList.contains('filter-cb')) return;
+            const code = Number(e.target.value);
+            e.target.checked ? selectedMinistries.add(code) : selectedMinistries.delete(code);
+            updateBadge('minCount', selectedMinistries.size);
+            rebuildStrategyOptions();
+            rebuildProjectOptions();
+            colorizeMap();
+            applyProjectSelection();
+        });
+
+        document.getElementById('projList').addEventListener('change', e => {
+            if (!e.target.classList.contains('filter-cb')) return;
+            const id = Number(e.target.value);
+            e.target.checked ? selectedProjects.add(id) : selectedProjects.delete(id);
+            updateBadge('projCount', selectedProjects.size);
+            rebuildStrategyOptions();
+            rebuildMinistryOptions();
+            colorizeMap();
+            applyProjectSelection();
+        });
+
+        document.querySelectorAll('.filter-search').forEach(inp => {
+            inp.addEventListener('input', () => applySearch(inp.dataset.target));
+            inp.addEventListener('click', e => e.stopPropagation());
+        });
+
+        // ---- Year-range filter ----
+        function initYearFilter() {
+            const years = new Set();
+            allProjects.forEach(p => {
+                const s = projectYear(p.StartDate), e = projectYear(p.EndDate);
+                if (s != null) years.add(s);
+                if (e != null) years.add(e);
+            });
+            const sorted = [...years].sort((a, b) => a - b);
+            const opts = `<option value="">${isRtlLang ? 'الكل' : 'All'}</option>` +
+                sorted.map(y => `<option value="${y}">${y}</option>`).join('');
+            document.getElementById('yearFrom').innerHTML = opts;
+            document.getElementById('yearTo').innerHTML = opts;
+        }
+
+        function onYearChange() {
+            const f = document.getElementById('yearFrom').value;
+            const t = document.getElementById('yearTo').value;
+            yearFrom = f ? Number(f) : null;
+            yearTo = t ? Number(t) : null;
+            rebuildStrategyOptions();
+            rebuildMinistryOptions();
+            rebuildProjectOptions();
+            colorizeMap();
+            applyProjectSelection();
+        }
+        document.getElementById('yearFrom').addEventListener('change', onYearChange);
+        document.getElementById('yearTo').addEventListener('change', onYearChange);
+
+        document.getElementById('nationalToggle').addEventListener('change', e => {
+            includeNational = e.target.checked;
+            rebuildProjectOptions(); // prunes now-invalid national selections
+            rebuildStrategyOptions();
+            rebuildMinistryOptions();
+            colorizeMap();
+            applyProjectSelection();
+        });
+
+        document.getElementById('clearFiltersBtn').addEventListener('click', () => {
+            selectedStrategies.clear();
+            selectedMinistries.clear();
+            selectedProjects.clear();
+            activeGovCode = null;
+            includeNational = true;
+            document.getElementById('nationalToggle').checked = true;
+            yearFrom = null;
+            yearTo = null;
+            document.getElementById('yearFrom').value = '';
+            document.getElementById('yearTo').value = '';
+            document.querySelectorAll('.governorate').forEach(p => p.classList.remove('active', 'highlight'));
+            rebuildStrategyOptions();
+            rebuildMinistryOptions();
+            rebuildProjectOptions();
+            ['stratList', 'minList', 'projList'].forEach(applySearch);
+            colorizeMap();
+            resetTablePlaceholder();
+            document.getElementById('resetMapBtn').style.display = 'none';
+        });
+
+        document.getElementById('resetMapBtn').addEventListener('click', function () {
+            activeGovCode = null;
+            selectedProjects.clear();
+            updateBadge('projCount', 0);
+            rebuildStrategyOptions();
+            rebuildMinistryOptions();
+            rebuildProjectOptions();
+            colorizeMap();
+            document.querySelectorAll('.governorate').forEach(p => p.classList.remove('active', 'highlight'));
+            this.style.display = 'none';
+            resetTablePlaceholder();
+        });
+
+        // ---- Fullscreen toggle ----
+        // The button sits inside .syria-map-container so it stays visible/clickable in fullscreen
+        const fullscreenBtn = document.getElementById('fullscreenBtn');
+        fullscreenBtn.addEventListener('click', () => {
+            const el = document.querySelector('.syria-map-container');
+            const fsElement = document.fullscreenElement || document.webkitFullscreenElement;
+            if (fsElement) {
+                (document.exitFullscreen || document.webkitExitFullscreen).call(document);
+            } else {
+                (el.requestFullscreen || el.webkitRequestFullscreen).call(el);
+            }
+        });
+        ['fullscreenchange', 'webkitfullscreenchange'].forEach(ev =>
+            document.addEventListener(ev, () => {
+                const fs = document.fullscreenElement || document.webkitFullscreenElement;
+                fullscreenBtn.innerHTML = fs ? '<i class="fas fa-compress"></i>' : '<i class="fas fa-expand"></i>';
+                fullscreenBtn.title = fs
+                    ? (isRtlLang ? 'إنهاء ملء الشاشة' : 'Exit full screen')
+                    : (isRtlLang ? 'ملء الشاشة' : 'Full screen');
+            }));
+
+        // Initial filter lists
+        initYearFilter();
+        rebuildStrategyOptions();
+        rebuildMinistryOptions();
+        rebuildProjectOptions();
+
+        // ---- Map ----
+        function initializeMap() {
+            colorizeMap();
+            const mapTooltip = document.getElementById('mapTooltip');
+
+            document.querySelectorAll('.governorate').forEach(path => {
+                path.addEventListener('mouseenter', function () {
+                    const name = isRtlLang ? this.dataset.nameAr : this.dataset.nameEn;
+                    const code = govCodeFromNameAr(this.dataset.nameAr);
+                    const n = code ? projectsInGov(code).length : 0;
+                    mapTooltip.innerHTML = `<div class="tooltip-title">${name}</div>
+                        <div>${isRtlLang ? 'المشاريع' : 'Projects'}: <strong>${n}</strong></div>`;
+                    mapTooltip.classList.add('visible');
+                });
+                path.addEventListener('mousemove', function (e) {
+                    const rect = document.querySelector('.syria-map-container').getBoundingClientRect();
+                    mapTooltip.style.left = (e.clientX - rect.left + 15) + 'px';
+                    mapTooltip.style.top = (e.clientY - rect.top + 15) + 'px';
+                });
+                path.addEventListener('mouseleave', () => mapTooltip.classList.remove('visible'));
+
+                path.addEventListener('click', function () {
+                    document.querySelectorAll('.governorate').forEach(p => p.classList.remove('active'));
+                    this.classList.add('active');
+                    const code = govCodeFromNameAr(this.dataset.nameAr);
+                    activeGovCode = code;
+                    const name = isRtlLang ? this.dataset.nameAr : this.dataset.nameEn;
+                    renderProjectTable((isRtlLang ? 'مشاريع محافظة ' : 'Projects in ') + name, projectsInGov(code));
+                    document.getElementById('resetMapBtn').style.display = 'inline-block';
+                });
+            });
+        }
+
+        fetch('/images/syria-map.svg')
+            .then(r => r.text())
+            .then(svgContent => {
+                const container = document.getElementById('syriaMapContainer');
+                container.innerHTML = svgContent;
+                const svg = container.querySelector('svg');
+                if (!svg) return;
+                svg.classList.add('syria-map');
+                svg.setAttribute('id', 'syriaMap');
+                Object.keys(governorateMapping).forEach(pathId => {
+                    const p = svg.querySelector('#' + pathId);
+                    if (p) {
+                        const info = governorateMapping[pathId];
+                        p.classList.add('governorate');
+                        p.dataset.nameEn = info.nameEn;
+                        p.dataset.nameAr = info.nameAr;
+                        // The SVG ships inline style="fill:#e6e6e6;stroke:..." which beats the CSS
+                        // classes, so the choropleth colours never showed — strip it and let CSS rule
+                        p.style.fill = '';
+                        p.style.stroke = '';
+                        p.style.strokeWidth = '';
+                    }
+                });
+                const path1 = svg.querySelector('#path1');
+                if (path1 && path1.parentNode) path1.parentNode.appendChild(path1);
+                initializeMap();
+            })
+            .catch(err => {
+                console.error('Error loading map:', err);
+                document.getElementById('syriaMapContainer').innerHTML =
+                    '<p class="text-danger text-center">@(isRtl ? "خطأ في تحميل الخريطة" : "Error loading map")</p>';
+            });
+    </script>
+}

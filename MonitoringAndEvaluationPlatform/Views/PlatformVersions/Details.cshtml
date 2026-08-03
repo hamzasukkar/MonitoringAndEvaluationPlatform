@@ -1,0 +1,190 @@
+@model MonitoringAndEvaluationPlatform.Models.PlatformVersion
+@using MonitoringAndEvaluationPlatform.Enums
+@using Microsoft.AspNetCore.Mvc.Localization
+@inject IViewLocalizer Localizer
+
+@{
+    ViewData["Title"] = Model.VersionNumber;
+    Layout = "~/Views/Shared/_DashboardHomeLayout.cshtml";
+
+    var tracked = Model.Requests.Where(r => r.Status != RequestStatus.Cancelled).ToList();
+    var done = tracked.Count(r => r.Status == RequestStatus.Completed);
+    var pct = tracked.Count == 0 ? 0 : (int)Math.Round(done * 100.0 / tracked.Count);
+    var incomplete = tracked.Count - done;
+}
+
+@functions {
+    string VStatusClass(VersionStatus s) => s switch
+    {
+        VersionStatus.Planned => "bg-secondary",
+        VersionStatus.InDevelopment => "bg-warning text-dark",
+        VersionStatus.Released => "bg-success",
+        _ => "bg-light text-dark"
+    };
+
+    string RStatusClass(RequestStatus s) => s switch
+    {
+        RequestStatus.New => "bg-primary",
+        RequestStatus.InProgress => "bg-warning text-dark",
+        RequestStatus.OnHold => "bg-secondary",
+        RequestStatus.Completed => "bg-success",
+        RequestStatus.Cancelled => "bg-dark",
+        _ => "bg-light text-dark"
+    };
+}
+
+<div class="container-fluid py-4">
+    <div class="dashboard-header mb-4">
+        <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
+            <div>
+                <h1 class="display-5 mb-2">
+                    <i class="fas fa-code-branch me-3"></i><span dir="ltr">@Model.VersionNumber</span>
+                    <span class="badge @VStatusClass(Model.Status) align-middle fs-6">@Localizer["VStatus" + Model.Status.ToString()]</span>
+                </h1>
+                <p class="text-muted mb-0">@Model.Title</p>
+            </div>
+            <div class="d-flex gap-2">
+                @if (Model.Status != VersionStatus.Released)
+                {
+                    <form asp-action="Release" asp-route-id="@Model.Id" method="post"
+                          onsubmit="return confirm('@(incomplete > 0
+                              ? string.Format(Localizer["ConfirmReleaseIncomplete"].Value, incomplete)
+                              : Localizer["ConfirmRelease"].Value)');">
+                        @Html.AntiForgeryToken()
+                        <button type="submit" class="btn btn-success btn-lg">
+                            <i class="fas fa-rocket me-2"></i>@Localizer["ReleaseVersion"]
+                        </button>
+                    </form>
+                }
+                <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-primary btn-lg">
+                    <i class="fas fa-edit me-2"></i>@Localizer["Edit"]
+                </a>
+                <a asp-action="Index" class="btn btn-outline-secondary btn-lg">
+                    <i class="fas fa-list me-2"></i>@Localizer["AllVersions"]
+                </a>
+            </div>
+        </div>
+    </div>
+
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            <i class="fas fa-check-circle me-2"></i>@TempData["SuccessMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+    @if (TempData["WarningMessage"] != null)
+    {
+        <div class="alert alert-warning alert-dismissible fade show" role="alert">
+            <i class="fas fa-exclamation-triangle me-2"></i>@TempData["WarningMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+
+    <div class="row g-4">
+        <div class="col-lg-4">
+            <div class="card mb-4">
+                <div class="card-header"><strong>@Localizer["VersionDetails"]</strong></div>
+                <div class="card-body">
+                    <dl class="row mb-0">
+                        <dt class="col-6">@Localizer["PlannedDate"]</dt>
+                        <dd class="col-6">@(Model.PlannedDate?.ToString("yyyy-MM-dd") ?? "-")</dd>
+
+                        <dt class="col-6">@Localizer["ReleaseDate"]</dt>
+                        <dd class="col-6">@(Model.ReleaseDate?.ToString("yyyy-MM-dd") ?? "-")</dd>
+
+                        <dt class="col-6">@Localizer["Progress"]</dt>
+                        <dd class="col-6">
+                            <div class="progress" style="height:20px;">
+                                <div class="progress-bar @(pct == 100 ? "bg-success" : "")" role="progressbar"
+                                     style="width:@(pct)%;" aria-valuenow="@pct" aria-valuemin="0" aria-valuemax="100">
+                                    @pct%
+                                </div>
+                            </div>
+                            <small class="text-muted">@done / @tracked.Count @Localizer["RequestsCompleted"]</small>
+                        </dd>
+
+                        <dt class="col-6">@Localizer["CreatedAt"]</dt>
+                        <dd class="col-6">@Model.CreatedAt.ToString("yyyy-MM-dd HH:mm")</dd>
+
+                        <dt class="col-6">@Localizer["LastModified"]</dt>
+                        <dd class="col-6">@Model.LastModifiedAt.ToString("yyyy-MM-dd HH:mm")</dd>
+                    </dl>
+                </div>
+            </div>
+
+            @if (!string.IsNullOrWhiteSpace(Model.Description))
+            {
+                <div class="card">
+                    <div class="card-header"><strong>@Localizer["Description"]</strong></div>
+                    <div class="card-body">@Model.Description</div>
+                </div>
+            }
+        </div>
+
+        <div class="col-lg-8">
+            @if (Model.Status != VersionStatus.Released && incomplete > 0)
+            {
+                <div class="alert alert-warning">
+                    <i class="fas fa-exclamation-triangle me-2"></i>
+                    @string.Format(Localizer["IncompleteRequestsWarning"].Value, incomplete)
+                </div>
+            }
+
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <strong><i class="fas fa-clipboard-list me-2"></i>@Localizer["LinkedRequests"]</strong>
+                    <span class="badge bg-secondary">@Model.Requests.Count</span>
+                </div>
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th>@Localizer["RequestNumber"]</th>
+                                <th>@Localizer["Title"]</th>
+                                <th>@Localizer["Status"]</th>
+                                <th>@Localizer["AssignedTo"]</th>
+                                <th>@Localizer["Progress"]</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @if (!Model.Requests.Any())
+                            {
+                                <tr>
+                                    <td colspan="5" class="text-center text-muted py-4">
+                                        @Localizer["NoLinkedRequests"]
+                                    </td>
+                                </tr>
+                            }
+                            else
+                            {
+                                @foreach (var r in Model.Requests.OrderBy(r => r.Status == RequestStatus.Completed ? 1 : 0))
+                                {
+                                    <tr>
+                                        <td>
+                                            <a asp-controller="Requests" asp-action="Details" asp-route-id="@r.Id">
+                                                <strong>@r.RequestNumber</strong>
+                                            </a>
+                                        </td>
+                                        <td>@r.Title</td>
+                                        <td><span class="badge @RStatusClass(r.Status)">@Localizer["Status" + r.Status.ToString()]</span></td>
+                                        <td>@(r.AssignedToUser?.UserName ?? "-")</td>
+                                        <td style="min-width:110px;">
+                                            <div class="progress" style="height:16px;">
+                                                <div class="progress-bar" role="progressbar"
+                                                     style="width:@(r.CompletionPercentage)%;"
+                                                     aria-valuenow="@r.CompletionPercentage" aria-valuemin="0" aria-valuemax="100">
+                                                    @r.CompletionPercentage%
+                                                </div>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                }
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

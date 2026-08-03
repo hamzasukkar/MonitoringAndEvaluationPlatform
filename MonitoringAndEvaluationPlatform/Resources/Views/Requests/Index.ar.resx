@@ -1,0 +1,295 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="RequestsManagement" xml:space="preserve">
+    <value>إدارة الطلبات</value>
+  </data>
+  <data name="TrackAndManageRequests" xml:space="preserve">
+    <value>متابعة الطلبات وتحديث حالتها</value>
+  </data>
+  <data name="SubmitRequest" xml:space="preserve">
+    <value>تقديم طلب</value>
+  </data>
+  <data name="SubmitRequestHint" xml:space="preserve">
+    <value>املأ البيانات التالية وسيُولَّد رقم الطلب تلقائياً</value>
+  </data>
+  <data name="EditRequest" xml:space="preserve">
+    <value>تعديل الطلب</value>
+  </data>
+  <data name="RequestDetails" xml:space="preserve">
+    <value>تفاصيل الطلب</value>
+  </data>
+  <data name="MyRequests" xml:space="preserve">
+    <value>طلباتي</value>
+  </data>
+  <data name="MyRequestsHint" xml:space="preserve">
+    <value>الطلبات التي قدّمتها</value>
+  </data>
+  <data name="NewRequest" xml:space="preserve">
+    <value>طلب جديد</value>
+  </data>
+  <data name="Tracking" xml:space="preserve">
+    <value>المتابعة</value>
+  </data>
+  <data name="RequestNumber" xml:space="preserve">
+    <value>رقم الطلب</value>
+  </data>
+  <data name="Title" xml:space="preserve">
+    <value>عنوان الطلب</value>
+  </data>
+  <data name="Description" xml:space="preserve">
+    <value>وصف الطلب</value>
+  </data>
+  <data name="RequestDate" xml:space="preserve">
+    <value>تاريخ الطلب</value>
+  </data>
+  <data name="MeetingDate" xml:space="preserve">
+    <value>تاريخ الاجتماع</value>
+  </data>
+  <data name="StartDate" xml:space="preserve">
+    <value>تاريخ البدء</value>
+  </data>
+  <data name="ActualCompletionDate" xml:space="preserve">
+    <value>الإنجاز الفعلي</value>
+  </data>
+  <data name="RequestingParty" xml:space="preserve">
+    <value>الجهة الطالبة</value>
+  </data>
+  <data name="SubmittedBy" xml:space="preserve">
+    <value>مقدّم الطلب</value>
+  </data>
+  <data name="AssignedTo" xml:space="preserve">
+    <value>المسؤول عن التنفيذ</value>
+  </data>
+  <data name="Unassigned" xml:space="preserve">
+    <value>غير مُسنَد</value>
+  </data>
+  <data name="Status" xml:space="preserve">
+    <value>الحالة</value>
+  </data>
+  <data name="Priority" xml:space="preserve">
+    <value>الأولوية</value>
+  </data>
+  <data name="Category" xml:space="preserve">
+    <value>التصنيف</value>
+  </data>
+  <data name="CompletionPercentage" xml:space="preserve">
+    <value>نسبة الإنجاز</value>
+  </data>
+  <data name="Progress" xml:space="preserve">
+    <value>نسبة الإنجاز</value>
+  </data>
+  <data name="Notes" xml:space="preserve">
+    <value>ملاحظات</value>
+  </data>
+  <data name="Ministry" xml:space="preserve">
+    <value>الوزارة</value>
+  </data>
+  <data name="CreatedAt" xml:space="preserve">
+    <value>تاريخ الإنشاء</value>
+  </data>
+  <data name="LastModified" xml:space="preserve">
+    <value>آخر تعديل</value>
+  </data>
+  <data name="Attachments" xml:space="preserve">
+    <value>المرفقات</value>
+  </data>
+  <data name="AddAttachments" xml:space="preserve">
+    <value>إضافة مرفقات</value>
+  </data>
+  <data name="AttachmentsHint" xml:space="preserve">
+    <value>يمكنك اختيار عدة صور أو ملفات دفعة واحدة</value>
+  </data>
+  <data name="NoAttachments" xml:space="preserve">
+    <value>لا توجد مرفقات</value>
+  </data>
+  <data name="ConfirmDeleteAttachment" xml:space="preserve">
+    <value>هل تريد حذف هذا المرفق؟</value>
+  </data>
+  <data name="StatusNew" xml:space="preserve">
+    <value>جديد</value>
+  </data>
+  <data name="StatusInProgress" xml:space="preserve">
+    <value>قيد التنفيذ</value>
+  </data>
+  <data name="StatusOnHold" xml:space="preserve">
+    <value>معلّق</value>
+  </data>
+  <data name="StatusCompleted" xml:space="preserve">
+    <value>منجز</value>
+  </data>
+  <data name="StatusCancelled" xml:space="preserve">
+    <value>ملغى</value>
+  </data>
+  <data name="PriorityHigh" xml:space="preserve">
+    <value>عالية</value>
+  </data>
+  <data name="PriorityMedium" xml:space="preserve">
+    <value>متوسطة</value>
+  </data>
+  <data name="PriorityLow" xml:space="preserve">
+    <value>منخفضة</value>
+  </data>
+  <data name="CategoryNewRequest" xml:space="preserve">
+    <value>طلب جديد</value>
+  </data>
+  <data name="CategoryModification" xml:space="preserve">
+    <value>تعديل</value>
+  </data>
+  <data name="CategoryTechnicalSupport" xml:space="preserve">
+    <value>دعم فني</value>
+  </data>
+  <data name="CategoryInquiry" xml:space="preserve">
+    <value>استفسار</value>
+  </data>
+  <data name="CategoryComplaint" xml:space="preserve">
+    <value>شكوى</value>
+  </data>
+  <data name="CategoryOther" xml:space="preserve">
+    <value>أخرى</value>
+  </data>
+  <data name="Search" xml:space="preserve">
+    <value>بحث</value>
+  </data>
+  <data name="SearchPlaceholder" xml:space="preserve">
+    <value>رقم الطلب أو العنوان أو الجهة</value>
+  </data>
+  <data name="Filter" xml:space="preserve">
+    <value>تصفية</value>
+  </data>
+  <data name="All" xml:space="preserve">
+    <value>الكل</value>
+  </data>
+  <data name="None" xml:space="preserve">
+    <value>بدون</value>
+  </data>
+  <data name="Total" xml:space="preserve">
+    <value>الإجمالي</value>
+  </data>
+  <data name="CompletionRate" xml:space="preserve">
+    <value>نسبة الإنجاز</value>
+  </data>
+  <data name="Actions" xml:space="preserve">
+    <value>إجراءات</value>
+  </data>
+  <data name="Edit" xml:space="preserve">
+    <value>تعديل</value>
+  </data>
+  <data name="Save" xml:space="preserve">
+    <value>حفظ</value>
+  </data>
+  <data name="Submit" xml:space="preserve">
+    <value>إرسال الطلب</value>
+  </data>
+  <data name="Cancel" xml:space="preserve">
+    <value>إلغاء</value>
+  </data>
+  <data name="ConfirmDelete" xml:space="preserve">
+    <value>هل تريد حذف هذا الطلب نهائياً؟</value>
+  </data>
+  <data name="NoRequestsFound" xml:space="preserve">
+    <value>لا توجد طلبات مطابقة</value>
+  </data>
+  <data name="NoRequestsYet" xml:space="preserve">
+    <value>لم تقدّم أي طلب بعد</value>
+  </data>
+  <data name="TargetVersion" xml:space="preserve">
+    <value>الإصدار المستهدف</value>
+  </data>
+  <data name="NoVersion" xml:space="preserve">
+    <value>بدون إصدار</value>
+  </data>
+  <data name="TargetVersionHint" xml:space="preserve">
+    <value>الإصدار الذي سيُنفَّذ فيه هذا الطلب</value>
+  </data>
+  <data name="RequestEmployee" xml:space="preserve">
+    <value>الموظف كاتب الطلب</value>
+  </data>
+  <data name="NoEmployee" xml:space="preserve">
+    <value>بدون موظف</value>
+  </data>
+  <data name="RequestEmployeeHint" xml:space="preserve">
+    <value>اختر الموظف الذي كتب هذا الطلب</value>
+  </data>
+  <data name="Tested" xml:space="preserve">
+    <value>تم التجريب</value>
+  </data>
+  <data name="RecordTest" xml:space="preserve">
+    <value>تسجيل تجريب</value>
+  </data>
+  <data name="TestedBy" xml:space="preserve">
+    <value>الموظف الذي جرّب</value>
+  </data>
+  <data name="SelectEmployee" xml:space="preserve">
+    <value>اختر الموظف…</value>
+  </data>
+  <data name="TestNote" xml:space="preserve">
+    <value>ملاحظة (اختياري)</value>
+  </data>
+  <data name="TestNotePlaceholder" xml:space="preserve">
+    <value>مثال: تم التجريب على النسخة التجريبية</value>
+  </data>
+  <data name="AlreadyTested" xml:space="preserve">
+    <value>جرّبه مسبقاً</value>
+  </data>
+  <data name="NoEmployeesYet" xml:space="preserve">
+    <value>أضف موظفين أولاً لتتمكن من تسجيل التجريب.</value>
+  </data>
+</root>

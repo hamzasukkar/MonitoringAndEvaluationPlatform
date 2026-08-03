@@ -11,8 +11,8 @@ namespace MonitoringAndEvaluationPlatform.Models
         public double IndicatorsPerformance { get; set; } = 0;
         public double DisbursementPerformance { get; set; } = 0;
 
-        [Range(0, 1, ErrorMessage = "The Weight must be between 0 and 1.")]
-
+        // The ministry that owns this strategy. Drives the ministry scoping applied
+        // across the dashboard, monitoring, reports and tree controllers.
         public int? MinistryCode { get; set; }
 
         [ForeignKey(nameof(MinistryCode))]

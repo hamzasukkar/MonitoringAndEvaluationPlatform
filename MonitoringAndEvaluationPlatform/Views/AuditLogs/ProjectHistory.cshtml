@@ -1,0 +1,367 @@
+@model List<MonitoringAndEvaluationPlatform.Models.AuditLog>
+@using Microsoft.AspNetCore.Mvc.Localization
+@using System.Globalization
+@using MonitoringAndEvaluationPlatform.Helpers
+@using MonitoringAndEvaluationPlatform.ViewModels
+@inject IViewLocalizer Localizer
+
+@{
+    ViewData["Title"] = Localizer["ProjectHistory"];
+    Layout = "~/Views/Shared/_DashboardHomeLayout.cshtml";
+    var projectId = (int)ViewBag.ProjectId;
+    var projectName = ViewBag.ProjectName as string;
+
+    var entityGroups = Model
+        .GroupBy(l => l.EntityName)
+        .OrderByDescending(g => g.Count())
+        .ToList();
+
+    // Parse each log's change JSON once; reused by both the pivot table and the timeline partials
+    var parsedChanges = Model.ToDictionary(
+        l => l.Id,
+        l => AuditLogDisplayHelper.ParseChanges(l.OldValues, l.NewValues));
+
+    string FormatCell(string? value) => value switch
+    {
+        null or "" => "—",
+        "true" => Localizer["Yes"].Value,
+        "false" => Localizer["No"].Value,
+        _ => AuditLogDisplayHelper.Truncate(value, 60)
+    };
+}
+
+<link rel="stylesheet" href="~/css/audit-logs.css" asp-append-version="true" />
+
+<div class="container-fluid py-4">
+    <!-- Header -->
+    <div class="dashboard-header mb-4">
+        <div class="d-flex justify-content-between align-items-center">
+            <div>
+                <h1 class="display-4 mb-2">
+                    <i class="fas fa-history me-3"></i>@Localizer["ProjectHistory"]
+                </h1>
+                <p class="text-muted">
+                    @Localizer["AllChangesForProject"] <strong>@projectName</strong> <small>(#@projectId)</small>
+                </p>
+            </div>
+            <div>
+                <a asp-controller="Projects" asp-action="Details" asp-route-id="@projectId" class="btn btn-secondary btn-lg">
+                    <i class="fas fa-arrow-left me-2"></i>@Localizer["BackToProject"]
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- View toggle -->
+    <div class="mb-3 d-flex flex-wrap gap-2 align-items-center" id="view-toggle">
+        <div class="btn-group btn-group-sm" role="group">
+            <button type="button" class="btn btn-primary" data-view="pivot">
+                <i class="fas fa-table me-1"></i>@Localizer["TableView"]
+            </button>
+            <button type="button" class="btn btn-outline-secondary" data-view="timeline">
+                <i class="fas fa-stream me-1"></i>@Localizer["TimelineView"]
+            </button>
+        </div>
+    </div>
+
+    <!-- Entity filter chips -->
+    @if (entityGroups.Count > 1)
+    {
+        <div class="mb-3 d-flex flex-wrap gap-2" id="entity-chips">
+            <button type="button" class="btn btn-sm rounded-pill btn-primary" data-entity="">
+                @Localizer["FilterAll"] <span class="badge bg-light text-dark ms-1">@Model.Count</span>
+            </button>
+            @foreach (var group in entityGroups)
+            {
+                <button type="button" class="btn btn-sm rounded-pill btn-outline-secondary" data-entity="@group.Key">
+                    @Localizer[group.Key] <span class="badge bg-light text-dark ms-1">@group.Count()</span>
+                </button>
+            }
+        </div>
+    }
+
+    <!-- Timeline -->
+    <div class="card">
+        <div class="card-header">
+            <strong><span id="visible-count">@Model.Count</span> @Localizer["changes"]</strong>
+        </div>
+        <div class="card-body">
+            @if (Model.Any())
+            {
+                <!-- Excel-like pivot view: rows = events, columns = fields -->
+                <div id="pivot-view">
+                    @foreach (var group in entityGroups)
+                    {
+                        var groupLogs = group.ToList();
+                        var columns = groupLogs
+                            .SelectMany(l => parsedChanges[l.Id])
+                            .GroupBy(c => c.Field, StringComparer.OrdinalIgnoreCase)
+                            .OrderByDescending(g => g.Count())
+                            .Select(g => g.Key)
+                            .ToList();
+                        var showItemColumn = groupLogs.Select(l => l.EntityId).Distinct().Count() > 1;
+
+                        <div class="pivot-section mb-4" data-entity="@group.Key">
+                            <h6 class="mb-2">
+                                <span class="badge bg-info">@Localizer[group.Key]</span>
+                                <small class="text-muted">@groupLogs.Count @Localizer["changes"]</small>
+                            </h6>
+                            <div class="pivot-wrap border rounded">
+                                <table class="table table-sm table-bordered pivot-table mb-0">
+                                    <thead>
+                                        <tr>
+                                            <th class="sticky-col">@Localizer["Date"]</th>
+                                            <th>@Localizer["User"]</th>
+                                            <th>@Localizer["Action"]</th>
+                                            @if (showItemColumn)
+                                            {
+                                                <th>@Localizer["Item"]</th>
+                                            }
+                                            @foreach (var col in columns)
+                                            {
+                                                <th>@Localizer[col]</th>
+                                            }
+                                            <th></th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach (var log in groupLogs)
+                                        {
+                                            var changesByField = parsedChanges[log.Id]
+                                                .GroupBy(c => c.Field, StringComparer.OrdinalIgnoreCase)
+                                                .ToDictionary(g => g.Key, g => g.First(), StringComparer.OrdinalIgnoreCase);
+                                            var rowClass = log.Action switch
+                                            {
+                                                "Create" => "row-create",
+                                                "Delete" => "row-delete",
+                                                _ => ""
+                                            };
+                                            var rowActionClass = log.Action switch
+                                            {
+                                                "Create" => "bg-success",
+                                                "Update" => "bg-warning text-dark",
+                                                "Delete" => "bg-danger",
+                                                _ => "bg-secondary"
+                                            };
+                                            <tr class="@rowClass">
+                                                <td class="sticky-col">
+                                                    <small class="text-muted">@log.Timestamp.ToLocalTime().ToString("yyyy-MM-dd HH:mm")</small>
+                                                </td>
+                                                <td><small>@(log.UserName ?? "System")</small></td>
+                                                <td><span class="badge @rowActionClass">@Localizer[log.Action]</span></td>
+                                                @if (showItemColumn)
+                                                {
+                                                    var itemName = AuditLogDisplayHelper.ExtractDisplayName(log);
+                                                    <td>
+                                                        <small>
+                                                            @if (!string.IsNullOrEmpty(itemName))
+                                                            {
+                                                                <strong>@AuditLogDisplayHelper.Truncate(itemName, 30)</strong>
+                                                            }
+                                                            <span class="text-muted">#@log.EntityId</span>
+                                                        </small>
+                                                    </td>
+                                                }
+                                                @foreach (var col in columns)
+                                                {
+                                                    if (changesByField.TryGetValue(col, out var change))
+                                                    {
+                                                        <td dir="auto">
+                                                            @if (log.Action == "Delete")
+                                                            {
+                                                                <div class="cell-old">@FormatCell(change.OldValue)</div>
+                                                            }
+                                                            else
+                                                            {
+                                                                @if (log.Action == "Update" && !string.IsNullOrEmpty(change.OldValue))
+                                                                {
+                                                                    <div class="cell-old">@FormatCell(change.OldValue)</div>
+                                                                }
+                                                                <div class="cell-new">@FormatCell(change.NewValue)</div>
+                                                            }
+                                                        </td>
+                                                    }
+                                                    else
+                                                    {
+                                                        <td></td>
+                                                    }
+                                                }
+                                                <td class="text-center">
+                                                    <a asp-action="Details" asp-route-id="@log.Id" class="btn btn-sm btn-outline-info py-0 px-1" title="@Localizer["Details"]">
+                                                        <i class="fas fa-eye"></i>
+                                                    </a>
+                                                </td>
+                                            </tr>
+                                        }
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    }
+                </div>
+
+                <div id="timeline-view" hidden>
+                <div class="timeline">
+                    @{
+                        DateTime? previousDay = null;
+                    }
+                    @foreach (var log in Model)
+                    {
+                        var actionClass = log.Action switch
+                        {
+                            "Create" => "success",
+                            "Update" => "warning",
+                            "Delete" => "danger",
+                            _ => "secondary"
+                        };
+                        var actionIcon = log.Action switch
+                        {
+                            "Create" => "fa-plus",
+                            "Update" => "fa-edit",
+                            "Delete" => "fa-trash",
+                            _ => "fa-question"
+                        };
+                        var hasValues = !string.IsNullOrEmpty(log.OldValues) || !string.IsNullOrEmpty(log.NewValues);
+                        var displayName = AuditLogDisplayHelper.ExtractDisplayName(log);
+
+                        var localDay = log.Timestamp.ToLocalTime().Date;
+                        if (previousDay != localDay)
+                        {
+                            previousDay = localDay;
+                            var dayKey = AuditLogDisplayHelper.GetDayKey(log.Timestamp);
+                            <div class="timeline-day">
+                                <i class="far fa-calendar-alt me-1"></i>
+                                @(dayKey != null ? Localizer[dayKey].Value : localDay.ToString("D", CultureInfo.CurrentUICulture))
+                            </div>
+                        }
+                        var relative = AuditLogDisplayHelper.GetRelativeTime(log.Timestamp);
+
+                        <div class="timeline-item" data-entity="@log.EntityName">
+                            <div class="timeline-marker bg-@actionClass">
+                                <i class="fas @actionIcon"></i>
+                            </div>
+                            <div class="timeline-content">
+                                <div class="d-flex justify-content-between align-items-start mb-2">
+                                    <div>
+                                        <span class="badge bg-info me-1">@Localizer[log.EntityName]</span>
+                                        @if (!string.IsNullOrEmpty(displayName))
+                                        {
+                                            <strong class="me-1">@AuditLogDisplayHelper.Truncate(displayName, 60)</strong>
+                                        }
+                                        <span class="text-muted small me-2">#@log.EntityId</span>
+                                        <span class="badge bg-@actionClass me-2">@Localizer[log.Action]</span>
+                                        <small class="text-muted" title="@log.Timestamp.ToLocalTime().ToString("yyyy-MM-dd HH:mm:ss")">
+                                            @(relative.Key == "TimeOnly"
+                                                ? log.Timestamp.ToLocalTime().ToString("HH:mm")
+                                                : Localizer[relative.Key, relative.Value].Value)
+                                        </small>
+                                    </div>
+                                    <a asp-action="Details" asp-route-id="@log.Id" class="btn btn-sm btn-outline-info">
+                                        <i class="fas fa-eye me-1"></i>@Localizer["Details"]
+                                    </a>
+                                </div>
+                                <p class="mb-2">
+                                    <strong>@Localizer["By"]:</strong>
+                                    @(log.UserName ?? "System")
+                                </p>
+
+                                <partial name="_AuditChangeSummary" model="new AuditChangeSummaryViewModel { Log = log, MaxShown = 4, TruncateLength = 60 }" />
+
+                                @if (hasValues)
+                                {
+                                    <button class="btn btn-sm btn-outline-secondary mt-2" type="button"
+                                            data-bs-toggle="collapse" data-bs-target="#values-@log.Id">
+                                        <i class="fas fa-exchange-alt me-1"></i>@Localizer["Values"]
+                                    </button>
+                                    <div class="collapse mt-2" id="values-@log.Id">
+                                        <div class="bg-white rounded border p-2" style="max-height: 350px; overflow-y: auto;">
+                                            <partial name="_AuditChangeSummary" model="new AuditChangeSummaryViewModel { Log = log, Full = true, TruncateLength = 300 }" />
+                                        </div>
+                                    </div>
+                                }
+                            </div>
+                        </div>
+                    }
+                </div>
+                </div>
+            }
+            else
+            {
+                <div class="text-center py-5">
+                    <i class="fas fa-inbox fa-3x text-muted mb-3"></i>
+                    <p class="text-muted">@Localizer["NoHistoryFound"]</p>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+<style>
+    .card {
+        border-radius: 12px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+</style>
+
+<script>
+    (function () {
+        // View toggle: pivot table <-> timeline
+        var toggleButtons = document.querySelectorAll("#view-toggle button");
+        toggleButtons.forEach(function (btn) {
+            btn.addEventListener("click", function () {
+                var view = btn.getAttribute("data-view");
+
+                toggleButtons.forEach(function (b) {
+                    b.classList.toggle("btn-primary", b === btn);
+                    b.classList.toggle("btn-outline-secondary", b !== btn);
+                });
+
+                var pivot = document.getElementById("pivot-view");
+                var timeline = document.getElementById("timeline-view");
+                if (pivot) pivot.hidden = view !== "pivot";
+                if (timeline) timeline.hidden = view !== "timeline";
+            });
+        });
+
+        // Entity chips filter both views
+        var chips = document.querySelectorAll("#entity-chips button");
+        chips.forEach(function (chip) {
+            chip.addEventListener("click", function () {
+                var entity = chip.getAttribute("data-entity");
+
+                chips.forEach(function (c) {
+                    c.classList.toggle("btn-primary", c === chip);
+                    c.classList.toggle("btn-outline-secondary", c !== chip);
+                });
+
+                var visible = 0;
+                document.querySelectorAll(".timeline-item").forEach(function (item) {
+                    var show = !entity || item.getAttribute("data-entity") === entity;
+                    item.hidden = !show;
+                    if (show) visible++;
+                });
+
+                document.querySelectorAll(".pivot-section").forEach(function (section) {
+                    section.hidden = !!entity && section.getAttribute("data-entity") !== entity;
+                });
+
+                // Hide day headers that no longer have visible items under them
+                document.querySelectorAll(".timeline-day").forEach(function (day) {
+                    var el = day.nextElementSibling;
+                    var hasVisible = false;
+                    while (el && !el.classList.contains("timeline-day")) {
+                        if (el.classList.contains("timeline-item") && !el.hidden) {
+                            hasVisible = true;
+                            break;
+                        }
+                        el = el.nextElementSibling;
+                    }
+                    day.hidden = !hasVisible;
+                });
+
+                var counter = document.getElementById("visible-count");
+                if (counter) counter.textContent = visible;
+            });
+        });
+    })();
+</script>

@@ -1,0 +1,491 @@
+@model MonitoringAndEvaluationPlatform.Models.Request
+@using MonitoringAndEvaluationPlatform.Enums
+@using MonitoringAndEvaluationPlatform.Models
+@using Microsoft.AspNetCore.Mvc.Localization
+@inject IViewLocalizer Localizer
+
+@{
+    ViewData["Title"] = Model.RequestNumber;
+    Layout = "~/Views/Shared/_DashboardHomeLayout.cshtml";
+    var canManage = User.IsInRole(UserRoles.SystemAdministrator);
+}
+
+@functions {
+    string StatusClass(RequestStatus s) => s switch
+    {
+        RequestStatus.New => "bg-primary",
+        RequestStatus.InProgress => "bg-warning text-dark",
+        RequestStatus.OnHold => "bg-secondary",
+        RequestStatus.Completed => "bg-success",
+        RequestStatus.Cancelled => "bg-dark",
+        _ => "bg-light text-dark"
+    };
+
+    string PriorityClass(RequestPriority p) => p switch
+    {
+        RequestPriority.High => "bg-danger",
+        RequestPriority.Medium => "bg-warning text-dark",
+        RequestPriority.Low => "bg-success",
+        _ => "bg-light text-dark"
+    };
+
+    string KindClass(CommentKind k) => k switch
+    {
+        CommentKind.TestPassed => "bg-success",
+        CommentKind.TestHasNotes => "bg-warning text-dark",
+        _ => "bg-light text-dark"
+    };
+}
+
+<div class="container-fluid py-4">
+    <div class="dashboard-header mb-4">
+        <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
+            <div>
+                <h1 class="display-5 mb-2">
+                    <i class="fas fa-file-alt me-3"></i>@Model.RequestNumber
+                </h1>
+                <p class="text-muted mb-0">@Model.Title</p>
+            </div>
+            <div class="d-flex gap-2">
+                @if (canManage)
+                {
+                    <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-primary">
+                        <i class="fas fa-edit me-2"></i>@Localizer["Edit"]
+                    </a>
+                }
+                <a asp-action="MyRequests" class="btn btn-outline-secondary">
+                    <i class="fas fa-list me-2"></i>@Localizer["MyRequests"]
+                </a>
+            </div>
+        </div>
+    </div>
+
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            <i class="fas fa-check-circle me-2"></i>@TempData["SuccessMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            <i class="fas fa-exclamation-circle me-2"></i>@TempData["ErrorMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+
+    <div class="row g-4">
+        <div class="col-lg-8">
+            <div class="card mb-4">
+                <div class="card-header"><strong>@Localizer["RequestDetails"]</strong></div>
+                <div class="card-body">
+                    <dl class="row mb-0">
+                        <dt class="col-sm-4">@Localizer["Status"]</dt>
+                        <dd class="col-sm-8">
+                            <span class="badge @StatusClass(Model.Status)">@Localizer["Status" + Model.Status.ToString()]</span>
+                            @if (ViewBag.CanInteract == true)
+                            {
+                                <form asp-action="QuickStatus" method="post" class="d-inline-flex gap-1 align-items-center ms-2">
+                                    @Html.AntiForgeryToken()
+                                    <input type="hidden" name="requestId" value="@Model.Id" />
+                                    <select name="status" class="form-select form-select-sm" style="width:auto;">
+                                        @foreach (RequestStatus s in Enum.GetValues(typeof(RequestStatus)))
+                                        {
+                                            <option value="@((int)s)" selected="@(Model.Status == s)">@Localizer["Status" + s.ToString()]</option>
+                                        }
+                                    </select>
+                                    <button type="submit" class="btn btn-sm btn-outline-primary" title="@Localizer["ChangeStatus"]">
+                                        <i class="fas fa-check"></i>
+                                    </button>
+                                </form>
+                            }
+                        </dd>
+
+                        <dt class="col-sm-4">@Localizer["Priority"]</dt>
+                        <dd class="col-sm-8">
+                            <span class="badge @PriorityClass(Model.Priority)">@Localizer["Priority" + Model.Priority.ToString()]</span>
+                        </dd>
+
+                        <dt class="col-sm-4">@Localizer["Category"]</dt>
+                        <dd class="col-sm-8">@Localizer["Category" + Model.Category.ToString()]</dd>
+
+                        <dt class="col-sm-4">@Localizer["Description"]</dt>
+                        <dd class="col-sm-8">@(string.IsNullOrWhiteSpace(Model.Description) ? "-" : Model.Description)</dd>
+
+                        <dt class="col-sm-4">@Localizer["Notes"]</dt>
+                        <dd class="col-sm-8">@(string.IsNullOrWhiteSpace(Model.Notes) ? "-" : Model.Notes)</dd>
+
+                        <dt class="col-sm-4">@Localizer["Progress"]</dt>
+                        <dd class="col-sm-8">
+                            <div class="progress" style="height:20px;">
+                                <div class="progress-bar" role="progressbar"
+                                     style="width:@(Model.CompletionPercentage)%;"
+                                     aria-valuenow="@Model.CompletionPercentage" aria-valuemin="0" aria-valuemax="100">
+                                    @Model.CompletionPercentage%
+                                </div>
+                            </div>
+                        </dd>
+                    </dl>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <strong><i class="fas fa-paperclip me-2"></i>@Localizer["Attachments"]</strong>
+                    <span class="badge bg-secondary">@Model.Files.Count</span>
+                </div>
+                <div class="card-body">
+                    @if (!Model.Files.Any())
+                    {
+                        <p class="text-muted mb-0">@Localizer["NoAttachments"]</p>
+                    }
+                    else
+                    {
+                        <div class="list-group">
+                            @foreach (var file in Model.Files)
+                            {
+                                var isImage = file.FileName != null &&
+                                    (file.FileName.EndsWith(".jpg", StringComparison.OrdinalIgnoreCase)
+                                  || file.FileName.EndsWith(".jpeg", StringComparison.OrdinalIgnoreCase)
+                                  || file.FileName.EndsWith(".png", StringComparison.OrdinalIgnoreCase)
+                                  || file.FileName.EndsWith(".gif", StringComparison.OrdinalIgnoreCase)
+                                  || file.FileName.EndsWith(".webp", StringComparison.OrdinalIgnoreCase));
+
+                                <div class="list-group-item d-flex justify-content-between align-items-center">
+                                    <div class="d-flex align-items-center gap-3">
+                                        @if (isImage)
+                                        {
+                                            <a href="@file.FilePath" target="_blank">
+                                                <img src="@file.FilePath" alt="@file.FileName"
+                                                     style="width:64px;height:64px;object-fit:cover;border-radius:6px;" />
+                                            </a>
+                                        }
+                                        else
+                                        {
+                                            <i class="fas fa-file fa-2x text-secondary"></i>
+                                        }
+                                        <a href="@file.FilePath" target="_blank" download="@file.FileName">@file.FileName</a>
+                                    </div>
+                                    @if (canManage)
+                                    {
+                                        <form asp-action="DeleteFile" asp-route-id="@file.Id" method="post"
+                                              onsubmit="return confirm('@Localizer["ConfirmDeleteAttachment"]');">
+                                            @Html.AntiForgeryToken()
+                                            <button type="submit" class="btn btn-sm btn-outline-danger">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
+                                        </form>
+                                    }
+                                </div>
+                            }
+                        </div>
+                    }
+                </div>
+            </div>
+
+            @{
+                var testEmployees = ViewBag.TestEmployees as SelectList;
+                var canAddTest = canManage && testEmployees != null && testEmployees.Any();
+            }
+
+            <!-- Formal test sign-off: one tick per named employee -->
+            <div class="card mt-4">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <strong><i class="fas fa-clipboard-check me-2"></i>@Localizer["TestSignOff"]</strong>
+                    <span class="badge bg-success">@Model.Tests.Count</span>
+                </div>
+                <div class="card-body">
+                    <p class="text-muted small">@Localizer["TestSignOffHint"]</p>
+
+                    @if (!Model.Tests.Any())
+                    {
+                        <p class="text-muted mb-0">@Localizer["NoTestsYet"]</p>
+                    }
+                    else
+                    {
+                        <div class="list-group mb-3">
+                            @foreach (var t in Model.Tests.OrderBy(t => t.CreatedAt))
+                            {
+                                <div class="list-group-item d-flex justify-content-between align-items-start">
+                                    <div>
+                                        <i class="fas fa-check-circle text-success me-2"></i>
+                                        <strong>@t.RequestEmployee.Name</strong>
+                                        @if (!string.IsNullOrWhiteSpace(t.RequestEmployee.JobTitle))
+                                        {
+                                            <small class="text-muted">— @t.RequestEmployee.JobTitle</small>
+                                        }
+                                        @if (t.RecordedByUser != null)
+                                        {
+                                            <small class="text-muted d-block">@Localizer["RecordedBy"]: @t.RecordedByUser.UserName</small>
+                                        }
+                                        @if (!string.IsNullOrWhiteSpace(t.Note))
+                                        {
+                                            <p class="mb-0 mt-1 small" style="white-space:pre-wrap;">@t.Note</p>
+                                        }
+                                    </div>
+                                    <div class="text-end text-nowrap ms-3">
+                                        <small class="text-muted d-block">@t.CreatedAt.ToString("yyyy-MM-dd HH:mm")</small>
+                                        @if (canManage)
+                                        {
+                                            <form asp-action="RemoveTest" asp-route-id="@t.Id" method="post" class="d-inline"
+                                                  onsubmit="return confirm('@Localizer["ConfirmRemoveTest"]');">
+                                                @Html.AntiForgeryToken()
+                                                <button type="submit" class="btn btn-link btn-sm text-danger p-0">@Localizer["Remove"]</button>
+                                            </form>
+                                        }
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    }
+
+                    @if (canManage)
+                    {
+                        <hr />
+                        @if (canAddTest)
+                        {
+                            <form asp-action="RecordTest" method="post" class="row g-2 align-items-end">
+                                @Html.AntiForgeryToken()
+                                <input type="hidden" name="requestId" value="@Model.Id" />
+                                <div class="col-md-5">
+                                    <label class="form-label small mb-1">@Localizer["TestedBy"]</label>
+                                    <select name="requestEmployeeId" class="form-select form-select-sm" required
+                                            asp-items="ViewBag.TestEmployees">
+                                        <option value="">@Localizer["SelectEmployee"]</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-5">
+                                    <label class="form-label small mb-1">@Localizer["TestNote"]</label>
+                                    <input type="text" name="note" maxlength="500" class="form-control form-control-sm"
+                                           placeholder="@Localizer["TestNotePlaceholder"]" />
+                                </div>
+                                <div class="col-md-2">
+                                    <button type="submit" class="btn btn-success btn-sm w-100">
+                                        <i class="fas fa-check me-1"></i>@Localizer["RecordTest"]
+                                    </button>
+                                </div>
+                            </form>
+                        }
+                        else
+                        {
+                            <p class="text-muted small mb-0">@Localizer["AllEmployeesTested"]</p>
+                        }
+                    }
+                </div>
+            </div>
+
+            @{
+                var topComments = Model.Comments
+                    .Where(c => c.ParentCommentId == null)
+                    .OrderBy(c => c.CreatedAt).ToList();
+                var currentUserId = ViewBag.CurrentUserId as string;
+                var isAdmin = ViewBag.IsAdmin == true;
+
+                Func<MonitoringAndEvaluationPlatform.Models.RequestComment, string> author = c =>
+                    c.OnBehalfOfEmployee != null ? c.OnBehalfOfEmployee.Name
+                    : (c.AuthorUser != null ? c.AuthorUser.UserName : Localizer["Unknown"].Value);
+            }
+
+            <!-- Testing & discussion thread -->
+            <div class="card mt-4">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <strong><i class="fas fa-comments me-2"></i>@Localizer["Discussion"]</strong>
+                    <span class="badge bg-secondary">@Model.Comments.Count</span>
+                </div>
+                <div class="card-body">
+                    @if (!topComments.Any())
+                    {
+                        <p class="text-muted">@Localizer["NoComments"]</p>
+                    }
+                    else
+                    {
+                        foreach (var c in topComments)
+                        {
+                            <div class="border rounded p-3 mb-3">
+                                <div class="d-flex justify-content-between align-items-start">
+                                    <div>
+                                        <strong>@author(c)</strong>
+                                        @if (c.OnBehalfOfEmployee != null && c.AuthorUser != null)
+                                        {
+                                            <small class="text-muted">(@Localizer["RecordedBy"]: @c.AuthorUser.UserName)</small>
+                                        }
+                                        @if (c.Kind != CommentKind.Comment)
+                                        {
+                                            <span class="badge @KindClass(c.Kind) ms-1">@Localizer["Kind" + c.Kind.ToString()]</span>
+                                        }
+                                    </div>
+                                    <small class="text-muted">@c.CreatedAt.ToString("yyyy-MM-dd HH:mm")</small>
+                                </div>
+                                @if (!string.IsNullOrWhiteSpace(c.Body))
+                                {
+                                    <p class="mb-2 mt-2" style="white-space:pre-wrap;">@c.Body</p>
+                                }
+
+                                @* replies *@
+                                @foreach (var reply in c.Replies.OrderBy(r => r.CreatedAt))
+                                {
+                                    <div class="border-start ps-3 ms-3 mt-2">
+                                        <div class="d-flex justify-content-between">
+                                            <strong class="small">@author(reply)
+                                                @if (reply.OnBehalfOfEmployee != null && reply.AuthorUser != null)
+                                                {
+                                                    <span class="text-muted">(@Localizer["RecordedBy"]: @reply.AuthorUser.UserName)</span>
+                                                }
+                                            </strong>
+                                            <small class="text-muted">@reply.CreatedAt.ToString("yyyy-MM-dd HH:mm")</small>
+                                        </div>
+                                        <p class="mb-1 small" style="white-space:pre-wrap;">@reply.Body</p>
+                                        @if (isAdmin || reply.AuthorUserId == currentUserId)
+                                        {
+                                            <form asp-action="DeleteComment" asp-route-id="@reply.Id" method="post" class="d-inline"
+                                                  onsubmit="return confirm('@Localizer["ConfirmDeleteComment"]');">
+                                                @Html.AntiForgeryToken()
+                                                <button type="submit" class="btn btn-link btn-sm text-danger p-0">@Localizer["Delete"]</button>
+                                            </form>
+                                        }
+                                    </div>
+                                }
+
+                                <div class="mt-2 d-flex gap-2">
+                                    @if (isAdmin || c.AuthorUserId == currentUserId)
+                                    {
+                                        <form asp-action="DeleteComment" asp-route-id="@c.Id" method="post" class="d-inline"
+                                              onsubmit="return confirm('@Localizer["ConfirmDeleteComment"]');">
+                                            @Html.AntiForgeryToken()
+                                            <button type="submit" class="btn btn-link btn-sm text-danger p-0">@Localizer["Delete"]</button>
+                                        </form>
+                                    }
+                                    <button type="button" class="btn btn-link btn-sm p-0"
+                                            onclick="document.getElementById('reply-@c.Id').classList.toggle('d-none');">
+                                        @Localizer["Reply"]
+                                    </button>
+                                </div>
+
+                                <form id="reply-@c.Id" asp-action="AddComment" method="post" class="d-none mt-2">
+                                    @Html.AntiForgeryToken()
+                                    <input type="hidden" name="requestId" value="@Model.Id" />
+                                    <input type="hidden" name="parentId" value="@c.Id" />
+                                    <input type="hidden" name="kind" value="@((int)CommentKind.Comment)" />
+                                    <div class="input-group input-group-sm">
+                                        <input type="text" name="body" class="form-control" placeholder="@Localizer["WriteReply"]" required />
+                                        <button type="submit" class="btn btn-primary">@Localizer["Send"]</button>
+                                    </div>
+                                </form>
+                            </div>
+                        }
+                    }
+
+                    @* add comment / test feedback *@
+                    @if (ViewBag.CanInteract == true)
+                    {
+                        <hr />
+                        <form asp-action="AddComment" method="post">
+                            @Html.AntiForgeryToken()
+                            <input type="hidden" name="requestId" value="@Model.Id" />
+                            <div class="row g-2">
+                                <div class="col-md-6">
+                                    <label class="form-label small mb-1">@Localizer["CommentType"]</label>
+                                    <select name="kind" class="form-select form-select-sm">
+                                        <option value="@((int)CommentKind.Comment)">@Localizer["KindComment"]</option>
+                                        <option value="@((int)CommentKind.TestPassed)">@Localizer["KindTestPassed"]</option>
+                                        <option value="@((int)CommentKind.TestHasNotes)">@Localizer["KindTestHasNotes"]</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label small mb-1">@Localizer["OnBehalfOf"]</label>
+                                    <select name="onBehalfOfEmployeeId" class="form-select form-select-sm" asp-items="ViewBag.CommentEmployees">
+                                        <option value="">@Localizer["Myself"]</option>
+                                    </select>
+                                </div>
+                                <div class="col-12">
+                                    <textarea name="body" rows="2" class="form-control form-control-sm"
+                                              placeholder="@Localizer["WriteComment"]"></textarea>
+                                    <div class="form-text">@Localizer["PassedMayBeEmpty"]</div>
+                                </div>
+                                <div class="col-12">
+                                    <button type="submit" class="btn btn-primary btn-sm">
+                                        <i class="fas fa-paper-plane me-1"></i>@Localizer["AddComment"]
+                                    </button>
+                                </div>
+                            </div>
+                        </form>
+                    }
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-4">
+            <div class="card">
+                <div class="card-header"><strong>@Localizer["Tracking"]</strong></div>
+                <div class="card-body">
+                    <dl class="row mb-0">
+                        <dt class="col-6">@Localizer["RequestDate"]</dt>
+                        <dd class="col-6">@Model.RequestDate.ToString("yyyy-MM-dd")</dd>
+
+                        <dt class="col-6">@Localizer["MeetingDate"]</dt>
+                        <dd class="col-6">@(Model.MeetingDate?.ToString("yyyy-MM-dd") ?? "-")</dd>
+
+                        <dt class="col-6">@Localizer["StartDate"]</dt>
+                        <dd class="col-6">@(Model.StartDate?.ToString("yyyy-MM-dd") ?? "-")</dd>
+
+                        <dt class="col-6">@Localizer["ActualCompletionDate"]</dt>
+                        <dd class="col-6">@(Model.ActualCompletionDate?.ToString("yyyy-MM-dd") ?? "-")</dd>
+
+                        <dt class="col-6">@Localizer["RequestingParty"]</dt>
+                        <dd class="col-6">@(Model.RequestingParty ?? "-")</dd>
+
+                        <dt class="col-6">@Localizer["RequestEmployee"]</dt>
+                        <dd class="col-6">
+                            @if (Model.RequestEmployee != null)
+                            {
+                                <span>@Model.RequestEmployee.Name</span>
+                                @if (!string.IsNullOrWhiteSpace(Model.RequestEmployee.JobTitle))
+                                {
+                                    <small class="text-muted d-block">@Model.RequestEmployee.JobTitle</small>
+                                }
+                                @if (!string.IsNullOrWhiteSpace(Model.RequestEmployee.PhoneNumber))
+                                {
+                                    <small class="d-block" dir="ltr"><i class="fas fa-phone me-1"></i>@Model.RequestEmployee.PhoneNumber</small>
+                                }
+                                @if (!string.IsNullOrWhiteSpace(Model.RequestEmployee.Email))
+                                {
+                                    <small class="d-block" dir="ltr"><i class="fas fa-envelope me-1"></i>@Model.RequestEmployee.Email</small>
+                                }
+                            }
+                            else
+                            {
+                                <span>-</span>
+                            }
+                        </dd>
+
+                        <dt class="col-6">@Localizer["SubmittedBy"]</dt>
+                        <dd class="col-6">@(Model.SubmittedByUser?.UserName ?? "-")</dd>
+
+                        <dt class="col-6">@Localizer["AssignedTo"]</dt>
+                        <dd class="col-6">@(Model.AssignedToUser?.UserName ?? "-")</dd>
+
+                        <dt class="col-6">@Localizer["TargetVersion"]</dt>
+                        <dd class="col-6">
+                            @if (Model.PlatformVersion != null)
+                            {
+                                <span class="badge bg-dark" dir="ltr">@Model.PlatformVersion.VersionNumber</span>
+                                <small class="text-muted d-block">@Model.PlatformVersion.Title</small>
+                            }
+                            else
+                            {
+                                <span>-</span>
+                            }
+                        </dd>
+
+                        <dt class="col-6">@Localizer["CreatedAt"]</dt>
+                        <dd class="col-6">@Model.CreatedAt.ToString("yyyy-MM-dd HH:mm")</dd>
+
+                        <dt class="col-6">@Localizer["LastModified"]</dt>
+                        <dd class="col-6">@Model.LastModifiedAt.ToString("yyyy-MM-dd HH:mm")</dd>
+                    </dl>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

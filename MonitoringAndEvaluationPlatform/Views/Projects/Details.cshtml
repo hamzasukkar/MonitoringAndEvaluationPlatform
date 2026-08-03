@@ -26,6 +26,12 @@
         <a asp-action="Edit" asp-route-id="@Model?.ProjectID" class="btn btn-gradient-primary me-2">
             <i class="fas fa-edit me-1"></i>@Localizer["Edit"]
         </a>
+        @if (User.IsInRole(MonitoringAndEvaluationPlatform.Models.UserRoles.SystemAdministrator))
+        {
+            <a asp-controller="AuditLogs" asp-action="ProjectHistory" asp-route-projectId="@Model?.ProjectID" class="btn btn-light me-2">
+                <i class="fas fa-history me-1"></i>@Localizer["History"]
+            </a>
+        }
         <a asp-action="Index" class="btn btn-light">
             <i class="fas fa-arrow-left me-1"></i>@Localizer["Back to List"]
         </a>
@@ -179,6 +185,28 @@
                                     }
                                 </div>
                             </div>
+
+                            @if (Model.PublicSectorType != null)
+                            {
+                                <div class="info-row">
+                                    <div class="info-label">
+                                        <i class="fas fa-sitemap me-2"></i>
+                                        @Localizer["Public Sector Type"]
+                                    </div>
+                                    <div class="info-value">
+                                        <span class="modern-badge badge-secondary me-1">
+                                            @if (culture.StartsWith("ar"))
+                                            {
+                                                @Model.PublicSectorType.AR_Name
+                                            }
+                                            else
+                                            {
+                                                @Model.PublicSectorType.EN_Name
+                                            }
+                                        </span>
+                                    </div>
+                                </div>
+                            }
                         </div>
                     </div>
                 </div>

@@ -193,7 +193,7 @@
     <value>Behind Schedule</value>
   </data>
   <data name="years" xml:space="preserve">
-    <value>years</value>
+    <value>Years</value>
   </data>
   <data name="Value Progress" xml:space="preserve">
     <value>Value Progress</value>
@@ -567,6 +567,9 @@
   <data name="Progress Overview" xml:space="preserve">
     <value>Progress Overview</value>
   </data>
+  <data name="Goal Type" xml:space="preserve">
+    <value>Goal Type</value>
+  </data>
   <data name="Years Left" xml:space="preserve">
     <value>Years Left</value>
   </data>
@@ -584,6 +587,15 @@
   </data>
   <data name="Key Values" xml:space="preserve">
     <value>Key Values</value>
+  </data>
+  <data name="Analysis" xml:space="preserve">
+    <value>Analysis</value>
+  </data>
+  <data name="Actual Change" xml:space="preserve">
+    <value>Actual Change</value>
+  </data>
+  <data name="Expected Change" xml:space="preserve">
+    <value>Expected Change</value>
   </data>
   <data name="Variance" xml:space="preserve">
     <value>Variance</value>
@@ -612,11 +624,17 @@
   <data name="selected" xml:space="preserve">
     <value>selected</value>
   </data>
+  <data name="Are you sure you want to delete the selected goals?" xml:space="preserve">
+    <value>Are you sure you want to delete the selected goals?</value>
+  </data>
   <data name="goals will be deleted" xml:space="preserve">
     <value>goals will be deleted</value>
   </data>
   <data name="No goals selected" xml:space="preserve">
     <value>No goals selected</value>
+  </data>
+  <data name="All" xml:space="preserve">
+    <value>All</value>
   </data>
   <data name="Needs Attention" xml:space="preserve">
     <value>Needs Attention</value>
@@ -696,9 +714,6 @@
   <data name="Calculation Explanation" xml:space="preserve">
     <value>Calculation Explanation</value>
   </data>
-  <data name="Goal Type" xml:space="preserve">
-    <value>Goal Type</value>
-  </data>
   <data name="Type" xml:space="preserve">
     <value>Type</value>
   </data>
@@ -717,26 +732,14 @@
   <data name="Number of Years" xml:space="preserve">
     <value>Number of Years</value>
   </data>
-  <data name="Years" xml:space="preserve">
-    <value>Years</value>
-  </data>
   <data name="Total Required Change" xml:space="preserve">
     <value>Total Required Change</value>
-  </data>
-  <data name="Required Change" xml:space="preserve">
-    <value>Required Change</value>
   </data>
   <data name="Annual Change Rate" xml:space="preserve">
     <value>Annual Change Rate</value>
   </data>
   <data name="Years Elapsed" xml:space="preserve">
     <value>Years Elapsed</value>
-  </data>
-  <data name="Actual Change" xml:space="preserve">
-    <value>Actual Change</value>
-  </data>
-  <data name="Expected Change" xml:space="preserve">
-    <value>Expected Change</value>
   </data>
   <data name="Performance Percentage" xml:space="preserve">
     <value>Performance Percentage</value>

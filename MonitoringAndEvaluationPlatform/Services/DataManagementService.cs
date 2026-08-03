@@ -9,11 +9,13 @@ namespace MonitoringAndEvaluationPlatform.Services
     {
         private readonly ApplicationDbContext _context;
         private readonly PlanService _planService;
+        private readonly IConfiguration _configuration;
 
-        public DataManagementService(ApplicationDbContext context, PlanService planService)
+        public DataManagementService(ApplicationDbContext context, PlanService planService, IConfiguration configuration)
         {
             _context = context;
             _planService = planService;
+            _configuration = configuration;
         }
 
         public async Task<DataManagementIndexViewModel> GetIndexStatisticsAsync()
@@ -75,6 +77,45 @@ namespace MonitoringAndEvaluationPlatform.Services
             sb.AppendLine("-- End of backup script");
 
             return sb.ToString();
+        }
+
+        public async Task<(string FilePath, string FileName)> CreateNativeDatabaseBackupAsync()
+        {
+            if (!_context.Database.IsSqlServer())
+            {
+                throw new InvalidOperationException(
+                    "Native .bak backups are only supported on SQL Server. The current database provider does not support BACKUP DATABASE.");
+            }
+
+            var dbName = _context.Database.GetDbConnection().Database;
+            if (string.IsNullOrWhiteSpace(dbName))
+            {
+                throw new InvalidOperationException("Unable to resolve the database name from the connection.");
+            }
+
+            var directory = _configuration["BackupSettings:Directory"];
+            if (string.IsNullOrWhiteSpace(directory))
+            {
+                directory = @"C:\MREBackups\";
+            }
+
+            System.IO.Directory.CreateDirectory(directory);
+
+            var fileName = $"{dbName}_{DateTime.Now:yyyyMMdd_HHmmss}.bak";
+            var fullPath = System.IO.Path.Combine(directory, fileName);
+
+            // Allow ample time for large databases.
+            _context.Database.SetCommandTimeout(600);
+
+            // The database name cannot be parameterized, so it is bracket-wrapped;
+            // its value originates from the trusted connection string. The disk path is parameterized.
+            var safeDbName = dbName.Replace("]", "]]");
+            var pathParam = new Microsoft.Data.SqlClient.SqlParameter("@path", fullPath);
+            var sql = $"BACKUP DATABASE [{safeDbName}] TO DISK = @path WITH FORMAT, INIT, NAME = 'M&E Full Backup', STATS = 10;";
+
+            await _context.Database.ExecuteSqlRawAsync(sql, pathParam);
+
+            return (fullPath, fileName);
         }
 
         private async Task GenerateTableBackupScript(StringBuilder sb, string tableName)

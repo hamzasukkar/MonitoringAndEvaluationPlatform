@@ -1,4 +1,4 @@
-﻿@model IEnumerable<MonitoringAndEvaluationPlatform.Models.Indicator>
+﻿@model MonitoringAndEvaluationPlatform.ViewModel.IndicatorListViewModel
 @using MonitoringAndEvaluationPlatform.Helpers
 @using MonitoringAndEvaluationPlatform.Models
 @using Microsoft.AspNetCore.Mvc.Localization
@@ -10,6 +10,27 @@
     Layout = "~/Views/Shared/_DashboardHomeLayout.cshtml";
     ViewData["HelpFeature"] = "INDICATORS";
     var culture = Context.Features.Get<IRequestCultureFeature>().RequestCulture.Culture.Name;
+
+    // Current filter state as route values, reused by every navigational link on this page.
+    Func<Microsoft.AspNetCore.Routing.RouteValueDictionary> baseFilters = () => new Microsoft.AspNetCore.Routing.RouteValueDictionary
+    {
+        { "frameworkCode", Model.FrameworkCode },
+        { "outcomeCode", Model.OutcomeCode },
+        { "outputCode", Model.OutputCode },
+        { "subOutputCode", Model.SubOutputCode },
+        { "searchString", Model.SearchString },
+        { "performanceBand", Model.PerformanceBand },
+        { "disbursementBand", Model.DisbursementBand },
+    };
+    Func<string, string, int, Microsoft.AspNetCore.Routing.RouteValueDictionary> filterRoute = (sortCol, sortDir, pg) =>
+    {
+        var rv = baseFilters();
+        rv["sortColumn"] = sortCol;
+        rv["sortDirection"] = sortDir;
+        rv["page"] = pg;
+        rv["pageSize"] = Model.PageSize;
+        return rv;
+    };
 }
 
 @{
@@ -115,6 +136,73 @@
     </div>
 }
 
+@if (Model.FrameworkCode != null)
+{
+    <!-- Filter Form -->
+    <div class="chart-card mb-4">
+        <div class="chart-title">
+            <i class="fas fa-filter"></i>
+            @Localizer["Filter Indicators"]
+        </div>
+        <form asp-action="Index" method="get" class="row g-3" id="filterForm">
+            <input type="hidden" name="frameworkCode" value="@Model.FrameworkCode" />
+            <input type="hidden" name="searchString" value="@Model.SearchString" />
+            <input type="hidden" name="sortColumn" value="@Model.SortColumn" />
+            <input type="hidden" name="sortDirection" value="@Model.SortDirection" />
+            <input type="hidden" name="pageSize" value="@Model.PageSize" />
+
+            <div class="col-md-6 col-lg">
+                <label class="form-label fw-bold"><i class="fas fa-bullseye me-2"></i>@Localizer["Outcome"]</label>
+                <select name="outcomeCode" id="outcomeFilter" class="form-select" onchange="onOutcomeChange()">
+                    <option value="">@Localizer["All Outcomes"]</option>
+                    @foreach (var o in Model.Outcomes)
+                    {
+                        <option value="@o.Code" selected="@(Model.OutcomeCode == o.Code)">@o.Name</option>
+                    }
+                </select>
+            </div>
+            <div class="col-md-6 col-lg">
+                <label class="form-label fw-bold"><i class="fas fa-cube me-2"></i>@Localizer["Output"]</label>
+                <select name="outputCode" id="outputFilter" class="form-select" onchange="onOutputChange()">
+                    <option value="">@Localizer["All Outputs"]</option>
+                    @foreach (var o in Model.Outputs)
+                    {
+                        <option value="@o.Code" selected="@(Model.OutputCode == o.Code)">@o.Name</option>
+                    }
+                </select>
+            </div>
+            <div class="col-md-6 col-lg">
+                <label class="form-label fw-bold"><i class="fas fa-list-ul me-2"></i>@Localizer["SubOutput"]</label>
+                <select name="subOutputCode" id="subOutputFilter" class="form-select" onchange="document.getElementById('filterForm').submit()">
+                    <option value="">@Localizer["All SubOutputs"]</option>
+                    @foreach (var so in Model.SubOutputs)
+                    {
+                        <option value="@so.Code" selected="@(Model.SubOutputCode == so.Code)">@so.Name</option>
+                    }
+                </select>
+            </div>
+            <div class="col-md-6 col-lg">
+                <label class="form-label fw-bold"><i class="fas fa-chart-line me-2"></i>@Localizer["Performance"]</label>
+                <select name="performanceBand" class="form-select" onchange="document.getElementById('filterForm').submit()">
+                    <option value="">@Localizer["All"]</option>
+                    <option value="high" selected="@(Model.PerformanceBand == "high")">@Localizer["High (≥75%)"]</option>
+                    <option value="medium" selected="@(Model.PerformanceBand == "medium")">@Localizer["Medium (50–74%)"]</option>
+                    <option value="low" selected="@(Model.PerformanceBand == "low")">@Localizer["Low (<50%)"]</option>
+                </select>
+            </div>
+            <div class="col-md-6 col-lg">
+                <label class="form-label fw-bold"><i class="fas fa-money-bill-wave me-2"></i>@Localizer["Disbursement"]</label>
+                <select name="disbursementBand" class="form-select" onchange="document.getElementById('filterForm').submit()">
+                    <option value="">@Localizer["All"]</option>
+                    <option value="high" selected="@(Model.DisbursementBand == "high")">@Localizer["High (≥75%)"]</option>
+                    <option value="medium" selected="@(Model.DisbursementBand == "medium")">@Localizer["Medium (50–74%)"]</option>
+                    <option value="low" selected="@(Model.DisbursementBand == "low")">@Localizer["Low (<50%)"]</option>
+                </select>
+            </div>
+        </form>
+    </div>
+}
+
 <!-- Search Form -->
 <div class="chart-card mb-4">
     <div class="chart-title">
@@ -122,21 +210,27 @@
         @Localizer["Search Indicators"]
     </div>
     <form asp-action="Index" method="get" class="row g-3" id="searchForm">
-        <input type="hidden" name="frameworkCode" value="@ViewData["frameworkCode"]" />
-        <input type="hidden" name="subOutputCode" value="@ViewData["subOutputCode"]" />
+        <input type="hidden" name="frameworkCode" value="@Model.FrameworkCode" />
+        <input type="hidden" name="outcomeCode" value="@Model.OutcomeCode" />
+        <input type="hidden" name="outputCode" value="@Model.OutputCode" />
+        <input type="hidden" name="subOutputCode" value="@Model.SubOutputCode" />
+        <input type="hidden" name="performanceBand" value="@Model.PerformanceBand" />
+        <input type="hidden" name="disbursementBand" value="@Model.DisbursementBand" />
+        <input type="hidden" name="sortColumn" value="@Model.SortColumn" />
+        <input type="hidden" name="sortDirection" value="@Model.SortDirection" />
+        <input type="hidden" name="pageSize" value="@Model.PageSize" />
         <div class="col-md-9">
             <div class="input-group">
                 <input type="text" name="searchString" id="searchInput" class="form-control form-control-lg"
                        placeholder="@Localizer["Search by indicator name, suboutput or project..."]"
-                       value="@ViewData["CurrentFilter"]">
+                       value="@Model.SearchString">
                 <button type="submit" class="btn btn-primary btn-lg">
                     <i class="fas fa-search me-1"></i> @Localizer["Search"]
                 </button>
             </div>
         </div>
         <div class="col-md-3 d-flex align-items-end">
-            <a asp-action="Index" asp-route-frameworkCode="@ViewData["frameworkCode"]"
-               asp-route-subOutputCode="@ViewData["subOutputCode"]"
+            <a asp-action="Index" asp-route-frameworkCode="@Model.FrameworkCode"
                class="btn btn-outline-secondary btn-lg w-100">
                 <i class="fas fa-sync-alt me-2"></i>@Localizer["Reset"]
             </a>
@@ -149,45 +243,65 @@
     <div class="chart-title d-flex justify-content-between align-items-center">
         <span>
             <i class="fas fa-chart-bar"></i>
-            @Localizer["Indicators"] (@Model.Count().ToString("N0"))
+            @Localizer["Indicators"] (@Model.TotalRecords.ToString("N0"))
         </span>
-        <div class="d-flex gap-2">
-            <a asp-action="ExportExcel" asp-route-frameworkCode="@ViewData["frameworkCode"]" asp-route-subOutputCode="@ViewData["subOutputCode"]"
+        <div class="d-flex gap-2 align-items-center">
+            <select class="form-select form-select-sm page-size-select" title="@Localizer["Per Page"]"
+                    onchange="window.location = this.value;">
+                @foreach (var size in new[] { 10, 25, 50, 100 })
+                {
+                    var sizeRoute = filterRoute(Model.SortColumn, Model.SortDirection, 1);
+                    sizeRoute["pageSize"] = size;
+                    <option value="@Url.Action("Index", sizeRoute)"
+                            selected="@(Model.PageSize == size)">
+                        @size / @Localizer["Per Page"]
+                    </option>
+                }
+            </select>
+            <a href="@Url.Action("ExportExcel", baseFilters())"
                class="btn btn-sm btn-success" title="@Localizer["Export Excel"]" data-bs-toggle="tooltip">
                 <i class="fas fa-file-excel"></i>
             </a>
-            <a asp-action="ExportPdf" asp-route-frameworkCode="@ViewData["frameworkCode"]" asp-route-subOutputCode="@ViewData["subOutputCode"]"
+            <a href="@Url.Action("ExportPdf", baseFilters())"
                class="btn btn-sm btn-danger" title="@Localizer["Export PDF"]" data-bs-toggle="tooltip">
                 <i class="fas fa-file-pdf"></i>
             </a>
         </div>
     </div>
     
-    @if (Model.Any())
+    @if (Model.Indicators.Any())
     {
         <div class="table-responsive">
             <table class="table table-hover modern-table">
                 <thead class="table-header">
                     <tr>
                         <th class="sortable-header">
-                            <div class="header-link">
+                            <a href="@Url.Action("Index", filterRoute("Name", Model.GetSortDirection("Name"), 1))"
+                               class="header-link">
                                 <i class="fas fa-chart-bar me-2"></i>@Localizer["Indicator Name"]
-                            </div>
+                                <i class="fas @Model.GetSortIcon("Name") ms-2"></i>
+                            </a>
                         </th>
-                        <th class="text-center">
-                            <div class="header-link">
+                        <th class="text-center sortable-header">
+                            <a href="@Url.Action("Index", filterRoute("Weight", Model.GetSortDirection("Weight"), 1))"
+                               class="header-link">
                                 <i class="fas fa-weight me-2"></i>@Localizer["Weight"]
-                            </div>
+                                <i class="fas @Model.GetSortIcon("Weight") ms-2"></i>
+                            </a>
                         </th>
-                        <th class="text-center">
-                            <div class="header-link">
+                        <th class="text-center sortable-header">
+                            <a href="@Url.Action("Index", filterRoute("IndicatorsPerformance", Model.GetSortDirection("IndicatorsPerformance"), 1))"
+                               class="header-link">
                                 <i class="fas fa-chart-line me-2"></i>@Localizer["Indicators Performance"]
-                            </div>
+                                <i class="fas @Model.GetSortIcon("IndicatorsPerformance") ms-2"></i>
+                            </a>
                         </th>
-                        <th class="text-center">
-                            <div class="header-link">
+                        <th class="text-center sortable-header">
+                            <a href="@Url.Action("Index", filterRoute("DisbursementPerformance", Model.GetSortDirection("DisbursementPerformance"), 1))"
+                               class="header-link">
                                 <i class="fas fa-money-bill-wave me-2"></i>@Localizer["Disbursement Performance"]
-                            </div>
+                                <i class="fas @Model.GetSortIcon("DisbursementPerformance") ms-2"></i>
+                            </a>
                         </th>
                         <th class="text-center">
                             <div class="header-link">
@@ -207,7 +321,7 @@
                     </tr>
                 </thead>
                 <tbody>
-                    @foreach (var item in Model)
+                    @foreach (var item in Model.Indicators)
                     {
                         string indicatorsClass = ProgressBarHelper.GetProgressBarClass(item.IndicatorsPerformance);
                         string disbursementClass = ProgressBarHelper.GetProgressBarClass(item.DisbursementPerformance);
@@ -383,6 +497,40 @@
                 </tbody>
             </table>
         </div>
+
+        <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mt-3">
+            <span class="text-muted small">
+                @Localizer["Showing"] @Model.FirstItemIndex–@Model.LastItemIndex @Localizer["of"] @Model.TotalRecords.ToString("N0")
+            </span>
+            @if (Model.TotalPages > 1)
+            {
+                <nav aria-label="@Localizer["Indicators"]">
+                    <ul class="pagination mb-0">
+                        <li class="page-item @(Model.CurrentPage == 1 ? "disabled" : "")">
+                            <a class="page-link"
+                               href="@Url.Action("Index", filterRoute(Model.SortColumn, Model.SortDirection, Model.CurrentPage - 1))">
+                                <i class="fas fa-chevron-left"></i>
+                            </a>
+                        </li>
+                        @for (int i = Math.Max(1, Model.CurrentPage - 2); i <= Math.Min(Model.TotalPages, Model.CurrentPage + 2); i++)
+                        {
+                            <li class="page-item @(i == Model.CurrentPage ? "active" : "")">
+                                <a class="page-link"
+                                   href="@Url.Action("Index", filterRoute(Model.SortColumn, Model.SortDirection, i))">
+                                    @i
+                                </a>
+                            </li>
+                        }
+                        <li class="page-item @(Model.CurrentPage == Model.TotalPages ? "disabled" : "")">
+                            <a class="page-link"
+                               href="@Url.Action("Index", filterRoute(Model.SortColumn, Model.SortDirection, Model.CurrentPage + 1))">
+                                <i class="fas fa-chevron-right"></i>
+                            </a>
+                        </li>
+                    </ul>
+                </nav>
+            }
+        </div>
     }
     else
     {
@@ -405,6 +553,21 @@
         document.getElementById('projectFilter')?.addEventListener('change', function () {
             this.form.submit();
         });
+
+        // Cascade filters: changing a parent clears its descendants before submitting,
+        // so we never post a child that belongs to a different parent.
+        function onOutcomeChange() {
+            const output = document.getElementById('outputFilter');
+            const subOutput = document.getElementById('subOutputFilter');
+            if (output) output.value = '';
+            if (subOutput) subOutput.value = '';
+            document.getElementById('filterForm').submit();
+        }
+        function onOutputChange() {
+            const subOutput = document.getElementById('subOutputFilter');
+            if (subOutput) subOutput.value = '';
+            document.getElementById('filterForm').submit();
+        }
 
         function toggleProjects(indicatorCode) {
             const row = document.getElementById(`projects-row-${indicatorCode}`);
@@ -660,6 +823,10 @@
         .header-link:hover {
             color: #000000 !important;
             transform: translateY(-1px);
+        }
+
+        .page-size-select {
+            width: auto;
         }
         
         .table-row {

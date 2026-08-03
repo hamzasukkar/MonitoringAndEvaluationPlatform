@@ -1,0 +1,161 @@
+@model MonitoringAndEvaluationPlatform.Models.Request
+@using MonitoringAndEvaluationPlatform.Enums
+@using Microsoft.AspNetCore.Mvc.Localization
+@inject IViewLocalizer Localizer
+
+@{
+    ViewData["Title"] = Localizer["EditRequest"];
+    Layout = "~/Views/Shared/_DashboardHomeLayout.cshtml";
+}
+
+<div class="container-fluid py-4">
+    <div class="dashboard-header mb-4">
+        <h1 class="display-5 mb-2">
+            <i class="fas fa-edit me-3"></i>@Localizer["EditRequest"]
+            <span class="badge bg-secondary align-middle fs-6">@Model.RequestNumber</span>
+        </h1>
+    </div>
+
+    <div class="card">
+        <div class="card-body">
+            <form asp-action="Edit" asp-route-id="@Model.Id" method="post" enctype="multipart/form-data">
+                @Html.AntiForgeryToken()
+                <input type="hidden" asp-for="Id" />
+                <div asp-validation-summary="ModelOnly" class="alert alert-danger" role="alert"></div>
+
+                <div class="row g-3">
+                    <div class="col-md-8">
+                        <label asp-for="Title" class="form-label">@Localizer["Title"] <span class="text-danger">*</span></label>
+                        <input asp-for="Title" class="form-control" />
+                        <span asp-validation-for="Title" class="text-danger small"></span>
+                    </div>
+
+                    <div class="col-md-4">
+                        <label asp-for="RequestDate" class="form-label">@Localizer["RequestDate"] <span class="text-danger">*</span></label>
+                        <input asp-for="RequestDate" type="date" class="form-control" />
+                        <span asp-validation-for="RequestDate" class="text-danger small"></span>
+                    </div>
+
+                    <div class="col-12">
+                        <label asp-for="Description" class="form-label">@Localizer["Description"]</label>
+                        <textarea asp-for="Description" rows="4" class="form-control"></textarea>
+                    </div>
+
+                    <div class="col-md-4">
+                        <label asp-for="Category" class="form-label">@Localizer["Category"]</label>
+                        <select asp-for="Category" class="form-select">
+                            @foreach (RequestCategory c in Enum.GetValues(typeof(RequestCategory)))
+                            {
+                                <option value="@((int)c)">@Localizer["Category" + c.ToString()]</option>
+                            }
+                        </select>
+                    </div>
+
+                    <div class="col-md-4">
+                        <label asp-for="Priority" class="form-label">@Localizer["Priority"]</label>
+                        <select asp-for="Priority" class="form-select">
+                            @foreach (RequestPriority p in Enum.GetValues(typeof(RequestPriority)))
+                            {
+                                <option value="@((int)p)">@Localizer["Priority" + p.ToString()]</option>
+                            }
+                        </select>
+                    </div>
+
+                    <div class="col-md-4">
+                        <label asp-for="Status" class="form-label">@Localizer["Status"]</label>
+                        <select asp-for="Status" class="form-select">
+                            @foreach (RequestStatus s in Enum.GetValues(typeof(RequestStatus)))
+                            {
+                                <option value="@((int)s)">@Localizer["Status" + s.ToString()]</option>
+                            }
+                        </select>
+                    </div>
+
+                    <div class="col-md-4">
+                        <label asp-for="RequestingParty" class="form-label">@Localizer["RequestingParty"]</label>
+                        <input asp-for="RequestingParty" class="form-control" />
+                    </div>
+
+                    <div class="col-md-4">
+                        <label asp-for="AssignedToUserId" class="form-label">@Localizer["AssignedTo"]</label>
+                        <select asp-for="AssignedToUserId" asp-items="ViewBag.Users" class="form-select">
+                            <option value="">@Localizer["Unassigned"]</option>
+                        </select>
+                    </div>
+
+                    <div class="col-md-4">
+                        <label asp-for="MinistryCode" class="form-label">@Localizer["Ministry"]</label>
+                        <select asp-for="MinistryCode" asp-items="ViewBag.Ministries" class="form-select">
+                            <option value="">@Localizer["None"]</option>
+                        </select>
+                    </div>
+
+                    <div class="col-md-4">
+                        <label asp-for="PlatformVersionId" class="form-label">@Localizer["TargetVersion"]</label>
+                        <select asp-for="PlatformVersionId" asp-items="ViewBag.Versions" class="form-select">
+                            <option value="">@Localizer["NoVersion"]</option>
+                        </select>
+                        <div class="form-text">@Localizer["TargetVersionHint"]</div>
+                    </div>
+
+                    <div class="col-md-4">
+                        <label asp-for="RequestEmployeeId" class="form-label">@Localizer["RequestEmployee"]</label>
+                        <select asp-for="RequestEmployeeId" asp-items="ViewBag.Employees" class="form-select">
+                            <option value="">@Localizer["NoEmployee"]</option>
+                        </select>
+                    </div>
+
+                    <div class="col-md-4">
+                        <label asp-for="MeetingDate" class="form-label">@Localizer["MeetingDate"]</label>
+                        <input asp-for="MeetingDate" type="date" class="form-control" />
+                    </div>
+
+                    <div class="col-md-4">
+                        <label asp-for="StartDate" class="form-label">@Localizer["StartDate"]</label>
+                        <input asp-for="StartDate" type="date" class="form-control" />
+                    </div>
+
+                    <div class="col-md-4">
+                        <label asp-for="ActualCompletionDate" class="form-label">@Localizer["ActualCompletionDate"]</label>
+                        <input asp-for="ActualCompletionDate" type="date" class="form-control" />
+                        <span asp-validation-for="ActualCompletionDate" class="text-danger small"></span>
+                    </div>
+
+                    <div class="col-md-4">
+                        <label asp-for="CompletionPercentage" class="form-label">
+                            @Localizer["CompletionPercentage"] (<span id="pctLabel">@Model.CompletionPercentage</span>%)
+                        </label>
+                        <input asp-for="CompletionPercentage" type="range" min="0" max="100" step="5"
+                               class="form-range" oninput="document.getElementById('pctLabel').textContent = this.value" />
+                        <span asp-validation-for="CompletionPercentage" class="text-danger small"></span>
+                    </div>
+
+                    <div class="col-md-8">
+                        <label asp-for="Notes" class="form-label">@Localizer["Notes"]</label>
+                        <textarea asp-for="Notes" rows="2" class="form-control"></textarea>
+                    </div>
+
+                    <div class="col-12">
+                        <label for="UploadedFiles" class="form-label">@Localizer["AddAttachments"]</label>
+                        <input type="file" id="UploadedFiles" name="UploadedFiles" class="form-control" multiple />
+                    </div>
+                </div>
+
+                <hr class="my-4" />
+
+                <div class="d-flex gap-2">
+                    <button type="submit" class="btn btn-primary btn-lg">
+                        <i class="fas fa-save me-2"></i>@Localizer["Save"]
+                    </button>
+                    <a asp-action="Details" asp-route-id="@Model.Id" class="btn btn-outline-secondary btn-lg">
+                        @Localizer["Cancel"]
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

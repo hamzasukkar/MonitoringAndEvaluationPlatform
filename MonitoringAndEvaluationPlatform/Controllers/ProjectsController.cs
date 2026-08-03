@@ -77,6 +77,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             filter.Ministries = await _context.Ministries.ToListAsync();
             filter.Donors = await _context.Donors.ToListAsync();
             filter.Sectors = await _context.Sectors.ToListAsync();
+            filter.PublicSectorTypes = await _context.PublicSectorTypes.ToListAsync();
             filter.Frameworks = await _context.Frameworks.ToListAsync();
             filter.Governorates = await _context.Governorates.ToListAsync();
 
@@ -279,6 +280,13 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                                  .Any(s => filter.SelectedSectors.Contains(s.Code)));
             }
 
+            if (filter.SelectedPublicSectorTypes.Any())
+            {
+                projectQuery = projectQuery
+                    .Where(p => p.PublicSectorTypeCode.HasValue &&
+                                filter.SelectedPublicSectorTypes.Contains(p.PublicSectorTypeCode.Value));
+            }
+
             if (filter.SelectedDonors.Any())
             {
                 projectQuery = projectQuery
@@ -447,6 +455,34 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             return Json(comms);
         }
 
+        // Resolves the same-named District → SubDistrict → Community chain of a governorate,
+        // used by the "Add Entire Governorate" button. Matching is on AR_Name (the canonical name).
+        public async Task<JsonResult> GetGovernorateChain(string governorateCode)
+        {
+            var currentCulture = CultureInfo.CurrentUICulture.TwoLetterISOLanguageName;
+            var gov = await _context.Governorates.FindAsync(governorateCode);
+            if (gov == null) return Json(new { found = false });
+
+            var district = await _context.Districts
+                .FirstOrDefaultAsync(d => d.GovernorateCode == gov.Code && d.AR_Name == gov.AR_Name);
+            var subDistrict = district == null ? null : await _context.SubDistricts
+                .FirstOrDefaultAsync(s => s.DistrictCode == district.Code && s.AR_Name == gov.AR_Name);
+            var community = subDistrict == null ? null : await _context.Communities
+                .FirstOrDefaultAsync(c => c.SubDistrictCode == subDistrict.Code && c.AR_Name == gov.AR_Name);
+
+            if (district == null || subDistrict == null || community == null)
+                return Json(new { found = false });
+
+            return Json(new
+            {
+                found = true,
+                governorate = new { code = gov.Code, name = currentCulture == "ar" ? gov.AR_Name : gov.EN_Name },
+                district = new { code = district.Code, name = currentCulture == "ar" ? district.AR_Name : district.EN_Name },
+                subDistrict = new { code = subDistrict.Code, name = currentCulture == "ar" ? subDistrict.AR_Name : subDistrict.EN_Name },
+                community = new { code = community.Code, name = currentCulture == "ar" ? community.AR_Name : community.EN_Name }
+            });
+        }
+
         // GET: Programs/Create
         [Permission(Permissions.AddProject)]
         public async Task<IActionResult> Create(int? indicatorId, string indicatorName)
@@ -490,6 +526,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             {
                 EstimatedBudget = 0,
                 RealBudget = 0,
+                Currency = "SYP",
                 StartDate = DateTime.Today,
                 EndDate = DateTime.Today.AddYears(1),
                 //DonorCode = donors.FirstOrDefault()?.Code ?? 0,//To Check
@@ -515,6 +552,8 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 .Select(d => d.Code.ToString())
                 .ToList();
             ViewBag.SectorList = new MultiSelectList(sectors, "Code", "AR_Name", firstSectorCode.HasValue ? new List<int> { firstSectorCode.Value } : new List<int>());
+            ViewBag.PublicSectorCode = sectors.FirstOrDefault(s => s.EN_Name == "Public")?.Code;
+            ViewBag.PublicSectorTypeList = new SelectList(_context.PublicSectorTypes.ToList(), "Code", isArabic ? "AR_Name" : "EN_Name");
             ViewBag.MinistryList = new SelectList(ministries, "Code", isArabic ? "MinistryDisplayName_AR" : "MinistryDisplayName_EN", userMinistryCode);
             ViewBag.Ministries = ministries; // Pass full ministry list with Logo property
             ViewBag.SuperVisor = new SelectList(supervisors, "Code", "Name");
@@ -603,6 +642,12 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                     selectedSectorCodes,
                     ModelState,
                     IsEntireCountry);
+
+                // Public sector type is required when the Public sector is selected
+                await ValidatePublicSectorTypeAsync(
+                    selectedSectorCodes.Select(c => int.TryParse(c, out var code) ? code : 0),
+                    project,
+                    requireWhenPublic: true);
 
                 // Force MinistryCode to current user's ministry for non-admins (prevents form tampering)
                 var (isAdminCreate, scopedMinistryCodeCreate) = await GetScopeAsync();
@@ -736,6 +781,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 .Include(p => p.SubDistricts)
                 .Include(p => p.Communities)
                 .Include(p => p.Sectors)
+                .Include(p => p.PublicSectorType)
                 .Include(p => p.Indicators)
                     .ThenInclude(i => i.SubOutput)
                         .ThenInclude(so => so.Output)
@@ -864,6 +910,14 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 "Code",      // value field
                  isArabic ? "AR_Name" : "EN_Name",      // text field
                 selectedSectorCodes  // whichever codes should be pre‐checked
+            );
+
+            ViewBag.PublicSectorCode = allSectors.FirstOrDefault(s => s.EN_Name == "Public")?.Code;
+            ViewBag.PublicSectorTypeList = new SelectList(
+                await _context.PublicSectorTypes.ToListAsync(),
+                "Code",
+                isArabic ? "AR_Name" : "EN_Name",
+                project.PublicSectorTypeCode
             );
 
 
@@ -1046,6 +1100,11 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             ModelState.Remove(nameof(Project.Communities));
             ModelState.Remove(nameof(Project.Phases));
             ModelState.Remove(nameof(Project.Goal));
+            ModelState.Remove(nameof(Project.PublicSectorType));
+
+            // Optional on Edit: existing projects predate this field and must stay saveable;
+            // still normalizes the type to null when the Public sector is deselected.
+            await ValidatePublicSectorTypeAsync(SelectedSectorCodes, project, requireWhenPublic: false);
 
             // Exchange rate is only meaningful when a non-USD rate is supplied; if no rate
             // was entered, drop the optional date and any binding/validation noise on these
@@ -1102,6 +1161,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             dbProject.ProjectManagerCode = project.ProjectManagerCode;
             dbProject.SuperVisorCode = project.SuperVisorCode;
             dbProject.GoalCode = project.GoalCode;
+            dbProject.PublicSectorTypeCode = project.PublicSectorTypeCode;
 
 
 
@@ -1270,7 +1330,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             // Tell the redirect target to clear the locally cached draft for this form.
             TempData["ClearDraftKey"] = $"draft:project:edit:{id}";
 
-            return RedirectToAction(nameof(Index));
+            return RedirectToAction("Details", new { id });
         }
 
 
@@ -1295,12 +1355,22 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             //    "Code", "Name", project.CommunityCode);
 
 
+            var isArabic = CultureInfo.CurrentUICulture.TwoLetterISOLanguageName == "ar";
+
             var allSectors = await _context.Sectors.ToListAsync();
             ViewBag.SectorList = new MultiSelectList(
                 allSectors,
                 "Code",
-                "Name",
+                isArabic ? "AR_Name" : "EN_Name",
                 SelectedSectorCodes
+            );
+
+            ViewBag.PublicSectorCode = allSectors.FirstOrDefault(s => s.EN_Name == "Public")?.Code;
+            ViewBag.PublicSectorTypeList = new SelectList(
+                await _context.PublicSectorTypes.ToListAsync(),
+                "Code",
+                isArabic ? "AR_Name" : "EN_Name",
+                project.PublicSectorTypeCode
             );
 
             var allDonors = await _context.Donors.ToListAsync();
@@ -1312,7 +1382,6 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             );
 
             var allMinistries = await _context.Ministries.ToListAsync();
-            var isArabic = CultureInfo.CurrentUICulture.TwoLetterISOLanguageName == "ar";
             ViewBag.MinistryList = new SelectList(
                 allMinistries,
                 "Code",
@@ -1815,12 +1884,40 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 nameof(Project.Districts),
                 nameof(Project.SubDistricts),
                 nameof(Project.Governorates),
-                nameof(Project.Goal)
+                nameof(Project.Goal),
+                nameof(Project.PublicSectorType)
             };
 
             foreach (var property in propertiesToRemove)
             {
                 ModelState.Remove(property);
+            }
+        }
+
+        // Resolves the Code of the seeded "Public" sector (null if it was renamed/deleted).
+        private Task<int?> GetPublicSectorCodeAsync() =>
+            _context.Sectors
+                .Where(s => s.EN_Name == "Public")
+                .Select(s => (int?)s.Code)
+                .FirstOrDefaultAsync();
+
+        // A public sector type must never be persisted when the Public sector is not selected.
+        // requireWhenPublic: true on Create (new projects must classify); false on Edit so
+        // pre-existing projects (created before this field existed) are never blocked from saving.
+        private async Task ValidatePublicSectorTypeAsync(IEnumerable<int> selectedSectorCodes, Project project, bool requireWhenPublic)
+        {
+            var publicSectorCode = await GetPublicSectorCodeAsync();
+            bool publicSelected = publicSectorCode.HasValue && selectedSectorCodes.Contains(publicSectorCode.Value);
+
+            if (requireWhenPublic && publicSelected && !project.PublicSectorTypeCode.HasValue)
+            {
+                ModelState.AddModelError(nameof(Project.PublicSectorTypeCode),
+                    _localizer["Please select a public sector type."]);
+            }
+
+            if (!publicSelected)
+            {
+                project.PublicSectorTypeCode = null;
             }
         }
 
@@ -1833,6 +1930,8 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             // Preserve selected sectors
             var sectorCodes = selectedSectorCodes?.Select(int.Parse).ToList() ?? new List<int>();
             ViewBag.SectorList = new MultiSelectList(_context.Sectors, "Code", "AR_Name", sectorCodes);
+            ViewBag.PublicSectorCode = await GetPublicSectorCodeAsync();
+            ViewBag.PublicSectorTypeList = new SelectList(await _context.PublicSectorTypes.ToListAsync(), "Code", isArabic ? "AR_Name" : "EN_Name");
 
             // Get the logged-in user for ministry check
             var user = await _userManager.GetUserAsync(User);

@@ -178,7 +178,7 @@
     <value>خطط العمل</value>
   </data>
   <data name="Measures" xml:space="preserve">
-    <value>التتبع والإنجاز</value>
+    <value>خطة عمل</value>
   </data>
   <data name="Alignement" xml:space="preserve">
     <value>التوافق</value>
@@ -328,7 +328,7 @@
     <value>الأداء %</value>
   </data>
   <data name="Action Plan" xml:space="preserve">
-    <value>خطة العمل</value>
+    <value>التتبع والإنفاق</value>
   </data>
   <data name="Delete this phase? Its measures and action plan will also be deleted." xml:space="preserve">
     <value>حذف هذه الفقرة؟ سيتم أيضاً حذف إنجازاتها وخطة عملها.</value>
@@ -376,7 +376,7 @@
     <value>صحيح</value>
   </data>
   <data name="Related Frameworks" xml:space="preserve">
-    <value>الأطر المرتبطة</value>
+    <value>الأهداف استراتيجية المرتبطة</value>
   </data>
   <data name="Outcome" xml:space="preserve">
     <value>النتيجة</value>
@@ -403,7 +403,7 @@
     <value>القيمة المصححة</value>
   </data>
   <data name="Confirming will recalculate this project and update the figures at higher hierarchy levels (SubOutput, Output, Outcome, Framework, Ministry, Sector, Donor)." xml:space="preserve">
-    <value>سيؤدي التأكيد إلى إعادة احتساب هذا المشروع وتحديث القيم في المستويات الأعلى (المخرج الفرعي، المخرج، النتيجة، الإطار، الوزارة، القطاع، الجهة المانحة).</value>
+    <value>سيؤدي التأكيد إلى إعادة احتساب هذا المشروع وتحديث القيم في المستويات الأعلى (المخرج الفرعي، المخرج، النتيجة، الهدف الاستراتيجي، الوزارة، القطاع، الجهة المانحة).</value>
   </data>
   <data name="Apply Correction" xml:space="preserve">
     <value>تطبيق التصحيح</value>
@@ -461,5 +461,11 @@
   </data>
   <data name="Estimated budget is 0 — disbursement is 0%." xml:space="preserve">
     <value>الموازنة التقديرية تساوي 0 — نسبة الصرف 0%.</value>
+  </data>
+  <data name="Public Sector Type" xml:space="preserve">
+    <value>نوع القطاع العام</value>
+  </data>
+  <data name="History" xml:space="preserve">
+    <value>السجل</value>
   </data>
 </root>

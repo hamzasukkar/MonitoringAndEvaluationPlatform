@@ -138,13 +138,13 @@
   </data>
   <!-- Section 1: Introduction -->
   <data name="Welcome to the National Monitoring &amp; Evaluation Platform. This comprehensive system helps you track development projects, measure performance indicators, and generate reports across multiple strategic frameworks." xml:space="preserve">
-    <value>مرحباً بك في النظام الوطني للرصد والتقييم. يساعدك هذا النظام الشامل على تتبع مشاريع التنمية وقياس مؤشرات الأداء وإنشاء التقارير عبر أطر استراتيجية متعددة.</value>
+    <value>مرحباً بك في النظام الوطني للرصد والتقييم. يساعدك هذا النظام الشامل على تتبع مشاريع التنمية وقياس مؤشرات الأداء وإنشاء التقارير عبر أهداف استراتيجية متعددة.</value>
   </data>
   <data name="What You Can Do" xml:space="preserve">
     <value>ما يمكنك فعله</value>
   </data>
   <data name="Manage strategic frameworks and goals (e.g., SDGs, National Development Strategy)" xml:space="preserve">
-    <value>إدارة الأطر والأهداف الاستراتيجية (مثل أهداف التنمية المستدامة، استراتيجية التنمية الوطنية)</value>
+    <value>إدارة الأهداف استراتيجية والأهداف الاستراتيجية (مثل أهداف التنمية المستدامة، استراتيجية التنمية الوطنية)</value>
   </data>
   <data name="Track project progress and performance across hierarchies" xml:space="preserve">
     <value>تتبع تقدم وأداء المشاريع عبر التسلسلات الهرمية</value>
@@ -171,7 +171,7 @@
     <value>المنصة منظمة في خمسة أقسام رئيسية يمكن الوصول إليها من الشريط الجانبي:</value>
   </data>
   <data name="Manage frameworks, outcomes, outputs, sub-outputs, and indicators." xml:space="preserve">
-    <value>إدارة الأطر والنتائج والبرامج والبرامج الفرعية والمشاريع.</value>
+    <value>إدارة الأهداف استراتيجية والنتائج والبرامج والبرامج الفرعية والمشاريع.</value>
   </data>
   <data name="Configure ministries, donors, sectors, project managers, supervisors, and locations." xml:space="preserve">
     <value>تكوين الوزارات والمانحين والقطاعات ومديري المشاريع والمشرفين والمواقع.</value>
@@ -262,7 +262,7 @@
     <value>تستخدم المنصة قائمة جانبية على اليسار (أو اليمين بالعربية) للتنقل الرئيسي. يحتوي الشريط العلوي على:</value>
   </data>
   <data name="Framework dropdown menus for quick access to specific frameworks" xml:space="preserve">
-    <value>قوائم منسدلة للأطر للوصول السريع إلى أطر محددة</value>
+    <value>قوائم منسدلة للأهداف الاستراتيجية للوصول السريع إلى أهداف استراتيجية محددة</value>
   </data>
   <data name="Ministries dropdown for quick ministry navigation" xml:space="preserve">
     <value>قائمة منسدلة للوزارات للتنقل السريع بين الوزارات</value>
@@ -305,13 +305,13 @@
     <value>3.1 لوحة المعلومات الرئيسية</value>
   </data>
   <data name="The main dashboard displays summary statistics including total frameworks, projects, ministries, budget, and monthly performance trends." xml:space="preserve">
-    <value>تعرض لوحة المعلومات الرئيسية إحصائيات موجزة تشمل إجمالي الأطر والمشاريع والوزارات والميزانية واتجاهات الأداء الشهرية.</value>
+    <value>تعرض لوحة المعلومات الرئيسية إحصائيات موجزة تشمل إجمالي الأهداف استراتيجية والمشاريع والوزارات والميزانية واتجاهات الأداء الشهرية.</value>
   </data>
   <data name="Statistics Cards" xml:space="preserve">
     <value>بطاقات الإحصائيات</value>
   </data>
   <data name="Quick view of total projects, frameworks, ministries, and budget." xml:space="preserve">
-    <value>عرض سريع لإجمالي المشاريع والأطر والوزارات والميزانية.</value>
+    <value>عرض سريع لإجمالي المشاريع والأهداف استراتيجية والوزارات والميزانية.</value>
   </data>
   <data name="Performance Charts" xml:space="preserve">
     <value>مخططات الأداء</value>
@@ -341,10 +341,10 @@
     <value>الشكل 3.1: نظرة عامة على لوحة المعلومات</value>
   </data>
   <data name="3.2 Framework Performance Gauges" xml:space="preserve">
-    <value>3.2 مقاييس أداء الأطر</value>
+    <value>3.2 مقاييس أداء الأهداف استراتيجية</value>
   </data>
   <data name="View performance gauges for each framework. Gauges show the achievement rate as a percentage with color-coded indicators:" xml:space="preserve">
-    <value>عرض مقاييس الأداء لكل إطار. تعرض المقاييس معدل الإنجاز كنسبة مئوية مع مؤشرات ملونة:</value>
+    <value>عرض مقاييس الأداء لكل هدف استراتيجي. تعرض المقاييس معدل الإنجاز كنسبة مئوية مع مؤشرات ملونة:</value>
   </data>
   <data name="Green (80-100%)" xml:space="preserve">
     <value>أخضر (80-100%)</value>
@@ -368,10 +368,10 @@
     <value>لقطة شاشة مقاييس الأداء</value>
   </data>
   <data name="Screenshot: Framework Performance Gauges" xml:space="preserve">
-    <value>لقطة شاشة: مقاييس أداء الأطر</value>
+    <value>لقطة شاشة: مقاييس أداء الأهداف استراتيجية</value>
   </data>
   <data name="Figure 3.2: Framework Performance Gauges" xml:space="preserve">
-    <value>الشكل 3.2: مقاييس أداء الأطر</value>
+    <value>الشكل 3.2: مقاييس أداء الأهداف استراتيجية</value>
   </data>
   <data name="3.3 Dashboard Filters" xml:space="preserve">
     <value>3.3 فلاتر لوحة المعلومات</value>
@@ -380,7 +380,7 @@
     <value>تدعم لوحة المعلومات التصفية المتقدمة حسب:</value>
   </data>
   <data name="Framework - Select specific frameworks to view" xml:space="preserve">
-    <value>السياسة - اختر أطراً محددة للعرض</value>
+    <value>السياسة - اختر أهدافاً استراتيجية محددة للعرض</value>
   </data>
   <data name="Ministry - Filter by responsible ministry" xml:space="preserve">
     <value>الوزارة - التصفية حسب الوزارة المسؤولة</value>
@@ -419,7 +419,7 @@
     <value>3.5 تقدم النتائج</value>
   </data>
   <data name="Track progress of outcomes within each framework using bar charts and progress indicators." xml:space="preserve">
-    <value>تتبع تقدم النتائج ضمن كل إطار باستخدام المخططات الشريطية ومؤشرات التقدم.</value>
+    <value>تتبع تقدم النتائج ضمن كل هدف استراتيجي باستخدام المخططات الشريطية ومؤشرات التقدم.</value>
   </data>
   <data name="Outcome Progress Screenshot" xml:space="preserve">
     <value>لقطة شاشة تقدم النتائج</value>
@@ -465,10 +465,10 @@
   </data>
   <!-- Section 4: Results Framework -->
   <data name="Frameworks represent strategic initiatives like the National Development Strategy or SDG alignment. They form the top level of the results hierarchy." xml:space="preserve">
-    <value>تمثل الأطر المبادرات الاستراتيجية مثل استراتيجية التنمية الوطنية أو التوافق مع أهداف التنمية المستدامة. وهي تشكل المستوى الأعلى في تسلسل النتائج.</value>
+    <value>تمثل الأهداف استراتيجية المبادرات الاستراتيجية مثل استراتيجية التنمية الوطنية أو التوافق مع أهداف التنمية المستدامة. وهي تشكل المستوى الأعلى في تسلسل النتائج.</value>
   </data>
   <data name="4.1 Framework Hierarchy" xml:space="preserve">
-    <value>4.1 التسلسل الهرمي للإطار</value>
+    <value>4.1 التسلسل الهرمي للهدف الاستراتيجي</value>
   </data>
   <data name="Framework" xml:space="preserve">
     <value>السياسة</value>
@@ -483,25 +483,25 @@
     <value>البرامج</value>
   </data>
   <data name="4.2 Viewing Frameworks" xml:space="preserve">
-    <value>4.2 عرض الأطر</value>
+    <value>4.2 عرض الأهداف استراتيجية</value>
   </data>
   <data name="Navigate to Results Framework from the sidebar. The list shows all frameworks with their performance rates, search, and sort options." xml:space="preserve">
-    <value>انتقل إلى إطار النتائج من الشريط الجانبي. تعرض القائمة جميع الأطر مع معدلات أدائها وخيارات البحث والفرز.</value>
+    <value>انتقل إلى إطار النتائج من الشريط الجانبي. تعرض القائمة جميع الأهداف استراتيجية مع معدلات أدائها وخيارات البحث والفرز.</value>
   </data>
   <data name="Frameworks List Screenshot" xml:space="preserve">
-    <value>لقطة شاشة قائمة الأطر</value>
+    <value>لقطة شاشة قائمة الأهداف استراتيجية</value>
   </data>
   <data name="Screenshot: Frameworks List" xml:space="preserve">
-    <value>لقطة شاشة: قائمة الأطر</value>
+    <value>لقطة شاشة: قائمة الأهداف استراتيجية</value>
   </data>
   <data name="Figure 4.1: Frameworks List View" xml:space="preserve">
-    <value>الشكل 4.1: عرض قائمة الأطر</value>
+    <value>الشكل 4.1: عرض قائمة الأهداف استراتيجية</value>
   </data>
   <data name="4.3 Creating a Framework" xml:space="preserve">
-    <value>4.3 إنشاء إطار</value>
+    <value>4.3 إنشاء هدف استراتيجي</value>
   </data>
   <data name="System administrators can create new frameworks using two methods:" xml:space="preserve">
-    <value>يمكن لمديري النظام إنشاء أطر جديدة باستخدام طريقتين:</value>
+    <value>يمكن لمديري النظام إنشاء أهداف استراتيجية جديدة باستخدام طريقتين:</value>
   </data>
   <data name="Method 1: Inline Creation" xml:space="preserve">
     <value>الطريقة 1: الإنشاء المباشر</value>
@@ -510,7 +510,7 @@
     <value>انقر إضافة جديد</value>
   </data>
   <data name="Click the 'Add New Framework' button on the frameworks list page." xml:space="preserve">
-    <value>انقر على زر 'إضافة إطار جديد' في صفحة قائمة الأطر.</value>
+    <value>انقر على زر 'إضافة هدف استراتيجي جديد' في صفحة قائمة الأهداف استراتيجية.</value>
   </data>
   <data name="Enter Name" xml:space="preserve">
     <value>أدخل الاسم</value>
@@ -528,19 +528,19 @@
     <value>الطريقة 2: الإنشاء الشامل</value>
   </data>
   <data name="Use the comprehensive creation form to build an entire framework hierarchy at once, including outcomes, outputs, sub-outputs, and indicators." xml:space="preserve">
-    <value>استخدم نموذج الإنشاء الشامل لبناء تسلسل هرمي كامل للإطار دفعة واحدة، بما في ذلك النتائج والبرامج والبرامج الفرعية والمشاريع.</value>
+    <value>استخدم نموذج الإنشاء الشامل لبناء تسلسل هرمي كامل للهدف الاستراتيجي دفعة واحدة، بما في ذلك النتائج والبرامج والبرامج الفرعية والمشاريع.</value>
   </data>
   <data name="Comprehensive Framework Creation Screenshot" xml:space="preserve">
-    <value>لقطة شاشة إنشاء إطار شامل</value>
+    <value>لقطة شاشة إنشاء هدف استراتيجي شامل</value>
   </data>
   <data name="Screenshot: Comprehensive Framework Creation" xml:space="preserve">
-    <value>لقطة شاشة: إنشاء إطار شامل</value>
+    <value>لقطة شاشة: إنشاء هدف استراتيجي شامل</value>
   </data>
   <data name="Figure 4.2: Comprehensive Framework Creation Form" xml:space="preserve">
-    <value>الشكل 4.2: نموذج إنشاء إطار شامل</value>
+    <value>الشكل 4.2: نموذج إنشاء هدف استراتيجي شامل</value>
   </data>
   <data name="4.4 Editing &amp; Deleting Frameworks" xml:space="preserve">
-    <value>4.4 تعديل وحذف الأطر</value>
+    <value>4.4 تعديل وحذف الأهداف استراتيجية</value>
   </data>
   <data name="To edit a framework name, click the edit icon next to the framework name. To delete, click the delete icon and confirm the deletion." xml:space="preserve">
     <value>لتعديل اسم السياسة، انقر على أيقونة التعديل بجوار اسم السياسة. للحذف، انقر على أيقونة الحذف وأكد الحذف.</value>
@@ -552,10 +552,10 @@
     <value>سيؤدي حذف السياسة إلى إزالة جميع النتائج والبرامج والبرامج الفرعية والمشاريع المرتبطة. لا يمكن التراجع عن هذا الإجراء.</value>
   </data>
   <data name="4.5 Exporting Frameworks" xml:space="preserve">
-    <value>4.5 تصدير الأطر</value>
+    <value>4.5 تصدير الأهداف استراتيجية</value>
   </data>
   <data name="Export framework data to Excel or PDF using the export buttons at the top of the frameworks list." xml:space="preserve">
-    <value>تصدير بيانات السياسة إلى Excel أو PDF باستخدام أزرار التصدير في أعلى قائمة الأطر.</value>
+    <value>تصدير بيانات السياسة إلى Excel أو PDF باستخدام أزرار التصدير في أعلى قائمة الأهداف استراتيجية.</value>
   </data>
   <data name="Framework Export Screenshot" xml:space="preserve">
     <value>لقطة شاشة تصدير السياسة</value>
@@ -570,26 +570,26 @@
     <value>4.6 العرض الشجري</value>
   </data>
   <data name="View the complete framework hierarchy as an interactive tree. Expand or collapse nodes to explore the structure." xml:space="preserve">
-    <value>عرض التسلسل الهرمي الكامل للإطار كشجرة تفاعلية. وسّع أو اطوِ العقد لاستكشاف الهيكل.</value>
+    <value>عرض التسلسل الهرمي الكامل للهدف الاستراتيجي كشجرة تفاعلية. وسّع أو اطوِ العقد لاستكشاف الهيكل.</value>
   </data>
   <data name="Framework Tree View Screenshot" xml:space="preserve">
-    <value>لقطة شاشة العرض الشجري للإطار</value>
+    <value>لقطة شاشة العرض الشجري للهدف الاستراتيجي</value>
   </data>
   <data name="Screenshot: Framework Tree View" xml:space="preserve">
-    <value>لقطة شاشة: العرض الشجري للإطار</value>
+    <value>لقطة شاشة: العرض الشجري للهدف الاستراتيجي</value>
   </data>
   <data name="Figure 4.4: Interactive Framework Tree" xml:space="preserve">
-    <value>الشكل 4.4: الشجرة التفاعلية للإطار</value>
+    <value>الشكل 4.4: الشجرة التفاعلية للهدف الاستراتيجي</value>
   </data>
   <!-- Section 5: Outcomes -->
   <data name="Outcomes represent the high-level results expected from each framework. Each framework contains multiple outcomes." xml:space="preserve">
-    <value>تمثل النتائج التوقعات عالية المستوى من كل إطار. يحتوي كل إطار على نتائج متعددة.</value>
+    <value>تمثل النتائج التوقعات عالية المستوى من كل هدف استراتيجي. يحتوي كل هدف استراتيجي على نتائج متعددة.</value>
   </data>
   <data name="5.1 Viewing Outcomes" xml:space="preserve">
     <value>5.1 عرض النتائج</value>
   </data>
   <data name="Select a framework from the dropdown to view its outcomes. Each outcome shows its name, performance rate, and weight." xml:space="preserve">
-    <value>اختر إطاراً من القائمة المنسدلة لعرض نتائجه. تعرض كل نتيجة اسمها ومعدل أدائها ووزنها.</value>
+    <value>اختر هدفاً استراتيجياً من القائمة المنسدلة لعرض نتائجه. تعرض كل نتيجة اسمها ومعدل أدائها ووزنها.</value>
   </data>
   <data name="Outcomes List Screenshot" xml:space="preserve">
     <value>لقطة شاشة قائمة النتائج</value>
@@ -622,7 +622,7 @@
     <value>5.3 ضبط أوزان النتائج</value>
   </data>
   <data name="Weights determine how much each outcome contributes to the overall framework performance. To adjust weights:" xml:space="preserve">
-    <value>تحدد الأوزان مقدار مساهمة كل نتيجة في الأداء العام للإطار. لضبط الأوزان:</value>
+    <value>تحدد الأوزان مقدار مساهمة كل نتيجة في الأداء العام للهدف الاستراتيجي. لضبط الأوزان:</value>
   </data>
   <data name="Click Adjust Weights" xml:space="preserve">
     <value>انقر ضبط الأوزان</value>
@@ -929,7 +929,7 @@
   </data>
   <!-- Section 8: Framework Goals -->
   <data name="Framework Goals allow you to set and track yearly targets for each framework. Multiple visualization views are available." xml:space="preserve">
-    <value>تتيح لك أهداف السياسة تحديد وتتبع الأهداف السنوية لكل إطار. تتوفر طرق عرض متعددة للتصور.</value>
+    <value>تتيح لك أهداف السياسة تحديد وتتبع الأهداف السنوية لكل هدف استراتيجي. تتوفر طرق عرض متعددة للتصور.</value>
   </data>
   <data name="8.1 Goal Visualization Views" xml:space="preserve">
     <value>8.1 طرق عرض تصور الأهداف</value>
@@ -1410,7 +1410,7 @@
     <value>أدخل القيمة الجديدة</value>
   </data>
   <data name="Type the new value and press Enter. Disbursement performance is recalculated automatically and cascades up the framework hierarchy." xml:space="preserve">
-    <value>اكتب القيمة الجديدة واضغط Enter. يُعاد حساب أداء الصرف تلقائياً ويُتسلسل صعوداً في تسلسل الإطار الهرمي.</value>
+    <value>اكتب القيمة الجديدة واضغط Enter. يُعاد حساب أداء الصرف تلقائياً ويُتسلسل صعوداً في تسلسل الهدف الاستراتيجي الهرمي.</value>
   </data>
   <data name="How Disbursement Is Calculated" xml:space="preserve">
     <value>كيف يُحسب الصرف</value>
@@ -1432,19 +1432,19 @@
     <value>يوفر قسم المراقبة تتبعاً فورياً للأداء على كل مستوى من مستويات التسلسل الهرمي.</value>
   </data>
   <data name="12.1 Framework Dashboard" xml:space="preserve">
-    <value>12.1 لوحة معلومات الأطر</value>
+    <value>12.1 لوحة معلومات الأهداف استراتيجية</value>
   </data>
   <data name="View all frameworks with their overall performance. Filter by ministry to see ministry-specific results." xml:space="preserve">
-    <value>عرض جميع الأطر مع أدائها العام. التصفية حسب الوزارة لرؤية نتائج خاصة بالوزارة.</value>
+    <value>عرض جميع الأهداف استراتيجية مع أدائها العام. التصفية حسب الوزارة لرؤية نتائج خاصة بالوزارة.</value>
   </data>
   <data name="Monitoring Framework Screenshot" xml:space="preserve">
-    <value>لقطة شاشة مراقبة الأطر</value>
+    <value>لقطة شاشة مراقبة الأهداف استراتيجية</value>
   </data>
   <data name="Screenshot: Monitoring Framework Dashboard" xml:space="preserve">
-    <value>لقطة شاشة: لوحة مراقبة الأطر</value>
+    <value>لقطة شاشة: لوحة مراقبة الأهداف استراتيجية</value>
   </data>
   <data name="Figure 12.1: Framework Monitoring Dashboard" xml:space="preserve">
-    <value>الشكل 12.1: لوحة مراقبة الأطر</value>
+    <value>الشكل 12.1: لوحة مراقبة الأهداف استراتيجية</value>
   </data>
   <data name="12.2 Monitoring Levels" xml:space="preserve">
     <value>12.2 مستويات المراقبة</value>
@@ -1480,7 +1480,7 @@
     <value>12.3 رصد المشاريع</value>
   </data>
   <data name="Monitor individual project performance with filters for framework, outcome, output, and sub-output." xml:space="preserve">
-    <value>مراقبة أداء المشاريع الفردية مع فلاتر للإطار والنتيجة والمخرج والمخرج الفرعي.</value>
+    <value>مراقبة أداء المشاريع الفردية مع فلاتر للهدف الاستراتيجي والنتيجة والمخرج والمخرج الفرعي.</value>
   </data>
   <data name="Monitoring Projects Screenshot" xml:space="preserve">
     <value>لقطة شاشة رصد المشاريع</value>
@@ -1514,7 +1514,7 @@
     <value>تدعم معظم طرق عرض البيانات التصدير إلى Excel و PDF. أزرار التصدير متاحة في:</value>
   </data>
   <data name="Frameworks list" xml:space="preserve">
-    <value>قائمة الأطر</value>
+    <value>قائمة الأهداف استراتيجية</value>
   </data>
   <data name="Outcomes list" xml:space="preserve">
     <value>قائمة النتائج</value>
@@ -1679,7 +1679,7 @@
     <value>نوع الإجراء (إنشاء، تحديث، حذف)</value>
   </data>
   <data name="Entity type (Project, Framework, Indicator, etc.)" xml:space="preserve">
-    <value>نوع الكيان (مشروع، إطار، مؤشر، إلخ)</value>
+    <value>نوع الكيان (مشروع، هدف استراتيجي، مؤشر، إلخ)</value>
   </data>
   <data name="Date range filter" xml:space="preserve">
     <value>تصفية نطاق التاريخ</value>
@@ -1734,7 +1734,7 @@
     <value>إدخال البيانات</value>
   </data>
   <data name="Can manage projects, action plans, and metrics. Cannot modify strategic frameworks." xml:space="preserve">
-    <value>يمكنه إدارة المشاريع وخطط العمل والمقاييس. لا يمكنه تعديل الأطر الاستراتيجية.</value>
+    <value>يمكنه إدارة المشاريع وخطط العمل والمقاييس. لا يمكنه تعديل الأهداف استراتيجية الاستراتيجية.</value>
   </data>
   <data name="Reading User" xml:space="preserve">
     <value>مستخدم القراءة</value>
@@ -1761,10 +1761,10 @@
     <value>عرض لوحة المعلومات</value>
   </data>
   <data name="View Frameworks" xml:space="preserve">
-    <value>عرض الأطر</value>
+    <value>عرض الأهداف استراتيجية</value>
   </data>
   <data name="Create/Edit Frameworks" xml:space="preserve">
-    <value>إنشاء/تعديل الأطر</value>
+    <value>إنشاء/تعديل الأهداف استراتيجية</value>
   </data>
   <data name="Manage Projects" xml:space="preserve">
     <value>إدارة المشاريع</value>

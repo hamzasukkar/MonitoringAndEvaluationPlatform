@@ -23,7 +23,8 @@
     <link rel="stylesheet" href="~/css/themes/theme-default.css" />
     <link rel="stylesheet" href="~/css/themes/theme-calm-blue.css" />
     <link rel="stylesheet" href="~/css/themes/theme-alternative.css" />
-    <link rel="stylesheet" href="~/css/chatbot-widget.css" asp-append-version="true" />
+    @* Chatbot hidden - uncomment to re-enable *@
+    @*<link rel="stylesheet" href="~/css/chatbot-widget.css" asp-append-version="true" />*@
     <link rel="stylesheet" href="~/css/themes/theme-modern-glass.css" />
 </head>
 <body>
@@ -147,7 +148,8 @@
     <script src="~/js/money-words.js" asp-append-version="true"></script>
     <script src="~/js/theme-switcher.js" asp-append-version="true"></script>
     @await RenderSectionAsync("Scripts", required: false)
-    @await Html.PartialAsync("_ChatbotWidget")
-    <script src="~/js/chatbot-widget.js" asp-append-version="true"></script>
+    @* Chatbot hidden - uncomment to re-enable *@
+    @*@await Html.PartialAsync("_ChatbotWidget")*@
+    @*<script src="~/js/chatbot-widget.js" asp-append-version="true"></script>*@
 </body>
 </html>

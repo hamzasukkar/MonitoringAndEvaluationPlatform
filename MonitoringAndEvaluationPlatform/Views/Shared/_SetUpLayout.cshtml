@@ -34,7 +34,8 @@
 	<link rel="stylesheet" href="~/css/themes/theme-calm-blue.css" />
 	<link rel="stylesheet" href="~/css/themes/theme-alternative.css" />
 	<link rel="stylesheet" href="~/css/themes/theme-modern-glass.css" />
-	<link rel="stylesheet" href="~/css/chatbot-widget.css" asp-append-version="true" />
+	@* Chatbot hidden - uncomment to re-enable *@
+	@*<link rel="stylesheet" href="~/css/chatbot-widget.css" asp-append-version="true" />*@
 	<style>
 		.has-performance {
 			background-color: #007bff !important; /* أزرق أنيق */
@@ -124,7 +125,7 @@
 			<div class="title">@Localizer["AppTitle"]</div>
 			<div class="nav-links">
 				<ul class="nav">
-					<li class="nav-item dropdown">
+					<li class="nav-item dropdown" style="display:none;">
 						<a class="nav-link dropdown-toggle" href="#" id="policiesDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
 							<i class="fas fa-sitemap me-1"></i> @Localizer["National Development Strategy"]
 						</a>
@@ -189,6 +190,7 @@
 							</div>
 						</ul>
 					</li>
+					@await Html.PartialAsync("_MinistryStrategiesDropdown")
 					<li class="nav-item dropdown">
 						<a class="nav-link dropdown-toggle" href="#" id="MinistriesandAgenciesDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
 							<i class="fas fa-sitemap me-1"></i> @Localizer["Ministries and Agencies"]
@@ -485,7 +487,8 @@
 	</script>
 
 	@await RenderSectionAsync("Scripts", required: false)
-	@await Html.PartialAsync("_ChatbotWidget")
-	<script src="~/js/chatbot-widget.js" asp-append-version="true"></script>
+	@* Chatbot hidden - uncomment to re-enable *@
+	@*@await Html.PartialAsync("_ChatbotWidget")*@
+	@*<script src="~/js/chatbot-widget.js" asp-append-version="true"></script>*@
 </body>
 </html>

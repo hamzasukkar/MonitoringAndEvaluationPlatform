@@ -19,6 +19,7 @@ namespace MonitoringAndEvaluationPlatform.Data
         public DbSet<Project> Projects { get; set; } = default!;
         public DbSet<ProjectPhase> ProjectPhases { get; set; } = default!;
         public DbSet<Sector> Sectors { get; set; } = default!;
+        public DbSet<PublicSectorType> PublicSectorTypes { get; set; } = default!;
         public DbSet<Donor> Donors { get; set; } = default!;
         public DbSet<Measure> Measures { get; set; } = default!;
         public DbSet<MeasureFile> MeasureFiles { get; set; } = default!;
@@ -42,11 +43,125 @@ namespace MonitoringAndEvaluationPlatform.Data
         public DbSet<AuditLog> AuditLogs { get; set; }
         public DbSet<GuideSection> GuideSections { get; set; } = default!;
         public DbSet<GuideSectionVersion> GuideSectionVersions { get; set; } = default!;
+        public DbSet<Request> Requests { get; set; } = default!;
+        public DbSet<RequestFile> RequestFiles { get; set; } = default!;
+        public DbSet<PlatformVersion> PlatformVersions { get; set; } = default!;
+        public DbSet<RequestEmployee> RequestEmployees { get; set; } = default!;
+        public DbSet<RequestComment> RequestComments { get; set; } = default!;
+        public DbSet<RequestTest> RequestTests { get; set; } = default!;
 
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
+
+            // Request number is the business key surfaced to users; keep it unique so a
+            // concurrent insert fails loudly instead of duplicating a number.
+            modelBuilder.Entity<Request>()
+                .HasIndex(r => r.RequestNumber)
+                .IsUnique();
+
+            // Restrict on both user links: cascading from ApplicationUser through two
+            // paths would create multiple cascade paths on SQL Server.
+            modelBuilder.Entity<Request>()
+                .HasOne(r => r.SubmittedByUser)
+                .WithMany()
+                .HasForeignKey(r => r.SubmittedByUserId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<Request>()
+                .HasOne(r => r.AssignedToUser)
+                .WithMany()
+                .HasForeignKey(r => r.AssignedToUserId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<Request>()
+                .HasOne(r => r.Ministry)
+                .WithMany()
+                .HasForeignKey(r => r.MinistryCode)
+                .OnDelete(DeleteBehavior.SetNull);
+
+            modelBuilder.Entity<RequestFile>()
+                .HasOne(f => f.Request)
+                .WithMany(r => r.Files)
+                .HasForeignKey(f => f.RequestId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            // Platform versions: unique version number; deleting a version detaches
+            // its requests rather than deleting them.
+            modelBuilder.Entity<PlatformVersion>()
+                .HasIndex(v => v.VersionNumber)
+                .IsUnique();
+
+            modelBuilder.Entity<Request>()
+                .HasOne(r => r.PlatformVersion)
+                .WithMany(v => v.Requests)
+                .HasForeignKey(r => r.PlatformVersionId)
+                .OnDelete(DeleteBehavior.SetNull);
+
+            // Deleting an employee detaches their requests rather than deleting them.
+            modelBuilder.Entity<Request>()
+                .HasOne(r => r.RequestEmployee)
+                .WithMany(e => e.Requests)
+                .HasForeignKey(r => r.RequestEmployeeId)
+                .OnDelete(DeleteBehavior.SetNull);
+
+            // Comments die with their request.
+            modelBuilder.Entity<RequestComment>()
+                .HasOne(c => c.Request)
+                .WithMany(r => r.Comments)
+                .HasForeignKey(c => c.RequestId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            // Self-reference for replies: NoAction avoids a second cascade path on
+            // SQL Server (the Request cascade already removes the whole thread).
+            modelBuilder.Entity<RequestComment>()
+                .HasOne(c => c.ParentComment)
+                .WithMany(c => c.Replies)
+                .HasForeignKey(c => c.ParentCommentId)
+                .OnDelete(DeleteBehavior.NoAction);
+
+            modelBuilder.Entity<RequestComment>()
+                .HasOne(c => c.AuthorUser)
+                .WithMany()
+                .HasForeignKey(c => c.AuthorUserId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<RequestComment>()
+                .HasOne(c => c.OnBehalfOfEmployee)
+                .WithMany()
+                .HasForeignKey(c => c.OnBehalfOfEmployeeId)
+                .OnDelete(DeleteBehavior.SetNull);
+
+            // Test sign-offs die with their request. This is the only cascading path
+            // into RequestTests, so SQL Server sees no multiple cascade paths.
+            modelBuilder.Entity<RequestTest>()
+                .HasOne(t => t.Request)
+                .WithMany(r => r.Tests)
+                .HasForeignKey(t => t.RequestId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            // The named employee is the identity of the tick, so the FK is required and
+            // SetNull is impossible. Restrict keeps the verification record intact;
+            // RequestEmployeesController.Delete blocks the delete with a clear message
+            // instead of silently erasing who signed off on what.
+            modelBuilder.Entity<RequestTest>()
+                .HasOne(t => t.RequestEmployee)
+                .WithMany(e => e.Tests)
+                .HasForeignKey(t => t.RequestEmployeeId)
+                .IsRequired()
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<RequestTest>()
+                .HasOne(t => t.RecordedByUser)
+                .WithMany()
+                .HasForeignKey(t => t.RecordedByUserId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            // One tick per employee per request — the real guard against a double submit.
+            modelBuilder.Entity<RequestTest>()
+                .HasIndex(t => new { t.RequestId, t.RequestEmployeeId })
+                .IsUnique();
 
             // Measure primary key
             modelBuilder.Entity<Measure>()
@@ -97,6 +212,14 @@ namespace MonitoringAndEvaluationPlatform.Data
                 .HasMany(p => p.Sectors)
                 .WithMany(r => r.Projects)
                 .UsingEntity(j => j.ToTable("ProjectSectors"));
+
+            // Project → PublicSectorType (many-to-one, only set when the Public sector is selected)
+            modelBuilder.Entity<Project>()
+                .HasOne(p => p.PublicSectorType)
+                .WithMany(t => t.Projects)
+                .HasForeignKey(p => p.PublicSectorTypeCode)
+                .IsRequired(false)
+                .OnDelete(DeleteBehavior.Restrict);
 
             // Configure explicit ProjectDonor relationship
             modelBuilder.Entity<ProjectDonor>()

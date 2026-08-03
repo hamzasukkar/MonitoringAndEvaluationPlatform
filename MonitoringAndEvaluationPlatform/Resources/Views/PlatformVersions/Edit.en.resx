@@ -1,0 +1,205 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="VersionsManagement" xml:space="preserve">
+    <value>Versions Management</value>
+  </data>
+  <data name="VersionsHint" xml:space="preserve">
+    <value>Plan platform versions and link requests to them</value>
+  </data>
+  <data name="WhatsNew" xml:space="preserve">
+    <value>What's New</value>
+  </data>
+  <data name="WhatsNewHint" xml:space="preserve">
+    <value>Updates and improvements in each platform release</value>
+  </data>
+  <data name="NewVersion" xml:space="preserve">
+    <value>New Version</value>
+  </data>
+  <data name="NewVersionHint" xml:space="preserve">
+    <value>Define the version number and title, then assign requests from the request edit page</value>
+  </data>
+  <data name="EditVersion" xml:space="preserve">
+    <value>Edit Version</value>
+  </data>
+  <data name="VersionDetails" xml:space="preserve">
+    <value>Version Details</value>
+  </data>
+  <data name="AllVersions" xml:space="preserve">
+    <value>All Versions</value>
+  </data>
+  <data name="VersionNumber" xml:space="preserve">
+    <value>Version No.</value>
+  </data>
+  <data name="Title" xml:space="preserve">
+    <value>Title</value>
+  </data>
+  <data name="TitlePlaceholder" xml:space="preserve">
+    <value>e.g. Strategies pages update</value>
+  </data>
+  <data name="Description" xml:space="preserve">
+    <value>Description</value>
+  </data>
+  <data name="DescriptionPlaceholder" xml:space="preserve">
+    <value>Release highlights (shown on the What's New page)</value>
+  </data>
+  <data name="Status" xml:space="preserve">
+    <value>Status</value>
+  </data>
+  <data name="PlannedDate" xml:space="preserve">
+    <value>Planned Date</value>
+  </data>
+  <data name="ReleaseDate" xml:space="preserve">
+    <value>Release Date</value>
+  </data>
+  <data name="Requests" xml:space="preserve">
+    <value>Requests</value>
+  </data>
+  <data name="Progress" xml:space="preserve">
+    <value>Progress</value>
+  </data>
+  <data name="Actions" xml:space="preserve">
+    <value>Actions</value>
+  </data>
+  <data name="CreatedAt" xml:space="preserve">
+    <value>Created At</value>
+  </data>
+  <data name="LastModified" xml:space="preserve">
+    <value>Last Modified</value>
+  </data>
+  <data name="VStatusPlanned" xml:space="preserve">
+    <value>Planned</value>
+  </data>
+  <data name="VStatusInDevelopment" xml:space="preserve">
+    <value>In Development</value>
+  </data>
+  <data name="VStatusReleased" xml:space="preserve">
+    <value>Released</value>
+  </data>
+  <data name="ReleaseVersion" xml:space="preserve">
+    <value>Release Version</value>
+  </data>
+  <data name="ConfirmRelease" xml:space="preserve">
+    <value>Release this version? It will appear on the What's New page.</value>
+  </data>
+  <data name="ConfirmReleaseIncomplete" xml:space="preserve">
+    <value>Warning: {0} linked request(s) are not completed and will not appear in What's New. Release anyway?</value>
+  </data>
+  <data name="IncompleteRequestsWarning" xml:space="preserve">
+    <value>{0} linked request(s) are not yet completed</value>
+  </data>
+  <data name="ReleasedViaReleaseHint" xml:space="preserve">
+    <value>Released status is set only via the Release button</value>
+  </data>
+  <data name="ReleasedReadOnlyStatusHint" xml:space="preserve">
+    <value>This version is released — its status cannot change here</value>
+  </data>
+  <data name="LinkedRequests" xml:space="preserve">
+    <value>Linked Requests</value>
+  </data>
+  <data name="NoLinkedRequests" xml:space="preserve">
+    <value>No requests linked to this version — assign them from the request edit page</value>
+  </data>
+  <data name="RequestNumber" xml:space="preserve">
+    <value>Request No.</value>
+  </data>
+  <data name="AssignedTo" xml:space="preserve">
+    <value>Assigned To</value>
+  </data>
+  <data name="RequestsCompleted" xml:space="preserve">
+    <value>requests completed</value>
+  </data>
+  <data name="StatusNew" xml:space="preserve">
+    <value>New</value>
+  </data>
+  <data name="StatusInProgress" xml:space="preserve">
+    <value>In Progress</value>
+  </data>
+  <data name="StatusOnHold" xml:space="preserve">
+    <value>On Hold</value>
+  </data>
+  <data name="StatusCompleted" xml:space="preserve">
+    <value>Completed</value>
+  </data>
+  <data name="StatusCancelled" xml:space="preserve">
+    <value>Cancelled</value>
+  </data>
+  <data name="Save" xml:space="preserve">
+    <value>Save</value>
+  </data>
+  <data name="Cancel" xml:space="preserve">
+    <value>Cancel</value>
+  </data>
+  <data name="Edit" xml:space="preserve">
+    <value>Edit</value>
+  </data>
+  <data name="NoVersionsYet" xml:space="preserve">
+    <value>No versions yet — create the first one</value>
+  </data>
+  <data name="ConfirmDeleteVersion" xml:space="preserve">
+    <value>Delete this version? Linked requests are kept and become unassigned.</value>
+  </data>
+  <data name="NoReleasesYet" xml:space="preserve">
+    <value>No releases yet</value>
+  </data>
+  <data name="NoChangesListed" xml:space="preserve">
+    <value>No changes listed for this release</value>
+  </data>
+</root>

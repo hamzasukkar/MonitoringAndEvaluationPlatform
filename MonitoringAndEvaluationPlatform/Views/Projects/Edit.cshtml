@@ -247,6 +247,9 @@
                                     <button type="button" id="add-location" class="btn btn-primary">
                                         <i class="fas fa-plus me-2"></i>@Localizer["Add Location"]
                                     </button>
+                                    <button type="button" id="add-governorate-chain" class="btn btn-outline-primary">
+                                        <i class="fas fa-city me-2"></i>@Localizer["Add Entire Governorate"]
+                                    </button>
                                     <button type="button" id="reset-dropdowns" class="btn btn-outline-secondary">
                                         <i class="fas fa-redo me-2"></i>@Localizer["Reset"]
                                     </button>
@@ -275,6 +278,20 @@
                                         <option disabled>@Localizer["Select one or more sectors"]</option>
                                     </select>
                                     <div class="form-text">@Localizer["Hold Ctrl/Cmd to select multiple sectors"]</div>
+                                </div>
+
+                                <div class="mb-4" id="public-sector-type-container" style="display: none;">
+                                    <label asp-for="PublicSectorTypeCode" class="form-label fw-bold">
+                                        <i class="fas fa-sitemap me-2"></i>
+                                        @Localizer["Public Sector Type"]
+                                    </label>
+                                    <select asp-for="PublicSectorTypeCode"
+                                            class="form-select"
+                                            asp-items="ViewBag.PublicSectorTypeList">
+                                        <option value="">-- @Localizer["Select Public Sector Type"] --</option>
+                                    </select>
+                                    <div class="form-text">@Localizer["Optional — sub-classification of the Public sector"]</div>
+                                    <span asp-validation-for="PublicSectorTypeCode" class="invalid-feedback d-block"></span>
                                 </div>
 
                                 <div class="mb-4">
@@ -514,7 +531,7 @@
 
                         <!-- Form Actions -->
                         <div class="d-grid gap-2 d-md-flex justify-content-md-end mt-4 pt-4 border-top">
-                            <a href="@Url.Action("Index")" class="btn btn-outline-secondary btn-lg px-4">
+                            <a href="@Url.Action("Details", new { id = Model.ProjectID })" class="btn btn-outline-secondary btn-lg px-4">
                                 <i class="fas fa-arrow-left me-2"></i>@Localizer["Cancel"]
                             </a>
                             <button type="submit" class="btn btn-primary btn-lg px-4">
@@ -1056,7 +1073,9 @@
         mustAddLocation: '@Html.Raw(System.Text.Encodings.Web.JavaScriptEncoder.Default.Encode(Localizer["You must add at least one location or check the Entire Country option before saving the project."].Value))',
         filesSelected: '@Html.Raw(System.Text.Encodings.Web.JavaScriptEncoder.Default.Encode(Localizer["file(s) selected"].Value))',
         clearAll: '@Html.Raw(System.Text.Encodings.Web.JavaScriptEncoder.Default.Encode(Localizer["Clear All"].Value))',
-        remove: '@Html.Raw(System.Text.Encodings.Web.JavaScriptEncoder.Default.Encode(Localizer["Remove"].Value))'
+        remove: '@Html.Raw(System.Text.Encodings.Web.JavaScriptEncoder.Default.Encode(Localizer["Remove"].Value))',
+        pleaseSelectGovernorateFirst: '@Html.Raw(System.Text.Encodings.Web.JavaScriptEncoder.Default.Encode(Localizer["Please select a governorate first."].Value))',
+        governorateChainNotFound: '@Html.Raw(System.Text.Encodings.Web.JavaScriptEncoder.Default.Encode(Localizer["No matching locations found for this governorate."].Value))'
     };
 
     let selections = [];
@@ -1068,7 +1087,7 @@
         if (isChecked) {
             // Disable location selectors
             $("#location-selector select").prop('disabled', true).val('');
-            $("#add-location, #reset-dropdowns").prop('disabled', true);
+            $("#add-location, #add-governorate-chain, #reset-dropdowns").prop('disabled', true);
 
             // Clear any selected locations
             selections = [];
@@ -1086,7 +1105,7 @@
         } else {
             // Enable location selectors
             $("#location-selector select").prop('disabled', false);
-            $("#add-location, #reset-dropdowns").prop('disabled', false);
+            $("#add-location, #add-governorate-chain, #reset-dropdowns").prop('disabled', false);
 
             // Remove info message
             $("#entire-country-info").remove();
@@ -1134,20 +1153,6 @@
             return;
         }
 
-        // Check for duplicates
-        const exists = selections.some(x =>
-            x.GovernorateCode === govCode &&
-            x.DistrictCode === distCode &&
-            x.SubDistrictCode === subCode &&
-            x.CommunityCode === commCode
-        );
-
-        if (exists) {
-            showValidationMessage(localizedStrings.locationAlreadyAdded);
-            return;
-        }
-
-        // Add location
         const item = {
             GovernorateCode: govCode,
             DistrictCode: distCode,
@@ -1155,12 +1160,31 @@
             CommunityCode: commCode
         };
 
+        if (addSelection(item, govName + ' > ' + distName + ' > ' + subName + ' > ' + commName)) {
+            resetDropdowns();
+        }
+    });
+
+    // Adds a location item (4 code fields, as this view's selections shape) + display label; returns false on duplicate
+    function addSelection(item, displayLabel) {
+        const exists = selections.some(x =>
+            x.GovernorateCode === item.GovernorateCode &&
+            x.DistrictCode === item.DistrictCode &&
+            x.SubDistrictCode === item.SubDistrictCode &&
+            x.CommunityCode === item.CommunityCode
+        );
+
+        if (exists) {
+            showValidationMessage(localizedStrings.locationAlreadyAdded);
+            return false;
+        }
+
         selections.push(item);
 
         // Create list item with "Clear" button
         const $li = $(
             '<li class="list-group-item">' +
-                '<span>' + govName + ' > ' + distName + ' > ' + subName + ' > ' + commName + '</span>' +
+                '<span>' + displayLabel + '</span>' +
                 '<button type="button" class="btn btn-sm btn-outline-danger btn-clear">' +
                     '<i class="fas fa-times"></i> ' + localizedStrings.clear +
                 '</button>' +
@@ -1169,23 +1193,41 @@
 
         // Attach remove handler
         $li.find(".btn-clear").click(function () {
-            // Remove from selections array
             selections = selections.filter(x =>
-                !(x.GovernorateCode === govCode &&
-                  x.DistrictCode === distCode &&
-                  x.SubDistrictCode === subCode &&
-                  x.CommunityCode === commCode)
+                !(x.GovernorateCode === item.GovernorateCode &&
+                  x.DistrictCode === item.DistrictCode &&
+                  x.SubDistrictCode === item.SubDistrictCode &&
+                  x.CommunityCode === item.CommunityCode)
             );
-            // Remove from DOM
             $li.remove();
-            // Update hidden input
             $("#location-data").val(JSON.stringify(selections));
         });
 
         $("#selected-locations").append($li);
         $("#location-data").val(JSON.stringify(selections));
+        return true;
+    }
 
-        resetDropdowns();
+    // Add the whole governorate as a location (same-named chain at all four levels)
+    $("#add-governorate-chain").click(function () {
+        const govCode = $("#governorate").val();
+        if (!govCode) {
+            showValidationMessage(localizedStrings.pleaseSelectGovernorateFirst);
+            return;
+        }
+        $.get("/Projects/GetGovernorateChain", { governorateCode: govCode }, function (data) {
+            if (!data || !data.found) {
+                showValidationMessage(localizedStrings.governorateChainNotFound);
+                return;
+            }
+            const ok = addSelection({
+                GovernorateCode: data.governorate.code,
+                DistrictCode: data.district.code,
+                SubDistrictCode: data.subDistrict.code,
+                CommunityCode: data.community.code
+            }, data.governorate.name + ' > ' + data.district.name + ' > ' + data.subDistrict.name + ' > ' + data.community.name);
+            if (ok) resetDropdowns();
+        });
     });
 
     // Reset handler
@@ -1223,6 +1265,27 @@
 
         setTimeout(() => $("#location-validation-alert").fadeOut(), 3000);
     }
+
+    // ── Public Sector Type dependent dropdown ──
+    // Shown (and required) only while the Public sector is selected in the Sectors multiselect.
+    const publicSectorCode = @Html.Raw(Json.Serialize(ViewBag.PublicSectorCode));
+
+    function isPublicSectorSelected() {
+        const selectedSectors = $('select[name="SelectedSectorCodes"]').val() || [];
+        return publicSectorCode != null && selectedSectors.includes(String(publicSectorCode));
+    }
+
+    function togglePublicSectorType() {
+        if (isPublicSectorSelected()) {
+            $('#public-sector-type-container').show();
+        } else {
+            $('#public-sector-type-container').hide();
+            $('select[name="PublicSectorTypeCode"]').val('');
+        }
+    }
+
+    $('select[name="SelectedSectorCodes"]').on('change', togglePublicSectorType);
+    $(togglePublicSectorType); // initial state on document ready (existing Public project shows its saved type)
 
     // Prevent submitting if no locations have been added (unless entire country is checked)
     $('form.needs-validation').on('submit', function (e) {
@@ -1736,10 +1799,12 @@
 
     // Handle remove donor button
     $(document).on('click', '.remove-donor-btn', function() {
-        const donorValue = $(this).data('donor');
+        // jQuery .data() coerces numeric-looking values to Number, but selectedDonors[i].value
+        // is always a String — compare as strings so the filter actually removes the donor.
+        const donorValue = String($(this).data('donor'));
 
         // Remove from selected donors array
-        selectedDonors = selectedDonors.filter(d => d.value !== donorValue);
+        selectedDonors = selectedDonors.filter(d => String(d.value) !== donorValue);
 
         // Remove from funding data
         delete donorFundingData[donorValue];

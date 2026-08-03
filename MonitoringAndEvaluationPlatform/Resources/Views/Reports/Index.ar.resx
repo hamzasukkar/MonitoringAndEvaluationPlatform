@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <root>
   <!-- 
     Microsoft ResX Schema 
@@ -136,7 +136,7 @@
     <value>الوقت</value>
   </data>
   <data name="Frameworks" xml:space="preserve">
-    <value>الاستراتيجيات</value>
+    <value>الأهداف الاستراتيجية</value>
   </data>
   <data name="Outcomes" xml:space="preserve">
     <value>السياسات</value>
@@ -166,7 +166,7 @@
     <value>معدل الصرف</value>
   </data>
   <data name="Framework Performance Comparison" xml:space="preserve">
-    <value>مقارنة أداء الاستراتيجيات</value>
+    <value>مقارنة أداء الأهداف الاستراتيجية</value>
   </data>
   <data name="Performance Distribution" xml:space="preserve">
     <value>توزيع الأداء</value>
@@ -193,7 +193,7 @@
     <value>يحتاج تحسين</value>
   </data>
   <data name="Top Frameworks" xml:space="preserve">
-    <value>أفضل الاستراتيجيات</value>
+    <value>أفضل الأهداف الاستراتيجية</value>
   </data>
   <data name="Top Outcomes" xml:space="preserve">
     <value>أفضل السياسات</value>
@@ -208,7 +208,7 @@
     <value>أفضل المشاريع</value>
   </data>
   <data name="Needs Improvement - Frameworks" xml:space="preserve">
-    <value>يحتاج تحسين - الاستراتيجيات</value>
+    <value>يحتاج تحسين - الأهداف الاستراتيجية</value>
   </data>
   <data name="Needs Improvement - Outcomes" xml:space="preserve">
     <value>يحتاج تحسين - السياسات</value>
@@ -244,7 +244,7 @@
     <value>بطاقات الملخص</value>
   </data>
   <data name="Frameworks, Outcomes, Outputs, SubOutputs, Indicators, Projects counts" xml:space="preserve">
-    <value>أعداد الاستراتيجيات والسياسات والبرامج والبرامج الفرعية  والمشاريع</value>
+    <value>أعداد الأهداف الاستراتيجية والسياسات والبرامج والبرامج الفرعية  والمشاريع</value>
   </data>
   <data name="Performance Gauges" xml:space="preserve">
     <value>مقاييس الأداء</value>
@@ -256,13 +256,13 @@
     <value>الرسوم البيانية</value>
   </data>
   <data name="Framework Performance Comparison and Distribution charts" xml:space="preserve">
-    <value>رسوم مقارنة أداء الاستراتيجيات والتوزيع</value>
+    <value>رسوم مقارنة أداء الأهداف الاستراتيجية والتوزيع</value>
   </data>
   <data name="Best performing Frameworks, Outcomes, Outputs, SubOutputs, Indicators" xml:space="preserve">
-    <value>أفضل الاستراتيجيات والسياسات والبرامج والبرامج الفرعية والمشاريع أداءً</value>
+    <value>أفضل الأهداف الاستراتيجية والسياسات والبرامج والبرامج الفرعية والمشاريع أداءً</value>
   </data>
   <data name="Lowest performing Frameworks, Outcomes, Outputs, SubOutputs, Indicators" xml:space="preserve">
-    <value>أدنى الاستراتيجيات والسياسات والبرامج والبرامج الفرعية والمشاريع  أداءً</value>
+    <value>أدنى الأهداف الاستراتيجية والسياسات والبرامج والبرامج الفرعية والمشاريع  أداءً</value>
   </data>
   <data name="Select All" xml:space="preserve">
     <value>تحديد الكل</value>
@@ -289,7 +289,7 @@
     <value>القيمة</value>
   </data>
   <data name="Framework Performance Radar" xml:space="preserve">
-    <value>رادار أداء الاستراتيجيات</value>
+    <value>رادار أداء الأهداف الاستراتيجية</value>
   </data>
   <data name="Polar Performance View" xml:space="preserve">
     <value>عرض قطبي للأداء</value>
@@ -538,7 +538,7 @@
     <value>التقدم المادي (%)</value>
   </data>
   <data name="Bottom Frameworks" xml:space="preserve">
-    <value>أدنى الاستراتيجيات</value>
+    <value>أدنى الأهداف الاستراتيجية</value>
   </data>
   <data name="Bottom Outcomes" xml:space="preserve">
     <value>أدنى السياسات</value>
@@ -590,5 +590,17 @@
   </data>
   <data name="provincial" xml:space="preserve">
     <value>محافظة</value>
+  </data>
+  <data name="Total Public Sector Types" xml:space="preserve">
+    <value>إجمالي أنواع القطاع العام</value>
+  </data>
+  <data name="Projects with Public Sector Type" xml:space="preserve">
+    <value>مشاريع بنوع قطاع عام</value>
+  </data>
+  <data name="Public Sector Type" xml:space="preserve">
+    <value>نوع القطاع العام</value>
+  </data>
+  <data name="Projects by Public Sector Type" xml:space="preserve">
+    <value>المشاريع حسب نوع القطاع العام</value>
   </data>
 </root>

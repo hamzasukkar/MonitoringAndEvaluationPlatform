@@ -78,6 +78,38 @@
             </div>
         </a>
     </div>
+    <div class="col-lg-3 col-md-6">
+        <a asp-action="GovernorateMap" class="text-decoration-none">
+            <div class="card border-0 shadow-sm h-100 position-relative overflow-hidden" style="border-right:4px solid #2196F3 !important; transition:transform .2s;" onmouseover="this.style.transform='translateY(-3px)'" onmouseout="this.style.transform=''">
+                <span class="position-absolute top-0 end-0 badge bg-danger m-2" style="font-size:.65rem">New</span>
+                <div class="card-body d-flex align-items-center gap-3 py-3">
+                    <div class="rounded-circle d-flex align-items-center justify-content-center bg-primary bg-opacity-15 text-primary" style="width:48px;height:48px;flex-shrink:0">
+                        <i class="fas fa-map-marked-alt fs-5"></i>
+                    </div>
+                    <div>
+                        <div class="fw-bold text-dark">@(isRtl ? "خريطة المشاريع حسب المحافظة" : "Projects by Governorate Map")</div>
+                        <div class="text-muted small">@(isRtl ? "اضغط على محافظة لعرض مشاريعها" : "Click a governorate to view its projects")</div>
+                    </div>
+                </div>
+            </div>
+        </a>
+    </div>
+    <div class="col-lg-3 col-md-6">
+        <a asp-action="DistrictMap" class="text-decoration-none">
+            <div class="card border-0 shadow-sm h-100 position-relative overflow-hidden" style="border-right:4px solid #4caf50 !important; transition:transform .2s;" onmouseover="this.style.transform='translateY(-3px)'" onmouseout="this.style.transform=''">
+                <span class="position-absolute top-0 end-0 badge bg-danger m-2" style="font-size:.65rem">New</span>
+                <div class="card-body d-flex align-items-center gap-3 py-3">
+                    <div class="rounded-circle d-flex align-items-center justify-content-center bg-success bg-opacity-15 text-success" style="width:48px;height:48px;flex-shrink:0">
+                        <i class="fas fa-map fs-5"></i>
+                    </div>
+                    <div>
+                        <div class="fw-bold text-dark">@(isRtl ? "خريطة المشاريع حسب المنطقة" : "Projects by District Map")</div>
+                        <div class="text-muted small">@(isRtl ? "اضغط على منطقة لعرض مشاريعها" : "Click a district to view its projects")</div>
+                    </div>
+                </div>
+            </div>
+        </a>
+    </div>
 </div>
 
 <!-- Summary Cards Row -->
@@ -744,6 +776,61 @@
                     else
                     {
                         <tr><td colspan="7" class="text-center text-muted">@Localizer["No data available"]</td></tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Public Sector Type Breakdown -->
+        <hr class="my-4" />
+        <h5 class="mb-3"><i class="fas fa-sitemap me-2"></i>@Localizer["Projects by Public Sector Type"]</h5>
+        <div class="row mb-3">
+            <div class="col-md-8">
+                <canvas id="publicSectorTypeProjectsChart" style="max-height: 300px;"></canvas>
+            </div>
+            <div class="col-md-4">
+                <div class="category-summary-card">
+                    <div class="category-stat">
+                        <span class="stat-value">@Model.TotalPublicSectorTypes</span>
+                        <span class="stat-label">@Localizer["Total Public Sector Types"]</span>
+                    </div>
+                    <div class="category-stat">
+                        <span class="stat-value">@Model.PublicSectorTypeReports.Sum(t => t.ProjectCount)</span>
+                        <span class="stat-label">@Localizer["Projects with Public Sector Type"]</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>@Localizer["Public Sector Type"]</th>
+                        <th>@Localizer["Projects"]</th>
+                        <th>@Localizer["Budget"]</th>
+                        <th>@Localizer["Amount Spent"]</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (Model.PublicSectorTypeReports.Any())
+                    {
+                        var typeRank = 1;
+                        @foreach (var item in Model.PublicSectorTypeReports.Take(10))
+                        {
+                            <tr>
+                                <td><span class="rank-badge @(typeRank <= 3 ? (typeRank == 1 ? "gold" : typeRank == 2 ? "silver" : "bronze") : "default")">@typeRank</span></td>
+                                <td>@item.Name</td>
+                                <td><span class="badge bg-success">@item.ProjectCount</span></td>
+                                <td>$@item.TotalBudget.ToString("N0")</td>
+                                <td>$@item.AmountSpent.ToString("N0")</td>
+                            </tr>
+                            typeRank++;
+                        }
+                    }
+                    else
+                    {
+                        <tr><td colspan="5" class="text-center text-muted">@Localizer["No data available"]</td></tr>
                     }
                 </tbody>
             </table>
@@ -2050,6 +2137,7 @@
         // NEW: Category Reports Charts Data
         const catMinistryData = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.MinistryReports.Take(8).Select(m => new { m.Name, m.ProjectCount, m.IndicatorsPerformance })));
         const catSectorData = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.SectorReports.Take(8).Select(s => new { s.Name, s.ProjectCount, s.IndicatorsPerformance })));
+        const catPublicSectorTypeData = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.PublicSectorTypeReports.Take(9).Select(t => new { t.Name, t.ProjectCount, t.IndicatorsPerformance })));
         const catDonorData = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.DonorReports.Take(8).Select(d => new { d.Name, d.ProjectCount, d.IndicatorsPerformance })));
         const catSupervisorData = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.SupervisorReports.Take(8).Select(s => new { s.Name, s.ProjectCount, s.IndicatorsPerformance })));
         const catPmData = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.ProjectManagerReports.Take(8).Select(pm => new { pm.Name, pm.ProjectCount, pm.IndicatorsPerformance })));
@@ -2114,6 +2202,7 @@
         // Create category charts
         const ministryProjectsChart = createCategoryChart('ministryProjectsChart', catMinistryData, '@Localizer["Projects by Ministry"]', 'rgba(33, 150, 243, 0.7)');
         const sectorProjectsChart = createCategoryChart('sectorProjectsChart', catSectorData, '@Localizer["Projects by Sector"]', 'rgba(76, 175, 80, 0.7)');
+        const publicSectorTypeProjectsChart = createCategoryChart('publicSectorTypeProjectsChart', catPublicSectorTypeData, '@Localizer["Projects by Public Sector Type"]', 'rgba(63, 81, 181, 0.7)');
         const donorProjectsChart = createCategoryChart('donorProjectsChart', catDonorData, '@Localizer["Projects by Donor"]', 'rgba(255, 193, 7, 0.7)');
         const supervisorProjectsChart = createCategoryChart('supervisorProjectsChart', catSupervisorData, '@Localizer["Projects by Supervisor"]', 'rgba(0, 188, 212, 0.7)');
         const pmProjectsChart = createCategoryChart('pmProjectsChart', catPmData, '@Localizer["Projects by Manager"]', 'rgba(156, 39, 176, 0.7)');

@@ -1,0 +1,135 @@
+@model IEnumerable<MonitoringAndEvaluationPlatform.Models.PlatformVersion>
+@using MonitoringAndEvaluationPlatform.Enums
+@using Microsoft.AspNetCore.Mvc.Localization
+@inject IViewLocalizer Localizer
+
+@{
+    ViewData["Title"] = Localizer["VersionsManagement"];
+    Layout = "~/Views/Shared/_DashboardHomeLayout.cshtml";
+}
+
+@functions {
+    string StatusClass(VersionStatus s) => s switch
+    {
+        VersionStatus.Planned => "bg-secondary",
+        VersionStatus.InDevelopment => "bg-warning text-dark",
+        VersionStatus.Released => "bg-success",
+        _ => "bg-light text-dark"
+    };
+
+    int CompletedCount(MonitoringAndEvaluationPlatform.Models.PlatformVersion v) =>
+        v.Requests.Count(r => r.Status == RequestStatus.Completed);
+
+    int TrackedCount(MonitoringAndEvaluationPlatform.Models.PlatformVersion v) =>
+        v.Requests.Count(r => r.Status != RequestStatus.Cancelled);
+}
+
+<div class="container-fluid py-4">
+    <div class="dashboard-header mb-4">
+        <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
+            <div>
+                <h1 class="display-5 mb-2">
+                    <i class="fas fa-code-branch me-3"></i>@Localizer["VersionsManagement"]
+                </h1>
+                <p class="text-muted mb-0">@Localizer["VersionsHint"]</p>
+            </div>
+            <div class="d-flex gap-2">
+                <a asp-action="WhatsNew" class="btn btn-outline-info btn-lg">
+                    <i class="fas fa-bullhorn me-2"></i>@Localizer["WhatsNew"]
+                </a>
+                <a asp-action="Create" class="btn btn-primary btn-lg">
+                    <i class="fas fa-plus me-2"></i>@Localizer["NewVersion"]
+                </a>
+            </div>
+        </div>
+    </div>
+
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            <i class="fas fa-check-circle me-2"></i>@TempData["SuccessMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+    @if (TempData["WarningMessage"] != null)
+    {
+        <div class="alert alert-warning alert-dismissible fade show" role="alert">
+            <i class="fas fa-exclamation-triangle me-2"></i>@TempData["WarningMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+
+    <div class="card">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th>@Localizer["VersionNumber"]</th>
+                        <th>@Localizer["Title"]</th>
+                        <th>@Localizer["Status"]</th>
+                        <th>@Localizer["PlannedDate"]</th>
+                        <th>@Localizer["ReleaseDate"]</th>
+                        <th>@Localizer["Requests"]</th>
+                        <th style="min-width:160px;">@Localizer["Progress"]</th>
+                        <th class="text-end">@Localizer["Actions"]</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (!Model.Any())
+                    {
+                        <tr>
+                            <td colspan="8" class="text-center text-muted py-4">
+                                <i class="fas fa-code-branch fa-2x d-block mb-2"></i>
+                                @Localizer["NoVersionsYet"]
+                            </td>
+                        </tr>
+                    }
+                    else
+                    {
+                        @foreach (var v in Model)
+                        {
+                            var tracked = TrackedCount(v);
+                            var done = CompletedCount(v);
+                            var pct = tracked == 0 ? 0 : (int)Math.Round(done * 100.0 / tracked);
+
+                            <tr>
+                                <td><strong>@v.VersionNumber</strong></td>
+                                <td>@v.Title</td>
+                                <td><span class="badge @StatusClass(v.Status)">@Localizer["VStatus" + v.Status.ToString()]</span></td>
+                                <td>@(v.PlannedDate?.ToString("yyyy-MM-dd") ?? "-")</td>
+                                <td>@(v.ReleaseDate?.ToString("yyyy-MM-dd") ?? "-")</td>
+                                <td>
+                                    <span class="badge bg-info">@done / @tracked</span>
+                                </td>
+                                <td>
+                                    <div class="progress" style="height:18px;">
+                                        <div class="progress-bar @(pct == 100 ? "bg-success" : "")" role="progressbar"
+                                             style="width:@(pct)%;"
+                                             aria-valuenow="@pct" aria-valuemin="0" aria-valuemax="100">
+                                            @pct%
+                                        </div>
+                                    </div>
+                                </td>
+                                <td class="text-end text-nowrap">
+                                    <a asp-action="Details" asp-route-id="@v.Id" class="btn btn-sm btn-outline-primary">
+                                        <i class="fas fa-eye"></i>
+                                    </a>
+                                    <a asp-action="Edit" asp-route-id="@v.Id" class="btn btn-sm btn-outline-secondary">
+                                        <i class="fas fa-edit"></i>
+                                    </a>
+                                    <form asp-action="Delete" asp-route-id="@v.Id" method="post" class="d-inline"
+                                          onsubmit="return confirm('@Localizer["ConfirmDeleteVersion"]');">
+                                        @Html.AntiForgeryToken()
+                                        <button type="submit" class="btn btn-sm btn-outline-danger">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </form>
+                                </td>
+                            </tr>
+                        }
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

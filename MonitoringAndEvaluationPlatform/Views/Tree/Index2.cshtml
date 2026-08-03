@@ -11,6 +11,14 @@
     var culture = Context.Features.Get<IRequestCultureFeature>().RequestCulture.Culture.Name;
 }
 
+<div id="treeStage">
+<!-- Fullscreen-only hint: the toolbar is collapsed, move the pointer up to reveal it -->
+<div class="chrome-hint" id="chromeHint" title="@Localizer["Move the pointer to the top to show the tools"]">
+    <i class="fas fa-chevron-down"></i>
+</div>
+
+<!-- All chrome above the tree — collapsed as one unit in fullscreen (display:contents otherwise) -->
+<div id="treeChrome">
 <!-- Dashboard Header -->
 <div class="dashboard-header">
     <div class="d-flex justify-content-between align-items-center">
@@ -57,7 +65,16 @@
                 <button class="btn btn-outline-secondary btn-sm" id="zoomIn" title="@Localizer["Zoom In"]">
                     <i class="fas fa-search-plus"></i>
                 </button>
+                <button class="btn btn-outline-secondary btn-sm" id="zoomFit" title="@Localizer["Fit to Screen"]">
+                    <i class="fas fa-compress"></i>
+                </button>
             </div>
+            <button class="btn btn-outline-secondary btn-sm ms-2" id="fullscreenToggle" title="@Localizer["Full Screen"]">
+                <i class="fas fa-expand"></i>
+            </button>
+            <button class="btn btn-outline-secondary btn-sm ms-2 chrome-pin-btn" id="chromePinToggle" title="@Localizer["Pin toolbars"]">
+                <i class="fas fa-thumbtack"></i>
+            </button>
         </div>
     </div>
 </div>
@@ -88,7 +105,7 @@
 </div>
 
 <!-- Legend Card -->
-<div class="card mb-4">
+<div class="card mb-4" id="legendCard">
     <div class="card-header">
         <h5 class="mb-0">
             <i class="fas fa-info-circle me-2"></i>
@@ -97,6 +114,12 @@
     </div>
     <div class="card-body">
         <div class="row">
+            <div class="col-md-2 col-sm-6 mb-2">
+                <div class="legend-item">
+                    <div class="legend-color ministry-color"></div>
+                    <span>@Localizer["Ministry"]</span>
+                </div>
+            </div>
             <div class="col-md-2 col-sm-6 mb-2">
                 <div class="legend-item">
                     <div class="legend-color framework-color"></div>
@@ -207,6 +230,50 @@
 
         <div class="type-filter-divider"></div>
 
+        <!-- Connecting lines toggle -->
+        <label class="phases-toggle-label" for="showLinesToggle">
+            <input type="checkbox" id="showLinesToggle" class="phases-toggle-cb">
+            <i class="fas fa-project-diagram"></i>
+            @Localizer["Show Connecting Lines"]
+        </label>
+
+        <div class="type-filter-divider"></div>
+
+        <!-- Orientation toggle -->
+        <label class="phases-toggle-label" for="horizontalToggle">
+            <input type="checkbox" id="horizontalToggle" class="phases-toggle-cb">
+            <i class="fas fa-sitemap fa-rotate-270"></i>
+            @Localizer["Horizontal View"]
+        </label>
+
+        <div class="type-filter-divider"></div>
+
+        <!-- Compact nodes toggle -->
+        <label class="phases-toggle-label" for="compactToggle">
+            <input type="checkbox" id="compactToggle" class="phases-toggle-cb">
+            <i class="fas fa-compress-alt"></i>
+            @Localizer["Compact Nodes"]
+        </label>
+
+        <div class="type-filter-divider"></div>
+
+        <!-- Depth limit -->
+        <label class="threshold-label" for="depthLimit">
+            <i class="fas fa-stream me-1"></i>
+            @Localizer["Depth"]
+        </label>
+        <select id="depthLimit" class="depth-select">
+            <option value="0" selected>@Localizer["All"]</option>
+            <option value="1">1</option>
+            <option value="2">2</option>
+            <option value="3">3</option>
+            <option value="4">4</option>
+            <option value="5">5</option>
+            <option value="6">6</option>
+        </select>
+
+        <div class="type-filter-divider"></div>
+
         <!-- Performance threshold -->
         <label class="threshold-label" for="perfThreshold">
             <i class="fas fa-filter me-1"></i>
@@ -261,8 +328,12 @@
     </div>
 </div>
 
+<!-- Focus (drill-down) breadcrumb — only shown while a branch is focused -->
+<div class="focus-bar mb-3" id="focusBreadcrumb" style="display:none;"></div>
+</div><!-- /#treeChrome -->
+
 <!-- Tree Container Card -->
-<div class="card">
+<div class="card tree-card">
     <div class="card-header d-flex justify-content-between align-items-center flex-wrap gap-2">
         <h5 class="mb-0">
             <i class="fas fa-tree me-2"></i>
@@ -289,6 +360,7 @@
             </div>
         </div>
     </div>
+</div>
 </div>
 
 <style>
@@ -319,6 +391,168 @@
         align-items: center;
         gap: 0.5rem;
     }
+
+    /* ── Full Screen Mode ───────────────────────────────────────────────────
+       .tree-stage-fs is toggled by JS on both native fullscreen and the
+       CSS-only fallback (.tree-stage-fallback) for browsers that refuse the API. */
+    #treeStage.tree-stage-fs {
+        /* A fullscreen element gets a black backdrop by default — match body */
+        background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-dark) 100%);
+        width: 100%;
+        height: 100%;
+        padding: 1rem;
+        display: flex;
+        flex-direction: column;
+        overflow: hidden; /* scrolling happens inside the tree only */
+    }
+
+    #treeStage.tree-stage-fallback {
+        position: fixed;
+        inset: 0;
+        z-index: 2000;
+    }
+
+    /* Shrink the chrome above the tree to reclaim vertical space */
+    #treeStage.tree-stage-fs .dashboard-title-block {
+        display: none;
+    }
+
+    #treeStage.tree-stage-fs .dashboard-header {
+        margin-bottom: 0.5rem;
+        padding: 0.5rem 1rem;
+        border-radius: 12px;
+    }
+
+    #treeStage.tree-stage-fs .stats-strip,
+    #treeStage.tree-stage-fs .filters-bar,
+    #treeStage.tree-stage-fs > .card {
+        margin-bottom: 0.5rem !important;
+    }
+
+    #treeStage.tree-stage-fs > .card .card-body {
+        padding: 0.5rem 1rem;
+    }
+
+    /* Tree card takes the remaining height — min-height:0 lets flex children shrink */
+    #treeStage.tree-stage-fs .tree-card {
+        flex: 1 1 auto;
+        min-height: 0;
+        display: flex;
+        flex-direction: column;
+        margin-bottom: 0 !important;
+    }
+
+    #treeStage.tree-stage-fs .tree-card .card-body {
+        flex: 1 1 auto;
+        min-height: 0;
+        display: flex;
+        flex-direction: column;
+    }
+
+    #treeStage.tree-stage-fs .tree-card .tree-visualization {
+        flex: 1 1 auto;
+        min-height: 0;
+    }
+
+    /* Auto-hiding chrome: in fullscreen everything above the tree collapses to
+       zero height and slides back in when the pointer approaches the top edge.
+       Outside fullscreen #treeChrome is display:contents, so the wrapper is
+       completely transparent to layout and normal mode is unchanged. */
+    #treeStage.tree-stage-fs { position: relative; }
+
+    #treeChrome { display: contents; }
+
+    #treeStage.tree-stage-fs #treeChrome {
+        display: block;
+        /* overflow:hidden zeroes this flex item's automatic minimum size, which would
+           let the column flex container squeeze it below the height measureChrome()
+           sets — clipping the bars. Never shrink the toolbars; .tree-card
+           (flex: 1 1 auto) absorbs the leftover space instead. */
+        flex: 0 0 auto;
+        max-height: 0;
+        opacity: 0;
+        overflow: hidden;
+        pointer-events: none;
+        transition: max-height 0.28s ease, opacity 0.2s ease;
+    }
+
+    #treeStage.tree-stage-fs.chrome-visible #treeChrome {
+        opacity: 1;
+        pointer-events: auto;
+        /* max-height and overflow-y are set inline by measureChrome() so the bars
+           expand to their real height instead of being clipped by a fixed cap */
+    }
+
+    /* The tree card's own header (title + search) rides along with the same state */
+    #treeStage.tree-stage-fs .tree-card > .card-header {
+        /* Same reason as #treeChrome: overflow:hidden makes this shrinkable inside
+           .tree-card's column flex, so pin its size or .card-body would crush it */
+        flex: 0 0 auto;
+        max-height: 0;
+        padding-top: 0;
+        padding-bottom: 0;
+        border-bottom-width: 0;
+        opacity: 0;
+        overflow: hidden;
+        pointer-events: none;
+        transition: max-height 0.28s ease, opacity 0.2s ease, padding 0.28s ease;
+    }
+
+    #treeStage.tree-stage-fs.chrome-visible .tree-card > .card-header {
+        max-height: 12rem;
+        padding-top: 0.5rem;
+        padding-bottom: 0.5rem;
+        border-bottom-width: 1px;
+        opacity: 1;
+        pointer-events: auto;
+    }
+
+    /* Reveal hint — a slim strip at the very top, only while collapsed */
+    .chrome-hint { display: none; }
+
+    #treeStage.tree-stage-fs .chrome-hint {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 14px;
+        font-size: 0.6rem;
+        color: var(--accent-gold-color);
+        background: linear-gradient(180deg, rgba(200, 168, 95, 0.22) 0%, transparent 100%);
+        opacity: 0.75;
+        pointer-events: none;
+        transition: opacity 0.2s ease;
+        z-index: 5;
+    }
+
+    #treeStage.tree-stage-fs.chrome-visible .chrome-hint { opacity: 0; }
+
+    /* Compact the chrome in fullscreen so every bar fits on screen at once.
+       The legend is nested inside #treeChrome, so the `> .card` trimming above no
+       longer reaches it — these rules restore that and tighten it further. */
+    #treeStage.tree-stage-fs #legendCard { margin-bottom: 0.5rem !important; }
+    #treeStage.tree-stage-fs #legendCard .card-header { padding: 0.35rem 0.9rem; }
+    #treeStage.tree-stage-fs #legendCard .card-header h5 { font-size: 0.9rem; }
+    #treeStage.tree-stage-fs #legendCard .card-body { padding: 0.4rem 0.9rem; }
+    #treeStage.tree-stage-fs #legendCard .legend-item { font-size: 0.75rem; }
+    #treeStage.tree-stage-fs #legendCard [class*="col-"] { margin-bottom: 0.1rem !important; }
+    #treeStage.tree-stage-fs #legendCard hr { margin: 0.3rem 0 !important; }
+
+    #treeStage.tree-stage-fs .stats-strip,
+    #treeStage.tree-stage-fs .filters-bar { padding: 0.4rem 0.9rem; }
+
+    #treeStage.tree-stage-fs .focus-bar {
+        padding: 0.35rem 0.7rem;
+        margin-bottom: 0.5rem !important;
+    }
+
+    /* Pin button — only meaningful in fullscreen */
+    .chrome-pin-btn { display: none; }
+    #treeStage.tree-stage-fs .chrome-pin-btn { display: inline-block; }
+    /* ──────────────────────────────────────────────────────────────────────── */
 
     /* Unified Filters Bar */
     .filters-bar {
@@ -564,6 +798,7 @@
         box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
     }
 
+    .ministry-color { background-color: #17a2b8; }
     .framework-color { background-color: #6f42c1; }
     .outcome-color { background-color: #dc3545; }
     .output-color { background-color: #007bff; }
@@ -649,6 +884,11 @@
     }
 
     /* Node Type Colors */
+    .tree-node.ministry {
+        border-left: 4px solid #17a2b8;
+        background: linear-gradient(135deg, rgba(23, 162, 184, 0.1) 0%, var(--secondary-card-background) 100%);
+    }
+
     .tree-node.framework {
         border-left: 4px solid #6f42c1;
         background: linear-gradient(135deg, rgba(111, 66, 193, 0.1) 0%, var(--secondary-card-background) 100%);
@@ -887,21 +1127,29 @@
         opacity: 1;
     }
 
-    /* Connecting Lines */
-    .node-container::before {
-        content: '';
+    /* ── Connecting Lines (optional — toggled by #showLinesToggle → body.tree-lines-on) ──
+       Smooth bezier curves fanning from each parent to its children, drawn on an
+       SVG overlay (#treeConnectors) that sits behind the node boxes. The curves are
+       recomputed by drawConnectors() whenever the layout changes. */
+    #zoomWrapper { position: relative; }
+
+    .tree-connectors {
         position: absolute;
-        top: calc(-10px - var(--node-gap, 15px));
-        left: 50%;
-        transform: translateX(-50%);
-        width: 2px;
-        height: calc(10px + var(--node-gap, 15px));
-        background: var(--border-color);
-        opacity: 0.6;
+        top: 0;
+        left: 0;
+        pointer-events: none;
+        overflow: visible;
+        z-index: 1;
     }
 
-    .org-chart > .node-container:first-child::before {
-        display: none;
+    /* Node boxes paint above the curves so the lines tuck behind them */
+    .org-chart { position: relative; z-index: 2; }
+
+    .tree-conn-path {
+        fill: none;
+        stroke: var(--tree-conn-color, #9fa8da);
+        stroke-width: 2;
+        stroke-linecap: round;
     }
 
     /* Responsive Design */
@@ -993,6 +1241,7 @@
         direction: rtl;
     }
 
+    html[dir="rtl"] .tree-node.ministry,
     html[dir="rtl"] .tree-node.framework,
     html[dir="rtl"] .tree-node.outcome,
     html[dir="rtl"] .tree-node.output,
@@ -1004,6 +1253,7 @@
         border-right: 4px solid;
     }
 
+    html[dir="rtl"] .tree-node.ministry   { border-right-color: #17a2b8; background: linear-gradient(225deg, rgba(23, 162, 184, 0.1) 0%, var(--secondary-card-background) 100%); }
     html[dir="rtl"] .tree-node.framework  { border-right-color: #6f42c1; background: linear-gradient(225deg, rgba(111, 66, 193, 0.1) 0%, var(--secondary-card-background) 100%); }
     html[dir="rtl"] .tree-node.outcome    { border-right-color: #dc3545; background: linear-gradient(225deg, rgba(220, 53, 69, 0.1) 0%, var(--secondary-card-background) 100%); }
     html[dir="rtl"] .tree-node.output     { border-right-color: #007bff; background: linear-gradient(225deg, rgba(0, 123, 255, 0.1) 0%, var(--secondary-card-background) 100%); }
@@ -1057,6 +1307,209 @@
         transform-origin: top right;
     }
     /* ────────────────────────────────────────────────────────────────────── */
+
+    /* ── Horizontal orientation (toggled by #horizontalToggle → body.tree-horizontal) ──
+       Flips each node from "above its children" to "beside its children". Direction-aware:
+       a `row` flex container follows the inherited direction, so in RTL the root sits on
+       the right and the tree grows leftwards with no extra rules.
+       These must stay last — they override the RTL block above at equal specificity. */
+    body.tree-horizontal .org-chart {
+        align-items: flex-start;
+        padding: 2rem;
+        min-height: max-content;
+    }
+
+    /* Parent beside its children; align-items:center keeps it centred on the stack */
+    body.tree-horizontal .node-container {
+        flex-direction: row;
+        align-items: center;
+    }
+
+    /* Children stack vertically alongside the parent. The RTL `row-reverse` above
+       must be neutralised in both directions. */
+    body.tree-horizontal .children-container,
+    html[dir="rtl"] body.tree-horizontal .children-container {
+        flex-direction: column;
+        flex-wrap: nowrap;
+        align-items: flex-start;
+        justify-content: flex-start;
+        margin-top: 0;
+        margin-inline-start: calc(10px + var(--node-gap, 15px));
+        transition: max-height 0.4s ease, max-width 0.4s ease, opacity 0.3s ease;
+    }
+
+    /* A collapsed container is 0-height but keeps its natural width, which would leave
+       a dead horizontal gap after every collapsed node — zero the width and the gap.
+       The RTL-scoped selector is repeated so this outweighs the margin set above. */
+    body.tree-horizontal .children-container:not(.expanded),
+    html[dir="rtl"] body.tree-horizontal .children-container:not(.expanded) {
+        max-width: 0;
+        margin-inline-start: 0;
+    }
+
+    body.tree-horizontal .children-container.expanded,
+    html[dir="rtl"] body.tree-horizontal .children-container.expanded {
+        max-width: none;
+    }
+
+    /* Zoom grows away from the root, which now sits on the leading edge */
+    body.tree-horizontal #zoomWrapper {
+        transform-origin: top left;
+    }
+
+    html[dir="rtl"] body.tree-horizontal #zoomWrapper {
+        transform-origin: top right;
+    }
+    /* ────────────────────────────────────────────────────────────────────── */
+
+    /* ── Large-tree readability: compact nodes, drag-to-pan, depth, focus ──── */
+
+    /* Depth selector — sized to match the other inline filter controls */
+    .depth-select {
+        background: var(--secondary-card-background);
+        color: var(--text-light-color);
+        border: 1px solid var(--border-color);
+        border-radius: 6px;
+        font-size: 0.8rem;
+        font-weight: 600;
+        padding: 0.2rem 0.4rem;
+        cursor: pointer;
+    }
+
+    /* Drag-to-pan: grab cursor on the canvas, but nodes keep their own pointer */
+    .tree-visualization { cursor: grab; }
+    .tree-visualization.tree-panning { cursor: grabbing; user-select: none; }
+    .tree-visualization.tree-panning .tree-node { cursor: grabbing; }
+
+    /* Compact nodes — strip the metrics down to the title so many more fit on screen.
+       The performance badges stay in the DOM (display:none keeps textContent readable)
+       so the threshold filter and status colours still work. */
+    body.tree-compact .tree-node {
+        min-width: 130px;
+        max-width: 200px;
+        padding: 0.45rem 0.65rem;
+        margin: 0.25rem;
+        border-radius: 8px;
+    }
+
+    body.tree-compact .node-type,
+    body.tree-compact .node-metrics,
+    body.tree-compact .node-progress-bar {
+        display: none;
+    }
+
+    body.tree-compact .node-title {
+        font-size: 0.78rem;
+        margin-bottom: 0;
+        line-height: 1.25;
+    }
+
+    body.tree-compact .expand-icon {
+        width: 18px;
+        height: 18px;
+        font-size: 0.6rem;
+        top: 4px;
+        right: 4px;
+    }
+
+    html[dir="rtl"] body.tree-compact .expand-icon {
+        right: auto;
+        left: 4px;
+    }
+
+    /* Focus (drill-down) button — sits opposite the expand icon, revealed on hover */
+    .node-focus-btn {
+        position: absolute;
+        top: 6px;
+        left: 6px;
+        width: 20px;
+        height: 20px;
+        padding: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.62rem;
+        line-height: 1;
+        border: 1px solid var(--border-color);
+        border-radius: 50%;
+        background: var(--secondary-card-background);
+        color: var(--text-light-color);
+        cursor: pointer;
+        opacity: 0;
+        transition: opacity 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+        z-index: 3;
+    }
+
+    html[dir="rtl"] .node-focus-btn {
+        left: auto;
+        right: 6px;
+    }
+
+    .tree-node:hover .node-focus-btn { opacity: 1; }
+
+    .node-focus-btn:hover {
+        color: var(--accent-gold-color);
+        border-color: var(--accent-gold-color);
+    }
+
+    body.tree-compact .node-focus-btn {
+        width: 16px;
+        height: 16px;
+        top: 4px;
+        left: 4px;
+        font-size: 0.55rem;
+    }
+
+    html[dir="rtl"] body.tree-compact .node-focus-btn {
+        left: auto;
+        right: 4px;
+    }
+
+    /* Focus breadcrumb bar */
+    .focus-bar {
+        display: flex;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 0.4rem;
+        padding: 0.6rem 0.9rem;
+        background: var(--secondary-card-background);
+        border: 1px solid var(--border-color);
+        border-radius: 10px;
+    }
+
+    html[dir="rtl"] .focus-bar { direction: rtl; }
+
+    .focus-crumb {
+        background: none;
+        border: none;
+        padding: 0.1rem 0.3rem;
+        font-size: 0.82rem;
+        font-weight: 600;
+        color: var(--text-light-color);
+        cursor: pointer;
+        border-radius: 4px;
+        max-width: 260px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    .focus-crumb:hover {
+        color: var(--accent-gold-color);
+        background: rgba(200, 168, 95, 0.12);
+    }
+
+    .focus-crumb.current {
+        color: var(--accent-gold-color);
+        cursor: default;
+    }
+
+    .focus-crumb-sep {
+        color: var(--text-light-color);
+        opacity: 0.5;
+        font-size: 0.8rem;
+    }
+    /* ────────────────────────────────────────────────────────────────────── */
 </style>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
@@ -1102,6 +1555,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Localization map for node types
     const typeTranslations = {
+        'Ministry': '@Localizer["Ministry"]',
         'Framework': '@Localizer["Framework"]',
         'Outcome': '@Localizer["Outcome"]',
         'Output': '@Localizer["Output"]',
@@ -1115,6 +1569,8 @@ document.addEventListener('DOMContentLoaded', function() {
     const weightLabel = '@Localizer["Weight"]';
     const indLabel = '@Localizer["IP"]';
     const disLabel = '@Localizer["DP"]';
+    const focusLabel = '@Localizer["Focus on this branch"]';
+    const showAllLabel = '@Localizer["Show All"]';
 
     // Returns the navigation URL for a given node
     function getNodeUrl(node) {
@@ -1151,6 +1607,38 @@ document.addEventListener('DOMContentLoaded', function() {
 
     loadHierarchyData(false);
 
+    // ── Focus (drill-down) state ────────────────────────────────────────────
+    // The full tree is kept in memory so focusing a branch is a pure re-render
+    // with no extra request, and so the breadcrumb can walk back up to the root.
+    let fullHierarchy = [];
+    let nodeIndexById = {};
+    let parentIdById = {};
+    let focusedNodeId = null;
+
+    function indexHierarchy(nodes) {
+        nodeIndexById = {};
+        parentIdById = {};
+        (function walk(list, parentId) {
+            list.forEach(n => {
+                nodeIndexById[n.id] = n;
+                parentIdById[n.id] = parentId;
+                if (n.children && n.children.length) walk(n.children, n.id);
+            });
+        })(nodes, null);
+    }
+
+    // Flatten a node subtree back to a list, for the stats strip
+    function flattenNodes(nodes) {
+        const out = [];
+        (function walk(list) {
+            list.forEach(n => {
+                out.push(n);
+                if (n.children && n.children.length) walk(n.children);
+            });
+        })(nodes);
+        return out;
+    }
+
     function loadHierarchyData(includePhases) {
         fetch(`/Tree/GetFrameworkHierarchy/${frameworkCode}?includePhases=${includePhases}`)
             .then(response => {
@@ -1159,7 +1647,11 @@ document.addEventListener('DOMContentLoaded', function() {
             })
             .then(data => {
                 const hierarchyStructure = buildHierarchy(data);
+                fullHierarchy = hierarchyStructure;
+                indexHierarchy(hierarchyStructure);
+                focusedNodeId = null;
                 renderOrganizationalChart(hierarchyStructure);
+                renderFocusBreadcrumb();
                 hideLoadingSpinner();
                 updateStatsStrip(data);
                 if (typeof applyPrefsAfterRender === 'function') {
@@ -1191,6 +1683,185 @@ document.addEventListener('DOMContentLoaded', function() {
         });
         loadHierarchyData(this.checked);
     });
+
+    // Toggle connecting lines — redraw (or clear) the SVG overlay
+    document.getElementById('showLinesToggle').addEventListener('change', function () {
+        document.body.classList.toggle('tree-lines-on', this.checked);
+        scheduleConnectors();
+        savePrefs();
+    });
+
+    // Toggle horizontal orientation — keep the curves glued while the layout reflows
+    document.getElementById('horizontalToggle').addEventListener('change', function () {
+        document.body.classList.toggle('tree-horizontal', this.checked);
+        followConnectors();
+        savePrefs();
+    });
+
+    // Toggle compact nodes — boxes shrink, so the whole layout reflows
+    document.getElementById('compactToggle').addEventListener('change', function () {
+        document.body.classList.toggle('tree-compact', this.checked);
+        followConnectors();
+        remeasureChromeIfOpen(); // the filters bar may rewrap to a different height
+        savePrefs();
+    });
+
+    // ── Depth limit ─────────────────────────────────────────────────────────
+    // Expands every branch down to the chosen level and collapses everything below,
+    // which keeps deep hierarchies readable without hiding whole node types.
+    const depthSelect = document.getElementById('depthLimit');
+
+    // Open/close a children-container instantly, mirroring expandAll/collapseAll
+    function setContainerOpen(container, open) {
+        container.style.transition = 'none';
+        container.style.maxHeight = open ? 'none' : '0';
+        container.style.opacity = open ? '1' : '0';
+        container.classList.toggle('expanded', open);
+
+        const icon = container.parentElement.querySelector(':scope > .tree-node .expand-icon');
+        if (icon) {
+            icon.classList.toggle('expanded', open);
+            icon.classList.toggle('collapsed', !open);
+            const symbol = icon.querySelector('.expand-symbol');
+            if (symbol) symbol.textContent = open ? '−' : '+';
+        }
+
+        requestAnimationFrame(() => requestAnimationFrame(() => {
+            container.style.transition = '';
+        }));
+    }
+
+    // Depth of a .node-container: the root rendered node is 1
+    function nodeDepth(nodeContainer) {
+        let depth = 1;
+        let p = nodeContainer.parentElement;
+        while (p) {
+            if (p.classList && p.classList.contains('node-container')) depth++;
+            p = p.parentElement;
+        }
+        return depth;
+    }
+
+    // Called after every render; a value of 0 ("All") means "leave expansion alone"
+    function applyDepthLimit() {
+        const maxDepth = parseInt(depthSelect.value, 10) || 0;
+        if (!maxDepth) return;
+        document.querySelectorAll('.node-container').forEach(nc => {
+            const cc = nc.querySelector(':scope > .children-container');
+            if (!cc) return;
+            setContainerOpen(cc, nodeDepth(nc) < maxDepth);
+        });
+        followConnectors();
+    }
+
+    depthSelect.addEventListener('change', function () {
+        if (parseInt(this.value, 10) === 0) {
+            expandAllNodes(); // "All" — no depth cap, so open everything
+        } else {
+            applyDepthLimit();
+        }
+        savePrefs();
+    });
+    // ────────────────────────────────────────────────────────────────────────
+
+    // ── Connecting curves (SVG bezier overlay) ──────────────────────────────
+    // Draw a smooth curve from each parent to each of its visible children:
+    // bottom-center → top-center when vertical, or side edge → facing side edge
+    // (vertically centred) when horizontal. Coordinates are taken relative to
+    // #zoomWrapper and divided by the current zoom so they map to the wrapper's
+    // unscaled space (the SVG lives inside the wrapper, so the zoom transform
+    // scales it too).
+    function drawConnectors(scaleOverride) {
+        const wrapper = document.getElementById('zoomWrapper');
+        const svg = document.getElementById('treeConnectors');
+        if (!wrapper || !svg) return;
+
+        if (!document.body.classList.contains('tree-lines-on')) {
+            svg.replaceChildren();
+            return;
+        }
+
+        const scale = scaleOverride || zoomLevel || 1;
+        const wrapRect = wrapper.getBoundingClientRect();
+        const W = wrapRect.width / scale;
+        const H = wrapRect.height / scale;
+        svg.setAttribute('width', W);
+        svg.setAttribute('height', H);
+        svg.setAttribute('viewBox', `0 0 ${W} ${H}`);
+        svg.style.width = W + 'px';
+        svg.style.height = H + 'px';
+
+        const NS = 'http://www.w3.org/2000/svg';
+        const frag = document.createDocumentFragment();
+
+        // In horizontal mode the curve runs sideways; in RTL the tree grows leftwards,
+        // so the parent's trailing edge is its left side and the child's leading edge
+        // is its right side.
+        const horizontal = document.body.classList.contains('tree-horizontal');
+        const rtl = document.documentElement.getAttribute('dir') === 'rtl';
+
+        document.querySelectorAll('.node-container > .children-container.expanded').forEach(cc => {
+            const parentNode = cc.parentElement.querySelector(':scope > .tree-node');
+            if (!parentNode) return;
+            const pr = parentNode.getBoundingClientRect();
+            if (pr.width === 0) return; // parent hidden
+
+            const startX = horizontal
+                ? ((rtl ? pr.left : pr.right) - wrapRect.left) / scale
+                : (pr.left + pr.width / 2 - wrapRect.left) / scale;
+            const startY = horizontal
+                ? (pr.top + pr.height / 2 - wrapRect.top) / scale
+                : (pr.bottom - wrapRect.top) / scale;
+
+            cc.querySelectorAll(':scope > .node-container').forEach(childContainer => {
+                const childNode = childContainer.querySelector(':scope > .tree-node');
+                if (!childNode) return;
+                const cr = childNode.getBoundingClientRect();
+                if (cr.width === 0) return; // child hidden via type/threshold filter
+
+                const endX = horizontal
+                    ? ((rtl ? cr.right : cr.left) - wrapRect.left) / scale
+                    : (cr.left + cr.width / 2 - wrapRect.left) / scale;
+                const endY = horizontal
+                    ? (cr.top + cr.height / 2 - wrapRect.top) / scale
+                    : (cr.top - wrapRect.top) / scale;
+
+                let d;
+                if (horizontal) {
+                    const midX = (startX + endX) / 2;
+                    d = `M ${startX} ${startY} C ${midX} ${startY} ${midX} ${endY} ${endX} ${endY}`;
+                } else {
+                    const midY = (startY + endY) / 2;
+                    d = `M ${startX} ${startY} C ${startX} ${midY} ${endX} ${midY} ${endX} ${endY}`;
+                }
+
+                const path = document.createElementNS(NS, 'path');
+                path.setAttribute('class', 'tree-conn-path');
+                path.setAttribute('d', d);
+                frag.appendChild(path);
+            });
+        });
+
+        svg.replaceChildren(frag);
+    }
+
+    let connRAF = null;
+    function scheduleConnectors() {
+        if (connRAF) cancelAnimationFrame(connRAF);
+        connRAF = requestAnimationFrame(() => drawConnectors());
+    }
+
+    // Keep the curves glued to the boxes while an expand/collapse animation runs
+    function followConnectors(duration = 450) {
+        const start = performance.now();
+        (function step(now) {
+            drawConnectors();
+            if (now - start < duration) requestAnimationFrame(step);
+        })(start);
+    }
+
+    window.addEventListener('resize', scheduleConnectors);
+    // ────────────────────────────────────────────────────────────────────────
 
     function buildHierarchy(flatData) {
         const nodeMap = {};
@@ -1224,6 +1895,12 @@ document.addEventListener('DOMContentLoaded', function() {
 
         const zoomWrapper = document.createElement('div');
         zoomWrapper.id = 'zoomWrapper';
+
+        // SVG overlay for the connecting curves (behind the node boxes)
+        const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+        svg.id = 'treeConnectors';
+        svg.setAttribute('class', 'tree-connectors');
+        zoomWrapper.appendChild(svg);
         zoomWrapper.appendChild(orgChart);
 
         container.innerHTML = '';
@@ -1249,7 +1926,85 @@ document.addEventListener('DOMContentLoaded', function() {
                 children.style.maxHeight = '';
             }));
         });
+
+        // Draw the connecting curves once the initial layout has settled
+        requestAnimationFrame(() => requestAnimationFrame(scheduleConnectors));
     }
+
+    // ── Focus (drill-down) ──────────────────────────────────────────────────
+    // Re-renders the chart with one branch as the temporary root, so a huge tree
+    // can be explored one branch at a time. The breadcrumb walks back up.
+    function renderFocusedTree(roots) {
+        renderOrganizationalChart(roots);
+        renderFocusBreadcrumb();
+        updateStatsStrip(flattenNodes(roots));
+        applyPrefsAfterRender();
+    }
+
+    function focusNode(id) {
+        const node = nodeIndexById[id];
+        if (!node) return;
+        focusedNodeId = id;
+        renderFocusedTree([node]);
+    }
+
+    function clearFocus() {
+        focusedNodeId = null;
+        renderFocusedTree(fullHierarchy);
+    }
+
+    function renderFocusBreadcrumb() {
+        const bar = document.getElementById('focusBreadcrumb');
+        if (!bar) return;
+
+        if (!focusedNodeId) {
+            bar.style.display = 'none';
+            bar.replaceChildren();
+            remeasureChromeIfOpen(); // the bar lives inside the collapsible chrome
+            return;
+        }
+
+        // Walk from the focused node up to the real root
+        const chain = [];
+        let id = focusedNodeId;
+        while (id && nodeIndexById[id]) {
+            chain.unshift(nodeIndexById[id]);
+            id = parentIdById[id];
+        }
+
+        const frag = document.createDocumentFragment();
+
+        const home = document.createElement('button');
+        home.type = 'button';
+        home.className = 'btn btn-sm btn-outline-secondary';
+        home.innerHTML = '<i class="fas fa-home me-1"></i>';
+        home.appendChild(document.createTextNode(showAllLabel));
+        home.addEventListener('click', clearFocus);
+        frag.appendChild(home);
+
+        chain.forEach((n, i) => {
+            const sep = document.createElement('span');
+            sep.className = 'focus-crumb-sep';
+            sep.textContent = '›';
+            frag.appendChild(sep);
+
+            const isLast = i === chain.length - 1;
+            const crumb = document.createElement(isLast ? 'span' : 'button');
+            crumb.className = 'focus-crumb' + (isLast ? ' current' : '');
+            crumb.textContent = n.name; // textContent — names are user-entered data
+            crumb.title = n.name;
+            if (!isLast) {
+                crumb.type = 'button';
+                crumb.addEventListener('click', () => focusNode(n.id));
+            }
+            frag.appendChild(crumb);
+        });
+
+        bar.replaceChildren(frag);
+        bar.style.display = '';
+        remeasureChromeIfOpen(); // the bar lives inside the collapsible chrome
+    }
+    // ────────────────────────────────────────────────────────────────────────
 
     function createNodeElement(node) {
         const nodeContainer = document.createElement('div');
@@ -1286,13 +2041,15 @@ document.addEventListener('DOMContentLoaded', function() {
                 </div>
             </div>
             ${hasChildren ? `<div class="expand-icon collapsed"><span class="expand-symbol">+</span><span class="expand-count">${node.children.length}</span></div>` : ''}
+            ${hasChildren ? `<button type="button" class="node-focus-btn" title="${focusLabel}"><i class="fas fa-crosshairs"></i></button>` : ''}
         `;
 
         const url = getNodeUrl(node);
         if (url) {
             nodeDiv.addEventListener('click', function (e) {
-                // Let expand-icon handle its own click via stopPropagation
+                // Let the expand icon and focus button handle their own clicks
                 if (e.target.closest('.expand-icon')) return;
+                if (e.target.closest('.node-focus-btn')) return;
                 window.location.href = url;
             });
             nodeDiv.title = url;
@@ -1315,19 +2072,30 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     function attachEventListeners() {
-        // Toggle node expansion
+        // Toggle node expansion — re-bound after every render, the nodes are recreated
         document.querySelectorAll('.expand-icon').forEach(icon => {
             icon.addEventListener('click', function(e) {
                 e.stopPropagation();
                 toggleNodeExpansion(this);
             });
         });
-
-        // Control buttons
-        expandAllBtn.addEventListener('click', expandAllNodes);
-        collapseAllBtn.addEventListener('click', collapseAllNodes);
-        exportBtn.addEventListener('click', exportChart);
     }
+
+    // Static control buttons live outside the chart, so they are bound once —
+    // binding them per render would stack duplicate handlers on every re-render.
+    expandAllBtn.addEventListener('click', expandAllNodes);
+    collapseAllBtn.addEventListener('click', collapseAllNodes);
+    exportBtn.addEventListener('click', exportChart);
+
+    // Focus buttons are delegated, so they survive re-renders without rebinding
+    document.getElementById('treeContainer').addEventListener('click', function (e) {
+        const btn = e.target.closest('.node-focus-btn');
+        if (!btn) return;
+        e.preventDefault();
+        e.stopPropagation();
+        const nc = btn.closest('.node-container');
+        if (nc && nc.dataset.nodeId) focusNode(nc.dataset.nodeId);
+    });
 
     // ── Zoom ────────────────────────────────────────────────────────────────
     let zoomLevel = 1.0;
@@ -1359,6 +2127,32 @@ document.addEventListener('DOMContentLoaded', function() {
         applyZoom();
     });
 
+    // Fit the whole tree into the visible area. .org-chart's scroll size is the
+    // unscaled layout size (the scale transform lives on #zoomWrapper, its parent),
+    // so it can be measured without touching the current zoom.
+    function fitToScreen() {
+        const container = document.getElementById('treeContainer');
+        const orgChart = container && container.querySelector('.org-chart');
+        if (!orgChart) return;
+
+        const w = orgChart.scrollWidth;
+        const h = orgChart.scrollHeight;
+        if (!w || !h) return;
+
+        const cs = getComputedStyle(container);
+        const availW = container.clientWidth - parseFloat(cs.paddingLeft) - parseFloat(cs.paddingRight);
+        const availH = container.clientHeight - parseFloat(cs.paddingTop) - parseFloat(cs.paddingBottom);
+        if (availW <= 0 || availH <= 0) return;
+
+        const scale = Math.min(availW / w, availH / h);
+        zoomLevel = Math.max(ZOOM_MIN, Math.min(ZOOM_MAX, Math.floor(scale * 100) / 100));
+        applyZoom();
+        container.scrollTop = 0;
+        savePrefs();
+    }
+
+    document.getElementById('zoomFit').addEventListener('click', fitToScreen);
+
     // Mouse-wheel zoom on the tree container (Ctrl + scroll)
     document.getElementById('treeContainer').addEventListener('wheel', function (e) {
         if (!e.ctrlKey) return;
@@ -1370,6 +2164,184 @@ document.addEventListener('DOMContentLoaded', function() {
         }
         applyZoom();
     }, { passive: false });
+
+    // ── Drag to pan ─────────────────────────────────────────────────────────
+    // Grab anywhere on the canvas and drag to scroll, instead of hunting for the
+    // scrollbars. A click that follows an actual drag is swallowed in the capture
+    // phase so dragging over a node never navigates away.
+    (function enableDragPan() {
+        const panEl = document.getElementById('treeContainer');
+        const DRAG_THRESHOLD = 5; // px before it counts as a pan rather than a click
+        let panning = false, panMoved = false;
+        let startX = 0, startY = 0, startScrollLeft = 0, startScrollTop = 0;
+
+        panEl.addEventListener('pointerdown', function (e) {
+            if (e.button !== 0) return;
+            // Let the interactive bits keep their own behaviour
+            if (e.target.closest('.expand-icon') || e.target.closest('.node-focus-btn')) return;
+            panning = true;
+            panMoved = false;
+            startX = e.clientX;
+            startY = e.clientY;
+            startScrollLeft = panEl.scrollLeft;
+            startScrollTop = panEl.scrollTop;
+        });
+
+        window.addEventListener('pointermove', function (e) {
+            if (!panning) return;
+            const dx = e.clientX - startX;
+            const dy = e.clientY - startY;
+            if (!panMoved && Math.abs(dx) + Math.abs(dy) < DRAG_THRESHOLD) return;
+            panMoved = true;
+            panEl.classList.add('tree-panning');
+            panEl.scrollLeft = startScrollLeft - dx;
+            panEl.scrollTop = startScrollTop - dy;
+        });
+
+        window.addEventListener('pointerup', function () {
+            panning = false;
+            panEl.classList.remove('tree-panning');
+        });
+
+        panEl.addEventListener('click', function (e) {
+            if (!panMoved) return;
+            e.stopPropagation();
+            e.preventDefault();
+            panMoved = false;
+        }, true);
+    })();
+    // ────────────────────────────────────────────────────────────────────────
+
+    // ── Full Screen ─────────────────────────────────────────────────────────
+    const stageEl = document.getElementById('treeStage');
+    const fsBtn   = document.getElementById('fullscreenToggle');
+    const fsEnterLabel = '@Localizer["Full Screen"]';
+    const fsExitLabel  = '@Localizer["Exit Full Screen"]';
+
+    function isNativeFs() {
+        return (document.fullscreenElement || document.webkitFullscreenElement) === stageEl;
+    }
+
+    function setFsUI(on) {
+        stageEl.classList.toggle('tree-stage-fs', on);
+        // Every fullscreen session starts unpinned and collapsed, and neither the
+        // class nor the inline height may leak back into normal mode
+        stageEl.classList.remove('chrome-visible');
+        setChromePinned(false);
+        document.getElementById('treeChrome').style.maxHeight = '';
+        fsBtn.querySelector('i').className = on ? 'fas fa-compress' : 'fas fa-expand';
+        fsBtn.title = on ? fsExitLabel : fsEnterLabel;
+        fsBtn.classList.toggle('active', on);
+        // The tree area resizes — realign the curves for a moment
+        followConnectors(400);
+    }
+
+    // ── Auto-hiding chrome (fullscreen only) ────────────────────────────────
+    const CHROME_REVEAL_PX = 64; // distance from the top edge that counts as "approaching"
+    // Anything the pointer may rest on without the toolbar sliding away again
+    const CHROME_SEL = '#treeChrome, .tree-card > .card-header';
+    const chromeEl = document.getElementById('treeChrome');
+    const pinBtn = document.getElementById('chromePinToggle');
+    const pinLabel = '@Localizer["Pin toolbars"]';
+    const unpinLabel = '@Localizer["Unpin toolbars"]';
+    let chromePinned = false;
+
+    // Expand to the chrome's real height so no bar is cut off — same scrollHeight
+    // measurement toggleNodeExpansion uses. A cap still applies on very short
+    // screens so the toolbars can never swallow the tree; only then does it scroll.
+    function measureChrome() {
+        const natural = chromeEl.scrollHeight;
+        const cap = Math.max(160, stageEl.clientHeight - 180);
+        const h = Math.min(natural, cap);
+        chromeEl.style.maxHeight = h + 'px';
+        chromeEl.style.overflowY = natural > cap ? 'auto' : 'hidden';
+    }
+
+    // Re-measure when something inside the chrome changes height while it is open
+    function remeasureChromeIfOpen() {
+        if (stageEl.classList.contains('chrome-visible')) measureChrome();
+    }
+
+    function setChromeVisible(on) {
+        if (chromePinned && !on) return; // pinned — never auto-hide
+        // mousemove fires constantly — bail out unless the state actually changes,
+        // otherwise every event would kick off another followConnectors loop
+        if (stageEl.classList.contains('chrome-visible') === on) return;
+        stageEl.classList.toggle('chrome-visible', on);
+        if (on) measureChrome(); else chromeEl.style.maxHeight = '';
+        followConnectors(350);
+    }
+
+    function setChromePinned(on) {
+        chromePinned = on;
+        pinBtn.classList.toggle('active', on);
+        pinBtn.title = on ? unpinLabel : pinLabel;
+        if (on) setChromeVisible(true);
+    }
+
+    pinBtn.addEventListener('click', function () {
+        const next = !chromePinned;
+        setChromePinned(next);
+        if (!next) setChromeVisible(false); // unpinning collapses immediately
+    });
+
+    stageEl.addEventListener('mousemove', function (e) {
+        if (!stageEl.classList.contains('tree-stage-fs')) return;
+        if (chromePinned) return; // pinned — nothing to do per event
+        // Don't pop the toolbar open in the middle of a drag-pan
+        if (document.querySelector('.tree-visualization.tree-panning')) return;
+        const nearTop = (e.clientY - stageEl.getBoundingClientRect().top) < CHROME_REVEAL_PX;
+        setChromeVisible(nearTop || !!e.target.closest(CHROME_SEL));
+    });
+
+    // Keyboard users and the search box: stay open while focus sits inside the chrome
+    stageEl.addEventListener('focusin', function (e) {
+        if (stageEl.classList.contains('tree-stage-fs') && e.target.closest(CHROME_SEL)) {
+            setChromeVisible(true);
+        }
+    });
+
+    // The bars rewrap on resize, so the measured height has to follow
+    window.addEventListener('resize', function () {
+        if (stageEl.classList.contains('chrome-visible')) measureChrome();
+    });
+    // ────────────────────────────────────────────────────────────────────────
+
+    function exitFallback() {
+        stageEl.classList.remove('tree-stage-fallback');
+        setFsUI(false);
+    }
+
+    fsBtn.addEventListener('click', function () {
+        if (stageEl.classList.contains('tree-stage-fs')) {
+            if (isNativeFs()) {
+                (document.exitFullscreen || document.webkitExitFullscreen).call(document);
+            } else {
+                exitFallback();
+            }
+            return;
+        }
+        const req = stageEl.requestFullscreen || stageEl.webkitRequestFullscreen;
+        if (req) {
+            // Older webkitRequestFullscreen returns undefined — Promise.resolve covers both
+            Promise.resolve(req.call(stageEl)).catch(() => {
+                stageEl.classList.add('tree-stage-fallback');
+                setFsUI(true);
+            });
+        } else {
+            stageEl.classList.add('tree-stage-fallback');
+            setFsUI(true);
+        }
+    });
+
+    // Native enter/exit (including ESC) keeps the button state in sync
+    document.addEventListener('fullscreenchange',       () => setFsUI(isNativeFs()));
+    document.addEventListener('webkitfullscreenchange', () => setFsUI(isNativeFs()));
+
+    // ESC leaves the CSS-only fallback
+    document.addEventListener('keydown', function (e) {
+        if (e.key === 'Escape' && stageEl.classList.contains('tree-stage-fallback')) exitFallback();
+    });
     // ────────────────────────────────────────────────────────────────────────
 
     // ── Performance Threshold Filter ────────────────────────────────────────
@@ -1392,8 +2364,8 @@ document.addEventListener('DOMContentLoaded', function() {
             const nodeDiv = container.querySelector(':scope > .tree-node');
             if (!nodeDiv) return;
 
-            // Framework nodes are never filtered
-            if (nodeDiv.classList.contains('framework')) return;
+            // Framework/Ministry nodes are never filtered
+            if (nodeDiv.classList.contains('framework') || nodeDiv.classList.contains('ministry')) return;
 
             const perf = getNodePerf(nodeDiv);
             const below = perf < threshold;
@@ -1406,6 +2378,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 container.classList.toggle('perf-hidden', below);
             }
         });
+        scheduleConnectors();
     }
 
     thresholdSlider.addEventListener('input', applyThreshold);
@@ -1434,6 +2407,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const val = parseInt(spacingSlider.value, 10);
         spacingBadge.textContent = val + 'px';
         document.documentElement.style.setProperty('--node-gap', val + 'px');
+        scheduleConnectors();
     }
 
     spacingSlider.addEventListener('input', applyCellSpacing);
@@ -1465,6 +2439,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
             container.classList.toggle('type-hidden', hiddenTypes.has(type));
         });
+        scheduleConnectors();
     }
 
     document.querySelectorAll('.type-filter-btn').forEach(btn => {
@@ -1523,6 +2498,9 @@ document.addEventListener('DOMContentLoaded', function() {
             icon.classList.add('collapsed');
             if (symbol) symbol.textContent = '+';
         }
+
+        // Keep the curves aligned throughout the expand/collapse animation
+        followConnectors();
     }
 
     function expandAllNodes() {
@@ -1541,6 +2519,7 @@ document.addEventListener('DOMContentLoaded', function() {
             const symbol = icon.querySelector('.expand-symbol');
             if (symbol) symbol.textContent = '−';
         });
+        followConnectors();
     }
 
     function collapseAllNodes() {
@@ -1559,6 +2538,7 @@ document.addEventListener('DOMContentLoaded', function() {
             const symbol = icon.querySelector('.expand-symbol');
             if (symbol) symbol.textContent = '+';
         });
+        followConnectors();
     }
 
     function exportChart() {
@@ -1587,6 +2567,8 @@ document.addEventListener('DOMContentLoaded', function() {
 
         // Wait one frame for layout to settle
         requestAnimationFrame(() => {
+            // Redraw the curves at 1:1 to match the temporarily un-zoomed capture
+            drawConnectors(1);
             html2canvas(wrapper, {
                 backgroundColor: getComputedStyle(document.documentElement)
                     .getPropertyValue('--secondary-card-background').trim() || '#ffffff',
@@ -1623,6 +2605,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
                 btn.disabled = false;
                 btn.innerHTML = originalHTML;
+                scheduleConnectors();
             });
         });
     }
@@ -1724,6 +2707,9 @@ document.addEventListener('DOMContentLoaded', function() {
                 nodeDiv.classList.add('search-dim');
             }
         });
+
+        // Search may have expanded ancestors — refresh the curves
+        scheduleConnectors();
     }
     // ────────────────────────────────────────────────────────────────────────
 
@@ -1741,7 +2727,11 @@ document.addEventListener('DOMContentLoaded', function() {
                 thresholdMode: thresholdMode,
                 hiddenTypes: Array.from(hiddenTypes),
                 zoom: zoomLevel,
-                statusColors: document.body.classList.contains('status-colors-on')
+                statusColors: document.body.classList.contains('status-colors-on'),
+                treeLines: document.body.classList.contains('tree-lines-on'),
+                horizontal: document.body.classList.contains('tree-horizontal'),
+                compact: document.body.classList.contains('tree-compact'),
+                depth: parseInt(depthSelect.value, 10) || 0
             }));
         } catch (e) { }
     }
@@ -1757,7 +2747,7 @@ document.addEventListener('DOMContentLoaded', function() {
     function applyStatusColors() {
         document.querySelectorAll('.tree-node').forEach(nodeDiv => {
             nodeDiv.classList.remove('perf-good', 'perf-mid', 'perf-low', 'perf-bad');
-            if (nodeDiv.classList.contains('framework')) return;
+            if (nodeDiv.classList.contains('framework') || nodeDiv.classList.contains('ministry')) return;
             nodeDiv.classList.add(perfStatusClass(getNodePerf(nodeDiv)));
         });
     }
@@ -1842,15 +2832,30 @@ document.addEventListener('DOMContentLoaded', function() {
         }
         applyThreshold();
         applyTypeFilter();
+        applyDepthLimit(); // no-op when the depth selector is on "All"
         if (p.zoom) { zoomLevel = p.zoom; applyZoom(); }
     }
     window.applyPrefsAfterRender = applyPrefsAfterRender;
 
-    // Restore DOM-independent prefs immediately (cell spacing + density)
+    // Restore DOM-independent prefs immediately (cell spacing + density + connecting lines + orientation)
     (function () {
         const p = loadPrefs();
         if (p.spacing != null) { spacingSlider.value = p.spacing; applyCellSpacing(); }
         syncDensityActive(parseInt(spacingSlider.value, 10));
+        // Connecting lines — hidden by default (only ON when explicitly saved as true)
+        const linesOn = p.treeLines === true;
+        document.body.classList.toggle('tree-lines-on', linesOn);
+        document.getElementById('showLinesToggle').checked = linesOn;
+        // Orientation — vertical by default (only horizontal when explicitly saved as true)
+        const horizontalOn = p.horizontal === true;
+        document.body.classList.toggle('tree-horizontal', horizontalOn);
+        document.getElementById('horizontalToggle').checked = horizontalOn;
+        // Compact nodes — full-size by default
+        const compactOn = p.compact === true;
+        document.body.classList.toggle('tree-compact', compactOn);
+        document.getElementById('compactToggle').checked = compactOn;
+        // Depth limit — "All" by default; applyDepthLimit() runs after each render
+        if (p.depth != null) depthSelect.value = String(p.depth);
     })();
     // ────────────────────────────────────────────────────────────────────────
 

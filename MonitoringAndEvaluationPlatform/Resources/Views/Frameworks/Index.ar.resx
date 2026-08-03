@@ -124,7 +124,7 @@
     <value>الرصد الميداني</value>
   </data>
   <data name="Framework Name" xml:space="preserve">
-    <value>اسم الإستراتيجية</value>
+    <value>الهدف الاستراتيجي</value>
   </data>
   <data name="Disbursement Performance" xml:space="preserve">
     <value>نسبة الإنفاق</value>
@@ -136,16 +136,16 @@
     <value>الإجراءات</value>
   </data>
   <data name="Create New Framework" xml:space="preserve">
-    <value>إنشاء استراتيجية جديدة</value>
+    <value>إنشاء هدف استراتيجي جديد</value>
   </data>
   <data name="Results Frameworks" xml:space="preserve">
-    <value>الاستراتيجيات</value>
+    <value>الأهداف الاستراتيجية</value>
   </data>
   <data name="Search by framework name" xml:space="preserve">
-    <value>البحث حسب اسم الاستراتيجية...</value>
+    <value>البحث حسب اسم الهدف الاستراتيجي...</value>
   </data>
   <data name="Search frameworks, outcomes, outputs, suboutputs, indicators, and projects" xml:space="preserve">
-    <value>البحث في الاستراتيجيات والنتائج والبرامج والبرامج الفرعية والمشاريع ...</value>
+    <value>البحث في الأهداف الاستراتيجية والنتائج والبرامج والبرامج الفرعية والمشاريع ...</value>
   </data>
   <data name="Search Results" xml:space="preserve">
     <value>نتائج البحث</value>
@@ -157,7 +157,7 @@
     <value>نتيجة</value>
   </data>
   <data name="Framework" xml:space="preserve">
-    <value>الاستراتيجية</value>
+    <value>الهدف الاستراتيجي</value>
   </data>
   <data name="Outcome" xml:space="preserve">
     <value>النتيجة</value>
@@ -208,16 +208,16 @@
     <value>الفلاتر</value>
   </data>
   <data name="Comprehensive overview of monitoring frameworks and their performance metrics" xml:space="preserve">
-    <value>نظرة عامة على الاستراتيجيات ونسبة الأداء والإنفاق</value>
+    <value>نظرة عامة على الأهداف الاستراتيجية ونسبة الأداء والإنفاق</value>
   </data>
   <data name="Search &amp; Filter Frameworks" xml:space="preserve">
-    <value>بحث وتصفية الاستراتيجيات</value>
+    <value>بحث وتصفية الأهداف الاستراتيجية</value>
   </data>
   <data name="Search" xml:space="preserve">
     <value>البحث</value>
   </data>
   <data name="Quick Create" xml:space="preserve">
-    <value>إنشاء سريع</value>
+    <value>إنشاء هدف استراتيجي جديد</value>
   </data>
   <data name="Comprehensive Builder" xml:space="preserve">
     <value>البناء الشامل</value>
@@ -235,16 +235,16 @@
     <value>تعذر إنشاء الإستراتيجية . يُرجى المحاولة مرة أخرى.</value>
   </data>
   <data name="Framework name updated successfully." xml:space="preserve">
-    <value>تم تحديث اسم الإستراتيجية بنجاح.</value>
+    <value>تم تحديث اسم الهدف الاستراتيجي بنجاح.</value>
   </data>
   <data name="Could not update framework name." xml:space="preserve">
-    <value>لم يتمكن من تحديث اسم الإستراتيجية .</value>
+    <value>لم يتمكن من تحديث اسم الهدف الاستراتيجي .</value>
   </data>
   <data name="Are you sure" xml:space="preserve">
     <value>هل أنت متأكد</value>
   </data>
   <data name="This will permanently delete the framework and all associated data!" xml:space="preserve">
-    <value>سيؤدي هذا إلى حذف الاستراتيجية وجميع البيانات المرتبطة به بشكل دائم!</value>
+    <value>سيؤدي هذا إلى حذف الهدف الاستراتيجي وجميع البيانات المرتبطة به بشكل دائم!</value>
   </data>
   <data name="Framework has been deleted successfully." xml:space="preserve">
     <value>تم حذف الإستراتيجية بنجاح.</value>
@@ -271,7 +271,7 @@
     <value>الوزن</value>
   </data>
   <data name="No outcomes found for this framework" xml:space="preserve">
-    <value>لم يتم العثور على سياسات لهذه الاستراتيجية</value>
+    <value>لم يتم العثور على سياسات لهذا الهدف الاستراتيجي</value>
   </data>
   <data name="Add Outcome" xml:space="preserve">
     <value>إضافة سياسة</value>
@@ -310,7 +310,7 @@
     <value>المشاريع</value>
   </data>
   <data name="No indicators found for this framework" xml:space="preserve">
-    <value>لا توجد مؤشرات لهذه الاستراتيجية</value>
+    <value>لا توجد مؤشرات لهذا الهدف الاستراتيجي</value>
   </data>
   <data name="No projects assigned to this indicator" xml:space="preserve">
     <value>لا توجد مشاريع مرتبطة بهذا المؤشر</value>
@@ -325,7 +325,7 @@
     <value>عرض التفاصيل</value>
   </data>
   <data name="No projects found for this framework" xml:space="preserve">
-    <value>لم يتم العثور على مشاريع لهذه الاستراتيجية</value>
+    <value>لم يتم العثور على مشاريع لهذا الهدف الاستراتيجي</value>
   </data>
   <data name="Expand All" xml:space="preserve">
     <value>توسيع الكل</value>
@@ -335,5 +335,53 @@
   </data>
   <data name="Deleted!" xml:space="preserve">
     <value>تم الحذف!</value>
+  </data>
+  <data name="Select Ministry" xml:space="preserve">
+    <value>اختر الوزارة</value>
+  </data>
+  <data name="Please select a ministry" xml:space="preserve">
+    <value>الرجاء اختيار وزارة</value>
+  </data>
+  <data name="Not linked" xml:space="preserve">
+    <value>غير مرتبطة</value>
+  </data>
+  <data name="Change Ministry" xml:space="preserve">
+    <value>تغيير الوزارة</value>
+  </data>
+  <data name="Ministry updated successfully." xml:space="preserve">
+    <value>تم تحديث الوزارة بنجاح.</value>
+  </data>
+  <data name="Could not update the ministry." xml:space="preserve">
+    <value>لم يتم تحديث الوزارة.</value>
+  </data>
+  <data name="Filter by this ministry" xml:space="preserve">
+    <value>فلترة حسب هذه الوزارة</value>
+  </data>
+  <data name="Owner Ministry" xml:space="preserve">
+    <value>الوزارة المالكة</value>
+  </data>
+  <data name="Ministries" xml:space="preserve">
+    <value>الوزارات</value>
+  </data>
+  <data name="Strategies" xml:space="preserve">
+    <value>الأهداف الاستراتيجية</value>
+  </data>
+  <data name="Back to Ministries" xml:space="preserve">
+    <value>رجوع إلى الوزارات</value>
+  </data>
+  <data name="Unassigned" xml:space="preserve">
+    <value>غير مرتبطة</value>
+  </data>
+  <data name="No ministries found" xml:space="preserve">
+    <value>لا توجد وزارات</value>
+  </data>
+  <data name="By Ministry" xml:space="preserve">
+    <value>حسب الوزارة</value>
+  </data>
+  <data name="All Strategies" xml:space="preserve">
+    <value>كل الأهداف الاستراتيجية</value>
+  </data>
+  <data name="View" xml:space="preserve">
+    <value>العرض</value>
   </data>
 </root>

@@ -28,9 +28,16 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             string? sortColumn = "Timestamp",
             string? sortDirection = "desc",
             int page = 1,
-            int pageSize = 25)
+            int pageSize = 25,
+            bool includeAuthentication = false)
         {
             var query = _context.AuditLogs.AsQueryable();
+
+            // Login/logout events flood the list; hide them unless explicitly requested
+            if (!includeAuthentication && string.IsNullOrWhiteSpace(entityFilter))
+            {
+                query = query.Where(a => a.EntityName != "Authentication");
+            }
 
             // Apply filters
             if (!string.IsNullOrWhiteSpace(searchTerm))
@@ -38,6 +45,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 query = query.Where(a =>
                     a.EntityName.Contains(searchTerm) ||
                     a.EntityId.Contains(searchTerm) ||
+                    (a.EntityDisplayName != null && a.EntityDisplayName.Contains(searchTerm)) ||
                     (a.UserName != null && a.UserName.Contains(searchTerm)) ||
                     (a.OldValues != null && a.OldValues.Contains(searchTerm)) ||
                     (a.NewValues != null && a.NewValues.Contains(searchTerm)));
@@ -102,6 +110,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 DateTo = dateTo,
                 SortColumn = sortColumn,
                 SortDirection = sortDirection,
+                IncludeAuthentication = includeAuthentication,
                 CurrentPage = page,
                 PageSize = pageSize,
                 TotalRecords = totalRecords,
@@ -155,6 +164,60 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             return View(auditLogs);
         }
 
+        // GET: AuditLogs/ProjectHistory/5
+        // Comprehensive audit trail for one project: the Project row itself plus all its
+        // child items (phases, measures, action plans, plans, donor links, files, indicators).
+        public async Task<IActionResult> ProjectHistory(int projectId)
+        {
+            var project = await _context.Projects.FindAsync(projectId);
+            if (project == null) return NotFound();
+
+            var phaseIds = await _context.ProjectPhases
+                .Where(p => p.ProjectID == projectId).Select(p => p.Id).ToListAsync();
+            var measureCodes = await _context.Measures
+                .Where(m => phaseIds.Contains(m.ProjectPhaseId)).Select(m => m.Code).ToListAsync();
+            var actionPlanCodes = await _context.ActionPlans
+                .Where(a => phaseIds.Contains(a.ProjectPhaseId)).Select(a => a.Code).ToListAsync();
+            var planCodes = await _context.Plans
+                .Where(p => actionPlanCodes.Contains(p.ActionPlanCode)).Select(p => p.Code).ToListAsync();
+            var donorIds = await _context.ProjectDonors
+                .Where(d => d.ProjectId == projectId).Select(d => d.Id).ToListAsync();
+            var fileIds = await _context.ProjectFiles
+                .Where(f => f.ProjectId == projectId).Select(f => f.Id).ToListAsync();
+            var indicatorCodes = await _context.Indicators
+                .Where(i => i.ProjectID == projectId).Select(i => i.IndicatorCode).ToListAsync();
+
+            var projectIdStr = projectId.ToString();
+            var phaseIdStrs = phaseIds.Select(x => x.ToString()).ToList();
+            var measureStrs = measureCodes.Select(x => x.ToString()).ToList();
+            var actionPlanStrs = actionPlanCodes.Select(x => x.ToString()).ToList();
+            var planStrs = planCodes.Select(x => x.ToString()).ToList();
+            var donorStrs = donorIds.Select(x => x.ToString()).ToList();
+            var fileStrs = fileIds.Select(x => x.ToString()).ToList();
+            var indicatorStrs = indicatorCodes.Select(x => x.ToString()).ToList();
+
+            // Note: audit rows of children deleted before this page is viewed are not included
+            // (IDs are collected from live rows). Follow-up: denormalize ProjectId onto AuditLog
+            // in the interceptor.
+            var auditLogs = await _context.AuditLogs.Where(a =>
+                    (a.EntityName == nameof(Project) && a.EntityId == projectIdStr) ||
+                    (a.EntityName == nameof(ProjectPhase) && phaseIdStrs.Contains(a.EntityId)) ||
+                    (a.EntityName == nameof(Measure) && measureStrs.Contains(a.EntityId)) ||
+                    (a.EntityName == nameof(ActionPlan) && actionPlanStrs.Contains(a.EntityId)) ||
+                    (a.EntityName == nameof(Plan) && planStrs.Contains(a.EntityId)) ||
+                    (a.EntityName == nameof(ProjectDonor) && donorStrs.Contains(a.EntityId)) ||
+                    (a.EntityName == nameof(ProjectFile) && fileStrs.Contains(a.EntityId)) ||
+                    (a.EntityName == nameof(Indicator) && indicatorStrs.Contains(a.EntityId)))
+                .OrderByDescending(a => a.Timestamp)
+                .Take(1000)
+                .ToListAsync();
+
+            ViewBag.ProjectId = projectId;
+            ViewBag.ProjectName = project.ProjectName;
+
+            return View(auditLogs);
+        }
+
         // GET: AuditLogs/UserActivity
         public async Task<IActionResult> UserActivity(string userId, int page = 1, int pageSize = 25)
         {
@@ -187,9 +250,13 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             string? entityFilter = null,
             string? actionFilter = null,
             DateTime? dateFrom = null,
-            DateTime? dateTo = null)
+            DateTime? dateTo = null,
+            bool includeAuthentication = false)
         {
             var query = _context.AuditLogs.AsQueryable();
+
+            if (!includeAuthentication && string.IsNullOrWhiteSpace(entityFilter))
+                query = query.Where(a => a.EntityName != "Authentication");
 
             if (!string.IsNullOrWhiteSpace(entityFilter))
                 query = query.Where(a => a.EntityName == entityFilter);
