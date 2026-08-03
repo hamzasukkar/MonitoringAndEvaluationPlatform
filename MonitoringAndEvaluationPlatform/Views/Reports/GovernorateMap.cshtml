@@ -72,7 +72,7 @@
                 @(isRtl ? "خريطة المشاريع حسب المحافظة" : "Projects by Governorate Map")
             </h1>
             <p class="dashboard-subtitle">
-                @(isRtl ? "صفِّ حسب الاستراتيجية والوزارة والمشروع، أو اضغط على محافظة لعرض مشاريعها"
+                @(isRtl ? "صفِّ حسب الهدف الاستراتيجي والوزارة والمشروع، أو اضغط على محافظة لعرض مشاريعها"
                         : "Filter by strategy, ministry and project, or click a governorate to view its projects")
             </p>
         </div>
@@ -94,7 +94,7 @@
             <!-- Strategies -->
             <div class="dropdown filter-dropdown">
                 <button class="btn btn-outline-primary dropdown-toggle" type="button" data-bs-toggle="dropdown" data-bs-auto-close="outside" aria-expanded="false">
-                    <i class="fas fa-sitemap me-1"></i>@(isRtl ? "الاستراتيجيات" : "Strategies")
+                    <i class="fas fa-sitemap me-1"></i>@(isRtl ? "الأهداف الاستراتيجية" : "Strategies")
                     <span class="badge bg-primary ms-1" id="stratCount" style="display:none;">0</span>
                 </button>
                 <div class="dropdown-menu p-2">
@@ -311,7 +311,7 @@
             { labelAr: 'النطاق',      labelEn: 'Scope',          key: p => (p.IsNational ? 1 : 0) },
             { labelAr: 'الجهة',       labelEn: 'Ministry',       key: p => (p.Ministry || '').toLowerCase() },
             { labelAr: 'الناحية',     labelEn: 'Community',      key: p => (p.Communities || []).join(', ').toLowerCase() },
-            { labelAr: 'الاستراتيجية', labelEn: 'Framework',      key: p => frameworkNames(p).join(', ').toLowerCase() },
+            { labelAr: 'الهدف الاستراتيجي', labelEn: 'Framework',      key: p => frameworkNames(p).join(', ').toLowerCase() },
             { labelAr: 'الميزانية',   labelEn: 'Budget',         key: p => (p.EstimatedBudget || 0) },
             { labelAr: 'الأداء',      labelEn: 'Performance',    key: p => (p.Performance || 0) },
             { labelAr: 'الصرف',       labelEn: 'Disbursement',   key: p => (p.DisbursementPerformance || 0) },
