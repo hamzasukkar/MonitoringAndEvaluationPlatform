@@ -1452,7 +1452,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             }
             catch (InvalidOperationException ex)
             {
-                return NotFound(ex.Message);
+                return NotFound();
             }
             return RedirectToAction(nameof(Index));
         }

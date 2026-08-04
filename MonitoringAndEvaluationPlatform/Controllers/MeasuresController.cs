@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -25,7 +25,10 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         private readonly IMinistryScopeService _scope;
         private readonly IUploadValidationService _uploadValidation;
 
-        public MeasuresController(ApplicationDbContext context, MonitoringService monitoringService, IStringLocalizer<MeasuresController> localizer, IWebHostEnvironment webHostEnvironment, IMinistryScopeService scope, IUploadValidationService uploadValidation)
+        private readonly ILogger<MeasuresController> _logger;
+
+
+        public MeasuresController(ApplicationDbContext context, MonitoringService monitoringService, IStringLocalizer<MeasuresController> localizer, IWebHostEnvironment webHostEnvironment, IMinistryScopeService scope, IUploadValidationService uploadValidation, ILogger<MeasuresController> logger)
         {
             _context = context;
             _monitoringService = monitoringService;
@@ -33,6 +36,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             _webHostEnvironment = webHostEnvironment;
             _scope = scope;
             _uploadValidation = uploadValidation;
+            _logger = logger;
         }
 
         // POST: add-measure (AJAX)
@@ -557,7 +561,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 {
                     return NotFound(new { message = ex.Message });
                 }
-                return NotFound(ex.Message);
+                return NotFound();
             }
 
             return RedirectToAction(nameof(Index));

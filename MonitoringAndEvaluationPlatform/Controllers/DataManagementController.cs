@@ -1,4 +1,4 @@
-using Microsoft.AspNetCore.Authorization;
+﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using MonitoringAndEvaluationPlatform.Data;
@@ -17,16 +17,20 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         private readonly SignInManager<ApplicationUser> _signInManager;
         private readonly ApplicationDbContext _context;
 
+        private readonly ILogger<DataManagementController> _logger;
+
+
         public DataManagementController(
             IDataManagementService dataManagementService,
             UserManager<ApplicationUser> userManager,
             SignInManager<ApplicationUser> signInManager,
-            ApplicationDbContext context)
+            ApplicationDbContext context, ILogger<DataManagementController> logger)
         {
             _dataManagementService = dataManagementService;
             _userManager = userManager;
             _signInManager = signInManager;
             _context = context;
+            _logger = logger;
         }
 
         // GET: DataManagement
@@ -73,7 +77,8 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             }
             catch (Exception ex)
             {
-                TempData["ErrorMessage"] = $"Backup failed: {ex.Message}";
+                _logger.LogError(ex, "Backup failed");
+                TempData["ErrorMessage"] = "Backup failed. See the application log for details.";
                 return RedirectToAction(nameof(Backup));
             }
         }
@@ -101,7 +106,8 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             }
             catch (Exception ex)
             {
-                TempData["ErrorMessage"] = $"Native backup failed: {ex.Message}";
+                _logger.LogError(ex, "Native backup failed");
+                TempData["ErrorMessage"] = "Native backup failed. See the application log for details.";
                 return RedirectToAction(nameof(Backup));
             }
         }
@@ -139,7 +145,8 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             }
             catch (Exception ex)
             {
-                TempData["ErrorMessage"] = $"Clear data failed: {ex.Message}";
+                _logger.LogError(ex, "Clear data failed");
+                TempData["ErrorMessage"] = "Clear data failed. See the application log for details.";
             }
 
             return RedirectToAction(nameof(Index));
@@ -178,7 +185,8 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             }
             catch (Exception ex)
             {
-                TempData["ErrorMessage"] = $"Delete projects failed: {ex.Message}";
+                _logger.LogError(ex, "Delete projects failed");
+                TempData["ErrorMessage"] = "Delete projects failed. See the application log for details.";
             }
 
             return RedirectToAction(nameof(Index));
@@ -225,7 +233,8 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             }
             catch (Exception ex)
             {
-                TempData["ErrorMessage"] = $"Reset values failed: {ex.Message}";
+                _logger.LogError(ex, "Reset values failed");
+                TempData["ErrorMessage"] = "Reset values failed. See the application log for details.";
             }
 
             return RedirectToAction(nameof(Index));

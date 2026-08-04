@@ -19,10 +19,14 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         private readonly ApplicationDbContext _context;
         private readonly IStringLocalizer<DonorsController> _localizer;
 
-        public DonorsController(ApplicationDbContext context, IStringLocalizer<DonorsController> localizer)
+        private readonly ILogger<DonorsController> _logger;
+
+
+        public DonorsController(ApplicationDbContext context, IStringLocalizer<DonorsController> localizer, ILogger<DonorsController> logger)
         {
             _context = context;
             _localizer = localizer;
+            _logger = logger;
         }
 
         // GET: Donors
@@ -113,7 +117,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             }
             catch (Exception ex)
             {
-                return Json(new { success = false, message = "Error creating donor: " + ex.Message });
+                return Json(new { success = false, message = "An unexpected error occurred. Please try again or contact an administrator." });
             }
         }
 
@@ -150,7 +154,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             }
             catch (Exception ex)
             {
-                return Json(new { success = false, message = ex.Message });
+                return Json(new { success = false, message = "An unexpected error occurred. Please try again or contact an administrator." });
             }
         }
 
@@ -169,7 +173,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             }
             catch (Exception ex)
             {
-                return Json(new { success = false, message = ex.Message });
+                return Json(new { success = false, message = "An unexpected error occurred. Please try again or contact an administrator." });
             }
         }
 
@@ -193,7 +197,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             }
             catch (Exception ex)
             {
-                return Json(new { success = false, message = ex.Message });
+                return Json(new { success = false, message = "An unexpected error occurred. Please try again or contact an administrator." });
             }
         }
 

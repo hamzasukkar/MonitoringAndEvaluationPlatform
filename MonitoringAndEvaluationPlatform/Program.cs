@@ -2,6 +2,7 @@
 using System.Net;
 using System.Threading.RateLimiting;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Localization;
@@ -219,6 +220,23 @@ builder.Services.AddScoped<IAuditService, AuditService>();
 builder.Services.AddScoped<IDataManagementService, DataManagementService>();
 builder.Services.AddScoped<IMinistryScopeService, MinistryScopeService>();
 builder.Services.AddScoped<IUploadValidationService, UploadValidationService>();
+
+// Persist data-protection keys. Without this they live in the app-pool profile and are
+// regenerated on recycle, which silently invalidates every auth cookie and every
+// password-reset token. Keep the path outside wwwroot and outside the deploy folder.
+var dataProtectionKeyPath = builder.Configuration["DataProtection:KeyPath"];
+if (!string.IsNullOrWhiteSpace(dataProtectionKeyPath))
+{
+    Directory.CreateDirectory(dataProtectionKeyPath);
+    builder.Services.AddDataProtection()
+        .PersistKeysToFileSystem(new DirectoryInfo(dataProtectionKeyPath))
+        .SetApplicationName("MonitoringAndEvaluationPlatform");
+}
+else
+{
+    builder.Services.AddDataProtection()
+        .SetApplicationName("MonitoringAndEvaluationPlatform");
+}
 builder.Services.AddScoped<IGuideService, GuideService>();
 // Lets the guide editor send the anti-forgery token on JSON POSTs via header.
 builder.Services.AddAntiforgery(o => o.HeaderName = "RequestVerificationToken");
@@ -274,6 +292,9 @@ else
 }
 
 app.UseHttpsRedirection();
+
+// Before UseStaticFiles so the headers cover static assets too.
+app.UseSecurityHeaders();
 
 // User uploads must never be served as static files. UseStaticFiles runs before
 // UseAuthentication, so anything under wwwroot is anonymous - which meant every project,
