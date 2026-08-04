@@ -178,6 +178,11 @@ builder.Services.AddRateLimiter(options =>
 {
     options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
 
+    // Limits are configurable so a deployment can tune them, and so the security test
+    // suite - which drives many sign-ins from a single address - is not throttled by them.
+    var loginPermitLimit = builder.Configuration.GetValue<int?>("RateLimiting:Login:PermitLimit") ?? 10;
+    var loginWindowMinutes = builder.Configuration.GetValue<int?>("RateLimiting:Login:WindowMinutes") ?? 5;
+
     // Credential-guessing protection, partitioned by client IP. Only meaningful because
     // KnownProxies is now restricted above - otherwise a spoofed X-Forwarded-For would
     // create a new partition on every request.
@@ -186,8 +191,8 @@ builder.Services.AddRateLimiter(options =>
             context.Connection.RemoteIpAddress?.ToString() ?? "unknown",
             _ => new FixedWindowRateLimiterOptions
             {
-                PermitLimit = 10,
-                Window = TimeSpan.FromMinutes(5)
+                PermitLimit = loginPermitLimit,
+                Window = TimeSpan.FromMinutes(loginWindowMinutes)
             }));
 
     // Metered third-party LLM calls - protects the API quota/bill.
@@ -427,3 +432,7 @@ using (var scope = app.Services.CreateScope())
 }
 
 app.Run();
+
+// Exposes the implicitly-generated Program class to the security test project so
+// WebApplicationFactory<Program> can boot the real application pipeline.
+public partial class Program { }
