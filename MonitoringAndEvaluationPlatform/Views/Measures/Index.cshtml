@@ -425,7 +425,7 @@
                                         {
                                             @foreach (var f in item.Files)
                                             {
-                                                <a href="@f.FilePath" target="_blank" class="btn btn-outline-secondary btn-sm action-btn" title="@f.FileName">
+                                                <a href="@Url.Action("Measure", "Files", new { id = f.Id })" target="_blank" class="btn btn-outline-secondary btn-sm action-btn" title="@f.FileName">
                                                     <i class="fas fa-file-alt"></i>
                                                 </a>
                                             }

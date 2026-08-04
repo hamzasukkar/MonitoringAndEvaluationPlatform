@@ -19,15 +19,18 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         private readonly ApplicationDbContext _context;
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly IStringLocalizer<RequestsController> _localizer;
+        private readonly IUploadValidationService _uploadValidation;
 
         public RequestsController(
             ApplicationDbContext context,
             UserManager<ApplicationUser> userManager,
-            IStringLocalizer<RequestsController> localizer)
+            IStringLocalizer<RequestsController> localizer,
+            IUploadValidationService uploadValidation)
         {
             _context = context;
             _userManager = userManager;
             _localizer = localizer;
+            _uploadValidation = uploadValidation;
         }
 
         // ---------------------------------------------------------------- Management
@@ -538,35 +541,29 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         }
 
         /// <summary>
-        /// Mirrors ProjectsController.ProcessFileUploadsAsync: stores under
-        /// wwwroot/uploads with a GUID-prefixed name and records the row.
+        /// Validates and stores request attachments via IUploadValidationService, which keeps
+        /// them outside wwwroot under a server-generated name.
         /// </summary>
         private async Task<bool> ProcessFileUploadsAsync(int requestId, List<IFormFile> uploadedFiles)
         {
             if (uploadedFiles == null || !uploadedFiles.Any())
                 return true;
 
-            var uploadsFolder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/uploads");
-            if (!Directory.Exists(uploadsFolder))
-                Directory.CreateDirectory(uploadsFolder);
-
             foreach (var file in uploadedFiles)
             {
                 if (file.Length > 0)
                 {
-                    var uniqueFileName = $"{Guid.NewGuid()}_{Path.GetFileName(file.FileName)}";
-                    var filePath = Path.Combine(uploadsFolder, uniqueFileName);
-
-                    using (var stream = new FileStream(filePath, FileMode.Create))
+                    var upload = await _uploadValidation.SaveAsync(file, UploadPurpose.Attachment, "requests");
+                    if (!upload.Ok)
                     {
-                        await file.CopyToAsync(stream);
+                        continue;
                     }
 
                     _context.RequestFiles.Add(new RequestFile
                     {
                         RequestId = requestId,
-                        FileName = file.FileName,
-                        FilePath = "/uploads/" + uniqueFileName
+                        FileName = _uploadValidation.SanitizeDisplayName(file.FileName),
+                        FilePath = upload.RelativePath!
                     });
                 }
             }

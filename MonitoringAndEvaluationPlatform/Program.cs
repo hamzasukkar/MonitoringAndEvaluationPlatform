@@ -209,6 +209,7 @@ builder.Services.AddScoped<INotificationService, NotificationService>();
 builder.Services.AddScoped<IAuditService, AuditService>();
 builder.Services.AddScoped<IDataManagementService, DataManagementService>();
 builder.Services.AddScoped<IMinistryScopeService, MinistryScopeService>();
+builder.Services.AddScoped<IUploadValidationService, UploadValidationService>();
 builder.Services.AddScoped<IGuideService, GuideService>();
 // Lets the guide editor send the anti-forgery token on JSON POSTs via header.
 builder.Services.AddAntiforgery(o => o.HeaderName = "RequestVerificationToken");
@@ -264,6 +265,24 @@ else
 }
 
 app.UseHttpsRedirection();
+
+// User uploads must never be served as static files. UseStaticFiles runs before
+// UseAuthentication, so anything under wwwroot is anonymous - which meant every project,
+// request, measure and goal attachment was readable by URL, and an uploaded .html or .svg
+// executed as same-origin script. New uploads live outside wwwroot; this 404 also covers
+// files written to wwwroot/uploads before that change. They stay reachable through the
+// authorized download actions only.
+app.Use(async (context, next) =>
+{
+    if (context.Request.Path.StartsWithSegments("/uploads", StringComparison.OrdinalIgnoreCase))
+    {
+        context.Response.StatusCode = StatusCodes.Status404NotFound;
+        return;
+    }
+
+    await next();
+});
+
 app.UseStaticFiles();
 
 app.UseRouting();

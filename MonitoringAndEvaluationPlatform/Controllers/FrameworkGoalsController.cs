@@ -12,6 +12,7 @@ using MonitoringAndEvaluationPlatform.Attributes;
 using MonitoringAndEvaluationPlatform.Data;
 using MonitoringAndEvaluationPlatform.Enums;
 using MonitoringAndEvaluationPlatform.Models;
+using MonitoringAndEvaluationPlatform.Services;
 using ClosedXML.Excel;
 using QuestPDF.Fluent;
 using QuestPDF.Helpers;
@@ -27,17 +28,20 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         private readonly IStringLocalizer<FrameworkGoalsController> _localizer;
         private readonly IWebHostEnvironment _webHostEnvironment;
         private readonly UserManager<ApplicationUser> _userManager;
+        private readonly IUploadValidationService _uploadValidation;
 
         public FrameworkGoalsController(
             ApplicationDbContext context,
             IStringLocalizer<FrameworkGoalsController> localizer,
             IWebHostEnvironment webHostEnvironment,
-            UserManager<ApplicationUser> userManager)
+            UserManager<ApplicationUser> userManager,
+            IUploadValidationService uploadValidation)
         {
             _context = context;
             _localizer = localizer;
             _webHostEnvironment = webHostEnvironment;
             _userManager = userManager;
+            _uploadValidation = uploadValidation;
         }
 
         private async Task<(bool IsAdmin, int? MinistryCode)> GetScopeAsync()
@@ -761,17 +765,22 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                     return Json(new { success = false, message = _localizer["You are not authorized to view this goal."].Value });
                 }
 
-                var attachments = await _context.FrameworkGoalFiles
+                var files = await _context.FrameworkGoalFiles
                     .Where(f => f.FrameworkGoalID == goalId)
                     .OrderByDescending(f => f.UploadedDate)
-                    .Select(f => new
-                    {
-                        id = f.Id,
-                        fileName = f.FileName,
-                        filePath = f.FilePath,
-                        uploadedDate = f.UploadedDate.ToString("yyyy-MM-dd HH:mm")
-                    })
+                    .Select(f => new { f.Id, f.FileName, f.UploadedDate })
                     .ToListAsync();
+
+                // Return authorized action URLs, never the raw storage path - uploads are no
+                // longer served statically.
+                var attachments = files.Select(f => new
+                {
+                    id = f.Id,
+                    fileName = f.FileName,
+                    url = Url.Action("FrameworkGoal", "Files", new { id = f.Id }),
+                    downloadUrl = Url.Action("FrameworkGoal", "Files", new { id = f.Id, download = true }),
+                    uploadedDate = f.UploadedDate.ToString("yyyy-MM-dd HH:mm")
+                });
 
                 return Json(new { success = true, attachments = attachments });
             }
@@ -805,29 +814,23 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                     return Json(new { success = false, message = _localizer["You are not authorized to modify this goal."].Value });
                 }
 
-                // Create uploads folder if it doesn't exist
-                var uploadsFolder = Path.Combine(_webHostEnvironment.WebRootPath, "uploads", "frameworkgoals");
-                if (!Directory.Exists(uploadsFolder))
+                // Validate and store via the shared service. This previously built the path as
+                // $"{Guid.NewGuid()}_{file.FileName}" with no Path.GetFileName and FileMode.Create,
+                // so a filename like "../../web.config" escaped the uploads folder and
+                // OVERWROTE arbitrary files. There was also no type, size or content check.
+                var upload = await _uploadValidation.SaveAsync(file, UploadPurpose.Attachment, "frameworkgoals");
+                if (!upload.Ok)
                 {
-                    Directory.CreateDirectory(uploadsFolder);
+                    return Json(new { success = false, message = upload.Error });
                 }
 
-                // Generate unique filename
-                var uniqueFileName = $"{Guid.NewGuid()}_{file.FileName}";
-                var filePath = Path.Combine(uploadsFolder, uniqueFileName);
-
-                // Save file to disk
-                using (var stream = new FileStream(filePath, FileMode.Create))
-                {
-                    await file.CopyToAsync(stream);
-                }
-
-                // Save file record to database
+                // Save file record to database. The original name is kept for display only and
+                // is sanitized, because it is rendered in the attachments list.
                 var attachment = new FrameworkGoalFile
                 {
                     FrameworkGoalID = goalId,
-                    FileName = file.FileName,
-                    FilePath = $"/uploads/frameworkgoals/{uniqueFileName}",
+                    FileName = _uploadValidation.SanitizeDisplayName(file.FileName),
+                    FilePath = upload.RelativePath!,
                     UploadedDate = DateTime.Now
                 };
 
@@ -842,7 +845,8 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                     {
                         id = attachment.Id,
                         fileName = attachment.FileName,
-                        filePath = attachment.FilePath,
+                        url = Url.Action("FrameworkGoal", "Files", new { id = attachment.Id }),
+                        downloadUrl = Url.Action("FrameworkGoal", "Files", new { id = attachment.Id, download = true }),
                         uploadedDate = attachment.UploadedDate.ToString("yyyy-MM-dd HH:mm")
                     }
                 });
@@ -872,9 +876,10 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                     return Json(new { success = false, message = _localizer["You are not authorized to modify this goal."].Value });
                 }
 
-                // Delete physical file
-                var filePath = Path.Combine(_webHostEnvironment.WebRootPath, attachment.FilePath.TrimStart('/').Replace('/', Path.DirectorySeparatorChar));
-                if (System.IO.File.Exists(filePath))
+                // Delete physical file. Resolved through the upload service so the path is
+                // containment-checked and both the current and legacy locations are handled.
+                var filePath = _uploadValidation.ResolveStoredPath(attachment.FilePath);
+                if (filePath != null && System.IO.File.Exists(filePath))
                 {
                     System.IO.File.Delete(filePath);
                 }

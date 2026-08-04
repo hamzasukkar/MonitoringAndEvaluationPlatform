@@ -4634,29 +4634,64 @@
                 const result = await response.json();
 
                 if (result.success && result.attachments && result.attachments.length > 0) {
-                    let html = '<div class="attachments-list">';
+                    // Built as DOM nodes with textContent rather than concatenated into
+                    // innerHTML: att.fileName originates from the uploader's filename, so
+                    // string-building here was a stored-XSS sink.
+                    const list = document.createElement('div');
+                    list.className = 'attachments-list';
+
                     result.attachments.forEach(att => {
-                        html += `
-                            <div class="attachment-item d-flex justify-content-between align-items-center py-2 border-bottom">
-                                <div class="attachment-info">
-                                    <a href="${att.filePath}" target="_blank" class="text-decoration-none">
-                                        <i class="fas fa-file me-2"></i>${att.fileName}
-                                    </a>
-                                    <small class="text-muted d-block">${att.uploadedDate}</small>
-                                </div>
-                                <div class="attachment-actions">
-                                    <a href="${att.filePath}" download class="btn btn-sm btn-outline-primary me-1" title="@Localizer["Download"]">
-                                        <i class="fas fa-download"></i>
-                                    </a>
-                                    <button type="button" class="btn btn-sm btn-outline-danger" onclick="deleteAttachment(${att.id})" title="@Localizer["Delete"]">
-                                        <i class="fas fa-trash"></i>
-                                    </button>
-                                </div>
-                            </div>
-                        `;
+                        const row = document.createElement('div');
+                        row.className = 'attachment-item d-flex justify-content-between align-items-center py-2 border-bottom';
+
+                        const info = document.createElement('div');
+                        info.className = 'attachment-info';
+
+                        const viewLink = document.createElement('a');
+                        viewLink.href = att.url;
+                        viewLink.target = '_blank';
+                        viewLink.className = 'text-decoration-none';
+                        const icon = document.createElement('i');
+                        icon.className = 'fas fa-file me-2';
+                        viewLink.appendChild(icon);
+                        viewLink.appendChild(document.createTextNode(att.fileName));
+
+                        const date = document.createElement('small');
+                        date.className = 'text-muted d-block';
+                        date.textContent = att.uploadedDate;
+
+                        info.appendChild(viewLink);
+                        info.appendChild(date);
+
+                        const actions = document.createElement('div');
+                        actions.className = 'attachment-actions';
+
+                        const downloadLink = document.createElement('a');
+                        downloadLink.href = att.downloadUrl;
+                        downloadLink.className = 'btn btn-sm btn-outline-primary me-1';
+                        downloadLink.title = '@Localizer["Download"]';
+                        const downloadIcon = document.createElement('i');
+                        downloadIcon.className = 'fas fa-download';
+                        downloadLink.appendChild(downloadIcon);
+
+                        const deleteButton = document.createElement('button');
+                        deleteButton.type = 'button';
+                        deleteButton.className = 'btn btn-sm btn-outline-danger';
+                        deleteButton.title = '@Localizer["Delete"]';
+                        deleteButton.addEventListener('click', () => deleteAttachment(att.id));
+                        const deleteIcon = document.createElement('i');
+                        deleteIcon.className = 'fas fa-trash';
+                        deleteButton.appendChild(deleteIcon);
+
+                        actions.appendChild(downloadLink);
+                        actions.appendChild(deleteButton);
+
+                        row.appendChild(info);
+                        row.appendChild(actions);
+                        list.appendChild(row);
                     });
-                    html += '</div>';
-                    container.innerHTML = html;
+
+                    container.replaceChildren(list);
                 } else {
                     container.innerHTML = '<p class="text-muted mb-0">@Localizer["No attachments"]</p>';
                 }

@@ -30,8 +30,10 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         private readonly PlanService _planService;
         private readonly IProjectValidationService _validationService;
         private readonly IStringLocalizer<ProjectsController> _localizer;
+        private readonly IUploadValidationService _uploadValidation;
+        private readonly ILogger<ProjectsController> _logger;
 
-        public ProjectsController(ApplicationDbContext context, UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager, PlanService planService, IProjectValidationService validationService, IStringLocalizer<ProjectsController> localizer)
+        public ProjectsController(ApplicationDbContext context, UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager, PlanService planService, IProjectValidationService validationService, IStringLocalizer<ProjectsController> localizer, IUploadValidationService uploadValidation, ILogger<ProjectsController> logger)
         {
             _context = context;
             _userManager = userManager;
@@ -39,6 +41,8 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             _planService = planService;
             _validationService = validationService;
             _localizer = localizer;
+            _uploadValidation = uploadValidation;
+            _logger = logger;
         }
 
         private async Task<(bool IsAdmin, int? MinistryCode)> GetScopeAsync()
@@ -1286,31 +1290,12 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 dbProject.MinistryCode = null;
             }
 
-            // --- Handle file uploads (unchanged) ---
+            // --- Handle file uploads ---
+            // Was a copy-paste duplicate of ProcessFileUploadsAsync; now shares that one path
+            // so upload validation cannot drift between create and edit.
             if (UploadedFiles != null && UploadedFiles.Count > 0)
             {
-                var uploadsFolder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/uploads");
-                if (!Directory.Exists(uploadsFolder))
-                    Directory.CreateDirectory(uploadsFolder);
-
-                foreach (var file in UploadedFiles)
-                {
-                    if (file.Length > 0)
-                    {
-                        var uniqueName = $"{Guid.NewGuid()}_{Path.GetFileName(file.FileName)}";
-                        var filePath = Path.Combine(uploadsFolder, uniqueName);
-
-                        using var fs = new FileStream(filePath, FileMode.Create);
-                        await file.CopyToAsync(fs);
-
-                        _context.ProjectFiles.Add(new ProjectFile
-                        {
-                            ProjectId = dbProject.ProjectID,
-                            FileName = file.FileName,
-                            FilePath = "/uploads/" + uniqueName
-                        });
-                    }
-                }
+                await ProcessFileUploadsAsync(dbProject.ProjectID, UploadedFiles);
             }
 
             // Save changes
@@ -1555,8 +1540,8 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             }
 
             // Delete the physical file
-            var fullPath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", file.FilePath.TrimStart('/'));
-            if (System.IO.File.Exists(fullPath))
+            var fullPath = _uploadValidation.ResolveStoredPath(file.FilePath);
+            if (fullPath != null && System.IO.File.Exists(fullPath))
             {
                 System.IO.File.Delete(fullPath);
             }
@@ -1584,8 +1569,8 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 return Forbid();
             }
 
-            var filePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", file.FilePath.TrimStart('/'));
-            if (!System.IO.File.Exists(filePath))
+            var filePath = _uploadValidation.ResolveStoredPath(file.FilePath);
+            if (filePath == null || !System.IO.File.Exists(filePath))
             {
                 return NotFound();
             }
@@ -1597,6 +1582,8 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             }
             memory.Position = 0;
 
+            // nosniff so the browser cannot re-interpret a user-supplied file as script.
+            Response.Headers.XContentTypeOptions = "nosniff";
             return File(memory, GetContentType(filePath), file.FileName);
         }
 
@@ -1614,8 +1601,8 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 return Forbid();
             }
 
-            var filePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", file.FilePath.TrimStart('/'));
-            if (!System.IO.File.Exists(filePath))
+            var filePath = _uploadValidation.ResolveStoredPath(file.FilePath);
+            if (filePath == null || !System.IO.File.Exists(filePath))
             {
                 return NotFound();
             }
@@ -1623,10 +1610,15 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             var contentType = GetContentType(filePath);
             var fileBytes = await System.IO.File.ReadAllBytesAsync(filePath);
 
-            // Use ContentDispositionHeaderValue to properly encode non-ASCII filenames
-            var cd = new Microsoft.Net.Http.Headers.ContentDispositionHeaderValue("inline");
+            // Only render inline for formats that cannot carry script. Everything else is
+            // forced to download, so a user-supplied file cannot execute on this origin.
+            var extension = Path.GetExtension(filePath).ToLowerInvariant();
+            var inlineSafe = extension is ".pdf" or ".png" or ".jpg" or ".jpeg" or ".gif" or ".webp";
+
+            var cd = new Microsoft.Net.Http.Headers.ContentDispositionHeaderValue(inlineSafe ? "inline" : "attachment");
             cd.SetHttpFileName(file.FileName);
             Response.Headers.ContentDisposition = cd.ToString();
+            Response.Headers.XContentTypeOptions = "nosniff";
 
             return File(fileBytes, contentType);
         }
@@ -1821,27 +1813,25 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             if (uploadedFiles == null || !uploadedFiles.Any())
                 return true;
 
-            var uploadsFolder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/uploads");
-            if (!Directory.Exists(uploadsFolder))
-                Directory.CreateDirectory(uploadsFolder);
-
             foreach (var file in uploadedFiles)
             {
                 if (file.Length > 0)
                 {
-                    var uniqueFileName = $"{Guid.NewGuid()}_{Path.GetFileName(file.FileName)}";
-                    var filePath = Path.Combine(uploadsFolder, uniqueFileName);
-
-                    using (var stream = new FileStream(filePath, FileMode.Create))
+                    // Validated and stored outside wwwroot with a server-generated name; the
+                    // previous code accepted any extension, any size and no content check, and
+                    // wrote into wwwroot where UseStaticFiles served it anonymously.
+                    var upload = await _uploadValidation.SaveAsync(file, UploadPurpose.Attachment, "projects");
+                    if (!upload.Ok)
                     {
-                        await file.CopyToAsync(stream);
+                        _logger.LogWarning("Rejected project file upload: {Error}", upload.Error);
+                        continue;
                     }
 
                     _context.ProjectFiles.Add(new ProjectFile
                     {
                         ProjectId = projectId,
-                        FileName = file.FileName,
-                        FilePath = "/uploads/" + uniqueFileName
+                        FileName = _uploadValidation.SanitizeDisplayName(file.FileName),
+                        FilePath = upload.RelativePath!
                     });
                 }
             }
