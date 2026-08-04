@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <root>
   <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
     <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
@@ -201,5 +201,29 @@
   </data>
   <data name="Progress" xml:space="preserve">
     <value>Progress</value>
+  </data>
+  <data name="Goal Type" xml:space="preserve">
+    <value>Goal Type</value>
+  </data>
+  <data name="Unit of Measure" xml:space="preserve">
+    <value>Unit of Measure</value>
+  </data>
+  <data name="Unit" xml:space="preserve">
+    <value>Unit</value>
+  </data>
+  <data name="Qualitative" xml:space="preserve">
+    <value>Qualitative</value>
+  </data>
+  <data name="Quantitative" xml:space="preserve">
+    <value>Quantitative</value>
+  </data>
+  <data name="Please enter a unit of measure for a quantitative goal." xml:space="preserve">
+    <value>Please enter a unit of measure for a quantitative goal.</value>
+  </data>
+  <data name="Please enter valid numeric values." xml:space="preserve">
+    <value>Please enter valid numeric values.</value>
+  </data>
+  <data name="Please enter a valid numeric value for the manual target of year {0}." xml:space="preserve">
+    <value>Please enter a valid numeric value for the manual target of year {0}.</value>
   </data>
 </root>

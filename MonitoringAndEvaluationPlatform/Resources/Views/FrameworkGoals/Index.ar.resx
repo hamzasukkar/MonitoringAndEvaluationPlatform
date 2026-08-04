@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <root>
   <!-- 
     Microsoft ResX Schema 
@@ -887,5 +887,71 @@
   </data>
   <data name="No intermediate years to set. All years between Starting Year and Target Year (excluding Current Year) are already covered." xml:space="preserve">
     <value>لا توجد سنوات وسيطة لتحديدها. جميع السنوات بين سنة البداية وسنة الهدف (باستثناء السنة الحالية) مغطاة بالفعل.</value>
+  </data>
+  <data name="Qualitative" xml:space="preserve">
+    <value>نوعي</value>
+  </data>
+  <data name="Quantitative" xml:space="preserve">
+    <value>كمي</value>
+  </data>
+  <data name="Unit of Measure" xml:space="preserve">
+    <value>وحدة القياس</value>
+  </data>
+  <data name="Unit" xml:space="preserve">
+    <value>الوحدة</value>
+  </data>
+  <data name="values are percentages" xml:space="preserve">
+    <value>القيم نسب مئوية</value>
+  </data>
+  <data name="values are quantities with a unit of measure" xml:space="preserve">
+    <value>القيم كميات بوحدة قياس</value>
+  </data>
+  <data name="The goal type cannot be changed after creation." xml:space="preserve">
+    <value>لا يمكن تغيير نوع الهدف بعد إنشائه.</value>
+  </data>
+  <data name="e.g. km, housing unit, school" xml:space="preserve">
+    <value>مثال: كم، وحدة سكنية، مدرسة</value>
+  </data>
+  <data name="Quantity Achieved in Base Year" xml:space="preserve">
+    <value>الكمية المنجزة في سنة الأساس</value>
+  </data>
+  <data name="Cumulative Quantity Achieved" xml:space="preserve">
+    <value>الكمية التراكمية المنجزة</value>
+  </data>
+  <data name="Total Target Quantity" xml:space="preserve">
+    <value>الكمية المستهدفة الإجمالية</value>
+  </data>
+  <data name="Enter the cumulative quantity achieved, not the annual increment." xml:space="preserve">
+    <value>أدخل الكمية التراكمية المنجزة، لا الكمية المنجزة خلال السنة وحدها.</value>
+  </data>
+  <data name="Please enter a unit of measure for a quantitative goal." xml:space="preserve">
+    <value>يرجى إدخال وحدة القياس للهدف الكمي.</value>
+  </data>
+  <data name="/year" xml:space="preserve">
+    <value>‏/سنة</value>
+  </data>
+  <data name="All Types" xml:space="preserve">
+    <value>كل الأنواع</value>
+  </data>
+  <data name="km" xml:space="preserve">
+    <value>كم</value>
+  </data>
+  <data name="m2" xml:space="preserve">
+    <value>م²</value>
+  </data>
+  <data name="housing unit" xml:space="preserve">
+    <value>وحدة سكنية</value>
+  </data>
+  <data name="school" xml:space="preserve">
+    <value>مدرسة</value>
+  </data>
+  <data name="beneficiary" xml:space="preserve">
+    <value>مستفيد</value>
+  </data>
+  <data name="ton" xml:space="preserve">
+    <value>طن</value>
+  </data>
+  <data name="megawatt" xml:space="preserve">
+    <value>ميغاواط</value>
   </data>
 </root>

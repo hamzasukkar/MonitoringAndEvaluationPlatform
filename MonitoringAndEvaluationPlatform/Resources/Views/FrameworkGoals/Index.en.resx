@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <root>
   <!-- 
     Microsoft ResX Schema 
@@ -785,5 +785,71 @@
   </data>
   <data name="No intermediate years to set. All years between Starting Year and Target Year (excluding Current Year) are already covered." xml:space="preserve">
     <value>No intermediate years to set. All years between Starting Year and Target Year (excluding Current Year) are already covered.</value>
+  </data>
+  <data name="Qualitative" xml:space="preserve">
+    <value>Qualitative</value>
+  </data>
+  <data name="Quantitative" xml:space="preserve">
+    <value>Quantitative</value>
+  </data>
+  <data name="Unit of Measure" xml:space="preserve">
+    <value>Unit of Measure</value>
+  </data>
+  <data name="Unit" xml:space="preserve">
+    <value>Unit</value>
+  </data>
+  <data name="values are percentages" xml:space="preserve">
+    <value>values are percentages</value>
+  </data>
+  <data name="values are quantities with a unit of measure" xml:space="preserve">
+    <value>values are quantities with a unit of measure</value>
+  </data>
+  <data name="The goal type cannot be changed after creation." xml:space="preserve">
+    <value>The goal type cannot be changed after creation.</value>
+  </data>
+  <data name="e.g. km, housing unit, school" xml:space="preserve">
+    <value>e.g. km, housing unit, school</value>
+  </data>
+  <data name="Quantity Achieved in Base Year" xml:space="preserve">
+    <value>Quantity Achieved in Base Year</value>
+  </data>
+  <data name="Cumulative Quantity Achieved" xml:space="preserve">
+    <value>Cumulative Quantity Achieved</value>
+  </data>
+  <data name="Total Target Quantity" xml:space="preserve">
+    <value>Total Target Quantity</value>
+  </data>
+  <data name="Enter the cumulative quantity achieved, not the annual increment." xml:space="preserve">
+    <value>Enter the cumulative quantity achieved, not the annual increment.</value>
+  </data>
+  <data name="Please enter a unit of measure for a quantitative goal." xml:space="preserve">
+    <value>Please enter a unit of measure for a quantitative goal.</value>
+  </data>
+  <data name="/year" xml:space="preserve">
+    <value>/year</value>
+  </data>
+  <data name="All Types" xml:space="preserve">
+    <value>All Types</value>
+  </data>
+  <data name="km" xml:space="preserve">
+    <value>km</value>
+  </data>
+  <data name="m2" xml:space="preserve">
+    <value>m²</value>
+  </data>
+  <data name="housing unit" xml:space="preserve">
+    <value>housing unit</value>
+  </data>
+  <data name="school" xml:space="preserve">
+    <value>school</value>
+  </data>
+  <data name="beneficiary" xml:space="preserve">
+    <value>beneficiary</value>
+  </data>
+  <data name="ton" xml:space="preserve">
+    <value>ton</value>
+  </data>
+  <data name="megawatt" xml:space="preserve">
+    <value>megawatt</value>
   </data>
 </root>

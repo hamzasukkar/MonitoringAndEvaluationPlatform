@@ -10,6 +10,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Localization;
 using MonitoringAndEvaluationPlatform.Attributes;
 using MonitoringAndEvaluationPlatform.Data;
+using MonitoringAndEvaluationPlatform.Enums;
 using MonitoringAndEvaluationPlatform.Models;
 using ClosedXML.Excel;
 using QuestPDF.Fluent;
@@ -263,10 +264,13 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                     return Json(new { success = false, message = _localizer["Please fill in all required fields."].Value });
                 }
 
-                // Parse decimal values
-                var baseValueStart = model.GetBaseValueForStartingYear();
-                var baseValueCurrent = model.GetBaseValueForCurrentYear();
-                var targetValue = model.GetTargetValue();
+                // Parse decimal values — reject the request rather than silently saving 0 for a typo
+                if (!FrameworkGoalCreateModel.TryParseDecimal(model.BaseValueForStartingYear, out var baseValueStart) ||
+                    !FrameworkGoalCreateModel.TryParseDecimal(model.BaseValueForCurrentYear, out var baseValueCurrent) ||
+                    !FrameworkGoalCreateModel.TryParseDecimal(model.TargetValue, out var targetValue))
+                {
+                    return Json(new { success = false, message = _localizer["Please enter valid numeric values."].Value });
+                }
 
                 // Validate framework exists
                 var framework = await _context.Frameworks.FindAsync(model.FrameworkCode);
@@ -287,6 +291,35 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                     return Json(new { success = false, message = _localizer["Years must be in ascending order: Starting Year < Current Year < Target Year."].Value });
                 }
 
+                // A quantitative goal is meaningless without a unit of measure
+                if (model.GoalType == FrameworkGoalType.Quantitative && string.IsNullOrWhiteSpace(model.Unit))
+                {
+                    return Json(new { success = false, message = _localizer["Please enter a unit of measure for a quantitative goal."].Value });
+                }
+
+                // Parse and validate manual expected targets up front, before the goal is saved,
+                // so an unparseable value rejects the whole request instead of leaving a goal
+                // half-created with some manual targets missing.
+                var manualTargets = new List<(int Year, double Value)>();
+                if (model.ManualYearlyTargets && model.ManualTargetYears != null)
+                {
+                    for (int i = 0; i < model.ManualTargetYears.Count; i++)
+                    {
+                        var year = model.ManualTargetYears[i];
+                        // Skip years that are not intermediate (starting, current, target are auto-calculated)
+                        if (year <= model.StartingYear || year >= model.TargetYear || year == model.CurrentYear)
+                            continue;
+
+                        var rawValue = i < model.ManualTargetValues.Count ? model.ManualTargetValues[i] : "0";
+                        if (!FrameworkGoalCreateModel.TryParseDecimal(rawValue, out var expectedValue))
+                        {
+                            return Json(new { success = false, message = _localizer["Please enter a valid numeric value for the manual target of year {0}."].Value.Replace("{0}", year.ToString()) });
+                        }
+
+                        manualTargets.Add((year, expectedValue));
+                    }
+                }
+
                 // Create new framework goal
                 var frameworkGoal = new FrameworkGoal
                 {
@@ -298,25 +331,20 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                     TargetYear = model.TargetYear,
                     TargetValue = targetValue,
                     FrameworkCode = model.FrameworkCode,
-                    ManualYearlyTargets = model.ManualYearlyTargets
+                    ManualYearlyTargets = model.ManualYearlyTargets,
+                    GoalType = model.GoalType,
+                    // Normalized so a qualitative goal never keeps a stale unit from a toggled form
+                    Unit = model.GoalType == FrameworkGoalType.Quantitative ? model.Unit!.Trim() : null
                 };
 
                 _context.Add(frameworkGoal);
                 await _context.SaveChangesAsync();
 
-                // Save manual expected targets if enabled
-                if (model.ManualYearlyTargets && model.ManualTargetYears != null)
+                // Save manual expected targets (already validated above)
+                if (manualTargets.Count > 0)
                 {
-                    for (int i = 0; i < model.ManualTargetYears.Count; i++)
+                    foreach (var (year, expectedValue) in manualTargets)
                     {
-                        var year = model.ManualTargetYears[i];
-                        // Skip years that are not intermediate (starting, current, target are auto-calculated)
-                        if (year <= model.StartingYear || year >= model.TargetYear || year == model.CurrentYear)
-                            continue;
-
-                        var rawValue = i < model.ManualTargetValues.Count ? model.ManualTargetValues[i] : "0";
-                        var expectedValue = FrameworkGoalCreateModel.ParseDecimal(rawValue);
-
                         _context.FrameworkGoalManualExpectedTargets.Add(new FrameworkGoalManualExpectedTarget
                         {
                             FrameworkGoalID = frameworkGoal.ID,
@@ -341,7 +369,10 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                         currentYear = frameworkGoal.CurrentYear,
                         baseValueForCurrentYear = frameworkGoal.BaseValueForCurrentYear,
                         targetYear = frameworkGoal.TargetYear,
-                        targetValue = frameworkGoal.TargetValue
+                        targetValue = frameworkGoal.TargetValue,
+                        goalType = (int)frameworkGoal.GoalType,
+                        unit = frameworkGoal.Unit,
+                        displayUnit = frameworkGoal.DisplayUnit
                     },
                     message = _localizer["Framework Goal created successfully!"].Value
                 });
@@ -862,6 +893,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
 
         // POST: FrameworkGoals/Delete
         [HttpPost]
+        [ValidateAntiForgeryToken]
         [Permission(Permissions.DeleteStrategy)]
         public async Task<IActionResult> Delete(int id)
         {
@@ -915,17 +947,19 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             // Header row
             worksheet.Cell(1, 1).Value = _localizer["Goal Name"].Value;
             worksheet.Cell(1, 2).Value = _localizer["Framework"].Value;
-            worksheet.Cell(1, 3).Value = _localizer["Starting Year"].Value;
-            worksheet.Cell(1, 4).Value = _localizer["Base Value (Starting)"].Value;
-            worksheet.Cell(1, 5).Value = _localizer["Current Year"].Value;
-            worksheet.Cell(1, 6).Value = _localizer["Base Value (Current)"].Value;
-            worksheet.Cell(1, 7).Value = _localizer["Target Year"].Value;
-            worksheet.Cell(1, 8).Value = _localizer["Target Value"].Value;
-            worksheet.Cell(1, 9).Value = _localizer["Progress Rate"].Value + " (%)";
-            worksheet.Cell(1, 10).Value = _localizer["Status"].Value;
+            worksheet.Cell(1, 3).Value = _localizer["Goal Type"].Value;
+            worksheet.Cell(1, 4).Value = _localizer["Unit of Measure"].Value;
+            worksheet.Cell(1, 5).Value = _localizer["Starting Year"].Value;
+            worksheet.Cell(1, 6).Value = _localizer["Base Value (Starting)"].Value;
+            worksheet.Cell(1, 7).Value = _localizer["Current Year"].Value;
+            worksheet.Cell(1, 8).Value = _localizer["Base Value (Current)"].Value;
+            worksheet.Cell(1, 9).Value = _localizer["Target Year"].Value;
+            worksheet.Cell(1, 10).Value = _localizer["Target Value"].Value;
+            worksheet.Cell(1, 11).Value = _localizer["Progress Rate"].Value + " (%)";
+            worksheet.Cell(1, 12).Value = _localizer["Status"].Value;
 
             // Style header
-            var headerRange = worksheet.Range(1, 1, 1, 10);
+            var headerRange = worksheet.Range(1, 1, 1, 12);
             headerRange.Style.Font.Bold = true;
             headerRange.Style.Fill.BackgroundColor = XLColor.FromHtml("#4472C4");
             headerRange.Style.Font.FontColor = XLColor.White;
@@ -935,25 +969,27 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             int row = 2;
             foreach (var goal in goals)
             {
-                var isIncreaseGoal = goal.TargetValue > goal.BaseValueForStartingYear;
-                var actualChange = goal.BaseValueForCurrentYear - goal.BaseValueForStartingYear;
-                bool isOnTrack = isIncreaseGoal
-                    ? actualChange >= goal.AmountOfReduction
-                    : (goal.BaseValueForStartingYear - goal.BaseValueForCurrentYear) >= goal.AmountOfReduction;
+                // Derived from the single canonical FrameworkGoal.TrackingStatus, same as the on-screen table
+                bool isOnTrack = goal.TrackingStatus == FrameworkGoalTrackingStatus.OnTrack;
 
                 worksheet.Cell(row, 1).Value = goal.Name;
                 worksheet.Cell(row, 2).Value = goal.Framework?.Name ?? "";
-                worksheet.Cell(row, 3).Value = goal.StartingYear;
-                worksheet.Cell(row, 4).Value = goal.BaseValueForStartingYear;
-                worksheet.Cell(row, 5).Value = goal.CurrentYear;
-                worksheet.Cell(row, 6).Value = goal.BaseValueForCurrentYear;
-                worksheet.Cell(row, 7).Value = goal.TargetYear;
-                worksheet.Cell(row, 8).Value = goal.TargetValue;
-                worksheet.Cell(row, 9).Value = Math.Round(goal.ProgressRate, 2);
-                worksheet.Cell(row, 10).Value = isOnTrack ? _localizer["On Track"].Value : _localizer["Off Track"].Value;
+                worksheet.Cell(row, 3).Value = goal.IsQuantitative
+                    ? _localizer["Quantitative"].Value
+                    : _localizer["Qualitative"].Value;
+                worksheet.Cell(row, 4).Value = goal.DisplayUnit;
+                worksheet.Cell(row, 5).Value = goal.StartingYear;
+                // Values stay numeric so the sheet remains computable; column 4 states the unit
+                worksheet.Cell(row, 6).Value = goal.BaseValueForStartingYear;
+                worksheet.Cell(row, 7).Value = goal.CurrentYear;
+                worksheet.Cell(row, 8).Value = goal.BaseValueForCurrentYear;
+                worksheet.Cell(row, 9).Value = goal.TargetYear;
+                worksheet.Cell(row, 10).Value = goal.TargetValue;
+                worksheet.Cell(row, 11).Value = Math.Round(goal.ProgressRate, 2);
+                worksheet.Cell(row, 12).Value = isOnTrack ? _localizer["On Track"].Value : _localizer["Off Track"].Value;
 
                 // Color coding for status
-                worksheet.Cell(row, 10).Style.Font.FontColor = isOnTrack ? XLColor.Green : XLColor.Red;
+                worksheet.Cell(row, 12).Style.Font.FontColor = isOnTrack ? XLColor.Green : XLColor.Red;
                 row++;
             }
 
@@ -961,7 +997,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             worksheet.Columns().AdjustToContents();
 
             // Add borders
-            var dataRange = worksheet.Range(1, 1, row - 1, 10);
+            var dataRange = worksheet.Range(1, 1, row - 1, 12);
             dataRange.Style.Border.OutsideBorder = XLBorderStyleValues.Thin;
             dataRange.Style.Border.InsideBorder = XLBorderStyleValues.Thin;
 
@@ -1021,6 +1057,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                             {
                                 columns.RelativeColumn(3);  // Goal Name
                                 columns.RelativeColumn(2);  // Framework
+                                columns.RelativeColumn(1.2f);  // Unit ("%" => qualitative, otherwise quantitative)
                                 columns.RelativeColumn(1);  // Starting Year
                                 columns.RelativeColumn(1.5f);  // Base Starting
                                 columns.RelativeColumn(1);  // Current Year
@@ -1038,6 +1075,8 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                                     .Text(_localizer["Goal Name"].Value).FontColor(Colors.White).Bold().FontSize(8);
                                 header.Cell().Background(Colors.Blue.Darken2).Padding(5)
                                     .Text(_localizer["Framework"].Value).FontColor(Colors.White).Bold().FontSize(8);
+                                header.Cell().Background(Colors.Blue.Darken2).Padding(5)
+                                    .Text(_localizer["Unit"].Value).FontColor(Colors.White).Bold().FontSize(8);
                                 header.Cell().Background(Colors.Blue.Darken2).Padding(5)
                                     .Text(_localizer["Start"].Value).FontColor(Colors.White).Bold().FontSize(8);
                                 header.Cell().Background(Colors.Blue.Darken2).Padding(5)
@@ -1059,17 +1098,16 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                             // Data rows
                             foreach (var goal in goals)
                             {
-                                var isIncreaseGoal = goal.TargetValue > goal.BaseValueForStartingYear;
-                                var actualChange = goal.BaseValueForCurrentYear - goal.BaseValueForStartingYear;
-                                bool isOnTrack = isIncreaseGoal
-                                    ? actualChange >= goal.AmountOfReduction
-                                    : (goal.BaseValueForStartingYear - goal.BaseValueForCurrentYear) >= goal.AmountOfReduction;
+                                // Derived from the single canonical FrameworkGoal.TrackingStatus, same as the on-screen table
+                                bool isOnTrack = goal.TrackingStatus == FrameworkGoalTrackingStatus.OnTrack;
                                 var progressRate = Math.Round(goal.ProgressRate, 1);
 
                                 table.Cell().BorderBottom(1).BorderColor(Colors.Grey.Lighten2).Padding(4)
                                     .Text(goal.Name).FontSize(8);
                                 table.Cell().BorderBottom(1).BorderColor(Colors.Grey.Lighten2).Padding(4)
                                     .Text(goal.Framework?.Name ?? "").FontSize(8);
+                                table.Cell().BorderBottom(1).BorderColor(Colors.Grey.Lighten2).Padding(4)
+                                    .Text(goal.DisplayUnit).FontSize(8);
                                 table.Cell().BorderBottom(1).BorderColor(Colors.Grey.Lighten2).Padding(4)
                                     .Text(goal.StartingYear.ToString()).FontSize(8);
                                 table.Cell().BorderBottom(1).BorderColor(Colors.Grey.Lighten2).Padding(4)
@@ -1150,25 +1188,25 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         // When true, expected target values for intermediate years are provided manually
         public bool ManualYearlyTargets { get; set; } = false;
 
+        // Qualitative (default) = percentage values; Quantitative = quantities expressed in Unit
+        public FrameworkGoalType GoalType { get; set; } = FrameworkGoalType.Qualitative;
+
+        // Required when GoalType is Quantitative, ignored otherwise
+        public string? Unit { get; set; }
+
         // Parallel lists for manual expected target years and their values
         public List<int> ManualTargetYears { get; set; } = new List<int>();
         public List<string> ManualTargetValues { get; set; } = new List<string>();
 
-        // Helper method to parse decimal values (handles both comma and period)
-        public double GetBaseValueForStartingYear() => ParseDecimal(BaseValueForStartingYear);
-        public double GetBaseValueForCurrentYear() => ParseDecimal(BaseValueForCurrentYear);
-        public double GetTargetValue() => ParseDecimal(TargetValue);
-
-        public static double ParseDecimal(string value)
+        // Parses a decimal value (handles both comma and period). Returns false — rather than
+        // silently defaulting to 0 — when the value is missing or not a valid number, so a typo
+        // rejects the request instead of quietly becoming a 0 target.
+        public static bool TryParseDecimal(string? value, out double result)
         {
-            if (string.IsNullOrWhiteSpace(value)) return 0;
-            // Replace comma with period and parse using invariant culture
+            result = 0;
+            if (string.IsNullOrWhiteSpace(value)) return false;
             var normalized = value.Replace(',', '.');
-            if (double.TryParse(normalized, System.Globalization.NumberStyles.Any, System.Globalization.CultureInfo.InvariantCulture, out var result))
-            {
-                return result;
-            }
-            return 0;
+            return double.TryParse(normalized, System.Globalization.NumberStyles.Any, System.Globalization.CultureInfo.InvariantCulture, out result);
         }
     }
 

@@ -1,0 +1,20 @@
+@model MonitoringAndEvaluationPlatform.Models.FrameworkGoal
+@using Microsoft.AspNetCore.Mvc.Localization
+@inject IViewLocalizer Localizer
+
+@*
+    Goal type badge. Styles are inline because this partial is rendered from the seven
+    alternate FrameworkGoals views, which do not share Index.cshtml's stylesheet.
+*@
+@if (Model.IsQuantitative)
+{
+    <span style="display:inline-block;padding:.25em .5em;border-radius:.375rem;font-size:.7rem;font-weight:600;background-color:#cfe2ff;color:#084298;white-space:nowrap;">
+        <i class="fas fa-ruler-combined"></i> @Localizer["Quantitative"] &middot; @Model.Unit
+    </span>
+}
+else
+{
+    <span style="display:inline-block;padding:.25em .5em;border-radius:.375rem;font-size:.7rem;font-weight:600;background-color:#e2e3e5;color:#41464b;white-space:nowrap;">
+        <i class="fas fa-percent"></i> @Localizer["Qualitative"]
+    </span>
+}

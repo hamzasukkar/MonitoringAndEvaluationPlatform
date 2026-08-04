@@ -1,5 +1,6 @@
 @model IEnumerable<MonitoringAndEvaluationPlatform.Models.FrameworkGoal>
 
+@using MonitoringAndEvaluationPlatform.Enums
 @using MonitoringAndEvaluationPlatform.Helpers
 @using Microsoft.AspNetCore.Identity
 @inject UserManager<ApplicationUser> UserManager
@@ -148,6 +149,18 @@
                     <option value="100+">100%+</option>
                 </select>
             </div>
+
+            <!-- Goal Type Filter -->
+            <div class="col-md-6 col-lg-3">
+                <label class="form-label">
+                    <i class="fas fa-shapes me-1"></i>@Localizer["Goal Type"]
+                </label>
+                <select id="goalTypeFilter" class="form-select" onchange="applyFilters()">
+                    <option value="">@Localizer["All Types"]</option>
+                    <option value="0">@Localizer["Qualitative"]</option>
+                    <option value="1">@Localizer["Quantitative"]</option>
+                </select>
+            </div>
         </div>
 
         <!-- Filter Results Counter -->
@@ -166,28 +179,16 @@
     var currentYear = DateTime.Now.Year;
     var totalGoals = Model.Count();
 
-    // Calculate on-track vs off-track
+    // On-track vs off-track, from the single canonical FrameworkGoal.TrackingStatus (at-risk
+    // folds into "off-track" here since this card only has two buckets; the row-level status
+    // below and the #statusFilter dropdown surface the at-risk tier separately).
     var onTrackCount = 0;
     var offTrackCount = 0;
     var totalProgressRate = 0.0;
 
     foreach (var goal in Model)
     {
-        var isIncreaseGoal = goal.TargetValue > goal.BaseValueForStartingYear;
-        var actualChange = goal.BaseValueForCurrentYear - goal.BaseValueForStartingYear;
-
-        bool isOnTrack;
-        if (isIncreaseGoal)
-        {
-            isOnTrack = actualChange >= goal.AmountOfReduction;
-        }
-        else
-        {
-            var actualReduction = goal.BaseValueForStartingYear - goal.BaseValueForCurrentYear;
-            isOnTrack = actualReduction >= goal.AmountOfReduction;
-        }
-
-        if (isOnTrack)
+        if (goal.TrackingStatus == FrameworkGoalTrackingStatus.OnTrack)
         {
             onTrackCount++;
         }
@@ -277,26 +278,9 @@
 
     foreach (var goal in Model)
         {
-            var isIncreaseGoal = goal.TargetValue > goal.BaseValueForStartingYear;
-            var actualChange = goal.BaseValueForCurrentYear - goal.BaseValueForStartingYear;
-
-            // Calculate expected trajectory
-            var expectedSlope = (goal.TargetValue - goal.BaseValueForStartingYear) / (goal.TargetYear - goal.StartingYear);
-            var expectedCurrentValue = goal.BaseValueForStartingYear + (expectedSlope * (goal.CurrentYear - goal.StartingYear));
-
-            // Check if falling behind
-            bool isFallingBehind;
-            if (isIncreaseGoal)
-            {
-                var expectedChange = expectedCurrentValue - goal.BaseValueForStartingYear;
-                isFallingBehind = actualChange < expectedChange * 0.7;
-            }
-            else
-            {
-                var actualReduction = goal.BaseValueForStartingYear - goal.BaseValueForCurrentYear;
-                var expectedReduction = goal.BaseValueForStartingYear - expectedCurrentValue;
-                isFallingBehind = actualReduction < expectedReduction * 0.7;
-            }
+            // Derived from the single canonical FrameworkGoal.TrackingStatus, so this alert never
+            // disagrees with the row's off-track badge for the same goal
+            var isFallingBehind = goal.TrackingStatus == FrameworkGoalTrackingStatus.OffTrack;
 
             if (isFallingBehind)
             {
@@ -478,14 +462,53 @@
                     }
                 </div>
             </div>
+            <!-- Goal Type (permanent, set at creation only) -->
+            <div class="row mb-3">
+                <div class="col-md-6">
+                    <label class="form-label">@Localizer["Goal Type"] <span class="text-danger">*</span></label>
+                    <div class="form-check">
+                        <input class="form-check-input" type="radio" name="GoalType" id="goalTypeQualitative" value="0" checked onchange="onGoalTypeChange()" />
+                        <label class="form-check-label" for="goalTypeQualitative">
+                            <strong>@Localizer["Qualitative"]</strong>
+                            <span class="text-muted small">&mdash; @Localizer["values are percentages"]</span>
+                        </label>
+                    </div>
+                    <div class="form-check">
+                        <input class="form-check-input" type="radio" name="GoalType" id="goalTypeQuantitative" value="1" onchange="onGoalTypeChange()" />
+                        <label class="form-check-label" for="goalTypeQuantitative">
+                            <strong>@Localizer["Quantitative"]</strong>
+                            <span class="text-muted small">&mdash; @Localizer["values are quantities with a unit of measure"]</span>
+                        </label>
+                    </div>
+                    <div class="form-text text-muted">
+                        <i class="fas fa-lock me-1"></i>@Localizer["The goal type cannot be changed after creation."]
+                    </div>
+                </div>
+                <div class="col-md-6" id="unitFieldWrapper" style="display:none;">
+                    <label class="form-label">@Localizer["Unit of Measure"] <span class="text-danger">*</span></label>
+                    <input type="text" class="form-control" id="goalUnit" name="Unit" list="unitSuggestions" maxlength="100" placeholder="@Localizer["e.g. km, housing unit, school"]" />
+                    <datalist id="unitSuggestions">
+                        <option value="@Localizer["km"]"></option>
+                        <option value="@Localizer["m2"]"></option>
+                        <option value="@Localizer["housing unit"]"></option>
+                        <option value="@Localizer["school"]"></option>
+                        <option value="@Localizer["beneficiary"]"></option>
+                        <option value="@Localizer["ton"]"></option>
+                        <option value="@Localizer["megawatt"]"></option>
+                    </datalist>
+                </div>
+            </div>
             <div class="row">
                 <div class="col-md-4 mb-3">
                     <label class="form-label">@Localizer["Starting Year"] <span class="text-danger">*</span></label>
                     <input type="text" class="form-control year-picker" id="startingYear" name="StartingYear" required readonly placeholder="@Localizer["Select Year"]" />
                 </div>
                 <div class="col-md-4 mb-3">
-                    <label class="form-label">@Localizer["Base Value (Starting)"] <span class="text-danger">*</span></label>
-                    <input type="text" inputmode="decimal" class="form-control decimal-input" id="baseValueStarting" name="BaseValueForStartingYear" required placeholder="0.00" />
+                    <label class="form-label" id="baseValueStartingLabel" data-label-qualitative="@Localizer["Base Value (Starting)"]" data-label-quantitative="@Localizer["Quantity Achieved in Base Year"]">@Localizer["Base Value (Starting)"]</label> <span class="text-danger">*</span>
+                    <div class="input-group">
+                        <input type="text" inputmode="decimal" class="form-control decimal-input" id="baseValueStarting" name="BaseValueForStartingYear" required placeholder="0.00" />
+                        <span class="input-group-text unit-suffix">%</span>
+                    </div>
                 </div>
             </div>
             <div class="row">
@@ -494,8 +517,14 @@
                     <input type="text" class="form-control year-picker" id="currentYear" name="CurrentYear" required readonly placeholder="@Localizer["Select Year"]" />
                 </div>
                 <div class="col-md-4 mb-3">
-                    <label class="form-label">@Localizer["Base Value (Current)"] <span class="text-danger">*</span></label>
-                    <input type="text" inputmode="decimal" class="form-control decimal-input" id="baseValueCurrent" name="BaseValueForCurrentYear" required placeholder="0.00" />
+                    <label class="form-label" id="baseValueCurrentLabel" data-label-qualitative="@Localizer["Base Value (Current)"]" data-label-quantitative="@Localizer["Cumulative Quantity Achieved"]">@Localizer["Base Value (Current)"]</label> <span class="text-danger">*</span>
+                    <div class="input-group">
+                        <input type="text" inputmode="decimal" class="form-control decimal-input" id="baseValueCurrent" name="BaseValueForCurrentYear" required placeholder="0.00" />
+                        <span class="input-group-text unit-suffix">%</span>
+                    </div>
+                    <div class="form-text text-muted" id="cumulativeHint" style="display:none;">
+                        <i class="fas fa-info-circle me-1"></i>@Localizer["Enter the cumulative quantity achieved, not the annual increment."]
+                    </div>
                 </div>
             </div>
             <div class="row">
@@ -504,8 +533,11 @@
                     <input type="text" class="form-control year-picker" id="targetYear" name="TargetYear" required readonly placeholder="@Localizer["Select Year"]" />
                 </div>
                 <div class="col-md-4 mb-3">
-                    <label class="form-label">@Localizer["Target Value"] <span class="text-danger">*</span></label>
-                    <input type="text" inputmode="decimal" class="form-control decimal-input" id="targetValue" name="TargetValue" required placeholder="0.00" />
+                    <label class="form-label" id="targetValueLabel" data-label-qualitative="@Localizer["Target Value"]" data-label-quantitative="@Localizer["Total Target Quantity"]">@Localizer["Target Value"]</label> <span class="text-danger">*</span>
+                    <div class="input-group">
+                        <input type="text" inputmode="decimal" class="form-control decimal-input" id="targetValue" name="TargetValue" required placeholder="0.00" />
+                        <span class="input-group-text unit-suffix">%</span>
+                    </div>
                 </div>
             </div>
             <!-- Manual Yearly Targets Option -->
@@ -685,48 +717,13 @@
                     <tbody>
                         @foreach (var goal in Model)
                         {
-                            // Calculate status for filtering
-                            var isIncreaseGoalFilter = goal.TargetValue > goal.BaseValueForStartingYear;
-                            var actualChangeFilter = goal.BaseValueForCurrentYear - goal.BaseValueForStartingYear;
-
-                                // Calculate expected trajectory
-                                var expectedSlope = (goal.TargetValue - goal.BaseValueForStartingYear) / (goal.TargetYear - goal.StartingYear);
-                                var expectedCurrentValue = goal.BaseValueForStartingYear + (expectedSlope * (goal.CurrentYear - goal.StartingYear));
-
-                                string goalStatus;
-                                if (isIncreaseGoalFilter)
-                                {
-                                    var expectedChange = expectedCurrentValue - goal.BaseValueForStartingYear;
-                                    if (actualChangeFilter >= expectedChange * 0.95)
-                                    {
-                                        goalStatus = "on-track";
-                                    }
-                                    else if (actualChangeFilter >= expectedChange * 0.7)
-                                    {
-                                        goalStatus = "at-risk";
-                                    }
-                                    else
-                                    {
-                                        goalStatus = "off-track";
-                                    }
-                                }
-                                else
-                                {
-                                    var actualReduction = goal.BaseValueForStartingYear - goal.BaseValueForCurrentYear;
-                                    var expectedReduction = goal.BaseValueForStartingYear - expectedCurrentValue;
-                                    if (actualReduction >= expectedReduction * 0.95)
-                                    {
-                                        goalStatus = "on-track";
-                                    }
-                                    else if (actualReduction >= expectedReduction * 0.7)
-                                    {
-                                        goalStatus = "at-risk";
-                                    }
-                                    else
-                                    {
-                                        goalStatus = "off-track";
-                                    }
-                                }
+                            // Derived from the single canonical FrameworkGoal.TrackingStatus
+                            var goalStatus = goal.TrackingStatus switch
+                            {
+                                FrameworkGoalTrackingStatus.OnTrack => "on-track",
+                                FrameworkGoalTrackingStatus.AtRisk => "at-risk",
+                                _ => "off-track"
+                            };
 
                             <tr id="goal-row-@goal.ID"
                                 class="goal-row"
@@ -746,13 +743,30 @@
                                 data-target-value="@goal.TargetValue.ToString(System.Globalization.CultureInfo.InvariantCulture)"
                                 data-amount-of-reduction="@goal.AmountOfReduction.ToString(System.Globalization.CultureInfo.InvariantCulture)"
                                 data-is-increase-goal="@(goal.TargetValue > goal.BaseValueForStartingYear ? "true" : "false")"
+                                data-goal-type="@((int)goal.GoalType)"
+                                data-goal-type-label="@(goal.IsQuantitative ? Localizer["Quantitative"].Value : Localizer["Qualitative"].Value)"
+                                data-display-unit="@goal.DisplayUnit"
                                 data-timeline-url="@Url.Action("FrameworkGoalsTimeline", "Dashboard", new { goalId = goal.ID, frameworkCode = goal.FrameworkCode })">
                                 <td class="text-center checkbox-cell">
                                     <div class="form-check d-flex justify-content-center">
                                         <input class="form-check-input row-checkbox" type="checkbox" value="@goal.ID" onchange="updateSelection()">
                                     </div>
                                 </td>
-                                <td><strong>@goal.Name</strong></td>
+                                <td>
+                                    <strong>@goal.Name</strong>
+                                    @if (goal.IsQuantitative)
+                                    {
+                                        <span class="badge goal-type-badge goal-type-quantitative ms-2">
+                                            <i class="fas fa-ruler-combined me-1"></i>@Localizer["Quantitative"] &middot; @goal.Unit
+                                        </span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge goal-type-badge goal-type-qualitative ms-2">
+                                            <i class="fas fa-percent me-1"></i>@Localizer["Qualitative"]
+                                        </span>
+                                    }
+                                </td>
                                 <td>
                                     <span class="badge bg-info">@goal.Framework.Name</span>
                                 </td>
@@ -789,15 +803,15 @@
                                             <td class="text-center @(isCurrentYear ? "bg-light-current" : "")">
                                                 @if (isStartingYear)
                                                 {
-                                                    <strong class="text-primary">@(baseValue.ToString("N2"))%</strong>
+                                                    <strong class="text-primary">@goal.FormatValue(baseValue)</strong>
                                                 }
                                                 else if (isCurrentYear)
                                                 {
-                                                    <strong class="text-success">@(baseValue.ToString("N2"))%</strong>
+                                                    <strong class="text-success">@goal.FormatValue(baseValue)</strong>
                                                 }
                                                 else if (baseValue > 0)
                                                 {
-                                                    <text>@(baseValue.ToString("N2"))%</text>
+                                                    <text>@goal.FormatValue(baseValue)</text>
                                                 }
                                                 else
                                                 {
@@ -809,11 +823,11 @@
                                             <td class="text-center @(isCurrentYear ? "bg-light-current" : "")">
                                                 @if (isTargetYear)
                                                 {
-                                                    <strong class="text-danger">@(goal.TargetValue.ToString("N2"))%</strong>
+                                                    <strong class="text-danger">@goal.FormatValue(goal.TargetValue)</strong>
                                                 }
                                                 else
                                                 {
-                                                    <span class="text-info">@(expectedTarget.ToString("N2"))%</span>
+                                                    <span class="text-info">@goal.FormatValue(expectedTarget)</span>
                                                 }
                                             </td>
                                         }
@@ -830,28 +844,17 @@
                                     }
                                 }
                                 <td class="text-center">
-                                    <strong class="text-primary">@(goal.AnnualDiscountRate.ToString("N2"))%</strong>
+                                    <strong class="text-primary">@goal.FormatValue(goal.AnnualDiscountRate)@Localizer["/year"]</strong>
                                 </td>
                                 <td class="text-center">
                                     @{
-                                        // Determine if this is an increase or decrease goal
-                                        var isIncreaseGoal = goal.TargetValue > goal.BaseValueForStartingYear;
-                                        var actualChange = goal.BaseValueForCurrentYear - goal.BaseValueForStartingYear;
-
-                                        bool isOnTrack;
-                                        if (isIncreaseGoal)
+                                        // Derived from the single canonical FrameworkGoal.TrackingStatus
+                                        var badgeClass = goal.TrackingStatus switch
                                         {
-                                            // For increase goals: green if actual increase >= expected increase
-                                            isOnTrack = actualChange >= goal.AmountOfReduction;
-                                        }
-                                        else
-                                        {
-                                            // For decrease goals: green if actual reduction >= expected reduction
-                                            var actualReduction = goal.BaseValueForStartingYear - goal.BaseValueForCurrentYear;
-                                            isOnTrack = actualReduction >= goal.AmountOfReduction;
-                                        }
-
-                                        var badgeClass = isOnTrack ? "bg-success" : "bg-danger";
+                                            FrameworkGoalTrackingStatus.OnTrack => "bg-success",
+                                            FrameworkGoalTrackingStatus.AtRisk => "bg-warning text-dark",
+                                            _ => "bg-danger"
+                                        };
                                     }
                                     <span class="badge @badgeClass fs-6">
                                         @goal.ProgressRate.ToString("N2")%
@@ -999,6 +1002,13 @@
                     <input type="hidden" id="editGoalId" />
                     <input type="hidden" id="editStartingYear" />
                     <input type="hidden" id="editTargetYear" />
+                    <input type="hidden" id="editDisplayUnit" />
+
+                    <!-- Type and unit are fixed at creation and shown here read-only -->
+                    <div class="mb-3">
+                        <span class="badge goal-type-badge" id="editGoalTypeBadge">-</span>
+                        <small class="text-muted ms-2">@Localizer["The goal type cannot be changed after creation."]</small>
+                    </div>
 
                     <div class="mb-3">
                         <label class="form-label">@Localizer["Current Year"] <span class="text-danger">*</span></label>
@@ -1007,9 +1017,12 @@
                     </div>
 
                     <div class="mb-3">
-                        <label class="form-label">@Localizer["Base Value (Current)"] <span class="text-danger">*</span></label>
-                        <input type="text" inputmode="decimal" class="form-control decimal-input" id="editBaseValue" required placeholder="0.00" />
-                        <small class="form-text text-muted">@Localizer["Enter the actual achieved value for the current year"]</small>
+                        <label class="form-label" id="editBaseValueLabel">@Localizer["Base Value (Current)"]</label> <span class="text-danger">*</span>
+                        <div class="input-group">
+                            <input type="text" inputmode="decimal" class="form-control decimal-input" id="editBaseValue" required placeholder="0.00" />
+                            <span class="input-group-text" id="editBaseValueUnit">%</span>
+                        </div>
+                        <small class="form-text text-muted" id="editBaseValueHint">@Localizer["Enter the actual achieved value for the current year"]</small>
                     </div>
                 </form>
 
@@ -1169,6 +1182,9 @@
                                     <td class="comparison-metric"><i class="fas fa-sitemap me-2 text-info"></i>@Localizer["Framework"]</td>
                                 </tr>
                                 <tr class="comparison-row">
+                                    <td class="comparison-metric"><i class="fas fa-shapes me-2 text-primary"></i>@Localizer["Goal Type"]</td>
+                                </tr>
+                                <tr class="comparison-row">
                                     <td class="comparison-metric"><i class="fas fa-signal me-2 text-primary"></i>@Localizer["Status"]</td>
                                 </tr>
                                 <tr class="comparison-row">
@@ -1220,7 +1236,7 @@
                                     <td class="comparison-metric ps-4">@Localizer["Variance"]</td>
                                 </tr>
                                 <tr class="comparison-row">
-                                    <td class="comparison-metric ps-4">@Localizer["Goal Type"]</td>
+                                    <td class="comparison-metric ps-4">@Localizer["Direction"]</td>
                                 </tr>
                             </tbody>
                         </table>
@@ -1263,6 +1279,7 @@
             <h4 class="goal-sidebar-name mb-2" id="sidebarGoalName">-</h4>
             <div class="d-flex align-items-center gap-2 flex-wrap">
                 <span class="badge bg-info" id="sidebarFrameworkBadge">-</span>
+                <span class="badge goal-type-badge" id="sidebarGoalTypeBadge">-</span>
                 <span class="badge" id="sidebarStatusBadge">-</span>
             </div>
         </div>
@@ -1888,11 +1905,14 @@
             const amountOfReduction = parseFloat(button.getAttribute('data-amount-reduction'));
             const progressRate = parseFloat(button.getAttribute('data-progress-rate'));
             const yearlyData = JSON.parse(button.getAttribute('data-yearly-data'));
+            // The unit lives on the owning row rather than being duplicated onto the button
+            const displayUnit = unitOfRow(button.closest('tr'));
 
             // Store goal data globally for recalculation
             currentCalcGoalData = {
                 goalId, goalName, isUpward, baseValue, currentValue, targetValue,
-                startingYear, currentYear, targetYear, discountRate, amountOfReduction, progressRate, yearlyData
+                startingYear, currentYear, targetYear, discountRate, amountOfReduction, progressRate, yearlyData,
+                displayUnit
             };
 
             const isRtl = document.documentElement.dir === 'rtl' || document.documentElement.lang === 'ar';
@@ -1925,9 +1945,9 @@
             document.getElementById('calcStartingYear').textContent = startingYear;
             document.getElementById('calcCurrentYear').textContent = currentYear;
             document.getElementById('calcTargetYear').textContent = targetYear;
-            document.getElementById('calcBaseValue').textContent = baseValue.toFixed(2);
-            document.getElementById('calcCurrentValue').textContent = currentValue.toFixed(2);
-            document.getElementById('calcTargetValue').textContent = targetValue.toFixed(2);
+            document.getElementById('calcBaseValue').textContent = formatWithUnit(baseValue, displayUnit);
+            document.getElementById('calcCurrentValue').textContent = formatWithUnit(currentValue, displayUnit);
+            document.getElementById('calcTargetValue').textContent = formatWithUnit(targetValue, displayUnit);
 
             // Populate year selector dropdown
             const yearSelector = document.getElementById('calcYearSelector');
@@ -1965,8 +1985,10 @@
         function calculateForSelectedYear(selectedYear) {
             if (!currentCalcGoalData) return;
 
-            const { goalName, isUpward, baseValue, currentValue, targetValue, startingYear, currentYear, targetYear, yearlyData } = currentCalcGoalData;
+            const { goalName, isUpward, baseValue, currentValue, targetValue, startingYear, currentYear, targetYear, yearlyData, displayUnit } = currentCalcGoalData;
             const isRtl = document.documentElement.dir === 'rtl' || document.documentElement.lang === 'ar';
+            // Raw amounts carry the goal's unit; the formulas below stay as bare arithmetic
+            const fmt = v => formatWithUnit(v, displayUnit);
 
             // Get values for selected year from yearlyData
             const yearData = yearlyData[selectedYear];
@@ -1975,8 +1997,8 @@
 
             // Update selected year value display
             document.getElementById('calcSelectedYearLabel').textContent = selectedYear;
-            document.getElementById('calcSelectedYearValue').textContent = selectedYearValue.toFixed(2);
-            document.getElementById('calcExpectedTargetValue').textContent = expectedTargetForYear.toFixed(2);
+            document.getElementById('calcSelectedYearValue').textContent = fmt(selectedYearValue);
+            document.getElementById('calcExpectedTargetValue').textContent = fmt(expectedTargetForYear);
 
             // 1. Number of Years (Total)
             const years = targetYear - startingYear;
@@ -1986,12 +2008,12 @@
             // 2. Total Required Change
             const requiredChange = Math.abs(targetValue - baseValue);
             document.getElementById('calcRequiredChangeFormula').innerHTML = `<code>|${targetValue.toFixed(2)} - ${baseValue.toFixed(2)}| = <strong>${requiredChange.toFixed(2)}</strong></code>`;
-            document.getElementById('calcRequiredChangeResult').textContent = requiredChange.toFixed(2);
+            document.getElementById('calcRequiredChangeResult').textContent = fmt(requiredChange);
 
             // 3. Discount Rate
             const calculatedDiscountRate = years > 0 ? requiredChange / years : 0;
             document.getElementById('calcDiscountRateFormula').innerHTML = `<code>${requiredChange.toFixed(2)} ÷ ${years} = <strong>${calculatedDiscountRate.toFixed(2)}</strong></code>`;
-            document.getElementById('calcDiscountRateResult').textContent = calculatedDiscountRate.toFixed(2) + (isRtl ? ' لكل سنة' : ' per year');
+            document.getElementById('calcDiscountRateResult').textContent = fmt(calculatedDiscountRate) + (isRtl ? ' لكل سنة' : ' per year');
 
             // 4. Years Elapsed (for selected year)
             const yearsElapsed = selectedYear - startingYear;
@@ -2014,7 +2036,7 @@
             }
 
             const progressResultEl = document.getElementById('calcProgressResult');
-            progressResultEl.textContent = progress.toFixed(2);
+            progressResultEl.textContent = fmt(progress);
             if (progress > 0) {
                 progressResultEl.className = 'badge bg-success fs-6';
             } else if (progress < 0) {
@@ -2026,7 +2048,7 @@
             // 6. Expected Change (for selected year)
             const expectedChange = calculatedDiscountRate * yearsElapsed;
             document.getElementById('calcExpectedChangeFormula').innerHTML = `<code>${calculatedDiscountRate.toFixed(2)} × ${yearsElapsed} = <strong>${expectedChange.toFixed(2)}</strong></code>`;
-            document.getElementById('calcExpectedChangeResult').textContent = expectedChange.toFixed(2);
+            document.getElementById('calcExpectedChangeResult').textContent = fmt(expectedChange);
 
             // 7. Performance Percentage
             let performance = 0;
@@ -2053,10 +2075,10 @@
             }
 
             // Summary section
-            document.getElementById('calcSummaryDiscountRate').textContent = calculatedDiscountRate.toFixed(2) + '%';
+            document.getElementById('calcSummaryDiscountRate').textContent = fmt(calculatedDiscountRate);
 
             const summaryProgressEl = document.getElementById('calcSummaryProgress');
-            summaryProgressEl.textContent = progress.toFixed(2);
+            summaryProgressEl.textContent = fmt(progress);
             summaryProgressEl.className = progress >= 0 ? 'fs-4 fw-bold text-success' : 'fs-4 fw-bold text-danger';
 
             const summaryPerformanceEl = document.getElementById('calcSummaryPerformance');
@@ -2255,7 +2277,44 @@
                 document.getElementById('createGoalForm').reset();
                 document.getElementById('manualTargetsSection').style.display = 'none';
                 document.getElementById('manualTargetsInputs').innerHTML = '';
+                // form.reset() restores the Qualitative radio; re-sync the dependent fields
+                onGoalTypeChange();
             }
+        }
+
+        // Switch the create form between qualitative (percentages) and quantitative (quantities + unit)
+        function onGoalTypeChange() {
+            const isQuantitative = document.getElementById('goalTypeQuantitative').checked;
+            const unitWrapper = document.getElementById('unitFieldWrapper');
+            const unitInput = document.getElementById('goalUnit');
+
+            unitWrapper.style.display = isQuantitative ? '' : 'none';
+            unitInput.required = isQuantitative;
+            if (!isQuantitative) {
+                unitInput.value = '';
+            }
+
+            document.getElementById('cumulativeHint').style.display = isQuantitative ? '' : 'none';
+
+            // Value labels read differently for a quantity than for a percentage
+            ['baseValueStartingLabel', 'baseValueCurrentLabel', 'targetValueLabel'].forEach(id => {
+                const label = document.getElementById(id);
+                label.textContent = isQuantitative
+                    ? label.dataset.labelQuantitative
+                    : label.dataset.labelQualitative;
+            });
+
+            updateCreateFormUnitSuffix();
+        }
+
+        // Keep the "%"/unit addon next to each value input in sync with the chosen unit
+        function updateCreateFormUnitSuffix() {
+            const isQuantitative = document.getElementById('goalTypeQuantitative').checked;
+            const unit = document.getElementById('goalUnit').value.trim();
+            const suffix = isQuantitative ? (unit || '—') : '%';
+            document.querySelectorAll('#createGoalForm .unit-suffix').forEach(el => {
+                el.textContent = suffix;
+            });
         }
 
         // Helper function to normalize decimal values (convert comma to period)
@@ -2325,6 +2384,9 @@
             });
         });
 
+        // Live-update the unit addon next to each value input as the unit is typed
+        document.getElementById('goalUnit').addEventListener('input', updateCreateFormUnitSuffix);
+
         // Handle form submission
         document.getElementById('createGoalForm').addEventListener('submit', async function(e) {
             e.preventDefault();
@@ -2341,6 +2403,8 @@
             const targetYear = document.getElementById('targetYear').value;
             const targetValue = normalizeDecimal(document.getElementById('targetValue').value);
             const manualYearlyTargets = document.getElementById('manualYearlyTargets').checked;
+            const goalType = document.getElementById('goalTypeQuantitative').checked ? '1' : '0';
+            const unit = document.getElementById('goalUnit').value.trim();
 
             // Client-side validation
             if (!name || !frameworkCode || !startingYear || !baseValueStarting || !currentYear || !baseValueCurrent || !targetYear || !targetValue) {
@@ -2351,6 +2415,13 @@
             // Validate decimal values
             if (isNaN(parseFloat(baseValueStarting)) || isNaN(parseFloat(baseValueCurrent)) || isNaN(parseFloat(targetValue))) {
                 showErrorMessage('@Localizer["Please enter valid numeric values."]');
+                return;
+            }
+
+            // A quantitative goal is meaningless without a unit of measure
+            if (goalType === '1' && !unit) {
+                showErrorMessage('@Localizer["Please enter a unit of measure for a quantitative goal."]');
+                document.getElementById('goalUnit').focus();
                 return;
             }
 
@@ -2365,6 +2436,10 @@
             formData.append('TargetYear', targetYear);
             formData.append('TargetValue', targetValue);
             formData.append('ManualYearlyTargets', manualYearlyTargets ? 'true' : 'false');
+            formData.append('GoalType', goalType);
+            if (goalType === '1') {
+                formData.append('Unit', unit);
+            }
             formData.append('__RequestVerificationToken', token);
 
             // Append manual target year/value pairs if enabled
@@ -2427,6 +2502,26 @@
             document.getElementById('editCurrentYear').value = currentYear;
             document.getElementById('editBaseValue').value = baseValue;
 
+            // Type and unit come from the goal's row — both are fixed at creation, so they are
+            // rendered read-only here and never posted back by submitEdit().
+            const row = document.getElementById(`goal-row-${goalId}`);
+            const displayUnit = unitOfRow(row);
+            const isQuantitative = row && row.getAttribute('data-goal-type') === '1';
+            document.getElementById('editDisplayUnit').value = displayUnit;
+            document.getElementById('editBaseValueUnit').textContent = displayUnit;
+            document.getElementById('editBaseValueLabel').textContent = isQuantitative
+                ? '@Localizer["Cumulative Quantity Achieved"]'
+                : '@Localizer["Base Value (Current)"]';
+            document.getElementById('editBaseValueHint').textContent = isQuantitative
+                ? '@Localizer["Enter the cumulative quantity achieved, not the annual increment."]'
+                : '@Localizer["Enter the actual achieved value for the current year"]';
+
+            const editTypeBadge = document.getElementById('editGoalTypeBadge');
+            editTypeBadge.textContent = (row ? row.getAttribute('data-goal-type-label') : '')
+                + (isQuantitative ? ' · ' + displayUnit : '');
+            editTypeBadge.className = 'badge goal-type-badge '
+                + (isQuantitative ? 'goal-type-quantitative' : 'goal-type-qualitative');
+
             // Load historical values
             await loadHistoricalValues(goalId);
 
@@ -2462,6 +2557,7 @@
 
         // Display historical values table with editable fields
         function displayHistoricalValues(yearlyValues, startingYear, baseValueForStartingYear, currentYear, targetYear, goalId) {
+            const displayUnit = document.getElementById('editDisplayUnit').value || '%';
             let tableHtml = `
                 <div class="table-responsive">
                     <table class="table table-sm">
@@ -2498,13 +2594,15 @@
                             ${isStartingYear ? '<small class="text-muted d-block">(@Localizer["Starting Year"])</small>' : ''}
                         </td>
                         <td>
-                            <input type="text"
-                                   inputmode="decimal"
-                                   class="form-control form-control-sm historical-value-input decimal-input"
-                                   data-year="${year}"
-                                   value="${value}"
-                                   placeholder="@Localizer["Enter value"]"
-                                   ${isStartingYear ? '' : ''}>
+                            <div class="input-group input-group-sm">
+                                <input type="text"
+                                       inputmode="decimal"
+                                       class="form-control form-control-sm historical-value-input decimal-input"
+                                       data-year="${year}"
+                                       value="${value}"
+                                       placeholder="@Localizer["Enter value"]">
+                                <span class="input-group-text">${displayUnit}</span>
+                            </div>
                         </td>
                         <td class="text-center align-middle">
                             <small class="text-muted">${dateRecorded}</small>
@@ -2826,20 +2924,24 @@
 
             const data = [];
             // Headers
-            data.push(['@Localizer["Goal Name"]', '@Localizer["Framework"]', '@Localizer["Starting Year"]', '@Localizer["Current Year"]', '@Localizer["Target Year"]', '@Localizer["Starting Value"]', '@Localizer["Current Value"]', '@Localizer["Target Value"]', '@Localizer["Progress Rate"]', '@Localizer["Discount Rate"]', '@Localizer["Status"]']);
+            data.push(['@Localizer["Goal Name"]', '@Localizer["Framework"]', '@Localizer["Goal Type"]', '@Localizer["Unit of Measure"]', '@Localizer["Starting Year"]', '@Localizer["Current Year"]', '@Localizer["Target Year"]', '@Localizer["Starting Value"]', '@Localizer["Current Value"]', '@Localizer["Target Value"]', '@Localizer["Progress Rate"]', '@Localizer["Discount Rate"]', '@Localizer["Status"]']);
 
             selectedRows.forEach(row => {
+                const unit = unitOfRow(row);
                 data.push([
                     row.dataset.goalNameDisplay || '',
                     row.dataset.frameworkName || '',
+                    row.dataset.goalTypeLabel || '',
+                    unit,
                     row.dataset.startingYear || '',
                     row.dataset.currentYear || '',
                     row.dataset.targetYear || '',
-                    parseFloat(row.dataset.baseValueStarting || 0).toFixed(2) + '%',
-                    parseFloat(row.dataset.baseValueCurrent || 0).toFixed(2) + '%',
-                    parseFloat(row.dataset.targetValue || 0).toFixed(2) + '%',
+                    formatWithUnit(parseFloat(row.dataset.baseValueStarting || 0), unit),
+                    formatWithUnit(parseFloat(row.dataset.baseValueCurrent || 0), unit),
+                    formatWithUnit(parseFloat(row.dataset.targetValue || 0), unit),
+                    // Progress is a ratio and stays a percentage; the annual rate is in the goal's unit
                     parseFloat(row.dataset.progressRate || 0).toFixed(2) + '%',
-                    parseFloat(row.dataset.discountRate || 0).toFixed(2) + '%',
+                    formatWithUnit(parseFloat(row.dataset.discountRate || 0), unit),
                     row.dataset.status || ''
                 ]);
             });
@@ -2860,22 +2962,26 @@
                 return;
             }
 
-            const headers = ['@Localizer["Goal Name"]', '@Localizer["Framework"]', '@Localizer["Starting Year"]', '@Localizer["Current Year"]', '@Localizer["Target Year"]', '@Localizer["Starting Value"]', '@Localizer["Current Value"]', '@Localizer["Target Value"]', '@Localizer["Progress Rate"]', '@Localizer["Discount Rate"]', '@Localizer["Status"]'];
+            const headers = ['@Localizer["Goal Name"]', '@Localizer["Framework"]', '@Localizer["Goal Type"]', '@Localizer["Unit of Measure"]', '@Localizer["Starting Year"]', '@Localizer["Current Year"]', '@Localizer["Target Year"]', '@Localizer["Starting Value"]', '@Localizer["Current Value"]', '@Localizer["Target Value"]', '@Localizer["Progress Rate"]', '@Localizer["Discount Rate"]', '@Localizer["Status"]'];
 
             let csv = headers.join('\t') + '\n';
 
             selectedRows.forEach(row => {
+                const unit = unitOfRow(row);
                 const rowData = [
                     row.dataset.goalNameDisplay || '',
                     row.dataset.frameworkName || '',
+                    row.dataset.goalTypeLabel || '',
+                    unit,
                     row.dataset.startingYear || '',
                     row.dataset.currentYear || '',
                     row.dataset.targetYear || '',
-                    parseFloat(row.dataset.baseValueStarting || 0).toFixed(2) + '%',
-                    parseFloat(row.dataset.baseValueCurrent || 0).toFixed(2) + '%',
-                    parseFloat(row.dataset.targetValue || 0).toFixed(2) + '%',
+                    formatWithUnit(parseFloat(row.dataset.baseValueStarting || 0), unit),
+                    formatWithUnit(parseFloat(row.dataset.baseValueCurrent || 0), unit),
+                    formatWithUnit(parseFloat(row.dataset.targetValue || 0), unit),
+                    // Progress is a ratio and stays a percentage; the annual rate is in the goal's unit
                     parseFloat(row.dataset.progressRate || 0).toFixed(2) + '%',
-                    parseFloat(row.dataset.discountRate || 0).toFixed(2) + '%',
+                    formatWithUnit(parseFloat(row.dataset.discountRate || 0), unit),
                     row.dataset.status || ''
                 ];
                 csv += rowData.join('\t') + '\n';
@@ -2989,6 +3095,9 @@
                 targetValue: parseFloat(row.dataset.targetValue) || 0,
                 amountOfReduction: parseFloat(row.dataset.amountOfReduction) || 0,
                 isIncreaseGoal: row.dataset.isIncreaseGoal === 'true',
+                displayUnit: unitOfRow(row),
+                goalTypeLabel: row.dataset.goalTypeLabel || '',
+                isQuantitative: row.dataset.goalType === '1',
                 color: comparisonColors[index % comparisonColors.length]
             }));
 
@@ -3070,25 +3179,31 @@
                 const expectedChange = expectedSlope * (goal.currentYear - goal.startingYear);
                 const variance = actualChange - expectedChange;
 
+                // Raw amounts carry each goal's own unit — comparing "km" against "housing unit"
+                // is only meaningful once the unit is visible. Progress rate stays a percentage.
+                const u = goal.displayUnit;
+                const fmt = v => formatWithUnit(v, u);
+
                 const values = [
                     `<span class="badge bg-info">${goal.framework}</span>`,
+                    `<span class="badge goal-type-badge ${goal.isQuantitative ? 'goal-type-quantitative' : 'goal-type-qualitative'}">${goal.goalTypeLabel}${goal.isQuantitative ? ' · ' + u : ''}</span>`,
                     getStatusBadgeHtml(goal.status),
                     `<span class="fw-bold" style="color: ${goal.progressRate >= 70 ? '#198754' : goal.progressRate >= 40 ? '#ffc107' : '#dc3545'}">${goal.progressRate.toFixed(2)}%</span>`,
-                    `${goal.discountRate.toFixed(2)}%`,
+                    fmt(goal.discountRate),
                     '', // Section header
                     goal.startingYear,
                     goal.currentYear,
                     goal.targetYear,
                     `<span class="${yearsLeft <= 1 ? 'text-danger fw-bold' : ''}">${yearsLeft} @Localizer["year"]</span>`,
                     '', // Section header
-                    `${goal.startingValue.toFixed(2)}%`,
-                    `${goal.currentValue.toFixed(2)}%`,
-                    `${goal.targetValue.toFixed(2)}%`,
-                    `${totalChange.toFixed(2)}%`,
+                    fmt(goal.startingValue),
+                    fmt(goal.currentValue),
+                    fmt(goal.targetValue),
+                    fmt(totalChange),
                     '', // Section header
-                    `<span class="${actualChange >= 0 ? 'text-success' : 'text-danger'}">${actualChange >= 0 ? '+' : ''}${actualChange.toFixed(2)}%</span>`,
-                    `${expectedChange.toFixed(2)}%`,
-                    `<span class="${variance >= 0 ? 'text-success' : 'text-danger'}">${variance >= 0 ? '+' : ''}${variance.toFixed(2)}%</span>`,
+                    `<span class="${actualChange >= 0 ? 'text-success' : 'text-danger'}">${actualChange >= 0 ? '+' : ''}${fmt(actualChange)}</span>`,
+                    fmt(expectedChange),
+                    `<span class="${variance >= 0 ? 'text-success' : 'text-danger'}">${variance >= 0 ? '+' : ''}${fmt(variance)}</span>`,
                     goal.isIncreaseGoal ? '<span class="badge bg-success">@Localizer["Increase"]</span>' : '<span class="badge bg-warning text-dark">@Localizer["Decrease"]</span>'
                 ];
 
@@ -3578,39 +3693,56 @@
             }
         }
 
+        // Client-side mirror of FrameworkGoal.FormatValue: appends the goal's unit to a raw
+        // value. Ratios (progress rate) must NOT use this — they are always percentages.
+        function formatWithUnit(value, displayUnit) {
+            const unit = displayUnit || '%';
+            return unit === '%' ? value.toFixed(2) + '%' : value.toFixed(2) + ' ' + unit;
+        }
+
+        // Reads the goal's unit off a table row, falling back to "%" for older markup
+        function unitOfRow(row) {
+            return (row && row.getAttribute('data-display-unit')) || '%';
+        }
+
+        // Single source of truth for the advanced filters, shared by pagination, the
+        // results counter and the client-side exports.
+        function rowPassesFilters(row) {
+            const searchTerm = document.getElementById('searchGoal')?.value.toLowerCase().trim() || '';
+            const frameworkFilter = document.getElementById('frameworkFilter')?.value || '';
+            const statusFilter = document.getElementById('statusFilter')?.value || '';
+            const progressRangeFilter = document.getElementById('progressRangeFilter')?.value || '';
+            const goalTypeFilter = document.getElementById('goalTypeFilter')?.value || '';
+
+            if (searchTerm && !row.getAttribute('data-goal-name').includes(searchTerm)) {
+                return false;
+            }
+            if (frameworkFilter && row.getAttribute('data-framework-code') !== frameworkFilter) {
+                return false;
+            }
+            if (statusFilter && row.getAttribute('data-status') !== statusFilter) {
+                return false;
+            }
+            if (goalTypeFilter && row.getAttribute('data-goal-type') !== goalTypeFilter) {
+                return false;
+            }
+            if (progressRangeFilter) {
+                const progressRate = parseFloat(row.getAttribute('data-progress-rate'));
+                const [min, max] = progressRangeFilter.split('-').map(v => v === '' ? Infinity : parseFloat(v.replace('+', '')));
+                if (max === undefined || max === Infinity) {
+                    if (progressRate < min) return false;
+                } else {
+                    if (progressRate < min || progressRate > max) return false;
+                }
+            }
+
+            return true;
+        }
+
         // Pagination function
         function applyPagination() {
             // Get visible rows (respecting filters)
-            const visibleRows = filteredRows.filter(row => {
-                // Check if row passes current filters
-                const searchTerm = document.getElementById('searchGoal')?.value.toLowerCase().trim() || '';
-                const frameworkFilter = document.getElementById('frameworkFilter')?.value || '';
-                const statusFilter = document.getElementById('statusFilter')?.value || '';
-                const progressRangeFilter = document.getElementById('progressRangeFilter')?.value || '';
-
-                let shouldShow = true;
-
-                if (searchTerm && !row.getAttribute('data-goal-name').includes(searchTerm)) {
-                    shouldShow = false;
-                }
-                if (frameworkFilter && row.getAttribute('data-framework-code') !== frameworkFilter) {
-                    shouldShow = false;
-                }
-                if (statusFilter && row.getAttribute('data-status') !== statusFilter) {
-                    shouldShow = false;
-                }
-                if (progressRangeFilter) {
-                    const progressRate = parseFloat(row.getAttribute('data-progress-rate'));
-                    const [min, max] = progressRangeFilter.split('-').map(v => v === '' ? Infinity : parseFloat(v.replace('+', '')));
-                    if (max === undefined || max === Infinity) {
-                        if (progressRate < min) shouldShow = false;
-                    } else {
-                        if (progressRate < min || progressRate > max) shouldShow = false;
-                    }
-                }
-
-                return shouldShow;
-            });
+            const visibleRows = filteredRows.filter(rowPassesFilters);
 
             const totalRows = visibleRows.length;
             const totalPages = pageSize === -1 ? 1 : Math.ceil(totalRows / pageSize);
@@ -3748,33 +3880,7 @@
 
         // Get count of rows that pass current filters
         function getFilteredRowCount() {
-            const searchTerm = document.getElementById('searchGoal')?.value.toLowerCase().trim() || '';
-            const frameworkFilter = document.getElementById('frameworkFilter')?.value || '';
-            const statusFilter = document.getElementById('statusFilter')?.value || '';
-            const progressRangeFilter = document.getElementById('progressRangeFilter')?.value || '';
-
-            return filteredRows.filter(row => {
-                let shouldShow = true;
-                if (searchTerm && !row.getAttribute('data-goal-name').includes(searchTerm)) {
-                    shouldShow = false;
-                }
-                if (frameworkFilter && row.getAttribute('data-framework-code') !== frameworkFilter) {
-                    shouldShow = false;
-                }
-                if (statusFilter && row.getAttribute('data-status') !== statusFilter) {
-                    shouldShow = false;
-                }
-                if (progressRangeFilter) {
-                    const progressRate = parseFloat(row.getAttribute('data-progress-rate'));
-                    const [min, max] = progressRangeFilter.split('-').map(v => v === '' ? Infinity : parseFloat(v.replace('+', '')));
-                    if (max === undefined || max === Infinity) {
-                        if (progressRate < min) shouldShow = false;
-                    } else {
-                        if (progressRate < min || progressRate > max) shouldShow = false;
-                    }
-                }
-                return shouldShow;
-            }).length;
+            return filteredRows.filter(rowPassesFilters).length;
         }
 
         // Change page size
@@ -3800,33 +3906,7 @@
 
             rows.forEach(row => {
                 // Check if row passes current filters (regardless of pagination)
-                const searchTerm = document.getElementById('searchGoal')?.value.toLowerCase().trim() || '';
-                const frameworkFilter = document.getElementById('frameworkFilter')?.value || '';
-                const statusFilter = document.getElementById('statusFilter')?.value || '';
-                const progressRangeFilter = document.getElementById('progressRangeFilter')?.value || '';
-
-                let shouldInclude = true;
-
-                if (searchTerm && !row.getAttribute('data-goal-name').includes(searchTerm)) {
-                    shouldInclude = false;
-                }
-                if (frameworkFilter && row.getAttribute('data-framework-code') !== frameworkFilter) {
-                    shouldInclude = false;
-                }
-                if (statusFilter && row.getAttribute('data-status') !== statusFilter) {
-                    shouldInclude = false;
-                }
-                if (progressRangeFilter) {
-                    const progressRate = parseFloat(row.getAttribute('data-progress-rate'));
-                    const [min, max] = progressRangeFilter.split('-').map(v => v === '' ? Infinity : parseFloat(v.replace('+', '')));
-                    if (max === undefined || max === Infinity) {
-                        if (progressRate < min) shouldInclude = false;
-                    } else {
-                        if (progressRate < min || progressRate > max) shouldInclude = false;
-                    }
-                }
-
-                if (shouldInclude) {
+                if (rowPassesFilters(row)) {
                     const goalName = row.getAttribute('data-goal-name-display');
                     const frameworkName = row.getAttribute('data-framework-name');
                     const progressRate = parseFloat(row.getAttribute('data-progress-rate')).toFixed(2);
@@ -3834,13 +3914,18 @@
                     const status = row.getAttribute('data-status');
                     const startingYear = row.getAttribute('data-starting-year');
                     const targetYear = row.getAttribute('data-target-year');
+                    const goalTypeLabel = row.getAttribute('data-goal-type-label');
+                    const displayUnit = row.getAttribute('data-display-unit') || '%';
 
                     data.push({
                         goalName,
                         frameworkName,
+                        goalTypeLabel,
+                        displayUnit,
                         startingYear,
                         targetYear,
-                        discountRate: discountRate + '%',
+                        // The annual rate is expressed in the goal's own unit; progress is always a percentage
+                        discountRate: formatWithUnit(parseFloat(discountRate), displayUnit),
                         progressRate: progressRate + '%',
                         status: status.replace('-', ' ').replace(/\b\w/g, l => l.toUpperCase())
                     });
@@ -3863,6 +3948,8 @@
             const headers = [
                 '@Localizer["Goal Name"]',
                 '@Localizer["Framework"]',
+                '@Localizer["Goal Type"]',
+                '@Localizer["Unit of Measure"]',
                 '@Localizer["Starting Year"]',
                 '@Localizer["Target Year"]',
                 '@Localizer["Annual Discount Rate"]',
@@ -3878,6 +3965,8 @@
                 const values = [
                     row.goalName,
                     row.frameworkName,
+                    row.goalTypeLabel,
+                    row.displayUnit,
                     row.startingYear,
                     row.targetYear,
                     row.discountRate,
@@ -3912,6 +4001,8 @@
                 [
                     '@Localizer["Goal Name"]',
                     '@Localizer["Framework"]',
+                    '@Localizer["Goal Type"]',
+                    '@Localizer["Unit of Measure"]',
                     '@Localizer["Starting Year"]',
                     '@Localizer["Target Year"]',
                     '@Localizer["Annual Discount Rate"]',
@@ -3924,6 +4015,8 @@
                 wsData.push([
                     row.goalName,
                     row.frameworkName,
+                    row.goalTypeLabel,
+                    row.displayUnit,
                     parseInt(row.startingYear),
                     parseInt(row.targetYear),
                     row.discountRate,
@@ -3940,6 +4033,8 @@
             ws['!cols'] = [
                 { wch: 40 }, // Goal Name
                 { wch: 25 }, // Framework
+                { wch: 15 }, // Goal Type
+                { wch: 15 }, // Unit of Measure
                 { wch: 15 }, // Starting Year
                 { wch: 15 }, // Target Year
                 { wch: 20 }, // Discount Rate
@@ -4008,6 +4103,8 @@
                             <tr style="background: linear-gradient(135deg, #0d6efd 0%, #0a58ca 100%);">
                                 <th style="border: 1px solid #dee2e6; padding: 10px; color: white; text-align: center;">@Localizer["Goal Name"]</th>
                                 <th style="border: 1px solid #dee2e6; padding: 10px; color: white; text-align: center;">@Localizer["Framework"]</th>
+                                <th style="border: 1px solid #dee2e6; padding: 10px; color: white; text-align: center;">@Localizer["Goal Type"]</th>
+                                <th style="border: 1px solid #dee2e6; padding: 10px; color: white; text-align: center;">@Localizer["Unit of Measure"]</th>
                                 <th style="border: 1px solid #dee2e6; padding: 10px; color: white; text-align: center;">@Localizer["Starting Year"]</th>
                                 <th style="border: 1px solid #dee2e6; padding: 10px; color: white; text-align: center;">@Localizer["Target Year"]</th>
                                 <th style="border: 1px solid #dee2e6; padding: 10px; color: white; text-align: center;">@Localizer["Annual Discount Rate"]</th>
@@ -4033,6 +4130,8 @@
                     <tr style="background-color: ${bgColor};">
                         <td style="border: 1px solid #dee2e6; padding: 8px; text-align: right;">${row.goalName}</td>
                         <td style="border: 1px solid #dee2e6; padding: 8px; text-align: center;">${row.frameworkName}</td>
+                        <td style="border: 1px solid #dee2e6; padding: 8px; text-align: center;">${row.goalTypeLabel}</td>
+                        <td style="border: 1px solid #dee2e6; padding: 8px; text-align: center;">${row.displayUnit}</td>
                         <td style="border: 1px solid #dee2e6; padding: 8px; text-align: center;">${row.startingYear}</td>
                         <td style="border: 1px solid #dee2e6; padding: 8px; text-align: center;">${row.targetYear}</td>
                         <td style="border: 1px solid #dee2e6; padding: 8px; text-align: center;">${row.discountRate}</td>
@@ -4122,6 +4221,11 @@
                 filters.push('@Localizer["Progress"]: ' + progressSelect.options[progressSelect.selectedIndex].text);
             }
 
+            const goalTypeSelect = document.getElementById('goalTypeFilter');
+            if (goalTypeSelect?.value) {
+                filters.push('@Localizer["Goal Type"]: ' + goalTypeSelect.options[goalTypeSelect.selectedIndex].text);
+            }
+
             return filters.join(', ');
         }
 
@@ -4209,9 +4313,20 @@
             const isIncreaseGoal = row.getAttribute('data-is-increase-goal') === 'true';
             const timelineUrl = row.getAttribute('data-timeline-url');
 
+            // Raw values carry the goal's unit; ratios stay percentages
+            const displayUnit = unitOfRow(row);
+            const isQuantitative = row.getAttribute('data-goal-type') === '1';
+            const fmt = v => formatWithUnit(v, displayUnit);
+
             // Populate header
             document.getElementById('sidebarGoalName').textContent = goalName;
             document.getElementById('sidebarFrameworkBadge').textContent = frameworkName;
+
+            const goalTypeBadge = document.getElementById('sidebarGoalTypeBadge');
+            goalTypeBadge.textContent = row.getAttribute('data-goal-type-label')
+                + (isQuantitative ? ' · ' + displayUnit : '');
+            goalTypeBadge.className = 'badge goal-type-badge '
+                + (isQuantitative ? 'goal-type-quantitative' : 'goal-type-qualitative');
 
             // Status badge
             const statusBadge = document.getElementById('sidebarStatusBadge');
@@ -4236,7 +4351,7 @@
             // Goal type, discount rate, years left
             document.getElementById('sidebarGoalType').textContent = isIncreaseGoal ? '@Localizer["Increase"]' : '@Localizer["Decrease"]';
             document.getElementById('sidebarGoalType').className = isIncreaseGoal ? 'text-success' : 'text-danger';
-            document.getElementById('sidebarDiscountRate').textContent = discountRate.toFixed(2) + '%';
+            document.getElementById('sidebarDiscountRate').textContent = fmt(discountRate) + '@Localizer["/year"]';
 
             const currentCalendarYear = new Date().getFullYear();
             const yearsLeft = Math.max(0, targetYear - currentCalendarYear);
@@ -4259,15 +4374,15 @@
 
             // Values
             document.getElementById('sidebarStartingYearLabel').textContent = startingYear;
-            document.getElementById('sidebarStartingValue').textContent = baseValueStarting.toFixed(2) + '%';
+            document.getElementById('sidebarStartingValue').textContent = fmt(baseValueStarting);
             document.getElementById('sidebarCurrentYearLabel').textContent = currentYear;
-            document.getElementById('sidebarCurrentValue').textContent = baseValueCurrent.toFixed(2) + '%';
+            document.getElementById('sidebarCurrentValue').textContent = fmt(baseValueCurrent);
             document.getElementById('sidebarTargetYearLabel').textContent = targetYear;
-            document.getElementById('sidebarTargetValue').textContent = targetValue.toFixed(2) + '%';
+            document.getElementById('sidebarTargetValue').textContent = fmt(targetValue);
 
             // Required change
             const totalChange = Math.abs(targetValue - baseValueStarting);
-            document.getElementById('sidebarRequiredChange').textContent = (isIncreaseGoal ? '+' : '-') + totalChange.toFixed(2) + '%';
+            document.getElementById('sidebarRequiredChange').textContent = (isIncreaseGoal ? '+' : '-') + fmt(totalChange);
 
             // Analysis
             const actualChange = baseValueCurrent - baseValueStarting;
@@ -4276,12 +4391,12 @@
             const expectedChange = expectedCurrentValue - baseValueStarting;
             const variance = actualChange - expectedChange;
 
-            document.getElementById('sidebarActualChange').textContent = (actualChange >= 0 ? '+' : '') + actualChange.toFixed(2) + '%';
+            document.getElementById('sidebarActualChange').textContent = (actualChange >= 0 ? '+' : '') + fmt(actualChange);
             document.getElementById('sidebarActualChange').className = getChangeClass(actualChange, isIncreaseGoal);
 
-            document.getElementById('sidebarExpectedChange').textContent = (expectedChange >= 0 ? '+' : '') + expectedChange.toFixed(2) + '%';
+            document.getElementById('sidebarExpectedChange').textContent = (expectedChange >= 0 ? '+' : '') + fmt(expectedChange);
 
-            document.getElementById('sidebarVariance').textContent = (variance >= 0 ? '+' : '') + variance.toFixed(2) + '%';
+            document.getElementById('sidebarVariance').textContent = (variance >= 0 ? '+' : '') + fmt(variance);
             document.getElementById('sidebarVariance').className = getVarianceClass(variance, isIncreaseGoal);
 
             // Actions
@@ -4363,6 +4478,7 @@
                 const result = await response.json();
 
                 if (result.success) {
+                    const unit = unitOfRow(document.getElementById(`goal-row-${goalId}`));
                     let html = '<div class="historical-values-list">';
 
                     // Add starting year
@@ -4370,7 +4486,7 @@
                         <div class="historical-value-item">
                             <span class="historical-year">${result.startingYear}</span>
                             <span class="historical-badge badge bg-primary">@Localizer["Start"]</span>
-                            <span class="historical-val">${result.baseValueForStartingYear.toFixed(2)}%</span>
+                            <span class="historical-val">${formatWithUnit(result.baseValueForStartingYear, unit)}</span>
                         </div>
                     `;
 
@@ -4382,7 +4498,7 @@
                                     <div class="historical-value-item">
                                         <span class="historical-year">${yv.year}</span>
                                         <span class="historical-badge"></span>
-                                        <span class="historical-val">${yv.value.toFixed(2)}%</span>
+                                        <span class="historical-val">${formatWithUnit(yv.value, unit)}</span>
                                     </div>
                                 `;
                             }
@@ -4394,7 +4510,7 @@
                         <div class="historical-value-item">
                             <span class="historical-year">${result.currentYear}</span>
                             <span class="historical-badge badge bg-success">@Localizer["Current"]</span>
-                            <span class="historical-val">${result.baseValueForCurrentYear.toFixed(2)}%</span>
+                            <span class="historical-val">${formatWithUnit(result.baseValueForCurrentYear, unit)}</span>
                         </div>
                     `;
 
@@ -4655,6 +4771,7 @@
             document.getElementById('frameworkFilter').value = '';
             document.getElementById('statusFilter').value = '';
             document.getElementById('progressRangeFilter').value = '';
+            document.getElementById('goalTypeFilter').value = '';
 
             // Reapply filters (which will show all rows)
             applyFilters();
@@ -4954,6 +5071,23 @@
 
     .bg-light-current {
         background-color: #fff3cd !important;
+    }
+
+    /* Goal type badges — quantitative goals carry a unit, qualitative ones are percentages */
+    .goal-type-badge {
+        font-size: 0.7rem;
+        font-weight: 600;
+        vertical-align: middle;
+    }
+
+    .goal-type-quantitative {
+        background-color: #cfe2ff;
+        color: #084298;
+    }
+
+    .goal-type-qualitative {
+        background-color: #e2e3e5;
+        color: #41464b;
     }
 
     .table-responsive {

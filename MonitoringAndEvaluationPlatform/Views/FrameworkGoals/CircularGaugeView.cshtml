@@ -1,4 +1,4 @@
-@model IEnumerable<MonitoringAndEvaluationPlatform.Models.FrameworkGoal>
+﻿@model IEnumerable<MonitoringAndEvaluationPlatform.Models.FrameworkGoal>
 
 @using MonitoringAndEvaluationPlatform.Helpers
 @using Microsoft.AspNetCore.Identity
@@ -85,6 +85,7 @@
                         <i class="fas fa-layer-group"></i>
                         @goal.Framework.Name
                     </span>
+                    <partial name="_GoalTypeBadge" model="goal" />
                 </div>
 
                 <!-- Main Circular Gauge -->
@@ -144,15 +145,15 @@
                 <div class="goal-metrics">
                     <div class="metric-row">
                         <span class="metric-label">@Localizer["Starting Year"]:</span>
-                        <span class="metric-value">@goal.StartingYear (@goal.BaseValueForStartingYear.ToString("N2"))</span>
+                        <span class="metric-value">@goal.StartingYear (@goal.FormatValue(goal.BaseValueForStartingYear))</span>
                     </div>
                     <div class="metric-row">
                         <span class="metric-label">@Localizer["Current Year"]:</span>
-                        <span class="metric-value current">@goal.CurrentYear (@goal.BaseValueForCurrentYear.ToString("N2"))</span>
+                        <span class="metric-value current">@goal.CurrentYear (@goal.FormatValue(goal.BaseValueForCurrentYear))</span>
                     </div>
                     <div class="metric-row">
                         <span class="metric-label">@Localizer["Target Year"]:</span>
-                        <span class="metric-value">@goal.TargetYear (@goal.TargetValue.ToString("N2"))</span>
+                        <span class="metric-value">@goal.TargetYear (@goal.FormatValue(goal.TargetValue))</span>
                     </div>
                 </div>
 

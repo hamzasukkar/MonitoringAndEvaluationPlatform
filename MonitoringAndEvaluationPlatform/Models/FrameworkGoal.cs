@@ -1,6 +1,7 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using Microsoft.AspNetCore.Http;
+using MonitoringAndEvaluationPlatform.Enums;
 
 namespace MonitoringAndEvaluationPlatform.Models
 {
@@ -47,6 +48,14 @@ namespace MonitoringAndEvaluationPlatform.Models
         // and will not be auto-calculated. This flag is permanent and cannot be changed after creation.
         public bool ManualYearlyTargets { get; set; } = false;
 
+        // Qualitative: values are percentages. Quantitative: values are quantities expressed in Unit.
+        // Set at creation only; cannot be changed afterwards (same contract as ManualYearlyTargets).
+        public FrameworkGoalType GoalType { get; set; } = FrameworkGoalType.Qualitative;
+
+        // Unit of measure for Quantitative goals (e.g. "كم", "وحدة سكنية"). Null for Qualitative goals.
+        [StringLength(100)]
+        public string? Unit { get; set; }
+
         // Collection of file attachments
         public ICollection<FrameworkGoalFile> Attachments { get; set; } = new List<FrameworkGoalFile>();
 
@@ -58,6 +67,26 @@ namespace MonitoringAndEvaluationPlatform.Models
         public List<IFormFile> UploadedFiles { get; set; } = new List<IFormFile>();
 
         // Calculated Properties (Not Mapped to Database)
+
+        /// <summary>
+        /// True when the goal's values are quantities rather than percentages.
+        /// </summary>
+        [NotMapped]
+        public bool IsQuantitative => GoalType == FrameworkGoalType.Quantitative;
+
+        /// <summary>
+        /// Unit shown next to raw values: "%" for qualitative goals, the goal's Unit otherwise.
+        /// </summary>
+        [NotMapped]
+        public string DisplayUnit => IsQuantitative ? (Unit ?? string.Empty) : "%";
+
+        /// <summary>
+        /// Formats a raw value together with its unit.
+        /// Ratios (ProgressRate, per-year performance) must NOT use this — they are always percentages.
+        /// </summary>
+        public string FormatValue(double value) => IsQuantitative
+            ? $"{value.ToString("N2")} {Unit}".TrimEnd()
+            : $"{value.ToString("N2")}%";
 
         /// <summary>
         /// Determines if this is an increase goal (target > base) or decrease goal (target < base)
@@ -130,6 +159,33 @@ namespace MonitoringAndEvaluationPlatform.Models
                 var numerator = BaseValueForCurrentYear - BaseValueForStartingYear;
 
                 return (numerator / denominator) * 100;
+            }
+        }
+
+        /// <summary>
+        /// Single source of truth for "is this goal on track". Compares actual change to expected
+        /// change as a ratio (actualChange / expectedChange), which is sign-safe for both increase
+        /// and decrease goals without branching — dividing two same-signed quantities always yields
+        /// a comparable positive ratio. Thresholds (0.95 / 0.7) match the tolerance already used to
+        /// classify goals for the on-screen status filter.
+        /// </summary>
+        [NotMapped]
+        public FrameworkGoalTrackingStatus TrackingStatus
+        {
+            get
+            {
+                var expectedChange = ExpectedValueForCurrentYear - BaseValueForStartingYear;
+                var actualChange = BaseValueForCurrentYear - BaseValueForStartingYear;
+
+                if (expectedChange == 0)
+                {
+                    return actualChange >= 0 ? FrameworkGoalTrackingStatus.OnTrack : FrameworkGoalTrackingStatus.OffTrack;
+                }
+
+                var pace = actualChange / expectedChange;
+                if (pace >= 0.95) return FrameworkGoalTrackingStatus.OnTrack;
+                if (pace >= 0.7) return FrameworkGoalTrackingStatus.AtRisk;
+                return FrameworkGoalTrackingStatus.OffTrack;
             }
         }
 

@@ -1,4 +1,4 @@
-@model IEnumerable<MonitoringAndEvaluationPlatform.Models.FrameworkGoal>
+﻿@model IEnumerable<MonitoringAndEvaluationPlatform.Models.FrameworkGoal>
 
 @using MonitoringAndEvaluationPlatform.Helpers
 @using Microsoft.AspNetCore.Identity
@@ -82,6 +82,7 @@
                         <span class="framework-badge">
                             <i class="fas fa-sitemap me-1"></i>@goal.Framework.Name
                         </span>
+                        <partial name="_GoalTypeBadge" model="goal" />
                     </div>
                     <div class="goal-actions">
                         <a href="@Url.Action("FrameworkGoalsTimeline", "Dashboard", new { goalId = goal.ID, frameworkCode = goal.FrameworkCode })"
@@ -143,7 +144,7 @@
                         <div class="timeline-item">
                             <div class="timeline-label">@Localizer["Starting Year"]</div>
                             <div class="timeline-value">@goal.StartingYear</div>
-                            <div class="timeline-metric">@goal.BaseValueForStartingYear.ToString("N2")</div>
+                            <div class="timeline-metric">@goal.FormatValue(goal.BaseValueForStartingYear)</div>
                         </div>
                         <div class="timeline-progress">
                             <div class="timeline-bar">
@@ -158,7 +159,7 @@
                         <div class="timeline-item">
                             <div class="timeline-label">@Localizer["Target Year"]</div>
                             <div class="timeline-value">@goal.TargetYear</div>
-                            <div class="timeline-metric">@goal.TargetValue.ToString("N2")</div>
+                            <div class="timeline-metric">@goal.FormatValue(goal.TargetValue)</div>
                         </div>
                     </div>
                 </div>
@@ -167,7 +168,7 @@
                 <div class="value-progress-section">
                     <div class="value-progress-header">
                         <span>@Localizer["Value Progress"]</span>
-                        <span class="current-value">@goal.BaseValueForCurrentYear.ToString("N2")</span>
+                        <span class="current-value">@goal.FormatValue(goal.BaseValueForCurrentYear)</span>
                     </div>
                     <div class="value-progress-bar">
                         <div class="value-progress-fill @progressStatus" style="width: @Math.Min(achievementProgress, 100)%">
@@ -175,8 +176,8 @@
                         </div>
                     </div>
                     <div class="value-progress-labels">
-                        <span>@goal.BaseValueForStartingYear.ToString("N2")</span>
-                        <span>@goal.TargetValue.ToString("N2")</span>
+                        <span>@goal.FormatValue(goal.BaseValueForStartingYear)</span>
+                        <span>@goal.FormatValue(goal.TargetValue)</span>
                     </div>
                 </div>
 
@@ -186,28 +187,28 @@
                         <i class="fas fa-bullseye metric-icon"></i>
                         <div class="metric-content">
                             <span class="metric-label">@Localizer["Expected Target (Current Year)"]</span>
-                            <span class="metric-value">@goal.ExpectedTargetValueForCurrentYear.ToString("N2")</span>
+                            <span class="metric-value">@goal.FormatValue(goal.ExpectedTargetValueForCurrentYear)</span>
                         </div>
                     </div>
                     <div class="metric-item">
                         <i class="fas fa-percent metric-icon"></i>
                         <div class="metric-content">
                             <span class="metric-label">@Localizer["Annual Discount Rate"]</span>
-                            <span class="metric-value">@goal.AnnualDiscountRate.ToString("N2")</span>
+                            <span class="metric-value">@goal.FormatValue(goal.AnnualDiscountRate)</span>
                         </div>
                     </div>
                     <div class="metric-item">
                         <i class="fas fa-chart-bar metric-icon"></i>
                         <div class="metric-content">
                             <span class="metric-label">@Localizer["Amount of Reduction"]</span>
-                            <span class="metric-value">@goal.AmountOfReduction.ToString("N2")</span>
+                            <span class="metric-value">@goal.FormatValue(goal.AmountOfReduction)</span>
                         </div>
                     </div>
                     <div class="metric-item">
                         <i class="fas fa-crosshairs metric-icon"></i>
                         <div class="metric-content">
                             <span class="metric-label">@Localizer["Expected Value"]</span>
-                            <span class="metric-value">@goal.ExpectedValueForCurrentYear.ToString("N2")</span>
+                            <span class="metric-value">@goal.FormatValue(goal.ExpectedValueForCurrentYear)</span>
                         </div>
                     </div>
                 </div>

@@ -57,7 +57,7 @@ namespace MonitoringAndEvaluationPlatform.Services
                 "Governorates", "Districts", "SubDistricts", "Communities",
                 "Projects", "ProjectPhases", "ActionPlans", "Plans", "Measures",
                 "ProjectDonors", "ProjectFiles",
-                "FrameworkGoals", "FrameworkGoalYearlyValues", "FrameworkGoalFiles"
+                "FrameworkGoals", "FrameworkGoalYearlyValues", "FrameworkGoalFiles", "FrameworkGoalManualExpectedTargets"
             };
 
             if (includeAuditLogs)
@@ -269,11 +269,12 @@ namespace MonitoringAndEvaluationPlatform.Services
                     GroupName = "Framework Structure",
                     Description = "Frameworks, Outcomes, Outputs, SubOutputs, Indicators and Framework Goals",
                     DangerLevel = "Critical",
-                    Tables = new List<string> { "Frameworks", "Outcomes", "Outputs", "SubOutputs", "Indicators", "FrameworkGoals", "FrameworkGoalYearlyValues", "FrameworkGoalFiles" },
+                    Tables = new List<string> { "Frameworks", "Outcomes", "Outputs", "SubOutputs", "Indicators", "FrameworkGoals", "FrameworkGoalYearlyValues", "FrameworkGoalFiles", "FrameworkGoalManualExpectedTargets" },
                     TotalRecords = await _context.Frameworks.CountAsync() + await _context.Outcomes.CountAsync() +
                                    await _context.Outputs.CountAsync() + await _context.SubOutputs.CountAsync() +
                                    await _context.Indicators.CountAsync() + await _context.FrameworkGoals.CountAsync() +
-                                   await _context.FrameworkGoalYearlyValues.CountAsync() + await _context.FrameworkGoalFiles.CountAsync()
+                                   await _context.FrameworkGoalYearlyValues.CountAsync() + await _context.FrameworkGoalFiles.CountAsync() +
+                                   await _context.FrameworkGoalManualExpectedTargets.CountAsync()
                 },
                 new TableGroupViewModel
                 {
@@ -331,7 +332,7 @@ namespace MonitoringAndEvaluationPlatform.Services
                 ("performance", new[] { "Plans", "Measures" }),
                 ("projects", new[] { "ProjectFiles", "ProjectDonors", "ProjectIndicators", "Plans", "ActionPlans", "Projects" }),
                 ("sdg", new[] { "sDGIndicators", "Targets", "Goals" }),
-                ("framework", new[] { "FrameworkGoalFiles", "FrameworkGoalYearlyValues", "FrameworkGoals", "Indicators", "SubOutputs", "Outputs", "Outcomes", "Frameworks" }),
+                ("framework", new[] { "FrameworkGoalManualExpectedTargets", "FrameworkGoalFiles", "FrameworkGoalYearlyValues", "FrameworkGoals", "Indicators", "SubOutputs", "Outputs", "Outcomes", "Frameworks" }),
                 ("reference", new[] { "ProjectManagers", "SuperVisors", "Ministries", "Sectors", "Donors" }),
                 ("location", new[] { "Communities", "SubDistricts", "Districts", "Governorates" })
             };
