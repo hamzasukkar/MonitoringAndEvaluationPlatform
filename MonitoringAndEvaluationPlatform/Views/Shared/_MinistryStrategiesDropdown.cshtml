@@ -1,11 +1,24 @@
 @using Microsoft.EntityFrameworkCore
+@using Microsoft.AspNetCore.Identity
 @using Microsoft.AspNetCore.Mvc.Localization
 @using MonitoringAndEvaluationPlatform.Data
+@using MonitoringAndEvaluationPlatform.Models
 @inject ApplicationDbContext _context
+@inject UserManager<ApplicationUser> _userManager
 @inject IViewLocalizer Localizer
 
 @{
     var msdIsArabic = System.Globalization.CultureInfo.CurrentUICulture.TwoLetterISOLanguageName == "ar";
+
+    // Same scope rule as GetScopeAsync() in FrameworksController and friends:
+    // admins see everything, everyone else is restricted to their own ministry.
+    var msdIsAdmin = User.IsInRole(UserRoles.SystemAdministrator);
+    int? msdScopedMinistryCode = null;
+    if (!msdIsAdmin)
+    {
+        var msdCurrentUser = await _userManager.GetUserAsync(User);
+        msdScopedMinistryCode = msdCurrentUser?.MinistryCode;
+    }
 
     // All strategies, ordered like policiesDropdown does.
     var msdFrameworks = _context.Frameworks
@@ -30,6 +43,7 @@
         .ToDictionary(g => g.Key, g => g.Select(l => l.FrameworkCode).ToHashSet());
 
     var msdMinistries = _context.Ministries
+        .Where(m => msdIsAdmin || m.Code == msdScopedMinistryCode)
         .ToList()
         .OrderBy(m => msdIsArabic ? m.MinistryDisplayName_AR : m.MinistryDisplayName_EN)
         .ToList();
