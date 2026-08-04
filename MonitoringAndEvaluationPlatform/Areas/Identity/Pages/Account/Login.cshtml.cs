@@ -72,13 +72,11 @@ namespace MonitoringAndEvaluationPlatform.Areas.Identity.Pages.Account
         {
             [Required]
             public string UserName { get; set; }
-            /// <summary>
-            ///     This API supports the ASP.NET Core Identity default UI infrastructure and is not intended to be used
-            ///     directly from your code. This API may change or be removed in future releases.
-            /// </summary>
-            [Required]
-            [EmailAddress]
-            public string Email { get; set; }
+
+            // NOTE: a [Required] Email property used to sit here. The login form never rendered
+            // it and the sign-in call never read it, so validation could never pass - which is
+            // why this handler was written as `if (ModelState.IsValid || true)`. Removing the
+            // dead property is what allows real validation to run.
 
             /// <summary>
             ///     This API supports the ASP.NET Core Identity default UI infrastructure and is not intended to be used

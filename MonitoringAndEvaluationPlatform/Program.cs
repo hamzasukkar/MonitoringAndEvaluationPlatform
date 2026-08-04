@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Localization;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Razor;
 using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.EntityFrameworkCore;
@@ -86,7 +87,15 @@ builder.Services.AddDefaultIdentity<ApplicationUser>(options =>
 .AddRoles<IdentityRole>()
 .AddEntityFrameworkStores<ApplicationDbContext>();
 
-builder.Services.AddControllersWithViews();
+// Validate the antiforgery token on every state-changing request (POST/PUT/PATCH/DELETE;
+// GET/HEAD/OPTIONS/TRACE are skipped). Protection used to be opt-in per action via
+// [ValidateAntiForgeryToken] and roughly 47 state-changing actions had opted out,
+// including project deletion and every inline-delete endpoint.
+// Client side, wwwroot/js/antiforgery.js supplies the token for AJAX callers.
+builder.Services.AddControllersWithViews(options =>
+{
+    options.Filters.Add(new AutoValidateAntiforgeryTokenAttribute());
+});
 
 // Add Authorization policies for permissions
 builder.Services.AddAuthorization(options =>

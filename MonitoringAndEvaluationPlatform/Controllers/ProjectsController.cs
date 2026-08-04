@@ -593,6 +593,12 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 // Remove navigation properties from model state FIRST, before any validation
                 RemoveNavigationPropertiesFromModelState();
 
+                // Server-owned values must never be bound from the request. These are computed
+                // from measures and plans and cascade up the reporting hierarchy; binding them
+                // let a caller post fabricated performance figures for a brand-new project.
+                project.performance = 0;
+                project.DisbursementPerformance = 0;
+
                 // Remove form parameters from ModelState (they're not part of the Project model)
                 ModelState.Remove("selections");
                 ModelState.Remove("DonorFundingBreakdown");

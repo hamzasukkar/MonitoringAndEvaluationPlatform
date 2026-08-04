@@ -1671,7 +1671,11 @@
                 {
                     <text>
                     try {
-                        existingFundingData = JSON.parse('@Html.Raw(ViewBag.DonorFundingData)');
+                        @* Json.Serialize emits a JS literal with <, >, & and ' escaped, so no
+                           JSON.parse and no surrounding quotes are needed. The previous form
+                           dropped raw JSON inside a single-quoted string, which broke on any
+                           apostrophe and allowed script-block breakout. *@
+                        existingFundingData = @Json.Serialize(ViewBag.DonorFundingData);
                     } catch (e) {
                         console.error('Error parsing donor funding data:', e);
                         existingFundingData = {};
@@ -1870,8 +1874,10 @@
 </script>
 @* In the Razor view (Edit.cshtml) *@
 <script type="text/javascript">
-    // Inject the pre-selected locations into JavaScript
-    var initialSelections = @Html.Raw(selectedLocationsJson);    // Pre-fill the selections array with their code values
+    // Inject the pre-selected locations into JavaScript.
+    // Json.Serialize (System.Text.Json) escapes <, > and & - Newtonsoft, used previously
+    // here, does not, so a location name containing </script> escaped this block.
+    var initialSelections = @Json.Serialize(ViewBag.SelectedLocations);    // Pre-fill the selections array with their code values
     var selections2 = initialSelections.map(function(loc) {
         return [loc.GovernorateCode, loc.DistrictCode, loc.SubDistrictCode, loc.CommunityCode];
     });

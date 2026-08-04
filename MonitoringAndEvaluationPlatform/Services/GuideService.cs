@@ -1,3 +1,4 @@
+using Ganss.Xss;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using MonitoringAndEvaluationPlatform.Data;
@@ -10,6 +11,33 @@ namespace MonitoringAndEvaluationPlatform.Services
         private readonly ApplicationDbContext _context;
         private readonly IWebHostEnvironment _env;
         private readonly ILogger<GuideService> _logger;
+
+        /// <summary>
+        /// Allow-list sanitizer for administrator-authored guide HTML. Stateless and
+        /// thread-safe once configured, so a single shared instance is fine.
+        /// </summary>
+        private static readonly HtmlSanitizer Sanitizer = CreateSanitizer();
+
+        private static HtmlSanitizer CreateSanitizer()
+        {
+            var sanitizer = new HtmlSanitizer();
+
+            // The editor needs inline styling and Bootstrap/FontAwesome classes.
+            sanitizer.AllowedAttributes.Add("class");
+            sanitizer.AllowedAttributes.Add("style");
+            sanitizer.AllowedAttributes.Add("id");
+
+            // Never allow framing or script-bearing elements, whatever the defaults say.
+            sanitizer.AllowedTags.Remove("iframe");
+            sanitizer.AllowedTags.Remove("object");
+            sanitizer.AllowedTags.Remove("embed");
+            sanitizer.AllowedTags.Remove("form");
+
+            return sanitizer;
+        }
+
+        private static string SanitizeHtml(string? html) =>
+            string.IsNullOrWhiteSpace(html) ? string.Empty : Sanitizer.Sanitize(html);
 
         public GuideService(ApplicationDbContext context, IWebHostEnvironment env, ILogger<GuideService> logger)
         {
@@ -54,6 +82,13 @@ namespace MonitoringAndEvaluationPlatform.Services
 
         public async Task<string?> SaveSectionAsync(string sectionKey, string title, string newHtml, string? originalHtml, string? user, string? note)
         {
+            // Sanitize on write, not on render: guide content is emitted raw by
+            // Views/Guide/History.cshtml and re-serialized into the user guide, so cleaning it
+            // here covers every read path with one call and leaves nothing dangerous in the
+            // database. Guide editing is administrator-only, so this is defence in depth
+            // against an administrator account being used to plant persistent script.
+            newHtml = SanitizeHtml(newHtml);
+
             var section = await _context.GuideSections
                 .FirstOrDefaultAsync(s => s.SectionKey == sectionKey);
 
@@ -80,7 +115,7 @@ namespace MonitoringAndEvaluationPlatform.Services
                     _context.GuideSectionVersions.Add(new GuideSectionVersion
                     {
                         GuideSectionId = section.Id,
-                        ContentHtml = originalHtml,
+                        ContentHtml = SanitizeHtml(originalHtml),
                         SavedAt = DateTime.UtcNow,
                         SavedBy = user,
                         Note = "النسخة الأصلية قبل أول تعديل"
@@ -135,7 +170,8 @@ namespace MonitoringAndEvaluationPlatform.Services
                 Note = $"تم الاستبدال باستعادة نسخة بتاريخ {version.SavedAt:yyyy-MM-dd HH:mm}"
             });
 
-            section.ContentHtml = version.ContentHtml;
+            // Re-sanitize on restore: stored versions may predate sanitization on write.
+            section.ContentHtml = SanitizeHtml(version.ContentHtml);
             section.UpdatedAt = DateTime.UtcNow;
             section.UpdatedBy = user;
             await _context.SaveChangesAsync();
