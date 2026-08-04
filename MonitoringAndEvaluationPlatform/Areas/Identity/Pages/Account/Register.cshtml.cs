@@ -22,6 +22,10 @@ using MonitoringAndEvaluationPlatform.Models;
 
 namespace MonitoringAndEvaluationPlatform.Areas.Identity.Pages.Account
 {
+    // Self-registration is closed. Accounts are created by administrators via
+    // AdminController.CreateUser; an open Register page previously granted any
+    // anonymous visitor an auto-signed-in account with no role.
+    [Authorize(Roles = UserRoles.SystemAdministrator)]
     public class RegisterModel : PageModel
     {
         private readonly SignInManager<ApplicationUser> _signInManager;
@@ -114,12 +118,14 @@ namespace MonitoringAndEvaluationPlatform.Areas.Identity.Pages.Account
         {
             returnUrl ??= Url.Content("~/");
             ExternalLogins = (await _signInManager.GetExternalAuthenticationSchemesAsync()).ToList();
-            if (ModelState.IsValid || true)
+            if (ModelState.IsValid)
             {
                 var user = CreateUser();
 
                 await _userStore.SetUserNameAsync(user, Input.UserName, CancellationToken.None);
-               // await _emailStore.SetEmailAsync(user, Input.Email, CancellationToken.None);
+                // Restored: without this the account is created with a null Email, which breaks
+                // the email-based password reset and the admin user grid.
+                await _emailStore.SetEmailAsync(user, Input.Email, CancellationToken.None);
                 var result = await _userManager.CreateAsync(user, Input.Password);
 
                 if (result.Succeeded)
@@ -138,15 +144,10 @@ namespace MonitoringAndEvaluationPlatform.Areas.Identity.Pages.Account
                     await _emailSender.SendEmailAsync(Input.Email, "Confirm your email",
                         $"Please confirm your account by <a href='{HtmlEncoder.Default.Encode(callbackUrl)}'>clicking here</a>.");
 
-                    if (_userManager.Options.SignIn.RequireConfirmedAccount)
-                    {
-                        return RedirectToPage("RegisterConfirmation", new { email = Input.Email, returnUrl = returnUrl });
-                    }
-                    else
-                    {
-                        await _signInManager.SignInAsync(user, isPersistent: false);
-                        return LocalRedirect(returnUrl);
-                    }
+                    // This page is administrator-only, so the new account must NOT be signed in -
+                    // that would replace the administrator's own session with the new user's.
+                    TempData["StatusMessage"] = $"Account '{Input.UserName}' created.";
+                    return RedirectToAction("Users", "Admin");
                 }
                 foreach (var error in result.Errors)
                 {

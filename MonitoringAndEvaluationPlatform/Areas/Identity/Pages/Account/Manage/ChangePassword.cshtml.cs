@@ -118,6 +118,12 @@ namespace MonitoringAndEvaluationPlatform.Areas.Identity.Pages.Account.Manage
                 return Page();
             }
 
+            // Clear the forced-change flag: the user now has a password only they know.
+            // This is what releases them from PasswordChangeMiddleware.
+            user.MustChangePassword = false;
+            user.PasswordChangedAt = DateTime.UtcNow;
+            await _userManager.UpdateAsync(user);
+
             await _signInManager.RefreshSignInAsync(user);
             _logger.LogInformation("User changed their password successfully.");
             StatusMessage = "Your password has been changed.";

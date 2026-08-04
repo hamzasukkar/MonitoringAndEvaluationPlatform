@@ -365,7 +365,14 @@ FodyWeavers.xsd
 # Ignore only the default appsettings.json
 appsettings.json
 
-# Ignore 
+# Build/publish output that has carried real connection strings.
+# objBuildCheck* is NOT matched by the [Oo]bj/ rule above - it needs its own entry.
+objBuildCheck*/
+**/PubTmp/
+**/publish/
+logs/
+
+# Ignore
 GEMINI.md
 /MonitoringAndEvaluationPlatform/nul
 /MonitoringAndEvaluationPlatform/appsettings.json

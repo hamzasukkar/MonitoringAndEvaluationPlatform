@@ -234,16 +234,31 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         private async Task<bool> ValidateSecurityConfirmation(string password, string confirmationPhrase, string expectedPhrase)
         {
             if (string.IsNullOrEmpty(password) || string.IsNullOrEmpty(confirmationPhrase))
+            {
+                await LogAuditAction("SecurityConfirmationFailed", "DataManagement", $"Missing password or phrase for '{expectedPhrase}'");
                 return false;
+            }
 
             if (!confirmationPhrase.Equals(expectedPhrase, StringComparison.OrdinalIgnoreCase))
+            {
+                await LogAuditAction("SecurityConfirmationFailed", "DataManagement", $"Incorrect confirmation phrase for '{expectedPhrase}'");
                 return false;
+            }
 
             var user = await _userManager.GetUserAsync(User);
             if (user == null)
                 return false;
 
-            var result = await _signInManager.CheckPasswordSignInAsync(user, password, false);
+            // lockoutOnFailure: true - this endpoint re-checks the caller's own password, so
+            // with it false a hijacked admin session was an unlimited password-guessing oracle.
+            var result = await _signInManager.CheckPasswordSignInAsync(user, password, lockoutOnFailure: true);
+            if (!result.Succeeded)
+            {
+                // A failed step-up on a destructive operation is the strongest breach signal
+                // this application has; it was previously not recorded at all.
+                await LogAuditAction("SecurityConfirmationFailed", "DataManagement", $"Incorrect password for '{expectedPhrase}'");
+            }
+
             return result.Succeeded;
         }
 

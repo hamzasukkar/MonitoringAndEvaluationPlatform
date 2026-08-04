@@ -13,6 +13,7 @@ using Microsoft.Extensions.Logging;
 using MonitoringAndEvaluationPlatform.Models;
 namespace MonitoringAndEvaluationPlatform.Areas.Identity.Pages.Account
 {
+    [AllowAnonymous]
     public class LoginWithRecoveryCodeModel : PageModel
     {
         private readonly SignInManager<ApplicationUser> _signInManager;

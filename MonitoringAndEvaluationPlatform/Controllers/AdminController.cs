@@ -159,7 +159,10 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                     UserName = model.UserName,
                     Email = model.Email,
                     EmailConfirmed = model.EmailConfirmed,
-                    MinistryName = model.MinistryName
+                    MinistryName = model.MinistryName,
+                    // The administrator chose this password, so it is known to someone other
+                    // than the account holder. Force a change before the account can be used.
+                    MustChangePassword = true
                 };
 
                 var result = await _userManager.CreateAsync(user, model.Password);

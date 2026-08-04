@@ -8,6 +8,7 @@ using Microsoft.EntityFrameworkCore;
 using MonitoringAndEvaluationPlatform.Data;
 using MonitoringAndEvaluationPlatform.Models;
 using MonitoringAndEvaluationPlatform.Services;
+using Microsoft.AspNetCore.Authorization;
 
 namespace MonitoringAndEvaluationPlatform.Controllers
 {
@@ -18,15 +19,20 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         public long NewValue { get; set; }
     }
 
+    [Authorize]
     public class PlansController : Controller
     {
         private readonly ApplicationDbContext _context;
         private readonly PlanService _planService;
+        private readonly IMinistryScopeService _scope;
+        private readonly ILogger<PlansController> _logger;
 
-        public PlansController(ApplicationDbContext context, PlanService planService)
+        public PlansController(ApplicationDbContext context, PlanService planService, IMinistryScopeService scope, ILogger<PlansController> logger)
         {
             _context = context;
             _planService = planService;
+            _scope = scope;
+            _logger = logger;
         }
 
         [HttpPost]
@@ -35,6 +41,16 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             if (updates == null || !updates.Any())
             {
                 return Json(new { success = false, message = "No updates provided." });
+            }
+
+            // EVERY plan code in the batch must be checked, not just one - otherwise a caller
+            // could smuggle another ministry's plan codes in alongside their own.
+            foreach (var update in updates)
+            {
+                if (!await _scope.PlanBelongsToScopeAsync(update.PlanCode))
+                {
+                    return Forbid();
+                }
             }
 
             try
@@ -66,7 +82,8 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             }
             catch (Exception ex)
             {
-                return Json(new { success = false, message = "An internal server error occurred: " + ex.Message });
+                _logger.LogError(ex, "Failed to update plan values.");
+                return Json(new { success = false, message = "An internal server error occurred." });
             }
         }
 
@@ -81,6 +98,13 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             if (!long.TryParse(newValue, out long parsedValue))
             {
                 return Json(new { success = false, message = "Invalid number. Please enter a whole number." });
+            }
+
+            // Without this check any authenticated user could rewrite any project's realised
+            // disbursement simply by incrementing planCode.
+            if (!await _scope.PlanBelongsToScopeAsync(planCode))
+            {
+                return Forbid();
             }
 
             try
@@ -110,7 +134,8 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             }
             catch (Exception ex)
             {
-                return Json(new { success = false, message = "An internal server error occurred: " + ex.Message });
+                _logger.LogError(ex, "Failed to update plan {PlanCode}.", planCode);
+                return Json(new { success = false, message = "An internal server error occurred." });
             }
         }
         // GET: Plans
@@ -134,6 +159,11 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             if (id == null)
             {
                 return NotFound();
+            }
+
+            if (!await _scope.PlanBelongsToScopeAsync(id.Value))
+            {
+                return Forbid();
             }
 
             var plan = await _context.Plans
@@ -163,6 +193,12 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         {
             ModelState.Remove(nameof(plan.ActionPlan));
 
+            // The parent action plan decides which ministry this new plan belongs to.
+            if (!await _scope.ActionPlanBelongsToScopeAsync(plan.ActionPlanCode))
+            {
+                return Forbid();
+            }
+
             if (ModelState.IsValid)
             {
                 _context.Add(plan);
@@ -179,6 +215,11 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             if (id == null)
             {
                 return NotFound();
+            }
+
+            if (!await _scope.PlanBelongsToScopeAsync(id.Value))
+            {
+                return Forbid();
             }
 
             var plan = await _context.Plans.FindAsync(id);
@@ -204,6 +245,14 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             }
 
             ModelState.Remove(nameof(plan.ActionPlan));
+
+            // Check the plan as it exists in the database, not as posted - otherwise a caller
+            // could point ActionPlanCode at their own ministry to get past the check.
+            if (!await _scope.PlanBelongsToScopeAsync(id))
+            {
+                return Forbid();
+            }
+
             if (ModelState.IsValid)
             {
                 try
@@ -235,6 +284,11 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 return NotFound();
             }
 
+            if (!await _scope.PlanBelongsToScopeAsync(id.Value))
+            {
+                return Forbid();
+            }
+
             var plan = await _context.Plans
                 .Include(p => p.ActionPlan)
                 .FirstOrDefaultAsync(m => m.Code == id);
@@ -251,6 +305,11 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
+            if (!await _scope.PlanBelongsToScopeAsync(id))
+            {
+                return Forbid();
+            }
+
             var plan = await _context.Plans.FindAsync(id);
             if (plan != null)
             {

@@ -1,9 +1,12 @@
 ﻿using System.Globalization;
+using System.Net;
+using System.Threading.RateLimiting;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Localization;
 using Microsoft.AspNetCore.Mvc.Razor;
+using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using MonitoringAndEvaluationPlatform.Data;
@@ -25,7 +28,17 @@ builder.WebHost.ConfigureKestrel(options =>
 });
 
 // Add services to the container.
-var connectionString = builder.Configuration.GetConnectionString("DefaultConnection") ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
+// Fail fast on a missing OR blank connection string. appsettings.json intentionally ships
+// blank; supply it via user-secrets (dev) or the ConnectionStrings__DefaultConnection
+// environment variable (prod). An empty string would otherwise fail later with a vague error.
+var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+if (string.IsNullOrWhiteSpace(connectionString))
+{
+    throw new InvalidOperationException(
+        "Connection string 'DefaultConnection' not configured. Set it with " +
+        "'dotnet user-secrets set \"ConnectionStrings:DefaultConnection\" \"<conn>\"' for development, " +
+        "or the ConnectionStrings__DefaultConnection environment variable in production.");
+}
 
 // Register HttpContextAccessor for AuditInterceptor
 builder.Services.AddHttpContextAccessor();
@@ -40,7 +53,12 @@ builder.Services.AddDbContext<ApplicationDbContext>((serviceProvider, options) =
         serviceProvider.GetRequiredService<TimestampInterceptor>(),
         serviceProvider.GetRequiredService<AuditInterceptor>());
 });
-builder.Services.AddDatabaseDeveloperPageExceptionFilter();
+// Development only: this filter renders full SQL/EF diagnostics (including the connection
+// string) and an "Apply Migrations" button. It must never be registered in production.
+if (builder.Environment.IsDevelopment())
+{
+    builder.Services.AddDatabaseDeveloperPageExceptionFilter();
+}
 
 //builder.Services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = true)
 //    .AddEntityFrameworkStores<ApplicationDbContext>();
@@ -48,7 +66,22 @@ builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 builder.Services.AddDefaultIdentity<ApplicationUser>(options =>
 {
     options.User.AllowedUserNameCharacters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-._@+";
-    // Other options...
+
+    // Password policy. Identity's default minimum is 6, which is too weak for a platform
+    // holding ministry financial data. Existing password hashes are unaffected; this
+    // applies only when a password is created or changed.
+    options.Password.RequiredLength = 12;
+    options.Password.RequireDigit = true;
+    options.Password.RequireUppercase = true;
+    options.Password.RequireLowercase = true;
+    options.Password.RequireNonAlphanumeric = true;
+    options.Password.RequiredUniqueChars = 4;
+
+    // Lockout. These defaults existed but were never armed because every call site passed
+    // lockoutOnFailure: false - see Login.cshtml.cs and DataManagementController.
+    options.Lockout.MaxFailedAccessAttempts = 5;
+    options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(15);
+    options.Lockout.AllowedForNewUsers = true;
 })
 .AddRoles<IdentityRole>()
 .AddEntityFrameworkStores<ApplicationDbContext>();
@@ -69,6 +102,14 @@ builder.Services.AddAuthorization(options =>
                 policy.Requirements.Add(new PermissionRequirement(permission)));
         }
     }
+
+    // Every endpoint requires an authenticated user unless it opts out with [AllowAnonymous].
+    // This replaces a hand-rolled redirect middleware that ran *after* UseAuthorization(),
+    // enforced authentication but never authorization, and whitelisted the Register page.
+    // Unlike that middleware this honours [AllowAnonymous] and returns a proper 401/403.
+    options.FallbackPolicy = new AuthorizationPolicyBuilder()
+        .RequireAuthenticatedUser()
+        .Build();
 });
 
 builder.Services.AddSingleton<IAuthorizationHandler, PermissionAuthorizationHandler>();
@@ -77,16 +118,87 @@ builder.Services.ConfigureApplicationCookie(options =>
 {
     options.LoginPath = "/Identity/Account/Login"; // Default login path
     options.AccessDeniedPath = "/Identity/Account/AccessDenied"; // If unauthorized
-    options.Cookie.SecurePolicy = CookieSecurePolicy.SameAsRequest;
+    options.Cookie.HttpOnly = true;
+    // Always outside Development so the auth cookie is never sent over plaintext HTTP.
+    // Development keeps SameAsRequest because the local "http" launch profile would
+    // otherwise never receive a cookie at all.
+    options.Cookie.SecurePolicy = builder.Environment.IsDevelopment()
+        ? CookieSecurePolicy.SameAsRequest
+        : CookieSecurePolicy.Always;
+    // Lax, not Strict: Strict breaks the post-login returnUrl navigation.
     options.Cookie.SameSite = SameSiteMode.Lax;
+    // Previously unset, which meant a 14-day sliding session.
+    options.ExpireTimeSpan = TimeSpan.FromHours(8);
+    options.SlidingExpiration = true;
 });
 
 // Configure forwarded headers for reverse proxy (IIS, nginx, etc.)
 builder.Services.Configure<ForwardedHeadersOptions>(options =>
 {
     options.ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto;
+    options.ForwardLimit = 1;
+
+    // Only trust forwarded headers from known proxies. Clearing both lists (the previous
+    // behaviour) let ANY client forge X-Forwarded-For - spoofing the IP recorded in the
+    // audit log and handing out a fresh rate-limit bucket per request - and forge
+    // X-Forwarded-Proto: https to defeat UseHttpsRedirection.
     options.KnownNetworks.Clear();
     options.KnownProxies.Clear();
+
+    // IIS forwards from the local machine.
+    options.KnownProxies.Add(IPAddress.Loopback);
+    options.KnownProxies.Add(IPAddress.IPv6Loopback);
+
+    // Additional proxies (comma-separated) for deployments behind a non-local reverse proxy.
+    var extraProxies = builder.Configuration["ForwardedHeaders:KnownProxies"];
+    if (!string.IsNullOrWhiteSpace(extraProxies))
+    {
+        foreach (var proxy in extraProxies.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries))
+        {
+            if (IPAddress.TryParse(proxy, out var address))
+            {
+                options.KnownProxies.Add(address);
+            }
+        }
+    }
+});
+
+// Rate limiting. There was previously no brute-force protection of any kind on login.
+builder.Services.AddRateLimiter(options =>
+{
+    options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
+
+    // Credential-guessing protection, partitioned by client IP. Only meaningful because
+    // KnownProxies is now restricted above - otherwise a spoofed X-Forwarded-For would
+    // create a new partition on every request.
+    options.AddPolicy(RateLimitPolicies.Login, context =>
+        RateLimitPartition.GetFixedWindowLimiter(
+            context.Connection.RemoteIpAddress?.ToString() ?? "unknown",
+            _ => new FixedWindowRateLimiterOptions
+            {
+                PermitLimit = 10,
+                Window = TimeSpan.FromMinutes(5)
+            }));
+
+    // Metered third-party LLM calls - protects the API quota/bill.
+    options.AddPolicy(RateLimitPolicies.Chatbot, context =>
+        RateLimitPartition.GetFixedWindowLimiter(
+            context.User.Identity?.Name ?? context.Connection.RemoteIpAddress?.ToString() ?? "unknown",
+            _ => new FixedWindowRateLimiterOptions
+            {
+                PermitLimit = 20,
+                Window = TimeSpan.FromMinutes(1)
+            }));
+
+    // Destructive admin operations behind step-up re-authentication.
+    options.AddPolicy(RateLimitPolicies.Sensitive, context =>
+        RateLimitPartition.GetFixedWindowLimiter(
+            context.User.Identity?.Name ?? context.Connection.RemoteIpAddress?.ToString() ?? "unknown",
+            _ => new FixedWindowRateLimiterOptions
+            {
+                PermitLimit = 10,
+                Window = TimeSpan.FromMinutes(5)
+            }));
 });
 
 builder.Services.AddScoped<MonitoringService>();
@@ -96,6 +208,7 @@ builder.Services.AddScoped<IProjectValidationService, ProjectValidationService>(
 builder.Services.AddScoped<INotificationService, NotificationService>();
 builder.Services.AddScoped<IAuditService, AuditService>();
 builder.Services.AddScoped<IDataManagementService, DataManagementService>();
+builder.Services.AddScoped<IMinistryScopeService, MinistryScopeService>();
 builder.Services.AddScoped<IGuideService, GuideService>();
 // Lets the guide editor send the anti-forgery token on JSON POSTs via header.
 builder.Services.AddAntiforgery(o => o.HeaderName = "RequestVerificationToken");
@@ -157,23 +270,26 @@ app.UseRouting();
 var locOptions = app.Services.GetService<IOptions<RequestLocalizationOptions>>();
 app.UseRequestLocalization(locOptions.Value);
 
+app.UseRateLimiter();
 
 app.UseAuthentication();
 app.UseAuthorization();
 
-app.Use(async (context, next) =>
-{
-    if (!context.User.Identity.IsAuthenticated && !context.Request.Path.StartsWithSegments("/Identity/Account/Login") && !context.Request.Path.StartsWithSegments("/Identity/Account/Register"))
-    {
-        context.Response.Redirect("/Identity/Account/Login");
-        return;
-    }
-    await next();
-});
+// Must run after authentication so the flagged user is known, and after authorization
+// so [AllowAnonymous] endpoints are not forced through the change-password gate.
+app.UsePasswordChangeEnforcement();
+
+// NOTE: the hand-rolled "redirect anonymous users to Login" middleware that used to sit
+// here has been removed. It ran after UseAuthorization(), enforced authentication but never
+// authorization, whitelisted /Identity/Account/Register (open self-registration), and blocked
+// the password-reset pages for anonymous users. It is replaced by AuthorizationOptions
+// .FallbackPolicy above, which runs inside UseAuthorization() and honours [AllowAnonymous].
 
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Frameworks}/{action=Index}/{id?}");
+// Rate limiting for the sign-in path is applied per-page via [EnableRateLimiting] on
+// LoginModel rather than to every Razor Page.
 app.MapRazorPages();
 
 // Create an admin role and user
@@ -183,7 +299,12 @@ using (var scope = app.Services.CreateScope())
     var roleManager = services.GetRequiredService<RoleManager<IdentityRole>>();
     var userManager = services.GetRequiredService<UserManager<ApplicationUser>>();
     var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-    DbInitializer.SeedAsync(services);
+
+    // Demo accounts are Development-only and opt-in. Reference data always seeds.
+    var seedDemoUsers = app.Environment.IsDevelopment()
+        && builder.Configuration.GetValue<bool>("Seeding:EnableDemoUsers");
+
+    await DbInitializer.SeedAsync(services, seedDemoUsers);
     ApplicationDbInitializer.SeedGovernoratesFromJson(dbContext);
     ApplicationDbInitializer.SeedDistrictsFromJson(dbContext);
     ApplicationDbInitializer.SeedSubDistrictsFromJson(dbContext);
@@ -207,84 +328,52 @@ using (var scope = app.Services.CreateScope())
         }
     }
 
-    // Create System Administrator user
-    var sysAdminEmail = "admin@example.com";
-    var sysAdminUser = await userManager.FindByEmailAsync(sysAdminEmail);
-    if (sysAdminUser == null)
+    // Demo accounts. These previously ran unconditionally in EVERY environment with
+    // hardcoded passwords, putting a known-credential SystemAdministrator on production,
+    // and re-granted the admin role on every boot (undoing a deliberate demotion).
+    // Now: Development only, opt-in, and passwords must come from configuration
+    // (user-secrets) - there is no literal fallback.
+    if (seedDemoUsers)
     {
-        sysAdminUser = new ApplicationUser
+        var seedLogger = services.GetRequiredService<ILoggerFactory>().CreateLogger("DemoUserSeeding");
+
+        async Task SeedDemoUserAsync(string configKey, string userName, string email, string ministryName, string role)
         {
-            UserName = "admin",
-            Email = sysAdminEmail,
-            MinistryName = "System Administration"
-        };
-        await userManager.CreateAsync(sysAdminUser, "Admin@123");
-    }
+            var password = builder.Configuration[$"Seeding:{configKey}"];
+            if (string.IsNullOrWhiteSpace(password))
+            {
+                seedLogger.LogWarning(
+                    "Skipping demo user {UserName}: no password configured at Seeding:{ConfigKey}.",
+                    userName, configKey);
+                return;
+            }
 
-    // Ensure the user has the SystemAdministrator role (whether user was just created or already existed)
-    if (!await userManager.IsInRoleAsync(sysAdminUser, UserRoles.SystemAdministrator))
-    {
-        await userManager.AddToRoleAsync(sysAdminUser, UserRoles.SystemAdministrator);
-    }
+            var user = await userManager.FindByEmailAsync(email);
+            if (user == null)
+            {
+                user = new ApplicationUser
+                {
+                    UserName = userName,
+                    Email = email,
+                    MinistryName = ministryName,
+                    MustChangePassword = true
+                };
+                var createResult = await userManager.CreateAsync(user, password);
+                if (!createResult.Succeeded)
+                {
+                    seedLogger.LogWarning("Could not create demo user {UserName}: {Errors}",
+                        userName, string.Join("; ", createResult.Errors.Select(e => e.Description)));
+                    return;
+                }
 
-    // Create Ministries User
-    var ministriesEmail = "ministry@example.com";
-    var ministriesUser = await userManager.FindByEmailAsync(ministriesEmail);
-    if (ministriesUser == null)
-    {
-        ministriesUser = new ApplicationUser
-        {
-            UserName = "ministry_user",
-            Email = ministriesEmail,
-            MinistryName = "Ministry of Planning"
-        };
-        await userManager.CreateAsync(ministriesUser, "Ministry@123");
-    }
+                await userManager.AddToRoleAsync(user, role);
+            }
+        }
 
-    // Ensure the user has the MinistriesUser role
-    if (!await userManager.IsInRoleAsync(ministriesUser, UserRoles.MinistriesUser))
-    {
-        await userManager.AddToRoleAsync(ministriesUser, UserRoles.MinistriesUser);
-    }
-
-    // Create Data Entry User
-    var dataEntryEmail = "dataentry@example.com";
-    var dataEntryUser = await userManager.FindByEmailAsync(dataEntryEmail);
-    if (dataEntryUser == null)
-    {
-        dataEntryUser = new ApplicationUser
-        {
-            UserName = "data_entry",
-            Email = dataEntryEmail,
-            MinistryName = "Data Entry Department"
-        };
-        await userManager.CreateAsync(dataEntryUser, "DataEntry@123");
-    }
-
-    // Ensure the user has the DataEntry role
-    if (!await userManager.IsInRoleAsync(dataEntryUser, UserRoles.DataEntry))
-    {
-        await userManager.AddToRoleAsync(dataEntryUser, UserRoles.DataEntry);
-    }
-
-    // Create Reading User
-    var readingEmail = "reader@example.com";
-    var readingUser = await userManager.FindByEmailAsync(readingEmail);
-    if (readingUser == null)
-    {
-        readingUser = new ApplicationUser
-        {
-            UserName = "reading_user",
-            Email = readingEmail,
-            MinistryName = "External Observer"
-        };
-        await userManager.CreateAsync(readingUser, "Reader@123");
-    }
-
-    // Ensure the user has the ReadingUser role
-    if (!await userManager.IsInRoleAsync(readingUser, UserRoles.ReadingUser))
-    {
-        await userManager.AddToRoleAsync(readingUser, UserRoles.ReadingUser);
+        await SeedDemoUserAsync("AdminPassword", "admin", "admin@example.com", "System Administration", UserRoles.SystemAdministrator);
+        await SeedDemoUserAsync("MinistryPassword", "ministry_user", "ministry@example.com", "Ministry of Planning", UserRoles.MinistriesUser);
+        await SeedDemoUserAsync("DataEntryPassword", "data_entry", "dataentry@example.com", "Data Entry Department", UserRoles.DataEntry);
+        await SeedDemoUserAsync("ReaderPassword", "reading_user", "reader@example.com", "External Observer", UserRoles.ReadingUser);
     }
 }
 

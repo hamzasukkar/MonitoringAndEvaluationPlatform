@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Cryptography;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
@@ -19,12 +20,51 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         private readonly ApplicationDbContext _context;
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly RoleManager<IdentityRole> _roleManager;
+        private readonly ILogger<MinistriesController> _logger;
 
-        public MinistriesController(ApplicationDbContext context, UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager)
+        public MinistriesController(ApplicationDbContext context, UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager, ILogger<MinistriesController> logger)
         {
             _context = context;
             _userManager = userManager;
             _roleManager = roleManager;
+            _logger = logger;
+        }
+
+        /// <summary>
+        /// Generates a random initial password that satisfies the configured Identity policy
+        /// (length, upper, lower, digit, non-alphanumeric). Shown to the administrator once;
+        /// the account is flagged MustChangePassword so it cannot be used long-term.
+        /// </summary>
+        private static string GenerateInitialPassword()
+        {
+            const string upper = "ABCDEFGHJKLMNPQRSTUVWXYZ";
+            const string lower = "abcdefghijkmnpqrstuvwxyz";
+            const string digits = "23456789";
+            const string symbols = "!@#$%^&*-_=+";
+            const string all = upper + lower + digits + symbols;
+
+            // Guarantee one character from each required class, then fill to length 16.
+            var chars = new List<char>
+            {
+                upper[RandomNumberGenerator.GetInt32(upper.Length)],
+                lower[RandomNumberGenerator.GetInt32(lower.Length)],
+                digits[RandomNumberGenerator.GetInt32(digits.Length)],
+                symbols[RandomNumberGenerator.GetInt32(symbols.Length)]
+            };
+
+            while (chars.Count < 16)
+            {
+                chars.Add(all[RandomNumberGenerator.GetInt32(all.Length)]);
+            }
+
+            // Fisher-Yates shuffle so the guaranteed characters are not always in front.
+            for (int i = chars.Count - 1; i > 0; i--)
+            {
+                int j = RandomNumberGenerator.GetInt32(i + 1);
+                (chars[i], chars[j]) = (chars[j], chars[i]);
+            }
+
+            return new string(chars.ToArray());
         }
         // GET: Ministries
         [Permission(Permissions.ReadMinistries)]
@@ -108,6 +148,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         // 🔹 Create Ministry (Automatically Creates User & Role)
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Permission(Permissions.CreateMinistry)]
         public async Task<IActionResult> Create(Ministry ministry)
         {
             if (ModelState.IsValid)
@@ -123,25 +164,32 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 }
 
                 // 🔹 Create User for the Ministry
-                string defaultPassword = "Ministry@123";  // ⚠️ Change in production
+                // The password is generated, shown to the administrator exactly once, and must
+                // be changed on first sign-in. It used to be the literal "Ministry@123", which
+                // meant every ministry account shared one publicly-known password.
+                string generatedPassword = GenerateInitialPassword();
                 var user = new ApplicationUser
                 {
                     UserName = ministry.MinistryUserName,
                     Email = $"{ministry.MinistryUserName.ToLower()}@example.com", // Example email
                     EmailConfirmed = true,
-                    MinistryName = ministry.MinistryUserName
+                    MinistryName = ministry.MinistryUserName,
+                    MustChangePassword = true
                 };
 
-                var result = await _userManager.CreateAsync(user, defaultPassword);
+                var result = await _userManager.CreateAsync(user, generatedPassword);
                 if (result.Succeeded)
                 {
                     // 🔹 Assign User to Role
                     await _userManager.AddToRoleAsync(user, ministry.MinistryUserName);
+                    TempData["GeneratedPassword"] =
+                        $"Initial password for '{user.UserName}': {generatedPassword} — copy it now, it will not be shown again.";
                 }
                 else
                 {
-                    // Log errors (in production, use a logging framework)
-                    Console.WriteLine($"⚠️ User creation failed: {string.Join(", ", result.Errors.Select(e => e.Description))}");
+                    _logger.LogWarning("Ministry user creation failed for {UserName}: {Errors}",
+                        ministry.MinistryUserName, string.Join(", ", result.Errors.Select(e => e.Description)));
+                    TempData["ErrorMessage"] = "The ministry was created but its user account could not be created.";
                 }
 
                 return RedirectToAction(nameof(Index)); // Redirect to list of ministries
@@ -158,6 +206,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         // Inline Operations
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Permission(Permissions.CreateMinistry)]
         public async Task<IActionResult> CreateInline(string MinistryDisplayName_AR, string MinistryDisplayName_EN, string MinistryUserName, string Logo)
         {
             if (string.IsNullOrWhiteSpace(MinistryDisplayName_AR) && string.IsNullOrWhiteSpace(MinistryDisplayName_EN))
@@ -186,6 +235,8 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
+        [Permission(Permissions.ModifyMinistry)]
         public async Task<IActionResult> InlineEdit(int id, string field, string value)
         {
             var ministry = await _context.Ministries.FindAsync(id);
@@ -222,6 +273,8 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
+        [Permission(Permissions.ModifyMinistry)]
         public async Task<IActionResult> QuickUpdate(int id, string displayNameAR, string displayNameEN, string userName, string logo)
         {
             var ministry = await _context.Ministries.FindAsync(id);
@@ -248,6 +301,8 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
+        [Permission(Permissions.DeleteMinistry)]
         public async Task<IActionResult> InlineDelete(int id)
         {
             var ministry = await _context.Ministries.FindAsync(id);

@@ -8,16 +8,21 @@ using Microsoft.EntityFrameworkCore;
 using MonitoringAndEvaluationPlatform.Data;
 using MonitoringAndEvaluationPlatform.Models;
 using MonitoringAndEvaluationPlatform.ViewModel;
+using Microsoft.AspNetCore.Authorization;
+using MonitoringAndEvaluationPlatform.Services;
 
 namespace MonitoringAndEvaluationPlatform.Controllers
 {
+    [Authorize]
     public class ActionPlansController : Controller
     {
         private readonly ApplicationDbContext _context;
+        private readonly IMinistryScopeService _scope;
 
-        public ActionPlansController(ApplicationDbContext context)
+        public ActionPlansController(ApplicationDbContext context, IMinistryScopeService scope)
         {
             _context = context;
+            _scope = scope;
         }
 
         // GET: ActionPlans
@@ -37,6 +42,11 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         // GET: ActionPlans/ActionPlan?phaseId=5
         public async Task<IActionResult> ActionPlan(int phaseId)
         {
+            if (!await _scope.ProjectPhaseBelongsToScopeAsync(phaseId))
+            {
+                return Forbid();
+            }
+
             // Fetch action plan for this specific phase
             var phaseActionPlan = await _context.ActionPlans
                 .Include(ap => ap.Plans)
@@ -110,6 +120,11 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         {
             if (id == null) return NotFound();
 
+            if (!await _scope.ActionPlanBelongsToScopeAsync(id.Value))
+            {
+                return Forbid();
+            }
+
             var actionPlan = await _context.ActionPlans
                 .Include(a => a.ProjectPhase)
                     .ThenInclude(pp => pp.Project)
@@ -134,7 +149,15 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(ActionPlan actionPlan)
         {
-            if (ModelState.IsValid || true)
+            ModelState.Remove(nameof(actionPlan.ProjectPhase));
+
+            // The parent phase decides which ministry this action plan belongs to.
+            if (!await _scope.ProjectPhaseBelongsToScopeAsync(actionPlan.ProjectPhaseId))
+            {
+                return Forbid();
+            }
+
+            if (ModelState.IsValid)
             {
                 _context.Add(actionPlan);
                 await _context.SaveChangesAsync();
@@ -151,6 +174,11 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         {
             if (id == null) return NotFound();
 
+            if (!await _scope.ActionPlanBelongsToScopeAsync(id.Value))
+            {
+                return Forbid();
+            }
+
             var actionPlan = await _context.ActionPlans.FindAsync(id);
             if (actionPlan == null) return NotFound();
 
@@ -166,6 +194,14 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         public async Task<IActionResult> Edit(int id, [Bind("Code,PlansCount,ProjectPhaseId")] ActionPlan actionPlan)
         {
             if (id != actionPlan.Code) return NotFound();
+
+            // Check the stored action plan, not the posted ProjectPhaseId.
+            if (!await _scope.ActionPlanBelongsToScopeAsync(id))
+            {
+                return Forbid();
+            }
+
+            ModelState.Remove(nameof(actionPlan.ProjectPhase));
 
             if (ModelState.IsValid)
             {
@@ -192,6 +228,11 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         {
             if (id == null) return NotFound();
 
+            if (!await _scope.ActionPlanBelongsToScopeAsync(id.Value))
+            {
+                return Forbid();
+            }
+
             var actionPlan = await _context.ActionPlans
                 .Include(a => a.ProjectPhase)
                     .ThenInclude(pp => pp.Project)
@@ -207,6 +248,11 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
+            if (!await _scope.ActionPlanBelongsToScopeAsync(id))
+            {
+                return Forbid();
+            }
+
             var actionPlan = await _context.ActionPlans.FindAsync(id);
             if (actionPlan != null)
             {

@@ -3,25 +3,35 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Localization;
 using MonitoringAndEvaluationPlatform.Data;
 using MonitoringAndEvaluationPlatform.Models;
+using Microsoft.AspNetCore.Authorization;
+using MonitoringAndEvaluationPlatform.Services;
 
 namespace MonitoringAndEvaluationPlatform.Controllers
 {
+    [Authorize]
     public class ProjectPhasesController : Controller
     {
         private readonly ApplicationDbContext _context;
         private readonly MonitoringService _monitoringService;
         private readonly IStringLocalizer<ProjectPhasesController> _localizer;
+        private readonly IMinistryScopeService _scope;
 
-        public ProjectPhasesController(ApplicationDbContext context, MonitoringService monitoringService, IStringLocalizer<ProjectPhasesController> localizer)
+        public ProjectPhasesController(ApplicationDbContext context, MonitoringService monitoringService, IStringLocalizer<ProjectPhasesController> localizer, IMinistryScopeService scope)
         {
             _context = context;
             _monitoringService = monitoringService;
             _localizer = localizer;
+            _scope = scope;
         }
 
         // GET: ProjectPhases/Edit/5
         public async Task<IActionResult> Edit(int id)
         {
+            if (!await _scope.ProjectPhaseBelongsToScopeAsync(id))
+            {
+                return Forbid();
+            }
+
             var phase = await _context.ProjectPhases
                 .Include(pp => pp.Project)
                     .ThenInclude(p => p.Phases)
@@ -43,6 +53,13 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         public async Task<IActionResult> Edit(int id, [Bind("Id,Name,StartDate,EndDate,Budget,Weight,TargetQuantity,ProjectID")] ProjectPhase phase)
         {
             if (id != phase.Id) return NotFound();
+
+            // Check the stored phase, not the posted ProjectID - a caller must not be able to
+            // pass the check by pointing the posted ProjectID at their own ministry.
+            if (!await _scope.ProjectPhaseBelongsToScopeAsync(id))
+            {
+                return Forbid();
+            }
 
             ModelState.Remove(nameof(phase.Project));
             ModelState.Remove(nameof(phase.Measures));
@@ -123,6 +140,13 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> SyncPhases(int projectId, List<string>? SelectedPhases, string? returnTo)
         {
+            // This action deletes and recreates phases (and their action plans and plans),
+            // so an unscoped projectId would let any user restructure another ministry's project.
+            if (!await _scope.ProjectBelongsToScopeAsync(projectId))
+            {
+                return Forbid();
+            }
+
             var project = await _context.Projects
                 .Include(p => p.Phases)
                 .FirstOrDefaultAsync(p => p.ProjectID == projectId);
@@ -191,6 +215,11 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Delete(int id, string? returnTo = null)
         {
+            if (!await _scope.ProjectPhaseBelongsToScopeAsync(id))
+            {
+                return Forbid();
+            }
+
             var phase = await _context.ProjectPhases.FindAsync(id);
             if (phase == null) return NotFound();
 
@@ -239,6 +268,16 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             if (dto.Phases.Any(p => p.Weight < 0))
                 return BadRequest(new { message = "All weights must be non-negative." });
 
+            // Every phase in the batch must belong to the caller's ministry - phase weights
+            // drive project performance, so this is a reporting-integrity control.
+            foreach (var phaseDto in dto.Phases)
+            {
+                if (!await _scope.ProjectPhaseBelongsToScopeAsync(phaseDto.PhaseId))
+                {
+                    return Forbid();
+                }
+            }
+
             foreach (var phaseDto in dto.Phases)
             {
                 var phase = await _context.ProjectPhases.FindAsync(phaseDto.PhaseId);
@@ -264,6 +303,11 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         [HttpGet]
         public async Task<IActionResult> GetPhasePerformance(int id)
         {
+            if (!await _scope.ProjectPhaseBelongsToScopeAsync(id))
+            {
+                return Forbid();
+            }
+
             var phase = await _context.ProjectPhases
                 .Include(pp => pp.Measures)
                 .FirstOrDefaultAsync(pp => pp.Id == id);
