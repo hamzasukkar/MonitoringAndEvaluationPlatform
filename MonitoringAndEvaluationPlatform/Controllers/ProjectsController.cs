@@ -12,12 +12,12 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Localization;
 using MonitoringAndEvaluationPlatform.Attributes;
+using System.Text.Json;
 using MonitoringAndEvaluationPlatform.Data;
 using MonitoringAndEvaluationPlatform.Helpers;
 using MonitoringAndEvaluationPlatform.Models;
 using MonitoringAndEvaluationPlatform.Services;
 using MonitoringAndEvaluationPlatform.ViewModel;
-using Newtonsoft.Json;
 
 namespace MonitoringAndEvaluationPlatform.Controllers
 {
@@ -29,6 +29,15 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         private readonly RoleManager<IdentityRole> _roleManager;
         private readonly PlanService _planService;
         private readonly IProjectValidationService _validationService;
+        /// <summary>
+        /// Matches Newtonsoft's case-insensitive property matching, which this replaced.
+        /// The browser posts PascalCase today, but a camelCase sender must keep working.
+        /// </summary>
+        private static readonly JsonSerializerOptions JsonOptions = new()
+        {
+            PropertyNameCaseInsensitive = true
+        };
+
         private readonly IStringLocalizer<ProjectsController> _localizer;
         private readonly IUploadValidationService _uploadValidation;
         private readonly ILogger<ProjectsController> _logger;
@@ -567,7 +576,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             ViewBag.UserMinistryCode = userMinistryCode;
 
             // Initialize empty donor funding data for create form
-            ViewBag.DonorFundingData = JsonConvert.SerializeObject(new Dictionary<string, decimal>());
+            ViewBag.DonorFundingData = new Dictionary<string, decimal>();
             ViewBag.ProjectManager = new SelectList(projectManagers, "Code", "Name");
             ViewBag.Goals = new SelectList(
                 goals,
@@ -623,7 +632,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 var selectedDonorCodes = Request.Form["Donors"].ToList();
                 var selectedLocations = string.IsNullOrEmpty(selections)
                     ? new List<LocationSelectionViewModel>()
-                    : JsonConvert.DeserializeObject<List<LocationSelectionViewModel>>(selections);
+                    : JsonSerializer.Deserialize<List<LocationSelectionViewModel>>(selections, JsonOptions);
 
                 // Check if project name already exists
                 if (!string.IsNullOrWhiteSpace(project.ProjectName))
@@ -947,11 +956,13 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             );
 
             // Pass existing donor funding percentages to the view
-            var donorFundingData = project.ProjectDonors.ToDictionary(
+            // Pass the dictionary itself, not a pre-serialized string: the view renders it
+            // with @Json.Serialize, which would otherwise emit a JSON string literal rather
+            // than an object.
+            ViewBag.DonorFundingData = project.ProjectDonors.ToDictionary(
                 pd => pd.DonorCode.ToString(),
                 pd => pd.FundingPercentage
             );
-            ViewBag.DonorFundingData = JsonConvert.SerializeObject(donorFundingData);
 
             // Build the Ministry SelectList, marking the project's existing ministry code as "selected":
             var allMinistries = await _context.Ministries.ToListAsync();
@@ -1076,7 +1087,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             if (!IsEntireCountry && !string.IsNullOrEmpty(selections))
             {
                 // Deserialize JSON string into a list of location selection objects
-                var selectedLocations = JsonConvert.DeserializeObject<List<LocationSelectionViewModel>>(selections);
+                var selectedLocations = JsonSerializer.Deserialize<List<LocationSelectionViewModel>>(selections, JsonOptions);
 
                 // Loop through each selection and add entities to the project
                 foreach (var sel in selectedLocations)
@@ -1196,7 +1207,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 {
                     try
                     {
-                        var fundingData = JsonConvert.DeserializeObject<Dictionary<string, decimal>>(DonorFundingBreakdown);
+                        var fundingData = JsonSerializer.Deserialize<Dictionary<string, decimal>>(DonorFundingBreakdown, JsonOptions);
 
                         foreach (var donorCode in SelectedDonorCodes)
                         {
@@ -1726,7 +1737,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             if (string.IsNullOrEmpty(selections))
                 return;
 
-            var selectedLocations = JsonConvert.DeserializeObject<List<LocationSelectionViewModel>>(selections);
+            var selectedLocations = JsonSerializer.Deserialize<List<LocationSelectionViewModel>>(selections, JsonOptions);
 
             project.Governorates = new List<Governorate>();
             project.Districts = new List<District>();
@@ -1765,7 +1776,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             {
                 try
                 {
-                    var fundingData = JsonConvert.DeserializeObject<Dictionary<string, decimal>>(donorFundingBreakdown);
+                    var fundingData = JsonSerializer.Deserialize<Dictionary<string, decimal>>(donorFundingBreakdown, JsonOptions);
                     CreateProjectDonorRecords(project, selectedDonorCodes, fundingData);
                 }
                 catch (JsonException)

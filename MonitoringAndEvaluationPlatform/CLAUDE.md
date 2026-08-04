@@ -15,8 +15,24 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - `dotnet ef database drop` - Drop the database (use with caution)
 
 ### Configuration
-- Update connection string in `appsettings.json` for your SQL Server instance (default DB: `mre-New`)
-- Default credentials: admin@example.com / Admin@123 · ministry@example.com / Ministry@123 · dataentry@example.com / DataEntry@123 · reader@example.com / Reader@123
+The connection string is **not** stored in `appsettings.json` — that file has leaked
+credentials before and now ships blank.
+
+- Development: `dotnet user-secrets set "ConnectionStrings:DefaultConnection" "<conn>"`
+- Production: set the `ConnectionStrings__DefaultConnection` environment variable
+
+Demo accounts are Development-only and opt-in. Set `Seeding:EnableDemoUsers` to `true` in
+`appsettings.Development.json` and supply each password via user secrets
+(`Seeding:AdminPassword`, `Seeding:MinistryPassword`, `Seeding:DataEntryPassword`,
+`Seeding:ReaderPassword`). Accounts without a configured password are skipped. There are no
+hardcoded default credentials.
+
+Every account is created with `MustChangePassword` set, so the first sign-in is redirected
+to the change-password page.
+
+### Security tests
+- `dotnet test tests/MonitoringAndEvaluationPlatform.SecurityTests` — authorization, CSRF,
+  cross-ministry IDOR, upload validation, headers and rate limiting. See `SECURITY.md`.
 
 ## Architecture Overview
 
@@ -74,7 +90,7 @@ Key entities:
 **Reporting / Monitoring:** DashboardController, MonitoringController, ReportsController, TreeController
 **Strategic:** FrameworkGoalsController
 **Admin:** AdminController, AuditLogsController, DataManagementController
-**Other:** ChatbotController, HomeController, DebugController, TestController
+**Other:** ChatbotController, HomeController, FilesController (authorized attachment access)
 
 ---
 
@@ -158,7 +174,16 @@ Located in `ViewModels/`:
 ## Key Patterns & Conventions
 
 - **Service layer** – All business logic in `Services/`; controllers are thin
-- **No unit tests** – `DebugController` and `TestController` serve as development-mode testing endpoints
+- **Tests** – `tests/MonitoringAndEvaluationPlatform.SecurityTests` holds the security
+  regression suite (authorization, CSRF, IDOR, uploads, headers). There is still no
+  functional/unit test coverage of business logic. `DebugController` and `TestController`
+  were removed; do not reintroduce debug endpoints as a testing mechanism.
+- **Ministry scoping** – any action that loads a record by ID must gate it with
+  `IMinistryScopeService`; every method there fails closed
+- **Uploads** – always go through `IUploadValidationService`, which stores files outside
+  `wwwroot` under a server-generated name. Serve them only via `FilesController`
+- **Permissions** – `Infrastructure/PermissionMap.cs` is the single source of truth; do not
+  add a second copy of the role→permission mapping
 - **Performance propagation** – Always update via `PlanService.UpdateProjectPerformance()` to keep hierarchy metrics consistent; never update performance fields directly
 - **Permissions** – Use the `Permissions` constants when adding new `[Authorize(Policy = ...)]` attributes; register the policy in `Program.cs`
 - **Migrations** – Run `dotnet ef migrations add <Name>` then `dotnet ef database update` after any model change; never edit existing migration files

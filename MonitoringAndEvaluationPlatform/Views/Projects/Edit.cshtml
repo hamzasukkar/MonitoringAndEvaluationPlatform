@@ -1,5 +1,4 @@
 ﻿@model MonitoringAndEvaluationPlatform.Models.Project
-@using Newtonsoft.Json
 @using Microsoft.AspNetCore.Mvc.Localization
 @inject IViewLocalizer Localizer
 @using Microsoft.AspNetCore.Localization
@@ -9,7 +8,6 @@
     ViewData["Title"] = "Edit Project";
     Layout = "~/Views/Shared/_DashboardHomeLayout.cshtml";
     var governorates = ViewBag.Governorates as List<Governorate>;
-    var selectedLocationsJson = JsonConvert.SerializeObject(ViewBag.SelectedLocations);
 }
 
 <!-- Dashboard Header -->
@@ -1878,8 +1876,10 @@
     // Json.Serialize (System.Text.Json) escapes <, > and & - Newtonsoft, used previously
     // here, does not, so a location name containing </script> escaped this block.
     var initialSelections = @Json.Serialize(ViewBag.SelectedLocations);    // Pre-fill the selections array with their code values
+    // Property names are camelCase: Json.Serialize uses MVC's web defaults, unlike the
+    // Newtonsoft call this replaced.
     var selections2 = initialSelections.map(function(loc) {
-        return [loc.GovernorateCode, loc.DistrictCode, loc.SubDistrictCode, loc.CommunityCode];
+        return [loc.governorateCode, loc.districtCode, loc.subDistrictCode, loc.communityCode];
     });
 </script>
 
