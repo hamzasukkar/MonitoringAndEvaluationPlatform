@@ -445,6 +445,8 @@
     </footer> *@
 
 	<script src="~/lib/jquery/dist/jquery.js"></script>
+    @await Html.PartialAsync("_AntiforgeryToken")
+    <script src="~/js/antiforgery.js" asp-append-version="true"></script>
 	<script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
 	<script src="~/js/sweetalert2@11.js"></script>
 	<script src="~/js/site.js" asp-append-version="true"></script>
