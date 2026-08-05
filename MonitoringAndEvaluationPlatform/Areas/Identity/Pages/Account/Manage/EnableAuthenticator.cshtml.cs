@@ -25,6 +25,12 @@ namespace MonitoringAndEvaluationPlatform.Areas.Identity.Pages.Account.Manage
 
         private const string AuthenticatorUriFormat = "otpauth://totp/{0}:{1}?secret={2}&issuer={0}&digits=6";
 
+        /// <summary>
+        /// Shown as the account issuer inside the user's authenticator app, so it must name
+        /// this platform rather than the framework.
+        /// </summary>
+        private const string Issuer = "M&E Platform";
+
         public EnableAuthenticatorModel(
             UserManager<ApplicationUser> userManager,
             ILogger<EnableAuthenticatorModel> logger,
@@ -155,8 +161,16 @@ namespace MonitoringAndEvaluationPlatform.Areas.Identity.Pages.Account.Manage
 
             SharedKey = FormatKey(unformattedKey);
 
-            var email = await _userManager.GetEmailAsync(user);
-            AuthenticatorUri = GenerateQrCodeUri(email, unformattedKey);
+            // Accounts are not required to have an email address, so fall back to the user
+            // name. An empty label produces a malformed otpauth URI that authenticator apps
+            // either reject outright or enrol with a blank account name.
+            var accountLabel = await _userManager.GetEmailAsync(user);
+            if (string.IsNullOrWhiteSpace(accountLabel))
+            {
+                accountLabel = await _userManager.GetUserNameAsync(user);
+            }
+
+            AuthenticatorUri = GenerateQrCodeUri(accountLabel, unformattedKey);
         }
 
         private string FormatKey(string unformattedKey)
@@ -176,13 +190,15 @@ namespace MonitoringAndEvaluationPlatform.Areas.Identity.Pages.Account.Manage
             return result.ToString().ToLowerInvariant();
         }
 
-        private string GenerateQrCodeUri(string email, string unformattedKey)
+        private string GenerateQrCodeUri(string accountLabel, string unformattedKey)
         {
             return string.Format(
                 CultureInfo.InvariantCulture,
                 AuthenticatorUriFormat,
-                _urlEncoder.Encode("Microsoft.AspNetCore.Identity.UI"),
-                _urlEncoder.Encode(email),
+                // This is what the authenticator app displays as the account issuer. The
+                // scaffolding default was the literal "Microsoft.AspNetCore.Identity.UI".
+                _urlEncoder.Encode(Issuer),
+                _urlEncoder.Encode(accountLabel),
                 unformattedKey);
         }
     }

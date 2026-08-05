@@ -13,6 +13,13 @@ vulnerability. Record every change here.
 | jQuery Validation | 1.21.0 | https://cdn.jsdelivr.net/npm/jquery-validation@1.21.0/dist/ | 2026-08-04 |
 | jQuery Validation Unobtrusive | 4.0.0 | (unchanged; 4.0.0 is current) | — |
 | Leaflet | 1.9.4 | (unchanged) | — |
+| qrcodejs | 1.0.0 | https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js | 2026-08-05 |
+
+qrcodejs renders the two-factor enrolment QR code on
+`Identity/Account/Manage/EnableAuthenticator`. It is self-hosted rather than loaded from a
+CDN because the enrolment page carries the TOTP shared secret - a compromised CDN script on
+that page would be able to read it. The library runs entirely client-side and makes no
+network requests of its own.
 
 Bootstrap JS was 5.1.0, which is affected by the tooltip/popover sanitizer XSS fixed in
 5.2. The layouts were already loading Bootstrap **5.3** CSS from a CDN against that 5.1 JS,
