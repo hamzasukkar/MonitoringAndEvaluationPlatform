@@ -1,4 +1,4 @@
-@model MonitoringAndEvaluationPlatform.ViewModels.UserManagementViewModel
+﻿@model MonitoringAndEvaluationPlatform.ViewModels.UserManagementViewModel
 @using Microsoft.AspNetCore.Mvc.Localization
 @using System.Globalization
 @inject IViewLocalizer Localizer
@@ -141,6 +141,7 @@
                             <th>@Localizer["Ministry"]</th>
                             <th>@Localizer["Roles"]</th>
                             <th>@Localizer["Status"]</th>
+                            <th class="text-center">@Localizer["TwoFactor"]</th>
                             <th class="text-center">@Localizer["Actions"]</th>
                         </tr>
                     </thead>
@@ -180,6 +181,20 @@
                                     }
                                 </td>
                                 <td class="text-center">
+                                    @if (user.TwoFactorEnabled)
+                                    {
+                                        <span class="badge bg-success">
+                                            <i class="fas fa-shield-alt me-1"></i>@Localizer["Enabled"]
+                                        </span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-secondary">
+                                            <i class="fas fa-shield-alt me-1"></i>@Localizer["Disabled"]
+                                        </span>
+                                    }
+                                </td>
+                                <td class="text-center">
                                     <div class="btn-group" role="group">
                                         <a asp-action="UserDetails" asp-route-id="@user.Id" class="btn btn-sm btn-info" title="@Localizer["ViewDetails"]">
                                             <i class="fas fa-eye"></i>
@@ -193,6 +208,13 @@
                                         <button type="button" class="btn btn-sm @(user.IsLocked ? "btn-success" : "btn-warning")" onclick="toggleLockout('@user.Id', '@user.UserName', @user.IsLocked.ToString().ToLower())" title="@Localizer["ToggleLockout"]">
                                             <i class="fas fa-@(user.IsLocked ? "unlock" : "lock")"></i>
                                         </button>
+                                        @* Only offered when there is a factor to clear - an administrator cannot enrol one on the user's behalf. *@
+                                        @if (user.TwoFactorEnabled)
+                                        {
+                                            <button type="button" class="btn btn-sm btn-outline-danger" onclick="resetTwoFactor('@user.Id', '@user.UserName')" title="@Localizer["ResetTwoFactor"]">
+                                                <i class="fas fa-shield-alt"></i>
+                                            </button>
+                                        }
                                         <button type="button" class="btn btn-sm btn-danger" onclick="deleteUser('@user.Id', '@user.UserName')" title="@Localizer["Delete"]">
                                             <i class="fas fa-trash"></i>
                                         </button>
@@ -289,11 +311,17 @@
 </form>
 
 <script>
+    const _strConfirmDeleteUser = @Json.Serialize(Localizer.GetString("ConfirmDeleteUser").Value);
+    const _strEnterNewPassword = @Json.Serialize(Localizer.GetString("EnterNewPassword").Value);
+    const _strConfirmResetTwoFactor = @Json.Serialize(Localizer.GetString("ConfirmResetTwoFactor").Value);
+    const _strConfirmToggleLockout = @Json.Serialize(Localizer.GetString("ConfirmToggleLockout").Value);
+    const _strUnlock = @Json.Serialize(Localizer.GetString("Unlock").Value);
+    const _strLock = @Json.Serialize(Localizer.GetString("Lock").Value);
     const _strSecurityToken = '@Localizer["Security token not found. Please refresh the page."]';
     const _strAnErrorOccurred = '@Localizer["An error occurred. Please try again."]';
 
     function deleteUser(userId, userName) {
-        if (confirm('@Localizer["ConfirmDeleteUser"]'.replace('{0}', userName))) {
+        if (confirm(_strConfirmDeleteUser.replace('{0}', userName))) {
             var token = document.querySelector('input[name="__RequestVerificationToken"]');
             if (!token) {
                 alert(_strSecurityToken);
@@ -324,7 +352,7 @@
     }
 
     function resetPassword(userId, userName) {
-        const newPassword = prompt('@Localizer["EnterNewPassword"]'.replace('{0}', userName));
+        const newPassword = prompt(_strEnterNewPassword.replace('{0}', userName));
         if (newPassword) {
             var token = document.querySelector('input[name="__RequestVerificationToken"]');
             if (!token) {
@@ -353,9 +381,40 @@
         }
     }
 
+    function resetTwoFactor(userId, userName) {
+        // Deliberately a sterner confirmation than the other actions: this strips a user's
+        // second factor, and the account is protected by password alone until they enrol again.
+        if (confirm(_strConfirmResetTwoFactor.replace('{0}', userName))) {
+            var token = document.querySelector('input[name="__RequestVerificationToken"]');
+            if (!token) {
+                alert(_strSecurityToken);
+                return;
+            }
+            fetch('@Url.Action("ResetTwoFactor", "Admin")', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                    'RequestVerificationToken': token.value
+                },
+                body: new URLSearchParams({ id: userId })
+            })
+            .then(response => response.json())
+            .then(data => {
+                alert(data.message);
+                if (data.success) {
+                    location.reload();
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert(_strAnErrorOccurred);
+            });
+        }
+    }
+
     function toggleLockout(userId, userName, isLocked) {
-        const action = isLocked ? '@Localizer["Unlock"]' : '@Localizer["Lock"]';
-        if (confirm('@Localizer["ConfirmToggleLockout"]'.replace('{0}', action).replace('{1}', userName))) {
+        const action = isLocked ? _strUnlock : _strLock;
+        if (confirm(_strConfirmToggleLockout.replace('{0}', action).replace('{1}', userName))) {
             var token = document.querySelector('input[name="__RequestVerificationToken"]');
             if (!token) {
                 alert(_strSecurityToken);

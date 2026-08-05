@@ -157,4 +157,19 @@
   <data name="ManageRoles" xml:space="preserve">
     <value>إدارة الأدوار</value>
   </data>
+  <data name="TwoFactor" xml:space="preserve">
+    <value>المصادقة الثنائية</value>
+  </data>
+  <data name="Enabled" xml:space="preserve">
+    <value>مفعّلة</value>
+  </data>
+  <data name="Disabled" xml:space="preserve">
+    <value>معطّلة</value>
+  </data>
+  <data name="ResetTwoFactor" xml:space="preserve">
+    <value>إعادة تعيين المصادقة الثنائية</value>
+  </data>
+  <data name="ConfirmResetTwoFactor" xml:space="preserve">
+    <value>سيؤدي هذا إلى إزالة المصادقة الثنائية للمستخدم '{0}'، فيصبح حسابه محمياً بكلمة المرور وحدها حتى يسجّل جهازاً جديداً. هل تريد المتابعة؟</value>
+  </data>
 </root>

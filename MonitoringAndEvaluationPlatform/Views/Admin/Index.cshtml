@@ -1,4 +1,4 @@
-@model MonitoringAndEvaluationPlatform.ViewModels.UserManagementViewModel
+﻿@model MonitoringAndEvaluationPlatform.ViewModels.UserManagementViewModel
 @using Microsoft.AspNetCore.Mvc.Localization
 @using System.Globalization
 @inject IViewLocalizer Localizer
@@ -288,7 +288,7 @@
 
 <script>
     function deleteUser(userId, userName) {
-        if (confirm('@Localizer["ConfirmDeleteUser"]'.replace('{0}', userName))) {
+        if (confirm(_strConfirmDeleteUser.replace('{0}', userName))) {
             fetch('@Url.Action("DeleteUser", "Admin")', {
                 method: 'POST',
                 headers: {
@@ -310,7 +310,7 @@
     }
 
     function resetPassword(userId, userName) {
-        const newPassword = prompt('@Localizer["EnterNewPassword"]'.replace('{0}', userName));
+        const newPassword = prompt(_strEnterNewPassword.replace('{0}', userName));
         if (newPassword) {
             fetch('@Url.Action("ResetPassword", "Admin")', {
                 method: 'POST',
@@ -331,8 +331,8 @@
     }
 
     function toggleLockout(userId, userName, isLocked) {
-        const action = isLocked ? '@Localizer["Unlock"]' : '@Localizer["Lock"]';
-        if (confirm('@Localizer["ConfirmToggleLockout"]'.replace('{0}', action).replace('{1}', userName))) {
+        const action = isLocked ? _strUnlock : _strLock;
+        if (confirm(_strConfirmToggleLockout.replace('{0}', action).replace('{1}', userName))) {
             fetch('@Url.Action("ToggleLockout", "Admin")', {
                 method: 'POST',
                 headers: {

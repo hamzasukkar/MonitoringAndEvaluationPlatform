@@ -15,15 +15,18 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly RoleManager<IdentityRole> _roleManager;
         private readonly ApplicationDbContext _context;
+        private readonly ILogger<AdminController> _logger;
 
         public AdminController(
             UserManager<ApplicationUser> userManager,
             RoleManager<IdentityRole> roleManager,
-            ApplicationDbContext context)
+            ApplicationDbContext context,
+            ILogger<AdminController> logger)
         {
             _userManager = userManager;
             _roleManager = roleManager;
             _context = context;
+            _logger = logger;
         }
 
         // GET: Admin/Test - Simple test to check if controller works
@@ -118,6 +121,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 EmailConfirmed = user.EmailConfirmed,
                 LockoutEnabled = user.LockoutEnabled,
                 LockoutEnd = user.LockoutEnd,
+                TwoFactorEnabled = user.TwoFactorEnabled,
                 Roles = userRolesDict.TryGetValue(user.Id, out var roles) ? roles : new List<string>()
             }).ToList();
 
@@ -316,6 +320,66 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             }
 
             return Json(new { success = false, message = "Failed to reset password." });
+        }
+
+        // POST: Admin/ResetTwoFactor
+        //
+        // Clears a user's enrolled authenticator so they can enrol a fresh device. This is
+        // the only recovery path when someone loses their phone: there is no email sender
+        // configured, so a reset link cannot be sent.
+        //
+        // Deliberately one-directional. An administrator can remove a second factor but can
+        // never add one - enrolment requires scanning the QR code, which only the account
+        // holder can do.
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ResetTwoFactor(string id)
+        {
+            var user = await _userManager.FindByIdAsync(id);
+            if (user == null)
+            {
+                return Json(new { success = false, message = "User not found." });
+            }
+
+            if (!user.TwoFactorEnabled)
+            {
+                return Json(new { success = false, message = $"'{user.UserName}' does not have two-factor authentication enabled." });
+            }
+
+            // Order matters: disable the requirement first, so a failure on the second call
+            // cannot leave the account demanding a factor whose key has already been dropped.
+            var disable = await _userManager.SetTwoFactorEnabledAsync(user, false);
+            if (!disable.Succeeded)
+            {
+                _logger.LogError("Failed to disable two-factor for {TargetUser}: {Errors}",
+                    user.UserName, string.Join("; ", disable.Errors.Select(e => e.Description)));
+                return Json(new { success = false, message = "Failed to reset two-factor authentication." });
+            }
+
+            var reset = await _userManager.ResetAuthenticatorKeyAsync(user);
+            if (!reset.Succeeded)
+            {
+                _logger.LogError("Failed to reset authenticator key for {TargetUser}: {Errors}",
+                    user.UserName, string.Join("; ", reset.Errors.Select(e => e.Description)));
+                return Json(new { success = false, message = "Failed to reset two-factor authentication." });
+            }
+
+            // Invalidates any session already issued for the account, so a still-open browser
+            // cannot keep using access that the old second factor authorised.
+            await _userManager.UpdateSecurityStampAsync(user);
+
+            // Removing someone's second factor is exactly the action an attacker with a
+            // stolen admin session would take, so it is recorded at warning level with both
+            // identities and the caller's address.
+            _logger.LogWarning(
+                "Two-factor authentication reset for {TargetUser} by {Administrator} from {IpAddress}.",
+                user.UserName, User.Identity?.Name, HttpContext.Connection.RemoteIpAddress?.ToString());
+
+            return Json(new
+            {
+                success = true,
+                message = $"Two-factor authentication reset for '{user.UserName}'. They can enrol a new device from their account page."
+            });
         }
 
         // POST: Admin/ToggleLockout

@@ -157,4 +157,19 @@
   <data name="ManageRoles" xml:space="preserve">
     <value>Manage Roles</value>
   </data>
+  <data name="TwoFactor" xml:space="preserve">
+    <value>Two-factor</value>
+  </data>
+  <data name="Enabled" xml:space="preserve">
+    <value>Enabled</value>
+  </data>
+  <data name="Disabled" xml:space="preserve">
+    <value>Disabled</value>
+  </data>
+  <data name="ResetTwoFactor" xml:space="preserve">
+    <value>Reset two-factor authentication</value>
+  </data>
+  <data name="ConfirmResetTwoFactor" xml:space="preserve">
+    <value>This removes two-factor authentication for '{0}'. Their account will be protected by password alone until they enrol a new device. Continue?</value>
+  </data>
 </root>
