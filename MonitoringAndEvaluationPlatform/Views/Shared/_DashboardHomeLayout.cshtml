@@ -45,6 +45,14 @@
     <!-- Select2 JS -->
     <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 
+    <!-- Apply saved theme before first paint to avoid a flash of the default (blue) theme -->
+    <script>
+        (function () {
+            var savedTheme = localStorage.getItem('selectedTheme') || 'blue';
+            document.documentElement.setAttribute('data-theme', savedTheme);
+        })();
+    </script>
+
     <!-- Custom Dashboard Styles -->
     <style>
         :root {
