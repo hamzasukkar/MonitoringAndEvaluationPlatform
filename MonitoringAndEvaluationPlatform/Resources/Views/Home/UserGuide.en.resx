@@ -1925,4 +1925,361 @@
   <data name="For technical support and assistance, please contact your system administrator." xml:space="preserve">
     <value>For technical support and assistance, please contact your system administrator.</value>
   </data>
+  <data name="Requests &amp; Support" xml:space="preserve">
+    <value>Requests &amp; Support</value>
+  </data>
+  <data name="Platform Versions &amp; What's New" xml:space="preserve">
+    <value>Platform Versions &amp; What's New</value>
+  </data>
+  <data name="8.3 Goal Types" xml:space="preserve">
+    <value>8.3 Goal Types</value>
+  </data>
+  <data name="Every goal has a type that determines how its values are interpreted. A badge next to the goal name shows which type it uses." xml:space="preserve">
+    <value>Every goal has a type that determines how its values are interpreted. A badge next to the goal name shows which type it uses.</value>
+  </data>
+  <data name="Qualitative Goal" xml:space="preserve">
+    <value>Qualitative Goal</value>
+  </data>
+  <data name="Values are entered as percentages. This is the default type for a new goal." xml:space="preserve">
+    <value>Values are entered as percentages. This is the default type for a new goal.</value>
+  </data>
+  <data name="Quantitative Goal" xml:space="preserve">
+    <value>Quantitative Goal</value>
+  </data>
+  <data name="Values are entered as real quantities in a unit of measure you define (for example km or housing units). The unit is shown next to every value." xml:space="preserve">
+    <value>Values are entered as real quantities in a unit of measure you define (for example km or housing units). The unit is shown next to every value.</value>
+  </data>
+  <data name="Goal Type Is Set Once" xml:space="preserve">
+    <value>Goal Type Is Set Once</value>
+  </data>
+  <data name="The goal type is chosen when the goal is created and cannot be changed afterwards. Choose carefully: switching later requires deleting the goal and creating it again." xml:space="preserve">
+    <value>The goal type is chosen when the goal is created and cannot be changed afterwards. Choose carefully: switching later requires deleting the goal and creating it again.</value>
+  </data>
+  <data name="The Set Up section manages all reference data needed for projects: Ministries, Donors, Sectors, Public Sector Types, Project Managers, Supervisors, and Locations." xml:space="preserve">
+    <value>The Set Up section manages all reference data needed for projects: Ministries, Donors, Sectors, Public Sector Types, Project Managers, Supervisors, and Locations.</value>
+  </data>
+  <data name="Public Sector Types" xml:space="preserve">
+    <value>Public Sector Types</value>
+  </data>
+  <data name="Public Sector Types provide a further breakdown of the public sector and are managed from their own tab in the Set Up navigation bar. Each type has an Arabic and an English name and can be assigned to projects for more precise classification and reporting." xml:space="preserve">
+    <value>Public Sector Types provide a further breakdown of the public sector and are managed from their own tab in the Set Up navigation bar. Each type has an Arabic and an English name and can be assigned to projects for more precise classification and reporting.</value>
+  </data>
+  <data name="10.7 Currency, Exchange Rate &amp; Budget Unit" xml:space="preserve">
+    <value>10.7 Currency, Exchange Rate &amp; Budget Unit</value>
+  </data>
+  <data name="Each project records how its financial figures should be interpreted, so that budgets entered in different currencies and scales can be compared correctly." xml:space="preserve">
+    <value>Each project records how its financial figures should be interpreted, so that budgets entered in different currencies and scales can be compared correctly.</value>
+  </data>
+  <data name="Currency" xml:space="preserve">
+    <value>Currency</value>
+  </data>
+  <data name="The currency the project budget is expressed in, together with the symbol shown next to amounts throughout the platform." xml:space="preserve">
+    <value>The currency the project budget is expressed in, together with the symbol shown next to amounts throughout the platform.</value>
+  </data>
+  <data name="Exchange Rate" xml:space="preserve">
+    <value>Exchange Rate</value>
+  </data>
+  <data name="The conversion rate used for this project, along with the date the rate was recorded, so historical figures remain traceable." xml:space="preserve">
+    <value>The conversion rate used for this project, along with the date the rate was recorded, so historical figures remain traceable.</value>
+  </data>
+  <data name="Budget Unit" xml:space="preserve">
+    <value>Budget Unit</value>
+  </data>
+  <data name="The scale of the entered amounts: Ones, Thousands, Millions, or Billions. Choose the unit that matches how the budget figures were supplied." xml:space="preserve">
+    <value>The scale of the entered amounts: Ones, Thousands, Millions, or Billions. Choose the unit that matches how the budget figures were supplied.</value>
+  </data>
+  <data name="Enter the Amount, Not the Zeros" xml:space="preserve">
+    <value>Enter the Amount, Not the Zeros</value>
+  </data>
+  <data name="If a budget is 5 million and you set the Budget Unit to Millions, enter 5 — not 5,000,000. Setting the unit incorrectly will distort budget totals and disbursement performance." xml:space="preserve">
+    <value>If a budget is 5 million and you set the Budget Unit to Millions, enter 5 — not 5,000,000. Setting the unit incorrectly will distort budget totals and disbursement performance.</value>
+  </data>
+  <data name="The platform uses role-based access control with five predefined roles:" xml:space="preserve">
+    <value>The platform uses role-based access control with five predefined roles:</value>
+  </data>
+  <data name="Can create, edit, and delete projects, monitor and analyse performance, and view and export reports. Cannot modify the strategic framework hierarchy." xml:space="preserve">
+    <value>Can create, edit, and delete projects, monitor and analyse performance, and view and export reports. Cannot modify the strategic framework hierarchy.</value>
+  </data>
+  <data name="Ministry Strategy Manager" xml:space="preserve">
+    <value>Ministry Strategy Manager</value>
+  </data>
+  <data name="Works alongside the System Administrator on the strategic hierarchy: can create and edit frameworks, outcomes, outputs, and framework goals within the scope of their ministry." xml:space="preserve">
+    <value>Works alongside the System Administrator on the strategic hierarchy: can create and edit frameworks, outcomes, outputs, and framework goals within the scope of their ministry.</value>
+  </data>
+  <data name="Submit Requests" xml:space="preserve">
+    <value>Submit Requests</value>
+  </data>
+  <data name="Manage Requests" xml:space="preserve">
+    <value>Manage Requests</value>
+  </data>
+  <data name="This role is not shown as a separate column above because its permissions are scoped to the strategic hierarchy rather than to the general features listed. In addition to standard viewing, it can create and edit frameworks, outcomes, outputs, and framework goals for its own ministry — the only non-administrator role able to do so." xml:space="preserve">
+    <value>This role is not shown as a separate column above because its permissions are scoped to the strategic hierarchy rather than to the general features listed. In addition to standard viewing, it can create and edit frameworks, outcomes, outputs, and framework goals for its own ministry — the only non-administrator role able to do so.</value>
+  </data>
+  <data name="Field Monitoring" xml:space="preserve">
+    <value>Field Monitoring</value>
+  </data>
+  <data name="Impact Assessment" xml:space="preserve">
+    <value>Impact Assessment</value>
+  </data>
+  <data name="The Requests module lets you submit support requests, change proposals, and inquiries directly to the platform team, then follow them through to completion. Every request is tracked with a category, a priority, and a status." xml:space="preserve">
+    <value>The Requests module lets you submit support requests, change proposals, and inquiries directly to the platform team, then follow them through to completion. Every request is tracked with a category, a priority, and a status.</value>
+  </data>
+  <data name="Automatic Request Numbering" xml:space="preserve">
+    <value>Automatic Request Numbering</value>
+  </data>
+  <data name="Each request receives a unique reference number in the format REQ-YYYY-000 (for example REQ-2026-014) generated automatically on submission. Use this number when following up on a request." xml:space="preserve">
+    <value>Each request receives a unique reference number in the format REQ-YYYY-000 (for example REQ-2026-014) generated automatically on submission. Use this number when following up on a request.</value>
+  </data>
+  <data name="20.1 Submitting a Request" xml:space="preserve">
+    <value>20.1 Submitting a Request</value>
+  </data>
+  <data name="Open Submit Request" xml:space="preserve">
+    <value>Open Submit Request</value>
+  </data>
+  <data name="Click your user name in the top navigation bar and choose Submit Request." xml:space="preserve">
+    <value>Click your user name in the top navigation bar and choose Submit Request.</value>
+  </data>
+  <data name="Choose Category and Priority" xml:space="preserve">
+    <value>Choose Category and Priority</value>
+  </data>
+  <data name="Pick the category that matches your need (New Request, Modification, Technical Support, Inquiry, Complaint, or Other) and set the priority to High, Medium, or Low." xml:space="preserve">
+    <value>Pick the category that matches your need (New Request, Modification, Technical Support, Inquiry, Complaint, or Other) and set the priority to High, Medium, or Low.</value>
+  </data>
+  <data name="Describe the Request" xml:space="preserve">
+    <value>Describe the Request</value>
+  </data>
+  <data name="Enter a short, clear title and a detailed description. The more precise the description, the faster the request can be handled." xml:space="preserve">
+    <value>Enter a short, clear title and a detailed description. The more precise the description, the faster the request can be handled.</value>
+  </data>
+  <data name="Attach Files (Optional)" xml:space="preserve">
+    <value>Attach Files (Optional)</value>
+  </data>
+  <data name="Upload screenshots or supporting documents that help explain the request." xml:space="preserve">
+    <value>Upload screenshots or supporting documents that help explain the request.</value>
+  </data>
+  <data name="Submit" xml:space="preserve">
+    <value>Submit</value>
+  </data>
+  <data name="Save the request. It is created with the status New and appears immediately in My Requests." xml:space="preserve">
+    <value>Save the request. It is created with the status New and appears immediately in My Requests.</value>
+  </data>
+  <data name="Submit Request Screenshot" xml:space="preserve">
+    <value>Submit Request Screenshot</value>
+  </data>
+  <data name="Screenshot: Submit Request Form" xml:space="preserve">
+    <value>Screenshot: Submit Request Form</value>
+  </data>
+  <data name="Figure 20.1: Submit Request Form" xml:space="preserve">
+    <value>Figure 20.1: Submit Request Form</value>
+  </data>
+  <data name="20.2 Request Statuses" xml:space="preserve">
+    <value>20.2 Request Statuses</value>
+  </data>
+  <data name="A request moves through the following statuses. There is no fixed sequence: an authorised user can switch a request to any status directly from the quick status dropdown on the request details page." xml:space="preserve">
+    <value>A request moves through the following statuses. There is no fixed sequence: an authorised user can switch a request to any status directly from the quick status dropdown on the request details page.</value>
+  </data>
+  <data name="Badge" xml:space="preserve">
+    <value>Badge</value>
+  </data>
+  <data name="Meaning" xml:space="preserve">
+    <value>Meaning</value>
+  </data>
+  <data name="New" xml:space="preserve">
+    <value>New</value>
+  </data>
+  <data name="The request has been submitted and is awaiting review." xml:space="preserve">
+    <value>The request has been submitted and is awaiting review.</value>
+  </data>
+  <data name="In Progress" xml:space="preserve">
+    <value>In Progress</value>
+  </data>
+  <data name="The request has been accepted and work on it has started." xml:space="preserve">
+    <value>The request has been accepted and work on it has started.</value>
+  </data>
+  <data name="On Hold" xml:space="preserve">
+    <value>On Hold</value>
+  </data>
+  <data name="Work is paused, usually pending information or an external dependency." xml:space="preserve">
+    <value>Work is paused, usually pending information or an external dependency.</value>
+  </data>
+  <data name="Needs Discussion" xml:space="preserve">
+    <value>Needs Discussion</value>
+  </data>
+  <data name="The request requires clarification or agreement before work can continue. Use the comment thread on the request to record the discussion." xml:space="preserve">
+    <value>The request requires clarification or agreement before work can continue. Use the comment thread on the request to record the discussion.</value>
+  </data>
+  <data name="Completed" xml:space="preserve">
+    <value>Completed</value>
+  </data>
+  <data name="The request has been fulfilled. Only completed requests appear in What's New." xml:space="preserve">
+    <value>The request has been fulfilled. Only completed requests appear in What's New.</value>
+  </data>
+  <data name="Cancelled" xml:space="preserve">
+    <value>Cancelled</value>
+  </data>
+  <data name="The request will not be actioned and is excluded from progress calculations." xml:space="preserve">
+    <value>The request will not be actioned and is excluded from progress calculations.</value>
+  </data>
+  <data name="20.3 My Requests" xml:space="preserve">
+    <value>20.3 My Requests</value>
+  </data>
+  <data name="My Requests lists every request you submitted, with its current status badge, so you can follow progress without needing management access." xml:space="preserve">
+    <value>My Requests lists every request you submitted, with its current status badge, so you can follow progress without needing management access.</value>
+  </data>
+  <data name="20.4 Requests Management" xml:space="preserve">
+    <value>20.4 Requests Management</value>
+  </data>
+  <data name="Administrators open Requests Management to see all requests across the platform. The page provides:" xml:space="preserve">
+    <value>Administrators open Requests Management to see all requests across the platform. The page provides:</value>
+  </data>
+  <data name="Summary cards counting requests by status, plus an overall completion rate" xml:space="preserve">
+    <value>Summary cards counting requests by status, plus an overall completion rate</value>
+  </data>
+  <data name="Filters by status, category, and priority" xml:space="preserve">
+    <value>Filters by status, category, and priority</value>
+  </data>
+  <data name="A quick status dropdown to move a request forward without opening the edit form" xml:space="preserve">
+    <value>A quick status dropdown to move a request forward without opening the edit form</value>
+  </data>
+  <data name="Full edit and delete actions for each request" xml:space="preserve">
+    <value>Full edit and delete actions for each request</value>
+  </data>
+  <data name="Request Details Screenshot" xml:space="preserve">
+    <value>Request Details Screenshot</value>
+  </data>
+  <data name="Screenshot: Request Details and Status Control" xml:space="preserve">
+    <value>Screenshot: Request Details and Status Control</value>
+  </data>
+  <data name="Figure 20.2: Request Details with Quick Status Control" xml:space="preserve">
+    <value>Figure 20.2: Request Details with Quick Status Control</value>
+  </data>
+  <data name="20.5 Comments and Test Records" xml:space="preserve">
+    <value>20.5 Comments and Test Records</value>
+  </data>
+  <data name="The request details page carries a discussion thread and a testing log:" xml:space="preserve">
+    <value>The request details page carries a discussion thread and a testing log:</value>
+  </data>
+  <data name="Comment" xml:space="preserve">
+    <value>Comment</value>
+  </data>
+  <data name="An ordinary note added to the discussion thread. Use it to record clarifications, especially while a request is marked Needs Discussion." xml:space="preserve">
+    <value>An ordinary note added to the discussion thread. Use it to record clarifications, especially while a request is marked Needs Discussion.</value>
+  </data>
+  <data name="Test Passed" xml:space="preserve">
+    <value>Test Passed</value>
+  </data>
+  <data name="Records that a named employee tested the change and it worked as expected." xml:space="preserve">
+    <value>Records that a named employee tested the change and it worked as expected.</value>
+  </data>
+  <data name="Test Has Notes" xml:space="preserve">
+    <value>Test Has Notes</value>
+  </data>
+  <data name="Records that a test was carried out but issues or remarks were found." xml:space="preserve">
+    <value>Records that a test was carried out but issues or remarks were found.</value>
+  </data>
+  <data name="Test records are attributed to an employee from the Request Employees directory, which is maintained from the user menu. At least one employee must exist before a test can be recorded." xml:space="preserve">
+    <value>Test records are attributed to an employee from the Request Employees directory, which is maintained from the user menu. At least one employee must exist before a test can be recorded.</value>
+  </data>
+  <data name="20.6 Who Can Do What" xml:space="preserve">
+    <value>20.6 Who Can Do What</value>
+  </data>
+  <data name="Requests Permissions" xml:space="preserve">
+    <value>Requests Permissions</value>
+  </data>
+  <data name="Submitting and viewing requests: System Administrator, Ministries User, and Data Entry" xml:space="preserve">
+    <value>Submitting and viewing requests: System Administrator, Ministries User, and Data Entry</value>
+  </data>
+  <data name="Managing and deleting requests, and maintaining the Request Employees directory: System Administrator only" xml:space="preserve">
+    <value>Managing and deleting requests, and maintaining the Request Employees directory: System Administrator only</value>
+  </data>
+  <data name="Every user can always see the requests they submitted themselves in My Requests" xml:space="preserve">
+    <value>Every user can always see the requests they submitted themselves in My Requests</value>
+  </data>
+  <data name="Platform Versions group completed requests into numbered releases, giving every user a clear record of what changed in the platform and when." xml:space="preserve">
+    <value>Platform Versions group completed requests into numbered releases, giving every user a clear record of what changed in the platform and when.</value>
+  </data>
+  <data name="21.1 Version Statuses" xml:space="preserve">
+    <value>21.1 Version Statuses</value>
+  </data>
+  <data name="Planned" xml:space="preserve">
+    <value>Planned</value>
+  </data>
+  <data name="The version has been created and requests are being assigned to it." xml:space="preserve">
+    <value>The version has been created and requests are being assigned to it.</value>
+  </data>
+  <data name="In Development" xml:space="preserve">
+    <value>In Development</value>
+  </data>
+  <data name="Work on the assigned requests is under way." xml:space="preserve">
+    <value>Work on the assigned requests is under way.</value>
+  </data>
+  <data name="Released" xml:space="preserve">
+    <value>Released</value>
+  </data>
+  <data name="The version has been published and its completed requests appear in What's New." xml:space="preserve">
+    <value>The version has been published and its completed requests appear in What's New.</value>
+  </data>
+  <data name="21.2 Creating and Releasing a Version" xml:space="preserve">
+    <value>21.2 Creating and Releasing a Version</value>
+  </data>
+  <data name="Create the Version" xml:space="preserve">
+    <value>Create the Version</value>
+  </data>
+  <data name="Open Versions Management from the user menu and add a version number, a title, and a description." xml:space="preserve">
+    <value>Open Versions Management from the user menu and add a version number, a title, and a description.</value>
+  </data>
+  <data name="Link Requests" xml:space="preserve">
+    <value>Link Requests</value>
+  </data>
+  <data name="Assign the requests that belong to this version. The version details page shows overall progress based on how many linked requests are completed." xml:space="preserve">
+    <value>Assign the requests that belong to this version. The version details page shows overall progress based on how many linked requests are completed.</value>
+  </data>
+  <data name="Release" xml:space="preserve">
+    <value>Release</value>
+  </data>
+  <data name="Click Release to publish the version. If any linked request is still unfinished, the system warns you first." xml:space="preserve">
+    <value>Click Release to publish the version. If any linked request is still unfinished, the system warns you first.</value>
+  </data>
+  <data name="What Counts as Unfinished" xml:space="preserve">
+    <value>What Counts as Unfinished</value>
+  </data>
+  <data name="When releasing a version, every linked request that is not Completed and not Cancelled is counted as unfinished — this includes requests marked In Progress, On Hold, and Needs Discussion. Cancelled requests are excluded from the version's progress entirely." xml:space="preserve">
+    <value>When releasing a version, every linked request that is not Completed and not Cancelled is counted as unfinished — this includes requests marked In Progress, On Hold, and Needs Discussion. Cancelled requests are excluded from the version's progress entirely.</value>
+  </data>
+  <data name="21.3 What's New" xml:space="preserve">
+    <value>21.3 What's New</value>
+  </data>
+  <data name="The What's New page is available to every signed-in user from the user menu. It lists released versions together with their completed requests, so users can see exactly which improvements were delivered. Requests that are not completed never appear here." xml:space="preserve">
+    <value>The What's New page is available to every signed-in user from the user menu. It lists released versions together with their completed requests, so users can see exactly which improvements were delivered. Requests that are not completed never appear here.</value>
+  </data>
+  <data name="What's New Screenshot" xml:space="preserve">
+    <value>What's New Screenshot</value>
+  </data>
+  <data name="Screenshot: What's New Page" xml:space="preserve">
+    <value>Screenshot: What's New Page</value>
+  </data>
+  <data name="Figure 21.1: What's New Release Notes" xml:space="preserve">
+    <value>Figure 21.1: What's New Release Notes</value>
+  </data>
+  <data name="Versions Permissions" xml:space="preserve">
+    <value>Versions Permissions</value>
+  </data>
+  <data name="Creating, editing, and releasing versions is restricted to the System Administrator. Viewing What's New is open to all signed-in users." xml:space="preserve">
+    <value>Creating, editing, and releasing versions is restricted to the System Administrator. Viewing What's New is open to all signed-in users.</value>
+  </data>
+  <data name="22.1 Contextual Help" xml:space="preserve">
+    <value>22.1 Contextual Help</value>
+  </data>
+  <data name="Each page has a help button (?) that provides context-specific documentation with tabs for Overview, How To, FAQ, and Tips. This includes the Requests pages." xml:space="preserve">
+    <value>Each page has a help button (?) that provides context-specific documentation with tabs for Overview, How To, FAQ, and Tips. This includes the Requests pages.</value>
+  </data>
+  <data name="Figure 22.1: Contextual Help Modal" xml:space="preserve">
+    <value>Figure 22.1: Contextual Help Modal</value>
+  </data>
+  <data name="22.2 Contact Support" xml:space="preserve">
+    <value>22.2 Contact Support</value>
+  </data>
+  <data name="You can also raise a tracked request from the user menu using Submit Request — see section 20, Requests &amp; Support." xml:space="preserve">
+    <value>You can also raise a tracked request from the user menu using Submit Request — see section 20, Requests &amp; Support.</value>
+  </data>
 </root>

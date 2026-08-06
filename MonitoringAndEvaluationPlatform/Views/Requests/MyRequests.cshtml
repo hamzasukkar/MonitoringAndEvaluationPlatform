@@ -6,6 +6,7 @@
 @{
     ViewData["Title"] = Localizer["MyRequests"];
     Layout = "~/Views/Shared/_DashboardHomeLayout.cshtml";
+    ViewData["HelpFeature"] = "REQUESTS";
 }
 
 @functions {
@@ -38,9 +39,12 @@
                 </h1>
                 <p class="text-muted mb-0">@Localizer["MyRequestsHint"]</p>
             </div>
-            <a asp-action="Create" class="btn btn-primary btn-lg">
-                <i class="fas fa-plus me-2"></i>@Localizer["NewRequest"]
-            </a>
+            <div class="d-flex gap-2 align-items-center">
+                <a asp-action="Create" class="btn btn-primary btn-lg">
+                    <i class="fas fa-plus me-2"></i>@Localizer["NewRequest"]
+                </a>
+                @await Html.PartialAsync("_HelpButton")
+            </div>
         </div>
     </div>
 
@@ -121,3 +125,7 @@
         </div>
     </div>
 </div>
+
+@section Modals {
+    @await Html.PartialAsync("_HelpModal")
+}

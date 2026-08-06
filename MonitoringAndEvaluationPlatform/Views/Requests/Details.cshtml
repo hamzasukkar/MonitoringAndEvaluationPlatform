@@ -7,6 +7,7 @@
 @{
     ViewData["Title"] = Model.RequestNumber;
     Layout = "~/Views/Shared/_DashboardHomeLayout.cshtml";
+    ViewData["HelpFeature"] = "REQUESTS";
     var canManage = User.IsInRole(UserRoles.SystemAdministrator);
 }
 
@@ -57,6 +58,7 @@
                 <a asp-action="MyRequests" class="btn btn-outline-secondary">
                     <i class="fas fa-list me-2"></i>@Localizer["MyRequests"]
                 </a>
+                @await Html.PartialAsync("_HelpButton")
             </div>
         </div>
     </div>
@@ -490,3 +492,7 @@
         </div>
     </div>
 </div>
+
+@section Modals {
+    @await Html.PartialAsync("_HelpModal")
+}

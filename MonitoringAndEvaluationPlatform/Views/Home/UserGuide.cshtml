@@ -59,7 +59,9 @@
             <a href="#roles" class="toc-link">17. @Localizer["User Roles & Permissions"]</a>
             <a href="#performance" class="toc-link">18. @Localizer["Performance Calculations"]</a>
             <a href="#settings" class="toc-link">19. @Localizer["Settings & Themes"]</a>
-            <a href="#help" class="toc-link">20. @Localizer["Getting Help"]</a>
+            <a href="#requests" class="toc-link">20. @Localizer["Requests & Support"] <span class="toc-new-badge">@Localizer["NEW"]</span></a>
+            <a href="#platform-versions" class="toc-link">21. @Localizer["Platform Versions & What's New"] <span class="toc-new-badge">@Localizer["NEW"]</span></a>
+            <a href="#help" class="toc-link">22. @Localizer["Getting Help"]</a>
         </nav>
     </div>
 
@@ -980,6 +982,29 @@
                     </div>
                     <p class="screenshot-caption">@Localizer["Figure 8.2: Framework Goals Timeline View"]</p>
                 </div>
+
+                <h3>@Localizer["8.3 Goal Types"] <span class="section-new-badge">@Localizer["NEW"]</span></h3>
+                <p>@Localizer["Every goal has a type that determines how its values are interpreted. A badge next to the goal name shows which type it uses."]</p>
+                <div class="feature-grid">
+                    <div class="feature-item">
+                        <div class="feature-icon"><i class="fas fa-percent"></i></div>
+                        <h4>@Localizer["Qualitative Goal"]</h4>
+                        <p>@Localizer["Values are entered as percentages. This is the default type for a new goal."]</p>
+                    </div>
+                    <div class="feature-item">
+                        <div class="feature-icon"><i class="fas fa-ruler"></i></div>
+                        <h4>@Localizer["Quantitative Goal"]</h4>
+                        <p>@Localizer["Values are entered as real quantities in a unit of measure you define (for example km or housing units). The unit is shown next to every value."]</p>
+                    </div>
+                </div>
+
+                <div class="info-box">
+                    <div class="info-icon"><i class="fas fa-lock"></i></div>
+                    <div class="info-content">
+                        <h4>@Localizer["Goal Type Is Set Once"]</h4>
+                        <p>@Localizer["The goal type is chosen when the goal is created and cannot be changed afterwards. Choose carefully: switching later requires deleting the goal and creating it again."]</p>
+                    </div>
+                </div>
             </div>
         </section>
 
@@ -990,7 +1015,7 @@
                 <h2>@Localizer["Set Up"]</h2>
             </div>
             <div class="section-content">
-                <p>@Localizer["The Set Up section manages all reference data needed for projects: Ministries, Donors, Sectors, Project Managers, Supervisors, and Locations."]</p>
+                <p>@Localizer["The Set Up section manages all reference data needed for projects: Ministries, Donors, Sectors, Public Sector Types, Project Managers, Supervisors, and Locations."]</p>
 
                 <h3>@Localizer["9.1 Ministries & Agencies"]</h3>
                 <p>@Localizer["Manage government ministries and agencies responsible for development projects. Each ministry shows its linked projects and performance."]</p>
@@ -1077,6 +1102,14 @@
                         </div>
                     </div>
                     <p class="screenshot-caption">@Localizer["Figure 9.4: Sectors Management"]</p>
+                </div>
+
+                <div class="info-box">
+                    <div class="info-icon"><i class="fas fa-layer-group"></i></div>
+                    <div class="info-content">
+                        <h4>@Localizer["Public Sector Types"] <span class="section-new-badge">@Localizer["NEW"]</span></h4>
+                        <p>@Localizer["Public Sector Types provide a further breakdown of the public sector and are managed from their own tab in the Set Up navigation bar. Each type has an Arabic and an English name and can be assigned to projects for more precise classification and reporting."]</p>
+                    </div>
                 </div>
 
                 <h3>@Localizer["9.4 Project Managers"]</h3>
@@ -1367,6 +1400,35 @@
                         </div>
                     </div>
                     <p class="screenshot-caption">@Localizer["Figure 10.6: Project Phases Management"]</p>
+                </div>
+
+                <h3>@Localizer["10.7 Currency, Exchange Rate & Budget Unit"] <span class="section-new-badge">@Localizer["NEW"]</span></h3>
+                <p>@Localizer["Each project records how its financial figures should be interpreted, so that budgets entered in different currencies and scales can be compared correctly."]</p>
+
+                <div class="feature-grid">
+                    <div class="feature-item">
+                        <div class="feature-icon"><i class="fas fa-coins"></i></div>
+                        <h4>@Localizer["Currency"]</h4>
+                        <p>@Localizer["The currency the project budget is expressed in, together with the symbol shown next to amounts throughout the platform."]</p>
+                    </div>
+                    <div class="feature-item">
+                        <div class="feature-icon"><i class="fas fa-exchange-alt"></i></div>
+                        <h4>@Localizer["Exchange Rate"]</h4>
+                        <p>@Localizer["The conversion rate used for this project, along with the date the rate was recorded, so historical figures remain traceable."]</p>
+                    </div>
+                    <div class="feature-item">
+                        <div class="feature-icon"><i class="fas fa-sort-numeric-up"></i></div>
+                        <h4>@Localizer["Budget Unit"]</h4>
+                        <p>@Localizer["The scale of the entered amounts: Ones, Thousands, Millions, or Billions. Choose the unit that matches how the budget figures were supplied."]</p>
+                    </div>
+                </div>
+
+                <div class="info-box">
+                    <div class="info-icon"><i class="fas fa-lightbulb"></i></div>
+                    <div class="info-content">
+                        <h4>@Localizer["Enter the Amount, Not the Zeros"]</h4>
+                        <p>@Localizer["If a budget is 5 million and you set the Budget Unit to Millions, enter 5 — not 5,000,000. Setting the unit incorrectly will distort budget totals and disbursement performance."]</p>
+                    </div>
                 </div>
             </div>
         </section>
@@ -1746,7 +1808,7 @@
                 <h2>@Localizer["User Roles & Permissions"]</h2>
             </div>
             <div class="section-content">
-                <p>@Localizer["The platform uses role-based access control with four predefined roles:"]</p>
+                <p>@Localizer["The platform uses role-based access control with five predefined roles:"]</p>
 
                 <div class="feature-grid">
                     <div class="feature-item">
@@ -1757,7 +1819,7 @@
                     <div class="feature-item">
                         <div class="feature-icon" style="background:linear-gradient(135deg,#3182ce,#2c5282);"><i class="fas fa-university"></i></div>
                         <h4>@Localizer["Ministries User"]</h4>
-                        <p>@Localizer["Read-only access to strategies and projects. Can view reports and performance analytics."]</p>
+                        <p>@Localizer["Can create, edit, and delete projects, monitor and analyse performance, and view and export reports. Cannot modify the strategic framework hierarchy."]</p>
                     </div>
                     <div class="feature-item">
                         <div class="feature-icon" style="background:linear-gradient(135deg,#38a169,#2f855a);"><i class="fas fa-keyboard"></i></div>
@@ -1768,6 +1830,11 @@
                         <div class="feature-icon" style="background:linear-gradient(135deg,#718096,#4a5568);"><i class="fas fa-eye"></i></div>
                         <h4>@Localizer["Reading User"]</h4>
                         <p>@Localizer["View-only access to dashboards and basic reports. Cannot modify any data."]</p>
+                    </div>
+                    <div class="feature-item">
+                        <div class="feature-icon" style="background:linear-gradient(135deg,#805ad5,#553c9a);"><i class="fas fa-sitemap"></i></div>
+                        <h4>@Localizer["Ministry Strategy Manager"] <span class="section-new-badge">@Localizer["NEW"]</span></h4>
+                        <p>@Localizer["Works alongside the System Administrator on the strategic hierarchy: can create and edit frameworks, outcomes, outputs, and framework goals within the scope of their ministry."]</p>
                     </div>
                 </div>
 
@@ -1808,7 +1875,7 @@
                             <tr>
                                 <td>@Localizer["Manage Projects"]</td>
                                 <td><i class="fas fa-check text-success"></i></td>
-                                <td><i class="fas fa-times text-danger"></i></td>
+                                <td><i class="fas fa-check text-success"></i></td>
                                 <td><i class="fas fa-check text-success"></i></td>
                                 <td><i class="fas fa-times text-danger"></i></td>
                             </tr>
@@ -1816,14 +1883,28 @@
                                 <td>@Localizer["View Reports"]</td>
                                 <td><i class="fas fa-check text-success"></i></td>
                                 <td><i class="fas fa-check text-success"></i></td>
-                                <td><i class="fas fa-check text-success"></i></td>
+                                <td><i class="fas fa-times text-danger"></i></td>
                                 <td><i class="fas fa-check text-success"></i></td>
                             </tr>
                             <tr>
                                 <td>@Localizer["Export Data"]</td>
                                 <td><i class="fas fa-check text-success"></i></td>
                                 <td><i class="fas fa-check text-success"></i></td>
+                                <td><i class="fas fa-times text-danger"></i></td>
+                                <td><i class="fas fa-times text-danger"></i></td>
+                            </tr>
+                            <tr>
+                                <td>@Localizer["Submit Requests"]</td>
                                 <td><i class="fas fa-check text-success"></i></td>
+                                <td><i class="fas fa-check text-success"></i></td>
+                                <td><i class="fas fa-check text-success"></i></td>
+                                <td><i class="fas fa-times text-danger"></i></td>
+                            </tr>
+                            <tr>
+                                <td>@Localizer["Manage Requests"]</td>
+                                <td><i class="fas fa-check text-success"></i></td>
+                                <td><i class="fas fa-times text-danger"></i></td>
+                                <td><i class="fas fa-times text-danger"></i></td>
                                 <td><i class="fas fa-times text-danger"></i></td>
                             </tr>
                             <tr>
@@ -1842,6 +1923,14 @@
                             </tr>
                         </tbody>
                     </table>
+                </div>
+
+                <div class="info-box">
+                    <div class="info-icon"><i class="fas fa-sitemap"></i></div>
+                    <div class="info-content">
+                        <h4>@Localizer["Ministry Strategy Manager"]</h4>
+                        <p>@Localizer["This role is not shown as a separate column above because its permissions are scoped to the strategic hierarchy rather than to the general features listed. In addition to standard viewing, it can create and edit frameworks, outcomes, outputs, and framework goals for its own ministry — the only non-administrator role able to do so."]</p>
+                    </div>
                 </div>
             </div>
         </section>
@@ -1948,15 +2037,276 @@
             </div>
         </section>
 
-        <!-- ==================== Section 20: Getting Help ==================== -->
-        <section id="help" class="guide-section">
+        <!-- ==================== Section 20: Requests & Support ==================== -->
+        <section id="requests" class="guide-section">
             <div class="section-header">
                 <span class="section-number">20</span>
+                <h2>@Localizer["Requests & Support"] <span class="section-new-badge">@Localizer["NEW"]</span></h2>
+            </div>
+            <div class="section-content">
+                <p>@Localizer["The Requests module lets you submit support requests, change proposals, and inquiries directly to the platform team, then follow them through to completion. Every request is tracked with a category, a priority, and a status."]</p>
+
+                <div class="info-box">
+                    <div class="info-icon"><i class="fas fa-hashtag"></i></div>
+                    <div class="info-content">
+                        <h4>@Localizer["Automatic Request Numbering"]</h4>
+                        <p>@Localizer["Each request receives a unique reference number in the format REQ-YYYY-000 (for example REQ-2026-014) generated automatically on submission. Use this number when following up on a request."]</p>
+                    </div>
+                </div>
+
+                <h3>@Localizer["20.1 Submitting a Request"]</h3>
+                <div class="step-list">
+                    <div class="step">
+                        <div class="step-number">1</div>
+                        <div class="step-content">
+                            <h4>@Localizer["Open Submit Request"]</h4>
+                            <p>@Localizer["Click your user name in the top navigation bar and choose Submit Request."]</p>
+                        </div>
+                    </div>
+                    <div class="step">
+                        <div class="step-number">2</div>
+                        <div class="step-content">
+                            <h4>@Localizer["Choose Category and Priority"]</h4>
+                            <p>@Localizer["Pick the category that matches your need (New Request, Modification, Technical Support, Inquiry, Complaint, or Other) and set the priority to High, Medium, or Low."]</p>
+                        </div>
+                    </div>
+                    <div class="step">
+                        <div class="step-number">3</div>
+                        <div class="step-content">
+                            <h4>@Localizer["Describe the Request"]</h4>
+                            <p>@Localizer["Enter a short, clear title and a detailed description. The more precise the description, the faster the request can be handled."]</p>
+                        </div>
+                    </div>
+                    <div class="step">
+                        <div class="step-number">4</div>
+                        <div class="step-content">
+                            <h4>@Localizer["Attach Files (Optional)"]</h4>
+                            <p>@Localizer["Upload screenshots or supporting documents that help explain the request."]</p>
+                        </div>
+                    </div>
+                    <div class="step">
+                        <div class="step-number">5</div>
+                        <div class="step-content">
+                            <h4>@Localizer["Submit"]</h4>
+                            <p>@Localizer["Save the request. It is created with the status New and appears immediately in My Requests."]</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="screenshot-placeholder">
+                    <div class="screenshot-frame">
+                        <img src="~/images/guide/requests-create.png" alt="@Localizer["Submit Request Screenshot"]" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';" />
+                        <div class="screenshot-missing">
+                            <i class="fas fa-image"></i>
+                            <span>@Localizer["Screenshot: Submit Request Form"]</span>
+                            <small>requests-create.png</small>
+                        </div>
+                    </div>
+                    <p class="screenshot-caption">@Localizer["Figure 20.1: Submit Request Form"]</p>
+                </div>
+
+                <h3>@Localizer["20.2 Request Statuses"]</h3>
+                <p>@Localizer["A request moves through the following statuses. There is no fixed sequence: an authorised user can switch a request to any status directly from the quick status dropdown on the request details page."]</p>
+
+                <div class="guide-table-wrapper">
+                    <table class="guide-table">
+                        <thead>
+                            <tr>
+                                <th>@Localizer["Status"]</th>
+                                <th>@Localizer["Badge"]</th>
+                                <th>@Localizer["Meaning"]</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>@Localizer["New"]</td>
+                                <td><span class="badge bg-primary">@Localizer["New"]</span></td>
+                                <td>@Localizer["The request has been submitted and is awaiting review."]</td>
+                            </tr>
+                            <tr>
+                                <td>@Localizer["In Progress"]</td>
+                                <td><span class="badge bg-warning text-dark">@Localizer["In Progress"]</span></td>
+                                <td>@Localizer["The request has been accepted and work on it has started."]</td>
+                            </tr>
+                            <tr>
+                                <td>@Localizer["On Hold"]</td>
+                                <td><span class="badge bg-secondary">@Localizer["On Hold"]</span></td>
+                                <td>@Localizer["Work is paused, usually pending information or an external dependency."]</td>
+                            </tr>
+                            <tr>
+                                <td>@Localizer["Needs Discussion"]</td>
+                                <td><span class="badge bg-info">@Localizer["Needs Discussion"]</span></td>
+                                <td>@Localizer["The request requires clarification or agreement before work can continue. Use the comment thread on the request to record the discussion."] <span class="section-new-badge">@Localizer["NEW"]</span></td>
+                            </tr>
+                            <tr>
+                                <td>@Localizer["Completed"]</td>
+                                <td><span class="badge bg-success">@Localizer["Completed"]</span></td>
+                                <td>@Localizer["The request has been fulfilled. Only completed requests appear in What's New."]</td>
+                            </tr>
+                            <tr>
+                                <td>@Localizer["Cancelled"]</td>
+                                <td><span class="badge bg-dark">@Localizer["Cancelled"]</span></td>
+                                <td>@Localizer["The request will not be actioned and is excluded from progress calculations."]</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <h3>@Localizer["20.3 My Requests"]</h3>
+                <p>@Localizer["My Requests lists every request you submitted, with its current status badge, so you can follow progress without needing management access."]</p>
+
+                <h3>@Localizer["20.4 Requests Management"]</h3>
+                <p>@Localizer["Administrators open Requests Management to see all requests across the platform. The page provides:"]</p>
+                <ul>
+                    <li>@Localizer["Summary cards counting requests by status, plus an overall completion rate"]</li>
+                    <li>@Localizer["Filters by status, category, and priority"]</li>
+                    <li>@Localizer["A quick status dropdown to move a request forward without opening the edit form"]</li>
+                    <li>@Localizer["Full edit and delete actions for each request"]</li>
+                </ul>
+
+                <div class="screenshot-placeholder">
+                    <div class="screenshot-frame">
+                        <img src="~/images/guide/requests-details.png" alt="@Localizer["Request Details Screenshot"]" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';" />
+                        <div class="screenshot-missing">
+                            <i class="fas fa-image"></i>
+                            <span>@Localizer["Screenshot: Request Details and Status Control"]</span>
+                            <small>requests-details.png</small>
+                        </div>
+                    </div>
+                    <p class="screenshot-caption">@Localizer["Figure 20.2: Request Details with Quick Status Control"]</p>
+                </div>
+
+                <h3>@Localizer["20.5 Comments and Test Records"]</h3>
+                <p>@Localizer["The request details page carries a discussion thread and a testing log:"]</p>
+                <div class="feature-grid">
+                    <div class="feature-item">
+                        <div class="feature-icon"><i class="fas fa-comments"></i></div>
+                        <h4>@Localizer["Comment"]</h4>
+                        <p>@Localizer["An ordinary note added to the discussion thread. Use it to record clarifications, especially while a request is marked Needs Discussion."]</p>
+                    </div>
+                    <div class="feature-item">
+                        <div class="feature-icon"><i class="fas fa-check-circle"></i></div>
+                        <h4>@Localizer["Test Passed"]</h4>
+                        <p>@Localizer["Records that a named employee tested the change and it worked as expected."]</p>
+                    </div>
+                    <div class="feature-item">
+                        <div class="feature-icon"><i class="fas fa-exclamation-triangle"></i></div>
+                        <h4>@Localizer["Test Has Notes"]</h4>
+                        <p>@Localizer["Records that a test was carried out but issues or remarks were found."]</p>
+                    </div>
+                </div>
+                <p>@Localizer["Test records are attributed to an employee from the Request Employees directory, which is maintained from the user menu. At least one employee must exist before a test can be recorded."]</p>
+
+                <h3>@Localizer["20.6 Who Can Do What"]</h3>
+                <div class="info-box">
+                    <div class="info-icon"><i class="fas fa-user-lock"></i></div>
+                    <div class="info-content">
+                        <h4>@Localizer["Requests Permissions"]</h4>
+                        <ul>
+                            <li>@Localizer["Submitting and viewing requests: System Administrator, Ministries User, and Data Entry"]</li>
+                            <li>@Localizer["Managing and deleting requests, and maintaining the Request Employees directory: System Administrator only"]</li>
+                            <li>@Localizer["Every user can always see the requests they submitted themselves in My Requests"]</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ==================== Section 21: Platform Versions & What's New ==================== -->
+        <section id="platform-versions" class="guide-section">
+            <div class="section-header">
+                <span class="section-number">21</span>
+                <h2>@Localizer["Platform Versions & What's New"] <span class="section-new-badge">@Localizer["NEW"]</span></h2>
+            </div>
+            <div class="section-content">
+                <p>@Localizer["Platform Versions group completed requests into numbered releases, giving every user a clear record of what changed in the platform and when."]</p>
+
+                <h3>@Localizer["21.1 Version Statuses"]</h3>
+                <div class="feature-grid">
+                    <div class="feature-item">
+                        <div class="feature-icon"><i class="fas fa-clipboard-list"></i></div>
+                        <h4>@Localizer["Planned"]</h4>
+                        <p>@Localizer["The version has been created and requests are being assigned to it."]</p>
+                    </div>
+                    <div class="feature-item">
+                        <div class="feature-icon"><i class="fas fa-hammer"></i></div>
+                        <h4>@Localizer["In Development"]</h4>
+                        <p>@Localizer["Work on the assigned requests is under way."]</p>
+                    </div>
+                    <div class="feature-item">
+                        <div class="feature-icon"><i class="fas fa-rocket"></i></div>
+                        <h4>@Localizer["Released"]</h4>
+                        <p>@Localizer["The version has been published and its completed requests appear in What's New."]</p>
+                    </div>
+                </div>
+
+                <h3>@Localizer["21.2 Creating and Releasing a Version"]</h3>
+                <div class="step-list">
+                    <div class="step">
+                        <div class="step-number">1</div>
+                        <div class="step-content">
+                            <h4>@Localizer["Create the Version"]</h4>
+                            <p>@Localizer["Open Versions Management from the user menu and add a version number, a title, and a description."]</p>
+                        </div>
+                    </div>
+                    <div class="step">
+                        <div class="step-number">2</div>
+                        <div class="step-content">
+                            <h4>@Localizer["Link Requests"]</h4>
+                            <p>@Localizer["Assign the requests that belong to this version. The version details page shows overall progress based on how many linked requests are completed."]</p>
+                        </div>
+                    </div>
+                    <div class="step">
+                        <div class="step-number">3</div>
+                        <div class="step-content">
+                            <h4>@Localizer["Release"]</h4>
+                            <p>@Localizer["Click Release to publish the version. If any linked request is still unfinished, the system warns you first."]</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="info-box">
+                    <div class="info-icon"><i class="fas fa-exclamation-circle"></i></div>
+                    <div class="info-content">
+                        <h4>@Localizer["What Counts as Unfinished"]</h4>
+                        <p>@Localizer["When releasing a version, every linked request that is not Completed and not Cancelled is counted as unfinished — this includes requests marked In Progress, On Hold, and Needs Discussion. Cancelled requests are excluded from the version's progress entirely."]</p>
+                    </div>
+                </div>
+
+                <h3>@Localizer["21.3 What's New"]</h3>
+                <p>@Localizer["The What's New page is available to every signed-in user from the user menu. It lists released versions together with their completed requests, so users can see exactly which improvements were delivered. Requests that are not completed never appear here."]</p>
+
+                <div class="screenshot-placeholder">
+                    <div class="screenshot-frame">
+                        <img src="~/images/guide/whats-new.png" alt="@Localizer["What's New Screenshot"]" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';" />
+                        <div class="screenshot-missing">
+                            <i class="fas fa-image"></i>
+                            <span>@Localizer["Screenshot: What's New Page"]</span>
+                            <small>whats-new.png</small>
+                        </div>
+                    </div>
+                    <p class="screenshot-caption">@Localizer["Figure 21.1: What's New Release Notes"]</p>
+                </div>
+
+                <div class="info-box">
+                    <div class="info-icon"><i class="fas fa-user-lock"></i></div>
+                    <div class="info-content">
+                        <h4>@Localizer["Versions Permissions"]</h4>
+                        <p>@Localizer["Creating, editing, and releasing versions is restricted to the System Administrator. Viewing What's New is open to all signed-in users."]</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ==================== Section 22: Getting Help ==================== -->
+        <section id="help" class="guide-section">
+            <div class="section-header">
+                <span class="section-number">22</span>
                 <h2>@Localizer["Getting Help"]</h2>
             </div>
             <div class="section-content">
-                <h3>@Localizer["20.1 Contextual Help"]</h3>
-                <p>@Localizer["Each page has a help button (?) that provides context-specific documentation with tabs for Overview, How To, FAQ, and Tips."]</p>
+                <h3>@Localizer["22.1 Contextual Help"]</h3>
+                <p>@Localizer["Each page has a help button (?) that provides context-specific documentation with tabs for Overview, How To, FAQ, and Tips. This includes the Requests pages."]</p>
 
                 <div class="step-list">
                     <div class="step">
@@ -1984,15 +2334,16 @@
                             <small>help-modal.png</small>
                         </div>
                     </div>
-                    <p class="screenshot-caption">@Localizer["Figure 20.1: Contextual Help Modal"]</p>
+                    <p class="screenshot-caption">@Localizer["Figure 22.1: Contextual Help Modal"]</p>
                 </div>
 
-                <h3>@Localizer["20.2 Contact Support"]</h3>
+                <h3>@Localizer["22.2 Contact Support"]</h3>
                 <div class="info-box">
                     <div class="info-icon"><i class="fas fa-envelope"></i></div>
                     <div class="info-content">
                         <h4>@Localizer["Support Contact"]</h4>
                         <p>@Localizer["For technical support and assistance, please contact your system administrator."]</p>
+                        <p>@Localizer["You can also raise a tracked request from the user menu using Submit Request — see section 20, Requests & Support."]</p>
                     </div>
                 </div>
             </div>

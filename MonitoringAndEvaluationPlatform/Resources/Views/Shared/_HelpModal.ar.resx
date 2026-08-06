@@ -398,40 +398,6 @@
   </data>
 
   <!-- Measures Help Content -->
-  <data name="HELP_MEASURES_TITLE" xml:space="preserve">
-    <value>مساعدة القياسات</value>
-  </data>
-  <data name="HELP_MEASURES_OVERVIEW" xml:space="preserve">
-    <value>تربط القياسات المشاريع بالمشاريع وتتتبع القيم المخططة مقابل المحققة. وهي الأساس لحساب مقاييس الأداء في جميع أنحاء النظام.</value>
-  </data>
-  <data name="HELP_MEASURES_HOWTO_1" xml:space="preserve">
-    <value>اختر مجموعة من المشروع والمؤشر لإنشاء قياس جديد.</value>
-  </data>
-  <data name="HELP_MEASURES_HOWTO_2" xml:space="preserve">
-    <value>أدخل القيمة المخططة (المستهدفة) للمؤشر بناءً على أهداف المشروع.</value>
-  </data>
-  <data name="HELP_MEASURES_HOWTO_3" xml:space="preserve">
-    <value>حدّث القيمة المحققة مع تقدم المشروع لتتبع الأداء الفعلي.</value>
-  </data>
-  <data name="HELP_MEASURES_FAQ_Q1" xml:space="preserve">
-    <value>ماذا يحدث عند تحديث قياس؟</value>
-  </data>
-  <data name="HELP_MEASURES_FAQ_A1" xml:space="preserve">
-    <value>تنتشر حسابات الأداء تلقائياً صعوداً عبرالمشاريع والبرامج الفرعية والبرامج والنتائج والأهداف استراتيجية.</value>
-  </data>
-  <data name="HELP_MEASURES_FAQ_Q2" xml:space="preserve">
-    <value>هل يمكن أن يحتوي المشروع على قياسات متعددة لنفس المؤشر؟</value>
-  </data>
-  <data name="HELP_MEASURES_FAQ_A2" xml:space="preserve">
-    <value>عادةً يكون لكل زوج مشروع-مؤشر قياس واحد، ولكن يمكنك تتبع فترات زمنية متعددة باستخدام الخطط داخل المشروع.</value>
-  </data>
-  <data name="HELP_MEASURES_TIP_1" xml:space="preserve">
-    <value>حافظ على تحديث القياسات بانتظام للحفاظ على تقارير أداء دقيقة.</value>
-  </data>
-  <data name="HELP_MEASURES_TIP_2" xml:space="preserve">
-    <value>استخدم ميزات التحرير المجمع عندما تحتاج إلى تحديث قياسات متعددة في وقت واحد.</value>
-  </data>
-
   <!-- Action Plans Help Content -->
   <data name="HELP_ACTIONPLANS_TITLE" xml:space="preserve">
     <value>مساعدة خطط العمل</value>
@@ -797,5 +763,38 @@
   </data>
   <data name="HELP_MEASURES_TIP_2" xml:space="preserve">
     <value>**إجمالي الإنجاز:** يُظهر "إجمالي الفقرة المختارة" أعلى القائمة الإنجاز التراكمي لجميع القياسات في الفقرة. في المراحل الكمية يساوي مجموع النسب الفردية؛ وفي النوعية يساوي المجموع المباشر للقيم المُدخلة. كلاهما بحد أقصى 100%.</value>
+  </data>
+  <data name="HELP_REQUESTS_TITLE" xml:space="preserve">
+    <value>مساعدة الطلبات</value>
+  </data>
+  <data name="HELP_REQUESTS_OVERVIEW" xml:space="preserve">
+    <value>تتيح لك الطلبات رفع احتياجات الدعم ومقترحات التعديل والاستفسارات إلى فريق المنصة ومتابعتها حتى الإنجاز. لكل طلب تصنيف وأولوية وحالة، ويحمل سلسلة نقاش وسجلات اختبار ومرفقات خاصة به.</value>
+  </data>
+  <data name="HELP_REQUESTS_HOWTO_1" xml:space="preserve">
+    <value>افتح «تقديم طلب» من قائمة المستخدم، اختر التصنيف والأولوية، ثم أدخل عنواناً ووصفاً واضحين وأرفق أي ملفات داعمة.</value>
+  </data>
+  <data name="HELP_REQUESTS_HOWTO_2" xml:space="preserve">
+    <value>تابع طلباتك الخاصة من «طلباتي». أما المسؤولون فيرون كل الطلبات في «إدارة الطلبات» ويمكنهم الفلترة حسب الحالة والتصنيف والأولوية.</value>
+  </data>
+  <data name="HELP_REQUESTS_HOWTO_3" xml:space="preserve">
+    <value>في صفحة تفاصيل الطلب، استخدم قائمة تغيير الحالة السريع لدفع الطلب إلى الأمام، ومربع التعليق لتوثيق النقاش أو نتيجة الاختبار.</value>
+  </data>
+  <data name="HELP_REQUESTS_FAQ_Q1" xml:space="preserve">
+    <value>ماذا تعني حالة «بحاجة للنقاش»؟</value>
+  </data>
+  <data name="HELP_REQUESTS_FAQ_A1" xml:space="preserve">
+    <value>تشير إلى طلب لا يمكن المضي به حتى يُوضَّح أمر ما أو يُتفق عليه. وثّق النقاش في سلسلة تعليقات الطلب. الطلب الذي يبقى بهذه الحالة يُعدّ غير منتهٍ عند إطلاق إصدار جديد للمنصة.</value>
+  </data>
+  <data name="HELP_REQUESTS_FAQ_Q2" xml:space="preserve">
+    <value>من يمكنه تغيير حالة الطلب أو حذفه؟</value>
+  </data>
+  <data name="HELP_REQUESTS_FAQ_A2" xml:space="preserve">
+    <value>تقديم الطلبات وعرضها متاح لأدوار مدير النظام ومستخدم الوزارات ومدخل البيانات. أما إدارة الطلبات وحذفها فمقتصرة على مدير النظام.</value>
+  </data>
+  <data name="HELP_REQUESTS_TIP_1" xml:space="preserve">
+    <value>امنح الطلب عنواناً ووصفاً محددين. الوصف الدقيق يُعالَج أسرع بكثير من الوصف المبهم.</value>
+  </data>
+  <data name="HELP_REQUESTS_TIP_2" xml:space="preserve">
+    <value>اذكر رقم الطلب (REQ-YYYY-000) عند كل متابعة، وراجع «ما الجديد» لمعرفة الطلبات التي شملها آخر إصدار.</value>
   </data>
 </root>
