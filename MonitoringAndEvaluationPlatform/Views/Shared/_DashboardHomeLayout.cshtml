@@ -85,25 +85,27 @@
             --theme-name: 'green';
         }
 
-            [data-theme="green"] button,
-            [data-theme="green"] .btn,
-            [data-theme="green"] input[type="submit"],
-            [data-theme="green"] input[type="button"] {
+            /* Gold treatment applies to standalone buttons only. Buttons inside a
+               .btn-group / .action-buttons are excluded with :not() rather than reset -
+               the old exclusion set `background-color: initial` (which computes to
+               transparent, not the Bootstrap default) and never reset `color`, leaving
+               white text on a white card. */
+            [data-theme="green"] button:not(.btn-group *):not(.action-buttons *):not(.btn-help-trigger),
+            [data-theme="green"] .btn:not(.btn-group *):not(.action-buttons *):not(.btn-help-trigger),
+            [data-theme="green"] input[type="submit"]:not(.btn-group *):not(.action-buttons *),
+            [data-theme="green"] input[type="button"]:not(.btn-group *):not(.action-buttons *) {
                 background-color: #C8A85F !important;
                 border-color: #C8A85F !important;
+                color: #1A3B33 !important; /* 5.37:1 on gold, passes AA. White on gold was 2.28:1. */
             }
 
-            /* Exclude buttons inside btn-group and action-buttons */
-            [data-theme="green"] .btn-group button,
-            [data-theme="green"] .btn-group .btn,
-            [data-theme="green"] .btn-group input[type="submit"],
-            [data-theme="green"] .btn-group input[type="button"],
-            [data-theme="green"] .action-buttons button,
-            [data-theme="green"] .action-buttons .btn,
-            [data-theme="green"] .action-buttons input[type="submit"],
-            [data-theme="green"] .action-buttons input[type="button"] {
-                background-color: initial !important;
-                border-color: initial !important;
+            /* Selected/primary toggle inside a group: theme dark green + white text.
+               Every other variant is left to Bootstrap. */
+            [data-theme="green"] .btn-group .btn-primary,
+            [data-theme="green"] .action-buttons .btn-primary {
+                background-color: var(--primary-color) !important;
+                border-color: var(--primary-color) !important;
+                color: #ffffff !important;
             }
 
         * {

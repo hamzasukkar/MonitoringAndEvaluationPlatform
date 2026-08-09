@@ -364,6 +364,31 @@
 </div>
 
 <style>
+    #treeChrome {
+        /* Scoped to #treeChrome (the header/toolbar/stats-strip wrapper), NOT :root.
+           #treeChrome is display:contents so it sits directly on the page body's
+           colored gradient and genuinely needs this dark palette for text contrast.
+           .tree-card (the canvas + node cards) is a SIBLING of #treeChrome, not a
+           descendant, and relies on these same variable names staying undefined so
+           they fall through to transparent, letting its white Bootstrap card show
+           through. A :root definition leaked into .tree-card and painted the canvas
+           and every node card dark - scoping to #treeChrome keeps the fix contained
+           to the chrome that actually needed it. */
+        --primary-background-color: #0D47A1;
+        --secondary-card-background: #11458E;
+        --accent-gold-color: #FFC107;
+        --text-light-color: #E0E0E0;
+        --border-color: rgba(255, 255, 255, 0.18);
+    }
+
+    [data-theme="green"] #treeChrome {
+        --primary-background-color: #1A3B33;
+        --secondary-card-background: #2A4C44;
+        --accent-gold-color: #C8A85F;
+        --text-light-color: #E0E0E0;
+        --border-color: #4A6E66;
+    }
+
     /* Dashboard Header Styling */
     .dashboard-header {
         margin-bottom: 2rem;

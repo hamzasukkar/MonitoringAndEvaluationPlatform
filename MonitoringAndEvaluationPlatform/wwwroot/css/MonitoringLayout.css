@@ -124,7 +124,6 @@ body.rtl .topbar {
 }
 
 .nav-link {
-    color: rgba(255, 255, 255, 0.85); /* Slightly transparent white */
     text-decoration: none;
     padding: 0.5rem 1rem;
     border-radius: 4px;
@@ -132,7 +131,15 @@ body.rtl .topbar {
     font-weight: 500;
 }
 
-    .nav-link:hover, .nav-link.active {
+/* Light nav colours belong to the dark chrome only. Left unscoped, they also
+   whitened in-content tab strips sitting on white cards. */
+.topbar .nav-link,
+.sidebar .nav-link {
+    color: rgba(255, 255, 255, 0.85); /* Slightly transparent white */
+}
+
+    .topbar .nav-link:hover, .topbar .nav-link.active,
+    .sidebar .nav-link:hover, .sidebar .nav-link.active {
         color: var(--accent-gold-color); /* Gold on hover/active */
         background-color: rgba(255, 255, 255, 0.08); /* Subtle highlight */
     }
@@ -459,8 +466,10 @@ body.rtl .main {
     background-color: var(--yellow-color);
 }
 
-/* Adjust text colors for specific Bootstrap classes if they appear on dark backgrounds */
-.text-muted {
+/* Adjust text colors for specific Bootstrap classes on the dark chrome. Scoped to
+   .topbar / .sidebar - unscoped, this whitened muted text on white content cards too. */
+.topbar .text-muted,
+.sidebar .text-muted {
     color: rgba(255, 255, 255, 0.6) !important;
 }
 
