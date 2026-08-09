@@ -88,4 +88,16 @@
   <data name="Export PDF" xml:space="preserve">
     <value>تصدير PDF</value>
   </data>
+  <data name="The outcome already belongs to that framework." xml:space="preserve">
+    <value>السياسة تتبع هذا الهدف الاستراتيجي بالفعل.</value>
+  </data>
+  <data name="The selected framework does not exist." xml:space="preserve">
+    <value>الهدف الاستراتيجي المحدد غير موجود.</value>
+  </data>
+  <data name="An outcome with this name already exists in the destination framework." xml:space="preserve">
+    <value>توجد سياسة بهذا الاسم في الهدف الاستراتيجي الوجهة بالفعل.</value>
+  </data>
+  <data name="'{0}' was moved to '{1}'. Weights in both frameworks were redistributed." xml:space="preserve">
+    <value>تم نقل '{0}' إلى '{1}'. تمت إعادة توزيع الأوزان في كلا الهدفين الاستراتيجيين.</value>
+  </data>
 </root>

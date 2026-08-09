@@ -402,6 +402,151 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             return RedirectToAction(nameof(Index), new { frameworkCode = frameworkCode });
         }
 
+        // GET: Outcomes/Move/5
+        // Confirmation page for reparenting an outcome onto another framework. Admin only:
+        // the destination framework may belong to a different ministry, so the move can
+        // transfer ownership of the whole subtree - same reasoning as Frameworks/UpdateMinistry.
+        [Permission(Permissions.ModifyOutcome)]
+        public async Task<IActionResult> Move(int id)
+        {
+            var (isAdmin, _) = await GetScopeAsync();
+            if (!isAdmin)
+            {
+                return Forbid();
+            }
+
+            var outcome = await _context.Outcomes
+                .Include(o => o.Framework)
+                    .ThenInclude(f => f.Ministry)
+                .Include(o => o.Outputs)
+                    .ThenInclude(op => op.SubOutputs)
+                        .ThenInclude(so => so.Indicators)
+                .FirstOrDefaultAsync(o => o.Code == id);
+
+            if (outcome == null) return NotFound();
+
+            return View(await BuildMoveViewModel(outcome));
+        }
+
+        // POST: Outcomes/Move/5
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        [Permission(Permissions.ModifyOutcome)]
+        public async Task<IActionResult> Move(int id, int destinationFrameworkCode)
+        {
+            var (isAdmin, _) = await GetScopeAsync();
+            if (!isAdmin)
+            {
+                return Forbid();
+            }
+
+            var outcome = await _context.Outcomes
+                .Include(o => o.Framework)
+                .FirstOrDefaultAsync(o => o.Code == id);
+
+            if (outcome == null) return NotFound();
+
+            int sourceFrameworkCode = outcome.FrameworkCode;
+
+            if (destinationFrameworkCode == sourceFrameworkCode)
+            {
+                TempData["Error"] = _localizer["The outcome already belongs to that framework."].Value;
+                return RedirectToAction(nameof(Move), new { id });
+            }
+
+            var destination = await _context.Frameworks.FindAsync(destinationFrameworkCode);
+            if (destination == null)
+            {
+                TempData["Error"] = _localizer["The selected framework does not exist."].Value;
+                return RedirectToAction(nameof(Move), new { id });
+            }
+
+            // Outcome names are unique within a framework (enforced on create), so keep
+            // that invariant on the destination side too.
+            bool nameTaken = await _context.Outcomes
+                .AnyAsync(o => o.FrameworkCode == destinationFrameworkCode &&
+                               o.Name.ToLower() == outcome.Name.ToLower());
+            if (nameTaken)
+            {
+                TempData["Error"] = _localizer["An outcome with this name already exists in the destination framework."].Value;
+                return RedirectToAction(nameof(Move), new { id });
+            }
+
+            // The FK flip plus both frameworks' weight and performance recalculations span
+            // several SaveChanges calls, so they have to land as one unit.
+            await using var transaction = await _context.Database.BeginTransactionAsync();
+
+            outcome.FrameworkCode = destinationFrameworkCode;
+            _context.Update(outcome);
+            await _context.SaveChangesAsync();
+
+            // Order matters: the weights feed the framework rollup, so redistribute first.
+            await RedistributeWeights(sourceFrameworkCode);
+            await RedistributeWeights(destinationFrameworkCode);
+
+            // Both sides move: the source loses an outcome, the destination gains one.
+            await _performanceService.UpdateFrameworkPerformance(sourceFrameworkCode);
+            await _performanceService.UpdateFrameworkDisbursementPerformance(sourceFrameworkCode);
+            await _performanceService.UpdateFrameworkPerformance(destinationFrameworkCode);
+            await _performanceService.UpdateFrameworkDisbursementPerformance(destinationFrameworkCode);
+
+            await transaction.CommitAsync();
+
+            TempData["Success"] = _localizer["'{0}' was moved to '{1}'. Weights in both frameworks were redistributed.",
+                outcome.Name, destination.Name].Value;
+
+            return RedirectToAction(nameof(Index), new { frameworkCode = destinationFrameworkCode });
+        }
+
+        // Builds the Move page model: impact counts for the subtree that travels with the
+        // outcome, plus every framework it could be moved to.
+        private async Task<MoveOutcomeViewModel> BuildMoveViewModel(Outcome outcome)
+        {
+            var subOutputs = outcome.Outputs.SelectMany(op => op.SubOutputs).ToList();
+            var indicators = subOutputs.SelectMany(so => so.Indicators).ToList();
+
+            var frameworks = await _context.Frameworks
+                .Include(f => f.Ministry)
+                .Where(f => f.Code != outcome.FrameworkCode)
+                .OrderBy(f => f.Name)
+                .ToListAsync();
+
+            return new MoveOutcomeViewModel
+            {
+                OutcomeCode = outcome.Code,
+                OutcomeName = outcome.Name,
+                SourceFrameworkCode = outcome.FrameworkCode,
+                SourceFrameworkName = outcome.Framework?.Name ?? string.Empty,
+                SourceMinistryName = GetMinistryDisplayName(outcome.Framework?.Ministry),
+                OutputCount = outcome.Outputs.Count,
+                SubOutputCount = subOutputs.Count,
+                IndicatorCount = indicators.Count,
+                LinkedProjectCount = indicators.Count(i => i.ProjectID != null),
+                AvailableFrameworks = frameworks
+                    .Select(f => new SelectListItem
+                    {
+                        Value = f.Code.ToString(),
+                        Text = f.Name
+                    })
+                    .ToList(),
+                FrameworkMinistries = frameworks.ToDictionary(
+                    f => f.Code,
+                    f => GetMinistryDisplayName(f.Ministry))
+            };
+        }
+
+        private static string GetMinistryDisplayName(Ministry? ministry)
+        {
+            if (ministry == null)
+            {
+                return string.Empty;
+            }
+
+            return System.Globalization.CultureInfo.CurrentUICulture.TwoLetterISOLanguageName == "ar"
+                ? ministry.MinistryDisplayName_AR
+                : ministry.MinistryDisplayName_EN;
+        }
+
         // GET: Outcomes/ExportExcel
         [HttpGet]
         [Permission(Permissions.ReadOutcomes)]
