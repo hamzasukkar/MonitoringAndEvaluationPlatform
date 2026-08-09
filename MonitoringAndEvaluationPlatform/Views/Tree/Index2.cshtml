@@ -813,7 +813,9 @@
         align-items: center;
         gap: 0.5rem;
         font-size: 0.9rem;
-        color: var(--text-light-color);
+        color: #212529; /* #legendCard is a white Bootstrap card nested inside #treeChrome -
+                            it must not inherit the chrome's light text meant for the dark
+                            gradient. .legend-item is only ever used inside this card. */
     }
 
     .legend-color {
