@@ -216,6 +216,22 @@
     };
 
     bool hasAnyChip = baseRoute.Count > 0;
+
+    // Sort/page links replay every active filter plus the requested sort+page.
+    Func<string, string, int, Dictionary<string, string>> sortAndPageRoute = (sortCol, sortDir, pg) =>
+    {
+        var rd = new Dictionary<string, string>(baseRoute);
+        rd["SortColumn"] = sortCol;
+        rd["SortDirection"] = sortDir;
+        rd["CurrentPage"] = pg.ToString();
+        rd["PageSize"] = Model.PageSize.ToString();
+        return rd;
+    };
+
+    // Precomputed per-column sort links (clicking a header resets to page 1).
+    var lastModifiedSortRoute = sortAndPageRoute("lastmodified", Model.GetSortDirection("lastmodified"), 1);
+    var performanceSortRoute = sortAndPageRoute("performance", Model.GetSortDirection("performance"), 1);
+    var disbursementSortRoute = sortAndPageRoute("disbursement", Model.GetSortDirection("disbursement"), 1);
 }
 
 @if (hasAnyChip)
@@ -748,20 +764,26 @@
                                     <th class="text-center">
                                         <i class="fas fa-calendar-check me-2"></i>@Localizer["End Date"]
                                     </th>
-                                    <th class="text-center sortable-header" onclick="sortProjectsTable('lastmodified')" style="cursor: pointer;">
-                                        <i class="fas fa-history me-2"></i>@Localizer["Last Modified"]
-                                        <i class="fas fa-sort ms-2" id="lastmodified-sort-icon"></i>
+                                    <th class="text-center sortable-header">
+                                        <a asp-action="Index" asp-all-route-data="lastModifiedSortRoute" class="text-reset text-decoration-none">
+                                            <i class="fas fa-history me-2"></i>@Localizer["Last Modified"]
+                                            <i class="fas @Model.GetSortIcon("lastmodified") ms-2"></i>
+                                        </a>
                                     </th>
                                     <th class="text-center">
                                         <i class="fas fa-info-circle me-2"></i>@Localizer["Status"]
                                     </th>
-                                    <th class="text-center sortable-header" onclick="sortProjectsTable('performance')" style="cursor: pointer;">
-                                        <i class="fas fa-chart-line me-2"></i>@Localizer["Performance"]
-                                        <i class="fas fa-sort ms-2" id="performance-sort-icon"></i>
+                                    <th class="text-center sortable-header">
+                                        <a asp-action="Index" asp-all-route-data="performanceSortRoute" class="text-reset text-decoration-none">
+                                            <i class="fas fa-chart-line me-2"></i>@Localizer["Performance"]
+                                            <i class="fas @Model.GetSortIcon("performance") ms-2"></i>
+                                        </a>
                                     </th>
-                                    <th class="text-center sortable-header" onclick="sortProjectsTable('disbursement')" style="cursor: pointer;">
-                                        <i class="fas fa-dollar-sign me-2"></i>@Localizer["Disbursement"]
-                                        <i class="fas fa-sort ms-2" id="disbursement-sort-icon"></i>
+                                    <th class="text-center sortable-header">
+                                        <a asp-action="Index" asp-all-route-data="disbursementSortRoute" class="text-reset text-decoration-none">
+                                            <i class="fas fa-dollar-sign me-2"></i>@Localizer["Disbursement"]
+                                            <i class="fas @Model.GetSortIcon("disbursement") ms-2"></i>
+                                        </a>
                                     </th>
                                     <th class="text-center">
                                         <i class="fas fa-cogs me-2"></i>@Localizer["Actions"]
@@ -932,6 +954,35 @@
                                 @Html.AntiForgeryToken() <!-- Required for AJAX security -->
                             </tbody>
                         </table>
+                    </div>
+
+                    <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mt-3">
+                        <span class="text-muted small">
+                            @Localizer["Showing"] @Model.FirstItemIndex–@Model.LastItemIndex @Localizer["of"] @Model.TotalRecords.ToString("N0")
+                        </span>
+                        @if (Model.TotalPages > 1)
+                        {
+                            <nav aria-label="@Localizer["Projects"]">
+                                <ul class="pagination mb-0">
+                                    <li class="page-item @(Model.CurrentPage == 1 ? "disabled" : "")">
+                                        <a class="page-link" href="@Url.Action("Index", sortAndPageRoute(Model.SortColumn, Model.SortDirection, Model.CurrentPage - 1))">
+                                            <i class="fas fa-chevron-left"></i>
+                                        </a>
+                                    </li>
+                                    @for (int i = Math.Max(1, Model.CurrentPage - 2); i <= Math.Min(Model.TotalPages, Model.CurrentPage + 2); i++)
+                                    {
+                                        <li class="page-item @(i == Model.CurrentPage ? "active" : "")">
+                                            <a class="page-link" href="@Url.Action("Index", sortAndPageRoute(Model.SortColumn, Model.SortDirection, i))">@i</a>
+                                        </li>
+                                    }
+                                    <li class="page-item @(Model.CurrentPage == Model.TotalPages ? "disabled" : "")">
+                                        <a class="page-link" href="@Url.Action("Index", sortAndPageRoute(Model.SortColumn, Model.SortDirection, Model.CurrentPage + 1))">
+                                            <i class="fas fa-chevron-right"></i>
+                                        </a>
+                                    </li>
+                                </ul>
+                            </nav>
+                        }
                     </div>
                 </div>
             </div>
@@ -1875,67 +1926,7 @@
             }, 500);
         });
 
-        // Auto-sort by Performance (highest to lowest) on page load
-        if ($('#projectsTableBody tr').length > 0) {
-            sortProjectsTable('performance');
-        }
     });
-
-    // Sorting functionality for Projects
-    let currentProjectSort = {
-        column: null,
-        direction: 'desc' // Start with descending (highest to lowest)
-    };
-
-    function sortProjectsTable(column) {
-        const tbody = document.getElementById('projectsTableBody');
-        const rows = Array.from(tbody.querySelectorAll('tr'));
-
-        // Determine sort direction
-        if (currentProjectSort.column === column) {
-            // Toggle direction if clicking the same column
-            currentProjectSort.direction = currentProjectSort.direction === 'desc' ? 'asc' : 'desc';
-        } else {
-            // Default to descending (highest to lowest) for new column
-            currentProjectSort.direction = 'desc';
-            currentProjectSort.column = column;
-        }
-
-        // Sort rows
-        rows.sort((a, b) => {
-            const aValue = parseFloat(a.getAttribute(`data-${column}`)) || 0;
-            const bValue = parseFloat(b.getAttribute(`data-${column}`)) || 0;
-
-            if (currentProjectSort.direction === 'desc') {
-                return bValue - aValue; // Highest to lowest
-            } else {
-                return aValue - bValue; // Lowest to highest
-            }
-        });
-
-        // Clear tbody and append sorted rows
-        tbody.innerHTML = '';
-        rows.forEach(row => tbody.appendChild(row));
-
-        // Update sort icons
-        updateProjectSortIcons(column);
-    }
-
-    function updateProjectSortIcons(activeColumn) {
-        // Reset all icons
-        document.getElementById('performance-sort-icon').className = 'fas fa-sort ms-2';
-        document.getElementById('disbursement-sort-icon').className = 'fas fa-sort ms-2';
-        document.getElementById('lastmodified-sort-icon').className = 'fas fa-sort ms-2';
-
-        // Set active icon
-        const iconId = `${activeColumn}-sort-icon`;
-        const icon = document.getElementById(iconId);
-        if (currentProjectSort.direction === 'desc') {
-            icon.className = 'fas fa-sort-down ms-2';
-        } else {
-            icon.className = 'fas fa-sort-up ms-2';
-        }
-    }
 
     // ── Admin: Select-All & Delete Selected ──────────────────────────────────
     function updateDeleteSelectedBtn() {

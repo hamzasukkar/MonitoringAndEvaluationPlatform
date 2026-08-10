@@ -84,10 +84,40 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             // Build the filtered query (shared with ExportExcel)
             var projectQuery = await BuildFilteredProjectsQueryAsync(filter);
 
-            // Finalize and assign filtered results (eager-load Ministries and the
-            // Indicator -> SubOutput -> Output -> Outcome -> Framework chain so the
+            // Aggregates over the FULL filtered set, before paging - the summary cards
+            // must reflect every matching project, not just the current page.
+            filter.TotalProjects = await projectQuery.CountAsync();
+            filter.NotStartedProjects = await projectQuery.CountAsync(p => p.performance == 0);
+            filter.InProgressProjects = await projectQuery.CountAsync(p => p.performance > 0 && p.performance < 100);
+            filter.CompletedProjects = await projectQuery.CountAsync(p => p.performance >= 100);
+            filter.TotalBudget = await projectQuery.SumAsync(p => p.EstimatedBudget);
+
+            filter.TotalRecords = filter.TotalProjects;
+            if (filter.CurrentPage < 1) filter.CurrentPage = 1;
+            if (filter.PageSize < 5 || filter.PageSize > 100) filter.PageSize = 20;
+            filter.TotalPages = (int)Math.Ceiling(filter.TotalRecords / (double)filter.PageSize);
+            filter.CurrentPage = Math.Min(filter.CurrentPage, Math.Max(filter.TotalPages, 1));
+
+            bool ascending = filter.SortDirection == "asc";
+            projectQuery = filter.SortColumn?.ToLower() switch
+            {
+                "disbursement" => ascending
+                    ? projectQuery.OrderBy(p => p.DisbursementPerformance).ThenBy(p => p.ProjectID)
+                    : projectQuery.OrderByDescending(p => p.DisbursementPerformance).ThenBy(p => p.ProjectID),
+                "lastmodified" => ascending
+                    ? projectQuery.OrderBy(p => p.LastModifiedAt).ThenBy(p => p.ProjectID)
+                    : projectQuery.OrderByDescending(p => p.LastModifiedAt).ThenBy(p => p.ProjectID),
+                _ => ascending
+                    ? projectQuery.OrderBy(p => p.performance).ThenBy(p => p.ProjectID)
+                    : projectQuery.OrderByDescending(p => p.performance).ThenBy(p => p.ProjectID),
+            };
+
+            // Finalize and assign the current page's results (eager-load Ministries and
+            // the Indicator -> SubOutput -> Output -> Outcome -> Framework chain so the
             // view can show each project's ministries and frameworks)
             filter.Projects = await projectQuery
+                .Skip((filter.CurrentPage - 1) * filter.PageSize)
+                .Take(filter.PageSize)
                 .Include(p => p.Ministries)
                 .Include(p => p.Indicators)
                     .ThenInclude(i => i.SubOutput)
@@ -95,13 +125,6 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                             .ThenInclude(o => o.Outcome)
                                 .ThenInclude(oc => oc.Framework)
                 .ToListAsync();
-
-            // Calculate summary statistics based on performance
-            filter.TotalProjects = filter.Projects.Count;
-            filter.NotStartedProjects = filter.Projects.Count(p => p.performance == 0);
-            filter.InProgressProjects = filter.Projects.Count(p => p.performance > 0 && p.performance < 100);
-            filter.CompletedProjects = filter.Projects.Count(p => p.performance >= 100);
-            filter.TotalBudget = filter.Projects.Sum(p => p.EstimatedBudget);
 
             return View(filter);
         }
