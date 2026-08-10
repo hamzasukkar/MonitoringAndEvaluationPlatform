@@ -78,8 +78,31 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             filter.Donors = await _context.Donors.ToListAsync();
             filter.Sectors = await _context.Sectors.ToListAsync();
             filter.PublicSectorTypes = await _context.PublicSectorTypes.ToListAsync();
-            filter.Frameworks = await _context.Frameworks.ToListAsync();
             filter.Governorates = await _context.Governorates.ToListAsync();
+
+            // Narrow the Framework dropdown to frameworks that actually have a project
+            // under the selected ministry/ministries - same "Project.Ministries" definition
+            // the SelectedMinistries project filter itself uses below, for consistency.
+            filter.Frameworks = filter.SelectedMinistries.Any()
+                ? await _context.Frameworks
+                    .Where(f => f.Outcomes.Any(o => o.Outputs.Any(op => op.SubOutputs.Any(so =>
+                        so.Indicators.Any(i => i.Project != null &&
+                            i.Project.Ministries.Any(m => filter.SelectedMinistries.Contains(m.Code)))))))
+                    .OrderBy(f => f.Name)
+                    .ToListAsync()
+                : await _context.Frameworks.OrderBy(f => f.Name).ToListAsync();
+
+            // If the currently selected Framework (and anything cascading from it) no longer
+            // belongs to the narrowed list, clear it - otherwise the dropdown silently shows
+            // "All Frameworks" while still filtering by a hidden stale code.
+            if (filter.SelectedFrameworkCode.HasValue &&
+                !filter.Frameworks.Any(f => f.Code == filter.SelectedFrameworkCode.Value))
+            {
+                filter.SelectedFrameworkCode = null;
+                filter.SelectedOutcomeCode = null;
+                filter.SelectedOutputCode = null;
+                filter.SelectedSubOutputCode = null;
+            }
 
             // Build the filtered query (shared with ExportExcel)
             var projectQuery = await BuildFilteredProjectsQueryAsync(filter);

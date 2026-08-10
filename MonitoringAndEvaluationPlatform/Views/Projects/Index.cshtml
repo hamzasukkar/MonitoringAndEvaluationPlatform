@@ -97,6 +97,35 @@
                     </div>
                 </div>
 
+                <!-- Ministry Dropdown - a quick single-pick filter alongside the sidebar's
+                     multi-select checkboxes. Picking one here replaces the current ministry
+                     selection outright (see the change handler below); it shows blank
+                     ("All Ministries") whenever more than one ministry is checked in the
+                     sidebar, since a single dropdown can't represent more than one value.
+                     Hidden for ministry-scoped users for the same reason the sidebar's
+                     ministry checkboxes are - they can only ever see their own ministry. -->
+                @if (!Model.IsMinistryUser)
+                {
+                    <div class="hierarchy-filter-item">
+                        <label class="form-label small mb-1">@Localizer["Ministry"]</label>
+                        <select class="form-select form-select-sm hierarchy-header-select" id="ministryFilterHeader" name="SelectedMinistries">
+                            <option value="">@Localizer["-- All Ministries --"]</option>
+                            @foreach (var ministry in Model.Ministries)
+                            {
+                                var ministryName = culture.StartsWith("ar") ? ministry.MinistryDisplayName_AR : ministry.MinistryDisplayName_EN;
+                                if (Model.SelectedMinistries.Count == 1 && Model.SelectedMinistries[0] == ministry.Code)
+                                {
+                                    <option value="@ministry.Code" selected>@ministryName</option>
+                                }
+                                else
+                                {
+                                    <option value="@ministry.Code">@ministryName</option>
+                                }
+                            }
+                        </select>
+                    </div>
+                }
+
                 <!-- Framework Dropdown -->
                 <div class="hierarchy-filter-item">
                     <label class="form-label small mb-1">@Localizer["Framework"]</label>
@@ -2098,6 +2127,21 @@
         } else {
             isInitializing = false;
         }
+
+        // Ministry change handler - this dropdown replaces the ministry selection
+        // outright (a single <select> can't express "add one more"), so the hidden
+        // inputs replaying the previous SelectedMinistries values are disabled first -
+        // otherwise they'd submit alongside this pick and union with it instead of
+        // replacing it. Framework/Outcome/Output/SubOutput are cleared too since a
+        // ministry change can invalidate the current hierarchy selection.
+        $('#ministryFilterHeader').change(function() {
+            $('#hierarchyFilterForm input[type="hidden"][name="SelectedMinistries"]').prop('disabled', true);
+            $('#frameworkFilter').val('');
+            $('#outcomeFilter').val('');
+            $('#outputFilter').val('');
+            $('#subOutputFilter').val('');
+            submitHierarchyForm();
+        });
 
         // Framework change handler - submit form immediately
         $('#frameworkFilter').change(function() {
