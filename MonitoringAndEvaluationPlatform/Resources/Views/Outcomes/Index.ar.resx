@@ -166,7 +166,7 @@
     <value>أدخل اسم السياسة</value>
   </data>
   <data name="Outcome name updated successfully." xml:space="preserve">
-    <value>تم تحديث اسم النتيجة بنجاح.</value>
+    <value>تم تحديث اسم السياسة بنجاح.</value>
   </data>
   <data name="Saved!" xml:space="preserve">
     <value>تم الحفظ!</value>
@@ -175,7 +175,7 @@
     <value>هل أنت متأكد؟</value>
   </data>
   <data name="This will permanently delete the outcome and all associated data!" xml:space="preserve">
-    <value>سيؤدي هذا إلى حذف النتيجة وجميع البيانات المرتبطة بها بشكل دائم!</value>
+    <value>سيؤدي هذا إلى حذف السياسة وجميع البيانات المرتبطة بها بشكل دائم!</value>
   </data>
   <data name="Yes, delete it!" xml:space="preserve">
     <value>نعم احذفه!</value>
@@ -184,7 +184,7 @@
     <value>إلغاء</value>
   </data>
   <data name="Outcome has been deleted successfully." xml:space="preserve">
-    <value>تم حذف النتيجة بنجاح.</value>
+    <value>تم حذف السياسة بنجاح.</value>
   </data>
   <data name="Deleted!" xml:space="preserve">
     <value>تم الحذف</value>
@@ -202,16 +202,16 @@
     <value>البرامج</value>
   </data>
   <data name="Output Name" xml:space="preserve">
-    <value>اسم المخرج</value>
+    <value>اسم البرنامج</value>
   </data>
   <data name="No outputs found for this outcome" xml:space="preserve">
-    <value>لم يتم العثور على مخرجات لهذه السياسة</value>
+    <value>لم يتم العثور على برامج لهذه السياسة</value>
   </data>
   <data name="Add Output" xml:space="preserve">
     <value>إضافة برنامج</value>
   </data>
   <data name="Enter output name" xml:space="preserve">
-    <value>أدخل اسم المخرج</value>
+    <value>أدخل اسم البرنامج</value>
   </data>
   <data name="Save" xml:space="preserve">
     <value>حفظ</value>
@@ -220,19 +220,19 @@
     <value>تحذير</value>
   </data>
   <data name="Please enter an output name" xml:space="preserve">
-    <value>يرجى إدخال اسم المخرج</value>
+    <value>يرجى إدخال اسم البرنامج</value>
   </data>
   <data name="Success" xml:space="preserve">
     <value>نجاح</value>
   </data>
   <data name="Output created successfully!" xml:space="preserve">
-    <value>تم إنشاء المخرج بنجاح!</value>
+    <value>تم إنشاء البرنامج بنجاح!</value>
   </data>
   <data name="Error" xml:space="preserve">
     <value>خطأ</value>
   </data>
   <data name="Could not create output. Please try again." xml:space="preserve">
-    <value>تعذر إنشاء المخرج. يرجى المحاولة مرة أخرى.</value>
+    <value>تعذر إنشاء البرنامج. يرجى المحاولة مرة أخرى.</value>
   </data>
   <data name="Show Projects" xml:space="preserve">
     <value>عرض المشاريع</value>
@@ -250,10 +250,10 @@
     <value>لم يتم العثور على مشاريع لهذه السياسة</value>
   </data>
   <data name="Search &amp; Filter Outcomes" xml:space="preserve">
-    <value>البحث والتصفية في النتائج</value>
+    <value>البحث والتصفية في السياسات</value>
   </data>
   <data name="Search outcomes, outputs, suboutputs, indicators, and projects" xml:space="preserve">
-    <value>البحث في النتائج والبرامج والبرامج الفرعية والمشاريع</value>
+    <value>البحث في السياسات والبرامج والبرامج الفرعية والمشاريع</value>
   </data>
   <data name="Search" xml:space="preserve">
     <value>بحث</value>
@@ -268,13 +268,13 @@
     <value>نتائج</value>
   </data>
   <data name="Outcome" xml:space="preserve">
-    <value>نتيجة</value>
+    <value>سياسة</value>
   </data>
   <data name="Output" xml:space="preserve">
-    <value>مخرج</value>
+    <value>برنامج</value>
   </data>
   <data name="SubOutput" xml:space="preserve">
-    <value>مخرج فرعي</value>
+    <value>برنامج فرعي</value>
   </data>
   <data name="Indicator" xml:space="preserve">
     <value>مؤشر</value>
