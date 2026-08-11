@@ -48,6 +48,7 @@ namespace MonitoringAndEvaluationPlatform.Data
         public DbSet<PlatformVersion> PlatformVersions { get; set; } = default!;
         public DbSet<RequestEmployee> RequestEmployees { get; set; } = default!;
         public DbSet<RequestComment> RequestComments { get; set; } = default!;
+        public DbSet<RequestCommentAttachment> RequestCommentAttachments { get; set; } = default!;
         public DbSet<RequestTest> RequestTests { get; set; } = default!;
 
 
@@ -132,6 +133,12 @@ namespace MonitoringAndEvaluationPlatform.Data
                 .WithMany()
                 .HasForeignKey(c => c.OnBehalfOfEmployeeId)
                 .OnDelete(DeleteBehavior.SetNull);
+
+            modelBuilder.Entity<RequestCommentAttachment>()
+                .HasOne(a => a.RequestComment)
+                .WithMany(c => c.Attachments)
+                .HasForeignKey(a => a.RequestCommentId)
+                .OnDelete(DeleteBehavior.Cascade);
 
             // Test sign-offs die with their request. This is the only cascading path
             // into RequestTests, so SQL Server sees no multiple cascade paths.

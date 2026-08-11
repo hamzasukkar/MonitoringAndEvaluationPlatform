@@ -325,6 +325,46 @@
                                     <p class="mb-2 mt-2" style="white-space:pre-wrap;">@c.Body</p>
                                 }
 
+                                @if (c.Attachments.Any())
+                                {
+                                    <div class="d-flex flex-wrap gap-2 mb-2">
+                                        @foreach (var att in c.Attachments)
+                                        {
+                                            var isImage = att.FileName != null &&
+                                                (att.FileName.EndsWith(".jpg", StringComparison.OrdinalIgnoreCase)
+                                              || att.FileName.EndsWith(".jpeg", StringComparison.OrdinalIgnoreCase)
+                                              || att.FileName.EndsWith(".png", StringComparison.OrdinalIgnoreCase)
+                                              || att.FileName.EndsWith(".gif", StringComparison.OrdinalIgnoreCase)
+                                              || att.FileName.EndsWith(".webp", StringComparison.OrdinalIgnoreCase));
+
+                                            <div class="border rounded p-1 d-flex align-items-center gap-1">
+                                                @if (isImage)
+                                                {
+                                                    <a href="@att.FilePath" target="_blank">
+                                                        <img src="@att.FilePath" alt="@att.FileName"
+                                                             style="width:40px;height:40px;object-fit:cover;border-radius:4px;" />
+                                                    </a>
+                                                }
+                                                else
+                                                {
+                                                    <i class="fas fa-file text-secondary"></i>
+                                                }
+                                                <a href="@att.FilePath" target="_blank" download="@att.FileName" class="small">@att.FileName</a>
+                                                @if (isAdmin || c.AuthorUserId == currentUserId)
+                                                {
+                                                    <form asp-action="DeleteCommentAttachment" asp-route-id="@att.Id" method="post" class="d-inline"
+                                                          onsubmit="return confirm('@Localizer["ConfirmDeleteAttachment"]');">
+                                                        @Html.AntiForgeryToken()
+                                                        <button type="submit" class="btn btn-link btn-sm text-danger p-0">
+                                                            <i class="fas fa-times"></i>
+                                                        </button>
+                                                    </form>
+                                                }
+                                            </div>
+                                        }
+                                    </div>
+                                }
+
                                 @* replies *@
                                 @foreach (var reply in c.Replies.OrderBy(r => r.CreatedAt))
                                 {
@@ -339,6 +379,45 @@
                                             <small class="text-muted">@reply.CreatedAt.ToString("yyyy-MM-dd HH:mm")</small>
                                         </div>
                                         <p class="mb-1 small" style="white-space:pre-wrap;">@reply.Body</p>
+                                        @if (reply.Attachments.Any())
+                                        {
+                                            <div class="d-flex flex-wrap gap-2 mb-1">
+                                                @foreach (var att in reply.Attachments)
+                                                {
+                                                    var isImage = att.FileName != null &&
+                                                        (att.FileName.EndsWith(".jpg", StringComparison.OrdinalIgnoreCase)
+                                                      || att.FileName.EndsWith(".jpeg", StringComparison.OrdinalIgnoreCase)
+                                                      || att.FileName.EndsWith(".png", StringComparison.OrdinalIgnoreCase)
+                                                      || att.FileName.EndsWith(".gif", StringComparison.OrdinalIgnoreCase)
+                                                      || att.FileName.EndsWith(".webp", StringComparison.OrdinalIgnoreCase));
+
+                                                    <div class="border rounded p-1 d-flex align-items-center gap-1">
+                                                        @if (isImage)
+                                                        {
+                                                            <a href="@att.FilePath" target="_blank">
+                                                                <img src="@att.FilePath" alt="@att.FileName"
+                                                                     style="width:36px;height:36px;object-fit:cover;border-radius:4px;" />
+                                                            </a>
+                                                        }
+                                                        else
+                                                        {
+                                                            <i class="fas fa-file text-secondary"></i>
+                                                        }
+                                                        <a href="@att.FilePath" target="_blank" download="@att.FileName" class="small">@att.FileName</a>
+                                                        @if (isAdmin || reply.AuthorUserId == currentUserId)
+                                                        {
+                                                            <form asp-action="DeleteCommentAttachment" asp-route-id="@att.Id" method="post" class="d-inline"
+                                                                  onsubmit="return confirm('@Localizer["ConfirmDeleteAttachment"]');">
+                                                                @Html.AntiForgeryToken()
+                                                                <button type="submit" class="btn btn-link btn-sm text-danger p-0">
+                                                                    <i class="fas fa-times"></i>
+                                                                </button>
+                                                            </form>
+                                                        }
+                                                    </div>
+                                                }
+                                            </div>
+                                        }
                                         @if (isAdmin || reply.AuthorUserId == currentUserId)
                                         {
                                             <form asp-action="DeleteComment" asp-route-id="@reply.Id" method="post" class="d-inline"
@@ -365,7 +444,7 @@
                                     </button>
                                 </div>
 
-                                <form id="reply-@c.Id" asp-action="AddComment" method="post" class="d-none mt-2">
+                                <form id="reply-@c.Id" asp-action="AddComment" method="post" enctype="multipart/form-data" class="d-none mt-2">
                                     @Html.AntiForgeryToken()
                                     <input type="hidden" name="requestId" value="@Model.Id" />
                                     <input type="hidden" name="parentId" value="@c.Id" />
@@ -374,6 +453,7 @@
                                         <input type="text" name="body" class="form-control" placeholder="@Localizer["WriteReply"]" required />
                                         <button type="submit" class="btn btn-primary">@Localizer["Send"]</button>
                                     </div>
+                                    <input type="file" name="uploadedFiles" multiple class="form-control form-control-sm mt-1" />
                                 </form>
                             </div>
                         }
@@ -383,7 +463,7 @@
                     @if (ViewBag.CanInteract == true)
                     {
                         <hr />
-                        <form asp-action="AddComment" method="post">
+                        <form asp-action="AddComment" method="post" enctype="multipart/form-data">
                             @Html.AntiForgeryToken()
                             <input type="hidden" name="requestId" value="@Model.Id" />
                             <div class="row g-2">
@@ -405,6 +485,10 @@
                                     <textarea name="body" rows="2" class="form-control form-control-sm"
                                               placeholder="@Localizer["WriteComment"]"></textarea>
                                     <div class="form-text">@Localizer["PassedMayBeEmpty"]</div>
+                                </div>
+                                <div class="col-12">
+                                    <label class="form-label small mb-1">@Localizer["Attachments"]</label>
+                                    <input type="file" name="uploadedFiles" multiple class="form-control form-control-sm" />
                                 </div>
                                 <div class="col-12">
                                     <button type="submit" class="btn btn-primary btn-sm">

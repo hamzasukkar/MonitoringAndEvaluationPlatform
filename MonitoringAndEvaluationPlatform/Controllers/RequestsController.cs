@@ -337,7 +337,8 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         [ValidateAntiForgeryToken]
         [Permission(Permissions.ReadRequests)]
         public async Task<IActionResult> AddComment(
-            int requestId, int? parentId, CommentKind kind, int? onBehalfOfEmployeeId, string? body)
+            int requestId, int? parentId, CommentKind kind, int? onBehalfOfEmployeeId, string? body,
+            List<IFormFile>? uploadedFiles)
         {
             var request = await _context.Requests.FirstOrDefaultAsync(r => r.Id == requestId);
             if (request == null) return NotFound();
@@ -359,7 +360,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 kind = CommentKind.Comment;
             }
 
-            _context.RequestComments.Add(new RequestComment
+            var comment = new RequestComment
             {
                 RequestId = requestId,
                 ParentCommentId = parentId,
@@ -367,8 +368,11 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 OnBehalfOfEmployeeId = onBehalfOfEmployeeId,
                 Kind = kind,
                 Body = string.IsNullOrWhiteSpace(body) ? null : body.Trim()
-            });
+            };
+            _context.RequestComments.Add(comment);
             await _context.SaveChangesAsync();
+
+            await ProcessCommentFileUploadsAsync(comment.Id, uploadedFiles);
 
             this.SetSuccessMessage(_localizer["Comment added."].Value);
             return RedirectToAction(nameof(Details), new { id = requestId });
@@ -504,6 +508,30 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             return RedirectToAction(nameof(Details), new { id = requestId });
         }
 
+        // POST: Requests/DeleteCommentAttachment/5 — the comment's author or an admin only.
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        [Permission(Permissions.ReadRequests)]
+        public async Task<IActionResult> DeleteCommentAttachment(int id)
+        {
+            var attachment = await _context.RequestCommentAttachments
+                .Include(a => a.RequestComment)
+                .FirstOrDefaultAsync(a => a.Id == id);
+            if (attachment == null) return NotFound();
+
+            var isAuthor = attachment.RequestComment.AuthorUserId == _userManager.GetUserId(User);
+            if (!isAuthor && !User.IsInRole(UserRoles.SystemAdministrator)) return Forbid();
+
+            var requestId = attachment.RequestComment.RequestId;
+            DeletePhysicalFile(attachment.FilePath);
+
+            _context.RequestCommentAttachments.Remove(attachment);
+            await _context.SaveChangesAsync();
+
+            this.SetSuccessMessage(_localizer["Attachment has been deleted."].Value);
+            return RedirectToAction(nameof(Details), new { id = requestId });
+        }
+
         // ---------------------------------------------------------------- Helpers
 
         /// <summary>
@@ -571,6 +599,43 @@ namespace MonitoringAndEvaluationPlatform.Controllers
 
             await _context.SaveChangesAsync();
             return true;
+        }
+
+        /// <summary>
+        /// Same idea as ProcessFileUploadsAsync, but for a single comment's attachments,
+        /// stored under their own subfolder to keep them apart from request-level files.
+        /// </summary>
+        private async Task ProcessCommentFileUploadsAsync(int commentId, List<IFormFile>? uploadedFiles)
+        {
+            if (uploadedFiles == null || !uploadedFiles.Any())
+                return;
+
+            var uploadsFolder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/uploads/requestcomments");
+            if (!Directory.Exists(uploadsFolder))
+                Directory.CreateDirectory(uploadsFolder);
+
+            foreach (var file in uploadedFiles)
+            {
+                if (file.Length > 0)
+                {
+                    var uniqueFileName = $"{Guid.NewGuid()}_{Path.GetFileName(file.FileName)}";
+                    var filePath = Path.Combine(uploadsFolder, uniqueFileName);
+
+                    using (var stream = new FileStream(filePath, FileMode.Create))
+                    {
+                        await file.CopyToAsync(stream);
+                    }
+
+                    _context.RequestCommentAttachments.Add(new RequestCommentAttachment
+                    {
+                        RequestCommentId = commentId,
+                        FileName = file.FileName,
+                        FilePath = "/uploads/requestcomments/" + uniqueFileName
+                    });
+                }
+            }
+
+            await _context.SaveChangesAsync();
         }
 
         private static void DeletePhysicalFile(string? storedPath)
