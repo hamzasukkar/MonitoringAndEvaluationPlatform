@@ -1408,9 +1408,13 @@ projectManagerMustBeSelected: '@Html.Raw(System.Text.Encodings.Web.JavaScriptEnc
             </text>
         }
 
+        // Make ministry dropdown readonly for ministry users
+        var isMinistryUser = @Html.Raw(Json.Serialize(ViewBag.IsMinistryUser ?? false));
+
         // Handle ministry dropdown selection
         $('.ministry-item').click(function(e) {
             e.preventDefault();
+            if (isMinistryUser) return;
             const ministryCode = $(this).data('ministry-code');
             const ministryName = $(this).data('ministry-name');
             const ministryLogo = $(this).data('ministry-logo');
@@ -1473,15 +1477,13 @@ projectManagerMustBeSelected: '@Html.Raw(System.Text.Encodings.Web.JavaScriptEnc
             }
         }
 
-        // Make ministry dropdown readonly for ministry users
-        var isMinistryUser = @Html.Raw(Json.Serialize(ViewBag.IsMinistryUser ?? false));
         if (isMinistryUser) {
-            // Add readonly styling and prevent changes
-            $('#ministrySelect').css({
+            // Lock the visible dropdown button so it can't be opened/changed
+            $('#ministryDropdown').prop('disabled', true).css({
                 'background-color': '#e9ecef',
                 'cursor': 'not-allowed',
                 'pointer-events': 'none'
-            }).addClass('readonly-select');
+            });
 
             // Also add a visual indicator
             $('#ministrySelect').closest('.mb-4').append(

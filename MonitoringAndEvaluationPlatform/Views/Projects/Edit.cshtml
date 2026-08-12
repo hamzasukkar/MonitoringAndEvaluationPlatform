@@ -1053,6 +1053,7 @@
     // Localized strings for JavaScript
     const localizedStrings = {
         select: '@Html.Raw(System.Text.Encodings.Web.JavaScriptEncoder.Default.Encode(Localizer["Select"].Value))',
+        ministryAutoAssigned: '@Html.Raw(System.Text.Encodings.Web.JavaScriptEncoder.Default.Encode(Localizer["Ministry is automatically assigned based on your account"].Value))',
         clear: '@Html.Raw(System.Text.Encodings.Web.JavaScriptEncoder.Default.Encode(Localizer["Clear"].Value))',
         pleaseSelectAllLocationLevels: '@Html.Raw(System.Text.Encodings.Web.JavaScriptEncoder.Default.Encode(Localizer["Please select all location levels."].Value))',
         locationAlreadyAdded: '@Html.Raw(System.Text.Encodings.Web.JavaScriptEncoder.Default.Encode(Localizer["This location has already been added."].Value))',
@@ -1526,9 +1527,13 @@
             $("#entireCountryCheckbox").trigger('change');
         }
 
+        // Make ministry dropdown readonly for ministry users
+        var isMinistryUser = @Html.Raw(Json.Serialize(ViewBag.IsMinistryUser ?? false));
+
         // Handle ministry dropdown selection
         $('.ministry-item').click(function(e) {
             e.preventDefault();
+            if (isMinistryUser) return;
             const ministryCode = $(this).data('ministry-code');
             const ministryName = $(this).data('ministry-name');
             const ministryLogo = $(this).data('ministry-logo');
@@ -1592,8 +1597,6 @@
             }
         }
 
-        // Disable ministry dropdown for ministry users
-        var isMinistryUser = @Html.Raw(Json.Serialize(ViewBag.IsMinistryUser ?? false));
         if (isMinistryUser) {
             $('#ministryDropdown').prop('disabled', true);
             $('#ministryDropdown').css({
@@ -1601,6 +1604,11 @@
                 'cursor': 'not-allowed',
                 'pointer-events': 'none'
             });
+
+            // Also add a visual indicator
+            $('#ministrySelect').closest('.mb-4').append(
+                '<small class="form-text text-muted"><i class="fas fa-lock me-1"></i>' + localizedStrings.ministryAutoAssigned + '</small>'
+            );
         }
     });
 

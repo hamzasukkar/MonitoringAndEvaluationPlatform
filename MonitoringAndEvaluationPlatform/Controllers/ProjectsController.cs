@@ -1428,13 +1428,34 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             );
 
             var allMinistries = await _context.Ministries.ToListAsync();
+
+            // Get the logged-in user for ministry check
+            var user = await _userManager.GetUserAsync(User);
+            bool isMinistryUser = false;
+
+            // Check if the user is associated with a Ministry (and not SystemAdministrator)
+            if (user?.MinistryName != null && !User.IsInRole(UserRoles.SystemAdministrator))
+            {
+                var userMinistry = allMinistries.FirstOrDefault(m => m.MinistryDisplayName_AR == user.MinistryName || m.MinistryDisplayName_EN == user.MinistryName || m.MinistryUserName == user.MinistryName);
+                if (userMinistry != null)
+                {
+                    isMinistryUser = true;
+                    // For ministry users, ensure the ministry code is set to their ministry
+                    project.MinistryCode = userMinistry.Code;
+                }
+            }
+
             ViewBag.MinistryList = new SelectList(
                 allMinistries,
                 "Code",
                 isArabic ? "MinistryDisplayName_AR" : "MinistryDisplayName_EN",
                 project.MinistryCode
             );
+            ViewBag.Ministries = allMinistries; // Drives the rich dropdown items (with logo) in Edit.cshtml
 
+            // Pass ministry user info to the view
+            ViewBag.IsMinistryUser = isMinistryUser;
+            ViewBag.UserMinistryCode = isMinistryUser ? project.MinistryCode : null;
 
             ViewBag.ProjectManager = new SelectList(await _context.ProjectManagers.ToListAsync(), "Code", "Name", project.ProjectManagerCode);
             ViewBag.SuperVisor = new SelectList(await _context.SuperVisors.ToListAsync(), "Code", "Name", project.SuperVisorCode);
